@@ -1,0 +1,69 @@
+object Test {
+  ("a": "a") match { case a => Set.empty["a"] + a }
+}
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            TypedExpression
+              StringLiteral
+                PsiElement(string content)('"a"')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              LiteralType: "a"
+                StringLiteral
+                  PsiElement(string content)('"a"')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ReferencePattern: a
+                PsiElement(identifier)('a')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                InfixExpression
+                  GenericCall
+                    ReferenceExpression: Set.empty
+                      ReferenceExpression: Set
+                        PsiElement(identifier)('Set')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('empty')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        LiteralType: "a"
+                          StringLiteral
+                            PsiElement(string content)('"a"')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: +
+                    PsiElement(identifier)('+')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,310 @@
+trait F[-R]
+
+trait Row[A]
+
+def eliminateInt[R](f: F[R & Row[Int]]): F[R] = new F[R] {}
+
+val x = new F[Row[Int] & Row[String]] {}
+
+val _ = eliminateInt[Row[String]](x) // compiles OK when given explicit type
+val y = eliminateInt(x) // was error
+val _: F[Row[String]] = y
+-----
+ScalaFile
+  ScTrait: F
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('F')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('R')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: Row
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Row')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: eliminateInt
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('eliminateInt')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: F[R & Row[Int]]
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: R & Row[Int]
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Row[Int]
+                      SimpleType: Row
+                        CodeReferenceElement: Row
+                          PsiElement(identifier)('Row')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: F[R]
+      SimpleType: F
+        CodeReferenceElement: F
+          PsiElement(identifier)('F')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: R
+            CodeReferenceElement: R
+              PsiElement(identifier)('R')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: F[R]
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: F[Row[Int] & Row[String]]
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: Row[Int] & Row[String]
+                    ParametrizedType: Row[Int]
+                      SimpleType: Row
+                        CodeReferenceElement: Row
+                          PsiElement(identifier)('Row')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Row[String]
+                      SimpleType: Row
+                        CodeReferenceElement: Row
+                          PsiElement(identifier)('Row')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      GenericCall
+        ReferenceExpression: eliminateInt
+          PsiElement(identifier)('eliminateInt')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            ParametrizedType: Row[String]
+              SimpleType: Row
+                CodeReferenceElement: Row
+                  PsiElement(identifier)('Row')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement(])(']')
+          PsiElement(])(']')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: x
+          PsiElement(identifier)('x')
+        PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// compiles OK when given explicit type')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: y
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: y
+        PsiElement(identifier)('y')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: eliminateInt
+        PsiElement(identifier)('eliminateInt')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: x
+          PsiElement(identifier)('x')
+        PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// was error')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: F[Row[String]]
+      SimpleType: F
+        CodeReferenceElement: F
+          PsiElement(identifier)('F')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: Row[String]
+            SimpleType: Row
+              CodeReferenceElement: Row
+                PsiElement(identifier)('Row')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: y
+      PsiElement(identifier)('y')

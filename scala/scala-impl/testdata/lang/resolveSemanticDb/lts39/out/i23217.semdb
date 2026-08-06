@@ -1,0 +1,39 @@
+Document tests/pos/i23217.scala
+(2:12..2:13) _empty_/HasA#[T] -> 1:12
+(5:15..5:19) _empty_/HasA# -> 1:7
+(5:27..5:28) _empty_/Test1.foo1().(h) -> 5:12
+(5:29..5:30) _empty_/HasA#A# -> 2:8
+(5:33..5:37) scala/Unit#
+(7:16..7:20) _empty_/HasA# -> 1:7
+(7:29..7:31) _empty_/Test1.foo2().(h1) -> 7:12
+(7:32..7:33) _empty_/HasA#A# -> 2:8
+(7:36..7:40) scala/Unit#
+(8:5..8:9) _empty_/Test1.foo1(). -> 5:7
+(8:10..8:12) _empty_/Test1.foo2().(h1) -> 7:12
+(8:14..8:16) _empty_/Test1.foo2().(a1) -> 7:25
+(10:16..10:20) _empty_/HasA# -> 1:7
+(10:29..10:31) _empty_/Test1.foo3().(h1) -> 10:12
+(10:32..10:33) _empty_/HasA#A# -> 2:8
+(10:36..10:40) scala/Unit#
+(11:5..11:9) _empty_/Test1.foo1(). -> 5:7
+(11:10..11:12) _empty_/Test1.foo3().(h1) -> 10:12
+(11:14..11:16) _empty_/Test1.foo3().(a1) -> 10:25
+(14:15..14:19) _empty_/HasA# -> 1:7
+(14:27..14:28) _empty_/Test2.bar1().(h) -> 14:12
+(14:29..14:30) _empty_/HasA#A# -> 2:8
+(14:33..14:37) scala/Unit#
+(16:16..16:20) _empty_/HasA# -> 1:7
+(16:29..16:31) _empty_/Test2.bar2().(h1) -> 16:12
+(16:32..16:33) _empty_/HasA#A# -> 2:8
+(16:36..16:40) scala/Unit#
+(17:5..17:9) _empty_/Test2.bar1(). -> 14:7
+(17:10..17:12) _empty_/Test2.bar2().(h1) -> 16:12
+(17:14..17:16) _empty_/Test2.bar2().(a1) -> 16:25
+(19:16..19:20) _empty_/HasA# -> 1:7
+(19:29..19:31) _empty_/Test2.foo3().(h1) -> 19:12
+(19:32..19:33) _empty_/HasA#A# -> 2:8
+(19:36..19:40) scala/Unit#
+(20:5..20:9) _empty_/Test2.bar2(). -> 16:7
+(20:10..20:12) _empty_/Test2.foo3().(h1) -> 19:12
+(20:14..20:16) _empty_/Test2.foo3().(a1) -> 19:25
+

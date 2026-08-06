@@ -1,0 +1,52 @@
+Document tests/pos/patterns.scala
+(5:23..5:24) _empty_/Some#[a] -> 5:17
+(5:34..5:40) _empty_/Option# -> 3:7
+(5:41..5:42) _empty_/Some#[a] -> 5:17
+(6:28..6:34) scala/Predef.String#
+(6:45..6:46) java/lang/String#`+`().
+(6:47..6:48) _empty_/Some#x. -> 5:20
+(6:49..6:50) java/lang/String#`+`().
+(7:29..7:32) scala/Any#
+(7:35..7:42) scala/Boolean#
+(7:45..7:49) _empty_/Some#equals().(that) -> 7:23
+(8:10..8:14) _empty_/Some.
+(8:26..8:27) _empty_/Some#x. -> 5:20
+(8:28..8:30) scala/Any#`==`().
+(8:31..8:32) local1 -> 8:15
+(11:28..11:31) scala/Int#
+(11:34..11:42) scala/Any#getClass().
+(11:45..11:53) scala/Any#hashCode().
+(11:56..11:57) scala/Int#`*`(+3).
+(11:61..11:62) scala/Int#`+`(+4).
+(11:63..11:64) _empty_/Some#x. -> 5:20
+(11:65..11:73) scala/Any#hashCode().
+(14:26..14:32) _empty_/Option# -> 3:7
+(14:33..14:40) scala/Nothing#
+(15:28..15:34) scala/Predef.String#
+(16:29..16:32) scala/Any#
+(16:36..16:40) _empty_/None.equals().(that) -> 16:23
+(17:10..17:14) _empty_/None. -> 14:13
+(20:28..20:31) scala/Int#
+(20:34..20:42) scala/Any#getClass().
+(20:45..20:53) scala/Any#hashCode().
+(25:20..25:26) scala/Predef.String#
+(25:29..25:33) scala/Unit#
+(25:36..25:40) java/
+(25:41..25:45) java/lang/
+(25:46..25:52) java/lang/System#
+(25:53..25:56) java/lang/System#out.
+(25:57..25:64) java/io/PrintStream#println(+8).
+(25:65..25:68) _empty_/test.println().(str) -> 25:15
+(27:18..27:24) _empty_/Option# -> 3:7
+(27:25..27:31) scala/Predef.String#
+(27:36..27:39) _empty_/test.print().(opt) -> 27:13
+(28:10..28:14) _empty_/Some.
+(28:21..28:28) _empty_/test.println(). -> 25:7
+(28:29..28:30) local2 -> 28:15
+(29:10..29:14) _empty_/None. -> 14:13
+(29:18..29:25) _empty_/test.println(). -> 25:7
+(36:16..36:19) scala/Any#
+(36:26..36:27) _empty_/John#filter().(x) -> 36:14
+(37:12..37:14) scala/package.`::`.
+(38:20..38:26) scala/Predef.String#
+

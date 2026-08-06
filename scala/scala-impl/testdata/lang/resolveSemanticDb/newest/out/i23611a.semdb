@@ -1,0 +1,95 @@
+Document tests/pos/i23611a.scala
+(1:8..1:12) java/
+(1:13..1:15) java/io/
+(1:17..1:21) java/io/File#
+(1:23..1:34) java/io/IOException#
+(2:8..2:12) java/
+(2:13..2:16) java/net/
+(2:17..2:20) java/net/URI#
+(3:8..3:12) java/
+(3:13..3:16) java/nio/
+(3:17..3:21) java/nio/file/
+(3:23..3:27) java/nio/file/Path#
+(3:29..3:34) java/nio/file/Paths#
+(4:8..4:13) scala/
+(4:14..4:21) scala/reflect/
+(4:22..4:30) scala/reflect/ClassTag#
+(4:22..4:30) scala/reflect/ClassTag.
+(7:25..7:29) java/nio/file/Path#
+(7:32..7:39) _empty_/ZStream# -> 27:14
+(7:40..7:43) scala/Any#
+(7:45..7:56) java/io/IOException#
+(7:58..7:62) java/nio/file/Path#
+(9:31..9:35) java/io/File#
+(9:38..9:45) _empty_/ZStream# -> 27:14
+(9:46..9:49) scala/Any#
+(9:51..9:62) java/io/IOException#
+(9:64..9:68) java/io/File#
+(11:20..11:32) scala/Any#asInstanceOf().
+(11:33..11:40) _empty_/ZStream# -> 27:14
+(11:41..11:44) scala/Any#
+(11:46..11:57) java/io/IOException#
+(11:59..11:63) java/nio/file/Path#
+(12:15..12:23) _empty_/FileConnectors#listPath(). -> 7:7
+(12:24..12:28) local0 -> 11:7
+(12:30..12:36) _empty_/ZStream#mapZIO(). -> 30:7
+(12:42..12:45) _empty_/ZIO. -> 24:8
+(12:46..12:53) _empty_/ZIO.attempt(). -> 25:7
+(12:54..12:55) local1 -> 12:37
+(12:56..12:62) java/nio/file/Path#toFile().
+(12:64..12:77) _empty_/i23611a$package.refineToOrDie(). -> 22:7
+(13:13..13:14) local2 -> 12:7
+(18:14..18:21) _empty_/CanFail# -> 16:23
+(18:22..18:23) _empty_/CanFail.given_CanFail_E().[E] -> 18:10
+(18:27..18:30) scala/Predef.`???`().
+(21:20..21:29) scala/package.Throwable#
+(21:40..21:43) _empty_/ZIO# -> 20:14
+(21:44..21:45) _empty_/i23611a$package.refineToOrDie().[R] -> 21:12
+(21:47..21:48) _empty_/i23611a$package.refineToOrDie().[E] -> 21:15
+(21:50..21:51) _empty_/i23611a$package.refineToOrDie().[A] -> 21:31
+(22:27..22:28) _empty_/i23611a$package.refineToOrDie().[E] -> 21:15
+(22:30..22:38) _empty_/i23611a$package.refineToOrDie().[E1] -> 22:21
+(22:30..22:38) scala/reflect/ClassTag#
+(22:46..22:53) _empty_/CanFail# -> 16:23
+(22:54..22:55) _empty_/i23611a$package.refineToOrDie().[E] -> 21:15
+(22:59..22:62) _empty_/ZIO# -> 20:14
+(22:63..22:64) _empty_/i23611a$package.refineToOrDie().[R] -> 21:12
+(22:66..22:68) _empty_/i23611a$package.refineToOrDie().[E1] -> 22:21
+(22:70..22:71) _empty_/i23611a$package.refineToOrDie().[A] -> 21:31
+(22:75..22:78) scala/Predef.`???`().
+(25:27..25:28) _empty_/ZIO.attempt().[A] -> 25:15
+(25:31..25:34) _empty_/ZIO# -> 20:14
+(25:35..25:38) scala/Any#
+(25:40..25:49) scala/package.Throwable#
+(25:51..25:52) _empty_/ZIO.attempt().[A] -> 25:15
+(25:56..25:59) scala/Predef.`???`().
+(28:17..28:18) _empty_/ZStream#[A] -> 27:31
+(28:22..28:23) _empty_/ZStream#map().[B] -> 28:11
+(28:26..28:33) _empty_/ZStream# -> 27:14
+(28:34..28:35) _empty_/ZStream#[R] -> 27:23
+(28:37..28:38) _empty_/ZStream#[E] -> 27:27
+(28:40..28:41) _empty_/ZStream#map().[B] -> 28:11
+(28:45..28:48) scala/Predef.`???`().
+(29:21..29:22) _empty_/ZStream#[R] -> 27:23
+(29:30..29:31) _empty_/ZStream#[E] -> 27:27
+(29:39..29:40) _empty_/ZStream#[A] -> 27:31
+(29:44..29:51) _empty_/ZStream# -> 27:14
+(29:52..29:54) _empty_/ZStream#flatMap().[R1] -> 29:15
+(29:56..29:58) _empty_/ZStream#flatMap().[E1] -> 29:24
+(29:60..29:61) _empty_/ZStream#flatMap().[B] -> 29:33
+(29:65..29:72) _empty_/ZStream# -> 27:14
+(29:73..29:75) _empty_/ZStream#flatMap().[R1] -> 29:15
+(29:77..29:79) _empty_/ZStream#flatMap().[E1] -> 29:24
+(29:81..29:82) _empty_/ZStream#flatMap().[B] -> 29:33
+(30:20..30:21) _empty_/ZStream#[R] -> 27:23
+(30:29..30:30) _empty_/ZStream#[E] -> 27:27
+(30:39..30:40) _empty_/ZStream#[A] -> 27:31
+(30:44..30:47) _empty_/ZIO# -> 20:14
+(30:48..30:50) _empty_/ZStream#mapZIO().[R1] -> 30:14
+(30:52..30:54) _empty_/ZStream#mapZIO().[E1] -> 30:23
+(30:56..30:58) _empty_/ZStream#mapZIO().[A1] -> 30:32
+(30:62..30:69) _empty_/ZStream# -> 27:14
+(30:70..30:72) _empty_/ZStream#mapZIO().[R1] -> 30:14
+(30:74..30:76) _empty_/ZStream#mapZIO().[E1] -> 30:23
+(30:78..30:80) _empty_/ZStream#mapZIO().[A1] -> 30:32
+

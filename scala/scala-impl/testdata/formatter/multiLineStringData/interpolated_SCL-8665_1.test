@@ -1,0 +1,21 @@
+def attrStr(attr: (Attribute, Metadata)) = attr match {
+  case (attr: ImmutableAttribute, meta) =>
+    s"""|<attribute mnemonic="${attr.mnemonic.name}" descriptor="${attr.descriptor.name}" ${rangeStr(attr.range)} identity="${idStr(attr.identity)}">
+        |${metaStr(defaultMetadata.immutableAttrs, meta)}
+        |</attribute>"""
+  case (attr: MutableAttribute, meta) =>
+    s"""|<attribute mnemonic="${attr.mnemonic.name}" descriptor="${attr.descriptor.name}" timeRange="${trStr(attr.timeRange)}" ${rangeStr(attr.range)} identity="${idStr(attr.identity)}">
+        |${metaStr(defaultMetadata.mutableAttrs, meta)}
+        |</attribute>"""
+}
+-----
+def attrStr(attr: (Attribute, Metadata)) = attr match {
+  case (attr: ImmutableAttribute, meta) =>
+    s"""|<attribute mnemonic="${attr.mnemonic.name}" descriptor="${attr.descriptor.name}" ${rangeStr(attr.range)} identity="${idStr(attr.identity)}">
+        |${metaStr(defaultMetadata.immutableAttrs, meta)}
+        |</attribute>"""
+  case (attr: MutableAttribute, meta) =>
+    s"""|<attribute mnemonic="${attr.mnemonic.name}" descriptor="${attr.descriptor.name}" timeRange="${trStr(attr.timeRange)}" ${rangeStr(attr.range)} identity="${idStr(attr.identity)}">
+        |${metaStr(defaultMetadata.mutableAttrs, meta)}
+        |</attribute>"""
+}

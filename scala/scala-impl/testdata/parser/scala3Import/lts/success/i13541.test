@@ -1,0 +1,293 @@
+trait F[A]
+trait Z
+object Z:
+  given F[Z] = ???
+
+type Foo[B] = [A] =>> Bar[A, B]
+trait Bar[A, B]
+
+given fooUnit[A: F]: Foo[Unit][A] = ???
+//given bar[A: F]: Bar[A, Unit] = ???
+
+def f[A: F](using Foo[Unit][A]): Nothing = ???
+
+def broken: Nothing = f[Z]
+-----
+ScalaFile
+  ScTrait: F
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('F')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Z
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Z')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Z
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Z')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: given_F_Z
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ParametrizedType: F[Z]
+            SimpleType: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Z
+                  CodeReferenceElement: Z
+                    PsiElement(identifier)('Z')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TypeLambda: [A] =>> Bar[A, B]
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: A
+          PsiElement(identifier)('A')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>>)('=>>')
+      PsiWhiteSpace(' ')
+      ParametrizedType: Bar[A, B]
+        SimpleType: Bar
+          CodeReferenceElement: Bar
+            PsiElement(identifier)('Bar')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          TypeArgument
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+          PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTrait: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: fooUnit
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('fooUnit')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ScContextBoundImpl(context bound)
+          SimpleType: F
+            CodeReferenceElement: F
+              PsiElement(identifier)('F')
+      PsiElement(])(']')
+    PsiElement(:)(':')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    ParametrizedType: Foo[Unit][A]
+      ParametrizedType: Foo[Unit]
+        SimpleType: Foo
+          CodeReferenceElement: Foo
+            PsiElement(identifier)('Foo')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+          PsiElement(])(']')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//given bar[A: F]: Bar[A, Unit] = ???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ScContextBoundImpl(context bound)
+          SimpleType: F
+            CodeReferenceElement: F
+              PsiElement(identifier)('F')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            ParametrizedType: Foo[Unit][A]
+              ParametrizedType: Foo[Unit]
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+                  PsiElement(])(']')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Nothing
+      CodeReferenceElement: Nothing
+        PsiElement(identifier)('Nothing')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: broken
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('broken')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Nothing
+      CodeReferenceElement: Nothing
+        PsiElement(identifier)('Nothing')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: f
+        PsiElement(identifier)('f')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Z
+            CodeReferenceElement: Z
+              PsiElement(identifier)('Z')
+        PsiElement(])(']')

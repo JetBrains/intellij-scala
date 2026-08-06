@@ -1,0 +1,12 @@
+Document tests/pos/packageobjs.scala
+(2:17..2:20) scala/Int#
+(2:25..2:29) scala/Unit#
+(2:32..2:36) scala/Unit#
+(3:17..3:20) scala/Int#
+(3:22..3:25) scala/Int#
+(3:30..3:34) scala/Unit#
+(3:37..3:41) scala/Unit#
+(7:5..7:16) overloading/
+(7:17..7:20) overloading/package.bar(). -> 2:9
+(7:26..7:29) scala/Int#
+

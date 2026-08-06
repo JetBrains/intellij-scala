@@ -1,0 +1,597 @@
+import scala.compiletime.constValueTuple
+
+val ll0: Tuple3["one", "two", "three"] = constValueTuple[("one", "two", "three")]
+val ll1 = constValueTuple[("one", "two", "three")].toList
+val ll3: List["one" | ("two" | ("three" | Nothing))] = constValueTuple[("one", "two", "three")].toList
+val ll4: List["one" | ("two" | "three")] = constValueTuple[("one", "two", "three")].toList
+
+inline def labels[Labels <: Tuple](using ev: Tuple.Union[Labels] <:< String): List[String] =
+  val tmp = constValueTuple[Labels].toList
+  ev.substituteCo(tmp)
+
+def test = labels[("one", "two", "three")]
+
+def toList(x: Tuple): List[Tuple.Union[x.type]] = ???
+def test2[Labels <: Tuple] = toList((???): Labels)
+
+def i16654 =
+  def t1: Tuple = EmptyTuple
+  val t2 = t1.toList
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.constValueTuple
+        CodeReferenceElement: scala.compiletime
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('compiletime')
+        PsiElement(.)('.')
+        PsiElement(identifier)('constValueTuple')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: ll0
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: ll0
+        PsiElement(identifier)('ll0')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Tuple3["one", "two", "three"]
+      SimpleType: Tuple3
+        CodeReferenceElement: Tuple3
+          PsiElement(identifier)('Tuple3')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          LiteralType: "one"
+            StringLiteral
+              PsiElement(string content)('"one"')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          LiteralType: "two"
+            StringLiteral
+              PsiElement(string content)('"two"')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          LiteralType: "three"
+            StringLiteral
+              PsiElement(string content)('"three"')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: constValueTuple
+        PsiElement(identifier)('constValueTuple')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          TupleType: ("one", "two", "three")
+            PsiElement(()('(')
+            TypesList
+              LiteralType: "one"
+                StringLiteral
+                  PsiElement(string content)('"one"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "two"
+                StringLiteral
+                  PsiElement(string content)('"two"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "three"
+                StringLiteral
+                  PsiElement(string content)('"three"')
+            PsiElement())(')')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: ll1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: ll1
+        PsiElement(identifier)('ll1')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: constValueTuple[("one", "two", "three")].toList
+      GenericCall
+        ReferenceExpression: constValueTuple
+          PsiElement(identifier)('constValueTuple')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            TupleType: ("one", "two", "three")
+              PsiElement(()('(')
+              TypesList
+                LiteralType: "one"
+                  StringLiteral
+                    PsiElement(string content)('"one"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "two"
+                  StringLiteral
+                    PsiElement(string content)('"two"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "three"
+                  StringLiteral
+                    PsiElement(string content)('"three"')
+              PsiElement())(')')
+          PsiElement(])(']')
+      PsiElement(.)('.')
+      PsiElement(identifier)('toList')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: ll3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: ll3
+        PsiElement(identifier)('ll3')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List["one" | ("two" | ("three" | Nothing))]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: "one" | ("two" | ("three" | Nothing))
+            LiteralType: "one"
+              StringLiteral
+                PsiElement(string content)('"one"')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: ("two" | ("three" | Nothing))
+              PsiElement(()('(')
+              InfixType: "two" | ("three" | Nothing)
+                LiteralType: "two"
+                  StringLiteral
+                    PsiElement(string content)('"two"')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                TypeInParenthesis: ("three" | Nothing)
+                  PsiElement(()('(')
+                  InfixType: "three" | Nothing
+                    LiteralType: "three"
+                      StringLiteral
+                        PsiElement(string content)('"three"')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Nothing
+                      CodeReferenceElement: Nothing
+                        PsiElement(identifier)('Nothing')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: constValueTuple[("one", "two", "three")].toList
+      GenericCall
+        ReferenceExpression: constValueTuple
+          PsiElement(identifier)('constValueTuple')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            TupleType: ("one", "two", "three")
+              PsiElement(()('(')
+              TypesList
+                LiteralType: "one"
+                  StringLiteral
+                    PsiElement(string content)('"one"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "two"
+                  StringLiteral
+                    PsiElement(string content)('"two"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "three"
+                  StringLiteral
+                    PsiElement(string content)('"three"')
+              PsiElement())(')')
+          PsiElement(])(']')
+      PsiElement(.)('.')
+      PsiElement(identifier)('toList')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: ll4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: ll4
+        PsiElement(identifier)('ll4')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List["one" | ("two" | "three")]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: "one" | ("two" | "three")
+            LiteralType: "one"
+              StringLiteral
+                PsiElement(string content)('"one"')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: ("two" | "three")
+              PsiElement(()('(')
+              InfixType: "two" | "three"
+                LiteralType: "two"
+                  StringLiteral
+                    PsiElement(string content)('"two"')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                LiteralType: "three"
+                  StringLiteral
+                    PsiElement(string content)('"three"')
+              PsiElement())(')')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: constValueTuple[("one", "two", "three")].toList
+      GenericCall
+        ReferenceExpression: constValueTuple
+          PsiElement(identifier)('constValueTuple')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            TupleType: ("one", "two", "three")
+              PsiElement(()('(')
+              TypesList
+                LiteralType: "one"
+                  StringLiteral
+                    PsiElement(string content)('"one"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "two"
+                  StringLiteral
+                    PsiElement(string content)('"two"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "three"
+                  StringLiteral
+                    PsiElement(string content)('"three"')
+              PsiElement())(')')
+          PsiElement(])(']')
+      PsiElement(.)('.')
+      PsiElement(identifier)('toList')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: labels
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('labels')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Labels
+        PsiElement(identifier)('Labels')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: ev
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('ev')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            InfixType: Tuple.Union[Labels] <:< String
+              ParametrizedType: Tuple.Union[Labels]
+                SimpleType: Tuple.Union
+                  CodeReferenceElement: Tuple.Union
+                    CodeReferenceElement: Tuple
+                      PsiElement(identifier)('Tuple')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Union')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Labels
+                      CodeReferenceElement: Labels
+                        PsiElement(identifier)('Labels')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: <:<
+                PsiElement(identifier)('<:<')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List[String]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: tmp
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: tmp
+            PsiElement(identifier)('tmp')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: constValueTuple[Labels].toList
+          GenericCall
+            ReferenceExpression: constValueTuple
+              PsiElement(identifier)('constValueTuple')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Labels
+                  CodeReferenceElement: Labels
+                    PsiElement(identifier)('Labels')
+              PsiElement(])(']')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toList')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: ev.substituteCo
+          ReferenceExpression: ev
+            PsiElement(identifier)('ev')
+          PsiElement(.)('.')
+          PsiElement(identifier)('substituteCo')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: tmp
+            PsiElement(identifier)('tmp')
+          PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: labels
+        PsiElement(identifier)('labels')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          TupleType: ("one", "two", "three")
+            PsiElement(()('(')
+            TypesList
+              LiteralType: "one"
+                StringLiteral
+                  PsiElement(string content)('"one"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "two"
+                StringLiteral
+                  PsiElement(string content)('"two"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              LiteralType: "three"
+                StringLiteral
+                  PsiElement(string content)('"three"')
+            PsiElement())(')')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: toList
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('toList')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Tuple
+              CodeReferenceElement: Tuple
+                PsiElement(identifier)('Tuple')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List[Tuple.Union[x.type]]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: Tuple.Union[x.type]
+            SimpleType: Tuple.Union
+              CodeReferenceElement: Tuple.Union
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Union')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: x.type
+                  CodeReferenceElement: x
+                    PsiElement(identifier)('x')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+              PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: test2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Labels
+        PsiElement(identifier)('Labels')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: toList
+        PsiElement(identifier)('toList')
+      ArgumentList
+        PsiElement(()('(')
+        TypedExpression
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+            PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Labels
+            CodeReferenceElement: Labels
+              PsiElement(identifier)('Labels')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: i16654
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('i16654')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScFunctionDefinition: t1
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('t1')
+        Parameters
+          <empty list>
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: EmptyTuple
+          PsiElement(identifier)('EmptyTuple')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: t2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: t2
+            PsiElement(identifier)('t2')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: t1.toList
+          ReferenceExpression: t1
+            PsiElement(identifier)('t1')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toList')

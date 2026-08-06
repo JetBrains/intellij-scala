@@ -1,0 +1,6 @@
+//Ints
+object My {
+  val t: <selection>List</selection>[Int] = List(4)
+}
+-------------
+Expression or type element should be selected

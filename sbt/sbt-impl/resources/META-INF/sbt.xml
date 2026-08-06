@@ -1,0 +1,255 @@
+<idea-plugin>
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.intellij.sbt.configurationDetailsExtractor"
+                        interface="org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationDetailsExtractor"
+                        dynamic="true"/>
+        <extensionPoint qualifiedName="com.intellij.newProjectWizard.scala.buildSystem" interface="org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.autolink.SbtUnlinkedProjectAwareHelper" dynamic="true"/>
+        <extensionPoint qualifiedName="org.jetbrains.sbt.buildToolModuleHandler" interface="org.jetbrains.sbt.project.BuildToolModuleHandler" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="org.intellij">
+        <sbt.buildModuleUriProvider implementation="org.jetbrains.sbt.project.SbtSbtBuildModuleUriProvider"/>
+        <sbt.sbtVersionProvider implementation="org.jetbrains.sbt.project.SbtSbtVersionProvider"/>
+    </extensions>
+
+    <!--suppress PluginXmlValidity -->
+    <projectListeners>
+        <listener class="org.jetbrains.sbt.project.UpdateConfigurationImportListener"
+                  topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
+        <listener class="org.jetbrains.sbt.project.SeparateMainTestModulesNotificationListener"
+                  topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
+        <listener class="org.jetbrains.sbt.project.GeneratedManagedSourcesImportListener"
+                  topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
+        <listener class="org.jetbrains.sbt.project.LegacyModulesLayoutNotifications$LegacyModulesLayoutNotificationListener"
+                  topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
+
+        <listener topic="com.intellij.openapi.roots.ModuleRootListener"
+                  class="org.jetbrains.sbt.project.SbtProjectImportStateModuleRootListener"/>
+
+        <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
+                  class="org.jetbrains.sbt.project.versionNotifications.LegacySbtVersionProjectNotification$MyDumbModeListener"/>
+    </projectListeners>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
+        <lang.parserDefinition language="sbt Scala 3" implementationClass="org.jetbrains.sbt.language.SbtParserDefinitionScala3"/>
+        <lang.substitutor language="sbt" implementationClass="org.jetbrains.sbt.language.SbtLanguageSubstitutor"/>
+        <lang.fileViewProviderFactory language="sbt"
+                                      implementationClass="org.jetbrains.sbt.language.SbtFileViewProviderFactory"/>
+        <fileType name="sbt" language="sbt" extensions="sbt"
+                  implementationClass="org.jetbrains.sbt.language.SbtFileType$" fieldName="MODULE$"/>
+        <fileType name="sbtShell" language="sbtShell" extensions="sbts"
+                  implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition$SbtShellFileType$"
+                  fieldName="MODULE$"/>
+        <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator"/>
+        <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtScalacOptionsDocumentationProvider"/>
+        <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="before ScalaDocumentationProvider"/>
+        <lang.parserDefinition language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition"/>
+
+        <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
+
+        <moduleService serviceImplementation = "org.jetbrains.sbt.project.settings.SharedSourcesOwnerModules"/>
+        <moduleService serviceImplementation = "org.jetbrains.sbt.project.settings.DisplayModuleName"/>
+
+        <projectService serviceInterface="org.jetbrains.sbt.shell.communication.SbtShellCommandSubmitter"
+                        serviceImplementation="org.jetbrains.sbt.shell.SbtShellCommunication"/>
+
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleExtDataService" order="last"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtScalaSdkDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtNestedModuleDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.DisplayModuleNameDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtSourceSetDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtProjectDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtBuildModuleDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SharedSourcesOwnersDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtSettingDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtTaskDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtCommandDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
+
+        <externalWorkspaceDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataWorkspaceDataService"/>
+        <externalWorkspaceDataService implementation="org.jetbrains.sbt.project.data.service.SharedSourcesOwnersDataWorkspaceDataService"/>
+
+        <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
+        <externalSystemViewContributor implementation="org.jetbrains.sbt.project.SbtViewContributor"/>
+        <externalIconProvider key="SBT" implementationClass="org.jetbrains.sbt.SbtIconProvider"/>
+
+        <projectImportProvider implementation="org.jetbrains.sbt.project.SbtProjectImportProvider"/>
+        <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>
+
+        <projectOpenProcessor implementation="org.jetbrains.sbt.project.SbtProjectOpenProcessor"/>
+        <externalSystemUnlinkedProjectAware implementation="org.jetbrains.sbt.project.autolink.SbtUnlinkedProjectAware"/>
+        <externalTextProvider implementation="org.jetbrains.sbt.project.SbtTextProvider"/>
+
+        <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.module.SbtModuleEditorProvider"/>
+
+        <moduleType id="SHARED_SOURCES_MODULE" implementationClass="org.jetbrains.sbt.project.sources.SharedSourcesModuleType"/>
+        <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.sources.SharedSourcesModuleEditorProvider"/>
+
+        <!--suppress PluginXmlCapitalization -->
+        <projectConfigurable groupId="build.tools" bundle="messages.SbtBundle"
+                             key="displayname.sbt"
+                             instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable"/>
+
+        <toolWindow id="sbt" anchor="right"
+                    icon="/org/jetbrains/sbt/images/sbtToolwin.svg"
+                    factoryClass="org.jetbrains.sbt.project.SbtToolWindowFactory"/>
+
+        <toolWindow id="sbt-shell-toolwindow" anchor="bottom" canCloseContents="false"
+                    icon="/org/jetbrains/sbt/images/sbtShellToolwin.svg"
+                    factoryClass="org.jetbrains.sbt.shell.SbtShellToolWindowFactory"
+                    doNotActivateOnStart="true"/>
+        <externalSystemSettingsListener implementation="org.jetbrains.sbt.project.ShowSbtShellAfterCreatingNewProject"/>
+
+        <notificationGroup id="sbt.configuration.migration" displayType="STICKY_BALLOON" bundle="messages.SbtBundle" key="sbt.configuration.upgrade.id"/>
+        <notificationGroup id="sbt.legacy.version.detected" displayType="STICKY_BALLOON" bundle="messages.SbtBundle" key="sbt.notification.group.id.legacy.version.detected"/>
+        <notificationGroup id="sbt.legacy.modules.layout" displayType="STICKY_BALLOON" bundle="messages.SbtBundle" key="sbt.notification.group.id.legacy.modules.layout"/>
+        <notificationGroup id="sbt.main.test.modules.enabled" displayType="BALLOON" bundle="messages.SbtBundle" key="sbt.main.test.modules.enabled.id"/>
+
+        <psi.referenceContributor language="sbt" implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
+
+        <useScopeEnlarger implementation="org.jetbrains.sbt.language.psi.search.SbtBuildModuleUseScopeEnlarger"/>
+
+        <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.project.SbtNotificationListener"/>
+        <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
+                                order="first, before liveTemplates" id="sbtCompletionContributor"/>
+        <completion.contributor language="Scala"
+                                implementationClass="org.jetbrains.sbt.language.completion.SbtMavenPackageSearchDependencyCompletionContributor"
+                                order="first" id="sbtPackageSearchDependencyCompletionContributor"/>
+        <completion.contributor language="any"
+                                implementationClass="org.jetbrains.sbt.language.completion.ScalaVersionCompletionContributor"
+                                order="first, after ml_context" id="scalaVersionCompletionContributor"/>
+        <completion.contributor language="Scala"
+                                implementationClass="org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor"
+                                order="first, before scalaVersionCompletionContributor" id="sbtScalacOptionsCompletionContributor"/>
+        <completion.contributor language="Scala"
+                                implementationClass="org.jetbrains.sbt.language.completion.SbtScalacOptionArgumentsCompletionContributor"
+                                order="first, before sbtScalacOptionsCompletionContributor" id="sbtScalacOptionArgumentsCompletionContributor"/>
+        <completion.contributor language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellCompletionContributor"
+                                order="first"/>
+
+        <completion.confidence language="Scala" implementationClass="org.jetbrains.sbt.language.completion.EnableAutoPopupInDependencyStrings" order="first"/>
+        <completion.confidence language="Scala" implementationClass="org.jetbrains.sbt.language.completion.EnableAutoPopupInScalacOptionsStrings" order="first"/>
+
+        <typedHandler implementation="org.jetbrains.sbt.language.completion.ScalacOptionsAutoPopupCompletionHandler" order="first"/>
+
+        <search.topHitProvider implementation="org.jetbrains.sbt.SbtTopHitProvider"/>
+
+        <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
+                 id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher"/>
+
+        <createDirectoryCompletionContributor implementation="org.jetbrains.sbt.actions.SbtDirectoryCompletionContributor"/>
+
+        <defaultLiveTemplates file="liveTemplates/sbt"/>
+        <liveTemplateContext contextId="sbt"
+                             implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>
+
+        <!--suppress PluginXmlCapitalization -->
+        <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtReplaceProjectWithProjectInInspection"
+                         bundle="messages.SbtBundle"
+                         key="displayname.replace.project.with.project.in"
+                         groupKey="group.sbt"
+                         shortName="SbtReplaceProjectWithProjectIn"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
+
+        <!--Package Search inspections-->
+
+        <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection"
+                         bundle="messages.SbtBundle"
+                         key="packagesearch.dependency.version.inspection.description"
+                         shortName="SbtDependencyVersionInspection" groupKey="group.sbt"
+                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
+
+        <!--end of Package Search inspections-->
+
+        <configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>
+
+        <programRunner implementation="org.jetbrains.sbt.runner.SbtProgramRunner" order="first"/>
+        <programRunner implementation="org.jetbrains.sbt.runner.SbtDebugProgramRunner" order="first"/>
+
+        <projectTaskRunner implementation="org.jetbrains.sbt.shell.SbtProjectTaskRunnerImpl"/>
+
+        <runAnything.executionProvider implementation="org.jetbrains.sbt.SbtRunAnythingProvider"/>
+
+        <registryKey key="SBT.system.in.process" defaultValue="true" restartRequired="true"
+                     description="Internal, do not change"/>
+
+        <registryKey key="sbt.configuration.update.suggestion" defaultValue="true" restartRequired="false"
+                     description="If enabled, the information to update configurations is displayed as a suggestion and remains in the tool window until all configurations have been migrated."/>
+
+        <registryKey key="sbt.new.shell" defaultValue="false" restartRequired="false"
+                     description="If enabled, new, terminal-like sbt shell implementation is used. It will apply only to new shell instances and only with sbt >= 1.4.0."/>
+
+        <registryKey key="sbt.import.time.measurement" defaultValue="false" restartRequired="false"
+                     description="Internal. It doesn't work when import in the sbt shell is enabled.
+                     When enabled, the `-Dsbt.task.timings=true` option is passed to the sbt import process, causing sbt to output detailed timing information for each task execution.
+                     These timings are collected and aggregated into two files in the `.idea` directory: `sbt-import-history.txt` (raw timing data from each import) and `sbt-import-summary.txt` (aggregated statistics across all imports).
+                     When this registry is disabled `sbt-import-history.txt` and `sbt-import-summary.txt` files are deleted."/>
+
+        <registryKey key="sbt.shell.import.old" defaultValue="false" restartRequired="false"
+                     description="Use old sbt shell import mechanism with `set` command instead of modifying system properties."/>
+
+        <newProjectWizard.languageGenerator implementation="org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard"/>
+        <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.SbtScalaNewProjectWizard" />
+        <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.IntelliJScalaNewProjectWizard" />
+
+        <orderEnumerationHandlerFactory implementation="org.jetbrains.sbt.execution.SbtOrderEnumeratorHandlerFactory"/>
+
+        <problemHighlightFilter implementation="org.jetbrains.sbt.codeInsight.daemon.SbtProblemHighlightFilter"/>
+        <problemHighlightFilter implementation="org.jetbrains.sbt.codeInsight.daemon.SbtProjectImportStateProblemHighlightFilter"/>
+
+        <editorNotificationProvider implementation="org.jetbrains.sbt.project.SbtProjectImportStateNotificationProvider"/>
+        <editorNotificationProvider implementation="org.jetbrains.sbt.project.SetupScalaHighlightingNotificationProvider"/>
+
+        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtProjectManagerListener" />
+        <postStartupActivity implementation="org.jetbrains.sbt.project.versionNotifications.LegacySbtVersionProjectNotification$MyProjectActivity"/>
+        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtImportTimingFilesCleaner"/>
+    </extensions>
+
+    <actions>
+        <group id="ScalaGroup" popup="true" class="org.jetbrains.sbt.actions.ScalaActionsGroup" text="Scala">
+            <add-to-group group-id="ToolsMenu" anchor="before" relative-to-action="ExternalToolsGroup"/>
+        </group>
+
+        <action id="Scala.Sbt.MigrateConfigurations" class="org.jetbrains.sbt.project.SbtMigrateConfigurationsAction">
+                <add-to-group group-id="ScalaGroup"/>
+        </action>
+
+        <action id="Scala.Sbt.RunTask" class="org.jetbrains.sbt.shell.action.RunTaskAction"/>
+        <action id="Scala.Sbt.ShowTask" class="org.jetbrains.sbt.shell.action.ShowTaskAction"/>
+        <action id="Scala.Sbt.InspectTask" class="org.jetbrains.sbt.shell.action.InspectTaskAction"/>
+        <action id="Scala.Sbt.ShowSetting" class="org.jetbrains.sbt.shell.action.ShowSettingAction"/>
+        <action id="Scala.Sbt.InspectSetting" class="org.jetbrains.sbt.shell.action.InspectSettingAction"/>
+        <action id="Scala.Sbt.RunCommand" class="org.jetbrains.sbt.shell.action.RunCommandAction"/>
+        <action id="Scala.Sbt.Help" class="org.jetbrains.sbt.shell.action.SbtHelpAction"/>
+
+        <action id="Scala.Sbt.GenerateManagedSources" class="org.jetbrains.sbt.actions.SbtGenerateManagedSourcesAction">
+            <add-to-group group-id="ExternalSystemView.ActionsToolbar.SyncPanel" anchor="after" relative-to-action="ExternalSystem.RefreshAllProjects"/>
+        </action>
+
+        <group id="Scala.Sbt.TaskMenu" popup="true">
+            <reference ref="RunContextGroup"/>
+            <separator/>
+            <reference ref="Scala.Sbt.RunTask"/>
+            <reference ref="Scala.Sbt.ShowTask"/>
+            <reference ref="Scala.Sbt.InspectTask"/>
+            <reference ref="Scala.Sbt.Help"/>
+        </group>
+
+        <group id="Scala.Sbt.SettingMenu" popup="true">
+            <reference ref="RunContextGroup"/>
+            <separator/>
+            <reference ref="Scala.Sbt.ShowSetting"/>
+            <reference ref="Scala.Sbt.InspectSetting"/>
+            <reference ref="Scala.Sbt.Help"/>
+        </group>
+
+        <group id="Scala.Sbt.CommandMenu" popup="true">
+            <reference ref="RunContextGroup"/>
+            <separator/>
+            <reference ref="Scala.Sbt.RunCommand"/>
+            <reference ref="Scala.Sbt.Help"/>
+        </group>
+    </actions>
+</idea-plugin>

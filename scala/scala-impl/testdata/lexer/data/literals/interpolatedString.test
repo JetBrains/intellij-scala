@@ -1,0 +1,168 @@
+object A {
+  val a = s"blah blah"
+  val b = s"bla\nh bl\"ah $$"
+  val c = f"blah blah"
+  val d = s"balh blah $a $b"
+  val e = s"blah blah ${a.length + b.length}"
+  val f = f"$i%d"
+  val g = f"${a.length + b.length}%2d blah blah $$"
+
+  val h s"aaa ${List(1, 2, 3).foldLeft(1)(_ * _)} bbb"
+}
+-----
+object {object}
+white space in line { }
+identifier {A}
+white space in line { }
+{ {{}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {a}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {"blah blah}
+interpolated string end {"}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {b}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {"bla\nh bl\"ah }
+interpolated string escape {$$}
+interpolated string end {"}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {c}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {f}
+interpolated string {"blah blah}
+interpolated string end {"}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {d}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {"balh blah }
+interpolated string injection {$}
+identifier {a}
+interpolated string { }
+interpolated string injection {$}
+identifier {b}
+interpolated string end {"}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {e}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {"blah blah }
+interpolated string injection {$}
+{ {{}
+identifier {a}
+. {.}
+identifier {length}
+white space in line { }
+identifier {+}
+white space in line { }
+identifier {b}
+. {.}
+identifier {length}
+} {}}
+interpolated string end {"}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {f}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {f}
+interpolated string {"}
+interpolated string injection {$}
+identifier {i}
+interpolated string {%d}
+interpolated string end {"}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {g}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {f}
+interpolated string {"}
+interpolated string injection {$}
+{ {{}
+identifier {a}
+. {.}
+identifier {length}
+white space in line { }
+identifier {+}
+white space in line { }
+identifier {b}
+. {.}
+identifier {length}
+} {}}
+interpolated string {%2d blah blah }
+interpolated string escape {$$}
+interpolated string end {"}
+white space in line {
+
+  }
+val {val}
+white space in line { }
+identifier {h}
+white space in line { }
+interpolated string id {s}
+interpolated string {"aaa }
+interpolated string injection {$}
+{ {{}
+identifier {List}
+( {(}
+integer {1}
+, {,}
+white space in line { }
+integer {2}
+, {,}
+white space in line { }
+integer {3}
+) {)}
+. {.}
+identifier {foldLeft}
+( {(}
+integer {1}
+) {)}
+( {(}
+_ {_}
+white space in line { }
+identifier {*}
+white space in line { }
+_ {_}
+) {)}
+} {}}
+interpolated string { bbb}
+interpolated string end {"}
+white space in line {
+}
+} {}}

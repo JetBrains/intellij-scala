@@ -1,0 +1,5 @@
+Document tests/pos/export-main.scala
+(2:4..2:8) scala/main#
+(2:18..2:21) scala/Int#
+(5:10..5:13) _empty_/Foo. -> 1:8
+

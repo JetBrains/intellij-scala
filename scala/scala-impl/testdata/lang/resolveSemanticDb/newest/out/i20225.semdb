@@ -1,0 +1,15 @@
+Document tests/pos/i20225.scala
+(2:17..2:23) _empty_/Parent# -> 1:23
+(3:17..3:23) _empty_/Parent# -> 1:23
+(5:25..5:31) _empty_/Parent# -> 1:23
+(5:36..5:42) _empty_/Parent# -> 1:23
+(5:45..5:49) scala/Unit#
+(5:52..5:53) _empty_/i20225$package.matchAs().(p) -> 5:33
+(6:11..6:12) _empty_/i20225$package.matchAs().[T] -> 5:20
+(10:18..10:23) scala/Array#
+(10:24..10:30) scala/Predef.String#
+(10:34..10:38) scala/Unit#
+(11:5..11:12) _empty_/i20225$package.matchAs(). -> 5:12
+(11:13..11:14) _empty_/A# -> 2:7
+(11:20..11:21) _empty_/B# -> 3:7
+

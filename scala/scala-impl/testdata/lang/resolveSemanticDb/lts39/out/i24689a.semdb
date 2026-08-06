@@ -1,0 +1,29 @@
+Document tests/pos/i24689a.scala
+(1:8..1:12) java/
+(1:13..1:15) java/io/
+(2:8..2:12) java/
+(2:13..2:16) java/nio/
+(2:17..2:21) java/nio/file/
+(5:21..5:27) _empty_/Using#[Source] -> 4:22
+(5:32..5:33) _empty_/Using#[A] -> 4:30
+(5:37..5:38) _empty_/Using#apply().[R] -> 5:13
+(5:41..5:42) _empty_/Using#apply().[R] -> 5:13
+(5:45..5:48) scala/Predef.`???`().
+(8:24..8:29) _empty_/Using# -> 4:16
+(8:30..8:34) java/nio/file/Path#
+(8:36..8:47) java/io/InputStream#
+(8:51..8:54) scala/Predef.`???`().
+(10:18..10:22) java/nio/file/Path#
+(10:29..10:41) java/io/OutputStream#
+(10:44..10:48) scala/Unit#
+(11:3..11:8) _empty_/Using. -> 7:8
+(11:9..11:24) _empty_/Using.fileInputStream. -> 8:7
+(11:25..11:27) _empty_/i24689a$package.transfer().(in) -> 10:14
+(11:35..11:43) _empty_/i24689a$package.transfer(+1). -> 13:5
+(11:44..11:46) local0 -> 11:29
+(11:48..11:51) _empty_/i24689a$package.transfer().(out) -> 10:24
+(13:18..13:29) java/io/InputStream#
+(13:36..13:48) java/io/OutputStream#
+(13:51..13:55) scala/Unit#
+(13:58..13:61) scala/Predef.`???`().
+

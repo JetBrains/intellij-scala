@@ -1,0 +1,10 @@
+def outer {
+	def inner(p: String) = println(<selection>p.concat("")</selection>)
+}
+------
+def outer {
+	def inner(p: String) = {
+    val value: String = p.concat("")
+    println(value)
+  }
+}

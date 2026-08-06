@@ -1,0 +1,6 @@
+Document tests/pos/i20554-b/Test.scala
+(2:2..2:18) _empty_/SimpleAnnotation#
+(2:18..2:19) _empty_/SimpleAnnotation#`<init>`(+1).(a)
+(2:19..2:24) _empty_/SimpleAnnotation#`<init>`(+1).(value)
+(2:20..2:21) _empty_/SimpleAnnotation#`<init>`(+1).(b)
+

@@ -1,0 +1,12 @@
+Document tests/pos/t694.scala
+(3:31..3:35) _empty_/test3.Type# -> 2:9
+(3:36..3:39) scala/Int#
+(4:34..4:38) _empty_/test3.Type# -> 2:9
+(4:39..4:45) scala/Predef.String#
+(6:16..6:20) _empty_/test3.Type# -> 2:9
+(6:21..6:22) _empty_/test3.f().[T] -> 6:9
+(6:27..6:28) _empty_/test3.f().[T] -> 6:9
+(6:31..6:32) _empty_/test3.f().(t) -> 6:12
+(7:10..7:17) _empty_/test3.IntType. -> 3:15
+(8:10..8:20) _empty_/test3.StringType. -> 4:15
+

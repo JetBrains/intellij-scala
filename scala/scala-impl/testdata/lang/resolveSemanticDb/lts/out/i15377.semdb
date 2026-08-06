@@ -1,0 +1,11 @@
+Document tests/pos/i15377.scala
+(2:10..2:13) scala/Int#
+(4:14..4:17) _empty_/Tst# -> 1:7
+(5:13..5:14) _empty_/Q#[A] -> 4:9
+(5:17..5:18) _empty_/Q#mk().(a) -> 5:10
+(5:19..5:20) _empty_/Tst#a. -> 2:7
+(5:28..5:29) _empty_/Q#mk().(a) -> 5:10
+(5:30..5:31) _empty_/Tst#a. -> 2:7
+(7:18..7:19) _empty_/Q# -> 4:7
+(7:20..7:27) scala/Nothing#
+

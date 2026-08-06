@@ -1,0 +1,9 @@
+Document tests/pos/i25513.scala
+(2:4..2:5) _empty_/i25513$package.Foo#[A] -> 1:10
+(2:7..2:8) _empty_/i25513$package.Foo#[B] -> 1:13
+(3:11..3:14) scala/Int#
+(3:16..3:19) scala/Int#
+(3:25..3:26) _empty_/i25513$package.Foo#[A] -> 1:10
+(3:28..3:29) _empty_/i25513$package.Foo#[B] -> 1:13
+(4:3..4:4) _empty_/i25513$package.Foo#[A] -> 1:10
+

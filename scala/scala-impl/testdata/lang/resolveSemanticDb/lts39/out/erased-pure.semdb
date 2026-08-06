@@ -1,0 +1,40 @@
+Document tests/pos/erased-pure.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:47) scala/language.experimental.erasedDefinitions.
+(2:8..2:12) scala/caps/
+(2:13..2:19) scala/caps/unsafe.
+(2:20..2:37) scala/caps/unsafe.unsafeErasedValue().
+(4:21..4:22) _empty_/`erased-pure$package`.id().[T] -> 4:15
+(4:26..4:27) _empty_/`erased-pure$package`.id().(x) -> 4:18
+(8:22..8:23) _empty_/`erased-pure$package`.foo().[T] -> 8:9
+(8:26..8:30) scala/Unit#
+(10:21..10:22) _empty_/Pair#[A] -> 10:12
+(10:27..10:28) _empty_/Pair#[B] -> 10:15
+(12:27..12:28) _empty_/Pair2#[A] -> 12:18
+(12:33..12:34) _empty_/Pair2#[B] -> 12:21
+(15:3..15:6) _empty_/`erased-pure$package`.foo(). -> 8:5
+(15:7..15:8) _empty_/C# -> 6:7
+(16:3..16:6) _empty_/`erased-pure$package`.foo(). -> 8:5
+(16:7..16:9) _empty_/`erased-pure$package`.id(). -> 4:12
+(16:10..16:11) _empty_/C# -> 6:7
+(17:3..17:6) _empty_/`erased-pure$package`.foo(). -> 8:5
+(17:12..17:13) _empty_/C# -> 6:7
+(17:17..17:18) _empty_/C# -> 6:7
+(18:3..18:6) _empty_/`erased-pure$package`.foo(). -> 8:5
+(18:12..18:13) _empty_/C# -> 6:7
+(19:3..19:6) _empty_/`erased-pure$package`.foo(). -> 8:5
+(19:12..19:13) _empty_/C# -> 6:7
+(19:25..19:26) java/lang/String#`+`().
+(20:3..20:6) _empty_/`erased-pure$package`.foo(). -> 8:5
+(20:7..20:9) _empty_/`erased-pure$package`.id(). -> 4:12
+(20:15..20:17) _empty_/`erased-pure$package`.id(). -> 4:12
+(20:18..20:19) _empty_/C# -> 6:7
+(20:24..20:26) _empty_/`erased-pure$package`.id(). -> 4:12
+(20:35..20:36) java/lang/String#`+`().
+(24:19..24:25) scala/Tuple2.
+(24:26..24:43) scala/caps/unsafe.unsafeErasedValue().
+(24:44..24:47) scala/Int#
+(24:50..24:67) scala/caps/unsafe.unsafeErasedValue().
+(24:68..24:74) scala/Predef.String#
+

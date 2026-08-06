@@ -1,0 +1,127 @@
+var g: Int  = a
+var m: Int = b
+if (a < b) {g = b; m = a}
+while (m) {
+  var s: Int = g
+  g = m
+  m = s % m
+}
+g
+-----
+0(1) element: None
+1(2) READ a
+2(3) VAR g
+  2(3) VAR g
+3(4) READ b
+  2(3) VAR g
+4(5) VAR m
+  2(3) VAR g
+  4(5) VAR m
+5(6) element: IfStatement
+  2(3) VAR g
+  4(5) VAR m
+6(7) READ a
+  2(3) VAR g
+  4(5) VAR m
+7(8) READ <
+  2(3) VAR g
+  4(5) VAR m
+8(9,13) READ b
+  2(3) VAR g
+  4(5) VAR m
+9(10) READ b
+  2(3) VAR g
+  4(5) VAR m
+10(11) WRITE g
+  4(5) VAR m
+  10(11) WRITE g
+11(12) READ a
+  4(5) VAR m
+  10(11) WRITE g
+12(13) WRITE m
+  10(11) WRITE g
+  12(13) WRITE m
+13(14,23) element: WhileStatement
+  2(3) VAR g
+  4(5) VAR m
+  10(11) WRITE g
+  12(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m
+14(15) READ m
+  2(3) VAR g
+  4(5) VAR m
+  10(11) WRITE g
+  12(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m
+15(16) READ g
+  2(3) VAR g
+  4(5) VAR m
+  10(11) WRITE g
+  12(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m
+16(17) VAR s
+  2(3) VAR g
+  4(5) VAR m
+  10(11) WRITE g
+  12(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m
+17(18) READ m
+  2(3) VAR g
+  4(5) VAR m
+  10(11) WRITE g
+  12(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m
+18(19) WRITE g
+  4(5) VAR m
+  12(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m
+19(20) READ s
+  4(5) VAR m
+  12(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m
+20(21) READ %
+  4(5) VAR m
+  12(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m
+21(22) READ m
+  4(5) VAR m
+  12(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m
+22(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m
+23(24) READ g
+  2(3) VAR g
+  4(5) VAR m
+  10(11) WRITE g
+  12(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m
+24() element: None
+  2(3) VAR g
+  4(5) VAR m
+  10(11) WRITE g
+  12(13) WRITE m
+  16(17) VAR s
+  18(19) WRITE g
+  22(13) WRITE m

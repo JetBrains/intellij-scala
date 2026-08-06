@@ -1,0 +1,9 @@
+Document tests/pos/t0036.scala
+(3:11..3:15) scala/package.List#
+(3:16..3:19) scala/Int#
+(3:23..3:26) scala/package.Nil.
+(4:12..4:15) scala/Int#
+(5:11..5:13) _empty_/m.xs. -> 3:7
+(5:14..5:17) scala/collection/immutable/List#map().
+(5:18..5:19) _empty_/m.f(). -> 4:7
+

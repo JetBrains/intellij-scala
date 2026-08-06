@@ -1,0 +1,33 @@
+new M() map[String] _.toString
+-----
+ScalaFile
+  InfixExpression
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: M
+              CodeReferenceElement: M
+                PsiElement(identifier)('M')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: map
+        PsiElement(identifier)('map')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: _.toString
+      UnderscoreSection
+        PsiElement(_)('_')
+      PsiElement(.)('.')
+      PsiElement(identifier)('toString')

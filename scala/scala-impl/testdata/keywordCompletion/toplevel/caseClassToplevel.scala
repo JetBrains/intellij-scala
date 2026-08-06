@@ -1,0 +1,4 @@
+case cl<caret>
+/*
+class
+*/

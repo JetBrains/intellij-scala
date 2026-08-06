@@ -1,0 +1,203 @@
+/**
+  * [[simple.code.Link]]
+  * [[code.Link code link label]]
+  * [[code.link.with.Some#`escaped identifier`]]
+  * [[code.link.with.Some#`escaped identifier` code link label]]
+  * [[\
+  * [[\\\
+  * [[\ ` `\backslash\ ]]
+  * [[http://google.com http link]]
+  * [[http://scala-lang.org loooooooooooooooooooong multi line
+  * http link to official scala lang site]]
+  * [[[ref]]
+  * [[[ref]]]
+  * [[[ref]]]]]]
+  * {@code this.is.actually.just.a.Code}
+  * {@code [[this.is.actually.just.a.Code]]}
+  * {@link inline.tag.code.Link}
+  * {@link inline.tag.code.Link inline tag label}
+  * {@link [[http://google.ocm illegal illegal http link in inline tag]]}
+  * {@link http://google.ocm illegal illegal http link in inline tag}
+  * @see [[valid.code.Link.inTag]]
+  * @see [[http://test.com valid http link in tag]]
+  */
+-----
+DOC_COMMENT_START {/**}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+DOC_COMMENT_DATA {simple.code.Link}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+DOC_COMMENT_DATA {code.Link}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {code link label}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+DOC_COMMENT_DATA {code.link.with.Some#`escaped identifier`}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+DOC_COMMENT_DATA {code.link.with.Some#`escaped identifier`}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {code link label}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+DOC_COMMENT_BAD_CHARACTER {\}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+DOC_COMMENT_DATA {\\}
+DOC_COMMENT_BAD_CHARACTER {\}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+DOC_COMMENT_DATA {\ ` `\backslash\ }
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_HTTP_LINK_TAG 128 {[[}
+DOC_HTTP_LINK_VALUE {http://google.com}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {http link}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_HTTP_LINK_TAG 128 {[[}
+DOC_HTTP_LINK_VALUE {http://scala-lang.org}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {loooooooooooooooooooong multi line}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {http link to official scala lang site}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[[}
+DOC_COMMENT_DATA {ref]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[[}
+DOC_COMMENT_DATA {ref}
+DOC_LINK_CLOSE_TAG 0 {]]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[[}
+DOC_COMMENT_DATA {ref]]]}
+DOC_LINK_CLOSE_TAG 0 {]]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_INLINE_TAG_START {{}
+DOC_TAG_NAME {@code}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {this.is.actually.just.a.Code}
+DOC_INLINE_TAG_END {}}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_INLINE_TAG_START {{}
+DOC_TAG_NAME {@code}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {[[this.is.actually.just.a.Code]]}
+DOC_INLINE_TAG_END {}}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_INLINE_TAG_START {{}
+DOC_TAG_NAME {@link}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {inline.tag.code.Link}
+DOC_INLINE_TAG_END {}}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_INLINE_TAG_START {{}
+DOC_TAG_NAME {@link}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {inline.tag.code.Link}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {inline tag label}
+DOC_INLINE_TAG_END {}}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_INLINE_TAG_START {{}
+DOC_TAG_NAME {@link}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {[[http://google.ocm}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {illegal illegal http link in inline tag]]}
+DOC_INLINE_TAG_END {}}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_INLINE_TAG_START {{}
+DOC_TAG_NAME {@link}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {http://google.ocm}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {illegal illegal http link in inline tag}
+DOC_INLINE_TAG_END {}}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@see}
+DOC_WHITESPACE { }
+DOC_LINK_TAG 64 {[[}
+DOC_COMMENT_DATA {valid.code.Link.inTag}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@see}
+DOC_WHITESPACE { }
+DOC_HTTP_LINK_TAG 128 {[[}
+DOC_HTTP_LINK_VALUE {http://test.com}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {valid http link in tag}
+DOC_LINK_CLOSE_TAG 0 {]]}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_END {*/}

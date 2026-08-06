@@ -1,0 +1,75 @@
+Document tests/pos/i20858/defns_1.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(2:8..2:13) scala/
+(2:14..2:22) scala/deriving/
+(7:35..7:38) _empty_/ZIO# -> 4:14
+(7:39..7:42) _empty_/ZLayer.apply().[RIn] -> 7:13
+(7:44..7:45) _empty_/ZLayer.apply().[E] -> 7:18
+(7:47..7:51) _empty_/ZLayer.apply().[ROut] -> 7:21
+(7:55..7:61) _empty_/ZLayer# -> 5:23
+(7:62..7:65) _empty_/ZLayer.apply().[RIn] -> 7:13
+(7:67..7:68) _empty_/ZLayer.apply().[E] -> 7:18
+(7:70..7:74) _empty_/ZLayer.apply().[ROut] -> 7:21
+(7:78..7:81) scala/Predef.`???`().
+(8:21..8:24) _empty_/ZIO# -> 4:14
+(8:25..8:26) _empty_/defns_1$package.URIO#[R] -> 8:12
+(8:28..8:35) scala/Nothing#
+(8:37..8:38) _empty_/defns_1$package.URIO#[A] -> 8:16
+(9:20..9:25) scala/Tuple#
+(9:29..9:34) scala/Tuple.
+(9:35..9:39) scala/Tuple.Fold#
+(9:40..9:41) _empty_/defns_1$package.IAnyType#[T] -> 9:15
+(9:43..9:46) scala/Any#
+(9:59..9:60) _empty_/defns_1$package.IAnyType#[x] -> 9:49
+(9:61..9:62) scala/`&`#
+(9:63..9:64) _empty_/defns_1$package.IAnyType#[y] -> 9:52
+(10:20..10:25) scala/Tuple#
+(10:29..10:34) scala/Tuple.
+(10:35..10:39) scala/Tuple.Fold#
+(10:40..10:41) _empty_/defns_1$package.UAnyType#[T] -> 10:15
+(10:43..10:46) scala/Any#
+(10:59..10:60) _empty_/defns_1$package.UAnyType#[x] -> 10:49
+(10:61..10:62) scala/`|`#
+(10:63..10:64) _empty_/defns_1$package.UAnyType#[y] -> 10:52
+(15:17..15:23) scala/deriving/Mirror.
+(15:24..15:33) scala/deriving/Mirror.ProductOf#
+(15:34..15:35) _empty_/AutoLayer#[A] -> 13:17
+(16:16..16:22) _empty_/ZLayer# -> 5:23
+(16:23..16:31) _empty_/defns_1$package.IAnyType# -> 9:6
+(16:32..16:33) _empty_/AutoLayer#zlayer().(p) -> 15:14
+(16:54..16:61) scala/Nothing#
+(16:63..16:64) _empty_/AutoLayer#[A] -> 13:17
+(19:36..19:42) scala/deriving/Mirror.
+(19:43..19:52) scala/deriving/Mirror.ProductOf#
+(19:53..19:54) _empty_/AutoLayer.derived().[A] -> 19:26
+(19:60..19:69) _empty_/AutoLayer# -> 13:7
+(19:70..19:71) _empty_/AutoLayer.derived().[A] -> 19:26
+(20:12..20:15) _empty_/ZIO# -> 4:14
+(20:16..20:24) _empty_/defns_1$package.IAnyType# -> 9:6
+(20:25..20:26) _empty_/AutoLayer.derived().(p) -> 19:33
+(20:47..20:54) scala/Nothing#
+(20:56..20:57) _empty_/AutoLayer.derived().[A] -> 19:26
+(20:61..20:64) scala/Predef.`???`().
+(21:9..21:18) _empty_/AutoLayer# -> 13:7
+(21:19..21:20) _empty_/AutoLayer.derived().[A] -> 19:26
+(23:31..23:37) scala/deriving/Mirror.
+(23:38..23:47) scala/deriving/Mirror.ProductOf#
+(23:48..23:49) _empty_/AutoLayer.derived().[A] -> 19:26
+(24:29..24:35) _empty_/ZLayer# -> 5:23
+(24:36..24:44) _empty_/defns_1$package.IAnyType# -> 9:6
+(24:45..24:47) local1 -> 23:27
+(24:68..24:75) scala/Nothing#
+(24:77..24:78) _empty_/AutoLayer.derived().[A] -> 19:26
+(24:82..24:88) _empty_/ZLayer. -> 6:8
+(25:9..25:10) local0 -> 20:9
+(25:11..25:23) scala/Any#asInstanceOf().
+(25:24..25:27) _empty_/ZIO# -> 4:14
+(25:28..25:36) _empty_/defns_1$package.IAnyType# -> 9:6
+(25:37..25:39) local1 -> 23:27
+(25:60..25:67) scala/Nothing#
+(25:69..25:70) _empty_/AutoLayer.derived().[A] -> 19:26
+
+Document tests/pos/i20858/usages_2.scala
+(2:30..2:33) scala/Int#
+

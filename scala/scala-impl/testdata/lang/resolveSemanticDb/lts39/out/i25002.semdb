@@ -1,0 +1,64 @@
+Document tests/pos/i25002.scala
+(1:13..1:20) scala/Boolean#
+(1:27..1:31) _empty_/i25002$package.g().(cond) -> 1:7
+(2:10..2:13) scala/Any#
+(3:3..3:4) _empty_/i25002$package.f().(x) -> 2:7
+(4:13..4:19) scala/Predef.String#
+(4:23..4:24) _empty_/i25002$package.g(). -> 1:5
+(5:7..5:8) local4 -> 4:10
+(5:9..5:15) java/lang/String#length().
+(5:16..5:17) scala/Int#`>`(+3).
+(6:8..6:9) local4 -> 4:10
+(7:15..7:16) local5 -> 7:10
+(7:17..7:25) scala/Any#toString().
+(8:17..8:20) scala/Any#
+(9:3..9:4) _empty_/i25002$package.fAligned().(x) -> 8:14
+(10:11..10:17) scala/Predef.String#
+(10:21..10:22) _empty_/i25002$package.g(). -> 1:5
+(11:5..11:6) local6 -> 10:8
+(11:7..11:13) java/lang/String#length().
+(11:14..11:15) scala/Int#`>`(+3).
+(12:6..12:7) local6 -> 10:8
+(13:13..13:14) local7 -> 13:8
+(13:15..13:23) scala/Any#toString().
+(14:20..14:23) scala/Any#
+(15:3..15:4) _empty_/i25002$package.fNormalized().(x) -> 14:17
+(16:11..16:17) scala/Predef.String#
+(16:21..16:22) _empty_/i25002$package.g(). -> 1:5
+(16:23..16:24) local8 -> 16:8
+(16:25..16:31) java/lang/String#length().
+(16:32..16:33) scala/Int#`>`(+3).
+(16:40..16:41) local8 -> 16:8
+(17:13..17:14) local9 -> 17:8
+(17:15..17:23) scala/Any#toString().
+(19:2..19:6) scala/main#
+(20:3..20:10) scala/Predef.println(+1).
+(21:5..21:6) _empty_/i25002$package.f(). -> 2:5
+(24:3..24:7) scala/package.List.
+(25:6..25:13) scala/collection/immutable/List#collect().
+(27:10..27:11) local11 -> 26:12
+(27:12..27:13) scala/Int#`>`(+3).
+(32:3..32:7) scala/package.List.
+(33:6..33:13) scala/collection/immutable/List#collect().
+(35:11..35:12) local13 -> 34:12
+(35:13..35:14) scala/Int#`>`(+3).
+(41:14..41:18) scala/package.List.
+(41:19..41:22) scala/Int#
+(41:23..41:24) scala/`|`#
+(41:25..41:31) scala/Double#
+(45:5..45:9) _empty_/C#list(). -> 41:7
+(45:10..45:13) scala/collection/immutable/List#map().
+(46:15..46:18) scala/Int#
+(47:9..47:10) _empty_/C#n. -> 42:7
+(48:17..48:20) scala/Int#
+(49:12..49:16) _empty_/C#list(). -> 41:7
+(49:17..49:23) scala/collection/immutable/List#exists().
+(50:11..50:15) _empty_/C#list(). -> 41:7
+(50:16..50:22) scala/collection/immutable/List#exists().
+(50:25..50:27) scala/Any#`==`().
+(50:28..50:29) local2 -> 48:14
+(50:30..50:32) scala/Boolean#`&&`().
+(50:33..50:34) local2 -> 48:14
+(50:35..50:37) scala/Any#`==`().
+(50:38..50:39) local3 -> 49:25
+

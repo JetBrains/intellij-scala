@@ -1,0 +1,5 @@
+object Example {
+  def foo(b: Boolean) {
+    <spot>b</spot>$key
+  }
+}

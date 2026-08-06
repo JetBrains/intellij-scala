@@ -1,0 +1,113 @@
+class A {
+  val a = s"blah blah $i.length" + f"${1 + 2 + 3}%2d" + s"""${class A{}}"""
+}
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            InfixExpression
+              InterpolatedStringLiteral
+                InterpolatedExpressionPrefix: s
+                  PsiElement(interpolated string id)('s')
+                PsiElement(interpolated string)('"blah blah ')
+                PsiElement(interpolated string injection)('$')
+                ReferenceExpression: i
+                  PsiElement(identifier)('i')
+                PsiElement(interpolated string)('.length')
+                PsiElement(interpolated string end)('"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              InterpolatedStringLiteral
+                InterpolatedExpressionPrefix: f
+                  PsiElement(interpolated string id)('f')
+                PsiElement(interpolated string)('"')
+                PsiElement(interpolated string injection)('$')
+                BlockExpression
+                  PsiElement({)('{')
+                  InfixExpression
+                    InfixExpression
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +
+                        PsiElement(identifier)('+')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('2')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('3')
+                  PsiElement(})('}')
+                PsiElement(interpolated string)('%2d')
+                PsiElement(interpolated string end)('"')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            InterpolatedStringLiteral
+              InterpolatedExpressionPrefix: s
+                PsiElement(interpolated string id)('s')
+              PsiElement(interpolated multiline string)('"""')
+              PsiElement(interpolated string injection)('$')
+              BlockExpression
+                PsiElement({)('{')
+                ScClass: A
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(class)('class')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('A')
+                  PrimaryConstructor
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    Parameters
+                      <empty list>
+                  ExtendsBlock
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiElement(})('}')
+                PsiElement(})('}')
+              PsiElement(interpolated string end)('"""')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

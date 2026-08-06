@@ -1,0 +1,9 @@
+class X {
+  def f(a: Boolean, b: Boolean) {
+    <spot>if</spot> (false) {
+      System.out.print("if")
+    } else {
+      System.out.print("else")
+    }
+  }
+}

@@ -1,0 +1,34 @@
+Document tests/pos/i18261/DFBits_0.scala
+(1:19..1:22) scala/Int#
+(4:16..4:19) scala/Int#
+(6:15..6:18) scala/Int#
+(6:25..6:28) _empty_/Foo_0$package.Foo# -> 1:6
+(6:29..6:35) _empty_/DFBits# -> 1:7
+(6:36..6:37) _empty_/Candidate.given_Candidate_R#[W] -> 6:10
+(6:36..6:37) _empty_/Candidate.given_Candidate_R().[W] -> 6:10
+(6:44..6:53) _empty_/Candidate# -> 3:7
+(6:54..6:55) _empty_/Candidate.given_Candidate_R#[R] -> 6:20
+(7:17..7:18) _empty_/Candidate.given_Candidate_R#[W] -> 6:10
+
+Document tests/pos/i18261/Foo_0.scala
+(1:15..1:16) _empty_/Foo_0$package.Foo#[T] -> 1:10
+(2:8..2:11) scala/Any#
+(2:15..2:16) _empty_/Foo_0$package.Foo#[T] -> 1:10
+
+Document tests/pos/i18261/Test_1.scala
+(1:17..1:18) _empty_/Test_1$package.baz().[L] -> 1:9
+(1:31..1:40) _empty_/Candidate# -> 3:7
+(1:41..1:42) _empty_/Test_1$package.baz().[L] -> 1:9
+(1:46..1:52) _empty_/DFBits# -> 1:7
+(1:53..1:56) scala/Int#
+(1:60..1:63) scala/Predef.`???`().
+(3:10..3:16) _empty_/DFBits# -> 1:7
+(3:22..3:25) scala/Predef.`???`().
+(4:10..4:16) _empty_/DFBits# -> 1:7
+(4:17..4:20) scala/Int#
+(4:24..4:27) _empty_/Test_1$package.baz(). -> 1:5
+(4:28..4:29) _empty_/Test.x. -> 3:7
+(5:3..5:9) scala/Predef.summon().
+(5:10..5:19) _empty_/Candidate# -> 3:7
+(5:20..5:21) _empty_/Test.z. -> 4:7
+

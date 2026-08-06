@@ -1,0 +1,11 @@
+Document tests/pos/polytypes.scala
+(3:21..3:25) scala/package.List#
+(3:26..3:27) _empty_/Test.T#[X] -> 3:13
+(3:32..3:36) scala/package.List#
+(3:37..3:38) _empty_/Test.T#[X] -> 3:13
+(5:22..5:26) scala/package.List#
+(5:27..5:28) _empty_/Test.reverse().[X] -> 5:15
+(5:32..5:36) scala/package.List#
+(5:37..5:38) _empty_/Test.reverse().[X] -> 5:15
+(5:42..5:45) scala/Predef.`???`().
+

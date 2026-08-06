@@ -1,0 +1,37 @@
+1 match
+  case 1 => 11
+  case 2 => 22
+-----
+ScalaFile
+  MatchStatement
+    IntegerLiteral
+      PsiElement(integer)('1')
+    PsiWhiteSpace(' ')
+    PsiElement(match)('match')
+    PsiWhiteSpace('\n  ')
+    CaseClauses
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        LiteralPattern
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        BlockOfExpressions
+          IntegerLiteral
+            PsiElement(integer)('11')
+      PsiWhiteSpace('\n  ')
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        LiteralPattern
+          IntegerLiteral
+            PsiElement(integer)('2')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        BlockOfExpressions
+          IntegerLiteral
+            PsiElement(integer)('22')

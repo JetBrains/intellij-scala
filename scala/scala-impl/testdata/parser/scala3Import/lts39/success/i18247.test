@@ -1,0 +1,123 @@
+sealed trait Op
+object Op {
+  case object `==` extends Op
+}
+
+def t1(a: Op): true = {
+  a match {
+    case Op.`==` => true // was: won't compile
+  }
+}
+-----
+ScalaFile
+  ScTrait: Op
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Op')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Op
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Op')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScObject: `==`
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('`==`')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Op
+                  CodeReferenceElement: Op
+                    PsiElement(identifier)('Op')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: t1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('t1')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Op
+              CodeReferenceElement: Op
+                PsiElement(identifier)('Op')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    LiteralType: true
+      BooleanLiteral
+        PsiElement(true)('true')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      MatchStatement
+        ReferenceExpression: a
+          PsiElement(identifier)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(match)('match')
+        PsiWhiteSpace(' ')
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        CaseClauses
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            StableElementPattern
+              ReferenceExpression: Op.`==`
+                ReferenceExpression: Op
+                  PsiElement(identifier)('Op')
+                PsiElement(.)('.')
+                PsiElement(identifier)('`==`')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              BooleanLiteral
+                PsiElement(true)('true')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// was: won't compile')
+        PsiWhiteSpace('\n  ')
+        PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

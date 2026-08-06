@@ -1,0 +1,16 @@
+[40,117]: PackageDef
+[40,40]: Ident
+[40,63]: Import
+[47,54]: Ident
+[65,117]: TypeDef
+[78,117]: Template
+[78,78]: DefDef
+[78,78]: TypeTree
+[78,117]: DefDef
+[90,101]: TypeDef
+[93,101]: ContextBounds
+[93,93]: TypeBoundsTree
+[93,101]: ContextBoundTypeTree
+[93,101]: Ident
+[104,111]: Ident
+[114,117]: Ident

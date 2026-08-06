@@ -1,0 +1,54 @@
+class a {
+  val x: id.super[C].id.Type
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: id.super[C].id.Type
+            CodeReferenceElement: id.super[C].id.Type
+              CodeReferenceElement: id.super[C].id
+                SuperReference
+                  CodeReferenceElement: id
+                    PsiElement(identifier)('id')
+                  PsiElement(.)('.')
+                  PsiElement(super)('super')
+                  PsiElement([)('[')
+                  PsiElement(identifier)('C')
+                  PsiElement(])(']')
+                PsiElement(.)('.')
+                PsiElement(identifier)('id')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Type')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

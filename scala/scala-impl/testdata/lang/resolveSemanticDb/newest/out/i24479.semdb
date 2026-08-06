@@ -1,0 +1,14 @@
+Document tests/pos/i24479.scala
+(3:19..3:20) _empty_/test.A# -> 2:9
+(5:29..5:32) scala/Any#
+(5:35..5:36) _empty_/test.f().[T] -> 5:16
+(5:46..5:47) _empty_/test.f().(v) -> 5:26
+(6:13..6:14) _empty_/test.f().[T] -> 5:16
+(6:18..6:19) local0 -> 6:10
+(9:17..9:18) _empty_/test.B# -> 3:9
+(9:25..9:26) _empty_/test.B# -> 3:9
+(10:3..10:4) _empty_/test.f(). -> 5:14
+(10:5..10:6) _empty_/test.A# -> 2:9
+(10:8..10:9) _empty_/test.b(). -> 9:14
+(10:11..10:12) _empty_/test.A# -> 2:9
+

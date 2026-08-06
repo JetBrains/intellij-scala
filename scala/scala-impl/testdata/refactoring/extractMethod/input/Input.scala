@@ -1,0 +1,36 @@
+class Input {
+  def foo(x: Int) {
+    val y = 34
+    val z = ""
+/*start*/
+    if (z == "") {
+      val g = y + 1
+      print(g)
+    } else {
+      print(x)
+    }
+/*end*/
+    if (x == 1) return
+  }
+}
+/*
+class Input {
+  def foo(x: Int) {
+    val y = 34
+    val z = ""
+
+    testMethodName(x, y, z)
+
+    if (x == 1) return
+  }
+
+  def testMethodName(x: Int, y: Int, z: String): Unit = {
+    if (z == "") {
+      val g = y + 1
+      print(g)
+    } else {
+      print(x)
+    }
+  }
+}
+*/

@@ -1,0 +1,8 @@
+class C {
+  foo()<caret>bar()
+}
+-----
+class C {
+  foo()
+  <caret>bar()
+}

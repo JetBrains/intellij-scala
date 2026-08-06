@@ -1,0 +1,26 @@
+object Foo {}
+
+def f1 = {  // -
+}
+
+val v1 = null  // -
+
+class C { // -
+}
+
+def f2 // -
+
+trait T { // -
+}
+
+type T = Int // -
+
+object O { // -
+}
+
+var v2 = null // -
+
+{ // -
+}
+
+import scala.collection.immutable.List // -

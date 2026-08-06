@@ -1,0 +1,9 @@
+Document tests/pos/t2187.scala
+(2:21..2:24) scala/App#
+(3:14..3:18) scala/package.List#
+(3:19..3:25) scala/Predef.String#
+(3:30..3:32) _empty_/Test.foo().(xs) -> 3:11
+(4:10..4:13) scala/package.Seq.
+(4:20..4:21) local0 -> 4:14
+(5:10..5:13) scala/package.Seq.
+

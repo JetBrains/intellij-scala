@@ -1,0 +1,27 @@
+for {
+    a <- Seq()
+    // foo
+  }  yield a
+------
+for {for}
+white space in line { }
+{ {{}
+white space in line {
+    }
+identifier {a}
+white space in line { }
+<- {<-}
+white space in line { }
+identifier {Seq}
+( {(}
+) {)}
+white space in line {
+    }
+comment {// foo}
+white space in line {
+  }
+} {}}
+white space in line {  }
+yield {yield}
+white space in line { }
+identifier {a}

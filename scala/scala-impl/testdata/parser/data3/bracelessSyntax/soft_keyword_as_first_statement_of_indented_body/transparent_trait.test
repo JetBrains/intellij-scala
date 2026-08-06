@@ -1,0 +1,66 @@
+def m4 =
+  transparent trait S
+  case class B() extends S
+  B()
+-----
+ScalaFile
+  ScFunctionDefinition: m4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('m4')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScTrait: S
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(transparent)('transparent')
+        PsiWhiteSpace(' ')
+        PsiElement(trait)('trait')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('S')
+        ExtendsBlock
+          <empty list>
+      PsiWhiteSpace('\n  ')
+      ScClass: B
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('B')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          PsiElement(extends)('extends')
+          PsiWhiteSpace(' ')
+          TemplateParents
+            ConstructorInvocation
+              SimpleType: S
+                CodeReferenceElement: S
+                  PsiElement(identifier)('S')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: B
+          PsiElement(identifier)('B')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')

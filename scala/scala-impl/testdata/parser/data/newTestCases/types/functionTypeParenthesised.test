@@ -1,0 +1,59 @@
+class a {
+  val x: Type => (Type => Type)
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionalType: Type => (Type => Type)
+            SimpleType: Type
+              CodeReferenceElement: Type
+                PsiElement(identifier)('Type')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: (Type => Type)
+              PsiElement(()('(')
+              FunctionalType: Type => Type
+                SimpleType: Type
+                  CodeReferenceElement: Type
+                    PsiElement(identifier)('Type')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Type
+                  CodeReferenceElement: Type
+                    PsiElement(identifier)('Type')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

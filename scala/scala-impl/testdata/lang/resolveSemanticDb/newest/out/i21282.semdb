@@ -1,0 +1,51 @@
+Document tests/pos/i21282.scala
+(3:8..3:13) scala/
+(3:14..3:20) scala/quoted/
+(5:1..5:8) _empty_/
+(5:37..5:41) _empty_/i21282$package.isUnionCanonicalImpl().[U] -> 5:34
+(5:37..5:41) scala/quoted/Type#
+(5:49..5:55) scala/quoted/Quotes#
+(5:58..5:62) scala/quoted/Expr#
+(5:63..5:67) scala/Unit#
+(6:10..6:16) scala/quoted/Quotes$package.quotes().
+(6:17..6:24) scala/quoted/Quotes#reflect.
+(7:11..7:19) scala/quoted/Quotes#reflectModule#TypeRepr.
+(7:20..7:22) scala/quoted/Quotes#reflectModule#TypeReprModule#of().
+(7:23..7:24) _empty_/i21282$package.isUnionCanonicalImpl().[U] -> 5:34
+(7:26..7:44) scala/quoted/Quotes#reflectModule#TypeReprMethods#dealiasKeepOpaques().
+(9:16..9:20) local1 -> 9:13
+(9:16..9:20) scala/quoted/Type#
+(9:25..9:28) scala/Predef.Set#
+(9:29..9:37) scala/quoted/Quotes#reflectModule#TypeRepr#
+(9:44..9:52) scala/quoted/Quotes#reflectModule#TypeRepr#
+(9:55..9:58) scala/Predef.Set#
+(9:59..9:67) scala/quoted/Quotes#reflectModule#TypeRepr#
+(10:5..10:7) local3 -> 9:40
+(10:8..10:26) scala/quoted/Quotes#reflectModule#TypeReprMethods#dealiasKeepOpaques().
+(11:12..11:18) scala/quoted/Quotes#reflectModule#OrType.
+(12:18..12:23) local7 -> 9:7
+(12:24..12:25) local1 -> 9:13
+(12:27..12:28) local2 -> 9:22
+(12:30..12:31) local5 -> 11:19
+(13:9..13:14) local7 -> 9:7
+(13:15..13:16) local1 -> 9:13
+(13:18..13:20) local8 -> 12:13
+(13:22..13:23) local6 -> 11:22
+(14:17..14:18) local2 -> 9:22
+(14:19..14:27) scala/collection/SetOps#contains().
+(14:28..14:29) local9 -> 14:12
+(15:9..15:15) scala/quoted/Quotes#reflectModule#report.
+(15:16..15:29) scala/quoted/Quotes#reflectModule#reportModule#errorAndAbort().
+(15:30..15:31) scala/StringContext#s().
+(15:39..15:40) local9 -> 14:12
+(15:41..15:45) scala/quoted/Quotes#reflectModule#TypeReprMethods#show().
+(15:89..15:90) local0 -> 7:7
+(15:91..15:95) scala/quoted/Quotes#reflectModule#TypeReprMethods#show().
+(16:17..16:18) local2 -> 9:22
+(16:19..16:20) scala/collection/immutable/SetOps#`+`().
+(16:21..16:22) local10 -> 16:12
+(17:3..17:8) local7 -> 9:7
+(17:9..17:12) scala/Predef.Set.
+(17:13..17:18) scala/collection/immutable/Set.empty().
+(17:20..17:21) local0 -> 7:7
+

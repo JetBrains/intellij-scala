@@ -1,0 +1,11 @@
+class Test {
+  def foo(obj: AnyRef) = {
+    <start>(obj)<notnull>
+  }
+}
+-----
+class Test {
+  def foo(obj: AnyRef) = {
+    if ((obj) != null) {}
+  }
+}

@@ -1,0 +1,13 @@
+val b =
+          """
+     blah blah blah
+          blah blah blah
+               blah blah blah
+"""
+-----
+val b =
+  """
+     blah blah blah
+          blah blah blah
+               blah blah blah
+"""

@@ -1,0 +1,8 @@
+Document tests/pos/i8129.scala
+(2:17..2:18) scala/`|`#
+(2:24..2:25) _empty_/Test.F#[N] -> 2:10
+(3:17..3:18) scala/`|`#
+(3:23..3:24) _empty_/Test.F# -> 2:8
+(3:25..3:26) _empty_/Test.fl().[N] -> 3:10
+(3:30..3:33) scala/Predef.`???`().
+

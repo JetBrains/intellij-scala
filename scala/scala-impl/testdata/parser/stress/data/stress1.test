@@ -1,0 +1,8 @@
+trait SyntheticMethods {
+
+    def productElementMethod(): Tree = (DefDef (Match (Ident (head), {
+        List (CaseDef (Ident (WILDCARD), EmptyTree,
+        Throw (New (TypeTree (tpe), List (List (
+        Select (Ident (vparamss), nme)))))))
+    })))
+}

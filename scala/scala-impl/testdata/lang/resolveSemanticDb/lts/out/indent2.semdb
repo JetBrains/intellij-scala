@@ -1,0 +1,10 @@
+Document tests/pos/indent2.scala
+(6:15..6:16) _empty_/testindent.C# -> 3:9
+(7:8..7:9) scala/Int#`>`(+3).
+(7:10..7:11) _empty_/testindent.c. -> 6:7
+(7:12..7:13) _empty_/testindent.C#x. -> 4:9
+(8:5..8:12) scala/Predef.println().
+(9:5..9:12) scala/Predef.println().
+(11:5..11:12) scala/Predef.println().
+(12:5..12:12) scala/Predef.println().
+

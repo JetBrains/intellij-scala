@@ -1,0 +1,39 @@
+Document tests/pos/sip23-aliasing.scala
+(7:19..7:23) _empty_/Test.Foo0# -> 2:9
+(7:35..7:36) _empty_/Test.Foo0.Aux#[T] -> 7:14
+(8:39..8:46) scala/ValueOf#
+(8:47..8:48) _empty_/Test.Foo0.apply().[T] -> 8:24
+(8:52..8:55) _empty_/Test.Foo0.Aux# -> 7:10
+(8:56..8:57) _empty_/Test.Foo0.apply().[T] -> 8:24
+(8:65..8:69) _empty_/Test.Foo0# -> 2:9
+(9:17..9:18) _empty_/Test.Foo0.apply().[T] -> 8:24
+(13:17..13:21) _empty_/Test.Foo0# -> 2:9
+(13:34..13:35) _empty_/Test.Foo#[T] -> 13:12
+(14:13..14:17) _empty_/Test.Foo0. -> 6:10
+(16:3..16:6) _empty_/Test.Foo. -> 14:7
+(17:3..17:13) scala/Predef.implicitly().
+(17:14..17:17) _empty_/Test.Foo. -> 14:7
+(17:18..17:21) _empty_/Test.Foo0.Aux# -> 7:10
+(18:3..18:13) scala/Predef.implicitly().
+(18:14..18:17) _empty_/Test.Foo# -> 13:8
+(22:16..22:21) _empty_/Test.three. -> 21:7
+(23:3..23:6) _empty_/Test.Foo. -> 14:7
+(23:7..23:12) _empty_/Test.Three# -> 22:8
+(24:3..24:13) scala/Predef.implicitly().
+(24:14..24:17) _empty_/Test.Foo. -> 14:7
+(24:18..24:21) _empty_/Test.Foo0.Aux# -> 7:10
+(24:22..24:27) _empty_/Test.Three# -> 22:8
+(25:3..25:13) scala/Predef.implicitly().
+(25:14..25:17) _empty_/Test.Foo# -> 13:8
+(25:18..25:23) _empty_/Test.Three# -> 22:8
+(28:14..28:17) _empty_/Test.bar. -> 27:16
+(29:3..29:6) _empty_/Test.Foo. -> 14:7
+(29:7..29:10) _empty_/Test.Bar# -> 28:8
+(30:3..30:13) scala/Predef.implicitly().
+(30:14..30:17) _empty_/Test.Foo. -> 14:7
+(30:18..30:21) _empty_/Test.Foo0.Aux# -> 7:10
+(30:22..30:25) _empty_/Test.Bar# -> 28:8
+(31:3..31:13) scala/Predef.implicitly().
+(31:14..31:17) _empty_/Test.Foo# -> 13:8
+(31:18..31:21) _empty_/Test.Bar# -> 28:8
+

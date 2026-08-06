@@ -1,0 +1,34 @@
+Document tests/pos/scalaz-redux.scala
+(4:25..4:26) _empty_/LazyEither#[A] -> 2:34
+(4:31..4:32) _empty_/LazyEither#fold().[X] -> 4:12
+(4:45..4:46) _empty_/LazyEither#[B] -> 2:37
+(4:51..4:52) _empty_/LazyEither#fold().[X] -> 4:12
+(4:55..4:56) _empty_/LazyEither#fold().[X] -> 4:12
+(6:12..6:20) _empty_/LazyLeft.
+(6:28..6:32) _empty_/LazyEither#fold().(left) -> 4:15
+(6:33..6:34) local0 -> 6:21
+(7:12..7:21) _empty_/LazyRight.
+(7:28..7:33) _empty_/LazyEither#fold().(right) -> 4:34
+(7:34..7:35) local1 -> 7:22
+(13:44..13:54) _empty_/LazyEither# -> 2:23
+(13:55..13:56) _empty_/LazyEither.LeftProjection#[A] -> 13:35
+(13:58..13:59) _empty_/LazyEither.LeftProjection#[B] -> 13:38
+(13:70..13:76) scala/AnyVal#
+(15:25..15:26) _empty_/LazyEither.LeftProjection#[A] -> 13:35
+(15:40..15:42) _empty_/LazyEither.LeftProjection#getOrElse().[AA] -> 15:19
+(15:45..15:47) _empty_/LazyEither.LeftProjection#getOrElse().[AA] -> 15:19
+(16:7..16:8) _empty_/LazyEither.LeftProjection#e. -> 13:41
+(16:9..16:13) _empty_/LazyEither#fold(). -> 4:7
+(16:19..16:20) local2 -> 16:14
+(16:27..16:34) _empty_/LazyEither.LeftProjection#getOrElse().(default) -> 15:28
+(19:1..19:8) _empty_/
+(19:44..19:45) _empty_/LazyLeft#[A] -> 19:29
+(19:55..19:65) _empty_/LazyEither# -> 2:23
+(19:66..19:67) _empty_/LazyLeft#[A] -> 19:29
+(19:69..19:70) _empty_/LazyLeft#[B] -> 19:32
+(20:1..20:8) _empty_/
+(20:45..20:46) _empty_/LazyRight#[B] -> 20:33
+(20:56..20:66) _empty_/LazyEither# -> 2:23
+(20:67..20:68) _empty_/LazyRight#[A] -> 20:30
+(20:70..20:71) _empty_/LazyRight#[B] -> 20:33
+

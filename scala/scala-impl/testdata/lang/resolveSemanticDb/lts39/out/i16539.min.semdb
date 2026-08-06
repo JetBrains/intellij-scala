@@ -1,0 +1,14 @@
+Document tests/pos/i16539.min.scala
+(5:23..5:24) _empty_/Bar#[A] -> 5:16
+(5:28..5:32) scala/Unit#
+(5:42..5:45) _empty_/Foo# -> 4:14
+(5:47..5:50) _empty_/Tag# -> 2:14
+(5:51..5:52) _empty_/Bar#[A] -> 5:16
+(8:20..8:23) _empty_/Foo# -> 4:14
+(8:24..8:25) scala/`&`#
+(8:26..8:29) _empty_/Tag# -> 2:14
+(8:30..8:31) _empty_/Test#pmat().[A] -> 8:12
+(8:35..8:39) scala/Unit#
+(8:42..8:45) _empty_/Test#pmat().(sel) -> 8:15
+(9:10..9:13) _empty_/Bar.
+

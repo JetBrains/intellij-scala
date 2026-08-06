@@ -1,0 +1,13 @@
+val x = "x"
+val a =
+  foo"""
+        |  blah blah $x {<caret>}
+     """.stripMargin
+-----
+val x = "x"
+val a =
+  foo"""
+        |  blah blah $x {
+        |  <caret>
+        |  }
+     """.stripMargin

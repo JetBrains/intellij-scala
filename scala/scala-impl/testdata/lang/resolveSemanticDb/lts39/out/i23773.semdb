@@ -1,0 +1,17 @@
+Document tests/pos/i23773.scala
+(3:13..3:16) scala/Int#
+(3:19..3:22) scala/Predef.`???`().
+(4:12..4:15) _empty_/Foo# -> 1:7
+(4:12..4:15) _empty_/i23773$package.foo(+1).[A] -> 4:9
+(4:18..4:21) scala/Int#
+(4:24..4:27) scala/Predef.`???`().
+(6:15..6:18) scala/Int#
+(7:13..7:16) scala/Int#
+(7:19..7:20) _empty_/i23773$package.succ().(x) -> 6:12
+(7:21..7:22) scala/Int#`+`(+4).
+(9:9..9:12) _empty_/i23773$package.foo(). -> 3:5
+(9:13..9:16) scala/Int#
+(10:9..10:12) _empty_/i23773$package.foo(). -> 3:5
+(10:13..10:16) scala/Int#
+(10:18..10:22) _empty_/i23773$package.succ(). -> 7:7
+

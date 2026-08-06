@@ -1,0 +1,41 @@
+Document tests/pos/i15867.scala
+(2:26..2:29) _empty_/SUB# -> 1:6
+(2:30..2:31) _empty_/SUB.Refl#[S] -> 2:13
+(2:33..2:34) _empty_/SUB.Refl#[S] -> 2:13
+(4:17..4:20) scala/Int#
+(5:17..5:20) scala/Int#
+(5:23..5:26) scala/Int#
+(5:29..5:33) scala/math/
+(5:34..5:37) scala/math/package.pow().
+(5:38..5:42) _empty_/Pow#self. -> 4:11
+(5:44..5:49) _empty_/Pow#`**`().(other) -> 5:10
+(5:51..5:56) scala/Double#toInt().
+(7:24..7:34) scala/Conversion#
+(7:35..7:39) scala/package.List#
+(7:40..7:41) _empty_/i15867$package.fromList().[T] -> 7:18
+(7:44..7:47) _empty_/Pow# -> 4:7
+(7:51..7:54) scala/Predef.`???`().
+(9:16..9:26) scala/Conversion#
+(9:27..9:30) scala/Int#
+(9:32..9:35) _empty_/Pow# -> 4:7
+(9:39..9:42) _empty_/Pow# -> 4:7
+(11:16..11:17) _empty_/i15867$package.foo().[T] -> 11:9
+(11:23..11:24) _empty_/i15867$package.foo().[T] -> 11:9
+(11:25..11:28) _empty_/SUB# -> 1:6
+(11:29..11:33) scala/package.List#
+(11:34..11:37) scala/Int#
+(12:3..12:5) _empty_/i15867$package.foo().(ev) -> 11:19
+(12:19..12:22) _empty_/SUB.
+(12:23..12:27) _empty_/SUB.Refl.
+(13:5..13:7) _empty_/i15867$package.foo().(t1) -> 11:12
+(13:8..13:10) _empty_/Pow#`**`(). -> 5:7
+(16:16..16:17) _empty_/i15867$package.baz().[T] -> 16:9
+(16:23..16:24) _empty_/i15867$package.baz().[T] -> 16:9
+(16:25..16:28) _empty_/SUB# -> 1:6
+(16:29..16:32) scala/Int#
+(17:3..17:5) _empty_/i15867$package.baz().(ev) -> 16:19
+(17:19..17:22) _empty_/SUB.
+(17:23..17:27) _empty_/SUB.Refl.
+(18:5..18:7) _empty_/i15867$package.baz().(t2) -> 16:12
+(18:8..18:10) _empty_/Pow#`**`(). -> 5:7
+

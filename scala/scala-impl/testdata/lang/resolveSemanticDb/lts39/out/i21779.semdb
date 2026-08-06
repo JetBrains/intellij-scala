@@ -1,0 +1,39 @@
+Document tests/pos/i21779/Macro_1.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(4:36..4:41) scala/Tuple#
+(5:7..5:19) _empty_/Macro.tupleXxlExpr(). -> 7:7
+(7:26..7:32) scala/quoted/Quotes#
+(8:12..8:18) scala/quoted/Quotes$package.quotes().
+(8:19..8:26) scala/quoted/Quotes#reflect.
+(9:5..9:9) scala/quoted/Expr.
+(9:10..9:24) scala/quoted/Expr.ofTupleFromSeq().
+(10:7..10:10) scala/package.Seq.
+(11:9..11:13) scala/quoted/Expr.
+(12:9..12:13) scala/quoted/Expr.
+(13:9..13:13) scala/quoted/Expr.
+(14:9..14:13) scala/quoted/Expr.
+(15:9..15:13) scala/quoted/Expr.
+(16:9..16:13) scala/quoted/Expr.
+(17:9..17:13) scala/quoted/Expr.
+(18:9..18:13) scala/quoted/Expr.
+(19:9..19:13) scala/quoted/Expr.
+(20:9..20:13) scala/quoted/Expr.
+(21:9..21:13) scala/quoted/Expr.
+(22:9..22:13) scala/quoted/Expr.
+(23:9..23:13) scala/quoted/Expr.
+(24:9..24:13) scala/quoted/Expr.
+(25:9..25:13) scala/quoted/Expr.
+(26:9..26:13) scala/quoted/Expr.
+(27:9..27:13) scala/quoted/Expr.
+(28:9..28:13) scala/quoted/Expr.
+(29:9..29:13) scala/quoted/Expr.
+(30:9..30:13) scala/quoted/Expr.
+(31:9..31:13) scala/quoted/Expr.
+(32:9..32:13) scala/quoted/Expr.
+(33:9..33:13) scala/quoted/Expr.
+
+Document tests/pos/i21779/Test_2.scala
+(3:5..3:10) _empty_/Macro. -> 3:8
+(3:11..3:19) _empty_/Macro.tupleXxl(). -> 4:26
+

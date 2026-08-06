@@ -1,0 +1,21 @@
+// comment
+val a: Int
+-----
+ScalaFile
+  ScValueDeclaration: a
+    PsiComment(comment)('// comment')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfIdentifiers
+      Field identifier: a
+        PsiElement(identifier)('a')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')

@@ -1,0 +1,19 @@
+Document tests/pos/t1843.scala
+(8:42..8:52) _empty_/Crash.UpdateType# -> 7:9
+(8:53..8:54) _empty_/Crash.StateUpdate#[A] -> 8:26
+(8:65..8:66) _empty_/Crash.StateUpdate#[A] -> 8:26
+(9:41..9:51) _empty_/Crash.UpdateType# -> 7:9
+(9:52..9:59) java/lang/Integer#
+(12:22..12:26) scala/package.List#
+(12:27..12:38) _empty_/Crash.StateUpdate# -> 8:14
+(12:45..12:49) scala/Unit#
+(13:5..13:12) _empty_/Crash.crash().(updates) -> 12:13
+(14:12..14:15) scala/package.Nil.
+(15:13..15:15) scala/package.`::`.
+(16:9..16:10) local0 -> 15:12
+(18:16..18:27) _empty_/Crash.StateUpdate.
+(18:47..18:50) local3 -> 18:28
+(18:51..18:53) scala/Any#`==`().
+(18:54..18:71) _empty_/Crash.IntegerUpdateType. -> 9:15
+(19:13..19:20) scala/Predef.println(+1).
+

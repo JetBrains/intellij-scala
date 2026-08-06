@@ -1,0 +1,61 @@
+Document tests/pos/i17222.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(1:23..1:29) scala/deriving/Mirror#
+(1:23..1:29) scala/deriving/Mirror.
+(2:8..2:13) scala/
+(2:14..2:25) scala/compiletime/
+(9:12..9:13) _empty_/A#F# -> 8:8
+(9:14..9:15) _empty_/A#T# -> 7:8
+(13:14..13:20) _empty_/Reader# -> 4:7
+(13:21..13:22) _empty_/A# -> 6:7
+(13:34..13:35) _empty_/Reader.given_Reader_A_X#[X] -> 13:10
+(13:39..13:40) _empty_/Reader.given_Reader_A_X#[X] -> 13:10
+(15:21..15:26) scala/Tuple#
+(15:36..15:41) scala/Tuple#
+(15:55..15:60) scala/Tuple#
+(15:64..15:68) _empty_/Reader.Map2#[Tup1] -> 15:13
+(15:70..15:74) _empty_/Reader.Map2#[Tup2] -> 15:28
+(16:14..16:16) scala/`*:`#
+(16:24..16:26) scala/`*:`#
+(16:34..16:35) _empty_/Reader.Map2#[F] -> 15:43
+(16:36..16:38) local2 -> 16:11
+(16:40..16:42) local4 -> 16:21
+(16:44..16:46) scala/`*:`#
+(16:47..16:51) _empty_/Reader.Map2# -> 15:8
+(16:52..16:54) local3 -> 16:17
+(16:56..16:58) local5 -> 16:27
+(16:60..16:61) _empty_/Reader.Map2#[F] -> 15:43
+(17:11..17:21) scala/Tuple$package.EmptyTuple#
+(17:23..17:33) scala/Tuple$package.EmptyTuple#
+(17:38..17:48) scala/Tuple$package.EmptyTuple#
+(19:36..19:43) scala/Product#
+(19:52..19:59) scala/Product#
+(19:71..19:77) scala/deriving/Mirror.
+(19:78..19:87) scala/deriving/Mirror.ProductOf#
+(19:88..19:90) _empty_/Reader.productReader().[In] -> 19:30
+(19:103..19:109) scala/deriving/Mirror.
+(19:110..19:119) scala/deriving/Mirror.ProductOf#
+(19:120..19:123) _empty_/Reader.productReader().[Out] -> 19:45
+(19:127..19:133) _empty_/Reader# -> 4:7
+(19:134..19:136) _empty_/Reader.productReader().[In] -> 19:30
+(19:138..19:141) _empty_/Reader.productReader().[Out] -> 19:45
+(20:5..20:14) scala/compiletime/package$package.summonAll().
+(20:15..20:19) _empty_/Reader.Map2# -> 15:8
+(20:20..20:22) _empty_/Reader.productReader().(mi) -> 19:67
+(20:42..20:44) _empty_/Reader.productReader().(mo) -> 19:99
+(21:5..21:8) scala/Predef.`???`().
+(25:22..25:23) _empty_/A# -> 6:7
+(26:14..26:15) _empty_/Test.B#[X] -> 25:11
+(28:19..28:20) _empty_/A# -> 6:7
+(29:17..29:18) _empty_/Test.C#F#[X] -> 29:12
+(31:16..31:17) _empty_/Test.B# -> 25:9
+(31:18..31:21) scala/Int#
+(31:28..31:29) _empty_/Test.C# -> 28:9
+(33:3..33:9) scala/Predef.summon().
+(33:10..33:16) _empty_/Reader# -> 4:7
+(33:18..33:20) _empty_/Test.bc. -> 31:7
+(33:27..33:29) _empty_/Test.bc. -> 31:7
+(33:38..33:41) scala/Int#
+(33:43..33:46) scala/Int#
+

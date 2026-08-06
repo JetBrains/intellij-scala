@@ -1,0 +1,54 @@
+object ResolveTargets {
+    val VAR(1, Ku) = new ResolveTargets
+}
+-----
+ScalaFile
+  ScObject: ResolveTargets
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ResolveTargets')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScPatternDefinition
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ConstructorPattern
+              CodeReferenceElement: VAR
+                PsiElement(identifier)('VAR')
+              Pattern Argument List
+                PsiElement(()('(')
+                LiteralPattern
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StableElementPattern
+                  ReferenceExpression: Ku
+                    PsiElement(identifier)('Ku')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: ResolveTargets
+                    CodeReferenceElement: ResolveTargets
+                      PsiElement(identifier)('ResolveTargets')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

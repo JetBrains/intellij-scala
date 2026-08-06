@@ -1,0 +1,334 @@
+trait IO[A]:
+  def map[B](f: A => B): IO[B] = ???
+
+trait RenderResult[T]:
+  def value: T
+
+def IOasync[T](f: (Either[Throwable, T] => Unit) => Unit): IO[T] = ???
+
+def render[T]: IO[T] = {
+  def register(cb: Either[Throwable, RenderResult[T]] => Unit): Unit = ???
+  IOasync(register).map(_.value) // map should take RenderResult[T], but uses Any
+}
+-----
+ScalaFile
+  ScTrait: IO
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IO')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: map
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('map')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A => B
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: IO[B]
+            SimpleType: IO
+              CodeReferenceElement: IO
+                PsiElement(identifier)('IO')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: RenderResult
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('RenderResult')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: value
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('value')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: IOasync
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IOasync')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            FunctionalType: (Either[Throwable, T] => Unit) => Unit
+              TypeInParenthesis: (Either[Throwable, T] => Unit)
+                PsiElement(()('(')
+                FunctionalType: Either[Throwable, T] => Unit
+                  ParametrizedType: Either[Throwable, T]
+                    SimpleType: Either
+                      CodeReferenceElement: Either
+                        PsiElement(identifier)('Either')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Throwable
+                          CodeReferenceElement: Throwable
+                            PsiElement(identifier)('Throwable')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Unit
+                    CodeReferenceElement: Unit
+                      PsiElement(identifier)('Unit')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: IO[T]
+      SimpleType: IO
+        CodeReferenceElement: IO
+          PsiElement(identifier)('IO')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: render
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('render')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: IO[T]
+      SimpleType: IO
+        CodeReferenceElement: IO
+          PsiElement(identifier)('IO')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScFunctionDefinition: register
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('register')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: cb
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('cb')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                FunctionalType: Either[Throwable, RenderResult[T]] => Unit
+                  ParametrizedType: Either[Throwable, RenderResult[T]]
+                    SimpleType: Either
+                      CodeReferenceElement: Either
+                        PsiElement(identifier)('Either')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Throwable
+                          CodeReferenceElement: Throwable
+                            PsiElement(identifier)('Throwable')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: RenderResult[T]
+                          SimpleType: RenderResult
+                            CodeReferenceElement: RenderResult
+                              PsiElement(identifier)('RenderResult')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Unit
+                    CodeReferenceElement: Unit
+                      PsiElement(identifier)('Unit')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Unit
+          CodeReferenceElement: Unit
+            PsiElement(identifier)('Unit')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: IOasync(register).map
+          MethodCall
+            ReferenceExpression: IOasync
+              PsiElement(identifier)('IOasync')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: register
+                PsiElement(identifier)('register')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('map')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: _.value
+            UnderscoreSection
+              PsiElement(_)('_')
+            PsiElement(.)('.')
+            PsiElement(identifier)('value')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// map should take RenderResult[T], but uses Any')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

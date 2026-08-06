@@ -1,0 +1,49 @@
+class a{
+  return (2+2)-1*2
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ReturnStatement
+          PsiElement(return)('return')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              InfixExpression
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                ReferenceExpression: +
+                  PsiElement(identifier)('+')
+                IntegerLiteral
+                  PsiElement(integer)('2')
+              PsiElement())(')')
+            ReferenceExpression: -
+              PsiElement(identifier)('-')
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('1')
+              ReferenceExpression: *
+                PsiElement(identifier)('*')
+              IntegerLiteral
+                PsiElement(integer)('2')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,5 @@
+Document tests/pos/valdefs.scala
+(4:14..4:20) scala/Predef.String#
+(8:30..8:34) _empty_/test.Base# -> 3:20
+(13:35..13:39) _empty_/test.Base# -> 3:20
+

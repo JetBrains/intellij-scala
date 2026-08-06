@@ -1,0 +1,386 @@
+import scala.util.{Try, Success, Failure}
+
+trait ActorRef[-T]
+trait ActorContext[T]:
+  def ask[Req, Res](target: ActorRef[Req], createRequest: ActorRef[Res] => Req)(mapResponse: Try[Res] => T): Unit
+
+@main def Test =
+  val context: ActorContext[Int] = ???
+  val askMeRef: ActorRef[Request] = ???
+
+  case class Request(replyTo: ActorRef[Int])
+
+  context.ask(askMeRef, Request.apply) {
+    case Success(res) => res // error: expected Int, got Any
+    case Failure(ex)  => throw ex
+  }
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.util
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('util')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: Try
+            PsiElement(identifier)('Try')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: Success
+            PsiElement(identifier)('Success')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: Failure
+            PsiElement(identifier)('Failure')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: ActorRef
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ActorRef')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: ActorContext
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ActorContext')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: ask
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ask')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Req
+              PsiElement(identifier)('Req')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Res
+              PsiElement(identifier)('Res')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: target
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('target')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: ActorRef[Req]
+                    SimpleType: ActorRef
+                      CodeReferenceElement: ActorRef
+                        PsiElement(identifier)('ActorRef')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Req
+                          CodeReferenceElement: Req
+                            PsiElement(identifier)('Req')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: createRequest
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('createRequest')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: ActorRef[Res] => Req
+                    ParametrizedType: ActorRef[Res]
+                      SimpleType: ActorRef
+                        CodeReferenceElement: ActorRef
+                          PsiElement(identifier)('ActorRef')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Res
+                            CodeReferenceElement: Res
+                              PsiElement(identifier)('Res')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Req
+                      CodeReferenceElement: Req
+                        PsiElement(identifier)('Req')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: mapResponse
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('mapResponse')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: Try[Res] => T
+                    ParametrizedType: Try[Res]
+                      SimpleType: Try
+                        CodeReferenceElement: Try
+                          PsiElement(identifier)('Try')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Res
+                            CodeReferenceElement: Res
+                              PsiElement(identifier)('Res')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: context
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: context
+            PsiElement(identifier)('context')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: ActorContext[Int]
+          SimpleType: ActorContext
+            CodeReferenceElement: ActorContext
+              PsiElement(identifier)('ActorContext')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: askMeRef
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: askMeRef
+            PsiElement(identifier)('askMeRef')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: ActorRef[Request]
+          SimpleType: ActorRef
+            CodeReferenceElement: ActorRef
+              PsiElement(identifier)('ActorRef')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: Request
+                CodeReferenceElement: Request
+                  PsiElement(identifier)('Request')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n\n  ')
+      ScClass: Request
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Request')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              ClassParameter: replyTo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('replyTo')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: ActorRef[Int]
+                    SimpleType: ActorRef
+                      CodeReferenceElement: ActorRef
+                        PsiElement(identifier)('ActorRef')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+              PsiElement())(')')
+        ExtendsBlock
+          <empty list>
+      PsiWhiteSpace('\n\n  ')
+      MethodCall
+        MethodCall
+          ReferenceExpression: context.ask
+            ReferenceExpression: context
+              PsiElement(identifier)('context')
+            PsiElement(.)('.')
+            PsiElement(identifier)('ask')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: askMeRef
+              PsiElement(identifier)('askMeRef')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: Request.apply
+              ReferenceExpression: Request
+                PsiElement(identifier)('Request')
+              PsiElement(.)('.')
+              PsiElement(identifier)('apply')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        ArgumentList
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: Success
+                    PsiElement(identifier)('Success')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: res
+                      PsiElement(identifier)('res')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: res
+                    PsiElement(identifier)('res')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// error: expected Int, got Any')
+              PsiWhiteSpace('\n    ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: Failure
+                    PsiElement(identifier)('Failure')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: ex
+                      PsiElement(identifier)('ex')
+                    PsiElement())(')')
+                PsiWhiteSpace('  ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ThrowStatement
+                    PsiElement(throw)('throw')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: ex
+                      PsiElement(identifier)('ex')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')

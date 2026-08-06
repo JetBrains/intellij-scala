@@ -1,0 +1,12 @@
+class a:
+  <start>a + c
+  c - b
+  var t: Int = 4<if>
+end a
+-----
+class a:
+  if  then
+    a + c
+    c - b
+    var t: Int = 4
+end a

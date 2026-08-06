@@ -1,0 +1,321 @@
+//> using options -Xfatal-warnings -deprecation -feature
+
+import scala.quoted.*
+
+object Macros {
+
+
+  def impl(using Quotes): Unit = {
+    import quotes.reflect.*
+
+    def foo(tree: Tree, term: Term, typeTree: TypeTree, parent: Tree) = {
+
+      tree match {
+        case tree: Tree =>
+      }
+
+      term match {
+        case term: Term =>
+      }
+
+      typeTree match {
+        case typeTree: TypeTree =>
+      }
+
+      parent match {
+        case typeTree: Term =>
+        case typeTree: TypeTree =>
+      }
+
+    }
+  }
+
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-feature')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.quoted
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('quoted')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: Macros
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Macros')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n\n  ')
+        ScFunctionDefinition: impl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('impl')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  SimpleType: Quotes
+                    CodeReferenceElement: Quotes
+                      PsiElement(identifier)('Quotes')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScImportStatement
+              PsiElement(import)('import')
+              PsiWhiteSpace(' ')
+              ImportExpression
+                CodeReferenceElement: quotes.reflect
+                  CodeReferenceElement: quotes
+                    PsiElement(identifier)('quotes')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('reflect')
+                PsiElement(.)('.')
+                PsiElement(*)('*')
+            PsiWhiteSpace('\n\n    ')
+            ScFunctionDefinition: foo
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('foo')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: tree
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('tree')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Tree
+                        CodeReferenceElement: Tree
+                          PsiElement(identifier)('Tree')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: term
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('term')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Term
+                        CodeReferenceElement: Term
+                          PsiElement(identifier)('Term')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: typeTree
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('typeTree')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: TypeTree
+                        CodeReferenceElement: TypeTree
+                          PsiElement(identifier)('TypeTree')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  Parameter: parent
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('parent')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Tree
+                        CodeReferenceElement: Tree
+                          PsiElement(identifier)('Tree')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n\n      ')
+                MatchStatement
+                  ReferenceExpression: tree
+                    PsiElement(identifier)('tree')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n        ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: tree
+                          PsiElement(identifier)('tree')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: Tree
+                            CodeReferenceElement: Tree
+                              PsiElement(identifier)('Tree')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      BlockOfExpressions
+                        <empty list>
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(})('}')
+                PsiWhiteSpace('\n\n      ')
+                MatchStatement
+                  ReferenceExpression: term
+                    PsiElement(identifier)('term')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n        ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: term
+                          PsiElement(identifier)('term')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: Term
+                            CodeReferenceElement: Term
+                              PsiElement(identifier)('Term')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      BlockOfExpressions
+                        <empty list>
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(})('}')
+                PsiWhiteSpace('\n\n      ')
+                MatchStatement
+                  ReferenceExpression: typeTree
+                    PsiElement(identifier)('typeTree')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n        ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: typeTree
+                          PsiElement(identifier)('typeTree')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: TypeTree
+                            CodeReferenceElement: TypeTree
+                              PsiElement(identifier)('TypeTree')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      BlockOfExpressions
+                        <empty list>
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(})('}')
+                PsiWhiteSpace('\n\n      ')
+                MatchStatement
+                  ReferenceExpression: parent
+                    PsiElement(identifier)('parent')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n        ')
+                  CaseClauses
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: typeTree
+                          PsiElement(identifier)('typeTree')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: Term
+                            CodeReferenceElement: Term
+                              PsiElement(identifier)('Term')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      BlockOfExpressions
+                        <empty list>
+                    PsiWhiteSpace('\n        ')
+                    CaseClause
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      Scala3 TypedPattern
+                        ReferencePattern: typeTree
+                          PsiElement(identifier)('typeTree')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        TypePattern
+                          SimpleType: TypeTree
+                            CodeReferenceElement: TypeTree
+                              PsiElement(identifier)('TypeTree')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      BlockOfExpressions
+                        <empty list>
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(})('}')
+                PsiWhiteSpace('\n\n    ')
+                PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

@@ -1,0 +1,77 @@
+class a {
+  {
+    case (a,b,c) => a
+    case (a+c) => a
+  }
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              TuplePattern
+                PsiElement(()('(')
+                ArgumentPatterns
+                  ReferencePattern: a
+                    PsiElement(identifier)('a')
+                  PsiElement(,)(',')
+                  ReferencePattern: b
+                    PsiElement(identifier)('b')
+                  PsiElement(,)(',')
+                  ReferencePattern: c
+                    PsiElement(identifier)('c')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              PatternInParenthesis
+                PsiElement(()('(')
+                InfixPattern
+                  ReferencePattern: a
+                    PsiElement(identifier)('a')
+                  CodeReferenceElement: +
+                    PsiElement(identifier)('+')
+                  ReferencePattern: c
+                    PsiElement(identifier)('c')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

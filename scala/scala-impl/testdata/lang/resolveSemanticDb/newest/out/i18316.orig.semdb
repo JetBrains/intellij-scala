@@ -1,0 +1,31 @@
+Document tests/pos/i18316.orig.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
+(5:29..5:32) scala/Int#
+(5:35..5:50) _empty_/squerel.TypedExpression# -> 7:9
+(5:51..5:54) scala/Int#
+(5:58..5:61) scala/Predef.`???`().
+(8:20..8:35) _empty_/squerel.TypedExpression# -> 7:9
+(8:36..8:38) _empty_/squerel.TypedExpression#`===`().[A2] -> 8:13
+(8:42..8:60) _empty_/squerel.EqualityExpression# -> 3:9
+(8:63..8:66) scala/Predef.`???`().
+(13:38..13:39) _empty_/scalactic.TripleEqualsSupport#Equalizer#[L] -> 13:21
+(14:26..14:29) scala/Any#
+(14:32..14:39) scala/Boolean#
+(14:42..14:45) scala/Predef.`???`().
+(16:30..16:49) _empty_/scalactic.TripleEqualsSupport# -> 12:9
+(17:46..17:47) _empty_/scalactic.TripleEquals#convertToEqualizer().[T] -> 17:37
+(17:50..17:59) _empty_/scalactic.TripleEqualsSupport#Equalizer# -> 13:11
+(17:60..17:61) _empty_/scalactic.TripleEquals#convertToEqualizer().[T] -> 17:37
+(17:65..17:68) scala/Predef.`???`().
+(20:8..20:15) _empty_/squerel. -> 2:8
+(20:16..20:33) _empty_/squerel.PrimitiveTypeMode. -> 4:10
+(21:21..21:30) _empty_/scalactic. -> 11:8
+(21:31..21:43) _empty_/scalactic.TripleEquals# -> 16:9
+(22:10..22:17) _empty_/squerel. -> 2:8
+(22:18..22:35) _empty_/squerel.PrimitiveTypeMode. -> 4:10
+(23:14..23:21) _empty_/squerel. -> 2:8
+(23:22..23:40) _empty_/squerel.EqualityExpression# -> 3:9
+(23:45..23:48) _empty_/squerel.TypedExpression#`===`(). -> 8:9
+

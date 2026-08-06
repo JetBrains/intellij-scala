@@ -1,0 +1,4 @@
+Document tests/pos/t1119.scala
+(3:29..3:30) _empty_/B# -> 1:7
+(7:16..7:17) _empty_/B#T# -> 3:11
+

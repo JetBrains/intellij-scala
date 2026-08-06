@@ -1,0 +1,35 @@
+val reason = <reason>
+  <![CDATA[
+
+  val reason = <reason>
+
+  </reason>
+
+]]>
+</reason>
+-----
+val {val}
+white space in line { }
+identifier {reason}
+white space in line { }
+= {=}
+white space in line { }
+XML_START_TAG_START {<}
+XML_NAME {reason}
+XML_TAG_END {>}
+white space in line {
+  }
+XML_CDATA_START {<![CDATA[}
+XML_DATA_CHARACTERS {
+
+  val reason = <reason>
+
+  </reason>
+
+}
+XML_CDATA_END {]]>}
+white space in line {
+}
+XML_END_TAG_START {</}
+XML_NAME {reason}
+XML_TAG_END {>}

@@ -1,0 +1,8 @@
+class a:
+  <start>abc<for>
+end a
+-----
+class a:
+  for  do
+    abc
+end a

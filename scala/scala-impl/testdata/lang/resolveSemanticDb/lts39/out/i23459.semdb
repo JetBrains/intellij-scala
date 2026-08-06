@@ -1,0 +1,18 @@
+Document tests/pos/i23459.scala
+(2:21..2:24) scala/Int#
+(2:27..2:33) scala/Option#
+(2:34..2:37) scala/package.Seq#
+(2:38..2:41) scala/Int#
+(2:46..2:50) scala/Some.
+(2:51..2:54) scala/package.Seq.
+(4:24..4:27) scala/Int#
+(8:10..8:15) _empty_/TTest. -> 1:8
+(11:10..11:15) _empty_/TTest. -> 1:8
+(14:10..14:15) _empty_/TTest. -> 1:8
+(15:10..15:15) _empty_/TTest. -> 1:8
+(17:3..17:10) _empty_/Varargs.
+(18:10..18:17) _empty_/Varargs.
+(20:3..20:10) _empty_/Varargs.
+(21:10..21:17) _empty_/Varargs.
+(22:10..22:17) _empty_/Varargs.
+

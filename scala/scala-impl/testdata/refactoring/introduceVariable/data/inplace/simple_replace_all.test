@@ -1,0 +1,19 @@
+//### inplace=true, replaceAll=true
+class A {
+  def foo: Int = {
+    42
+    42
+    42
+    <selection>42</selection>
+  }
+}
+-------
+class A {
+  def foo: Int = {
+    val value: Int = 42
+    value
+    value
+    value
+    value
+  }
+}

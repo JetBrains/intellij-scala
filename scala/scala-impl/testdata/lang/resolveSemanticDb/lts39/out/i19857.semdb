@@ -1,0 +1,35 @@
+Document tests/pos/i19857.scala
+(3:27..3:40) scala/NonEmptyTuple#
+(3:50..3:59) _empty_/DFTypeAny# -> 1:14
+(5:28..5:37) _empty_/DFTypeAny# -> 1:14
+(9:15..9:24) _empty_/DFTypeAny# -> 1:14
+(9:27..9:28) _empty_/i19857$package.Of#[T] -> 9:9
+(10:8..10:17) _empty_/DFTypeAny# -> 1:14
+(10:21..10:22) _empty_/i19857$package.Of#[T] -> 9:9
+(10:23..10:24) scala/`&`#
+(10:25..10:34) _empty_/DFTypeAny# -> 1:14
+(11:8..11:15) scala/Product#
+(11:21..11:32) _empty_/i19857$package.FromProduct# -> 15:6
+(11:33..11:34) _empty_/i19857$package.Of#[T] -> 9:9
+(13:19..13:26) _empty_/DFValOf# -> 7:14
+(13:27..13:29) _empty_/i19857$package.Of# -> 9:6
+(13:30..13:31) _empty_/i19857$package.JUSTVAL#[T] -> 13:14
+(15:23..15:30) scala/Product#
+(15:35..15:44) _empty_/DFTypeAny# -> 1:14
+(15:47..15:48) _empty_/i19857$package.FromProduct#[T] -> 15:18
+(16:8..16:21) scala/NonEmptyTuple#
+(16:25..16:32) _empty_/DFTuple# -> 3:14
+(16:33..16:38) scala/Tuple.
+(16:39..16:42) scala/Tuple.Map#
+(16:43..16:44) _empty_/i19857$package.FromProduct#[T] -> 15:18
+(16:46..16:53) _empty_/i19857$package.JUSTVAL# -> 13:6
+(21:23..21:29) _empty_/Width2# -> 18:7
+(21:30..21:31) _empty_/Width2.given_Width2_T().[T] -> 21:17
+(21:39..21:45) _empty_/Width2# -> 18:7
+(21:46..21:47) _empty_/Width2.given_Width2_T().[T] -> 21:17
+(23:9..23:15) scala/Predef.summon().
+(23:16..23:22) _empty_/Width2# -> 18:7
+(23:23..23:25) _empty_/i19857$package.Of# -> 9:6
+(23:27..23:32) _empty_/DFBit# -> 5:14
+(23:34..23:39) _empty_/DFBit# -> 5:14
+

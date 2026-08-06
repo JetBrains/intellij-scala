@@ -1,0 +1,28 @@
+package scalaql
+
+import scala.annotation.unchecked.uncheckedVariance // unused
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scalaql
+      PsiElement(identifier)('scalaql')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.annotation.unchecked.uncheckedVariance
+          CodeReferenceElement: scala.annotation.unchecked
+            CodeReferenceElement: scala.annotation
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('annotation')
+            PsiElement(.)('.')
+            PsiElement(identifier)('unchecked')
+          PsiElement(.)('.')
+          PsiElement(identifier)('uncheckedVariance')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// unused')

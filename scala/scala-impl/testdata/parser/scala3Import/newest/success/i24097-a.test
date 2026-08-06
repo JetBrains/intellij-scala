@@ -1,0 +1,961 @@
+trait <[+A, -S]
+object `<`:
+  extension [A, S](v: A < S) def map[B, S2](f: A => B < S2): B < (S & S2) = ???
+
+def lift[A, S](v: A): A < S = ???
+
+abstract class ArrowEffect[-Input[_], +Output[_]]
+object ArrowEffect:
+  inline def handleCatching[I[_], O[_], E <: ArrowEffect[I, O], A, B, S, S2, S3](
+      v: A < (E & S)
+  ): B < (S & S2 & S3) = ???
+
+trait Result[+E, +A]
+object Result:
+  def succeed[E, A](value: A): Result[E, A] = ???
+
+abstract class Error[+E]
+
+type Const[A] = [B] =>> A
+sealed trait Abort[-E] extends ArrowEffect[Const[Error[E]], Const[Unit]]
+object Abort:
+  inline def runWith[E, A, S, ER, B, S2](v: A < (Abort[E | ER] & S)) =
+    ArrowEffect.handleCatching[
+      Const[Error[E]],
+      Const[Unit],
+      Abort[E],
+      Result[E, A],
+      B,
+      Abort[ER] & S,
+      Abort[ER] & S,
+      S2
+    ](
+      v.map: 
+        value => lift:
+          Result.succeed[E, A](value)
+    )
+-----
+ScalaFile
+  ScTrait: <
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('<')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('S')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: `<`
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('`<`')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        Extension on A < S
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: v
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: A < S
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ScExtensionBody
+            ScFunctionDefinition: map
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('map')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: B
+                  PsiElement(identifier)('B')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeParameter: S2
+                  PsiElement(identifier)('S2')
+                PsiElement(])(']')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: f
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('f')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      FunctionalType: A => B < S2
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        InfixType: B < S2
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: <
+                            PsiElement(identifier)('<')
+                          PsiWhiteSpace(' ')
+                          SimpleType: S2
+                            CodeReferenceElement: S2
+                              PsiElement(identifier)('S2')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              InfixType: B < (S & S2)
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: <
+                  PsiElement(identifier)('<')
+                PsiWhiteSpace(' ')
+                TypeInParenthesis: (S & S2)
+                  PsiElement(()('(')
+                  InfixType: S & S2
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: S2
+                      CodeReferenceElement: S2
+                        PsiElement(identifier)('S2')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: lift
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('lift')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: v
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('v')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    InfixType: A < S
+      SimpleType: A
+        CodeReferenceElement: A
+          PsiElement(identifier)('A')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: <
+        PsiElement(identifier)('<')
+      PsiWhiteSpace(' ')
+      SimpleType: S
+        CodeReferenceElement: S
+          PsiElement(identifier)('S')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: ArrowEffect
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ArrowEffect')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Input
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('Input')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Output
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('Output')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: ArrowEffect
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ArrowEffect')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: handleCatching
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('handleCatching')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: I
+              PsiElement(identifier)('I')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: O
+              PsiElement(identifier)('O')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: ArrowEffect[I, O]
+                SimpleType: ArrowEffect
+                  CodeReferenceElement: ArrowEffect
+                    PsiElement(identifier)('ArrowEffect')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: I
+                      CodeReferenceElement: I
+                        PsiElement(identifier)('I')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: O
+                      CodeReferenceElement: O
+                        PsiElement(identifier)('O')
+                  PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S2
+              PsiElement(identifier)('S2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S3
+              PsiElement(identifier)('S3')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n      ')
+              Parameter: v
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: A < (E & S)
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    TypeInParenthesis: (E & S)
+                      PsiElement(()('(')
+                      InfixType: E & S
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: &
+                          PsiElement(identifier)('&')
+                        PsiWhiteSpace(' ')
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: B < (S & S2 & S3)
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <
+              PsiElement(identifier)('<')
+            PsiWhiteSpace(' ')
+            TypeInParenthesis: (S & S2 & S3)
+              PsiElement(()('(')
+              InfixType: S & S2 & S3
+                InfixType: S & S2
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: S2
+                    CodeReferenceElement: S2
+                      PsiElement(identifier)('S2')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
+                PsiWhiteSpace(' ')
+                SimpleType: S3
+                  CodeReferenceElement: S3
+                    PsiElement(identifier)('S3')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Result
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Result')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Result
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Result')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: succeed
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('succeed')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: value
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('value')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Result[E, A]
+            SimpleType: Result
+              CodeReferenceElement: Result
+                PsiElement(identifier)('Result')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: Error
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Error')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Const
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Const')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TypeLambda: [B] =>> A
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: B
+          PsiElement(identifier)('B')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>>)('=>>')
+      PsiWhiteSpace(' ')
+      SimpleType: A
+        CodeReferenceElement: A
+          PsiElement(identifier)('A')
+  PsiWhiteSpace('\n')
+  ScTrait: Abort
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Abort')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: ArrowEffect[Const[Error[E]], Const[Unit]]
+            SimpleType: ArrowEffect
+              CodeReferenceElement: ArrowEffect
+                PsiElement(identifier)('ArrowEffect')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Const[Error[E]]
+                  SimpleType: Const
+                    CodeReferenceElement: Const
+                      PsiElement(identifier)('Const')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Error[E]
+                        SimpleType: Error
+                          CodeReferenceElement: Error
+                            PsiElement(identifier)('Error')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: E
+                              CodeReferenceElement: E
+                                PsiElement(identifier)('E')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                ParametrizedType: Const[Unit]
+                  SimpleType: Const
+                    CodeReferenceElement: Const
+                      PsiElement(identifier)('Const')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScObject: Abort
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Abort')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: runWith
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('runWith')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: ER
+              PsiElement(identifier)('ER')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S2
+              PsiElement(identifier)('S2')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: v
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: A < (Abort[E | ER] & S)
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    TypeInParenthesis: (Abort[E | ER] & S)
+                      PsiElement(()('(')
+                      InfixType: Abort[E | ER] & S
+                        ParametrizedType: Abort[E | ER]
+                          SimpleType: Abort
+                            CodeReferenceElement: Abort
+                              PsiElement(identifier)('Abort')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              InfixType: E | ER
+                                SimpleType: E
+                                  CodeReferenceElement: E
+                                    PsiElement(identifier)('E')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: |
+                                  PsiElement(identifier)('|')
+                                PsiWhiteSpace(' ')
+                                SimpleType: ER
+                                  CodeReferenceElement: ER
+                                    PsiElement(identifier)('ER')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: &
+                          PsiElement(identifier)('&')
+                        PsiWhiteSpace(' ')
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                      PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: ArrowEffect.handleCatching
+                ReferenceExpression: ArrowEffect
+                  PsiElement(identifier)('ArrowEffect')
+                PsiElement(.)('.')
+                PsiElement(identifier)('handleCatching')
+              TypeArgumentsList
+                PsiElement([)('[')
+                PsiWhiteSpace('\n      ')
+                TypeArgument
+                  ParametrizedType: Const[Error[E]]
+                    SimpleType: Const
+                      CodeReferenceElement: Const
+                        PsiElement(identifier)('Const')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: Error[E]
+                          SimpleType: Error
+                            CodeReferenceElement: Error
+                              PsiElement(identifier)('Error')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: E
+                                CodeReferenceElement: E
+                                  PsiElement(identifier)('E')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                TypeArgument
+                  ParametrizedType: Const[Unit]
+                    SimpleType: Const
+                      CodeReferenceElement: Const
+                        PsiElement(identifier)('Const')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Unit
+                          CodeReferenceElement: Unit
+                            PsiElement(identifier)('Unit')
+                      PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                TypeArgument
+                  ParametrizedType: Abort[E]
+                    SimpleType: Abort
+                      CodeReferenceElement: Abort
+                        PsiElement(identifier)('Abort')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                      PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                TypeArgument
+                  ParametrizedType: Result[E, A]
+                    SimpleType: Result
+                      CodeReferenceElement: Result
+                        PsiElement(identifier)('Result')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                TypeArgument
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                TypeArgument
+                  InfixType: Abort[ER] & S
+                    ParametrizedType: Abort[ER]
+                      SimpleType: Abort
+                        CodeReferenceElement: Abort
+                          PsiElement(identifier)('Abort')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: ER
+                            CodeReferenceElement: ER
+                              PsiElement(identifier)('ER')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                TypeArgument
+                  InfixType: Abort[ER] & S
+                    ParametrizedType: Abort[ER]
+                      SimpleType: Abort
+                        CodeReferenceElement: Abort
+                          PsiElement(identifier)('Abort')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: ER
+                            CodeReferenceElement: ER
+                              PsiElement(identifier)('ER')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                TypeArgument
+                  SimpleType: S2
+                    CodeReferenceElement: S2
+                      PsiElement(identifier)('S2')
+                PsiWhiteSpace('\n    ')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              PsiWhiteSpace('\n      ')
+              MethodCall
+                ReferenceExpression: v.map
+                  ReferenceExpression: v
+                    PsiElement(identifier)('v')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentList
+                  BlockExpression
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' \n        ')
+                    FunctionExpression
+                      Parameters
+                        ParametersClause
+                          Parameter: value
+                            PsiElement(identifier)('value')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      BlockOfExpressions
+                        MethodCall
+                          ReferenceExpression: lift
+                            PsiElement(identifier)('lift')
+                          ArgumentList
+                            BlockExpression
+                              PsiElement(:)(':')
+                              PsiWhiteSpace('\n          ')
+                              MethodCall
+                                GenericCall
+                                  ReferenceExpression: Result.succeed
+                                    ReferenceExpression: Result
+                                      PsiElement(identifier)('Result')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('succeed')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: E
+                                        CodeReferenceElement: E
+                                          PsiElement(identifier)('E')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    TypeArgument
+                                      SimpleType: A
+                                        CodeReferenceElement: A
+                                          PsiElement(identifier)('A')
+                                    PsiElement(])(']')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: value
+                                    PsiElement(identifier)('value')
+                                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              PsiElement())(')')

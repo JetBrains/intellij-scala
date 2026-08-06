@@ -1,0 +1,48 @@
+def m3 =
+  open case class A()
+  A()
+-----
+ScalaFile
+  ScFunctionDefinition: m3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('m3')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScClass: A
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(open)('open')
+          PsiWhiteSpace(' ')
+          PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('A')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+        ExtendsBlock
+          <empty list>
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: A
+          PsiElement(identifier)('A')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')

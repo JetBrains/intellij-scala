@@ -1,0 +1,21 @@
+Document tests/pos/i13197.scala
+(3:18..3:19) _empty_/i13197$package.forceString().[T] -> 3:12
+(3:20..3:21) scala/`|`#
+(3:22..3:28) scala/Predef.String#
+(3:54..3:55) _empty_/i13197$package.forceString().(x) -> 3:15
+(3:61..3:62) scala/`&`#
+(3:63..3:69) scala/Predef.String#
+(4:3..4:4) _empty_/i13197$package.forceString().(x) -> 3:15
+(4:5..4:17) scala/Any#asInstanceOf().
+(7:10..7:16) scala/Predef.String#
+(7:17..7:18) scala/`|`#
+(7:19..7:22) scala/Int#
+(9:14..9:20) scala/Predef.String#
+(9:30..9:36) scala/Predef.String#
+(12:16..12:19) _empty_/Bar# -> 6:7
+(12:23..12:26) _empty_/Foo# -> 9:7
+(12:27..12:28) _empty_/Foo#`<init>`().(b)
+(12:31..12:34) _empty_/Foo.foo().(bar) -> 12:11
+(12:35..12:36) _empty_/Bar#b(). -> 7:7
+(12:37..12:48) _empty_/i13197$package.forceString(). -> 3:41
+

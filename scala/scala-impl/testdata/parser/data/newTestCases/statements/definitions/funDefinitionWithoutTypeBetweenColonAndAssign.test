@@ -1,0 +1,78 @@
+class a {
+  def foo[T](x: T): = 4 :: 3 &: 5
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiErrorElement:Wrong type
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('4')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ::
+                PsiElement(identifier)('::')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('3')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: &:
+              PsiElement(identifier)('&:')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('5')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

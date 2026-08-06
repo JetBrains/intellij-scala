@@ -1,0 +1,13 @@
+"" match {
+  case "foo" => {
+    def f1 = {
+
+    }
+    def f2 = {
+
+    }
+  }
+  case "bar" => {
+
+  }
+}

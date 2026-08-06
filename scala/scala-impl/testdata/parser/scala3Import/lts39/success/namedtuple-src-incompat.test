@@ -1,0 +1,337 @@
+var age = 22
+val x = (age = 1)
+val _: (age: Int) = x
+val x2 = {age = 1}
+val _: Unit = x2
+
+class C:
+  infix def id[T](age: T): T = age
+
+def test =
+  val c: C = ???
+  val y = c id (age = 1)
+  val _: (age: Int) = y
+  val y2 = c.id(age = 1)
+  val _: Int = y2
+
+-----
+ScalaFile
+  ScVariableDefinition: age
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(var)('var')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: age
+        PsiElement(identifier)('age')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('22')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: x
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    NamedTuple
+      PsiElement(()('(')
+      ScNamedTupleExprComponentImpl(named tuple component)
+        PsiElement(identifier)('age')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('1')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    NamedTupleType: (age: Int)
+      PsiElement(()('(')
+      NamedTupleTypeComponent: age: Int
+        PsiElement(identifier)('age')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: x
+      PsiElement(identifier)('x')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: x2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x2
+        PsiElement(identifier)('x2')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      AssignStatement
+        ReferenceExpression: age
+          PsiElement(identifier)('age')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('1')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: x2
+      PsiElement(identifier)('x2')
+  PsiWhiteSpace('\n\n')
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: id
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(infix)('infix')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('id')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: age
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('age')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: age
+            PsiElement(identifier)('age')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: c
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: c
+            PsiElement(identifier)('c')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: C
+          CodeReferenceElement: C
+            PsiElement(identifier)('C')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: y
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: y
+            PsiElement(identifier)('y')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        InfixExpression
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: id
+            PsiElement(identifier)('id')
+          PsiWhiteSpace(' ')
+          NamedTuple
+            PsiElement(()('(')
+            ScNamedTupleExprComponentImpl(named tuple component)
+              PsiElement(identifier)('age')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          WildcardPattern
+            PsiElement(_)('_')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        NamedTupleType: (age: Int)
+          PsiElement(()('(')
+          NamedTupleTypeComponent: age: Int
+            PsiElement(identifier)('age')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: y
+          PsiElement(identifier)('y')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: y2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: y2
+            PsiElement(identifier)('y2')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: c.id
+            ReferenceExpression: c
+              PsiElement(identifier)('c')
+            PsiElement(.)('.')
+            PsiElement(identifier)('id')
+          ArgumentList
+            PsiElement(()('(')
+            AssignStatement
+              ReferenceExpression: age
+                PsiElement(identifier)('age')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          WildcardPattern
+            PsiElement(_)('_')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: y2
+          PsiElement(identifier)('y2')

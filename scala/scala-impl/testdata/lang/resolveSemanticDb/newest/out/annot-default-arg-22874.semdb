@@ -1,0 +1,26 @@
+Document tests/pos/annot-default-arg-22874.scala
+(3:24..3:27) scala/Int#
+(3:37..3:42) scala/
+(3:43..3:53) scala/annotation/
+(3:54..3:70) scala/annotation/StaticAnnotation#
+(4:26..4:29) scala/Int#
+(4:39..4:44) scala/
+(4:45..4:55) scala/annotation/
+(4:56..4:74) scala/annotation/RefiningAnnotation#
+(6:11..6:14) scala/Int#
+(6:19..6:22) scala/Int#
+(6:24..6:35) defaultArgBug/staticAnnot# -> 3:7
+(6:36..6:37) defaultArgBug/`annot-default-arg-22874$package`.f1().(a) -> 6:8
+(6:38..6:39) scala/Int#`+`(+4).
+(6:40..6:41) defaultArgBug/`annot-default-arg-22874$package`.f1().(a) -> 6:8
+(6:50..6:53) scala/Int#
+(6:56..6:57) defaultArgBug/`annot-default-arg-22874$package`.f1().(b) -> 6:16
+(7:11..7:14) scala/Int#
+(7:19..7:22) scala/Int#
+(7:24..7:37) defaultArgBug/refiningAnnot# -> 4:7
+(7:38..7:39) defaultArgBug/`annot-default-arg-22874$package`.f2().(a) -> 7:8
+(7:40..7:41) scala/Int#`+`(+4).
+(7:42..7:43) defaultArgBug/`annot-default-arg-22874$package`.f2().(a) -> 7:8
+(7:52..7:55) scala/Int#
+(7:58..7:59) defaultArgBug/`annot-default-arg-22874$package`.f2().(b) -> 7:16
+

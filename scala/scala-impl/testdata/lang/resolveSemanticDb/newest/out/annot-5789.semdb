@@ -1,0 +1,14 @@
+Document tests/pos/annot-5789.scala
+(1:24..1:29) scala/
+(1:30..1:40) scala/annotation/
+(1:41..1:51) scala/annotation/Annotation#
+(3:19..3:22) scala/Int#
+(3:23..3:28) _empty_/Annot# -> 1:7
+(3:29..3:30) _empty_/D#[T] -> 3:9
+(6:14..6:19) scala/Array#
+(6:20..6:26) scala/Predef.String#
+(7:17..7:18) _empty_/D# -> 3:7
+(7:19..7:22) scala/Int#
+(8:5..8:6) local0 -> 7:9
+(8:7..8:8) _empty_/D#f. -> 3:16
+

@@ -1,0 +1,6 @@
+Document tests/pos/i16488.scala
+(2:8..2:11) _empty_/Ctx# -> 1:7
+(2:16..2:19) scala/Int#
+(2:22..2:25) scala/Predef.`???`().
+(3:12..3:13) _empty_/i16488$package.f. -> 2:5
+

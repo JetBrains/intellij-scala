@@ -1,0 +1,11 @@
+"\u000A"
+"\u000D"
+-----
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\u000A}
+string content {"}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\u000D}
+string content {"}

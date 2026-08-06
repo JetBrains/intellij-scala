@@ -1,0 +1,111 @@
+package org.jetbrains.plugins.scala.lang.psi.types
+
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+
+import java.util.function.Supplier
+
+trait ScalaEquivalence extends api.Equivalence {
+  typeSystem: api.TypeSystem =>
+
+  override protected def equivComputable(key: Key)(implicit context: Context): Supplier[ConstraintsResult] = new Supplier[ConstraintsResult] {
+    import ConstraintSystem.empty
+
+    override def get(): ConstraintsResult = {
+      val Key(left, right, falseUndef) = key
+      left match {
+        case designator: ScDesignatorType =>
+          designator.getValType match {
+            case Some(valType) => return equivInner(valType, right, falseUndef = falseUndef)
+            case _             =>
+          }
+        case _ =>
+      }
+
+      right match {
+        case designator: ScDesignatorType =>
+          designator.getValType match {
+            case Some(valType) => return equivInner(left, valType, falseUndef = falseUndef)
+            case _             =>
+          }
+        case _ =>
+      }
+
+      def containsUndefinedTypes(tpe: ScType): Boolean = tpe.subtypeExists {
+        case UndefinedType(_, _) => true
+        case _                   => false
+      }
+
+      if (right.isAliasType && containsUndefinedTypes(left)) {
+        val t = left.equivInner(right, empty, falseUndef)
+        if (t.isRight) return t
+      } else if (left.isAliasType && containsUndefinedTypes(right)) {
+        val t = right.equivInner(left, empty, falseUndef)
+        if (t.isRight) return t
+      }
+
+      (left, right) match {
+        /** It is important to handle the following cases here, because
+         * eagerly dealising type might be the wrong thing to do in a higher-kinded
+         * scenario, e.g. for `type F[A] = A` type `F` in `Functor[F]` is not equivalent
+         * to just `A`, but is equivalent to `[A] F[A]`.
+         * */
+        case (tpt: ScTypePolymorphicType, TypeConstructor(tc)) =>
+          return tc.equivInner(tpt, empty, falseUndef)
+        case (TypeConstructor(tc), tpt: ScTypePolymorphicType) =>
+          return tc.equivInner(tpt, empty, falseUndef)
+        case _ =>
+      }
+
+      /**
+       * A workaround for `type Foo <: Nothing`, if an abstract type has `Nothing` as its upper bound
+       * it can be no other type, but `Nothing` itself. A big of a weird edge-case, but it affects zio users.
+       * See: https://youtrack.jetbrains.com/issue/SCL-22598/Extension-methods-are-not-resolved-for-abstract-type-ZNothing-Nothing
+       */
+      def isNothingBounded(tp: ScType): Boolean =
+        tp.isNothing || (tp match {
+          case AliasType(_, _, Right(upper), _) => upper.isNothing
+          case tpt: TypeParameterType        => tpt.upperType.isNothing
+          case exArg: ScExistentialArgument  => exArg.upper.isNothing
+          case _                             => false
+        })
+
+      if (isNothingBounded(left) && isNothingBounded(right))
+        return ConstraintSystem.empty
+
+      (left, right) match {
+        case (AliasType(ta1: ScTypeAliasDefinition, _, _, effectivelyOpaque), AliasType(ta2: ScTypeAliasDefinition, _, _, _))
+          if ta1 == ta2 && ta1.isOpaque && !effectivelyOpaque =>
+        case (_, AliasType(_: ScTypeAliasDefinition, Right(right), _, effectivelyOpaque)) if !effectivelyOpaque =>
+          return equivInner(left, right, falseUndef = falseUndef)
+        case (AliasType(_: ScTypeAliasDefinition, Right(left), _, effectivelyOpaque), _) if !effectivelyOpaque =>
+          return equivInner(left, right, falseUndef = falseUndef)
+        case _ =>
+      }
+
+      (left, right) match {
+        case (_, _: UndefinedType)  => right.equivInner(left, empty, falseUndef)
+        case (_: UndefinedType, _)  => left.equivInner(right, empty, falseUndef)
+        case (_, _: ScAbstractType) => right.equivInner(left, empty, falseUndef)
+        case (_: ScAbstractType, _) => left.equivInner(right, empty, falseUndef)
+        case (ScMatchType.Reduced(redex), _) => redex.equiv(right, empty, falseUndef)
+        case (_, ScMatchType.Reduced(redex)) => left.equiv(redex, empty, falseUndef)
+        case (_, ParameterizedType(_: ScAbstractType, _)) =>
+          right.equivInner(left, empty, falseUndef)
+        case (ParameterizedType(_: ScAbstractType, _), _) =>
+          left.equivInner(right, empty, falseUndef)
+        case (_, t) if t.isAnyRef                 => right.equivInner(left, empty, falseUndef)
+        case (_: StdType, _: ScProjectionType)    => right.equivInner(left, empty, falseUndef)
+        case (_: ScDesignatorType, _: ScThisType) => right.equivInner(left, empty, falseUndef)
+        case (_: ScParameterizedType, _: JavaArrayType) =>
+          right.equivInner(left, empty, falseUndef)
+        case (_, _: ScExistentialType) => right.equivInner(left, empty, falseUndef)
+        case (_, _: ScProjectionType)  => right.equivInner(left, empty, falseUndef)
+        case (_, _: ScCompoundType)    => right.equivInner(left, empty, falseUndef)
+        case _                         => left.equivInner(right, empty, falseUndef)
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+Document tests/pos/dep-context-bounds.scala
+(6:14..6:15) _empty_/A# -> 2:7
+(6:14..6:15) _empty_/Test1.foo().[X] -> 6:11
+(6:20..6:21) _empty_/Test1.foo().(evidence$1) -> 6:15
+(6:22..6:26) _empty_/A#Self# -> 3:8
+(6:30..6:33) scala/Predef.`???`().
+(8:14..8:15) _empty_/A# -> 2:7
+(8:14..8:15) _empty_/Test1.bar().[X] -> 8:11
+(8:20..8:23) scala/Int#
+(8:27..8:30) scala/Predef.`???`().
+(10:14..10:15) _empty_/A# -> 2:7
+(10:14..10:15) _empty_/Test1.baz().[X] -> 10:11
+(10:20..10:23) scala/Int#
+(10:31..10:37) scala/Predef.String#
+(10:41..10:44) scala/Predef.`???`().
+(13:14..13:15) _empty_/A# -> 2:7
+(13:14..13:15) _empty_/Test2.foo().[X] -> 13:11
+(13:25..13:26) _empty_/Test2.foo().(x) -> 13:19
+(13:27..13:31) _empty_/A#Self# -> 3:8
+(13:35..13:38) scala/Predef.`???`().
+(15:14..15:15) _empty_/A# -> 2:7
+(15:14..15:15) _empty_/Test2.bar().[X] -> 15:11
+(15:25..15:28) scala/Int#
+(15:32..15:35) scala/Predef.`???`().
+(17:14..17:15) _empty_/A# -> 2:7
+(17:14..17:15) _empty_/Test2.baz().[X] -> 17:11
+(17:25..17:28) scala/Int#
+(17:36..17:42) scala/Predef.String#
+(17:46..17:49) scala/Predef.`???`().
+

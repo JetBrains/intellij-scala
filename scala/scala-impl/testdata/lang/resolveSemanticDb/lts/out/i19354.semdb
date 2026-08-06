@@ -1,0 +1,13 @@
+Document tests/pos/i19354.scala
+(3:14..3:18) java/
+(3:19..3:23) java/util/
+(3:24..3:30) java/util/stream/
+(3:31..3:37) java/util/stream/Stream#
+(3:43..3:46) _empty_/Foo# -> 1:7
+(4:5..4:7) _empty_/Test#t1().(xs) -> 3:10
+(4:8..4:11) java/util/stream/Stream#map().
+(4:17..4:21) _empty_/Test#take(). -> 6:7
+(4:22..4:23) local0 -> 4:12
+(6:15..6:18) _empty_/Foo# -> 1:7
+(7:15..7:18) _empty_/Bar# -> 1:18
+

@@ -1,0 +1,10 @@
+Document tests/pos/i18808.scala
+(3:8..3:16) scala/language.
+(3:17..3:23) scala/language.future.
+(5:13..5:14) _empty_/i18808$package.F#[X] -> 5:8
+(6:8..6:12) scala/package.List#
+(6:19..6:22) scala/Int#
+(8:13..8:14) _empty_/i18808$package.G#[X] -> 8:8
+(9:8..9:12) scala/package.List#
+(9:19..9:22) scala/Int#
+

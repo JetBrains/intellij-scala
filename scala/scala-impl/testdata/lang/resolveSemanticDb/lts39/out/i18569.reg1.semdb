@@ -1,0 +1,7 @@
+Document tests/pos/i18569.reg1.scala
+(7:18..7:19) _empty_/Foo#[A] -> 6:12
+(10:18..10:21) _empty_/Foo# -> 6:7
+(10:22..10:23) _empty_/Test#t1().[X] -> 10:10
+(10:27..10:31) scala/Unit#
+(11:19..11:22) _empty_/Test#t1().(foo) -> 10:13
+

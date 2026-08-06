@@ -1,0 +1,6 @@
+Document tests/pos/i13554.scala
+(4:20..4:30) _empty_/StatusCode. -> 1:8
+(4:31..4:38) _empty_/StatusCode.Matcher# -> 2:9
+(5:36..5:46) _empty_/StatusCode# -> 4:6
+(5:47..5:50) scala/Predef.`???`().
+

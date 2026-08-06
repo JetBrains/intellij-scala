@@ -1,0 +1,16 @@
+Document tests/pos/named-tuples1.scala
+(1:8..1:18) scala/annotation/
+(1:19..1:31) scala/annotation/experimental#
+(3:2..3:6) scala/main#
+(4:46..4:52) scala/Predef.String#
+(4:59..4:62) scala/Int#
+(5:17..5:21) scala/package.List.
+(6:5..6:8) local0 -> 4:7
+(10:14..10:21) local1 -> 5:7
+(10:22..10:25) scala/collection/immutable/List#map().
+(10:26..10:27) scala/NamedTuple.apply(+1).
+(12:3..12:9) scala/Predef.assert(+1).
+(12:10..12:14) local3 -> 10:7
+(12:15..12:18) scala/collection/IterableOnceOps#sum().
+(12:19..12:21) scala/Int#`==`(+3).
+

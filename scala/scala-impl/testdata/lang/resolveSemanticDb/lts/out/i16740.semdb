@@ -1,0 +1,18 @@
+Document tests/pos/i16740.scala
+(3:29..3:35) scala/Predef.String#
+(3:36..3:37) scala/`&`#
+(3:38..3:47) scala/Singleton#
+(3:51..3:52) _empty_/Enclosing#Tags.Ref#[S] -> 3:24
+(4:32..4:38) scala/Predef.String#
+(4:39..4:40) scala/`&`#
+(4:41..4:50) scala/Singleton#
+(4:53..4:56) _empty_/Enclosing#Tags.Ref# -> 3:17
+(4:57..4:58) _empty_/Enclosing#Tags.require().[T] -> 4:24
+(4:60..4:61) _empty_/Enclosing#Tags.require().[S] -> 4:27
+(4:65..4:68) scala/Predef.`???`().
+(5:10..5:14) _empty_/Enclosing#Tags. -> 2:10
+(7:12..7:19) _empty_/Enclosing#Tags.require(). -> 4:16
+(7:20..7:23) scala/Int#
+(8:12..8:19) _empty_/Enclosing#Tags.require(). -> 4:16
+(8:20..8:26) scala/Double#
+

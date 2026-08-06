@@ -1,0 +1,9 @@
+class a {
+  //abc.
+  val a = 3
+}
+------
+class a {
+  //abc.
+  val a = 3
+}

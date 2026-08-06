@@ -1,0 +1,6 @@
+Document tests/pos/t4744/Bar.scala
+(1:28..1:31) _empty_/Foo#
+(1:32..1:36) java/
+(1:37..1:41) java/lang/
+(1:42..1:49) java/lang/Integer#
+

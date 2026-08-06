@@ -1,0 +1,13 @@
+val aaaa = s"$this"
+-----
+val {val}
+white space in line { }
+identifier {aaaa}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {"}
+interpolated string injection {$}
+this {this}
+interpolated string end {"}

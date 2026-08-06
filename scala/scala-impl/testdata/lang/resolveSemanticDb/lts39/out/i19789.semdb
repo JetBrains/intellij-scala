@@ -1,0 +1,21 @@
+Document tests/pos/i19789.scala
+(1:21..1:22) _empty_/i19789$package.Kinded#[F] -> 1:13
+(1:23..1:26) scala/Any#
+(1:28..1:29) scala/`|`#
+(1:30..1:31) _empty_/i19789$package.Kinded#[F] -> 1:13
+(1:32..1:39) scala/Nothing#
+(3:19..3:25) scala/package.Vector#
+(3:26..3:32) _empty_/i19789$package.Kinded# -> 1:6
+(3:33..3:34) _empty_/i19789$package.values().[F] -> 3:12
+(3:39..3:42) scala/Predef.`???`().
+(5:27..5:33) _empty_/i19789$package.Kinded# -> 1:6
+(5:34..5:35) _empty_/i19789$package.mapValues().[F] -> 5:15
+(5:40..5:41) _empty_/i19789$package.mapValues().[T] -> 5:21
+(5:44..5:50) scala/package.Vector#
+(5:51..5:52) _empty_/i19789$package.mapValues().[T] -> 5:21
+(5:56..5:62) _empty_/i19789$package.values(). -> 3:5
+(5:63..5:64) _empty_/i19789$package.mapValues().[F] -> 5:15
+(5:66..5:69) scala/collection/StrictOptimizedIterableOps#map().
+(5:82..5:83) _empty_/i19789$package.mapValues().(f) -> 5:24
+(5:84..5:85) local1 -> 5:77
+

@@ -1,0 +1,174 @@
+trait Show[-A >: Nothing]
+
+type MT1[I <: Show[Nothing], N] = I match
+  case Show[a] => N match
+    case Int => a
+
+val a = summon[MT1[Show[String], Int] =:= String]
+-----
+ScalaFile
+  ScTrait: Show
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Show')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(>:)('>:')
+        PsiWhiteSpace(' ')
+        SimpleType: Nothing
+          CodeReferenceElement: Nothing
+            PsiElement(identifier)('Nothing')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: MT1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MT1')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Show[Nothing]
+          SimpleType: Show
+            CodeReferenceElement: Show
+              PsiElement(identifier)('Show')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: N
+        PsiElement(identifier)('N')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: I match
+  case Show[a] => N match
+    case Int => a
+      SimpleType: I
+        CodeReferenceElement: I
+          PsiElement(identifier)('I')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Show[a]
+            SimpleType: Show
+              CodeReferenceElement: Show
+                PsiElement(identifier)('Show')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeVariable: a
+                  PsiElement(identifier)('a')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          MatchType: N match
+    case Int => a
+            SimpleType: N
+              CodeReferenceElement: N
+                PsiElement(identifier)('N')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: a
+                  CodeReferenceElement: a
+                    PsiElement(identifier)('a')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: a
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: MT1[Show[String], Int] =:= String
+            ParametrizedType: MT1[Show[String], Int]
+              SimpleType: MT1
+                CodeReferenceElement: MT1
+                  PsiElement(identifier)('MT1')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Show[String]
+                    SimpleType: Show
+                      CodeReferenceElement: Show
+                        PsiElement(identifier)('Show')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: =:=
+              PsiElement(identifier)('=:=')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiElement(])(']')

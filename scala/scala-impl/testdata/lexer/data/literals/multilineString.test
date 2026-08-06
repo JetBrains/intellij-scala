@@ -1,0 +1,24 @@
+object a{
+  val x = """It's simple
+  multi-line
+  string"""
+}
+-----
+object {object}
+white space in line { }
+identifier {a}
+{ {{}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+multiline string {"""It's simple
+  multi-line
+  string"""}
+white space in line {
+}
+} {}}

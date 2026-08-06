@@ -1,0 +1,19 @@
+enum E:
+  case A, B
+  case C(i: Int)
+  case D
+
+  def test(e: E) = <start>e<exhaustive>
+end E
+-----
+enum E:
+  case A, B
+  case C(i: Int)
+  case D
+
+  def test(e: E) = e match
+    case E.A =>
+    case E.B =>
+    case E.C(i) =>
+    case E.D =>
+end E

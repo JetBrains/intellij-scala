@@ -1,0 +1,231 @@
+package org.jetbrains.plugins.scala.tasty.reader
+
+import junit.framework.TestCase
+import org.junit.Assert.*
+
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path}
+import scala.util.control.NonFatal
+
+/**
+ * https://youtrack.jetbrains.com/issue/SCL-24777/Decompiler-tests-documentation
+ *
+ * https://youtrack.jetbrains.com/issue/SCL-21045/Decompiler-unit-tests
+ *
+ * Integration tests: [[org.jetbrains.plugins.scala.text.scala3]]
+ */
+class DecompilerTest3 extends TestCase {
+
+  def testAnnotationMembers(): Unit = doTest("annotation/Members")
+  def testAnnotationMultiple(): Unit = doTest("annotation/Multiple")
+  def testAnnotationParameters(): Unit = doTest("annotation/Parameters")
+  def testAnnotationText(): Unit = doTest("annotation/Text")
+  def testMember(): Unit = doTest("member/package")
+  def testMemberBeanProperty(): Unit = doTest("member/BeanProperty")
+  def testMemberBounds(): Unit = doTest("member/Bounds")
+  def testMemberDef(): Unit = doTest("member/Def")
+  def testMemberExtensionMethod(): Unit = doTest("member/ExtensionMethod")
+  def testMemberGiven(): Unit = doTest("member/Given")
+  def testMemberGivenDeferred(): Unit = doTest("member/GivenDeferred")
+  def testMemberIdentifiers(): Unit = doTest("member/Identifiers")
+  def testMemberInlineModifier(): Unit = doTest("member/InlineModifier")
+  def testMemberModifiers(): Unit = doTest("member/Modifiers")
+  def testMemberQualifier(): Unit = doTest("member/Qualifier")
+  def testMemberThis(): Unit = doTest("member/This")
+  def testMemberType(): Unit = doTest("member/Type")
+  def testMemberVal(): Unit = doTest("member/Val")
+  def testMemberVar(): Unit = doTest("member/Var")
+  def testPackage1Package(): Unit = doTest("package1/package")
+  def testPackage1Package2Package(): Unit = doTest("package1/package2/package")
+  def testPackage1Package2Nested(): Unit = doTest("package1/package2/Nested")
+  def testPackage1Package2NestedImport(): Unit = doTest("package1/package2/NestedImport")
+  def testPackage1Package2Prefix(): Unit = doTest("package1/package2/Prefix")
+  def testPackage1Package2Scope(): Unit = doTest("package1/package2/Scope")
+  def testPackage1Members(): Unit = doTest("package1/Members")
+  def testPackage1Paths(): Unit = doTest("package1/Root", simpleTypes = false)
+  def testPackage1TopLevel(): Unit = doTest("package1/topLevel")
+  def testParameterBounds(): Unit = doTest("parameter/Bounds")
+  def testParameterByName(): Unit = doTest("parameter/ByName")
+  def testParameterCaseClass(): Unit = doTest("parameter/CaseClass")
+  def testParameterClass(): Unit = doTest("parameter/Class")
+  def testParameterContextBounds(): Unit = doTest("parameter/ContextBounds")
+  def testParameterDef(): Unit = doTest("parameter/Def")
+  def testParameterDefaultArguments(): Unit = doTest("parameter/DefaultArguments")
+  def testParameterEnum(): Unit = doTest("parameter/Enum")
+  def testParameterEnumCaseClass(): Unit = doTest("parameter/EnumCaseClass")
+  def testParameterExtension(): Unit = doTest("parameter/Extension")
+  def testParameterExtensionMethod(): Unit = doTest("parameter/ExtensionMethod")
+  def testParameterGiven(): Unit = doTest("parameter/Given")
+  def testParameterHKT(): Unit = doTest("parameter/HKT")
+  def testParameterHKTBounds(): Unit = doTest("parameter/HKTBounds")
+  def testParameterHKTVariance(): Unit = doTest("parameter/HKTVariance")
+  def testParameterIdentifiers(): Unit = doTest("parameter/Identifiers")
+  def testParameterInlineModifier(): Unit = doTest("parameter/InlineModifier")
+  def testParameterModifiers(): Unit = doTest("parameter/Modifiers")
+  def testParameterNamedContextBounds(): Unit = doTest("parameter/NamedContextBounds")
+  def testParameterQualifier(): Unit = doTest("parameter/Qualifier")
+  def testParameterRepeated(): Unit = doTest("parameter/Repeated")
+  def testParameterTrait(): Unit = doTest("parameter/Trait")
+  def testParameterType(): Unit = doTest("parameter/Type")
+  def testParameterVariance(): Unit = doTest("parameter/Variance") // TypeMember?
+  def testTypeDefinition(): Unit = doTest("typeDefinition/package")
+  def testTypeDefinitionClass(): Unit = doTest("typeDefinition/Class")
+  def testTypeDefinitionCompanions(): Unit = doTest("typeDefinition/Companions")
+  def testTypeDefinitionDerivation(): Unit = doTest("typeDefinition/Derivation")
+  def testTypeDefinitionEnum(): Unit = doTest("typeDefinition/Enum")
+  def testTypeDefinitionIdentifiers(): Unit = doTest("typeDefinition/Identifiers")
+  def testTypeDefinitionImplicitClass(): Unit = doTest("typeDefinition/ImplicitClass")
+  def testTypeDefinitionMembers(): Unit = doTest("typeDefinition/Members")
+  def testTypeDefinitionModifiers(): Unit = doTest("typeDefinition/Modifiers")
+  def testTypeDefinitionObject(): Unit = doTest("typeDefinition/Object")
+  def testTypeDefinitionPrivate(): Unit = doTest("typeDefinition/PackagePrivate")
+  def testTypeDefinitionParents(): Unit = doTest("typeDefinition/Parents")
+  def testTypeDefinitionQualifier(): Unit = doTest("typeDefinition/Qualifier")
+  def testTypeDefinitionSelfType(): Unit = doTest("typeDefinition/SelfType")
+  def testTypeDefinitionTrait(): Unit = doTest("typeDefinition/Trait")
+  def testTypeDefinitionValueClass(): Unit = doTest("typeDefinition/ValueClass")
+  def testTypeDefinitionScl24154(): Unit = doTest("typeDefinition/DerivationApi")
+  def testTypesAnd(): Unit = doTest("types/And")
+  //  def testTypesAnnotated(): Unit = doTest("types/Annotated") // SCL-21207
+  def testTypesCompound(): Unit = doTest("types/Compound")
+  def testTypesConstant(): Unit = doTest("types/Constant")
+  def testTypesFunction(): Unit = doTest("types/Function")
+  def testTypesFunctionContext(): Unit = doTest("types/FunctionContext")
+  def testTypesFunctionPolymorphic(): Unit = doTest("types/FunctionPolymorphic")
+  def testTypesIdent(): Unit = doTest("types/Ident")
+  def testTypesInfix(): Unit = doTest("types/Infix")
+  def testTypesInlined(): Unit = doTest("types/Inlined")
+  def testTypesKindProjector(): Unit = doTest("types/KindProjector", expectedCompilerOptions = CompilerOptions(kindProjector = true))
+  def testTypesLambda(): Unit = doTest("types/Lambda")
+  def testTypesLiteral(): Unit = doTest("types/Literal")
+  def testTypesMatch(): Unit = doTest("types/Match")
+  def testTypesOr(): Unit = doTest("types/Or")
+  def testTypesParameterized(): Unit = doTest("types/Parameterized")
+  def testTypesProjection(): Unit = doTest("types/Projection")
+  def testTypesRefinement(): Unit = doTest("types/Refinement")
+  def testTypesRefs(): Unit = doTest("types/Refs")
+  def testTypesSelect(): Unit = doTest("types/Select")
+  def testTypesSingleton(): Unit = doTest("types/Singleton")
+  def testTypesThis(): Unit = doTest("types/This")
+  def testTypesTuple(): Unit = doTest("types/Tuple")
+  def testTypesWildcard(): Unit = doTest("types/Wildcard")
+  def testAliases(): Unit = doTest("Aliases")
+  def testEmptyPackage(): Unit = doTest("EmptyPackage")
+  def testEmptyPackage2(): Unit = doTest("EmptyPackage2", expectedFilesContents = Seq(
+    "ClassInEmptyPackage.tasty" -> "class ClassInEmptyPackage",
+    "ObjectInEmptyPackage.tasty" -> "object ObjectInEmptyPackage",
+    "EmptyPackage2$package.tasty" ->
+      """type TypeAliasToClassInEmptyPackage = ClassInEmptyPackage
+        |
+        |type TypeAliasToObjectInEmptyPackage = ObjectInEmptyPackage.type""".stripMargin
+  ))
+  def testNesting(): Unit = doTest("Nesting")
+
+
+  private def findTestScalaSourceFile(testFileRelativePath: String): Path = {
+    val testDataPath = {
+      val path = Path.of("scala/tasty-reader/testdata")
+      if (Files.exists(path)) path else Path.of("community", path.toString)
+    }
+    assert(Files.exists(testDataPath), testDataPath.toAbsolutePath)
+
+    val scalaFile = testDataPath.resolve(testFileRelativePath + ".scala").toAbsolutePath
+    assertTrue(s"File $scalaFile does not exist", Files.exists(scalaFile))
+    scalaFile
+  }
+
+  /**
+   * @param expectedFilesContents if this collection is empty, check the corresponding file
+   *                              with the standard tasty file name mapping (MyClass.scala -> MyClass.tasty)<br>
+   *                              if this collection is NOT empty, check the files from this collection
+   *
+   */
+  private def doTest(
+    testFileRelativePath: String,
+    expectedFilesContents: Seq[(String, String)] = Nil,
+    expectedCompilerOptions: CompilerOptions = CompilerOptions.Default,
+    simpleTypes: Boolean = true
+  ): Unit = {
+    val testScalaFile = findTestScalaSourceFile(testFileRelativePath)
+
+    val expectedFilesContents2: Seq[(Path, String)] = if (expectedFilesContents.nonEmpty) {
+      expectedFilesContents.map { case (tastyFileName, expectedTastyContent) =>
+        val tastyFile: Path = testScalaFile.getParent.resolve(tastyFileName)
+        tastyFile -> expectedTastyContent
+      }
+    } else {
+      val scalaFilePathStr = testScalaFile.toString
+      val sameNameTastyFile = Path.of(scalaFilePathStr.replaceFirst("\\.scala$", ".tasty"))
+      val sameNamePackageTastyFile = Path.of(scalaFilePathStr.replaceFirst("\\.scala$", "\\$package.tasty"))
+
+      val tastyFile: Path =
+        if (Files.exists(sameNameTastyFile))
+          sameNameTastyFile
+        else if (Files.exists(sameNamePackageTastyFile))
+          sameNamePackageTastyFile
+        else
+          fail(s"File $sameNameTastyFile or $sameNamePackageTastyFile does not exist").asInstanceOf[Nothing]
+
+      val scalaSourceContent = Files.readString(testScalaFile, StandardCharsets.UTF_8)
+      val expectedTastyContent = scalaSourceFileToExpectedTastyContent(scalaSourceContent)
+      Seq(tastyFile -> expectedTastyContent)
+    }
+
+    expectedFilesContents2.foreach { case (tastyFilePath, expectedTastyContent) =>
+      doTest(
+        testFileRelativePath,
+        testScalaFile,
+        tastyFilePath,
+        simpleTypes,
+        expectedTastyContent,
+        expectedCompilerOptions,
+      )
+    }
+  }
+
+  private def doTest(
+    testFileRelativePath: String,
+    scalaFile: Path,
+    tastyFile: Path,
+    simpleTypes: Boolean,
+    expectedTastyContent: String,
+    expectedCompilerOptions: CompilerOptions
+  ): Unit = {
+    val tree = TreeReader.treeFrom(Files.readAllBytes(tastyFile))
+
+    val (actualSourceFile, actualTastyContent, actualCompilerOptions) = try {
+      val treePrinter = new TreePrinter(infixTypes = true) // Disable?
+      treePrinter.fileAndTextOf(tree)
+    } catch {
+      case NonFatal(e) =>
+        Console.err.println(scalaFile)
+        throw e
+    }
+
+    val expectedSourceFile = scalaFile.getFileName.toString
+    assertEquals("Scala file name", expectedSourceFile, actualSourceFile)
+
+    val actualTastyContentNormalised = if (simpleTypes)
+      normaliseTastyContent(actualTastyContent)
+    else
+      actualTastyContent
+
+    assertEquals(s"Content for $testFileRelativePath (${tastyFile.getFileName})", expectedTastyContent, actualTastyContentNormalised)
+
+    assertEquals(expectedCompilerOptions, actualCompilerOptions)
+  }
+
+  private def scalaSourceFileToExpectedTastyContent(scalaFileContent: String): String =
+    scalaFileContent
+      .replaceAll(raw"(?s)/\*\*/.*?/\*(.*?)\*/", "$1")
+      .replace("\r", "")
+
+  private def normaliseTastyContent(tastyContent: String): String =
+    tastyContent
+      .replace("_root_.", "")
+      .replaceAll("java.lang.(?!Boolean|Long|Float|Double|String)", "")
+      .replace("scala.Predef.", "")
+      .replaceAll("scala\\.(?!\\w+\\.(?!type))", "")
+      .replaceAll("\\w+\\.this\\.(?!type)", "")
+      .replaceAll("\\w+\\.(?=this.type)", "")
+}

@@ -1,0 +1,22 @@
+try {
+  def f1 = {
+  }
+
+  def f2 = {
+  }
+}
+catch {
+  case _ =>
+    def f1 = {
+    }
+
+    def f2 = {
+    }
+}
+finally {
+  def f1 = {
+  }
+
+  def f2 = {
+  }
+}

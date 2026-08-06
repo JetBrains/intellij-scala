@@ -1,0 +1,12 @@
+Document tests/pos/i21558.scala
+(2:14..2:20) scala/Double#
+(2:29..2:30) _empty_/A#[T] -> 2:9
+(2:40..2:44) _empty_/Base# -> 1:7
+(5:16..5:18) _empty_/Test#m1(). -> 7:7
+(5:25..5:27) _empty_/Test#m2(). -> 8:7
+(7:13..7:17) _empty_/Base# -> 1:7
+(7:20..7:24) scala/Unit#
+(8:13..8:14) _empty_/A# -> 2:7
+(8:20..8:26) scala/Double#
+(8:43..8:46) scala/Int#
+

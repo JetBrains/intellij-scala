@@ -1,0 +1,23 @@
+Document tests/pos/i18253.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:29) scala/compiletime/ops/
+(1:30..1:33) scala/compiletime/ops/int.
+(5:15..5:18) scala/Int#
+(7:15..7:18) scala/Int#
+(7:23..7:26) _empty_/Bar# -> 4:7
+(7:27..7:28) _empty_/Bar.given_Bar_C#[C] -> 7:10
+(8:16..8:17) _empty_/Bar.given_Bar_C#[C] -> 7:10
+(11:23..11:26) _empty_/Bar# -> 4:7
+(11:32..11:35) _empty_/Foo# -> 3:7
+(11:36..11:39) scala/compiletime/ops/int.Max#
+(11:43..11:45) _empty_/Test#mkFoo().(bx) -> 11:19
+(11:46..11:49) _empty_/Bar#Out# -> 5:8
+(11:54..11:57) scala/Predef.`???`().
+(12:20..12:21) _empty_/Test#check().[Y] -> 12:13
+(12:29..12:32) scala/Int#
+(12:39..12:43) scala/Unit#
+(14:13..14:17) scala/Unit#
+(14:20..14:25) _empty_/Test#check(). -> 12:7
+(14:26..14:31) _empty_/Test#mkFoo(). -> 11:7
+

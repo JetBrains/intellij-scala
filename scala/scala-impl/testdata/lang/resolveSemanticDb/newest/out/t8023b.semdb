@@ -1,0 +1,4 @@
+Document tests/pos/t8023b.scala
+(2:14..2:15) _empty_/T# -> 2:7
+(2:16..2:17) _empty_/T#[A] -> 2:9
+

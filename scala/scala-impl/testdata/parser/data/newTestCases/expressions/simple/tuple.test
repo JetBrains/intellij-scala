@@ -1,0 +1,39 @@
+class a {
+  (a,b,c,)
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        Tuple
+          PsiElement(()('(')
+          ReferenceExpression: a
+            PsiElement(identifier)('a')
+          PsiElement(,)(',')
+          ReferenceExpression: b
+            PsiElement(identifier)('b')
+          PsiElement(,)(',')
+          ReferenceExpression: c
+            PsiElement(identifier)('c')
+          PsiElement(,)(',')
+          PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

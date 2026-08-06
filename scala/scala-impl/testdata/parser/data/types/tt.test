@@ -1,0 +1,61 @@
+class A{
+  def getIterator = nodes
+    	  . filter . map . elements;
+}
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: getIterator
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getIterator')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: nodes
+    	  . filter . map . elements
+            ReferenceExpression: nodes
+    	  . filter . map
+              ReferenceExpression: nodes
+    	  . filter
+                ReferenceExpression: nodes
+                  PsiElement(identifier)('nodes')
+                PsiWhiteSpace('\n    \t  ')
+                PsiElement(.)('.')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('filter')
+              PsiWhiteSpace(' ')
+              PsiElement(.)('.')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('map')
+            PsiWhiteSpace(' ')
+            PsiElement(.)('.')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('elements')
+        PsiElement(;)(';')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

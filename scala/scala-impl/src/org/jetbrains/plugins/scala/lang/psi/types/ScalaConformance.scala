@@ -1,0 +1,1776 @@
+package org.jetbrains.plugins.scala.lang.psi.types
+
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance._
+import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
+import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
+
+import java.util.function.Supplier
+import scala.collection.immutable.HashSet
+
+trait ScalaConformance extends api.Conformance with TypeVariableUnification {
+  typeSystem: api.TypeSystem =>
+
+  override protected def conformsComputable(key: Key,
+                                            visited: Set[PsiClass])(implicit context: Context): Supplier[ConstraintsResult] =
+    new Supplier[ConstraintsResult] {
+      override def get(): ConstraintsResult = {
+        val Key(left, right, checkWeak) = key
+
+        val leftVisitor = new LeftConformanceVisitor(key, visited)
+        left.visitType(leftVisitor)
+        if (leftVisitor.getResult != null) return leftVisitor.getResult
+
+        //tail, based on class inheritance
+        right.extractClassType match {
+          case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return ConstraintsResult.Left
+          case Some((rClass: PsiClass, subst: ScSubstitutor)) =>
+            left.extractClass match {
+              case Some(lClass) =>
+                if (rClass.qualifiedName == "java.lang.Object") {
+                  return conformsInner(left, AnyRef, visited, checkWeak = checkWeak)
+                } else if (lClass.qualifiedName == "java.lang.Object") {
+                  return conformsInner(AnyRef, right, visited, checkWeak = checkWeak)
+                }
+
+                // Special case where new scala 3 tuples are conformant to old TupleN
+                if (rClass.qualifiedName == TupleType.TupleHList.ConsClassFqn) {
+                  left match {
+                    case TupleType.TupleN(leftTypes) =>
+                      implicit val elementScope: ElementScope = ElementScope(typeSystem.projectContext)
+                      return conformsInner(TupleType.TupleHList(leftTypes), right)
+                    case _ =>
+                  }
+                }
+
+                val inh = SmartSuperTypeUtil.smartIsInheritor(rClass, subst, lClass)
+                if (inh.isEmpty) return ConstraintsResult.Left
+                //Special case for higher kind types passed to generics.
+                if (lClass.hasTypeParameters) {
+                  left.removeAliasDefinitions() match {
+                    case _: ScParameterizedType =>
+                    case _ => return ConstraintSystem.empty
+                  }
+                }
+                return conformsInner(left, inh.orNull, visited + rClass)
+              case _ =>
+            }
+          case _ =>
+        }
+        val iterator = BaseTypes.direct(right)
+        while (iterator.hasNext) {
+          ProgressManager.checkCanceled()
+          val tp = iterator.next()
+          val t = conformsInner(left, tp, visited, checkWeak = true)
+          if (t.isRight) return t.constraints
+        }
+        ConstraintsResult.Left
+      }
+    }
+
+  private def retryTypeParamsConformance(
+    lhs:         TypeParameterType,
+    l:           ScType,
+    r:           ScType,
+    constraints: ConstraintSystem
+  )(implicit context: Context): ConstraintsResult = {
+    val lo = lhs.lowerType
+
+    if (!lhs.lowerType.equiv(lhs)) {
+      val updated = l.updateRecursively { case `lhs` => lo }
+      r.conforms(updated, constraints)
+    }
+    else ConstraintsResult.Left
+  }
+
+  protected def checkParameterizedType(
+    typeParams:         Iterable[TypeParameter],
+    args1:              Iterable[ScType],
+    args2:              Iterable[ScType],
+    _constraints:       ConstraintSystem,
+    visited:            Set[PsiClass],
+    checkWeak:          Boolean,
+    checkEquivalence:   Boolean = false
+  )(implicit context: Context): ConstraintsResult = {
+    var constraints = _constraints
+
+    def addAbstract(upper: ScType, lower: ScType, tp: ScType): Boolean = {
+      if (!upper.equiv(Any)) {
+        val t = conformsInner(upper, tp, visited, constraints, checkWeak)
+        if (t.isLeft) return false
+        constraints = t.constraints
+      }
+      if (!lower.equiv(Nothing)) {
+        val t = conformsInner(tp, lower, visited, constraints, checkWeak)
+        if (t.isLeft) return false
+        constraints = t.constraints
+      }
+      true
+    }
+
+    val parametersIterator = typeParams.iterator
+    val args1Iterator      = args1.iterator
+    val args2Iterator      = args2.iterator
+
+    while (parametersIterator.hasNext && args1Iterator.hasNext && args2Iterator.hasNext) {
+      val tp = parametersIterator.next().psiTypeParameter
+      val (lhs, rhs) = (args1Iterator.next(), args2Iterator.next())
+      tp match {
+        case scp: ScTypeParam if scp.isContravariant && !checkEquivalence =>
+          val y = conformsInner(rhs, lhs, HashSet.empty, constraints)
+          if (y.isLeft) return ConstraintsResult.Left
+          else constraints = y.constraints
+        case scp: ScTypeParam if scp.isCovariant && !checkEquivalence =>
+          val y = conformsInner(lhs, rhs, HashSet.empty, constraints)
+          if (y.isLeft) return ConstraintsResult.Left
+          else constraints = y.constraints
+        //this case filter out such cases like undefined type
+        case _ =>
+            (lhs, rhs) match {
+            case (l: UndefinedType, r: UndefinedType) =>
+              val lId = l.typeParameter.typeParamId
+              val rId = r.typeParameter.typeParamId
+
+              if (r.isWrappedExistential) {
+                constraints =
+                  constraints
+                    .withLower(lId, r.typeParameter.lowerType)
+                    .withUpper(lId, r.typeParameter.upperType)
+              } else if (l.isWrappedExistential) {
+                constraints =
+                  constraints
+                    .withLower(rId, l.typeParameter.lowerType)
+                    .withUpper(rId, l.typeParameter.upperType)
+              } else
+                constraints =
+                  if (r.level > l.level)      constraints.withUpper(rId, l)
+                  else if (l.level > r.level) constraints.withUpper(lId, r)
+                  else                        constraints
+            case (UndefinedType(typeParameter, _), rt) =>
+              constraints = addParam(typeParameter, rt, constraints)
+            case (lt, UndefinedType(typeParameter, _)) =>
+              constraints = addParam(typeParameter, lt, constraints)
+            case (ScAbstractType(_, lower, upper), right) =>
+              if (!addAbstract(upper, lower, right))
+                return ConstraintsResult.Left
+            case (left, ScAbstractType(_, lower, upper)) =>
+              if (!addAbstract(upper, lower, left))
+                return ConstraintsResult.Left
+            case _ =>
+              val t = lhs.equiv(rhs, constraints, falseUndef = false)
+              if (t.isLeft) return ConstraintsResult.Left
+              constraints = t.constraints
+          }
+      }
+    }
+    constraints
+  }
+
+  private class LeftConformanceVisitor(key: Key, visited: Set[PsiClass])(implicit context: Context) extends ScalaTypeVisitor {
+
+    private val Key(l, r, checkWeak) = key
+
+    private implicit val projectContext: ProjectContext = l.projectContext
+
+    private def addBounds(typeParameter: TypeParameter, `type`: ScType): Unit = {
+      val name = typeParameter.typeParamId
+      constraints = constraints
+        .withLower(name, `type`, variance = Invariant)
+        .withUpper(name, `type`, variance = Invariant)
+    }
+
+    def checkArrayArgs(leftArg: ScType, rightArg: ScType): ConstraintsResult = {
+
+      (leftArg, rightArg) match {
+        case (ScAbstractType(_, lower, upper), right) =>
+          if (!upper.equiv(Any)) {
+            val t = conformsInner(upper, right, visited, constraints, checkWeak)
+            if (t.isLeft) {
+              return ConstraintsResult.Left
+            }
+            constraints = t.constraints
+          }
+          if (!lower.equiv(Nothing)) {
+            val t = conformsInner(right, lower, visited, constraints, checkWeak)
+            if (t.isLeft) {
+              return ConstraintsResult.Left
+            }
+            constraints = t.constraints
+          }
+        case (left, ScAbstractType(_, lower, upper)) =>
+          if (!upper.equiv(Any)) {
+            val t = conformsInner(upper, left, visited, constraints, checkWeak)
+            if (t.isLeft) {
+              return ConstraintsResult.Left
+            }
+            constraints = t.constraints
+          }
+          if (!lower.equiv(Nothing)) {
+            val t = conformsInner(left, lower, visited, constraints, checkWeak)
+            if (t.isLeft) {
+              return ConstraintsResult.Left
+            }
+            constraints = t.constraints
+          }
+        case (UndefinedType(typeParameter, _), rt) => addBounds(typeParameter, rt)
+        case (lt, UndefinedType(typeParameter, _)) => addBounds(typeParameter, lt)
+        case _ =>
+          val t = leftArg.equiv(rightArg, constraints, falseUndef = false)
+          if (t.isLeft) {
+            return ConstraintsResult.Left
+
+          }
+          constraints = t.constraints
+      }
+      constraints
+    }
+
+
+    /*
+      Different checks from right type in order of appearance.
+      todo: It's seems it's possible to check order and simplify code in many places.
+     */
+    trait ValDesignatorSimplification extends ScalaTypeVisitor {
+      override def visitDesignatorType(d: ScDesignatorType): Unit = {
+        d.getValType match {
+          case Some(v) =>
+            result = conformsInner(l, v, visited, constraints, checkWeak)
+          case _ =>
+        }
+      }
+    }
+
+    trait LiteralTypeWideningVisitor extends ScalaTypeVisitor {
+      override def visitLiteralType(lit: ScLiteralType): Unit =
+        result =
+          if (l eq Singleton) constraints
+          else                conformsInner(l, lit.wideType, visited, constraints, checkWeak)
+    }
+
+    trait UndefinedSubstVisitor extends ScalaTypeVisitor {
+      override def visitUndefinedType(u: UndefinedType): Unit = l match {
+        case HKAbstract() => result = constraints
+        case _            => result = constraints.withUpper(u.typeParameter.typeParamId, l)
+      }
+    }
+
+    trait AbstractVisitor extends ScalaTypeVisitor {
+      override def visitAbstractType(a: ScAbstractType): Unit = {
+        if (!a.lower.equiv(Nothing)) {
+          result = conformsInner(l, a.lower, visited, constraints, checkWeak)
+        } else {
+          result = constraints
+        }
+        if (result.isRight && !a.upper.equiv(Any)) {
+          val t = conformsInner(a.upper, l, visited, result.constraints, checkWeak)
+          if (t.isRight) result = t //this is optionally
+        }
+      }
+    }
+
+    trait ParameterizedAbstractVisitor extends ScalaTypeVisitor {
+      override def visitParameterizedType(p: ParameterizedType): Unit = {
+        p.designator match {
+          case ScAbstractType(typeParameter, lowerBound, _) =>
+            //@TODO: that just looks incorrect
+            val subst = ScSubstitutor.bind(typeParameter.typeParameters, p.typeArguments)
+            val lower: ScType =
+              subst(lowerBound) match {
+                case ParameterizedType(lower, _) => ScParameterizedType(lower, p.typeArguments)
+                case lower => ScParameterizedType(lower, p.typeArguments)
+              }
+
+            if (!lower.equiv(Nothing)) {
+              result = conformsInner(l, lower, visited, constraints, checkWeak)
+            }
+          case _ =>
+        }
+      }
+    }
+
+    private def checkEquiv()(implicit context: Context): Unit = {
+      val equiv = l.equiv(r, constraints)
+      if (equiv.isRight) result = equiv
+    }
+
+    trait ExistentialSimplification extends ScalaTypeVisitor {
+      override def visitExistentialType(e: ScExistentialType): Unit = {
+        val simplified = e.simplify()
+        if (simplified != r) result = conformsInner(l, simplified, visited, constraints, checkWeak)
+      }
+    }
+
+    trait ExistentialArgumentVisitor extends ScalaTypeVisitor {
+      override def visitExistentialArgument(s: ScExistentialArgument): Unit = {
+        result = conformsInner(l, s.upper, HashSet.empty, constraints)
+      }
+    }
+
+    trait ParameterizedExistentialArgumentVisitor extends ScalaTypeVisitor {
+      override def visitParameterizedType(p: ParameterizedType): Unit = {
+        p.designator match {
+          case s: ScExistentialArgument =>
+            s.upper match {
+              case ParameterizedType(upper, _) =>
+                result = conformsInner(l, upper, visited, constraints, checkWeak)
+              case upper =>
+                result = conformsInner(l, upper, visited, constraints, checkWeak)
+            }
+          case _ =>
+        }
+      }
+    }
+
+    trait OtherNonvalueTypesVisitor extends ScalaTypeVisitor {
+      override def visitUndefinedType(u: UndefinedType): Unit = {
+        result = ConstraintsResult.Left
+      }
+
+      override def visitMethodType(m: ScMethodType): Unit = {
+        result = ConstraintsResult.Left
+      }
+
+      override def visitAbstractType(a: ScAbstractType): Unit = {
+        result = ConstraintsResult.Left
+      }
+
+      override def visitTypePolymorphicType(t: ScTypePolymorphicType): Unit = {
+        result = ConstraintsResult.Left
+      }
+    }
+
+    trait NothingNullVisitor extends ScalaTypeVisitor {
+      override def visitLiteralType(lt: ScLiteralType): Unit = {
+        if (lt.wideType.eq(Null) && l.conforms(AnyRef)) result = constraints
+      }
+
+      override def visitStdType(x: StdType): Unit = {
+        if (x eq Nothing) result = constraints
+        else if (x eq Null) {
+          /*
+            this case for checking: val x: T = null
+            This is good if T class type: T <: AnyRef and !(T <: NotNull)
+           */
+          if (!l.conforms(AnyRef)) {
+            result = ConstraintsResult.Left
+            return
+          }
+          l.extractDesignated(expandAliases = false) match {
+            case Some(el) =>
+              val flag =
+                el.elementScope.getCachedClass("scala.NotNull")
+                  .map(ScDesignatorType(_))
+                  .exists(l.conforms(_))
+
+              result = // todo: think about constraints
+                if (!flag) constraints
+                else ConstraintsResult.Left
+            case _ => result = constraints
+          }
+        }
+      }
+    }
+
+    trait TypeParameterTypeVisitor extends ScalaTypeVisitor {
+      override def visitTypeParameterType(tpt: TypeParameterType): Unit = {
+        result = conformsInner(l, tpt.upperType, constraints = constraints)
+      }
+    }
+
+    trait ThisVisitor extends ScalaTypeVisitor {
+      override def visitThisType(t: ScThisType): Unit = {
+        if (l eq Singleton) {
+          result = constraints
+          return
+        }
+
+        result = t.element.getTypeWithProjections() match {
+          case Right(value) => conformsInner(l, value, visited, constraints, checkWeak)
+          case _            => ConstraintsResult.Left
+        }
+
+        if (result.isLeft) {
+          result = t.element.selfType match {
+            case Some(selfTp) => conformsInner(l, selfTp, visited, constraints, checkWeak)
+            case _            => result
+          }
+        }
+      }
+    }
+
+    trait DesignatorVisitor extends ScalaTypeVisitor {
+      override def visitDesignatorType(d: ScDesignatorType): Unit = {
+        if ((l eq Singleton) && d.isSingleton) {
+          result = constraints
+          return
+        }
+
+        val maybeType = d.element match {
+          case v: ScBindingPattern => v.`type`()
+          case v: ScParameter      => v.insideParamType
+          case v: ScFieldId        => v.`type`()
+          case _                   => return
+        }
+
+        result = maybeType match {
+          case Right(value) => conformsInner(l, value, visited, constraints)
+          case _            => ConstraintsResult.Left
+        }
+      }
+    }
+
+    trait MatchTypeVisitor extends ScalaTypeVisitor {
+      override def visitMatchType(mt: ScMatchType): Unit = {
+        mt.reduce.toOption.orElse(mt.upperBound) match {
+          case Some(upper) =>
+            result = conformsInner(l, upper, visited, constraints)
+          case None => ()
+        }
+      }
+    }
+
+    trait ParameterizedAliasVisitor extends ScalaTypeVisitor {
+      override def visitParameterizedType(p: ParameterizedType): Unit = {
+        p match {
+          case AliasType(_, _, upper, opaque) =>
+            upper match {
+              case Right(bound) =>
+                if (!opaque || !bound.isAny)
+                  result = conformsInner(l, bound, visited, constraints)
+              case _            => result = ConstraintsResult.Left
+            }
+          case _ =>
+        }
+      }
+    }
+
+    trait AliasDesignatorVisitor extends ScalaTypeVisitor {
+      def stopDesignatorAliasOnFailure: Boolean = false
+
+      override def visitDesignatorType(des: ScDesignatorType): Unit = {
+        des match {
+          case AliasType(_, _, Right(value), _) =>
+            val res = conformsInner(l, value, visited, constraints)
+            if (stopDesignatorAliasOnFailure || res.isRight) result = res
+          case _ =>
+        }
+      }
+    }
+
+    trait OrTypeVisitor extends ScalaTypeVisitor {
+      override def visitOrType(t: ScOrType): Unit = {
+        conformsInner(l, t.lhs, HashSet.empty, constraints) match {
+          case ConstraintsResult.Left => result = ConstraintsResult.Left
+          case cs: ConstraintSystem   => result = conformsInner(l, t.rhs, HashSet.empty, cs)
+        }
+      }
+    }
+
+    trait CompoundTypeVisitor extends ScalaTypeVisitor {
+      override def visitAndType(t: ScAndType): Unit =
+        compareComponents(Seq(t.lhs, t.rhs))
+
+      private def traverseComponents(
+        comps: Seq[ScType],
+        check: (ScType, ConstraintSystem) => ConstraintsResult
+      ): Set[ConstraintSystem] = {
+        val builder = Set.newBuilder[ConstraintSystem]
+
+        val iterator = comps.iterator
+        while (iterator.hasNext) {
+          val comp = iterator.next()
+          val result = check(comp, constraints)
+
+          result match {
+            case ConstraintsResult.Left => ()
+            case cs: ConstraintSystem   => builder += cs
+          }
+        }
+
+        builder.result()
+      }
+
+      private def compareComponents(comps: Seq[ScType]): Unit = {
+        val equivConstraints = traverseComponents(comps, typeSystem.equivInner(l, _, _))
+
+        val results =
+          if (equivConstraints.isEmpty)
+            traverseComponents(comps, conformsInner(l, _, HashSet.empty, _))
+          else equivConstraints
+
+        if (results.nonEmpty) result = ConstraintSystem(results)
+        else
+          result = l match {
+            case AliasType(_: ScTypeAliasDefinition, Right(lower), _, effectivelyOpaque) if !effectivelyOpaque =>
+              conformsInner(lower, r, HashSet.empty, constraints)
+            case _ => ConstraintsResult.Left
+          }
+      }
+
+      override def visitCompoundType(c: ScCompoundType): Unit = compareComponents(c.components)
+    }
+
+    trait ExistentialVisitor extends ScalaTypeVisitor {
+      override def visitExistentialType(ex: ScExistentialType): Unit = {
+        result = conformsInner(l, ex.quantified, HashSet.empty, constraints)
+      }
+    }
+
+    trait ProjectionVisitor extends ScalaTypeVisitor {
+      def stopProjectionAliasOnFailure: Boolean = false
+
+      override def visitProjectionType(proj2: ScProjectionType): Unit = {
+        if ((l eq Singleton) && proj2.isSingleton) {
+          result = constraints
+          return
+        }
+
+        proj2 match {
+          case AliasType(_, _, Left(_), _) =>
+          case AliasType(_, _, Right(value), _) =>
+            val res = conformsInner(l, value, visited, constraints)
+            if (stopProjectionAliasOnFailure || res.isRight) result = res
+          case _ =>
+            l match {
+              case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
+                val projected1 = proj1.projected
+                val projected2 = proj2.projected
+                result = conformsInner(projected1, projected2, visited, constraints)
+              case _ =>
+                val res = proj2.actualElement match {
+                  case syntheticClass: ScSyntheticClass =>
+                    result = conformsInner(l, syntheticClass.stdType, HashSet.empty, constraints)
+                    return
+                  case v: ScBindingPattern => v.`type`()
+                  case v: ScParameter      => v.insideParamType
+                  case v: ScFieldId        => v.`type`()
+                  case _                   => return
+                }
+
+                result = res match {
+                  case Right(value) => conformsInner(l, proj2.actualSubst(value), visited, constraints)
+                  case _            => ConstraintsResult.Left
+                }
+            }
+        }
+      }
+    }
+
+    trait PolymorphicDesignatorVisitor extends ScalaTypeVisitor {
+      private def visitDesignatorOwner(downer: DesignatorOwner): Unit = downer.typeConstructor match {
+        case Some(tpt: ScTypePolymorphicType) => result = conformsInner(l, tpt, visited, constraints, checkWeak)
+        case None                             => ()
+      }
+
+      override def visitDesignatorType(d: ScDesignatorType): Unit = visitDesignatorOwner(d)
+      override def visitProjectionType(p: ScProjectionType): Unit = visitDesignatorOwner(p)
+    }
+
+    private var result: ConstraintsResult = _
+    private var constraints: ConstraintSystem = ConstraintSystem.empty
+
+    def getResult: ConstraintsResult = result
+
+    override def visitStdType(x: StdType): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor
+          with AbstractVisitor
+          with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
+        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      if (checkWeak) {
+        r match {
+          case r: ValType if StdTypes.instance.canWiden(r, x) =>
+            result = constraints
+            return
+          case _ =>
+        }
+      }
+
+      if (x eq Any) {
+        result = constraints
+        return
+      }
+
+      if (x == Nothing && r == Null) {
+        result = ConstraintsResult.Left
+        return
+      }
+
+      rightVisitor = new NothingNullVisitor with TypeParameterTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new ThisVisitor with DesignatorVisitor with ParameterizedAliasVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor with ExistentialVisitor
+        with ProjectionVisitor with OrTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new LiteralTypeWideningVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      if (x eq Null) {
+        result = if (r.isNothing) constraints else ConstraintsResult.Left
+        return
+      }
+
+      if (x eq AnyRef) {
+        if (r eq Any) {
+          result = ConstraintsResult.Left
+          return
+        }
+        else if (r eq AnyVal) {
+          result = ConstraintsResult.Left
+          return
+        }
+        else if (r.isInstanceOf[ScLiteralType]) {
+          result = ConstraintsResult.Left
+          return
+        }
+        else if (r.isInstanceOf[ValType]) {
+          result = ConstraintsResult.Left
+          return
+        }
+        else if (!r.isInstanceOf[ScExistentialType]) {
+          rightVisitor = new AliasDesignatorVisitor with MatchTypeVisitor with ProjectionVisitor {
+            override def stopProjectionAliasOnFailure: Boolean = true
+
+            override def stopDesignatorAliasOnFailure: Boolean = true
+          }
+          r.visitType(rightVisitor)
+          if (result != null) return
+          result = constraints
+          return
+        }
+      }
+
+      if (x eq Singleton) {
+        /** Conformance is checked in corresponding rightVisitors
+         * [[ThisVisitor]], [[LiteralTypeWideningVisitor]],
+         * [[ProjectionVisitor]] and [[DesignatorVisitor]] */
+        result = ConstraintsResult.Left
+        return
+      }
+
+      if (x eq AnyVal) {
+        result =
+          if (r.isInstanceOf[ValType] || ValueClassType.isValueType(r)) constraints
+          else ConstraintsResult.Left
+        return
+      }
+      if (l.isInstanceOf[ValType] && r.isInstanceOf[ValType]) {
+        result = ConstraintsResult.Left
+        return
+      }
+    }
+
+    override def visitOrType(t: ScOrType): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
+          with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
+        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
+        with TypeParameterTypeVisitor with OrTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      conformsInner(t.lhs, r, visited, constraints) match {
+        case ConstraintsResult.Left => result = conformsInner(t.rhs, r, visited, constraints)
+        case cs: ConstraintSystem   => result = cs
+      }
+    }
+
+    private def visitCompoundOrAndType(): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
+          with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
+        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
+        with TypeParameterTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+    }
+
+    override def visitAndType(t: ScAndType): Unit = {
+      visitCompoundOrAndType()
+      if (result != null) return
+
+      conformsInner(t.lhs, r, visited, constraints) match {
+        case ConstraintsResult.Left => result = ConstraintsResult.Left
+        case cs: ConstraintSystem   => result = conformsInner(t.rhs, r, visited, cs)
+      }
+    }
+
+    override def visitCompoundType(c: ScCompoundType): Unit = {
+      /*If T<:Ui for i=1,...,n and for every binding d of a type or value x in R there exists a member binding
+      of x in T which subsumes d, then T conforms to the compound type	U1	with	. . .	with	Un	{R }.
+
+      U1	with	. . .	with	Un	{R } === t1
+      T                             === t2
+      U1	with	. . .	with	Un       === comps1
+      Un                            === compn*/
+      def workWithSignature(s: TermSignature, retType: ScType): Boolean = {
+        val processor = new CompoundTypeCheckSignatureProcessor(s,retType, constraints)
+        processor.processType(r, s.namedElement)
+        constraints = processor.getConstraints
+        processor.getResult
+      }
+
+      def workWithTypeAlias(sign: TypeAliasSignature): Boolean = {
+        val singletonSubst = r match {
+          case ScDesignatorType(_: ScParameter | _: ScFieldId | _: ScBindingPattern) => ScSubstitutor(r)
+          case _                                                                     => ScSubstitutor.empty
+        }
+
+        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, constraints, singletonSubst)
+        processor.processType(r, sign.typeAlias)
+        constraints = processor.getConstraints
+        processor.getResult
+      }
+
+      visitCompoundOrAndType()
+      if (result != null) return
+
+      val isSuccess = c.components.forall(comp => {
+        val t = conformsInner(comp, r, HashSet.empty, constraints)
+        constraints = t.constraints
+        t.isRight
+      }) && c.signatureMap.forall {
+        case (s: TermSignature, retType) => workWithSignature(s, retType)
+      } && c.typesMap.forall {
+        case (_, sign) => workWithTypeAlias(sign)
+      }
+
+      result = if (isSuccess) constraints else ConstraintsResult.Left
+    }
+
+    override def visitProjectionType(proj: ScProjectionType): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
+          with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
+        with ParameterizedExistentialArgumentVisitor with NothingNullVisitor
+        with TypeParameterTypeVisitor with ThisVisitor with ParameterizedAliasVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor =
+        new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor
+          with ProjectionVisitor with OrTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      r match {
+        case rhs: ScTypePolymorphicType =>
+          proj.typeConstructor match {
+            case Some(lhs) =>
+              val conforms = conformsInner(lhs, rhs, visited, constraints)
+              if (conforms.isRight) {
+                result = conforms
+                return
+              }
+            case None => ()
+          }
+        case _ => ()
+      }
+
+      r match {
+        case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj.actualElement) =>
+          val projected1 = proj.projected
+          val projected2 = proj1.projected
+          result = conformsInner(projected1, projected2, visited, constraints)
+          if (result != null) return
+        case proj1: ScProjectionType if proj1.actualElement.name == proj.actualElement.name =>
+          val projected1 = proj.projected
+          val projected2 = proj1.projected
+          val t = conformsInner(projected1, projected2, visited, constraints)
+          if (t.isRight) {
+            result = t
+            return
+          }
+        case _ =>
+      }
+
+      rightVisitor = new LiteralTypeWideningVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      proj match {
+        case AliasType(_, Right(lower), _, _) =>
+          val conforms = conformsInner(lower, r, visited, constraints)
+          if (conforms.isRight) result = conforms
+        case _ =>
+          rightVisitor = new ExistentialVisitor {}
+          r.visitType(rightVisitor)
+          if (result != null) return
+      }
+
+      if (result ne null) return
+      rightVisitor = new OtherNonvalueTypesVisitor {}
+      r.visitType(rightVisitor)
+
+      if (result != null) return
+      rightVisitor = new DesignatorVisitor {}
+      r.visitType(rightVisitor)
+    }
+
+    override def visitLiteralType(l: ScLiteralType): Unit = {
+      val rightVisitor: ScalaTypeVisitor = new UndefinedSubstVisitor with NothingNullVisitor {}
+
+      r.visitType(rightVisitor)
+
+      if (result != null) return
+
+      checkEquiv()
+    }
+
+    override def visitJavaArrayType(a1: JavaArrayType): Unit = {
+      val JavaArrayType(arg1) = a1
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
+          with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
+        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
+        with TypeParameterTypeVisitor with ThisVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new ParameterizedAliasVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      r match {
+        case JavaArrayType(arg2) =>
+          result = checkArrayArgs(arg1, arg2)
+          return
+        case ScalaArrayType(arg2) =>
+          result = checkArrayArgs(arg1, arg2)
+          return
+        case _ =>
+      }
+
+      rightVisitor = new AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor with ExistentialVisitor
+        with ProjectionVisitor with OrTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new DesignatorVisitor {}
+      r.visitType(rightVisitor)
+    }
+
+    override def visitMatchType(mt: ScMatchType): Unit = {
+      mt.reduce match {
+        case Right(reduced) =>
+          result = conformsInner(reduced, r, visited, constraints, checkWeak)
+        case _ => ()
+      }
+
+      def checkCases(
+        lCases: Seq[() => (ScType, ScType)],
+        rCases: Seq[() => (ScType, ScType)],
+        cs:     ConstraintSystem
+      ): ConstraintsResult = {
+        var combinedConstraints: ConstraintsResult = cs
+
+        val lIter = lCases.iterator
+        val rIter = rCases.iterator
+
+        while (combinedConstraints.isRight && lIter.hasNext) {
+          val (lPat, lBody) = lIter.next().apply()
+
+          if (rIter.isEmpty) combinedConstraints = ConstraintsResult.Left
+          else {
+            val (rPat, rBody) = rIter.next().apply()
+
+            val patEquiv = lPat.equiv(rPat, combinedConstraints.constraints)
+
+            patEquiv match {
+              case ConstraintsResult.Left =>
+                combinedConstraints = ConstraintsResult.Left
+              case patCs: ConstraintSystem =>
+                combinedConstraints = combinedConstraints.constraints + patCs
+            }
+
+            combinedConstraints = conformsInner(lBody, rBody, visited, combinedConstraints.constraints)
+          }
+        }
+
+        combinedConstraints
+      }
+
+      r match {
+        case ScMatchType(rScrutinee, rCases, _) =>
+          val scrutineeEquiv = mt.scrutinee.equiv(rScrutinee, constraints, falseUndef = false)
+
+          scrutineeEquiv match {
+            case ConstraintsResult.Left =>
+              result = ConstraintsResult.Left
+            case cs: ConstraintSystem =>
+              result = checkCases(mt.cases, rCases, cs)
+          }
+        case _ =>
+          val rightVisitor = new AliasDesignatorVisitor {}
+          r.visitType(rightVisitor)
+      }
+    }
+
+    override def visitParameterizedType(p: ParameterizedType): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      p.designator match {
+        case DesignatorOwner(ta: ScTypeAlias) if p.typeArguments.size == 1 =>
+          val containingClassName = Option(ta.containingClass).map(_.qualifiedName).orNull
+
+          if (containingClassName == "scala.compiletime.ops.int" && ta.name == "S") {
+            r match {
+              case ScLiteralType(ScIntegerLiteralImpl.Value(int), _) if int > 0 =>
+                val tvar = p.typeArguments.head
+                val decremented = ScIntegerLiteralImpl.Value(int - 1)
+                result = equivInner(tvar, ScLiteralType(decremented)(projectContext), constraints, falseUndef = false)
+                return
+              case _ => ()
+            }
+          }
+        case a: ScAbstractType =>
+          val subst = ScSubstitutor.bind(a.typeParameter.typeParameters, p.typeArguments)
+          val upper: ScType =
+            subst(a.upper) match {
+              case up if up.equiv(Any)      => Any
+              case ParameterizedType(up, _) => ScParameterizedType(up, p.typeArguments)
+              case up                       => ScParameterizedType(up, p.typeArguments)
+            }
+
+          if (!upper.equiv(Any)) {
+            result = conformsInner(upper, r, visited, constraints, checkWeak)
+          } else {
+            result = constraints
+          }
+          if (result.isRight) {
+            val lower: ScType =
+              subst(a.lower) match {
+                case low if low.equiv(Nothing) => Nothing
+                case ParameterizedType(low, _) => ScParameterizedType(low, p.typeArguments)
+                case low                       => ScParameterizedType(low, p.typeArguments)
+              }
+            if (!lower.equiv(Nothing)) {
+              val t = conformsInner(r, lower, visited, result.constraints, checkWeak)
+              if (t.isRight) result = t
+            }
+          }
+          return
+        case _ =>
+      }
+
+      rightVisitor = new ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result ne null) return
+
+      rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      p.designator match {
+        case s: ScExistentialArgument =>
+          s.lower match {
+            case ParameterizedType(lower, _) =>
+              result = conformsInner(lower, r, visited, constraints, checkWeak)
+              return
+            case lower =>
+              result = conformsInner(lower, r, visited, constraints, checkWeak)
+              return
+          }
+        case _ =>
+      }
+
+      rightVisitor = new ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
+         with ThisVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      // SCL-22562. When `p` is a higher-kinded type variable applied to
+      // arguments (its designator is an [[UndefinedType]]) and `r` is a plain
+      // class type, mirror dotc's `TypeComparer#canInstantiate`: walk `r`'s
+      // base types (linearization for Scala 3; BFS in declaration order for
+      // Scala 2) and unify with the first parameterized supertype that both
+      // (a) satisfies `p`'s type-parameter upper bound (if any) and (b)
+      // unifies via [[unifyHK]] (direct or partial unification, as configured
+      // for the current Scala version).
+      p.designator match {
+        case UndefinedType(tp, _) if !r.is[ScParameterizedType] && r.extractClass.isDefined =>
+          val upperBoundClass: Option[PsiClass] = tp.upperType.extractClass.filter { cls =>
+            cls.qualifiedName != "scala.Any" && cls.qualifiedName != "java.lang.Object"
+          }
+
+          def passesUpperBound(sup: ScType): Boolean = upperBoundClass match {
+            case None        => true
+            case Some(bound) => sup.extractClass.exists(c => c == bound || c.isInheritor(bound, true))
+          }
+
+          // `r` may itself be the parameterized type we need to unify with,
+          // once aliases/singletons are stripped (e.g. `type Points =
+          // IndexedSeq[Point]`). The base-type iterators only yield `r`'s
+          // *supers*, so consider the dealiased `r` first.
+          val supers =
+            if (context.isScala3) BaseTypes.linearize(r)
+            else                  BaseTypes.bfs(r)
+          val candidates = Iterator(r) ++ supers
+
+          while (candidates.hasNext) {
+            ProgressManager.checkCanceled()
+            candidates.next().removeAliasDefinitions() match {
+              case sup: ScParameterizedType if passesUpperBound(sup) =>
+                val t = unifyHK(p, sup, constraints, Bound.Lower, visited, checkWeak)
+                if (t.isRight) {
+                  result = t
+                  return
+                }
+              case _ =>
+            }
+          }
+          result = ConstraintsResult.Left
+          return
+        case _ =>
+      }
+
+      r match {
+        case ScalaArrayType(rightArg) =>
+          p match {
+            case ScalaArrayType(leftArg) => result = checkArrayArgs(leftArg, rightArg)
+            case _                       =>
+          }
+        case p2: ScParameterizedType =>
+          val des1 = p.designator
+          val des2 = p2.designator
+          val args1 = p.typeArguments
+          val args2 = p2.typeArguments
+          (des1, des2) match {
+            case (lhs: TypeParameterType, _: TypeParameterType) =>
+              if (des1.equiv(des2)) {
+                if (args1.length != args2.length) {
+                  result = ConstraintsResult.Left
+                } else {
+                  result = checkParameterizedType(lhs.typeParameters, args1, args2,
+                    constraints, visited, checkWeak)
+                }
+              } else result = retryTypeParamsConformance(lhs, l, r, constraints)
+            case (UndefinedType(_, _), UndefinedType(typeParameter, _)) =>
+              if (TypeVariableUnification.unifiableKinds(p, p2)) {
+                constraints = constraints.withUpper(typeParameter.typeParamId, des1)
+
+                result = checkParameterizedType(
+                  typeParameter.typeParameters,
+                  args1, args2, constraints,
+                  visited, checkWeak
+                )
+              } else result = ConstraintsResult.Left
+            case (UndefinedType(_, _), _) => result = unifyHK(p, p2, constraints, Bound.Lower, visited, checkWeak)
+            case (_, UndefinedType(_, _)) => result = unifyHK(p2, p, constraints, Bound.Upper, visited, checkWeak)
+            case _ if des1 equiv des2 =>
+              result =
+                if (args1.length != args2.length) ConstraintsResult.Left
+                else {
+                  val tparams = extractTypeParameters(des1)
+                  if (tparams.isEmpty) ConstraintsResult.Left
+                  else                 checkParameterizedType(tparams, args1, args2, constraints, visited, checkWeak)
+                }
+            case (_, t: TypeParameterType) if t.typeParameters.length == p2.typeArguments.length =>
+              val upper = {
+                val upper = t.upperType
+                upper.typeConstructor.getOrElse(upper)
+              }
+
+              val subst = upper match {
+                case ScTypePolymorphicType(_, tparams) => ScSubstitutor.bind(tparams, p2.typeArguments)
+                case _                                 => ScSubstitutor.bind(t.typeParameters, p2.typeArguments)
+              }
+
+              result = conformsInner(ScTypePolymorphicType(p, t.typeParameters), subst(upper), visited, constraints, checkWeak)
+            case (proj1: ScProjectionType, proj2: ScProjectionType)
+              if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
+              val t = conformsInner(proj1, proj2, visited, constraints)
+              if (t.isLeft) {
+                result = ConstraintsResult.Left
+              } else {
+                constraints = t.constraints
+                if (args1.length != args2.length) {
+                  result = ConstraintsResult.Left
+                } else {
+                  proj1.actualElement match {
+                    case td: ScTypeParametersOwner =>
+                      val tps = td.typeParameters.map(TypeParameter(_))
+                      result = checkParameterizedType(tps, args1, args2, constraints, visited, checkWeak)
+                    case td: PsiTypeParameterListOwner =>
+                      val tps = td.getTypeParameters.map(TypeParameter(_))
+                      result = checkParameterizedType(tps, args1, args2, constraints, visited, checkWeak)
+                    case _ =>
+                      result = ConstraintsResult.Left
+                  }
+                }
+              }
+            case _ =>
+          }
+        case _ =>
+      }
+
+      if (result != null) {
+        //sometimes when the above part has failed, we still have to check for alias
+        if (!result.isRight && r.isAliasType) {
+          rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
+          r.visitType(rightVisitor)
+        }
+
+        if (result.isRight) return
+        else l match {
+          case AliasType(_, Right(lower), _, _) =>
+            result = conformsInner(lower, r, visited, constraints)
+          case _ => return
+        }
+
+        return
+      }
+
+      rightVisitor = new ParameterizedAliasVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      r match {
+        case JavaArrayType(rightArg) =>
+          p match {
+            case ScalaArrayType(leftArg) =>
+              result = checkArrayArgs(leftArg, rightArg)
+            case _ =>
+          }
+        case _ =>
+      }
+
+      if (result != null) return
+
+      rightVisitor = new AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor with ExistentialVisitor
+        with ProjectionVisitor with OrTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      p match {
+        case AliasType(_, lower, _, _) =>
+          lower match {
+            case Right(value) if !value.isNothing =>
+              result = conformsInner(value, r, visited, constraints)
+              if (result != null) return
+            case _                                => ()
+          }
+        case _ =>
+      }
+
+      rightVisitor = new DesignatorVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new TypeParameterTypeVisitor {}
+      r.visitType(rightVisitor)
+    }
+
+    override def visitExistentialType(e: ScExistentialType): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
+          with LiteralTypeWideningVisitor with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      rightVisitor =
+        new ExistentialArgumentVisitor with ParameterizedExistentialArgumentVisitor
+          with OtherNonvalueTypesVisitor with NothingNullVisitor
+          with TypeParameterTypeVisitor with ThisVisitor with DesignatorVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      val (updatedWithUndefinedTypes, undefines) = {
+        val remapper = new ExistentialArgumentsToTypeParameters(e.wildcards, UndefinedType.wrapExistential)
+        (remapper.remapExistentials(e.quantified), remapper.remapped)
+      }
+
+      undefines.foreach { undef =>
+        val tparam = undef.typeParameter
+
+        if (!tparam.lowerType.is[UndefinedType])
+          constraints = constraints
+            .withLower(tparam.typeParamId, tparam.lowerType)
+      }
+
+      val skolemizeExistentialsOnTheRight = r match {
+        case etpe: ScExistentialType =>
+          val designatedClass                     = etpe.extractDesignated(expandAliases = false)
+          val isDesignatedToJavaClass             = designatedClass.exists(des => des.is[PsiClass] && !des.is[PsiClassAdapter])
+          val shouldPropagateDefinitionSiteBounds = isDesignatedToJavaClass || context.isScala3
+
+          val withPropagatedBounds =
+            if (!shouldPropagateDefinitionSiteBounds) etpe
+            else
+              etpe.quantified match {
+                case ParameterizedType(des, args) =>
+                  val desTypeParameters = TypeVariableUnification.extractTypeParameters(des)
+
+                  val newArgs = desTypeParameters.zip(args).map {
+                    case (tparam, ex @ ScExistentialArgument(name, tparams, lower, upper)) if !ex.isDeferred =>
+                      val propagatedLower = if (lower.isNothing) tparam.lowerType else lower
+                      val propagatedUpper = if (upper.isAny) tparam.upperType else upper
+                      ScExistentialArgument(name, tparams, propagatedLower, propagatedUpper)
+                    case (_, arg) => arg
+                  }
+
+                  val newWildcards = newArgs.collect { case ex: ScExistentialArgument => ex }.toList
+
+                  val updatedQuantified = ScParameterizedType(des, newArgs)
+                  ScExistentialType(updatedQuantified, Option(newWildcards), doNotSimplify = true)
+                case _                          => etpe
+              }
+
+          new ExistentialArgumentsToTypeParameters(
+            withPropagatedBounds.wildcards,
+            TypeParameterType(_)
+          ).remapExistentials(withPropagatedBounds.quantified)
+        case t => t
+      }
+
+      conformsInner(
+        updatedWithUndefinedTypes,
+        skolemizeExistentialsOnTheRight,
+        constraints = constraints
+      ) match {
+        case cs: ConstraintSystem =>
+          constraints = cs
+
+          val subst =
+            cs.substitutionBounds(canThrowSCE = true, checkWeak = false)
+              .map(_.substitutor) match {
+              case Some(subst) => subst
+              case None        => result = ConstraintsResult.Left; return
+            }
+
+          undefines.foreach { undef =>
+            val inst = subst(undef)
+
+            val loBound = subst(undef.typeParameter.lowerType)
+            conformsInner(inst, loBound, constraints = constraints) match {
+              case s: ConstraintSystem => constraints = s
+              case _                   => result = ConstraintsResult.Left; return
+            }
+
+            val hiBound = subst(undef.typeParameter.upperType)
+            conformsInner(hiBound, inst, constraints = constraints) match {
+              case s: ConstraintSystem => constraints = s
+              case _                   => result = ConstraintsResult.Left; return
+            }
+          }
+          if (result == null) result = constraints
+        case _ => result = ConstraintsResult.Left
+      }
+    }
+
+    override def visitThisType(t: ScThisType): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
+          with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
+        with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
+         with TypeParameterTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      result = t.element.getTypeWithProjections() match {
+        case Right(value) => conformsInner(value, r, visited, constraints, checkWeak)
+        case _ => ConstraintsResult.Left
+      }
+    }
+
+    override def visitDesignatorType(des: ScDesignatorType): Unit = {
+      des.getValType match {
+        case Some(v) =>
+          result = conformsInner(v, r, visited, constraints, checkWeak)
+          return
+        case _ =>
+      }
+
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with DesignatorVisitor with UndefinedSubstVisitor with AbstractVisitor
+          with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
+        with ParameterizedExistentialArgumentVisitor with NothingNullVisitor
+         {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new TypeParameterTypeVisitor
+        with ThisVisitor with ParameterizedAliasVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new AliasDesignatorVisitor with ProjectionVisitor with MatchTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      des match {
+        case AliasType(_, lower, _, _) =>
+          result = lower match {
+            case Right(value) => conformsInner(value, r, visited, constraints)
+            case _            => ConstraintsResult.Left
+          }
+        case _ =>
+          rightVisitor = new CompoundTypeVisitor with ExistentialVisitor with OrTypeVisitor {}
+          r.visitType(rightVisitor)
+      }
+      if (result != null) return
+
+      r match {
+        case rhs: ScTypePolymorphicType =>
+          des.typeConstructor match {
+            case Some(lhs) =>
+              result = conformsInner(lhs, rhs, visited, constraints)
+              if (result != null) return
+            case None      => ()
+          }
+        case _ => ()
+      }
+
+      rightVisitor = new DesignatorVisitor with OtherNonvalueTypesVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new LiteralTypeWideningVisitor {}
+      r.visitType(rightVisitor)
+    }
+
+    override def visitTypeParameterType(tpt1: TypeParameterType): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
+          with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      trait TypeParameterTypeNothingNullVisitor extends NothingNullVisitor {
+        override def visitStdType(x: StdType): Unit = {
+          if (x eq Nothing) result = constraints
+          else if (x eq Null) {
+            result = conformsInner(tpt1.lowerType, r, HashSet.empty, constraints)
+          }
+        }
+      }
+
+      rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
+        with ParameterizedExistentialArgumentVisitor with TypeParameterTypeNothingNullVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      r match {
+        case AliasType(_: ScTypeAliasDefinition, Right(lower), _, effectivelyOpaque) if !effectivelyOpaque =>
+          val conformsLower = conformsInner(tpt1, lower, visited, constraints)
+          if (conformsLower.isRight) {
+            result = conformsLower
+            return
+          }
+        case tpt2: TypeParameterType =>
+          val res = conformsInner(tpt1.lowerType, r, HashSet.empty, constraints)
+          if (res.isRight) {
+            result = res
+            return
+          }
+          result = conformsInner(l, tpt2.upperType, HashSet.empty, constraints)
+          return
+        case _ =>
+      }
+
+      val t = conformsInner(tpt1.lowerType, r, HashSet.empty, constraints)
+      if (t.isRight) {
+        result = t
+        return
+      }
+
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor
+        with ExistentialVisitor with ProjectionVisitor with OrTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new DesignatorVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      result = ConstraintsResult.Left
+    }
+
+    override def visitExistentialArgument(s: ScExistentialArgument): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor
+          with AbstractVisitor
+          with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      r match {
+        case tpt2: ScExistentialArgument =>
+          val res = conformsInner(s.lower, r, HashSet.empty, constraints)
+          if (res.isRight) {
+            result = res
+            return
+          }
+          result = conformsInner(l, tpt2.upper, HashSet.empty, constraints)
+          return
+        case _ =>
+      }
+
+      val t = conformsInner(s.lower, r, HashSet.empty, constraints)
+
+      if (t.isRight) {
+        result = t.constraints
+        return
+      }
+
+      rightVisitor = new OtherNonvalueTypesVisitor with NothingNullVisitor
+        with TypeParameterTypeVisitor with ThisVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new ParameterizedAliasVisitor with AliasDesignatorVisitor with MatchTypeVisitor with CompoundTypeVisitor
+        with ExistentialVisitor with ProjectionVisitor with OrTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new DesignatorVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+    }
+
+    override def visitUndefinedType(u: UndefinedType): Unit = {
+      val rightVisitor = new ValDesignatorSimplification {
+        override def visitUndefinedType(u2: UndefinedType): Unit = {
+          val uId  = u.typeParameter.typeParamId
+          val u2Id = u2.typeParameter.typeParamId
+
+          if (u2.isWrappedExistential) {
+            result = constraints.withLower(uId, u2.typeParameter.lowerType)
+          } else if (u.isWrappedExistential) {
+            result = constraints.withUpper(u2Id, u.typeParameter.upperType)
+          } else {
+            result = if (u2.level > u.level) {
+              constraints.withUpper(u2Id, u)
+            } else if (u.level > u2.level) {
+              constraints.withUpper(uId, u2)
+            } else {
+              constraints
+            }
+          }
+        }
+      }
+
+      r.visitType(rightVisitor)
+      if (result == null) {
+        r match {
+          case lit: ScLiteralType if lit.allowWiden && !u.typeParameter.upperType.conforms(Singleton) =>
+            result = conformsInner(l, lit.wideType, visited, constraints, checkWeak)
+          case lit: ScLiteralType =>
+            result = constraints.withLower(u.typeParameter.typeParamId, lit.blockWiden)
+          case _ =>
+            result = constraints.withLower(u.typeParameter.typeParamId, r)
+        }
+      }
+    }
+
+    override def visitMethodType(m1: ScMethodType): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor
+          with AbstractVisitor
+          with ParameterizedAbstractVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      rightVisitor = new ExistentialSimplification {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      r match {
+        case m2: ScMethodType =>
+          val params1 = m1.params
+          val params2 = m2.params
+          val returnType1 = m1.result
+          val returnType2 = m2.result
+          if (params1.length != params2.length) {
+            result = ConstraintsResult.Left
+            return
+          }
+          var t = conformsInner(returnType1, returnType2, HashSet.empty, constraints)
+          if (t.isLeft) {
+            result = ConstraintsResult.Left
+            return
+          }
+          constraints = t.constraints
+          var i = 0
+          while (i < params1.length) {
+            if (params1(i).isRepeated != params2(i).isRepeated) {
+              result = ConstraintsResult.Left
+              return
+            }
+            t = params1(i).paramType.equiv(params2(i).paramType, constraints, falseUndef = false)
+            if (t.isLeft) {
+              result = ConstraintsResult.Left
+              return
+            }
+            constraints = t.constraints
+            i = i + 1
+          }
+          result = constraints
+        case _ =>
+          result = ConstraintsResult.Left
+      }
+    }
+
+    override def visitAbstractType(a: ScAbstractType): Unit = {
+      val rightVisitor = new ValDesignatorSimplification with UndefinedSubstVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      result = conformsInner(a.upper, r, visited, constraints, checkWeak)
+      if (result.isRight) {
+        val t = conformsInner(r, a.lower, visited, result.constraints, checkWeak)
+        if (t.isRight) result = t
+      }
+    }
+
+    override def visitTypePolymorphicType(t1: ScTypePolymorphicType): Unit = {
+      var rightVisitor: ScalaTypeVisitor =
+        new ValDesignatorSimplification with UndefinedSubstVisitor
+          with AbstractVisitor with PolymorphicDesignatorVisitor
+          with ParameterizedAbstractVisitor with TypeParameterTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      checkEquiv()
+      if (result != null) return
+
+      rightVisitor = new ExistentialSimplification {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      rightVisitor = new ProjectionVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      r match {
+        case t2: ScTypePolymorphicType =>
+          val typeParameters1 = t1.typeParameters
+          val typeParameters2 = t2.typeParameters
+          val internalType1   = t1.internalType
+          val internalType2   = t2.internalType
+          val subst           = ScSubstitutor.bind(typeParameters1, typeParameters2)(TypeParameterType(_))
+
+          if (internalType2.isNothing || internalType1.isAny) {
+            result = constraints
+            return
+          }
+
+          if (typeParameters1.length != typeParameters2.length) {
+            result = ConstraintsResult.Left
+            return
+          }
+
+          var i = 0
+          while (i < typeParameters1.length) {
+            var t =
+              conformsInner(
+                subst(typeParameters1(i).lowerType),
+                typeParameters2(i).lowerType,
+                HashSet.empty,
+                constraints
+              )
+
+            if (t.isLeft) {
+              result = ConstraintsResult.Left
+              return
+            }
+            constraints = t.constraints
+
+            t = conformsInner(
+              typeParameters2(i).upperType,
+              subst(typeParameters1(i).upperType),
+              HashSet.empty,
+              constraints
+            )
+
+            if (t.isLeft) {
+              result = ConstraintsResult.Left
+              return
+            }
+            constraints = t.constraints
+            i = i + 1
+          }
+          val t = conformsInner(subst(internalType1), internalType2, HashSet.empty, constraints)
+          if (t.isLeft) {
+            result = ConstraintsResult.Left
+            return
+          }
+          constraints = t.constraints
+          result = constraints
+        case anyOrNothing if anyOrNothing.isAny || anyOrNothing.isNothing =>
+          result = conformsInner(t1.internalType, anyOrNothing, visited, constraints)
+        case _ =>
+          result = ConstraintsResult.Left
+      }
+    }
+  }
+}
+
+private object ScalaConformance {
+  private[psi] object HKAbstract {
+    def unapply(tpe: ParameterizedType)(implicit context: Context): Boolean = tpe match {
+      case ParameterizedType(abs: ScAbstractType, tArgs) =>
+        import abs.projectContext
+        abs.upper.equiv(Any) && tArgs.forall {
+          case ScAbstractType(_, lower, upper) => lower.equiv(Nothing) && upper.equiv(Any)
+          case _                               => false
+        }
+      case _ => false
+    }
+  }
+
+  private[psi] def addParam(
+    typeParameter: TypeParameter,
+    bound:         ScType,
+    constraints:   ConstraintSystem
+  ): ConstraintSystem =
+    bound match {
+      case HKAbstract() => constraints
+      case _ =>
+        constraints
+          .withUpper(typeParameter.typeParamId, bound, variance = Invariant)
+          .withLower(typeParameter.typeParamId, bound, variance = Invariant)
+    }
+
+  private[psi] sealed trait Bound
+  private[psi] object Bound {
+    case object Lower       extends Bound
+    case object Upper       extends Bound
+    case object Equivalence extends Bound
+  }
+
+  private class ExistentialArgumentsToTypeParameters[T <: ScType](
+    exs:             Seq[ScExistentialArgument],
+    typeParamToType: TypeParameter => T
+  ) {
+    private[this] lazy val remapExistentials: Map[ScExistentialArgument, T] =
+      exs.map(
+        ex =>
+          ex -> typeParamToType(
+            TypeParameter.deferred(
+              ex.name,
+              ex.typeParameters,
+              () => remapExistentials(ex.lower),
+              () => remapExistentials(ex.upper)
+            )
+          )
+      ).to(Map)
+
+    def remapExistentials(tpe: ScType): ScType =
+      tpe.recursiveUpdate {
+        case arg: ScExistentialArgument => ReplaceWith(remapExistentials.getOrElse(arg, arg))
+        case _: ScExistentialType       => Stop
+        case _                          => ProcessSubtypes
+      }
+
+
+    def remapped: Seq[T] = remapExistentials.values.toSeq
+  }
+}

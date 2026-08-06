@@ -1,0 +1,6 @@
+package org.jetbrains.plugins.scala.testingSupport.scalatest.scalatest_3_0.scala_2_11
+
+import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestNestedSameNamesTest
+
+class Scalatest_3_0_Scala_2_11_NestedSameNamesTest extends Scalatest_3_0_Scala_2_11_Base
+  with ScalaTestNestedSameNamesTest

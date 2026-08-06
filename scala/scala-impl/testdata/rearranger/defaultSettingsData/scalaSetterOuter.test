@@ -1,0 +1,11 @@
+def myVal_=(value: Int): Unit = ???
+
+def junk = ???
+
+def myVal: Int = ???
+-------------
+def junk = ???
+
+def myVal: Int = ???
+
+def myVal_=(value: Int): Unit = ???

@@ -1,0 +1,10 @@
+Document tests/pos/t0020.scala
+(3:28..3:34) scala/Predef.String#
+(3:44..3:60) scala/package.RuntimeException#
+(3:61..3:62) _empty_/Exceptions.CubeException#s. -> 3:25
+(5:20..5:25) scala/Array#
+(5:26..5:32) scala/Predef.String#
+(6:9..6:16) scala/Console.
+(6:17..6:24) scala/Console.println(+1).
+(6:29..6:42) _empty_/Exceptions.CubeException# -> 3:11
+

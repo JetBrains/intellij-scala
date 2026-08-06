@@ -1,0 +1,59 @@
+Document tests/pos/repeatedArgs213.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/collection/
+(1:26..1:35) scala/collection/immutable/
+(1:37..1:44) scala/collection/mutable/
+(2:8..2:12) java/
+(2:13..2:16) java/nio/
+(2:17..2:21) java/nio/file/
+(2:22..2:27) java/nio/file/Paths#
+(5:15..5:21) scala/Predef.String#
+(5:25..5:28) scala/Int#
+(5:31..5:34) _empty_/repeatedArgs#bat(). -> 6:7
+(5:35..5:37) _empty_/repeatedArgs#bar().(xs) -> 5:11
+(6:15..6:24) scala/collection/immutable/
+(6:25..6:28) scala/collection/immutable/Seq#
+(6:29..6:35) scala/Predef.String#
+(6:40..6:42) _empty_/repeatedArgs#bat().(xs) -> 6:11
+(6:43..6:49) scala/collection/SeqOps#length().
+(8:16..8:25) scala/collection/immutable/
+(8:26..8:29) scala/collection/immutable/Seq#
+(8:30..8:36) scala/Predef.String#
+(8:40..8:44) scala/Unit#
+(9:5..9:8) _empty_/repeatedArgs#bar(). -> 5:7
+(10:5..10:8) _empty_/repeatedArgs#bar(). -> 5:7
+(10:9..10:11) _empty_/repeatedArgs#test().(xs) -> 8:12
+(12:5..12:10) java/nio/file/Paths#
+(12:11..12:14) java/nio/file/Paths#get().
+(13:5..13:10) java/nio/file/Paths#
+(13:11..13:14) java/nio/file/Paths#get().
+(13:24..13:26) _empty_/repeatedArgs#test().(xs) -> 8:12
+(15:9..15:13) scala/package.List.
+(15:28..15:30) _empty_/repeatedArgs#test().(xs) -> 8:12
+(15:31..15:37) scala/collection/IterableOnceOps#toList().
+(16:12..16:21) scala/collection/immutable/
+(16:22..16:25) scala/collection/immutable/Seq#
+(16:26..16:32) scala/Predef.String#
+(16:36..16:42) local0 -> 15:17
+(19:17..19:26) scala/collection/immutable/
+(19:27..19:30) scala/collection/immutable/Seq#
+(19:31..19:37) scala/Predef.String#
+(19:39..19:40) scala/`|`#
+(19:41..19:45) scala/Null#
+(19:48..19:52) scala/Unit#
+(20:5..20:8) _empty_/repeatedArgs#bar(). -> 5:7
+(21:5..21:8) _empty_/repeatedArgs#bar(). -> 5:7
+(21:9..21:11) _empty_/repeatedArgs#test2().(xs) -> 19:13
+(23:5..23:10) java/nio/file/Paths#
+(23:11..23:14) java/nio/file/Paths#get().
+(24:5..24:10) java/nio/file/Paths#
+(24:11..24:14) java/nio/file/Paths#get().
+(24:24..24:26) _empty_/repeatedArgs#test2().(xs) -> 19:13
+(26:9..26:13) scala/package.List.
+(26:28..26:30) _empty_/repeatedArgs#test2().(xs) -> 19:13
+(26:31..26:37) scala/collection/IterableOnceOps#toList().
+(27:12..27:21) scala/collection/immutable/
+(27:22..27:25) scala/collection/immutable/Seq#
+(27:26..27:32) scala/Predef.String#
+(27:36..27:42) local2 -> 26:17
+

@@ -1,0 +1,5 @@
+if (b == a) return
+if (b != a) return
+if (b <= a) return
+if (b >= a) return
+if (b equals a) return

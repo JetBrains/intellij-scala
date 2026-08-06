@@ -1,0 +1,18 @@
+Document tests/pos/i24207.scala
+(2:36..2:41) _empty_/Table# -> 10:12
+(3:29..3:50) _empty_/Generator#calculateOwnRelations(). -> 6:15
+(3:51..3:56) _empty_/Generator#generateTable().(table) -> 2:29
+(4:5..4:17) local0 -> 3:10
+(6:44..6:49) _empty_/Table# -> 10:12
+(7:24..7:29) _empty_/Generator#calculateOwnRelations().(table) -> 6:37
+(7:30..7:39) _empty_/Table#relations. -> 10:18
+(7:40..7:46) scala/collection/IterableOps#filter().
+(7:49..7:60) _empty_/TableRelation#association. -> 11:26
+(7:61..7:70) scala/Option#isDefined().
+(8:6..8:18) local1 -> 7:9
+(8:20..8:23) scala/package.Nil.
+(10:29..10:32) scala/package.Seq#
+(10:33..10:46) _empty_/TableRelation# -> 11:12
+(11:39..11:45) scala/Option#
+(11:46..11:57) _empty_/Association# -> 12:7
+

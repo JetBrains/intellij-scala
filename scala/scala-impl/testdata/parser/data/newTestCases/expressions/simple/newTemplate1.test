@@ -1,0 +1,26 @@
+new ASDGASDF()
+(x, timestamp)
+-----
+ScalaFile
+  ScNewTemplateDefinition: <anonymous>
+    PsiElement(new)('new')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: ASDGASDF
+            CodeReferenceElement: ASDGASDF
+              PsiElement(identifier)('ASDGASDF')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+  PsiWhiteSpace('\n')
+  Tuple
+    PsiElement(()('(')
+    ReferenceExpression: x
+      PsiElement(identifier)('x')
+    PsiElement(,)(',')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: timestamp
+      PsiElement(identifier)('timestamp')
+    PsiElement())(')')

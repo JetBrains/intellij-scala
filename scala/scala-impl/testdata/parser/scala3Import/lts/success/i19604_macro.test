@@ -1,0 +1,153 @@
+// macro.scala
+package prelude
+import scala.quoted.*
+
+object Macros {
+  def validateInlineImpl[A: Type](assertionExpr: Expr[Assertion[A]], a: Expr[A])(using Quotes): Expr[Unit] =
+    '{ () }
+}
+-----
+ScalaFile
+  PsiComment(comment)('// macro.scala')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: prelude
+      PsiElement(identifier)('prelude')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.quoted
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('quoted')
+        PsiElement(.)('.')
+        PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScObject: Macros
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Macros')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: validateInlineImpl
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('validateInlineImpl')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: A
+                PsiElement(identifier)('A')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ScContextBoundImpl(context bound)
+                  SimpleType: Type
+                    CodeReferenceElement: Type
+                      PsiElement(identifier)('Type')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: assertionExpr
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('assertionExpr')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Expr[Assertion[A]]
+                      SimpleType: Expr
+                        CodeReferenceElement: Expr
+                          PsiElement(identifier)('Expr')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Assertion[A]
+                            SimpleType: Assertion
+                              CodeReferenceElement: Assertion
+                                PsiElement(identifier)('Assertion')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: A
+                                  CodeReferenceElement: A
+                                    PsiElement(identifier)('A')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Expr[A]
+                      SimpleType: Expr
+                        CodeReferenceElement: Expr
+                          PsiElement(identifier)('Expr')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                PsiElement())(')')
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(using)('using')
+                PsiWhiteSpace(' ')
+                Parameter: <anonymous>
+                  ParameterType
+                    SimpleType: Quotes
+                      CodeReferenceElement: Quotes
+                        PsiElement(identifier)('Quotes')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Expr[Unit]
+              SimpleType: Expr
+                CodeReferenceElement: Expr
+                  PsiElement(identifier)('Expr')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Unit
+                    CodeReferenceElement: Unit
+                      PsiElement(identifier)('Unit')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            QuotedBlock
+              PsiElement(')(''')
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              UnitExpression
+                PsiElement(()('(')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

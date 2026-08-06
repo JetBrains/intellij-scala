@@ -1,0 +1,17 @@
+Document tests/pos/i19013-a.scala
+(3:17..3:26) scala/package.Exception#
+(3:34..3:38) scala/Unit#
+(3:41..3:47) scala/Option#
+(3:48..3:49) _empty_/`i19013-a$package`.handle().[E] -> 3:12
+(5:5..5:6) _empty_/`i19013-a$package`.handle().(f) -> 3:28
+(6:5..6:9) scala/None.
+(7:17..7:18) _empty_/`i19013-a$package`.handle().[E] -> 3:12
+(7:20..7:29) scala/unchecked#
+(7:33..7:37) scala/Some.
+(7:38..7:39) local0 -> 7:14
+(9:8..9:24) scala/package.RuntimeException#
+(9:27..9:33) _empty_/`i19013-a$package`.handle(). -> 3:5
+(9:34..9:50) scala/package.RuntimeException#
+(9:62..9:71) scala/package.Exception#
+(9:75..9:78) scala/Option#get().
+

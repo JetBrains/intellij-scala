@@ -1,0 +1,22 @@
+object a{
+  `yield`
+  `dghfghd`
+  `id with string "it's string" works`
+}
+-----
+object {object}
+white space in line { }
+identifier {a}
+{ {{}
+white space in line {
+  }
+identifier {`yield`}
+white space in line {
+  }
+identifier {`dghfghd`}
+white space in line {
+  }
+identifier {`id with string "it's string" works`}
+white space in line {
+}
+} {}}

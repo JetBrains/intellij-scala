@@ -1,0 +1,7 @@
+Document tests/pos/lambda.scala
+(4:9..4:12) scala/Int#
+(6:15..6:18) scala/Int#
+(6:23..6:24) local1 -> 6:12
+(6:25..6:26) scala/Int#`*`(+3).
+(6:27..6:28) local1 -> 6:12
+

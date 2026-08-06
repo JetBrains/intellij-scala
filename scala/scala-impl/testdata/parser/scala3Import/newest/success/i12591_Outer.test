@@ -1,0 +1,30 @@
+package outer
+export inner.Foo
+export Foo.Bar
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: outer
+      PsiElement(identifier)('outer')
+    PsiWhiteSpace('\n')
+    ScExportStatement
+      PsiElement(export)('export')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: inner.Foo
+          CodeReferenceElement: inner
+            PsiElement(identifier)('inner')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Foo')
+    PsiWhiteSpace('\n')
+    ScExportStatement
+      PsiElement(export)('export')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: Foo.Bar
+          CodeReferenceElement: Foo
+            PsiElement(identifier)('Foo')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Bar')

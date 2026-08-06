@@ -1,0 +1,25 @@
+Document tests/pos/fieldsOf.scala
+(1:25..1:31) scala/Predef.String#
+(1:38..1:41) scala/Int#
+(3:11..3:21) scala/NamedTuple.
+(3:22..3:26) scala/NamedTuple.From#
+(3:27..3:33) _empty_/Person# -> 1:12
+(5:13..5:23) scala/NamedTuple.
+(5:24..5:28) scala/NamedTuple.From#
+(5:29..5:30) _empty_/fieldsOf$package.foo().[T] -> 5:9
+(5:34..5:37) scala/Predef.`???`().
+(7:18..7:24) scala/Predef.String#
+(7:31..7:34) scala/Int#
+(10:10..10:20) scala/NamedTuple.
+(10:21..10:25) scala/NamedTuple.From#
+(10:26..10:32) _empty_/Person# -> 1:12
+(10:36..10:39) scala/Predef.`???`().
+(11:17..11:23) scala/Predef.String#
+(11:30..11:33) scala/Int#
+(11:37..11:38) local0 -> 10:7
+(12:3..12:4) local0 -> 10:7
+(12:7..12:8) local1 -> 11:7
+(13:3..13:4) local0 -> 10:7
+(13:7..13:10) _empty_/fieldsOf$package.foo(). -> 5:5
+(13:11..13:17) _empty_/Person# -> 1:12
+

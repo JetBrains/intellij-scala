@@ -1,0 +1,653 @@
+package hylo
+
+given booleanIsValue: Value[Boolean] {
+
+  extension (self: Boolean) {
+
+    def copy(): Boolean =
+      // Note: Scala's `Boolean` has value semantics already.
+      self
+
+    def eq(other: Boolean): Boolean =
+      self == other
+
+    def hashInto(hasher: Hasher): Hasher =
+      hasher.combine(if self then 1 else 0)
+
+  }
+
+}
+
+given intIsValue: Value[Int] {
+
+  extension (self: Int) {
+
+    def copy(): Int =
+      // Note: Scala's `Int` has value semantics already.
+      self
+
+    def eq(other: Int): Boolean =
+      self == other
+
+    def hashInto(hasher: Hasher): Hasher =
+      hasher.combine(self)
+
+  }
+
+}
+
+given intIsComparable: Comparable[Int] {
+
+  extension (self: Int) {
+
+    def copy(): Int =
+      self
+
+    def eq(other: Int): Boolean =
+      self == other
+
+    def hashInto(hasher: Hasher): Hasher =
+      hasher.combine(self)
+
+    def lt(other: Int): Boolean = self < other
+
+  }
+
+}
+
+given intIsStringConvertible: StringConvertible[Int] {}
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: hylo
+      PsiElement(identifier)('hylo')
+    PsiWhiteSpace('\n\n')
+    ScGivenDefinition: booleanIsValue
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(given)('given')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('booleanIsValue')
+      PsiElement(:)(':')
+      Parameters
+        <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Value[Boolean]
+              SimpleType: Value
+                CodeReferenceElement: Value
+                  PsiElement(identifier)('Value')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          Extension on Boolean
+            PsiElement(extension)('extension')
+            PsiWhiteSpace(' ')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: self
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('self')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Boolean
+                      CodeReferenceElement: Boolean
+                        PsiElement(identifier)('Boolean')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScExtensionBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: copy
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('copy')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                PsiComment(comment)('// Note: Scala's `Boolean` has value semantics already.')
+                PsiWhiteSpace('\n      ')
+                ReferenceExpression: self
+                  PsiElement(identifier)('self')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: eq
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('eq')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: other
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('other')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Boolean
+                          CodeReferenceElement: Boolean
+                            PsiElement(identifier)('Boolean')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                InfixExpression
+                  ReferenceExpression: self
+                    PsiElement(identifier)('self')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: other
+                    PsiElement(identifier)('other')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: hashInto
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('hashInto')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: hasher
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('hasher')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Hasher
+                          CodeReferenceElement: Hasher
+                            PsiElement(identifier)('Hasher')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Hasher
+                  CodeReferenceElement: Hasher
+                    PsiElement(identifier)('Hasher')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: hasher.combine
+                    ReferenceExpression: hasher
+                      PsiElement(identifier)('hasher')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('combine')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IfStatement
+                      PsiElement(if)('if')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: self
+                        PsiElement(identifier)('self')
+                      PsiWhiteSpace(' ')
+                      PsiElement(then)('then')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                      PsiWhiteSpace(' ')
+                      PsiElement(else)('else')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScGivenDefinition: intIsValue
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(given)('given')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('intIsValue')
+      PsiElement(:)(':')
+      Parameters
+        <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Value[Int]
+              SimpleType: Value
+                CodeReferenceElement: Value
+                  PsiElement(identifier)('Value')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          Extension on Int
+            PsiElement(extension)('extension')
+            PsiWhiteSpace(' ')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: self
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('self')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScExtensionBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: copy
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('copy')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                PsiComment(comment)('// Note: Scala's `Int` has value semantics already.')
+                PsiWhiteSpace('\n      ')
+                ReferenceExpression: self
+                  PsiElement(identifier)('self')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: eq
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('eq')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: other
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('other')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                InfixExpression
+                  ReferenceExpression: self
+                    PsiElement(identifier)('self')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: other
+                    PsiElement(identifier)('other')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: hashInto
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('hashInto')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: hasher
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('hasher')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Hasher
+                          CodeReferenceElement: Hasher
+                            PsiElement(identifier)('Hasher')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Hasher
+                  CodeReferenceElement: Hasher
+                    PsiElement(identifier)('Hasher')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: hasher.combine
+                    ReferenceExpression: hasher
+                      PsiElement(identifier)('hasher')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('combine')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: self
+                      PsiElement(identifier)('self')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScGivenDefinition: intIsComparable
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(given)('given')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('intIsComparable')
+      PsiElement(:)(':')
+      Parameters
+        <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: Comparable[Int]
+              SimpleType: Comparable
+                CodeReferenceElement: Comparable
+                  PsiElement(identifier)('Comparable')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          Extension on Int
+            PsiElement(extension)('extension')
+            PsiWhiteSpace(' ')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: self
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('self')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ScExtensionBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: copy
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('copy')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                ReferenceExpression: self
+                  PsiElement(identifier)('self')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: eq
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('eq')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: other
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('other')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                InfixExpression
+                  ReferenceExpression: self
+                    PsiElement(identifier)('self')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ==
+                    PsiElement(identifier)('==')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: other
+                    PsiElement(identifier)('other')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: hashInto
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('hashInto')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: hasher
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('hasher')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Hasher
+                          CodeReferenceElement: Hasher
+                            PsiElement(identifier)('Hasher')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Hasher
+                  CodeReferenceElement: Hasher
+                    PsiElement(identifier)('Hasher')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: hasher.combine
+                    ReferenceExpression: hasher
+                      PsiElement(identifier)('hasher')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('combine')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: self
+                      PsiElement(identifier)('self')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: lt
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('lt')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: other
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('other')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ReferenceExpression: self
+                    PsiElement(identifier)('self')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: <
+                    PsiElement(identifier)('<')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: other
+                    PsiElement(identifier)('other')
+              PsiWhiteSpace('\n\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScGivenDefinition: intIsStringConvertible
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(given)('given')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('intIsStringConvertible')
+      PsiElement(:)(':')
+      Parameters
+        <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: StringConvertible[Int]
+              SimpleType: StringConvertible
+                CodeReferenceElement: StringConvertible
+                  PsiElement(identifier)('StringConvertible')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiElement(})('}')

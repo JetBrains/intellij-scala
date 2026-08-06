@@ -1,0 +1,2650 @@
+// Minimised from zio's ZLayer ++
+
+// In an attempt to fix i18453
+// this would break zio's ZLayer
+// in the "would-error" cases
+class Cov[+W]:
+  def add[X >: W, Y](y: Cov[Y]): Cov[X & Y] = ???
+  def pre[Y >: W, X](x: Cov[X]): Cov[X & Y] = ???
+
+class Test:
+  def a1[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[A & B & C]       = a.add(b).add(c)
+  def a2[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[A with B with C] = a.add(b).add(c) // would-error
+
+  def b1[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[A & (B & C)] = a.add(b).add(c) // would-error (a2)
+  def b2[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[(A & B) & C] = a.add(b).add(c)
+  def b3[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[A & (B & C)] = a.add(b.add(c))
+  def b4[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[(A & B) & C] = a.add(b.add(c))
+
+
+  def c3[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[A & B & C]       = a.pre(b).pre(c)
+  def c4[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[A with B with C] = a.pre(b).pre(c) // would-error
+
+  def d1[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[A & (B & C)] = a.pre(b).pre(c) // would-error (c4)
+  def d2[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[(A & B) & C] = a.pre(b).pre(c)
+  def d3[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[A & (B & C)] = a.pre(b.pre(c))
+  def d4[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[(A & B) & C] = a.pre(b.pre(c))
+
+
+  def add[X, Y](x: Cov[X], y: Cov[Y]): Cov[X & Y] = ???
+  def e1[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[A & (B & C)] = add(add(a, b), c) // alt assoc: ok!
+  def e2[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[(A & B) & C] = add(add(a, b), c) // reg assoc: ok
+  def e3[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[A & (B & C)] = add(a, add(b, c)) // reg assoc: ok
+  def e4[A, B, C](a: Cov[A], b: Cov[B], c: Cov[C]): Cov[(A & B) & C] = add(a, add(b, c)) // alt assoc: ok!
+-----
+ScalaFile
+  PsiComment(comment)('// Minimised from zio's ZLayer ++')
+  PsiWhiteSpace('\n\n')
+  ScClass: Cov
+    PsiComment(comment)('// In an attempt to fix i18453')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// this would break zio's ZLayer')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// in the "would-error" cases')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Cov')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: W
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('W')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: add
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('add')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: W
+                CodeReferenceElement: W
+                  PsiElement(identifier)('W')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Y
+              PsiElement(identifier)('Y')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: y
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('y')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[Y]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Y
+                          CodeReferenceElement: Y
+                            PsiElement(identifier)('Y')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[X & Y]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: X & Y
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Y
+                    CodeReferenceElement: Y
+                      PsiElement(identifier)('Y')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: pre
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('pre')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Y
+              PsiElement(identifier)('Y')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: W
+                CodeReferenceElement: W
+                  PsiElement(identifier)('W')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[X]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[X & Y]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: X & Y
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Y
+                    CodeReferenceElement: Y
+                      PsiElement(identifier)('Y')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: a1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a1')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[A & B & C]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: A & B & C
+                  InfixType: A & B
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace('       ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.add(b).add
+              MethodCall
+                ReferenceExpression: a.add
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('add')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('add')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: a2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('a2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[A with B with C]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                CompoundType: A with B with C
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace(' ')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace(' ')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.add(b).add
+              MethodCall
+                ReferenceExpression: a.add
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('add')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('add')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// would-error')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: b1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('b1')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[A & (B & C)]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: A & (B & C)
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (B & C)
+                    PsiElement(()('(')
+                    InfixType: B & C
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                    PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.add(b).add
+              MethodCall
+                ReferenceExpression: a.add
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('add')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('add')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// would-error (a2)')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: b2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('b2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[(A & B) & C]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: (A & B) & C
+                  TypeInParenthesis: (A & B)
+                    PsiElement(()('(')
+                    InfixType: A & B
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.add(b).add
+              MethodCall
+                ReferenceExpression: a.add
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('add')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('add')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: b3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('b3')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[A & (B & C)]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: A & (B & C)
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (B & C)
+                    PsiElement(()('(')
+                    InfixType: B & C
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                    PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.add
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement(.)('.')
+              PsiElement(identifier)('add')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: b.add
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('add')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: c
+                    PsiElement(identifier)('c')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: b4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('b4')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[(A & B) & C]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: (A & B) & C
+                  TypeInParenthesis: (A & B)
+                    PsiElement(()('(')
+                    InfixType: A & B
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.add
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement(.)('.')
+              PsiElement(identifier)('add')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: b.add
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('add')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: c
+                    PsiElement(identifier)('c')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n\n  ')
+        ScFunctionDefinition: c3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('c3')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[A & B & C]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: A & B & C
+                  InfixType: A & B
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace('       ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.pre(b).pre
+              MethodCall
+                ReferenceExpression: a.pre
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('pre')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('pre')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: c4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('c4')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[A with B with C]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                CompoundType: A with B with C
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace(' ')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace(' ')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.pre(b).pre
+              MethodCall
+                ReferenceExpression: a.pre
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('pre')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('pre')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// would-error')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: d1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('d1')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[A & (B & C)]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: A & (B & C)
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (B & C)
+                    PsiElement(()('(')
+                    InfixType: B & C
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                    PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.pre(b).pre
+              MethodCall
+                ReferenceExpression: a.pre
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('pre')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('pre')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// would-error (c4)')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: d2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('d2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[(A & B) & C]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: (A & B) & C
+                  TypeInParenthesis: (A & B)
+                    PsiElement(()('(')
+                    InfixType: A & B
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.pre(b).pre
+              MethodCall
+                ReferenceExpression: a.pre
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('pre')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('pre')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: d3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('d3')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[A & (B & C)]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: A & (B & C)
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (B & C)
+                    PsiElement(()('(')
+                    InfixType: B & C
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                    PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.pre
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement(.)('.')
+              PsiElement(identifier)('pre')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: b.pre
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('pre')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: c
+                    PsiElement(identifier)('c')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: d4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('d4')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[(A & B) & C]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: (A & B) & C
+                  TypeInParenthesis: (A & B)
+                    PsiElement(()('(')
+                    InfixType: A & B
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: a.pre
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement(.)('.')
+              PsiElement(identifier)('pre')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: b.pre
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('pre')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: c
+                    PsiElement(identifier)('c')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n\n  ')
+        ScFunctionDefinition: add
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('add')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Y
+              PsiElement(identifier)('Y')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[X]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: y
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('y')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[Y]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Y
+                          CodeReferenceElement: Y
+                            PsiElement(identifier)('Y')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[X & Y]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: X & Y
+                  SimpleType: X
+                    CodeReferenceElement: X
+                      PsiElement(identifier)('X')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Y
+                    CodeReferenceElement: Y
+                      PsiElement(identifier)('Y')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: e1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('e1')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[A & (B & C)]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: A & (B & C)
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (B & C)
+                    PsiElement(()('(')
+                    InfixType: B & C
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                    PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: add
+              PsiElement(identifier)('add')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: add
+                  PsiElement(identifier)('add')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// alt assoc: ok!')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: e2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('e2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[(A & B) & C]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: (A & B) & C
+                  TypeInParenthesis: (A & B)
+                    PsiElement(()('(')
+                    InfixType: A & B
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: add
+              PsiElement(identifier)('add')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: add
+                  PsiElement(identifier)('add')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// reg assoc: ok')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: e3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('e3')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[A & (B & C)]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: A & (B & C)
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (B & C)
+                    PsiElement(()('(')
+                    InfixType: B & C
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                    PsiElement())(')')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: add
+              PsiElement(identifier)('add')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: add
+                  PsiElement(identifier)('add')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c
+                    PsiElement(identifier)('c')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// reg assoc: ok')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: e4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('e4')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: C
+              PsiElement(identifier)('C')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[A]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[B]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: c
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('c')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Cov[C]
+                    SimpleType: Cov
+                      CodeReferenceElement: Cov
+                        PsiElement(identifier)('Cov')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: C
+                          CodeReferenceElement: C
+                            PsiElement(identifier)('C')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Cov[(A & B) & C]
+            SimpleType: Cov
+              CodeReferenceElement: Cov
+                PsiElement(identifier)('Cov')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: (A & B) & C
+                  TypeInParenthesis: (A & B)
+                    PsiElement(()('(')
+                    InfixType: A & B
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: C
+                    CodeReferenceElement: C
+                      PsiElement(identifier)('C')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: add
+              PsiElement(identifier)('add')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: add
+                  PsiElement(identifier)('add')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: c
+                    PsiElement(identifier)('c')
+                  PsiElement())(')')
+              PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// alt assoc: ok!')

@@ -1,0 +1,36 @@
+Document tests/pos/i8615b.scala
+(1:32..1:42) java/lang/Comparable#
+(1:43..1:48) scala/Array#
+(1:49..1:50) _empty_/ArrayOrdering#[N] -> 1:21
+(2:29..2:34) scala/Array#
+(2:35..2:36) _empty_/ArrayOrdering#[N] -> 1:21
+(2:40..2:43) scala/Int#
+(4:3..4:12) _empty_/ArrayOrdering#compareTo(). -> 2:16
+(4:13..4:16) scala/Predef.`???`().
+(7:32..7:42) java/lang/Comparable#
+(7:43..7:48) scala/Array#
+(7:49..7:52) scala/Int#
+(8:29..8:34) scala/Array#
+(8:35..8:38) scala/Int#
+(8:42..8:45) scala/Int#
+(10:3..10:12) _empty_/ArrayIntOrdering#compareTo(). -> 8:16
+(10:13..10:16) scala/Predef.`???`().
+(13:33..13:43) java/lang/Comparable#
+(13:44..13:49) scala/Array#
+(13:50..13:51) _empty_/ArrayOrdering2#[N] -> 13:22
+(14:9..14:21) scala/package.Serializable#
+(15:29..15:34) scala/Array#
+(15:35..15:36) _empty_/ArrayOrdering2#[N] -> 13:22
+(15:40..15:43) scala/Int#
+(17:3..17:12) _empty_/ArrayOrdering2#compareTo(). -> 15:16
+(17:13..17:16) scala/Predef.`???`().
+(20:33..20:43) java/lang/Comparable#
+(20:44..20:49) scala/Array#
+(20:50..20:53) scala/Int#
+(21:9..21:21) scala/package.Serializable#
+(23:29..23:34) scala/Array#
+(23:35..23:38) scala/Int#
+(23:42..23:45) scala/Int#
+(25:3..25:12) _empty_/ArrayIntOrdering2#compareTo(). -> 23:16
+(25:13..25:16) scala/Predef.`???`().
+

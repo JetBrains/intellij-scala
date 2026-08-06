@@ -1,0 +1,103 @@
+//> using options -Xfatal-warnings -deprecation -feature
+
+object Test {
+  (List(1: @unchecked, 2, 3): @unchecked) match {
+    case a :: as =>
+  }
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-feature')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            TypedExpression
+              MethodCall
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                ArgumentList
+                  PsiElement(()('(')
+                  TypedExpression
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    AnnotationsList
+                      Annotation
+                        PsiElement(@)('@')
+                        AnnotationExpression
+                          ConstructorInvocation
+                            SimpleType: unchecked
+                              CodeReferenceElement: unchecked
+                                PsiElement(identifier)('unchecked')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('3')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              AnnotationsList
+                Annotation
+                  PsiElement(@)('@')
+                  AnnotationExpression
+                    ConstructorInvocation
+                      SimpleType: unchecked
+                        CodeReferenceElement: unchecked
+                          PsiElement(identifier)('unchecked')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              InfixPattern
+                ReferencePattern: a
+                  PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: ::
+                  PsiElement(identifier)('::')
+                PsiWhiteSpace(' ')
+                ReferencePattern: as
+                  PsiElement(identifier)('as')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              BlockOfExpressions
+                <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,4 @@
+Document tests/pos/t3936/Test.scala
+(3:10..3:23) pack/BlockingQueue#
+(3:24..3:31) scala/Nothing#
+

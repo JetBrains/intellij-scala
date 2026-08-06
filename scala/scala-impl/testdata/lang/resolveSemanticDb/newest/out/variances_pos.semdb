@@ -1,0 +1,9 @@
+Document tests/pos/variances_pos.scala
+(2:12..2:13) _empty_/P#[a] -> 1:19
+(3:12..3:13) _empty_/P#[b] -> 1:23
+(7:19..7:20) _empty_/Vector#[a] -> 6:15
+(7:25..7:31) _empty_/Vector# -> 6:7
+(7:32..7:33) _empty_/Vector#append().[b] -> 7:14
+(7:37..7:43) _empty_/Vector# -> 6:7
+(7:44..7:45) _empty_/Vector#append().[b] -> 7:14
+

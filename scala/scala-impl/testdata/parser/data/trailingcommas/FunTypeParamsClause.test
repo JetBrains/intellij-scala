@@ -1,0 +1,45 @@
+trait FunTypeParamsClause {
+  def f[
+  A,
+  B,
+  ]
+}
+-----
+ScalaFile
+  ScTrait: FunTypeParamsClause
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FunTypeParamsClause')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          TypeParameterClause
+            PsiElement([)('[')
+            PsiWhiteSpace('\n  ')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n  ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n  ')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

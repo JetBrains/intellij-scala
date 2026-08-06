@@ -1,0 +1,198 @@
+package org.jetbrains.plugins.scala.lang.psi.impl.expr
+
+import com.intellij.lang.ASTNode
+import com.intellij.psi._
+import com.intellij.psi.impl.light.LightElement
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ANNOTATION
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl.ScAnnotationParameterList
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.result._
+
+import java.util.Objects
+
+class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ANNOTATION, node) with ScAnnotation {
+
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScAnnotationStub) = this(stub, null)
+
+  override def toString: String = "Annotation"
+
+  override def getParameterList: PsiAnnotationParameterList = new ScAnnotationParameterList(annotationExpr)
+
+  private def getClazz: Option[PsiClass] =
+    typeElement.`type`().getOrAny.extractClass
+
+  override def getQualifiedName: String = getClazz.map {
+    _.qualifiedName
+  }.orNull
+
+  override def typeElement: ScTypeElement =
+    byPsiOrStub(Option(annotationExpr.constructorInvocation.typeElement))(_.typeElement).get
+
+  override def annotationExpr: ScAnnotationExpr =
+    byPsiOrStub(findChild[ScAnnotationExpr])(_.annotationExpr).get
+
+  override def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
+    constructorInvocation.args match {
+      case Some(args) =>
+        args.exprs
+          .iterator
+          .flatMap {
+            case ScAssignment(left, right) =>
+              left match {
+                case ref: ScReferenceExpression if ref.refName == attributeName =>
+                  right
+                case _ => None
+              }
+            case expr if attributeName == "value" || attributeName == null => Some(expr)
+            case _ => None
+          }
+          .nextOption()
+          .orNull
+      case None => null
+    }
+  }
+
+  override def findAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
+    val value = findDeclaredAttributeValue(attributeName)
+    if (value != null) return value
+
+    getClazz match {
+      case Some(c) =>
+        val methods = c.getMethods
+        val iterator = methods.iterator
+        while (iterator.nonEmpty) {
+          val method = iterator.next()
+          method match {
+            case annotMethod: PsiAnnotationMethod if Objects.equals(method.name, attributeName) =>
+              return annotMethod.getDefaultValue
+            case _ =>
+          }
+        }
+      case _ =>
+    }
+    null
+  }
+
+  override def resolveAnnotationType: PsiClass =
+    typeElement match {
+      case st: ScSimpleTypeElement =>
+        // the branch should be actual for any annotation @Test or @Order(42)
+        val target = st.reference.map(_.resolve())
+        target.orNull match {
+          case clazz: PsiClass if clazz.annotationType =>
+            clazz
+          case _ => null
+        }
+      case _ => null //should be impossible branch
+    }
+
+  override def getNameReferenceElement: PsiJavaCodeReferenceElement = null
+
+  override def getOwner: PsiAnnotationOwner = null
+
+  override def setDeclaredAttributeValue[T <: PsiAnnotationMemberValue](attributeName: String, value: T): T = {
+    val existing: PsiAnnotationMemberValue = findDeclaredAttributeValue(attributeName)
+    if (value == null) {
+      if (existing == null) {
+        return null.asInstanceOf[T]
+      }
+      def delete(elem: PsiElement): Unit = {
+        elem.getParent match {
+          case _: ScArgumentExprList =>
+            var prev = elem.getPrevSibling
+            while (prev != null && (ScalaPsiUtil.isLineTerminator(prev) || prev.isInstanceOf[PsiWhiteSpace]))
+              prev = prev.getPrevSibling
+            if (prev != null && prev.getNode.getElementType == ScalaTokenTypes.tCOMMA) {
+              elem.delete()
+              prev.delete()
+            } else {
+              var next = elem.getNextSibling
+              while (next != null && (ScalaPsiUtil.isLineTerminator(next) || next.isInstanceOf[PsiWhiteSpace]))
+                next = next.getNextSibling
+              if (next != null && next.getNode.getElementType == ScalaTokenTypes.tCOMMA) {
+                elem.delete()
+                next.delete()
+              } else {
+                elem.delete()
+              }
+            }
+          case _ => elem.delete()
+        }
+      }
+
+      existing.getParent match {
+        case _: ScArgumentExprList => delete(existing)
+        case other => delete(other)
+      }
+    }
+    else {
+      if (existing != null) {
+        existing.replace(value)
+      }
+      else {
+        val args = annotationExpr.constructorInvocation.arguments
+        if (args.isEmpty) {
+          return null.asInstanceOf[T] //todo: ?
+        }
+        val params = args.flatMap(arg => arg.exprs)
+        if (params.length == 1 && !params.head.isInstanceOf[ScAssignment]) {
+          params.head.replace(
+            createExpressionFromText(
+              PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME + " = " + params.head.getText,
+              params.head
+            )(params.head.getManager)
+          )
+        }
+        val allowNoName: Boolean = params.isEmpty &&
+          (PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME.equals(attributeName) || null == attributeName)
+        var namePrefix: String = null
+        if (allowNoName) {
+          namePrefix = ""
+        }
+        else {
+          namePrefix = attributeName + " = "
+        }
+
+        args.head.addBefore(createExpressionFromText(namePrefix + value.getText, value)(value.getManager), null)
+      }
+    }
+    findDeclaredAttributeValue(attributeName).asInstanceOf[T]
+  }
+
+  override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
+    visitor.visitAnnotation(this)
+  }
+
+  override def canNavigate: Boolean =
+    super[ScalaStubBasedElementImpl].canNavigate
+
+  override def canNavigateToSource: Boolean =
+    super[ScalaStubBasedElementImpl].canNavigateToSource
+
+  override def navigate(requestFocus: Boolean): Unit =
+    super[ScalaStubBasedElementImpl].navigate(requestFocus)
+
+}
+
+object ScAnnotationImpl {
+  private class ScAnnotationParameterList(expr: ScAnnotationExpr)
+    extends LightElement(expr.getManager, expr.getLanguage) with PsiAnnotationParameterList {
+
+    override def getAttributes: Array[PsiNameValuePair] = expr.getAttributes.toArray
+
+    override def toString: String = "ScAnnotationParameterList"
+  }
+}

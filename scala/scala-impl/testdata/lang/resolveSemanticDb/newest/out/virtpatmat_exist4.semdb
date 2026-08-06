@@ -1,0 +1,36 @@
+Document tests/pos/virtpatmat_exist4.scala
+(3:27..3:34) scala/Boolean#
+(6:22..6:36) _empty_/MemberHandlers# -> 11:7
+(7:15..7:21) _empty_/Global# -> 1:7
+(8:17..8:21) scala/package.List#
+(8:22..8:35) _empty_/MemberHandlers#MemberHandler# -> 14:25
+(12:13..12:18) _empty_/IMain# -> 6:7
+(13:10..13:14) _empty_/MemberHandlers#intp. -> 12:7
+(13:15..13:21) _empty_/IMain#global. -> 7:7
+(14:51..14:55) _empty_/Global#Tree# -> 2:9
+(15:26..15:30) scala/package.List#
+(15:31..15:37) _empty_/Global#Symbol# -> 3:9
+(20:13..20:18) _empty_/IMain# -> 6:7
+(20:24..20:38) _empty_/MemberHandlers# -> 11:7
+(22:18..22:22) _empty_/Test.intp(). -> 20:7
+(22:23..22:31) _empty_/IMain#handlers(). -> 8:7
+(23:3..23:11) _empty_/Test.handlers. -> 22:7
+(23:12..23:21) scala/collection/immutable/List#filterNot().
+(23:24..23:39) _empty_/MemberHandlers#MemberHandler#importedSymbols(). -> 15:9
+(23:40..23:47) scala/collection/immutable/List#isEmpty().
+(23:49..23:61) scala/collection/StrictOptimizedIterableOps#zipWithIndex().
+(23:62..23:69) scala/collection/immutable/List#foreach().
+(25:28..25:35) local2 -> 24:11
+(25:36..25:51) _empty_/MemberHandlers#MemberHandler#importedSymbols(). -> 15:9
+(25:52..25:61) scala/collection/immutable/List#partition().
+(25:65..25:68) _empty_/Global#Symbol#foo(). -> 3:22
+(30:17..30:21) java/
+(30:22..30:26) java/lang/
+(30:27..30:32) java/lang/Class#
+(32:26..32:30) scala/package.List#
+(32:31..32:37) scala/AnyRef#
+(33:5..33:11) _empty_/Test2.tvarString().(bounds) -> 32:18
+(33:12..33:19) scala/collection/immutable/List#collect().
+(33:30..33:36) _empty_/Test2.JClass# -> 30:8
+(33:40..33:41) local7 -> 33:27
+

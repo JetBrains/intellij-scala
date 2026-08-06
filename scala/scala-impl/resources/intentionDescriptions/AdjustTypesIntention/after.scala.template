@@ -1,0 +1,2 @@
+import scala.collection.mutable
+val test: mutable.Seq[String] = ???

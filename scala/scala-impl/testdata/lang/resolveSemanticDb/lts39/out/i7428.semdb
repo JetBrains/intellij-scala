@@ -1,0 +1,5 @@
+Document tests/pos/i7428.scala
+(4:10..4:13) _empty_/ABug#Tag.
+(4:14..4:19) _empty_/ABug#Tag.first. -> 3:10
+(5:12..5:17) _empty_/ABug#Tag.first. -> 3:10
+

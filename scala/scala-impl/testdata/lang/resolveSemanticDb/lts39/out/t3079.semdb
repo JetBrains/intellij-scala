@@ -1,0 +1,10 @@
+Document tests/pos/t3079.scala
+(2:14..2:15) _empty_/Identity#[A] -> 1:23
+(6:16..6:17) _empty_/Coerce#[A] -> 5:14
+(6:21..6:22) _empty_/Coerce#[B] -> 5:17
+(10:31..10:37) _empty_/Coerce# -> 5:7
+(10:38..10:46) _empty_/Identity# -> 1:14
+(10:47..10:48) _empty_/Coerce.IdentityCoerce().[B] -> 10:22
+(10:51..10:52) _empty_/Coerce.IdentityCoerce().[B] -> 10:22
+(12:21..12:26) _empty_/Identity#value. -> 2:7
+

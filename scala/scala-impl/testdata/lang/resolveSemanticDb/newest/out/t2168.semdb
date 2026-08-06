@@ -1,0 +1,12 @@
+Document tests/pos/t2168.scala
+(1:21..1:24) scala/App#
+(2:15..2:21) scala/AnyRef#
+(2:25..2:26) _empty_/Test.foo1().(x) -> 2:12
+(2:43..2:52) scala/Function0#
+(2:59..2:60) local0 -> 2:40
+(3:15..3:21) scala/AnyRef#
+(3:25..3:26) _empty_/Test.foo2().(x) -> 3:12
+(3:43..3:52) scala/Function0#
+(3:53..3:56) scala/Any#
+(3:61..3:62) local2 -> 3:40
+

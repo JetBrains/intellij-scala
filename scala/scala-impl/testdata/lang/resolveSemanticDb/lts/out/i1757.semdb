@@ -1,0 +1,17 @@
+Document tests/pos/i1757.scala
+(1:20..1:24) scala/package.List#
+(1:25..1:28) scala/Int#
+(2:10..2:11) _empty_/B# -> 1:12
+(2:12..2:15) scala/Int#
+(2:19..2:22) scala/Predef.`???`().
+(3:17..3:21) scala/package.List#
+(3:22..3:25) scala/Int#
+(3:29..3:30) _empty_/B#b. -> 1:17
+(3:33..3:34) _empty_/B# -> 1:12
+(3:35..3:36) _empty_/B#cpy().[X] -> 3:11
+(3:44..3:45) _empty_/B# -> 1:12
+(3:46..3:47) _empty_/B#cpy().[X] -> 3:11
+(3:49..3:50) _empty_/B#cpy().(b) -> 3:14
+(4:3..4:4) _empty_/B#s(). -> 2:7
+(5:3..5:4) _empty_/B#s(). -> 2:7
+

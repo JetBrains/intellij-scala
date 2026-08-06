@@ -1,0 +1,13 @@
+Document tests/pos/compile1.scala
+(5:8..5:12) java/
+(5:13..5:17) java/lang/
+(5:18..5:24) java/lang/System#
+(10:18..10:21) scala/Int#
+(15:19..15:20) _empty_/Test2_2#i. -> 10:15
+(16:11..16:12) local0 -> 15:15
+(22:17..22:18) _empty_/Test2_2#i. -> 10:15
+(23:9..23:10) local4 -> 22:13
+(27:15..27:16) _empty_/Test2_2#i. -> 10:15
+(28:7..28:8) local7 -> 27:11
+(30:16..30:17) _empty_/Test2_2#i. -> 10:15
+

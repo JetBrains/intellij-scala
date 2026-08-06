@@ -1,0 +1,37 @@
+Document tests/pos/cc-backwards-compat/A.scala
+(2:12..2:15) scala/Int#
+(2:19..2:22) scala/Int#
+(3:14..3:17) scala/Int#
+(3:21..3:24) scala/Int#
+(3:28..3:31) scala/Predef.`???`().
+(4:18..4:22) p/Iter# -> 4:7
+(4:25..4:29) p/Iter# -> 4:7
+(4:32..4:37) p/A#map().(other) -> 4:11
+(5:18..5:19) p/A#pair().[T] -> 5:12
+(5:23..5:24) p/A#pair().[T] -> 5:12
+(5:26..5:27) p/A#pair().[T] -> 5:12
+(5:32..5:33) p/A#pair().(x) -> 5:15
+(5:35..5:36) p/A#pair().(x) -> 5:15
+
+Document tests/pos/cc-backwards-compat/Iter.scala
+(2:8..2:16) scala/language.
+(2:17..2:29) scala/language.experimental.
+(2:30..2:45) scala/language.experimental.captureChecking.
+(5:9..5:13) p/Iter# -> 4:7
+(7:14..7:18) p/Iter# -> 4:7
+(8:10..8:13) scala/Int#
+(8:17..8:19) p/Iter$package.test().(it) -> 7:10
+(8:21..8:24) scala/Int#
+(8:27..8:30) scala/Predef.`???`().
+(9:15..9:16) p/A# -> 2:7
+(9:17..9:18) local1 -> 8:7
+(10:11..10:12) local2 -> 9:7
+(10:13..10:16) p/A#map(). -> 4:7
+(10:17..10:19) p/Iter$package.test().(it) -> 7:10
+(11:11..11:12) local2 -> 9:7
+(11:13..11:17) p/A#pair(). -> 5:7
+(11:18..11:20) p/Iter$package.test().(it) -> 7:10
+(12:11..12:12) local2 -> 9:7
+(12:13..12:16) p/A#foo(). -> 3:7
+(12:17..12:18) local1 -> 8:7
+

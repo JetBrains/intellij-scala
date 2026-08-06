@@ -1,0 +1,29 @@
+Document tests/pos/i19433.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/collection/
+(3:25..3:32) scala/collection/mutable/
+(5:1..5:8) _empty_/
+(7:25..7:32) _empty_/ExprMap# -> 11:12
+(7:33..7:40) _empty_/ExprMap# -> 11:12
+(7:41..7:43) _empty_/EM#[V2] -> 7:15
+(7:55..7:61) _empty_/EMImpl# -> 5:15
+(7:62..7:64) _empty_/EM#[V2] -> 7:15
+(8:22..8:37) scala/PartialFunction#
+(8:38..8:40) _empty_/EM#[V2] -> 7:15
+(8:42..8:43) _empty_/EM#collect().[W] -> 8:15
+(8:47..8:51) scala/Unit#
+(9:17..9:21) _empty_/EM#apps. -> 7:19
+(9:22..9:29) _empty_/ExprMap#collect(). -> 12:7
+(9:32..9:39) _empty_/ExprMap#collect(). -> 12:7
+(9:40..9:42) _empty_/EM#collect().(pf) -> 8:18
+(11:31..11:33) _empty_/EM# -> 7:12
+(11:34..11:35) _empty_/ExprMap#[V] -> 11:20
+(11:53..11:59) _empty_/EMImpl# -> 5:15
+(11:60..11:61) _empty_/ExprMap#[V] -> 11:20
+(12:22..12:37) scala/PartialFunction#
+(12:38..12:39) _empty_/ExprMap#[V] -> 11:20
+(12:41..12:42) _empty_/ExprMap#collect().[W] -> 12:15
+(12:46..12:53) _empty_/ExprMap# -> 11:12
+(12:54..12:55) _empty_/ExprMap#collect().[W] -> 12:15
+(12:59..12:62) scala/Predef.`???`().
+

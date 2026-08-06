@@ -1,0 +1,11 @@
+class a {
+  def foo(): Unit = {
+    <selection>123</selection>
+  }
+}
+------
+class a {
+  def foo(): Unit = {
+    val value: Int = 123
+  }
+}

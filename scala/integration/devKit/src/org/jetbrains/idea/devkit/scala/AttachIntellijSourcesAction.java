@@ -1,0 +1,243 @@
+package org.jetbrains.idea.devkit.scala;
+
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.PackageIndex;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.roots.impl.libraries.LibraryEx;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
+import com.intellij.openapi.roots.ui.configuration.JavaVfsSourceRootDetectionUtil;
+import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.registry.Registry;
+import com.intellij.openapi.vfs.*;
+import com.intellij.platform.backend.workspace.WorkspaceModel;
+import com.intellij.platform.workspace.storage.ImmutableEntityStorage;
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread;
+import com.intellij.workspaceModel.ide.legacyBridge.LibraryBridgesKt;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class AttachIntellijSourcesAction extends AnAction {
+
+    private static final String PLUGIN_ATTACH_KEY = "scala.internal.attach.plugin.sources";
+
+    @Override
+    public void actionPerformed(@NotNull AnActionEvent event) {
+        if (event.getProject() != null && !event.getProject().isDisposed())
+            attachIJSources(event.getProject());
+    }
+
+    @Override
+    public boolean isDumbAware() {
+        return true;
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
+    }
+
+    private static final Logger LOG = Logger.getInstance(IntellijSourcesAttachListener.class);
+
+    private static final Predicate<String> JAR_PATTERN = Pattern.compile("^sources\\.(zip|jar)$").asPredicate();
+
+    public static void attachIJSources(@NotNull Project project) {
+        if (project.isDisposed()) return;
+
+        Application application            = ApplicationManager.getApplication();
+
+        Set<Library> ijLibraries = application.runReadAction(getSourcelessIJLibraries(project));
+        if (ijLibraries.isEmpty()) {
+            LOG.info("No IJ libraries without sources found in current project");
+            return;
+        }
+        LOG.info("Found " + ijLibraries.size() + " IJ libraries without sources");
+
+        Optional<VirtualFile> ideaInstallationFolder = application.runReadAction(getLibraryRoot(ijLibraries));
+        if (ideaInstallationFolder.isEmpty()) {
+            LOG.info("Couldn't find IDEA installation folder");
+            return;
+        }
+        LOG.info("Found IDEA installation folder at " + ideaInstallationFolder.get());
+
+        //noinspection DialogTitleCapitalization
+        Task.Backgroundable task = new Task.Backgroundable(project, DevkitBundle.message("attaching.idea.sources"), true) {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                Optional<VirtualFile> maybeSourcesZip = ideaInstallationFolder.flatMap(AttachIntellijSourcesAction::findSourcesZip);
+                if (maybeSourcesZip.isEmpty()) {
+                    LOG.info("Couldn't find IDEA sources in installation folder: " + ideaInstallationFolder.get());
+                    return;
+                }
+
+                LOG.info("Sources archive found: " + maybeSourcesZip.get().getCanonicalPath());
+
+                Collection<VirtualFile> roots = JavaVfsSourceRootDetectionUtil.suggestRoots(maybeSourcesZip.get(), indicator);
+
+                LOG.info("Found source roots: " + roots.stream().map(VirtualFile::getPath).collect(Collectors.joining("\n")));
+
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    application.runWriteAction(() ->
+                            ijLibraries.stream()
+                                    .filter(LibraryEx.class::isInstance)
+                                    .map(LibraryEx.class::cast)
+                                    .forEach(library -> addLibrary(library, roots, indicator)));
+                    LOG.info("Finished attaching IDEA sources");
+                });
+            }
+
+            private void addLibrary(LibraryEx library, Collection<VirtualFile> roots, ProgressIndicator indicator) {
+                if (library.isDisposed()) return;
+                indicator.checkCanceled();
+                Library.ModifiableModel model = library.getModifiableModel();
+                roots.forEach(file -> model.addRoot(file, OrderRootType.SOURCES));
+                model.commit();
+            }
+        };
+        task.queue();
+    }
+
+
+    @NotNull
+    private static Computable<Optional<VirtualFile>> getLibraryRoot(@NotNull Set<Library> sourceless) {
+        return () -> sourceless
+                .stream()
+                .map(library -> library.getFiles(OrderRootType.CLASSES))
+                .map(AttachIntellijSourcesAction::findIJInstallationDirectory)
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    @NotNull
+    private static Set<Library> getSourcelessIJLibrariesByClassifier(@NotNull Project project) {
+        final ArrayList<String> CLASSIFIERS = new ArrayList<>();
+        CLASSIFIERS.add("[IJ-SDK]");
+        if (Registry.is(PLUGIN_ATTACH_KEY, true)) {
+            CLASSIFIERS.add("[IJ-PLUGIN]"); // under flag for performance reasons until IDEA-246022 is fixed
+        }
+        LibraryTable libraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
+        return Arrays.stream(libraryTable.getLibraries())
+                .filter(library -> {
+                    String libraryName = library.getName();
+                    return libraryName != null && CLASSIFIERS.stream().anyMatch(libraryName::contains);
+                })
+                .filter(AttachIntellijSourcesAction::isSourceless)
+                .collect(Collectors.toSet());
+    }
+
+    @NotNull
+    private static Computable<Set<Library>> getSourcelessIJLibraries(@NotNull Project project) {
+        return () -> {
+            Set<Library> librariesByClassifier = getSourcelessIJLibrariesByClassifier(project);
+            if (!librariesByClassifier.isEmpty())
+                return librariesByClassifier;
+            else
+                return Arrays
+                        .stream(PackageIndex.getInstance(project).getDirectoriesByPackageName("com.intellij", false))
+                        .flatMap(file -> getLibraries(project, file))
+                        .filter(AttachIntellijSourcesAction::isSourceless)
+                        .limit(1)          // only take the first matching library, this should be enough
+                        .collect(Collectors.toSet());
+        };
+    }
+
+    @NotNull
+    private static Stream<@NotNull Library> getLibraries(@NotNull Project project, @NotNull VirtualFile file) {
+        ImmutableEntityStorage currentSnapshot = WorkspaceModel.getInstance(project).getCurrentSnapshot();
+        return !file.getUrl().contains(".jar!") ?
+                Stream.empty() :
+                ProjectFileIndex.getInstance(project).findContainingLibraries(file)
+                        .stream()
+                        .map((library -> LibraryBridgesKt.findLibraryBridge(library, currentSnapshot)))
+                        .filter(Objects::nonNull);
+    }
+
+    private static boolean isSourceless(@NotNull Library library) {
+        return library.getUrls(OrderRootType.SOURCES).length == 0;
+    }
+
+    @Nullable
+    private static VirtualFile findIJInstallationDirectory(@NotNull VirtualFile[] jarFiles) {
+        VirtualFile jarFile = findJarFile(jarFiles);
+        VirtualFile dir = VfsUtil.getVirtualFileForJar(jarFile);
+
+        while (dir != null) {
+            if (isIJInstallationDir(dir))  {
+                break;
+            } else {
+                dir = dir.getParent();
+            }
+        }
+        return dir;
+    }
+
+    private static boolean isIJInstallationDir(@NotNull VirtualFile dir) {
+        return (dir.findChild("bin") != null) &&
+                (dir.findChild("lib") != null) &&
+                (dir.findChild("plugins") != null);
+    }
+
+    @Nullable
+    private static VirtualFile findJarFile(@NotNull VirtualFile[] jarFiles) {
+        VirtualFile firstFile = safeGet(jarFiles, 0);
+
+        return firstFile == null || isToolsJar(firstFile.getCanonicalPath()) ?
+                safeGet(jarFiles, 1) :
+                firstFile;
+    }
+
+    @Nullable
+    private static VirtualFile safeGet(@NotNull VirtualFile[] files, int index) {
+        return files.length > index ?
+                files[index] :
+                null;
+    }
+
+    private static boolean isToolsJar(@Nullable String path) {
+        return path != null && path.contains("tools.jar");
+    }
+
+    /**
+     * Requires background thread because VFS traversal will call {@link com.intellij.util.SlowOperations#assertSlowOperationsAreAllowed()}
+     */
+    @NotNull
+    @RequiresBackgroundThread
+    private static Optional<VirtualFile> findSourcesZip(@NotNull VirtualFile root) {
+        VirtualFile[] result = {null};
+        try {
+            VirtualFileManager fileManager = VirtualFileManager.getInstance();
+            VfsUtilCore.visitChildrenRecursively(
+                    root,
+                    new VirtualFileVisitor() {
+                        @NotNull
+                        @Override
+                        public Result visitFileEx(@NotNull VirtualFile file) {
+                            if (JAR_PATTERN.test(file.getName())) {
+                                result[0] = fileManager.findFileByUrl("jar://" + file.getCanonicalPath() + "!/");
+                                throw new RuntimeException();
+                            } else {
+                                return VirtualFileVisitor.CONTINUE;
+                            }
+                        }
+                    });
+        } catch (Exception ignored) {
+        }
+        return Optional.ofNullable(result[0]);
+    }
+}

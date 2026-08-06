@@ -1,0 +1,5 @@
+object Example {
+  def foo(list: List[Integer]) {
+    <spot>list</spot>$key
+  }
+}

@@ -1,0 +1,22 @@
+Document tests/pos/i13541.scala
+(4:9..4:10) _empty_/F# -> 1:7
+(4:11..4:12) _empty_/Z# -> 2:7
+(4:16..4:19) scala/Predef.`???`().
+(6:23..6:26) _empty_/Bar# -> 7:7
+(6:27..6:28) _empty_/i13541$package.Foo#[A] -> 6:16
+(6:30..6:31) _empty_/i13541$package.Foo#[B] -> 6:10
+(9:18..9:19) _empty_/F# -> 1:7
+(9:22..9:25) _empty_/i13541$package.Foo# -> 6:6
+(9:26..9:30) scala/Unit#
+(9:32..9:33) _empty_/i13541$package.fooUnit().[A] -> 9:15
+(9:37..9:40) scala/Predef.`???`().
+(12:10..12:11) _empty_/F# -> 1:7
+(12:19..12:22) _empty_/i13541$package.Foo# -> 6:6
+(12:23..12:27) scala/Unit#
+(12:29..12:30) _empty_/i13541$package.f().[A] -> 12:7
+(12:34..12:41) scala/Nothing#
+(12:44..12:47) scala/Predef.`???`().
+(14:13..14:20) scala/Nothing#
+(14:23..14:24) _empty_/i13541$package.f(). -> 12:5
+(14:25..14:26) _empty_/Z# -> 2:7
+

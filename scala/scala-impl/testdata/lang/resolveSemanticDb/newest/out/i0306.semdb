@@ -1,0 +1,12 @@
+Document tests/pos/i0306.scala
+(3:16..3:19) scala/package.Seq#
+(5:10..5:16) scala/AnyRef#
+(7:11..7:12) _empty_/bar.x. -> 5:7
+(8:13..8:14) _empty_/bar.C# -> 3:9
+(9:15..9:16) local0 -> 8:15
+(9:19..9:21) local2 -> 9:11
+(10:7..10:9) local2 -> 9:11
+(14:13..14:19) scala/Predef.String#
+(14:22..14:24) local3 -> 14:9
+(15:5..15:7) local3 -> 14:9
+

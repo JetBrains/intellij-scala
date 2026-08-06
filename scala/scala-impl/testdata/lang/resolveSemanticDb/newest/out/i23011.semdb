@@ -1,0 +1,30 @@
+Document tests/pos/i23011.scala
+(2:10..2:16) scala/Double#
+(2:20..2:24) scala/Unit#
+(3:10..3:16) scala/Double#
+(3:19..3:23) scala/Unit#
+(3:26..3:29) scala/Predef.`???`().
+(4:10..4:16) scala/Predef.String#
+(4:19..4:23) scala/Unit#
+(4:26..4:29) scala/Predef.`???`().
+(6:11..6:12) _empty_/i23011$package.X# -> 2:6
+(6:16..6:19) scala/Predef.`???`().
+(8:11..8:12) _empty_/i23011$package.X# -> 2:6
+(8:17..8:20) scala/Int#
+(8:24..8:27) scala/Predef.`???`().
+(9:11..9:12) _empty_/i23011$package.X# -> 2:6
+(9:17..9:24) scala/Boolean#
+(9:28..9:31) scala/Predef.`???`().
+(11:11..11:12) _empty_/i23011$package.X# -> 2:6
+(11:17..11:20) scala/Int#
+(11:24..11:27) scala/Predef.`???`().
+(12:11..12:12) _empty_/i23011$package.X# -> 2:6
+(12:17..12:24) scala/Boolean#
+(12:28..12:31) scala/Predef.`???`().
+(14:10..14:12) _empty_/i23011$package.f1(). -> 6:5
+(14:13..14:14) _empty_/i23011$package.g(). -> 3:5
+(15:10..15:12) _empty_/i23011$package.f2(). -> 8:5
+(15:13..15:14) _empty_/i23011$package.g(). -> 3:5
+(16:10..16:12) _empty_/i23011$package.f3(). -> 11:5
+(16:13..16:14) _empty_/i23011$package.g(). -> 3:5
+

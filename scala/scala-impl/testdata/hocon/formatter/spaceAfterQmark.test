@@ -1,0 +1,13 @@
+<settings>
+  <HoconCodeStyleSettings>
+    <option name="SPACE_AFTER_QMARK" value="true" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+sub = ${?path}
+sub = ${? path}
+sub = ${?  path}
+-----
+sub = ${? path}
+sub = ${? path}
+sub = ${? path}

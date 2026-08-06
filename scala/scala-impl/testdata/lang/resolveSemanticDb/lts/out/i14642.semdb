@@ -1,0 +1,46 @@
+Document tests/pos/i14642.scala
+(5:14..5:15) _empty_/A. -> 2:13
+(5:21..5:22) scala/`|`#
+(5:23..5:24) _empty_/B# -> 3:12
+(5:25..5:26) scala/`|`#
+(5:27..5:28) _empty_/C# -> 4:12
+(6:8..6:12) scala/package.List#
+(6:13..6:14) _empty_/A. -> 2:13
+(6:23..6:26) scala/Predef.`???`().
+(7:8..7:12) scala/package.List#
+(7:13..7:14) _empty_/B# -> 3:12
+(7:18..7:21) scala/Predef.`???`().
+(8:8..8:12) scala/package.List#
+(8:13..8:14) _empty_/C# -> 4:12
+(8:18..8:21) scala/Predef.`???`().
+(9:9..9:13) scala/package.List#
+(9:14..9:19) _empty_/i14642$package.Union# -> 5:6
+(9:23..9:24) _empty_/i14642$package.a. -> 6:5
+(9:25..9:27) scala/collection/IterableOps#`++`().
+(9:28..9:29) _empty_/i14642$package.b. -> 7:5
+(10:9..10:13) scala/package.List#
+(10:14..10:19) _empty_/i14642$package.Union# -> 5:6
+(11:3..11:4) _empty_/i14642$package.a. -> 6:5
+(11:5..11:7) scala/collection/IterableOps#`++`().
+(11:8..11:9) _empty_/i14642$package.b. -> 7:5
+(11:10..11:12) scala/collection/IterableOps#`++`().
+(11:13..11:14) _empty_/i14642$package.c. -> 8:5
+(12:9..12:13) scala/package.List#
+(12:14..12:19) _empty_/i14642$package.Union# -> 5:6
+(13:4..13:5) _empty_/i14642$package.a. -> 6:5
+(13:7..13:11) scala/package.List#
+(14:5..14:10) _empty_/i14642$package.Union# -> 5:6
+(15:6..15:8) scala/collection/IterableOps#`++`().
+(15:9..15:10) _empty_/i14642$package.b. -> 7:5
+(15:11..15:13) scala/collection/IterableOps#`++`().
+(15:14..15:15) _empty_/i14642$package.c. -> 8:5
+(16:9..16:13) scala/package.List#
+(16:14..16:19) _empty_/i14642$package.Union# -> 5:6
+(16:24..16:25) _empty_/i14642$package.a. -> 6:5
+(16:27..16:31) scala/package.List#
+(16:32..16:37) _empty_/i14642$package.Union# -> 5:6
+(16:40..16:42) scala/collection/IterableOps#`++`().
+(16:44..16:45) _empty_/i14642$package.b. -> 7:5
+(16:46..16:48) scala/collection/IterableOps#`++`().
+(16:49..16:50) _empty_/i14642$package.c. -> 8:5
+

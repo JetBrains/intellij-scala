@@ -1,0 +1,32 @@
+Document tests/pos/i17735.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/collection/
+(3:25..3:32) scala/collection/mutable/
+(4:8..4:13) scala/
+(4:14..4:24) scala/annotation/
+(4:25..4:31) scala/annotation/nowarn#
+(4:25..4:31) scala/annotation/nowarn.
+(8:12..8:19) scala/Boolean#
+(8:22..8:28) scala/Predef.String#
+(9:26..9:33) scala/collection/mutable/
+(9:34..9:47) scala/collection/mutable/StringBuilder#
+(10:8..10:9) _empty_/Foo.f().(b) -> 8:9
+(13:7..13:21) local0 -> 9:9
+(13:22..13:28) scala/collection/mutable/StringBuilder#append(+1).
+(13:43..13:49) scala/collection/mutable/StringBuilder#append(+1).
+(15:5..15:19) local0 -> 9:9
+(15:20..15:26) scala/collection/mutable/StringBuilder#result().
+(17:12..17:18) scala/Predef.String#
+(17:22..17:26) scala/Unit#
+(17:30..17:33) scala/Predef.`???`().
+(18:10..18:16) scala/Predef.String#
+(19:26..19:33) scala/collection/mutable/
+(19:34..19:47) scala/collection/mutable/StringBuilder#
+(20:5..20:6) _empty_/Foo.g(). -> 17:7
+(23:7..23:21) local1 -> 19:9
+(23:22..23:28) scala/collection/mutable/StringBuilder#append(+1).
+(23:35..23:41) scala/collection/mutable/StringBuilder#append(+1).
+(23:42..23:43) local2 -> 20:8
+(24:5..24:19) local1 -> 19:9
+(24:20..24:26) scala/collection/mutable/StringBuilder#result().
+

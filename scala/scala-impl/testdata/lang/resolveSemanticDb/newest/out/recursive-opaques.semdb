@@ -1,0 +1,12 @@
+Document tests/pos/recursive-opaques.scala
+(2:10..2:15) _empty_/SymDs. -> 8:8
+(3:25..3:31) scala/AnyRef#
+(4:7..4:20) _empty_/SymDs.SymDenotation# -> 10:9
+(5:30..5:36) _empty_/Syms.Symbol# -> 3:15
+(6:7..6:22) _empty_/SymDs.ClassDenotation# -> 11:9
+(9:10..9:14) _empty_/Syms. -> 1:8
+(10:28..10:34) _empty_/Syms.Symbol# -> 3:15
+(11:30..11:36) _empty_/Syms.Symbol# -> 3:15
+(11:46..11:59) _empty_/SymDs.SymDenotation# -> 10:9
+(11:60..11:63) _empty_/SymDs.ClassDenotation#sym. -> 11:25
+

@@ -1,0 +1,67 @@
+object Test:
+  def test(lvl3: JavaPart.Lvl3): Unit =
+    lvl3.getData.head.onlyInB()
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: lvl3
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('lvl3')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: JavaPart.Lvl3
+                    CodeReferenceElement: JavaPart.Lvl3
+                      CodeReferenceElement: JavaPart
+                        PsiElement(identifier)('JavaPart')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Lvl3')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: lvl3.getData.head.onlyInB
+              ReferenceExpression: lvl3.getData.head
+                ReferenceExpression: lvl3.getData
+                  ReferenceExpression: lvl3
+                    PsiElement(identifier)('lvl3')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getData')
+                PsiElement(.)('.')
+                PsiElement(identifier)('head')
+              PsiElement(.)('.')
+              PsiElement(identifier)('onlyInB')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')

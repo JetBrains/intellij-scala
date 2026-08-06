@@ -1,0 +1,6 @@
+Document tests/pos/t7232d/Test.scala
+(2:10..2:14) pack/
+(3:3..3:6) pack/Foo#
+(3:7..3:15) pack/Foo#mapEntry().
+(3:18..3:24) java/util/Map#Entry#getKey().
+

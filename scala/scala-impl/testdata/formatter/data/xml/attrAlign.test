@@ -1,0 +1,14 @@
+val x = <aaaaaaa attr1="1"
+ attr2="2">
+
+
+
+
+
+</aaaaaaa>
+------
+val x = <aaaaaaa attr1="1"
+                 attr2="2">
+
+
+</aaaaaaa>

@@ -1,0 +1,18 @@
+Document tests/pos/i18263.scala
+(3:19..3:24) scala/
+(3:25..3:32) scala/reflect/
+(3:33..3:43) scala/reflect/Selectable#
+(4:14..4:17) _empty_/Bar# -> 1:13
+(5:21..5:24) _empty_/Foo#Boo# -> 4:8
+(5:31..5:34) _empty_/Bar# -> 1:13
+(8:24..8:27) _empty_/Bar# -> 1:13
+(8:30..8:33) _empty_/Inv# -> 2:13
+(8:34..8:37) _empty_/Test#mkInv().(bar) -> 8:19
+(10:13..10:17) scala/Unit#
+(11:100..11:103) _empty_/Foo# -> 3:7
+(12:100..12:103) _empty_/Foo# -> 3:7
+(13:96..13:101) _empty_/Test#mkInv(). -> 8:7
+(14:16..14:20) local7 -> 11:9
+(14:21..14:25) scala/reflect/Selectable#selectDynamic().
+(14:26..14:30) scala/reflect/Selectable#selectDynamic().
+

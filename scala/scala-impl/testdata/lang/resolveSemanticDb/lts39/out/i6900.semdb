@@ -1,0 +1,40 @@
+Document tests/pos/i6900.scala
+(3:17..3:18) _empty_/Test1.Foo#foo().[C] -> 3:13
+(3:22..3:23) _empty_/Test1.Foo#[A] -> 2:13
+(6:26..6:27) _empty_/Test1.i2f().[A] -> 6:20
+(6:30..6:33) _empty_/Test1.Foo# -> 2:9
+(6:34..6:35) _empty_/Test1.i2f().[A] -> 6:20
+(6:43..6:46) _empty_/Test1.Foo# -> 2:9
+(6:47..6:48) _empty_/Test1.i2f().[A] -> 6:20
+(7:17..7:18) local0 -> 7:13
+(7:22..7:23) _empty_/Test1.i2f().[A] -> 6:20
+(7:31..7:32) _empty_/Test1.i2f().(a) -> 6:23
+(16:5..16:8) _empty_/Test1.Foo#foo(). -> 3:9
+(16:9..16:12) _empty_/Test1.Foo#foo(). -> 3:9
+(17:5..17:8) _empty_/Test1.Foo#foo(). -> 3:9
+(17:9..17:12) _empty_/Test1.Foo#foo(). -> 3:9
+(17:13..17:19) scala/Predef.String#
+(18:5..18:8) _empty_/Test1.Foo#foo(). -> 3:9
+(18:9..18:15) scala/Predef.String#
+(18:17..18:20) _empty_/Test1.Foo#foo(). -> 3:9
+(19:5..19:8) _empty_/Test1.Foo#foo(). -> 3:9
+(19:9..19:15) scala/Predef.String#
+(19:17..19:20) _empty_/Test1.Foo#foo(). -> 3:9
+(19:21..19:27) scala/Predef.String#
+(24:20..24:21) _empty_/Test2.foo().[A] -> 24:14
+(25:17..25:18) _empty_/Test2.foo().[C] -> 25:13
+(25:22..25:23) _empty_/Test2.foo().[A] -> 24:14
+(25:31..25:32) _empty_/Test2.foo().(a) -> 24:17
+(27:5..27:8) _empty_/Test2.foo(). -> 25:9
+(27:9..27:12) _empty_/Test2.foo(). -> 25:9
+(29:5..29:8) _empty_/Test2.foo(). -> 25:9
+(29:9..29:12) _empty_/Test2.foo(). -> 25:9
+(29:13..29:19) scala/Predef.String#
+(30:5..30:8) _empty_/Test2.foo(). -> 25:9
+(30:9..30:15) scala/Predef.String#
+(30:17..30:20) _empty_/Test2.foo(). -> 25:9
+(31:5..31:8) _empty_/Test2.foo(). -> 25:9
+(31:9..31:15) scala/Predef.String#
+(31:17..31:20) _empty_/Test2.foo(). -> 25:9
+(31:21..31:27) scala/Predef.String#
+

@@ -1,0 +1,19 @@
+Document tests/pos/t3373.scala
+(1:19..1:23) scala/Long#
+(2:15..2:19) scala/Long#
+(2:22..2:26) _empty_/Entry#time. -> 1:13
+(6:22..6:27) _empty_/Entry# -> 1:7
+(6:31..6:32) _empty_/Test.extractTime().(e) -> 6:19
+(6:33..6:40) _empty_/Entry#getTime(). -> 2:6
+(8:30..8:38) scala/package.Ordering#
+(8:39..8:44) _empty_/Entry# -> 1:7
+(8:52..8:60) scala/package.Ordering#
+(8:61..8:66) _empty_/Entry# -> 1:7
+(9:23..9:28) _empty_/Entry# -> 1:7
+(9:38..9:43) _empty_/Entry# -> 1:7
+(9:47..9:58) _empty_/Test.extractTime(). -> 6:7
+(9:59..9:64) local0 -> 9:16
+(9:66..9:73) scala/runtime/OrderedProxy#compare().
+(9:74..9:85) _empty_/Test.extractTime(). -> 6:7
+(9:86..9:92) local1 -> 9:30
+

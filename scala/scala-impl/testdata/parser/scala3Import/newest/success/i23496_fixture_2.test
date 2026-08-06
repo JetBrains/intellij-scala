@@ -1,0 +1,11 @@
+package scalaql.fixture
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: scalaql.fixture
+      CodeReferenceElement: scalaql
+        PsiElement(identifier)('scalaql')
+      PsiElement(.)('.')
+      PsiElement(identifier)('fixture')

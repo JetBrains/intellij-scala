@@ -1,0 +1,45 @@
+Document tests/pos/tuple-isMappedBy.scala
+(2:8..2:13) scala/
+(2:14..2:19) scala/Tuple.
+(6:23..6:28) scala/Tuple#
+(6:30..6:40) scala/Tuple.IsMappedBy#
+(6:41..6:42) _empty_/Test.test().[F] -> 6:12
+(6:46..6:50) scala/Unit#
+(8:3..8:7) _empty_/Test.test(). -> 6:7
+(8:16..8:17) _empty_/Test.`<local Test$>`.[X] -> 9:9
+(8:19..8:29) scala/Tuple$package.EmptyTuple#
+(9:3..9:7) _empty_/Test.test(). -> 6:7
+(9:16..9:17) _empty_/Test.`<local Test$>`.[X] -> 9:9
+(9:20..9:23) scala/Int#
+(9:25..9:29) scala/Long#
+(11:3..11:7) _empty_/Test.test(). -> 6:7
+(11:8..11:12) scala/package.List#
+(11:14..11:24) scala/Tuple$package.EmptyTuple#
+(12:3..12:7) _empty_/Test.test(). -> 6:7
+(12:8..12:12) scala/package.List#
+(12:15..12:19) scala/package.List#
+(12:20..12:23) scala/Int#
+(12:26..12:30) scala/package.List#
+(12:31..12:35) scala/Long#
+(18:3..18:7) _empty_/Test.test(). -> 6:7
+(18:11..18:21) scala/Tuple$package.EmptyTuple#
+(19:3..19:7) _empty_/Test.test(). -> 6:7
+(19:12..19:13) _empty_/Test.A# -> 14:9
+(19:14..19:17) scala/Int#
+(19:20..19:21) _empty_/Test.A# -> 14:9
+(19:22..19:26) scala/Long#
+(21:3..21:7) _empty_/Test.test(). -> 6:7
+(21:11..21:21) scala/Tuple$package.EmptyTuple#
+(22:3..22:7) _empty_/Test.test(). -> 6:7
+(22:12..22:13) _empty_/Test.B# -> 15:9
+(22:14..22:17) scala/Int#
+(22:20..22:21) _empty_/Test.B# -> 15:9
+(22:22..22:26) scala/Long#
+(24:3..24:7) _empty_/Test.test(). -> 6:7
+(24:11..24:21) scala/Tuple$package.EmptyTuple#
+(25:3..25:7) _empty_/Test.test(). -> 6:7
+(25:12..25:13) _empty_/Test.C# -> 16:9
+(25:14..25:17) scala/Int#
+(25:20..25:21) _empty_/Test.C# -> 16:9
+(25:22..25:26) scala/Long#
+

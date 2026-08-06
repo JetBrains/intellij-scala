@@ -1,0 +1,9 @@
+class a {
+  <start>if (a && b) you<match>
+}
+------
+class a {
+  (if (a && b) you) match {
+    case  =>
+  }
+}

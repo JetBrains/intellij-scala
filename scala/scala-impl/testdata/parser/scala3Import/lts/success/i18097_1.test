@@ -1,0 +1,512 @@
+opaque type Pos = Double
+
+object Pos:
+  extension (x: Pos)
+    def mult1(y: Pos): Pos = x * y
+
+extension (x: Pos)
+  def mult2(y: Pos): Pos = x * y
+
+class Test:
+  def test(key: String, a: Pos, b: Pos): Unit =
+    val tup1 = new Tuple1(Pos.mult1(a)(b))
+    val res1: Pos = tup1._1
+
+    val tup2 = new Tuple1(a.mult1(b))
+    val res2: Pos = tup2._1
+
+    val tup3 = new Tuple1(mult2(a)(b))
+    val res3: Pos = tup3._1
+
+    val tup4 = new Tuple1(a.mult2(b))
+    val res4: Pos = tup4._1 // was error: Found: (tup4._4 : Double) Required: Pos
+-----
+ScalaFile
+  ScTypeAliasDefinition: Pos
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(opaque)('opaque')
+    PsiWhiteSpace(' ')
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Pos')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: Double
+      CodeReferenceElement: Double
+        PsiElement(identifier)('Double')
+  PsiWhiteSpace('\n\n')
+  ScObject: Pos
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Pos')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        Extension on Pos
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Pos
+                    CodeReferenceElement: Pos
+                      PsiElement(identifier)('Pos')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: mult1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('mult1')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: y
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('y')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Pos
+                        CodeReferenceElement: Pos
+                          PsiElement(identifier)('Pos')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Pos
+                CodeReferenceElement: Pos
+                  PsiElement(identifier)('Pos')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: *
+                  PsiElement(identifier)('*')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: y
+                  PsiElement(identifier)('y')
+  PsiWhiteSpace('\n\n')
+  Extension on Pos
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Pos
+              CodeReferenceElement: Pos
+                PsiElement(identifier)('Pos')
+        PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ScExtensionBody
+      ScFunctionDefinition: mult2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('mult2')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('y')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Pos
+                  CodeReferenceElement: Pos
+                    PsiElement(identifier)('Pos')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Pos
+          CodeReferenceElement: Pos
+            PsiElement(identifier)('Pos')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        InfixExpression
+          ReferenceExpression: x
+            PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: *
+            PsiElement(identifier)('*')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: y
+            PsiElement(identifier)('y')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: key
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('key')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Pos
+                    CodeReferenceElement: Pos
+                      PsiElement(identifier)('Pos')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: b
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('b')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Pos
+                    CodeReferenceElement: Pos
+                      PsiElement(identifier)('Pos')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: tup1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: tup1
+                  PsiElement(identifier)('tup1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Tuple1
+                        CodeReferenceElement: Tuple1
+                          PsiElement(identifier)('Tuple1')
+                      ArgumentList
+                        PsiElement(()('(')
+                        MethodCall
+                          MethodCall
+                            ReferenceExpression: Pos.mult1
+                              ReferenceExpression: Pos
+                                PsiElement(identifier)('Pos')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('mult1')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: a
+                                PsiElement(identifier)('a')
+                              PsiElement())(')')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: b
+                              PsiElement(identifier)('b')
+                            PsiElement())(')')
+                        PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res1
+                  PsiElement(identifier)('res1')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Pos
+                CodeReferenceElement: Pos
+                  PsiElement(identifier)('Pos')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: tup1._1
+                ReferenceExpression: tup1
+                  PsiElement(identifier)('tup1')
+                PsiElement(.)('.')
+                PsiElement(identifier)('_1')
+            PsiWhiteSpace('\n\n    ')
+            ScPatternDefinition: tup2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: tup2
+                  PsiElement(identifier)('tup2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Tuple1
+                        CodeReferenceElement: Tuple1
+                          PsiElement(identifier)('Tuple1')
+                      ArgumentList
+                        PsiElement(()('(')
+                        MethodCall
+                          ReferenceExpression: a.mult1
+                            ReferenceExpression: a
+                              PsiElement(identifier)('a')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('mult1')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: b
+                              PsiElement(identifier)('b')
+                            PsiElement())(')')
+                        PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res2
+                  PsiElement(identifier)('res2')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Pos
+                CodeReferenceElement: Pos
+                  PsiElement(identifier)('Pos')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: tup2._1
+                ReferenceExpression: tup2
+                  PsiElement(identifier)('tup2')
+                PsiElement(.)('.')
+                PsiElement(identifier)('_1')
+            PsiWhiteSpace('\n\n    ')
+            ScPatternDefinition: tup3
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: tup3
+                  PsiElement(identifier)('tup3')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Tuple1
+                        CodeReferenceElement: Tuple1
+                          PsiElement(identifier)('Tuple1')
+                      ArgumentList
+                        PsiElement(()('(')
+                        MethodCall
+                          MethodCall
+                            ReferenceExpression: mult2
+                              PsiElement(identifier)('mult2')
+                            ArgumentList
+                              PsiElement(()('(')
+                              ReferenceExpression: a
+                                PsiElement(identifier)('a')
+                              PsiElement())(')')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: b
+                              PsiElement(identifier)('b')
+                            PsiElement())(')')
+                        PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res3
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res3
+                  PsiElement(identifier)('res3')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Pos
+                CodeReferenceElement: Pos
+                  PsiElement(identifier)('Pos')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: tup3._1
+                ReferenceExpression: tup3
+                  PsiElement(identifier)('tup3')
+                PsiElement(.)('.')
+                PsiElement(identifier)('_1')
+            PsiWhiteSpace('\n\n    ')
+            ScPatternDefinition: tup4
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: tup4
+                  PsiElement(identifier)('tup4')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Tuple1
+                        CodeReferenceElement: Tuple1
+                          PsiElement(identifier)('Tuple1')
+                      ArgumentList
+                        PsiElement(()('(')
+                        MethodCall
+                          ReferenceExpression: a.mult2
+                            ReferenceExpression: a
+                              PsiElement(identifier)('a')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('mult2')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: b
+                              PsiElement(identifier)('b')
+                            PsiElement())(')')
+                        PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: res4
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: res4
+                  PsiElement(identifier)('res4')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Pos
+                CodeReferenceElement: Pos
+                  PsiElement(identifier)('Pos')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: tup4._1
+                ReferenceExpression: tup4
+                  PsiElement(identifier)('tup4')
+                PsiElement(.)('.')
+                PsiElement(identifier)('_1')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// was error: Found: (tup4._4 : Double) Required: Pos')

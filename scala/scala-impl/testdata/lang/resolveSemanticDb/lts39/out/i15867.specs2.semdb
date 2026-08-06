@@ -1,0 +1,17 @@
+Document tests/pos/i15867.specs2.scala
+(2:9..2:19) scala/Conversion#
+(2:20..2:26) scala/Predef.String#
+(2:28..2:32) _empty_/Foo#Data# -> 5:9
+(3:20..3:26) scala/Predef.String#
+(3:29..3:33) _empty_/Foo#Data# -> 5:9
+(3:40..3:44) _empty_/Foo#Data# -> 5:9
+(3:45..3:48) _empty_/Foo#given_Conversion_String_Data.apply().(str) -> 3:15
+(5:19..5:25) scala/Predef.String#
+(6:16..6:22) scala/Predef.String#
+(6:30..6:34) _empty_/Foo#Data# -> 5:9
+(6:40..6:43) _empty_/Foo#Data#str. -> 5:14
+(6:44..6:45) java/lang/String#`+`().
+(6:46..6:49) _empty_/Foo#Data#`|`().(str) -> 6:11
+(8:19..8:22) _empty_/Foo# -> 1:7
+(9:9..9:10) _empty_/Foo#Data#`|`(). -> 6:9
+

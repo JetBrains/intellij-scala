@@ -1,0 +1,614 @@
+trait <[+A, -S]
+
+trait TypeMap[+A]:
+  def union[B](that: TypeMap[B]): TypeMap[A & B] = ???
+
+trait Tag[E]
+trait ContextEffect[+A]
+object ContextEffect:
+  def handle[A, E <: ContextEffect[A], B, S](effectTag: Tag[E], ifDefined: A => A)(
+      v: B < (E & S)
+  ): B < S = ???
+
+sealed trait Env[+R] extends ContextEffect[TypeMap[R]]
+object Env:
+  def runAll[R >: Nothing, A, S, VR](
+      env: TypeMap[R],
+      tag: Tag[Env[R]]
+  )(
+      v: A < (Env[R & VR] & S)
+  ) =
+    ContextEffect.handle(
+      tag,
+      _.union(env)
+    )(v): A < (Env[VR] & S)
+    ???
+-----
+ScalaFile
+  ScTrait: <
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('<')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('S')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: TypeMap
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TypeMap')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: union
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('union')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: that
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('that')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: TypeMap[B]
+                    SimpleType: TypeMap
+                      CodeReferenceElement: TypeMap
+                        PsiElement(identifier)('TypeMap')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: TypeMap[A & B]
+            SimpleType: TypeMap
+              CodeReferenceElement: TypeMap
+                PsiElement(identifier)('TypeMap')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: A & B
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Tag
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tag')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: ContextEffect
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ContextEffect')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: ContextEffect
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ContextEffect')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: handle
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('handle')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: ContextEffect[A]
+                SimpleType: ContextEffect
+                  CodeReferenceElement: ContextEffect
+                    PsiElement(identifier)('ContextEffect')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                  PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: effectTag
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('effectTag')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Tag[E]
+                    SimpleType: Tag
+                      CodeReferenceElement: Tag
+                        PsiElement(identifier)('Tag')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: ifDefined
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ifDefined')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A => A
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n      ')
+              Parameter: v
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: B < (E & S)
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    TypeInParenthesis: (E & S)
+                      PsiElement(()('(')
+                      InfixType: E & S
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: &
+                          PsiElement(identifier)('&')
+                        PsiWhiteSpace(' ')
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: B < S
+            SimpleType: B
+              CodeReferenceElement: B
+                PsiElement(identifier)('B')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <
+              PsiElement(identifier)('<')
+            PsiWhiteSpace(' ')
+            SimpleType: S
+              CodeReferenceElement: S
+                PsiElement(identifier)('S')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Env
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Env')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('R')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: ContextEffect[TypeMap[R]]
+            SimpleType: ContextEffect
+              CodeReferenceElement: ContextEffect
+                PsiElement(identifier)('ContextEffect')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: TypeMap[R]
+                  SimpleType: TypeMap
+                    CodeReferenceElement: TypeMap
+                      PsiElement(identifier)('TypeMap')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScObject: Env
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Env')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: runAll
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('runAll')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              SimpleType: Nothing
+                CodeReferenceElement: Nothing
+                  PsiElement(identifier)('Nothing')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: VR
+              PsiElement(identifier)('VR')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n      ')
+              Parameter: env
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('env')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: TypeMap[R]
+                    SimpleType: TypeMap
+                      CodeReferenceElement: TypeMap
+                        PsiElement(identifier)('TypeMap')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n      ')
+              Parameter: tag
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('tag')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Tag[Env[R]]
+                    SimpleType: Tag
+                      CodeReferenceElement: Tag
+                        PsiElement(identifier)('Tag')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: Env[R]
+                          SimpleType: Env
+                            CodeReferenceElement: Env
+                              PsiElement(identifier)('Env')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n      ')
+              Parameter: v
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: A < (Env[R & VR] & S)
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    TypeInParenthesis: (Env[R & VR] & S)
+                      PsiElement(()('(')
+                      InfixType: Env[R & VR] & S
+                        ParametrizedType: Env[R & VR]
+                          SimpleType: Env
+                            CodeReferenceElement: Env
+                              PsiElement(identifier)('Env')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              InfixType: R & VR
+                                SimpleType: R
+                                  CodeReferenceElement: R
+                                    PsiElement(identifier)('R')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: &
+                                  PsiElement(identifier)('&')
+                                PsiWhiteSpace(' ')
+                                SimpleType: VR
+                                  CodeReferenceElement: VR
+                                    PsiElement(identifier)('VR')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: &
+                          PsiElement(identifier)('&')
+                        PsiWhiteSpace(' ')
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            TypedExpression
+              MethodCall
+                MethodCall
+                  ReferenceExpression: ContextEffect.handle
+                    ReferenceExpression: ContextEffect
+                      PsiElement(identifier)('ContextEffect')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('handle')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiWhiteSpace('\n      ')
+                    ReferenceExpression: tag
+                      PsiElement(identifier)('tag')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n      ')
+                    MethodCall
+                      ReferenceExpression: _.union
+                        UnderscoreSection
+                          PsiElement(_)('_')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('union')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: env
+                          PsiElement(identifier)('env')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement())(')')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: v
+                    PsiElement(identifier)('v')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              InfixType: A < (Env[VR] & S)
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: <
+                  PsiElement(identifier)('<')
+                PsiWhiteSpace(' ')
+                TypeInParenthesis: (Env[VR] & S)
+                  PsiElement(()('(')
+                  InfixType: Env[VR] & S
+                    ParametrizedType: Env[VR]
+                      SimpleType: Env
+                        CodeReferenceElement: Env
+                          PsiElement(identifier)('Env')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: VR
+                            CodeReferenceElement: VR
+                              PsiElement(identifier)('VR')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')

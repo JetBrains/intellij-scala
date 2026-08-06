@@ -1,0 +1,531 @@
+enum Op[A]:
+  case Dup[T]() extends Op[(T, T)]
+
+def foo[R](f: [A] => Op[A] => R): R = ???
+
+def test =
+  foo([A] => (o: Op[A]) => o match
+    case o: Op.Dup[u] =>
+      summon[A =:= (u, u)] // Error: Cannot prove that A =:= (u, u)
+      ()
+  )
+  foo[Unit]([A] => (o: Op[A]) => o match
+    case o: Op.Dup[u] =>
+      summon[A =:= (u, u)] // Ok
+      ()
+  )
+  foo({
+    val f1 = [B] => (o: Op[B]) => o match
+      case o: Op.Dup[u] =>
+        summon[B =:= (u, u)] // Also ok
+        ()
+    f1
+  })
+-----
+ScalaFile
+  ScEnum: Op
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Op')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Dup
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Dup
+            PsiElement(identifier)('Dup')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              PsiElement(extends)('extends')
+              PsiWhiteSpace(' ')
+              TemplateParents
+                ConstructorInvocation
+                  ParametrizedType: Op[(T, T)]
+                    SimpleType: Op
+                      CodeReferenceElement: Op
+                        PsiElement(identifier)('Op')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        TupleType: (T, T)
+                          PsiElement(()('(')
+                          TypesList
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement())(')')
+                      PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            PolymorphicFunctionType: [A] => Op[A] => R
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: A
+                  PsiElement(identifier)('A')
+                PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              FunctionalType: Op[A] => R
+                ParametrizedType: Op[A]
+                  SimpleType: Op
+                    CodeReferenceElement: Op
+                      PsiElement(identifier)('Op')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: R
+      CodeReferenceElement: R
+        PsiElement(identifier)('R')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: foo
+          PsiElement(identifier)('foo')
+        ArgumentList
+          PsiElement(()('(')
+          PolyFunctionExpression
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: A
+                PsiElement(identifier)('A')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: o
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('o')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Op[A]
+                        SimpleType: Op
+                          CodeReferenceElement: Op
+                            PsiElement(identifier)('Op')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              MatchStatement
+                ReferenceExpression: o
+                  PsiElement(identifier)('o')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace('\n    ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    Scala3 TypedPattern
+                      ReferencePattern: o
+                        PsiElement(identifier)('o')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        ParametrizedType: Op.Dup[u]
+                          SimpleType: Op.Dup
+                            CodeReferenceElement: Op.Dup
+                              CodeReferenceElement: Op
+                                PsiElement(identifier)('Op')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Dup')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              TypeVariable: u
+                                PsiElement(identifier)('u')
+                            PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n      ')
+                    BlockOfExpressions
+                      GenericCall
+                        ReferenceExpression: summon
+                          PsiElement(identifier)('summon')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            InfixType: A =:= (u, u)
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: =:=
+                                PsiElement(identifier)('=:=')
+                              PsiWhiteSpace(' ')
+                              TupleType: (u, u)
+                                PsiElement(()('(')
+                                TypesList
+                                  SimpleType: u
+                                    CodeReferenceElement: u
+                                      PsiElement(identifier)('u')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: u
+                                    CodeReferenceElement: u
+                                      PsiElement(identifier)('u')
+                                PsiElement())(')')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiComment(comment)('// Error: Cannot prove that A =:= (u, u)')
+                      PsiWhiteSpace('\n      ')
+                      UnitExpression
+                        PsiElement(()('(')
+                        PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        GenericCall
+          ReferenceExpression: foo
+            PsiElement(identifier)('foo')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+            PsiElement(])(']')
+        ArgumentList
+          PsiElement(()('(')
+          PolyFunctionExpression
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: A
+                PsiElement(identifier)('A')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: o
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('o')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Op[A]
+                        SimpleType: Op
+                          CodeReferenceElement: Op
+                            PsiElement(identifier)('Op')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              MatchStatement
+                ReferenceExpression: o
+                  PsiElement(identifier)('o')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace('\n    ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    Scala3 TypedPattern
+                      ReferencePattern: o
+                        PsiElement(identifier)('o')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        ParametrizedType: Op.Dup[u]
+                          SimpleType: Op.Dup
+                            CodeReferenceElement: Op.Dup
+                              CodeReferenceElement: Op
+                                PsiElement(identifier)('Op')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Dup')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              TypeVariable: u
+                                PsiElement(identifier)('u')
+                            PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace('\n      ')
+                    BlockOfExpressions
+                      GenericCall
+                        ReferenceExpression: summon
+                          PsiElement(identifier)('summon')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            InfixType: A =:= (u, u)
+                              SimpleType: A
+                                CodeReferenceElement: A
+                                  PsiElement(identifier)('A')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: =:=
+                                PsiElement(identifier)('=:=')
+                              PsiWhiteSpace(' ')
+                              TupleType: (u, u)
+                                PsiElement(()('(')
+                                TypesList
+                                  SimpleType: u
+                                    CodeReferenceElement: u
+                                      PsiElement(identifier)('u')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: u
+                                    CodeReferenceElement: u
+                                      PsiElement(identifier)('u')
+                                PsiElement())(')')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiComment(comment)('// Ok')
+                      PsiWhiteSpace('\n      ')
+                      UnitExpression
+                        PsiElement(()('(')
+                        PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: foo
+          PsiElement(identifier)('foo')
+        ArgumentList
+          PsiElement(()('(')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: f1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: f1
+                  PsiElement(identifier)('f1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              PolyFunctionExpression
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: B
+                    PsiElement(identifier)('B')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: o
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(identifier)('o')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          ParametrizedType: Op[B]
+                            SimpleType: Op
+                              CodeReferenceElement: Op
+                                PsiElement(identifier)('Op')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: B
+                                  CodeReferenceElement: B
+                                    PsiElement(identifier)('B')
+                              PsiElement(])(']')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  MatchStatement
+                    ReferenceExpression: o
+                      PsiElement(identifier)('o')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace('\n      ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        Scala3 TypedPattern
+                          ReferencePattern: o
+                            PsiElement(identifier)('o')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          TypePattern
+                            ParametrizedType: Op.Dup[u]
+                              SimpleType: Op.Dup
+                                CodeReferenceElement: Op.Dup
+                                  CodeReferenceElement: Op
+                                    PsiElement(identifier)('Op')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Dup')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  TypeVariable: u
+                                    PsiElement(identifier)('u')
+                                PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace('\n        ')
+                        BlockOfExpressions
+                          GenericCall
+                            ReferenceExpression: summon
+                              PsiElement(identifier)('summon')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                InfixType: B =:= (u, u)
+                                  SimpleType: B
+                                    CodeReferenceElement: B
+                                      PsiElement(identifier)('B')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: =:=
+                                    PsiElement(identifier)('=:=')
+                                  PsiWhiteSpace(' ')
+                                  TupleType: (u, u)
+                                    PsiElement(()('(')
+                                    TypesList
+                                      SimpleType: u
+                                        CodeReferenceElement: u
+                                          PsiElement(identifier)('u')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      SimpleType: u
+                                        CodeReferenceElement: u
+                                          PsiElement(identifier)('u')
+                                    PsiElement())(')')
+                              PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          PsiComment(comment)('// Also ok')
+                          PsiWhiteSpace('\n        ')
+                          UnitExpression
+                            PsiElement(()('(')
+                            PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: f1
+              PsiElement(identifier)('f1')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiElement())(')')

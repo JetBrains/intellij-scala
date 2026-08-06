@@ -1,0 +1,27 @@
+Document tests/pos/i24496.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:55) scala/language.experimental.relaxedLambdaSyntax.
+(3:2..3:6) scala/main#
+(4:14..4:18) scala/package.List.
+(6:15..6:19) local0 -> 4:7
+(7:10..7:17) scala/collection/immutable/List#collect().
+(8:19..8:20) local2 -> 7:24
+(8:21..8:22) scala/Int#`+`(+4).
+(9:12..9:13) local2 -> 7:24
+(9:15..9:16) local3 -> 8:15
+(10:10..10:15) scala/collection/IterableOnceOps#toMap().
+(12:13..12:17) local0 -> 4:7
+(13:10..13:17) scala/collection/immutable/List#collect().
+(13:25..13:26) local5 -> 13:19
+(13:28..13:29) local5 -> 13:19
+(13:30..13:31) scala/Int#`+`(+4).
+(14:10..14:15) scala/collection/IterableOnceOps#toMap().
+(16:13..16:17) local0 -> 4:7
+(17:10..17:17) scala/collection/immutable/List#collect().
+(17:30..17:31) local8 -> 17:24
+(17:33..17:34) local8 -> 17:24
+(17:35..17:36) scala/Int#`+`(+4).
+(18:10..18:15) scala/collection/IterableOnceOps#toMap().
+

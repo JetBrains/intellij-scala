@@ -1,0 +1,56 @@
+package org.jetbrains.plugins.scala.lang.completion3
+
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.OVERRIDE
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
+
+abstract class ScalaOverrideCompletionTestBase extends ScalaCompletionTestBase {
+
+  protected override def setUp(): Unit = {
+    super.setUp()
+
+    set(getProject, alwaysAddType(getScalaCodeStyleSettings))
+
+    scalaFixture.setFileTextPatcher(prepareFileText)
+  }
+
+  protected def checkNoOverrideCompletion(fileText: String, lookupString: String): Unit =
+    super.checkNoCompletion(fileText) { lookup =>
+      lookup.getLookupString.contains(OVERRIDE) &&
+        lookup.getAllLookupStrings.contains(lookupString)
+    }
+
+  protected def doCompletionTest(
+    fileText: String,
+    resultText: String,
+    items: String*
+  ): Unit = {
+    super.doRawCompletionTest(fileText, resultText) { lookup =>
+      val lookupString = lookup.getLookupString
+      items.forall(lookupString.contains)
+    }
+  }
+
+  protected def prepareFileText(fileText: String): String =
+    s"""
+       |trait Base {
+       |  protected def foo(int: Int): Int = 45
+       |  /**
+       |    * text
+       |    */
+       |  type StringType = String
+       |  val intValue = 45
+       |  var intVariable: Int
+       |  type A
+       |  def abstractFoo
+       |
+       |  @throws(classOf[Exception])
+       |  def annotFoo(int: Int): Int = 45
+       |}
+       |
+       |${fileText.withNormalizedSeparator.trim}
+    """.stripMargin
+}
+

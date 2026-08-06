@@ -1,0 +1,9 @@
+Document tests/pos/i24074/Test.scala
+(2:18..2:26) _empty_/JavaPart#
+(2:27..2:31) _empty_/JavaPart#Lvl3#
+(2:34..2:38) scala/Unit#
+(3:5..3:9) _empty_/Test.test().(lvl3) -> 2:12
+(3:10..3:17) _empty_/JavaPart#Lvl2#getData().
+(3:18..3:22) scala/collection/ArrayOps#head().
+(3:23..3:30) _empty_/JavaPart#B#onlyInB().
+

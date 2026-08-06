@@ -1,0 +1,1 @@
+def method<spot>[A: Manifest]</spot>(a: Int): Unit

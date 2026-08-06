@@ -1,0 +1,208 @@
+import scala.compiletime.summonInline
+
+trait MyEvidence[T]
+
+object Scope:
+  opaque type T = String
+
+  inline given MyEvidence[T] with {}
+
+inline def summonInlineNoOpProxy: MyEvidence[Scope.T] = summonInline[MyEvidence[Scope.T]]
+
+val smoke = (
+  summonInline[MyEvidence[Scope.T]],
+  summonInlineNoOpProxy,
+)
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.summonInline
+        CodeReferenceElement: scala.compiletime
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('compiletime')
+        PsiElement(.)('.')
+        PsiElement(identifier)('summonInline')
+  PsiWhiteSpace('\n\n')
+  ScTrait: MyEvidence
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyEvidence')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Scope
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Scope')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n\n  ')
+        ScGivenDefinition: given_MyEvidence_T
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(given)('given')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: MyEvidence[T]
+                  SimpleType: MyEvidence
+                    CodeReferenceElement: MyEvidence
+                      PsiElement(identifier)('MyEvidence')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: summonInlineNoOpProxy
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('summonInlineNoOpProxy')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: MyEvidence[Scope.T]
+      SimpleType: MyEvidence
+        CodeReferenceElement: MyEvidence
+          PsiElement(identifier)('MyEvidence')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Scope.T
+            CodeReferenceElement: Scope.T
+              CodeReferenceElement: Scope
+                PsiElement(identifier)('Scope')
+              PsiElement(.)('.')
+              PsiElement(identifier)('T')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summonInline
+        PsiElement(identifier)('summonInline')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: MyEvidence[Scope.T]
+            SimpleType: MyEvidence
+              CodeReferenceElement: MyEvidence
+                PsiElement(identifier)('MyEvidence')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Scope.T
+                  CodeReferenceElement: Scope.T
+                    CodeReferenceElement: Scope
+                      PsiElement(identifier)('Scope')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: smoke
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: smoke
+        PsiElement(identifier)('smoke')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summonInline
+          PsiElement(identifier)('summonInline')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            ParametrizedType: MyEvidence[Scope.T]
+              SimpleType: MyEvidence
+                CodeReferenceElement: MyEvidence
+                  PsiElement(identifier)('MyEvidence')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Scope.T
+                    CodeReferenceElement: Scope.T
+                      CodeReferenceElement: Scope
+                        PsiElement(identifier)('Scope')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
+                PsiElement(])(']')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: summonInlineNoOpProxy
+        PsiElement(identifier)('summonInlineNoOpProxy')
+      PsiElement(,)(',')
+      PsiWhiteSpace('\n')
+      PsiElement())(')')

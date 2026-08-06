@@ -1,0 +1,58 @@
+Document tests/pos/i19493.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:27..1:36) scala/compiletime/package$package.summonAll().
+(1:38..1:50) scala/compiletime/package$package.summonInline().
+(2:8..2:16) scala/deriving/
+(2:17..2:23) scala/deriving/Mirror#
+(2:17..2:23) scala/deriving/Mirror.
+(4:14..4:15) _empty_/i19493$package.Sc#[X] -> 4:9
+(5:28..5:29) _empty_/Row#[T] -> 5:16
+(5:30..5:36) scala/Predef.String#
+(8:9..8:15) scala/Predef.String#
+(8:18..8:21) scala/Predef.`???`().
+(10:30..10:48) _empty_/DialectTypeMappers# -> 7:7
+(10:59..10:65) scala/deriving/Mirror.
+(10:66..10:68) scala/deriving/Mirror.Of#
+(10:69..10:72) _empty_/Row# -> 5:12
+(10:73..10:75) _empty_/i19493$package.Sc# -> 4:6
+(10:80..10:81) _empty_/i19493$package.metadata().(m) -> 10:56
+(11:10..11:17) _empty_/i19493$package.metadata().(dialect) -> 10:21
+(12:3..12:12) scala/compiletime/package$package.summonAll().
+(12:13..12:14) _empty_/i19493$package.metadata().(m) -> 10:56
+(14:9..14:17) _empty_/i19493$package.metadata(). -> 10:12
+(14:18..14:21) scala/Predef.`???`().
+(20:20..20:26) scala/Predef.String#
+(20:29..20:32) scala/Predef.`???`().
+(22:21..22:32) _empty_/Minimization.GivesString# -> 19:9
+(22:35..22:39) scala/Unit#
+(23:12..23:13) _empty_/Minimization.foo().(x) -> 22:18
+(23:14..23:21) _empty_/Minimization.GivesString#aString. -> 20:11
+(24:5..24:11) scala/Predef.summon().
+(24:12..24:18) scala/Predef.String#
+(25:5..25:17) scala/compiletime/package$package.summonInline().
+(25:18..25:24) scala/Predef.String#
+(27:3..27:6) _empty_/Minimization.foo(). -> 22:14
+(27:7..27:10) scala/Predef.`???`().
+(31:12..31:23) _empty_/Minimization.GivesString# -> 19:9
+(33:21..33:25) scala/Unit#
+(34:19..34:20) _empty_/Minimization.A#x. -> 31:9
+(34:21..34:28) _empty_/Minimization.GivesString#aString. -> 20:11
+(35:7..35:13) scala/Predef.summon().
+(35:14..35:20) scala/Predef.String#
+(36:7..36:19) scala/compiletime/package$package.summonInline().
+(36:20..36:26) scala/Predef.String#
+(38:10..38:11) _empty_/Minimization.A# -> 30:9
+(38:14..38:17) scala/Predef.`???`().
+(39:3..39:4) _empty_/Minimization.a. -> 38:7
+(39:5..39:8) _empty_/Minimization.A#bar(). -> 33:16
+(42:26..42:37) _empty_/Minimization.GivesString# -> 19:9
+(43:12..43:13) local0 -> 42:23
+(43:14..43:21) _empty_/Minimization.GivesString#aString. -> 20:11
+(44:5..44:11) scala/Predef.summon().
+(44:12..44:18) scala/Predef.String#
+(45:5..45:17) scala/compiletime/package$package.summonInline().
+(45:18..45:24) scala/Predef.String#
+(47:3..47:6) _empty_/Minimization.baz(). -> 42:14
+(49:5..49:17) _empty_/Minimization. -> 17:8
+

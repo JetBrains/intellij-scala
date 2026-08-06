@@ -1,0 +1,4 @@
+Document tests/pos/i11420.scala
+(2:16..2:19) scala/Int#
+(5:16..5:19) _empty_/Foo#Bar# -> 2:9
+

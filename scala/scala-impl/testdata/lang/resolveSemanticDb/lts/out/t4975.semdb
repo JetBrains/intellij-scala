@@ -1,0 +1,11 @@
+Document tests/pos/t4975.scala
+(4:12..4:16) scala/Unit#
+(7:24..7:37) _empty_/ImplicitScope. -> 1:8
+(7:38..7:39) _empty_/ImplicitScope.A# -> 2:9
+(7:40..7:41) local0 -> 5:11
+(7:49..7:50) _empty_/ImplicitScope.A# -> 2:9
+(7:51..7:52) local0 -> 5:11
+(10:5..10:15) scala/Predef.implicitly().
+(10:16..10:17) _empty_/ImplicitScope.A# -> 2:9
+(10:18..10:19) local0 -> 5:11
+

@@ -1,0 +1,21 @@
+Document tests/pos/i15184.scala
+(2:3..2:7) _empty_/i15184$package.func(). -> 5:5
+(2:13..2:16) _empty_/Box.
+(2:17..2:20) scala/package.Seq.
+(2:21..2:26) scala/collection/SeqFactory.Delegate#empty().
+(2:27..2:33) scala/Predef.String#
+(5:19..5:23) scala/Unit#
+(5:27..5:29) _empty_/i15184$package.func().[R0] -> 5:10
+(5:32..5:36) scala/Unit#
+(5:39..5:42) scala/Predef.`???`().
+(9:30..9:40) _empty_/JsonFormat# -> 7:7
+(9:41..9:44) scala/package.Seq#
+(9:45..9:51) scala/Predef.String#
+(9:57..9:60) scala/Predef.`???`().
+(11:32..11:42) _empty_/JsonFormat# -> 7:7
+(11:43..11:51) scala/package.Iterable#
+(11:52..11:58) scala/Predef.String#
+(11:65..11:68) scala/Predef.`???`().
+(14:20..14:30) _empty_/JsonFormat# -> 7:7
+(14:38..14:40) _empty_/Box#[A1] -> 14:16
+

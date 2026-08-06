@@ -1,0 +1,15 @@
+Document tests/pos/interleaving-ba.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:54) scala/language.experimental.clauseInterleaving.
+(4:11..4:17) scala/Predef.String#
+(5:11..5:17) scala/Double#
+(7:18..7:19) _empty_/BA.ba().[A] -> 7:12
+(7:30..7:31) _empty_/BA.ba().[B] -> 7:21
+(7:34..7:35) _empty_/BA.ba().[B] -> 7:21
+(7:38..7:44) scala/Predef.summon().
+(7:45..7:46) _empty_/BA.ba().[B] -> 7:21
+(9:16..9:18) _empty_/BA.ba(). -> 7:9
+(9:22..9:28) scala/Predef.String#
+

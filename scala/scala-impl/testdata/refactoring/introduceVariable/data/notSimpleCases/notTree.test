@@ -1,0 +1,8 @@
+class A {
+  1 + <selection>1 + 1</selection>
+}
+------
+class A {
+  private val value: Int = 1 + 1
+  1 + value
+}

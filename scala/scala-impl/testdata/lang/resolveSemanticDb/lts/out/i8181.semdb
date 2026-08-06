@@ -1,0 +1,10 @@
+Document tests/pos/i8181.scala
+(2:18..2:23) scala/Array#
+(2:24..2:30) scala/Predef.String#
+(2:34..2:38) scala/Unit#
+(3:19..3:25) scala/AnyRef#
+(4:21..4:25) scala/Unit#
+(4:28..4:35) scala/Predef.println(+1).
+(4:36..4:37) local0 -> 3:16
+(6:12..6:18) local1 -> 4:11
+

@@ -1,0 +1,7 @@
+Document tests/pos/i17222.izumi.min.scala
+(3:27..3:29) _empty_/Foo#In# -> 2:8
+(3:32..3:36) scala/Unit#
+(7:11..7:15) scala/Unit#
+(7:18..7:25) scala/Predef.valueOf().
+(7:26..7:29) _empty_/Foo# -> 1:7
+

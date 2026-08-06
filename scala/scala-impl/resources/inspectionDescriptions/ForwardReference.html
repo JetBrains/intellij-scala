@@ -1,0 +1,15 @@
+<html>
+<body>
+<p>Reports usages of forward references on the class level, which can lead to unexpected behavior during class
+  initialization.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  class Test {
+    val first: Int  = second + 5 // here second is 0
+    val second: Int = 5
+    // first will be 5 and not 10
+  }
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

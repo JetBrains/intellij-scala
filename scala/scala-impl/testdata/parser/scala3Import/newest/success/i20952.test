@@ -1,0 +1,378 @@
+package object packer: // the super class needs to be in a different package
+  class SuperClass():
+    protected val problem: Any = ??? // needs to be protected
+
+class SuperClass():
+  protected val problem: Any = ??? // needs to be protected
+
+// type Target = SuperClass        // passes
+type Target = packer.SuperClass // error
+
+trait Child extends Target:
+
+  val aliased: problem.type = problem
+  type Alias = problem.type
+
+  val newProblem: Any {val prog: problem.type} = ???  // error
+  val newProblem2: Any {val prog: Alias} = ???         // passes
+  val newProblem3: Any {val prog: aliased.type} = ???  // passes
+
+class ChildImpl extends Target with Child // concrete implementation is needed
+-----
+ScalaFile
+  ScObject: packer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('packer')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// the super class needs to be in a different package')
+        PsiWhiteSpace('\n  ')
+        ScClass: SuperClass
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('SuperClass')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScPatternDefinition: problem
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  AccessModifier
+                    PsiElement(protected)('protected')
+                PsiWhiteSpace(' ')
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: problem
+                    PsiElement(identifier)('problem')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// needs to be protected')
+  PsiWhiteSpace('\n\n')
+  ScClass: SuperClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SuperClass')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: problem
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: problem
+              PsiElement(identifier)('problem')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// needs to be protected')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Target
+    PsiComment(comment)('// type Target = SuperClass        // passes')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Target')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: packer.SuperClass
+      CodeReferenceElement: packer.SuperClass
+        CodeReferenceElement: packer
+          PsiElement(identifier)('packer')
+        PsiElement(.)('.')
+        PsiElement(identifier)('SuperClass')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Child
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Child')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Target
+            CodeReferenceElement: Target
+              PsiElement(identifier)('Target')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: aliased
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: aliased
+              PsiElement(identifier)('aliased')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: problem.type
+            CodeReferenceElement: problem
+              PsiElement(identifier)('problem')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: problem
+            PsiElement(identifier)('problem')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Alias
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Alias')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: problem.type
+            CodeReferenceElement: problem
+              PsiElement(identifier)('problem')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: newProblem
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: newProblem
+              PsiElement(identifier)('newProblem')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: Any {val prog: problem.type}
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              ScValueDeclaration: prog
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfIdentifiers
+                  Field identifier: prog
+                    PsiElement(identifier)('prog')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: problem.type
+                  CodeReferenceElement: problem
+                    PsiElement(identifier)('problem')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+              PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('  ')
+        PsiComment(comment)('// error')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: newProblem2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: newProblem2
+              PsiElement(identifier)('newProblem2')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: Any {val prog: Alias}
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              ScValueDeclaration: prog
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfIdentifiers
+                  Field identifier: prog
+                    PsiElement(identifier)('prog')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Alias
+                  CodeReferenceElement: Alias
+                    PsiElement(identifier)('Alias')
+              PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('         ')
+        PsiComment(comment)('// passes')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: newProblem3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: newProblem3
+              PsiElement(identifier)('newProblem3')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: Any {val prog: aliased.type}
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              ScValueDeclaration: prog
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfIdentifiers
+                  Field identifier: prog
+                    PsiElement(identifier)('prog')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: aliased.type
+                  CodeReferenceElement: aliased
+                    PsiElement(identifier)('aliased')
+                  PsiElement(.)('.')
+                  PsiElement(type)('type')
+              PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('  ')
+  PsiComment(comment)('// passes')
+  PsiWhiteSpace('\n\n')
+  ScClass: ChildImpl
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ChildImpl')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Target
+            CodeReferenceElement: Target
+              PsiElement(identifier)('Target')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: Child
+            CodeReferenceElement: Child
+              PsiElement(identifier)('Child')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// concrete implementation is needed')

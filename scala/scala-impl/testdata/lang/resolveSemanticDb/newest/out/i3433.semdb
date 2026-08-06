@@ -1,0 +1,6 @@
+Document tests/pos/i3433.scala
+(2:33..2:34) _empty_/Test.Const#[t] -> 2:14
+(3:17..3:22) _empty_/Test.Const# -> 2:8
+(3:23..3:26) scala/Int#
+(3:30..3:31) _empty_/Test.Bar#[a] -> 3:12
+

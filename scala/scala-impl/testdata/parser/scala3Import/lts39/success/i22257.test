@@ -1,0 +1,551 @@
+trait NodeK { type FBound }
+trait Fixed[+N <: NodeK]
+
+type Bound1 <: FP1
+type FP1     = Fixed[Node1]
+type Node1   = NodeK { type FBound <: Bound1 } // was-error
+
+type FP2     = Fixed[Node2]                    // was-error
+type Bound2 <: FP2
+type Node2   = NodeK { type FBound <: Bound2 }
+
+type Node3   = NodeK { type FBound <: Bound3 }
+type FP3     = Fixed[Node3]
+type Bound3 <: FP3
+
+type Bound4 <: FP4
+type Node4   = NodeK { type FBound <: Bound4 } // was-error
+type FP4     = Fixed[Node4]
+
+type FP5     = Fixed[Node5]                    // was-error
+type Node5   = NodeK { type FBound <: Bound5 }
+type Bound5 <: FP5
+
+type Node6   = NodeK { type FBound <: Bound6 }
+type Bound6 <: FP6
+type FP6     = Fixed[Node6]
+
+// type X^
+// type Y^
+// type Z >: X <: Y
+// val Z
+
+
+// type C <:
+-----
+ScalaFile
+  ScTrait: NodeK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NodeK')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDeclaration: FBound
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FBound')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTrait: Fixed
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Fixed')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('N')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NodeK
+          CodeReferenceElement: NodeK
+            PsiElement(identifier)('NodeK')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDeclaration: Bound1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bound1')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: FP1
+      CodeReferenceElement: FP1
+        PsiElement(identifier)('FP1')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: FP1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FP1')
+    PsiWhiteSpace('     ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Fixed[Node1]
+      SimpleType: Fixed
+        CodeReferenceElement: Fixed
+          PsiElement(identifier)('Fixed')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Node1
+            CodeReferenceElement: Node1
+              PsiElement(identifier)('Node1')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Node1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Node1')
+    PsiWhiteSpace('   ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: NodeK { type FBound <: Bound1 }
+      SimpleType: NodeK
+        CodeReferenceElement: NodeK
+          PsiElement(identifier)('NodeK')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDeclaration: FBound
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FBound')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Bound1
+            CodeReferenceElement: Bound1
+              PsiElement(identifier)('Bound1')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// was-error')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: FP2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FP2')
+    PsiWhiteSpace('     ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Fixed[Node2]
+      SimpleType: Fixed
+        CodeReferenceElement: Fixed
+          PsiElement(identifier)('Fixed')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Node2
+            CodeReferenceElement: Node2
+              PsiElement(identifier)('Node2')
+        PsiElement(])(']')
+  PsiWhiteSpace('                    ')
+  PsiComment(comment)('// was-error')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDeclaration: Bound2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bound2')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: FP2
+      CodeReferenceElement: FP2
+        PsiElement(identifier)('FP2')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Node2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Node2')
+    PsiWhiteSpace('   ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: NodeK { type FBound <: Bound2 }
+      SimpleType: NodeK
+        CodeReferenceElement: NodeK
+          PsiElement(identifier)('NodeK')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDeclaration: FBound
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FBound')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Bound2
+            CodeReferenceElement: Bound2
+              PsiElement(identifier)('Bound2')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Node3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Node3')
+    PsiWhiteSpace('   ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: NodeK { type FBound <: Bound3 }
+      SimpleType: NodeK
+        CodeReferenceElement: NodeK
+          PsiElement(identifier)('NodeK')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDeclaration: FBound
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FBound')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Bound3
+            CodeReferenceElement: Bound3
+              PsiElement(identifier)('Bound3')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: FP3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FP3')
+    PsiWhiteSpace('     ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Fixed[Node3]
+      SimpleType: Fixed
+        CodeReferenceElement: Fixed
+          PsiElement(identifier)('Fixed')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Node3
+            CodeReferenceElement: Node3
+              PsiElement(identifier)('Node3')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDeclaration: Bound3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bound3')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: FP3
+      CodeReferenceElement: FP3
+        PsiElement(identifier)('FP3')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDeclaration: Bound4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bound4')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: FP4
+      CodeReferenceElement: FP4
+        PsiElement(identifier)('FP4')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Node4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Node4')
+    PsiWhiteSpace('   ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: NodeK { type FBound <: Bound4 }
+      SimpleType: NodeK
+        CodeReferenceElement: NodeK
+          PsiElement(identifier)('NodeK')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDeclaration: FBound
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FBound')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Bound4
+            CodeReferenceElement: Bound4
+              PsiElement(identifier)('Bound4')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// was-error')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: FP4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FP4')
+    PsiWhiteSpace('     ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Fixed[Node4]
+      SimpleType: Fixed
+        CodeReferenceElement: Fixed
+          PsiElement(identifier)('Fixed')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Node4
+            CodeReferenceElement: Node4
+              PsiElement(identifier)('Node4')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: FP5
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FP5')
+    PsiWhiteSpace('     ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Fixed[Node5]
+      SimpleType: Fixed
+        CodeReferenceElement: Fixed
+          PsiElement(identifier)('Fixed')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Node5
+            CodeReferenceElement: Node5
+              PsiElement(identifier)('Node5')
+        PsiElement(])(']')
+  PsiWhiteSpace('                    ')
+  PsiComment(comment)('// was-error')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: Node5
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Node5')
+    PsiWhiteSpace('   ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: NodeK { type FBound <: Bound5 }
+      SimpleType: NodeK
+        CodeReferenceElement: NodeK
+          PsiElement(identifier)('NodeK')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDeclaration: FBound
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FBound')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Bound5
+            CodeReferenceElement: Bound5
+              PsiElement(identifier)('Bound5')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDeclaration: Bound5
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bound5')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: FP5
+      CodeReferenceElement: FP5
+        PsiElement(identifier)('FP5')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Node6
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Node6')
+    PsiWhiteSpace('   ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: NodeK { type FBound <: Bound6 }
+      SimpleType: NodeK
+        CodeReferenceElement: NodeK
+          PsiElement(identifier)('NodeK')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDeclaration: FBound
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FBound')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Bound6
+            CodeReferenceElement: Bound6
+              PsiElement(identifier)('Bound6')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDeclaration: Bound6
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bound6')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: FP6
+      CodeReferenceElement: FP6
+        PsiElement(identifier)('FP6')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: FP6
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FP6')
+    PsiWhiteSpace('     ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Fixed[Node6]
+      SimpleType: Fixed
+        CodeReferenceElement: Fixed
+          PsiElement(identifier)('Fixed')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Node6
+            CodeReferenceElement: Node6
+              PsiElement(identifier)('Node6')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// type X^')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// type Y^')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// type Z >: X <: Y')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// val Z')
+  PsiWhiteSpace('\n\n\n')
+  PsiComment(comment)('// type C <:')

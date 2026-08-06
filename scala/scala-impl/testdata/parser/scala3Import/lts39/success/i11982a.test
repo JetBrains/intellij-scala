@@ -1,0 +1,401 @@
+package tuplefun
+object Unpair {
+
+  def pair[A, B](using a: ValueOf[A], b: ValueOf[B]): Tuple2[A, B] =
+    (a.value, b.value)
+
+  def unpair[X <: Tuple2[?, ?]](
+      using a: ValueOf[Tuple.Head[X]],
+            b: ValueOf[Tuple.Head[Tuple.Tail[X]]]
+  ): Tuple2[Tuple.Head[X], Tuple.Head[Tuple.Tail[X]]] =
+    type AA = Tuple.Head[X]
+    type BB = Tuple.Head[Tuple.Tail[X]]
+    pair[AA, BB](using a, b)
+}
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: tuplefun
+      PsiElement(identifier)('tuplefun')
+    PsiWhiteSpace('\n')
+    ScObject: Unpair
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Unpair')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: pair
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('pair')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: A
+                PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: B
+                PsiElement(identifier)('B')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(using)('using')
+                PsiWhiteSpace(' ')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: ValueOf[A]
+                      SimpleType: ValueOf
+                        CodeReferenceElement: ValueOf
+                          PsiElement(identifier)('ValueOf')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: b
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('b')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: ValueOf[B]
+                      SimpleType: ValueOf
+                        CodeReferenceElement: ValueOf
+                          PsiElement(identifier)('ValueOf')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Tuple2[A, B]
+              SimpleType: Tuple2
+                CodeReferenceElement: Tuple2
+                  PsiElement(identifier)('Tuple2')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            Tuple
+              PsiElement(()('(')
+              ReferenceExpression: a.value
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+                PsiElement(.)('.')
+                PsiElement(identifier)('value')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: b.value
+                ReferenceExpression: b
+                  PsiElement(identifier)('b')
+                PsiElement(.)('.')
+                PsiElement(identifier)('value')
+              PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: unpair
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('unpair')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: X
+                PsiElement(identifier)('X')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Tuple2[?, ?]
+                  SimpleType: Tuple2
+                    CodeReferenceElement: Tuple2
+                      PsiElement(identifier)('Tuple2')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      WildcardType: ?
+                        PsiElement(?)('?')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      WildcardType: ?
+                        PsiElement(?)('?')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiWhiteSpace('\n      ')
+                PsiElement(using)('using')
+                PsiWhiteSpace(' ')
+                Parameter: a
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('a')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: ValueOf[Tuple.Head[X]]
+                      SimpleType: ValueOf
+                        CodeReferenceElement: ValueOf
+                          PsiElement(identifier)('ValueOf')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Tuple.Head[X]
+                            SimpleType: Tuple.Head
+                              CodeReferenceElement: Tuple.Head
+                                CodeReferenceElement: Tuple
+                                  PsiElement(identifier)('Tuple')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Head')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: X
+                                  CodeReferenceElement: X
+                                    PsiElement(identifier)('X')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n            ')
+                Parameter: b
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('b')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: ValueOf[Tuple.Head[Tuple.Tail[X]]]
+                      SimpleType: ValueOf
+                        CodeReferenceElement: ValueOf
+                          PsiElement(identifier)('ValueOf')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Tuple.Head[Tuple.Tail[X]]
+                            SimpleType: Tuple.Head
+                              CodeReferenceElement: Tuple.Head
+                                CodeReferenceElement: Tuple
+                                  PsiElement(identifier)('Tuple')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Head')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                ParametrizedType: Tuple.Tail[X]
+                                  SimpleType: Tuple.Tail
+                                    CodeReferenceElement: Tuple.Tail
+                                      CodeReferenceElement: Tuple
+                                        PsiElement(identifier)('Tuple')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('Tail')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: X
+                                        CodeReferenceElement: X
+                                          PsiElement(identifier)('X')
+                                    PsiElement(])(']')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Tuple2[Tuple.Head[X], Tuple.Head[Tuple.Tail[X]]]
+              SimpleType: Tuple2
+                CodeReferenceElement: Tuple2
+                  PsiElement(identifier)('Tuple2')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Tuple.Head[X]
+                    SimpleType: Tuple.Head
+                      CodeReferenceElement: Tuple.Head
+                        CodeReferenceElement: Tuple
+                          PsiElement(identifier)('Tuple')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Head')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: X
+                          CodeReferenceElement: X
+                            PsiElement(identifier)('X')
+                      PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  ParametrizedType: Tuple.Head[Tuple.Tail[X]]
+                    SimpleType: Tuple.Head
+                      CodeReferenceElement: Tuple.Head
+                        CodeReferenceElement: Tuple
+                          PsiElement(identifier)('Tuple')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Head')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: Tuple.Tail[X]
+                          SimpleType: Tuple.Tail
+                            CodeReferenceElement: Tuple.Tail
+                              CodeReferenceElement: Tuple
+                                PsiElement(identifier)('Tuple')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Tail')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: X
+                                CodeReferenceElement: X
+                                  PsiElement(identifier)('X')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            BlockExpression
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: AA
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('AA')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Tuple.Head[X]
+                  SimpleType: Tuple.Head
+                    CodeReferenceElement: Tuple.Head
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Head')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: BB
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('BB')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Tuple.Head[Tuple.Tail[X]]
+                  SimpleType: Tuple.Head
+                    CodeReferenceElement: Tuple.Head
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Head')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Tuple.Tail[X]
+                        SimpleType: Tuple.Tail
+                          CodeReferenceElement: Tuple.Tail
+                            CodeReferenceElement: Tuple
+                              PsiElement(identifier)('Tuple')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Tail')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: X
+                              CodeReferenceElement: X
+                                PsiElement(identifier)('X')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                GenericCall
+                  ReferenceExpression: pair
+                    PsiElement(identifier)('pair')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: AA
+                        CodeReferenceElement: AA
+                          PsiElement(identifier)('AA')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: BB
+                        CodeReferenceElement: BB
+                          PsiElement(identifier)('BB')
+                    PsiElement(])(']')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement(using)('using')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: b
+                    PsiElement(identifier)('b')
+                  PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

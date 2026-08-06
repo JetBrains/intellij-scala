@@ -1,0 +1,15 @@
+Document tests/pos/hklub0.scala
+(1:34..1:42) scala/package.Iterable#
+(1:43..1:44) _empty_/GenericCompanion#`<init>`().[CC][X] -> 1:28
+(3:11..3:27) _empty_/GenericCompanion# -> 1:7
+(3:28..3:33) scala/
+(3:34..3:44) scala/collection/
+(3:45..3:54) scala/collection/immutable/
+(4:11..4:27) _empty_/GenericCompanion# -> 1:7
+(4:28..4:33) scala/
+(4:34..4:44) scala/collection/
+(4:45..4:52) scala/collection/mutable/
+(5:3..5:7) scala/package.List.
+(5:8..5:9) _empty_/Test.a. -> 3:7
+(5:11..5:12) _empty_/Test.b. -> 4:7
+

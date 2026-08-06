@@ -1,0 +1,35 @@
+Document tests/pos/t1500a.scala
+(10:23..10:28) _empty_/Step0# -> 1:7
+(10:35..10:40) _empty_/Step0# -> 1:7
+(11:34..11:39) _empty_/Step0# -> 1:7
+(11:42..11:47) _empty_/Step1# -> 2:7
+(11:54..11:59) _empty_/Step1# -> 2:7
+(12:34..12:39) _empty_/Step1# -> 2:7
+(12:42..12:47) _empty_/Step2# -> 3:7
+(12:54..12:59) _empty_/Step2# -> 3:7
+(13:34..13:39) _empty_/Step2# -> 3:7
+(13:42..13:47) _empty_/Step3# -> 4:7
+(13:54..13:59) _empty_/Step3# -> 4:7
+(14:34..14:39) _empty_/Step3# -> 4:7
+(14:42..14:47) _empty_/Step4# -> 5:7
+(14:54..14:59) _empty_/Step4# -> 5:7
+(15:34..15:39) _empty_/Step4# -> 5:7
+(15:42..15:47) _empty_/Step5# -> 6:7
+(15:54..15:59) _empty_/Step5# -> 6:7
+(16:34..16:39) _empty_/Step5# -> 6:7
+(16:42..16:47) _empty_/Step6# -> 7:7
+(16:54..16:59) _empty_/Step6# -> 7:7
+(20:10..20:15) _empty_/Steps. -> 9:8
+(22:3..22:13) scala/Predef.implicitly().
+(22:14..22:19) _empty_/Step0# -> 1:7
+(23:3..23:13) scala/Predef.implicitly().
+(23:14..23:19) _empty_/Step1# -> 2:7
+(24:3..24:13) scala/Predef.implicitly().
+(24:14..24:19) _empty_/Step2# -> 3:7
+(25:3..25:13) scala/Predef.implicitly().
+(25:14..25:19) _empty_/Step3# -> 4:7
+(26:3..26:13) scala/Predef.implicitly().
+(26:14..26:19) _empty_/Step4# -> 5:7
+(27:3..27:13) scala/Predef.implicitly().
+(27:14..27:19) _empty_/Step6# -> 7:7
+

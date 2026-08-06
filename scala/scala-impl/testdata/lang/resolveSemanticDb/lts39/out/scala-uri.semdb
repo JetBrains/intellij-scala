@@ -1,0 +1,36 @@
+Document tests/pos/scala-uri.scala
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:42) scala/language.implicitConversions.
+(5:25..5:42) _empty_/QueryKeyInstances# -> 6:14
+(7:32..7:40) _empty_/QueryKey# -> 4:7
+(7:41..7:47) scala/Predef.String#
+(7:51..7:54) scala/Predef.`???`().
+(10:27..10:46) _empty_/QueryValueInstances# -> 15:14
+(12:40..12:50) _empty_/QueryValue# -> 9:7
+(12:51..12:57) scala/Predef.String#
+(12:61..12:64) scala/Predef.`???`().
+(13:38..13:48) _empty_/QueryValue# -> 9:7
+(13:49..13:53) scala/None.
+(13:62..13:65) scala/Predef.`???`().
+(15:42..15:62) _empty_/QueryValueInstances1# -> 11:14
+(16:42..16:52) _empty_/QueryValue# -> 9:7
+(16:42..16:52) _empty_/QueryValueInstances#optionQueryValue().[A] -> 16:39
+(16:55..16:65) _empty_/QueryValue# -> 9:7
+(16:66..16:72) scala/Option#
+(16:73..16:74) _empty_/QueryValueInstances#optionQueryValue().[A] -> 16:39
+(16:79..16:82) scala/Predef.`???`().
+(20:39..20:47) _empty_/QueryKey# -> 4:7
+(20:39..20:47) _empty_/QueryKeyValue.tuple2QueryKeyValue().[K] -> 20:36
+(20:52..20:62) _empty_/QueryKeyValue.tuple2QueryKeyValue().[V] -> 20:49
+(20:52..20:62) _empty_/QueryValue# -> 9:7
+(20:65..20:78) _empty_/QueryKeyValue# -> 18:7
+(20:80..20:81) _empty_/QueryKeyValue.tuple2QueryKeyValue().[K] -> 20:36
+(20:83..20:84) _empty_/QueryKeyValue.tuple2QueryKeyValue().[V] -> 20:49
+(20:89..20:92) scala/Predef.`???`().
+(22:2..22:6) scala/main#
+(22:18..22:24) scala/Predef.summon().
+(22:25..22:38) _empty_/QueryKeyValue# -> 18:7
+(22:40..22:46) scala/Predef.String#
+(22:48..22:52) scala/None.
+

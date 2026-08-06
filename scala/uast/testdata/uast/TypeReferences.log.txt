@@ -1,0 +1,48 @@
+UFile (package = )
+    UClass (name = Test$)
+        UMethod (name = foo)
+            UParameter (name = parameter)
+            UBlockExpression
+                UDeclarationsExpression
+                    ULocalVariable (name = varWithType)
+                        ULiteralExpression (value = "Not Null")
+                UDeclarationsExpression
+                    ULocalVariable (name = varWithoutType)
+                        ULiteralExpression (value = "lorem ipsum")
+                UDeclarationsExpression
+                    ULocalVariable (name = result)
+                        UBinaryExpression (operator = +)
+                            USimpleNameReferenceExpression (identifier = varWithType)
+                            USimpleNameReferenceExpression (identifier = varWithoutType)
+                UReturnExpression
+                    USimpleNameReferenceExpression (identifier = result)
+        UMethod (name = parameterizedFoo)
+            UParameter (name = arg)
+            UBlockExpression
+                UDeclarationsExpression
+                    ULocalVariable (name = a)
+                        USimpleNameReferenceExpression (identifier = arg)
+                UDeclarationsExpression
+                    ULocalVariable (name = at)
+                        USimpleNameReferenceExpression (identifier = arg)
+                UDeclarationsExpression
+                    ULocalVariable (name = tl)
+                        UMethodCall(name = List)
+                            UIdentifier (Identifier (List))
+                            USimpleNameReferenceExpression (identifier = at)
+                UDeclarationsExpression
+                    ULocalVariable (name = tsl)
+                        ULiteralExpression (value = null)
+                UDeclarationsExpression
+                    ULocalVariable (name = lls)
+                        ULiteralExpression (value = null)
+                UDeclarationsExpression
+                    ULocalVariable (name = llt)
+                        ULiteralExpression (value = null)
+                UMethodCall(name = parameterizedFoo)
+                    UIdentifier (Identifier (parameterizedFoo))
+                    UQualifiedReferenceExpression
+                        USimpleNameReferenceExpression (identifier = List)
+                        UMethodCall(name = empty)
+                            UIdentifier (Identifier (empty))
+                UastEmptyExpression

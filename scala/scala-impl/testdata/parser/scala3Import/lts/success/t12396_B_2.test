@@ -1,0 +1,65 @@
+// test: -jvm 21+
+
+class B {
+  def bar = (new A_1).f(null)
+}
+-----
+ScalaFile
+  PsiComment(comment)('// test: -jvm 21+')
+  PsiWhiteSpace('\n\n')
+  ScClass: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: (new A_1).f
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: A_1
+                          CodeReferenceElement: A_1
+                            PsiElement(identifier)('A_1')
+                PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('f')
+            ArgumentList
+              PsiElement(()('(')
+              NullLiteral
+                PsiElement(null)('null')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

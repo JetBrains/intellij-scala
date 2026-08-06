@@ -1,0 +1,13 @@
+# a doc
+a<caret> {
+}
+# b doc
+b {
+}
+-----
+# b doc
+b {
+}
+# a doc
+a<caret> {
+}

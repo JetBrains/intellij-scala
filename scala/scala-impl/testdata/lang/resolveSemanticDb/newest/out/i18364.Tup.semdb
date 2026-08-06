@@ -1,0 +1,20 @@
+Document tests/pos/i18364.Tup.scala
+(6:25..6:31) scala/IArray$package.IArray#
+(6:32..6:33) _empty_/Tup.fromIArray().[T] -> 6:18
+(6:37..6:42) scala/Tuple#
+(7:14..7:20) scala/IArray$package.IArray#
+(7:21..7:27) java/lang/Object#
+(7:31..7:33) _empty_/Tup.fromIArray().(xs) -> 6:21
+(8:16..8:22) scala/IArray$package.IArray#
+(8:23..8:29) java/lang/Object#
+(8:32..8:41) scala/unchecked#
+(8:45..8:47) local0 -> 8:12
+(9:17..9:19) _empty_/Tup.fromIArray().(xs) -> 6:21
+(9:20..9:23) scala/IArray$package.IArray.map().
+(9:26..9:38) scala/Any#asInstanceOf().
+(9:39..9:45) java/lang/Object#
+(10:5..10:12) scala/runtime/
+(10:13..10:19) scala/runtime/Tuples.
+(10:20..10:30) scala/runtime/Tuples.fromIArray().
+(10:31..10:34) local1 -> 7:9
+

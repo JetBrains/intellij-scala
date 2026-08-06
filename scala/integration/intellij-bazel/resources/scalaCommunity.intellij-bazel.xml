@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<idea-plugin>
+    <dependencies>
+        <plugin id="org.jetbrains.bazel"/>
+        <module name="intellij.bazel.importer"/>
+        <module name="intellij.bazel.java.common"/>
+        <module name="scalaCommunity.testing-support"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="org.jetbrains.bazel">
+        <projectPostSyncHook implementation="org.jetbrains.plugins.scala.bazel.ScalaProjectSettingsConfigurePostSyncHook"/>
+        <projectPostSyncHook implementation="org.jetbrains.plugins.scala.bazel.BazelScalaModuleConfiguratorPostSyncHook"/>
+    </extensions>
+    <extensions defaultExtensionNs="org.jetbrains.sbt">
+        <buildToolModuleHandler implementation="org.jetbrains.plugins.scala.bazel.BazelModuleHandler"/>
+    </extensions>
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <newScalaFileActionExtension implementation="org.jetbrains.plugins.scala.bazel.BazelNewScalaFileActionExtension"/>
+    </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- order="first" here to override zio-intellij's runLineMarkerContributor -->
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.bazel.BazelScalaRunLineMarkerContributor" language="Scala" order="first"/>
+    </extensions>
+</idea-plugin>

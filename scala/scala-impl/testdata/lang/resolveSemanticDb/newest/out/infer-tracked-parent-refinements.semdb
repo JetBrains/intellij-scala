@@ -1,0 +1,13 @@
+Document tests/pos/infer-tracked-parent-refinements.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:46) scala/language.experimental.modularity.
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:29) scala/language.future.
+(4:32..4:35) scala/Int#
+(6:24..6:27) scala/Int#
+(6:37..6:46) _empty_/WithValue# -> 4:7
+(7:10..7:15) _empty_/WithValue#Value# -> 4:24
+

@@ -1,0 +1,13 @@
+val a =
+  s"""
+        |first line
+ second line
+|third line
+  """.stripMargin
+-----
+val a =
+  s"""
+      |first line
+ second line
+      |third line
+  """.stripMargin

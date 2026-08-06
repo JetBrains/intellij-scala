@@ -1,0 +1,2 @@
+val explicit = 0
+val inferred: Int = 0

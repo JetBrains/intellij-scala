@@ -1,0 +1,23 @@
+Document tests/pos/i15922.scala
+(6:22..6:25) _empty_/Cap# -> 1:7
+(6:29..6:30) _empty_/Test.withCap().[X] -> 6:15
+(6:33..6:34) _empty_/Test.withCap().[X] -> 6:15
+(6:37..6:40) scala/Predef.`???`().
+(8:22..8:25) scala/Any#
+(8:36..8:46) scala/annotation/
+(8:47..8:63) scala/annotation/StaticAnnotation#
+(10:19..10:22) _empty_/Cap# -> 1:7
+(10:25..10:27) _empty_/Id# -> 3:7
+(10:28..10:31) _empty_/Cap# -> 1:7
+(10:33..10:41) _empty_/Test.retains1# -> 8:9
+(10:42..10:43) _empty_/Test.leaking1().(c) -> 10:16
+(10:48..10:51) scala/Predef.`???`().
+(11:19..11:22) _empty_/Cap# -> 1:7
+(11:25..11:27) _empty_/Id# -> 3:7
+(11:28..11:29) _empty_/Test.leaking2().(c) -> 11:16
+(11:38..11:41) scala/Predef.`???`().
+(13:14..13:21) _empty_/Test.withCap(). -> 6:7
+(13:22..13:30) _empty_/Test.leaking1(). -> 10:7
+(14:14..14:21) _empty_/Test.withCap(). -> 6:7
+(14:22..14:30) _empty_/Test.leaking2(). -> 11:7
+

@@ -1,0 +1,5 @@
+Document tests/pos/simpleTypeSelect.scala
+(4:10..4:13) _empty_/Foo# -> 2:7
+(4:14..4:17) _empty_/Foo#Bar# -> 2:18
+(4:20..4:23) scala/Predef.`???`().
+

@@ -1,0 +1,1 @@
+"foo: %3d, bar: %s".format(i, s)

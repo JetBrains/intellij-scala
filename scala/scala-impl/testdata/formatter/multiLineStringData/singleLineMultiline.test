@@ -1,0 +1,17 @@
+val a ="""one two three"""
+val b = """one two three"""
+val c =  """one two three"""
+val d =  """one two three""".stripMargin
+val e =  s"""one two three"""
+val f =  s"""one two three""".stripMargin
+val g =s"""one two three"""
+val h =s"""one two three""".stripMargin
+-----
+val a = """one two three"""
+val b = """one two three"""
+val c = """one two three"""
+val d = """one two three""".stripMargin
+val e = s"""one two three"""
+val f = s"""one two three""".stripMargin
+val g = s"""one two three"""
+val h = s"""one two three""".stripMargin

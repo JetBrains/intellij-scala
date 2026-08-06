@@ -1,0 +1,10 @@
+Document tests/pos/i9533.scala
+(3:33..3:37) _empty_/Test.Base# -> 2:16
+(3:38..3:39) _empty_/Test.Child#[X] -> 3:20
+(5:22..5:26) _empty_/Test.Base# -> 2:16
+(5:27..5:28) _empty_/Test.apply().[A] -> 5:13
+(5:34..5:35) _empty_/Test.apply().[B] -> 5:16
+(5:39..5:43) scala/Unit#
+(6:5..6:6) _empty_/Test.apply().(r) -> 5:19
+(7:12..7:17) _empty_/Test.Child.
+

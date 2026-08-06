@@ -1,0 +1,17 @@
+key=value
+key:value
+key+=value
+-----
+UNQUOTED_CHARS {key}
+EQUALS {=}
+UNQUOTED_CHARS {value}
+LINE_BREAKING_WHITESPACE {
+}
+UNQUOTED_CHARS {key}
+COLON {:}
+UNQUOTED_CHARS {value}
+LINE_BREAKING_WHITESPACE {
+}
+UNQUOTED_CHARS {key}
+PLUS_EQUALS {+=}
+UNQUOTED_CHARS {value}

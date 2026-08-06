@@ -1,0 +1,68 @@
+Document tests/pos/i23237a.scala
+(2:19..2:22) _empty_/Dim# -> 1:14
+(3:19..3:22) _empty_/Dim# -> 1:14
+(7:19..7:24) scala/Array#
+(7:25..7:28) scala/Int#
+(7:32..7:41) _empty_/IntVector# -> 5:23
+(7:42..7:43) _empty_/IntVector.apply().[D] -> 7:13
+(7:47..7:50) scala/Predef.`???`().
+(8:16..8:19) scala/Int#
+(8:24..8:27) scala/Int#
+(8:30..8:41) _empty_/IntVector2D# -> 11:12
+(8:44..8:55) _empty_/IntVector2D.
+(8:56..8:57) _empty_/IntVector.apply(+1).(x) -> 8:13
+(8:59..8:60) _empty_/IntVector.apply(+1).(y) -> 8:21
+(9:16..9:19) scala/Int#
+(9:24..9:27) scala/Int#
+(9:32..9:35) scala/Int#
+(9:38..9:49) _empty_/IntVector3D# -> 12:12
+(9:52..9:63) _empty_/IntVector3D.
+(9:64..9:65) _empty_/IntVector.apply(+2).(x) -> 9:13
+(9:67..9:68) _empty_/IntVector.apply(+2).(y) -> 9:21
+(9:70..9:71) _empty_/IntVector.apply(+2).(z) -> 9:29
+(11:27..11:30) scala/Int#
+(11:35..11:38) scala/Int#
+(11:48..11:57) _empty_/IntVector# -> 5:23
+(11:58..11:61) _empty_/_2D# -> 2:7
+(12:27..12:30) scala/Int#
+(12:35..12:38) scala/Int#
+(12:43..12:46) scala/Int#
+(12:56..12:65) _empty_/IntVector# -> 5:23
+(12:66..12:69) _empty_/_3D# -> 3:7
+(14:28..14:41) _empty_/DiscreteField# -> 15:7
+(14:42..14:43) _empty_/i23237a$package.DiscreteImage#[D] -> 14:20
+(14:66..14:67) _empty_/i23237a$package.DiscreteImage#[A] -> 14:23
+(15:38..15:52) _empty_/DiscreteDomain# -> 25:7
+(15:53..15:54) _empty_/DiscreteField#`<init>`().[DDomain][D] -> 15:32
+(15:72..15:79) _empty_/DiscreteField#[DDomain] -> 15:24
+(15:80..15:81) _empty_/DiscreteField#[D] -> 15:21
+(15:94..15:104) scala/package.IndexedSeq#
+(15:105..15:106) _empty_/DiscreteField#[A] -> 15:57
+(15:118..15:133) scala/PartialFunction#
+(15:134..15:141) _empty_/PointId# -> 27:18
+(15:143..15:144) _empty_/DiscreteField#[A] -> 15:57
+(16:26..16:33) _empty_/PointId# -> 27:18
+(16:37..16:40) scala/Predef.`???`().
+(17:34..17:41) _empty_/PointId# -> 27:18
+(17:45..17:48) scala/Predef.`???`().
+(20:58..20:71) _empty_/DiscreteField# -> 15:7
+(20:72..20:73) _empty_/DiscreteField.DiscreteImageOps#[D] -> 20:37
+(20:96..20:97) _empty_/DiscreteField.DiscreteImageOps#[A] -> 20:40
+(21:22..21:31) _empty_/IntVector# -> 5:23
+(21:32..21:33) _empty_/DiscreteField.DiscreteImageOps#[D] -> 20:37
+(21:37..21:38) _empty_/DiscreteField.DiscreteImageOps#[A] -> 20:40
+(21:41..21:44) scala/Predef.`???`().
+(22:28..22:37) _empty_/IntVector# -> 5:23
+(22:38..22:39) _empty_/DiscreteField.DiscreteImageOps#[D] -> 20:37
+(22:43..22:50) scala/Boolean#
+(22:53..22:56) scala/Predef.`???`().
+(26:38..26:52) _empty_/DiscreteDomain# -> 25:7
+(26:53..26:54) _empty_/DiscreteImageDomain#[D] -> 26:27
+(27:30..27:33) scala/Int#
+(27:43..27:49) scala/AnyVal#
+(29:18..29:31) _empty_/i23237a$package.DiscreteImage# -> 14:6
+(29:32..29:35) _empty_/_3D# -> 3:7
+(29:37..29:38) _empty_/i23237a$package.test().[S] -> 29:10
+(29:43..29:46) _empty_/i23237a$package.test().(img) -> 29:13
+(29:47..29:56) _empty_/IntVector. -> 6:8
+

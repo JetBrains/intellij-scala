@@ -1,0 +1,9 @@
+"""test
+     #foo
+           #bar
+""" stripMargin
+------
+"""test
+     #foo
+           #bar
+""" stripMargin

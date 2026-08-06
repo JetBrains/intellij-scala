@@ -1,0 +1,31 @@
+Document tests/pos/i19950.scala
+(3:19..3:32) scala/NonEmptyTuple#
+(3:41..3:42) _empty_/Apply#mapN().[T] -> 3:14
+(3:57..3:62) scala/Tuple.
+(3:63..3:73) scala/Tuple.IsMappedBy#
+(3:74..3:75) _empty_/Apply#[F] -> 2:13
+(3:77..3:78) _empty_/Apply#mapN().[T] -> 3:14
+(4:20..4:25) scala/Tuple.
+(4:26..4:36) scala/Tuple.InverseMap#
+(4:37..4:38) _empty_/Apply#mapN().[T] -> 3:14
+(4:40..4:41) _empty_/Apply#[F] -> 2:13
+(4:46..4:47) _empty_/Apply#mapN().[B] -> 4:14
+(4:50..4:51) _empty_/Apply#[F] -> 2:13
+(4:52..4:53) _empty_/Apply#mapN().[B] -> 4:14
+(4:57..4:60) scala/Predef.`???`().
+(6:7..6:12) _empty_/Apply# -> 2:7
+(6:23..6:26) scala/Predef.`???`().
+(7:7..7:12) _empty_/Apply# -> 2:7
+(7:13..7:17) scala/package.List#
+(7:21..7:24) scala/Predef.`???`().
+(8:7..8:12) _empty_/Apply# -> 2:7
+(8:13..8:17) scala/util/
+(8:25..8:28) scala/Predef.`???`().
+(10:2..10:6) scala/main#
+(10:20..10:26) scala/Option.
+(10:31..10:37) scala/Option.
+(10:42..10:48) scala/Option.
+(10:53..10:57) _empty_/Apply#mapN(). -> 4:9
+(10:60..10:61) scala/Int#`+`(+4).
+(10:64..10:65) scala/Int#`+`(+4).
+

@@ -1,0 +1,5 @@
+Document tests/pos/simpleInline.scala
+(2:19..2:22) scala/Int#
+(3:12..3:15) scala/Int#
+(3:18..3:21) _empty_/Foo#foo(). -> 2:14
+

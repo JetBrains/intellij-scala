@@ -1,0 +1,10 @@
+Document tests/pos/i14096.scala
+(4:20..4:23) scala/Int#
+(4:33..4:39) scala/Predef.String#
+(4:47..4:50) scala/Int#
+(5:20..5:26) scala/Predef.String#
+(5:29..5:32) scala/Int#
+(7:3..7:8) _empty_/Test.Forte. -> 3:10
+(7:9..7:13) _empty_/Test.Forte.test(). -> 4:9
+(7:14..7:17) scala/Int#
+

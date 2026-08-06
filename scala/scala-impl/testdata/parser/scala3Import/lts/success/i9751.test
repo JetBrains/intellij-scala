@@ -1,0 +1,169 @@
+//> using options -Xfatal-warnings -deprecation -feature
+
+object Test {
+  extension (x: Int)
+    inline def times(inline op: Unit): Unit = {
+      var count = 0
+      while count < x do
+        op
+        count += 1
+    }
+
+  10.times { println("hello") }
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-deprecation')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-feature')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        Extension on Int
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: times
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('times')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: op
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      PsiElement(inline)('inline')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('op')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScVariableDefinition: count
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(var)('var')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: count
+                      PsiElement(identifier)('count')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace('\n      ')
+                WhileStatement
+                  PsiElement(while)('while')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: count
+                      PsiElement(identifier)('count')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: <
+                      PsiElement(identifier)('<')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(do)('do')
+                  BlockExpression
+                    PsiWhiteSpace('\n        ')
+                    ReferenceExpression: op
+                      PsiElement(identifier)('op')
+                    PsiWhiteSpace('\n        ')
+                    InfixExpression
+                      ReferenceExpression: count
+                        PsiElement(identifier)('count')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: +=
+                        PsiElement(identifier)('+=')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          ReferenceExpression: 10.times
+            IntegerLiteral
+              PsiElement(integer)('10')
+            PsiElement(.)('.')
+            PsiElement(identifier)('times')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: println
+                  PsiElement(identifier)('println')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"hello"')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

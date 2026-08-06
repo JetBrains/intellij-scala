@@ -1,0 +1,9 @@
+Document tests/pos/i21360.scala
+(1:25..1:30) _empty_/Owner. -> 9:8
+(1:31..1:33) _empty_/Typed#Id# -> 6:8
+(3:25..3:30) _empty_/Owner. -> 9:8
+(3:31..3:33) _empty_/Typed#Id# -> 6:8
+(6:13..6:19) scala/Predef.String#
+(9:22..9:27) _empty_/Typed# -> 5:7
+(9:28..9:33) _empty_/Owner# -> 3:12
+

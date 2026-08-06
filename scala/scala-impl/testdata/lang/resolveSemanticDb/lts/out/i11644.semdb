@@ -1,0 +1,4 @@
+Document tests/pos/i11644.scala
+(1:2..1:6) scala/main#
+(1:19..1:26) scala/Predef.println(+1).
+

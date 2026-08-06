@@ -1,0 +1,18 @@
+Document tests/pos/i15474.scala
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:42) scala/language.implicitConversions.
+(3:8..3:13) scala/
+(3:14..3:22) scala/language.
+(3:23..3:29) scala/language.future.
+(6:12..6:22) scala/Conversion#
+(6:24..6:30) scala/Predef.String#
+(6:32..6:35) scala/Int#
+(6:42..6:47) scala/collection/StringOps#toInt().
+(9:23..9:33) scala/package.BigDecimal#
+(12:11..12:19) scala/package.Ordering#
+(12:20..12:25) _empty_/Prices.Price# -> 9:15
+(12:29..12:35) scala/Predef.summon().
+(12:36..12:44) scala/package.Ordering#
+(12:45..12:55) scala/package.BigDecimal#
+

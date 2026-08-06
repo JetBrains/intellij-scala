@@ -1,0 +1,9 @@
+class a {
+  while (true )
+         "in the endless cycle"
+}
+-----
+class a {
+  while (true)
+    "in the endless cycle"
+}

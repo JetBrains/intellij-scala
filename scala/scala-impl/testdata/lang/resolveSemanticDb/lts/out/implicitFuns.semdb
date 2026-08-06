@@ -1,0 +1,165 @@
+Document tests/pos/implicitFuns.scala
+(3:25..3:31) scala/Predef.String#
+(4:25..4:31) scala/Predef.String#
+(4:42..4:46) scala/package.List#
+(4:47..4:53) cm2/Person# -> 3:12
+(4:62..4:68) scala/Predef.String#
+(6:28..6:31) scala/Predef.Set#
+(6:32..6:38) cm2/Person# -> 3:12
+(8:30..8:34) scala/package.List#
+(8:35..8:40) cm2/Paper# -> 4:12
+(8:54..8:57) scala/Predef.Map#
+(8:58..8:63) cm2/Paper# -> 4:12
+(8:65..8:68) scala/Int#
+(8:79..8:82) scala/App#
+(10:32..10:35) scala/Predef.Set#
+(10:36..10:42) cm2/Person# -> 3:12
+(10:50..10:58) scala/package.Iterable#
+(10:59..10:65) cm2/Person# -> 3:12
+(11:5..11:8) cm2/ConfManagement#hasConflict().(ps2) -> 10:45
+(11:9..11:15) scala/collection/IterableOnceOps#exists().
+(11:16..11:19) cm2/ConfManagement#hasConflict().(ps1) -> 10:27
+(11:20..11:28) scala/collection/SetOps#contains().
+(13:22..13:29) cm2/Viewers# -> 6:7
+(13:34..13:35) cm2/ConfManagement#Viewable#[T] -> 13:17
+(15:11..15:19) cm2/ConfManagement#Viewable# -> 13:8
+(15:20..15:27) cm2/Viewers# -> 6:7
+(15:31..15:41) scala/Predef.implicitly().
+(17:16..17:24) cm2/ConfManagement#Viewable# -> 13:8
+(17:25..17:28) scala/Predef.Set#
+(17:29..17:35) cm2/Person# -> 3:12
+(17:40..17:42) cm2/ConfManagement#vs(). -> 15:7
+(17:43..17:50) cm2/Viewers#persons. -> 6:19
+(19:14..19:19) cm2/Paper# -> 4:12
+(19:23..19:31) cm2/ConfManagement#Viewable# -> 13:8
+(19:32..19:35) scala/Int#
+(21:10..21:21) cm2/ConfManagement#hasConflict(). -> 10:15
+(21:22..21:29) cm2/ConfManagement#viewers(). -> 17:7
+(21:31..21:36) local2 -> 20:5
+(21:37..21:44) cm2/Paper#authors. -> 4:33
+(22:12..22:21) cm2/ConfManagement#realScore. -> 8:43
+(22:22..22:27) local2 -> 20:5
+(24:21..24:29) cm2/ConfManagement#Viewable# -> 13:8
+(24:30..24:34) scala/package.List#
+(24:36..24:42) scala/Predef.String#
+(24:44..24:47) scala/Int#
+(25:5..25:11) cm2/ConfManagement#papers. -> 8:22
+(25:12..25:18) scala/collection/SeqOps#sortBy().
+(25:20..25:25) cm2/ConfManagement#score(). -> 19:7
+(25:30..25:33) scala/collection/immutable/List#map().
+(25:40..25:41) local5 -> 25:34
+(25:42..25:47) cm2/Paper#title. -> 4:18
+(25:49..25:54) cm2/ConfManagement#score(). -> 19:7
+(25:55..25:56) local5 -> 25:34
+(27:23..27:30) cm2/Viewers# -> 6:7
+(27:34..27:35) cm2/ConfManagement#delegateTo().[T] -> 27:18
+(27:40..27:46) cm2/Person# -> 3:12
+(27:50..27:58) cm2/ConfManagement#Viewable# -> 13:8
+(27:59..27:60) cm2/ConfManagement#delegateTo().[T] -> 27:18
+(28:19..28:24) local6 -> 28:5
+(28:29..28:36) cm2/Viewers# -> 6:7
+(28:37..28:44) cm2/ConfManagement#viewers(). -> 17:7
+(28:45..28:46) scala/collection/immutable/SetOps#`+`().
+(28:47..28:48) local7 -> 28:14
+(31:21..31:24) scala/App#
+(32:13..32:19) cm2/Person.
+(33:15..33:21) cm2/Person.
+(34:12..34:17) cm2/Paper.
+(34:33..34:37) scala/package.List.
+(34:38..34:41) cm2/Test.bob(). -> 32:7
+(35:12..35:17) cm2/Paper.
+(35:35..35:39) scala/package.List.
+(35:40..35:45) cm2/Test.peter(). -> 33:7
+(37:21..37:28) cm2/Viewers# -> 6:7
+(37:35..37:42) cm2/Viewers# -> 6:7
+(37:43..37:46) scala/Predef.Set.
+(37:47..37:50) cm2/Test.bob(). -> 32:7
+(39:16..39:30) cm2/ConfManagement# -> 8:7
+(39:31..39:35) scala/package.List.
+(39:36..39:38) cm2/Test.p1(). -> 34:7
+(39:40..39:42) cm2/Test.p2(). -> 35:7
+(39:45..39:48) scala/Predef.Map.
+(39:49..39:51) cm2/Test.p1(). -> 34:7
+(39:52..39:54) scala/Predef.ArrowAssoc#`->`().
+(39:58..39:60) cm2/Test.p2(). -> 35:7
+(39:61..39:63) scala/Predef.ArrowAssoc#`->`().
+(41:3..41:10) scala/Predef.println(+1).
+(41:11..41:13) cm2/Test.cm. -> 39:7
+(41:14..41:26) cm2/ConfManagement#viewRankings(). -> 24:7
+(42:3..42:10) scala/Predef.println(+1).
+(42:11..42:13) cm2/Test.cm. -> 39:7
+(42:14..42:19) cm2/ConfManagement#score(). -> 19:7
+(42:20..42:22) cm2/Test.p1(). -> 34:7
+(43:3..43:10) scala/Predef.println(+1).
+(43:11..43:20) cm2/Orderings. -> 46:8
+(43:21..43:27) cm2/Orderings.isLess(). -> 64:7
+(43:28..43:31) scala/package.Nil.
+(43:33..43:37) scala/package.List.
+(46:26..46:29) scala/App#
+(48:28..48:29) cm2/Orderings.Ord#[T] -> 48:13
+(48:33..48:34) cm2/Orderings.Ord#[T] -> 48:13
+(48:38..48:45) scala/Boolean#
+(50:21..50:24) cm2/Orderings.Ord# -> 48:9
+(50:25..50:28) scala/Int#
+(50:36..50:39) cm2/Orderings.Ord# -> 48:9
+(50:40..50:43) scala/Int#
+(51:15..51:18) scala/Int#
+(51:22..51:25) scala/Int#
+(51:29..51:36) scala/Boolean#
+(52:17..52:18) local9 -> 52:7
+(52:19..52:20) scala/Int#`<`(+3).
+(52:21..52:22) local10 -> 52:12
+(55:24..55:27) cm2/Orderings.Ord# -> 48:9
+(55:28..55:29) cm2/Orderings.__2().[T] -> 55:20
+(55:35..55:38) cm2/Orderings.Ord# -> 48:9
+(55:39..55:43) scala/package.List#
+(55:44..55:45) cm2/Orderings.__2().[T] -> 55:20
+(55:54..55:57) cm2/Orderings.Ord# -> 48:9
+(55:58..55:62) scala/package.List#
+(55:63..55:64) cm2/Orderings.__2().[T] -> 55:20
+(56:15..56:19) scala/package.List#
+(56:20..56:21) cm2/Orderings.__2().[T] -> 55:20
+(56:26..56:30) scala/package.List#
+(56:31..56:32) cm2/Orderings.__2().[T] -> 55:20
+(56:37..56:44) scala/Boolean#
+(58:12..58:14) local16 -> 57:13
+(58:15..58:22) scala/collection/immutable/List#isEmpty().
+(59:17..59:19) local15 -> 57:7
+(59:20..59:27) scala/collection/immutable/List#isEmpty().
+(60:17..60:19) local15 -> 57:7
+(60:20..60:24) scala/collection/IterableOps#head().
+(60:25..60:27) scala/Any#`==`().
+(60:28..60:30) local16 -> 57:13
+(60:31..60:35) scala/collection/IterableOps#head().
+(60:41..60:45) local17 -> 56:9
+(60:46..60:48) local15 -> 57:7
+(60:49..60:53) scala/collection/IterableOps#tail().
+(60:55..60:57) local16 -> 57:13
+(60:58..60:62) scala/collection/IterableOps#tail().
+(61:14..61:20) cm2/Orderings.isLess(). -> 64:7
+(61:21..61:23) local15 -> 57:7
+(61:24..61:28) scala/collection/IterableOps#head().
+(61:30..61:32) local16 -> 57:13
+(61:33..61:37) scala/collection/IterableOps#head().
+(64:18..64:19) cm2/Orderings.isLess().[T] -> 64:14
+(64:23..64:24) cm2/Orderings.isLess().[T] -> 64:14
+(64:28..64:31) cm2/Orderings.Ord# -> 48:9
+(64:32..64:33) cm2/Orderings.isLess().[T] -> 64:14
+(64:39..64:46) scala/Boolean#
+(65:15..65:25) scala/Predef.implicitly().
+(65:26..65:29) cm2/Orderings.Ord# -> 48:9
+(65:30..65:31) cm2/Orderings.isLess().[T] -> 64:14
+(65:34..65:38) cm2/Orderings.Ord#less(). -> 48:22
+(65:39..65:40) local20 -> 65:5
+(65:42..65:43) local21 -> 65:10
+(67:3..67:10) scala/Predef.println(+1).
+(67:11..67:17) cm2/Orderings.isLess(). -> 64:7
+(67:18..67:21) scala/package.Nil.
+(67:23..67:27) scala/package.List.
+(68:3..68:10) scala/Predef.println(+1).
+(68:11..68:17) cm2/Orderings.isLess(). -> 64:7
+(68:18..68:22) scala/package.List.
+(68:23..68:27) scala/package.List.
+(68:33..68:37) scala/package.List.
+(68:38..68:42) scala/package.List.
+

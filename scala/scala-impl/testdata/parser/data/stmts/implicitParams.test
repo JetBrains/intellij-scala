@@ -1,0 +1,129 @@
+object impl{
+  def sum[A](xs: List)(implicit m: Monoid[A]): A =
+      if (xs.isEmpty) m.unit
+      else m.add(xs.head, sum(xs.tail))
+}
+-----
+ScalaFile
+  ScObject: impl
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('impl')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: sum
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('sum')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: m
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('m')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Monoid[A]
+                    SimpleType: Monoid
+                      CodeReferenceElement: Monoid
+                        PsiElement(identifier)('Monoid')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n      ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            ReferenceExpression: xs.isEmpty
+              ReferenceExpression: xs
+                PsiElement(identifier)('xs')
+              PsiElement(.)('.')
+              PsiElement(identifier)('isEmpty')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: m.unit
+              ReferenceExpression: m
+                PsiElement(identifier)('m')
+              PsiElement(.)('.')
+              PsiElement(identifier)('unit')
+            PsiWhiteSpace('\n      ')
+            PsiElement(else)('else')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: m.add
+                ReferenceExpression: m
+                  PsiElement(identifier)('m')
+                PsiElement(.)('.')
+                PsiElement(identifier)('add')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: xs.head
+                  ReferenceExpression: xs
+                    PsiElement(identifier)('xs')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('head')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: sum
+                    PsiElement(identifier)('sum')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: xs.tail
+                      ReferenceExpression: xs
+                        PsiElement(identifier)('xs')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('tail')
+                    PsiElement())(')')
+                PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,4 @@
+Document tests/pos/i25292.scala
+(4:9..4:19) _empty_/i25292$package.namedTuple. -> 3:5
+(9:9..9:14) _empty_/i25292$package.tuple. -> 8:5
+

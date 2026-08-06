@@ -1,0 +1,6 @@
+package one.t<caret>wo.three;    // line comment
+package four
+-----
+package one.t
+<caret>wo.three;    // line comment
+package four

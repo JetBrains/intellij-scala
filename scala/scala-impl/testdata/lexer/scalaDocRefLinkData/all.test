@@ -1,0 +1,216 @@
+scala.test.scaladoc.links.Target$
+scala.test
+scala.test.scaladoc.links.Target!.T
+test.scaladoc.links.Target!.S
+scaladoc.links.Target!.foo(i:Int)*
+links.Target!.bar
+[[Target!.foo[A[_[_]]]*
+Target$.T
+Target$.S
+Target$.::
+Target$.foo(z:Str*
+Target$.bar
+ExtendsTarget.foo(i:Int)*
+[[Target$.foo[A[_[_]]]*
+Target.onlyInObject
+Target$.C
+Target!.C
+Target$.baz(c:scala\.test\.scaladoc\.links\.C)*
+Target!.baz(c:scala\.test\.scaladoc\.links\.C)*
+localMethod
+#localMethod
+ImOutside
+ImOutside.Inner#foo
+ImOutside.T
+ImOutside.T#foo
+-----
+identifier {scala}
+. {.}
+identifier {test}
+. {.}
+identifier {scaladoc}
+. {.}
+identifier {links}
+. {.}
+identifier {Target$}
+white space in line {
+}
+identifier {scala}
+. {.}
+identifier {test}
+white space in line {
+}
+identifier {scala}
+. {.}
+identifier {test}
+. {.}
+identifier {scaladoc}
+. {.}
+identifier {links}
+. {.}
+identifier {Target!}
+. {.}
+identifier {T}
+white space in line {
+}
+identifier {test}
+. {.}
+identifier {scaladoc}
+. {.}
+identifier {links}
+. {.}
+identifier {Target!}
+. {.}
+identifier {S}
+white space in line {
+}
+identifier {scaladoc}
+. {.}
+identifier {links}
+. {.}
+identifier {Target!}
+. {.}
+identifier {foo}
+( {(}
+identifier {i:Int}
+) {)}
+identifier {*}
+white space in line {
+}
+identifier {links}
+. {.}
+identifier {Target!}
+. {.}
+identifier {bar}
+white space in line {
+}
+[ {[}
+[ {[}
+identifier {Target!}
+. {.}
+identifier {foo}
+[ {[}
+identifier {A}
+[ {[}
+identifier {_}
+[ {[}
+identifier {_}
+] {]}
+] {]}
+] {]}
+identifier {*}
+white space in line {
+}
+identifier {Target$}
+. {.}
+identifier {T}
+white space in line {
+}
+identifier {Target$}
+. {.}
+identifier {S}
+white space in line {
+}
+identifier {Target$}
+. {.}
+identifier {::}
+white space in line {
+}
+identifier {Target$}
+. {.}
+identifier {foo}
+( {(}
+identifier {z:Str*}
+white space in line {
+}
+identifier {Target$}
+. {.}
+identifier {bar}
+white space in line {
+}
+identifier {ExtendsTarget}
+. {.}
+identifier {foo}
+( {(}
+identifier {i:Int}
+) {)}
+identifier {*}
+white space in line {
+}
+[ {[}
+[ {[}
+identifier {Target$}
+. {.}
+identifier {foo}
+[ {[}
+identifier {A}
+[ {[}
+identifier {_}
+[ {[}
+identifier {_}
+] {]}
+] {]}
+] {]}
+identifier {*}
+white space in line {
+}
+identifier {Target}
+. {.}
+identifier {onlyInObject}
+white space in line {
+}
+identifier {Target$}
+. {.}
+identifier {C}
+white space in line {
+}
+identifier {Target!}
+. {.}
+identifier {C}
+white space in line {
+}
+identifier {Target$}
+. {.}
+identifier {baz}
+( {(}
+identifier {c:scala\.test\.scaladoc\.links\.C}
+) {)}
+identifier {*}
+white space in line {
+}
+identifier {Target!}
+. {.}
+identifier {baz}
+( {(}
+identifier {c:scala\.test\.scaladoc\.links\.C}
+) {)}
+identifier {*}
+white space in line {
+}
+identifier {localMethod}
+white space in line {
+}
+# {#}
+identifier {localMethod}
+white space in line {
+}
+identifier {ImOutside}
+white space in line {
+}
+identifier {ImOutside}
+. {.}
+identifier {Inner}
+# {#}
+identifier {foo}
+white space in line {
+}
+identifier {ImOutside}
+. {.}
+identifier {T}
+white space in line {
+}
+identifier {ImOutside}
+. {.}
+identifier {T}
+# {#}
+identifier {foo}

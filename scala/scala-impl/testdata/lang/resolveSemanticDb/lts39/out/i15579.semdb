@@ -1,0 +1,13 @@
+Document tests/pos/i15579.scala
+(4:17..4:18) _empty_/Foo#[A] -> 3:11
+(4:22..4:23) _empty_/Foo#map().[B] -> 4:11
+(4:26..4:29) _empty_/Foo# -> 3:7
+(4:30..4:31) _empty_/Foo#map().[B] -> 4:11
+(4:35..4:38) scala/Predef.`???`().
+(6:10..6:13) _empty_/Foo# -> 3:7
+(6:15..6:18) scala/Int#
+(6:20..6:26) scala/Predef.String#
+(6:31..6:34) scala/Predef.`???`().
+(8:2..8:6) scala/main#
+(9:17..9:20) _empty_/i15579$package.baz(). -> 6:5
+

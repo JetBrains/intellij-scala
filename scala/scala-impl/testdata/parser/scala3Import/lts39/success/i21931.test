@@ -1,0 +1,196 @@
+object Test {
+  def f() = {
+    val NotFound: Char = 'a'
+    class crashing() {
+      class issue() {
+        NotFound
+      }
+      class Module() {
+        val obligatory = {
+          def anonIssue = {
+            issue()
+          }
+          anonIssue
+        }
+      }
+    }
+  }
+}
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('f')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: NotFound
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: NotFound
+                  PsiElement(identifier)('NotFound')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Char
+                CodeReferenceElement: Char
+                  PsiElement(identifier)('Char')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              CharLiteral
+                PsiElement(Character)(''a'')
+            PsiWhiteSpace('\n    ')
+            ScClass: crashing
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(class)('class')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('crashing')
+              PrimaryConstructor
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                ScTemplateBody
+                  PsiElement({)('{')
+                  PsiWhiteSpace('\n      ')
+                  ScClass: issue
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(class)('class')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('issue')
+                    PrimaryConstructor
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      ScTemplateBody
+                        PsiElement({)('{')
+                        PsiWhiteSpace('\n        ')
+                        ReferenceExpression: NotFound
+                          PsiElement(identifier)('NotFound')
+                        PsiWhiteSpace('\n      ')
+                        PsiElement(})('}')
+                  PsiWhiteSpace('\n      ')
+                  ScClass: Module
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(class)('class')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('Module')
+                    PrimaryConstructor
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      ScTemplateBody
+                        PsiElement({)('{')
+                        PsiWhiteSpace('\n        ')
+                        ScPatternDefinition: obligatory
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(val)('val')
+                          PsiWhiteSpace(' ')
+                          ListOfPatterns
+                            ReferencePattern: obligatory
+                              PsiElement(identifier)('obligatory')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          BlockExpression
+                            PsiElement({)('{')
+                            PsiWhiteSpace('\n          ')
+                            ScFunctionDefinition: anonIssue
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(def)('def')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('anonIssue')
+                              Parameters
+                                <empty list>
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              BlockExpression
+                                PsiElement({)('{')
+                                PsiWhiteSpace('\n            ')
+                                MethodCall
+                                  ReferenceExpression: issue
+                                    PsiElement(identifier)('issue')
+                                  ArgumentList
+                                    PsiElement(()('(')
+                                    PsiElement())(')')
+                                PsiWhiteSpace('\n          ')
+                                PsiElement(})('}')
+                            PsiWhiteSpace('\n          ')
+                            ReferenceExpression: anonIssue
+                              PsiElement(identifier)('anonIssue')
+                            PsiWhiteSpace('\n        ')
+                            PsiElement(})('}')
+                        PsiWhiteSpace('\n      ')
+                        PsiElement(})('}')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

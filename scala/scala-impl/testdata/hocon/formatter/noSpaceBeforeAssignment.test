@@ -1,0 +1,19 @@
+<settings>
+  <HoconCodeStyleSettings>
+    <option name="SPACE_BEFORE_ASSIGNMENT" value="false" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+a= b
+a = b
+a  = b
+a+= b
+a += b
+a  += b
+-----
+a= b
+a= b
+a= b
+a+= b
+a+= b
+a+= b

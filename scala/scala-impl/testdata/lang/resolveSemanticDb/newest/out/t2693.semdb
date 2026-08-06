@@ -1,0 +1,12 @@
+Document tests/pos/t2693.scala
+(3:27..3:28) _empty_/A#usetHk().[T] -> 3:14
+(3:29..3:30) _empty_/A#usetHk().[A] -> 3:20
+(4:3..4:9) _empty_/A#usetHk(). -> 3:7
+(4:14..4:16) _empty_/A#Tr# -> 2:9
+(4:17..4:20) scala/Int#
+(4:25..4:27) _empty_/A#Tr# -> 2:9
+(4:28..4:31) scala/Int#
+(5:3..5:9) _empty_/A#usetHk(). -> 3:7
+(5:14..5:16) _empty_/A#Tr# -> 2:9
+(5:17..5:20) scala/Int#
+

@@ -1,0 +1,215 @@
+// while making MT post-redux consistent in its normalisation/simplification
+// one version of the change broke a line of the perspective community project in CI
+// this is a minimisation of the failure
+
+import scala.compiletime._, scala.deriving._
+
+transparent inline def foo(using m: Mirror): Unit =
+  constValueTuple[m.MirroredElemLabels].toList.toSet // was:
+//-- [E057] Type Mismatch Error: cat.scala:8:14 +
+//8 |def test = foo(using summon[Mirror.Of[Cat]])
+//  |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//  |Type argument ("name" : String) | Nothing does not conform to lower bound m$proxy1.MirroredElemLabels match {
+//  |  case EmptyTuple => Nothing
+//  |  case h *: t => h | Tuple.Fold[t, Nothing, [x, y] =>> x | y]
+//  |}
+//  |+
+//  |Inline stack trace
+//  |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//  |This location contains code that was inlined from cat.scala:4
+//4 |  constValueTuple[m.MirroredElemLabels].toList.toSet
+//  |                                               ^
+
+case class Cat(name: String)
+
+def test = foo(using summon[Mirror.Of[Cat]])
+-----
+ScalaFile
+  PsiComment(comment)('// while making MT post-redux consistent in its normalisation/simplification')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// one version of the change broke a line of the perspective community project in CI')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// this is a minimisation of the failure')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('compiletime')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+    PsiElement(,)(',')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.deriving
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('deriving')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('m')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Mirror
+              CodeReferenceElement: Mirror
+                PsiElement(identifier)('Mirror')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ReferenceExpression: constValueTuple[m.MirroredElemLabels].toList.toSet
+      ReferenceExpression: constValueTuple[m.MirroredElemLabels].toList
+        GenericCall
+          ReferenceExpression: constValueTuple
+            PsiElement(identifier)('constValueTuple')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: m.MirroredElemLabels
+                CodeReferenceElement: m.MirroredElemLabels
+                  CodeReferenceElement: m
+                    PsiElement(identifier)('m')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('MirroredElemLabels')
+            PsiElement(])(']')
+        PsiElement(.)('.')
+        PsiElement(identifier)('toList')
+      PsiElement(.)('.')
+      PsiElement(identifier)('toSet')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// was:')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//-- [E057] Type Mismatch Error: cat.scala:8:14 +')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//8 |def test = foo(using summon[Mirror.Of[Cat]])')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  |Type argument ("name" : String) | Nothing does not conform to lower bound m$proxy1.MirroredElemLabels match {')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  |  case EmptyTuple => Nothing')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  |  case h *: t => h | Tuple.Fold[t, Nothing, [x, y] =>> x | y]')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  |}')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  |+')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  |Inline stack trace')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  |This location contains code that was inlined from cat.scala:4')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//4 |  constValueTuple[m.MirroredElemLabels].toList.toSet')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  |                                               ^')
+  PsiWhiteSpace('\n\n')
+  ScClass: Cat
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Cat')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: name
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('name')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: foo
+        PsiElement(identifier)('foo')
+      ArgumentList
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: Mirror.Of[Cat]
+                SimpleType: Mirror.Of
+                  CodeReferenceElement: Mirror.Of
+                    CodeReferenceElement: Mirror
+                      PsiElement(identifier)('Mirror')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Of')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Cat
+                      CodeReferenceElement: Cat
+                        PsiElement(identifier)('Cat')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiElement())(')')

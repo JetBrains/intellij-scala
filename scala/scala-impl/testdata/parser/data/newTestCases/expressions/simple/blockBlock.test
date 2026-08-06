@@ -1,0 +1,111 @@
+class a {
+  {
+    import a.b.c
+    implicit def foo() = 3
+    sealed class b {}
+    if (true) return "it must be true"
+    return 0
+  }
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: a.b.c
+                CodeReferenceElement: a.b
+                  CodeReferenceElement: a
+                    PsiElement(identifier)('a')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('b')
+                PsiElement(.)('.')
+                PsiElement(identifier)('c')
+          PsiWhiteSpace('\n    ')
+          ScFunctionDefinition: foo
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(implicit)('implicit')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('foo')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('3')
+          PsiWhiteSpace('\n    ')
+          ScClass: b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(sealed)('sealed')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('b')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                <empty list>
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n    ')
+          IfStatement
+            PsiElement(if)('if')
+            PsiWhiteSpace(' ')
+            PsiElement(()('(')
+            BooleanLiteral
+              PsiElement(true)('true')
+            PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReturnStatement
+              PsiElement(return)('return')
+              PsiWhiteSpace(' ')
+              StringLiteral
+                PsiElement(string content)('"it must be true"')
+          PsiWhiteSpace('\n    ')
+          ReturnStatement
+            PsiElement(return)('return')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('0')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

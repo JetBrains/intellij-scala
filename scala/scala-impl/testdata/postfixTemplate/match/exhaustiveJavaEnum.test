@@ -1,0 +1,16 @@
+import java.nio.file.FileVisitResult
+
+object Test {
+    def test(result: FileVisitResult) = <start>result<exhaustive>
+}
+-----
+import java.nio.file.FileVisitResult
+
+object Test {
+    def test(result: FileVisitResult) = result match {
+      case FileVisitResult.CONTINUE =>
+      case FileVisitResult.TERMINATE =>
+      case FileVisitResult.SKIP_SUBTREE =>
+      case FileVisitResult.SKIP_SIBLINGS =>
+    }
+}

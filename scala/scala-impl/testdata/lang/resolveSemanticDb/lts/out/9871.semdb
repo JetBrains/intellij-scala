@@ -1,0 +1,35 @@
+Document tests/pos/9871.scala
+(2:32..2:37) scala/Tuple#
+(2:41..2:44) _empty_/Test.IsTypeInTuple#[Tup] -> 2:25
+(3:10..3:20) scala/Tuple$package.EmptyTuple#
+(4:10..4:11) _empty_/Test.IsTypeInTuple#[T] -> 2:22
+(4:12..4:14) scala/`*:`#
+(5:12..5:14) scala/`*:`#
+(5:21..5:34) _empty_/Test.IsTypeInTuple# -> 2:8
+(5:35..5:36) _empty_/Test.IsTypeInTuple#[T] -> 2:22
+(5:38..5:40) local1 -> 5:15
+(7:3..7:9) scala/Predef.summon().
+(7:11..7:14) scala/Int#
+(7:15..7:17) scala/`*:`#
+(7:18..7:24) scala/Predef.String#
+(7:25..7:27) scala/`*:`#
+(7:28..7:38) scala/Tuple$package.EmptyTuple#
+(7:40..7:43) scala/`=:=`#
+(7:45..7:48) scala/Int#
+(7:50..7:56) scala/Predef.String#
+(8:3..8:9) scala/Predef.summon().
+(8:10..8:23) _empty_/Test.IsTypeInTuple# -> 2:8
+(8:24..8:30) scala/Predef.String#
+(8:32..8:35) scala/Int#
+(8:36..8:38) scala/`*:`#
+(8:39..8:45) scala/Predef.String#
+(8:46..8:48) scala/`*:`#
+(8:49..8:59) scala/Tuple$package.EmptyTuple#
+(8:61..8:64) scala/`=:=`#
+(9:3..9:9) scala/Predef.summon().
+(9:10..9:23) _empty_/Test.IsTypeInTuple# -> 2:8
+(9:24..9:30) scala/Predef.String#
+(9:33..9:36) scala/Int#
+(9:38..9:44) scala/Predef.String#
+(9:47..9:50) scala/`=:=`#
+

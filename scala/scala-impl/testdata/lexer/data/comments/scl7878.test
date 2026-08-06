@@ -1,0 +1,10 @@
+val x = ???//TODO
+------
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+identifier {???}
+comment {//TODO}

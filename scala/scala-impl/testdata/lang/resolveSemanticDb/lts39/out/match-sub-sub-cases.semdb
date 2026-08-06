@@ -1,0 +1,26 @@
+Document tests/pos/match-sub-sub-cases.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:44) scala/language.experimental.subCases.
+(4:10..4:16) scala/Option#
+(4:17..4:23) scala/Option#
+(4:24..4:27) scala/Int#
+(4:32..4:35) scala/Predef.`???`().
+(5:3..5:4) _empty_/Test.x. -> 4:7
+(6:10..6:14) scala/Some.
+(6:30..6:32) local0 -> 6:15
+(7:12..7:16) scala/Some.
+(7:33..7:35) local1 -> 7:17
+(9:19..9:20) local2 -> 9:14
+(9:21..9:22) scala/Int#`%`(+3).
+(9:25..9:27) scala/Int#`==`(+3).
+(9:33..9:34) local2 -> 9:14
+(12:10..12:14) scala/None.
+(14:3..14:4) _empty_/Test.x. -> 4:7
+(15:10..15:14) scala/Some.
+(15:22..15:24) local3 -> 15:15
+(16:12..16:16) scala/Some.
+(16:25..16:27) local4 -> 16:18
+(21:10..21:14) scala/None.
+

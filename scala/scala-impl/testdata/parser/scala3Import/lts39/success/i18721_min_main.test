@@ -1,0 +1,89 @@
+class Test:
+  def t1(bar: Bar { val foo: Foo }): Any =
+    meth(bar.foo)
+-----
+ScalaFile
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: t1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t1')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: bar
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('bar')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  CompoundType: Bar { val foo: Foo }
+                    SimpleType: Bar
+                      CodeReferenceElement: Bar
+                        PsiElement(identifier)('Bar')
+                    PsiWhiteSpace(' ')
+                    Refinement
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      ScValueDeclaration: foo
+                        AnnotationsList
+                          <empty list>
+                        Modifiers
+                          <empty list>
+                        PsiElement(val)('val')
+                        PsiWhiteSpace(' ')
+                        ListOfIdentifiers
+                          Field identifier: foo
+                            PsiElement(identifier)('foo')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Foo
+                          CodeReferenceElement: Foo
+                            PsiElement(identifier)('Foo')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: meth
+              PsiElement(identifier)('meth')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: bar.foo
+                ReferenceExpression: bar
+                  PsiElement(identifier)('bar')
+                PsiElement(.)('.')
+                PsiElement(identifier)('foo')
+              PsiElement())(')')

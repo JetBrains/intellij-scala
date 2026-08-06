@@ -1,0 +1,125 @@
+// usage.scala
+package oolong.bson
+
+extension (bv: BsonValue)
+  def :+(other: BsonValue): BsonValue = merge(other, bv, false)
+
+val x = foo
+val y = inner.bar
+-----
+ScalaFile
+  PsiComment(comment)('// usage.scala')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: oolong.bson
+      CodeReferenceElement: oolong
+        PsiElement(identifier)('oolong')
+      PsiElement(.)('.')
+      PsiElement(identifier)('bson')
+    PsiWhiteSpace('\n\n')
+    Extension on BsonValue
+      PsiElement(extension)('extension')
+      PsiWhiteSpace(' ')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: bv
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('bv')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: BsonValue
+                CodeReferenceElement: BsonValue
+                  PsiElement(identifier)('BsonValue')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScExtensionBody
+        ScFunctionDefinition: :+
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)(':+')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: other
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('other')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: BsonValue
+                    CodeReferenceElement: BsonValue
+                      PsiElement(identifier)('BsonValue')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: BsonValue
+            CodeReferenceElement: BsonValue
+              PsiElement(identifier)('BsonValue')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: merge
+              PsiElement(identifier)('merge')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: other
+                PsiElement(identifier)('other')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: bv
+                PsiElement(identifier)('bv')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              BooleanLiteral
+                PsiElement(false)('false')
+              PsiElement())(')')
+    PsiWhiteSpace('\n\n')
+    ScPatternDefinition: x
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(val)('val')
+      PsiWhiteSpace(' ')
+      ListOfPatterns
+        ReferencePattern: x
+          PsiElement(identifier)('x')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: foo
+        PsiElement(identifier)('foo')
+    PsiWhiteSpace('\n')
+    ScPatternDefinition: y
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(val)('val')
+      PsiWhiteSpace(' ')
+      ListOfPatterns
+        ReferencePattern: y
+          PsiElement(identifier)('y')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: inner.bar
+        ReferenceExpression: inner
+          PsiElement(identifier)('inner')
+        PsiElement(.)('.')
+        PsiElement(identifier)('bar')

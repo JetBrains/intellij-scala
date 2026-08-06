@@ -1,0 +1,15 @@
+""
+"aaa"
+" aaa "
+//// escape chars
+"\b"
+"\n"
+"\t"
+"\r"
+"\f"
+"\""
+"\\"
+"\b \n \t \r \f \" \\"
+//// unicode escape
+"\u0025 \u000A \u000D"
+-----

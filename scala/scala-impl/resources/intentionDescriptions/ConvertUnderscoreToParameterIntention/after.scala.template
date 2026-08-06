@@ -1,0 +1,5 @@
+val f: ((Int, Int, Int) => Int) =
+ (i, i1, i2) => i + i1 + i2 + 5
+
+val name: String = "string"
+val nameHasUpperCase = name.exists(c => c.isUpper)

@@ -1,0 +1,19 @@
+obj.
+fun(
+args
+)(
+    args
+  ).fun(arg).
+fun(  args          )(
+args
+)
+-----
+obj.
+  fun(
+    args
+  )(
+    args
+  ).fun(arg).
+  fun(args)(
+    args
+  )

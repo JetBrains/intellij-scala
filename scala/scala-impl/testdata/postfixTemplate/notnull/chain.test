@@ -1,0 +1,7 @@
+class Test {
+  <start>Set(1, 2, 3).filter(_ == 2).map(_ * 2)<notnull>
+}
+-----
+class Test {
+  if (Set(1, 2, 3).filter(_ == 2).map(_ * 2) != null) {}
+}

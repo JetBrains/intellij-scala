@@ -1,0 +1,208 @@
+trait A
+trait OuterClass
+trait MidClass
+trait InnerClass
+
+object Obj:
+  def outerDef(a: A) =
+    new OuterClass {
+      def midDef(): Unit = {
+        new MidClass {
+          val valdef = new InnerClass {
+            def innerDef() =
+              println(a)
+          }
+        }
+      }
+    }
+-----
+ScalaFile
+  ScTrait: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: OuterClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OuterClass')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: MidClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MidClass')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: InnerClass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('InnerClass')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Obj
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Obj')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: outerDef
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('outerDef')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: OuterClass
+                    CodeReferenceElement: OuterClass
+                      PsiElement(identifier)('OuterClass')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScFunctionDefinition: midDef
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('midDef')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Unit
+                    CodeReferenceElement: Unit
+                      PsiElement(identifier)('Unit')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n        ')
+                    ScNewTemplateDefinition: <anonymous>
+                      PsiElement(new)('new')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        TemplateParents
+                          ConstructorInvocation
+                            SimpleType: MidClass
+                              CodeReferenceElement: MidClass
+                                PsiElement(identifier)('MidClass')
+                        PsiWhiteSpace(' ')
+                        ScTemplateBody
+                          PsiElement({)('{')
+                          PsiWhiteSpace('\n          ')
+                          ScPatternDefinition: valdef
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(val)('val')
+                            PsiWhiteSpace(' ')
+                            ListOfPatterns
+                              ReferencePattern: valdef
+                                PsiElement(identifier)('valdef')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            ScNewTemplateDefinition: <anonymous>
+                              PsiElement(new)('new')
+                              PsiWhiteSpace(' ')
+                              ExtendsBlock
+                                TemplateParents
+                                  ConstructorInvocation
+                                    SimpleType: InnerClass
+                                      CodeReferenceElement: InnerClass
+                                        PsiElement(identifier)('InnerClass')
+                                PsiWhiteSpace(' ')
+                                ScTemplateBody
+                                  PsiElement({)('{')
+                                  PsiWhiteSpace('\n            ')
+                                  ScFunctionDefinition: innerDef
+                                    AnnotationsList
+                                      <empty list>
+                                    Modifiers
+                                      <empty list>
+                                    PsiElement(def)('def')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(identifier)('innerDef')
+                                    Parameters
+                                      ParametersClause
+                                        PsiElement(()('(')
+                                        PsiElement())(')')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(=)('=')
+                                    PsiWhiteSpace('\n              ')
+                                    MethodCall
+                                      ReferenceExpression: println
+                                        PsiElement(identifier)('println')
+                                      ArgumentList
+                                        PsiElement(()('(')
+                                        ReferenceExpression: a
+                                          PsiElement(identifier)('a')
+                                        PsiElement())(')')
+                                  PsiWhiteSpace('\n          ')
+                                  PsiElement(})('}')
+                          PsiWhiteSpace('\n        ')
+                          PsiElement(})('}')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement(})('}')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')

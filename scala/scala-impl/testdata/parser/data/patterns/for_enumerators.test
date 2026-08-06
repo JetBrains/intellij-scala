@@ -1,0 +1,205 @@
+for {
+  (x0, y0) <- Seq();
+  if true
+  (x1, y1) <- Seq();
+  (x2, y2) <- Seq();
+  if true
+  (x3, y3) <- Seq()
+  (x4, y4) <- Seq()
+  if true
+  (x5, y5) <- Seq();
+  jrqr = 42
+  (x6, y6) <- Seq()
+} yield 42
+-----
+ScalaFile
+  ForStatement
+    PsiElement(for)('for')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    Enumerators
+      Generator
+        TuplePattern
+          PsiElement(()('(')
+          ArgumentPatterns
+            ReferencePattern: x0
+              PsiElement(identifier)('x0')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: y0
+              PsiElement(identifier)('y0')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Seq
+            PsiElement(identifier)('Seq')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiElement(;)(';')
+      PsiWhiteSpace('\n  ')
+      Guard
+        PsiElement(if)('if')
+        PsiWhiteSpace(' ')
+        BooleanLiteral
+          PsiElement(true)('true')
+      PsiWhiteSpace('\n  ')
+      Generator
+        TuplePattern
+          PsiElement(()('(')
+          ArgumentPatterns
+            ReferencePattern: x1
+              PsiElement(identifier)('x1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: y1
+              PsiElement(identifier)('y1')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Seq
+            PsiElement(identifier)('Seq')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiElement(;)(';')
+      PsiWhiteSpace('\n  ')
+      Generator
+        TuplePattern
+          PsiElement(()('(')
+          ArgumentPatterns
+            ReferencePattern: x2
+              PsiElement(identifier)('x2')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: y2
+              PsiElement(identifier)('y2')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Seq
+            PsiElement(identifier)('Seq')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiElement(;)(';')
+      PsiWhiteSpace('\n  ')
+      Guard
+        PsiElement(if)('if')
+        PsiWhiteSpace(' ')
+        BooleanLiteral
+          PsiElement(true)('true')
+      PsiWhiteSpace('\n  ')
+      Generator
+        TuplePattern
+          PsiElement(()('(')
+          ArgumentPatterns
+            ReferencePattern: x3
+              PsiElement(identifier)('x3')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: y3
+              PsiElement(identifier)('y3')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Seq
+            PsiElement(identifier)('Seq')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      Generator
+        TuplePattern
+          PsiElement(()('(')
+          ArgumentPatterns
+            ReferencePattern: x4
+              PsiElement(identifier)('x4')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: y4
+              PsiElement(identifier)('y4')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Seq
+            PsiElement(identifier)('Seq')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      Guard
+        PsiElement(if)('if')
+        PsiWhiteSpace(' ')
+        BooleanLiteral
+          PsiElement(true)('true')
+      PsiWhiteSpace('\n  ')
+      Generator
+        TuplePattern
+          PsiElement(()('(')
+          ArgumentPatterns
+            ReferencePattern: x5
+              PsiElement(identifier)('x5')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: y5
+              PsiElement(identifier)('y5')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Seq
+            PsiElement(identifier)('Seq')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiElement(;)(';')
+      PsiWhiteSpace('\n  ')
+      ForBinding
+        ReferencePattern: jrqr
+          PsiElement(identifier)('jrqr')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('42')
+      PsiWhiteSpace('\n  ')
+      Generator
+        TuplePattern
+          PsiElement(()('(')
+          ArgumentPatterns
+            ReferencePattern: x6
+              PsiElement(identifier)('x6')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: y6
+              PsiElement(identifier)('y6')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Seq
+            PsiElement(identifier)('Seq')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    PsiElement(yield)('yield')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('42')

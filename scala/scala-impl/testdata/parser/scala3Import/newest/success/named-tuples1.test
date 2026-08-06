@@ -1,0 +1,214 @@
+import annotation.experimental
+
+@main def Test =
+  val bob = (name = "Bob", age = 33): (name: String, age: Int)
+  val persons = List(
+    bob,
+    (name = "Bill", age = 40),
+    (name = "Lucy", age = 45)
+  )
+  val ages = persons.map(_.age)
+    // pickling failure: matchtype is reduced after pickling, unreduced before.
+  assert(ages.sum == 118)
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: annotation.experimental
+        CodeReferenceElement: annotation
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('experimental')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: bob
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: bob
+            PsiElement(identifier)('bob')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        TypedExpression
+          NamedTuple
+            PsiElement(()('(')
+            ScNamedTupleExprComponentImpl(named tuple component)
+              PsiElement(identifier)('name')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              StringLiteral
+                PsiElement(string content)('"Bob"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ScNamedTupleExprComponentImpl(named tuple component)
+              PsiElement(identifier)('age')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('33')
+            PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          NamedTupleType: (name: String, age: Int)
+            PsiElement(()('(')
+            NamedTupleTypeComponent: name: String
+              PsiElement(identifier)('name')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            NamedTupleTypeComponent: age: Int
+              PsiElement(identifier)('age')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: persons
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: persons
+            PsiElement(identifier)('persons')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: List
+            PsiElement(identifier)('List')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: bob
+              PsiElement(identifier)('bob')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            NamedTuple
+              PsiElement(()('(')
+              ScNamedTupleExprComponentImpl(named tuple component)
+                PsiElement(identifier)('name')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"Bill"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ScNamedTupleExprComponentImpl(named tuple component)
+                PsiElement(identifier)('age')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('40')
+              PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n    ')
+            NamedTuple
+              PsiElement(()('(')
+              ScNamedTupleExprComponentImpl(named tuple component)
+                PsiElement(identifier)('name')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"Lucy"')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ScNamedTupleExprComponentImpl(named tuple component)
+                PsiElement(identifier)('age')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('45')
+              PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: ages
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: ages
+            PsiElement(identifier)('ages')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: persons.map
+            ReferenceExpression: persons
+              PsiElement(identifier)('persons')
+            PsiElement(.)('.')
+            PsiElement(identifier)('map')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: _.age
+              UnderscoreSection
+                PsiElement(_)('_')
+              PsiElement(.)('.')
+              PsiElement(identifier)('age')
+            PsiElement())(')')
+      PsiWhiteSpace('\n    ')
+      PsiComment(comment)('// pickling failure: matchtype is reduced after pickling, unreduced before.')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: assert
+          PsiElement(identifier)('assert')
+        ArgumentList
+          PsiElement(()('(')
+          InfixExpression
+            ReferenceExpression: ages.sum
+              ReferenceExpression: ages
+                PsiElement(identifier)('ages')
+              PsiElement(.)('.')
+              PsiElement(identifier)('sum')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ==
+              PsiElement(identifier)('==')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('118')
+          PsiElement())(')')

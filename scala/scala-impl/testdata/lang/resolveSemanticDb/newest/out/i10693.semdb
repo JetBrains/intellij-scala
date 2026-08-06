@@ -1,0 +1,25 @@
+Document tests/pos/i10693.scala
+(1:19..1:20) _empty_/i10693$package.test().[A] -> 1:10
+(1:25..1:26) _empty_/i10693$package.test().[B] -> 1:13
+(1:29..1:30) _empty_/i10693$package.test().[A] -> 1:10
+(1:31..1:32) scala/`|`#
+(1:33..1:34) _empty_/i10693$package.test().[B] -> 1:13
+(1:37..1:38) _empty_/i10693$package.test().(a) -> 1:16
+(2:10..2:14) _empty_/i10693$package.test(). -> 1:5
+(3:10..3:14) _empty_/i10693$package.test(). -> 1:5
+(4:10..4:14) _empty_/i10693$package.test(). -> 1:5
+(4:15..4:17) _empty_/i10693$package.v0. -> 2:5
+(4:19..4:21) _empty_/i10693$package.v1. -> 3:5
+(5:10..5:14) _empty_/i10693$package.test(). -> 1:5
+(5:15..5:17) _empty_/i10693$package.v1. -> 3:5
+(5:19..5:21) _empty_/i10693$package.v0. -> 2:5
+(6:10..6:14) _empty_/i10693$package.test(). -> 1:5
+(6:15..6:17) _empty_/i10693$package.v2. -> 4:5
+(6:19..6:21) _empty_/i10693$package.v3. -> 5:5
+(7:10..7:14) _empty_/i10693$package.test(). -> 1:5
+(7:15..7:17) _empty_/i10693$package.v3. -> 5:5
+(7:19..7:21) _empty_/i10693$package.v2. -> 4:5
+(8:10..8:14) _empty_/i10693$package.test(). -> 1:5
+(8:15..8:17) _empty_/i10693$package.v4. -> 6:5
+(8:19..8:21) _empty_/i10693$package.v5. -> 7:5
+

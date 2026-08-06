@@ -1,0 +1,11 @@
+Document tests/pos/i15649.scala
+(5:18..5:36) _empty_/ConfigSourceModule# -> 1:7
+(8:38..8:39) _empty_/M. -> 5:8
+(8:40..8:52) _empty_/ConfigSourceModule#ConfigSource. -> 2:10
+(11:12..11:13) _empty_/M. -> 5:8
+(11:14..11:26) _empty_/ConfigSourceModule#ConfigSource. -> 2:10
+(11:27..11:28) _empty_/ConfigSourceModule#ConfigSource.R# -> 3:11
+(11:35..11:36) _empty_/M. -> 5:8
+(11:37..11:49) _empty_/ConfigSourceModule#ConfigSource. -> 2:10
+(11:50..11:51) _empty_/ConfigSourceModule#ConfigSource.R# -> 3:11
+

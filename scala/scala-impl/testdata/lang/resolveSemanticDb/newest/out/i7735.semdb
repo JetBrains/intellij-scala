@@ -1,0 +1,6 @@
+Document tests/pos/i7735.scala
+(1:16..1:17) _empty_/i7735$package.foo().[A] -> 1:9
+(1:21..1:24) scala/Int#
+(1:27..1:30) scala/Predef.`???`().
+(2:9..2:12) _empty_/i7735$package.foo(). -> 1:5
+

@@ -1,0 +1,49 @@
+class a {
+  1+2*3-4/5
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('1')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('2')
+              ReferenceExpression: *
+                PsiElement(identifier)('*')
+              IntegerLiteral
+                PsiElement(integer)('3')
+          ReferenceExpression: -
+            PsiElement(identifier)('-')
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('4')
+            ReferenceExpression: /
+              PsiElement(identifier)('/')
+            IntegerLiteral
+              PsiElement(integer)('5')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

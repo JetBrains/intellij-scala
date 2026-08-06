@@ -1,0 +1,9 @@
+class X {
+  def f(i: Int) {
+    if (i == 0) {
+      return
+    } <spot>else</spot> {
+      val j = 0
+    }
+  }
+}

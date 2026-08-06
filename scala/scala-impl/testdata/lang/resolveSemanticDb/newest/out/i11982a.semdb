@@ -1,0 +1,46 @@
+Document tests/pos/i11982a.scala
+(4:27..4:34) scala/ValueOf#
+(4:35..4:36) tuplefun/Unpair.pair().[A] -> 4:12
+(4:42..4:49) scala/ValueOf#
+(4:50..4:51) tuplefun/Unpair.pair().[B] -> 4:15
+(4:55..4:61) scala/Tuple2#
+(4:62..4:63) tuplefun/Unpair.pair().[A] -> 4:12
+(4:65..4:66) tuplefun/Unpair.pair().[B] -> 4:15
+(5:6..5:7) tuplefun/Unpair.pair().(a) -> 4:24
+(5:8..5:13) scala/ValueOf#value.
+(5:15..5:16) tuplefun/Unpair.pair().(b) -> 4:39
+(5:17..5:22) scala/ValueOf#value.
+(7:19..7:25) scala/Tuple2#
+(8:16..8:23) scala/ValueOf#
+(8:24..8:29) scala/Tuple.
+(8:30..8:34) scala/Tuple.Head#
+(8:35..8:36) tuplefun/Unpair.unpair().[X] -> 7:14
+(9:16..9:23) scala/ValueOf#
+(9:24..9:29) scala/Tuple.
+(9:30..9:34) scala/Tuple.Head#
+(9:35..9:40) scala/Tuple.
+(9:41..9:45) scala/Tuple.Tail#
+(9:46..9:47) tuplefun/Unpair.unpair().[X] -> 7:14
+(10:6..10:12) scala/Tuple2#
+(10:13..10:18) scala/Tuple.
+(10:19..10:23) scala/Tuple.Head#
+(10:24..10:25) tuplefun/Unpair.unpair().[X] -> 7:14
+(10:28..10:33) scala/Tuple.
+(10:34..10:38) scala/Tuple.Head#
+(10:39..10:44) scala/Tuple.
+(10:45..10:49) scala/Tuple.Tail#
+(10:50..10:51) tuplefun/Unpair.unpair().[X] -> 7:14
+(11:15..11:20) scala/Tuple.
+(11:21..11:25) scala/Tuple.Head#
+(11:26..11:27) tuplefun/Unpair.unpair().[X] -> 7:14
+(12:15..12:20) scala/Tuple.
+(12:21..12:25) scala/Tuple.Head#
+(12:26..12:31) scala/Tuple.
+(12:32..12:36) scala/Tuple.Tail#
+(12:37..12:38) tuplefun/Unpair.unpair().[X] -> 7:14
+(13:5..13:9) tuplefun/Unpair.pair(). -> 4:7
+(13:10..13:12) local0 -> 11:10
+(13:14..13:16) local1 -> 12:10
+(13:24..13:25) tuplefun/Unpair.unpair().(a) -> 8:13
+(13:27..13:28) tuplefun/Unpair.unpair().(b) -> 9:13
+

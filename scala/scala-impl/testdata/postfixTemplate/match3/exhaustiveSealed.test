@@ -1,0 +1,19 @@
+sealed trait Foo
+
+case class Bar() extends Foo
+case object Baz extends Foo
+
+object Foo:
+    def foo(foo: Foo) = <start>foo<exhaustive>
+end Foo
+-----
+sealed trait Foo
+
+case class Bar() extends Foo
+case object Baz extends Foo
+
+object Foo:
+    def foo(foo: Foo) = foo match
+      case Bar() =>
+      case Baz =>
+end Foo

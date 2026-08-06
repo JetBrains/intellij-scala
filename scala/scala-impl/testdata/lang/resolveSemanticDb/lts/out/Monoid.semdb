@@ -1,0 +1,75 @@
+Document tests/pos/Monoid.scala
+(1:9..1:17) strawman/
+(4:17..4:18) strawman/typeclasses/SemiGroup#[T] -> 3:17
+(4:23..4:24) strawman/typeclasses/SemiGroup#[T] -> 3:17
+(4:27..4:28) strawman/typeclasses/SemiGroup#[T] -> 3:17
+(8:35..8:44) strawman/typeclasses/SemiGroup# -> 3:7
+(8:52..8:53) strawman/typeclasses/SemiGroup.Ops#InfixAppend#[T] -> 8:32
+(9:23..9:24) strawman/typeclasses/SemiGroup.Ops#InfixAppend#[T] -> 8:32
+(9:27..9:28) strawman/typeclasses/SemiGroup.Ops#InfixAppend#[T] -> 8:32
+(9:31..9:41) scala/Predef.implicitly().
+(9:42..9:51) strawman/typeclasses/SemiGroup# -> 3:7
+(9:52..9:53) strawman/typeclasses/SemiGroup.Ops#InfixAppend#[T] -> 8:32
+(9:56..9:62) strawman/typeclasses/SemiGroup#append(). -> 4:7
+(9:63..9:67) strawman/typeclasses/SemiGroup.Ops#InfixAppend#self. -> 8:46
+(9:69..9:74) strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`().(other) -> 9:16
+(12:22..12:25) strawman/typeclasses/SemiGroup.Ops# -> 7:9
+(15:25..15:34) strawman/typeclasses/SemiGroup# -> 3:7
+(15:35..15:36) strawman/typeclasses/Monoid#[T] -> 15:14
+(16:11..16:12) strawman/typeclasses/Monoid#[T] -> 15:14
+(19:22..19:31) strawman/typeclasses/SemiGroup. -> 6:8
+(19:32..19:35) strawman/typeclasses/SemiGroup.Ops# -> 7:9
+(22:23..22:29) strawman/typeclasses/Monoid# -> 15:7
+(22:30..22:31) strawman/typeclasses/Ring#[T] -> 22:12
+(23:14..23:16) strawman/typeclasses/Monoid#id. -> 16:7
+(24:12..24:13) strawman/typeclasses/Ring#[T] -> 22:12
+(25:18..25:19) strawman/typeclasses/Ring#[T] -> 22:12
+(25:24..25:25) strawman/typeclasses/Ring#[T] -> 22:12
+(25:28..25:29) strawman/typeclasses/Ring#[T] -> 22:12
+(28:21..28:30) strawman/typeclasses/SemiGroup. -> 6:8
+(28:31..28:34) strawman/typeclasses/SemiGroup.Ops# -> 7:9
+(29:36..29:40) strawman/typeclasses/Ring# -> 22:7
+(29:48..29:49) strawman/typeclasses/Ring.Ops#InfixProduct#[T] -> 29:33
+(30:23..30:24) strawman/typeclasses/Ring.Ops#InfixProduct#[T] -> 29:33
+(30:27..30:28) strawman/typeclasses/Ring.Ops#InfixProduct#[T] -> 29:33
+(30:31..30:41) scala/Predef.implicitly().
+(30:42..30:46) strawman/typeclasses/Ring# -> 22:7
+(30:47..30:48) strawman/typeclasses/Ring.Ops#InfixProduct#[T] -> 29:33
+(30:51..30:58) strawman/typeclasses/Ring#product(). -> 25:7
+(30:59..30:63) strawman/typeclasses/Ring.Ops#InfixProduct#self. -> 29:42
+(30:65..30:70) strawman/typeclasses/Ring.Ops#InfixProduct#`|*|`().(other) -> 30:16
+(33:22..33:25) strawman/typeclasses/Ring.Ops# -> 28:9
+(39:40..39:46) strawman/typeclasses/Monoid# -> 15:7
+(39:47..39:53) scala/Predef.String#
+(40:19..40:25) scala/Predef.String#
+(40:30..40:36) scala/Predef.String#
+(40:39..40:45) scala/Predef.String#
+(40:48..40:49) strawman/typeclasses/Test.StringMonoid.append().(x) -> 40:16
+(40:50..40:52) scala/collection/StringOps#`++`(+2).
+(40:53..40:54) strawman/typeclasses/Test.StringMonoid.append().(y) -> 40:27
+(44:35..44:39) strawman/typeclasses/Ring# -> 22:7
+(44:40..44:43) scala/Int#
+(45:19..45:22) scala/Int#
+(45:27..45:30) scala/Int#
+(45:34..45:35) strawman/typeclasses/Test.IntRing.append().(x) -> 45:16
+(45:36..45:37) scala/Int#`+`(+4).
+(45:38..45:39) strawman/typeclasses/Test.IntRing.append().(y) -> 45:24
+(48:20..48:23) scala/Int#
+(48:28..48:31) scala/Int#
+(48:35..48:36) strawman/typeclasses/Test.IntRing.product().(x) -> 48:17
+(48:37..48:38) scala/Int#`*`(+3).
+(48:39..48:40) strawman/typeclasses/Test.IntRing.product().(y) -> 48:25
+(51:10..51:16) strawman/typeclasses/Monoid. -> 18:8
+(51:17..51:20) strawman/typeclasses/Monoid.ops. -> 19:10
+(52:10..52:14) strawman/typeclasses/Ring. -> 27:8
+(52:15..52:18) strawman/typeclasses/Ring.ops. -> 33:10
+(53:9..53:12) strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`(). -> 9:11
+(54:9..54:12) strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`(). -> 9:11
+(54:13..54:25) strawman/typeclasses/Test.StringMonoid. -> 39:19
+(54:26..54:28) strawman/typeclasses/Test.StringMonoid.id. -> 41:9
+(55:3..55:15) strawman/typeclasses/Test.StringMonoid. -> 39:19
+(55:16..55:18) strawman/typeclasses/Test.StringMonoid.id. -> 41:9
+(55:19..55:22) strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`(). -> 9:11
+(57:5..57:8) strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`(). -> 9:11
+(58:5..58:8) strawman/typeclasses/Ring.Ops#InfixProduct#`|*|`(). -> 30:11
+

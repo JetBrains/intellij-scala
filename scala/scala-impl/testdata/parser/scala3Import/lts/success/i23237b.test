@@ -1,0 +1,660 @@
+object types{
+  final case class vec2(x: Float, y: Float)
+  final case class vec4(x: Float, y: Float, z: Float, w: Float)
+  object vec4:
+    def apply(xy: vec2, z: Float, w: Float): vec4 = vec4(xy.x, xy.y, z, w)
+
+  opaque type Shader[In, Out] = In => Out
+  object Shader:
+    inline def apply[In, Out](f: In => Out): Shader[In, Out] = f
+    inline def apply[In](f: In => Unit): Shader[In, Unit]    = f
+    inline def apply(body: => Any): Shader[Unit, Unit] = (_: Unit) => body
+}
+import types.*
+
+class GLSLEnvTests {
+  case class FragEnv(UV: vec2)
+
+  inline def fragment: Shader[FragEnv, vec4] =
+    Shader { env =>
+      val x = env.UV
+      vec4(env.UV, 0.0f, 1.0f)
+    }
+}
+-----
+ScalaFile
+  ScObject: types
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('types')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: vec2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('vec2')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Float
+                      CodeReferenceElement: Float
+                        PsiElement(identifier)('Float')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: y
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('y')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Float
+                      CodeReferenceElement: Float
+                        PsiElement(identifier)('Float')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScClass: vec4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('vec4')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('x')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Float
+                      CodeReferenceElement: Float
+                        PsiElement(identifier)('Float')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: y
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('y')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Float
+                      CodeReferenceElement: Float
+                        PsiElement(identifier)('Float')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: z
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('z')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Float
+                      CodeReferenceElement: Float
+                        PsiElement(identifier)('Float')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ClassParameter: w
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('w')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Float
+                      CodeReferenceElement: Float
+                        PsiElement(identifier)('Float')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScObject: vec4
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('vec4')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: apply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: xy
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('xy')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: vec2
+                          CodeReferenceElement: vec2
+                            PsiElement(identifier)('vec2')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    Parameter: z
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('z')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Float
+                          CodeReferenceElement: Float
+                            PsiElement(identifier)('Float')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    Parameter: w
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('w')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: Float
+                          CodeReferenceElement: Float
+                            PsiElement(identifier)('Float')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: vec4
+                  CodeReferenceElement: vec4
+                    PsiElement(identifier)('vec4')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: vec4
+                    PsiElement(identifier)('vec4')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: xy.x
+                      ReferenceExpression: xy
+                        PsiElement(identifier)('xy')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('x')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: xy.y
+                      ReferenceExpression: xy
+                        PsiElement(identifier)('xy')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('y')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: z
+                      PsiElement(identifier)('z')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: w
+                      PsiElement(identifier)('w')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Shader
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shader')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: In
+              PsiElement(identifier)('In')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Out
+              PsiElement(identifier)('Out')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          FunctionalType: In => Out
+            SimpleType: In
+              CodeReferenceElement: In
+                PsiElement(identifier)('In')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: Out
+              CodeReferenceElement: Out
+                PsiElement(identifier)('Out')
+        PsiWhiteSpace('\n  ')
+        ScObject: Shader
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Shader')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: apply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: In
+                    PsiElement(identifier)('In')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: Out
+                    PsiElement(identifier)('Out')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: f
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('f')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        FunctionalType: In => Out
+                          SimpleType: In
+                            CodeReferenceElement: In
+                              PsiElement(identifier)('In')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Out
+                            CodeReferenceElement: Out
+                              PsiElement(identifier)('Out')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Shader[In, Out]
+                  SimpleType: Shader
+                    CodeReferenceElement: Shader
+                      PsiElement(identifier)('Shader')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: In
+                        CodeReferenceElement: In
+                          PsiElement(identifier)('In')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Out
+                        CodeReferenceElement: Out
+                          PsiElement(identifier)('Out')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: f
+                  PsiElement(identifier)('f')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: apply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: In
+                    PsiElement(identifier)('In')
+                  PsiElement(])(']')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: f
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('f')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        FunctionalType: In => Unit
+                          SimpleType: In
+                            CodeReferenceElement: In
+                              PsiElement(identifier)('In')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Unit
+                            CodeReferenceElement: Unit
+                              PsiElement(identifier)('Unit')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Shader[In, Unit]
+                  SimpleType: Shader
+                    CodeReferenceElement: Shader
+                      PsiElement(identifier)('Shader')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: In
+                        CodeReferenceElement: In
+                          PsiElement(identifier)('In')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                    PsiElement(])(']')
+                PsiWhiteSpace('    ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: f
+                  PsiElement(identifier)('f')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: apply
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('apply')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: body
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('body')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Shader[Unit, Unit]
+                  SimpleType: Shader
+                    CodeReferenceElement: Shader
+                      PsiElement(identifier)('Shader')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      Parameter: _
+                        AnnotationsList
+                          <empty list>
+                        PsiElement(_)('_')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        ParameterType
+                          SimpleType: Unit
+                            CodeReferenceElement: Unit
+                              PsiElement(identifier)('Unit')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: body
+                    PsiElement(identifier)('body')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: types
+        PsiElement(identifier)('types')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScClass: GLSLEnvTests
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('GLSLEnvTests')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScClass: FragEnv
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('FragEnv')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: UV
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('UV')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: vec2
+                      CodeReferenceElement: vec2
+                        PsiElement(identifier)('vec2')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: fragment
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fragment')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Shader[FragEnv, vec4]
+            SimpleType: Shader
+              CodeReferenceElement: Shader
+                PsiElement(identifier)('Shader')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: FragEnv
+                  CodeReferenceElement: FragEnv
+                    PsiElement(identifier)('FragEnv')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: vec4
+                  CodeReferenceElement: vec4
+                    PsiElement(identifier)('vec4')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: Shader
+              PsiElement(identifier)('Shader')
+            PsiWhiteSpace(' ')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: env
+                        PsiElement(identifier)('env')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace('\n      ')
+                  BlockOfExpressions
+                    ScPatternDefinition: x
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: x
+                          PsiElement(identifier)('x')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: env.UV
+                        ReferenceExpression: env
+                          PsiElement(identifier)('env')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('UV')
+                    PsiWhiteSpace('\n      ')
+                    MethodCall
+                      ReferenceExpression: vec4
+                        PsiElement(identifier)('vec4')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: env.UV
+                          ReferenceExpression: env
+                            PsiElement(identifier)('env')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('UV')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        FloatLiteral
+                          PsiElement(float)('0.0f')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        FloatLiteral
+                          PsiElement(float)('1.0f')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

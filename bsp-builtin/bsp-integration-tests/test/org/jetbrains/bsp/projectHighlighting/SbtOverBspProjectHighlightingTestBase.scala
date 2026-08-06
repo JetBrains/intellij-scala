@@ -1,0 +1,8 @@
+package org.jetbrains.bsp.projectHighlighting
+
+import org.jetbrains.bsp.SbtOverBspExternalSystemImportingTestCase
+import org.jetbrains.plugins.scala.projectHighlighting.base.ScalaProjectHighlightingTestBase
+
+abstract class SbtOverBspProjectHighlightingTestBase
+  extends ScalaProjectHighlightingTestBase
+    with SbtOverBspExternalSystemImportingTestCase

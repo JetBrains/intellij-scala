@@ -1,0 +1,36 @@
+Document tests/pos/imports-pos.scala
+(5:8..5:12) java/
+(5:13..5:17) java/lang/
+(5:18..5:24) java/lang/System#
+(8:10..8:11) java/lang/System#
+(8:12..8:15) java/lang/System#out.
+(8:17..8:22) java/io/PrintStream#print().
+(8:17..8:22) java/io/PrintStream#print(+1).
+(8:17..8:22) java/io/PrintStream#print(+2).
+(8:17..8:22) java/io/PrintStream#print(+3).
+(8:17..8:22) java/io/PrintStream#print(+4).
+(8:17..8:22) java/io/PrintStream#print(+5).
+(8:17..8:22) java/io/PrintStream#print(+6).
+(8:17..8:22) java/io/PrintStream#print(+7).
+(8:17..8:22) java/io/PrintStream#print(+8).
+(8:29..8:36) java/io/PrintStream#println().
+(8:29..8:36) java/io/PrintStream#println(+1).
+(8:29..8:36) java/io/PrintStream#println(+2).
+(8:29..8:36) java/io/PrintStream#println(+3).
+(8:29..8:36) java/io/PrintStream#println(+4).
+(8:29..8:36) java/io/PrintStream#println(+5).
+(8:29..8:36) java/io/PrintStream#println(+6).
+(8:29..8:36) java/io/PrintStream#println(+7).
+(8:29..8:36) java/io/PrintStream#println(+8).
+(8:29..8:36) java/io/PrintStream#println(+9).
+(12:3..12:4) java/io/PrintStream#print(+7).
+(12:15..12:20) java/io/PrintStream#println(+8).
+(12:31..12:32) java/lang/System#
+(12:33..12:36) java/lang/System#out.
+(12:37..12:44) java/io/PrintStream#println(+8).
+(13:3..13:4) java/lang/System#
+(13:5..13:8) java/lang/System#out.
+(13:9..13:14) java/io/PrintStream#flush().
+(16:10..16:14) test/test. -> 7:8
+(17:3..17:6) test/test.foo. -> 10:7
+

@@ -1,0 +1,23 @@
+Document tests/pos/i8300.scala
+(3:15..3:16) _empty_/i8300$package.Bar#[X] -> 3:10
+(4:8..4:12) scala/package.List#
+(4:19..4:23) scala/package.List#
+(4:24..4:30) scala/Tuple1#
+(4:31..4:32) local7 -> 4:13
+(5:8..5:11) scala/Predef.Set#
+(5:19..5:22) scala/Predef.Set#
+(5:23..5:29) scala/Tuple1#
+(5:30..5:31) local8 -> 5:12
+(9:4..9:7) scala/Predef.Set.
+(9:18..9:22) scala/package.List.
+(9:34..9:37) scala/Tuple#map().
+(11:11..11:12) local0 -> 10:6
+(12:9..12:10) local1 -> 11:8
+(13:20..13:28) scala/package.Iterable#
+(13:35..13:37) local3 -> 13:16
+(13:38..13:41) scala/collection/IterableOps#map().
+(13:42..13:48) scala/Tuple1.
+(13:53..13:65) scala/Any#asInstanceOf().
+(13:66..13:69) _empty_/i8300$package.Bar# -> 3:6
+(13:70..13:71) local0 -> 10:6
+

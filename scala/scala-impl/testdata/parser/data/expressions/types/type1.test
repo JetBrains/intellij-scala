@@ -1,0 +1,54 @@
+class A(a:(a=>(c,d)=>e))
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            ParameterType
+              TypeInParenthesis: (a=>(c,d)=>e)
+                PsiElement(()('(')
+                FunctionalType: a=>(c,d)=>e
+                  SimpleType: a
+                    CodeReferenceElement: a
+                      PsiElement(identifier)('a')
+                  PsiElement(=>)('=>')
+                  FunctionalType: (c,d)=>e
+                    TupleType: (c,d)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: c
+                          CodeReferenceElement: c
+                            PsiElement(identifier)('c')
+                        PsiElement(,)(',')
+                        SimpleType: d
+                          CodeReferenceElement: d
+                            PsiElement(identifier)('d')
+                      PsiElement())(')')
+                    PsiElement(=>)('=>')
+                    SimpleType: e
+                      CodeReferenceElement: e
+                        PsiElement(identifier)('e')
+                PsiElement())(')')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

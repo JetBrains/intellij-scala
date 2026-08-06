@@ -1,0 +1,12 @@
+Document tests/pos/test-inliner2.scala
+(6:41..6:48) scala/Boolean#
+(6:61..6:62) _empty_/A#ifelse().[T] -> 6:29
+(6:77..6:78) _empty_/A#ifelse().[T] -> 6:29
+(6:81..6:82) _empty_/A#ifelse().[T] -> 6:29
+(7:9..7:13) _empty_/A#ifelse().(cond) -> 6:32
+(7:15..7:21) _empty_/A#ifelse().(ifPart) -> 6:50
+(7:27..7:35) _empty_/A#ifelse().(elsePart) -> 6:64
+(9:22..9:28) _empty_/A#ifelse(). -> 6:22
+(9:29..9:34) _empty_/A#debug(). -> 5:15
+(10:26..10:31) _empty_/A#debug(). -> 5:15
+

@@ -1,0 +1,13 @@
+Document tests/pos/t0301.scala
+(4:26..4:30) fos/Expr# -> 3:16
+(7:26..7:30) fos/Expr# -> 3:16
+(7:38..7:41) fos/Var# -> 4:12
+(7:42..7:45) fos/Var# -> 4:12
+(7:49..7:53) fos/Expr# -> 3:16
+(8:5..8:9) fos/Analyzer.substitution().(expr) -> 7:20
+(9:12..9:15) fos/Analyzer.substitution().(cls) -> 7:32
+(9:16..9:18) scala/Tuple2#_2.
+(9:22..9:25) fos/Analyzer.substitution().(cls) -> 7:32
+(9:26..9:28) scala/Tuple2#_1.
+(10:17..10:21) fos/Analyzer.substitution().(expr) -> 7:20
+

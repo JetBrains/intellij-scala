@@ -1,0 +1,38 @@
+Document tests/pos/i25250.scala
+(3:2..3:6) scala/main#
+(4:3..4:10) scala/Predef.println(+1).
+(4:11..4:14) scala/package.Seq.
+(4:15..4:19) _empty_/i25250$package.res1. -> 11:5
+(4:21..4:25) _empty_/i25250$package.res2. -> 17:5
+(4:27..4:31) _empty_/i25250$package.res3. -> 21:5
+(4:33..4:37) _empty_/i25250$package.res4. -> 27:5
+(4:39..4:43) _empty_/i25250$package.res5. -> 32:5
+(4:45..4:53) scala/collection/IterableOnceOps#mkString(+1).
+(7:13..7:16) scala/Int#
+(7:20..7:21) _empty_/i25250$package.fooB().(b) -> 7:10
+(7:22..7:23) scala/Int#`*`(+3).
+(7:24..7:25) _empty_/i25250$package.fooB().(b) -> 7:10
+(8:13..8:16) scala/Int#
+(8:20..8:21) _empty_/i25250$package.fooC().(c) -> 8:10
+(8:22..8:23) scala/Int#`*`(+3).
+(8:24..8:25) _empty_/i25250$package.fooC().(c) -> 8:10
+(8:26..8:27) scala/Int#`*`(+3).
+(8:28..8:29) _empty_/i25250$package.fooC().(c) -> 8:10
+(11:12..11:16) _empty_/i25250$package.fooB(). -> 7:5
+(12:3..12:4) _empty_/i25250$package.fooB().(b) -> 7:10
+(13:5..13:9) _empty_/i25250$package.fooC(). -> 8:5
+(15:5..15:6) scala/Int#`+`(+4).
+(17:12..17:16) _empty_/i25250$package.fooB(). -> 7:5
+(18:3..18:7) _empty_/i25250$package.fooC(). -> 8:5
+(20:3..20:4) scala/Int#`+`(+4).
+(21:12..21:16) _empty_/i25250$package.fooB(). -> 7:5
+(22:5..22:9) _empty_/i25250$package.fooC(). -> 8:5
+(23:5..23:6) scala/Int#`+`(+4).
+(27:12..27:16) _empty_/i25250$package.fooB(). -> 7:5
+(28:3..28:7) _empty_/i25250$package.fooC(). -> 8:5
+(30:3..30:4) scala/Int#`+`(+4).
+(32:12..32:16) _empty_/i25250$package.fooB(). -> 7:5
+(33:3..33:4) _empty_/i25250$package.fooB().(b) -> 7:10
+(33:7..33:11) _empty_/i25250$package.fooC(). -> 8:5
+(35:3..35:4) scala/Int#`+`(+4).
+

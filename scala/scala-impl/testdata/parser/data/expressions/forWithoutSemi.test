@@ -1,0 +1,78 @@
+class a {
+  for (i <- 1 to 5; j = 4 if i != j) {
+
+  }
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          Enumerators
+            Generator
+              ReferencePattern: i
+                PsiElement(identifier)('i')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: to
+                  PsiElement(identifier)('to')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('5')
+            PsiElement(;)(';')
+            PsiWhiteSpace(' ')
+            ForBinding
+              ReferencePattern: j
+                PsiElement(identifier)('j')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('4')
+            PsiWhiteSpace(' ')
+            Guard
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                ReferenceExpression: i
+                  PsiElement(identifier)('i')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: !=
+                  PsiElement(identifier)('!=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: j
+                  PsiElement(identifier)('j')
+          PsiElement())(')')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

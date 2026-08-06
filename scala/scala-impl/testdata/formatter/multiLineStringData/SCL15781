@@ -1,0 +1,24 @@
+implicit class Regex(sc: StringContext) {
+  def r = new scala.util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
+}
+
+"Amount is 100 USD" match {
+  case r"Amount is (\d+)$amount ([A-Z]{3})$currency" =>
+    println(s"Amount: $amount, Currency: $currency")
+  case r"""Amount is (\d+)$amount ([A-Z]{3})$currency""" =>
+    println(s"Amount: $amount, Currency: $currency")
+}
+
+"""Ron can say "mama" and "dada"""" match {
+  case r"""Ron can say "(\w+)$w1" and "(\w+)$w2"""" =>
+    println(s"Words: $w1, $w2")
+  case r"Ron can say \"(\w+)$w1\" and \"(\w+)$w2" =>
+    println(s"Words: $w1, $w2")
+}
+
+"Ends with foo" match {
+  case r".*foo$" => ???
+  case r""".*foo$""" => ???
+}
+-----
+<unchanged>

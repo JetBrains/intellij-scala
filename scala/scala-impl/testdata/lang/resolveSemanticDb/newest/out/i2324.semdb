@@ -1,0 +1,10 @@
+Document tests/pos/i2324.scala
+(2:12..2:15) scala/Int#
+(5:12..5:15) scala/Int#
+(8:10..8:11) _empty_/A. -> 1:8
+(9:10..9:11) _empty_/B. -> 4:8
+(11:12..11:15) scala/Int#
+(13:12..13:15) scala/Int#
+(15:3..15:10) scala/Predef.println(+1).
+(15:11..15:14) _empty_/C#foo(). -> 13:7
+

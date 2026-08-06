@@ -1,0 +1,14 @@
+Document tests/pos/i22137.scala
+(2:23..2:28) _empty_/Parser.Success#[Value]
+(2:38..2:41) scala/package.Seq#
+(2:42..2:49) _empty_/Parser.Failure# -> 3:8
+(2:53..2:56) scala/package.Seq.
+(2:57..2:62) scala/collection/SeqFactory.Delegate#empty().
+(2:72..2:78) _empty_/Parser# -> 1:6
+(2:79..2:84) _empty_/Parser.Success#[Value]
+(3:27..3:36) scala/package.Throwable#
+(3:72..3:78) _empty_/Parser# -> 1:6
+(3:79..3:86) scala/Nothing#
+(5:9..5:15) _empty_/Parser.
+(5:16..5:23) _empty_/Parser.Success.
+

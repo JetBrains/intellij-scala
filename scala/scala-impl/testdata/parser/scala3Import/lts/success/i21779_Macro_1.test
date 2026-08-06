@@ -1,0 +1,373 @@
+import scala.quoted.*
+
+object Macro:
+  transparent inline def tupleXxl: Tuple =
+    ${tupleXxlExpr}
+
+  def tupleXxlExpr(using Quotes) =
+    import quotes.reflect.*
+    Expr.ofTupleFromSeq(
+      Seq(
+        Expr("a"),
+        Expr(2),
+        Expr(3),
+        Expr(4),
+        Expr(5),
+        Expr(6),
+        Expr(7),
+        Expr(8),
+        Expr(9),
+        Expr(10),
+        Expr(11),
+        Expr(12),
+        Expr(13),
+        Expr(14),
+        Expr(15),
+        Expr(16),
+        Expr(17),
+        Expr(18),
+        Expr(19),
+        Expr(20),
+        Expr(21),
+        Expr(22),
+        Expr(23),
+      )
+    )
+
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.quoted
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('quoted')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: Macro
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Macro')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: tupleXxl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tupleXxl')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          SplicedBlock
+            PsiElement($)('$')
+            PsiElement({)('{')
+            ReferenceExpression: tupleXxlExpr
+              PsiElement(identifier)('tupleXxlExpr')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: tupleXxlExpr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tupleXxlExpr')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  SimpleType: Quotes
+                    CodeReferenceElement: Quotes
+                      PsiElement(identifier)('Quotes')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScImportStatement
+              PsiElement(import)('import')
+              PsiWhiteSpace(' ')
+              ImportExpression
+                CodeReferenceElement: quotes.reflect
+                  CodeReferenceElement: quotes
+                    PsiElement(identifier)('quotes')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('reflect')
+                PsiElement(.)('.')
+                PsiElement(*)('*')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: Expr.ofTupleFromSeq
+                ReferenceExpression: Expr
+                  PsiElement(identifier)('Expr')
+                PsiElement(.)('.')
+                PsiElement(identifier)('ofTupleFromSeq')
+              ArgumentList
+                PsiElement(()('(')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: Seq
+                    PsiElement(identifier)('Seq')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('"a"')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('2')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('3')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('4')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('5')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('6')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('7')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('8')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('9')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('10')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('11')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('12')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('13')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('14')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('15')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('16')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('17')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('18')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('19')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('20')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('21')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('22')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: Expr
+                        PsiElement(identifier)('Expr')
+                      ArgumentList
+                        PsiElement(()('(')
+                        IntegerLiteral
+                          PsiElement(integer)('23')
+                        PsiElement())(')')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace('\n      ')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement())(')')

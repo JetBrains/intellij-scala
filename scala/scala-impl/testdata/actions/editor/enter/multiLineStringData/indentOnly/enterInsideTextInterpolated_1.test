@@ -1,0 +1,9 @@
+def foo () {
+  val a = foo"""blah<caret>$$blah"""
+}
+-----
+def foo () {
+  val a =
+    foo"""blah
+          <caret>$$blah"""
+}

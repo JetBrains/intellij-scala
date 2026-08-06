@@ -1,0 +1,385 @@
+import scala.deriving.Mirror
+
+enum E:
+  case Foo1()
+  case Foo2()
+
+class Outer:
+  case class Inner()
+val o = new Outer
+
+type F = E.Foo1
+type G = Tuple.Head[E.Foo1 *: E.Foo2 *: EmptyTuple]
+type H = Tuple.Head[o.Inner *: EmptyTuple]
+type I = Tuple.Last[E *: EmptyTuple]
+
+def local =
+  case class Bar()
+  type B = Tuple.Head[Bar *: EmptyTuple]
+  summon[Mirror.Of[B]]
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.deriving.Mirror
+        CodeReferenceElement: scala.deriving
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('deriving')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Mirror')
+  PsiWhiteSpace('\n\n')
+  ScEnum: E
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('E')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Foo1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Foo1
+            PsiElement(identifier)('Foo1')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Foo2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Foo2
+            PsiElement(identifier)('Foo2')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: Outer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Outer')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScClass: Inner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Inner')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: o
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: o
+        PsiElement(identifier)('o')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Outer
+              CodeReferenceElement: Outer
+                PsiElement(identifier)('Outer')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: F
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('F')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: E.Foo1
+      CodeReferenceElement: E.Foo1
+        CodeReferenceElement: E
+          PsiElement(identifier)('E')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Foo1')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: G
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('G')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Tuple.Head[E.Foo1 *: E.Foo2 *: EmptyTuple]
+      SimpleType: Tuple.Head
+        CodeReferenceElement: Tuple.Head
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Head')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: E.Foo1 *: E.Foo2 *: EmptyTuple
+            SimpleType: E.Foo1
+              CodeReferenceElement: E.Foo1
+                CodeReferenceElement: E
+                  PsiElement(identifier)('E')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Foo1')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            InfixType: E.Foo2 *: EmptyTuple
+              SimpleType: E.Foo2
+                CodeReferenceElement: E.Foo2
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Foo2')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: H
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('H')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Tuple.Head[o.Inner *: EmptyTuple]
+      SimpleType: Tuple.Head
+        CodeReferenceElement: Tuple.Head
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Head')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: o.Inner *: EmptyTuple
+            SimpleType: o.Inner
+              CodeReferenceElement: o.Inner
+                CodeReferenceElement: o
+                  PsiElement(identifier)('o')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Inner')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            SimpleType: EmptyTuple
+              CodeReferenceElement: EmptyTuple
+                PsiElement(identifier)('EmptyTuple')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: I
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('I')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Tuple.Last[E *: EmptyTuple]
+      SimpleType: Tuple.Last
+        CodeReferenceElement: Tuple.Last
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Last')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: E *: EmptyTuple
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            SimpleType: EmptyTuple
+              CodeReferenceElement: EmptyTuple
+                PsiElement(identifier)('EmptyTuple')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: local
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('local')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScClass: Bar
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Bar')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+        ExtendsBlock
+          <empty list>
+      PsiWhiteSpace('\n  ')
+      ScTypeAliasDefinition: B
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(type)('type')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('B')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Tuple.Head[Bar *: EmptyTuple]
+          SimpleType: Tuple.Head
+            CodeReferenceElement: Tuple.Head
+              CodeReferenceElement: Tuple
+                PsiElement(identifier)('Tuple')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Head')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: Bar *: EmptyTuple
+                SimpleType: Bar
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: *:
+                  PsiElement(identifier)('*:')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            ParametrizedType: Mirror.Of[B]
+              SimpleType: Mirror.Of
+                CodeReferenceElement: Mirror.Of
+                  CodeReferenceElement: Mirror
+                    PsiElement(identifier)('Mirror')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Of')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                PsiElement(])(']')
+          PsiElement(])(']')

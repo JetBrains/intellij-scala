@@ -1,0 +1,9 @@
+[1,24]: PackageDef
+[1,1]: Ident
+[1,24]: DefDef
+[9,9]: TypeTree
+[12,24]: Apply
+[12,20]: TypeApply
+[12,15]: Ident
+[16,19]: Ident
+[21,23]: Literal

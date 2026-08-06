@@ -1,0 +1,178 @@
+package org.jetbrains.sbt
+package shell
+
+import com.intellij.execution.actions.ClearConsoleAction
+import com.intellij.execution.configurations.RemoteConnection
+import com.intellij.execution.console.LanguageConsoleImpl
+import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
+import com.intellij.execution.filters.*
+import com.intellij.openapi.actionSystem.{ActionGroup, AnAction, DefaultActionGroup}
+import com.intellij.openapi.application.{ApplicationManager, WriteIntentReadAction}
+import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
+import com.intellij.openapi.editor.event.{EditorMouseEvent, EditorMouseListener}
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.IdeFocusManager
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.sbt.shell.action.*
+import org.jetbrains.sbt.shell.optionsWarn.SbtShellOptionsWarningService
+
+import java.beans.{PropertyChangeEvent, PropertyChangeListener}
+import java.util.Collections
+import scala.annotation.nowarn
+
+final class SbtShellConsoleView private(project: Project, debugConnection: Option[RemoteConnection])
+  extends LanguageConsoleImpl(project, SbtShellLanguage.getID, SbtShellLanguage) {
+
+  def createActionGroup(): ActionGroup = {
+    val group = new DefaultActionGroup()
+
+    // hackery because we can't construct those actions directly
+    val defaultActions = super.createConsoleActions()
+    val toggleSoftWrapsAction = defaultActions.find(_.isInstanceOf[ToggleUseSoftWrapsToolbarAction])
+      .getOrElse(throw new RuntimeException("action of type `ToggleUseSoftWrapsToolbarAction` couldn't be found"))
+
+    //TODO: make it use the same shortcut as in Terminal (Cmd + K)
+    // TODO: same for Scala REPL
+    val clearAllAction = defaultActions.find(_.isInstanceOf[ClearConsoleAction])
+      .getOrElse(throw new RuntimeException("action of type `ClearConsoleAction` couldn't be found"))
+
+    val startAction = new StartAction(project)
+    val stopAction = new StopAction(project)
+    val debugShellAction = new DebugShellAction(project, debugConnection)
+    val scrollToTheEndToolbarAction = new SbtShellScrollToTheEndToolbarAction(getEditor)
+    val eofAction = new EOFAction(project)
+    val copyFromHistoryViewerAction = new CopyFromHistoryViewerAction(this)
+    val findAction = new FindAction(this)
+    val escapeAction = new EscapeAction(this)
+
+    val allActions: Array[AnAction] = Array(
+      startAction,
+      stopAction,
+      debugShellAction,
+      scrollToTheEndToolbarAction,
+      toggleSoftWrapsAction,
+      clearAllAction,
+      eofAction,
+      copyFromHistoryViewerAction,
+      findAction,
+      escapeAction
+    )
+
+    allActions.foreach { act =>
+      act.registerCustomShortcutSet(act.getShortcutSet, this)
+    }
+
+    group.addAll(startAction, stopAction, debugShellAction)
+    group.addSeparator()
+    group.addAll(scrollToTheEndToolbarAction, toggleSoftWrapsAction, clearAllAction)
+    group
+  }
+
+  override def dispose(): Unit = {
+    SbtShellOptionsWarningService.instance(project).uninstallHistoryViewer(getHistoryViewer)
+    super.dispose()
+    ConsoleViewsRegistry.removeConsoleView(project)
+  }
+
+}
+
+object SbtShellConsoleView {
+
+  def apply(project: Project, debugConnection: Option[RemoteConnection]): SbtShellConsoleView = {
+    // Use write action as a workaround for SCL-23073,
+    // but I would expect AbstractConsoleRunnerWithHistory.initAndRun to use the read action
+    // (the exception is about "read action" but "write action" is also needed for `ToolbarUpdater.updateActions`)
+    val cv = inWriteAction {
+      new SbtShellConsoleView(project, debugConnection)
+    }
+
+    val setOneLineMode: Runnable = () => cv.getConsoleEditor.setOneLineMode(true)
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      // IJPL-27737
+      // `com.intellij.openapi.editor.impl.SettingsImpl.reinitDocumentIndentOptions` is not
+      // called within a read action in tests only.
+      // A write-intent read action _must_ be used here. A regular read action causes a deadlock in tests.
+      // TODO: remove this branch after a fix in the platform.
+      //noinspection ApiStatus,UnstableApiUsage
+      WriteIntentReadAction.run(setOneLineMode)
+    } else {
+      setOneLineMode.run()
+    }
+
+    // stack trace file links
+    cv.addMessageFilter(new ExceptionFilter(GlobalSearchScope.allScope(project)))
+    // other file links
+    cv.addMessageFilter(filePatternFilters(project))
+    // url links
+    new UrlFilterProvider().getDefaultFilters(project).foreach(cv.addMessageFilter)
+
+    cv.getHistoryViewer.addEditorMouseListener(new HistoryMouseListener(cv))
+    SbtShellOptionsWarningService.instance(project).installHistoryViewer(cv.getHistoryViewer)
+
+    //in 2020.1 `updateUi` is invoked on toolwindow reopen, it reapplies LookAndFeel and adds default border to console editors
+    forbidBorderFor(cv.getHistoryViewer)
+    forbidBorderFor(cv.getConsoleEditor)
+
+    ConsoleViewsRegistry.set(project, cv)
+
+    cv
+  }
+
+  private def filePatternFilters(project: Project) = {
+    import PatternHyperlinkPart._
+
+    def pattern(patternMacro: String) = new RegexpFilter(project, patternMacro).getPattern
+
+    // file with line number
+    val fileWithLinePattern = pattern(s"${RegexpFilter.FILE_PATH_MACROS}:${RegexpFilter.LINE_MACROS}")
+    // FILE_PATH_MACROS includes a capturing group at the beginning that the format only can handle if the first linkPart is null
+    val fileWithLineFormat = new PatternHyperlinkFormat(fileWithLinePattern, false, false, Collections.emptyList[String](),
+      /*linkParts*/null, PATH, LINE)
+
+    // file output without lines in messages
+    val fileOnlyPattern = pattern(RegexpFilter.FILE_PATH_MACROS)
+    val fileOnlyFormat = new PatternHyperlinkFormat(fileOnlyPattern, false, false, Collections.emptyList[String](),
+      /*linkParts*/ null, PATH)
+
+    val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(fileWithLineFormat, fileOnlyFormat))
+    new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
+  }
+
+  private def forbidBorderFor(editor: EditorEx): Unit = {
+    editor.getScrollPane.addPropertyChangeListener(new ResetBorderListener(editor))
+  }
+
+  /**
+   * This listener resents the focus to console editor whenever history viewer is clicked.
+   * This listener is a workaround  to IDEA-302621.
+   * It was originally introduced within SCL-12392.
+   * When IDEA-302621 is fixed we might get rid of this workaround.
+   */
+  private class HistoryMouseListener(cv: SbtShellConsoleView) extends EditorMouseListener {
+    override def mouseClicked(e: EditorMouseEvent): Unit = {
+      //we want to select content on double/triple click in history viewer
+      //in this case don't resent focus
+      val clickCount = e.getMouseEvent.getClickCount
+      val historySelectionIsEmpty = !cv.getHistoryViewer.getSelectionModel.hasSelection //SCL-21593
+      if (clickCount == 1 && historySelectionIsEmpty) {
+        val focusManager = IdeFocusManager.getInstance(cv.getProject)
+        val focusComponent = cv.getConsoleEditor.getContentComponent
+        focusManager.doWhenFocusSettlesDown { () =>
+          focusManager.requestFocus(focusComponent, false): Unit
+        }: @nowarn("cat=deprecation")
+      }
+    }
+  }
+
+  private class ResetBorderListener(editor: Editor) extends PropertyChangeListener {
+    override def propertyChange(evt: PropertyChangeEvent): Unit = {
+      if (evt.getPropertyName == "border" && evt.getNewValue != null) {
+        editor.setBorder(null)
+      }
+    }
+  }
+
+}

@@ -1,0 +1,5 @@
+Document tests/pos/t0069.scala
+(3:26..3:32) scala/Predef.String#
+(3:43..3:47) scala/package.List#
+(3:49..3:54) _empty_/testCQ.Thing# -> 3:14
+

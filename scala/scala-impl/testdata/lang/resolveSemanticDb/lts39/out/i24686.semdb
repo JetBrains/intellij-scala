@@ -1,0 +1,38 @@
+Document tests/pos/i24686.scala
+(1:12..1:15) scala/package.Seq.
+(1:16..1:21) scala/collection/SeqFactory.Delegate#empty().
+(1:22..1:33) _empty_/DenseMatrix# -> 4:7
+(1:34..1:40) scala/Double#
+(1:43..1:49) scala/collection/IterableOnceOps#reduce().
+(1:50..1:61) _empty_/DenseMatrix. -> 6:8
+(1:62..1:69) _empty_/DenseMatrix.horzcat(). -> 7:9
+(4:30..4:36) _empty_/Matrix# -> 3:7
+(4:37..4:38) _empty_/DenseMatrix#[T] -> 4:19
+(7:33..7:34) _empty_/DenseMatrix.horzcat().[M] -> 7:17
+(7:43..7:48) _empty_/OpSet. -> 9:8
+(7:49..7:61) _empty_/OpSet.InPlaceImpl2# -> 10:9
+(7:62..7:73) _empty_/DenseMatrix# -> 4:7
+(7:74..7:75) _empty_/DenseMatrix.horzcat().[V] -> 7:20
+(7:78..7:79) _empty_/DenseMatrix.horzcat().[M] -> 7:17
+(7:83..7:94) _empty_/DenseMatrix# -> 4:7
+(7:95..7:96) _empty_/DenseMatrix.horzcat().[V] -> 7:20
+(7:100..7:103) scala/Predef.`???`().
+(9:22..9:28) _empty_/HasOps# -> 12:7
+(13:23..13:45) _empty_/DenseMatrixExpandedOps# -> 15:7
+(13:51..13:72) _empty_/DensMatrixLowPriority# -> 18:7
+(16:9..16:14) _empty_/OpSet. -> 9:8
+(16:15..16:27) _empty_/OpSet.InPlaceImpl2# -> 10:9
+(16:28..16:39) _empty_/DenseMatrix# -> 4:7
+(16:40..16:46) scala/Double#
+(16:49..16:60) _empty_/DenseMatrix# -> 4:7
+(16:61..16:67) scala/Double#
+(16:72..16:75) scala/Predef.`???`().
+(18:37..18:60) _empty_/LowPriorityDenseMatrix1# -> 19:7
+(20:14..20:19) _empty_/OpSet. -> 9:8
+(20:20..20:32) _empty_/OpSet.InPlaceImpl2# -> 10:9
+(20:33..20:44) _empty_/DenseMatrix# -> 4:7
+(20:45..20:46) _empty_/LowPriorityDenseMatrix1#given_InPlaceImpl2_DenseMatrix_Matrix().[V] -> 20:10
+(20:49..20:55) _empty_/Matrix# -> 3:7
+(20:56..20:57) _empty_/LowPriorityDenseMatrix1#given_InPlaceImpl2_DenseMatrix_Matrix().[V] -> 20:10
+(20:62..20:65) scala/Predef.`???`().
+

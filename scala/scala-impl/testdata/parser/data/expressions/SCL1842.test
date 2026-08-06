@@ -1,0 +1,12 @@
+1. + 1
+-----
+ScalaFile
+  InfixExpression
+    DoubleLiteral
+      PsiElement(double)('1.')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: +
+      PsiElement(identifier)('+')
+    PsiWhiteSpace(' ')
+    IntegerLiteral
+      PsiElement(integer)('1')

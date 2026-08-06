@@ -1,0 +1,20 @@
+Document tests/pos/t1391.scala
+(9:17..9:18) sandbox/hierarOverload#AB#A# -> 12:22
+(10:17..10:18) sandbox/hierarOverload#AB#B# -> 16:22
+(13:23..13:27) scala/package.List#
+(13:28..13:30) sandbox/hierarOverload#AB#TB# -> 10:11
+(17:20..17:22) sandbox/hierarOverload#AB#TA# -> 9:11
+(25:24..25:26) sandbox/hierarOverload#AB# -> 8:10
+(26:16..26:18) sandbox/hierarOverload#NAnB.nB# -> 33:12
+(27:16..27:18) sandbox/hierarOverload#NAnB.nA# -> 29:12
+(29:23..29:24) sandbox/hierarOverload#AB#A# -> 12:22
+(30:23..30:27) scala/package.List.
+(30:28..30:30) sandbox/hierarOverload#NAnB.nB# -> 33:12
+(33:23..33:24) sandbox/hierarOverload#AB#B# -> 16:22
+(34:24..34:26) sandbox/hierarOverload#NAnB.nA# -> 29:12
+(38:16..38:20) scala/Unit#
+(39:18..39:22) sandbox/hierarOverload#NAnB. -> 25:11
+(39:23..39:25) sandbox/hierarOverload#NAnB.nA# -> 29:12
+(40:6..40:13) scala/Predef.println(+1).
+(40:14..40:15) local0 -> 39:10
+

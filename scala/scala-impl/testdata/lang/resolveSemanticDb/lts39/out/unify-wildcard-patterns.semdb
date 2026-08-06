@@ -1,0 +1,44 @@
+Document tests/pos/unify-wildcard-patterns.scala
+(6:26..6:27) _empty_/Test0.M#[X] -> 6:10
+(6:41..6:47) scala/Predef.String#
+(6:51..6:54) scala/Int#
+(6:62..6:65) scala/Any#
+(6:69..6:75) scala/Predef.String#
+(7:15..7:16) _empty_/Test0.m().[X] -> 7:9
+(7:19..7:20) _empty_/Test0.M# -> 6:8
+(7:21..7:22) _empty_/Test0.m().[X] -> 7:9
+(7:26..7:27) _empty_/Test0.m().(x) -> 7:12
+(7:44..7:50) scala/Predef.String#
+(7:65..7:68) scala/Any#
+(11:26..11:27) _empty_/Test1.M#[X] -> 11:10
+(11:41..11:47) scala/Predef.String#
+(11:51..11:54) scala/Int#
+(11:62..11:65) scala/Any#
+(11:69..11:75) scala/Predef.String#
+(12:15..12:16) _empty_/Test1.m().[X] -> 12:9
+(12:19..12:20) _empty_/Test1.M# -> 11:8
+(12:21..12:22) _empty_/Test1.m().[X] -> 12:9
+(12:26..12:27) _empty_/Test1.m().(x) -> 12:12
+(12:44..12:50) scala/Predef.String#
+(16:26..16:27) _empty_/Test2.M#[X] -> 16:10
+(16:41..16:47) scala/Predef.String#
+(16:51..16:54) scala/Int#
+(16:62..16:63) scala/Any#
+(16:67..16:73) scala/Predef.String#
+(17:15..17:16) _empty_/Test2.m().[X] -> 17:9
+(17:19..17:20) _empty_/Test2.M# -> 16:8
+(17:21..17:22) _empty_/Test2.m().[X] -> 17:9
+(17:26..17:27) _empty_/Test2.m().(x) -> 17:12
+(17:44..17:50) scala/Predef.String#
+(17:65..17:68) scala/Any#
+(21:26..21:27) _empty_/Test3.M#[X] -> 21:10
+(21:41..21:47) scala/Predef.String#
+(21:51..21:54) scala/Int#
+(21:62..21:63) scala/Any#
+(21:67..21:73) scala/Predef.String#
+(22:15..22:16) _empty_/Test3.m().[X] -> 22:9
+(22:19..22:20) _empty_/Test3.M# -> 21:8
+(22:21..22:22) _empty_/Test3.m().[X] -> 22:9
+(22:26..22:27) _empty_/Test3.m().(x) -> 22:12
+(22:44..22:50) scala/Predef.String#
+

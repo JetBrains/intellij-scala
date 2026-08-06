@@ -1,0 +1,18 @@
+Document tests/pos/i17149.scala
+(1:15..1:18) scala/package.Seq#
+(1:25..1:26) _empty_/i17149$package.Ext#[S] -> 1:10
+(2:8..2:11) scala/package.Seq#
+(2:18..2:19) local0 -> 2:12
+(5:9..5:19) scala/Predef.implicitly().
+(5:20..5:23) _empty_/i17149$package.Ext# -> 1:6
+(5:24..5:27) scala/package.Seq#
+(5:28..5:31) scala/Int#
+(5:34..5:37) scala/`=:=`#
+(5:38..5:41) scala/Int#
+(6:9..6:15) scala/Predef.summon().
+(6:16..6:19) _empty_/i17149$package.Ext# -> 1:6
+(6:20..6:23) scala/package.Seq#
+(6:24..6:27) scala/Int#
+(6:30..6:33) scala/`=:=`#
+(6:34..6:37) scala/Int#
+

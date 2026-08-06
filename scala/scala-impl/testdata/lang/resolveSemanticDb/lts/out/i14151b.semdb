@@ -1,0 +1,9 @@
+Document tests/pos/i14151b.scala
+(1:28..1:29) _empty_/Single#[B] -> 1:14
+(2:25..2:31) _empty_/Single# -> 1:7
+(2:37..2:38) _empty_/Single#Retrieve#[A] -> 2:17
+(2:44..2:45) _empty_/Single#Retrieve#[A] -> 2:17
+(2:48..2:49) _empty_/Single#Retrieve#[T] -> 2:20
+(2:63..2:69) _empty_/Single# -> 1:7
+(2:76..2:77) local0 -> 2:70
+

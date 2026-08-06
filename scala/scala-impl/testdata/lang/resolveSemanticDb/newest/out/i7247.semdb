@@ -1,0 +1,5 @@
+Document tests/pos/i7247.scala
+(2:14..2:16) scala/`*:`#
+(2:21..2:24) scala/Any#
+(2:30..2:33) scala/Predef.`???`().
+

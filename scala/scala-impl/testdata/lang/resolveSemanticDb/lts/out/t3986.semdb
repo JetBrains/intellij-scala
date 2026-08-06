@@ -1,0 +1,6 @@
+Document tests/pos/t3986.scala
+(2:18..2:23) scala/Array#
+(2:24..2:30) scala/Predef.String#
+(2:34..2:38) scala/Unit#
+(3:9..3:15) scala/AnyRef#
+

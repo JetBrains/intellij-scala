@@ -1,0 +1,12 @@
+class a {
+  def foo {
+    <selection>Array(1, 2)</selection>.apply(0)
+  }
+}
+------
+class a {
+  def foo {
+    val value: Array[Int] = Array(1, 2)
+    value.apply(0)
+  }
+}

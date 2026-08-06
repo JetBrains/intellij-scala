@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin>
+    <dependencies>
+        <plugin id="org.intellij.intelliLang"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="org.intellij.intelliLang">
+        <languageSupport implementation="org.jetbrains.plugins.scala.intelliLang.injection.ScalaLanguageInjectionSupport"/>
+        <injectionConfig config="org/jetbrains/plugins/scala/intelliLang/injection/scalaInjections.xml"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <multiHostInjector implementation="org.jetbrains.plugins.scala.intelliLang.injection.ScalaLanguageInjector"/>
+        <!--<multiHostInjector implementation="org.jetbrains.plugins.scala.lang.scaladoc.injection.ScalaDocInnerCodeInjector"/>-->
+        <regExpLanguageHost
+                forClass="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl"
+                implementationClass="org.jetbrains.plugins.scala.intelliLang.injection.ScalaRegExpHost"/>
+        <lang.elementManipulator
+                forClass="org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral"
+                implementationClass="org.jetbrains.plugins.scala.intelliLang.injection.ScalaInjectedStringLiteralManipulator"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <dependencyAwareInjectionSettings implementation="org.jetbrains.plugins.scala.intelliLang.settings.IntelliLangInjectionSettings"/>
+    </extensions>
+</idea-plugin>

@@ -1,0 +1,32 @@
+Document tests/pos/i21176-b/Macro.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(4:39..4:45) scala/Predef.String#
+(4:47..4:51) scala/package.List#
+(4:52..4:63) _empty_/Macro#nameTuple().[NameTuple_T] -> 4:24
+(4:68..4:73) _empty_/Macro. -> 6:8
+(4:74..4:79) _empty_/Macro.tuple(). -> 9:7
+(4:80..4:91) _empty_/Macro#nameTuple().[NameTuple_T] -> 4:24
+(4:93..4:98) _empty_/Macro. -> 6:8
+(4:99..4:104) _empty_/Macro.named(). -> 8:14
+(7:27..7:33) scala/quoted/Quotes#
+(7:36..7:40) scala/quoted/Expr#
+(7:41..7:47) scala/Predef.String#
+(7:51..7:55) scala/quoted/Expr.
+(8:21..8:27) scala/Predef.String#
+(8:32..8:37) _empty_/Macro. -> 6:8
+(8:38..8:48) _empty_/Macro.namedMacro(). -> 7:7
+(9:28..9:34) scala/Predef.String#
+(9:38..9:44) scala/Predef.String#
+(9:46..9:50) scala/package.List#
+(9:51..9:58) _empty_/Macro.tuple().[Tuple_T] -> 9:13
+(9:64..9:68) _empty_/Macro.tuple().(name) -> 9:22
+(9:70..9:74) scala/package.List.
+(9:75..9:80) scala/collection/immutable/List.empty().
+(9:81..9:88) _empty_/Macro.tuple().[Tuple_T] -> 9:13
+
+Document tests/pos/i21176-b/Main.scala
+(1:20..1:25) _empty_/Macro# -> 3:7
+(2:13..2:22) _empty_/Macro#nameTuple(). -> 4:14
+(2:23..2:26) scala/Int#
+

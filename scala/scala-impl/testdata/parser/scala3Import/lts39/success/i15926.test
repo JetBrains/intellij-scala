@@ -1,0 +1,813 @@
+
+@main def main(): Unit =
+  println(summon[Sum[Minus[Succ[Zero]], Minus[Succ[Zero]]] =:= Minus[Succ[Succ[Zero]]]])
+
+sealed trait IntT
+sealed trait NatT extends IntT
+final case class Zero() extends NatT
+final case class Succ[+N <: NatT](n: N) extends NatT
+final case class Minus[+N <: Succ[NatT]](n: N) extends IntT
+
+type NatSum[X <: NatT, Y <: NatT] <: NatT = Y match
+  case Zero => X
+  case Succ[y] => NatSum[Succ[X], y]
+
+type NatDif[X <: NatT, Y <: NatT] <: IntT = Y match
+  case Zero => X
+  case Succ[y] => X match
+    case Zero => Minus[Y]
+    case Succ[x] => NatDif[x, y]
+
+type Sum[X <: IntT, Y <: IntT] <: IntT = Y match
+  case Zero => X
+  case Minus[y] => X match
+    case Minus[x] => Minus[NatSum[x, y]]
+    case _ => NatDif[X, y]
+  case _ => X match
+    case Minus[x] => NatDif[Y, x]
+    case _ => NatSum[X, Y]
+-----
+ScalaFile
+  ScFunctionDefinition: main
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: println
+        PsiElement(identifier)('println')
+      ArgumentList
+        PsiElement(()('(')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: Sum[Minus[Succ[Zero]], Minus[Succ[Zero]]] =:= Minus[Succ[Succ[Zero]]]
+                ParametrizedType: Sum[Minus[Succ[Zero]], Minus[Succ[Zero]]]
+                  SimpleType: Sum
+                    CodeReferenceElement: Sum
+                      PsiElement(identifier)('Sum')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Minus[Succ[Zero]]
+                        SimpleType: Minus
+                          CodeReferenceElement: Minus
+                            PsiElement(identifier)('Minus')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            ParametrizedType: Succ[Zero]
+                              SimpleType: Succ
+                                CodeReferenceElement: Succ
+                                  PsiElement(identifier)('Succ')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: Zero
+                                    CodeReferenceElement: Zero
+                                      PsiElement(identifier)('Zero')
+                                PsiElement(])(']')
+                          PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      ParametrizedType: Minus[Succ[Zero]]
+                        SimpleType: Minus
+                          CodeReferenceElement: Minus
+                            PsiElement(identifier)('Minus')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            ParametrizedType: Succ[Zero]
+                              SimpleType: Succ
+                                CodeReferenceElement: Succ
+                                  PsiElement(identifier)('Succ')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: Zero
+                                    CodeReferenceElement: Zero
+                                      PsiElement(identifier)('Zero')
+                                PsiElement(])(']')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Minus[Succ[Succ[Zero]]]
+                  SimpleType: Minus
+                    CodeReferenceElement: Minus
+                      PsiElement(identifier)('Minus')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Succ[Succ[Zero]]
+                        SimpleType: Succ
+                          CodeReferenceElement: Succ
+                            PsiElement(identifier)('Succ')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            ParametrizedType: Succ[Zero]
+                              SimpleType: Succ
+                                CodeReferenceElement: Succ
+                                  PsiElement(identifier)('Succ')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: Zero
+                                    CodeReferenceElement: Zero
+                                      PsiElement(identifier)('Zero')
+                                PsiElement(])(']')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+            PsiElement(])(']')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScTrait: IntT
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IntT')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: NatT
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NatT')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: IntT
+            CodeReferenceElement: IntT
+              PsiElement(identifier)('IntT')
+  PsiWhiteSpace('\n')
+  ScClass: Zero
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Zero')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: NatT
+            CodeReferenceElement: NatT
+              PsiElement(identifier)('NatT')
+  PsiWhiteSpace('\n')
+  ScClass: Succ
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Succ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('N')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NatT
+          CodeReferenceElement: NatT
+            PsiElement(identifier)('NatT')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: n
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('n')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: N
+                CodeReferenceElement: N
+                  PsiElement(identifier)('N')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: NatT
+            CodeReferenceElement: NatT
+              PsiElement(identifier)('NatT')
+  PsiWhiteSpace('\n')
+  ScClass: Minus
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Minus')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: N
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('N')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Succ[NatT]
+          SimpleType: Succ
+            CodeReferenceElement: Succ
+              PsiElement(identifier)('Succ')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: NatT
+                CodeReferenceElement: NatT
+                  PsiElement(identifier)('NatT')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: n
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('n')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: N
+                CodeReferenceElement: N
+                  PsiElement(identifier)('N')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: IntT
+            CodeReferenceElement: IntT
+              PsiElement(identifier)('IntT')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: NatSum
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NatSum')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NatT
+          CodeReferenceElement: NatT
+            PsiElement(identifier)('NatT')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Y
+        PsiElement(identifier)('Y')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NatT
+          CodeReferenceElement: NatT
+            PsiElement(identifier)('NatT')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: NatT
+      CodeReferenceElement: NatT
+        PsiElement(identifier)('NatT')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: Y match
+  case Zero => X
+  case Succ[y] => NatSum[Succ[X], y]
+      SimpleType: Y
+        CodeReferenceElement: Y
+          PsiElement(identifier)('Y')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: Zero
+            CodeReferenceElement: Zero
+              PsiElement(identifier)('Zero')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Succ[y]
+            SimpleType: Succ
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeVariable: y
+                  PsiElement(identifier)('y')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: NatSum[Succ[X], y]
+            SimpleType: NatSum
+              CodeReferenceElement: NatSum
+                PsiElement(identifier)('NatSum')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Succ[X]
+                  SimpleType: Succ
+                    CodeReferenceElement: Succ
+                      PsiElement(identifier)('Succ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: y
+                  CodeReferenceElement: y
+                    PsiElement(identifier)('y')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: NatDif
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NatDif')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NatT
+          CodeReferenceElement: NatT
+            PsiElement(identifier)('NatT')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Y
+        PsiElement(identifier)('Y')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NatT
+          CodeReferenceElement: NatT
+            PsiElement(identifier)('NatT')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: IntT
+      CodeReferenceElement: IntT
+        PsiElement(identifier)('IntT')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: Y match
+  case Zero => X
+  case Succ[y] => X match
+    case Zero => Minus[Y]
+    case Succ[x] => NatDif[x, y]
+      SimpleType: Y
+        CodeReferenceElement: Y
+          PsiElement(identifier)('Y')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: Zero
+            CodeReferenceElement: Zero
+              PsiElement(identifier)('Zero')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Succ[y]
+            SimpleType: Succ
+              CodeReferenceElement: Succ
+                PsiElement(identifier)('Succ')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeVariable: y
+                  PsiElement(identifier)('y')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          MatchType: X match
+    case Zero => Minus[Y]
+    case Succ[x] => NatDif[x, y]
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Zero
+                  CodeReferenceElement: Zero
+                    PsiElement(identifier)('Zero')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Minus[Y]
+                  SimpleType: Minus
+                    CodeReferenceElement: Minus
+                      PsiElement(identifier)('Minus')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Y
+                        CodeReferenceElement: Y
+                          PsiElement(identifier)('Y')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Succ[x]
+                  SimpleType: Succ
+                    CodeReferenceElement: Succ
+                      PsiElement(identifier)('Succ')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: x
+                        PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: NatDif[x, y]
+                  SimpleType: NatDif
+                    CodeReferenceElement: NatDif
+                      PsiElement(identifier)('NatDif')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: x
+                        CodeReferenceElement: x
+                          PsiElement(identifier)('x')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: y
+                        CodeReferenceElement: y
+                          PsiElement(identifier)('y')
+                    PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Sum
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Sum')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: IntT
+          CodeReferenceElement: IntT
+            PsiElement(identifier)('IntT')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Y
+        PsiElement(identifier)('Y')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: IntT
+          CodeReferenceElement: IntT
+            PsiElement(identifier)('IntT')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: IntT
+      CodeReferenceElement: IntT
+        PsiElement(identifier)('IntT')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: Y match
+  case Zero => X
+  case Minus[y] => X match
+    case Minus[x] => Minus[NatSum[x, y]]
+    case _ => NatDif[X, y]
+  case _ => X match
+    case Minus[x] => NatDif[Y, x]
+    case _ => NatSum[X, Y]
+      SimpleType: Y
+        CodeReferenceElement: Y
+          PsiElement(identifier)('Y')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: Zero
+            CodeReferenceElement: Zero
+              PsiElement(identifier)('Zero')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: X
+            CodeReferenceElement: X
+              PsiElement(identifier)('X')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Minus[y]
+            SimpleType: Minus
+              CodeReferenceElement: Minus
+                PsiElement(identifier)('Minus')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeVariable: y
+                  PsiElement(identifier)('y')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          MatchType: X match
+    case Minus[x] => Minus[NatSum[x, y]]
+    case _ => NatDif[X, y]
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Minus[x]
+                  SimpleType: Minus
+                    CodeReferenceElement: Minus
+                      PsiElement(identifier)('Minus')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: x
+                        PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Minus[NatSum[x, y]]
+                  SimpleType: Minus
+                    CodeReferenceElement: Minus
+                      PsiElement(identifier)('Minus')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: NatSum[x, y]
+                        SimpleType: NatSum
+                          CodeReferenceElement: NatSum
+                            PsiElement(identifier)('NatSum')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: x
+                              CodeReferenceElement: x
+                                PsiElement(identifier)('x')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: y
+                              CodeReferenceElement: y
+                                PsiElement(identifier)('y')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: NatDif[X, y]
+                  SimpleType: NatDif
+                    CodeReferenceElement: NatDif
+                      PsiElement(identifier)('NatDif')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: y
+                        CodeReferenceElement: y
+                          PsiElement(identifier)('y')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          MatchType: X match
+    case Minus[x] => NatDif[Y, x]
+    case _ => NatSum[X, Y]
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Minus[x]
+                  SimpleType: Minus
+                    CodeReferenceElement: Minus
+                      PsiElement(identifier)('Minus')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: x
+                        PsiElement(identifier)('x')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: NatDif[Y, x]
+                  SimpleType: NatDif
+                    CodeReferenceElement: NatDif
+                      PsiElement(identifier)('NatDif')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Y
+                        CodeReferenceElement: Y
+                          PsiElement(identifier)('Y')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: x
+                        CodeReferenceElement: x
+                          PsiElement(identifier)('x')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: NatSum[X, Y]
+                  SimpleType: NatSum
+                    CodeReferenceElement: NatSum
+                      PsiElement(identifier)('NatSum')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: X
+                        CodeReferenceElement: X
+                          PsiElement(identifier)('X')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Y
+                        CodeReferenceElement: Y
+                          PsiElement(identifier)('Y')
+                    PsiElement(])(']')

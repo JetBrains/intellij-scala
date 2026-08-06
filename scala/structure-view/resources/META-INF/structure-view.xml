@@ -1,0 +1,18 @@
+<idea-plugin>
+    <dependencies>
+        <module name="intellij.platform.structureView.backend"/>
+        <module name="intellij.platform.structureView.impl"/>
+    </dependencies>
+
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.scala.structureViewModelProvider"
+                        interface="org.jetbrains.plugins.scala.structureView.ScalaStructureViewModelProvider"
+                        dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <lang.psiStructureViewFactory language="Scala"
+                                      implementationClass="org.jetbrains.plugins.scala.structureView.ScalaStructureViewFactory"/>
+        <navbar implementation="org.jetbrains.plugins.scala.structureView.ScalaNavBarModelExtension" order="first"/> <!-- before Java -->
+    </extensions>
+</idea-plugin>

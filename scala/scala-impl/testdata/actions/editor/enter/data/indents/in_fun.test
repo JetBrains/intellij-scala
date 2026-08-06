@@ -1,0 +1,14 @@
+class C {
+  def foo = {
+    a<caret>
+    b
+  }
+}
+-----
+class C {
+  def foo = {
+    a
+    <caret>
+    b
+  }
+}

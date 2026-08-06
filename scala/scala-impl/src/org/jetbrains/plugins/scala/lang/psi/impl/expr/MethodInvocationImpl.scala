@@ -1,0 +1,608 @@
+package org.jetbrains.plugins.scala.lang.psi.impl.expr
+
+import com.intellij.lang.ASTNode
+import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInvocationContext, ScalaMacroEvaluator}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility._
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
+
+import scala.annotation.tailrec
+
+abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with MethodInvocation {
+
+  import MethodInvocationImpl._
+
+  override protected def innerType: TypeResult = innerTypeExt.typeResult
+
+  override def target: Option[ScalaResolveResult] = innerTypeExt.target
+
+  override def applicationProblems: Seq[ApplicabilityProblem] = innerTypeExt match {
+    case regularCase: RegularCase                              => regularCase.problems
+    case SyntheticCase(regularCase, _, _)                      => regularCase.problems
+    case FailureCase(_, problems) if problems.nonEmpty         => problems
+    case FailureCase(Failure(`noSuitableMethodFoundError`), _) => Seq(DoesNotTakeParameters)
+    case _                                                     => Seq.empty
+  }
+
+  override protected def matchedParametersInner: Seq[(Parameter, ScExpression, ScType)] = innerTypeExt match {
+    case regularCase: RegularCase             => regularCase.matchedParameters
+    case SyntheticCase(regularCase, _, _)     => regularCase.matchedParameters
+    case _                                    => Seq.empty
+  }
+
+  override def matchedTypeParameters: Seq[(ScType, TypeParameter)] = innerTypeExt match {
+    case regularCase: RegularCase         => regularCase.matchedTypeParameters
+    case SyntheticCase(regularCase, _, _) => regularCase.matchedTypeParameters
+    case _                                => Seq.empty
+  }
+
+  override final def getImplicitFunction: Option[ScalaResolveResult] =
+    applyOrUpdateElement.flatMap(_.implicitConversion)
+
+  override final def getImportsUsed: Set[ImportUsed] = applyOrUpdateElement match {
+    case Some(srr) => srr.importsUsed
+    case None      => Set.empty
+  }
+
+  override final def applyOrUpdateElement: Option[ScalaResolveResult] = innerTypeExt match {
+    case syntheticCase: SyntheticCase if syntheticCase.isApplyOrUpdate => Some(syntheticCase.resolveResult)
+    case regularCase: RegularCase =>
+      regularCase.target.filter {
+        srr =>
+          val nameFits  = srr.name == CommonNames.Apply || srr.name == CommonNames.Update
+          val isSugared = srr.innerResolveResult.isDefined
+          nameFits && isSugared
+      }
+    case _ => None
+  }
+
+  //noinspection ScalaExtractStringToBundle
+  private def innerTypeExt: InvocationData =
+    cachedWithRecursionGuard(
+      "innerTypeExt",
+      this,
+      FailureCase(Failure("Recursive innerTypeExt"), Seq.empty): InvocationData,
+      BlockModificationTracker(this)
+    ) {
+      try {
+        tryToGetInnerTypeExt(useExpectedType = true)
+      } catch {
+        case _: SafeCheckException => tryToGetInnerTypeExt(useExpectedType = false)
+      }
+    }
+
+  //this method works for ScInfixExpression and ScMethodCall
+  private def tryToGetInnerTypeExt(useExpectedType: Boolean): InvocationData = {
+    lazy val isFirstClauseApplication: Boolean = !getEffectiveInvokedExpr.is[MethodInvocation]
+
+    /**
+     * Implicit in a narrow sense, using does not cut it.
+     */
+    @tailrec
+    def implicitArgumentExpected(tpe: ScType): Boolean = tpe match {
+      case tpt: ScTypePolymorphicType => implicitArgumentExpected(tpt.internalType)
+      case mt: ScMethodType           => mt.hasImplicitKW
+      case _                          => false
+    }
+
+    def updateTypeWithImplicitArgs(
+      tpe:     ScType,
+      srr:     Option[ScalaResolveResult],
+      argKind: ImplicitClausePosition
+    ): (ScType, Seq[ImplicitArgumentsClause]) = {
+      @tailrec
+      def methodInvocationContext(e: PsiElement): Option[ScMethodCall] = e.getContext match {
+        case inv: ScMethodCall           => Option(inv)
+        case parens: ScParenthesisedExpr => methodInvocationContext(parens)
+        case _                           => None
+      }
+
+      def isUnaryAssignmentLhs: Boolean =
+        this match {
+          case prefix: ScPrefixExpr => ScPrefixExpr.isAssignmentLhs(prefix)
+          case _                    => false
+        }
+
+      val context = methodInvocationContext(this)
+
+      val shouldUpdate = argKind match {
+        case ImplicitClausePosition.Leading =>
+          val isExplicit =
+            Compatibility.isExplicitUsingArgClause(argumentExpressions) ||
+              implicitArgumentExpected(tpe)
+              // arguments to old style `implicit` clauses don't have to be prefixed with `using` keyword
+
+          isFirstClauseApplication && !isExplicit
+        case ImplicitClausePosition.Trailing =>
+          val isExplicit = context match {
+            case Some(context) =>
+              val args = context.argumentExpressions
+              //2 cases:
+              //next parameter clause is marked `using` + explicit `using` arg. clause
+              //next parameter clause is marked `implicit` + any arg. clause
+              Compatibility.isExplicitUsingArgClause(args) ||
+                implicitArgumentExpected(tpe)
+            case _ => false
+          }
+
+          !isExplicit
+      }
+
+      if (shouldUpdate && !isUnaryAssignmentLhs) {
+        val isLeadingClause = argKind == ImplicitClausePosition.Leading
+
+        val updateDeep =
+          context.isEmpty &&
+            !isLeadingClause &&
+            this.expectedType().exists(FunctionType.isFunctionType)
+
+        val (newType, arguments) =
+          this.updatedWithImplicitArguments(
+            tpe,
+            useExpectedType,
+            updateDeep      = updateDeep,
+            isLeadingClause = isLeadingClause
+          )
+
+        val actualType =
+          if (!isLeadingClause) srr.fold(newType)(widenEnumCaseCopyOrApplyMethod(newType, _))
+          else                  newType
+
+        (actualType, arguments)
+      } else (tpe, Seq.empty)
+    }
+
+    def updateType(`type`: ScType, canThrowSCE: Boolean = false): ScType =
+      if (useExpectedType)
+        updateAccordingToExpectedType(`type`, filterTypeParams = false, this.expectedType(), this, canThrowSCE)
+      else `type`
+
+    getEffectiveInvokedExpr.getNonValueType() match {
+      case Right(scType) =>
+        val nonValueType = updateType(scType, canThrowSCE = true)
+
+        val invokedResolveResult = getEffectiveInvokedExpr match {
+          case ref: ScReferenceExpression => ref.bind()
+          case _                          => None
+        }
+
+        val (withoutLeadingImplicitClauses, leadingImplicits) =
+          updateTypeWithImplicitArgs(
+            nonValueType,
+            invokedResolveResult,
+            ImplicitClausePosition.Leading
+          )
+
+        checkApplication(
+          withoutLeadingImplicitClauses,
+          invokedResolveResult,
+          useExpectedType
+        ) match {
+          case Some(regularCase) =>
+            val (updatedType, trailingImplicits) = updateTypeWithImplicitArgs(
+              regularCase.inferredType,
+              invokedResolveResult,
+              ImplicitClausePosition.Trailing
+            )
+
+            this.setImplicitArguments(leadingImplicits ++ trailingImplicits)
+            regularCase.copy(inferredType = updatedType)
+          case _ =>
+            val anchor =
+              getEffectiveInvokedExpr match {
+                case gen: ScGenericCall =>
+                  val invoked = gen.bindInvokedExpr
+
+                  val stripTypeArgs = invoked.forall { srr =>
+                    ApplyOrUpdateInvocation.innerSrrHasTypeParameters(srr) ||
+                      srr.elementHasTypeParameters
+                  }
+
+                  if (stripTypeArgs) gen
+                  else               gen.referencedExpr
+                case other => other
+              }
+
+            val applyOrUpdateCands = anchor.resolveApplyOrUpdateMethod(
+              anchor,
+              withoutLeadingImplicitClauses,
+              shapesOnly    = false,
+              withImplicits = true
+            )
+
+            applyOrUpdateCands match {
+              case Array(applyRR) =>
+                val srr = applyRR.mostInnerResolveResult
+                val processedType = this.updateGenericType(nonValueType, srr).updateTypeOfDynamicCall(srr.isDynamic)
+
+                val (withoutLeadingImplicitClauses, leadingImplicitsApply) =
+                  updateTypeWithImplicitArgs(processedType, srr.toOption, ImplicitClausePosition.Leading)
+
+                val updatedProcessedType  = updateType(withoutLeadingImplicitClauses)
+                val maybeRegularCase      = checkApplication(updatedProcessedType, srr.toOption, useExpectedType)
+
+                val regularCase = maybeRegularCase.getOrElse {
+                  RegularCase(updatedProcessedType, srr.toOption, Seq(DoesNotTakeParameters))
+                }
+
+                val withUpdatedType = {
+                  val (updatedWithImplicits, trailingImplicitsApply) =
+                    updateTypeWithImplicitArgs(
+                      regularCase.inferredType,
+                      srr.toOption,
+                      ImplicitClausePosition.Trailing
+                    )
+
+                  this.setImplicitArguments(leadingImplicits ++ leadingImplicitsApply ++ trailingImplicitsApply)
+                  regularCase.copy(inferredType = updatedWithImplicits)
+                }
+
+                SyntheticCase(
+                  withUpdatedType,
+                  srr,
+                  maybeRegularCase.isDefined
+                )
+              case _ =>
+                val problems = applyOrUpdateCands.flatMap(_.problems)
+                FailureCase(Failure(noSuitableMethodFoundError), problems.toSeq)
+            }
+        }
+      case left@Left(_) => FailureCase(left)
+    }
+  }
+
+  private def tuplizyCase(
+    expressions:        Seq[Expression],
+    maybeResolveResult: Option[ScalaResolveResult],
+    typeParameters:     Seq[TypeParameter],
+    useExpectedType:    Boolean,
+  )(function:           Seq[Expression] => (ScType, ApplicabilityCheckResult)
+  ): RegularCase = {
+    def matchedTypeParameters(applicability: ApplicabilityCheckResult): Seq[(ScType, TypeParameter)] = {
+      val inferredConstraints = applicability.constraints
+
+      inferredConstraints
+        .substitutionBounds(canThrowSCE = useExpectedType)
+        .toSeq
+        .flatMap { initialBounds =>
+          val constraintsWithBounds =
+            constraintsWithTypeParameterBounds(inferredConstraints, initialBounds, typeParameters)
+
+          constraintsWithBounds
+            .substitutionBounds(canThrowSCE = useExpectedType)
+            .toSeq
+            .flatMap { bounds =>
+              typeParameters.collect {
+                case typeParameter =>
+                  bounds
+                    .substitutor(TypeParameterType(typeParameter))
+                    .removeAbstracts -> typeParameter
+              }
+            }
+        }
+    }
+
+    def asRegularCase(expressions: Seq[Expression]): RegularCase = {
+      val (tp, applicability @ ApplicabilityCheckResult(problems, _, _, matched)) = function(expressions)
+
+      val sanitizedTp = tp match {
+        case ScTypePolymorphicType(internal, Seq()) => internal
+        case _                                      => tp
+      }
+
+      val matchedTParams = matchedTypeParameters(applicability)
+
+      RegularCase(
+        sanitizedTp,
+        maybeResolveResult,
+        problems,
+        matched.map(m => (m.parameter, m.argument, m.tpe)),
+        matchedTParams
+      )
+    }
+
+    def tupledWithSubstitutedType =
+      tupled(expressions, this)
+        .map(asRegularCase)
+        .flatMap(_.withSubstitutedType)
+
+    val nonTupled = asRegularCase(expressions)
+    nonTupled.withSubstitutedType
+      .orElse(tupledWithSubstitutedType)
+      .getOrElse(nonTupled)
+  }
+
+  private def replaceLastComponent(in: ScType, replaceWith: ScType => ScType): ScType = in match {
+    case FunctionType(res, args) => FunctionType((replaceLastComponent(res, replaceWith), args))
+    case t                       => replaceWith(t)
+  }
+
+  private def widenToDirectParents(tpe: ScType): ScType = {
+    @tailrec
+    def directParents(tpe: ScType): Seq[ScType] = tpe match {
+      case ParameterizedType(des, args) =>
+        des match {
+          case DesignatorOwner(tdef: ScTemplateDefinition) =>
+            val subst = ScSubstitutor.bind(tdef.getTypeParameters, args)
+            tdef.superTypes.map(subst)
+          case _ => Seq.empty
+        }
+      case DesignatorOwner(tdef: ScTemplateDefinition) =>
+        tdef.superTypes
+      case ScProjectionType(projected, _) =>
+        directParents(projected)
+      case _ => Seq.empty
+    }
+
+    val parentTypes = directParents(tpe)
+
+    if (parentTypes.isEmpty)        tpe
+    else if (parentTypes.size == 1) parentTypes.head
+    else                            ScCompoundType(parentTypes)(tpe.projectContext)
+  }
+
+  /**
+   * If a method resolves to synthetic copy/apply method of an enum case,
+   * widen its return type to the underlying type as long as it is
+   * compatible with the expected type.
+   */
+  private def widenEnumCaseCopyOrApplyMethod(
+    tpe:       ScType,
+    methodSrr: ScalaResolveResult
+  ): ScType =
+    methodSrr match {
+      case ScalaResolveResult(method: ScFunctionDefinition, _) if method.isSynthetic =>
+        val cls = method.containingClass.asInstanceOf[ScTypeDefinition]
+
+        if ((method.isApplyMethod || method.isCopyMethod) && ScalaPsiUtil.getCompanionModule(cls).exists(_.is[ScEnumClassCase])) {
+          val widened = replaceLastComponent(tpe.inferValueType, widenToDirectParents)
+
+          if (this.expectedType().forall(widened.conforms)) widened
+          else                                              tpe
+        } else tpe
+      case _ => tpe
+    }
+
+  private def checkApplication(
+    invokedType:        ScType,
+    maybeResolveResult: Option[ScalaResolveResult],
+    useExpectedType:    Boolean
+  ): Option[RegularCase] = {
+    val fromMacroExpansion =
+      maybeResolveResult
+        .flatMap(res => this.checkMacro(res).orElse(this.checkMacroExpansion(res)))
+        .map(RegularCase(_, maybeResolveResult))
+
+    if (fromMacroExpansion.isDefined) return fromMacroExpansion
+
+    def resolveResultIsPostfixPrefixOrEmptyParenFunction = maybeResolveResult.exists {
+      rr =>
+        val e = rr.element
+
+        def isFun = e.is[ScSyntheticFunction, ScFunction]
+        def isPostfixOrPrefix = isInstanceOf[ScPrefixExpr] || isInstanceOf[ScPostfixExpr]
+
+        isFun && isPostfixOrPrefix || {
+          val fn = e.asOptionOf[ScFunction].filterNot(_.name == CommonNames.Apply)
+          fn.exists(_.hasEmptyParenSuperMethod)
+        }
+    }
+
+    val maybeTuple = invokedType match {
+      case pTpe @ ScTypePolymorphicType(ScMethodType(returnType, parameters, _), _) =>
+        Option((returnType, parameters, Option(pTpe)))
+      case pTpe @ ScTypePolymorphicType(FunctionTypeParameters(returnType, parameters), _) =>
+        Option((returnType, parameters, Option(pTpe)))
+      case ScMethodType(returnType, parameters, _)                => Option((returnType, parameters, None))
+      case ty if resolveResultIsPostfixPrefixOrEmptyParenFunction => Option((ty, Seq.empty, None))
+      case _                                                      => None
+    }
+
+    maybeTuple.map {
+      case (returnType, parameters, maybePolymorphicType) =>
+        val function: Seq[Expression] => (ScType, ApplicabilityCheckResult) = maybePolymorphicType match {
+          case Some(polymorphicType) =>
+
+            val paramSubst = polymorphicType.argsProtoTypeSubst(this.expectedType())
+
+            localTypeInferenceWithApplicabilityExt(
+              returnType,
+              parameters,
+              _: Seq[Expression],
+              polymorphicType.typeParameters,
+              canThrowSCE = useExpectedType,
+              paramSubst  = paramSubst.toOption
+            )
+          case _ =>
+            (expressions: Seq[Expression]) => {
+              val conformanceResult = checkMethodApplicability(
+                parameters,
+                expressions,
+                withImplicits = true,
+                shapesOnly    = false
+              )
+
+              (returnType, conformanceResult)
+            }
+        }
+
+        val args = maybeResolveResult.fold(argumentExpressions: Seq[Expression])(arguments)
+        val typeParameters = maybePolymorphicType.fold(Seq.empty[TypeParameter])(_.typeParameters)
+        tuplizyCase(args, maybeResolveResult, typeParameters, useExpectedType)(function)
+    }
+  }
+
+  private def arguments(srr: ScalaResolveResult)
+                       (implicit elementScope: ElementScope): Seq[Expression] = {
+    val updateArgument =
+      if (srr.name == CommonNames.Update)
+        getContext match {
+          case ScAssignment(call: ScMethodCall, Some(right)) if call == this => Seq(right)
+          case _                                                             => Seq.empty
+        }
+      else Seq.empty
+
+    argumentExpressions ++ updateArgument match {
+      case arguments if isApplyDynamicNamed(srr) =>
+        arguments.collect {
+          case ScAssignment(left: ScReferenceExpression, Some(right)) if left.qualifier.isEmpty => right
+          case argument                                                                         => argument
+        }.map { expr =>
+          (
+            checkImplicits:  Boolean,
+            isShape:         Boolean,
+            expectedOption:  Option[ScType],
+            _:               Boolean,
+            _:               Boolean
+          ) =>
+          {
+            expr.getTypeAfterImplicitConversion(
+              checkImplicits,
+              isShape,
+              expectedOption.map {
+                case SecondType(t) => t
+                case t             => t
+              }
+            ) match {
+              case ExpressionTypeResult(typeResult, imports, _, _) =>
+                ExpressionTypeResult(typeResult.map(SecondType(_, context = expr)), imports)
+            }
+          }
+        }
+      case arguments => arguments
+    }
+  }
+}
+
+object MethodInvocationImpl {
+  private val noSuitableMethodFoundError: NlsString = NlsString(ScalaBundle.message("suitable.method.not.found"))
+
+  private object FunctionTypeParameters {
+
+    def unapply(`type`: ScType)
+               (implicit elementScope: ElementScope, context: Context): Option[(ScType, Seq[Parameter])] = `type` match {
+      case FunctionType(returnType, types) =>
+        elementScope.getFunctionTrait(types.length)
+          .flatMap(_.functions.find(_.isApplyMethod))
+          .map { applyFunction =>
+            (returnType, parameters(applyFunction, types))
+          }
+      case _ => None
+    }
+
+    private def parameters(applyFunction: ScFunction, types: Seq[ScType]): Seq[Parameter] =
+      applyFunction.parameters.zip(types).mapWithIndex {
+        case ((parameter, tp), i) =>
+          Parameter("v" + (i + 1), None, tp, tp, index = i, psiParam = Some(parameter))
+      }
+  }
+
+  private object SecondType {
+
+    def apply(`type`: ScType, context: PsiElement)(implicit elementScope: ElementScope): ScType = {
+      val maybeStringType = elementScope.getCachedClass("java.lang.String")
+        .map(ScalaType.designator(_))
+
+      api.TupleType(Seq(maybeStringType.getOrElse(api.Any), `type`), context)
+    }
+
+    def unapply(`type`: ScType)(implicit context: Context): Option[ScType] = `type` match {
+      case api.TupleType(Seq(_, result)) => Some(result)
+      case _ => None
+    }
+  }
+
+  private implicit class MethodInvocationExt(private val invocation: MethodInvocationImpl) extends AnyVal {
+
+    def checkMacroExpansion(result: ScalaResolveResult): Option[ScType] =
+      ScalaMacroEvaluator.getInstance(invocation.getProject)
+        .expandMacro(result.element, MacroInvocationContext(invocation, result))
+        .flatMap(_.getNonValueType().toOption)
+
+    def checkMacro(result: ScalaResolveResult): Option[ScType] =
+      ScalaMacroEvaluator
+        .getInstance(invocation.getProject)
+        .checkMacro(
+          result.element,
+          MacroContext(invocation.getContext, invocation.expectedType()))
+
+    def updateGenericType(`type`: ScType, resolveResult: ScalaResolveResult): ScType =
+      (`type`, polymorphicType(resolveResult)) match {
+        case (ScTypePolymorphicType(_, head), ScTypePolymorphicType(internal, tail)) =>
+          removeBadBounds(ScTypePolymorphicType(internal, head ++ tail))
+        case (ScTypePolymorphicType(_, head), internalType) => ScTypePolymorphicType(internalType, head)
+        case (_, polymorphicType)                           => polymorphicType
+      }
+
+    private def polymorphicType(result: ScalaResolveResult): ScType = {
+      val dropExtensionClauses =
+        result.isExtensionCall ||
+          (result.extensionContext.nonEmpty &&
+            result.element.asOptionOf[ScFunction].flatMap(_.extensionMethodOwner) == result.extensionContext)
+
+      result.element.asInstanceOf[PsiMethod]
+        .methodTypeProvider(invocation.elementScope)
+        .polymorphicType(result.substitutor, dropExtensionClauses = dropExtensionClauses)
+    }
+  }
+
+  private sealed trait InvocationData {
+    def target: Option[ScalaResolveResult]
+    def typeResult: TypeResult
+  }
+
+  private case class RegularCase(
+    inferredType:          ScType,
+    override val target:   Option[ScalaResolveResult],
+    problems:              Seq[ApplicabilityProblem]              = Seq.empty,
+    matchedParameters:     Seq[(Parameter, ScExpression, ScType)] = Seq.empty,
+    matchedTypeParameters: Seq[(ScType, TypeParameter)]           = Seq.empty
+  ) extends InvocationData {
+
+    override def typeResult: TypeResult = Right(inferredType)
+
+    def withSubstitutedType: Option[RegularCase] = (problems, matchedParameters) match {
+      case (Seq(), Seq()) => Some(this)
+      case (Seq(), matchedParams) =>
+        val paramSubstitutor = ScSubstitutor.paramToType(matchedParams.map(_._1), matchedParams.map(_._3))
+        val `type`           = paramSubstitutor(inferredType)
+        Some(RegularCase(`type`, target, Seq.empty, matchedParameters, matchedTypeParameters))
+      case _ => None
+    }
+  }
+
+  private case class SyntheticCase(full: RegularCase, resolveResult: ScalaResolveResult, isApplyOrUpdate: Boolean)
+    extends InvocationData {
+    override def target: Option[ScalaResolveResult] = Some(resolveResult)
+    override def typeResult: TypeResult = full.typeResult
+  }
+
+  private case class FailureCase(
+    override val typeResult: TypeResult,
+    problems:                Seq[ApplicabilityProblem] = Seq.empty
+  ) extends InvocationData {
+    override def target: Option[ScalaResolveResult] = None
+  }
+}

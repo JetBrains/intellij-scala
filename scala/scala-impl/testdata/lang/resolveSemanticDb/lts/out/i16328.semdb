@@ -1,0 +1,34 @@
+Document tests/pos/i16328.scala
+(1:8..1:13) scala/
+(1:14..1:21) scala/reflect/
+(1:22..1:30) scala/reflect/ClassTag#
+(1:22..1:30) scala/reflect/ClassTag.
+(4:23..4:31) scala/reflect/ClassTag#
+(4:36..4:37) _empty_/Test.getParamType().[T] -> 4:20
+(4:41..4:44) scala/Int#
+(4:47..4:48) _empty_/Test.getParamType().[T] -> 4:20
+(4:51..4:54) scala/Predef.`???`().
+(6:16..6:17) _empty_/Test.id().[S] -> 6:10
+(6:20..6:21) _empty_/Test.id().[S] -> 6:10
+(6:24..6:25) _empty_/Test.id().(x) -> 6:13
+(8:18..8:23) scala/Array#
+(8:24..8:30) scala/Predef.String#
+(10:14..10:26) _empty_/Test.getParamType(). -> 4:7
+(10:31..10:34) scala/Int#
+(10:39..10:40) local0 -> 10:28
+(11:13..11:16) scala/Int#
+(11:19..11:21) local1 -> 10:9
+(14:14..14:16) _empty_/Test.id(). -> 6:7
+(14:17..14:29) _empty_/Test.getParamType(). -> 4:7
+(14:34..14:37) scala/Int#
+(14:42..14:43) local3 -> 14:31
+(15:13..15:16) scala/Int#
+(15:19..15:21) local4 -> 14:9
+(16:14..16:16) _empty_/Test.id(). -> 6:7
+(16:17..16:19) _empty_/Test.id(). -> 6:7
+(16:20..16:32) _empty_/Test.getParamType(). -> 4:7
+(16:37..16:40) scala/Int#
+(16:45..16:46) local6 -> 16:34
+(17:13..17:16) scala/Int#
+(17:19..17:21) local7 -> 16:9
+

@@ -1,0 +1,5 @@
+package well_defined_entities
+
+trait Companions_TraitWithObject
+
+object Companions_TraitWithObject

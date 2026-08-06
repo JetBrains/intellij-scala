@@ -1,0 +1,27 @@
+Document tests/pos/i18135.scala
+(3:18..3:22) _empty_/Conf# -> 1:7
+(4:22..4:26) _empty_/Conf# -> 1:7
+(4:29..4:34) _empty_/Bar#_conf. -> 3:11
+(7:17..7:21) _empty_/Conf# -> 1:7
+(7:31..7:34) _empty_/Bar# -> 3:7
+(7:35..7:39) _empty_/Foo#conf. -> 7:11
+(12:17..12:20) _empty_/Foo# -> 7:7
+(13:12..13:15) _empty_/Test#test().(foo) -> 12:12
+(16:5..16:11) scala/Predef.assert(+1).
+(16:12..16:16) _empty_/Bar#conf. -> 4:16
+(16:17..16:19) scala/Any#`!=`().
+(17:5..17:11) scala/Predef.assert(+1).
+(17:12..17:22) scala/Predef.implicitly().
+(17:23..17:27) _empty_/Conf# -> 1:7
+(17:29..17:31) scala/Any#`!=`().
+(19:18..19:21) _empty_/Foo# -> 7:7
+(20:12..20:15) _empty_/Test#test2().(foo) -> 19:13
+(20:16..20:20) _empty_/Foo#conf. -> 7:11
+(23:5..23:11) scala/Predef.assert(+1).
+(23:12..23:16) _empty_/Bar#conf. -> 4:16
+(23:17..23:19) scala/Any#`!=`().
+(24:5..24:11) scala/Predef.assert(+1).
+(24:12..24:22) scala/Predef.implicitly().
+(24:23..24:27) _empty_/Conf# -> 1:7
+(24:29..24:31) scala/Any#`!=`().
+

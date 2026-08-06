@@ -1,0 +1,22 @@
+Document tests/pos/24707/BuggyClass.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
+(3:31..3:44) _empty_/MockComposite#
+(3:54..3:60) scala/AnyVal#
+(4:28..4:31) scala/Int#
+(4:42..4:45) scala/Int#
+(4:57..4:64) scala/Boolean#
+(4:75..4:85) _empty_/MockLayout#
+(4:88..4:91) scala/Predef.`???`().
+(8:35..8:48) _empty_/MockComposite#
+(8:51..8:64) _empty_/RichComposite# -> 3:7
+(8:71..8:84) _empty_/RichComposite# -> 3:7
+(8:85..8:86) _empty_/Implicits.toRichComposite().(c) -> 8:32
+(11:8..11:17) _empty_/Implicits. -> 7:8
+(13:26..13:39) _empty_/MockComposite#
+(14:18..14:31) _empty_/MockComposite#
+(14:32..14:38) _empty_/BuggyClass#parent. -> 13:18
+(15:3..15:7) _empty_/BuggyClass#comp. -> 14:7
+(15:27..15:31) _empty_/MockLayout#`wrap_=`().
+

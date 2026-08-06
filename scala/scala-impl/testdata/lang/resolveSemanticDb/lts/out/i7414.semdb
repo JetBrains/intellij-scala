@@ -1,0 +1,14 @@
+Document tests/pos/i7414.scala
+(7:22..7:27) _empty_/DepTest.Trait# -> 4:9
+(8:23..8:28) _empty_/DepTest.Trait# -> 4:9
+(8:33..8:34) _empty_/DepTest.Dep#[T] -> 8:18
+(9:16..9:17) _empty_/DepTest.Dep#t. -> 8:30
+(9:18..9:27) _empty_/DepTest.Trait#Dependent# -> 5:16
+(9:30..9:34) scala/Unit#
+(9:37..9:40) scala/Predef.`???`().
+(11:3..11:6) _empty_/DepTest.Dep.
+(11:7..11:10) _empty_/DepTest.obj. -> 7:10
+(11:12..11:15) _empty_/DepTest.Dep#fun(). -> 9:9
+(11:16..11:19) _empty_/DepTest.obj. -> 7:10
+(11:20..11:29) _empty_/DepTest.Trait#Dependent.
+

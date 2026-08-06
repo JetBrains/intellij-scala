@@ -1,0 +1,189 @@
+trait Wrapper[K]
+trait Has0[T]
+
+def test[R](v: Wrapper[Has0[String] with R]):R = ???
+
+val zz:Wrapper[Has0[String] with Has0[Int]] = ???
+val _ = test(zz)
+-----
+ScalaFile
+  ScTrait: Wrapper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Wrapper')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: K
+        PsiElement(identifier)('K')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Has0
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Has0')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: v
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('v')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Wrapper[Has0[String] with R]
+              SimpleType: Wrapper
+                CodeReferenceElement: Wrapper
+                  PsiElement(identifier)('Wrapper')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  CompoundType: Has0[String] with R
+                    ParametrizedType: Has0[String]
+                      SimpleType: Has0
+                        CodeReferenceElement: Has0
+                          PsiElement(identifier)('Has0')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(with)('with')
+                    PsiWhiteSpace(' ')
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    SimpleType: R
+      CodeReferenceElement: R
+        PsiElement(identifier)('R')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: zz
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: zz
+        PsiElement(identifier)('zz')
+    PsiElement(:)(':')
+    ParametrizedType: Wrapper[Has0[String] with Has0[Int]]
+      SimpleType: Wrapper
+        CodeReferenceElement: Wrapper
+          PsiElement(identifier)('Wrapper')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          CompoundType: Has0[String] with Has0[Int]
+            ParametrizedType: Has0[String]
+              SimpleType: Has0
+                CodeReferenceElement: Has0
+                  PsiElement(identifier)('Has0')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Has0[Int]
+              SimpleType: Has0
+                CodeReferenceElement: Has0
+                  PsiElement(identifier)('Has0')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: test
+        PsiElement(identifier)('test')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: zz
+          PsiElement(identifier)('zz')
+        PsiElement())(')')

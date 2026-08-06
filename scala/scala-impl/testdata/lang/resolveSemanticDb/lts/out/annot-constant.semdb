@@ -1,0 +1,8 @@
+Document tests/pos/annot-constant/Test_2.scala
+(6:3..6:10) scala/Predef.println(+1).
+(6:11..6:22) pkg/Constants_1#
+(6:23..6:26) pkg/Constants_1#foo().
+(7:3..7:10) scala/Predef.println(+1).
+(7:11..7:22) pkg/Constants_1#
+(7:23..7:27) pkg/Constants_1#BYTE.
+

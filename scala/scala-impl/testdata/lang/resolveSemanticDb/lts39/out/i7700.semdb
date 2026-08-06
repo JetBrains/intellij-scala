@@ -1,0 +1,16 @@
+Document tests/pos/i7700.scala
+(4:15..4:16) test/Show#[A] -> 3:13
+(4:19..4:25) scala/Predef.String#
+(7:18..7:31) scala/StringContext#
+(7:57..7:60) scala/Any#
+(7:64..7:70) scala/Predef.String#
+(7:73..7:76) scala/Predef.`???`().
+(10:21..10:22) test/Show.show().[A] -> 10:14
+(10:42..10:46) test/Show# -> 3:7
+(10:47..10:48) test/Show.show().[A] -> 10:14
+(10:52..10:58) scala/Predef.String#
+(10:61..10:62) test/Show.show().(S) -> 10:39
+(10:63..10:67) test/Show#show(). -> 4:7
+(10:68..10:69) test/Show.show().(a) -> 10:18
+(12:10..12:16) test/Macros. -> 6:8
+

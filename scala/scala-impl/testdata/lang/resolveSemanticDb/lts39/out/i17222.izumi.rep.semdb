@@ -1,0 +1,679 @@
+Document tests/pos/i17222.izumi.rep/InspectorBase.scala
+(1:9..1:14) izumi/
+(1:15..1:22) izumi/reflect/
+(3:8..3:13) scala/
+(3:14..3:20) scala/quoted/
+(3:21..3:27) scala/quoted/Quotes.
+(5:29..5:43) izumi/reflect/dottyreflection/ReflectionUtil# -> 7:32
+(7:13..7:19) scala/quoted/Quotes#
+(8:10..8:14) izumi/reflect/dottyreflection/InspectorBase#qctx. -> 7:7
+(8:15..8:22) scala/quoted/Quotes#reflect.
+(10:24..10:27) scala/Int#
+(13:21..13:26) izumi/reflect/dottyreflection/InspectorBase#debug# -> 14:14
+(13:29..13:36) scala/Predef.valueOf(+1).
+(13:37..13:42) izumi/reflect/dottyreflection/InspectorBase#debug# -> 14:14
+(17:49..17:55) scala/Predef.String#
+(17:58..17:62) scala/Unit#
+(18:16..18:21) izumi/reflect/dottyreflection/InspectorBase#debug(). -> 13:14
+(18:23..18:30) scala/Predef.println(+1).
+(18:35..18:36) scala/collection/StringOps#`*`().
+(18:37..18:42) izumi/reflect/dottyreflection/InspectorBase#izumi$reflect$dottyreflection$InspectorBase$$inline$shift().
+(18:43..18:44) java/lang/String#`+`().
+(18:45..18:63) izumi/reflect/dottyreflection/InspectorBase#izumi$reflect$dottyreflection$InspectorBase$$inline$currentPositionStr().
+(18:64..18:65) java/lang/String#`+`().
+(18:66..18:67) izumi/reflect/dottyreflection/InspectorBase#logStart().(s) -> 17:46
+(21:44..21:50) scala/Predef.String#
+(21:53..21:57) scala/Unit#
+(22:16..22:21) izumi/reflect/dottyreflection/InspectorBase#debug(). -> 13:14
+(22:23..22:30) scala/Predef.println(+1).
+(22:35..22:36) scala/collection/StringOps#`*`().
+(22:37..22:42) izumi/reflect/dottyreflection/InspectorBase#izumi$reflect$dottyreflection$InspectorBase$$inline$shift().
+(22:43..22:44) java/lang/String#`+`().
+(22:45..22:63) izumi/reflect/dottyreflection/InspectorBase#izumi$reflect$dottyreflection$InspectorBase$$inline$currentPositionStr().
+(22:64..22:65) java/lang/String#`+`().
+(22:73..22:74) java/lang/String#`+`().
+(22:75..22:76) izumi/reflect/dottyreflection/InspectorBase#log().(s) -> 21:41
+(25:62..25:70) scala/quoted/Quotes#reflectModule#TypeRepr#
+(25:73..25:77) scala/Unit#
+(26:16..26:21) izumi/reflect/dottyreflection/InspectorBase#debug(). -> 13:14
+(27:18..27:26) scala/quoted/Quotes#reflectModule#TypeTree.
+(27:27..27:29) scala/quoted/Quotes#reflectModule#TypeTreeModule#of().
+(27:36..27:44) izumi/reflect/dottyreflection/InspectorBase#logTpeAttrs().(typeRepr) -> 25:52
+(27:45..27:51) scala/quoted/Quotes#reflectModule#TypeReprMethods#asType().
+(28:20..28:24) local0 -> 28:20
+(28:25..28:31) scala/quoted/Quotes#reflectModule#TreeMethods#symbol().
+(29:7..29:13) java/lang/System#
+(30:10..30:13) java/lang/System#err.
+(30:14..30:21) java/io/PrintStream#println(+8).
+(31:11..31:29) izumi/reflect/dottyreflection/InspectorBase#izumi$reflect$dottyreflection$InspectorBase$$inline$currentPositionStr().
+(31:30..31:31) java/lang/String#`+`().
+(31:37..31:38) java/lang/String#`+`().
+(32:11..32:12) scala/StringContext#s().
+(32:21..32:25) local0 -> 28:20
+(32:26..32:30) scala/quoted/Quotes#reflectModule#TreeMethods#show().
+(32:41..32:47) local1 -> 28:25
+(32:48..32:54) scala/quoted/Quotes#reflectModule#SymbolMethods#isType().
+(32:64..32:70) local1 -> 28:25
+(32:71..32:77) scala/quoted/Quotes#reflectModule#SymbolMethods#isTerm().
+(32:93..32:99) local1 -> 28:25
+(32:100..32:112) scala/quoted/Quotes#reflectModule#SymbolMethods#isPackageDef().
+(32:126..32:132) local1 -> 28:25
+(32:133..32:143) scala/quoted/Quotes#reflectModule#SymbolMethods#isClassDef().
+(32:156..32:162) local1 -> 28:25
+(32:163..32:171) scala/quoted/Quotes#reflectModule#SymbolMethods#isValDef().
+(32:183..32:189) local1 -> 28:25
+(32:190..32:198) scala/quoted/Quotes#reflectModule#SymbolMethods#isDefDef().
+(32:208..32:214) local1 -> 28:25
+(32:215..32:221) scala/quoted/Quotes#reflectModule#SymbolMethods#isBind().
+(32:235..32:241) local1 -> 28:25
+(32:242..32:252) scala/quoted/Quotes#reflectModule#SymbolMethods#isNoSymbol().
+(37:35..37:41) scala/Predef.String#
+(38:15..38:19) izumi/reflect/dottyreflection/InspectorBase#qctx. -> 7:7
+(38:20..38:27) scala/quoted/Quotes#reflect.
+(38:28..38:36) scala/quoted/Quotes#reflectModule#Position.
+(38:37..38:53) scala/quoted/Quotes#reflectModule#PositionModule#ofMacroExpansion().
+(39:5..39:6) scala/StringContext#s().
+(39:9..39:12) local2 -> 34:19
+(39:13..39:23) scala/quoted/Quotes#reflectModule#PositionMethods#sourceFile().
+(39:24..39:28) scala/quoted/Quotes#reflectModule#SourceFileMethods#name().
+(39:32..39:35) local2 -> 34:19
+(39:36..39:43) scala/quoted/Quotes#reflectModule#PositionMethods#endLine().
+(46:11..46:18) izumi/reflect/
+(46:55..46:59) scala/Unit#
+(46:62..46:66) scala/Unit#
+(47:16..47:23) scala/Predef.valueOf().
+(47:24..47:37) izumi/reflect/dottyreflection/InspectorBase# -> 5:7
+(51:7..51:8) izumi/reflect/dottyreflection/InspectorBase.ifDebug().(f) -> 46:49
+(55:11..55:18) izumi/reflect/
+(55:49..55:52) scala/Int#
+(55:57..55:63) scala/Predef.String#
+(55:66..55:70) scala/Unit#
+(56:16..56:23) scala/Predef.valueOf().
+(56:24..56:37) izumi/reflect/dottyreflection/InspectorBase# -> 5:7
+(56:46..56:53) scala/Predef.println(+1).
+(56:58..56:59) scala/collection/StringOps#`*`().
+(56:60..56:65) izumi/reflect/dottyreflection/InspectorBase.log().(shift) -> 55:42
+(56:66..56:67) java/lang/String#`+`().
+(56:75..56:76) java/lang/String#`+`().
+(56:77..56:78) izumi/reflect/dottyreflection/InspectorBase.log().(s) -> 55:54
+
+Document tests/pos/i17222.izumi.rep/ReflectionUtil.scala
+(1:9..1:14) izumi/
+(1:15..1:22) izumi/reflect/
+(3:8..3:13) scala/
+(3:14..3:24) scala/annotation/
+(3:26..3:33) scala/annotation/tailrec#
+(3:35..3:41) scala/annotation/unused#
+(4:8..4:13) scala/
+(4:14..4:24) scala/collection/
+(4:25..4:34) scala/collection/immutable/
+(4:35..4:40) scala/collection/immutable/Queue#
+(4:35..4:40) scala/collection/immutable/Queue.
+(5:8..5:13) scala/
+(5:14..5:20) scala/quoted/
+(5:21..5:27) scala/quoted/Quotes.
+(7:9..7:24) izumi/reflect/dottyreflection/ -> 1:23
+(7:55..7:68) izumi/reflect/dottyreflection/InspectorBase# -> 5:7
+(9:10..9:14) izumi/reflect/dottyreflection/InspectorBase#qctx. -> 7:7
+(9:15..9:22) scala/quoted/Quotes#reflect.
+(11:51..11:54) scala/Predef.Set#
+(11:55..11:63) scala/quoted/Quotes#reflectModule#TypeRepr#
+(12:5..12:8) scala/Predef.Set.
+(13:7..13:11) scala/quoted/Quotes#reflectModule#defn.
+(13:12..13:20) scala/quoted/Quotes#reflectModule#defnModule#AnyClass().
+(13:21..13:28) scala/quoted/Quotes#reflectModule#SymbolMethods#typeRef().
+(14:7..14:11) scala/quoted/Quotes#reflectModule#defn.
+(14:12..14:26) scala/quoted/Quotes#reflectModule#defnModule#MatchableClass().
+(14:27..14:34) scala/quoted/Quotes#reflectModule#SymbolMethods#typeRef().
+(15:7..15:11) scala/quoted/Quotes#reflectModule#defn.
+(15:12..15:23) scala/quoted/Quotes#reflectModule#defnModule#AnyRefClass().
+(15:24..15:31) scala/quoted/Quotes#reflectModule#SymbolMethods#typeRef().
+(16:7..16:11) scala/quoted/Quotes#reflectModule#defn.
+(16:12..16:23) scala/quoted/Quotes#reflectModule#defnModule#ObjectClass().
+(16:24..16:31) scala/quoted/Quotes#reflectModule#SymbolMethods#typeRef().
+(19:36..19:40) izumi/reflect/dottyreflection/InspectorBase#qctx. -> 7:7
+(19:41..19:48) scala/quoted/Quotes#reflect.
+(19:49..19:57) scala/quoted/Quotes#reflectModule#TypeRepr#
+(19:60..19:67) scala/Boolean#
+(20:5..20:28) izumi/reflect/dottyreflection/ReflectionUtil#ignoredInIntersections0. -> 11:26
+(20:29..20:35) scala/collection/IterableOnceOps#exists().
+(20:38..20:41) scala/quoted/Quotes#reflectModule#TypeReprMethods#`=:=`().
+(20:42..20:46) izumi/reflect/dottyreflection/ReflectionUtil#ignoredInIntersections().(repr) -> 19:30
+(22:29..22:33) izumi/reflect/dottyreflection/InspectorBase#qctx. -> 7:7
+(22:34..22:41) scala/quoted/Quotes#reflect.
+(22:42..22:50) scala/quoted/Quotes#reflectModule#TypeRepr#
+(22:53..22:60) scala/Boolean#
+(23:5..23:9) izumi/reflect/dottyreflection/ReflectionUtil#ignoredInUnions().(repr) -> 22:23
+(23:10..23:13) scala/quoted/Quotes#reflectModule#TypeReprMethods#`=:=`().
+(23:14..23:18) scala/quoted/Quotes#reflectModule#defn.
+(23:19..23:31) scala/quoted/Quotes#reflectModule#defnModule#NothingClass().
+(23:32..23:39) scala/quoted/Quotes#reflectModule#SymbolMethods#typeRef().
+(26:39..26:47) scala/quoted/Quotes#reflectModule#TypeRepr#
+(26:50..26:54) scala/package.List#
+(26:55..26:63) scala/quoted/Quotes#reflectModule#TypeRepr#
+(27:5..27:8) izumi/reflect/dottyreflection/ReflectionUtil#flattenAnd().(tpe) -> 26:34
+(27:9..27:16) scala/quoted/Quotes#reflectModule#TypeReprMethods#dealias().
+(28:12..28:19) scala/quoted/Quotes#reflectModule#AndType.
+(28:33..28:43) izumi/reflect/dottyreflection/ReflectionUtil#flattenAnd(). -> 26:23
+(28:44..28:47) local0 -> 28:20
+(28:49..28:51) scala/collection/IterableOps#`++`().
+(28:52..28:62) izumi/reflect/dottyreflection/ReflectionUtil#flattenAnd(). -> 26:23
+(28:63..28:66) local1 -> 28:25
+(29:17..29:21) scala/package.List.
+(29:22..29:25) izumi/reflect/dottyreflection/ReflectionUtil#flattenAnd().(tpe) -> 26:34
+(32:38..32:46) scala/quoted/Quotes#reflectModule#TypeRepr#
+(32:49..32:53) scala/package.List#
+(32:54..32:62) scala/quoted/Quotes#reflectModule#TypeRepr#
+(33:5..33:8) izumi/reflect/dottyreflection/ReflectionUtil#flattenOr().(tpe) -> 32:33
+(33:9..33:16) scala/quoted/Quotes#reflectModule#TypeReprMethods#dealias().
+(34:12..34:18) scala/quoted/Quotes#reflectModule#OrType.
+(34:32..34:41) izumi/reflect/dottyreflection/ReflectionUtil#flattenOr(). -> 32:23
+(34:42..34:45) local2 -> 34:19
+(34:47..34:49) scala/collection/IterableOps#`++`().
+(34:50..34:59) izumi/reflect/dottyreflection/ReflectionUtil#flattenOr(). -> 32:23
+(34:60..34:63) local3 -> 34:24
+(35:17..35:21) scala/package.List.
+(35:22..35:25) izumi/reflect/dottyreflection/ReflectionUtil#flattenOr().(tpe) -> 32:33
+(38:68..38:76) scala/quoted/Quotes#reflectModule#TypeRepr#
+(38:79..38:83) scala/package.List#
+(38:84..38:92) scala/quoted/Quotes#reflectModule#TypeRepr#
+(39:5..39:8) izumi/reflect/dottyreflection/ReflectionUtil#intersectionUnionRefinementClassPartsOf().(tpe) -> 38:63
+(39:9..39:16) scala/quoted/Quotes#reflectModule#TypeReprMethods#dealias().
+(40:12..40:19) scala/quoted/Quotes#reflectModule#AndType.
+(41:9..41:48) izumi/reflect/dottyreflection/ReflectionUtil#intersectionUnionRefinementClassPartsOf(). -> 38:23
+(41:49..41:52) local4 -> 40:20
+(41:54..41:56) scala/collection/IterableOps#`++`().
+(41:57..41:96) izumi/reflect/dottyreflection/ReflectionUtil#intersectionUnionRefinementClassPartsOf(). -> 38:23
+(41:97..41:100) local5 -> 40:25
+(42:12..42:18) scala/quoted/Quotes#reflectModule#OrType.
+(43:9..43:48) izumi/reflect/dottyreflection/ReflectionUtil#intersectionUnionRefinementClassPartsOf(). -> 38:23
+(43:49..43:52) local6 -> 42:19
+(43:54..43:56) scala/collection/IterableOps#`++`().
+(43:57..43:96) izumi/reflect/dottyreflection/ReflectionUtil#intersectionUnionRefinementClassPartsOf(). -> 38:23
+(43:97..43:100) local7 -> 42:24
+(45:9..45:48) izumi/reflect/dottyreflection/ReflectionUtil#intersectionUnionRefinementClassPartsOf(). -> 38:23
+(45:49..45:59) local8 -> 44:12
+(45:60..45:66) scala/quoted/Quotes#reflectModule#RefinementMethods#parent().
+(47:9..47:13) scala/package.List.
+(47:14..47:17) izumi/reflect/dottyreflection/ReflectionUtil#intersectionUnionRefinementClassPartsOf().(tpe) -> 38:63
+(51:51..51:59) scala/quoted/Quotes#reflectModule#TypeRepr#
+(51:62..51:66) scala/package.List#
+(51:67..51:75) scala/quoted/Quotes#reflectModule#TypeRepr#
+(52:5..52:9) izumi/reflect/dottyreflection/ReflectionUtil#refinementInfoToParts().(tpe0) -> 51:45
+(53:12..53:22) scala/quoted/Quotes#reflectModule#ByNameType.
+(54:9..54:30) izumi/reflect/dottyreflection/ReflectionUtil#refinementInfoToParts(). -> 51:23
+(54:31..54:34) local9 -> 53:23
+(55:12..55:22) scala/quoted/Quotes#reflectModule#MethodType.
+(56:9..56:13) local10 -> 55:26
+(56:14..56:21) scala/collection/immutable/List#flatMap().
+(56:22..56:43) izumi/reflect/dottyreflection/ReflectionUtil#refinementInfoToParts(). -> 51:23
+(56:45..56:47) scala/collection/IterableOps#`++`().
+(56:48..56:69) izumi/reflect/dottyreflection/ReflectionUtil#refinementInfoToParts(). -> 51:23
+(56:70..56:73) local11 -> 55:32
+(57:12..57:20) scala/quoted/Quotes#reflectModule#PolyType.
+(61:9..61:16) local13 -> 57:24
+(61:17..61:24) scala/collection/immutable/List#flatMap().
+(61:32..61:42) scala/quoted/Quotes#reflectModule#TypeBounds.
+(61:54..61:58) scala/package.List.
+(61:59..61:61) local16 -> 61:43
+(61:63..61:65) local17 -> 61:47
+(61:69..61:71) scala/collection/IterableOps#`++`().
+(61:72..61:93) izumi/reflect/dottyreflection/ReflectionUtil#refinementInfoToParts(). -> 51:23
+(61:94..61:97) local14 -> 57:33
+(63:9..63:13) scala/package.List.
+(63:14..63:17) local18 -> 62:12
+(67:47..67:57) scala/quoted/Quotes#reflectModule#Refinement#
+(67:61..67:66) scala/collection/immutable/Queue#
+(67:68..67:74) scala/quoted/Quotes#reflectModule#Symbol#
+(67:76..67:82) scala/Predef.String#
+(67:84..67:92) scala/quoted/Quotes#reflectModule#TypeRepr#
+(67:96..67:104) scala/quoted/Quotes#reflectModule#TypeRepr#
+(68:27..68:30) izumi/reflect/dottyreflection/ReflectionUtil#flattenRefinements().(ref) -> 67:42
+(68:31..68:41) scala/quoted/Quotes#reflectModule#TypeReprMethods#typeSymbol().
+(68:43..68:46) izumi/reflect/dottyreflection/ReflectionUtil#flattenRefinements().(ref) -> 67:42
+(68:47..68:51) scala/quoted/Quotes#reflectModule#RefinementMethods#name().
+(68:53..68:56) izumi/reflect/dottyreflection/ReflectionUtil#flattenRefinements().(ref) -> 67:42
+(68:57..68:61) scala/quoted/Quotes#reflectModule#RefinementMethods#info().
+(69:5..69:8) izumi/reflect/dottyreflection/ReflectionUtil#flattenRefinements().(ref) -> 67:42
+(69:9..69:15) scala/quoted/Quotes#reflectModule#RefinementMethods#parent().
+(71:48..71:66) izumi/reflect/dottyreflection/ReflectionUtil#flattenRefinements(). -> 67:23
+(71:67..71:82) local20 -> 70:12
+(72:10..72:19) local21 -> 71:14
+(72:20..72:22) scala/collection/SeqOps#`:+`().
+(72:23..72:37) local19 -> 68:9
+(72:39..72:58) local22 -> 71:25
+(74:10..74:15) scala/collection/immutable/Queue.
+(74:16..74:30) local19 -> 68:9
+(74:33..74:52) local23 -> 73:12
+(78:59..78:62) scala/Predef.Set#
+(78:63..78:69) scala/quoted/Quotes#reflectModule#Symbol#
+(78:82..78:90) scala/quoted/Quotes#reflectModule#TypeRepr#
+(78:93..78:100) scala/Boolean#
+(79:5..79:19) izumi/reflect/dottyreflection/ReflectionUtil. -> 231:25
+(79:20..79:34) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(79:41..79:45) izumi/reflect/dottyreflection/InspectorBase#qctx. -> 7:7
+(79:47..79:52) izumi/reflect/dottyreflection/InspectorBase#shift(). -> 10:17
+(79:54..79:73) izumi/reflect/dottyreflection/ReflectionUtil#allPartsStrong().(outerOwnerClassDefs) -> 78:38
+(79:75..79:78) scala/Predef.Set.
+(79:79..79:84) scala/collection/immutable/Set.empty().
+(79:86..79:94) izumi/reflect/dottyreflection/ReflectionUtil#allPartsStrong().(typeRepr) -> 78:72
+(82:49..82:55) scala/quoted/Quotes#reflectModule#Symbol#
+(82:58..82:61) scala/Predef.Set#
+(82:62..82:68) scala/quoted/Quotes#reflectModule#Symbol#
+(83:5..83:19) izumi/reflect/dottyreflection/ReflectionUtil. -> 231:25
+(83:20..83:37) izumi/reflect/dottyreflection/ReflectionUtil.getClassDefOwners(). -> 292:24
+(83:44..83:48) izumi/reflect/dottyreflection/InspectorBase#qctx. -> 7:7
+(83:50..83:56) izumi/reflect/dottyreflection/ReflectionUtil#getClassDefOwners().(symbol) -> 82:41
+(86:10..86:24) izumi/reflect/dottyreflection/ReflectionUtil. -> 231:25
+(86:25..86:67) izumi/reflect/dottyreflection/ReflectionUtil.reflectiveUncheckedNonOverloadedSelectable(). -> 233:40
+(87:10..87:25) izumi/reflect/dottyreflection/ReflectionUtil#InternalContext. -> 225:10
+(89:23..89:30) scala/quoted/Quotes#reflectModule#TypeRef#
+(89:31..89:32) scala/`|`#
+(89:33..89:41) scala/quoted/Quotes#reflectModule#ParamRef#
+(90:38..90:46) scala/quoted/Quotes#reflectModule#TypeRepr#
+(106:7..106:14) izumi/reflect/dottyreflection/ReflectionUtil#_underlying().(typeRef) -> 89:14
+(106:15..106:27) scala/Any#asInstanceOf().
+(106:28..106:53) izumi/reflect/dottyreflection/ReflectionUtil#InternalTypeRefOrParamRef# -> 213:8
+(106:55..106:65) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#applyDynamic(). -> 314:9
+(106:66..106:70) izumi/reflect/dottyreflection/InspectorBase#qctx. -> 7:7
+(106:71..106:75) izumi/reflect/dottyreflection/ReflectionUtil#_ctx(). -> 210:15
+(110:24..110:32) scala/quoted/Quotes#reflectModule#TypeRepr#
+(111:56..111:62) scala/Option#
+(111:63..111:67) scala/package.List#
+(111:68..111:73) scala/quoted/Quotes#reflectModule#Flags#
+(113:22..113:30) izumi/reflect/dottyreflection/ReflectionUtil#_paramVariancesIfHKTypeLambda().(typeRepr) -> 110:14
+(113:31..113:43) scala/Any#asInstanceOf().
+(113:44..113:64) izumi/reflect/dottyreflection/ReflectionUtil#InternalHKTypeLambda# -> 217:8
+(113:66..113:76) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#selectDynamic(). -> 310:16
+(114:21..114:27) local24 -> 113:13
+(114:28..114:31) scala/collection/immutable/List#map().
+(114:34..114:47) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#applyDynamic(). -> 314:9
+(114:48..114:52) izumi/reflect/dottyreflection/InspectorBase#qctx. -> 7:7
+(114:53..114:57) izumi/reflect/dottyreflection/ReflectionUtil#_ctx(). -> 210:15
+(115:9..115:13) scala/Some.
+(115:14..115:19) local25 -> 114:13
+(117:17..117:38) java/lang/NoSuchMethodException#
+(117:42..117:46) scala/None.
+(121:6..121:13) scala/annotation/tailrec#
+(122:49..122:57) scala/quoted/Quotes#reflectModule#TypeRepr#
+(126:17..126:25) izumi/reflect/dottyreflection/ReflectionUtil#_dealiasSimplifiedFull().(typeRepr) -> 110:14
+(126:26..126:33) scala/quoted/Quotes#reflectModule#TypeReprMethods#dealias().
+(126:34..126:66) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalIntersections(). -> 135:26
+(126:67..126:92) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalUnions(). -> 160:26
+(126:93..126:111) izumi/reflect/dottyreflection/ReflectionUtil#_simplifyMatchCase(). -> 195:24
+(127:11..127:14) local26 -> 126:11
+(127:15..127:27) scala/Any#asInstanceOf().
+(127:28..127:34) scala/AnyRef#
+(127:36..127:38) java/lang/Object#eq().
+(127:39..127:47) izumi/reflect/dottyreflection/ReflectionUtil#_dealiasSimplifiedFull().(typeRepr) -> 110:14
+(127:48..127:60) scala/Any#asInstanceOf().
+(127:61..127:67) scala/AnyRef#
+(128:9..128:12) local26 -> 126:11
+(130:9..130:12) local26 -> 126:11
+(130:13..130:35) izumi/reflect/dottyreflection/ReflectionUtil#_dealiasSimplifiedFull(). -> 122:25
+(135:6..135:13) scala/annotation/tailrec#
+(135:60..135:68) scala/quoted/Quotes#reflectModule#TypeRepr#
+(136:7..136:15) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalIntersections().(typeRepr) -> 110:14
+(137:14..137:21) scala/quoted/Quotes#reflectModule#AndType.
+(138:15..138:37) izumi/reflect/dottyreflection/ReflectionUtil#ignoredInIntersections(). -> 19:7
+(138:38..138:39) local27 -> 137:22
+(139:13..139:14) local28 -> 137:25
+(139:15..139:47) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalIntersections(). -> 135:26
+(140:22..140:44) izumi/reflect/dottyreflection/ReflectionUtil#ignoredInIntersections(). -> 19:7
+(140:45..140:46) local28 -> 137:25
+(141:13..141:14) local27 -> 137:22
+(141:15..141:47) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalIntersections(). -> 135:26
+(143:13..143:54) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicalIntersectionsNonTailRec(). -> 150:17
+(143:55..143:56) local27 -> 137:22
+(143:58..143:59) local28 -> 137:25
+(146:11..146:19) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalIntersections().(typeRepr) -> 110:14
+(150:62..150:70) scala/quoted/Quotes#reflectModule#TypeRepr#
+(150:75..150:83) scala/quoted/Quotes#reflectModule#TypeRepr#
+(150:86..150:94) scala/quoted/Quotes#reflectModule#TypeRepr#
+(151:16..151:17) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicalIntersectionsNonTailRec().(a) -> 150:59
+(151:18..151:50) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalIntersections(). -> 135:26
+(152:16..152:17) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicalIntersectionsNonTailRec().(b) -> 150:72
+(152:18..152:50) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalIntersections(). -> 135:26
+(153:12..153:13) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicalIntersectionsNonTailRec().(a) -> 150:59
+(153:14..153:26) scala/Any#asInstanceOf().
+(153:27..153:33) scala/AnyRef#
+(153:35..153:37) java/lang/Object#ne().
+(153:38..153:40) local29 -> 151:11
+(153:41..153:53) scala/Any#asInstanceOf().
+(153:54..153:60) scala/AnyRef#
+(153:63..153:65) scala/Boolean#`||`().
+(153:67..153:68) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicalIntersectionsNonTailRec().(b) -> 150:72
+(153:69..153:81) scala/Any#asInstanceOf().
+(153:82..153:88) scala/AnyRef#
+(153:90..153:92) java/lang/Object#ne().
+(153:93..153:95) local30 -> 152:11
+(153:96..153:108) scala/Any#asInstanceOf().
+(153:109..153:115) scala/AnyRef#
+(154:9..154:16) scala/quoted/Quotes#reflectModule#AndType.
+(154:17..154:19) local29 -> 151:11
+(154:21..154:23) local30 -> 152:11
+(156:9..156:17) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicalIntersectionsNonTailRec().(typeRepr) -> 110:14
+(160:6..160:13) scala/annotation/tailrec#
+(160:53..160:61) scala/quoted/Quotes#reflectModule#TypeRepr#
+(161:7..161:15) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalUnions().(typeRepr) -> 110:14
+(162:14..162:20) scala/quoted/Quotes#reflectModule#OrType.
+(163:15..163:30) izumi/reflect/dottyreflection/ReflectionUtil#ignoredInUnions(). -> 22:7
+(163:31..163:32) local31 -> 162:21
+(164:13..164:14) local32 -> 162:24
+(164:15..164:40) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalUnions(). -> 160:26
+(165:22..165:37) izumi/reflect/dottyreflection/ReflectionUtil#ignoredInUnions(). -> 22:7
+(165:38..165:39) local32 -> 162:24
+(166:13..166:14) local31 -> 162:21
+(166:15..166:40) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalUnions(). -> 160:26
+(168:13..168:46) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec(). -> 175:17
+(168:47..168:48) local31 -> 162:21
+(168:50..168:51) local32 -> 162:24
+(171:11..171:19) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalUnions().(typeRepr) -> 110:14
+(175:54..175:62) scala/quoted/Quotes#reflectModule#TypeRepr#
+(175:67..175:75) scala/quoted/Quotes#reflectModule#TypeRepr#
+(175:78..175:86) scala/quoted/Quotes#reflectModule#TypeRepr#
+(176:20..176:42) izumi/reflect/dottyreflection/ReflectionUtil#ignoredInIntersections(). -> 19:7
+(176:43..176:44) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(a) -> 175:51
+(177:20..177:42) izumi/reflect/dottyreflection/ReflectionUtil#ignoredInIntersections(). -> 19:7
+(177:43..177:44) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(b) -> 175:64
+(178:11..178:17) local33 -> 176:11
+(178:18..178:20) scala/Boolean#`&&`().
+(178:21..178:27) local34 -> 177:11
+(179:14..179:15) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(a) -> 175:51
+(179:16..179:19) scala/quoted/Quotes#reflectModule#TypeReprMethods#`<:<`().
+(179:20..179:21) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(b) -> 175:64
+(179:23..179:24) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(b) -> 175:64
+(179:30..179:31) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(a) -> 175:51
+(179:33..179:58) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalUnions(). -> 160:26
+(180:18..180:24) local33 -> 176:11
+(181:9..181:10) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(a) -> 175:51
+(182:18..182:24) local34 -> 177:11
+(183:9..183:10) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(b) -> 175:64
+(185:18..185:19) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(a) -> 175:51
+(185:20..185:45) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalUnions(). -> 160:26
+(186:18..186:19) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(b) -> 175:64
+(186:20..186:45) izumi/reflect/dottyreflection/ReflectionUtil#_removeTautologicalUnions(). -> 160:26
+(187:14..187:15) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(a) -> 175:51
+(187:16..187:28) scala/Any#asInstanceOf().
+(187:29..187:35) scala/AnyRef#
+(187:37..187:39) java/lang/Object#ne().
+(187:40..187:42) local35 -> 185:13
+(187:43..187:55) scala/Any#asInstanceOf().
+(187:56..187:62) scala/AnyRef#
+(187:65..187:67) scala/Boolean#`||`().
+(187:69..187:70) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(b) -> 175:64
+(187:71..187:83) scala/Any#asInstanceOf().
+(187:84..187:90) scala/AnyRef#
+(187:92..187:94) java/lang/Object#ne().
+(187:95..187:97) local36 -> 186:13
+(187:98..187:110) scala/Any#asInstanceOf().
+(187:111..187:117) scala/AnyRef#
+(188:11..188:18) scala/quoted/Quotes#reflectModule#AndType.
+(188:19..188:21) local35 -> 185:13
+(188:23..188:25) local36 -> 186:13
+(190:11..190:19) izumi/reflect/dottyreflection/ReflectionUtil#removeTautologicaUnionsNonTailRec().(typeRepr) -> 110:14
+(195:44..195:52) scala/quoted/Quotes#reflectModule#TypeRepr#
+(196:7..196:15) izumi/reflect/dottyreflection/ReflectionUtil#_simplifyMatchCase().(typeRepr) -> 110:14
+(201:11..201:19) izumi/reflect/dottyreflection/ReflectionUtil#_simplifyMatchCase().(typeRepr) -> 110:14
+(201:20..201:30) scala/quoted/Quotes#reflectModule#TypeReprMethods#simplified().
+(203:11..203:19) izumi/reflect/dottyreflection/ReflectionUtil#_simplifyMatchCase().(typeRepr) -> 110:14
+(209:20..209:26) scala/quoted/Quotes#
+(210:21..210:36) izumi/reflect/dottyreflection/ReflectionUtil#InternalContext.InternalContext# -> 226:17
+(210:39..210:43) izumi/reflect/dottyreflection/ReflectionUtil#_ctx().(qctx) -> 209:14
+(210:44..210:56) scala/Any#asInstanceOf().
+(210:68..210:83) izumi/reflect/dottyreflection/ReflectionUtil#InternalContext.InternalContext# -> 226:17
+(210:87..210:90) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#selectDynamic(). -> 310:16
+(214:25..214:40) izumi/reflect/dottyreflection/ReflectionUtil#InternalContext.InternalContext# -> 226:17
+(214:43..214:51) scala/quoted/Quotes#reflectModule#TypeRepr#
+(218:21..218:25) scala/package.List#
+(218:26..218:45) izumi/reflect/dottyreflection/ReflectionUtil#InternalLambdaParam# -> 221:8
+(222:28..222:43) izumi/reflect/dottyreflection/ReflectionUtil#InternalContext.InternalContext# -> 226:17
+(222:46..222:51) scala/quoted/Quotes#reflectModule#Flags#
+(226:35..226:38) scala/Any#
+(231:9..231:16) izumi/reflect/
+(233:11..233:18) izumi/reflect/
+(233:86..233:89) scala/Any#
+(233:92..233:124) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable# -> 308:32
+(233:131..233:163) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable# -> 308:32
+(233:164..233:165) izumi/reflect/dottyreflection/ReflectionUtil.reflectiveUncheckedNonOverloadedSelectable().(x) -> 233:83
+(239:11..239:18) izumi/reflect/
+(240:17..240:23) scala/quoted/Quotes#
+(241:12..241:15) scala/Int#
+(242:26..242:29) scala/Predef.Set#
+(242:30..242:34) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(qctx) -> 240:11
+(242:35..242:42) scala/quoted/Quotes#reflect.
+(242:43..242:49) scala/quoted/Quotes#reflectModule#Symbol#
+(243:19..243:22) scala/Predef.Set#
+(243:23..243:27) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(qctx) -> 240:11
+(243:28..243:35) scala/quoted/Quotes#reflect.
+(243:36..243:44) scala/quoted/Quotes#reflectModule#TypeRepr#
+(244:15..244:19) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(qctx) -> 240:11
+(244:20..244:27) scala/quoted/Quotes#reflect.
+(244:28..244:36) scala/quoted/Quotes#reflectModule#TypeRepr#
+(245:6..245:13) scala/Boolean#
+(246:12..246:16) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(qctx) -> 240:11
+(246:17..246:24) scala/quoted/Quotes#reflect.
+(247:5..247:13) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(typeRepr) -> 244:5
+(247:14..247:21) scala/quoted/Quotes#reflectModule#TypeReprMethods#dealias().
+(248:17..248:33) izumi/reflect/dottyreflection/ReflectionUtil.topLevelWeakType(). -> 267:24
+(248:34..248:53) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(248:55..248:67) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(248:69..248:70) local38 -> 248:12
+(249:12..249:23) scala/quoted/Quotes#reflectModule#AppliedType.
+(250:9..250:23) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(250:24..250:29) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(250:31..250:50) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(250:52..250:64) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(250:66..250:69) local39 -> 249:24
+(250:71..250:73) scala/Boolean#`&&`().
+(250:74..250:78) local40 -> 249:29
+(250:79..250:85) scala/collection/immutable/List#forall().
+(250:86..250:100) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(250:101..250:106) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(250:108..250:127) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(250:129..250:141) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(251:12..251:19) scala/quoted/Quotes#reflectModule#AndType.
+(251:33..251:47) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(251:48..251:53) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(251:55..251:74) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(251:76..251:88) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(251:90..251:93) local41 -> 251:20
+(251:95..251:97) scala/Boolean#`&&`().
+(251:98..251:112) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(251:113..251:118) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(251:120..251:139) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(251:141..251:153) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(251:155..251:158) local42 -> 251:25
+(252:12..252:18) scala/quoted/Quotes#reflectModule#OrType.
+(252:32..252:46) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(252:47..252:52) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(252:54..252:73) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(252:75..252:87) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(252:89..252:92) local43 -> 252:19
+(252:94..252:96) scala/Boolean#`&&`().
+(252:97..252:111) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(252:112..252:117) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(252:119..252:138) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(252:140..252:152) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(252:154..252:157) local44 -> 252:24
+(253:12..253:19) scala/quoted/Quotes#reflectModule#TypeRef.
+(253:31..253:45) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(253:46..253:51) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(253:53..253:72) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(253:74..253:86) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(253:88..253:91) local45 -> 253:20
+(254:12..254:19) scala/quoted/Quotes#reflectModule#TermRef.
+(254:31..254:45) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(254:46..254:51) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(254:53..254:72) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(254:74..254:86) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(254:88..254:91) local46 -> 254:20
+(255:12..255:20) scala/quoted/Quotes#reflectModule#ThisType.
+(255:29..255:43) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(255:44..255:49) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(255:51..255:70) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(255:72..255:84) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(255:86..255:89) local47 -> 255:21
+(256:12..256:20) scala/quoted/Quotes#reflectModule#NoPrefix.
+(257:12..257:22) scala/quoted/Quotes#reflectModule#TypeBounds.
+(257:34..257:48) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(257:49..257:54) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(257:56..257:75) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(257:77..257:89) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(257:91..257:93) local48 -> 257:23
+(257:95..257:97) scala/Boolean#`&&`().
+(257:98..257:112) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(257:113..257:118) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(257:120..257:139) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(257:141..257:153) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(257:155..257:157) local49 -> 257:27
+(258:18..258:28) scala/quoted/Quotes#reflectModule#TypeLambda.
+(258:44..258:58) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(258:59..258:64) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(258:66..258:85) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(258:87..258:99) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(258:100..258:101) scala/collection/immutable/SetOps#`+`().
+(258:102..258:105) local51 -> 258:12
+(258:107..258:111) local50 -> 258:35
+(259:12..259:22) scala/quoted/Quotes#reflectModule#Refinement.
+(259:42..259:56) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(259:57..259:62) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(259:64..259:83) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(259:85..259:97) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(259:99..259:102) local53 -> 259:34
+(259:104..259:106) scala/Boolean#`&&`().
+(259:107..259:121) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(259:122..259:127) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(259:129..259:148) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(259:150..259:162) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(259:164..259:170) local52 -> 259:23
+(260:12..260:22) scala/quoted/Quotes#reflectModule#ByNameType.
+(260:31..260:45) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong(). -> 239:24
+(260:46..260:51) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(260:53..260:72) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerOwnerClassDefs) -> 242:5
+(260:74..260:86) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(outerLambdas) -> 243:5
+(260:88..260:91) local54 -> 260:23
+(262:9..262:22) izumi/reflect/dottyreflection/InspectorBase. -> 44:8
+(262:23..262:26) izumi/reflect/dottyreflection/InspectorBase.log(). -> 55:31
+(262:27..262:32) izumi/reflect/dottyreflection/ReflectionUtil.allPartsStrong().(shift) -> 241:5
+(262:34..262:35) scala/StringContext#s().
+(262:88..262:95) local55 -> 261:12
+(267:11..267:18) izumi/reflect/
+(268:17..268:23) scala/quoted/Quotes#
+(269:26..269:29) scala/Predef.Set#
+(269:30..269:34) izumi/reflect/dottyreflection/ReflectionUtil.topLevelWeakType().(qctx) -> 268:11
+(269:35..269:42) scala/quoted/Quotes#reflect.
+(269:43..269:49) scala/quoted/Quotes#reflectModule#Symbol#
+(270:19..270:22) scala/Predef.Set#
+(270:23..270:27) izumi/reflect/dottyreflection/ReflectionUtil.topLevelWeakType().(qctx) -> 268:11
+(270:28..270:35) scala/quoted/Quotes#reflect.
+(270:36..270:44) scala/quoted/Quotes#reflectModule#TypeRepr#
+(271:15..271:19) izumi/reflect/dottyreflection/ReflectionUtil.topLevelWeakType().(qctx) -> 268:11
+(271:20..271:27) scala/quoted/Quotes#reflect.
+(271:28..271:36) scala/quoted/Quotes#reflectModule#TypeRepr#
+(272:6..272:13) scala/Boolean#
+(273:12..273:16) izumi/reflect/dottyreflection/ReflectionUtil.topLevelWeakType().(qctx) -> 268:11
+(273:17..273:24) scala/quoted/Quotes#reflect.
+(274:5..274:13) izumi/reflect/dottyreflection/ReflectionUtil.topLevelWeakType().(typeRepr) -> 271:5
+(275:17..275:18) local56 -> 275:12
+(275:19..275:29) scala/quoted/Quotes#reflectModule#TypeReprMethods#typeSymbol().
+(275:30..275:41) scala/quoted/Quotes#reflectModule#SymbolMethods#isTypeParam().
+(276:9..276:10) local56 -> 275:12
+(277:31..277:43) izumi/reflect/dottyreflection/ReflectionUtil.topLevelWeakType().(outerLambdas) -> 270:5
+(277:44..277:52) scala/collection/SetOps#contains().
+(277:53..277:54) local57 -> 277:16
+(277:55..277:61) scala/quoted/Quotes#reflectModule#ParamRefMethods#binder().
+(286:16..286:23) scala/quoted/Quotes#reflectModule#TypeRef.
+(286:24..286:32) scala/quoted/Quotes#reflectModule#ThisType.
+(286:48..286:49) local59 -> 286:12
+(286:50..286:60) scala/quoted/Quotes#reflectModule#TypeReprMethods#typeSymbol().
+(286:61..286:75) scala/quoted/Quotes#reflectModule#SymbolMethods#isAbstractType().
+(286:76..286:78) scala/Boolean#`&&`().
+(286:80..286:81) local59 -> 286:12
+(286:82..286:92) scala/quoted/Quotes#reflectModule#TypeReprMethods#typeSymbol().
+(286:93..286:103) scala/quoted/Quotes#reflectModule#SymbolMethods#isClassDef().
+(286:104..286:106) scala/Boolean#`&&`().
+(286:107..286:126) izumi/reflect/dottyreflection/ReflectionUtil.topLevelWeakType().(outerOwnerClassDefs) -> 269:5
+(286:127..286:135) scala/collection/SetOps#contains().
+(286:136..286:142) local58 -> 286:33
+(286:143..286:153) scala/quoted/Quotes#reflectModule#TypeReprMethods#typeSymbol().
+(292:11..292:18) izumi/reflect/
+(292:54..292:60) scala/quoted/Quotes#
+(292:70..292:74) izumi/reflect/dottyreflection/ReflectionUtil.getClassDefOwners().(qctx) -> 292:48
+(292:75..292:82) scala/quoted/Quotes#reflect.
+(292:83..292:89) scala/quoted/Quotes#reflectModule#Symbol#
+(292:92..292:95) scala/Predef.Set#
+(292:96..292:100) izumi/reflect/dottyreflection/ReflectionUtil.getClassDefOwners().(qctx) -> 292:48
+(292:101..292:108) scala/quoted/Quotes#reflect.
+(292:109..292:115) scala/quoted/Quotes#reflectModule#Symbol#
+(293:5..293:13) scala/package.Iterator.
+(294:8..294:15) scala/collection/Iterator.iterate().
+(294:16..294:22) izumi/reflect/dottyreflection/ReflectionUtil.getClassDefOwners().(symbol) -> 292:62
+(296:23..296:24) local60 -> 295:9
+(296:25..296:30) scala/quoted/Quotes#reflectModule#SymbolMethods#owner().
+(297:15..297:20) local61 -> 296:15
+(297:21..297:23) scala/Any#`==`().
+(297:29..297:31) scala/Boolean#`||`().
+(297:32..297:37) local61 -> 296:15
+(297:38..297:48) scala/quoted/Quotes#reflectModule#SymbolMethods#isNoSymbol().
+(297:49..297:51) scala/Boolean#`||`().
+(297:52..297:57) local61 -> 296:15
+(297:58..297:60) scala/Any#`==`().
+(297:61..297:65) izumi/reflect/dottyreflection/ReflectionUtil.getClassDefOwners().(qctx) -> 292:48
+(297:66..297:73) scala/quoted/Quotes#reflect.
+(297:74..297:78) scala/quoted/Quotes#reflectModule#defn.
+(297:79..297:88) scala/quoted/Quotes#reflectModule#defnModule#RootClass().
+(298:18..298:30) scala/Any#asInstanceOf().
+(298:31..298:35) izumi/reflect/dottyreflection/ReflectionUtil.getClassDefOwners().(qctx) -> 292:48
+(298:36..298:43) scala/quoted/Quotes#reflect.
+(298:44..298:50) scala/quoted/Quotes#reflectModule#Symbol#
+(300:13..300:18) local61 -> 296:15
+(303:8..303:17) scala/collection/Iterator#takeWhile().
+(303:20..303:22) java/lang/Object#ne().
+(304:8..304:14) scala/collection/Iterator#filter().
+(304:20..304:21) local62 -> 304:15
+(304:22..304:32) scala/quoted/Quotes#reflectModule#SymbolMethods#isClassDef().
+(304:33..304:35) scala/Boolean#`&&`().
+(304:37..304:38) local62 -> 304:15
+(304:39..304:53) scala/quoted/Quotes#reflectModule#SymbolMethods#isAbstractType().
+(305:8..305:13) scala/collection/IterableOnceOps#toSet().
+(308:11..308:18) izumi/reflect/
+(308:89..308:92) scala/Any#
+(308:102..308:108) scala/AnyVal#
+(308:114..308:124) scala/Selectable#
+(310:36..310:42) scala/Predef.String#
+(310:45..310:48) scala/Any#
+(311:7..311:19) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#applyDynamic(). -> 314:9
+(311:20..311:24) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#selectDynamic().(name) -> 310:30
+(314:28..314:34) scala/Predef.String#
+(314:37..314:43) scala/annotation/unused#
+(314:56..314:61) scala/Predef.Class#
+(314:73..314:76) scala/Any#
+(314:80..314:83) scala/Any#
+(315:17..315:27) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#selectable. -> 308:77
+(315:28..315:36) scala/Any#getClass().
+(317:13..317:17) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#applyDynamic().(args) -> 314:67
+(317:18..317:25) scala/collection/SeqOps#isEmpty().
+(318:11..318:14) local63 -> 315:11
+(318:15..318:24) java/lang/Class#getMethod().
+(318:25..318:29) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#applyDynamic().(name) -> 314:22
+(320:11..320:14) local63 -> 315:11
+(320:15..320:25) java/lang/Class#getMethods().
+(320:26..320:38) scala/collection/ArrayOps#collectFirst().
+(320:51..320:52) local65 -> 320:46
+(320:53..320:60) java/lang/reflect/Method#getName().
+(320:61..320:63) scala/Any#`==`().
+(320:64..320:68) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#applyDynamic().(name) -> 314:22
+(320:72..320:73) local65 -> 320:46
+(321:18..321:22) scala/Some.
+(321:29..321:30) local66 -> 321:23
+(322:18..322:22) scala/None.
+(322:36..322:57) java/lang/NoSuchMethodException#
+(322:58..322:59) scala/StringContext#s().
+(322:78..322:82) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#applyDynamic().(name) -> 314:22
+(322:101..322:104) local63 -> 315:11
+(326:7..326:13) local67 -> 316:11
+(326:14..326:20) java/lang/reflect/Method#invoke().
+(326:21..326:31) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#selectable. -> 308:77
+(326:33..326:37) izumi/reflect/dottyreflection/ReflectionUtil.UncheckedNonOverloadedSelectable#applyDynamic().(args) -> 314:67
+

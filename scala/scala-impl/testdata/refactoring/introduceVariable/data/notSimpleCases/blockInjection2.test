@@ -1,0 +1,12 @@
+class A {
+  def foo(): Unit = {
+    val s = s"str ${<selection>1 + 2</selection>}ms"
+  }
+}
+-------
+class A {
+  def foo(): Unit = {
+    val value: Int = 1 + 2
+    val s = s"str ${value}ms"
+  }
+}

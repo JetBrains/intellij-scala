@@ -1,0 +1,29 @@
+Document tests/pos/namedTypeParams.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:48) scala/language.experimental.namedTypeArguments.
+(5:18..5:19) _empty_/Test.f().[X] -> 5:9
+(5:24..5:25) _empty_/Test.f().[Y] -> 5:12
+(5:28..5:31) scala/Int#
+(5:34..5:37) scala/Predef.`???`().
+(7:3..7:4) _empty_/Test.f(). -> 5:7
+(7:5..7:8) scala/Int#
+(7:10..7:16) scala/Predef.String#
+(8:3..8:4) _empty_/Test.f(). -> 5:7
+(8:9..8:12) scala/Int#
+(8:18..8:24) scala/Predef.String#
+(9:3..9:4) _empty_/Test.f(). -> 5:7
+(9:9..9:12) scala/Int#
+(10:3..10:4) _empty_/Test.f(). -> 5:7
+(10:9..10:15) scala/Predef.String#
+(14:19..14:32) scala/DummyImplicit#
+(14:40..14:41) _empty_/TestInterleaving.f2().[X] -> 14:10
+(14:46..14:47) _empty_/TestInterleaving.f2().[Y] -> 14:34
+(14:50..14:53) scala/Int#
+(14:56..14:59) scala/Predef.`???`().
+(16:3..16:5) _empty_/TestInterleaving.f2(). -> 14:7
+(16:10..16:13) scala/Int#
+(16:19..16:25) scala/Predef.String#
+(17:3..17:5) _empty_/TestInterleaving.f2(). -> 14:7
+(17:10..17:13) scala/Int#
+

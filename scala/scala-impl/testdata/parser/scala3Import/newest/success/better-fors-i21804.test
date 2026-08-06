@@ -1,0 +1,229 @@
+case class Container[A](val value: A) {
+  def map[B](f: A => B): Container[B] = Container(f(value))
+}
+
+sealed trait Animal
+case class Dog() extends Animal
+
+def opOnDog(dog: Container[Dog]): Container[Animal] =
+  for
+    v <- dog
+  yield v
+-----
+ScalaFile
+  ScClass: Container
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Container')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: map
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('map')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A => B
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Container[B]
+            SimpleType: Container
+              CodeReferenceElement: Container
+                PsiElement(identifier)('Container')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Container
+              PsiElement(identifier)('Container')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: f
+                  PsiElement(identifier)('f')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: value
+                    PsiElement(identifier)('value')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Animal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Animal')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Dog
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Dog')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Animal
+            CodeReferenceElement: Animal
+              PsiElement(identifier)('Animal')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: opOnDog
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('opOnDog')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: dog
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('dog')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Container[Dog]
+              SimpleType: Container
+                CodeReferenceElement: Container
+                  PsiElement(identifier)('Container')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Dog
+                    CodeReferenceElement: Dog
+                      PsiElement(identifier)('Dog')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Container[Animal]
+      SimpleType: Container
+        CodeReferenceElement: Container
+          PsiElement(identifier)('Container')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Animal
+            CodeReferenceElement: Animal
+              PsiElement(identifier)('Animal')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ForStatement
+      PsiElement(for)('for')
+      PsiWhiteSpace('\n    ')
+      Enumerators
+        Generator
+          ReferencePattern: v
+            PsiElement(identifier)('v')
+          PsiWhiteSpace(' ')
+          PsiElement(<-)('<-')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: dog
+            PsiElement(identifier)('dog')
+      PsiWhiteSpace('\n  ')
+      PsiElement(yield)('yield')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: v
+        PsiElement(identifier)('v')

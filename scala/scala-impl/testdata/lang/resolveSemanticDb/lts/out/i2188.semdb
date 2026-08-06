@@ -1,0 +1,5 @@
+Document tests/pos/i2188.scala
+(1:21..1:24) scala/Int#
+(3:17..3:20) scala/Int#
+(3:23..3:27) _empty_/Fill#elem. -> 1:12
+

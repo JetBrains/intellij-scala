@@ -1,0 +1,9 @@
+Document tests/pos/jdk-8-app.scala
+(3:8..3:12) java/
+(3:13..3:17) java/time/
+(3:18..3:27) java/time/LocalDate#
+(5:24..5:27) scala/App#
+(6:3..6:10) scala/Predef.println(+1).
+(6:11..6:20) java/time/LocalDate#
+(6:21..6:24) java/time/LocalDate#now().
+

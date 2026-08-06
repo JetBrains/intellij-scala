@@ -1,0 +1,11 @@
+class Test {
+  var a: Boolean
+  var b: Boolean
+  <start>a || b<not>
+}
+-----
+class Test {
+  var a: Boolean
+  var b: Boolean
+  !(a || b)
+}

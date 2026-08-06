@@ -1,0 +1,3 @@
+package mix
+
+class SingleClassInFile_NameIsNotTheSameAsFileName

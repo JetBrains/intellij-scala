@@ -1,0 +1,238 @@
+//> using options -Ycheck:all
+
+val namedTuple: (x: 42, y: true) = (x = 42, y = true)
+val a = namedTuple match
+  case (1, y) => ()
+  case (x, y) => ()
+
+val tuple: (42, true) = (42, true)
+val b = tuple match
+  case (1, y) => ()
+  case (x, y) => ()
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Ycheck:all')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: namedTuple
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: namedTuple
+        PsiElement(identifier)('namedTuple')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    NamedTupleType: (x: 42, y: true)
+      PsiElement(()('(')
+      NamedTupleTypeComponent: x: 42
+        PsiElement(identifier)('x')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        LiteralType: 42
+          IntegerLiteral
+            PsiElement(integer)('42')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      NamedTupleTypeComponent: y: true
+        PsiElement(identifier)('y')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        LiteralType: true
+          BooleanLiteral
+            PsiElement(true)('true')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    NamedTuple
+      PsiElement(()('(')
+      ScNamedTupleExprComponentImpl(named tuple component)
+        PsiElement(identifier)('x')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('42')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      ScNamedTupleExprComponentImpl(named tuple component)
+        PsiElement(identifier)('y')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        BooleanLiteral
+          PsiElement(true)('true')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: a
+        PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: namedTuple
+        PsiElement(identifier)('namedTuple')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              LiteralPattern
+                IntegerLiteral
+                  PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: y
+                PsiElement(identifier)('y')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: y
+                PsiElement(identifier)('y')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: tuple
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: tuple
+        PsiElement(identifier)('tuple')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TupleType: (42, true)
+      PsiElement(()('(')
+      TypesList
+        LiteralType: 42
+          IntegerLiteral
+            PsiElement(integer)('42')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        LiteralType: true
+          BooleanLiteral
+            PsiElement(true)('true')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      IntegerLiteral
+        PsiElement(integer)('42')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      BooleanLiteral
+        PsiElement(true)('true')
+      PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: b
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: b
+        PsiElement(identifier)('b')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: tuple
+        PsiElement(identifier)('tuple')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              LiteralPattern
+                IntegerLiteral
+                  PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: y
+                PsiElement(identifier)('y')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferencePattern: y
+                PsiElement(identifier)('y')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')

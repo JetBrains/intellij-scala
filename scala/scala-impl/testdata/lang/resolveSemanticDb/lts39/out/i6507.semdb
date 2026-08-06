@@ -1,0 +1,6 @@
+Document tests/pos/i6507.scala
+(2:25..2:27) _empty_/Test.s2(). -> 4:14
+(4:25..4:27) _empty_/Test.s3(). -> 6:14
+(6:25..6:30) scala/Tuple.
+(8:3..8:5) _empty_/Test.s1(). -> 2:14
+

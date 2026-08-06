@@ -1,0 +1,11 @@
+s"\t\n\r"
+s"\a\b\c"
+-----
+interpolated string id {s}
+interpolated string {"\t\n\r}
+interpolated string end {"}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"\a\b\c}
+interpolated string end {"}

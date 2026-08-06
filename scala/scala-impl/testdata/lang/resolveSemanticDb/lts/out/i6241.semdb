@@ -1,0 +1,5 @@
+Document tests/pos/i6241.scala
+(2:21..2:28) scala/Predef.valueOf().
+(2:29..2:30) _empty_/Test.v().[T] -> 2:16
+(4:3..4:4) _empty_/Test.v(). -> 2:14
+

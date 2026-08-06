@@ -1,0 +1,5 @@
+Document tests/pos/t780.scala
+(1:17..1:18) _empty_/A# -> 2:7
+(2:17..2:18) _empty_/B# -> 1:7
+(2:22..2:23) _empty_/B#x. -> 1:35
+

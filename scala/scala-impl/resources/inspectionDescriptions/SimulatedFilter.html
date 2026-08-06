@@ -1,0 +1,14 @@
+<html>
+<body>
+<p>Reports an if statement that simulates a filter operation on an <code>Option</code> and suggests replacing it with <code>filter</code>.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  if (opt.isDefined && p(opt.get)) opt else None
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  opt.filter(p)
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

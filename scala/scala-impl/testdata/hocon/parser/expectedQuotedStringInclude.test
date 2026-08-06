@@ -1,0 +1,15 @@
+include url(${a})
+-----
+HOCON_FILE
+  HObjectEntries(OBJECT_ENTRIES)
+    HInclude(INCLUDE)
+      PsiElement(UNQUOTED_CHARS)('include')
+      PsiWhiteSpace(' ')
+      HIncluded(INCLUDED)
+        PsiElement(UNQUOTED_CHARS)('url(')
+        PsiErrorElement:expected quoted string
+          PsiElement(DOLLAR)('$')
+          PsiElement(SUB_LBRACE)('{')
+          PsiElement(UNQUOTED_CHARS)('a')
+          PsiElement(SUB_RBRACE)('}')
+          PsiElement(UNQUOTED_CHARS)(')')

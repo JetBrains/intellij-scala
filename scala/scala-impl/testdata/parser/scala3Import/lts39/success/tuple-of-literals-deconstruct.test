@@ -1,0 +1,107 @@
+object Test {
+  def test =
+    val (x: "x", y: "y") = (("x", "y"): ("x", "y"))
+    println(x)
+}
+-----
+ScalaFile
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: x, y
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    Scala3 TypedPattern
+                      ReferencePattern: x
+                        PsiElement(identifier)('x')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        LiteralType: "x"
+                          StringLiteral
+                            PsiElement(string content)('"x"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    Scala3 TypedPattern
+                      ReferencePattern: y
+                        PsiElement(identifier)('y')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        LiteralType: "y"
+                          StringLiteral
+                            PsiElement(string content)('"y"')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                TypedExpression
+                  Tuple
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"x"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    StringLiteral
+                      PsiElement(string content)('"y"')
+                    PsiElement())(')')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TupleType: ("x", "y")
+                    PsiElement(()('(')
+                    TypesList
+                      LiteralType: "x"
+                        StringLiteral
+                          PsiElement(string content)('"x"')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      LiteralType: "y"
+                        StringLiteral
+                          PsiElement(string content)('"y"')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

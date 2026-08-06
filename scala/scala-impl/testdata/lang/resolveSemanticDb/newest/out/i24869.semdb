@@ -1,0 +1,138 @@
+Document tests/pos/i24869/Demo_2.scala
+(3:21..3:26) demo/Utils# -> 5:7
+(5:15..5:24) demo/Utils#TestClass. -> 9:10
+(5:25..5:28) scala/Predef.`???`().
+(8:15..8:27) demo/Utils#RegularClass. -> 18:10
+(8:28..8:34) demo/Utils#RegularClass.create(). -> 19:16
+(11:19..11:24) demo/Utils#Outer# -> 23:9
+(12:15..12:20) demo/Demo.outer. -> 11:7
+(12:21..12:26) demo/Utils#Outer#Inner. -> 25:12
+(12:27..12:31) demo/Utils#Outer#Inner.make(). -> 26:18
+(15:17..15:34) demo/Utils#WithPrivateMethod# -> 31:9
+(16:15..16:32) demo/Utils#WithPrivateMethod. -> 35:10
+(16:33..16:43) demo/Utils#WithPrivateMethod.callSecret(). -> 36:16
+(16:44..16:47) demo/Demo.wpm. -> 15:7
+(19:16..19:30) demo/Utils#WithPrivateVal. -> 42:10
+(19:31..19:37) demo/Utils#WithPrivateVal.create(). -> 44:16
+(20:16..20:30) demo/Utils#WithPrivateVal. -> 42:10
+(20:31..20:40) demo/Utils#WithPrivateVal.getHidden(). -> 43:16
+(20:41..20:47) demo/Demo.test5a. -> 19:7
+(23:16..23:32) demo/Utils#MultiConstructor. -> 52:10
+(23:33..23:38) demo/Utils#MultiConstructor.make1(). -> 53:16
+(24:16..24:32) demo/Utils#MultiConstructor. -> 52:10
+(24:33..24:38) demo/Utils#MultiConstructor.make2(). -> 54:16
+(27:15..27:24) demo/Utils#DataClass. -> 60:10
+(27:25..27:29) demo/Utils#DataClass.make(). -> 61:16
+(30:18..30:38) demo/Utils#WithPrivateValScoped# -> 65:9
+(31:15..31:35) demo/Utils#WithPrivateValScoped. -> 69:10
+(31:36..31:45) demo/Utils#WithPrivateValScoped.getSecret(). -> 70:16
+(31:46..31:50) demo/Demo.wpvs. -> 30:7
+(34:17..34:28) demo/Utils#WithLazyVal# -> 74:9
+(35:15..35:26) demo/Utils#WithLazyVal. -> 78:10
+(35:27..35:38) demo/Utils#WithLazyVal.getComputed(). -> 79:16
+(35:39..35:42) demo/Demo.wlv. -> 34:7
+(38:16..38:38) demo/TopLevelPublicInBinary. -> 86:8
+(38:39..38:45) demo/TopLevelPublicInBinary.create(). -> 87:14
+(41:15..41:26) demo/Describable# -> 91:7
+(41:29..41:44) demo/DescribableImpl. -> 99:8
+(41:45..41:51) demo/DescribableImpl.create(). -> 100:14
+
+Document tests/pos/i24869/Utils_1.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/annotation/
+(3:25..3:39) scala/annotation/publicInBinary#
+(7:31..7:45) scala/annotation/publicInBinary#
+(10:36..10:40) scala/package.List#
+(10:41..10:47) scala/Predef.String#
+(10:51..10:60) demo/Utils#TestClass# -> 7:20
+(10:67..10:76) demo/Utils#TestClass# -> 7:20
+(14:23..14:37) scala/annotation/publicInBinary#
+(14:54..14:57) scala/Int#
+(19:37..19:40) scala/Int#
+(19:43..19:55) demo/Utils#RegularClass# -> 14:9
+(19:62..19:74) demo/Utils#RegularClass# -> 14:9
+(19:75..19:80) demo/Utils#RegularClass.create().(value) -> 19:30
+(24:18..24:32) scala/annotation/publicInBinary#
+(24:52..24:58) scala/Predef.String#
+(26:33..26:39) scala/Predef.String#
+(26:42..26:47) demo/Utils#Outer#Inner# -> 24:11
+(26:54..26:59) demo/Utils#Outer#Inner# -> 24:11
+(26:60..26:61) demo/Utils#Outer#Inner.make().(n) -> 26:30
+(32:6..32:20) scala/annotation/publicInBinary#
+(32:29..32:46) demo/Utils#WithPrivateMethod# -> 31:9
+(32:68..32:71) scala/Int#
+(32:74..32:77) scala/Int#
+(32:80..32:81) demo/Utils#WithPrivateMethod#secretMethod().(x) -> 32:65
+(32:82..32:83) scala/Int#`*`(+3).
+(36:30..36:47) demo/Utils#WithPrivateMethod# -> 31:9
+(36:59..36:62) scala/Int#
+(36:65..36:68) scala/Int#
+(36:71..36:72) demo/Utils#WithPrivateMethod.callSecret().(w) -> 36:27
+(36:73..36:85) demo/Utils#WithPrivateMethod#secretMethod(). -> 32:52
+(36:86..36:87) demo/Utils#WithPrivateMethod.callSecret().(x) -> 36:56
+(40:25..40:39) scala/annotation/publicInBinary#
+(40:61..40:67) scala/Predef.String#
+(43:29..43:43) demo/Utils#WithPrivateVal# -> 40:9
+(43:46..43:52) scala/Predef.String#
+(43:55..43:56) demo/Utils#WithPrivateVal.getHidden().(w) -> 43:26
+(43:57..43:63) demo/Utils#WithPrivateVal#hidden. -> 40:53
+(44:33..44:39) scala/Predef.String#
+(44:42..44:56) demo/Utils#WithPrivateVal# -> 40:9
+(44:63..44:77) demo/Utils#WithPrivateVal# -> 40:9
+(44:78..44:79) demo/Utils#WithPrivateVal.create().(s) -> 44:30
+(48:27..48:41) scala/annotation/publicInBinary#
+(48:58..48:61) scala/Int#
+(48:70..48:76) scala/Predef.String#
+(49:6..49:20) scala/annotation/publicInBinary#
+(49:41..49:44) scala/Int#
+(49:53..49:54) demo/Utils#MultiConstructor#`<init>`(+1).(a) -> 49:38
+(53:32..53:35) scala/Int#
+(53:38..53:54) demo/Utils#MultiConstructor# -> 48:9
+(53:61..53:77) demo/Utils#MultiConstructor# -> 48:9
+(53:78..53:79) demo/Utils#MultiConstructor.make1().(x) -> 53:29
+(54:32..54:35) scala/Int#
+(54:47..54:53) scala/Predef.String#
+(54:56..54:72) demo/Utils#MultiConstructor# -> 48:9
+(54:79..54:95) demo/Utils#MultiConstructor# -> 48:9
+(54:96..54:97) demo/Utils#MultiConstructor.make2().(x) -> 54:29
+(54:99..54:100) demo/Utils#MultiConstructor.make2().(y) -> 54:44
+(58:31..58:45) scala/annotation/publicInBinary#
+(58:61..58:67) scala/Predef.String#
+(58:76..58:79) scala/Int#
+(61:31..61:37) scala/Predef.String#
+(61:49..61:52) scala/Int#
+(61:55..61:64) demo/Utils#DataClass# -> 58:20
+(61:71..61:80) demo/Utils#DataClass# -> 58:20
+(61:81..61:82) demo/Utils#DataClass.make().(n) -> 61:28
+(61:84..61:85) demo/Utils#DataClass.make().(v) -> 61:46
+(66:6..66:20) scala/annotation/publicInBinary#
+(66:29..66:49) demo/Utils#WithPrivateValScoped# -> 65:9
+(66:66..66:69) scala/Int#
+(70:29..70:49) demo/Utils#WithPrivateValScoped# -> 65:9
+(70:52..70:55) scala/Int#
+(70:58..70:59) demo/Utils#WithPrivateValScoped.getSecret().(w) -> 70:26
+(70:60..70:69) demo/Utils#WithPrivateValScoped#secretVal. -> 66:55
+(75:6..75:20) scala/annotation/publicInBinary#
+(75:29..75:40) demo/Utils#WithLazyVal# -> 74:9
+(75:61..75:67) scala/Predef.String#
+(79:31..79:42) demo/Utils#WithLazyVal# -> 74:9
+(79:45..79:51) scala/Predef.String#
+(79:54..79:55) demo/Utils#WithLazyVal.getComputed().(w) -> 79:28
+(79:56..79:64) demo/Utils#WithLazyVal#computed. -> 75:51
+(84:31..84:45) scala/annotation/publicInBinary#
+(84:66..84:72) scala/Double#
+(87:31..87:37) scala/Double#
+(87:40..87:62) demo/TopLevelPublicInBinary# -> 84:7
+(87:69..87:91) demo/TopLevelPublicInBinary# -> 84:7
+(87:92..87:93) demo/TopLevelPublicInBinary.create().(v) -> 87:28
+(92:17..92:23) scala/Predef.String#
+(95:24..95:38) scala/annotation/publicInBinary#
+(95:58..95:64) scala/Predef.String#
+(95:74..95:85) demo/Describable# -> 91:7
+(96:17..96:23) scala/Predef.String#
+(96:26..96:30) demo/DescribableImpl#desc. -> 95:52
+(100:31..100:37) scala/Predef.String#
+(100:40..100:51) demo/Describable# -> 91:7
+(100:58..100:73) demo/DescribableImpl# -> 95:7
+(100:74..100:75) demo/DescribableImpl.create().(d) -> 100:28
+

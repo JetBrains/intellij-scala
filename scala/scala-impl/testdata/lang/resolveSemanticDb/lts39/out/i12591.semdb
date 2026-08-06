@@ -1,0 +1,15 @@
+Document tests/pos/i12591/Inner.scala
+(7:22..7:25) outer/inner/Foo# -> 4:14
+(7:30..7:32) outer/inner/Foo.TC# -> 6:9
+(7:33..7:34) outer/inner/Foo.ofFoo().[T] -> 7:17
+(7:38..7:41) scala/Predef.`???`().
+(8:21..8:24) outer/inner/Foo# -> 4:14
+(10:8..10:11) outer/inner/Foo. -> 5:8
+(12:17..12:23) scala/Predef.summon().
+(12:24..12:26) outer/inner/Foo.TC# -> 6:9
+(12:27..12:30) outer/Outer$package.Bar#
+
+Document tests/pos/i12591/Outer.scala
+(2:8..2:13) outer/inner/ -> 2:9
+(3:8..3:11) outer/Outer$package.Foo().
+

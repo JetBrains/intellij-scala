@@ -1,0 +1,6 @@
+Document tests/pos/nowarnannot.scala
+(3:17..3:20) scala/Int#
+(7:5..7:9) scala/package.List.
+(7:19..7:22) scala/collection/immutable/List#map().
+(7:23..7:24) _empty_/F.
+

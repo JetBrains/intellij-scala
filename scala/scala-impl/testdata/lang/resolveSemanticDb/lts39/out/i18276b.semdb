@@ -1,0 +1,23 @@
+Document tests/pos/i18276b.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
+(3:12..3:15) scala/Int#
+(3:18..3:21) scala/Int#
+(3:24..3:27) scala/Predef.`???`().
+(4:18..4:21) scala/Int#
+(4:24..4:27) scala/Int#
+(4:30..4:33) scala/Predef.`???`().
+(6:10..6:20) scala/Conversion#
+(6:21..6:24) scala/Int#
+(6:28..6:31) scala/Int#
+(6:39..6:42) scala/Int#
+(6:46..6:49) scala/Predef.`???`().
+(8:12..8:15) scala/Int#
+(8:18..8:21) _empty_/i18276b$package.bar(). -> 4:5
+(8:22..8:25) _empty_/i18276b$package.foo(). -> 3:5
+(9:12..9:15) scala/Int#
+(9:18..9:21) _empty_/i18276b$package.bar(). -> 4:5
+(9:22..9:23) _empty_/i18276b$package.f. -> 6:7
+(9:24..9:27) _empty_/i18276b$package.foo(). -> 3:5
+

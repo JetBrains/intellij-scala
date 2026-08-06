@@ -1,0 +1,16 @@
+Document tests/pos/i18769.scala
+(2:18..2:19) _empty_/Arb#pure().[A] -> 2:12
+(2:22..2:24) _empty_/Arb#[Fx] -> 1:11
+(2:25..2:26) _empty_/Arb#pure().[A] -> 2:12
+(5:31..5:34) scala/Int#
+(5:44..5:50) scala/AnyVal#
+(6:20..6:23) _empty_/Arb# -> 1:7
+(6:24..6:26) _empty_/PfOps#pf().[Fy] -> 6:10
+(6:30..6:45) scala/PartialFunction#
+(6:46..6:49) scala/Int#
+(6:51..6:53) _empty_/PfOps#pf().[Fy] -> 6:10
+(6:54..6:57) scala/Int#
+(7:15..7:16) _empty_/PfOps#pf().(m) -> 6:17
+(7:17..7:21) _empty_/Arb#pure(). -> 2:7
+(7:22..7:23) local1 -> 7:10
+

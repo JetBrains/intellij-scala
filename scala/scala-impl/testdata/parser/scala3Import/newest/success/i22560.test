@@ -1,0 +1,492 @@
+
+package companionless:
+
+  class Enumeration:
+    protected class Val(i: Int):
+      def this() = this(42)
+
+  class Test extends Enumeration:
+    val Hearts = Val(27)
+    val Diamonds = Val()
+
+
+package companioned:
+
+  class Enumeration:
+    protected class Val(i: Int):
+      def this() = this(42)
+    protected object Val
+
+  class Test extends Enumeration:
+    val Hearts = Val(27)
+    val Diamonds = Val()
+
+package p:
+
+  package internal:
+
+    protected[p] class P(i : Int)
+    private[p] class Q(i : Int)
+
+  def f = internal.P(42)
+  def g = internal.Q(42)
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: companionless
+      PsiElement(identifier)('companionless')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n\n  ')
+    ScClass: Enumeration
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Enumeration')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScClass: Val
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(protected)('protected')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Val')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: i
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('i')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n      ')
+                ScFunctionDefinition: this
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(this)('this')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SelfInvocation
+                    PsiElement(this)('this')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('42')
+                      PsiElement())(')')
+    PsiWhiteSpace('\n\n  ')
+    ScClass: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Enumeration
+              CodeReferenceElement: Enumeration
+                PsiElement(identifier)('Enumeration')
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScPatternDefinition: Hearts
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: Hearts
+                PsiElement(identifier)('Hearts')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Val
+                PsiElement(identifier)('Val')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('27')
+                PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScPatternDefinition: Diamonds
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: Diamonds
+                PsiElement(identifier)('Diamonds')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Val
+                PsiElement(identifier)('Val')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+  PsiWhiteSpace('\n\n\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: companioned
+      PsiElement(identifier)('companioned')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n\n  ')
+    ScClass: Enumeration
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Enumeration')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScClass: Val
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(protected)('protected')
+            PsiWhiteSpace(' ')
+            PsiElement(class)('class')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Val')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  ClassParameter: i
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('i')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                  PsiElement())(')')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n      ')
+                ScFunctionDefinition: this
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(this)('this')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SelfInvocation
+                    PsiElement(this)('this')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('42')
+                      PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScObject: Val
+            AnnotationsList
+              <empty list>
+            Modifiers
+              AccessModifier
+                PsiElement(protected)('protected')
+            PsiWhiteSpace(' ')
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Val')
+            ExtendsBlock
+              <empty list>
+    PsiWhiteSpace('\n\n  ')
+    ScClass: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Enumeration
+              CodeReferenceElement: Enumeration
+                PsiElement(identifier)('Enumeration')
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScPatternDefinition: Hearts
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: Hearts
+                PsiElement(identifier)('Hearts')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Val
+                PsiElement(identifier)('Val')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('27')
+                PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScPatternDefinition: Diamonds
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: Diamonds
+                PsiElement(identifier)('Diamonds')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: Val
+                PsiElement(identifier)('Val')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: p
+      PsiElement(identifier)('p')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n\n  ')
+    ScPackaging
+      PsiElement(package)('package')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: internal
+        PsiElement(identifier)('internal')
+      PsiElement(:)(':')
+      PsiWhiteSpace('\n\n    ')
+      ScClass: P
+        AnnotationsList
+          <empty list>
+        Modifiers
+          AccessModifier
+            PsiElement(protected)('protected')
+            PsiElement([)('[')
+            PsiElement(identifier)('p')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('P')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              ClassParameter: i
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('i')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+        ExtendsBlock
+          <empty list>
+      PsiWhiteSpace('\n    ')
+      ScClass: Q
+        AnnotationsList
+          <empty list>
+        Modifiers
+          AccessModifier
+            PsiElement(private)('private')
+            PsiElement([)('[')
+            PsiElement(identifier)('p')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(class)('class')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Q')
+        PrimaryConstructor
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              ClassParameter: i
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('i')
+                PsiWhiteSpace(' ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+        ExtendsBlock
+          <empty list>
+    PsiWhiteSpace('\n\n  ')
+    ScFunctionDefinition: f
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('f')
+      Parameters
+        <empty list>
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: internal.P
+          ReferenceExpression: internal
+            PsiElement(identifier)('internal')
+          PsiElement(.)('.')
+          PsiElement(identifier)('P')
+        ArgumentList
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('42')
+          PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ScFunctionDefinition: g
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('g')
+      Parameters
+        <empty list>
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: internal.Q
+          ReferenceExpression: internal
+            PsiElement(identifier)('internal')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Q')
+        ArgumentList
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('42')
+          PsiElement())(')')

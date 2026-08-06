@@ -1,0 +1,177 @@
+type Tupled[A] <: Tuple = A match
+  case Tuple => A & Tuple
+  case _     => A *: EmptyTuple
+
+enum Day:
+  case Saturday, Sunday
+
+type Foo = Tupled[Day]
+
+def foo(): Foo = Day.Saturday *: EmptyTuple
+-----
+ScalaFile
+  ScTypeAliasDefinition: Tupled
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tupled')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Tuple
+      CodeReferenceElement: Tuple
+        PsiElement(identifier)('Tuple')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: A match
+  case Tuple => A & Tuple
+  case _     => A *: EmptyTuple
+      SimpleType: A
+        CodeReferenceElement: A
+          PsiElement(identifier)('A')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          InfixType: A & Tuple
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
+            PsiWhiteSpace(' ')
+            SimpleType: Tuple
+              CodeReferenceElement: Tuple
+                PsiElement(identifier)('Tuple')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace('     ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          InfixType: A *: EmptyTuple
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            SimpleType: EmptyTuple
+              CodeReferenceElement: EmptyTuple
+                PsiElement(identifier)('EmptyTuple')
+  PsiWhiteSpace('\n\n')
+  ScEnum: Day
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Day')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Saturday, Sunday
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Saturday
+            PsiElement(identifier)('Saturday')
+            ExtendsBlock
+              <empty list>
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: Sunday
+            PsiElement(identifier)('Sunday')
+            ExtendsBlock
+              <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Tupled[Day]
+      SimpleType: Tupled
+        CodeReferenceElement: Tupled
+          PsiElement(identifier)('Tupled')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Day
+            CodeReferenceElement: Day
+              PsiElement(identifier)('Day')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Foo
+      CodeReferenceElement: Foo
+        PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: Day.Saturday
+        ReferenceExpression: Day
+          PsiElement(identifier)('Day')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Saturday')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: *:
+        PsiElement(identifier)('*:')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: EmptyTuple
+        PsiElement(identifier)('EmptyTuple')

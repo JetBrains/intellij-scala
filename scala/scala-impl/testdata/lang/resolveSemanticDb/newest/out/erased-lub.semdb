@@ -1,0 +1,26 @@
+Document tests/pos/erased-lub.scala
+(5:16..5:17) _empty_/Test.id().[T] -> 5:10
+(5:21..5:22) _empty_/Test.id().(t) -> 5:13
+(10:9..10:10) _empty_/Test.x. -> 7:7
+(10:12..10:14) _empty_/Test.id(). -> 5:7
+(10:15..10:18) _empty_/Test.one. -> 8:7
+(10:29..10:30) scala/Int#`+`(+4).
+(12:9..12:10) _empty_/Test.x. -> 7:7
+(12:16..12:21) scala/
+(12:22..12:26) scala/util/
+(12:27..12:33) scala/util/Random#
+(12:37..12:49) scala/Any#asInstanceOf().
+(12:50..12:58) java/lang/Runnable#
+(14:5..14:6) _empty_/Test.x. -> 7:7
+(15:20..15:22) _empty_/Test.id(). -> 5:7
+(15:23..15:26) _empty_/Test.one. -> 8:7
+(18:5..18:6) scala/Int#`+`(+4).
+(21:7..21:9) _empty_/Test.id(). -> 5:7
+(21:10..21:13) _empty_/Test.one. -> 8:7
+(23:16..23:25) scala/package.Exception#
+(25:5..25:17) scala/Any#asInstanceOf().
+(25:18..25:26) java/lang/Runnable#
+(27:13..27:18) scala/Array.
+(27:19..27:21) _empty_/Test.id(). -> 5:7
+(27:22..27:25) _empty_/Test.one. -> 8:7
+

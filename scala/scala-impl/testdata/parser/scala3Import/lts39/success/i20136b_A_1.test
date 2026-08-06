@@ -1,0 +1,143 @@
+package a
+
+trait Expr:
+  type Value
+object Expr:
+  type Of[V] = Expr { type Value = V }
+  type ExtractValue[E <: Expr] = E match
+    case Expr.Of[v] => v
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace('\n\n')
+    ScTrait: Expr
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Expr')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: Value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Value')
+    PsiWhiteSpace('\n')
+    ScObject: Expr
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Expr')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: Of
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Of')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: V
+                PsiElement(identifier)('V')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            CompoundType: Expr { type Value = V }
+              SimpleType: Expr
+                CodeReferenceElement: Expr
+                  PsiElement(identifier)('Expr')
+              PsiWhiteSpace(' ')
+              Refinement
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                ScTypeAliasDefinition: Value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Value')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: V
+                    CodeReferenceElement: V
+                      PsiElement(identifier)('V')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: ExtractValue
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('ExtractValue')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: E
+                PsiElement(identifier)('E')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Expr
+                  CodeReferenceElement: Expr
+                    PsiElement(identifier)('Expr')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MatchType: E match
+    case Expr.Of[v] => v
+              SimpleType: E
+                CodeReferenceElement: E
+                  PsiElement(identifier)('E')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCasesImpl(match type cases)
+                ScMatchTypeCaseImpl(match type case)
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Expr.Of[v]
+                    SimpleType: Expr.Of
+                      CodeReferenceElement: Expr.Of
+                        CodeReferenceElement: Expr
+                          PsiElement(identifier)('Expr')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Of')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        TypeVariable: v
+                          PsiElement(identifier)('v')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: v
+                    CodeReferenceElement: v
+                      PsiElement(identifier)('v')

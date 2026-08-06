@@ -1,0 +1,15 @@
+Document tests/pos/i8781.scala
+(3:2..3:6) scala/main#
+(6:10..6:13) scala/Int#
+(6:14..6:15) scala/`|`#
+(6:16..6:22) scala/Predef.String#
+(8:3..8:10) scala/Predef.println(+1).
+(8:11..8:12) local0 -> 6:7
+(8:13..8:25) scala/Any#isInstanceOf().
+(8:26..8:29) scala/Int#
+(10:3..10:4) local0 -> 6:7
+(11:13..11:16) scala/Int#
+(11:23..11:30) scala/Predef.println(+1).
+(12:13..12:19) scala/Predef.String#
+(12:23..12:30) scala/Predef.println(+1).
+

@@ -1,0 +1,5 @@
+Document tests/pos/switch-small.scala
+(1:8..1:18) scala/annotation/
+(4:12..4:15) scala/Int#
+(4:20..4:21) _empty_/Test.f().(x) -> 4:9
+

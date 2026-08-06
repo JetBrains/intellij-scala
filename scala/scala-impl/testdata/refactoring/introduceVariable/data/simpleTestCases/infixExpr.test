@@ -1,0 +1,14 @@
+class a {
+  def foo = {
+    val t = <selection>2 + 2</selection>
+    return t
+  }
+}
+------
+class a {
+  def foo = {
+    val value: Int = 2 + 2
+    val t = value
+    return t
+  }
+}

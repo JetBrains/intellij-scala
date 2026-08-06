@@ -1,0 +1,14 @@
+Document tests/pos/i22923.scala
+(3:20..3:23) scala/Int#
+(3:26..3:30) scala/Some#
+(3:31..3:36) scala/Tuple.
+(3:37..3:40) scala/Tuple.Map#
+(3:42..3:45) scala/Int#
+(3:47..3:50) scala/Int#
+(3:64..3:67) scala/Predef.`???`().
+(6:10..6:13) scala/Int#
+(6:16..6:19) scala/Predef.`???`().
+(7:3..7:4) _empty_/Test.s. -> 6:7
+(8:10..8:12) _empty_/Test.E1. -> 2:10
+(8:22..8:23) local0 -> 8:13
+

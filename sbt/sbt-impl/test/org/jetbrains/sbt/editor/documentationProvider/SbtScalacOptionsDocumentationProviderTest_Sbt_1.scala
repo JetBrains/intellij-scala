@@ -1,0 +1,6 @@
+package org.jetbrains.sbt.editor.documentationProvider
+
+import org.jetbrains.sbt.MockSbt_1_0
+
+class SbtScalacOptionsDocumentationProviderTest_Sbt_1 extends SbtScalacOptionsDocumentationProviderCommonTests
+  with MockSbt_1_0

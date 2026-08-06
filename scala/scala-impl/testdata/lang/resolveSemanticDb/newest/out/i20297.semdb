@@ -1,0 +1,71 @@
+Document tests/pos/i20297.scala
+(2:26..2:27) _empty_/i20297$package.`<`#[T] -> 2:16
+(2:30..2:31) _empty_/i20297$package.`<`#[T] -> 2:16
+(2:32..2:33) scala/`|`#
+(2:34..2:37) _empty_/Kyo# -> 1:23
+(2:38..2:39) _empty_/i20297$package.`<`#[T] -> 2:16
+(2:41..2:42) _empty_/i20297$package.`<`#[S] -> 2:20
+(4:21..4:22) _empty_/i20297$package.map().[T] -> 4:12
+(4:23..4:24) _empty_/i20297$package.`<`# -> 2:13
+(4:25..4:26) _empty_/i20297$package.map().[S] -> 4:15
+(5:35..5:36) _empty_/i20297$package.map().[T] -> 4:12
+(5:40..5:41) _empty_/i20297$package.map().[U] -> 5:18
+(5:42..5:43) _empty_/i20297$package.`<`# -> 2:13
+(5:44..5:46) _empty_/i20297$package.map().[S2] -> 5:21
+(5:49..5:50) _empty_/i20297$package.map().[U] -> 5:18
+(5:51..5:52) _empty_/i20297$package.`<`# -> 2:13
+(5:54..5:55) _empty_/i20297$package.map().[S] -> 4:15
+(5:56..5:57) scala/`&`#
+(5:58..5:60) _empty_/i20297$package.map().[S2] -> 5:21
+(5:64..5:67) scala/Predef.`???`().
+(9:23..9:24) _empty_/Streams.emitValue().[V] -> 9:17
+(9:27..9:31) scala/Unit#
+(9:32..9:33) _empty_/i20297$package.`<`# -> 2:13
+(9:34..9:41) _empty_/Streams# -> 7:7
+(9:42..9:43) _empty_/Streams.emitValue().[V] -> 9:17
+(9:47..9:50) scala/Predef.`???`().
+(11:33..11:34) _empty_/i20297$package.Stream#[T] -> 11:21
+(11:35..11:36) _empty_/i20297$package.`<`# -> 2:13
+(11:38..11:45) _empty_/Streams# -> 7:7
+(11:46..11:47) _empty_/i20297$package.Stream#[V] -> 11:24
+(11:49..11:50) scala/`&`#
+(11:51..11:52) _empty_/i20297$package.Stream#[S] -> 11:28
+(13:26..13:32) _empty_/i20297$package.Stream# -> 11:13
+(13:33..13:34) _empty_/i20297$package.Stream.filter().[T] -> 13:14
+(13:33..13:34) _empty_/i20297$package.Stream.reemit().[T] -> 13:14
+(13:36..13:37) _empty_/i20297$package.Stream.filter().[V] -> 13:17
+(13:36..13:37) _empty_/i20297$package.Stream.reemit().[V] -> 13:17
+(13:39..13:40) _empty_/i20297$package.Stream.filter().[S] -> 13:20
+(13:39..13:40) _empty_/i20297$package.Stream.reemit().[S] -> 13:20
+(14:27..14:28) _empty_/i20297$package.Stream.reemit().[V] -> 13:17
+(14:32..14:36) scala/Unit#
+(14:37..14:38) _empty_/i20297$package.`<`# -> 2:13
+(14:40..14:47) _empty_/Streams# -> 7:7
+(14:48..14:50) _empty_/i20297$package.Stream.reemit().[V2] -> 14:20
+(14:52..14:53) scala/`&`#
+(14:54..14:56) _empty_/i20297$package.Stream.reemit().[S2] -> 14:16
+(14:60..14:66) _empty_/i20297$package.Stream# -> 11:13
+(14:67..14:68) _empty_/i20297$package.Stream.reemit().[T] -> 13:14
+(14:70..14:72) _empty_/i20297$package.Stream.reemit().[V2] -> 14:20
+(14:74..14:75) _empty_/i20297$package.Stream.reemit().[S] -> 13:20
+(14:76..14:77) scala/`&`#
+(14:78..14:80) _empty_/i20297$package.Stream.reemit().[S2] -> 14:16
+(14:84..14:87) scala/Predef.`???`().
+(15:23..15:24) _empty_/i20297$package.Stream.filter().[V] -> 13:17
+(15:28..15:35) scala/Boolean#
+(15:36..15:37) _empty_/i20297$package.`<`# -> 2:13
+(15:38..15:40) _empty_/i20297$package.Stream.filter().[S2] -> 15:16
+(15:43..15:49) _empty_/i20297$package.Stream# -> 11:13
+(15:50..15:51) _empty_/i20297$package.Stream.filter().[T] -> 13:14
+(15:53..15:54) _empty_/i20297$package.Stream.filter().[V] -> 13:17
+(15:56..15:57) _empty_/i20297$package.Stream.filter().[S] -> 13:20
+(15:58..15:59) scala/`&`#
+(15:60..15:62) _empty_/i20297$package.Stream.filter().[S2] -> 15:16
+(15:66..15:72) _empty_/i20297$package.Stream.reemit(). -> 14:9
+(16:7..16:8) _empty_/i20297$package.Stream.filter().(f) -> 15:20
+(16:9..16:10) local0 -> 15:75
+(16:12..16:15) _empty_/i20297$package.map(). -> 5:14
+(18:23..18:30) _empty_/Streams. -> 8:8
+(18:31..18:40) _empty_/Streams.emitValue(). -> 9:7
+(18:41..18:42) local0 -> 15:75
+

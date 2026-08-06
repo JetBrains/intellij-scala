@@ -1,0 +1,7 @@
+Nil.map {
+  def f1 = {
+  }
+
+  def f2 = {
+  }
+}

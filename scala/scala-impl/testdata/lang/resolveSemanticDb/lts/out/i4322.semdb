@@ -1,0 +1,20 @@
+Document tests/pos/i4322.scala
+(2:24..2:27) scala/Int#
+(4:20..4:26) scala/Predef.String#
+(4:29..4:32) scala/Int#
+(4:35..4:36) _empty_/Foo.x(+1).(n) -> 4:17
+(4:37..4:42) scala/collection/StringOps#toInt().
+(6:19..6:22) scala/Int#
+(6:25..6:26) _empty_/Foo.inline$x().
+(6:27..6:28) scala/Int#`+`(+4).
+(6:29..6:30) _empty_/Foo.inline$x().
+(6:31..6:32) scala/Int#`+`(+4).
+(6:33..6:34) _empty_/Foo.inline$x(+1).
+(9:5..9:6) _empty_/Foo.`inline$x_=`().
+(9:5..9:6) _empty_/Foo.inline$x().
+(10:5..10:6) _empty_/Foo.`inline$x_=`().
+(10:5..10:6) _empty_/Foo.inline$x().
+(13:22..13:23) _empty_/Foo.`inline$x_=`().
+(13:22..13:23) _empty_/Foo.inline$x().
+(13:27..13:28) _empty_/Foo.inline$x(+1).
+

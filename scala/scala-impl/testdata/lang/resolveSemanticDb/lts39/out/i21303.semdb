@@ -1,0 +1,62 @@
+Document tests/pos/i21303/Test.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(1:23..1:29) scala/deriving/Mirror#
+(1:23..1:29) scala/deriving/Mirror.
+(2:8..2:13) scala/
+(2:14..2:25) scala/compiletime/
+(3:8..3:13) scala/
+(3:14..3:21) scala/reflect/
+(3:22..3:30) scala/reflect/ClassTag#
+(3:22..3:30) scala/reflect/ClassTag.
+(4:8..4:13) scala/
+(4:14..4:24) scala/annotation/
+(4:25..4:41) scala/annotation/implicitNotFound#
+(8:23..8:37) _empty_/DefaultTSTypes# -> 12:7
+(8:43..8:55) _empty_/TSTypeMacros# -> 17:7
+(10:30..10:36) _empty_/TSType# -> 7:7
+(10:37..10:38) _empty_/TSNamedType#[T] -> 10:19
+(12:30..12:41) _empty_/JavaTSTypes# -> 13:7
+(14:31..14:35) java/
+(14:36..14:40) java/lang/
+(14:41..14:45) java/lang/Enum#
+(14:46..14:47) _empty_/JavaTSTypes#javaEnumTSType().[E] -> 14:26
+(14:50..14:58) _empty_/JavaTSTypes#javaEnumTSType().[E] -> 14:26
+(14:50..14:58) scala/reflect/ClassTag#
+(14:63..14:69) _empty_/TSType# -> 7:7
+(14:70..14:71) _empty_/JavaTSTypes#javaEnumTSType().[E] -> 14:26
+(14:75..14:78) scala/Predef.`???`().
+(16:31..16:45) _empty_/DefaultTSTypes# -> 12:7
+(18:20..18:26) scala/deriving/Mirror.
+(18:20..18:29) _empty_/TSTypeMacros#given_TSType_T().[T] -> 18:17
+(18:27..18:29) scala/deriving/Mirror.Of#
+(18:34..18:40) _empty_/TSType# -> 7:7
+(18:41..18:42) _empty_/TSTypeMacros#given_TSType_T().[T] -> 18:17
+(18:46..18:53) _empty_/TSTypeMacros#derived(). -> 19:14
+(18:54..18:55) _empty_/TSTypeMacros#given_TSType_T().[T] -> 18:17
+(19:34..19:40) scala/deriving/Mirror.
+(19:41..19:43) scala/deriving/Mirror.Of#
+(19:44..19:45) _empty_/TSTypeMacros#derived().[T] -> 19:22
+(19:49..19:55) _empty_/TSType# -> 7:7
+(19:56..19:57) _empty_/TSTypeMacros#derived().[T] -> 19:22
+(20:25..20:34) _empty_/TSTypeMacros#summonAll(). -> 24:22
+(20:35..20:36) _empty_/TSTypeMacros#derived().(m) -> 19:31
+(21:5..21:8) scala/Predef.`???`().
+(24:37..24:42) scala/Tuple#
+(24:45..24:49) scala/package.List#
+(24:50..24:56) _empty_/TSType# -> 7:7
+(25:12..25:23) scala/compiletime/package$package.erasedValue().
+(25:24..25:25) _empty_/TSTypeMacros#summonAll().[T] -> 24:32
+(26:15..26:25) scala/Tuple$package.EmptyTuple#
+(26:29..26:32) scala/package.Nil.
+(27:18..27:20) scala/`*:`#
+(27:29..27:41) scala/compiletime/package$package.summonInline().
+(27:42..27:48) _empty_/TSType# -> 7:7
+(27:49..27:50) local1 -> 27:16
+(27:56..27:65) _empty_/TSTypeMacros#summonAll(). -> 24:22
+(27:66..27:68) local2 -> 27:21
+(32:2..32:6) scala/main#
+(32:18..32:24) scala/Predef.summon().
+(32:25..32:31) _empty_/TSType# -> 7:7
+(32:32..32:40) _empty_/JavaEnum#
+

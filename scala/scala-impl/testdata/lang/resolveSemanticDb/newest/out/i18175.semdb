@@ -1,0 +1,437 @@
+Document tests/pos/i18175.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:29) scala/compiletime/ops/
+(1:30..1:33) scala/compiletime/ops/int.
+(2:8..2:13) scala/
+(2:14..2:25) scala/compiletime/
+(2:26..2:29) scala/compiletime/ops/
+(2:30..2:36) scala/compiletime/ops/string.
+(4:34..4:46) scala/package.Serializable#
+(5:18..5:30) java/lang/CharSequence#
+(5:44..5:49) _empty_/Regex. -> 7:8
+(5:50..5:59) _empty_/Regex.Sanitizer# -> 10:18
+(5:60..5:61) _empty_/Regex#[P] -> 4:13
+(5:65..5:71) scala/Option#
+(5:72..5:73) _empty_/Regex#[P] -> 4:13
+(5:77..5:80) scala/Predef.`???`().
+(8:18..8:24) scala/Predef.String#
+(8:25..8:26) scala/`&`#
+(8:27..8:36) scala/Singleton#
+(8:45..8:46) _empty_/Regex.apply().[R] -> 8:13
+(8:49..8:54) _empty_/Regex# -> 4:7
+(8:55..8:62) _empty_/Regex.Compile# -> 18:8
+(8:63..8:64) _empty_/Regex.apply().[R] -> 8:13
+(8:69..8:72) scala/Predef.`???`().
+(12:11..12:20) _empty_/Regex.Sanitizer# -> 10:18
+(12:21..12:31) scala/Tuple$package.EmptyTuple#
+(12:35..12:38) scala/Predef.`???`().
+(13:29..13:34) scala/Tuple#
+(13:36..13:45) _empty_/Regex.Sanitizer# -> 10:18
+(13:36..13:45) _empty_/Regex.Sanitizer.stringcase().[T] -> 13:24
+(13:50..13:59) _empty_/Regex.Sanitizer# -> 10:18
+(13:60..13:66) scala/Predef.String#
+(13:67..13:69) scala/`*:`#
+(13:70..13:71) _empty_/Regex.Sanitizer.stringcase().[T] -> 13:24
+(13:75..13:78) scala/Predef.`???`().
+(14:29..14:34) scala/Tuple#
+(14:36..14:45) _empty_/Regex.Sanitizer# -> 10:18
+(14:36..14:45) _empty_/Regex.Sanitizer.optioncase().[T] -> 14:24
+(14:50..14:59) _empty_/Regex.Sanitizer# -> 10:18
+(14:60..14:66) scala/Option#
+(14:67..14:73) scala/Predef.String#
+(14:75..14:77) scala/`*:`#
+(14:78..14:79) _empty_/Regex.Sanitizer.optioncase().[T] -> 14:24
+(14:83..14:86) scala/Predef.`???`().
+(15:11..15:20) _empty_/Regex.Sanitizer# -> 10:18
+(15:21..15:27) scala/Predef.String#
+(15:31..15:34) scala/Predef.`???`().
+(16:11..16:20) _empty_/Regex.Sanitizer# -> 10:18
+(16:21..16:27) scala/Option#
+(16:28..16:34) scala/Predef.String#
+(16:39..16:42) scala/Predef.`???`().
+(18:21..18:27) scala/Predef.String#
+(18:31..18:38) scala/compiletime/ops/string.Matches#
+(18:43..18:44) _empty_/Regex.Compile#[R] -> 18:16
+(19:10..19:11) scala/Any#
+(19:15..19:22) _empty_/Regex.Reverse# -> 98:8
+(19:23..19:33) scala/Tuple$package.EmptyTuple#
+(19:35..19:39) _empty_/Regex.Loop# -> 21:8
+(19:40..19:41) _empty_/Regex.Compile#[R] -> 18:16
+(19:46..19:52) scala/compiletime/ops/string.Length#
+(19:53..19:54) _empty_/Regex.Compile#[R] -> 18:16
+(19:57..19:67) scala/Tuple$package.EmptyTuple#
+(19:69..19:76) _empty_/Regex.IsPiped# -> 59:8
+(19:77..19:78) _empty_/Regex.Compile#[R] -> 18:16
+(19:83..19:89) scala/compiletime/ops/string.Length#
+(19:90..19:91) _empty_/Regex.Compile#[R] -> 18:16
+(21:18..21:24) scala/Predef.String#
+(21:32..21:35) scala/Int#
+(21:43..21:46) scala/Int#
+(21:55..21:60) scala/Tuple#
+(21:69..21:72) scala/Int#
+(21:77..21:82) scala/Tuple#
+(21:85..21:87) _empty_/Regex.Loop#[Lo] -> 21:26
+(22:10..22:12) _empty_/Regex.Loop#[Hi] -> 21:37
+(22:16..22:19) _empty_/Regex.Loop#[Acc] -> 21:48
+(23:10..23:11) scala/Any#
+(23:16..23:22) scala/compiletime/ops/string.CharAt#
+(23:23..23:24) _empty_/Regex.Loop#[R] -> 21:13
+(23:26..23:28) _empty_/Regex.Loop#[Lo] -> 21:26
+(24:20..24:26) scala/compiletime/ops/string.CharAt#
+(24:27..24:28) _empty_/Regex.Loop#[R] -> 21:13
+(24:30..24:32) _empty_/Regex.Loop#[Lo] -> 21:26
+(24:33..24:34) scala/compiletime/ops/int.`+`#
+(25:21..25:25) _empty_/Regex.Loop# -> 21:8
+(25:26..25:27) _empty_/Regex.Loop#[R] -> 21:13
+(25:29..25:40) _empty_/Regex.ToClosingQE# -> 92:8
+(25:41..25:42) _empty_/Regex.Loop#[R] -> 21:13
+(25:44..25:46) _empty_/Regex.Loop#[Lo] -> 21:26
+(25:47..25:48) scala/compiletime/ops/int.`+`#
+(25:53..25:55) _empty_/Regex.Loop#[Hi] -> 21:37
+(25:57..25:60) _empty_/Regex.Loop#[Acc] -> 21:48
+(25:62..25:65) _empty_/Regex.Loop#[Opt] -> 21:62
+(26:14..26:15) scala/Any#
+(26:19..26:23) _empty_/Regex.Loop# -> 21:8
+(26:24..26:25) _empty_/Regex.Loop#[R] -> 21:13
+(26:27..26:29) _empty_/Regex.Loop#[Lo] -> 21:26
+(26:30..26:31) scala/compiletime/ops/int.`+`#
+(26:35..26:37) _empty_/Regex.Loop#[Hi] -> 21:37
+(26:39..26:42) _empty_/Regex.Loop#[Acc] -> 21:48
+(26:44..26:47) _empty_/Regex.Loop#[Opt] -> 21:62
+(27:19..27:23) _empty_/Regex.Loop# -> 21:8
+(27:24..27:25) _empty_/Regex.Loop#[R] -> 21:13
+(27:27..27:43) _empty_/Regex.ToClosingBracket# -> 82:8
+(27:44..27:45) _empty_/Regex.Loop#[R] -> 21:13
+(27:47..27:49) _empty_/Regex.Loop#[Lo] -> 21:26
+(27:50..27:51) scala/compiletime/ops/int.`+`#
+(27:59..27:61) _empty_/Regex.Loop#[Hi] -> 21:37
+(27:63..27:66) _empty_/Regex.Loop#[Acc] -> 21:48
+(27:68..27:71) _empty_/Regex.Loop#[Opt] -> 21:62
+(28:19..28:23) _empty_/Regex.Loop# -> 21:8
+(28:24..28:25) _empty_/Regex.Loop#[R] -> 21:13
+(28:27..28:29) _empty_/Regex.Loop#[Lo] -> 21:26
+(28:30..28:31) scala/compiletime/ops/int.`+`#
+(28:35..28:37) _empty_/Regex.Loop#[Hi] -> 21:37
+(28:39..28:42) _empty_/Regex.Loop#[Acc] -> 21:48
+(28:44..28:47) scala/compiletime/ops/int.Max#
+(28:51..28:54) _empty_/Regex.Loop#[Opt] -> 21:62
+(28:55..28:56) scala/compiletime/ops/int.`-`#
+(29:19..29:22) _empty_/Regex.Loop#[Opt] -> 21:62
+(30:19..30:27) _empty_/Regex.IsMarked# -> 50:8
+(30:28..30:29) _empty_/Regex.Loop#[R] -> 21:13
+(30:31..30:51) _empty_/Regex.ToClosingParenthesis# -> 71:8
+(30:52..30:53) _empty_/Regex.Loop#[R] -> 21:13
+(30:55..30:57) _empty_/Regex.Loop#[Lo] -> 21:26
+(30:58..30:59) scala/compiletime/ops/int.`+`#
+(30:67..30:69) _empty_/Regex.Loop#[Hi] -> 21:37
+(31:24..31:35) _empty_/Regex.IsCapturing# -> 42:8
+(31:36..31:37) _empty_/Regex.Loop#[R] -> 21:13
+(31:39..31:41) _empty_/Regex.Loop#[Lo] -> 21:26
+(31:42..31:43) scala/compiletime/ops/int.`+`#
+(32:27..32:31) _empty_/Regex.Loop# -> 21:8
+(32:32..32:33) _empty_/Regex.Loop#[R] -> 21:13
+(32:35..32:37) _empty_/Regex.Loop#[Lo] -> 21:26
+(32:38..32:39) scala/compiletime/ops/int.`+`#
+(32:43..32:45) _empty_/Regex.Loop#[Hi] -> 21:37
+(32:47..32:50) _empty_/Regex.Loop#[Acc] -> 21:48
+(33:27..33:31) _empty_/Regex.Loop# -> 21:8
+(33:32..33:33) _empty_/Regex.Loop#[R] -> 21:13
+(33:35..33:37) _empty_/Regex.Loop#[Lo] -> 21:26
+(33:38..33:39) scala/compiletime/ops/int.`+`#
+(33:43..33:45) _empty_/Regex.Loop#[Hi] -> 21:37
+(33:47..33:53) scala/Option#
+(33:54..33:60) scala/Predef.String#
+(33:62..33:64) scala/`*:`#
+(33:65..33:68) _empty_/Regex.Loop#[Acc] -> 21:48
+(34:25..34:36) _empty_/Regex.IsCapturing# -> 42:8
+(34:37..34:38) _empty_/Regex.Loop#[R] -> 21:13
+(34:40..34:42) _empty_/Regex.Loop#[Lo] -> 21:26
+(34:43..34:44) scala/compiletime/ops/int.`+`#
+(35:27..35:31) _empty_/Regex.Loop# -> 21:8
+(35:32..35:33) _empty_/Regex.Loop#[R] -> 21:13
+(35:35..35:37) _empty_/Regex.Loop#[Lo] -> 21:26
+(35:38..35:39) scala/compiletime/ops/int.`+`#
+(35:43..35:45) _empty_/Regex.Loop#[Hi] -> 21:37
+(35:47..35:50) _empty_/Regex.Loop#[Acc] -> 21:48
+(35:52..35:59) _empty_/Regex.IsPiped# -> 59:8
+(35:60..35:61) _empty_/Regex.Loop#[R] -> 21:13
+(35:63..35:65) _empty_/Regex.Loop#[Lo] -> 21:26
+(35:66..35:67) scala/compiletime/ops/int.`+`#
+(35:71..35:73) _empty_/Regex.Loop#[Hi] -> 21:37
+(36:27..36:31) _empty_/Regex.Loop# -> 21:8
+(36:32..36:33) _empty_/Regex.Loop#[R] -> 21:13
+(36:35..36:37) _empty_/Regex.Loop#[Lo] -> 21:26
+(36:38..36:39) scala/compiletime/ops/int.`+`#
+(36:43..36:45) _empty_/Regex.Loop#[Hi] -> 21:37
+(36:47..36:53) scala/Predef.String#
+(36:54..36:56) scala/`*:`#
+(36:57..36:60) _empty_/Regex.Loop#[Acc] -> 21:48
+(36:62..36:69) _empty_/Regex.IsPiped# -> 59:8
+(36:70..36:71) _empty_/Regex.Loop#[R] -> 21:13
+(36:73..36:75) _empty_/Regex.Loop#[Lo] -> 21:26
+(36:76..36:77) scala/compiletime/ops/int.`+`#
+(36:81..36:83) _empty_/Regex.Loop#[Hi] -> 21:37
+(37:14..37:15) scala/Any#
+(37:19..37:30) _empty_/Regex.IsCapturing# -> 42:8
+(37:31..37:32) _empty_/Regex.Loop#[R] -> 21:13
+(37:34..37:36) _empty_/Regex.Loop#[Lo] -> 21:26
+(37:37..37:38) scala/compiletime/ops/int.`+`#
+(38:25..38:29) _empty_/Regex.Loop# -> 21:8
+(38:30..38:31) _empty_/Regex.Loop#[R] -> 21:13
+(38:33..38:35) _empty_/Regex.Loop#[Lo] -> 21:26
+(38:36..38:37) scala/compiletime/ops/int.`+`#
+(38:41..38:43) _empty_/Regex.Loop#[Hi] -> 21:37
+(38:45..38:48) _empty_/Regex.Loop#[Acc] -> 21:48
+(38:50..38:53) _empty_/Regex.Loop#[Opt] -> 21:62
+(38:54..38:55) scala/compiletime/ops/int.`+`#
+(39:25..39:29) _empty_/Regex.Loop# -> 21:8
+(39:30..39:31) _empty_/Regex.Loop#[R] -> 21:13
+(39:33..39:35) _empty_/Regex.Loop#[Lo] -> 21:26
+(39:36..39:37) scala/compiletime/ops/int.`+`#
+(39:41..39:43) _empty_/Regex.Loop#[Hi] -> 21:37
+(39:45..39:51) scala/Option#
+(39:52..39:58) scala/Predef.String#
+(39:60..39:62) scala/`*:`#
+(39:63..39:66) _empty_/Regex.Loop#[Acc] -> 21:48
+(39:68..39:71) _empty_/Regex.Loop#[Opt] -> 21:62
+(39:72..39:73) scala/compiletime/ops/int.`+`#
+(40:12..40:13) scala/Any#
+(40:17..40:21) _empty_/Regex.Loop# -> 21:8
+(40:22..40:23) _empty_/Regex.Loop#[R] -> 21:13
+(40:25..40:27) _empty_/Regex.Loop#[Lo] -> 21:26
+(40:28..40:29) scala/compiletime/ops/int.`+`#
+(40:33..40:35) _empty_/Regex.Loop#[Hi] -> 21:37
+(40:37..40:40) _empty_/Regex.Loop#[Acc] -> 21:48
+(40:42..40:45) _empty_/Regex.Loop#[Opt] -> 21:62
+(42:25..42:31) scala/Predef.String#
+(42:39..42:42) scala/Int#
+(42:47..42:54) scala/Boolean#
+(42:57..42:63) scala/compiletime/ops/string.CharAt#
+(42:64..42:65) _empty_/Regex.IsCapturing#[R] -> 42:20
+(42:67..42:69) _empty_/Regex.IsCapturing#[At] -> 42:33
+(43:17..43:23) scala/compiletime/ops/string.CharAt#
+(43:24..43:25) _empty_/Regex.IsCapturing#[R] -> 42:20
+(43:27..43:29) _empty_/Regex.IsCapturing#[At] -> 42:33
+(43:30..43:31) scala/compiletime/ops/int.`+`#
+(44:19..44:25) scala/compiletime/ops/string.CharAt#
+(44:26..44:27) _empty_/Regex.IsCapturing#[R] -> 42:20
+(44:29..44:31) _empty_/Regex.IsCapturing#[At] -> 42:33
+(44:32..44:33) scala/compiletime/ops/int.`+`#
+(45:18..45:19) scala/`|`#
+(46:14..46:15) scala/Any#
+(47:12..47:13) scala/Any#
+(48:10..48:11) scala/Any#
+(50:22..50:28) scala/Predef.String#
+(50:36..50:39) scala/Int#
+(50:47..50:50) scala/Int#
+(50:55..50:62) scala/Boolean#
+(50:65..50:67) _empty_/Regex.IsMarked#[At] -> 50:30
+(51:10..51:12) _empty_/Regex.IsMarked#[Hi] -> 50:41
+(52:10..52:11) scala/Any#
+(52:15..52:21) scala/compiletime/ops/string.CharAt#
+(52:22..52:23) _empty_/Regex.IsMarked#[R] -> 50:17
+(52:25..52:27) _empty_/Regex.IsMarked#[At] -> 50:30
+(53:16..53:17) scala/`|`#
+(54:19..54:25) scala/compiletime/ops/string.CharAt#
+(54:26..54:27) _empty_/Regex.IsMarked#[R] -> 50:17
+(54:29..54:31) _empty_/Regex.IsMarked#[At] -> 50:30
+(54:32..54:33) scala/compiletime/ops/int.`+`#
+(56:14..56:15) scala/Any#
+(57:12..57:13) scala/Any#
+(59:21..59:27) scala/Predef.String#
+(59:35..59:38) scala/Int#
+(59:46..59:49) scala/Int#
+(59:58..59:61) scala/Int#
+(59:66..59:69) scala/Int#
+(59:72..59:74) _empty_/Regex.IsPiped#[At] -> 59:29
+(60:10..60:12) _empty_/Regex.IsPiped#[Hi] -> 59:40
+(61:10..61:11) scala/Any#
+(61:15..61:21) scala/compiletime/ops/string.CharAt#
+(61:22..61:23) _empty_/Regex.IsPiped#[R] -> 59:16
+(61:25..61:27) _empty_/Regex.IsPiped#[At] -> 59:29
+(62:20..62:26) scala/compiletime/ops/string.CharAt#
+(62:27..62:28) _empty_/Regex.IsPiped#[R] -> 59:16
+(62:30..62:32) _empty_/Regex.IsPiped#[At] -> 59:29
+(62:33..62:34) scala/compiletime/ops/int.`+`#
+(63:21..63:28) _empty_/Regex.IsPiped# -> 59:8
+(63:29..63:30) _empty_/Regex.IsPiped#[R] -> 59:16
+(63:32..63:43) _empty_/Regex.ToClosingQE# -> 92:8
+(63:44..63:45) _empty_/Regex.IsPiped#[R] -> 59:16
+(63:47..63:49) _empty_/Regex.IsPiped#[At] -> 59:29
+(63:50..63:51) scala/compiletime/ops/int.`+`#
+(63:56..63:58) _empty_/Regex.IsPiped#[Hi] -> 59:40
+(63:60..63:63) _empty_/Regex.IsPiped#[Lvl] -> 59:51
+(64:14..64:15) scala/Any#
+(64:19..64:26) _empty_/Regex.IsPiped# -> 59:8
+(64:27..64:28) _empty_/Regex.IsPiped#[R] -> 59:16
+(64:30..64:32) _empty_/Regex.IsPiped#[At] -> 59:29
+(64:33..64:34) scala/compiletime/ops/int.`+`#
+(64:38..64:40) _empty_/Regex.IsPiped#[Hi] -> 59:40
+(64:42..64:45) _empty_/Regex.IsPiped#[Lvl] -> 59:51
+(65:19..65:26) _empty_/Regex.IsPiped# -> 59:8
+(65:27..65:28) _empty_/Regex.IsPiped#[R] -> 59:16
+(65:30..65:46) _empty_/Regex.ToClosingBracket# -> 82:8
+(65:47..65:48) _empty_/Regex.IsPiped#[R] -> 59:16
+(65:50..65:52) _empty_/Regex.IsPiped#[At] -> 59:29
+(65:53..65:54) scala/compiletime/ops/int.`+`#
+(65:62..65:64) _empty_/Regex.IsPiped#[Hi] -> 59:40
+(65:66..65:69) _empty_/Regex.IsPiped#[Lvl] -> 59:51
+(66:19..66:26) _empty_/Regex.IsPiped# -> 59:8
+(66:27..66:28) _empty_/Regex.IsPiped#[R] -> 59:16
+(66:30..66:50) _empty_/Regex.ToClosingParenthesis# -> 71:8
+(66:51..66:52) _empty_/Regex.IsPiped#[R] -> 59:16
+(66:54..66:56) _empty_/Regex.IsPiped#[At] -> 59:29
+(66:57..66:58) scala/compiletime/ops/int.`+`#
+(66:66..66:68) _empty_/Regex.IsPiped#[Hi] -> 59:40
+(66:70..66:73) _empty_/Regex.IsPiped#[Lvl] -> 59:51
+(66:74..66:75) scala/compiletime/ops/int.`+`#
+(69:12..69:13) scala/Any#
+(69:17..69:24) _empty_/Regex.IsPiped# -> 59:8
+(69:25..69:26) _empty_/Regex.IsPiped#[R] -> 59:16
+(69:28..69:30) _empty_/Regex.IsPiped#[At] -> 59:29
+(69:31..69:32) scala/compiletime/ops/int.`+`#
+(69:36..69:38) _empty_/Regex.IsPiped#[Hi] -> 59:40
+(69:40..69:43) _empty_/Regex.IsPiped#[Lvl] -> 59:51
+(71:34..71:40) scala/Predef.String#
+(71:48..71:51) scala/Int#
+(71:60..71:63) scala/Int#
+(71:68..71:71) scala/Int#
+(71:74..71:80) scala/compiletime/ops/string.CharAt#
+(71:81..71:82) _empty_/Regex.ToClosingParenthesis#[R] -> 71:29
+(71:84..71:86) _empty_/Regex.ToClosingParenthesis#[At] -> 71:42
+(72:18..72:24) scala/compiletime/ops/string.CharAt#
+(72:25..72:26) _empty_/Regex.ToClosingParenthesis#[R] -> 71:29
+(72:28..72:30) _empty_/Regex.ToClosingParenthesis#[At] -> 71:42
+(72:31..72:32) scala/compiletime/ops/int.`+`#
+(73:19..73:39) _empty_/Regex.ToClosingParenthesis# -> 71:8
+(73:40..73:41) _empty_/Regex.ToClosingParenthesis#[R] -> 71:29
+(73:43..73:54) _empty_/Regex.ToClosingQE# -> 92:8
+(73:55..73:56) _empty_/Regex.ToClosingParenthesis#[R] -> 71:29
+(73:58..73:60) _empty_/Regex.ToClosingParenthesis#[At] -> 71:42
+(73:61..73:62) scala/compiletime/ops/int.`+`#
+(73:67..73:70) _empty_/Regex.ToClosingParenthesis#[Lvl] -> 71:53
+(74:12..74:13) scala/Any#
+(74:17..74:37) _empty_/Regex.ToClosingParenthesis# -> 71:8
+(74:38..74:39) _empty_/Regex.ToClosingParenthesis#[R] -> 71:29
+(74:41..74:43) _empty_/Regex.ToClosingParenthesis#[At] -> 71:42
+(74:44..74:45) scala/compiletime/ops/int.`+`#
+(74:49..74:52) _empty_/Regex.ToClosingParenthesis#[Lvl] -> 71:53
+(75:17..75:37) _empty_/Regex.ToClosingParenthesis# -> 71:8
+(75:38..75:39) _empty_/Regex.ToClosingParenthesis#[R] -> 71:29
+(75:41..75:57) _empty_/Regex.ToClosingBracket# -> 82:8
+(75:58..75:59) _empty_/Regex.ToClosingParenthesis#[R] -> 71:29
+(75:61..75:63) _empty_/Regex.ToClosingParenthesis#[At] -> 71:42
+(75:64..75:65) scala/compiletime/ops/int.`+`#
+(75:73..75:76) _empty_/Regex.ToClosingParenthesis#[Lvl] -> 71:53
+(76:17..76:20) _empty_/Regex.ToClosingParenthesis#[Lvl] -> 71:53
+(77:17..77:19) _empty_/Regex.ToClosingParenthesis#[At] -> 71:42
+(77:20..77:21) scala/compiletime/ops/int.`+`#
+(78:12..78:13) scala/Any#
+(78:17..78:37) _empty_/Regex.ToClosingParenthesis# -> 71:8
+(78:38..78:39) _empty_/Regex.ToClosingParenthesis#[R] -> 71:29
+(78:41..78:43) _empty_/Regex.ToClosingParenthesis#[At] -> 71:42
+(78:44..78:45) scala/compiletime/ops/int.`+`#
+(78:49..78:52) _empty_/Regex.ToClosingParenthesis#[Lvl] -> 71:53
+(78:53..78:54) scala/compiletime/ops/int.`-`#
+(79:17..79:37) _empty_/Regex.ToClosingParenthesis# -> 71:8
+(79:38..79:39) _empty_/Regex.ToClosingParenthesis#[R] -> 71:29
+(79:41..79:43) _empty_/Regex.ToClosingParenthesis#[At] -> 71:42
+(79:44..79:45) scala/compiletime/ops/int.`+`#
+(79:49..79:52) _empty_/Regex.ToClosingParenthesis#[Lvl] -> 71:53
+(79:53..79:54) scala/compiletime/ops/int.`+`#
+(80:10..80:11) scala/Any#
+(80:17..80:37) _empty_/Regex.ToClosingParenthesis# -> 71:8
+(80:38..80:39) _empty_/Regex.ToClosingParenthesis#[R] -> 71:29
+(80:41..80:43) _empty_/Regex.ToClosingParenthesis#[At] -> 71:42
+(80:44..80:45) scala/compiletime/ops/int.`+`#
+(80:49..80:52) _empty_/Regex.ToClosingParenthesis#[Lvl] -> 71:53
+(82:30..82:36) scala/Predef.String#
+(82:44..82:47) scala/Int#
+(82:56..82:59) scala/Int#
+(82:64..82:67) scala/Int#
+(82:70..82:76) scala/compiletime/ops/string.CharAt#
+(82:77..82:78) _empty_/Regex.ToClosingBracket#[R] -> 82:25
+(82:80..82:82) _empty_/Regex.ToClosingBracket#[At] -> 82:38
+(83:18..83:24) scala/compiletime/ops/string.CharAt#
+(83:25..83:26) _empty_/Regex.ToClosingBracket#[R] -> 82:25
+(83:28..83:30) _empty_/Regex.ToClosingBracket#[At] -> 82:38
+(83:31..83:32) scala/compiletime/ops/int.`+`#
+(84:19..84:35) _empty_/Regex.ToClosingBracket# -> 82:8
+(84:36..84:37) _empty_/Regex.ToClosingBracket#[R] -> 82:25
+(84:39..84:50) _empty_/Regex.ToClosingQE# -> 92:8
+(84:51..84:52) _empty_/Regex.ToClosingBracket#[R] -> 82:25
+(84:54..84:56) _empty_/Regex.ToClosingBracket#[At] -> 82:38
+(84:57..84:58) scala/compiletime/ops/int.`+`#
+(84:63..84:66) _empty_/Regex.ToClosingBracket#[Lvl] -> 82:49
+(85:12..85:13) scala/Any#
+(85:17..85:33) _empty_/Regex.ToClosingBracket# -> 82:8
+(85:34..85:35) _empty_/Regex.ToClosingBracket#[R] -> 82:25
+(85:37..85:39) _empty_/Regex.ToClosingBracket#[At] -> 82:38
+(85:40..85:41) scala/compiletime/ops/int.`+`#
+(85:45..85:48) _empty_/Regex.ToClosingBracket#[Lvl] -> 82:49
+(86:17..86:33) _empty_/Regex.ToClosingBracket# -> 82:8
+(86:34..86:35) _empty_/Regex.ToClosingBracket#[R] -> 82:25
+(86:37..86:39) _empty_/Regex.ToClosingBracket#[At] -> 82:38
+(86:40..86:41) scala/compiletime/ops/int.`+`#
+(86:45..86:48) _empty_/Regex.ToClosingBracket#[Lvl] -> 82:49
+(86:49..86:50) scala/compiletime/ops/int.`+`#
+(87:17..87:20) _empty_/Regex.ToClosingBracket#[Lvl] -> 82:49
+(88:17..88:19) _empty_/Regex.ToClosingBracket#[At] -> 82:38
+(88:20..88:21) scala/compiletime/ops/int.`+`#
+(89:12..89:13) scala/Any#
+(89:17..89:33) _empty_/Regex.ToClosingBracket# -> 82:8
+(89:34..89:35) _empty_/Regex.ToClosingBracket#[R] -> 82:25
+(89:37..89:39) _empty_/Regex.ToClosingBracket#[At] -> 82:38
+(89:40..89:41) scala/compiletime/ops/int.`+`#
+(89:45..89:48) _empty_/Regex.ToClosingBracket#[Lvl] -> 82:49
+(89:49..89:50) scala/compiletime/ops/int.`-`#
+(90:10..90:11) scala/Any#
+(90:15..90:31) _empty_/Regex.ToClosingBracket# -> 82:8
+(90:32..90:33) _empty_/Regex.ToClosingBracket#[R] -> 82:25
+(90:35..90:37) _empty_/Regex.ToClosingBracket#[At] -> 82:38
+(90:38..90:39) scala/compiletime/ops/int.`+`#
+(90:43..90:46) _empty_/Regex.ToClosingBracket#[Lvl] -> 82:49
+(92:25..92:31) scala/Predef.String#
+(92:39..92:42) scala/Int#
+(92:47..92:50) scala/Int#
+(92:53..92:59) scala/compiletime/ops/string.CharAt#
+(92:60..92:61) _empty_/Regex.ToClosingQE#[R] -> 92:20
+(92:63..92:65) _empty_/Regex.ToClosingQE#[At] -> 92:33
+(93:18..93:24) scala/compiletime/ops/string.CharAt#
+(93:25..93:26) _empty_/Regex.ToClosingQE#[R] -> 92:20
+(93:28..93:30) _empty_/Regex.ToClosingQE#[At] -> 92:33
+(93:31..93:32) scala/compiletime/ops/int.`+`#
+(94:19..94:21) _empty_/Regex.ToClosingQE#[At] -> 92:33
+(94:22..94:23) scala/compiletime/ops/int.`+`#
+(95:12..95:13) scala/Any#
+(95:17..95:28) _empty_/Regex.ToClosingQE# -> 92:8
+(95:29..95:30) _empty_/Regex.ToClosingQE#[R] -> 92:20
+(95:32..95:34) _empty_/Regex.ToClosingQE#[At] -> 92:33
+(95:35..95:36) scala/compiletime/ops/int.`+`#
+(96:10..96:11) scala/Any#
+(96:15..96:26) _empty_/Regex.ToClosingQE# -> 92:8
+(96:27..96:28) _empty_/Regex.ToClosingQE#[R] -> 92:20
+(96:30..96:32) _empty_/Regex.ToClosingQE#[At] -> 92:33
+(96:33..96:34) scala/compiletime/ops/int.`+`#
+(98:23..98:28) scala/Tuple#
+(98:35..98:40) scala/Tuple#
+(98:45..98:50) scala/Tuple#
+(98:53..98:54) _empty_/Regex.Reverse#[X] -> 98:30
+(99:12..99:14) scala/`*:`#
+(99:24..99:31) _empty_/Regex.Reverse# -> 98:8
+(99:32..99:33) local0 -> 99:10
+(99:34..99:36) scala/`*:`#
+(99:37..99:40) _empty_/Regex.Reverse#[Acc] -> 98:16
+(99:42..99:44) local1 -> 99:15
+(100:10..100:20) scala/Tuple$package.EmptyTuple#
+(100:24..100:27) _empty_/Regex.Reverse#[Acc] -> 98:16
+(103:18..103:23) scala/Array#
+(103:24..103:30) scala/Predef.String#
+(103:34..103:38) scala/Unit#
+(104:15..104:20) _empty_/Regex. -> 7:8
+(106:12..106:15) local2 -> 104:9
+(106:17..106:21) scala/Some.
+(106:27..106:31) scala/Some.
+(106:41..106:44) scala/Predef.`???`().
+

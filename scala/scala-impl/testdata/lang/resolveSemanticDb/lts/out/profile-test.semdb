@@ -1,0 +1,13 @@
+Document tests/pos/profile-test.scala
+(7:14..7:17) scala/Predef.`???`().
+(9:12..9:19) scala/Boolean#
+(9:22..9:25) scala/Predef.`???`().
+(10:13..10:16) scala/Predef.`???`().
+(14:13..14:16) scala/Predef.`???`().
+(16:6..16:9) _empty_/ProfileTest.bar(). -> 9:7
+(18:5..18:8) _empty_/ProfileTest.baz(). -> 10:7
+(20:5..20:8) _empty_/ProfileTest.bam(). -> 14:7
+(22:6..22:9) _empty_/ProfileTest.bar(). -> 9:7
+(23:5..23:8) _empty_/ProfileTest.baz(). -> 10:7
+(27:5..27:8) _empty_/ProfileTest.bam(). -> 14:7
+

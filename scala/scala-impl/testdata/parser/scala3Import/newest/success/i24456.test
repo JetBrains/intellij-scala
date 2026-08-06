@@ -1,0 +1,266 @@
+// Similar to i24207
+
+class Generator:
+  private def generateTable(table: Table) =
+    val (ownRelations, unusedTerm) = calculateOwnRelations(table)
+    None
+
+  private def calculateOwnRelations(table: Table) =
+    val ownRelations = table.relations.filter(_.association.isDefined)
+    (ownRelations, Nil)
+
+case class Table(relations: Seq[TableRelation])
+case class TableRelation(association: Option[Association])
+trait Association
+-----
+ScalaFile
+  PsiComment(comment)('// Similar to i24207')
+  PsiWhiteSpace('\n\n')
+  ScClass: Generator
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Generator')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: generateTable
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('generateTable')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: table
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('table')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Table
+                    CodeReferenceElement: Table
+                      PsiElement(identifier)('Table')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: ownRelations, unusedTerm
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                TuplePattern
+                  PsiElement(()('(')
+                  ArgumentPatterns
+                    ReferencePattern: ownRelations
+                      PsiElement(identifier)('ownRelations')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferencePattern: unusedTerm
+                      PsiElement(identifier)('unusedTerm')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: calculateOwnRelations
+                  PsiElement(identifier)('calculateOwnRelations')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: table
+                    PsiElement(identifier)('table')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: None
+              PsiElement(identifier)('None')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: calculateOwnRelations
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('calculateOwnRelations')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: table
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('table')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Table
+                    CodeReferenceElement: Table
+                      PsiElement(identifier)('Table')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: ownRelations
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: ownRelations
+                  PsiElement(identifier)('ownRelations')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: table.relations.filter
+                  ReferenceExpression: table.relations
+                    ReferenceExpression: table
+                      PsiElement(identifier)('table')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('relations')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('filter')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: _.association.isDefined
+                    ReferenceExpression: _.association
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('association')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('isDefined')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            Tuple
+              PsiElement(()('(')
+              ReferenceExpression: ownRelations
+                PsiElement(identifier)('ownRelations')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: Nil
+                PsiElement(identifier)('Nil')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScClass: Table
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Table')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: relations
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('relations')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Seq[TableRelation]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: TableRelation
+                      CodeReferenceElement: TableRelation
+                        PsiElement(identifier)('TableRelation')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: TableRelation
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TableRelation')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: association
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('association')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Option[Association]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Association
+                      CodeReferenceElement: Association
+                        PsiElement(identifier)('Association')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Association
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Association')
+    ExtendsBlock
+      <empty list>

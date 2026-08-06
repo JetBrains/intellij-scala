@@ -1,0 +1,39 @@
+Document tests/pos/i19006b.scala
+(1:8..1:12) java/
+(1:13..1:17) java/util/
+(1:18..1:26) java/util/function/
+(1:27..1:35) java/util/function/Function#
+(9:25..9:35) _empty_/HttpClient# -> 3:7
+(9:42..9:62) _empty_/ClientRequestContext# -> 6:7
+(9:69..9:80) _empty_/HttpRequest# -> 4:7
+(9:83..9:95) _empty_/HttpResponse# -> 5:7
+(13:21..13:29) java/util/function/Function#
+(13:35..13:45) _empty_/HttpClient# -> 3:7
+(13:52..13:62) _empty_/HttpClient# -> 3:7
+(13:66..13:94) _empty_/AbstractClientOptionsBuilder# -> 12:7
+(13:97..13:100) scala/Predef.`???`().
+(14:21..14:49) _empty_/DecoratingHttpClientFunction# -> 8:7
+(14:52..14:80) _empty_/AbstractClientOptionsBuilder# -> 12:7
+(14:83..14:86) scala/Predef.`???`().
+(16:32..16:60) _empty_/AbstractClientOptionsBuilder# -> 12:7
+(17:30..17:38) java/util/function/Function#
+(17:44..17:54) _empty_/HttpClient# -> 3:7
+(17:61..17:71) _empty_/HttpClient# -> 3:7
+(17:75..17:91) _empty_/WebClientBuilder# -> 16:7
+(17:94..17:97) scala/Predef.`???`().
+(18:30..18:58) _empty_/DecoratingHttpClientFunction# -> 8:7
+(18:61..18:77) _empty_/WebClientBuilder# -> 16:7
+(18:80..18:83) scala/Predef.`???`().
+(21:30..21:40) _empty_/HttpClient# -> 3:7
+(21:42..21:62) _empty_/ClientRequestContext# -> 6:7
+(21:64..21:75) _empty_/HttpRequest# -> 4:7
+(21:80..21:92) _empty_/HttpResponse# -> 5:7
+(22:22..22:38) _empty_/WebClientBuilder# -> 16:7
+(22:41..22:44) scala/Predef.`???`().
+(24:32..24:50) _empty_/ArmeriaClientBuilder#DecoratingFunction# -> 21:8
+(24:53..24:73) _empty_/ArmeriaClientBuilder# -> 20:7
+(24:74..24:75) _empty_/ArmeriaClientBuilder#[F] -> 20:28
+(25:5..25:18) _empty_/ArmeriaClientBuilder#clientBuilder(). -> 22:7
+(25:19..25:28) _empty_/WebClientBuilder#decorator(+1). -> 18:16
+(25:29..25:38) _empty_/ArmeriaClientBuilder#withDecorator().(decorator) -> 24:21
+

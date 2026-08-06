@@ -1,0 +1,6 @@
+def f(a: Boolean, b: Boolean) = {
+  if (a)
+    if (b) {
+      return
+    }
+}

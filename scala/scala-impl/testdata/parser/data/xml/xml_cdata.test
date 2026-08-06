@@ -1,0 +1,40 @@
+val reason = <reason>
+  <![CDATA[
+
+  val reason = <reason>
+
+  </reason>
+
+]]>
+</reason>
+-----
+ScalaFile
+  ScPatternDefinition: reason
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: reason
+        PsiElement(identifier)('reason')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    XmlExpression
+      XmlElement
+        XmlStartTag
+          PsiElement(XML_START_TAG_START)('<')
+          PsiElement(XML_NAME)('reason')
+          PsiElement(XML_TAG_END)('>')
+        PsiWhiteSpace('\n  ')
+        CDataSection
+          PsiElement(XML_CDATA_START)('<![CDATA[')
+          PsiElement(XML_DATA_CHARACTERS)('\n\n  val reason = <reason>\n\n  </reason>\n\n')
+          PsiElement(XML_CDATA_END)(']]>')
+        PsiWhiteSpace('\n')
+        XmlEndTag
+          PsiElement(XML_END_TAG_START)('</')
+          PsiElement(XML_NAME)('reason')
+          PsiElement(XML_TAG_END)('>')

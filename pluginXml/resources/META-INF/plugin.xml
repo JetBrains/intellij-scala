@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+  ~ Copyright 2000-2012 JetBrains s.r.o.
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<idea-plugin url="https://jetbrains.com/scala"
+             xmlns:xi="http://www.w3.org/2001/XInclude">
+    <id>org.intellij.scala</id>
+    <name>Scala</name>
+    <description>
+        <![CDATA[
+        The plugin adds support for the Scala language. It enables multiple features such as:
+        <br>
+        <ul>
+          <li>Coding assistance (highlighting, completion, formatting, refactorings, etc.)</li>
+          <li>Navigation, search, information about types and implicits</li>
+          <li>Integration with sbt and other build tools</li>
+          <li>Testing frameworks support (ScalaTest, Specs2, uTest)</li>
+          <li>Scala debugger, worksheets and Ammonite scripts</li>
+        </ul>
+        <br>
+        Support for Play Framework, Akka and Scala.js is enabled in the Ultimate subscription.
+      ]]>
+    </description>
+    <version>VERSION</version>
+    <change-notes>There are currently no new updates. We're all busy working on the new release.
+        For a sneak peek at what's in store, check our EAP and nightly build
+    </change-notes>
+    <vendor url="https://www.jetbrains.com">JetBrains</vendor>
+    <idea-version since-build="262.9437" until-build="262.*"/>
+
+    <!-- <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends> -->
+
+    <!-- Required dependencies of the plugin. If they cannot be loaded, the Scala Plugin cannot be loaded -->
+    <dependencies>
+        <plugin id="com.intellij.java"/>
+        <plugin id="intellij.testRunner.plugin"/>
+        <plugin id="intellij.libraries.misc.plugin"/>
+        <plugin id="org.intellij.intelliLang"/>
+        <module name="intellij.java.backend"/>
+        <module name="intellij.java.execution.impl"/>
+        <module name="intellij.libraries.commons.text"/>
+    </dependencies>
+
+    <content namespace="jetbrains">
+        <module name="scalaCommunity.bsp"/>
+        <module name="scalaCommunity.bsp-junit"/>
+        <module name="scalaCommunity.bsp-terminal"/>
+        <module name="scalaCommunity.sbt-kotlin-ij-plugin-interop"/>
+
+        <module name="scalaCommunity.testing-support"/>
+        <module name="scalaCommunity.testing-support.munit"/>
+        <module name="scalaCommunity.scala-cli"/>
+        <module name="scalaCommunity.worksheet"/>
+        <module name="scalaCommunity.debugger"/>
+        <module name="scalaCommunity.compiler-integration"/>
+        <module name="scalaCommunity.structural-search"/>
+        <module name="scalaCommunity.uast"/>
+
+        <!-- integrations -->
+        <module name="scalaCommunity.copyright"/>
+        <module name="scalaCommunity.devkit"/>
+        <module name="scalaCommunity.featuresTrainer"/>
+        <module name="scalaCommunity.gradle"/>
+        <module name="scalaCommunity.i18n"/>
+        <module name="scalaCommunity.intellij-bazel"/>
+        <module name="scalaCommunity.javaDecompiler"/>
+        <module name="scalaCommunity.junit"/>
+        <module name="scalaCommunity.markdown"/>
+        <module name="scalaCommunity.maven"/>
+        <module name="scalaCommunity.properties"/>
+        <module name="scalaCommunity.textAnalysis"/>
+        <module name="scalaCommunity.intelliLang"/>
+    </content>
+
+    <xi:include href="/META-INF/sbt-api.xml"/>
+    <xi:include href="/META-INF/scala-plugin-common.xml"/>
+    <xi:include href="/META-INF/sbt.xml"/>
+    <xi:include href="/META-INF/codeInsight.xml"/>
+    <xi:include href="/META-INF/conversion.xml"/>
+    <xi:include href="/META-INF/scala-repl.xml"/>
+    <xi:include href="/META-INF/structure-view.xml"/>
+    <xi:include href="/META-INF/scala-meta-impl.xml"/>
+    <xi:include href="/META-INF/scalastyle-integration.xml"/>
+
+    <!-- Include the ultimate part of our plugin -->
+    <xi:include href="/META-INF/scala-ultimate-plugin.xml">
+        <!-- Ignore if the file cannot be loaded (when only the community part is build) -->
+        <xi:fallback/>
+    </xi:include>
+</idea-plugin>

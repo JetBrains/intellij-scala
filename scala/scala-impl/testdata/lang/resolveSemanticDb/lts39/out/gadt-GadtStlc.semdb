@@ -1,0 +1,256 @@
+Document tests/pos/gadt-GadtStlc.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:48) scala/language.experimental.namedTypeArguments.
+(5:12..5:13) _empty_/GadtStlc.W. -> 4:10
+(13:23..13:26) _empty_/GadtStlc.Var# -> 12:16
+(13:27..13:28) _empty_/GadtStlc.W# -> 5:8
+(14:32..14:35) _empty_/GadtStlc.Var# -> 12:16
+(14:36..14:37) _empty_/GadtStlc.M# -> 6:9
+(14:38..14:39) _empty_/GadtStlc.VarM#[A] -> 14:19
+(18:28..18:31) _empty_/GadtStlc.Var# -> 12:16
+(18:32..18:33) _empty_/GadtStlc.AbsC#[S] -> 18:19
+(18:39..18:40) _empty_/GadtStlc.AbsC#[E] -> 18:22
+(18:50..18:53) _empty_/GadtStlc.Abs# -> 17:16
+(18:54..18:57) _empty_/GadtStlc.Var# -> 12:16
+(18:58..18:59) _empty_/GadtStlc.AbsC#[S] -> 18:19
+(18:62..18:63) _empty_/GadtStlc.AbsC#[E] -> 18:22
+(21:30..21:32) _empty_/GadtStlc.App#[E1] -> 21:18
+(21:38..21:40) _empty_/GadtStlc.App#[E2] -> 21:22
+(24:32..24:34) _empty_/GadtStlc.TyFun#[T1] -> 24:20
+(24:40..24:42) _empty_/GadtStlc.TyFun#[T2] -> 24:24
+(28:14..28:17) _empty_/GadtStlc.Lit. -> 27:15
+(32:17..32:23) _empty_/GadtStlc.TyBase. -> 31:15
+(37:40..37:42) _empty_/GadtStlc.IN# -> 36:16
+(37:44..37:45) _empty_/GadtStlc.INOne#[G] -> 37:20
+(37:48..37:49) _empty_/GadtStlc.INOne#[X] -> 37:23
+(37:50..37:52) _empty_/GadtStlc.INOne#[TY] -> 37:26
+(37:57..37:58) _empty_/GadtStlc.INOne#[X] -> 37:23
+(37:60..37:62) _empty_/GadtStlc.INOne#[TY] -> 37:26
+(39:40..39:42) _empty_/GadtStlc.IN# -> 36:16
+(39:43..39:45) _empty_/GadtStlc.INShift#[G0] -> 39:22
+(39:48..39:49) _empty_/GadtStlc.INShift#[X] -> 39:29
+(39:51..39:53) _empty_/GadtStlc.INShift#[TY] -> 39:32
+(39:65..39:67) _empty_/GadtStlc.IN# -> 36:16
+(39:69..39:71) _empty_/GadtStlc.INShift#[G0] -> 39:22
+(39:73..39:74) _empty_/GadtStlc.INShift#[A] -> 39:26
+(39:78..39:79) _empty_/GadtStlc.INShift#[X] -> 39:29
+(39:81..39:83) _empty_/GadtStlc.INShift#[TY] -> 39:32
+(44:9..44:11) _empty_/GadtStlc.IN# -> 36:16
+(44:13..44:14) _empty_/GadtStlc.DVar#[G] -> 43:19
+(44:16..44:18) _empty_/GadtStlc.DVar#[G0] -> 43:22
+(44:22..44:25) _empty_/GadtStlc.Var# -> 12:16
+(44:26..44:27) _empty_/GadtStlc.DVar#[X] -> 43:26
+(44:30..44:32) _empty_/GadtStlc.DVar#[TY] -> 43:29
+(45:13..45:16) _empty_/GadtStlc.DER# -> 42:16
+(45:18..45:19) _empty_/GadtStlc.DVar#[G] -> 43:19
+(45:21..45:23) _empty_/GadtStlc.DVar#[G0] -> 43:22
+(45:26..45:29) _empty_/GadtStlc.Var# -> 12:16
+(45:30..45:31) _empty_/GadtStlc.DVar#[X] -> 43:26
+(45:34..45:36) _empty_/GadtStlc.DVar#[TY] -> 43:29
+(48:9..48:12) _empty_/GadtStlc.DER# -> 42:16
+(48:13..48:14) _empty_/GadtStlc.DApp#[G] -> 47:19
+(48:16..48:18) _empty_/GadtStlc.DApp#[E1] -> 47:22
+(48:20..48:25) _empty_/GadtStlc.TyFun# -> 24:14
+(48:26..48:29) _empty_/GadtStlc.DApp#[TY1] -> 47:30
+(48:31..48:34) _empty_/GadtStlc.DApp#[TY2] -> 47:35
+(49:9..49:12) _empty_/GadtStlc.DER# -> 42:16
+(49:13..49:14) _empty_/GadtStlc.DApp#[G] -> 47:19
+(49:16..49:18) _empty_/GadtStlc.DApp#[E2] -> 47:26
+(49:20..49:23) _empty_/GadtStlc.DApp#[TY1] -> 47:30
+(50:13..50:16) _empty_/GadtStlc.DER# -> 42:16
+(50:17..50:18) _empty_/GadtStlc.DApp#[G] -> 47:19
+(50:20..50:23) _empty_/GadtStlc.App# -> 21:14
+(50:24..50:26) _empty_/GadtStlc.DApp#[E1] -> 47:22
+(50:28..50:30) _empty_/GadtStlc.DApp#[E2] -> 47:26
+(50:33..50:36) _empty_/GadtStlc.DApp#[TY2] -> 47:35
+(53:9..53:12) _empty_/GadtStlc.DER# -> 42:16
+(53:14..53:15) _empty_/GadtStlc.DAbs#[G] -> 52:19
+(53:18..53:21) _empty_/GadtStlc.Var# -> 12:16
+(53:22..53:23) _empty_/GadtStlc.DAbs#[X] -> 52:22
+(53:26..53:29) _empty_/GadtStlc.DAbs#[TY1] -> 52:28
+(53:33..53:34) _empty_/GadtStlc.DAbs#[E] -> 52:25
+(53:36..53:39) _empty_/GadtStlc.DAbs#[TY2] -> 52:33
+(54:13..54:16) _empty_/GadtStlc.DER# -> 42:16
+(54:17..54:18) _empty_/GadtStlc.DAbs#[G] -> 52:19
+(54:20..54:23) _empty_/GadtStlc.Abs# -> 17:16
+(54:24..54:27) _empty_/GadtStlc.Var# -> 12:16
+(54:28..54:29) _empty_/GadtStlc.DAbs#[X] -> 52:22
+(54:32..54:33) _empty_/GadtStlc.DAbs#[E] -> 52:25
+(54:36..54:41) _empty_/GadtStlc.TyFun# -> 24:14
+(54:42..54:45) _empty_/GadtStlc.DAbs#[TY1] -> 52:28
+(54:47..54:50) _empty_/GadtStlc.DAbs#[TY2] -> 52:33
+(56:32..56:35) _empty_/GadtStlc.DER# -> 42:16
+(56:36..56:37) _empty_/GadtStlc.DLit#[G] -> 56:19
+(56:39..56:42) _empty_/GadtStlc.Lit# -> 28:8
+(56:44..56:50) _empty_/GadtStlc.TyBase# -> 32:8
+(59:21..59:24) _empty_/GadtStlc.DER# -> 42:16
+(59:25..59:26) _empty_/GadtStlc.test1().[G] -> 59:13
+(59:28..59:31) _empty_/GadtStlc.Abs# -> 17:16
+(59:32..59:35) _empty_/GadtStlc.Var# -> 12:16
+(59:36..59:37) _empty_/GadtStlc.W# -> 5:8
+(59:40..59:43) _empty_/GadtStlc.Var# -> 12:16
+(59:44..59:45) _empty_/GadtStlc.W# -> 5:8
+(59:49..59:54) _empty_/GadtStlc.TyFun# -> 24:14
+(59:55..59:57) _empty_/GadtStlc.test1().[TY] -> 59:16
+(59:59..59:61) _empty_/GadtStlc.test1().[TY] -> 59:16
+(60:5..60:9) _empty_/GadtStlc.DAbs.
+(60:10..60:14) _empty_/GadtStlc.DVar.
+(60:15..60:20) _empty_/GadtStlc.INOne.
+(63:17..63:20) _empty_/GadtStlc.DER# -> 42:16
+(63:21..63:22) _empty_/GadtStlc.test2().[G] -> 63:13
+(63:25..63:28) _empty_/GadtStlc.App# -> 21:14
+(63:29..63:32) _empty_/GadtStlc.Abs# -> 17:16
+(63:33..63:36) _empty_/GadtStlc.Var# -> 12:16
+(63:37..63:38) _empty_/GadtStlc.W# -> 5:8
+(63:41..63:44) _empty_/GadtStlc.Var# -> 12:16
+(63:45..63:46) _empty_/GadtStlc.W# -> 5:8
+(63:50..63:53) _empty_/GadtStlc.Lit# -> 28:8
+(63:57..63:63) _empty_/GadtStlc.TyBase# -> 32:8
+(64:5..64:9) _empty_/GadtStlc.DApp.
+(64:10..64:14) _empty_/GadtStlc.DAbs.
+(64:15..64:19) _empty_/GadtStlc.DVar.
+(64:20..64:25) _empty_/GadtStlc.INOne.
+(64:31..64:35) _empty_/GadtStlc.DLit.
+(67:21..67:24) _empty_/GadtStlc.DER# -> 42:16
+(67:25..67:26) _empty_/GadtStlc.test3().[G] -> 67:13
+(68:5..68:8) _empty_/GadtStlc.Abs# -> 17:16
+(68:9..68:12) _empty_/GadtStlc.Var# -> 12:16
+(68:13..68:14) _empty_/GadtStlc.W# -> 5:8
+(69:7..69:10) _empty_/GadtStlc.Abs# -> 17:16
+(69:11..69:14) _empty_/GadtStlc.Var# -> 12:16
+(69:15..69:16) _empty_/GadtStlc.M# -> 6:9
+(69:17..69:18) _empty_/GadtStlc.W# -> 5:8
+(70:9..70:12) _empty_/GadtStlc.App# -> 21:14
+(70:13..70:16) _empty_/GadtStlc.Var# -> 12:16
+(70:17..70:18) _empty_/GadtStlc.W# -> 5:8
+(70:21..70:24) _empty_/GadtStlc.Var# -> 12:16
+(70:25..70:26) _empty_/GadtStlc.M# -> 6:9
+(70:27..70:28) _empty_/GadtStlc.W# -> 5:8
+(73:5..73:10) _empty_/GadtStlc.TyFun# -> 24:14
+(73:11..73:16) _empty_/GadtStlc.TyFun# -> 24:14
+(73:17..73:19) _empty_/GadtStlc.test3().[TY] -> 67:16
+(73:21..73:23) _empty_/GadtStlc.test3().[TY] -> 67:16
+(73:26..73:31) _empty_/GadtStlc.TyFun# -> 24:14
+(73:32..73:34) _empty_/GadtStlc.test3().[TY] -> 67:16
+(73:36..73:38) _empty_/GadtStlc.test3().[TY] -> 67:16
+(74:7..74:11) _empty_/GadtStlc.DAbs.
+(74:12..74:16) _empty_/GadtStlc.DAbs.
+(74:17..74:21) _empty_/GadtStlc.DApp.
+(74:22..74:26) _empty_/GadtStlc.DVar.
+(74:27..74:34) _empty_/GadtStlc.INShift.
+(74:35..74:40) _empty_/GadtStlc.INOne.
+(74:46..74:50) _empty_/GadtStlc.DVar.
+(74:51..74:56) _empty_/GadtStlc.INOne.
+(79:41..79:46) _empty_/GadtStlc.ISVAL# -> 78:16
+(79:47..79:50) _empty_/GadtStlc.Abs# -> 17:16
+(79:51..79:54) _empty_/GadtStlc.Var# -> 12:16
+(79:55..79:56) _empty_/GadtStlc.ISVAL_Abs#[X] -> 79:24
+(79:59..79:60) _empty_/GadtStlc.ISVAL_Abs#[E] -> 79:27
+(80:33..80:38) _empty_/GadtStlc.ISVAL# -> 78:16
+(80:39..80:42) _empty_/GadtStlc.Lit# -> 28:8
+(85:9..85:16) _empty_/GadtStlc.REDUDER# -> 83:16
+(85:17..85:20) _empty_/GadtStlc.EApp1#[E1a] -> 84:20
+(85:22..85:25) _empty_/GadtStlc.EApp1#[E1b] -> 84:25
+(86:13..86:20) _empty_/GadtStlc.REDUDER# -> 83:16
+(86:21..86:24) _empty_/GadtStlc.App# -> 21:14
+(86:25..86:28) _empty_/GadtStlc.EApp1#[E1a] -> 84:20
+(86:30..86:32) _empty_/GadtStlc.EApp1#[E2] -> 84:30
+(86:35..86:38) _empty_/GadtStlc.App# -> 21:14
+(86:39..86:42) _empty_/GadtStlc.EApp1#[E1b] -> 84:25
+(86:44..86:46) _empty_/GadtStlc.EApp1#[E2] -> 84:30
+(89:12..89:17) _empty_/GadtStlc.ISVAL# -> 78:16
+(89:18..89:20) _empty_/GadtStlc.EApp2#[V1] -> 88:20
+(90:9..90:16) _empty_/GadtStlc.REDUDER# -> 83:16
+(90:17..90:20) _empty_/GadtStlc.EApp2#[E2a] -> 88:24
+(90:22..90:25) _empty_/GadtStlc.EApp2#[E2b] -> 88:29
+(91:13..91:20) _empty_/GadtStlc.REDUDER# -> 83:16
+(91:21..91:24) _empty_/GadtStlc.App# -> 21:14
+(91:25..91:27) _empty_/GadtStlc.EApp2#[V1] -> 88:20
+(91:29..91:32) _empty_/GadtStlc.EApp2#[E2a] -> 88:24
+(91:35..91:38) _empty_/GadtStlc.App# -> 21:14
+(91:39..91:41) _empty_/GadtStlc.EApp2#[V1] -> 88:20
+(91:43..91:46) _empty_/GadtStlc.EApp2#[E2b] -> 88:29
+(94:12..94:17) _empty_/GadtStlc.ISVAL# -> 78:16
+(94:18..94:20) _empty_/GadtStlc.EAppAbs#[V2] -> 93:28
+(97:13..97:20) _empty_/GadtStlc.REDUDER# -> 83:16
+(97:21..97:24) _empty_/GadtStlc.App# -> 21:14
+(97:25..97:28) _empty_/GadtStlc.Abs# -> 17:16
+(97:29..97:32) _empty_/GadtStlc.Var# -> 12:16
+(97:33..97:34) _empty_/GadtStlc.EAppAbs#[X] -> 93:22
+(97:37..97:38) _empty_/GadtStlc.EAppAbs#[E] -> 93:25
+(97:41..97:43) _empty_/GadtStlc.EAppAbs#[V2] -> 93:28
+(97:46..97:47) _empty_/GadtStlc.EAppAbs#[R] -> 93:32
+(101:40..101:48) _empty_/GadtStlc.ISLAMBDA# -> 100:16
+(101:49..101:52) _empty_/GadtStlc.Abs# -> 17:16
+(101:53..101:56) _empty_/GadtStlc.Var# -> 12:16
+(101:57..101:58) _empty_/GadtStlc.ISLAMBDAC#[X] -> 101:24
+(101:61..101:62) _empty_/GadtStlc.ISLAMBDAC#[E] -> 101:27
+(104:21..104:28) _empty_/GadtStlc.REDUDER# -> 83:16
+(104:29..104:30) _empty_/GadtStlc.REDUCES#[E] -> 104:16
+(107:12..107:17) _empty_/GadtStlc.ISVAL# -> 78:16
+(107:18..107:19) _empty_/GadtStlc.followsIsLambda().[V] -> 106:26
+(108:10..108:13) _empty_/GadtStlc.DER# -> 42:16
+(108:14..108:15) _empty_/GadtStlc.followsIsLambda().[G] -> 106:23
+(108:17..108:18) _empty_/GadtStlc.followsIsLambda().[V] -> 106:26
+(108:20..108:25) _empty_/GadtStlc.TyFun# -> 24:14
+(108:26..108:29) _empty_/GadtStlc.followsIsLambda().[TY1] -> 106:29
+(108:31..108:34) _empty_/GadtStlc.followsIsLambda().[TY2] -> 106:34
+(109:6..109:14) _empty_/GadtStlc.ISLAMBDA# -> 100:16
+(109:15..109:16) _empty_/GadtStlc.followsIsLambda().[V] -> 106:26
+(109:21..109:26) _empty_/GadtStlc.followsIsLambda().(isval) -> 107:5
+(109:28..109:31) _empty_/GadtStlc.followsIsLambda().(der) -> 108:5
+(110:14..110:23) _empty_/GadtStlc.ISVAL_Abs# -> 79:14
+(110:37..110:46) _empty_/GadtStlc.ISLAMBDAC.
+(110:47..110:48) local0 -> 110:24
+(110:50..110:51) local1 -> 110:27
+(114:28..114:31) _empty_/GadtStlc.DER# -> 42:16
+(114:32..114:36) scala/Unit#
+(114:38..114:39) _empty_/GadtStlc.progress().[E] -> 114:16
+(114:41..114:43) _empty_/GadtStlc.progress().[TY] -> 114:19
+(114:47..114:53) scala/package.Either#
+(114:54..114:59) _empty_/GadtStlc.ISVAL# -> 78:16
+(114:60..114:61) _empty_/GadtStlc.progress().[E] -> 114:16
+(114:64..114:71) _empty_/GadtStlc.REDUCES# -> 104:8
+(114:72..114:73) _empty_/GadtStlc.progress().[E] -> 114:16
+(115:5..115:8) _empty_/GadtStlc.progress().(der) -> 114:23
+(116:15..116:19) _empty_/GadtStlc.DAbs# -> 52:14
+(116:42..116:46) scala/package.Left.
+(116:47..116:56) _empty_/GadtStlc.ISVAL_Abs.
+(116:57..116:58) local3 -> 116:23
+(116:60..116:61) local4 -> 116:26
+(117:12..117:16) _empty_/GadtStlc.DLit.
+(117:22..117:26) scala/package.Left.
+(117:27..117:36) _empty_/GadtStlc.ISVAL_Lit. -> 80:15
+(118:18..118:22) _empty_/GadtStlc.DApp# -> 47:14
+(118:23..118:27) scala/Unit#
+(118:48..118:56) _empty_/GadtStlc.progress(). -> 114:7
+(118:57..118:61) local11 -> 118:12
+(118:62..118:64) _empty_/GadtStlc.DApp#d1. -> 48:5
+(119:14..119:19) scala/package.Right.
+(119:27..119:32) scala/package.Right.
+(119:33..119:38) _empty_/GadtStlc.EApp1.
+(119:44..119:45) local8 -> 118:32
+(119:47..119:49) local12 -> 119:20
+(120:14..120:18) scala/package.Left.
+(120:28..120:36) _empty_/GadtStlc.progress(). -> 114:7
+(120:37..120:41) local11 -> 118:12
+(120:42..120:44) _empty_/GadtStlc.DApp#d2. -> 49:5
+(121:16..121:21) scala/package.Right.
+(121:29..121:34) scala/package.Right.
+(121:35..121:40) _empty_/GadtStlc.EApp2.
+(121:41..121:45) local13 -> 120:19
+(121:47..121:49) local14 -> 121:22
+(122:16..122:20) scala/package.Left.
+(122:30..122:45) _empty_/GadtStlc.followsIsLambda(). -> 106:7
+(122:46..122:50) local13 -> 120:19
+(122:52..122:56) local11 -> 118:12
+(122:57..122:59) _empty_/GadtStlc.DApp#d1. -> 48:5
+(123:21..123:30) _empty_/GadtStlc.ISLAMBDAC# -> 101:14
+(123:40..123:45) scala/package.Right.
+(123:46..123:53) _empty_/GadtStlc.EAppAbs.
+(123:58..123:59) local16 -> 123:31
+(123:65..123:66) local17 -> 123:34
+(123:73..123:74) local8 -> 118:32
+(123:76..123:80) local15 -> 122:21
+

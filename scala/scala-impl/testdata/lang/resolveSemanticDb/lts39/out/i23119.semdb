@@ -1,0 +1,35 @@
+Document tests/pos/i23119.scala
+(3:11..3:21) scala/package.IndexedSeq#
+(3:22..3:35) _empty_/FalsePositive# -> 27:7
+(5:12..5:14) scala/runtime/RichInt#to().
+(6:17..6:18) local0 -> 5:5
+(7:10..7:23) _empty_/FalsePositive# -> 27:7
+(8:11..8:13) local2 -> 7:5
+(12:10..12:14) scala/package.List.
+(13:22..13:24) scala/Predef.ArrowAssoc#`->`().
+(15:5..15:6) scala/StringContext#s().
+(15:8..15:9) local4 -> 13:6
+(15:12..15:13) local5 -> 13:9
+(15:15..15:16) scala/collection/StringOps#`*`().
+(15:17..15:18) local3 -> 12:5
+(17:10..17:20) scala/package.IndexedSeq#
+(17:21..17:34) _empty_/FalsePositive# -> 27:7
+(18:9..18:15) scala/Predef.String#
+(20:11..20:14) scala/Int#
+(20:20..20:22) scala/runtime/RichInt#to().
+(21:8..21:11) scala/Int#
+(21:14..21:20) scala/Predef.summon().
+(21:21..21:24) scala/Int#
+(22:9..22:10) local9 -> 21:5
+(22:11..22:12) scala/Int#`+`(+4).
+(23:16..23:17) local9 -> 21:5
+(23:21..23:24) scala/package.Nil.
+(24:10..24:23) _empty_/FalsePositive# -> 27:7
+(24:30..24:31) local10 -> 23:5
+(25:9..25:11) local11 -> 24:5
+(27:27..27:30) scala/Int#
+(28:16..28:20) scala/Unit#
+(29:5..29:12) scala/Predef.println(+1).
+(29:13..29:19) scala/Predef.summon().
+(29:20..29:23) scala/Int#
+

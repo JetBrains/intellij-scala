@@ -1,0 +1,25 @@
+Document tests/pos/i19749.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(1:23..1:29) scala/deriving/Mirror#
+(1:23..1:29) scala/deriving/Mirror.
+(3:17..3:20) scala/Int#
+(3:25..3:31) scala/Predef.String#
+(8:16..8:25) _empty_/SomeTrait# -> 5:7
+(8:26..8:27) _empty_/SomeTrait.given_SomeTrait_T#[T] -> 8:10
+(10:20..10:26) scala/deriving/Mirror.
+(10:27..10:36) scala/deriving/Mirror.ProductOf#
+(10:37..10:38) _empty_/i19749$package.f1().[T] -> 10:8
+(10:42..10:47) scala/Tuple.
+(10:48..10:52) scala/Tuple.Elem#
+(10:53..10:54) _empty_/i19749$package.f1().(p) -> 10:17
+(10:79..10:82) scala/Predef.`???`().
+(12:17..12:18) _empty_/i19749$package.f2().[T] -> 12:8
+(12:22..12:23) _empty_/i19749$package.f2().[R] -> 12:11
+(12:31..12:40) _empty_/SomeTrait# -> 5:7
+(12:41..12:42) _empty_/i19749$package.f2().[R] -> 12:11
+(12:47..12:50) scala/Predef.`???`().
+(15:9..15:11) _empty_/i19749$package.f2(). -> 12:5
+(15:17..15:19) _empty_/i19749$package.f1(). -> 10:5
+(15:20..15:21) _empty_/A# -> 3:12
+

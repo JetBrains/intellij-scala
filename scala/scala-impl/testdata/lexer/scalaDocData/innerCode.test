@@ -1,0 +1,124 @@
+/**
+  * {{{
+  *   class A {
+  *      var a: Int = 0 // int variable
+  *      var b: String = "aa"
+  *      var s`'''`: Any = null
+  *
+  *      def f(o: Option[Any]) {
+            case x @ Some(_) => println(x)
+            case None => println("None!")
+  }
+  *
+  *      /**  This is legal doc comment
+  *         * __method__ f
+  *         *
+  *         * @param i Int count
+  *         * @return nothing
+  *         */
+  *       def f(i: Int) {
+  *          for (j <- 1 to i) {
+  *            b += b
+  *          }
+  *      }
+  *   }
+  * }}}
+  */
+-----
+DOC_COMMENT_START {/**}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_INNER_CODE_TAG {{{{}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {   class A {}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {      var a: Int = 0 // int variable}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {      var b: String = "aa"}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {      var s`'''`: Any = null}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {      def f(o: Option[Any]) {}
+DOC_WHITESPACE {
+            }
+DOC_INNER_CODE {case x @ Some(_) => println(x)}
+DOC_WHITESPACE {
+            }
+DOC_INNER_CODE {case None => println("None!")}
+DOC_WHITESPACE {
+  }
+DOC_INNER_CODE {}}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {      /**  This is legal doc comment}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {         * __method__ f}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {         *}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {         * @param i Int count}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {         * @return nothing}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {         */}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {       def f(i: Int) {}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {          for (j <- 1 to i) {}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {            b += b}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {          }}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {      }}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE {   }}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_INNER_CODE { }
+DOC_INNER_CLOSE_CODE_TAG {}}}}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_END {*/}

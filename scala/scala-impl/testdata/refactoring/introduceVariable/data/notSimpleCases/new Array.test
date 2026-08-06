@@ -1,0 +1,11 @@
+class a {
+  def foo {
+    <selection>new Array</selection>
+  }
+}
+------
+class a {
+  def foo {
+    val value: Array[Nothing] = new Array
+  }
+}

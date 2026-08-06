@@ -1,0 +1,8 @@
+{
+  "org/jetbrains/plugins/scala/bsp/images/expui": {
+    "buildServerProtocol.svg": "org/jetbrains/plugins/scala/bsp/images/buildServerProtocol.svg",
+    "buildServerProtocol@20x20.svg": "org/jetbrains/plugins/scala/bsp/images/toolWindowBuildServerProtocol.svg",
+    "buildServerProtocolLoadChanges.svg": "org/jetbrains/plugins/scala/bsp/images/refresh.svg",
+    "buildServerProtocolTarget.svg": "org/jetbrains/plugins/scala/bsp/images/buildServerProtocolTarget.svg"
+  }
+}

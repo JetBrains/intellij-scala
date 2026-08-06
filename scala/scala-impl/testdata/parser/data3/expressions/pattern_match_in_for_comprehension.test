@@ -1,0 +1,87 @@
+for {
+  n <- 1 to 8 if n match {
+    case x if x > 5 => true
+    case _ => false
+  }
+} yield n
+--------
+ScalaFile
+  ForStatement
+    PsiElement(for)('for')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    Enumerators
+      Generator
+        ReferencePattern: n
+          PsiElement(identifier)('n')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        InfixExpression
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: to
+            PsiElement(identifier)('to')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('8')
+      PsiWhiteSpace(' ')
+      Guard
+        PsiElement(if)('if')
+        PsiWhiteSpace(' ')
+        MatchStatement
+          ReferenceExpression: n
+            PsiElement(identifier)('n')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              Guard
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  ReferenceExpression: x
+                    PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: >
+                    PsiElement(identifier)('>')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('5')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                BooleanLiteral
+                  PsiElement(true)('true')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              WildcardPattern
+                PsiElement(_)('_')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                BooleanLiteral
+                  PsiElement(false)('false')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    PsiElement(yield)('yield')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: n
+      PsiElement(identifier)('n')

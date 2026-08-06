@@ -1,0 +1,10 @@
+Document tests/pos/i22408.scala
+(2:4..2:9) scala/
+(2:10..2:20) scala/annotation/
+(2:21..2:27) scala/annotation/static#
+(3:26..3:29) scala/Int#
+(4:27..4:30) scala/Int#
+(5:32..5:35) scala/Predef.`???`().
+(6:7..6:25) local0 -> 5:11
+(8:5..8:21) local1 -> 4:9
+

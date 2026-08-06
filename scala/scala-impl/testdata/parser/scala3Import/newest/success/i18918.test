@@ -1,0 +1,246 @@
+
+trait SuperTrait {
+	sealed trait InnerTrait
+	case class Foo() extends InnerTrait
+}
+
+trait OtherTrait
+
+trait TraitWithSelfType extends SuperTrait { this: OtherTrait =>
+	summon[deriving.Mirror.Of[Foo]]
+	summon[deriving.Mirror.Of[InnerTrait]]
+}
+
+object Implementation extends TraitWithSelfType, OtherTrait {
+	summon[deriving.Mirror.Of[Foo]]
+	summon[deriving.Mirror.Of[InnerTrait]]
+}
+-----
+ScalaFile
+  ScTrait: SuperTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SuperTrait')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\t')
+        ScTrait: InnerTrait
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('InnerTrait')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\t')
+        ScClass: Foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Foo')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: InnerTrait
+                  CodeReferenceElement: InnerTrait
+                    PsiElement(identifier)('InnerTrait')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: OtherTrait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OtherTrait')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: TraitWithSelfType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TraitWithSelfType')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: SuperTrait
+            CodeReferenceElement: SuperTrait
+              PsiElement(identifier)('SuperTrait')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        SelfType: this
+          PsiElement(this)('this')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: OtherTrait
+            CodeReferenceElement: OtherTrait
+              PsiElement(identifier)('OtherTrait')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n\t')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: deriving.Mirror.Of[Foo]
+                SimpleType: deriving.Mirror.Of
+                  CodeReferenceElement: deriving.Mirror.Of
+                    CodeReferenceElement: deriving.Mirror
+                      CodeReferenceElement: deriving
+                        PsiElement(identifier)('deriving')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Mirror')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Of')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n\t')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: deriving.Mirror.Of[InnerTrait]
+                SimpleType: deriving.Mirror.Of
+                  CodeReferenceElement: deriving.Mirror.Of
+                    CodeReferenceElement: deriving.Mirror
+                      CodeReferenceElement: deriving
+                        PsiElement(identifier)('deriving')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Mirror')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Of')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: InnerTrait
+                      CodeReferenceElement: InnerTrait
+                        PsiElement(identifier)('InnerTrait')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Implementation
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Implementation')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: TraitWithSelfType
+            CodeReferenceElement: TraitWithSelfType
+              PsiElement(identifier)('TraitWithSelfType')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: OtherTrait
+            CodeReferenceElement: OtherTrait
+              PsiElement(identifier)('OtherTrait')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\t')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: deriving.Mirror.Of[Foo]
+                SimpleType: deriving.Mirror.Of
+                  CodeReferenceElement: deriving.Mirror.Of
+                    CodeReferenceElement: deriving.Mirror
+                      CodeReferenceElement: deriving
+                        PsiElement(identifier)('deriving')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Mirror')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Of')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Foo
+                      CodeReferenceElement: Foo
+                        PsiElement(identifier)('Foo')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n\t')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: deriving.Mirror.Of[InnerTrait]
+                SimpleType: deriving.Mirror.Of
+                  CodeReferenceElement: deriving.Mirror.Of
+                    CodeReferenceElement: deriving.Mirror
+                      CodeReferenceElement: deriving
+                        PsiElement(identifier)('deriving')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Mirror')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Of')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: InnerTrait
+                      CodeReferenceElement: InnerTrait
+                        PsiElement(identifier)('InnerTrait')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

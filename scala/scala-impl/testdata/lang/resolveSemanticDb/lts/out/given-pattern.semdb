@@ -1,0 +1,65 @@
+Document tests/pos/given-pattern.scala
+(4:10..4:15) scala/
+(4:16..4:26) scala/collection/
+(4:27..4:36) scala/collection/immutable/
+(4:38..4:45) scala/collection/immutable/TreeSet#
+(4:38..4:45) scala/collection/immutable/TreeSet.
+(4:47..4:54) scala/collection/immutable/HashSet#
+(4:47..4:54) scala/collection/immutable/HashSet.
+(6:45..6:60) scala/PartialFunction#
+(6:61..6:62) _empty_/Test#trySummon().[S] -> 6:36
+(6:64..6:65) _empty_/Test#trySummon().[T] -> 6:39
+(6:69..6:70) _empty_/Test#trySummon().[T] -> 6:39
+(6:73..6:76) scala/Predef.`???`().
+(8:25..8:28) scala/Predef.Set#
+(8:29..8:30) _empty_/Test#setFor().[T] -> 8:21
+(8:34..8:43) _empty_/Test#trySummon(). -> 6:26
+(9:22..9:30) scala/package.Ordering#
+(9:31..9:32) _empty_/Test#setFor().[T] -> 8:21
+(9:41..9:48) scala/collection/immutable/TreeSet#
+(9:49..9:50) _empty_/Test#setFor().[T] -> 8:21
+(10:16..10:24) scala/package.Ordering#
+(10:25..10:26) _empty_/Test#setFor().[T] -> 8:21
+(10:41..10:48) scala/collection/immutable/TreeSet#
+(10:49..10:50) _empty_/Test#setFor().[T] -> 8:21
+(11:41..11:48) scala/collection/immutable/HashSet#
+(11:49..11:50) _empty_/Test#setFor().[T] -> 8:21
+(14:16..14:24) scala/package.Ordering#
+(14:25..14:26) _empty_/Test#f1().[T] -> 14:10
+(14:32..14:33) _empty_/Test#f1().(x) -> 14:13
+(14:35..14:36) _empty_/Test#f1().(x) -> 14:13
+(15:21..15:29) scala/package.Ordering#
+(15:30..15:31) _empty_/Test#f1().[T] -> 14:10
+(15:44..15:51) scala/collection/immutable/TreeSet#
+(15:52..15:53) _empty_/Test#f1().[T] -> 14:10
+(17:16..17:24) scala/package.Ordering#
+(17:25..17:26) _empty_/Test#f2().[T] -> 17:10
+(18:14..18:18) scala/package.List.
+(18:19..18:20) _empty_/Test#f2().(x) -> 17:13
+(18:22..18:23) _empty_/Test#f2().(x) -> 17:13
+(18:25..18:26) _empty_/Test#f2().(x) -> 17:13
+(19:19..19:27) scala/package.Ordering#
+(19:28..19:29) _empty_/Test#f2().[T] -> 17:10
+(19:34..19:36) local4 -> 18:9
+(20:15..20:22) scala/collection/immutable/TreeSet#
+(20:23..20:24) _empty_/Test#f2().[T] -> 17:10
+(22:16..22:24) scala/package.Ordering#
+(22:25..22:26) _empty_/Test#f3().[T] -> 22:10
+(22:32..22:33) _empty_/Test#f3().(x) -> 22:13
+(22:35..22:36) _empty_/Test#f3().(x) -> 22:13
+(23:17..23:25) scala/package.Ordering#
+(23:26..23:27) _empty_/Test#f3().[T] -> 22:10
+(23:40..23:47) scala/collection/immutable/TreeSet#
+(23:48..23:49) _empty_/Test#f3().[T] -> 22:10
+(25:16..25:24) scala/package.Ordering#
+(25:25..25:26) _empty_/Test#f4().[T] -> 25:10
+(26:14..26:18) scala/package.List.
+(26:19..26:20) _empty_/Test#f4().(x) -> 25:13
+(26:22..26:23) _empty_/Test#f4().(x) -> 25:13
+(26:25..26:26) _empty_/Test#f4().(x) -> 25:13
+(27:15..27:23) scala/package.Ordering#
+(27:24..27:25) _empty_/Test#f4().[T] -> 25:10
+(27:30..27:32) local8 -> 26:9
+(28:15..28:22) scala/collection/immutable/TreeSet#
+(28:23..28:24) _empty_/Test#f4().[T] -> 25:10
+

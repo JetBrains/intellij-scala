@@ -1,0 +1,5 @@
+Document tests/pos/i24249.scala
+(2:8..2:18) scala/annotation/
+(5:4..5:11) scala/annotation/varargs#
+(5:24..5:27) scala/Int#
+

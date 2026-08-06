@@ -1,0 +1,11 @@
+Document tests/pos/resultGuidesInference.scala
+(3:17..3:18) _empty_/test.foo().[T] -> 3:11
+(3:22..3:23) _empty_/test.foo().[T] -> 3:11
+(3:26..3:31) scala/Array#
+(3:32..3:33) _empty_/test.foo().[T] -> 3:11
+(3:37..3:40) scala/Predef.`???`().
+(5:10..5:15) scala/Array#
+(5:16..5:19) scala/Int#
+(5:23..5:26) _empty_/test.foo(). -> 3:7
+(5:32..5:33) local0 -> 5:27
+

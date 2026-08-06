@@ -1,0 +1,3 @@
+package typeDefinition
+
+trait Trait

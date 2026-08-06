@@ -1,0 +1,28 @@
+Document tests/pos/i22266.unenum.scala
+(5:46..5:60) _empty_/SymmetryAspect# -> 4:14
+(6:46..6:60) _empty_/SymmetryAspect# -> 4:14
+(11:32..11:37) _empty_/Shape# -> 8:23
+(11:43..11:53) _empty_/NonPolygon# -> 1:14
+(11:59..11:77) _empty_/RotationalSymmetry# -> 5:14
+(12:32..12:37) _empty_/Shape# -> 8:23
+(12:43..12:50) _empty_/Polygon# -> 2:14
+(12:56..12:79) _empty_/MaybeRotationalSymmetry# -> 6:14
+(13:32..13:37) _empty_/Shape# -> 8:23
+(13:43..13:50) _empty_/Polygon# -> 2:14
+(13:56..13:74) _empty_/RotationalSymmetry# -> 5:14
+(16:21..16:27) scala/package.Vector#
+(16:28..16:33) _empty_/Shape# -> 8:23
+(16:34..16:35) scala/`&`#
+(16:36..16:54) _empty_/RotationalSymmetry# -> 5:14
+(17:16..17:22) scala/package.Vector#
+(17:23..17:28) _empty_/Shape# -> 8:23
+(17:29..17:30) scala/`&`#
+(17:31..17:54) _empty_/MaybeRotationalSymmetry# -> 6:14
+(18:6..18:13) scala/Boolean#
+(19:15..19:29) _empty_/Shape.hasPolygon().(rotationalSyms) -> 16:5
+(19:30..19:36) scala/collection/SeqOps#concat().
+(19:37..19:46) _empty_/Shape.hasPolygon().(maybeSyms) -> 17:5
+(20:5..20:8) local0 -> 19:9
+(20:9..20:15) scala/collection/IterableOnceOps#exists().
+(21:15..21:22) _empty_/Polygon# -> 2:14
+

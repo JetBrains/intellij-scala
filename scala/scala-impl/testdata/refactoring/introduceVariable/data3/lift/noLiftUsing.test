@@ -1,0 +1,14 @@
+object A {
+  given Int = 0
+  def test(using a: Int): Nothing = ???
+
+  Seq(1).forall(<selection>test</selection>)
+}
+-------
+object A {
+  given Int = 0
+  def test(using a: Int): Nothing = ???
+
+  private val value: Nothing = test
+  Seq(1).forall(value)
+}

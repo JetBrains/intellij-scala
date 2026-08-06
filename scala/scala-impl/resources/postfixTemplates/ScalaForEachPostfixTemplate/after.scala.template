@@ -1,0 +1,7 @@
+object Example {
+  def foo(list: List[Integer]) {
+    for (elem <- list) {
+      <spot></spot>
+    }
+  }
+}

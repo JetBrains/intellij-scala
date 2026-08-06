@@ -1,0 +1,11 @@
+Document tests/pos/t762.scala
+(2:20..2:23) _empty_/Foo# -> 1:7
+(2:34..2:37) _empty_/Foo# -> 1:7
+(2:60..2:61) _empty_/Foo#T# -> 1:18
+(3:20..3:23) _empty_/Foo# -> 1:7
+(3:34..3:37) _empty_/Foo# -> 1:7
+(3:60..3:61) _empty_/Foo#T# -> 1:18
+(4:20..4:23) _empty_/Foo# -> 1:7
+(4:34..4:37) _empty_/Foo# -> 1:7
+(4:60..4:61) _empty_/Foo#T# -> 1:18
+

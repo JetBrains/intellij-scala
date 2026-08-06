@@ -1,0 +1,789 @@
+trait Bound[+E]
+
+trait SegmentT[E, +S]
+object SegmentT:
+  trait WithPrev[E, +S] extends SegmentT[E, S]
+
+trait SegmentSeqT[E, +S]:
+  def getSegmentForBound(bound: Bound[E]): SegmentT[E, S] with S
+
+abstract class AbstractSegmentSeq[E, +S] extends SegmentSeqT[E, S]
+
+trait MappedSegmentBase[E, S]
+
+type MappedSegment[E, S] = AbstractMappedSegmentSeq.MappedSegment[E, S]
+
+object AbstractMappedSegmentSeq:
+  type MappedSegment[E, S] = SegmentT[E, MappedSegmentBase[E, S]] with MappedSegmentBase[E, S]
+
+abstract class AbstractMappedSegmentSeq[E, S]
+    extends AbstractSegmentSeq[E, MappedSegmentBase[E, S]]:
+  def originalSeq: SegmentSeqT[E, S]
+
+  final override def getSegmentForBound(bound: Bound[E]): MappedSegment[E, S] =
+    searchFrontMapper(frontMapperGeneral, originalSeq.getSegmentForBound(bound))
+
+  protected final def frontMapperGeneral(original: SegmentT[E, S]): MappedSegment[E, S] = ???
+
+  protected def searchFrontMapper[Seg >: SegmentT.WithPrev[E, S] <: SegmentT[E, S], R](
+      mapper: Seg => R,
+      original: Seg
+  ): R = ???
+-----
+ScalaFile
+  ScTrait: Bound
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bound')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: SegmentT
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SegmentT')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('S')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: SegmentT
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SegmentT')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: WithPrev
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('WithPrev')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S
+              PsiElement(identifier)('+')
+              PsiElement(identifier)('S')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: SegmentT[E, S]
+                  SimpleType: SegmentT
+                    CodeReferenceElement: SegmentT
+                      PsiElement(identifier)('SegmentT')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                    PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: SegmentSeqT
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SegmentSeqT')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('S')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: getSegmentForBound
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getSegmentForBound')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: bound
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('bound')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Bound[E]
+                    SimpleType: Bound
+                      CodeReferenceElement: Bound
+                        PsiElement(identifier)('Bound')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: SegmentT[E, S] with S
+            ParametrizedType: SegmentT[E, S]
+              SimpleType: SegmentT
+                CodeReferenceElement: SegmentT
+                  PsiElement(identifier)('SegmentT')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            SimpleType: S
+              CodeReferenceElement: S
+                PsiElement(identifier)('S')
+  PsiWhiteSpace('\n\n')
+  ScClass: AbstractSegmentSeq
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AbstractSegmentSeq')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('S')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: SegmentSeqT[E, S]
+            SimpleType: SegmentSeqT
+              CodeReferenceElement: SegmentSeqT
+                PsiElement(identifier)('SegmentSeqT')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: MappedSegmentBase
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MappedSegmentBase')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: MappedSegment
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MappedSegment')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: AbstractMappedSegmentSeq.MappedSegment[E, S]
+      SimpleType: AbstractMappedSegmentSeq.MappedSegment
+        CodeReferenceElement: AbstractMappedSegmentSeq.MappedSegment
+          CodeReferenceElement: AbstractMappedSegmentSeq
+            PsiElement(identifier)('AbstractMappedSegmentSeq')
+          PsiElement(.)('.')
+          PsiElement(identifier)('MappedSegment')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: E
+            CodeReferenceElement: E
+              PsiElement(identifier)('E')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          SimpleType: S
+            CodeReferenceElement: S
+              PsiElement(identifier)('S')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScObject: AbstractMappedSegmentSeq
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AbstractMappedSegmentSeq')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: MappedSegment
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MappedSegment')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: S
+              PsiElement(identifier)('S')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: SegmentT[E, MappedSegmentBase[E, S]] with MappedSegmentBase[E, S]
+            ParametrizedType: SegmentT[E, MappedSegmentBase[E, S]]
+              SimpleType: SegmentT
+                CodeReferenceElement: SegmentT
+                  PsiElement(identifier)('SegmentT')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  ParametrizedType: MappedSegmentBase[E, S]
+                    SimpleType: MappedSegmentBase
+                      CodeReferenceElement: MappedSegmentBase
+                        PsiElement(identifier)('MappedSegmentBase')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace(' ')
+            ParametrizedType: MappedSegmentBase[E, S]
+              SimpleType: MappedSegmentBase
+                CodeReferenceElement: MappedSegmentBase
+                  PsiElement(identifier)('MappedSegmentBase')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: S
+                    CodeReferenceElement: S
+                      PsiElement(identifier)('S')
+                PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScClass: AbstractMappedSegmentSeq
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AbstractMappedSegmentSeq')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace('\n    ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: AbstractSegmentSeq[E, MappedSegmentBase[E, S]]
+            SimpleType: AbstractSegmentSeq
+              CodeReferenceElement: AbstractSegmentSeq
+                PsiElement(identifier)('AbstractSegmentSeq')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                ParametrizedType: MappedSegmentBase[E, S]
+                  SimpleType: MappedSegmentBase
+                    CodeReferenceElement: MappedSegmentBase
+                      PsiElement(identifier)('MappedSegmentBase')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: E
+                        CodeReferenceElement: E
+                          PsiElement(identifier)('E')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: S
+                        CodeReferenceElement: S
+                          PsiElement(identifier)('S')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: originalSeq
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('originalSeq')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: SegmentSeqT[E, S]
+            SimpleType: SegmentSeqT
+              CodeReferenceElement: SegmentSeqT
+                PsiElement(identifier)('SegmentSeqT')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: getSegmentForBound
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+            PsiWhiteSpace(' ')
+            PsiElement(override)('override')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('getSegmentForBound')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: bound
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('bound')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Bound[E]
+                    SimpleType: Bound
+                      CodeReferenceElement: Bound
+                        PsiElement(identifier)('Bound')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: MappedSegment[E, S]
+            SimpleType: MappedSegment
+              CodeReferenceElement: MappedSegment
+                PsiElement(identifier)('MappedSegment')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: searchFrontMapper
+              PsiElement(identifier)('searchFrontMapper')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: frontMapperGeneral
+                PsiElement(identifier)('frontMapperGeneral')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: originalSeq.getSegmentForBound
+                  ReferenceExpression: originalSeq
+                    PsiElement(identifier)('originalSeq')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getSegmentForBound')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: bound
+                    PsiElement(identifier)('bound')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: frontMapperGeneral
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('frontMapperGeneral')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: original
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('original')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: SegmentT[E, S]
+                    SimpleType: SegmentT
+                      CodeReferenceElement: SegmentT
+                        PsiElement(identifier)('SegmentT')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: S
+                          CodeReferenceElement: S
+                            PsiElement(identifier)('S')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: MappedSegment[E, S]
+            SimpleType: MappedSegment
+              CodeReferenceElement: MappedSegment
+                PsiElement(identifier)('MappedSegment')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: S
+                  CodeReferenceElement: S
+                    PsiElement(identifier)('S')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: searchFrontMapper
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('searchFrontMapper')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Seg
+              PsiElement(identifier)('Seg')
+              PsiWhiteSpace(' ')
+              PsiElement(>:)('>:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: SegmentT.WithPrev[E, S]
+                SimpleType: SegmentT.WithPrev
+                  CodeReferenceElement: SegmentT.WithPrev
+                    CodeReferenceElement: SegmentT
+                      PsiElement(identifier)('SegmentT')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('WithPrev')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              ParametrizedType: SegmentT[E, S]
+                SimpleType: SegmentT
+                  CodeReferenceElement: SegmentT
+                    PsiElement(identifier)('SegmentT')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: E
+                      CodeReferenceElement: E
+                        PsiElement(identifier)('E')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: S
+                      CodeReferenceElement: S
+                        PsiElement(identifier)('S')
+                  PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n      ')
+              Parameter: mapper
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('mapper')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: Seg => R
+                    SimpleType: Seg
+                      CodeReferenceElement: Seg
+                        PsiElement(identifier)('Seg')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n      ')
+              Parameter: original
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('original')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Seg
+                    CodeReferenceElement: Seg
+                      PsiElement(identifier)('Seg')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: R
+            CodeReferenceElement: R
+              PsiElement(identifier)('R')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')

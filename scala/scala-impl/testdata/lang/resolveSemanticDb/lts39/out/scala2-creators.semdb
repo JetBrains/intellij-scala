@@ -1,0 +1,5 @@
+Document tests/pos/scala2-creators.scala
+(2:2..2:6) scala/main#
+(3:3..3:6) scala/sys/
+(3:7..3:23) scala/sys/SystemProperties#
+

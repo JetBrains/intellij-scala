@@ -1,0 +1,1 @@
+Move this package into the SBT support plugin itself (separate JPS-plugin JAR needed).

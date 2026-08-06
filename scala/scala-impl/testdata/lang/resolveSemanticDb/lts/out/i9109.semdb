@@ -1,0 +1,12 @@
+Document tests/pos/i9109.scala
+(2:16..2:28) scala/package.Serializable#
+(2:33..2:34) _empty_/A#foo().[T] -> 2:11
+(2:37..2:41) scala/Unit#
+(3:16..3:25) scala/package.Cloneable#
+(3:30..3:31) _empty_/A#foo(+1).[T] -> 3:11
+(3:34..3:38) scala/Unit#
+(5:17..5:18) _empty_/A# -> 1:7
+(6:25..6:37) scala/package.Serializable#
+(6:42..6:43) _empty_/B#foo().[T] -> 6:20
+(6:46..6:50) scala/Unit#
+

@@ -1,0 +1,46 @@
+Document tests/pos/i16004.scala
+(2:8..2:13) scala/
+(2:14..2:24) scala/concurrent/
+(2:25..2:33) scala/concurrent/duration/
+(2:34..2:48) scala/concurrent/duration/FiniteDuration#
+(2:34..2:48) scala/concurrent/duration/FiniteDuration.
+(3:8..3:13) scala/
+(3:14..3:24) scala/concurrent/
+(3:25..3:33) scala/concurrent/duration/
+(12:44..12:58) scala/concurrent/duration/FiniteDuration#
+(15:20..15:34) scala/concurrent/duration/FiniteDuration#
+(16:6..16:14) _empty_/Resource# -> 5:7
+(16:15..16:16) _empty_/Cache.expiring().[F] -> 14:16
+(16:18..16:23) _empty_/Cache# -> 8:7
+(16:24..16:25) _empty_/Cache.expiring().[F] -> 14:16
+(16:27..16:28) _empty_/Cache.expiring().[K] -> 14:22
+(16:30..16:31) _empty_/Cache.expiring().[V] -> 14:25
+(16:36..16:39) scala/Predef.`???`().
+(19:15..19:21) _empty_/Cache.Config# -> 12:20
+(20:19..20:25) scala/Option#
+(20:26..20:29) scala/Int#
+(20:33..20:37) scala/None.
+(21:6..21:14) _empty_/Resource# -> 5:7
+(21:15..21:16) _empty_/Cache.expiring(+1).[F] -> 18:16
+(21:18..21:23) _empty_/Cache# -> 8:7
+(21:24..21:25) _empty_/Cache.expiring(+1).[F] -> 18:16
+(21:27..21:28) _empty_/Cache.expiring(+1).[K] -> 18:22
+(21:30..21:31) _empty_/Cache.expiring(+1).[V] -> 18:25
+(21:36..21:39) scala/Predef.`???`().
+(25:22..25:30) _empty_/Cache.expiring(+1). -> 18:7
+(25:35..25:38) scala/Int#
+(25:40..25:43) scala/Int#
+(26:5..26:11) _empty_/Cache.expiring(+1).(config) -> 19:7
+(26:14..26:20) _empty_/Cache.Config.
+(26:21..26:36) _empty_/Cache.Config.apply().(expireAfterRead)
+(26:41..26:47) scala/concurrent/duration/DurationConversions#minute().
+(29:19..29:27) _empty_/Cache.expiring(+1). -> 18:7
+(29:32..29:35) scala/Int#
+(29:37..29:40) scala/Int#
+(30:5..30:11) _empty_/Cache.expiring(+1).(config) -> 19:7
+(30:14..30:20) _empty_/Cache.Config.
+(30:21..30:36) _empty_/Cache.Config.apply().(expireAfterRead)
+(30:41..30:47) scala/concurrent/duration/DurationConversions#minute().
+(31:5..31:15) _empty_/Cache.expiring(+1).(partitions) -> 20:7
+(31:18..31:22) scala/None.
+

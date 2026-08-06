@@ -1,0 +1,14 @@
+Document tests/pos/michel2.scala
+(3:19..3:25) scala/AnyRef#
+(4:13..4:16) scala/Int#
+(7:19..7:25) scala/AnyRef#
+(7:31..7:32) _empty_/Test.A# -> 3:9
+(8:22..8:25) scala/Int#
+(8:37..8:38) _empty_/Test.A#f(). -> 4:9
+(11:18..11:23) scala/Array#
+(11:24..11:30) scala/Predef.String#
+(12:5..12:12) scala/Console.
+(12:13..12:20) scala/Console.println(+1).
+(12:25..12:26) _empty_/Test.B# -> 7:9
+(12:29..12:30) _empty_/Test.B#f(). -> 8:18
+

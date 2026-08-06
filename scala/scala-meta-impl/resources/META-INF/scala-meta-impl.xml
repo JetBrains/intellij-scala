@@ -1,0 +1,8 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService
+                serviceInterface="org.jetbrains.plugins.scala.scalaMeta.ScalaMetaApi"
+                serviceImplementation="scala.meta.intellij.ScalaMetaApiImpl"
+        />
+    </extensions>
+</idea-plugin>

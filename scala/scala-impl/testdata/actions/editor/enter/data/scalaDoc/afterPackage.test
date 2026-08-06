@@ -1,0 +1,10 @@
+package a
+/**<caret>
+class A
+-----
+package a
+
+/**
+  * <caret>
+  */
+class A

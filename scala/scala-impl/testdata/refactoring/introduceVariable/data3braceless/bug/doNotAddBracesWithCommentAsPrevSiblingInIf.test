@@ -1,0 +1,14 @@
+class A:
+  def test(b: Boolean): Unit =
+    if b then
+      //comment
+      println(<selection>"yes"</selection>)
+    else println("no")
+-------
+class A:
+  def test(b: Boolean): Unit =
+    if b then
+      //comment
+      val value: String = "yes"
+      println(value)
+    else println("no")

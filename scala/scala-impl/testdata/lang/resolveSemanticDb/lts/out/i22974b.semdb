@@ -1,0 +1,22 @@
+Document tests/pos/i22974b.scala
+(2:23..2:28) _empty_/outer.Queue. -> 3:10
+(2:29..2:35) _empty_/outer.Queue.Unsafe# -> 4:20
+(5:29..5:34) _empty_/outer.Queue# -> 2:15
+(7:32..7:41) _empty_/outer.Queue.Unbounded# -> 5:17
+(7:45..7:49) scala/Unit#
+(7:52..7:56) scala/Unit#
+(8:9..8:10) _empty_/outer.Queue.Unbounded.initWith().(f) -> 7:29
+(8:11..8:17) _empty_/outer.Queue.Unbounded.Unsafe. -> 11:14
+(8:18..8:22) _empty_/outer.Queue.Unbounded.Unsafe.init(). -> 12:13
+(10:29..10:34) _empty_/outer.Queue. -> 3:10
+(10:35..10:41) _empty_/outer.Queue.Unsafe# -> 4:20
+(10:44..10:49) _empty_/outer.Queue# -> 2:15
+(12:24..12:30) _empty_/outer.Queue.Unbounded.Unsafe# -> 10:19
+(12:33..12:36) scala/Predef.`???`().
+(15:12..15:16) scala/Unit#
+(16:5..16:10) _empty_/outer. -> 1:8
+(16:11..16:16) _empty_/outer.Queue. -> 3:10
+(16:17..16:26) _empty_/outer.Queue.Unbounded. -> 6:12
+(16:27..16:35) _empty_/outer.Queue.Unbounded.initWith(). -> 7:18
+(17:7..17:10) scala/Predef.`???`().
+

@@ -1,0 +1,110 @@
+class A{
+ x match{
+ case Alt(xs @ _) => traverse1(xs)
+ case ELEMENTS( _ ) | MIXED( _ ) => c.toString(sb)
+ }
+}
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n ')
+        MatchStatement
+          ReferenceExpression: x
+            PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: Alt
+                  PsiElement(identifier)('Alt')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  NamingPattern: xs
+                    PsiElement(identifier)('xs')
+                    PsiWhiteSpace(' ')
+                    PsiElement(@)('@')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                MethodCall
+                  ReferenceExpression: traverse1
+                    PsiElement(identifier)('traverse1')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: xs
+                      PsiElement(identifier)('xs')
+                    PsiElement())(')')
+            PsiWhiteSpace('\n ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              CompositePattern
+                ConstructorPattern
+                  CodeReferenceElement: ELEMENTS
+                    PsiElement(identifier)('ELEMENTS')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: MIXED
+                    PsiElement(identifier)('MIXED')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                MethodCall
+                  ReferenceExpression: c.toString
+                    ReferenceExpression: c
+                      PsiElement(identifier)('c')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('toString')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: sb
+                      PsiElement(identifier)('sb')
+                    PsiElement())(')')
+          PsiWhiteSpace('\n ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

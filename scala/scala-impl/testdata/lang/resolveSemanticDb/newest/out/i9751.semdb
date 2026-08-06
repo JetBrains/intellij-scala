@@ -1,0 +1,12 @@
+Document tests/pos/i9751.scala
+(4:17..4:20) scala/Int#
+(5:33..5:37) scala/Unit#
+(5:40..5:44) scala/Unit#
+(7:13..7:18) local0 -> 6:11
+(7:19..7:20) scala/Int#`<`(+3).
+(7:21..7:22) _empty_/Test.times().(x) -> 4:14
+(8:9..8:11) _empty_/Test.times().(op) -> 5:29
+(9:9..9:14) local0 -> 6:11
+(12:6..12:11) _empty_/Test.times(). -> 5:16
+(12:14..12:21) scala/Predef.println(+1).
+

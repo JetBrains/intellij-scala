@@ -1,0 +1,53 @@
+Document tests/pos/specs2-failure.scala
+(1:8..1:12) scala/util/
+(1:13..1:21) scala/util/matching/
+(1:22..1:27) scala/util/matching/Regex#
+(1:22..1:27) scala/util/matching/Regex.
+(2:8..2:12) scala/util/
+(2:13..2:21) scala/util/matching/
+(2:22..2:27) scala/util/matching/Regex.
+(2:28..2:33) scala/util/matching/Regex.Match#
+(2:28..2:33) scala/util/matching/Regex.Match.
+(8:17..8:23) scala/Predef.String#
+(10:28..10:34) scala/Predef.String#
+(10:36..10:42) scala/Predef.String#
+(10:47..10:53) scala/Predef.String#
+(11:7..11:12) _empty_/Test.replaceAll().(pairs) -> 10:20
+(11:13..11:21) scala/collection/IterableOnceOps#foldLeft().
+(11:22..11:23) _empty_/Test.replaceAll().(s) -> 8:14
+(12:9..12:12) local0 -> 11:28
+(12:13..12:23) java/lang/String#replaceAll().
+(12:24..12:27) local1 -> 11:33
+(12:28..12:30) scala/Tuple2#_1.
+(12:32..12:35) local1 -> 11:33
+(12:36..12:38) scala/Tuple2#_2.
+(15:25..15:31) scala/Predef.String#
+(15:36..15:42) scala/Predef.String#
+(15:46..15:52) scala/Predef.String#
+(15:55..15:61) scala/Predef.String#
+(16:11..16:16) scala/util/matching/Regex#
+(16:17..16:20) _empty_/Test.replaceAll(+1).(exp) -> 15:20
+(16:22..16:34) scala/util/matching/Regex#replaceAllIn(+1).
+(16:35..16:36) _empty_/Test.replaceAll(+1).(s) -> 8:14
+(16:42..16:47) scala/util/matching/Regex.Match#
+(16:52..16:53) _empty_/Test.replaceAll(+1).(f) -> 15:33
+(16:54..16:55) local2 -> 16:39
+(16:56..16:61) scala/util/matching/Regex.MatchData#group().
+(16:65..16:72) java/lang/String#replace(+1).
+(18:31..18:37) scala/Predef.String#
+(18:43..18:49) scala/Predef.String#
+(18:51..18:57) scala/Predef.String#
+(18:62..18:68) scala/Predef.String#
+(19:7..19:8) _empty_/Test.replaceInsideTag().(s) -> 8:14
+(19:9..19:19) _empty_/Test.replaceAll(+1). -> 15:9
+(19:20..19:23) _empty_/Test.replaceInsideTag().(tag) -> 18:26
+(19:29..19:35) scala/Predef.String#
+(19:40..19:44) java/
+(19:45..19:49) java/util/
+(19:50..19:55) java/util/regex/
+(19:56..19:63) java/util/regex/Matcher#
+(19:64..19:80) java/util/regex/Matcher#quoteReplacement().
+(19:81..19:82) local3 -> 19:26
+(19:83..19:93) _empty_/Test.replaceAll(). -> 10:9
+(19:94..19:95) _empty_/Test.replaceInsideTag().(p) -> 18:39
+

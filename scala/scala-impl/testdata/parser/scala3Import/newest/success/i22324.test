@@ -1,0 +1,120 @@
+opaque type System = (wires: Any)
+
+extension (system: System)
+  inline def foo = system.wires
+end extension
+
+val simulation: System = ???
+val _ = simulation.foo // was error
+-----
+ScalaFile
+  ScTypeAliasDefinition: System
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(opaque)('opaque')
+    PsiWhiteSpace(' ')
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('System')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    NamedTupleType: (wires: Any)
+      PsiElement(()('(')
+      NamedTupleTypeComponent: wires: Any
+        PsiElement(identifier)('wires')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Any
+          CodeReferenceElement: Any
+            PsiElement(identifier)('Any')
+      PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  Extension on System
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: system
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('system')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: System
+              CodeReferenceElement: System
+                PsiElement(identifier)('System')
+        PsiElement())(')')
+    PsiWhiteSpace('\n  ')
+    ScExtensionBody
+      ScFunctionDefinition: foo
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(inline)('inline')
+        PsiWhiteSpace(' ')
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('foo')
+        Parameters
+          <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: system.wires
+          ReferenceExpression: system
+            PsiElement(identifier)('system')
+          PsiElement(.)('.')
+          PsiElement(identifier)('wires')
+      PsiWhiteSpace('\n')
+      End: extension
+        PsiElement(end)('end')
+        PsiWhiteSpace(' ')
+        PsiElement(extension)('extension')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: simulation
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: simulation
+        PsiElement(identifier)('simulation')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: System
+      CodeReferenceElement: System
+        PsiElement(identifier)('System')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: simulation.foo
+      ReferenceExpression: simulation
+        PsiElement(identifier)('simulation')
+      PsiElement(.)('.')
+      PsiElement(identifier)('foo')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// was error')

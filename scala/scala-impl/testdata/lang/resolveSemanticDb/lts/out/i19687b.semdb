@@ -1,0 +1,26 @@
+Document tests/pos/i19687b.scala
+(3:26..3:28) _empty_/Eq# -> 2:6
+(3:29..3:30) _empty_/Eq.Refl#[A] -> 3:13
+(3:32..3:33) _empty_/Eq.Refl#[A] -> 3:13
+(5:24..5:27) scala/Int#
+(5:38..5:40) _empty_/Eq# -> 2:6
+(5:41..5:42) _empty_/Multi#[A] -> 5:18
+(5:44..5:50) scala/Predef.String#
+(5:56..5:62) scala/Predef.String#
+(8:20..8:25) _empty_/Multi# -> 5:12
+(8:26..8:27) _empty_/P#[A] -> 8:14
+(8:38..8:39) _empty_/T# -> 7:14
+(8:40..8:41) _empty_/P#[A] -> 8:14
+(9:26..9:28) _empty_/Eq# -> 2:6
+(9:29..9:30) _empty_/Q#[A] -> 9:14
+(9:32..9:35) scala/Int#
+(9:46..9:47) _empty_/T# -> 7:14
+(9:48..9:49) _empty_/Q#[A] -> 9:14
+(11:13..11:14) _empty_/T# -> 7:14
+(11:15..11:18) scala/Int#
+(11:22..11:25) scala/Int#
+(12:3..12:4) _empty_/i19687b$package.test().(t) -> 11:10
+(13:10..13:11) _empty_/Q.
+(13:12..13:14) _empty_/Eq.
+(13:15..13:19) _empty_/Eq.Refl.
+

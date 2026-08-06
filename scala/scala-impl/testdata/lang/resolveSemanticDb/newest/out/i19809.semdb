@@ -1,0 +1,24 @@
+Document tests/pos/i19809.scala
+(1:10..1:13) scala/Any#
+(1:23..1:26) scala/Int#
+(3:8..3:11) scala/Any#
+(3:21..3:24) scala/Int#
+(3:33..3:39) scala/AnyRef#
+(3:49..3:52) scala/Int#
+(6:3..6:9) scala/Predef.summon().
+(6:10..6:13) scala/Any#
+(6:23..6:26) scala/Int#
+(6:39..6:42) scala/Int#
+(6:45..6:49) scala/Unit#
+(6:52..6:55) scala/`<:<`#
+(6:56..6:59) scala/Any#
+(6:69..6:72) scala/Int#
+(7:3..7:9) scala/Predef.summon().
+(7:10..7:13) scala/Any#
+(7:23..7:26) scala/Int#
+(7:29..7:32) scala/`<:<`#
+(7:33..7:36) scala/Any#
+(7:46..7:49) scala/Int#
+(7:62..7:65) scala/Int#
+(7:68..7:72) scala/Unit#
+

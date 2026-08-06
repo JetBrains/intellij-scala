@@ -1,0 +1,792 @@
+import scala.compiletime.*
+import scala.deriving.*
+
+sealed trait ZIO[-R, +E, +A]
+sealed abstract class ZLayer[-RIn, +E, +ROut]
+object ZLayer:
+  def apply[RIn, E, ROut](zio: => ZIO[RIn, E, ROut]): ZLayer[RIn, E, ROut] = ???
+type URIO[-R, +A] = ZIO[R, Nothing, A]
+type IAnyType[T <: Tuple] = Tuple.Fold[T, Any, [x, y] =>> x & y]
+type UAnyType[T <: Tuple] = Tuple.Fold[T, Any, [x, y] =>> x | y]
+
+
+trait AutoLayer[A]:
+  def zlayer(using
+             p: Mirror.ProductOf[A]
+            ): ZLayer[IAnyType[p.MirroredElemTypes], Nothing, A]
+
+object AutoLayer:
+  inline given derived[A](using p: Mirror.ProductOf[A]): AutoLayer[A] = {
+    val a: ZIO[IAnyType[p.MirroredElemTypes], Nothing, A] = ???
+    new AutoLayer[A]:
+      override def zlayer(using
+                          pp: Mirror.ProductOf[A]
+                         ): ZLayer[IAnyType[pp.MirroredElemTypes], Nothing, A] = ZLayer {
+        a.asInstanceOf[ZIO[IAnyType[pp.MirroredElemTypes], Nothing, A]]
+      }
+  }
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('compiletime')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.deriving
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('deriving')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScTrait: ZIO
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZIO')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('R')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: ZLayer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+      PsiWhiteSpace(' ')
+      PsiElement(abstract)('abstract')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZLayer')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: RIn
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('RIn')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('E')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: ROut
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('ROut')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: ZLayer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZLayer')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: RIn
+              PsiElement(identifier)('RIn')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: ROut
+              PsiElement(identifier)('ROut')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: zio
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('zio')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: ZIO[RIn, E, ROut]
+                    SimpleType: ZIO
+                      CodeReferenceElement: ZIO
+                        PsiElement(identifier)('ZIO')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: RIn
+                          CodeReferenceElement: RIn
+                            PsiElement(identifier)('RIn')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: ROut
+                          CodeReferenceElement: ROut
+                            PsiElement(identifier)('ROut')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZLayer[RIn, E, ROut]
+            SimpleType: ZLayer
+              CodeReferenceElement: ZLayer
+                PsiElement(identifier)('ZLayer')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: RIn
+                  CodeReferenceElement: RIn
+                    PsiElement(identifier)('RIn')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: ROut
+                  CodeReferenceElement: ROut
+                    PsiElement(identifier)('ROut')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: URIO
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('URIO')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('R')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: ZIO[R, Nothing, A]
+      SimpleType: ZIO
+        CodeReferenceElement: ZIO
+          PsiElement(identifier)('ZIO')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: R
+            CodeReferenceElement: R
+              PsiElement(identifier)('R')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          SimpleType: Nothing
+            CodeReferenceElement: Nothing
+              PsiElement(identifier)('Nothing')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: IAnyType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IAnyType')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Tuple.Fold[T, Any, [x, y] =>> x & y]
+      SimpleType: Tuple.Fold
+        CodeReferenceElement: Tuple.Fold
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Fold')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          TypeLambda: [x, y] =>> x & y
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: x
+                PsiElement(identifier)('x')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: y
+                PsiElement(identifier)('y')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=>>)('=>>')
+            PsiWhiteSpace(' ')
+            InfixType: x & y
+              SimpleType: x
+                CodeReferenceElement: x
+                  PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: &
+                PsiElement(identifier)('&')
+              PsiWhiteSpace(' ')
+              SimpleType: y
+                CodeReferenceElement: y
+                  PsiElement(identifier)('y')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTypeAliasDefinition: UAnyType
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('UAnyType')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Tuple.Fold[T, Any, [x, y] =>> x | y]
+      SimpleType: Tuple.Fold
+        CodeReferenceElement: Tuple.Fold
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Fold')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          TypeLambda: [x, y] =>> x | y
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: x
+                PsiElement(identifier)('x')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: y
+                PsiElement(identifier)('y')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=>>)('=>>')
+            PsiWhiteSpace(' ')
+            InfixType: x | y
+              SimpleType: x
+                CodeReferenceElement: x
+                  PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              SimpleType: y
+                CodeReferenceElement: y
+                  PsiElement(identifier)('y')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n\n')
+  ScTrait: AutoLayer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AutoLayer')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: zlayer
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('zlayer')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace('\n             ')
+              Parameter: p
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('p')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Mirror.ProductOf[A]
+                    SimpleType: Mirror.ProductOf
+                      CodeReferenceElement: Mirror.ProductOf
+                        CodeReferenceElement: Mirror
+                          PsiElement(identifier)('Mirror')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('ProductOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiWhiteSpace('\n            ')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: ZLayer[IAnyType[p.MirroredElemTypes], Nothing, A]
+            SimpleType: ZLayer
+              CodeReferenceElement: ZLayer
+                PsiElement(identifier)('ZLayer')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: IAnyType[p.MirroredElemTypes]
+                  SimpleType: IAnyType
+                    CodeReferenceElement: IAnyType
+                      PsiElement(identifier)('IAnyType')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: p.MirroredElemTypes
+                        CodeReferenceElement: p.MirroredElemTypes
+                          CodeReferenceElement: p
+                            PsiElement(identifier)('p')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('MirroredElemTypes')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScObject: AutoLayer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AutoLayer')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: derived
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('derived')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: p
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('p')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Mirror.ProductOf[A]
+                    SimpleType: Mirror.ProductOf
+                      CodeReferenceElement: Mirror.ProductOf
+                        CodeReferenceElement: Mirror
+                          PsiElement(identifier)('Mirror')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('ProductOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: AutoLayer[A]
+            SimpleType: AutoLayer
+              CodeReferenceElement: AutoLayer
+                PsiElement(identifier)('AutoLayer')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: A
+                  CodeReferenceElement: A
+                    PsiElement(identifier)('A')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: a
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: a
+                  PsiElement(identifier)('a')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: ZIO[IAnyType[p.MirroredElemTypes], Nothing, A]
+                SimpleType: ZIO
+                  CodeReferenceElement: ZIO
+                    PsiElement(identifier)('ZIO')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: IAnyType[p.MirroredElemTypes]
+                      SimpleType: IAnyType
+                        CodeReferenceElement: IAnyType
+                          PsiElement(identifier)('IAnyType')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: p.MirroredElemTypes
+                            CodeReferenceElement: p.MirroredElemTypes
+                              CodeReferenceElement: p
+                                PsiElement(identifier)('p')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('MirroredElemTypes')
+                        PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: Nothing
+                      CodeReferenceElement: Nothing
+                        PsiElement(identifier)('Nothing')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: A
+                      CodeReferenceElement: A
+                        PsiElement(identifier)('A')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    ParametrizedType: AutoLayer[A]
+                      SimpleType: AutoLayer
+                        CodeReferenceElement: AutoLayer
+                          PsiElement(identifier)('AutoLayer')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                ScTemplateBody
+                  PsiElement(:)(':')
+                  PsiWhiteSpace('\n      ')
+                  ScFunctionDefinition: zlayer
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      PsiElement(override)('override')
+                    PsiWhiteSpace(' ')
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('zlayer')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        PsiElement(using)('using')
+                        PsiWhiteSpace('\n                          ')
+                        Parameter: pp
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('pp')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            ParametrizedType: Mirror.ProductOf[A]
+                              SimpleType: Mirror.ProductOf
+                                CodeReferenceElement: Mirror.ProductOf
+                                  CodeReferenceElement: Mirror
+                                    PsiElement(identifier)('Mirror')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('ProductOf')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
+                                PsiElement(])(']')
+                        PsiWhiteSpace('\n                         ')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: ZLayer[IAnyType[pp.MirroredElemTypes], Nothing, A]
+                      SimpleType: ZLayer
+                        CodeReferenceElement: ZLayer
+                          PsiElement(identifier)('ZLayer')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: IAnyType[pp.MirroredElemTypes]
+                            SimpleType: IAnyType
+                              CodeReferenceElement: IAnyType
+                                PsiElement(identifier)('IAnyType')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: pp.MirroredElemTypes
+                                  CodeReferenceElement: pp.MirroredElemTypes
+                                    CodeReferenceElement: pp
+                                      PsiElement(identifier)('pp')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('MirroredElemTypes')
+                              PsiElement(])(']')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: Nothing
+                            CodeReferenceElement: Nothing
+                              PsiElement(identifier)('Nothing')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: ZLayer
+                        PsiElement(identifier)('ZLayer')
+                      PsiWhiteSpace(' ')
+                      ArgumentList
+                        BlockExpression
+                          PsiElement({)('{')
+                          PsiWhiteSpace('\n        ')
+                          GenericCall
+                            ReferenceExpression: a.asInstanceOf
+                              ReferenceExpression: a
+                                PsiElement(identifier)('a')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('asInstanceOf')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                ParametrizedType: ZIO[IAnyType[pp.MirroredElemTypes], Nothing, A]
+                                  SimpleType: ZIO
+                                    CodeReferenceElement: ZIO
+                                      PsiElement(identifier)('ZIO')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      ParametrizedType: IAnyType[pp.MirroredElemTypes]
+                                        SimpleType: IAnyType
+                                          CodeReferenceElement: IAnyType
+                                            PsiElement(identifier)('IAnyType')
+                                        TypeArgumentsList
+                                          PsiElement([)('[')
+                                          TypeArgument
+                                            SimpleType: pp.MirroredElemTypes
+                                              CodeReferenceElement: pp.MirroredElemTypes
+                                                CodeReferenceElement: pp
+                                                  PsiElement(identifier)('pp')
+                                                PsiElement(.)('.')
+                                                PsiElement(identifier)('MirroredElemTypes')
+                                          PsiElement(])(']')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    TypeArgument
+                                      SimpleType: Nothing
+                                        CodeReferenceElement: Nothing
+                                          PsiElement(identifier)('Nothing')
+                                    PsiElement(,)(',')
+                                    PsiWhiteSpace(' ')
+                                    TypeArgument
+                                      SimpleType: A
+                                        CodeReferenceElement: A
+                                          PsiElement(identifier)('A')
+                                    PsiElement(])(']')
+                              PsiElement(])(']')
+                          PsiWhiteSpace('\n      ')
+                          PsiElement(})('}')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')

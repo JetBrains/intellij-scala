@@ -1,0 +1,115 @@
+Document tests/pos/13633.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:27..1:42) scala/compiletime/package$package.constValueTuple().
+(1:44..1:54) scala/compiletime/package$package.constValue().
+(3:21..3:24) scala/App#
+(5:3..5:10) scala/Predef.println(+1).
+(5:11..5:26) scala/compiletime/package$package.constValueTuple().
+(5:27..5:31) _empty_/Sums.Plus# -> 11:8
+(6:3..6:10) scala/Predef.println(+1).
+(6:11..6:26) scala/compiletime/package$package.constValueTuple().
+(6:27..6:32) _empty_/Sums.Plus1# -> 15:8
+(7:3..7:10) scala/Predef.println(+1).
+(7:11..7:26) scala/compiletime/package$package.constValueTuple().
+(8:5..8:12) _empty_/Sums.Reverse# -> 22:8
+(8:13..8:21) _empty_/Sums.PlusLoop# -> 41:8
+(8:22..8:29) _empty_/Sums.Reverse# -> 22:8
+(8:51..8:58) _empty_/Sums.Reverse# -> 22:8
+(11:18..11:23) scala/Tuple#
+(11:30..11:35) scala/Tuple#
+(11:40..11:45) scala/Tuple#
+(11:49..11:50) _empty_/Sums.Plus#[A] -> 11:13
+(11:52..11:53) _empty_/Sums.Plus#[B] -> 11:25
+(12:11..12:21) scala/Tuple$package.EmptyTuple#
+(12:23..12:33) scala/Tuple$package.EmptyTuple#
+(12:38..12:48) scala/Tuple$package.EmptyTuple#
+(13:38..13:45) _empty_/Sums.Reverse# -> 22:8
+(13:46..13:54) _empty_/Sums.PlusLoop# -> 41:8
+(13:55..13:62) _empty_/Sums.Reverse# -> 22:8
+(13:63..13:64) _empty_/Sums.Plus#[A] -> 11:13
+(13:67..13:74) _empty_/Sums.Reverse# -> 22:8
+(13:75..13:76) _empty_/Sums.Plus#[B] -> 11:25
+(15:19..15:24) scala/Tuple#
+(15:31..15:36) scala/Tuple#
+(15:48..15:55) _empty_/Sums.Reverse# -> 22:8
+(15:56..15:64) _empty_/Sums.PlusLoop# -> 41:8
+(15:65..15:72) _empty_/Sums.Reverse# -> 22:8
+(15:73..15:74) _empty_/Sums.Plus1#[A] -> 15:14
+(15:77..15:84) _empty_/Sums.Reverse# -> 22:8
+(15:85..15:86) _empty_/Sums.Plus1#[B] -> 15:26
+(17:29..17:34) scala/Tuple#
+(17:39..17:44) scala/Tuple#
+(17:47..17:48) _empty_/Sums.ReverseLoop#[A] -> 17:20
+(18:10..18:20) scala/Tuple$package.EmptyTuple#
+(18:24..18:26) _empty_/Sums.ReverseLoop#[XS] -> 17:23
+(19:12..19:14) scala/`*:`#
+(19:24..19:35) _empty_/Sums.ReverseLoop# -> 17:8
+(19:36..19:38) local3 -> 19:15
+(19:40..19:41) local2 -> 19:10
+(19:42..19:44) scala/`*:`#
+(19:45..19:47) _empty_/Sums.ReverseLoop#[XS] -> 17:23
+(22:21..22:32) _empty_/Sums.ReverseLoop# -> 17:8
+(22:33..22:34) _empty_/Sums.Reverse#[A] -> 22:16
+(22:36..22:46) scala/Tuple$package.EmptyTuple#
+(24:56..24:57) _empty_/Sums.PlusTri#[A] -> 24:16
+(24:59..24:60) _empty_/Sums.PlusTri#[B] -> 24:19
+(24:62..24:63) _empty_/Sums.PlusTri#[C] -> 24:22
+(26:31..26:32) scala/`|`#
+(26:54..26:55) scala/`|`#
+(27:30..27:31) scala/`|`#
+(27:52..27:53) scala/`|`#
+(30:17..30:22) scala/Tuple#
+(30:27..30:32) scala/Tuple#
+(30:55..30:56) _empty_/Sums.Inc#[A] -> 30:12
+(31:10..31:20) scala/Tuple$package.EmptyTuple#
+(31:29..31:31) scala/`*:`#
+(31:32..31:42) scala/Tuple$package.EmptyTuple#
+(32:12..32:14) scala/`*:`#
+(33:7..33:8) local4 -> 32:10
+(34:28..34:30) scala/`*:`#
+(34:31..34:33) local5 -> 32:15
+(35:29..35:31) scala/`*:`#
+(35:32..35:35) _empty_/Sums.Inc# -> 30:8
+(35:36..35:38) local5 -> 32:15
+(37:18..37:23) scala/Tuple#
+(37:30..37:37) scala/Boolean#
+(37:42..37:47) scala/Tuple#
+(37:55..37:56) _empty_/Sums.IncT#[O] -> 37:25
+(38:19..38:20) _empty_/Sums.IncT#[A] -> 37:13
+(39:19..39:22) _empty_/Sums.Inc# -> 30:8
+(39:23..39:24) _empty_/Sums.IncT#[A] -> 37:13
+(41:22..41:27) scala/Tuple#
+(41:34..41:39) scala/Tuple#
+(41:47..41:52) scala/Tuple#
+(41:56..41:57) _empty_/Sums.PlusLoop#[A] -> 41:17
+(41:59..41:60) _empty_/Sums.PlusLoop#[B] -> 41:29
+(42:11..42:21) scala/Tuple$package.EmptyTuple#
+(42:23..42:33) scala/Tuple$package.EmptyTuple#
+(43:7..43:8) _empty_/Sums.PlusLoop#[O] -> 41:41
+(44:29..44:31) scala/`*:`#
+(44:32..44:42) scala/Tuple$package.EmptyTuple#
+(45:23..45:33) scala/Tuple$package.EmptyTuple#
+(46:11..46:21) scala/Tuple$package.EmptyTuple#
+(46:23..46:24) _empty_/Sums.PlusLoop#[B] -> 41:29
+(46:38..46:42) _empty_/Sums.IncT# -> 37:8
+(46:43..46:44) _empty_/Sums.PlusLoop#[B] -> 41:29
+(46:46..46:47) _empty_/Sums.PlusLoop#[O] -> 41:41
+(47:11..47:12) _empty_/Sums.PlusLoop#[A] -> 41:17
+(47:14..47:24) scala/Tuple$package.EmptyTuple#
+(47:38..47:42) _empty_/Sums.IncT# -> 37:8
+(47:43..47:44) _empty_/Sums.PlusLoop#[A] -> 41:17
+(47:46..47:47) _empty_/Sums.PlusLoop#[O] -> 41:41
+(48:13..48:15) scala/`*:`#
+(48:22..48:24) scala/`*:`#
+(49:7..49:14) _empty_/Sums.PlusTri# -> 24:8
+(49:15..49:16) local6 -> 48:11
+(49:18..49:19) local8 -> 48:20
+(49:21..49:22) _empty_/Sums.PlusLoop#[O] -> 41:41
+(50:24..50:25) local11 -> 50:18
+(50:26..50:28) scala/`*:`#
+(50:29..50:37) _empty_/Sums.PlusLoop# -> 41:8
+(50:38..50:40) local7 -> 48:16
+(50:42..50:44) local9 -> 48:25
+(50:46..50:47) local10 -> 50:15
+

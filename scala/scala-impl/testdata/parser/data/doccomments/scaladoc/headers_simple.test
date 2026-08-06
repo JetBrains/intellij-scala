@@ -1,0 +1,67 @@
+/**
+ * ==header 1== =not a header 2=
+ **** ===not a header 3===
+ T=not a header 4= blah-blahblah
+ * ==header 5===blah-blah-blah
+ *=headr 6= ==not a header== blah-blah-blah
+ * ==header 7
+ *==
+ */
+-----
+ScalaFile
+  DocComment
+    ScPsiDocToken(DOC_COMMENT_START)('/**')
+    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+    ScDocParagraph
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('==')
+        ScPsiDocToken(DOC_COMMENT_DATA)('header 1')
+        ScPsiDocToken(DOC_HEADER 256)('==')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_COMMENT_DATA)('not a header 2')
+      ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_COMMENT_DATA)('*** ')
+      ScPsiDocToken(DOC_HEADER 256)('===')
+      ScPsiDocToken(DOC_COMMENT_DATA)('not a header 3')
+      ScPsiDocToken(DOC_HEADER 256)('===')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_DATA)('T')
+      ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_COMMENT_DATA)('not a header 4')
+      ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' blah-blahblah')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('==')
+        ScPsiDocToken(DOC_COMMENT_DATA)('header 5')
+        ScPsiDocToken(DOC_HEADER 256)('===')
+      ScPsiDocToken(DOC_COMMENT_DATA)('blah-blah-blah')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('=')
+        ScPsiDocToken(DOC_COMMENT_DATA)('headr 6')
+        ScPsiDocToken(DOC_HEADER 256)('=')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' ')
+      ScPsiDocToken(DOC_HEADER 256)('==')
+      ScPsiDocToken(DOC_COMMENT_DATA)('not a header')
+      ScPsiDocToken(DOC_HEADER 256)('==')
+      ScPsiDocToken(DOC_COMMENT_DATA)(' blah-blah-blah')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      DocSyntaxElement 256
+        ScPsiDocToken(VALID_DOC_HEADER 256)('==')
+        ScPsiDocToken(DOC_COMMENT_DATA)('header 7')
+        ScPsiDocToken(DOC_WHITESPACE)('\n ')
+        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+        ScPsiDocToken(VALID_DOC_HEADER 256)('==')
+      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+    ScPsiDocToken(DOC_COMMENT_END)('*/')

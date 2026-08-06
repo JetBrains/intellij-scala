@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin>
+    <dependencies>
+        <plugin id="training"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <lang.documentationProvider id="ScalaOnboardingTipsDocumentationProvider" language="Scala"
+                                    implementationClass="org.jetbrains.plugins.scala.training.ScalaOnboardingTipsDocumentationProvider"/>
+    </extensions>
+</idea-plugin>

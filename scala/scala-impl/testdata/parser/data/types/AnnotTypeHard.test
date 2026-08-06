@@ -1,0 +1,163 @@
+import annotation.target.field
+import javax.xml.bind.annotation.XmlElement
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter
+
+object JAXBAdapters {
+
+  type xmlElement = XmlElement  @field
+  type xmlTypeAdapter = XmlJavaTypeAdapter @field @field
+
+  @field
+  val x = 1
+}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: annotation.target.field
+        CodeReferenceElement: annotation.target
+          CodeReferenceElement: annotation
+            PsiElement(identifier)('annotation')
+          PsiElement(.)('.')
+          PsiElement(identifier)('target')
+        PsiElement(.)('.')
+        PsiElement(identifier)('field')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: javax.xml.bind.annotation.XmlElement
+        CodeReferenceElement: javax.xml.bind.annotation
+          CodeReferenceElement: javax.xml.bind
+            CodeReferenceElement: javax.xml
+              CodeReferenceElement: javax
+                PsiElement(identifier)('javax')
+              PsiElement(.)('.')
+              PsiElement(identifier)('xml')
+            PsiElement(.)('.')
+            PsiElement(identifier)('bind')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('XmlElement')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter
+        CodeReferenceElement: javax.xml.bind.annotation.adapters
+          CodeReferenceElement: javax.xml.bind.annotation
+            CodeReferenceElement: javax.xml.bind
+              CodeReferenceElement: javax.xml
+                CodeReferenceElement: javax
+                  PsiElement(identifier)('javax')
+                PsiElement(.)('.')
+                PsiElement(identifier)('xml')
+              PsiElement(.)('.')
+              PsiElement(identifier)('bind')
+            PsiElement(.)('.')
+            PsiElement(identifier)('annotation')
+          PsiElement(.)('.')
+          PsiElement(identifier)('adapters')
+        PsiElement(.)('.')
+        PsiElement(identifier)('XmlJavaTypeAdapter')
+  PsiWhiteSpace('\n\n')
+  ScObject: JAXBAdapters
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('JAXBAdapters')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: xmlElement
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('xmlElement')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TypeWithAnnotation: XmlElement  @field
+            SimpleType: XmlElement
+              CodeReferenceElement: XmlElement
+                PsiElement(identifier)('XmlElement')
+            PsiWhiteSpace('  ')
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  ConstructorInvocation
+                    SimpleType: field
+                      CodeReferenceElement: field
+                        PsiElement(identifier)('field')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: xmlTypeAdapter
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('xmlTypeAdapter')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TypeWithAnnotation: XmlJavaTypeAdapter @field @field
+            SimpleType: XmlJavaTypeAdapter
+              CodeReferenceElement: XmlJavaTypeAdapter
+                PsiElement(identifier)('XmlJavaTypeAdapter')
+            PsiWhiteSpace(' ')
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  ConstructorInvocation
+                    SimpleType: field
+                      CodeReferenceElement: field
+                        PsiElement(identifier)('field')
+              PsiWhiteSpace(' ')
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  ConstructorInvocation
+                    SimpleType: field
+                      CodeReferenceElement: field
+                        PsiElement(identifier)('field')
+        PsiWhiteSpace('\n\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: field
+                    CodeReferenceElement: field
+                      PsiElement(identifier)('field')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

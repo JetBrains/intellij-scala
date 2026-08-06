@@ -1,0 +1,7 @@
+Document tests/pos/vcblock.scala
+(1:25..1:28) scala/Int#
+(1:38..1:44) scala/AnyVal#
+(2:16..2:24) _empty_/Position# -> 1:7
+(3:17..3:25) _empty_/Position# -> 1:7
+(4:5..4:6) local0 -> 3:9
+

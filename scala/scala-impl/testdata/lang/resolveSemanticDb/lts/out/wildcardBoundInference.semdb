@@ -1,0 +1,53 @@
+Document tests/pos/wildcardBoundInference.scala
+(9:18..9:24) scala/Predef.String#
+(10:12..10:17) _empty_/Exist# -> 9:7
+(20:19..20:25) _empty_/ExistF# -> 20:7
+(20:26..20:27) _empty_/ExistF#[T] -> 20:14
+(21:12..21:18) _empty_/ExistF# -> 20:7
+(31:23..31:29) scala/Predef.String#
+(31:36..31:37) _empty_/ExistIndir#[T] -> 31:18
+(32:12..32:22) _empty_/ExistIndir# -> 31:7
+(36:25..36:31) _empty_/ExistF# -> 20:7
+(36:32..36:39) _empty_/Test#MyExist# -> 36:9
+(38:16..38:21) _empty_/Exist# -> 9:7
+(38:27..38:33) scala/Predef.String#
+(38:42..38:47) _empty_/Exist# -> 9:7
+(38:48..38:54) scala/Predef.String#
+(38:57..38:60) _empty_/Exist#foo(). -> 10:7
+(40:14..40:24) _empty_/ExistIndir# -> 31:7
+(40:30..40:36) scala/Predef.String#
+(40:43..40:49) scala/Predef.String#
+(40:58..40:68) _empty_/ExistIndir# -> 31:7
+(40:69..40:75) scala/Predef.String#
+(40:77..40:83) scala/Predef.String#
+(40:86..40:89) _empty_/ExistIndir#foo(). -> 32:7
+(52:17..52:26) _empty_/Skinnable# -> 53:7
+(54:21..54:23) _empty_/OP# -> 51:7
+(54:24..54:28) _empty_/Skin# -> 52:7
+(57:44..57:46) _empty_/OP# -> 51:7
+(57:47..57:48) _empty_/ObjectProperty.jfxObjectProperty2sfx().[T] -> 57:38
+(57:52..57:66) _empty_/ObjectProperty# -> 60:7
+(57:67..57:68) _empty_/ObjectProperty.jfxObjectProperty2sfx().[T] -> 57:38
+(57:76..57:90) _empty_/ObjectProperty# -> 60:7
+(57:91..57:92) _empty_/ObjectProperty.jfxObjectProperty2sfx().[T] -> 57:38
+(57:94..57:95) _empty_/ObjectProperty.jfxObjectProperty2sfx().(p) -> 57:41
+(60:36..60:38) _empty_/OP# -> 51:7
+(60:39..60:40) _empty_/ObjectProperty#[T] -> 60:22
+(63:14..63:23) _empty_/Skinnable# -> 53:7
+(64:13..64:27) _empty_/ObjectProperty# -> 60:7
+(64:28..64:32) _empty_/Skin# -> 52:7
+(64:68..64:82) _empty_/ObjectProperty. -> 56:8
+(64:83..64:104) _empty_/ObjectProperty.jfxObjectProperty2sfx(). -> 57:16
+(64:105..64:110) _empty_/TestWildcardBoundInference#deleg(). -> 63:7
+(64:111..64:123) _empty_/Skinnable#skinProperty(). -> 54:7
+(65:3..65:7) _empty_/TestWildcardBoundInference#skin(). -> 64:7
+(65:9..65:23) _empty_/ObjectProperty# -> 60:7
+(65:24..65:28) _empty_/Skin# -> 52:7
+(65:35..65:44) _empty_/Skinnable# -> 53:7
+(67:28..67:33) _empty_/TestWildcardBoundInference#deleg(). -> 63:7
+(67:34..67:46) _empty_/Skinnable#skinProperty(). -> 54:7
+(68:3..68:21) _empty_/TestWildcardBoundInference#skinCheckInference(). -> 67:7
+(68:23..68:37) _empty_/ObjectProperty# -> 60:7
+(68:38..68:42) _empty_/Skin# -> 52:7
+(68:49..68:58) _empty_/Skinnable# -> 53:7
+

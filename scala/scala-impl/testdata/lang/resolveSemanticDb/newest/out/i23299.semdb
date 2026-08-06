@@ -1,0 +1,19 @@
+Document tests/pos/i23299.scala
+(2:12..2:17) _empty_/Table# -> 4:7
+(2:24..2:25) _empty_/i23299$package.kek().(t) -> 2:9
+(2:26..2:28) _empty_/Table#Id# -> 5:8
+(2:33..2:36) scala/Predef.`???`().
+(5:13..5:19) scala/Predef.String#
+(8:23..8:28) _empty_/Table# -> 4:7
+(9:11..9:13) _empty_/Table#Id# -> 5:8
+(12:24..12:29) _empty_/Table# -> 4:7
+(13:11..13:13) _empty_/Table#Id# -> 5:8
+(16:9..16:12) _empty_/i23299$package.kek(). -> 2:5
+(16:13..16:19) _empty_/Table1. -> 8:8
+(16:21..16:27) _empty_/Table1. -> 8:8
+(16:28..16:30) _empty_/Table1.id. -> 9:7
+(17:9..17:12) _empty_/i23299$package.kek(). -> 2:5
+(17:13..17:19) _empty_/Table2# -> 12:7
+(17:23..17:29) _empty_/Table2# -> 12:7
+(17:32..17:34) _empty_/Table2#id. -> 13:7
+

@@ -1,0 +1,13 @@
+object O {
+  {
+    class T
+    <selection>new T</selection>
+  }
+}
+------
+object O {
+  {
+    class T
+    val value: T = new T
+  }
+}

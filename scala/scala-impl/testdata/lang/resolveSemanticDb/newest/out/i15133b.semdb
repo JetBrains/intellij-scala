@@ -1,0 +1,12 @@
+Document tests/pos/i15133b.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/annotation/
+(3:25..3:37) scala/annotation/experimental#
+(5:2..5:14) scala/annotation/experimental#
+(6:17..6:20) scala/Any#
+(6:23..6:26) scala/Predef.`???`().
+(9:4..9:16) scala/annotation/experimental#
+(9:25..9:28) _empty_/i15133b$package.foo(). -> 6:12
+(11:4..11:16) scala/annotation/experimental#
+(13:5..13:8) _empty_/i15133b$package.foo(). -> 6:12
+

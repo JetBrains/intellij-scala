@@ -1,0 +1,1 @@
+class A extends <ref>Traversable

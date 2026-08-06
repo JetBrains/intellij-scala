@@ -1,0 +1,29 @@
+list=[1,2
+3,
+4,]
+-----
+HOCON_FILE
+  HObjectEntries(OBJECT_ENTRIES)
+    HObjectField(OBJECT_FIELD)
+      HValuedField(VALUED_FIELD)
+        HKey(KEY)
+          HKeyPart(KEY_PART)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('list')
+        PsiElement(EQUALS)('=')
+        HArray(ARRAY)
+          PsiElement(LBRACKET)('[')
+          HNumber(NUMBER)
+            PsiElement(UNQUOTED_CHARS)('1')
+          PsiElement(COMMA)(',')
+          HNumber(NUMBER)
+            PsiElement(UNQUOTED_CHARS)('2')
+          PsiWhiteSpace('\n')
+          HNumber(NUMBER)
+            PsiElement(UNQUOTED_CHARS)('3')
+          PsiElement(COMMA)(',')
+          PsiWhiteSpace('\n')
+          HNumber(NUMBER)
+            PsiElement(UNQUOTED_CHARS)('4')
+          PsiElement(COMMA)(',')
+          PsiElement(RBRACKET)(']')

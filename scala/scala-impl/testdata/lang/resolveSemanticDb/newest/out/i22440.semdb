@@ -1,0 +1,5 @@
+Document tests/pos/i22440.scala
+(3:21..3:24) scala/Int#
+(3:28..3:29) _empty_/i22440$package.foo().(x) -> 3:18
+(4:9..4:12) _empty_/i22440$package.foo(). -> 3:5
+

@@ -1,0 +1,40 @@
+def a: Either[?, Int][String]
+-----
+ScalaFile
+  ScFunctionDeclaration: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Either[?, Int][String]
+      ParametrizedType: Either[?, Int]
+        SimpleType: Either
+          CodeReferenceElement: Either
+            PsiElement(identifier)('Either')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: ?
+              CodeReferenceElement: ?
+                PsiElement(identifier)('?')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          TypeArgument
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiElement(])(']')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiElement(])(']')

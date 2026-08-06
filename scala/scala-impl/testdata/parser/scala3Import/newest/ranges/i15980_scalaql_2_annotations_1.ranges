@@ -1,0 +1,10 @@
+[0,110]: PackageDef
+[8,15]: Ident
+[17,57]: Import
+[24,40]: Select
+[24,29]: Ident
+[59,110]: TypeDef
+[94,110]: Template
+[94,94]: DefDef
+[94,94]: TypeTree
+[94,110]: Ident

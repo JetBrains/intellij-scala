@@ -1,0 +1,7 @@
+Document tests/pos/i1665.scala
+(3:3..3:5) scala/Any#`!=`().
+(4:3..4:5) scala/Any#`!=`().
+(5:5..5:7) scala/Any#`!=`().
+(5:15..5:18) scala/Any#
+(6:3..6:5) scala/Any#`!=`().
+

@@ -1,0 +1,10 @@
+Document tests/pos/annot-18064.scala
+(3:28..3:38) scala/annotation/
+(3:39..3:49) scala/annotation/Annotation#
+(6:12..6:18) _empty_/Tensor# -> 5:7
+(6:19..6:20) _empty_/Tensor#[T] -> 5:14
+(6:23..6:30) _empty_/myAnnot# -> 3:7
+(6:31..6:32) _empty_/Tensor#[T] -> 5:14
+(8:31..8:37) _empty_/Tensor# -> 5:7
+(8:38..8:39) _empty_/TensorImpl#[A] -> 8:18
+

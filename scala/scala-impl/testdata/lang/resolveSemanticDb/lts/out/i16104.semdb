@@ -1,0 +1,85 @@
+Document tests/pos/i16104.scala
+(4:11..4:18) _empty_/JsonVal# -> 1:7
+(4:21..4:24) scala/Predef.`???`().
+(9:33..9:38) scala/Tuple#
+(9:41..9:46) local1 -> 7:16
+(9:47..9:48) local3 -> 9:28
+(9:52..9:55) scala/Predef.`???`().
+(11:25..11:30) scala/
+(11:31..11:41) scala/Conversion#
+(11:42..11:43) local8 -> 11:21
+(11:45..11:63) local9 -> 12:9
+(11:64..11:65) local8 -> 11:21
+(11:70..11:73) scala/Predef.`???`().
+(12:34..12:35) local11 -> 12:28
+(13:22..13:23) local11 -> 12:28
+(13:31..13:36) local1 -> 7:16
+(13:37..13:38) local13 -> 13:17
+(13:42..13:46) scala/util/
+(13:47..13:50) scala/util/Try#
+(13:51..13:58) _empty_/JsonVal# -> 1:7
+(13:62..13:65) scala/Predef.`???`().
+(15:3..15:8) _empty_/i16104$package.value. -> 3:5
+(16:4..16:11) local15 -> 13:9
+(16:18..16:25) local6
+(16:26..16:31) local4 -> 9:22
+(16:32..16:38) scala/Predef.String#
+(16:39..16:41) scala/`*:`#
+(16:42..16:48) scala/Predef.String#
+(16:49..16:51) scala/`*:`#
+(16:52..16:58) scala/Predef.String#
+(16:59..16:61) scala/`*:`#
+(16:62..16:68) scala/Predef.String#
+(16:69..16:71) scala/`*:`#
+(16:72..16:78) scala/Predef.String#
+(16:79..16:81) scala/`*:`#
+(16:82..16:88) scala/Predef.String#
+(16:89..16:91) scala/`*:`#
+(16:92..16:98) scala/Predef.String#
+(16:99..16:101) scala/`*:`#
+(16:102..16:108) scala/Predef.String#
+(16:109..16:111) scala/`*:`#
+(16:112..16:118) scala/Predef.String#
+(16:119..16:121) scala/`*:`#
+(16:122..16:128) scala/Predef.String#
+(16:129..16:131) scala/`*:`#
+(16:132..16:135) scala/Int#
+(16:136..16:138) scala/`*:`#
+(16:139..16:142) scala/Int#
+(16:143..16:145) scala/`*:`#
+(16:146..16:149) scala/Int#
+(16:150..16:152) scala/`*:`#
+(16:153..16:156) scala/Int#
+(16:157..16:159) scala/`*:`#
+(16:160..16:163) scala/Int#
+(16:164..16:166) scala/`*:`#
+(16:167..16:170) scala/Int#
+(16:171..16:173) scala/`*:`#
+(16:174..16:177) scala/Int#
+(16:178..16:180) scala/`*:`#
+(16:181..16:184) scala/Int#
+(16:185..16:187) scala/`*:`#
+(16:188..16:191) scala/Int#
+(16:192..16:194) scala/`*:`#
+(16:195..16:198) scala/Int#
+(16:199..16:201) scala/`*:`#
+(16:202..16:208) scala/Predef.String#
+(16:209..16:211) scala/`*:`#
+(16:212..16:218) scala/Predef.String#
+(16:219..16:221) scala/`*:`#
+(16:222..16:228) scala/Predef.String#
+(16:229..16:231) scala/`*:`#
+(16:232..16:238) scala/Predef.String#
+(16:239..16:241) scala/`*:`#
+(16:242..16:248) scala/Predef.String#
+(16:249..16:251) scala/`*:`#
+(16:252..16:258) scala/Predef.String#
+(16:259..16:261) scala/`*:`#
+(16:262..16:268) scala/Predef.String#
+(16:269..16:271) scala/`*:`#
+(16:272..16:282) scala/Tuple$package.EmptyTuple#
+(17:4..17:8) scala/util/Try#fold().
+(17:14..17:17) scala/Predef.`???`().
+(17:21..17:23) scala/Any#`==`().
+(17:24..17:28) _empty_/i16104$package.tree. -> 4:5
+

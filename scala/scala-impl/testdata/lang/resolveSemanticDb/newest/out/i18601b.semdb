@@ -1,0 +1,36 @@
+Document tests/pos/i18601b.scala
+(7:16..7:29) scala/StringContext#
+(8:10..8:12) _empty_/SC# -> 10:7
+(8:15..8:17) _empty_/SC# -> 10:7
+(8:18..8:20) _empty_/i18601b$package.m().(sc) -> 7:12
+(10:14..10:27) scala/StringContext#
+(11:23..11:29) scala/Predef.String#
+(11:32..11:38) scala/Option#
+(11:39..11:45) scala/Predef.String#
+(12:19..12:21) _empty_/SC#sc. -> 10:10
+(12:22..12:27) scala/StringContext#parts.
+(12:28..12:32) scala/collection/IterableOps#head().
+(13:8..13:14) _empty_/SC#unapply().(string) -> 11:15
+(13:15..13:21) java/lang/String#length().
+(13:22..13:24) scala/Int#`==`(+3).
+(13:25..13:32) local0 -> 12:9
+(13:33..13:39) java/lang/String#length().
+(13:45..13:49) scala/Some.
+(13:50..13:56) _empty_/SC#unapply().(string) -> 11:15
+(13:63..13:67) scala/None.
+(16:16..16:31) scala/PartialFunction#
+(16:32..16:38) scala/Predef.String#
+(16:40..16:46) scala/Predef.String#
+(16:51..16:52) _empty_/Test#parse().(x) -> 16:13
+(18:12..18:17) _empty_/Test#parse(). -> 16:7
+(19:10..19:11) _empty_/i18601b$package.m(). -> 8:7
+(19:21..19:22) local2 -> 19:14
+(20:10..20:11) _empty_/i18601b$package.m(). -> 8:7
+(20:21..20:22) local3 -> 20:15
+(24:12..24:14) _empty_/Test#pf. -> 18:7
+(24:15..24:26) scala/PartialFunction#applyOrElse().
+(25:12..25:14) _empty_/Test#pf. -> 18:7
+(25:15..25:26) scala/PartialFunction#applyOrElse().
+(26:12..26:14) _empty_/Test#pf. -> 18:7
+(26:15..26:26) scala/PartialFunction#applyOrElse().
+

@@ -1,0 +1,728 @@
+trait Random[F1[_]]:
+  def element[T1](list: Seq[T1]): F1[T1] = ???
+
+trait Monad[F2[_]]:
+  def map[A1, B1](fa: F2[A1])(f: A1 => B1): F2[B1]
+
+object Monad:
+  extension [F3[_]: Monad, A3](fa: F3[A3])
+    def map[B3](f: A3 => B3): F3[B3] = ???
+
+sealed trait Animal
+object Cat extends Animal
+object Dog extends Animal
+
+type Mammal = Cat.type | Dog.type
+val mammals: List[Mammal] = ???
+
+class Work[F4[_]](random: Random[F4])(using mf: Monad[F4]):
+  def result1: F4[Mammal] =
+    mf.map(fa = random.element(mammals))(a => a)
+
+  def result2: F4[Mammal] = Monad.map(random.element(mammals))(a => a)
+
+  import Monad.*
+
+  def result3: F4[Mammal] = random
+    .element(mammals)
+    .map { a =>
+       a // was: Type Mismatch Error:
+         //      Found:    (a : Animal)
+         //      Required: Cat.type | Dog.type
+}
+-----
+ScalaFile
+  ScTrait: Random
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Random')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F1
+        PsiElement(identifier)('F1')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: element
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('element')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T1
+              PsiElement(identifier)('T1')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: list
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('list')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Seq[T1]
+                    SimpleType: Seq
+                      CodeReferenceElement: Seq
+                        PsiElement(identifier)('Seq')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T1
+                          CodeReferenceElement: T1
+                            PsiElement(identifier)('T1')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: F1[T1]
+            SimpleType: F1
+              CodeReferenceElement: F1
+                PsiElement(identifier)('F1')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T1
+                  CodeReferenceElement: T1
+                    PsiElement(identifier)('T1')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Monad
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Monad')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F2
+        PsiElement(identifier)('F2')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: map
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('map')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A1
+              PsiElement(identifier)('A1')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: B1
+              PsiElement(identifier)('B1')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: fa
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('fa')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: F2[A1]
+                    SimpleType: F2
+                      CodeReferenceElement: F2
+                        PsiElement(identifier)('F2')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A1
+                          CodeReferenceElement: A1
+                            PsiElement(identifier)('A1')
+                      PsiElement(])(']')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: A1 => B1
+                    SimpleType: A1
+                      CodeReferenceElement: A1
+                        PsiElement(identifier)('A1')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: B1
+                      CodeReferenceElement: B1
+                        PsiElement(identifier)('B1')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: F2[B1]
+            SimpleType: F2
+              CodeReferenceElement: F2
+                PsiElement(identifier)('F2')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: B1
+                  CodeReferenceElement: B1
+                    PsiElement(identifier)('B1')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScObject: Monad
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Monad')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        Extension on F3[A3]
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: F3
+              PsiElement(identifier)('F3')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ScContextBoundImpl(context bound)
+                SimpleType: Monad
+                  CodeReferenceElement: Monad
+                    PsiElement(identifier)('Monad')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: A3
+              PsiElement(identifier)('A3')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: fa
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('fa')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: F3[A3]
+                    SimpleType: F3
+                      CodeReferenceElement: F3
+                        PsiElement(identifier)('F3')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A3
+                          CodeReferenceElement: A3
+                            PsiElement(identifier)('A3')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: map
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('map')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: B3
+                  PsiElement(identifier)('B3')
+                PsiElement(])(']')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: f
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('f')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      FunctionalType: A3 => B3
+                        SimpleType: A3
+                          CodeReferenceElement: A3
+                            PsiElement(identifier)('A3')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: B3
+                          CodeReferenceElement: B3
+                            PsiElement(identifier)('B3')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: F3[B3]
+                SimpleType: F3
+                  CodeReferenceElement: F3
+                    PsiElement(identifier)('F3')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: B3
+                      CodeReferenceElement: B3
+                        PsiElement(identifier)('B3')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Animal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Animal')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Cat
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Cat')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Animal
+            CodeReferenceElement: Animal
+              PsiElement(identifier)('Animal')
+  PsiWhiteSpace('\n')
+  ScObject: Dog
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Dog')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Animal
+            CodeReferenceElement: Animal
+              PsiElement(identifier)('Animal')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Mammal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mammal')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixType: Cat.type | Dog.type
+      SimpleType: Cat.type
+        CodeReferenceElement: Cat
+          PsiElement(identifier)('Cat')
+        PsiElement(.)('.')
+        PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      SimpleType: Dog.type
+        CodeReferenceElement: Dog
+          PsiElement(identifier)('Dog')
+        PsiElement(.)('.')
+        PsiElement(type)('type')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: mammals
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: mammals
+        PsiElement(identifier)('mammals')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List[Mammal]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: Mammal
+            CodeReferenceElement: Mammal
+              PsiElement(identifier)('Mammal')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: Work
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Work')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F4
+        PsiElement(identifier)('F4')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: random
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('random')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Random[F4]
+                SimpleType: Random
+                  CodeReferenceElement: Random
+                    PsiElement(identifier)('Random')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: F4
+                      CodeReferenceElement: F4
+                        PsiElement(identifier)('F4')
+                  PsiElement(])(']')
+          PsiElement())(')')
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          ClassParameter: mf
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('mf')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Monad[F4]
+                SimpleType: Monad
+                  CodeReferenceElement: Monad
+                    PsiElement(identifier)('Monad')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: F4
+                      CodeReferenceElement: F4
+                        PsiElement(identifier)('F4')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: result1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('result1')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: F4[Mammal]
+            SimpleType: F4
+              CodeReferenceElement: F4
+                PsiElement(identifier)('F4')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Mammal
+                  CodeReferenceElement: Mammal
+                    PsiElement(identifier)('Mammal')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            MethodCall
+              ReferenceExpression: mf.map
+                ReferenceExpression: mf
+                  PsiElement(identifier)('mf')
+                PsiElement(.)('.')
+                PsiElement(identifier)('map')
+              ArgumentList
+                PsiElement(()('(')
+                AssignStatement
+                  ReferenceExpression: fa
+                    PsiElement(identifier)('fa')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: random.element
+                      ReferenceExpression: random
+                        PsiElement(identifier)('random')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('element')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: mammals
+                        PsiElement(identifier)('mammals')
+                      PsiElement())(')')
+                PsiElement())(')')
+            ArgumentList
+              PsiElement(()('(')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    Parameter: a
+                      PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: result2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('result2')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: F4[Mammal]
+            SimpleType: F4
+              CodeReferenceElement: F4
+                PsiElement(identifier)('F4')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Mammal
+                  CodeReferenceElement: Mammal
+                    PsiElement(identifier)('Mammal')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            MethodCall
+              ReferenceExpression: Monad.map
+                ReferenceExpression: Monad
+                  PsiElement(identifier)('Monad')
+                PsiElement(.)('.')
+                PsiElement(identifier)('map')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: random.element
+                    ReferenceExpression: random
+                      PsiElement(identifier)('random')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('element')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: mammals
+                      PsiElement(identifier)('mammals')
+                    PsiElement())(')')
+                PsiElement())(')')
+            ArgumentList
+              PsiElement(()('(')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    Parameter: a
+                      PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: Monad
+              PsiElement(identifier)('Monad')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: result3
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('result3')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: F4[Mammal]
+            SimpleType: F4
+              CodeReferenceElement: F4
+                PsiElement(identifier)('F4')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Mammal
+                  CodeReferenceElement: Mammal
+                    PsiElement(identifier)('Mammal')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: random
+    .element(mammals)
+    .map
+              MethodCall
+                ReferenceExpression: random
+    .element
+                  ReferenceExpression: random
+                    PsiElement(identifier)('random')
+                  PsiWhiteSpace('\n    ')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('element')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: mammals
+                    PsiElement(identifier)('mammals')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              PsiElement(.)('.')
+              PsiElement(identifier)('map')
+            PsiWhiteSpace(' ')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: a
+                        PsiElement(identifier)('a')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace('\n       ')
+                  BlockOfExpressions
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiComment(comment)('// was: Type Mismatch Error:')
+                PsiWhiteSpace('\n         ')
+                PsiComment(comment)('//      Found:    (a : Animal)')
+                PsiWhiteSpace('\n         ')
+                PsiComment(comment)('//      Required: Cat.type | Dog.type')
+                PsiWhiteSpace('\n')
+                PsiElement(})('}')

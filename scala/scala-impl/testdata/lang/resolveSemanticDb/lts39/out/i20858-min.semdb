@@ -1,0 +1,20 @@
+Document tests/pos/i20858-min.scala
+(2:18..2:21) scala/Int#
+(3:13..3:19) scala/Predef.String#
+(3:20..3:21) scala/`&`#
+(3:22..3:23) _empty_/`i20858-min$package`.M# -> 2:6
+(3:24..3:25) _empty_/`i20858-min$package`.M#[F] -> 2:8
+(5:11..5:12) _empty_/`i20858-min$package`.M# -> 2:6
+(5:23..5:24) _empty_/`i20858-min$package`.M1#[x] -> 5:14
+(5:25..5:26) scala/`|`#
+(5:27..5:28) _empty_/`i20858-min$package`.M1#[y] -> 5:16
+(6:11..6:12) _empty_/`i20858-min$package`.M# -> 2:6
+(6:23..6:24) _empty_/`i20858-min$package`.M2#[x] -> 6:14
+(6:25..6:26) scala/`|`#
+(6:27..6:28) _empty_/`i20858-min$package`.M2#[y] -> 6:16
+(8:11..8:15) scala/Unit#
+(9:10..9:12) _empty_/`i20858-min$package`.M1# -> 5:6
+(9:15..9:18) scala/Predef.`???`().
+(10:10..10:12) _empty_/`i20858-min$package`.M2# -> 6:6
+(10:15..10:16) local0 -> 9:7
+

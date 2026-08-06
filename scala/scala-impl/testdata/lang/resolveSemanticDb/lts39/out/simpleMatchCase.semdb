@@ -1,0 +1,5 @@
+Document tests/pos/simpleMatchCase.scala
+(3:12..3:16) scala/Unit#
+(6:9..6:16) scala/Predef.println(+1).
+(7:9..7:16) scala/Predef.println(+1).
+

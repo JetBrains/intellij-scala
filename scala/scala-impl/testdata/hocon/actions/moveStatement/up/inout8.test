@@ -1,0 +1,7 @@
+a = ${whatever.here} { k = v
+}
+a.<caret>b = 42
+-----
+a = ${whatever.here} { k = v
+  <caret>b = 42
+}

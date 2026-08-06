@@ -1,0 +1,12 @@
+Document tests/pos/inline-vals.scala
+(2:32..2:39) scala/Boolean#
+(3:29..3:33) scala/Byte#
+(4:30..4:35) scala/Short#
+(5:28..5:31) scala/Int#
+(6:29..6:33) scala/Long#
+(7:30..7:35) scala/Float#
+(8:31..8:37) scala/Double#
+(9:29..9:33) scala/Char#
+(10:31..10:37) scala/Predef.String#
+(13:26..13:41) _empty_/InlineConstants# -> 1:7
+

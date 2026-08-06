@@ -1,0 +1,48 @@
+Document tests/pos/i15398.scala
+(2:19..2:22) scala/Int#
+(2:24..2:27) scala/Int#
+(2:29..2:32) scala/Int#
+(2:34..2:37) scala/Int#
+(2:39..2:42) scala/Int#
+(2:44..2:47) scala/Int#
+(2:49..2:52) scala/Int#
+(2:54..2:57) scala/Int#
+(2:59..2:62) scala/Int#
+(2:64..2:67) scala/Int#
+(2:69..2:72) scala/Int#
+(2:74..2:77) scala/Int#
+(2:79..2:82) scala/Int#
+(2:84..2:87) scala/Int#
+(2:89..2:92) scala/Int#
+(2:94..2:97) scala/Int#
+(2:99..2:102) scala/Int#
+(2:104..2:107) scala/Int#
+(2:109..2:112) scala/Int#
+(2:114..2:117) scala/Int#
+(2:119..2:122) scala/Int#
+(2:124..2:127) scala/Int#
+(2:129..2:132) scala/Int#
+(4:3..4:9) scala/Predef.summon().
+(4:10..4:15) scala/Tuple.
+(4:16..4:20) scala/Tuple.Size#
+(4:21..4:28) _empty_/i15398.Tuple23# -> 2:8
+(4:30..4:33) scala/`=:=`#
+(5:11..5:17) scala/Predef.summon().
+(5:18..5:23) scala/
+(5:24..5:32) scala/deriving/
+(5:33..5:39) scala/deriving/Mirror.
+(5:40..5:42) scala/deriving/Mirror.Of#
+(5:43..5:50) _empty_/i15398.Tuple23# -> 2:8
+(6:3..6:9) scala/Predef.summon().
+(6:10..6:11) _empty_/i15398.m. -> 5:7
+(6:12..6:25) scala/deriving/Mirror#MirroredLabel#
+(6:26..6:29) scala/`=:=`#
+(7:3..7:9) scala/Predef.summon().
+(7:10..7:11) _empty_/i15398.m. -> 5:7
+(7:30..7:33) scala/`=:=`#
+(7:34..7:41) _empty_/i15398.Tuple23# -> 2:8
+(8:3..8:9) scala/Predef.summon().
+(8:10..8:11) _empty_/i15398.m. -> 5:7
+(8:12..8:30) scala/deriving/Mirror#MirroredElemLabels#
+(8:31..8:34) scala/`=:=`#
+

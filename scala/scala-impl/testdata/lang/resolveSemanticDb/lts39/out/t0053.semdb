@@ -1,0 +1,7 @@
+Document tests/pos/t0053.scala
+(2:18..2:21) scala/Int#
+(3:26..3:29) local0 -> 4:11
+(3:36..3:39) local0 -> 4:11
+(4:26..4:27) _empty_/bug.foobar().[c] -> 2:14
+(4:32..4:35) local4 -> 4:21
+

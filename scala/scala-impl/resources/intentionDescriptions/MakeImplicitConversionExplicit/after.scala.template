@@ -1,0 +1,8 @@
+class A
+object A {
+  implicit def i2a(i: Int): A = new A
+}
+
+object B {
+  val a: A = A.i2a(1)
+}

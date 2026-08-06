@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<component name="LanguageInjectionConfiguration">
+  <option name="LANGUAGE_ANNOTATION" value="org.intellij.lang.annotations.Language" />
+  <injection language="RegExp" injector-id="scala">
+    <display-name>String.r (scala)</display-name>
+    <place><![CDATA[scalaLiteral().isRegExpLiteral()]]></place>
+  </injection>
+  <injection language="RegExp" injector-id="scala">
+    <display-name>Regex (scala.util.matching)</display-name>
+    <place><![CDATA[scalaLiteral().constructorCallArgument("scala.util.matching.Regex", 0, "java.lang.String", "java.lang.String*")]]></place>
+  </injection>
+  <injection language="SQL" injector-id="scala">
+    <display-name>Doobie SQL constructors (org.typelevel.doobie.util)</display-name>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("apply").withParameters("java.lang.String", "scala.Option", "java.lang.String", "org.typelevel.doobie.util.Write").definedInClass("org.typelevel.doobie.util.update.Update$"))]]></place>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("apply").withParameters("java.lang.String", "scala.Option").definedInClass("org.typelevel.doobie.util.update.Update0$"))]]></place>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("apply").withParameters("java.lang.String", "scala.Option", "java.lang.String", "org.typelevel.doobie.util.Write", "org.typelevel.doobie.util.Read").definedInClass("org.typelevel.doobie.util.query.Query$"))]]></place>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("apply").withParameters("java.lang.String", "scala.Option", "java.lang.String").definedInClass("org.typelevel.doobie.util.query.Query0$"))]]></place>
+  </injection>
+
+<!--
+NOTE: this single injection is left commented just to show an example of how you can write patterns for Scala code
+The pattern is not actually needed, because it's already defined for Java (though in little but different way) and Scala code reuses Java injection patterns
+-->
+<!--
+  <injection language="RegExp" injector-id="scala">
+    <display-name>String (java.lang)</display-name>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("replaceAll").withParameters("java.lang.String", "java.lang.String").definedInClass("java.lang.String"))]]></place>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("replaceFirst").withParameters("java.lang.String", "java.lang.String").definedInClass("java.lang.String"))]]></place>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("split").withParameters("java.lang.String").definedInClass("java.lang.String"))]]></place>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("split").withParameters("java.lang.String", "int").definedInClass("java.lang.String"))]]></place>
+    <place><![CDATA[scalaLiteral().callArgument(0, psiMethod().withName("matches").withParameters("java.lang.String").definedInClass("java.lang.String"))]]></place>
+  </injection>
+  -->
+</component>

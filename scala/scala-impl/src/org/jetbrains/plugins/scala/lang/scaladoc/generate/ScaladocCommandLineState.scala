@@ -1,0 +1,340 @@
+package org.jetbrains.plugins.scala.lang.scaladoc.generate
+
+import com.intellij.analysis.AnalysisScope
+import com.intellij.execution.ExecutionException
+import com.intellij.execution.configurations._
+import com.intellij.execution.filters.TextConsoleBuilderFactory
+import com.intellij.execution.process.{OSProcessHandler, ProcessEvent, ProcessListener}
+import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.ide.BrowserUtil
+import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.ex.PathUtilEx
+import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
+import com.intellij.openapi.roots._
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project._
+
+import java.io.{IOException, PrintStream}
+import java.nio.file.{Files, Paths}
+import java.util.regex.Pattern
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
+import scala.util.Using
+
+class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
+    extends JavaCommandLineState(env) {
+
+  setConsoleBuilder(
+    TextConsoleBuilderFactory.getInstance.createBuilder(project)
+  )
+
+  private val MainClassScala2 = "scala.tools.nsc.ScalaDoc"
+  private val classpathDelimeter = java.io.File.pathSeparator
+  private var outputDir: String = ""
+  private var showInBrowser: Boolean = false
+  private var additionalScaladocFlags: String = ""
+  private var scope: AnalysisScope = _
+  private var verbose: Boolean = false
+  private var docTitle: String = ""
+  private var maxHeapSize: String = ""
+
+  def setAdditionalScaladocFlags(flags: String): Unit =
+    additionalScaladocFlags = flags
+
+  def setScope(scope: AnalysisScope): Unit =
+    this.scope = scope
+
+  def setVerbose(flag: Boolean): Unit =
+    verbose = flag
+
+  def setDocTitle(title: String): Unit =
+    docTitle = title
+
+  def setMaxHeapSize(size: String): Unit =
+    maxHeapSize = size
+
+  def setShowInBrowser(b: Boolean): Unit =
+    showInBrowser = b
+
+  def setOutputDir(dir: String): Unit =
+    outputDir = dir
+
+  override protected def startProcess: OSProcessHandler = {
+    val handler: OSProcessHandler =
+      JavaCommandLineStateUtil.startProcess(createCommandLine)
+    if (showInBrowser) {
+      handler.addProcessListener(new ProcessListener {
+        override def processTerminated(event: ProcessEvent): Unit = {
+          val url = Paths.get(outputDir, "index.html")
+          if (Files.exists(url) && event.getExitCode == 0) {
+            BrowserUtil.browse(url)
+          }
+        }
+      })
+    }
+    handler
+  }
+
+  private def visitAll(
+      file: VirtualFile,
+      scope: AnalysisScope
+  ): List[VirtualFile] = {
+    val acc = mutable.ListBuffer[VirtualFile]()
+
+    def visitInner(
+        file: VirtualFile,
+        scope: AnalysisScope
+    ): Unit =
+      if (file.isDirectory) {
+        for (c <- file.getChildren)
+          visitInner(c, scope)
+      } else if (
+        file.getExtension == "scala" && file.isValid && scope.contains(file)
+      ) {
+        PsiManager.getInstance(project).findFile(file) match {
+          case f: ScalaFile =>
+            acc += file
+          case _ => // do nothing
+        }
+      }
+
+    visitInner(file, scope)
+    acc.toList
+  }
+
+  private def processAdditionalParams(params: String) = {
+    val paramTokens = splitParams(params)
+    val result = mutable.ListBuffer.empty[String]
+
+    paramTokens.foldLeft(false) {
+      case (true, _) =>
+        false
+      case (_, param: String)
+          if ScaladocCommandLineState.generatedParamsWithArgs.contains(param) =>
+        true
+      case (_, param: String) =>
+        if (
+          !ScaladocCommandLineState.generatedParamsWithoutArgs.contains(param)
+        )
+          result += param
+        false
+    }
+
+    result
+  }
+
+  private def splitParams(params: String): List[String] = {
+    val result = mutable.ListBuffer.empty[String]
+    val acc = new StringBuilder("")
+
+    (params + " ").foldLeft(false) { case (inQuotes, char) =>
+      char match {
+        case ' ' =>
+          if (inQuotes) {
+            acc.append(' ')
+          } else {
+            result += acc.toString
+            acc.clear()
+          }
+          inQuotes
+        case '\"' =>
+          !inQuotes
+        case d =>
+          acc.append(d)
+          inQuotes
+      }
+    }
+
+    result.result()
+  }
+
+  override def createJavaParameters(): JavaParameters = {
+    val jp = new JavaParameters
+
+    val jdk: Sdk = PathUtilEx.getAnyJdk(project)
+    assert(jdk != null, "JDK IS NULL")
+
+    val modules = ModuleManager.getInstance(project).getModules
+
+    val sourcePath = OrderEnumerator
+      .orderEntries(project)
+      .withoutLibraries()
+      .withoutSdk()
+      .getAllSourceRoots
+    val documentableFilesList = mutable.ListBuffer.empty[String]
+    val allModules = mutable.HashSet(modules.toSeq: _*)
+    val modulesNeeded = mutable.HashSet.empty[Module]
+
+    def filterModulesList(files: VirtualFile*): Unit = {
+      modulesNeeded ++= allModules.filter(m =>
+        files.exists(f => m.getModuleScope.contains(f))
+      )
+      allModules --= modulesNeeded
+    }
+
+    def collectCPSources(
+      target: OrderEnumerator,
+      classesCollector: collection.mutable.HashSet[String],
+      sourcesCollector: collection.mutable.HashSet[String]
+    ): Unit = {
+      Set(
+        classesCollector -> target.classes,
+        sourcesCollector -> target.sources
+      )
+        .foreach { case (collector, enumerator) =>
+          val roots = enumerator.withoutSelfModuleOutput().getRoots
+          val strings = roots.map { virtualFile =>
+            virtualFile.getPath.replaceAll(
+              Pattern.quote(".") + "(\\S{2,6})" + Pattern.quote("!/"),
+              ".$1/"
+            )
+          }
+          collector ++= strings
+        }
+    }
+
+    val classpath = mutable.ListBuffer.empty[String]
+    val sourcepath = mutable.ListBuffer.empty[String]
+    var needFilter = false
+
+    scope.getScopeType match {
+      case AnalysisScope.PROJECT =>
+        modulesNeeded ++= allModules
+      case AnalysisScope.MODULE =>
+        val moduleOpt = modules.find(scope.containsModule)
+        modulesNeeded ++= moduleOpt
+      case AnalysisScope.MODULES =>
+        val modulesFromScope = modules.filter(scope.containsModule)
+        modulesNeeded ++= modulesFromScope
+      case _ =>
+        needFilter = true
+    }
+
+    for (className <- sourcePath) {
+      val children = className.getChildren
+
+      for (c <- children) {
+        val documentableFiles = visitAll(c, scope)
+        if (needFilter) {
+          filterModulesList(documentableFiles: _*)
+        }
+
+        for (docFile <- documentableFiles) {
+          documentableFilesList += docFile.getPath
+        }
+      }
+    }
+
+    def filterNeededModuleSources(): Unit = {
+      val allEntries = mutable.HashSet[String]()
+      val allSourceEntries = mutable.HashSet[String]()
+
+      if (modulesNeeded.nonEmpty) {
+        for (module <- modulesNeeded) {
+          collectCPSources(
+            OrderEnumerator.orderEntries(module),
+            allEntries,
+            allSourceEntries
+          )
+        }
+      } else {
+        collectCPSources(
+          OrderEnumerator.orderEntries(project),
+          allEntries,
+          allSourceEntries
+        )
+      }
+      allEntries.foreach(classpath.append)
+      allSourceEntries.foreach(sourcepath.append)
+    }
+
+    filterNeededModuleSources()
+
+    val moduleWithScalaSdk =
+      modulesNeeded.find(_.hasScala)
+        .orElse(project.anyScalaModule)
+        .getOrElse {
+          throw new ExecutionException("No modules with Scala SDK are configured")
+        }
+    jp.getClassPath.addScalaCompilerClassPath(moduleWithScalaSdk): @scala.annotation.nowarn("cat=deprecation")
+    if (moduleWithScalaSdk.hasScala3) {
+      throw new ExecutionException(
+        s"""Scaladoc generation is not supported for Scala 3, use sbt command instead"""
+      )
+    }
+
+    // NOTE: do not accidentally add all-project classes scope (e.g. using JDK_AND_CLASSES):
+    // it adds jars from sbt-build module which contains scala library with version different from users scala version
+    // which can leads to runtime exceptions
+    jp.configureByProject(project, JavaParameters.JDK_ONLY, jdk)
+    jp.setWorkingDirectory(project.baseDir.getPath)
+    jp.setCharset(null)
+    jp.setMainClass(MainClassScala2)
+
+    val vmParamList = jp.getVMParametersList
+    if (maxHeapSize.nonEmpty) {
+      vmParamList.add(s"-Xmx${maxHeapSize}m")
+      vmParamList.add(s"-Xmx${maxHeapSize}m")
+    }
+
+    val paramList = jp.getProgramParametersList
+
+    val paramListSimple = mutable.ListBuffer.empty[String]
+
+    paramListSimple += "-d"
+    paramListSimple += outputDir
+
+    paramListSimple += "-classpath"
+    paramListSimple += classpath.mkString(classpathDelimeter)
+
+    paramListSimple += "-sourcepath"
+    paramListSimple += sourcepath.mkString(classpathDelimeter)
+
+    if (verbose) {
+      paramListSimple += "-verbose"
+    }
+
+    paramListSimple += "-doc-title"
+    paramListSimple += docTitle
+
+    if (additionalScaladocFlags.nonEmpty) {
+      paramListSimple ++= processAdditionalParams(additionalScaladocFlags)
+    }
+
+    paramListSimple ++= documentableFilesList
+
+    if (JdkUtil.useDynamicClasspath(project)) {
+      try {
+        val tempParamsFile =
+          Files.createTempFile("scaladocfileargs", ".tmp")
+        Using.resource(new PrintStream(Files.newOutputStream(tempParamsFile))) {
+          pw =>
+            paramListSimple.map(escapeParam).foreach(pw.println)
+        }
+        paramList.add("@" + tempParamsFile.toAbsolutePath)
+      } catch {
+        case e: IOException => throw new ExecutionException("I/O Error", e)
+      }
+    } else {
+      paramList.addAll(paramListSimple.asJava)
+    }
+
+    jp
+  }
+
+  private def escapeParam(param: String) =
+    if (
+      param.contains(" ") && !(param.startsWith("\"") && param.endsWith("\""))
+    )
+      "\"" + param + "\""
+    else
+      param
+}
+
+object ScaladocCommandLineState {
+  val generatedParamsWithArgs = List("-d", "-doc-title", "-classpath")
+  val generatedParamsWithoutArgs = List("-verbose")
+}

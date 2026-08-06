@@ -1,0 +1,17 @@
+Document tests/pos/i5418.scala
+(4:30..4:38) scala/package.Iterator#
+(4:39..4:40) _empty_/Test#fromOrderedKeys().[A] -> 4:23
+(4:44..4:48) _empty_/Test#Tree# -> 2:9
+(4:49..4:50) _empty_/Test#fromOrderedKeys().[A] -> 4:23
+(4:54..4:57) scala/Predef.`???`().
+(6:19..6:27) scala/package.Iterable#
+(6:28..6:29) _empty_/Test#from().[E] -> 6:12
+(6:33..6:37) _empty_/Test#Tree# -> 2:9
+(6:38..6:39) _empty_/Test#from().[E] -> 6:12
+(7:5..7:7) _empty_/Test#from().(it) -> 6:15
+(8:15..8:20) scala/package.Range#
+(9:18..9:19) local0 -> 8:12
+(9:20..9:28) scala/collection/immutable/Range#iterator().
+(12:9..12:24) _empty_/Test#fromOrderedKeys(). -> 4:7
+(12:25..12:27) local1 -> 9:13
+

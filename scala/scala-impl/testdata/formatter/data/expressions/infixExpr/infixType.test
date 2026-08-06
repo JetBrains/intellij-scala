@@ -1,0 +1,11 @@
+class a {
+  var x: T op
+  T op
+  T = 5
+}
+-----
+class a {
+  var x: T op
+    T op
+    T = 5
+}

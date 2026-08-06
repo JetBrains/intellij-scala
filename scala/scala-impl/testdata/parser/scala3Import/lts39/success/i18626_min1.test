@@ -1,0 +1,202 @@
+sealed trait Animal
+object Cat extends Animal
+object Dog extends Animal
+
+type Mammal = Cat.type | Dog.type
+
+class Test:
+  def t1 =
+    val mammals: List[Mammal] = ???
+    val result = mammals.head
+    val mammal: Mammal = result // was: Type Mismatch Error:
+                                //      Found:    (result : Animal)
+                                //      Required: Mammal
+    ()
+-----
+ScalaFile
+  ScTrait: Animal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Animal')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Cat
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Cat')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Animal
+            CodeReferenceElement: Animal
+              PsiElement(identifier)('Animal')
+  PsiWhiteSpace('\n')
+  ScObject: Dog
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Dog')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Animal
+            CodeReferenceElement: Animal
+              PsiElement(identifier)('Animal')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Mammal
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mammal')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixType: Cat.type | Dog.type
+      SimpleType: Cat.type
+        CodeReferenceElement: Cat
+          PsiElement(identifier)('Cat')
+        PsiElement(.)('.')
+        PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      SimpleType: Dog.type
+        CodeReferenceElement: Dog
+          PsiElement(identifier)('Dog')
+        PsiElement(.)('.')
+        PsiElement(type)('type')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: t1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('t1')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: mammals
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: mammals
+                  PsiElement(identifier)('mammals')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: List[Mammal]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Mammal
+                      CodeReferenceElement: Mammal
+                        PsiElement(identifier)('Mammal')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: result
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: result
+                  PsiElement(identifier)('result')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: mammals.head
+                ReferenceExpression: mammals
+                  PsiElement(identifier)('mammals')
+                PsiElement(.)('.')
+                PsiElement(identifier)('head')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: mammal
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: mammal
+                  PsiElement(identifier)('mammal')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Mammal
+                CodeReferenceElement: Mammal
+                  PsiElement(identifier)('Mammal')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: result
+                PsiElement(identifier)('result')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// was: Type Mismatch Error:')
+            PsiWhiteSpace('\n                                ')
+            PsiComment(comment)('//      Found:    (result : Animal)')
+            PsiWhiteSpace('\n                                ')
+            PsiComment(comment)('//      Required: Mammal')
+            PsiWhiteSpace('\n    ')
+            UnitExpression
+              PsiElement(()('(')
+              PsiElement())(')')

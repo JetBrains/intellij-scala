@@ -1,0 +1,441 @@
+trait NumericDate
+trait JWSDecoded[H]
+
+trait StandardHeaderWrite[H]:
+  def setAlgorithm(header: H, algorithm: Algorithm): H
+
+object StandardHeaderWrite:
+  def apply[H](using sh: StandardHeaderWrite[H]): StandardHeaderWrite[H] = ???
+  // unused - required to reproduce
+  def apply[H](setAlg: (H, Algorithm) => H): StandardHeaderWrite[H] = ???
+
+final case class JWK(algorithm: Option[Algorithm])
+sealed trait Algorithm
+
+def Test[F[_], H](key: JWK, header: H)(using StandardHeaderWrite[H]) = {
+  key.algorithm
+    .map(StandardHeaderWrite[H].setAlgorithm(header, _))
+    .getOrElse(header)
+}
+-----
+ScalaFile
+  ScTrait: NumericDate
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NumericDate')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: JWSDecoded
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('JWSDecoded')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: H
+        PsiElement(identifier)('H')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: StandardHeaderWrite
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('StandardHeaderWrite')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: H
+        PsiElement(identifier)('H')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: setAlgorithm
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('setAlgorithm')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: header
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('header')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: H
+                    CodeReferenceElement: H
+                      PsiElement(identifier)('H')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: algorithm
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('algorithm')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Algorithm
+                    CodeReferenceElement: Algorithm
+                      PsiElement(identifier)('Algorithm')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: H
+            CodeReferenceElement: H
+              PsiElement(identifier)('H')
+  PsiWhiteSpace('\n\n')
+  ScObject: StandardHeaderWrite
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('StandardHeaderWrite')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: H
+              PsiElement(identifier)('H')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: sh
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('sh')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: StandardHeaderWrite[H]
+                    SimpleType: StandardHeaderWrite
+                      CodeReferenceElement: StandardHeaderWrite
+                        PsiElement(identifier)('StandardHeaderWrite')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: H
+                          CodeReferenceElement: H
+                            PsiElement(identifier)('H')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: StandardHeaderWrite[H]
+            SimpleType: StandardHeaderWrite
+              CodeReferenceElement: StandardHeaderWrite
+                PsiElement(identifier)('StandardHeaderWrite')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: H
+                  CodeReferenceElement: H
+                    PsiElement(identifier)('H')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          PsiComment(comment)('// unused - required to reproduce')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: H
+              PsiElement(identifier)('H')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: setAlg
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('setAlg')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: (H, Algorithm) => H
+                    TupleType: (H, Algorithm)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: H
+                          CodeReferenceElement: H
+                            PsiElement(identifier)('H')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Algorithm
+                          CodeReferenceElement: Algorithm
+                            PsiElement(identifier)('Algorithm')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: H
+                      CodeReferenceElement: H
+                        PsiElement(identifier)('H')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: StandardHeaderWrite[H]
+            SimpleType: StandardHeaderWrite
+              CodeReferenceElement: StandardHeaderWrite
+                PsiElement(identifier)('StandardHeaderWrite')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: H
+                  CodeReferenceElement: H
+                    PsiElement(identifier)('H')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScClass: JWK
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('JWK')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: algorithm
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('algorithm')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Option[Algorithm]
+                SimpleType: Option
+                  CodeReferenceElement: Option
+                    PsiElement(identifier)('Option')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Algorithm
+                      CodeReferenceElement: Algorithm
+                        PsiElement(identifier)('Algorithm')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Algorithm
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Algorithm')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: H
+        PsiElement(identifier)('H')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: key
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('key')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: JWK
+              CodeReferenceElement: JWK
+                PsiElement(identifier)('JWK')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: header
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('header')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: H
+              CodeReferenceElement: H
+                PsiElement(identifier)('H')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            ParametrizedType: StandardHeaderWrite[H]
+              SimpleType: StandardHeaderWrite
+                CodeReferenceElement: StandardHeaderWrite
+                  PsiElement(identifier)('StandardHeaderWrite')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: H
+                    CodeReferenceElement: H
+                      PsiElement(identifier)('H')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: key.algorithm
+    .map(StandardHeaderWrite[H].setAlgorithm(header, _))
+    .getOrElse
+          MethodCall
+            ReferenceExpression: key.algorithm
+    .map
+              ReferenceExpression: key.algorithm
+                ReferenceExpression: key
+                  PsiElement(identifier)('key')
+                PsiElement(.)('.')
+                PsiElement(identifier)('algorithm')
+              PsiWhiteSpace('\n    ')
+              PsiElement(.)('.')
+              PsiElement(identifier)('map')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: StandardHeaderWrite[H].setAlgorithm
+                  GenericCall
+                    ReferenceExpression: StandardHeaderWrite
+                      PsiElement(identifier)('StandardHeaderWrite')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: H
+                          CodeReferenceElement: H
+                            PsiElement(identifier)('H')
+                      PsiElement(])(']')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('setAlgorithm')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: header
+                    PsiElement(identifier)('header')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  UnderscoreSection
+                    PsiElement(_)('_')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          PsiElement(.)('.')
+          PsiElement(identifier)('getOrElse')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: header
+            PsiElement(identifier)('header')
+          PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

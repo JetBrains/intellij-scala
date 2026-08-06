@@ -1,0 +1,12 @@
+Document tests/pos/i15165.scala
+(1:19..1:22) scala/Int#
+(1:27..1:28) local0 -> 1:16
+(1:29..1:30) scala/Int#`+`(+4).
+(1:35..1:40) scala/Function1#apply().
+(1:41..1:44) scala/Predef.`???`().
+(4:10..4:13) scala/Int#
+(6:19..6:20) _empty_/C# -> 3:7
+(6:25..6:26) local1 -> 6:16
+(6:27..6:28) _empty_/C#x(). -> 4:7
+(6:31..6:36) scala/Function1#apply().
+

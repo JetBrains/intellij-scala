@@ -1,0 +1,278 @@
+import scala.deriving.Mirror
+
+val mT23 = summon[Mirror.Of[(
+  Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple)]] // error
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.deriving.Mirror
+        CodeReferenceElement: scala.deriving
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('deriving')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Mirror')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: mT23
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: mT23
+        PsiElement(identifier)('mT23')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: Mirror.Of[(
+  Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple)]
+            SimpleType: Mirror.Of
+              CodeReferenceElement: Mirror.Of
+                CodeReferenceElement: Mirror
+                  PsiElement(identifier)('Mirror')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Of')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeInParenthesis: (
+  Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple)
+                  PsiElement(()('(')
+                  PsiWhiteSpace('\n  ')
+                  InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: *:
+                      PsiElement(identifier)('*:')
+                    PsiWhiteSpace(' ')
+                    InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: *:
+                        PsiElement(identifier)('*:')
+                      PsiWhiteSpace(' ')
+                      InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        InfixType: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: *:
+                            PsiElement(identifier)('*:')
+                          PsiWhiteSpace(' ')
+                          InfixType: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: *:
+                              PsiElement(identifier)('*:')
+                            PsiWhiteSpace(' ')
+                            InfixType: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: *:
+                                PsiElement(identifier)('*:')
+                              PsiWhiteSpace(' ')
+                              InfixType: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: *:
+                                  PsiElement(identifier)('*:')
+                                PsiWhiteSpace(' ')
+                                InfixType: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: *:
+                                    PsiElement(identifier)('*:')
+                                  PsiWhiteSpace(' ')
+                                  InfixType: Int
+    *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                    SimpleType: Int
+                                      CodeReferenceElement: Int
+                                        PsiElement(identifier)('Int')
+                                    PsiWhiteSpace('\n    ')
+                                    CodeReferenceElement: *:
+                                      PsiElement(identifier)('*:')
+                                    PsiWhiteSpace(' ')
+                                    InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                      SimpleType: Int
+                                        CodeReferenceElement: Int
+                                          PsiElement(identifier)('Int')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: *:
+                                        PsiElement(identifier)('*:')
+                                      PsiWhiteSpace(' ')
+                                      InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                        SimpleType: Int
+                                          CodeReferenceElement: Int
+                                            PsiElement(identifier)('Int')
+                                        PsiWhiteSpace(' ')
+                                        CodeReferenceElement: *:
+                                          PsiElement(identifier)('*:')
+                                        PsiWhiteSpace(' ')
+                                        InfixType: Int *: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                          SimpleType: Int
+                                            CodeReferenceElement: Int
+                                              PsiElement(identifier)('Int')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: *:
+                                            PsiElement(identifier)('*:')
+                                          PsiWhiteSpace(' ')
+                                          InfixType: Int *: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                            SimpleType: Int
+                                              CodeReferenceElement: Int
+                                                PsiElement(identifier)('Int')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: *:
+                                              PsiElement(identifier)('*:')
+                                            PsiWhiteSpace(' ')
+                                            InfixType: Int *: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                              SimpleType: Int
+                                                CodeReferenceElement: Int
+                                                  PsiElement(identifier)('Int')
+                                              PsiWhiteSpace(' ')
+                                              CodeReferenceElement: *:
+                                                PsiElement(identifier)('*:')
+                                              PsiWhiteSpace(' ')
+                                              InfixType: Int *: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                                SimpleType: Int
+                                                  CodeReferenceElement: Int
+                                                    PsiElement(identifier)('Int')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: *:
+                                                  PsiElement(identifier)('*:')
+                                                PsiWhiteSpace(' ')
+                                                InfixType: Int *: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                                  SimpleType: Int
+                                                    CodeReferenceElement: Int
+                                                      PsiElement(identifier)('Int')
+                                                  PsiWhiteSpace(' ')
+                                                  CodeReferenceElement: *:
+                                                    PsiElement(identifier)('*:')
+                                                  PsiWhiteSpace(' ')
+                                                  InfixType: Int *: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                                    SimpleType: Int
+                                                      CodeReferenceElement: Int
+                                                        PsiElement(identifier)('Int')
+                                                    PsiWhiteSpace(' ')
+                                                    CodeReferenceElement: *:
+                                                      PsiElement(identifier)('*:')
+                                                    PsiWhiteSpace(' ')
+                                                    InfixType: Int
+    *: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                                      SimpleType: Int
+                                                        CodeReferenceElement: Int
+                                                          PsiElement(identifier)('Int')
+                                                      PsiWhiteSpace('\n    ')
+                                                      CodeReferenceElement: *:
+                                                        PsiElement(identifier)('*:')
+                                                      PsiWhiteSpace(' ')
+                                                      InfixType: Int *: Int *: Int *: Int *: Int *: EmptyTuple
+                                                        SimpleType: Int
+                                                          CodeReferenceElement: Int
+                                                            PsiElement(identifier)('Int')
+                                                        PsiWhiteSpace(' ')
+                                                        CodeReferenceElement: *:
+                                                          PsiElement(identifier)('*:')
+                                                        PsiWhiteSpace(' ')
+                                                        InfixType: Int *: Int *: Int *: Int *: EmptyTuple
+                                                          SimpleType: Int
+                                                            CodeReferenceElement: Int
+                                                              PsiElement(identifier)('Int')
+                                                          PsiWhiteSpace(' ')
+                                                          CodeReferenceElement: *:
+                                                            PsiElement(identifier)('*:')
+                                                          PsiWhiteSpace(' ')
+                                                          InfixType: Int *: Int *: Int *: EmptyTuple
+                                                            SimpleType: Int
+                                                              CodeReferenceElement: Int
+                                                                PsiElement(identifier)('Int')
+                                                            PsiWhiteSpace(' ')
+                                                            CodeReferenceElement: *:
+                                                              PsiElement(identifier)('*:')
+                                                            PsiWhiteSpace(' ')
+                                                            InfixType: Int *: Int *: EmptyTuple
+                                                              SimpleType: Int
+                                                                CodeReferenceElement: Int
+                                                                  PsiElement(identifier)('Int')
+                                                              PsiWhiteSpace(' ')
+                                                              CodeReferenceElement: *:
+                                                                PsiElement(identifier)('*:')
+                                                              PsiWhiteSpace(' ')
+                                                              InfixType: Int *: EmptyTuple
+                                                                SimpleType: Int
+                                                                  CodeReferenceElement: Int
+                                                                    PsiElement(identifier)('Int')
+                                                                PsiWhiteSpace(' ')
+                                                                CodeReferenceElement: *:
+                                                                  PsiElement(identifier)('*:')
+                                                                PsiWhiteSpace(' ')
+                                                                SimpleType: EmptyTuple
+                                                                  CodeReferenceElement: EmptyTuple
+                                                                    PsiElement(identifier)('EmptyTuple')
+                  PsiElement())(')')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error')

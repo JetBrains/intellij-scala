@@ -1,0 +1,23 @@
+class a {
+  s"\"aaaa
+  s"\"))))
+}
+-----
+class {class}
+white space in line { }
+identifier {a}
+white space in line { }
+{ {{}
+white space in line {
+  }
+interpolated string id {s}
+interpolated string {"\"aaaa}
+wrong line break in string {}
+white space in line {
+  }
+interpolated string id {s}
+interpolated string {"\"))))}
+wrong line break in string {}
+white space in line {
+}
+} {}}

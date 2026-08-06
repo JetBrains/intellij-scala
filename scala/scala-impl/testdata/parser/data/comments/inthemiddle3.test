@@ -1,0 +1,17 @@
+1 + /*
+
+*/
+2
+-----
+ScalaFile
+  PostfixExpression
+    IntegerLiteral
+      PsiElement(integer)('1')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: +
+      PsiElement(identifier)('+')
+  PsiWhiteSpace(' ')
+  PsiComment(BlockComment)('/*\n\n*/')
+  PsiWhiteSpace('\n')
+  IntegerLiteral
+    PsiElement(integer)('2')

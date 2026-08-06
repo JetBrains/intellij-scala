@@ -1,0 +1,69 @@
+class a {
+  def foo(a: Type)(@annotation b)
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('a')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Type
+                    CodeReferenceElement: Type
+                      PsiElement(identifier)('Type')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: b
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: annotation
+                          CodeReferenceElement: annotation
+                            PsiElement(identifier)('annotation')
+                Modifiers
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('b')
+                PsiErrorElement:':' expected
+                  <empty list>
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

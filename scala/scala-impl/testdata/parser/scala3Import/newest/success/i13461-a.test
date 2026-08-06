@@ -1,0 +1,226 @@
+package i13461:
+
+  opaque type Opaque = Int
+  transparent inline def op: Opaque = 123
+  transparent inline def oop: i13461.Opaque = 123
+
+  object Main:
+    def main(args: Array[String]): Unit =
+      val o2: Opaque = op
+      val o3: Opaque = oop // needs to be unwrapped from Typed generated in adapt
+      val o22: 123 = op
+      val o23: 123 = oop
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: i13461
+      PsiElement(identifier)('i13461')
+    PsiElement(:)(':')
+    PsiWhiteSpace('\n\n  ')
+    ScTypeAliasDefinition: Opaque
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(opaque)('opaque')
+      PsiWhiteSpace(' ')
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Opaque')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+    PsiWhiteSpace('\n  ')
+    ScFunctionDefinition: op
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(transparent)('transparent')
+        PsiWhiteSpace(' ')
+        PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('op')
+      Parameters
+        <empty list>
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: Opaque
+        CodeReferenceElement: Opaque
+          PsiElement(identifier)('Opaque')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('123')
+    PsiWhiteSpace('\n  ')
+    ScFunctionDefinition: oop
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(transparent)('transparent')
+        PsiWhiteSpace(' ')
+        PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('oop')
+      Parameters
+        <empty list>
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: i13461.Opaque
+        CodeReferenceElement: i13461.Opaque
+          CodeReferenceElement: i13461
+            PsiElement(identifier)('i13461')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Opaque')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('123')
+    PsiWhiteSpace('\n\n  ')
+    ScObject: Main
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Main')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n    ')
+          ScFunctionDefinition: main
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('main')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: args
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('args')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: Array[String]
+                      SimpleType: Array
+                        CodeReferenceElement: Array
+                          PsiElement(identifier)('Array')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            BlockExpression
+              PsiWhiteSpace('\n      ')
+              ScPatternDefinition: o2
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: o2
+                    PsiElement(identifier)('o2')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Opaque
+                  CodeReferenceElement: Opaque
+                    PsiElement(identifier)('Opaque')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: op
+                  PsiElement(identifier)('op')
+              PsiWhiteSpace('\n      ')
+              ScPatternDefinition: o3
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: o3
+                    PsiElement(identifier)('o3')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Opaque
+                  CodeReferenceElement: Opaque
+                    PsiElement(identifier)('Opaque')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: oop
+                  PsiElement(identifier)('oop')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// needs to be unwrapped from Typed generated in adapt')
+              PsiWhiteSpace('\n      ')
+              ScPatternDefinition: o22
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: o22
+                    PsiElement(identifier)('o22')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                LiteralType: 123
+                  IntegerLiteral
+                    PsiElement(integer)('123')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: op
+                  PsiElement(identifier)('op')
+              PsiWhiteSpace('\n      ')
+              ScPatternDefinition: o23
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: o23
+                    PsiElement(identifier)('o23')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                LiteralType: 123
+                  IntegerLiteral
+                    PsiElement(integer)('123')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: oop
+                  PsiElement(identifier)('oop')

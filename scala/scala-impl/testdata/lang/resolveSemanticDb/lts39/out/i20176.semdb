@@ -1,0 +1,7 @@
+Document tests/pos/i20176.scala
+(6:5..6:8) _empty_/i20176$package.Accumulator.use(). -> 9:14
+(6:9..6:12) scala/Int#
+(9:27..9:40) scala/DummyImplicit#
+(9:63..9:66) scala/Predef.`???`().
+(11:42..11:45) scala/Predef.`???`().
+

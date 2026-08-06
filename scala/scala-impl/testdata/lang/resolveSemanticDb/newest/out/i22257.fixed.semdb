@@ -1,0 +1,28 @@
+Document tests/pos/i22257.fixed.scala
+(6:28..6:33) _empty_/Scaffold.Arrow# -> 4:9
+(11:23..11:36) _empty_/Scaffold.NodeKOrGraphK# -> 9:9
+(13:20..13:29) _empty_/Scaffold.Induction# -> 18:9
+(15:33..15:36) scala/package.Seq#
+(15:37..15:43) _empty_/Scaffold.NodeK#FBound# -> 13:10
+(19:16..19:21) _empty_/Scaffold.Arrow# -> 4:9
+(20:15..20:20) _empty_/Scaffold.NodeK# -> 11:9
+(25:20..25:25) _empty_/Scaffold.NodeK# -> 11:9
+(25:35..25:44) _empty_/Scaffold.Induction# -> 18:9
+(26:17..26:18) _empty_/Scaffold.Induction.FP#[N] -> 25:15
+(30:24..30:37) _empty_/Scaffold.NodeKOrGraphK# -> 9:9
+(32:23..32:31) scala/package.Iterable#
+(32:32..32:33) _empty_/Scaffold.GraphK#Batch#[T] -> 32:17
+(34:19..34:24) _empty_/Scaffold.NodeK# -> 11:9
+(36:18..36:23) _empty_/Scaffold.GraphK#Batch# -> 32:10
+(36:24..36:29) _empty_/Scaffold.GraphK#_Node# -> 34:10
+(41:17..41:22) _empty_/Scaffold.NodeK# -> 11:9
+(41:54..41:60) _empty_/Scaffold.Topology#FBound# -> 47:10
+(42:25..42:30) _empty_/Scaffold.NodeK# -> 11:9
+(43:35..43:41) _empty_/Scaffold.Topology#FBound# -> 47:10
+(46:15..46:24) _empty_/Scaffold.Induction. -> 23:10
+(46:25..46:27) _empty_/Scaffold.Induction.FP# -> 25:11
+(46:28..46:32) _empty_/Scaffold.Topology#Node# -> 41:10
+(47:20..47:22) _empty_/Scaffold.Topology#FP# -> 46:10
+(49:18..49:24) _empty_/Scaffold.GraphK# -> 30:9
+(49:41..49:45) _empty_/Scaffold.Topology#Node# -> 41:10
+

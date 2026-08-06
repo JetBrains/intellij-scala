@@ -1,0 +1,9 @@
+Document tests/pos/t16827.scala
+(5:24..5:29) _empty_/Outer#Inner# -> 4:16
+(6:15..6:21) scala/package.Either#
+(6:22..6:27) _empty_/Outer#Inner# -> 4:16
+(6:29..6:32) scala/Int#
+(7:5..7:7) _empty_/Outer#foo().(rv) -> 6:11
+(8:12..8:17) scala/package.Right.
+(9:12..9:16) scala/package.Left.
+

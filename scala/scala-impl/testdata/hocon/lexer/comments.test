@@ -1,0 +1,13 @@
+something #comment more more ## // moar
+something else // more comments
+-----
+UNQUOTED_CHARS {something}
+INLINE_WHITESPACE { }
+HASH_COMMENT {#comment more more ## // moar}
+LINE_BREAKING_WHITESPACE {
+}
+UNQUOTED_CHARS {something}
+INLINE_WHITESPACE { }
+UNQUOTED_CHARS {else}
+INLINE_WHITESPACE { }
+DOUBLE_SLASH_COMMENT {// more comments}

@@ -1,0 +1,6 @@
+Document tests/pos/backquoted_type_operator.scala
+(2:19..2:20) _empty_/Test.`&`#[L] -> 2:12
+(3:10..3:13) scala/Int#
+(3:14..3:17) _empty_/Test.`&`# -> 2:9
+(3:18..3:24) scala/Predef.String#
+

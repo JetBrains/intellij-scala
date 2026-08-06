@@ -1,0 +1,7 @@
+class ClassInEmptyPackage
+
+type TypeAliasToClassInEmptyPackage = ClassInEmptyPackage
+
+object ObjectInEmptyPackage
+
+type TypeAliasToObjectInEmptyPackage = ObjectInEmptyPackage.type

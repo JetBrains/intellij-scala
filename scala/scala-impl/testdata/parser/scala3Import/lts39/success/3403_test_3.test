@@ -1,0 +1,39 @@
+class C {
+  new bug.NamedImpl_2
+}
+-----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScNewTemplateDefinition: <anonymous>
+          PsiElement(new)('new')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: bug.NamedImpl_2
+                  CodeReferenceElement: bug.NamedImpl_2
+                    CodeReferenceElement: bug
+                      PsiElement(identifier)('bug')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('NamedImpl_2')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

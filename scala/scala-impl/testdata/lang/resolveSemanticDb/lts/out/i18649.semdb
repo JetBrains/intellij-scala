@@ -1,0 +1,5 @@
+Document tests/pos/i18649.scala
+(3:46..3:52) scala/Predef.String#
+(6:46..6:52) scala/Predef.String#
+(7:5..7:9) _empty_/Test. -> 1:8
+

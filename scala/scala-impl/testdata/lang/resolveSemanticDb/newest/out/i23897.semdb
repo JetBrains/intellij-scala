@@ -1,0 +1,23 @@
+Document tests/pos/i23897.scala
+(2:8..2:13) scala/
+(2:14..2:22) scala/deriving/
+(2:23..2:29) scala/deriving/Mirror#
+(2:23..2:29) scala/deriving/Mirror.
+(6:27..6:33) scala/deriving/Mirror.
+(6:34..6:36) scala/deriving/Mirror.Of#
+(6:37..6:38) _empty_/Test.derived().[A] -> 6:15
+(6:44..6:48) _empty_/Test# -> 4:7
+(6:49..6:52) scala/Int#
+(6:56..6:60) _empty_/Test# -> 4:7
+(6:61..6:62) _empty_/Test.derived().[A] -> 6:15
+(6:70..6:74) _empty_/Test# -> 4:7
+(6:75..6:76) _empty_/Test.derived().[A] -> 6:15
+(8:19..8:22) scala/Int#
+(10:12..10:16) _empty_/Test# -> 4:7
+(10:17..10:20) scala/Int#
+(10:28..10:32) _empty_/Test# -> 4:7
+(10:33..10:36) scala/Int#
+(12:19..12:22) scala/Int#
+(14:9..14:13) _empty_/Test# -> 4:7
+(14:14..14:17) scala/Int#
+

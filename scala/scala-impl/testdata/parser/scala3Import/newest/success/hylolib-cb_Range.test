@@ -1,0 +1,486 @@
+package hylo
+
+/** A half-open interval from a lower bound up to, but not including, an uppor bound. */
+final class Range[Bound] private (val lowerBound: Bound, val upperBound: Bound) {
+
+  /** Returns a textual description of `this`. */
+  override def toString: String =
+    s"[${lowerBound}, ${upperBound})"
+
+}
+
+object Range {
+
+  /** Creates a half-open interval [`lowerBound`, `upperBound`), using `isLessThanOrEqual` to ensure
+    * that the bounds are well-formed.
+    *
+    * @requires
+    *   `lowerBound` is lesser than or equal to `upperBound`.
+    */
+  def apply[Bound](
+      lowerBound: Bound,
+      upperBound: Bound,
+      isLessThanOrEqual: (Bound, Bound) => Boolean
+  ) =
+    require(isLessThanOrEqual(lowerBound, upperBound))
+    new Range(lowerBound, upperBound)
+
+  /** Creates a half-open interval [`lowerBound`, `upperBound`).
+    *
+    * @requires
+    *   `lowerBound` is lesser than or equal to `upperBound`.
+    */
+  def apply[Bound](lowerBound: Bound, upperBound: Bound)(using Comparable[Bound]) =
+    require(lowerBound `le` upperBound)
+    new Range(lowerBound, upperBound)
+
+}
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: hylo
+      PsiElement(identifier)('hylo')
+    PsiWhiteSpace('\n\n')
+    ScClass: Range
+      DocComment
+        ScPsiDocToken(DOC_COMMENT_START)('/**')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('A half-open interval from a lower bound up to, but not including, an uppor bound.')
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_END)('*/')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Range')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: Bound
+          PsiElement(identifier)('Bound')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          AccessModifier
+            PsiElement(private)('private')
+        PsiWhiteSpace(' ')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: lowerBound
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('lowerBound')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Bound
+                  CodeReferenceElement: Bound
+                    PsiElement(identifier)('Bound')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ClassParameter: upperBound
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('upperBound')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Bound
+                  CodeReferenceElement: Bound
+                    PsiElement(identifier)('Bound')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: toString
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Returns a textual description of ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('this')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              PsiElement(override)('override')
+            PsiWhiteSpace(' ')
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('toString')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace('\n    ')
+            InterpolatedStringLiteral
+              InterpolatedExpressionPrefix: s
+                PsiElement(interpolated string id)('s')
+              PsiElement(interpolated string)('"[')
+              PsiElement(interpolated string injection)('$')
+              BlockExpression
+                PsiElement({)('{')
+                ReferenceExpression: lowerBound
+                  PsiElement(identifier)('lowerBound')
+                PsiElement(})('}')
+              PsiElement(interpolated string)(', ')
+              PsiElement(interpolated string injection)('$')
+              BlockExpression
+                PsiElement({)('{')
+                ReferenceExpression: upperBound
+                  PsiElement(identifier)('upperBound')
+                PsiElement(})('}')
+              PsiElement(interpolated string)(')')
+              PsiElement(interpolated string end)('"')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: Range
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Range')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: apply
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Creates a half-open interval [')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('lowerBound')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(', ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('upperBound')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('), using ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('isLessThanOrEqual')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(' to ensure')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('that the bounds are well-formed.')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+              DocTag
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_TAG_NAME)('@requires')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScDocParagraph
+                  ScPsiDocToken(DOC_WHITESPACE)('   ')
+                  DocSyntaxElement 8
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                    ScPsiDocToken(DOC_COMMENT_DATA)('lowerBound')
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)(' is lesser than or equal to ')
+                  DocSyntaxElement 8
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                    ScPsiDocToken(DOC_COMMENT_DATA)('upperBound')
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                  ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('apply')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: Bound
+                PsiElement(identifier)('Bound')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiWhiteSpace('\n      ')
+                Parameter: lowerBound
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('lowerBound')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Bound
+                      CodeReferenceElement: Bound
+                        PsiElement(identifier)('Bound')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                Parameter: upperBound
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('upperBound')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Bound
+                      CodeReferenceElement: Bound
+                        PsiElement(identifier)('Bound')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                Parameter: isLessThanOrEqual
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('isLessThanOrEqual')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    FunctionalType: (Bound, Bound) => Boolean
+                      TupleType: (Bound, Bound)
+                        PsiElement(()('(')
+                        TypesList
+                          SimpleType: Bound
+                            CodeReferenceElement: Bound
+                              PsiElement(identifier)('Bound')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          SimpleType: Bound
+                            CodeReferenceElement: Bound
+                              PsiElement(identifier)('Bound')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Boolean
+                        CodeReferenceElement: Boolean
+                          PsiElement(identifier)('Boolean')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            BlockExpression
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: require
+                  PsiElement(identifier)('require')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: isLessThanOrEqual
+                      PsiElement(identifier)('isLessThanOrEqual')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: lowerBound
+                        PsiElement(identifier)('lowerBound')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: upperBound
+                        PsiElement(identifier)('upperBound')
+                      PsiElement())(')')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Range
+                        CodeReferenceElement: Range
+                          PsiElement(identifier)('Range')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: lowerBound
+                          PsiElement(identifier)('lowerBound')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: upperBound
+                          PsiElement(identifier)('upperBound')
+                        PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScFunctionDefinition: apply
+            DocComment
+              ScPsiDocToken(DOC_COMMENT_START)('/**')
+              ScDocParagraph
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_COMMENT_DATA)('Creates a half-open interval [')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('lowerBound')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(', ')
+                DocSyntaxElement 8
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('upperBound')
+                  ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)(').')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+              DocTag
+                ScPsiDocToken(DOC_WHITESPACE)(' ')
+                ScPsiDocToken(DOC_TAG_NAME)('@requires')
+                ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+                ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+                ScDocParagraph
+                  ScPsiDocToken(DOC_WHITESPACE)('   ')
+                  DocSyntaxElement 8
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                    ScPsiDocToken(DOC_COMMENT_DATA)('lowerBound')
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)(' is lesser than or equal to ')
+                  DocSyntaxElement 8
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                    ScPsiDocToken(DOC_COMMENT_DATA)('upperBound')
+                    ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                  ScPsiDocToken(DOC_COMMENT_DATA)('.')
+                  ScPsiDocToken(DOC_WHITESPACE)('\n    ')
+              ScPsiDocToken(DOC_COMMENT_END)('*/')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('apply')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: Bound
+                PsiElement(identifier)('Bound')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: lowerBound
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('lowerBound')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Bound
+                      CodeReferenceElement: Bound
+                        PsiElement(identifier)('Bound')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Parameter: upperBound
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('upperBound')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Bound
+                      CodeReferenceElement: Bound
+                        PsiElement(identifier)('Bound')
+                PsiElement())(')')
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(using)('using')
+                PsiWhiteSpace(' ')
+                Parameter: <anonymous>
+                  ParameterType
+                    ParametrizedType: Comparable[Bound]
+                      SimpleType: Comparable
+                        CodeReferenceElement: Comparable
+                          PsiElement(identifier)('Comparable')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Bound
+                            CodeReferenceElement: Bound
+                              PsiElement(identifier)('Bound')
+                        PsiElement(])(']')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            BlockExpression
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: require
+                  PsiElement(identifier)('require')
+                ArgumentList
+                  PsiElement(()('(')
+                  InfixExpression
+                    ReferenceExpression: lowerBound
+                      PsiElement(identifier)('lowerBound')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: `le`
+                      PsiElement(identifier)('`le`')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: upperBound
+                      PsiElement(identifier)('upperBound')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Range
+                        CodeReferenceElement: Range
+                          PsiElement(identifier)('Range')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: lowerBound
+                          PsiElement(identifier)('lowerBound')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: upperBound
+                          PsiElement(identifier)('upperBound')
+                        PsiElement())(')')
+          PsiWhiteSpace('\n\n')
+          PsiElement(})('}')

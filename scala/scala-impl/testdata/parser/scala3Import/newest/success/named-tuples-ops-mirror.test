@@ -1,0 +1,2749 @@
+import NamedTuple.*
+
+@FailsWith[HttpError]
+trait GreetService derives HttpService:
+  @HttpInfo("GET", "/greet/{name}")
+  def greet(@HttpPath name: String): String
+  @HttpInfo("POST", "/greet/{name}")
+  def setGreeting(@HttpPath name: String, @HttpBody greeting: String): Unit
+
+@main def Test =
+
+  val e = HttpService.endpoints[GreetService]
+
+  println(e.greet.describe)
+  println(e.setGreeting.describe)
+
+  // Type-safe server logic, driven by the ops-mirror,
+  // requires named tuple with same labels in the same order,
+  // and function that matches the required signature.
+  val logic = e.serverLogic:
+    (
+      greet = (name) => Right("Hello, " + name),
+      setGreeting = (name, greeting) => Right(())
+    )
+
+  val server = ServerBuilder()
+    .handleAll(logic)
+    .create(port = 8080)
+
+  sys.addShutdownHook(server.close())
+
+end Test
+
+// IMPLEMENTATION DETAILS FOLLOW
+
+/** Assume existence of macro to generate this */
+given (OpsMirror.Of[GreetService] {
+  type MirroredType = GreetService
+  type OperationLabels = ("greet", "setGreeting")
+  type Operations = (
+    OpsMirror.Operation { type InputTypes = (String *: EmptyTuple); type OutputType = String; type ErrorType = HttpError },
+    OpsMirror.Operation { type InputTypes = (String *: String *: EmptyTuple); type OutputType = Unit; type ErrorType = HttpError }
+  )
+}) = new OpsMirror:
+  type MirroredType = GreetService
+  type OperationLabels = ("greet", "setGreeting")
+  type Operations = (
+    OpsMirror.Operation { type InputTypes = (String *: EmptyTuple); type OutputType = String; type ErrorType = HttpError },
+    OpsMirror.Operation { type InputTypes = (String *: String *: EmptyTuple); type OutputType = Unit; type ErrorType = HttpError }
+  )
+
+object OpsMirror:
+  type Of[T] = OpsMirror { type MirroredType = T }
+
+  type Operation_I[I <: Tuple] = Operation { type InputTypes = I }
+  type Operation_O[O] = Operation { type OutputType = O }
+  type Operation_E[E] = Operation { type ErrorType = E }
+
+  trait Operation:
+    type InputTypes <: Tuple
+    type OutputType
+    type ErrorType
+
+trait OpsMirror:
+  type MirroredType
+  type OperationLabels <: Tuple
+  type Operations <: Tuple
+
+trait HttpService[T]:
+  def route(str: String): Route
+trait Route
+
+type Func[I <: Tuple, O, E] = I match
+  case EmptyTuple => Either[E, O]
+  case t *: EmptyTuple => t => Either[E, O]
+  case t *: u *: EmptyTuple => (t, u) => Either[E, O]
+
+type ToFunc[T] = T match
+  case HttpService.Endpoint[i, o, e] => Func[i, o, e]
+
+final class FailsWith[E] extends scala.annotation.Annotation
+final class HttpInfo(method: String, route: String) extends scala.annotation.Annotation
+final class HttpBody() extends scala.annotation.Annotation
+final class HttpPath() extends scala.annotation.Annotation
+
+sealed trait HttpError
+
+object HttpService:
+  opaque type Endpoint[I <: Tuple, O, E] = Route
+
+  extension [I <: Tuple, O, E](e: Endpoint[I, O, E])
+    def describe: String = ??? // some thing that looks inside the Route to debug it
+
+  type ToEndpoints[Ops <: Tuple] <: Tuple = Ops match
+    case EmptyTuple => EmptyTuple
+    case op *: ops => (op, op, op) match
+      case (OpsMirror.Operation_I[i]) *: (OpsMirror.Operation_O[o]) *: (OpsMirror.Operation_E[e]) *: _ =>
+        Endpoint[i, o, e] *: ToEndpoints[ops]
+
+  trait Handler
+
+  class Endpoints[T](val model: HttpService[T]) extends Selectable:
+    type Fields <: AnyNamedTuple
+    def selectDynamic(name: String): Route = model.route(name)
+
+    def serverLogic(funcs: NamedTuple[Names[Fields], Tuple.Map[DropNames[Fields], ToFunc]]): List[Handler] = ???
+
+  def derived[T](using OpsMirror.Of[T]): HttpService[T] = ??? // inline method to create routes
+
+  def endpoints[T](using model: HttpService[T], m: OpsMirror.Of[T]): Endpoints[T] {
+      type Fields = NamedTuple[m.OperationLabels, ToEndpoints[m.Operations]]
+  } =
+    new Endpoints(model) { type Fields = NamedTuple[m.OperationLabels, ToEndpoints[m.Operations]] }
+
+class ServerBuilder():
+  def handleAll(hs: List[HttpService.Handler]): this.type = this
+  def create(port: Int): Server = Server()
+
+class Server():
+  def close(): Unit = ()
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: NamedTuple
+        PsiElement(identifier)('NamedTuple')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScTrait: GreetService
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            ParametrizedType: FailsWith[HttpError]
+              SimpleType: FailsWith
+                CodeReferenceElement: FailsWith
+                  PsiElement(identifier)('FailsWith')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: HttpError
+                    CodeReferenceElement: HttpError
+                      PsiElement(identifier)('HttpError')
+                PsiElement(])(']')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('GreetService')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      DerivesClause
+        PsiElement(derives)('derives')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: HttpService
+          PsiElement(identifier)('HttpService')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: greet
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: HttpInfo
+                    CodeReferenceElement: HttpInfo
+                      PsiElement(identifier)('HttpInfo')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"GET"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    StringLiteral
+                      PsiElement(string content)('"/greet/{name}"')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('greet')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: HttpPath
+                          CodeReferenceElement: HttpPath
+                            PsiElement(identifier)('HttpPath')
+                Modifiers
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: setGreeting
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: HttpInfo
+                    CodeReferenceElement: HttpInfo
+                      PsiElement(identifier)('HttpInfo')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"POST"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    StringLiteral
+                      PsiElement(string content)('"/greet/{name}"')
+                    PsiElement())(')')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('setGreeting')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: HttpPath
+                          CodeReferenceElement: HttpPath
+                            PsiElement(identifier)('HttpPath')
+                Modifiers
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: greeting
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: HttpBody
+                          CodeReferenceElement: HttpBody
+                            PsiElement(identifier)('HttpBody')
+                Modifiers
+                  <empty list>
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('greeting')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: e
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: e
+            PsiElement(identifier)('e')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: HttpService.endpoints
+            ReferenceExpression: HttpService
+              PsiElement(identifier)('HttpService')
+            PsiElement(.)('.')
+            PsiElement(identifier)('endpoints')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: GreetService
+                CodeReferenceElement: GreetService
+                  PsiElement(identifier)('GreetService')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: e.greet.describe
+            ReferenceExpression: e.greet
+              ReferenceExpression: e
+                PsiElement(identifier)('e')
+              PsiElement(.)('.')
+              PsiElement(identifier)('greet')
+            PsiElement(.)('.')
+            PsiElement(identifier)('describe')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: e.setGreeting.describe
+            ReferenceExpression: e.setGreeting
+              ReferenceExpression: e
+                PsiElement(identifier)('e')
+              PsiElement(.)('.')
+              PsiElement(identifier)('setGreeting')
+            PsiElement(.)('.')
+            PsiElement(identifier)('describe')
+          PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: logic
+        PsiComment(comment)('// Type-safe server logic, driven by the ops-mirror,')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// requires named tuple with same labels in the same order,')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// and function that matches the required signature.')
+        PsiWhiteSpace('\n  ')
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: logic
+            PsiElement(identifier)('logic')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: e.serverLogic
+            ReferenceExpression: e
+              PsiElement(identifier)('e')
+            PsiElement(.)('.')
+            PsiElement(identifier)('serverLogic')
+          ArgumentList
+            BlockExpression
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              NamedTuple
+                PsiElement(()('(')
+                PsiWhiteSpace('\n      ')
+                ScNamedTupleExprComponentImpl(named tuple component)
+                  PsiElement(identifier)('greet')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: name
+                          AnnotationsList
+                            <empty list>
+                          PsiElement(identifier)('name')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Right
+                        PsiElement(identifier)('Right')
+                      ArgumentList
+                        PsiElement(()('(')
+                        InfixExpression
+                          StringLiteral
+                            PsiElement(string content)('"Hello, "')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: name
+                            PsiElement(identifier)('name')
+                        PsiElement())(')')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n      ')
+                ScNamedTupleExprComponentImpl(named tuple component)
+                  PsiElement(identifier)('setGreeting')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: name
+                          AnnotationsList
+                            <empty list>
+                          PsiElement(identifier)('name')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        Parameter: greeting
+                          AnnotationsList
+                            <empty list>
+                          PsiElement(identifier)('greeting')
+                        PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: Right
+                        PsiElement(identifier)('Right')
+                      ArgumentList
+                        PsiElement(()('(')
+                        UnitExpression
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                        PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: server
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: server
+            PsiElement(identifier)('server')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: ServerBuilder()
+    .handleAll(logic)
+    .create
+            MethodCall
+              ReferenceExpression: ServerBuilder()
+    .handleAll
+                MethodCall
+                  ReferenceExpression: ServerBuilder
+                    PsiElement(identifier)('ServerBuilder')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement(.)('.')
+                PsiElement(identifier)('handleAll')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: logic
+                  PsiElement(identifier)('logic')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            PsiElement(.)('.')
+            PsiElement(identifier)('create')
+          ArgumentList
+            PsiElement(()('(')
+            AssignStatement
+              ReferenceExpression: port
+                PsiElement(identifier)('port')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('8080')
+            PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      MethodCall
+        ReferenceExpression: sys.addShutdownHook
+          ReferenceExpression: sys
+            PsiElement(identifier)('sys')
+          PsiElement(.)('.')
+          PsiElement(identifier)('addShutdownHook')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: server.close
+              ReferenceExpression: server
+                PsiElement(identifier)('server')
+              PsiElement(.)('.')
+              PsiElement(identifier)('close')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement())(')')
+    PsiWhiteSpace('\n\n')
+    End: Test
+      PsiElement(end)('end')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// IMPLEMENTATION DETAILS FOLLOW')
+  PsiWhiteSpace('\n\n')
+  ScGivenAliasDefinition: given__Of
+    DocComment
+      ScPsiDocToken(DOC_COMMENT_START)('/**')
+      ScDocParagraph
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_DATA)('Assume existence of macro to generate this')
+        ScPsiDocToken(DOC_WHITESPACE)(' ')
+      ScPsiDocToken(DOC_COMMENT_END)('*/')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    TypeInParenthesis: (OpsMirror.Of[GreetService] {
+  type MirroredType = GreetService
+  type OperationLabels = ("greet", "setGreeting")
+  type Operations = (
+    OpsMirror.Operation { type InputTypes = (String *: EmptyTuple); type OutputType = String; type ErrorType = HttpError },
+    OpsMirror.Operation { type InputTypes = (String *: String *: EmptyTuple); type OutputType = Unit; type ErrorType = HttpError }
+  )
+})
+      PsiElement(()('(')
+      CompoundType: OpsMirror.Of[GreetService] {
+  type MirroredType = GreetService
+  type OperationLabels = ("greet", "setGreeting")
+  type Operations = (
+    OpsMirror.Operation { type InputTypes = (String *: EmptyTuple); type OutputType = String; type ErrorType = HttpError },
+    OpsMirror.Operation { type InputTypes = (String *: String *: EmptyTuple); type OutputType = Unit; type ErrorType = HttpError }
+  )
+}
+        ParametrizedType: OpsMirror.Of[GreetService]
+          SimpleType: OpsMirror.Of
+            CodeReferenceElement: OpsMirror.Of
+              CodeReferenceElement: OpsMirror
+                PsiElement(identifier)('OpsMirror')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Of')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: GreetService
+                CodeReferenceElement: GreetService
+                  PsiElement(identifier)('GreetService')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        Refinement
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: MirroredType
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('MirroredType')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: GreetService
+              CodeReferenceElement: GreetService
+                PsiElement(identifier)('GreetService')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: OperationLabels
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('OperationLabels')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            TupleType: ("greet", "setGreeting")
+              PsiElement(()('(')
+              TypesList
+                LiteralType: "greet"
+                  StringLiteral
+                    PsiElement(string content)('"greet"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "setGreeting"
+                  StringLiteral
+                    PsiElement(string content)('"setGreeting"')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: Operations
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Operations')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            TupleType: (
+    OpsMirror.Operation { type InputTypes = (String *: EmptyTuple); type OutputType = String; type ErrorType = HttpError },
+    OpsMirror.Operation { type InputTypes = (String *: String *: EmptyTuple); type OutputType = Unit; type ErrorType = HttpError }
+  )
+              PsiElement(()('(')
+              PsiWhiteSpace('\n    ')
+              TypesList
+                CompoundType: OpsMirror.Operation { type InputTypes = (String *: EmptyTuple); type OutputType = String; type ErrorType = HttpError }
+                  SimpleType: OpsMirror.Operation
+                    CodeReferenceElement: OpsMirror.Operation
+                      CodeReferenceElement: OpsMirror
+                        PsiElement(identifier)('OpsMirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Operation')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: InputTypes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('InputTypes')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      TypeInParenthesis: (String *: EmptyTuple)
+                        PsiElement(()('(')
+                        InfixType: String *: EmptyTuple
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: *:
+                            PsiElement(identifier)('*:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: EmptyTuple
+                            CodeReferenceElement: EmptyTuple
+                              PsiElement(identifier)('EmptyTuple')
+                        PsiElement())(')')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: OutputType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('OutputType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: ErrorType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('ErrorType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: HttpError
+                        CodeReferenceElement: HttpError
+                          PsiElement(identifier)('HttpError')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n    ')
+                CompoundType: OpsMirror.Operation { type InputTypes = (String *: String *: EmptyTuple); type OutputType = Unit; type ErrorType = HttpError }
+                  SimpleType: OpsMirror.Operation
+                    CodeReferenceElement: OpsMirror.Operation
+                      CodeReferenceElement: OpsMirror
+                        PsiElement(identifier)('OpsMirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Operation')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: InputTypes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('InputTypes')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      TypeInParenthesis: (String *: String *: EmptyTuple)
+                        PsiElement(()('(')
+                        InfixType: String *: String *: EmptyTuple
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: *:
+                            PsiElement(identifier)('*:')
+                          PsiWhiteSpace(' ')
+                          InfixType: String *: EmptyTuple
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: *:
+                              PsiElement(identifier)('*:')
+                            PsiWhiteSpace(' ')
+                            SimpleType: EmptyTuple
+                              CodeReferenceElement: EmptyTuple
+                                PsiElement(identifier)('EmptyTuple')
+                        PsiElement())(')')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: OutputType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('OutputType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: ErrorType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('ErrorType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: HttpError
+                        CodeReferenceElement: HttpError
+                          PsiElement(identifier)('HttpError')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: OpsMirror
+              CodeReferenceElement: OpsMirror
+                PsiElement(identifier)('OpsMirror')
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: MirroredType
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('MirroredType')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: GreetService
+              CodeReferenceElement: GreetService
+                PsiElement(identifier)('GreetService')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: OperationLabels
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('OperationLabels')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            TupleType: ("greet", "setGreeting")
+              PsiElement(()('(')
+              TypesList
+                LiteralType: "greet"
+                  StringLiteral
+                    PsiElement(string content)('"greet"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                LiteralType: "setGreeting"
+                  StringLiteral
+                    PsiElement(string content)('"setGreeting"')
+              PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: Operations
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Operations')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            TupleType: (
+    OpsMirror.Operation { type InputTypes = (String *: EmptyTuple); type OutputType = String; type ErrorType = HttpError },
+    OpsMirror.Operation { type InputTypes = (String *: String *: EmptyTuple); type OutputType = Unit; type ErrorType = HttpError }
+  )
+              PsiElement(()('(')
+              PsiWhiteSpace('\n    ')
+              TypesList
+                CompoundType: OpsMirror.Operation { type InputTypes = (String *: EmptyTuple); type OutputType = String; type ErrorType = HttpError }
+                  SimpleType: OpsMirror.Operation
+                    CodeReferenceElement: OpsMirror.Operation
+                      CodeReferenceElement: OpsMirror
+                        PsiElement(identifier)('OpsMirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Operation')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: InputTypes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('InputTypes')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      TypeInParenthesis: (String *: EmptyTuple)
+                        PsiElement(()('(')
+                        InfixType: String *: EmptyTuple
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: *:
+                            PsiElement(identifier)('*:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: EmptyTuple
+                            CodeReferenceElement: EmptyTuple
+                              PsiElement(identifier)('EmptyTuple')
+                        PsiElement())(')')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: OutputType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('OutputType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: ErrorType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('ErrorType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: HttpError
+                        CodeReferenceElement: HttpError
+                          PsiElement(identifier)('HttpError')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+                PsiElement(,)(',')
+                PsiWhiteSpace('\n    ')
+                CompoundType: OpsMirror.Operation { type InputTypes = (String *: String *: EmptyTuple); type OutputType = Unit; type ErrorType = HttpError }
+                  SimpleType: OpsMirror.Operation
+                    CodeReferenceElement: OpsMirror.Operation
+                      CodeReferenceElement: OpsMirror
+                        PsiElement(identifier)('OpsMirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Operation')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: InputTypes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('InputTypes')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      TypeInParenthesis: (String *: String *: EmptyTuple)
+                        PsiElement(()('(')
+                        InfixType: String *: String *: EmptyTuple
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: *:
+                            PsiElement(identifier)('*:')
+                          PsiWhiteSpace(' ')
+                          InfixType: String *: EmptyTuple
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: *:
+                              PsiElement(identifier)('*:')
+                            PsiWhiteSpace(' ')
+                            SimpleType: EmptyTuple
+                              CodeReferenceElement: EmptyTuple
+                                PsiElement(identifier)('EmptyTuple')
+                        PsiElement())(')')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: OutputType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('OutputType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDefinition: ErrorType
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('ErrorType')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: HttpError
+                        CodeReferenceElement: HttpError
+                          PsiElement(identifier)('HttpError')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: OpsMirror
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OpsMirror')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Of
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Of')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: OpsMirror { type MirroredType = T }
+            SimpleType: OpsMirror
+              CodeReferenceElement: OpsMirror
+                PsiElement(identifier)('OpsMirror')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: MirroredType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('MirroredType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Operation_I
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Operation_I')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: I
+              PsiElement(identifier)('I')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: Operation { type InputTypes = I }
+            SimpleType: Operation
+              CodeReferenceElement: Operation
+                PsiElement(identifier)('Operation')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: InputTypes
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('InputTypes')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Operation_O
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Operation_O')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: O
+              PsiElement(identifier)('O')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: Operation { type OutputType = O }
+            SimpleType: Operation
+              CodeReferenceElement: Operation
+                PsiElement(identifier)('Operation')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: OutputType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('OutputType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Operation_E
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Operation_E')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: Operation { type ErrorType = E }
+            SimpleType: Operation
+              CodeReferenceElement: Operation
+                PsiElement(identifier)('Operation')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: ErrorType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('ErrorType')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Operation
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Operation')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: InputTypes
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('InputTypes')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Tuple
+                  CodeReferenceElement: Tuple
+                    PsiElement(identifier)('Tuple')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: OutputType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('OutputType')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: ErrorType
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('ErrorType')
+  PsiWhiteSpace('\n\n')
+  ScTrait: OpsMirror
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('OpsMirror')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: MirroredType
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('MirroredType')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: OperationLabels
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('OperationLabels')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Operations
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Operations')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+  PsiWhiteSpace('\n\n')
+  ScTrait: HttpService
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HttpService')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: route
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('route')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: str
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('str')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Route
+            CodeReferenceElement: Route
+              PsiElement(identifier)('Route')
+  PsiWhiteSpace('\n')
+  ScTrait: Route
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Route')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Func
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Func')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: O
+        PsiElement(identifier)('O')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: I match
+  case EmptyTuple => Either[E, O]
+  case t *: EmptyTuple => t => Either[E, O]
+  case t *: u *: EmptyTuple => (t, u) => Either[E, O]
+      SimpleType: I
+        CodeReferenceElement: I
+          PsiElement(identifier)('I')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: EmptyTuple
+            CodeReferenceElement: EmptyTuple
+              PsiElement(identifier)('EmptyTuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Either[E, O]
+            SimpleType: Either
+              CodeReferenceElement: Either
+                PsiElement(identifier)('Either')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: O
+                  CodeReferenceElement: O
+                    PsiElement(identifier)('O')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: t *: EmptyTuple
+            TypeVariable: t
+              PsiElement(identifier)('t')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            SimpleType: EmptyTuple
+              CodeReferenceElement: EmptyTuple
+                PsiElement(identifier)('EmptyTuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          FunctionalType: t => Either[E, O]
+            SimpleType: t
+              CodeReferenceElement: t
+                PsiElement(identifier)('t')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Either[E, O]
+              SimpleType: Either
+                CodeReferenceElement: Either
+                  PsiElement(identifier)('Either')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
+                PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: t *: u *: EmptyTuple
+            TypeVariable: t
+              PsiElement(identifier)('t')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            InfixType: u *: EmptyTuple
+              TypeVariable: u
+                PsiElement(identifier)('u')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: *:
+                PsiElement(identifier)('*:')
+              PsiWhiteSpace(' ')
+              SimpleType: EmptyTuple
+                CodeReferenceElement: EmptyTuple
+                  PsiElement(identifier)('EmptyTuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          FunctionalType: (t, u) => Either[E, O]
+            TupleType: (t, u)
+              PsiElement(()('(')
+              TypesList
+                SimpleType: t
+                  CodeReferenceElement: t
+                    PsiElement(identifier)('t')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                SimpleType: u
+                  CodeReferenceElement: u
+                    PsiElement(identifier)('u')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Either[E, O]
+              SimpleType: Either
+                CodeReferenceElement: Either
+                  PsiElement(identifier)('Either')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: E
+                    CodeReferenceElement: E
+                      PsiElement(identifier)('E')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
+                PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: ToFunc
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ToFunc')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: T match
+  case HttpService.Endpoint[i, o, e] => Func[i, o, e]
+      SimpleType: T
+        CodeReferenceElement: T
+          PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: HttpService.Endpoint[i, o, e]
+            SimpleType: HttpService.Endpoint
+              CodeReferenceElement: HttpService.Endpoint
+                CodeReferenceElement: HttpService
+                  PsiElement(identifier)('HttpService')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Endpoint')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeVariable: i
+                  PsiElement(identifier)('i')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                TypeVariable: o
+                  PsiElement(identifier)('o')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                TypeVariable: e
+                  PsiElement(identifier)('e')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Func[i, o, e]
+            SimpleType: Func
+              CodeReferenceElement: Func
+                PsiElement(identifier)('Func')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: i
+                  CodeReferenceElement: i
+                    PsiElement(identifier)('i')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: o
+                  CodeReferenceElement: o
+                    PsiElement(identifier)('o')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: e
+                  CodeReferenceElement: e
+                    PsiElement(identifier)('e')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScClass: FailsWith
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FailsWith')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: scala.annotation.Annotation
+            CodeReferenceElement: scala.annotation.Annotation
+              CodeReferenceElement: scala.annotation
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Annotation')
+  PsiWhiteSpace('\n')
+  ScClass: HttpInfo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HttpInfo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: method
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('method')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: route
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('route')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: scala.annotation.Annotation
+            CodeReferenceElement: scala.annotation.Annotation
+              CodeReferenceElement: scala.annotation
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Annotation')
+  PsiWhiteSpace('\n')
+  ScClass: HttpBody
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HttpBody')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: scala.annotation.Annotation
+            CodeReferenceElement: scala.annotation.Annotation
+              CodeReferenceElement: scala.annotation
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Annotation')
+  PsiWhiteSpace('\n')
+  ScClass: HttpPath
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HttpPath')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: scala.annotation.Annotation
+            CodeReferenceElement: scala.annotation.Annotation
+              CodeReferenceElement: scala.annotation
+                CodeReferenceElement: scala
+                  PsiElement(identifier)('scala')
+                PsiElement(.)('.')
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Annotation')
+  PsiWhiteSpace('\n\n')
+  ScTrait: HttpError
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HttpError')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: HttpService
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HttpService')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Endpoint
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Endpoint')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: I
+              PsiElement(identifier)('I')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: O
+              PsiElement(identifier)('O')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Route
+            CodeReferenceElement: Route
+              PsiElement(identifier)('Route')
+        PsiWhiteSpace('\n\n  ')
+        Extension on Endpoint[I, O, E]
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: I
+              PsiElement(identifier)('I')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: O
+              PsiElement(identifier)('O')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: E
+              PsiElement(identifier)('E')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: e
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('e')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Endpoint[I, O, E]
+                    SimpleType: Endpoint
+                      CodeReferenceElement: Endpoint
+                        PsiElement(identifier)('Endpoint')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: I
+                          CodeReferenceElement: I
+                            PsiElement(identifier)('I')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: O
+                          CodeReferenceElement: O
+                            PsiElement(identifier)('O')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: E
+                          CodeReferenceElement: E
+                            PsiElement(identifier)('E')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: describe
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('describe')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// some thing that looks inside the Route to debug it')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: ToEndpoints
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ToEndpoints')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Ops
+              PsiElement(identifier)('Ops')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: Ops match
+    case EmptyTuple => EmptyTuple
+    case op *: ops => (op, op, op) match
+      case (OpsMirror.Operation_I[i]) *: (OpsMirror.Operation_O[o]) *: (OpsMirror.Operation_E[e]) *: _ =>
+        Endpoint[i, o, e] *: ToEndpoints[ops]
+            SimpleType: Ops
+              CodeReferenceElement: Ops
+                PsiElement(identifier)('Ops')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: op *: ops
+                  TypeVariable: op
+                    PsiElement(identifier)('op')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: ops
+                    PsiElement(identifier)('ops')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: (op, op, op) match
+      case (OpsMirror.Operation_I[i]) *: (OpsMirror.Operation_O[o]) *: (OpsMirror.Operation_E[e]) *: _ =>
+        Endpoint[i, o, e] *: ToEndpoints[ops]
+                  TupleType: (op, op, op)
+                    PsiElement(()('(')
+                    TypesList
+                      SimpleType: op
+                        CodeReferenceElement: op
+                          PsiElement(identifier)('op')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: op
+                        CodeReferenceElement: op
+                          PsiElement(identifier)('op')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      SimpleType: op
+                        CodeReferenceElement: op
+                          PsiElement(identifier)('op')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      InfixType: (OpsMirror.Operation_I[i]) *: (OpsMirror.Operation_O[o]) *: (OpsMirror.Operation_E[e]) *: _
+                        TypeInParenthesis: (OpsMirror.Operation_I[i])
+                          PsiElement(()('(')
+                          ParametrizedType: OpsMirror.Operation_I[i]
+                            SimpleType: OpsMirror.Operation_I
+                              CodeReferenceElement: OpsMirror.Operation_I
+                                CodeReferenceElement: OpsMirror
+                                  PsiElement(identifier)('OpsMirror')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Operation_I')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                TypeVariable: i
+                                  PsiElement(identifier)('i')
+                              PsiElement(])(']')
+                          PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        InfixType: (OpsMirror.Operation_O[o]) *: (OpsMirror.Operation_E[e]) *: _
+                          TypeInParenthesis: (OpsMirror.Operation_O[o])
+                            PsiElement(()('(')
+                            ParametrizedType: OpsMirror.Operation_O[o]
+                              SimpleType: OpsMirror.Operation_O
+                                CodeReferenceElement: OpsMirror.Operation_O
+                                  CodeReferenceElement: OpsMirror
+                                    PsiElement(identifier)('OpsMirror')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Operation_O')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  TypeVariable: o
+                                    PsiElement(identifier)('o')
+                                PsiElement(])(']')
+                            PsiElement())(')')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: *:
+                            PsiElement(identifier)('*:')
+                          PsiWhiteSpace(' ')
+                          InfixType: (OpsMirror.Operation_E[e]) *: _
+                            TypeInParenthesis: (OpsMirror.Operation_E[e])
+                              PsiElement(()('(')
+                              ParametrizedType: OpsMirror.Operation_E[e]
+                                SimpleType: OpsMirror.Operation_E
+                                  CodeReferenceElement: OpsMirror.Operation_E
+                                    CodeReferenceElement: OpsMirror
+                                      PsiElement(identifier)('OpsMirror')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('Operation_E')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    TypeVariable: e
+                                      PsiElement(identifier)('e')
+                                  PsiElement(])(']')
+                              PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            CodeReferenceElement: *:
+                              PsiElement(identifier)('*:')
+                            PsiWhiteSpace(' ')
+                            TypeVariable: _
+                              PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace('\n        ')
+                      InfixType: Endpoint[i, o, e] *: ToEndpoints[ops]
+                        ParametrizedType: Endpoint[i, o, e]
+                          SimpleType: Endpoint
+                            CodeReferenceElement: Endpoint
+                              PsiElement(identifier)('Endpoint')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: i
+                                CodeReferenceElement: i
+                                  PsiElement(identifier)('i')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              SimpleType: o
+                                CodeReferenceElement: o
+                                  PsiElement(identifier)('o')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              SimpleType: e
+                                CodeReferenceElement: e
+                                  PsiElement(identifier)('e')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: ToEndpoints[ops]
+                          SimpleType: ToEndpoints
+                            CodeReferenceElement: ToEndpoints
+                              PsiElement(identifier)('ToEndpoints')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: ops
+                                CodeReferenceElement: ops
+                                  PsiElement(identifier)('ops')
+                            PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Handler
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Handler')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Endpoints
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Endpoints')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: model
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('model')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    ParametrizedType: HttpService[T]
+                      SimpleType: HttpService
+                        CodeReferenceElement: HttpService
+                          PsiElement(identifier)('HttpService')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                        PsiElement(])(']')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Selectable
+                  CodeReferenceElement: Selectable
+                    PsiElement(identifier)('Selectable')
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: Fields
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Fields')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: AnyNamedTuple
+                  CodeReferenceElement: AnyNamedTuple
+                    PsiElement(identifier)('AnyNamedTuple')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: selectDynamic
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('selectDynamic')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: name
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('name')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Route
+                  CodeReferenceElement: Route
+                    PsiElement(identifier)('Route')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: model.route
+                    ReferenceExpression: model
+                      PsiElement(identifier)('model')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('route')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: name
+                      PsiElement(identifier)('name')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n    ')
+              ScFunctionDefinition: serverLogic
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('serverLogic')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: funcs
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('funcs')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: NamedTuple[Names[Fields], Tuple.Map[DropNames[Fields], ToFunc]]
+                          SimpleType: NamedTuple
+                            CodeReferenceElement: NamedTuple
+                              PsiElement(identifier)('NamedTuple')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              ParametrizedType: Names[Fields]
+                                SimpleType: Names
+                                  CodeReferenceElement: Names
+                                    PsiElement(identifier)('Names')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: Fields
+                                      CodeReferenceElement: Fields
+                                        PsiElement(identifier)('Fields')
+                                  PsiElement(])(']')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              ParametrizedType: Tuple.Map[DropNames[Fields], ToFunc]
+                                SimpleType: Tuple.Map
+                                  CodeReferenceElement: Tuple.Map
+                                    CodeReferenceElement: Tuple
+                                      PsiElement(identifier)('Tuple')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('Map')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    ParametrizedType: DropNames[Fields]
+                                      SimpleType: DropNames
+                                        CodeReferenceElement: DropNames
+                                          PsiElement(identifier)('DropNames')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: Fields
+                                            CodeReferenceElement: Fields
+                                              PsiElement(identifier)('Fields')
+                                        PsiElement(])(']')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    SimpleType: ToFunc
+                                      CodeReferenceElement: ToFunc
+                                        PsiElement(identifier)('ToFunc')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: List[Handler]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Handler
+                        CodeReferenceElement: Handler
+                          PsiElement(identifier)('Handler')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: derived
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('derived')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  ParametrizedType: OpsMirror.Of[T]
+                    SimpleType: OpsMirror.Of
+                      CodeReferenceElement: OpsMirror.Of
+                        CodeReferenceElement: OpsMirror
+                          PsiElement(identifier)('OpsMirror')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Of')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: HttpService[T]
+            SimpleType: HttpService
+              CodeReferenceElement: HttpService
+                PsiElement(identifier)('HttpService')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// inline method to create routes')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: endpoints
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('endpoints')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: model
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('model')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: HttpService[T]
+                    SimpleType: HttpService
+                      CodeReferenceElement: HttpService
+                        PsiElement(identifier)('HttpService')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: m
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('m')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: OpsMirror.Of[T]
+                    SimpleType: OpsMirror.Of
+                      CodeReferenceElement: OpsMirror.Of
+                        CodeReferenceElement: OpsMirror
+                          PsiElement(identifier)('OpsMirror')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Of')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          CompoundType: Endpoints[T] {
+      type Fields = NamedTuple[m.OperationLabels, ToEndpoints[m.Operations]]
+  }
+            ParametrizedType: Endpoints[T]
+              SimpleType: Endpoints
+                CodeReferenceElement: Endpoints
+                  PsiElement(identifier)('Endpoints')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace('\n      ')
+              ScTypeAliasDefinition: Fields
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Fields')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: NamedTuple[m.OperationLabels, ToEndpoints[m.Operations]]
+                  SimpleType: NamedTuple
+                    CodeReferenceElement: NamedTuple
+                      PsiElement(identifier)('NamedTuple')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: m.OperationLabels
+                        CodeReferenceElement: m.OperationLabels
+                          CodeReferenceElement: m
+                            PsiElement(identifier)('m')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('OperationLabels')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      ParametrizedType: ToEndpoints[m.Operations]
+                        SimpleType: ToEndpoints
+                          CodeReferenceElement: ToEndpoints
+                            PsiElement(identifier)('ToEndpoints')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: m.Operations
+                              CodeReferenceElement: m.Operations
+                                CodeReferenceElement: m
+                                  PsiElement(identifier)('m')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Operations')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Endpoints
+                    CodeReferenceElement: Endpoints
+                      PsiElement(identifier)('Endpoints')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: model
+                      PsiElement(identifier)('model')
+                    PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                ScTypeAliasDefinition: Fields
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Fields')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: NamedTuple[m.OperationLabels, ToEndpoints[m.Operations]]
+                    SimpleType: NamedTuple
+                      CodeReferenceElement: NamedTuple
+                        PsiElement(identifier)('NamedTuple')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: m.OperationLabels
+                          CodeReferenceElement: m.OperationLabels
+                            CodeReferenceElement: m
+                              PsiElement(identifier)('m')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('OperationLabels')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: ToEndpoints[m.Operations]
+                          SimpleType: ToEndpoints
+                            CodeReferenceElement: ToEndpoints
+                              PsiElement(identifier)('ToEndpoints')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: m.Operations
+                                CodeReferenceElement: m.Operations
+                                  CodeReferenceElement: m
+                                    PsiElement(identifier)('m')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Operations')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: ServerBuilder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ServerBuilder')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: handleAll
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('handleAll')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: hs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('hs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: List[HttpService.Handler]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: HttpService.Handler
+                          CodeReferenceElement: HttpService.Handler
+                            CodeReferenceElement: HttpService
+                              PsiElement(identifier)('HttpService')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('Handler')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: this.type
+            ThisReference
+              PsiElement(this)('this')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ThisReference
+            PsiElement(this)('this')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: create
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('create')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: port
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('port')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Server
+            CodeReferenceElement: Server
+              PsiElement(identifier)('Server')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Server
+              PsiElement(identifier)('Server')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScClass: Server
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Server')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: close
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('close')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnitExpression
+            PsiElement(()('(')
+            PsiElement())(')')

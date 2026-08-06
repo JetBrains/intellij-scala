@@ -1,0 +1,31 @@
+val a: A :: B = null
+-----
+ScalaFile
+  ScPatternDefinition: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: a
+        PsiElement(identifier)('a')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    InfixType: A :: B
+      SimpleType: A
+        CodeReferenceElement: A
+          PsiElement(identifier)('A')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: ::
+        PsiElement(identifier)('::')
+      PsiWhiteSpace(' ')
+      SimpleType: B
+        CodeReferenceElement: B
+          PsiElement(identifier)('B')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    NullLiteral
+      PsiElement(null)('null')

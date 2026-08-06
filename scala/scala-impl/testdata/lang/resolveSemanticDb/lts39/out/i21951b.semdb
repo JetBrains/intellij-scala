@@ -1,0 +1,15 @@
+Document tests/pos/i21951b.scala
+(4:9..4:10) _empty_/A# -> 2:7
+(4:13..4:16) scala/Predef.`???`().
+(8:15..8:16) _empty_/B# -> 6:7
+(8:17..8:18) _empty_/B.g().[T] -> 8:11
+(8:22..8:25) scala/Predef.`???`().
+(11:16..11:17) _empty_/A# -> 2:7
+(11:21..11:27) scala/Predef.summon().
+(11:28..11:29) _empty_/Test.foo().[X] -> 11:11
+(12:19..12:20) _empty_/B# -> 6:7
+(12:21..12:22) _empty_/Test.bar().[F][T] -> 12:13
+(12:27..12:33) scala/Predef.summon().
+(12:34..12:35) _empty_/Test.bar().[F] -> 12:11
+(12:36..12:39) scala/Int#
+

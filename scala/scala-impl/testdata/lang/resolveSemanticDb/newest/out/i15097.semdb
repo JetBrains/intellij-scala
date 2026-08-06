@@ -1,0 +1,31 @@
+Document tests/pos/i15097.scala
+(2:10..2:16) scala/Predef.String#
+(2:17..2:18) scala/`|`#
+(2:19..2:23) scala/Null#
+(2:26..2:29) scala/Predef.`???`().
+(5:12..5:17) scala/
+(5:18..5:26) scala/language.
+(5:27..5:38) scala/language.unsafeNulls.
+(6:9..6:10) _empty_/C#g(). -> 2:7
+(9:12..9:17) scala/
+(9:18..9:26) scala/language.
+(9:27..9:38) scala/language.unsafeNulls.
+(10:8..10:11) scala/Predef.`???`().
+(10:17..10:18) _empty_/C#g(). -> 2:7
+(13:6..13:9) scala/Predef.`???`().
+(13:12..13:19) scala/Boolean#
+(14:18..14:19) _empty_/C#g(). -> 2:7
+(18:10..18:15) scala/
+(18:16..18:24) scala/language.
+(18:25..18:36) scala/language.unsafeNulls.
+(19:10..19:16) scala/Predef.String#
+(19:17..19:18) scala/`|`#
+(19:19..19:23) scala/Null#
+(19:26..19:29) scala/Predef.`???`().
+(22:9..22:10) _empty_/C2#g(). -> 19:7
+(25:8..25:11) scala/Predef.`???`().
+(25:17..25:18) _empty_/C2#g(). -> 19:7
+(28:6..28:9) scala/Predef.`???`().
+(28:12..28:19) scala/Boolean#
+(29:18..29:19) _empty_/C2#g(). -> 19:7
+

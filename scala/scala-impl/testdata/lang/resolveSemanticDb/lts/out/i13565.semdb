@@ -1,0 +1,144 @@
+Document tests/pos/i13565.scala
+(1:9..1:12) ips/
+(3:56..3:73) ips/clang/PostfixExpression# -> 4:22
+(4:58..4:73) ips/clang/UnaryExpression# -> 5:24
+(5:59..5:73) ips/clang/CastExpression# -> 6:25
+(6:49..6:73) ips/clang/MultiplicativeExpression# -> 7:15
+(7:55..7:73) ips/clang/AdditiveExpression# -> 8:21
+(8:58..8:73) ips/clang/ShiftExpression# -> 9:24
+(9:53..9:73) ips/clang/RelationalExpression# -> 10:19
+(10:55..10:73) ips/clang/EqualityExpression# -> 11:21
+(11:56..11:73) ips/clang/PrecAndExpression# -> 12:22
+(12:48..12:73) ips/clang/PrecExclusiveOrExpression# -> 13:14
+(13:48..13:73) ips/clang/PrecInclusiveOrExpression# -> 14:14
+(14:49..14:73) ips/clang/PrecLogicalAndExpression# -> 15:15
+(15:50..15:73) ips/clang/PrecLogicalOrExpression# -> 16:16
+(16:48..16:73) ips/clang/PrecConditionalExpression# -> 17:14
+(17:50..17:73) ips/clang/PrecAssigmentExpression# -> 18:16
+(18:63..18:73) ips/clang/Expression# -> 19:29
+(20:50..20:56) scala/Predef.String#
+(20:67..20:77) ips/clang/Expression# -> 19:29
+(20:88..20:98) ips/clang/Expression# -> 19:29
+(22:17..22:23) scala/Predef.String#
+(23:50..23:56) scala/Predef.String#
+(23:139..23:156) ips/clang/PrimaryExpression# -> 3:22
+(24:50..24:53) scala/Int#
+(24:139..24:156) ips/clang/PrimaryExpression# -> 3:22
+(25:50..25:54) scala/Char#
+(25:139..25:156) ips/clang/PrimaryExpression# -> 3:22
+(26:50..26:56) scala/Predef.String#
+(26:139..26:156) ips/clang/PrimaryExpression# -> 3:22
+(27:50..27:60) ips/clang/Expression# -> 19:29
+(27:139..27:156) ips/clang/PrimaryExpression# -> 3:22
+(28:49..28:66) ips/clang/PostfixExpression# -> 4:22
+(28:75..28:85) ips/clang/Expression# -> 19:29
+(28:139..28:156) ips/clang/PostfixExpression# -> 4:22
+(29:48..29:65) ips/clang/PostfixExpression# -> 4:22
+(29:78..29:82) scala/package.List#
+(29:83..29:106) ips/clang/PrecAssigmentExpression# -> 18:16
+(29:139..29:156) ips/clang/PostfixExpression# -> 4:22
+(30:54..30:71) ips/clang/PostfixExpression# -> 4:22
+(30:81..30:91) ips/clang/Identifier# -> 23:32
+(30:139..30:156) ips/clang/PostfixExpression# -> 4:22
+(31:54..31:71) ips/clang/PostfixExpression# -> 4:22
+(31:81..31:91) ips/clang/Identifier# -> 23:32
+(31:139..31:156) ips/clang/PostfixExpression# -> 4:22
+(32:49..32:66) ips/clang/PostfixExpression# -> 4:22
+(32:139..32:156) ips/clang/PostfixExpression# -> 4:22
+(33:49..33:66) ips/clang/PostfixExpression# -> 4:22
+(33:139..33:156) ips/clang/PostfixExpression# -> 4:22
+(34:53..34:61) ips/clang/i13565$package.TypeName# -> 22:6
+(34:77..34:81) scala/package.List#
+(34:82..34:85) scala/Int#
+(34:139..34:156) ips/clang/PostfixExpression# -> 4:22
+(35:49..35:64) ips/clang/UnaryExpression# -> 5:24
+(35:141..35:156) ips/clang/UnaryExpression# -> 5:24
+(36:49..36:64) ips/clang/UnaryExpression# -> 5:24
+(36:141..36:156) ips/clang/UnaryExpression# -> 5:24
+(37:47..37:53) scala/Predef.String#
+(37:65..37:79) ips/clang/CastExpression# -> 6:25
+(37:141..37:156) ips/clang/UnaryExpression# -> 5:24
+(38:55..38:70) ips/clang/UnaryExpression# -> 5:24
+(38:141..38:156) ips/clang/UnaryExpression# -> 5:24
+(39:53..39:61) ips/clang/i13565$package.TypeName# -> 22:6
+(39:141..39:156) ips/clang/UnaryExpression# -> 5:24
+(40:53..40:61) ips/clang/i13565$package.TypeName# -> 22:6
+(40:73..40:87) ips/clang/CastExpression# -> 6:25
+(40:142..40:156) ips/clang/CastExpression# -> 6:25
+(41:47..41:53) scala/Predef.String#
+(41:65..41:89) ips/clang/MultiplicativeExpression# -> 7:15
+(41:107..41:121) ips/clang/CastExpression# -> 6:25
+(41:132..41:156) ips/clang/MultiplicativeExpression# -> 7:15
+(41:162..41:178) ips/clang/BinaryExpression# -> 20:23
+(42:47..42:53) scala/Predef.String#
+(42:65..42:89) ips/clang/MultiplicativeExpression# -> 7:15
+(42:107..42:121) ips/clang/CastExpression# -> 6:25
+(42:132..42:156) ips/clang/MultiplicativeExpression# -> 7:15
+(42:162..42:178) ips/clang/BinaryExpression# -> 20:23
+(43:47..43:53) scala/Predef.String#
+(43:65..43:89) ips/clang/MultiplicativeExpression# -> 7:15
+(43:107..43:121) ips/clang/CastExpression# -> 6:25
+(43:132..43:156) ips/clang/MultiplicativeExpression# -> 7:15
+(43:162..43:178) ips/clang/BinaryExpression# -> 20:23
+(44:47..44:53) scala/Predef.String#
+(44:69..44:89) ips/clang/RelationalExpression# -> 10:19
+(44:106..44:121) ips/clang/ShiftExpression# -> 9:24
+(44:136..44:156) ips/clang/RelationalExpression# -> 10:19
+(44:162..44:178) ips/clang/BinaryExpression# -> 20:23
+(45:47..45:53) scala/Predef.String#
+(45:69..45:89) ips/clang/RelationalExpression# -> 10:19
+(45:106..45:121) ips/clang/ShiftExpression# -> 9:24
+(45:138..45:156) ips/clang/EqualityExpression# -> 11:21
+(45:162..45:178) ips/clang/BinaryExpression# -> 20:23
+(46:47..46:53) scala/Predef.String#
+(46:72..46:89) ips/clang/PrecAndExpression# -> 12:22
+(46:103..46:121) ips/clang/EqualityExpression# -> 11:21
+(46:139..46:156) ips/clang/PrecAndExpression# -> 12:22
+(46:162..46:178) ips/clang/BinaryExpression# -> 20:23
+(47:47..47:53) scala/Predef.String#
+(47:64..47:89) ips/clang/PrecExclusiveOrExpression# -> 13:14
+(47:104..47:121) ips/clang/PrecAndExpression# -> 12:22
+(47:131..47:156) ips/clang/PrecExclusiveOrExpression# -> 13:14
+(47:162..47:178) ips/clang/BinaryExpression# -> 20:23
+(48:47..48:53) scala/Predef.String#
+(48:64..48:89) ips/clang/PrecExclusiveOrExpression# -> 13:14
+(48:104..48:121) ips/clang/PrecAndExpression# -> 12:22
+(48:131..48:156) ips/clang/PrecInclusiveOrExpression# -> 14:14
+(48:162..48:178) ips/clang/BinaryExpression# -> 20:23
+(49:47..49:53) scala/Predef.String#
+(49:65..49:89) ips/clang/PrecLogicalAndExpression# -> 15:15
+(49:96..49:121) ips/clang/PrecInclusiveOrExpression# -> 14:14
+(49:132..49:156) ips/clang/PrecLogicalAndExpression# -> 15:15
+(49:162..49:178) ips/clang/BinaryExpression# -> 20:23
+(50:47..50:53) scala/Predef.String#
+(50:65..50:89) ips/clang/PrecLogicalAndExpression# -> 15:15
+(50:96..50:121) ips/clang/PrecInclusiveOrExpression# -> 14:14
+(50:133..50:156) ips/clang/PrecLogicalOrExpression# -> 16:16
+(50:162..50:178) ips/clang/BinaryExpression# -> 20:23
+(51:49..51:72) ips/clang/PrecLogicalOrExpression# -> 16:16
+(51:79..51:89) ips/clang/Expression# -> 19:29
+(51:96..51:121) ips/clang/PrecConditionalExpression# -> 17:14
+(51:131..51:156) ips/clang/PrecConditionalExpression# -> 17:14
+(52:47..52:53) scala/Predef.String#
+(52:74..52:89) ips/clang/UnaryExpression# -> 5:24
+(52:98..52:121) ips/clang/PrecAssigmentExpression# -> 18:16
+(52:133..52:156) ips/clang/PrecAssigmentExpression# -> 18:16
+(53:48..53:58) ips/clang/Expression# -> 19:29
+(53:65..53:75) ips/clang/Expression# -> 19:29
+(53:146..53:156) ips/clang/Expression# -> 19:29
+(54:48..54:58) ips/clang/Expression# -> 19:29
+(54:65..54:75) ips/clang/Expression# -> 19:29
+(54:146..54:156) ips/clang/Expression# -> 19:29
+(57:49..57:64) ips/clang/UnaryExpression# -> 5:24
+(58:49..58:64) ips/clang/UnaryExpression# -> 5:24
+(59:49..59:64) ips/clang/UnaryExpression# -> 5:24
+(60:49..60:64) ips/clang/UnaryExpression# -> 5:24
+(61:49..61:64) ips/clang/UnaryExpression# -> 5:24
+(65:30..65:40) ips/clang/Expression# -> 19:29
+(65:43..65:57) ips/clang/CastExpression# -> 6:25
+(65:60..65:64) ips/clang/LongCompilation#toCastExpression().(expr) -> 65:24
+(66:13..66:27) ips/clang/CastExpression# -> 6:25
+(66:31..66:32) local0 -> 66:10
+(67:31..67:48) ips/clang/WrappedExpression.
+(67:49..67:53) ips/clang/LongCompilation#toCastExpression().(expr) -> 65:24
+

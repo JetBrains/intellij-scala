@@ -1,0 +1,4 @@
+Document tests/pos/constants.scala
+(3:10..3:16) scala/Double#
+(4:10..4:14) scala/Byte#
+

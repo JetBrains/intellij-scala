@@ -1,0 +1,3 @@
+123 match {
+  case 123 ${ScalaTypedHandler.unicodeCaseArrow}$CARET_MARKER
+}

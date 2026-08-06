@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<idea-plugin>
+    <dependencies>
+        <plugin id="org.jetbrains.kotlin"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceInterface="org.jetbrains.sbt.project.SbtKotlinCompilerOptionsImporter"
+                            serviceImplementation="org.jetbrains.sbt.project.SbtKotlinCompilerOptionsImporterImpl"/>
+    </extensions>
+</idea-plugin>

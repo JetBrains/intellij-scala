@@ -1,0 +1,100 @@
+type ZZ = String ?=> Int
+def f(xs: ZZ*) = xs.zipWithIndex.foreach((f: ZZ, i) => f(using "s"))
+-----
+ScalaFile
+  ScTypeAliasDefinition: ZZ
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ZZ')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionalType: String ?=> Int
+      SimpleType: String
+        CodeReferenceElement: String
+          PsiElement(identifier)('String')
+      PsiWhiteSpace(' ')
+      PsiElement(?=>)('?=>')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: xs
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('xs')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: ZZ
+              CodeReferenceElement: ZZ
+                PsiElement(identifier)('ZZ')
+            PsiElement(identifier)('*')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: xs.zipWithIndex.foreach
+        ReferenceExpression: xs.zipWithIndex
+          ReferenceExpression: xs
+            PsiElement(identifier)('xs')
+          PsiElement(.)('.')
+          PsiElement(identifier)('zipWithIndex')
+        PsiElement(.)('.')
+        PsiElement(identifier)('foreach')
+      ArgumentList
+        PsiElement(()('(')
+        FunctionExpression
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: ZZ
+                    CodeReferenceElement: ZZ
+                      PsiElement(identifier)('ZZ')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: i
+                AnnotationsList
+                  <empty list>
+                PsiElement(identifier)('i')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: f
+              PsiElement(identifier)('f')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              StringLiteral
+                PsiElement(string content)('"s"')
+              PsiElement())(')')
+        PsiElement())(')')

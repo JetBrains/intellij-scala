@@ -1,0 +1,4 @@
+Document tests/pos/source-import-3-1.scala
+(1:8..1:16) scala/language.
+(1:17..1:22) scala/language.`3.1`.
+

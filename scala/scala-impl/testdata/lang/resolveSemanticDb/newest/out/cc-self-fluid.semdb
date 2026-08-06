@@ -1,0 +1,17 @@
+Document tests/pos/cc-self-fluid/FunSuite_1.scala
+(2:9..2:17) _empty_/FunSuite# -> 1:7
+(3:14..3:18) scala/Unit#
+
+Document tests/pos/cc-self-fluid/Test_2.scala
+(3:18..3:22) scala/caps/
+(3:23..3:39) scala/caps/SharedCapability#
+(4:20..4:26) scala/Predef.String#
+(4:29..4:33) scala/Unit#
+(6:14..6:16) _empty_/IO# -> 3:7
+(6:19..6:23) scala/Unit#
+(7:27..7:35) _empty_/FunSuite# -> 1:7
+(8:11..8:20) local0 -> 7:9
+(9:16..9:20) scala/Unit#
+(9:23..9:25) _empty_/Test_2$package.test().(io) -> 6:10
+(9:26..9:33) _empty_/IO#println(). -> 4:7
+

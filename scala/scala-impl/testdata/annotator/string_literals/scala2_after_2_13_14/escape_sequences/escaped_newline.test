@@ -1,0 +1,11 @@
+// SCL-22003
+"""a\
+b"""
+
+raw"""a\
+b"""
+
+s"""a\
+b"""
+-----
+Error((45,47),Invalid escape character)

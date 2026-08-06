@@ -1,0 +1,21 @@
+Document tests/pos/gen-traversable-methods.scala
+(4:8..4:18) scala/collection/
+(10:18..10:23) scala/Array#
+(10:24..10:30) scala/Predef.String#
+(10:34..10:38) scala/Unit#
+(11:14..11:28) scala/collection/package.GenTraversable#
+(11:29..11:32) scala/Int#
+(11:36..11:40) scala/package.List.
+(12:5..12:8) local0 -> 11:9
+(12:9..12:13) scala/collection/IterableOps#head().
+(13:5..13:8) local0 -> 11:9
+(13:9..13:19) scala/collection/IterableOps#headOption().
+(14:5..14:8) local0 -> 11:9
+(14:9..14:13) scala/collection/IterableOps#tail().
+(15:5..15:8) local0 -> 11:9
+(15:9..15:13) scala/collection/IterableOps#last().
+(16:5..16:8) local0 -> 11:9
+(16:9..16:19) scala/collection/IterableOps#lastOption().
+(17:5..17:8) local0 -> 11:9
+(17:9..17:13) scala/collection/IterableOps#init().
+

@@ -1,0 +1,9 @@
+Document tests/pos/i1352.scala
+(5:21..5:27) _empty_/Test.Parent# -> 4:25
+(5:33..5:34) _empty_/Test.A# -> 2:9
+(6:21..6:27) _empty_/Test.Parent# -> 4:25
+(6:33..6:34) _empty_/Test.B# -> 3:9
+(8:10..8:16) _empty_/Test.Parent# -> 4:25
+(9:14..9:15) _empty_/Test.A# -> 2:9
+(9:23..9:24) _empty_/Test.B# -> 3:9
+

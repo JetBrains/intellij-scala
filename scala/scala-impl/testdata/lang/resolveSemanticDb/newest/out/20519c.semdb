@@ -1,0 +1,27 @@
+Document tests/pos/20519c.scala
+(4:34..4:35) _empty_/Main.Stx#[F] -> 4:22
+(4:36..4:42) scala/Option#
+(4:43..4:44) _empty_/Main.Stx#[A] -> 4:28
+(5:26..5:29) _empty_/Main.TCl# -> 2:9
+(5:30..5:31) _empty_/Main.Stx#[F] -> 4:22
+(5:35..5:39) scala/Unit#
+(8:26..8:27) _empty_/Main.Result#[F] -> 8:15
+(8:28..8:34) scala/Option#
+(8:35..8:36) _empty_/Main.Result#[A] -> 8:21
+(10:19..10:22) _empty_/Main.TCl# -> 2:9
+(10:37..10:40) _empty_/Main.TCl# -> 2:9
+(12:18..12:23) scala/Array#
+(12:24..12:30) scala/Predef.String#
+(12:34..12:38) scala/Unit#
+(13:12..13:18) _empty_/Main.Result# -> 8:8
+(13:27..13:30) scala/Int#
+(13:34..13:38) scala/None.
+(14:5..14:6) local2 -> 13:9
+(14:7..14:10) _empty_/Main.Stx#boo(). -> 5:9
+(17:13..17:19) scala/Option#
+(17:20..17:26) scala/Option#
+(17:27..17:30) scala/Int#
+(17:35..17:39) scala/None.
+(18:5..18:7) local3 -> 17:9
+(18:8..18:11) _empty_/Main.Stx#boo(). -> 5:9
+

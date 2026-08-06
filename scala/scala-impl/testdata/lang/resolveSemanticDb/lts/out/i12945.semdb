@@ -1,0 +1,27 @@
+Document tests/pos/i12945/A_1.scala
+(1:22..1:25) scala/Int#
+(1:29..1:32) scala/Int#
+(6:17..6:20) scala/Int#
+(6:23..6:25) _empty_/A_1$package.Lie.TC# -> 3:9
+(6:26..6:29) _empty_/A_1$package.Lie# -> 1:13
+(6:30..6:31) _empty_/A_1$package.Lie.TC.given_TC_Lie#[W] -> 6:12
+(7:18..7:19) _empty_/A_1$package.Lie.TC.given_TC_Lie#[W] -> 6:12
+(9:10..9:16) scala/Predef.summon().
+(9:17..9:20) _empty_/A_1$package.Lie. -> 2:8
+(9:21..9:23) _empty_/A_1$package.Lie.TC# -> 3:9
+(9:24..9:27) _empty_/A_1$package.Lie# -> 1:13
+(10:13..10:19) scala/Predef.summon().
+(10:20..10:21) _empty_/A_1$package.x. -> 9:5
+(10:22..10:25) _empty_/A_1$package.Lie.TC.given_TC_Lie#Out# -> 7:12
+(10:26..10:29) scala/`=:=`#
+
+Document tests/pos/i12945/B_2.scala
+(2:12..2:18) scala/Predef.summon().
+(2:19..2:22) _empty_/A_1$package.Lie. -> 2:8
+(2:23..2:25) _empty_/A_1$package.Lie.TC# -> 3:9
+(2:26..2:29) _empty_/A_1$package.Lie# -> 1:13
+(3:15..3:21) scala/Predef.summon().
+(3:22..3:23) _empty_/Test.x. -> 2:7
+(3:24..3:27) _empty_/A_1$package.Lie.TC.given_TC_Lie#Out# -> 7:12
+(3:28..3:31) scala/`=:=`#
+

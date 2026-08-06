@@ -1,0 +1,17 @@
+Document tests/pos/i18316.scala
+(4:25..4:28) scala/Int#
+(4:31..4:33) _empty_/R1# -> 1:7
+(5:25..5:28) scala/Int#
+(5:31..5:33) _empty_/R2# -> 2:7
+(7:37..7:40) scala/Int#
+(7:43..7:46) _empty_/Foo# -> 4:7
+(8:37..8:40) scala/Int#
+(8:43..8:46) _empty_/Bar# -> 5:7
+(10:8..10:12) _empty_/Impl. -> 7:8
+(10:13..10:18) _empty_/Impl.mkFoo(). -> 7:28
+(11:21..11:26) _empty_/Trait# -> 8:7
+(12:10..12:14) _empty_/Impl. -> 7:8
+(12:15..12:20) _empty_/Impl.mkFoo(). -> 7:28
+(13:14..13:16) _empty_/R1# -> 1:7
+(13:21..13:25) _empty_/Foo#meth(). -> 4:17
+

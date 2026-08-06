@@ -1,0 +1,59 @@
+Document tests/pos/abstract-tracked.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:46) scala/language.experimental.modularity.
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:29) scala/language.future.
+(5:18..5:21) scala/Int#
+(8:18..8:21) scala/Int#
+(11:18..11:21) scala/Int#
+(13:17..13:18) _empty_/F# -> 4:7
+(15:17..15:18) _empty_/F# -> 4:7
+(16:10..16:13) scala/Int#
+(18:24..18:27) scala/Int#
+(23:10..23:13) scala/Int#
+(25:17..25:18) _empty_/F# -> 4:7
+(29:15..29:16) _empty_/F# -> 4:7
+(31:15..31:16) _empty_/G# -> 7:7
+(33:15..33:16) _empty_/H# -> 10:7
+(35:15..35:16) _empty_/I# -> 13:7
+(37:15..37:16) _empty_/J# -> 15:7
+(39:15..39:16) _empty_/K# -> 18:7
+(40:15..40:16) _empty_/L# -> 20:7
+(43:15..43:16) _empty_/M# -> 22:7
+(45:15..45:16) _empty_/N# -> 25:7
+(47:3..47:9) scala/Predef.summon().
+(47:10..47:11) _empty_/Test.f. -> 29:7
+(47:12..47:13) _empty_/F#a. -> 5:15
+(47:19..47:22) scala/`<:<`#
+(48:3..48:9) scala/Predef.summon().
+(48:10..48:11) _empty_/Test.g. -> 31:7
+(48:12..48:13) _empty_/G#b. -> 8:15
+(48:19..48:22) scala/`<:<`#
+(49:3..49:9) scala/Predef.summon().
+(49:10..49:11) _empty_/Test.h. -> 33:7
+(49:12..49:13) _empty_/H#c. -> 11:15
+(49:19..49:22) scala/`<:<`#
+(50:3..50:9) scala/Predef.summon().
+(50:10..50:11) _empty_/Test.i. -> 35:7
+(50:12..50:13) _empty_/F#a. -> 5:15
+(50:19..50:22) scala/`<:<`#
+(51:3..51:9) scala/Predef.summon().
+(51:10..51:11) _empty_/Test.j. -> 37:7
+(51:12..51:13) _empty_/J#a. -> 16:7
+(51:19..51:22) scala/`<:<`#
+(52:3..52:9) scala/Predef.summon().
+(52:10..52:11) _empty_/Test.k. -> 39:7
+(52:12..52:13) _empty_/K#d. -> 18:21
+(52:19..52:22) scala/`<:<`#
+(54:3..54:9) scala/Predef.summon().
+(54:10..54:11) _empty_/Test.m. -> 43:7
+(54:12..54:13) _empty_/M#f. -> 23:7
+(54:19..54:22) scala/`<:<`#
+(55:3..55:9) scala/Predef.summon().
+(55:10..55:11) _empty_/Test.n. -> 45:7
+(55:12..55:13) _empty_/N#a. -> 26:7
+(55:19..55:22) scala/`<:<`#
+

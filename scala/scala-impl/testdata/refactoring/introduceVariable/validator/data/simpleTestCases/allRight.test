@@ -1,0 +1,7 @@
+//### replaceAll=true
+class a {
+  def foo = {
+    <selection>2</selection>
+  }
+}
+------

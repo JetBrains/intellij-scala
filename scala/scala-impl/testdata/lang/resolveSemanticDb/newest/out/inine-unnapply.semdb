@@ -1,0 +1,9 @@
+Document tests/pos/inine-unnapply.scala
+(3:25..3:28) scala/Any#
+(3:31..3:38) scala/Boolean#
+(3:41..3:44) scala/Predef.`???`().
+(4:28..4:31) scala/Any#
+(4:34..4:37) scala/package.Seq#
+(4:38..4:41) scala/Any#
+(4:45..4:48) scala/Predef.`???`().
+

@@ -1,0 +1,27 @@
+Document tests/pos/i17222.5.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(8:12..8:13) _empty_/A#F# -> 7:8
+(8:14..8:15) _empty_/A#T# -> 6:8
+(10:12..10:18) _empty_/Reader# -> 3:7
+(10:19..10:20) _empty_/A# -> 5:7
+(10:32..10:33) _empty_/`i17222.5$package`.given_Reader_A_X#[X] -> 10:8
+(10:37..10:38) _empty_/`i17222.5$package`.given_Reader_A_X#[X] -> 10:8
+(12:22..12:23) _empty_/Box#[T] -> 12:16
+(14:26..14:27) _empty_/`i17222.5$package`.summonOne().[T] -> 14:22
+(15:3..15:15) scala/compiletime/package$package.summonInline().
+(15:16..15:17) _empty_/`i17222.5$package`.summonOne().[T] -> 14:22
+(16:5..16:14) _empty_/`i17222.5$package`.summonOne(). -> 14:12
+(18:2..18:6) scala/main#
+(19:22..19:23) _empty_/A# -> 5:7
+(20:14..20:15) local2 -> 19:11
+(21:19..21:20) _empty_/A# -> 5:7
+(22:17..22:18) local6 -> 22:12
+(24:16..24:17) local4 -> 19:9
+(24:18..24:21) scala/Int#
+(24:28..24:29) local8 -> 21:9
+(26:3..26:12) _empty_/`i17222.5$package`.summonOne(). -> 14:12
+(26:13..26:19) _empty_/Reader# -> 3:7
+(26:20..26:22) local12 -> 24:7
+(26:29..26:32) scala/Int#
+

@@ -1,0 +1,953 @@
+type DoubleToString[D <: Double] <: String = D match
+  case 0.0 => "0.0"
+  case -0.0 => "-0.0"
+  case _ => "_"
+
+type DoubleToString2[D <: Double] <: String = D match
+  case 0.0 => "0.0"
+  case _ => "_"
+
+type DoubleToString3[D <: Double] <: String = D match
+  case -0.0 => "-0.0"
+  case _ => "_"
+
+type FloatToString[F <: Float] <: String = F match
+  case 0.0f => "0.0f"
+  case -0.0f => "-0.0f"
+  case _ => "_"
+
+type FloatToString2[F <: Float] <: String = F match
+  case 0.0f => "0.0f"
+  case _ => "_"
+
+type FloatToString3[F <: Float] <: String = F match
+  case -0.0f => "-0.0f"
+  case _ => "_"
+
+@main def main(): Unit = {
+  summon[0.0 =:= 0.0]
+  summon[-0.0 =:= -0.0]
+  summon[DoubleToString[0.0] =:= "0.0"]
+  summon[DoubleToString[-0.0] =:= "-0.0"]
+  summon[DoubleToString[3.14] =:= "_"]
+  summon[DoubleToString2[0.0] =:= "0.0"]
+  summon[DoubleToString2[-0.0] =:= "_"]
+  summon[DoubleToString3[-0.0] =:= "-0.0"]
+  summon[DoubleToString3[0.0] =:= "_"]
+  summon[0.0f =:= 0.0f]
+  summon[-0.0f =:= -0.0f]
+  summon[FloatToString[0.0f] =:= "0.0f"]
+  summon[FloatToString[-0.0f] =:= "-0.0f"]
+  summon[FloatToString[3.14f] =:= "_"]
+  summon[FloatToString2[0.0f] =:= "0.0f"]
+  summon[FloatToString2[-0.0f] =:= "_"]
+  summon[FloatToString3[-0.0f] =:= "-0.0f"]
+  summon[FloatToString3[0.0f] =:= "_"]
+}
+-----
+ScalaFile
+  ScTypeAliasDefinition: DoubleToString
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DoubleToString')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: D
+        PsiElement(identifier)('D')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Double
+          CodeReferenceElement: Double
+            PsiElement(identifier)('Double')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: D match
+  case 0.0 => "0.0"
+  case -0.0 => "-0.0"
+  case _ => "_"
+      SimpleType: D
+        CodeReferenceElement: D
+          PsiElement(identifier)('D')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: 0.0
+            DoubleLiteral
+              PsiElement(double)('0.0')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "0.0"
+            StringLiteral
+              PsiElement(string content)('"0.0"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: -0.0
+            DoubleLiteral
+              PsiElement(identifier)('-')
+              PsiElement(double)('0.0')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "-0.0"
+            StringLiteral
+              PsiElement(string content)('"-0.0"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "_"
+            StringLiteral
+              PsiElement(string content)('"_"')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: DoubleToString2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DoubleToString2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: D
+        PsiElement(identifier)('D')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Double
+          CodeReferenceElement: Double
+            PsiElement(identifier)('Double')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: D match
+  case 0.0 => "0.0"
+  case _ => "_"
+      SimpleType: D
+        CodeReferenceElement: D
+          PsiElement(identifier)('D')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: 0.0
+            DoubleLiteral
+              PsiElement(double)('0.0')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "0.0"
+            StringLiteral
+              PsiElement(string content)('"0.0"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "_"
+            StringLiteral
+              PsiElement(string content)('"_"')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: DoubleToString3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DoubleToString3')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: D
+        PsiElement(identifier)('D')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Double
+          CodeReferenceElement: Double
+            PsiElement(identifier)('Double')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: D match
+  case -0.0 => "-0.0"
+  case _ => "_"
+      SimpleType: D
+        CodeReferenceElement: D
+          PsiElement(identifier)('D')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: -0.0
+            DoubleLiteral
+              PsiElement(identifier)('-')
+              PsiElement(double)('0.0')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "-0.0"
+            StringLiteral
+              PsiElement(string content)('"-0.0"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "_"
+            StringLiteral
+              PsiElement(string content)('"_"')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: FloatToString
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FloatToString')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Float
+          CodeReferenceElement: Float
+            PsiElement(identifier)('Float')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: F match
+  case 0.0f => "0.0f"
+  case -0.0f => "-0.0f"
+  case _ => "_"
+      SimpleType: F
+        CodeReferenceElement: F
+          PsiElement(identifier)('F')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: 0.0f
+            FloatLiteral
+              PsiElement(float)('0.0f')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "0.0f"
+            StringLiteral
+              PsiElement(string content)('"0.0f"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: -0.0f
+            FloatLiteral
+              PsiElement(identifier)('-')
+              PsiElement(float)('0.0f')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "-0.0f"
+            StringLiteral
+              PsiElement(string content)('"-0.0f"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "_"
+            StringLiteral
+              PsiElement(string content)('"_"')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: FloatToString2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FloatToString2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Float
+          CodeReferenceElement: Float
+            PsiElement(identifier)('Float')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: F match
+  case 0.0f => "0.0f"
+  case _ => "_"
+      SimpleType: F
+        CodeReferenceElement: F
+          PsiElement(identifier)('F')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: 0.0f
+            FloatLiteral
+              PsiElement(float)('0.0f')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "0.0f"
+            StringLiteral
+              PsiElement(string content)('"0.0f"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "_"
+            StringLiteral
+              PsiElement(string content)('"_"')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: FloatToString3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FloatToString3')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Float
+          CodeReferenceElement: Float
+            PsiElement(identifier)('Float')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: String
+      CodeReferenceElement: String
+        PsiElement(identifier)('String')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: F match
+  case -0.0f => "-0.0f"
+  case _ => "_"
+      SimpleType: F
+        CodeReferenceElement: F
+          PsiElement(identifier)('F')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: -0.0f
+            FloatLiteral
+              PsiElement(identifier)('-')
+              PsiElement(float)('0.0f')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "-0.0f"
+            StringLiteral
+              PsiElement(string content)('"-0.0f"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "_"
+            StringLiteral
+              PsiElement(string content)('"_"')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: main
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: 0.0 =:= 0.0
+              LiteralType: 0.0
+                DoubleLiteral
+                  PsiElement(double)('0.0')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: 0.0
+                DoubleLiteral
+                  PsiElement(double)('0.0')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: -0.0 =:= -0.0
+              LiteralType: -0.0
+                DoubleLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(double)('0.0')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: -0.0
+                DoubleLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(double)('0.0')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: DoubleToString[0.0] =:= "0.0"
+              ParametrizedType: DoubleToString[0.0]
+                SimpleType: DoubleToString
+                  CodeReferenceElement: DoubleToString
+                    PsiElement(identifier)('DoubleToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0
+                      DoubleLiteral
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "0.0"
+                StringLiteral
+                  PsiElement(string content)('"0.0"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: DoubleToString[-0.0] =:= "-0.0"
+              ParametrizedType: DoubleToString[-0.0]
+                SimpleType: DoubleToString
+                  CodeReferenceElement: DoubleToString
+                    PsiElement(identifier)('DoubleToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0
+                      DoubleLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "-0.0"
+                StringLiteral
+                  PsiElement(string content)('"-0.0"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: DoubleToString[3.14] =:= "_"
+              ParametrizedType: DoubleToString[3.14]
+                SimpleType: DoubleToString
+                  CodeReferenceElement: DoubleToString
+                    PsiElement(identifier)('DoubleToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 3.14
+                      DoubleLiteral
+                        PsiElement(double)('3.14')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: DoubleToString2[0.0] =:= "0.0"
+              ParametrizedType: DoubleToString2[0.0]
+                SimpleType: DoubleToString2
+                  CodeReferenceElement: DoubleToString2
+                    PsiElement(identifier)('DoubleToString2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0
+                      DoubleLiteral
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "0.0"
+                StringLiteral
+                  PsiElement(string content)('"0.0"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: DoubleToString2[-0.0] =:= "_"
+              ParametrizedType: DoubleToString2[-0.0]
+                SimpleType: DoubleToString2
+                  CodeReferenceElement: DoubleToString2
+                    PsiElement(identifier)('DoubleToString2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0
+                      DoubleLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: DoubleToString3[-0.0] =:= "-0.0"
+              ParametrizedType: DoubleToString3[-0.0]
+                SimpleType: DoubleToString3
+                  CodeReferenceElement: DoubleToString3
+                    PsiElement(identifier)('DoubleToString3')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0
+                      DoubleLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "-0.0"
+                StringLiteral
+                  PsiElement(string content)('"-0.0"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: DoubleToString3[0.0] =:= "_"
+              ParametrizedType: DoubleToString3[0.0]
+                SimpleType: DoubleToString3
+                  CodeReferenceElement: DoubleToString3
+                    PsiElement(identifier)('DoubleToString3')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0
+                      DoubleLiteral
+                        PsiElement(double)('0.0')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: 0.0f =:= 0.0f
+              LiteralType: 0.0f
+                FloatLiteral
+                  PsiElement(float)('0.0f')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: 0.0f
+                FloatLiteral
+                  PsiElement(float)('0.0f')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: -0.0f =:= -0.0f
+              LiteralType: -0.0f
+                FloatLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(float)('0.0f')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: -0.0f
+                FloatLiteral
+                  PsiElement(identifier)('-')
+                  PsiElement(float)('0.0f')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: FloatToString[0.0f] =:= "0.0f"
+              ParametrizedType: FloatToString[0.0f]
+                SimpleType: FloatToString
+                  CodeReferenceElement: FloatToString
+                    PsiElement(identifier)('FloatToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0f
+                      FloatLiteral
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "0.0f"
+                StringLiteral
+                  PsiElement(string content)('"0.0f"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: FloatToString[-0.0f] =:= "-0.0f"
+              ParametrizedType: FloatToString[-0.0f]
+                SimpleType: FloatToString
+                  CodeReferenceElement: FloatToString
+                    PsiElement(identifier)('FloatToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0f
+                      FloatLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "-0.0f"
+                StringLiteral
+                  PsiElement(string content)('"-0.0f"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: FloatToString[3.14f] =:= "_"
+              ParametrizedType: FloatToString[3.14f]
+                SimpleType: FloatToString
+                  CodeReferenceElement: FloatToString
+                    PsiElement(identifier)('FloatToString')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 3.14f
+                      FloatLiteral
+                        PsiElement(float)('3.14f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: FloatToString2[0.0f] =:= "0.0f"
+              ParametrizedType: FloatToString2[0.0f]
+                SimpleType: FloatToString2
+                  CodeReferenceElement: FloatToString2
+                    PsiElement(identifier)('FloatToString2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0f
+                      FloatLiteral
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "0.0f"
+                StringLiteral
+                  PsiElement(string content)('"0.0f"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: FloatToString2[-0.0f] =:= "_"
+              ParametrizedType: FloatToString2[-0.0f]
+                SimpleType: FloatToString2
+                  CodeReferenceElement: FloatToString2
+                    PsiElement(identifier)('FloatToString2')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0f
+                      FloatLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: FloatToString3[-0.0f] =:= "-0.0f"
+              ParametrizedType: FloatToString3[-0.0f]
+                SimpleType: FloatToString3
+                  CodeReferenceElement: FloatToString3
+                    PsiElement(identifier)('FloatToString3')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: -0.0f
+                      FloatLiteral
+                        PsiElement(identifier)('-')
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "-0.0f"
+                StringLiteral
+                  PsiElement(string content)('"-0.0f"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: FloatToString3[0.0f] =:= "_"
+              ParametrizedType: FloatToString3[0.0f]
+                SimpleType: FloatToString3
+                  CodeReferenceElement: FloatToString3
+                    PsiElement(identifier)('FloatToString3')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: 0.0f
+                      FloatLiteral
+                        PsiElement(float)('0.0f')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: "_"
+                StringLiteral
+                  PsiElement(string content)('"_"')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

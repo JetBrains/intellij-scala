@@ -1,0 +1,46 @@
+class a {
+1 match {
+// comment
+case _ =>
+0
+case _ =>
+// foo
+1
+case _ =>
+val x = 1
+case _ =>
+def x = 1
+case _ =>
+trait T
+case _ =>
+class T
+case _ =>
+object T
+case _ =>
+type X = Int
+}
+}
+
+-----
+class a {
+  1 match {
+    // comment
+    case _ =>
+      0
+    case _ =>
+      // foo
+      1
+    case _ =>
+      val x = 1
+    case _ =>
+      def x = 1
+    case _ =>
+      trait T
+    case _ =>
+      class T
+    case _ =>
+      object T
+    case _ =>
+      type X = Int
+  }
+}

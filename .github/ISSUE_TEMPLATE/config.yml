@@ -1,0 +1,6 @@
+# .github/ISSUE_TEMPLATE/config.yml
+blank_issues_enabled: false
+contact_links:
+  - name: Report an Issue in YouTrack
+    url: https://youtrack.jetbrains.com/newIssue?project=SCL
+    about: Please use YouTrack to file all issues and feature requests

@@ -1,0 +1,4 @@
+Document tests/pos/i5827.scala
+(1:29..1:32) scala/Int#
+(3:27..3:30) scala/Int#
+

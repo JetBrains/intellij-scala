@@ -1,0 +1,23 @@
+Document tests/pos/i25557.scala
+(3:31..3:37) _empty_/Parent# -> 1:14
+(4:16..4:21) _empty_/Parent#Inner# -> 2:16
+(4:22..4:29) scala/Boolean#
+(4:33..4:36) scala/Predef.`???`().
+(5:19..5:25) _empty_/Parent# -> 1:14
+(5:34..5:41) scala/Boolean#
+(5:46..5:52) _empty_/ConcreteParent.foo().(parent) -> 5:11
+(5:61..5:67) _empty_/ConcreteParent.foo().(parent) -> 5:11
+(5:68..5:73) _empty_/Parent#Inner# -> 2:16
+(5:74..5:81) scala/Boolean#
+(5:86..5:89) scala/Predef.`???`().
+(6:3..6:6) _empty_/ConcreteParent.foo(). -> 5:7
+(6:7..6:13) _empty_/ConcreteParent.foo().(parent) -> 5:11
+(6:16..6:30) _empty_/ConcreteParent. -> 3:8
+(6:32..6:37) _empty_/ConcreteParent.foo().(isFoo) -> 5:27
+(6:48..6:55) _empty_/ConcreteParent.myInner. -> 4:7
+(7:3..7:6) _empty_/ConcreteParent.foo(). -> 5:7
+(7:7..7:12) _empty_/ConcreteParent.foo().(isFoo) -> 5:27
+(7:21..7:27) _empty_/ConcreteParent.foo().(parent) -> 5:11
+(7:30..7:44) _empty_/ConcreteParent. -> 3:8
+(7:48..7:55) _empty_/ConcreteParent.myInner. -> 4:7
+

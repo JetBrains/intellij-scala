@@ -1,0 +1,68 @@
+def foo(x: Int)
+//comment
+(y: Int) {
+  1 +
+  //comment
+  2
+}
+-----
+ScalaFile
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+        PsiElement())(')')
+      PsiWhiteSpace('\n')
+      PsiComment(comment)('//comment')
+      PsiWhiteSpace('\n')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('y')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      InfixExpression
+        IntegerLiteral
+          PsiElement(integer)('1')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: +
+          PsiElement(identifier)('+')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('//comment')
+        PsiWhiteSpace('\n  ')
+        IntegerLiteral
+          PsiElement(integer)('2')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

@@ -1,0 +1,9 @@
+trait T {
+  object O1
+  object O2
+}
+
+object O { // -
+  def f1
+  def f2
+}

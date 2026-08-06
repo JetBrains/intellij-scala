@@ -1,0 +1,16 @@
+Document tests/pos/named-tuples-i22245.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:41) scala/language.experimental.namedTuples.
+(3:19..3:23) scala/package.List#
+(3:31..3:34) scala/Predef.Set#
+(3:35..3:38) scala/Int#
+(3:44..3:47) scala/Int#
+(3:52..3:55) scala/Int#
+(3:60..3:63) scala/Any#
+(4:3..4:10) _empty_/`named-tuples-i22245$package`.find().(explore) -> 3:10
+(5:10..5:13) scala/package.Nil.
+(5:17..5:20) scala/Predef.`???`().
+(6:35..6:37) scala/package.`::`.
+(6:46..6:49) scala/Predef.`???`().
+

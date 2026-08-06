@@ -1,0 +1,4 @@
+Document tests/pos/t0453.scala
+(4:16..4:19) local0 -> 3:11
+(4:28..4:31) local0 -> 3:11
+

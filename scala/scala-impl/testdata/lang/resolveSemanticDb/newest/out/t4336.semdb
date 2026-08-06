@@ -1,0 +1,20 @@
+Document tests/pos/t4336.scala
+(6:26..6:35) _empty_/Main.Composite# -> 5:9
+(6:39..6:43) scala/Unit#
+(6:47..6:56) _empty_/Main.Composite# -> 5:9
+(9:26..9:35) _empty_/Main.Composite# -> 5:9
+(9:38..9:45) _empty_/Main.Generic# -> 3:9
+(9:46..9:47) _empty_/Main.generic().[T] -> 9:15
+(9:55..9:62) _empty_/Main.Generic# -> 3:9
+(9:63..9:64) _empty_/Main.generic().[T] -> 9:15
+(10:26..10:35) _empty_/Main.Composite# -> 5:9
+(10:38..10:48) _empty_/Main.NonGeneric# -> 2:9
+(10:55..10:65) _empty_/Main.NonGeneric# -> 2:9
+(12:7..12:16) _empty_/Main.Composite# -> 5:9
+(12:19..12:27) _empty_/Main.Composite#contains(). -> 6:9
+(13:5..13:15) _empty_/Main.nonGeneric(). -> 10:7
+(16:7..16:16) _empty_/Main.Composite# -> 5:9
+(16:19..16:27) _empty_/Main.Composite#contains(). -> 6:9
+(17:5..17:12) _empty_/Main.generic(). -> 9:7
+(17:13..17:16) scala/Int#
+

@@ -1,0 +1,13 @@
+//### inplace=true
+class A {
+  def foo: Int = {
+    <selection>42</selection>
+  }
+}
+-------
+class A {
+  def foo: Int = {
+    val value: Int = 42
+    value
+  }
+}

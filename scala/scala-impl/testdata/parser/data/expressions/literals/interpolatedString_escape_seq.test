@@ -1,0 +1,15 @@
+s"\t\n\r"
+s"\a\b\c"
+-----
+ScalaFile
+  InterpolatedStringLiteral
+    InterpolatedExpressionPrefix: s
+      PsiElement(interpolated string id)('s')
+    PsiElement(interpolated string)('"\t\n\r')
+    PsiElement(interpolated string end)('"')
+  PsiWhiteSpace('\n')
+  InterpolatedStringLiteral
+    InterpolatedExpressionPrefix: s
+      PsiElement(interpolated string id)('s')
+    PsiElement(interpolated string)('"\a\b\c')
+    PsiElement(interpolated string end)('"')

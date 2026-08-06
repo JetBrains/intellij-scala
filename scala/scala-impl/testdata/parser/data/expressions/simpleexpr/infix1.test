@@ -1,0 +1,388 @@
+class A{
+List.flatten(
+  List(settings.outdir, settings.classpath, settings.bootclasspath,
+       settings.extdirs, settings.encoding).map(s => List(s.nme, s.value))) :::
+(if (serverAddr.isEmpty) Nil else List("-server", serverAddr.get)) :::
+(List(settings.debuginfo, settings.target).map(s => s.nme + ":" + s.value)) :::
+trim(
+  List(settings.debug, settings.deprecation, settings.nopredefs,
+       settings.verbose, reset, shutdown).map(s => if (s.value) s.nme else "")) :::
+trim(
+  List(settings.log).map(s => if (s.value.isEmpty) "" else s.nme + ":" + s.value))
+}
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n')
+        InfixExpression
+          MethodCall
+            ReferenceExpression: List.flatten
+              ReferenceExpression: List
+                PsiElement(identifier)('List')
+              PsiElement(.)('.')
+              PsiElement(identifier)('flatten')
+            ArgumentList
+              PsiElement(()('(')
+              PsiWhiteSpace('\n  ')
+              MethodCall
+                ReferenceExpression: List(settings.outdir, settings.classpath, settings.bootclasspath,
+       settings.extdirs, settings.encoding).map
+                  MethodCall
+                    ReferenceExpression: List
+                      PsiElement(identifier)('List')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: settings.outdir
+                        ReferenceExpression: settings
+                          PsiElement(identifier)('settings')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('outdir')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: settings.classpath
+                        ReferenceExpression: settings
+                          PsiElement(identifier)('settings')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('classpath')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: settings.bootclasspath
+                        ReferenceExpression: settings
+                          PsiElement(identifier)('settings')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('bootclasspath')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace('\n       ')
+                      ReferenceExpression: settings.extdirs
+                        ReferenceExpression: settings
+                          PsiElement(identifier)('settings')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('extdirs')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: settings.encoding
+                        ReferenceExpression: settings
+                          PsiElement(identifier)('settings')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('encoding')
+                      PsiElement())(')')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('map')
+                ArgumentList
+                  PsiElement(()('(')
+                  FunctionExpression
+                    Parameters
+                      ParametersClause
+                        Parameter: s
+                          PsiElement(identifier)('s')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: List
+                        PsiElement(identifier)('List')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: s.nme
+                          ReferenceExpression: s
+                            PsiElement(identifier)('s')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('nme')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: s.value
+                          ReferenceExpression: s
+                            PsiElement(identifier)('s')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('value')
+                        PsiElement())(')')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: :::
+            PsiElement(identifier)(':::')
+          PsiWhiteSpace('\n')
+          InfixExpression
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              IfStatement
+                PsiElement(if)('if')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                ReferenceExpression: serverAddr.isEmpty
+                  ReferenceExpression: serverAddr
+                    PsiElement(identifier)('serverAddr')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('isEmpty')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: Nil
+                  PsiElement(identifier)('Nil')
+                PsiWhiteSpace(' ')
+                PsiElement(else)('else')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: List
+                    PsiElement(identifier)('List')
+                  ArgumentList
+                    PsiElement(()('(')
+                    StringLiteral
+                      PsiElement(string content)('"-server"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: serverAddr.get
+                      ReferenceExpression: serverAddr
+                        PsiElement(identifier)('serverAddr')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('get')
+                    PsiElement())(')')
+              PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: :::
+              PsiElement(identifier)(':::')
+            PsiWhiteSpace('\n')
+            InfixExpression
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: List(settings.debuginfo, settings.target).map
+                    MethodCall
+                      ReferenceExpression: List
+                        PsiElement(identifier)('List')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: settings.debuginfo
+                          ReferenceExpression: settings
+                            PsiElement(identifier)('settings')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('debuginfo')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: settings.target
+                          ReferenceExpression: settings
+                            PsiElement(identifier)('settings')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('target')
+                        PsiElement())(')')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('map')
+                  ArgumentList
+                    PsiElement(()('(')
+                    FunctionExpression
+                      Parameters
+                        ParametersClause
+                          Parameter: s
+                            PsiElement(identifier)('s')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      InfixExpression
+                        InfixExpression
+                          ReferenceExpression: s.nme
+                            ReferenceExpression: s
+                              PsiElement(identifier)('s')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('nme')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          StringLiteral
+                            PsiElement(string content)('":"')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: s.value
+                          ReferenceExpression: s
+                            PsiElement(identifier)('s')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('value')
+                    PsiElement())(')')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: :::
+                PsiElement(identifier)(':::')
+              PsiWhiteSpace('\n')
+              InfixExpression
+                MethodCall
+                  ReferenceExpression: trim
+                    PsiElement(identifier)('trim')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiWhiteSpace('\n  ')
+                    MethodCall
+                      ReferenceExpression: List(settings.debug, settings.deprecation, settings.nopredefs,
+       settings.verbose, reset, shutdown).map
+                        MethodCall
+                          ReferenceExpression: List
+                            PsiElement(identifier)('List')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: settings.debug
+                              ReferenceExpression: settings
+                                PsiElement(identifier)('settings')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('debug')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: settings.deprecation
+                              ReferenceExpression: settings
+                                PsiElement(identifier)('settings')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('deprecation')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: settings.nopredefs
+                              ReferenceExpression: settings
+                                PsiElement(identifier)('settings')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('nopredefs')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace('\n       ')
+                            ReferenceExpression: settings.verbose
+                              ReferenceExpression: settings
+                                PsiElement(identifier)('settings')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('verbose')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: reset
+                              PsiElement(identifier)('reset')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: shutdown
+                              PsiElement(identifier)('shutdown')
+                            PsiElement())(')')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('map')
+                      ArgumentList
+                        PsiElement(()('(')
+                        FunctionExpression
+                          Parameters
+                            ParametersClause
+                              Parameter: s
+                                PsiElement(identifier)('s')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          IfStatement
+                            PsiElement(if)('if')
+                            PsiWhiteSpace(' ')
+                            PsiElement(()('(')
+                            ReferenceExpression: s.value
+                              ReferenceExpression: s
+                                PsiElement(identifier)('s')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('value')
+                            PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: s.nme
+                              ReferenceExpression: s
+                                PsiElement(identifier)('s')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('nme')
+                            PsiWhiteSpace(' ')
+                            PsiElement(else)('else')
+                            PsiWhiteSpace(' ')
+                            StringLiteral
+                              PsiElement(string content)('""')
+                        PsiElement())(')')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: :::
+                  PsiElement(identifier)(':::')
+                PsiWhiteSpace('\n')
+                MethodCall
+                  ReferenceExpression: trim
+                    PsiElement(identifier)('trim')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiWhiteSpace('\n  ')
+                    MethodCall
+                      ReferenceExpression: List(settings.log).map
+                        MethodCall
+                          ReferenceExpression: List
+                            PsiElement(identifier)('List')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: settings.log
+                              ReferenceExpression: settings
+                                PsiElement(identifier)('settings')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('log')
+                            PsiElement())(')')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('map')
+                      ArgumentList
+                        PsiElement(()('(')
+                        FunctionExpression
+                          Parameters
+                            ParametersClause
+                              Parameter: s
+                                PsiElement(identifier)('s')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace(' ')
+                          IfStatement
+                            PsiElement(if)('if')
+                            PsiWhiteSpace(' ')
+                            PsiElement(()('(')
+                            ReferenceExpression: s.value.isEmpty
+                              ReferenceExpression: s.value
+                                ReferenceExpression: s
+                                  PsiElement(identifier)('s')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('value')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('isEmpty')
+                            PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            StringLiteral
+                              PsiElement(string content)('""')
+                            PsiWhiteSpace(' ')
+                            PsiElement(else)('else')
+                            PsiWhiteSpace(' ')
+                            InfixExpression
+                              InfixExpression
+                                ReferenceExpression: s.nme
+                                  ReferenceExpression: s
+                                    PsiElement(identifier)('s')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('nme')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                StringLiteral
+                                  PsiElement(string content)('":"')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: s.value
+                                ReferenceExpression: s
+                                  PsiElement(identifier)('s')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('value')
+                        PsiElement())(')')
+                    PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

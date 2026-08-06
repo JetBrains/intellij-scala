@@ -1,0 +1,21 @@
+Document tests/pos/i18097.2.works.scala
+(2:27..2:31) scala/package.List#
+(2:32..2:38) scala/Predef.String#
+(5:21..5:27) scala/Predef.String#
+(5:30..5:39) _empty_/Main.Namespace# -> 2:15
+(5:42..5:46) scala/package.List.
+(5:47..5:51) _empty_/Main.Namespace.apply().(head) -> 5:15
+(7:18..7:27) _empty_/Main.Namespace# -> 2:15
+(8:27..8:33) scala/Predef.String#
+(8:36..8:45) _empty_/Main.Namespace# -> 2:15
+(8:48..8:50) _empty_/Main.appended().(ns) -> 7:14
+(8:51..8:59) scala/collection/StrictOptimizedSeqOps#appended().
+(8:60..8:67) _empty_/Main.appended().(segment) -> 8:18
+(10:18..10:23) scala/Array#
+(10:24..10:30) scala/Predef.String#
+(10:34..10:38) scala/Unit#
+(11:12..11:21) _empty_/Main.Namespace# -> 2:15
+(11:24..11:33) _empty_/Main.Namespace. -> 4:10
+(12:8..12:16) scala/collection/StrictOptimizedSeqOps#appended().
+(13:8..13:16) scala/collection/StrictOptimizedSeqOps#appended().
+

@@ -1,0 +1,10 @@
+Document tests/pos/t6595.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/annotation/
+(3:25..3:31) scala/annotation/switch#
+(5:19..5:25) scala/AnyRef#
+(16:12..16:15) scala/Int#
+(16:20..16:21) _empty_/Foo#f().(p) -> 16:9
+(17:10..17:14) _empty_/Foo#b0. -> 8:11
+(18:10..18:14) _empty_/Foo#b1. -> 11:13
+

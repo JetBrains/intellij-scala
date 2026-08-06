@@ -1,0 +1,32 @@
+Document tests/pos/SI-7638.scala
+(1:9..1:19) miniboxing/
+(1:20..1:25) miniboxing/tests/
+(3:17..3:28) scala/specialized#
+(3:29..3:32) scala/Int.
+(4:14..4:19) scala/Array#
+(4:20..4:21) miniboxing/tests/compile/Ordering#[A] -> 3:34
+(4:27..4:32) scala/Array#
+(4:33..4:34) miniboxing/tests/compile/Ordering#[A] -> 3:34
+(4:38..4:45) scala/Boolean#
+(7:25..7:36) scala/specialized#
+(7:37..7:40) scala/Int.
+(7:53..7:61) miniboxing/tests/compile/Ordering# -> 3:7
+(7:62..7:63) miniboxing/tests/compile/ArrayVectorOrder#[A] -> 7:42
+(8:23..8:28) scala/Array#
+(8:29..8:30) miniboxing/tests/compile/ArrayVectorOrder#[A] -> 7:42
+(8:36..8:41) scala/Array#
+(8:42..8:43) miniboxing/tests/compile/ArrayVectorOrder#[A] -> 7:42
+(8:47..8:54) scala/Boolean#
+(8:63..8:66) miniboxing/tests/compile/Ordering#eqv(). -> 4:7
+(8:67..8:68) miniboxing/tests/compile/ArrayVectorOrder#eqv().(x) -> 8:20
+(8:70..8:71) miniboxing/tests/compile/ArrayVectorOrder#eqv().(y) -> 8:33
+(12:28..12:39) scala/specialized#
+(12:40..12:43) scala/Int.
+(12:51..12:61) miniboxing/
+(12:62..12:67) miniboxing/tests/
+(12:68..12:75) miniboxing/tests/compile/ -> 1:26
+(12:76..12:92) miniboxing/tests/compile/ArrayVectorOrder# -> 7:7
+(12:93..12:94) miniboxing/tests/compile/vectorOrder.arrayOrder().[A] -> 12:45
+(50:9..50:25) miniboxing/tests/compile/ArrayVectorOrder# -> 7:7
+(50:26..50:27) miniboxing/tests/compile/vectorOrder.arrayOrder().[A] -> 12:45
+

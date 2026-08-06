@@ -1,0 +1,5 @@
+[0,65545]: PackageDef
+[0,0]: Ident
+[0,65545]: ValDef
+[5,5]: TypeTree
+[8,65545]: Literal

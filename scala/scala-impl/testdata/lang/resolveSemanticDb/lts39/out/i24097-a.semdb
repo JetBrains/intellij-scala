@@ -1,0 +1,86 @@
+Document tests/pos/i24097-a.scala
+(3:23..3:24) _empty_/`<`.map().[A] -> 3:14
+(3:25..3:26) _empty_/`<`# -> 1:7
+(3:27..3:28) _empty_/`<`.map().[S] -> 3:17
+(3:48..3:49) _empty_/`<`.map().[A] -> 3:14
+(3:53..3:54) _empty_/`<`.map().[B] -> 3:38
+(3:55..3:56) _empty_/`<`# -> 1:7
+(3:57..3:59) _empty_/`<`.map().[S2] -> 3:41
+(3:62..3:63) _empty_/`<`.map().[B] -> 3:38
+(3:64..3:65) _empty_/`<`# -> 1:7
+(3:67..3:68) _empty_/`<`.map().[S] -> 3:17
+(3:69..3:70) scala/`&`#
+(3:71..3:73) _empty_/`<`.map().[S2] -> 3:41
+(3:77..3:80) scala/Predef.`???`().
+(5:19..5:20) _empty_/`i24097-a$package`.lift().[A] -> 5:10
+(5:23..5:24) _empty_/`i24097-a$package`.lift().[A] -> 5:10
+(5:25..5:26) _empty_/`<`# -> 1:7
+(5:27..5:28) _empty_/`i24097-a$package`.lift().[S] -> 5:13
+(5:31..5:34) scala/Predef.`???`().
+(9:46..9:57) _empty_/ArrowEffect# -> 7:16
+(9:58..9:59) _empty_/ArrowEffect.handleCatching().[I] -> 9:29
+(9:61..9:62) _empty_/ArrowEffect.handleCatching().[O] -> 9:35
+(10:10..10:11) _empty_/ArrowEffect.handleCatching().[A] -> 9:65
+(10:12..10:13) _empty_/`<`# -> 1:7
+(10:15..10:16) _empty_/ArrowEffect.handleCatching().[E] -> 9:41
+(10:17..10:18) scala/`&`#
+(10:19..10:20) _empty_/ArrowEffect.handleCatching().[S] -> 9:71
+(11:6..11:7) _empty_/ArrowEffect.handleCatching().[B] -> 9:68
+(11:8..11:9) _empty_/`<`# -> 1:7
+(11:11..11:12) _empty_/ArrowEffect.handleCatching().[S] -> 9:71
+(11:13..11:14) scala/`&`#
+(11:15..11:17) _empty_/ArrowEffect.handleCatching().[S2] -> 9:74
+(11:18..11:19) scala/`&`#
+(11:20..11:22) _empty_/ArrowEffect.handleCatching().[S3] -> 9:78
+(11:26..11:29) scala/Predef.`???`().
+(15:28..15:29) _empty_/Result.succeed().[A] -> 15:18
+(15:32..15:38) _empty_/Result# -> 13:7
+(15:39..15:40) _empty_/Result.succeed().[E] -> 15:15
+(15:42..15:43) _empty_/Result.succeed().[A] -> 15:18
+(15:47..15:50) scala/Predef.`???`().
+(19:25..19:26) _empty_/`i24097-a$package`.Const#[A] -> 19:12
+(20:32..20:43) _empty_/ArrowEffect# -> 7:16
+(20:44..20:49) _empty_/`i24097-a$package`.Const# -> 19:6
+(20:50..20:55) _empty_/Error# -> 17:16
+(20:56..20:57) _empty_/Abort#[E] -> 20:21
+(20:61..20:66) _empty_/`i24097-a$package`.Const# -> 19:6
+(20:67..20:71) scala/Unit#
+(22:45..22:46) _empty_/Abort.runWith().[A] -> 22:25
+(22:47..22:48) _empty_/`<`# -> 1:7
+(22:50..22:55) _empty_/Abort# -> 20:14
+(22:56..22:57) _empty_/Abort.runWith().[E] -> 22:22
+(22:58..22:59) scala/`|`#
+(22:60..22:62) _empty_/Abort.runWith().[ER] -> 22:31
+(22:64..22:65) scala/`&`#
+(22:66..22:67) _empty_/Abort.runWith().[S] -> 22:28
+(23:5..23:16) _empty_/ArrowEffect. -> 8:8
+(23:17..23:31) _empty_/ArrowEffect.handleCatching(). -> 9:14
+(24:7..24:12) _empty_/`i24097-a$package`.Const# -> 19:6
+(24:13..24:18) _empty_/Error# -> 17:16
+(24:19..24:20) _empty_/Abort.runWith().[E] -> 22:22
+(25:7..25:12) _empty_/`i24097-a$package`.Const# -> 19:6
+(25:13..25:17) scala/Unit#
+(26:7..26:12) _empty_/Abort# -> 20:14
+(26:13..26:14) _empty_/Abort.runWith().[E] -> 22:22
+(27:7..27:13) _empty_/Result# -> 13:7
+(27:14..27:15) _empty_/Abort.runWith().[E] -> 22:22
+(27:17..27:18) _empty_/Abort.runWith().[A] -> 22:25
+(28:7..28:8) _empty_/Abort.runWith().[B] -> 22:35
+(29:7..29:12) _empty_/Abort# -> 20:14
+(29:13..29:15) _empty_/Abort.runWith().[ER] -> 22:31
+(29:17..29:18) scala/`&`#
+(29:19..29:20) _empty_/Abort.runWith().[S] -> 22:28
+(30:7..30:12) _empty_/Abort# -> 20:14
+(30:13..30:15) _empty_/Abort.runWith().[ER] -> 22:31
+(30:17..30:18) scala/`&`#
+(30:19..30:20) _empty_/Abort.runWith().[S] -> 22:28
+(31:7..31:9) _empty_/Abort.runWith().[S2] -> 22:38
+(33:7..33:8) _empty_/Abort.runWith().(v) -> 22:42
+(33:9..33:12) _empty_/`<`.map(). -> 3:34
+(34:18..34:22) _empty_/`i24097-a$package`.lift(). -> 5:5
+(35:11..35:17) _empty_/Result. -> 14:8
+(35:18..35:25) _empty_/Result.succeed(). -> 15:7
+(35:26..35:27) _empty_/Abort.runWith().[E] -> 22:22
+(35:29..35:30) _empty_/Abort.runWith().[A] -> 22:25
+(35:32..35:37) local0 -> 34:9
+

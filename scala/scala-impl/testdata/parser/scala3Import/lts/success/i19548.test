@@ -1,0 +1,109 @@
+def byName[T](p: => T): T = p
+val test = (if ??? then byName else (??? : ((=> Int) => Int))) (42)
+-----
+ScalaFile
+  ScFunctionDefinition: byName
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('byName')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: p
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('p')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: T
+      CodeReferenceElement: T
+        PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: p
+      PsiElement(identifier)('p')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: test
+        PsiElement(identifier)('test')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ExpressionInParenthesis
+        PsiElement(()('(')
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+          PsiWhiteSpace(' ')
+          PsiElement(then)('then')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: byName
+            PsiElement(identifier)('byName')
+          PsiWhiteSpace(' ')
+          PsiElement(else)('else')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            TypedExpression
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+              PsiWhiteSpace(' ')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              TypeInParenthesis: ((=> Int) => Int)
+                PsiElement(()('(')
+                FunctionalType: (=> Int) => Int
+                  TypeInParenthesis: (=> Int)
+                    PsiElement(()('(')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement())(')')
+            PsiElement())(')')
+        PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('42')
+        PsiElement())(')')

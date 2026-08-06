@@ -1,0 +1,26 @@
+Document tests/pos/i2989.scala
+(3:25..3:28) _empty_/Foo# -> 1:7
+(3:29..3:30) _empty_/Foo#foo1().[Y] -> 3:12
+(3:34..3:37) _empty_/Foo# -> 1:7
+(3:38..3:39) _empty_/Foo#foo1().[Y] -> 3:12
+(3:43..3:48) _empty_/Foo#foo1().(right) -> 3:18
+(5:25..5:28) _empty_/Foo# -> 1:7
+(5:37..5:38) _empty_/Foo#foo2().[Y] -> 5:12
+(5:39..5:40) _empty_/Foo#foo2().(right)[T] -> 5:30
+(5:45..5:48) _empty_/Foo# -> 1:7
+(5:49..5:50) _empty_/Foo#foo2().[Y] -> 5:12
+(5:54..5:59) _empty_/Foo#foo2().(right) -> 5:18
+(7:25..7:28) _empty_/Foo# -> 1:7
+(7:37..7:38) _empty_/Foo#foo3().[Y] -> 7:12
+(7:39..7:40) _empty_/Foo#foo3().(right)[T] -> 7:30
+(7:45..7:48) _empty_/Foo# -> 1:7
+(7:57..7:58) _empty_/Foo#foo3().[Y] -> 7:12
+(7:59..7:60) _empty_/Foo#foo3().[T] -> 7:50
+(7:65..7:70) _empty_/Foo#foo3().(right) -> 7:18
+(11:25..11:28) _empty_/Foo# -> 1:7
+(11:29..11:30) _empty_/Foo#foo4().[Y] -> 11:12
+(11:34..11:37) _empty_/Foo# -> 1:7
+(11:46..11:47) _empty_/Foo#foo4().[Y] -> 11:12
+(11:48..11:49) _empty_/Foo#foo4().[T] -> 11:39
+(11:54..11:59) _empty_/Foo#foo4().(right) -> 11:18
+

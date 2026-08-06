@@ -1,0 +1,21 @@
+Document tests/pos/namedtuple-src-incompat.scala
+(3:14..3:17) scala/Int#
+(3:21..3:22) _empty_/`namedtuple-src-incompat$package`.x. -> 2:5
+(4:11..4:14) _empty_/`namedtuple-src-incompat$package`.`age_=`().
+(5:8..5:12) scala/Unit#
+(5:15..5:17) _empty_/`namedtuple-src-incompat$package`.x2. -> 4:5
+(8:24..8:25) _empty_/C#id().[T] -> 8:16
+(8:28..8:29) _empty_/C#id().[T] -> 8:16
+(8:32..8:35) _empty_/C#id().(age) -> 8:19
+(11:10..11:11) _empty_/C# -> 7:7
+(11:14..11:17) scala/Predef.`???`().
+(12:11..12:12) local0 -> 11:7
+(12:13..12:15) _empty_/C#id(). -> 8:13
+(13:16..13:19) scala/Int#
+(13:23..13:24) local1 -> 12:7
+(14:12..14:13) local0 -> 11:7
+(14:14..14:16) _empty_/C#id(). -> 8:13
+(14:17..14:20) _empty_/C#id().(age) -> 8:19
+(15:10..15:13) scala/Int#
+(15:16..15:18) local2 -> 14:7
+

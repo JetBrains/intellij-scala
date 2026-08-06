@@ -1,0 +1,15 @@
+[0,55]: PackageDef
+[0,0]: Ident
+[0,55]: DefDef
+[7,7]: TypeTree
+[10,55]: Match
+[10,14]: Literal
+[23,55]: CaseDef
+[28,49]: Typed
+[28,40]: Parens
+[29,39]: Typed
+[29,30]: Ident
+[32,39]: Ident
+[42,49]: Ident
+[50,55]: Block
+[53,55]: Tuple

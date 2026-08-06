@@ -1,0 +1,18 @@
+Document tests/pos/i19202.scala
+(2:16..2:22) scala/Predef.String#
+(2:25..2:29) scala/Unit#
+(3:8..3:9) _empty_/Test#test1().(s) -> 2:13
+(3:10..3:12) scala/Any#`==`().
+(8:16..8:22) scala/Predef.String#
+(8:25..8:29) scala/Unit#
+(9:8..9:9) _empty_/Test#test2().(s) -> 8:13
+(9:10..9:12) scala/Any#`==`().
+(14:16..14:22) scala/Predef.String#
+(14:25..14:29) scala/Unit#
+(15:8..15:9) _empty_/Test#test3().(s) -> 14:13
+(15:10..15:12) scala/Any#`==`().
+(21:16..21:22) scala/Predef.String#
+(21:25..21:31) scala/Predef.String#
+(22:8..22:9) _empty_/Test#test4().(s) -> 21:13
+(22:10..22:12) scala/Any#`==`().
+

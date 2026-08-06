@@ -1,0 +1,15 @@
+a<caret> {
+}
+
+// comment
+
+b {
+}
+-----
+b {
+}
+
+// comment
+
+a<caret> {
+}

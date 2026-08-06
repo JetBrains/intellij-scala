@@ -1,0 +1,176 @@
+//> using options -experimental
+
+/* This is a version of ../pos/phantom.scala that tests phantom clases with separate compilation */
+object PhantomEq {
+  import EqUtil.*
+
+  "ghi" === "jkl"
+  3 === 4
+  2.0 === 3.1
+
+  List(1, 2) === Nil
+  List(1, 2) === Vector(1, 2)
+
+  1.toByte === (1: Number)
+  (1: Number) === 1.toByte
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-experimental')
+  PsiWhiteSpace('\n\n')
+  ScObject: PhantomEq
+    PsiComment(BlockComment)('/* This is a version of ../pos/phantom.scala that tests phantom clases with separate compilation */')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('PhantomEq')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: EqUtil
+              PsiElement(identifier)('EqUtil')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n\n  ')
+        InfixExpression
+          StringLiteral
+            PsiElement(string content)('"ghi"')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ===
+            PsiElement(identifier)('===')
+          PsiWhiteSpace(' ')
+          StringLiteral
+            PsiElement(string content)('"jkl"')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          IntegerLiteral
+            PsiElement(integer)('3')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ===
+            PsiElement(identifier)('===')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('4')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          DoubleLiteral
+            PsiElement(double)('2.0')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ===
+            PsiElement(identifier)('===')
+          PsiWhiteSpace(' ')
+          DoubleLiteral
+            PsiElement(double)('3.1')
+        PsiWhiteSpace('\n\n  ')
+        InfixExpression
+          MethodCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ===
+            PsiElement(identifier)('===')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: Nil
+            PsiElement(identifier)('Nil')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          MethodCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ===
+            PsiElement(identifier)('===')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Vector
+              PsiElement(identifier)('Vector')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('2')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        InfixExpression
+          ReferenceExpression: 1.toByte
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toByte')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ===
+            PsiElement(identifier)('===')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            TypedExpression
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Number
+                CodeReferenceElement: Number
+                  PsiElement(identifier)('Number')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            TypedExpression
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Number
+                CodeReferenceElement: Number
+                  PsiElement(identifier)('Number')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ===
+            PsiElement(identifier)('===')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: 1.toByte
+            IntegerLiteral
+              PsiElement(integer)('1')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toByte')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

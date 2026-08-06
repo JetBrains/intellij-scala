@@ -1,0 +1,16 @@
+Document tests/pos/i16808.scala
+(3:30..3:33) scala/Predef.Map#
+(3:34..3:35) _empty_/i16808$package.collectKeys().[A] -> 3:17
+(3:37..3:38) _empty_/i16808$package.collectKeys().[B] -> 3:20
+(3:44..3:59) scala/PartialFunction#
+(3:60..3:61) _empty_/i16808$package.collectKeys().[A] -> 3:17
+(3:63..3:64) _empty_/i16808$package.collectKeys().[C] -> 3:23
+(3:68..3:71) scala/Predef.Map#
+(3:72..3:73) _empty_/i16808$package.collectKeys().[C] -> 3:23
+(3:75..3:76) _empty_/i16808$package.collectKeys().[B] -> 3:20
+(4:2..4:4) _empty_/i16808$package.collectKeys().(xs) -> 3:26
+(4:5..4:12) scala/collection/MapOps#collect().
+(4:20..4:21) _empty_/i16808$package.collectKeys().(f) -> 3:41
+(4:34..4:35) local1 -> 4:22
+(4:37..4:38) local2 -> 4:27
+

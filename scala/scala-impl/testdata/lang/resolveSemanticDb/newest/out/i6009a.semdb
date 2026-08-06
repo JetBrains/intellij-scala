@@ -1,0 +1,10 @@
+Document tests/pos/i6009a.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:53) scala/language.experimental.erasedDefinitions.
+(4:30..4:33) scala/Int#
+(4:36..4:39) scala/Int#
+(6:5..6:6) _empty_/Foo#foo().(f) -> 4:11
+(6:7..6:10) local2 -> 5:16
+

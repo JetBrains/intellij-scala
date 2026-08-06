@@ -1,0 +1,28 @@
+Document tests/pos/i3542-2.scala
+(6:30..6:33) _empty_/Foo# -> 3:7
+(6:34..6:35) _empty_/FooLowPrio#caseOther().[A] -> 6:26
+(6:37..6:38) _empty_/FooLowPrio#caseOther().[A] -> 6:26
+(6:39..6:41) _empty_/`::`# -> 1:7
+(6:42..6:45) scala/Any#
+(8:20..8:30) _empty_/FooLowPrio# -> 5:7
+(11:13..11:16) _empty_/Foo# -> 3:7
+(11:17..11:18) _empty_/Foo.caseCons().[T] -> 9:32
+(11:20..11:22) _empty_/Foo.caseCons().[TR] -> 9:35
+(12:13..12:16) _empty_/Foo# -> 3:7
+(12:17..12:18) _empty_/Foo.caseCons().[H] -> 9:25
+(12:20..12:22) _empty_/Foo.caseCons().[HR] -> 9:28
+(13:8..13:11) _empty_/Foo# -> 3:7
+(13:12..13:13) _empty_/Foo.caseCons().[H] -> 9:25
+(13:14..13:16) _empty_/`::`# -> 1:7
+(13:17..13:18) _empty_/Foo.caseCons().[T] -> 9:32
+(13:20..13:22) _empty_/Foo.caseCons().[TR] -> 9:35
+(15:25..15:28) _empty_/Foo# -> 3:7
+(15:29..15:32) scala/Any#
+(15:34..15:37) scala/Any#
+(19:21..19:31) scala/Predef.implicitly().
+(19:32..19:35) _empty_/Foo# -> 3:7
+(19:36..19:40) scala/Long#
+(19:41..19:43) _empty_/`::`# -> 1:7
+(19:44..19:47) scala/Any#
+(19:49..19:52) scala/Any#
+

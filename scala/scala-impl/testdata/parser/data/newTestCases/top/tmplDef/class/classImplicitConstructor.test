@@ -1,0 +1,49 @@
+class a(b:Int)()(implicit c)
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('b')
+            PsiElement(:)(':')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(implicit)('implicit')
+          PsiWhiteSpace(' ')
+          ClassParameter: c
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('c')
+            PsiErrorElement:':' expected
+              <empty list>
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>

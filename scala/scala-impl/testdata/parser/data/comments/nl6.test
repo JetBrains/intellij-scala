@@ -1,0 +1,50 @@
+class AAA {
+
+  def isSideEffecting = (boo
+/**/)
+
+}
+-----
+ScalaFile
+  ScClass: AAA
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('AAA')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: isSideEffecting
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('isSideEffecting')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            ReferenceExpression: boo
+              PsiElement(identifier)('boo')
+            PsiWhiteSpace('\n')
+            PsiComment(BlockComment)('/**/')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

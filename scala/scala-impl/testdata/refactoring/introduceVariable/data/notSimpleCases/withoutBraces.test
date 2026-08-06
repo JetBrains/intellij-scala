@@ -1,0 +1,10 @@
+class a {
+  def foo = <selection>2</selection>
+}
+------
+class a {
+  def foo = {
+    val value: Int = 2
+    value
+  }
+}

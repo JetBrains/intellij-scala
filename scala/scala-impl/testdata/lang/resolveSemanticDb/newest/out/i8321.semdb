@@ -1,0 +1,21 @@
+Document tests/pos/i8321.scala
+(3:26..3:31) scala/Tuple#
+(3:38..3:43) scala/Tuple#
+(4:10..4:16) scala/Option#
+(4:17..4:18) _empty_/Test.concat().[A] -> 3:21
+(5:10..5:16) scala/Option#
+(5:17..5:18) _empty_/Test.concat().[B] -> 3:33
+(6:6..6:12) scala/Option#
+(6:13..6:18) scala/Tuple.
+(6:19..6:25) scala/Tuple.Concat#
+(6:26..6:27) _empty_/Test.concat().[A] -> 3:21
+(6:29..6:30) _empty_/Test.concat().[B] -> 3:33
+(7:5..7:6) _empty_/Test.concat().(a) -> 4:7
+(7:7..7:10) scala/Option#zip().
+(7:11..7:12) _empty_/Test.concat().(b) -> 5:7
+(7:14..7:17) scala/Option#map().
+(7:20..7:22) scala/Tuple#`++`().
+(9:3..9:9) _empty_/Test.concat(). -> 3:14
+(9:10..9:14) scala/Some.
+(9:22..9:26) scala/Some.
+

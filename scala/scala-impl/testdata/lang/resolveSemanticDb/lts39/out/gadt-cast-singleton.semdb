@@ -1,0 +1,22 @@
+Document tests/pos/gadt-cast-singleton.scala
+(2:26..2:29) _empty_/SUB# -> 1:6
+(2:30..2:31) _empty_/SUB.Refl#[S] -> 2:13
+(2:33..2:34) _empty_/SUB.Refl#[S] -> 2:13
+(7:17..7:18) _empty_/R# -> 4:7
+(9:10..9:11) _empty_/L# -> 7:7
+(9:14..9:15) _empty_/`gadt-cast-singleton$package`.f().(x) -> 9:7
+(9:16..9:20) _empty_/R#Data# -> 5:8
+(9:23..9:26) scala/Predef.`???`().
+(11:12..11:13) _empty_/R# -> 4:7
+(11:18..11:19) _empty_/`gadt-cast-singleton$package`.g().[T] -> 11:7
+(11:25..11:26) _empty_/`gadt-cast-singleton$package`.g().[T] -> 11:7
+(11:27..11:30) _empty_/SUB# -> 1:6
+(11:31..11:32) _empty_/L# -> 7:7
+(11:35..11:36) _empty_/`gadt-cast-singleton$package`.g().(x) -> 11:15
+(11:37..11:41) _empty_/R#Data# -> 5:8
+(11:44..11:46) _empty_/`gadt-cast-singleton$package`.g().(ev) -> 11:21
+(12:8..12:11) _empty_/SUB.
+(12:12..12:16) _empty_/SUB.Refl.
+(13:5..13:6) _empty_/`gadt-cast-singleton$package`.f(). -> 9:5
+(13:7..13:8) _empty_/`gadt-cast-singleton$package`.g().(x) -> 11:15
+

@@ -1,0 +1,4 @@
+Document tests/pos/polymorphic-case-class.scala
+(2:32..2:33) _empty_/Bippy#[T] -> 2:18
+(2:38..2:39) _empty_/Bippy#[V] -> 2:26
+

@@ -1,0 +1,15 @@
+object Margin extends Enumeration:
+  protected case class Val() extends super.Val
+
+  val Top, Bottom = Val()
+
+  def test(margin: Val) = <start>margin<exhaustive>
+-----
+object Margin extends Enumeration:
+  protected case class Val() extends super.Val
+
+  val Top, Bottom = Val()
+
+  def test(margin: Val) = margin match
+    case Top =>
+    case Bottom =>

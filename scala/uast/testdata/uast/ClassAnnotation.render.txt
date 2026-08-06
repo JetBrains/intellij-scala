@@ -1,0 +1,30 @@
+@Test
+public class A {
+    public fun A() : void = UastEmptyExpression
+}
+
+public class Test : scala.annotation.StaticAnnotation {
+    public fun Test() : void = UastEmptyExpression
+}
+
+public class MyAnnotation : scala.annotation.StaticAnnotation {
+    public final var text: java.lang.String
+    public fun MyAnnotation() : void = UastEmptyExpression
+}
+
+@MyAnnotation(null = "class")
+public class B {
+    public fun B() : void = UastEmptyExpression
+    @MyAnnotation(null = "inB class")
+    public class InB {
+        public fun InB() : void = UastEmptyExpression
+    }
+}
+
+@MyAnnotation(null = "companion")
+public final class B$ {
+}
+
+@MyAnnotation(null = "object")
+public final class Obj$ {
+}

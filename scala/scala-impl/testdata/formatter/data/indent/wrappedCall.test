@@ -1,0 +1,25 @@
+new StringBuilder().
+append(
+Calendar.getInstance()
+)
+
+Seq(0, 1)
+.map(
+_ + 2
+)
+.foreach(
+println
+)
+------
+new StringBuilder().
+  append(
+    Calendar.getInstance()
+  )
+
+Seq(0, 1)
+  .map(
+    _ + 2
+  )
+  .foreach(
+    println
+  )

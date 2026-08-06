@@ -1,0 +1,16 @@
+Document tests/pos/i25133.scala
+(1:17..1:23) java/lang/Object#
+(4:26..4:32) java/lang/Object#
+(4:35..4:41) scala/Predef.String#
+(4:44..4:45) _empty_/i25133$package.foo().(x) -> 4:23
+(4:46..4:54) scala/Any#toString().
+(5:26..5:32) java/lang/Object#
+(5:35..5:41) scala/Predef.String#
+(5:44..5:45) _empty_/i25133$package.bar().(x) -> 5:23
+(5:46..5:54) scala/Any#toString().
+(7:9..7:10) _empty_/C# -> 1:7
+(8:9..8:12) _empty_/i25133$package.foo(). -> 4:12
+(8:13..8:14) _empty_/i25133$package.c. -> 7:5
+(9:9..9:12) _empty_/i25133$package.bar(). -> 5:12
+(9:13..9:14) _empty_/i25133$package.c. -> 7:5
+

@@ -1,0 +1,31 @@
+Document tests/pos/ord-over-tracked.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:40) scala/language.experimental.modularity.
+(4:13..4:14) _empty_/Ord#[T] -> 3:11
+(4:19..4:20) _empty_/Ord#[T] -> 3:11
+(4:23..4:30) scala/Boolean#
+(6:7..6:10) _empty_/Ord# -> 3:7
+(6:11..6:14) scala/Int#
+(6:18..6:21) scala/Predef.`???`().
+(8:29..8:32) scala/Int#
+(9:13..9:14) _empty_/D# -> 8:12
+(9:19..9:22) _empty_/Ord# -> 3:7
+(9:23..9:24) _empty_/`ord-over-tracked$package`.given_Ord_T().[T] -> 9:8
+(9:38..9:39) local0 -> 9:29
+(9:40..9:41) _empty_/D#x. -> 8:26
+(9:42..9:43) scala/Int#`<`(+3).
+(9:44..9:45) local1 -> 9:32
+(9:46..9:47) _empty_/D#x. -> 8:26
+(11:15..11:18) _empty_/Ord# -> 3:7
+(11:15..11:18) _empty_/`ord-over-tracked$package`.mySort().[T] -> 11:12
+(11:23..11:28) scala/Array#
+(11:29..11:30) _empty_/`ord-over-tracked$package`.mySort().[T] -> 11:12
+(11:34..11:39) scala/Array#
+(11:40..11:41) _empty_/`ord-over-tracked$package`.mySort().[T] -> 11:12
+(11:45..11:48) scala/Predef.`???`().
+(14:13..14:18) scala/Array.
+(14:19..14:20) _empty_/D.
+(15:14..15:20) _empty_/`ord-over-tracked$package`.mySort(). -> 11:5
+(15:21..15:24) local5 -> 14:7
+

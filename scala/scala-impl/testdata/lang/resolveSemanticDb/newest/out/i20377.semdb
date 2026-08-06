@@ -1,0 +1,25 @@
+Document tests/pos/i20377.scala
+(1:8..1:18) scala/NamedTuple.
+(5:36..5:49) scala/NamedTuple.AnyNamedTuple#
+(6:15..6:25) scala/NamedTuple.
+(6:26..6:29) scala/NamedTuple.Map#
+(6:30..6:34) _empty_/ClassToFind#[Rows] -> 5:28
+(8:12..8:23) _empty_/ClassToFind# -> 5:16
+(8:29..8:32) scala/Int#
+(8:38..8:44) scala/Predef.String#
+(10:21..10:24) scala/Int#
+(11:21..11:27) scala/Predef.String#
+(14:23..14:26) scala/Int#
+(14:32..14:38) scala/Predef.String#
+(15:37..15:48) _empty_/ClassToFind# -> 5:16
+(15:49..15:58) _empty_/i20377$package.TypeAlias# -> 14:6
+(17:5..17:11) _empty_/Repro1_Pass#testDB. -> 15:29
+(17:5..17:18) scala/NamedTuple.apply(+1).
+(17:12..17:18) _empty_/ClassToFind#mapped(). -> 6:7
+(19:37..19:48) _empty_/ClassToFind# -> 5:16
+(19:54..19:57) scala/Int#
+(19:63..19:69) scala/Predef.String#
+(21:5..21:11) _empty_/Repro1_Fail#testDB. -> 19:29
+(21:5..21:18) scala/NamedTuple.apply(+1).
+(21:12..21:18) _empty_/ClassToFind#mapped(). -> 6:7
+

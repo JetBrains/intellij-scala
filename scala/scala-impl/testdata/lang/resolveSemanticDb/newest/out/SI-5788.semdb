@@ -1,0 +1,8 @@
+Document tests/pos/SI-5788.scala
+(1:12..1:23) scala/specialized#
+(1:24..1:27) scala/Int.
+(2:19..2:20) _empty_/Foo#[A] -> 1:29
+(2:22..2:23) _empty_/Foo#[A] -> 1:29
+(2:26..2:29) _empty_/Foo#bar(). -> 2:13
+(2:30..2:31) _empty_/Foo#bar().(a) -> 2:17
+

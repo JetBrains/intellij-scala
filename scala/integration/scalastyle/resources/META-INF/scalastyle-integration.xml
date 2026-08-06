@@ -1,0 +1,8 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <!--suppress PluginXmlValidity -->
+        <applicationService
+                serviceInterface="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleService"
+                serviceImplementation="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleServiceImpl"/>
+    </extensions>
+</idea-plugin>

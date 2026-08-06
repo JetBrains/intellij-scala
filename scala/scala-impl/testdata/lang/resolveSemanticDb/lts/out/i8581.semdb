@@ -1,0 +1,49 @@
+Document tests/pos/i8581/Macro_1.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(5:29..5:37) _empty_/Position# -> 3:12
+(5:43..5:54) _empty_/Position.inline$genPosition().
+(7:33..7:39) scala/quoted/Quotes#
+(7:42..7:46) scala/quoted/Expr#
+(7:47..7:55) _empty_/Position# -> 3:12
+(8:17..8:20) scala/Int#
+(8:23..8:29) scala/quoted/Quotes$package.quotes().
+(8:30..8:37) scala/quoted/Quotes#reflect.
+(8:38..8:46) scala/quoted/Quotes#reflectModule#Position.
+(8:47..8:63) scala/quoted/Quotes#reflectModule#PositionModule#ofMacroExpansion().
+(8:64..8:73) scala/quoted/Quotes#reflectModule#PositionMethods#startLine().
+(9:8..9:16) _empty_/Position. -> 4:8
+
+Document tests/pos/i8581/Test_2.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/concurrent/
+(1:25..1:33) scala/concurrent/duration/
+(1:34..1:48) scala/concurrent/duration/FiniteDuration#
+(1:34..1:48) scala/concurrent/duration/FiniteDuration.
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:42) scala/language.implicitConversions.
+(3:8..3:13) scala/
+(3:14..3:21) scala/reflect/
+(3:22..3:30) scala/reflect/ClassTag#
+(3:22..3:30) scala/reflect/ClassTag.
+(8:48..8:49) _empty_/Test#convertToAnyShouldWrapper().[T] -> 8:42
+(8:65..8:73) _empty_/Position# -> 3:12
+(8:76..8:92) _empty_/AnyShouldWrapper# -> 5:7
+(8:93..8:94) _empty_/Test#convertToAnyShouldWrapper().[T] -> 8:42
+(8:98..8:101) scala/Predef.`???`().
+(10:36..10:44) scala/reflect/ClassTag#
+(10:45..10:46) _empty_/Test#expectMsgType().[T] -> 10:21
+(10:50..10:51) _empty_/Test#expectMsgType().[T] -> 10:21
+(10:54..10:57) scala/Predef.`???`().
+(11:29..11:43) scala/concurrent/duration/FiniteDuration#
+(11:57..11:65) scala/reflect/ClassTag#
+(11:66..11:67) _empty_/Test#expectMsgType(+1).[T] -> 11:21
+(11:71..11:72) _empty_/Test#expectMsgType(+1).[T] -> 11:21
+(11:75..11:78) scala/Predef.`???`().
+(13:15..13:19) scala/Unit#
+(14:5..14:18) _empty_/Test#expectMsgType(). -> 10:7
+(14:19..14:22) scala/Int#
+(14:25..14:41) _empty_/AnyShouldWrapper# -> 5:7
+(14:42..14:45) scala/Int#
+

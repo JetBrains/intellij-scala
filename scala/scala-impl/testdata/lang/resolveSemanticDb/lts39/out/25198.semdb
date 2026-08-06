@@ -1,0 +1,59 @@
+Document tests/pos/25198/Macros_1.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(4:31..4:37) scala/Predef.String#
+(4:41..4:47) scala/Predef.String#
+(5:8..5:15) _empty_/Macros.inline$fooImpl().
+(8:29..8:35) scala/quoted/Quotes#
+(8:38..8:42) scala/quoted/Expr#
+(8:43..8:49) scala/Predef.String#
+(8:53..8:59) scala/Predef.String#
+(9:12..9:18) scala/quoted/Quotes$package.quotes().
+(9:19..9:26) scala/quoted/Quotes#reflect.
+(12:7..12:13) scala/quoted/Quotes#reflectModule#Symbol.
+(12:14..12:23) scala/quoted/Quotes#reflectModule#SymbolModule#newMethod().
+(13:9..13:15) scala/quoted/Quotes#reflectModule#Symbol.
+(13:16..13:27) scala/quoted/Quotes#reflectModule#SymbolModule#spliceOwner().
+(14:9..14:13) scala/quoted/Quotes#reflectModule#SymbolModule#newMethod().(name)
+(15:9..15:12) scala/quoted/Quotes#reflectModule#SymbolModule#newMethod().(tpe)
+(15:15..15:25) scala/quoted/Quotes#reflectModule#MethodType.
+(15:26..15:30) scala/package.List.
+(16:16..16:20) scala/package.List.
+(16:21..16:29) scala/quoted/Quotes#reflectModule#TypeRepr.
+(16:30..16:32) scala/quoted/Quotes#reflectModule#TypeReprModule#of().
+(16:33..16:39) scala/Predef.String#
+(17:16..17:24) scala/quoted/Quotes#reflectModule#TypeRepr.
+(17:25..17:27) scala/quoted/Quotes#reflectModule#TypeReprModule#of().
+(17:28..17:34) scala/Predef.String#
+(22:7..22:13) scala/quoted/Quotes#reflectModule#DefDef.
+(23:9..23:16) local1 -> 11:9
+(24:9..24:14) scala/quoted/Quotes#reflectModule#DefDefModule#apply().(rhsFn)
+(25:15..25:19) scala/package.List.
+(25:20..25:24) scala/package.List.
+(25:31..25:36) local2 -> 24:19
+(26:11..26:15) scala/Some.
+(26:16..26:17) local3 -> 25:25
+(26:18..26:30) scala/Any#asInstanceOf().
+(26:31..26:35) scala/quoted/Quotes#reflectModule#Term#
+(30:5..30:10) scala/quoted/Quotes#reflectModule#Block.
+(31:7..31:11) scala/package.List.
+(31:12..31:16) local4 -> 21:9
+(32:7..32:14) scala/quoted/Quotes#reflectModule#Closure.
+(32:15..32:20) scala/quoted/Quotes#reflectModule#Ident.
+(32:21..32:28) local1 -> 11:9
+(32:29..32:36) scala/quoted/Quotes#reflectModule#SymbolMethods#termRef().
+(32:39..32:42) scala/quoted/Quotes#reflectModule#ClosureModule#apply().(tpe)
+(32:45..32:49) scala/None.
+(33:7..33:15) scala/quoted/Quotes#reflectModule#TreeMethods#asExprOf().
+(33:16..33:22) scala/Predef.String#
+(33:26..33:32) scala/Predef.String#
+
+Document tests/pos/25198/Main_2.scala
+(4:10..4:16) scala/Predef.String#
+(4:20..4:26) scala/Predef.String#
+(5:5..5:11) _empty_/Macros. -> 3:8
+(5:12..5:15) _empty_/Macros.foo(). -> 4:26
+(7:4..7:8) scala/main#
+(8:5..8:12) scala/Predef.println(+1).
+(8:13..8:14) _empty_/Main.f. -> 4:7
+

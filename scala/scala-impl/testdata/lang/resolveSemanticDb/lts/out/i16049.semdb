@@ -1,0 +1,16 @@
+Document tests/pos/i16049.scala
+(3:45..3:62) _empty_/BatchDiffFunction# -> 1:7
+(3:63..3:64) _empty_/FirstOrderMinimizer#[T] -> 3:36
+(4:16..4:35) _empty_/FirstOrderMinimizer. -> 6:8
+(4:36..4:41) _empty_/FirstOrderMinimizer.State# -> 7:14
+(4:42..4:43) _empty_/FirstOrderMinimizer#[T] -> 3:36
+(7:27..7:28) _empty_/FirstOrderMinimizer.State#[T] -> 7:21
+(10:29..10:30) _empty_/FirstOrderMinimizer.OptParams#iterations().[T] -> 10:20
+(10:33..10:41) scala/package.Iterator#
+(10:42..10:61) _empty_/FirstOrderMinimizer# -> 3:16
+(10:62..10:63) _empty_/FirstOrderMinimizer.OptParams#iterations().[T] -> 10:20
+(10:65..10:82) _empty_/BatchDiffFunction# -> 1:7
+(10:83..10:84) _empty_/FirstOrderMinimizer.OptParams#iterations().[T] -> 10:20
+(10:87..10:92) _empty_/FirstOrderMinimizer#State# -> 4:8
+(10:96..10:99) scala/Predef.`???`().
+

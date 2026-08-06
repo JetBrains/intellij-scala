@@ -1,0 +1,191 @@
+package org.jetbrains.plugins.scala.projectHighlighting.base
+
+import com.intellij.openapi.application.ex.ApplicationManagerEx
+import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.registry.Registry
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.psi.PsiFile
+import com.intellij.testFramework.TestLoggerFactory
+import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaProjectTestFixture, IdeaTestFixtureFactory}
+import org.jetbrains.plugins.scala.HighlightingTests
+import org.jetbrains.plugins.scala.performance.FixtureDelegate
+import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.relativePathOf
+import org.jetbrains.plugins.scala.projectHighlighting.base.ScalaProjectHighlightingTestBase.dumpLogsOnException
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
+import org.jetbrains.sbt.project.{SbtCachesSetupUtil, ScalaExternalSystemImportingTestBase}
+import org.junit.Assert.fail
+import org.junit.experimental.categories.Category
+
+import java.nio.file.{Files, Path, Paths}
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
+@Category(Array(classOf[HighlightingTests]))
+abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImportingTestBase {
+
+  protected var codeInsightFixture: CodeInsightTestFixture = _
+
+  protected val projectFileName = "testHighlighting"
+
+  private def getProjectFilePath: Path = getTestProjectPath.resolve(s"$projectFileName.ipr")
+
+  private def isProjectAlreadyCached = Files.exists(getProjectFilePath)
+
+  protected def isProjectCachingEnabled: Boolean =
+    ProjectHighlightingTestUtils.isProjectCachingEnabledPropertySet
+
+  override protected def setUpFixtures(): Unit = {
+    val projectFixture: IdeaProjectTestFixture =
+      if (isProjectAlreadyCached && isProjectCachingEnabled)
+        new FixtureDelegate(getProjectFilePath)
+      else
+        createProjectFixture()
+
+
+    val factory = IdeaTestFixtureFactory.getFixtureFactory
+    codeInsightFixture = factory.createCodeInsightFixture(projectFixture)
+    codeInsightFixture.setUp()
+
+    setMyTestFixture(codeInsightFixture)
+  }
+
+  override protected def tearDownFixtures(): Unit = {
+    if (isProjectCachingEnabled && !isProjectAlreadyCached) {
+      persistProjectConfiguration()
+    }
+    codeInsightFixture.tearDown()
+    resetTestFixture()
+  }
+
+  protected final def doHighlightingForFile(
+    virtualFile: VirtualFile,
+    psiFile: PsiFile,
+    reporter: HighlightingProgressReporter,
+  ): Unit = {
+    codeInsightFixture.openFileInEditor(virtualFile)
+
+    val infosAll = codeInsightFixture.doHighlighting().asScala.toSeq
+    val infosWithDescription = infosAll.filter(_.getDescription != null)
+    infosWithDescription.foreach { error =>
+      val range = TextRange.create(error.getStartOffset, error.getEndOffset)
+      reporter.reportError(relativePathOf(psiFile), range, error.getDescription)
+    }
+
+    //if we don't close editors there are some leaks in `tearDown`
+    FileEditorManagerEx.getInstanceEx(getMyProject).closeOpenedEditors()
+  }
+
+  private def persistProjectConfiguration(): Unit = {
+    reporter.notify(s"Saving project configuration")
+
+    val projectFile = getMyProject.getProjectFile
+    if (projectFile != null) {
+      val from = projectFile.toNioPath
+      val to = getProjectFilePath
+      reporter.notify(s"Copy project file $from to $to")
+      Files.copy(from, to)
+    }
+
+    val workspaceFile = getMyProject.getWorkspaceFile
+    if (workspaceFile != null && workspaceFile.exists()) {
+      val from = workspaceFile.toNioPath
+      val to = getTestProjectPath.resolve(s"$projectFileName.iws")
+      reporter.notify(s"Copy workspace file $from to $to")
+      Files.copy(from, to)
+    }
+  }
+
+  protected def filesWithProblems: Map[String, Set[TextRange]] = Map.empty
+
+  protected lazy val testProjectDirVFile: VirtualFile =
+    VirtualFileManager.getInstance().findFileByNioPath(getTestProjectPath)
+
+  protected def relativeProjectPath(relPath: String): String = {
+    //force refresh, because otherwise sometimes it can old data from previous tests runs (cached in test system directory)
+    testProjectDirVFile.refresh(false, true)
+    val result = testProjectDirVFile.findFileByRelativePath(relPath)
+    if (result == null) {
+      fail(s"Can't find file `$relPath` in `$testProjectDirVFile``")
+    }
+    result.getPath
+  }
+
+  protected val reporter = HighlightingProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems)
+
+  //examples:
+  // `.../testdata/projectsForHighlightingTests/local`
+  // `.../testdata/projectsForHighlightingTests/downloaded`
+  protected def rootProjectsDirPath: String
+
+  protected def projectName: String
+
+  override protected def getTestDataProjectPath: String = s"$rootProjectsDirPath/$projectName"
+
+  private def forceSaveProject(): Unit = {
+    val app = ApplicationManagerEx.getApplicationEx
+    val old = app.isSaveAllowed
+    try {
+      app.setSaveAllowed(true)
+      getMyProject.save()
+    } finally {
+      app.setSaveAllowed(old)
+    }
+  }
+
+  protected def importProjectDuringTestSetup: Boolean = true
+
+  override def setUp(): Unit = dumpLogsOnException {
+    super.setUp()
+
+    val BuildSystemId = s"${getExternalSystemId.getId}"
+    reporter.notify(s"Finished $BuildSystemId setup, starting import")
+
+    //patch homes before importing projects
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
+
+    Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
+
+    if (isProjectAlreadyCached && isProjectCachingEnabled) {
+      reporter.notify(
+        s"""!!!
+           |!!! Project caching enabled:
+           |!!! Skipping $BuildSystemId project import and reusing results of previous import: $getProjectFilePath
+           |!!! (you can disable caching by passing -Dproject.highlighting.disable.cache=true VM option)
+           |!!! """.stripMargin
+      )
+    } else if (importProjectDuringTestSetup) {
+      importProject(false)
+    }
+    if (isProjectCachingEnabled) {
+      forceSaveProject()
+    }
+  }
+}
+
+object ScalaProjectHighlightingTestBase {
+
+  /**
+   * This methods basically duplicates log dumping logic from [[com.intellij.testFramework.UsefulTestCase#wrapTestRunnable]].
+   * By default logs are not dumped in there was a failure in `setUp` method. But wee need them to debug failures
+   * during project importing process, which is done in `setUp` method.
+   *
+   * Actually, I wish this logic was implemented in the platform (both for `setUp` & `tearDown` methods).
+   * If there is a willing we might discuss it with IntelliJ platform team.
+   */
+  private def dumpLogsOnException(body: => Unit): Unit = {
+    val testDescription = "dummy test description"
+    TestLoggerFactory.onTestStarted()
+
+    var success = true
+    try {
+      body
+    } catch {
+      case t: Throwable =>
+        success = false
+        throw t
+    }
+    finally {
+      TestLoggerFactory.onTestFinished(success, testDescription)
+    }
+  }
+}

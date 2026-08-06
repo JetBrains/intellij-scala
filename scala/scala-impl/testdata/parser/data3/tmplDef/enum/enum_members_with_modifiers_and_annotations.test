@@ -1,0 +1,161 @@
+enum MyEnum {
+    protected val a = 0
+    final val b = 0 // NOTE: onyly access modifiers are allowed, but we parse anyway
+    @annotation1 val c = 0
+    @annotation1 @annotaiton2 protected final val d = 0
+    @annotation1 @annotaiton2 protected final
+    val e = 0
+}
+-----
+ScalaFile
+  ScEnum: MyEnum
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyEnum')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n    ')
+        ScPatternDefinition: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: a
+              PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n    ')
+        ScPatternDefinition: b
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: b
+              PsiElement(identifier)('b')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// NOTE: onyly access modifiers are allowed, but we parse anyway')
+        PsiWhiteSpace('\n    ')
+        ScPatternDefinition: c
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: annotation1
+                    CodeReferenceElement: annotation1
+                      PsiElement(identifier)('annotation1')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: c
+              PsiElement(identifier)('c')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n    ')
+        ScPatternDefinition: d
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: annotation1
+                    CodeReferenceElement: annotation1
+                      PsiElement(identifier)('annotation1')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: annotaiton2
+                    CodeReferenceElement: annotaiton2
+                      PsiElement(identifier)('annotaiton2')
+          PsiWhiteSpace(' ')
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: d
+              PsiElement(identifier)('d')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n    ')
+        ScPatternDefinition: e
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: annotation1
+                    CodeReferenceElement: annotation1
+                      PsiElement(identifier)('annotation1')
+            PsiWhiteSpace(' ')
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: annotaiton2
+                    CodeReferenceElement: annotaiton2
+                      PsiElement(identifier)('annotaiton2')
+          PsiWhiteSpace(' ')
+          Modifiers
+            AccessModifier
+              PsiElement(protected)('protected')
+            PsiWhiteSpace(' ')
+            PsiElement(final)('final')
+          PsiWhiteSpace('\n    ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: e
+              PsiElement(identifier)('e')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

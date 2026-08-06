@@ -1,0 +1,7 @@
+Document tests/pos/t1070.scala
+(1:8..1:13) scala/
+(1:14..1:19) scala/beans/
+(1:20..1:32) scala/beans/BeanProperty#
+(3:4..3:16) scala/beans/BeanProperty#
+(3:33..3:37) scala/Long#
+

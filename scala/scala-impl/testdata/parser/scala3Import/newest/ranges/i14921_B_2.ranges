@@ -1,0 +1,15 @@
+[0,67]: PackageDef
+[0,0]: Ident
+[0,13]: Import
+[7,11]: Ident
+[15,67]: DefDef
+[28,41]: AppliedTypeTree
+[28,34]: Ident
+[35,40]: Ident
+[44,67]: Apply
+[44,49]: Ident
+[50,66]: Apply
+[54,59]: Select
+[54,59]: New
+[54,59]: Ident
+[60,65]: Literal

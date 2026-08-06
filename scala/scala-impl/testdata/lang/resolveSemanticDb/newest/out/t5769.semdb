@@ -1,0 +1,14 @@
+Document tests/pos/t5769.scala
+(2:8..2:13) scala/
+(2:14..2:21) scala/reflect/
+(2:23..2:31) scala/reflect/ClassTag#
+(2:23..2:31) scala/reflect/ClassTag.
+(2:33..2:41) scala/reflect/package.classTag().
+(5:13..5:18) scala/Array#
+(5:19..5:22) scala/Int#
+(7:12..7:20) scala/reflect/package.classTag().
+(7:21..7:26) scala/Array#
+(7:27..7:30) scala/Int#
+(8:12..8:20) scala/reflect/package.classTag().
+(8:21..8:23) _empty_/A#AI# -> 5:8
+

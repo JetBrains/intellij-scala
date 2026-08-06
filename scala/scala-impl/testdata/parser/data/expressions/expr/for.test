@@ -1,0 +1,97 @@
+class a{
+  for { i <- 1 until n
+        j <- 1 until i
+        if isPrime(i+j)
+  } yield (i, j)
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          Enumerators
+            Generator
+              ReferencePattern: i
+                PsiElement(identifier)('i')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: until
+                  PsiElement(identifier)('until')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: n
+                  PsiElement(identifier)('n')
+            PsiWhiteSpace('\n        ')
+            Generator
+              ReferencePattern: j
+                PsiElement(identifier)('j')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              InfixExpression
+                IntegerLiteral
+                  PsiElement(integer)('1')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: until
+                  PsiElement(identifier)('until')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: i
+                  PsiElement(identifier)('i')
+            PsiWhiteSpace('\n        ')
+            Guard
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: isPrime
+                  PsiElement(identifier)('isPrime')
+                ArgumentList
+                  PsiElement(()('(')
+                  InfixExpression
+                    ReferenceExpression: i
+                      PsiElement(identifier)('i')
+                    ReferenceExpression: +
+                      PsiElement(identifier)('+')
+                    ReferenceExpression: j
+                      PsiElement(identifier)('j')
+                  PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+          PsiWhiteSpace(' ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            ReferenceExpression: i
+              PsiElement(identifier)('i')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: j
+              PsiElement(identifier)('j')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,298 @@
+object outer:
+  opaque type Queue = Queue.Unsafe
+  object Queue:
+    abstract class Unsafe
+    opaque type Unbounded = Queue
+    object Unbounded:
+      inline def initWith()(f: Unbounded => Unit): Unit =
+        f(Unsafe.init())
+
+      opaque type Unsafe <: Queue.Unsafe = Queue
+      object Unsafe:
+        def init[A](): Unsafe = ???
+
+object Resource:
+  def run: Unit =
+    outer.Queue.Unbounded.initWith() { q =>
+      ???
+    }
+-----
+ScalaFile
+  ScObject: outer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('outer')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Queue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Queue')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Queue.Unsafe
+            CodeReferenceElement: Queue.Unsafe
+              CodeReferenceElement: Queue
+                PsiElement(identifier)('Queue')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Unsafe')
+        PsiWhiteSpace('\n  ')
+        ScObject: Queue
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Queue')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScClass: Unsafe
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(abstract)('abstract')
+                PsiWhiteSpace(' ')
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Unsafe')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    <empty list>
+                ExtendsBlock
+                  <empty list>
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Unbounded
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(opaque)('opaque')
+                PsiWhiteSpace(' ')
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Unbounded')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Queue
+                  CodeReferenceElement: Queue
+                    PsiElement(identifier)('Queue')
+              PsiWhiteSpace('\n    ')
+              ScObject: Unbounded
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(object)('object')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Unbounded')
+                ExtendsBlock
+                  ScTemplateBody
+                    PsiElement(:)(':')
+                    PsiWhiteSpace('\n      ')
+                    ScFunctionDefinition: initWith
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        PsiElement(inline)('inline')
+                      PsiWhiteSpace(' ')
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('initWith')
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: f
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('f')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              FunctionalType: Unbounded => Unit
+                                SimpleType: Unbounded
+                                  CodeReferenceElement: Unbounded
+                                    PsiElement(identifier)('Unbounded')
+                                PsiWhiteSpace(' ')
+                                PsiElement(=>)('=>')
+                                PsiWhiteSpace(' ')
+                                SimpleType: Unit
+                                  CodeReferenceElement: Unit
+                                    PsiElement(identifier)('Unit')
+                          PsiElement())(')')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Unit
+                        CodeReferenceElement: Unit
+                          PsiElement(identifier)('Unit')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace('\n        ')
+                      MethodCall
+                        ReferenceExpression: f
+                          PsiElement(identifier)('f')
+                        ArgumentList
+                          PsiElement(()('(')
+                          MethodCall
+                            ReferenceExpression: Unsafe.init
+                              ReferenceExpression: Unsafe
+                                PsiElement(identifier)('Unsafe')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('init')
+                            ArgumentList
+                              PsiElement(()('(')
+                              PsiElement())(')')
+                          PsiElement())(')')
+                    PsiWhiteSpace('\n\n      ')
+                    ScTypeAliasDefinition: Unsafe
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        PsiElement(opaque)('opaque')
+                      PsiWhiteSpace(' ')
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Unsafe')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Queue.Unsafe
+                        CodeReferenceElement: Queue.Unsafe
+                          CodeReferenceElement: Queue
+                            PsiElement(identifier)('Queue')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Unsafe')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Queue
+                        CodeReferenceElement: Queue
+                          PsiElement(identifier)('Queue')
+                    PsiWhiteSpace('\n      ')
+                    ScObject: Unsafe
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(object)('object')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Unsafe')
+                      ExtendsBlock
+                        ScTemplateBody
+                          PsiElement(:)(':')
+                          PsiWhiteSpace('\n        ')
+                          ScFunctionDefinition: init
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(def)('def')
+                            PsiWhiteSpace(' ')
+                            PsiElement(identifier)('init')
+                            TypeParameterClause
+                              PsiElement([)('[')
+                              TypeParameter: A
+                                PsiElement(identifier)('A')
+                              PsiElement(])(']')
+                            Parameters
+                              ParametersClause
+                                PsiElement(()('(')
+                                PsiElement())(')')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            SimpleType: Unsafe
+                              CodeReferenceElement: Unsafe
+                                PsiElement(identifier)('Unsafe')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=)('=')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: ???
+                              PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScObject: Resource
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Resource')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: run
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('run')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            MethodCall
+              ReferenceExpression: outer.Queue.Unbounded.initWith
+                ReferenceExpression: outer.Queue.Unbounded
+                  ReferenceExpression: outer.Queue
+                    ReferenceExpression: outer
+                      PsiElement(identifier)('outer')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Queue')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Unbounded')
+                PsiElement(.)('.')
+                PsiElement(identifier)('initWith')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            ArgumentList
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: q
+                        PsiElement(identifier)('q')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace('\n      ')
+                  BlockOfExpressions
+                    ReferenceExpression: ???
+                      PsiElement(identifier)('???')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')

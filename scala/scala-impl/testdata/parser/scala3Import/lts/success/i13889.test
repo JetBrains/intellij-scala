@@ -1,0 +1,350 @@
+class DiscordRecord(fields: Map[String, Any]) extends Selectable {
+  def selectDynamic(name: String): Any = fields(name)
+}
+
+type IdentifyScope = DiscordRecord {
+  val username: String
+}
+
+type IncludeIf[Stated <: String, Requirement <: String, IfMatch] = Seq[Stated] match {
+  case Seq[Requirement] => IfMatch
+  case _ => Any
+}
+
+type RawUser[Scopes <: String] = DiscordRecord & IncludeIf[Scopes, "identify", IdentifyScope]
+
+val obj: RawUser["identify"] = ???
+val _ = obj.username
+-----
+ScalaFile
+  ScClass: DiscordRecord
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DiscordRecord')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: fields
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('fields')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: Map[String, Any]
+                SimpleType: Map
+                  CodeReferenceElement: Map
+                    PsiElement(identifier)('Map')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Selectable
+            CodeReferenceElement: Selectable
+              PsiElement(identifier)('Selectable')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: selectDynamic
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('selectDynamic')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: name
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('name')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: fields
+              PsiElement(identifier)('fields')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: name
+                PsiElement(identifier)('name')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: IdentifyScope
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IdentifyScope')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: DiscordRecord {
+  val username: String
+}
+      SimpleType: DiscordRecord
+        CodeReferenceElement: DiscordRecord
+          PsiElement(identifier)('DiscordRecord')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: username
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: username
+              PsiElement(identifier)('username')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: IncludeIf
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IncludeIf')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Stated
+        PsiElement(identifier)('Stated')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: Requirement
+        PsiElement(identifier)('Requirement')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: IfMatch
+        PsiElement(identifier)('IfMatch')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: Seq[Stated] match {
+  case Seq[Requirement] => IfMatch
+  case _ => Any
+}
+      ParametrizedType: Seq[Stated]
+        SimpleType: Seq
+          CodeReferenceElement: Seq
+            PsiElement(identifier)('Seq')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: Stated
+              CodeReferenceElement: Stated
+                PsiElement(identifier)('Stated')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace(' ')
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Seq[Requirement]
+            SimpleType: Seq
+              CodeReferenceElement: Seq
+                PsiElement(identifier)('Seq')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Requirement
+                  CodeReferenceElement: Requirement
+                    PsiElement(identifier)('Requirement')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: IfMatch
+            CodeReferenceElement: IfMatch
+              PsiElement(identifier)('IfMatch')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: Any
+            CodeReferenceElement: Any
+              PsiElement(identifier)('Any')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: RawUser
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('RawUser')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Scopes
+        PsiElement(identifier)('Scopes')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixType: DiscordRecord & IncludeIf[Scopes, "identify", IdentifyScope]
+      SimpleType: DiscordRecord
+        CodeReferenceElement: DiscordRecord
+          PsiElement(identifier)('DiscordRecord')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: &
+        PsiElement(identifier)('&')
+      PsiWhiteSpace(' ')
+      ParametrizedType: IncludeIf[Scopes, "identify", IdentifyScope]
+        SimpleType: IncludeIf
+          CodeReferenceElement: IncludeIf
+            PsiElement(identifier)('IncludeIf')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: Scopes
+              CodeReferenceElement: Scopes
+                PsiElement(identifier)('Scopes')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          TypeArgument
+            LiteralType: "identify"
+              StringLiteral
+                PsiElement(string content)('"identify"')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          TypeArgument
+            SimpleType: IdentifyScope
+              CodeReferenceElement: IdentifyScope
+                PsiElement(identifier)('IdentifyScope')
+          PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: obj
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: obj
+        PsiElement(identifier)('obj')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: RawUser["identify"]
+      SimpleType: RawUser
+        CodeReferenceElement: RawUser
+          PsiElement(identifier)('RawUser')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          LiteralType: "identify"
+            StringLiteral
+              PsiElement(string content)('"identify"')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: obj.username
+      ReferenceExpression: obj
+        PsiElement(identifier)('obj')
+      PsiElement(.)('.')
+      PsiElement(identifier)('username')

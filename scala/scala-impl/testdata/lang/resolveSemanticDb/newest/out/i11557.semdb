@@ -1,0 +1,14 @@
+Document tests/pos/i11557.scala
+(4:21..4:30) _empty_/i11557$package.MyEncoder# -> 1:6
+(4:33..4:36) scala/Predef.`???`().
+(6:21..6:30) _empty_/MyContext# -> 3:7
+(6:33..6:37) scala/Unit#
+(7:10..7:13) _empty_/i11557$package.doEncoding().(ctx) -> 6:16
+(8:3..8:9) scala/Predef.summon().
+(8:10..8:19) _empty_/i11557$package.MyEncoder# -> 1:6
+(9:3..9:24) _empty_/i11557$package.summonInlineMyEncoder(). -> 11:12
+(11:37..11:41) scala/Unit#
+(12:3..12:14) scala/compiletime/
+(12:15..12:27) scala/compiletime/package$package.summonInline().
+(12:28..12:37) _empty_/i11557$package.MyEncoder# -> 1:6
+

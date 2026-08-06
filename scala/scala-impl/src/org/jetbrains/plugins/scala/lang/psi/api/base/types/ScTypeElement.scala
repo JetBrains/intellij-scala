@@ -1,0 +1,130 @@
+package org.jetbrains.plugins.scala.lang.psi.api.base.types
+
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
+import org.jetbrains.plugins.scala.lang.psi.types.result._
+
+trait ScTypeElement extends ScalaPsiElement with Typeable {
+  protected val typeName: String
+
+  override def toString: String = {
+    val text = ifReadAllowed(getText)("")
+    s"$typeName: $text"
+  }
+
+  override def `type`(): TypeResult = getType
+
+  def isSingleton: Boolean = false
+
+  private[types] def getType: TypeResult =
+    cachedWithRecursionGuard(
+      "ScTypeElement.getType",
+      this,
+      Failure(ScalaBundle.message("recursive.type.of.type.element")),
+      BlockModificationTracker(this)
+    ) {
+      innerType
+    }
+
+  def getTypeNoConstructor: TypeResult = getType
+
+  def getNonValueType(withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult = innerType
+
+  protected def innerType: TypeResult
+
+  /** Link from a view or context bound to the type element of the corresponding synthetic parameter. */
+  def analog: Option[ScTypeElement] = {
+    refreshAnalog()
+    _analog
+  }
+
+  def analog_=(te: ScTypeElement): Unit = {
+    _analog = Some(te)
+  }
+
+  /**
+   * If the reference is in a type parameter, first compute the effective parameters clauses
+   * of the containing method or constructor.
+   *
+   * As a side-effect, this will register the analogs for each type element in a context or view
+   * bound position. See: [[org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.syntheticParamClause]]
+   *
+   * This in turn is used in the `treeWalkUp` in [[org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl.processQualifier]]
+   */
+  private def refreshAnalog(): Unit =
+    this.parentOfType(classOf[ScTypeParam], strict = false)
+      .flatMap(_.parentOfType(classOf[ScMethodLike], strict = false))
+      .foreach(_.effectiveParameterClauses)
+
+  @volatile
+  private[this] var _analog: Option[ScTypeElement] = None
+
+  def isRepeated: Boolean = {
+    val nextNode = Option(getNextSibling).map(_.getNode)
+
+    val isAsterisk = nextNode
+      .exists(n => n.getElementType == ScalaTokenTypes.tIDENTIFIER && n.getText == "*")
+
+    val notAnInfixType = (for {
+      node <- nextNode
+      next <- Option(node.getTreeNext)
+    } yield next.getElementType != ScalaTokenTypes.tIDENTIFIER).getOrElse(true)
+
+    isAsterisk && notAnInfixType
+  }
+}
+
+object ScTypeElement {
+  // java compatibility
+  def calcType(typeElement: ScTypeElement): ScType = typeElement.calcType
+}
+
+trait ScDesugarizableTypeElement extends ScTypeElement {
+  def desugarizedText: String
+
+  def computeDesugarizedType: Option[ScTypeElement] = Option(typeElementFromText(desugarizedText))
+
+  def typeElementFromText: String => ScTypeElement = {
+    var hasTypeVars = false
+
+    this.acceptChildren(new ScalaRecursiveElementVisitor {
+      override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit =
+        hasTypeVars = true
+    })
+
+    createTypeElementFromText(_, getContext, this, isPattern = hasTypeVars, typeVariables = hasTypeVars)
+  }
+
+  override protected def innerType: TypeResult = computeDesugarizedType match {
+    case Some(typeElement) =>
+      val typeVarsBuilder = Map.newBuilder[String, ScType]
+
+      //Imagine the following scenario:
+      //we have a desugarizable pattern with type variable in it, e.g.
+      //`case a InfixType b => ???`, if we simply calculate its type,
+      //(i.e. desugar it into `case InfixType[a, b])` it will contain two fresh type variables (`a1`, `b1`),
+      //which are not consistent with `a` and `b`.
+      //To avoid this, first save all type variables of the original type and then insert them into type result.
+      this.acceptChildren(new ScalaRecursiveElementVisitor {
+        override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit =
+          typeVarsBuilder += tvar.name -> tvar.`type`().get
+      })
+
+      val typeVars = typeVarsBuilder.result()
+
+      typeElement.getType.map { desugaredType =>
+        desugaredType.updateLeaves {
+          case tpt @ TypeParameterType(tparam) => typeVars.getOrElse(tparam.name, tpt)
+        }
+      }
+    case _ => Failure(ScalaBundle.message("cannot.desugarize.typename", typeName))
+  }
+}

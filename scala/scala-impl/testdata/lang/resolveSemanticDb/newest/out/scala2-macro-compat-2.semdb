@@ -1,0 +1,39 @@
+Document tests/pos/scala2-macro-compat-2.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:42) scala/language.experimental.macros.
+(8:15..8:18) scala/Int#
+(8:21..8:24) scala/Int#
+(8:33..8:41) _empty_/Macros.foo1Impl(). -> 14:7
+(9:15..9:18) scala/Int#
+(9:21..9:24) scala/Int#
+(9:27..9:30) scala/Predef.`???`().
+(11:15..11:18) scala/Int#
+(11:23..11:29) scala/Predef.String#
+(11:32..11:35) scala/Int#
+(11:44..11:52) _empty_/Macros.foo2Impl(). -> 15:7
+(12:15..12:18) scala/Int#
+(12:23..12:29) scala/Predef.String#
+(12:32..12:35) scala/Int#
+(12:38..12:41) scala/Predef.`???`().
+(14:25..14:32) _empty_/Context# -> 3:7
+(14:37..14:44) _empty_/Macros.foo1Impl().(context) -> 14:16
+(14:45..14:49) _empty_/Context#Expr# -> 4:8
+(14:50..14:53) scala/Int#
+(14:57..14:64) _empty_/Macros.foo1Impl().(context) -> 14:16
+(14:65..14:69) _empty_/Context#Expr# -> 4:8
+(14:70..14:73) scala/Int#
+(14:77..14:80) scala/Predef.`???`().
+(15:25..15:32) _empty_/Context# -> 3:7
+(15:37..15:44) _empty_/Macros.foo2Impl().(context) -> 15:16
+(15:45..15:49) _empty_/Context#Expr# -> 4:8
+(15:50..15:53) scala/Int#
+(15:59..15:66) _empty_/Macros.foo2Impl().(context) -> 15:16
+(15:67..15:71) _empty_/Context#Expr# -> 4:8
+(15:72..15:78) scala/Predef.String#
+(15:82..15:89) _empty_/Macros.foo2Impl().(context) -> 15:16
+(15:90..15:94) _empty_/Context#Expr# -> 4:8
+(15:95..15:98) scala/Int#
+(15:102..15:105) scala/Predef.`???`().
+

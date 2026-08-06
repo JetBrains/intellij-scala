@@ -1,0 +1,14 @@
+Document tests/pos/i20498/impl.scala
+(1:9..1:13) demo/ -> 1:9
+(2:8..2:12) demo/ -> 1:9
+(2:13..2:17) demo/util/ -> 1:14
+(4:6..4:9) demo/util/Ops#Ops#tap(). -> 4:9
+
+Document tests/pos/i20498/ops.scala
+(1:9..1:13) demo/ -> 1:9
+(3:49..3:50) demo/util/Ops#Ops#[A] -> 3:28
+(4:16..4:20) scala/Unit#
+
+Document tests/pos/i20498/package.scala
+(2:29..2:32) demo/util/Ops# -> 2:7
+

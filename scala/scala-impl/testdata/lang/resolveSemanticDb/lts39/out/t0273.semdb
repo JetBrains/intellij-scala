@@ -1,0 +1,5 @@
+Document tests/pos/t0273.scala
+(5:15..5:16) _empty_/A# -> 1:7
+(6:16..6:21) scala/Array#
+(6:22..6:28) scala/Predef.String#
+

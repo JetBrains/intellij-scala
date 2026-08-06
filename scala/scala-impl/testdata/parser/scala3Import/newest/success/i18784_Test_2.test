@@ -1,0 +1,27 @@
+def Test: Unit =
+  Macro.repeated
+-----
+ScalaFile
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ReferenceExpression: Macro.repeated
+      ReferenceExpression: Macro
+        PsiElement(identifier)('Macro')
+      PsiElement(.)('.')
+      PsiElement(identifier)('repeated')

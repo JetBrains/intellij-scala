@@ -1,0 +1,446 @@
+UFile (package = )
+    UClass (name = Test$)
+        UMethod (name = simpleCall)
+            UParameter (name = i)
+            UBlockExpression
+                UReturnExpression
+                    USimpleNameReferenceExpression (identifier = i)
+        UMethod (name = genericCall)
+            UParameter (name = a)
+            UBlockExpression
+                UReturnExpression
+                    USimpleNameReferenceExpression (identifier = a)
+        UMethod (name = genericCall)
+            UBlockExpression
+                UReturnExpression
+                    UMethodCall(name = ???)
+                        UIdentifier (Identifier (???))
+        UMethod (name = main)
+            UParameter (name = args)
+            UBlockExpression
+                UMethodCall(name = simpleCall)
+                    UIdentifier (Identifier (simpleCall))
+                    ULiteralExpression (value = 5)
+                UMethodCall(name = genericCall)
+                    UIdentifier (Identifier (genericCall))
+                    ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Math)
+                    UMethodCall(name = atan2)
+                        UIdentifier (Identifier (atan2))
+                        ULiteralExpression (value = 1.3)
+                        ULiteralExpression (value = 3.4)
+                UDeclarationsExpression
+                    ULocalVariable (name = _1)
+                        UMethodCall(name = int2Integer)
+                            UIdentifier (Identifier (int2Integer))
+                            ULiteralExpression (value = 1)
+                UDeclarationsExpression
+                    ULocalVariable (name = _2)
+                        UMethodCall(name = int2Integer)
+                            UIdentifier (Identifier (int2Integer))
+                            ULiteralExpression (value = 2)
+                UDeclarationsExpression
+                    ULocalVariable (name = _3)
+                        UMethodCall(name = int2Integer)
+                            UIdentifier (Identifier (int2Integer))
+                            ULiteralExpression (value = 3)
+                UQualifiedReferenceExpression
+                    UQualifiedReferenceExpression
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = java)
+                            USimpleNameReferenceExpression (identifier = lang)
+                        USimpleNameReferenceExpression (identifier = String)
+                    UMethodCall(name = format)
+                        UIdentifier (Identifier (format))
+                        ULiteralExpression (value = "%i %i %i")
+                        USimpleNameReferenceExpression (identifier = _1)
+                        USimpleNameReferenceExpression (identifier = _2)
+                        USimpleNameReferenceExpression (identifier = _3)
+                UQualifiedReferenceExpression
+                    UQualifiedReferenceExpression
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = java)
+                            USimpleNameReferenceExpression (identifier = lang)
+                        USimpleNameReferenceExpression (identifier = String)
+                    UMethodCall(name = format)
+                        UIdentifier (Identifier (format))
+                        ULiteralExpression (value = "%i %i %i")
+                        UMethodCall(name = Array)
+                            UIdentifier (Identifier (Array))
+                            ULiteralExpression (value = 1)
+                            ULiteralExpression (value = 2)
+                            ULiteralExpression (value = 3)
+                UQualifiedReferenceExpression
+                    UQualifiedReferenceExpression
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = java)
+                            USimpleNameReferenceExpression (identifier = lang)
+                        USimpleNameReferenceExpression (identifier = String)
+                    UMethodCall(name = format)
+                        UIdentifier (Identifier (format))
+                        ULiteralExpression (value = "%i %i %i")
+                        UMethodCall(name = Array)
+                            UIdentifier (Identifier (Array))
+                            ULiteralExpression (value = 1)
+                            ULiteralExpression (value = 2)
+                            ULiteralExpression (value = 3)
+                        UMethodCall(name = Array)
+                            UIdentifier (Identifier (Array))
+                            ULiteralExpression (value = 4)
+                            ULiteralExpression (value = 5)
+                            ULiteralExpression (value = 6)
+                UQualifiedReferenceExpression
+                    ULiteralExpression (value = 1)
+                    UMethodCall(name = toString)
+                        UIdentifier (Identifier (toString))
+                UQualifiedReferenceExpression
+                    UQualifiedReferenceExpression
+                        ULiteralExpression (value = 1)
+                        UMethodCall(name = toString)
+                            UIdentifier (Identifier (toString))
+                    UMethodCall(name = charAt)
+                        UIdentifier (Identifier (charAt))
+                        ULiteralExpression (value = 0)
+                UQualifiedReferenceExpression
+                    UQualifiedReferenceExpression
+                        UQualifiedReferenceExpression
+                            ULiteralExpression (value = 1)
+                            UMethodCall(name = toString)
+                                UIdentifier (Identifier (toString))
+                        UMethodCall(name = charAt)
+                            UIdentifier (Identifier (charAt))
+                            ULiteralExpression (value = 0)
+                    UMethodCall(name = hashCode)
+                        UIdentifier (Identifier (hashCode))
+                UQualifiedReferenceExpression
+                    ULiteralExpression (value = 1)
+                    UMethodCall(name = toString)
+                        UIdentifier (Identifier (toString))
+                UQualifiedReferenceExpression
+                    UQualifiedReferenceExpression
+                        ULiteralExpression (value = 1)
+                        UMethodCall(name = toString)
+                            UIdentifier (Identifier (toString))
+                    UMethodCall(name = charAt)
+                        UIdentifier (Identifier (charAt))
+                        ULiteralExpression (value = 0)
+                UQualifiedReferenceExpression
+                    UQualifiedReferenceExpression
+                        UQualifiedReferenceExpression
+                            ULiteralExpression (value = 1)
+                            UMethodCall(name = toString)
+                                UIdentifier (Identifier (toString))
+                        UMethodCall(name = charAt)
+                            UIdentifier (Identifier (charAt))
+                            ULiteralExpression (value = 0)
+                    UMethodCall(name = hashCode)
+                        UIdentifier (Identifier (hashCode))
+                UQualifiedReferenceExpression
+                    ULiteralExpression (value = 1)
+                    UMethodCall(name = asInstanceOf)
+                        UIdentifier (Identifier (asInstanceOf))
+                UQualifiedReferenceExpression
+                    ULiteralExpression (value = 1)
+                    UMethodCall(name = isInstanceOf)
+                        UIdentifier (Identifier (isInstanceOf))
+                UMethodCall(name = genericCall)
+                    UIdentifier (Identifier (genericCall))
+                    ULiteralExpression (value = 5)
+                UMethodCall(name = genericCall)
+                    UIdentifier (Identifier (genericCall))
+                UQualifiedReferenceExpression
+                    UQualifiedReferenceExpression
+                        ULiteralExpression (value = 1)
+                        UMethodCall(name = toString)
+                            UIdentifier (Identifier (toString))
+                    UMethodCall(name = hashCode)
+                        UIdentifier (Identifier (hashCode))
+                UQualifiedReferenceExpression
+                    UQualifiedReferenceExpression
+                        ULiteralExpression (value = 1)
+                        UMethodCall(name = toString)
+                            UIdentifier (Identifier (toString))
+                    UMethodCall(name = hashCode)
+                        UIdentifier (Identifier (hashCode))
+                UQualifiedReferenceExpression
+                    UQualifiedReferenceExpression
+                        UMethodCall(name = genericCall)
+                            UIdentifier (Identifier (genericCall))
+                        UMethodCall(name = hashCode)
+                            UIdentifier (Identifier (hashCode))
+                    UMethodCall(name = toString)
+                        UIdentifier (Identifier (toString))
+                UQualifiedReferenceExpression
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        ULiteralExpression (value = 5)
+                    UMethodCall(name = isInstanceOf)
+                        UIdentifier (Identifier (isInstanceOf))
+                UQualifiedReferenceExpression
+                    UThisExpression (label = this)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    UThisExpression (label = this)
+                    UMethodCall(name = genericCall)
+                        UIdentifier (Identifier (genericCall))
+                        ULiteralExpression (value = 5)
+                UMethodCall(name = simpleCall)
+                    UIdentifier (Identifier (simpleCall))
+                    UQualifiedReferenceExpression
+                        ULiteralExpression (value = 1)
+                        UMethodCall(name = asInstanceOf)
+                            UIdentifier (Identifier (asInstanceOf))
+                UMethodCall(name = genericCall)
+                    UIdentifier (Identifier (genericCall))
+                    UQualifiedReferenceExpression
+                        ULiteralExpression (value = 1)
+                        UMethodCall(name = toString)
+                            UIdentifier (Identifier (toString))
+                UMethodCall(name = genericCall)
+                    UIdentifier (Identifier (genericCall))
+                    UQualifiedReferenceExpression
+                        ULiteralExpression (value = 1)
+                        UMethodCall(name = toString)
+                            UIdentifier (Identifier (toString))
+                UMethodCall(name = genericCall)
+                    UIdentifier (Identifier (genericCall))
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        ULiteralExpression (value = 5)
+                UMethodCall(name = simpleCall)
+                    UIdentifier (Identifier (simpleCall))
+                    UMethodCall(name = genericCall)
+                        UIdentifier (Identifier (genericCall))
+                        ULiteralExpression (value = 5)
+                UMethodCall(name = simpleCall)
+                    UIdentifier (Identifier (simpleCall))
+                    UMethodCall(name = genericCall)
+                        UIdentifier (Identifier (genericCall))
+                        UQualifiedReferenceExpression
+                            ULiteralExpression (value = 1)
+                            UMethodCall(name = hashCode)
+                                UIdentifier (Identifier (hashCode))
+                UMethodCall(name = simpleCall)
+                    UIdentifier (Identifier (simpleCall))
+                    UMethodCall(name = genericCall)
+                        UIdentifier (Identifier (genericCall))
+                        UQualifiedReferenceExpression
+                            ULiteralExpression (value = 1)
+                            UMethodCall(name = asInstanceOf)
+                                UIdentifier (Identifier (asInstanceOf))
+                UMethodCall(name = simpleCall)
+                    UIdentifier (Identifier (simpleCall))
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        ULiteralExpression (value = 5)
+                UMethodCall(name = genericCall)
+                    UIdentifier (Identifier (genericCall))
+                    UMethodCall(name = genericCall)
+                        UIdentifier (Identifier (genericCall))
+                        ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        UQualifiedReferenceExpression
+                            ULiteralExpression (value = 1)
+                            UMethodCall(name = asInstanceOf)
+                                UIdentifier (Identifier (asInstanceOf))
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = genericCall)
+                        UIdentifier (Identifier (genericCall))
+                        UQualifiedReferenceExpression
+                            ULiteralExpression (value = 1)
+                            UMethodCall(name = toString)
+                                UIdentifier (Identifier (toString))
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = genericCall)
+                        UIdentifier (Identifier (genericCall))
+                        UQualifiedReferenceExpression
+                            ULiteralExpression (value = 1)
+                            UMethodCall(name = toString)
+                                UIdentifier (Identifier (toString))
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = genericCall)
+                        UIdentifier (Identifier (genericCall))
+                        UMethodCall(name = simpleCall)
+                            UIdentifier (Identifier (simpleCall))
+                            ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        UMethodCall(name = genericCall)
+                            UIdentifier (Identifier (genericCall))
+                            ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        UMethodCall(name = genericCall)
+                            UIdentifier (Identifier (genericCall))
+                            UQualifiedReferenceExpression
+                                ULiteralExpression (value = 1)
+                                UMethodCall(name = hashCode)
+                                    UIdentifier (Identifier (hashCode))
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        UMethodCall(name = genericCall)
+                            UIdentifier (Identifier (genericCall))
+                            UQualifiedReferenceExpression
+                                ULiteralExpression (value = 1)
+                                UMethodCall(name = asInstanceOf)
+                                    UIdentifier (Identifier (asInstanceOf))
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        UMethodCall(name = simpleCall)
+                            UIdentifier (Identifier (simpleCall))
+                            ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = genericCall)
+                        UIdentifier (Identifier (genericCall))
+                        UMethodCall(name = genericCall)
+                            UIdentifier (Identifier (genericCall))
+                            ULiteralExpression (value = 5)
+                UMethodCall(name = genericCall)
+                    UIdentifier (Identifier (genericCall))
+                    UQualifiedReferenceExpression
+                        USimpleNameReferenceExpression (identifier = Test)
+                        UMethodCall(name = simpleCall)
+                            UIdentifier (Identifier (simpleCall))
+                            ULiteralExpression (value = 5)
+                UMethodCall(name = simpleCall)
+                    UIdentifier (Identifier (simpleCall))
+                    UQualifiedReferenceExpression
+                        USimpleNameReferenceExpression (identifier = Test)
+                        UMethodCall(name = genericCall)
+                            UIdentifier (Identifier (genericCall))
+                            ULiteralExpression (value = 5)
+                UMethodCall(name = simpleCall)
+                    UIdentifier (Identifier (simpleCall))
+                    UQualifiedReferenceExpression
+                        USimpleNameReferenceExpression (identifier = Test)
+                        UMethodCall(name = genericCall)
+                            UIdentifier (Identifier (genericCall))
+                            UQualifiedReferenceExpression
+                                ULiteralExpression (value = 1)
+                                UMethodCall(name = hashCode)
+                                    UIdentifier (Identifier (hashCode))
+                UMethodCall(name = simpleCall)
+                    UIdentifier (Identifier (simpleCall))
+                    UQualifiedReferenceExpression
+                        USimpleNameReferenceExpression (identifier = Test)
+                        UMethodCall(name = genericCall)
+                            UIdentifier (Identifier (genericCall))
+                            UQualifiedReferenceExpression
+                                ULiteralExpression (value = 1)
+                                UMethodCall(name = asInstanceOf)
+                                    UIdentifier (Identifier (asInstanceOf))
+                UMethodCall(name = simpleCall)
+                    UIdentifier (Identifier (simpleCall))
+                    UQualifiedReferenceExpression
+                        USimpleNameReferenceExpression (identifier = Test)
+                        UMethodCall(name = simpleCall)
+                            UIdentifier (Identifier (simpleCall))
+                            ULiteralExpression (value = 5)
+                UMethodCall(name = genericCall)
+                    UIdentifier (Identifier (genericCall))
+                    UQualifiedReferenceExpression
+                        USimpleNameReferenceExpression (identifier = Test)
+                        UMethodCall(name = genericCall)
+                            UIdentifier (Identifier (genericCall))
+                            ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = genericCall)
+                        UIdentifier (Identifier (genericCall))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = Test)
+                            UMethodCall(name = simpleCall)
+                                UIdentifier (Identifier (simpleCall))
+                                ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = Test)
+                            UMethodCall(name = genericCall)
+                                UIdentifier (Identifier (genericCall))
+                                ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = Test)
+                            UMethodCall(name = genericCall)
+                                UIdentifier (Identifier (genericCall))
+                                UQualifiedReferenceExpression
+                                    ULiteralExpression (value = 1)
+                                    UMethodCall(name = hashCode)
+                                        UIdentifier (Identifier (hashCode))
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = Test)
+                            UMethodCall(name = genericCall)
+                                UIdentifier (Identifier (genericCall))
+                                UQualifiedReferenceExpression
+                                    ULiteralExpression (value = 1)
+                                    UMethodCall(name = asInstanceOf)
+                                        UIdentifier (Identifier (asInstanceOf))
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = Test)
+                            UMethodCall(name = simpleCall)
+                                UIdentifier (Identifier (simpleCall))
+                                ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = Test)
+                    UMethodCall(name = genericCall)
+                        UIdentifier (Identifier (genericCall))
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = Test)
+                            UMethodCall(name = genericCall)
+                                UIdentifier (Identifier (genericCall))
+                                ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    UThisExpression (label = this)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        UMethodCall(name = genericCall)
+                            UIdentifier (Identifier (genericCall))
+                            ULiteralExpression (value = 5)
+                UMethodCall(name = simpleCall)
+                    UIdentifier (Identifier (simpleCall))
+                    UQualifiedReferenceExpression
+                        UThisExpression (label = this)
+                        UMethodCall(name = genericCall)
+                            UIdentifier (Identifier (genericCall))
+                            ULiteralExpression (value = 5)
+                UQualifiedReferenceExpression
+                    UThisExpression (label = this)
+                    UMethodCall(name = simpleCall)
+                        UIdentifier (Identifier (simpleCall))
+                        UQualifiedReferenceExpression
+                            UThisExpression (label = this)
+                            UMethodCall(name = genericCall)
+                                UIdentifier (Identifier (genericCall))
+                                ULiteralExpression (value = 5)

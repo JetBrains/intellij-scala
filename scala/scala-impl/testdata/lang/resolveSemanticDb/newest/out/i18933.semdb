@@ -1,0 +1,6 @@
+Document tests/pos/i18933.scala
+(4:19..4:20) _empty_/Extends.Ev#[B] -> 4:11
+(4:33..4:34) _empty_/Extends.Ev#[A] -> 4:14
+(4:35..4:42) _empty_/Extends# -> 3:12
+(4:43..4:44) _empty_/Extends.Ev#[B] -> 4:11
+

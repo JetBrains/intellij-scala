@@ -1,0 +1,9 @@
+Document tests/pos/seqtest2.scala
+(5:11..5:15) scala/package.List.
+(7:18..7:23) scala/Array#
+(7:24..7:30) scala/Predef.String#
+(8:4..8:11) scala/Console.
+(8:12..8:19) scala/Console.println(+1).
+(9:5..9:6) _empty_/test.b. -> 5:7
+(10:12..10:16) scala/package.List.
+

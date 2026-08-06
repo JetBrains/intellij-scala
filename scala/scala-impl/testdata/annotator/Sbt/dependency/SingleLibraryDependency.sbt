@@ -1,0 +1,1 @@
+libraryDependencies += "x" % "y" % "1.0"

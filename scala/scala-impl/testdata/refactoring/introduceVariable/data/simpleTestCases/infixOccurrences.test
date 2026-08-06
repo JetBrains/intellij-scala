@@ -1,0 +1,15 @@
+//### replaceAll=true
+class a {
+  def foo() = {
+    2 + 2 + 3
+    <selection>2 + 2</selection>
+  }
+}
+------
+class a {
+  def foo() = {
+    val value: Int = 2 + 2
+    value + 3
+    value
+  }
+}

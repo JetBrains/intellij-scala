@@ -1,0 +1,161 @@
+package org.jetbrains.jps.incremental.scala
+
+import com.intellij.openapi.diagnostic.Logger
+import org.jetbrains.jps.ModuleChunk
+import org.jetbrains.jps.builders.DirtyFilesHolder
+import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
+import org.jetbrains.jps.builders.storage.BuildDataCorruptedException
+import org.jetbrains.jps.incremental._
+import org.jetbrains.jps.incremental.resources.ResourcesBuilder
+import org.jetbrains.jps.incremental.scala.data.CompilerDataFactory
+import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.{isCBH, projectHasScala}
+import org.jetbrains.jps.model.java.JpsJavaExtensionService
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
+
+import _root_.java.io.IOException
+import _root_.java.nio.charset.StandardCharsets
+import _root_.java.nio.file.{Files, Path}
+import _root_.java.{util => ju}
+import _root_.scala.jdk.CollectionConverters._
+
+/**
+  * For tasks that should be performed once per compilation
+  */
+class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.INITIAL) { //should be before other scala builders
+
+  import InitialScalaBuilder._
+
+  override def getPresentableName: String = JpsBundle.message("scala.compiler.metadata.builder")
+
+  override def buildStarted(context: CompileContext): Unit = {
+    if (projectHasScala(context)) {
+      val previousIncrementalityType = readIncrementalityType(context)
+      val incrementalityType = ScalaBuilder.projectSettings(context).getIncrementalityType
+
+      if (incrementalityType == IncrementalityType.SBT) {
+        // The project uses the Zinc incremental compiler. The Zinc incremental compiler compiles both Scala and Java
+        // sources. For that reason, it is important that the JavaBuilder does not run for our project. However,
+        // disabling the JavaBuilder through the JavaBuilder.IS_ENABLED global key is not ideal. There are other
+        // JPS builders who are also implicitly disabled by this action, such as the KotlinBuilder and the
+        // GradleResourcesBuilder. Thus, we want to instruct the JavaBuilder to not run for our project but keep it
+        // enabled, such that the other builders can run. This can be achieved through the Java Compiler ID mechanism.
+        // We set the Java Compiler ID to our custom Zinc ID, an ID which is unique to the Scala plugin and for which
+        // a compiler does not exist in the IDEA Platform. In this case, the JavaBuilder will not have a compiler
+        // instance to run, and therefore it will not do anything in our project but remain officially enabled.
+        val project = context.getProjectDescriptor.getProject
+        val configuration = JpsJavaExtensionService.getInstance().getCompilerConfiguration(project)
+        val replaced = configuration.getJavaCompilerId
+        CompilerDataFactory.ReplacedJavaCompilerId.set(context, replaced)
+        configuration.setJavaCompilerId(ZincCompilerId)
+        // Register special resource handling when the Zinc incremental compiler is enabled.
+        // The regular JPS ResourcesBuilder will handle non-Scala modules.
+        val builderEnabler = ZincResourceBuilder.createBuilderEnabler(context)
+        ResourcesBuilder.registerEnabler(builderEnabler)
+      }
+
+      previousIncrementalityType match {
+        case _ if JavaBuilderUtil.isForcedRecompilationAllJavaModules(context) =>
+          // Forced rebuild, save the current incremental compiler setting to disk and continue.
+          // This case is entered after the rebuild-requested exception is thrown later in the file.
+          Log.info(s"Forced project rebuild initiated, saving incremental compiler setting ($incrementalityType) to disk and continuing")
+          writeIncrementalityType(context, incrementalityType)
+        case None =>
+          Log.warn(s"Previous incremental compiler setting was not read from disk, continuing with the current incremental compiler project setting ($incrementalityType), compilation errors are possible")
+        case Some(`incrementalityType`) =>
+          Log.info(s"Previous incremental compiler setting matches the current incremental compiler project setting ($incrementalityType), continuing")
+        case Some(_) if isMakeProject(context) =>
+          // All build targets are affected, full rebuild,
+          // save the current incremental compiler setting to disk and continue
+          Log.info(s"Full project rebuild, saving incremental compiler setting ($incrementalityType) to disk and continuing")
+          writeIncrementalityType(context, incrementalityType)
+        case Some(_) =>
+          // Not a full rebuild, and incremental compiler setting has been changed since the last build, forcing a rebuild
+          Log.info(s"Previous incremental compiler setting ($previousIncrementalityType) does not match current project setting ($incrementalityType) and the build is not a full rebuild, forcing a project rebuild")
+          if (isCBH(context)) {
+            // Compiler-based highlighting specific workaround.
+            // Because we create the compilation scopes in CBH to be as minimal as possible,
+            // JPS does not propagate the rebuild-requested exception that we throw in this case.
+            // This might be a bug, I plan to speak to the JPS team about this.
+            writeIncrementalityType(context, incrementalityType)
+          }
+          val message = JpsBundle.message("incremental.compiler.changed.rebuild")
+          throw new BuildDataCorruptedException(message)
+      }
+    }
+  }
+
+  override def build(context: CompileContext,
+                     chunk: ModuleChunk,
+                     dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
+                     outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode =
+    ModuleLevelBuilder.ExitCode.NOTHING_DONE
+
+  override def getCompilableFileExtensions: ju.List[String] = ju.Arrays.asList("scala", "java")
+
+  private def incrementalityTypeStorageFile(context: CompileContext): Path = {
+    val dataStorageRoot = context.getProjectDescriptor.dataManager.getDataPaths.getDataStorageDir
+    dataStorageRoot.resolve("incrementalType.dat")
+  }
+
+  private def readIncrementalityType(context: CompileContext): Option[IncrementalityType] = {
+    val storageFile = incrementalityTypeStorageFile(context)
+    if (!Files.exists(storageFile)) {
+      // This is not necessarily an error, the storage file will be created.
+      val projectName = context.getProjectDescriptor.getProject.getName
+      Log.info(s"Incremental compiler project setting storage file does not exist for project $projectName, path: $storageFile")
+      return None
+    }
+
+    val result = try {
+      val bytes = Files.readAllBytes(storageFile)
+      val str = new String(bytes, StandardCharsets.UTF_8)
+      val incrementality = IncrementalityType.valueOf(str)
+      Some(incrementality)
+    } catch {
+      case e: IOException =>
+        Log.error("Could not read incremental compiler settings from disk", e)
+        None
+      case e: IllegalArgumentException =>
+        Log.error("Unknown incrementality type string", e)
+        None
+    }
+
+    if (result.isEmpty) Files.delete(storageFile)
+    result
+  }
+
+  private def writeIncrementalityType(context: CompileContext, incrementalityType: IncrementalityType): Unit = {
+    val storagePath = incrementalityTypeStorageFile(context)
+    val parentDir = storagePath.getParent
+    try {
+      if (!Files.exists(parentDir)) Files.createDirectories(parentDir)
+      Files.write(storagePath, incrementalityType.name().getBytes(StandardCharsets.UTF_8))
+      Log.info(s"Wrote incremental compiler setting $incrementalityType to disk, path: $storagePath")
+    }
+    catch {
+      case e: IOException =>
+        Log.error(s"Could not write incremental compiler setting $incrementalityType to disk, path: $storagePath", e)
+    }
+  }
+
+  private def isMakeProject(context: CompileContext): Boolean = {
+    def allTargetsAffected: Boolean =
+      context.getProjectDescriptor.getBuildTargetIndex.getSortedTargetChunks(context).asScala.forall { chunk =>
+        chunk.getTargets.asScala.forall { target =>
+          context.getScope.isAffected(target)
+        }
+      }
+
+    JavaBuilderUtil.isCompileJavaIncrementally(context) && allTargetsAffected
+  }
+}
+
+object InitialScalaBuilder {
+  private val Log: Logger = Logger.getInstance(classOf[InitialScalaBuilder])
+
+  /**
+   * A unique compiler id (in the IntelliJ Platform), which does not match any other Java compiler implementation
+   * provided by the platform.
+   */
+  private final val ZincCompilerId = "scala_Zinc"
+}

@@ -1,0 +1,5 @@
+Document tests/pos/i11481.scala
+(1:35..1:36) _empty_/Foo#[F] -> 1:16
+(1:37..1:40) scala/Int#
+(1:44..1:50) java/lang/Object#
+

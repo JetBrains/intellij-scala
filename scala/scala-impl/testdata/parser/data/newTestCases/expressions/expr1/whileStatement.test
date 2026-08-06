@@ -1,0 +1,45 @@
+class a {
+  while (true)
+
+  Expr = 1
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        WhileStatement
+          PsiElement(while)('while')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          BooleanLiteral
+            PsiElement(true)('true')
+          PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          AssignStatement
+            ReferenceExpression: Expr
+              PsiElement(identifier)('Expr')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,16 @@
+Document tests/pos/i24765.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:40) scala/language.experimental.modularity.
+(4:16..4:17) _empty_/A#[T] -> 3:9
+(4:28..4:29) _empty_/A#[T] -> 3:9
+(8:16..8:20) _empty_/B#Self# -> 7:8
+(8:31..8:35) _empty_/B#Self# -> 7:8
+(10:7..10:8) _empty_/A# -> 3:7
+(10:9..10:12) scala/Int#
+(10:21..10:22) local0 -> 10:16
+(12:7..12:10) scala/Int#
+(12:11..12:13) scala/Predef.is#
+(12:14..12:15) _empty_/B# -> 6:7
+(12:23..12:24) local1 -> 12:18
+

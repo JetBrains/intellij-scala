@@ -1,0 +1,14 @@
+Document tests/pos/i19505.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:32) scala/annotation/tailrec#
+(4:4..4:11) scala/annotation/tailrec#
+(5:14..5:17) scala/Int#
+(5:20..5:23) scala/Int#
+(6:8..6:9) _empty_/Foo.foo().(n) -> 5:11
+(6:10..6:12) scala/Int#`==`(+3).
+(7:10..7:13) _empty_/Foo.foo(). -> 5:7
+(7:14..7:15) _empty_/Foo.foo().(n) -> 5:11
+(7:15..7:16) scala/Int#`-`(+3).
+(10:10..10:13) _empty_/Foo. -> 3:8
+

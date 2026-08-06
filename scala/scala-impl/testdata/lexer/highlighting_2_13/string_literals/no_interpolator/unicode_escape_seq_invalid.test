@@ -1,0 +1,83 @@
+"\u"
+"\uu"
+"\uuu"
+//////////////////////
+"\u002"
+"\u002 \u"
+"\u002 \u002"
+"\uu002"
+"\uuu002"
+//////////////////////
+" \u002"
+"\u002 "
+//////////////////////
+"\u0025 \u002"
+-----
+string content {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\u}
+string content {"}
+white space in line {
+}
+string content {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\uu}
+string content {"}
+white space in line {
+}
+string content {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\uuu}
+string content {"}
+white space in line {
+}
+comment {//////////////////////}
+white space in line {
+}
+string content {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+string content {"}
+white space in line {
+}
+string content {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+string content { }
+INVALID_UNICODE_ESCAPE_TOKEN {\u}
+string content {"}
+white space in line {
+}
+string content {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+string content { }
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+string content {"}
+white space in line {
+}
+string content {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\uu002}
+string content {"}
+white space in line {
+}
+string content {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\uuu002}
+string content {"}
+white space in line {
+}
+comment {//////////////////////}
+white space in line {
+}
+string content {" }
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+string content {"}
+white space in line {
+}
+string content {"}
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+string content { "}
+white space in line {
+}
+comment {//////////////////////}
+white space in line {
+}
+string content {"}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+string content { }
+INVALID_UNICODE_ESCAPE_TOKEN {\u002}
+string content {"}

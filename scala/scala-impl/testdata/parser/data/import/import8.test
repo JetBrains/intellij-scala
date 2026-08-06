@@ -1,0 +1,40 @@
+import a.b.c.{ a => b, c => _, _}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: a.b.c
+        CodeReferenceElement: a.b
+          CodeReferenceElement: a
+            PsiElement(identifier)('a')
+          PsiElement(.)('.')
+          PsiElement(identifier)('b')
+        PsiElement(.)('.')
+        PsiElement(identifier)('c')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: a
+            PsiElement(identifier)('a')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('b')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: c
+            PsiElement(identifier)('c')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          PsiElement(_)('_')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          PsiElement(_)('_')
+        PsiElement(})('}')

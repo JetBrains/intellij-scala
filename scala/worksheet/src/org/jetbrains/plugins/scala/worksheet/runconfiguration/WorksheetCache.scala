@@ -1,0 +1,189 @@
+package org.jetbrains.plugins.scala.worksheet.runconfiguration
+
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.{Editor, EditorFactory}
+import com.intellij.openapi.project.Project
+import com.intellij.platform.eel.provider.utils.EelPathUtils
+import org.jetbrains.annotations.{ApiStatus, TestOnly}
+import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.CompilerMessagesCollector
+import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
+
+import java.io.IOException
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
+import java.util
+import scala.collection.immutable.ListSet
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
+import scala.util.{Failure, Try}
+
+@ApiStatus.Internal
+@Service(Array(Service.Level.PROJECT))
+final class WorksheetCache(project: Project) extends Disposable {
+
+  //TODO: why this map value has collection type?
+  // One worksheet editor can have only one viewer so instead it should be some bidirectional map Editor <-> Editor
+  private val allViewers      = new util.WeakHashMap[Editor, ListSet[Editor]]()
+  private val allReplPrinters = new util.WeakHashMap[Editor, WorksheetEditorPrinter]()
+  private val patchedEditors  = new util.WeakHashMap[Editor, String]()
+
+  private val Log: Logger = Logger.getInstance(getClass)
+
+  @TestOnly
+  private val allCompilerMessagesCollectors = new util.WeakHashMap[Editor, CompilerMessagesCollector]()
+
+  // TODO: cleanup created files on application/project exit, do not pollute file system!
+  private val compilationInfo = mutable.HashMap.empty[String, (Int, Path, Path)]
+
+  def updateOrCreateCompilationInfo(filePath: String, fileName: String): (Int, Path, Path) =
+    updateOrCreateCompilationInfo(filePath, fileName, None)
+
+  def updateOrCreateCompilationInfo(filePath: String, fileName: String, tempDirName: Option[String]): (Int, Path, Path) =
+    compilationInfo.get(filePath) match {
+      case Some(result@(it, src, out)) if Files.exists(src) && Files.exists(out) =>
+        compilationInfo.put(filePath, (it + 1, src, out))
+        clearDirectory(out)
+        result
+      case _ =>
+        val prefix = tempDirName.getOrElse("")
+        //noinspection ApiStatus,UnstableApiUsage
+        val tempDir = EelPathUtils.createTemporaryDirectory(project, prefix, "", true)
+        val src = tempDir / fileName
+        val out = tempDir / "out"
+        Files.createDirectories(out)
+        compilationInfo.put(filePath, (1, src, out))
+        (0, src, out)
+    }
+
+  @TestOnly
+  def getCompilerMessagesCollector(inputEditor: Editor): Option[CompilerMessagesCollector] =
+    Option(allCompilerMessagesCollectors.get(inputEditor))
+
+  @TestOnly
+  def addCompilerMessagesCollector(inputEditor: Editor, collector: CompilerMessagesCollector): Unit =
+    allCompilerMessagesCollectors.put(inputEditor, collector)
+
+  def peakCompilationIteration(filePath: String): Int =
+    compilationInfo.get(filePath).map(_._1).getOrElse(-1)
+
+  def getPrinter(inputEditor: Editor): Option[WorksheetEditorPrinter] =
+    Option(allReplPrinters.get(inputEditor))
+
+  def addPrinter(inputEditor: Editor, printer: WorksheetEditorPrinter): Unit =
+    allReplPrinters.put(inputEditor, printer)
+
+  def removePrinter(inputEditor: Editor): Unit = {
+    val removed = allReplPrinters.remove(inputEditor)
+    if (removed != null) {
+      removed.close()
+    }
+  }
+
+  def getLastProcessedIncremental(inputEditor: Editor): Option[Int] =
+    Option(allReplPrinters.get(inputEditor)).flatMap {
+      case in: WorksheetEditorPrinterRepl => in.lastProcessedLine
+      case _                              => None
+    }
+
+  def resetLastProcessedIncremental(inputEditor: Editor): Unit =
+    allReplPrinters.get(inputEditor) match {
+      case inc: WorksheetEditorPrinterRepl => inc.resetLastProcessedLine()
+      case _                               =>
+    }
+
+  def getPatchedFlag(editor: Editor): String = Option(patchedEditors.get(editor)).orNull
+
+  def setPatchedFlag(editor: Editor, flag: String): Unit =
+    patchedEditors.put(editor, flag)
+
+  def removePatchedFlag(editor: Editor): Unit =
+    patchedEditors.remove(editor)
+
+  def getViewer(editor: Editor): Editor = {
+    val viewer = get(editor)
+
+    if (viewer != null && viewer.isDisposed || editor.isDisposed) {
+      synchronized {
+        allViewers.remove(editor)
+      }
+
+      return null
+    }
+
+    viewer
+  }
+
+  def editorClosed(editor: Editor): Unit = synchronized {
+    allViewers.remove(editor)
+    allReplPrinters.remove(editor)
+    allCompilerMessagesCollectors.remove(editor)
+    patchedEditors.remove(editor)
+  }
+
+  def addViewer(viewer: Editor, editor: Editor): Unit =
+    synchronized {
+      val existingViewers = Option(allViewers.get(editor)).getOrElse(ListSet.empty)
+      allViewers.put(editor, existingViewers + viewer)
+    }
+
+  override def dispose(): Unit = {
+    invalidatePrinters()
+    invalidateViewers()
+  }
+
+  private def logErrors[T](body: => T): Unit =
+    Try(body) match {
+      case Failure(exception) =>
+        Log.error(exception)
+      case _=>
+    }
+
+  private def invalidatePrinters(): Unit = {
+    for {
+      printer <- allReplPrinters.asScala.values
+    } logErrors(printer.close())
+    allReplPrinters.clear()
+  }
+
+  private def invalidateViewers(): Unit = {
+    val factory = EditorFactory.getInstance()
+    for {
+      editors <- allViewers.values.asScala
+      editor  <- editors
+      if !editor.isDisposed
+    } logErrors(factory.releaseEditor(editor))
+    allViewers.clear()
+  }
+
+  private def get(editor: Editor): Editor =
+    synchronized {
+      val viewers = Option(allViewers.get(editor)).getOrElse(Nil)
+      viewers.lastOption.orNull
+    }
+
+  /**
+   * Removes all files and subdirectories of the given directory, but keeps the directory itself.
+   */
+  private def clearDirectory(directory: Path): Unit = {
+    if (!Files.isDirectory(directory)) return
+    Files.walkFileTree(directory, new SimpleFileVisitor[Path] {
+      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+        Files.delete(file)
+        FileVisitResult.CONTINUE
+      }
+
+      override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+        if (exc != null) throw exc
+        if (dir != directory) Files.delete(dir)
+        FileVisitResult.CONTINUE
+      }
+    })
+  }
+}
+
+object WorksheetCache {
+  def getInstance(project: Project): WorksheetCache = project.getService(classOf[WorksheetCache])
+}

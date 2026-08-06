@@ -1,0 +1,16 @@
+Document tests/pos/i22589.scala
+(2:8..2:13) scala/
+(2:14..2:25) scala/compiletime/
+(2:26..2:34) scala/compiletime/package$package.deferred().
+(9:11..9:18) _empty_/MyCodec# -> 4:7
+(9:19..9:20) _empty_/auto.CompanionEssentials#[E] -> 7:29
+(11:8..11:12) _empty_/auto. -> 6:8
+(13:25..13:31) scala/Predef.String#
+(13:38..13:41) scala/Int#
+(14:23..14:42) _empty_/auto.CompanionEssentials# -> 7:9
+(14:43..14:49) _empty_/Person# -> 13:12
+(16:20..16:27) _empty_/MyCodec# -> 4:7
+(16:28..16:34) _empty_/Person# -> 13:12
+(16:42..16:49) _empty_/MyCodec# -> 4:7
+(16:50..16:56) _empty_/Person# -> 13:12
+

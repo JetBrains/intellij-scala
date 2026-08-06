@@ -1,0 +1,4 @@
+Document tests/pos/i15177.without.scala
+(4:17..4:18) _empty_/X# -> 3:7
+(4:19..4:20) _empty_/B# -> 5:7
+

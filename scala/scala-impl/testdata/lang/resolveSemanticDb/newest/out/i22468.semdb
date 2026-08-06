@@ -1,0 +1,19 @@
+Document tests/pos/i22468.scala
+(1:8..1:14) _empty_/i22468$package.Result. -> 4:8
+(2:30..2:37) _empty_/i22468$package.Result.Success# -> 5:15
+(2:38..2:39) _empty_/i22468$package.Result#[A] -> 2:25
+(2:41..2:42) scala/`|`#
+(2:43..2:48) _empty_/i22468$package.Result.Error# -> 6:25
+(2:49..2:50) _empty_/i22468$package.Result#[E] -> 2:21
+(5:29..5:30) _empty_/i22468$package.Result.Success#[A] -> 5:24
+(8:26..8:32) _empty_/i22468$package.Result# -> 2:13
+(8:33..8:34) _empty_/i22468$package.Result.problem().[E] -> 8:14
+(8:33..8:34) _empty_/i22468$package.Result.transform().[E] -> 8:14
+(8:36..8:37) _empty_/i22468$package.Result.problem().[A] -> 8:17
+(8:36..8:37) _empty_/i22468$package.Result.transform().[A] -> 8:17
+(9:30..9:31) _empty_/i22468$package.Result.transform().[B] -> 9:26
+(9:34..9:37) scala/Predef.`???`().
+(10:18..10:25) scala/Boolean#
+(10:28..10:37) _empty_/i22468$package.Result.transform(). -> 9:16
+(10:38..10:45) scala/Boolean#
+

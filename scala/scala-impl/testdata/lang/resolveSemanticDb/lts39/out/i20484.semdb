@@ -1,0 +1,8 @@
+Document tests/pos/i20484.scala
+(1:7..1:10) scala/Int#
+(1:13..1:16) scala/Predef.`???`().
+(2:7..2:11) scala/Char#
+(2:14..2:17) scala/Predef.`???`().
+(3:9..3:15) scala/Predef.summon().
+(3:16..3:19) scala/Int#
+

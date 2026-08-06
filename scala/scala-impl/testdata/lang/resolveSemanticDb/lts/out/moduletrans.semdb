@@ -1,0 +1,4 @@
+Document tests/pos/moduletrans.scala
+(8:16..8:17) _empty_/m1.m# -> 5:9
+(8:24..8:25) _empty_/m1.m# -> 5:9
+

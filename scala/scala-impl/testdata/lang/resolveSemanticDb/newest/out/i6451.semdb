@@ -1,0 +1,23 @@
+Document tests/pos/i6451.scala
+(3:43..3:44) _empty_/Test.YZ#[Y] -> 3:14
+(3:45..3:46) _empty_/Test.YZ#[Z] -> 3:25
+(3:47..3:48) _empty_/Test.YZ#[T] -> 3:36
+(5:11..5:15) scala/package.List#
+(5:16..5:20) scala/package.List#
+(5:21..5:24) scala/Int#
+(5:29..5:32) scala/Predef.`???`().
+(6:13..6:17) scala/package.List#
+(6:18..6:22) scala/package.List#
+(6:23..6:26) scala/Int#
+(6:31..6:34) scala/Predef.`???`().
+(8:11..8:13) _empty_/Test.YZ# -> 3:8
+(8:14..8:18) scala/package.List#
+(8:20..8:24) scala/package.List#
+(8:26..8:29) scala/Int#
+(8:33..8:35) _empty_/Test.r1. -> 5:7
+(9:11..9:13) _empty_/Test.YZ# -> 3:8
+(9:14..9:18) scala/package.List#
+(9:20..9:24) scala/package.List#
+(9:26..9:29) scala/Int#
+(9:33..9:35) _empty_/Test.r2(). -> 6:7
+

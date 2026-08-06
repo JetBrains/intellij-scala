@@ -1,0 +1,4 @@
+Document tests/pos/t177.scala
+(6:5..6:6) local2
+(6:7..6:10) local0 -> 4:11
+

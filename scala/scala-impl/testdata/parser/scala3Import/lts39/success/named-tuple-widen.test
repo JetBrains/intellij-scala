@@ -1,0 +1,196 @@
+
+class A
+class B
+val y1: (a1: A, b1:  B) = ???
+val y2: (a2: A, b2: B) = ???
+var z1 = if ??? then y1 else y2 // -- what is the type of z2
+var z2: NamedTuple.AnyNamedTuple = z1
+val _ = z1 = z2
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: B
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('B')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: y1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: y1
+        PsiElement(identifier)('y1')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    NamedTupleType: (a1: A, b1:  B)
+      PsiElement(()('(')
+      NamedTupleTypeComponent: a1: A
+        PsiElement(identifier)('a1')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: A
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      NamedTupleTypeComponent: b1:  B
+        PsiElement(identifier)('b1')
+        PsiElement(:)(':')
+        PsiWhiteSpace('  ')
+        SimpleType: B
+          CodeReferenceElement: B
+            PsiElement(identifier)('B')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: y2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: y2
+        PsiElement(identifier)('y2')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    NamedTupleType: (a2: A, b2: B)
+      PsiElement(()('(')
+      NamedTupleTypeComponent: a2: A
+        PsiElement(identifier)('a2')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: A
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      NamedTupleTypeComponent: b2: B
+        PsiElement(identifier)('b2')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: B
+          CodeReferenceElement: B
+            PsiElement(identifier)('B')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScVariableDefinition: z1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(var)('var')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: z1
+        PsiElement(identifier)('z1')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    IfStatement
+      PsiElement(if)('if')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ???
+        PsiElement(identifier)('???')
+      PsiWhiteSpace(' ')
+      PsiElement(then)('then')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: y1
+        PsiElement(identifier)('y1')
+      PsiWhiteSpace(' ')
+      PsiElement(else)('else')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: y2
+        PsiElement(identifier)('y2')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// -- what is the type of z2')
+  PsiWhiteSpace('\n')
+  ScVariableDefinition: z2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(var)('var')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: z2
+        PsiElement(identifier)('z2')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: NamedTuple.AnyNamedTuple
+      CodeReferenceElement: NamedTuple.AnyNamedTuple
+        CodeReferenceElement: NamedTuple
+          PsiElement(identifier)('NamedTuple')
+        PsiElement(.)('.')
+        PsiElement(identifier)('AnyNamedTuple')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: z1
+      PsiElement(identifier)('z1')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    AssignStatement
+      ReferenceExpression: z1
+        PsiElement(identifier)('z1')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: z2
+        PsiElement(identifier)('z2')

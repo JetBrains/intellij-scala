@@ -1,0 +1,16 @@
+<html>
+<body>
+<p>Reports redundant enclosing blocks in interpolated strings.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  val name = "Andy"
+  s"Do you know ${name}?"
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  val name = "Andy"
+  s"Do you know $name?"
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

@@ -1,0 +1,56 @@
+class a{
+  try {
+    0/0
+  }
+  finally{
+    "do nothing"
+  }
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        TryStatement
+          PsiElement(try)('try')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            InfixExpression
+              IntegerLiteral
+                PsiElement(integer)('0')
+              ReferenceExpression: /
+                PsiElement(identifier)('/')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          FinallyBlock
+            PsiElement(finally)('finally')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              StringLiteral
+                PsiElement(string content)('"do nothing"')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

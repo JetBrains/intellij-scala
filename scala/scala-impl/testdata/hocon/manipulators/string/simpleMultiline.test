@@ -1,0 +1,11 @@
+k = """<caret>value"""
+-----
+[some
+multi
+line
+text]
+-----
+k = """some
+multi
+line
+text"""

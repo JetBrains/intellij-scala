@@ -1,0 +1,13 @@
+<settings>
+  <HoconCodeStyleSettings>
+    <option name="SPACE_BEFORE_LBRACE_AFTER_PATH" value="false" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+obj{}
+obj {}
+obj  {}
+-----
+obj{}
+obj{}
+obj{}

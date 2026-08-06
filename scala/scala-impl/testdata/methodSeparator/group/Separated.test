@@ -1,0 +1,15 @@
+def f2 = {
+}
+
+class C { // -
+}
+
+trait T { // -
+}
+
+object O { // -
+}
+
+{ // -
+}
+

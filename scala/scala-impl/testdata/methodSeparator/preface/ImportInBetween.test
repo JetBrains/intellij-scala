@@ -1,0 +1,7 @@
+def f1 = {
+}
+
+import scala.collection.immutable.List // -
+
+def f2 = { // -
+}

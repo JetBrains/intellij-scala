@@ -1,0 +1,602 @@
+trait Alternative[F[_]]
+
+opaque type Derived[A] = A
+object Derived:
+  extension [A](derived: Derived[A]) def instance: A = derived
+  infix type <<<[F[_], G[_]] = [x] =>> F[G[x]]
+
+import Derived.*
+import scala.compiletime.summonInline
+
+type DerivedAlternative[F[_]] = Derived[Alternative[F]]
+object DerivedAlternative:
+  inline def apply[F[_]]: Alternative[F] =
+    import DerivedAlternative.given
+    summonInline[DerivedAlternative[F]].instance
+  given nested: [F[_], G[_]] => DerivedAlternative[F <<< G] = ???
+
+object auto:
+  object alternative:
+    transparent inline given [F[_]] => Alternative[F] = DerivedAlternative[F]
+
+trait Test:
+  import Test.*
+  import auto.alternative.given
+  val fails = summon[Alternative[OptList]]
+
+// Fails if companion object defined AFTER trait
+object Test:
+  type OptList[A] = Option[List[A]]
+-----
+ScalaFile
+  ScTrait: Alternative
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Alternative')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Derived
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(opaque)('opaque')
+    PsiWhiteSpace(' ')
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Derived')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: A
+      CodeReferenceElement: A
+        PsiElement(identifier)('A')
+  PsiWhiteSpace('\n')
+  ScObject: Derived
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Derived')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        Extension on Derived[A]
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: derived
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('derived')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Derived[A]
+                    SimpleType: Derived
+                      CodeReferenceElement: Derived
+                        PsiElement(identifier)('Derived')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ScExtensionBody
+            ScFunctionDefinition: instance
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('instance')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: derived
+                PsiElement(identifier)('derived')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: <<<
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(infix)('infix')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('<<<')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: G
+              PsiElement(identifier)('G')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TypeLambda: [x] =>> F[G[x]]
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: x
+                PsiElement(identifier)('x')
+              PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=>>)('=>>')
+            PsiWhiteSpace(' ')
+            ParametrizedType: F[G[x]]
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: G[x]
+                    SimpleType: G
+                      CodeReferenceElement: G
+                        PsiElement(identifier)('G')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: x
+                          CodeReferenceElement: x
+                            PsiElement(identifier)('x')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Derived
+        PsiElement(identifier)('Derived')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.summonInline
+        CodeReferenceElement: scala.compiletime
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('compiletime')
+        PsiElement(.)('.')
+        PsiElement(identifier)('summonInline')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: DerivedAlternative
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DerivedAlternative')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Derived[Alternative[F]]
+      SimpleType: Derived
+        CodeReferenceElement: Derived
+          PsiElement(identifier)('Derived')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: Alternative[F]
+            SimpleType: Alternative
+              CodeReferenceElement: Alternative
+                PsiElement(identifier)('Alternative')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+              PsiElement(])(']')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScObject: DerivedAlternative
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DerivedAlternative')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Alternative[F]
+            SimpleType: Alternative
+              CodeReferenceElement: Alternative
+                PsiElement(identifier)('Alternative')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScImportStatement
+              PsiElement(import)('import')
+              PsiWhiteSpace(' ')
+              ImportExpression
+                CodeReferenceElement: DerivedAlternative
+                  PsiElement(identifier)('DerivedAlternative')
+                PsiElement(.)('.')
+                ImportSelectors
+                  ImportSelector
+                    PsiElement(given)('given')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: summonInline[DerivedAlternative[F]].instance
+              GenericCall
+                ReferenceExpression: summonInline
+                  PsiElement(identifier)('summonInline')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: DerivedAlternative[F]
+                      SimpleType: DerivedAlternative
+                        CodeReferenceElement: DerivedAlternative
+                          PsiElement(identifier)('DerivedAlternative')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: F
+                            CodeReferenceElement: F
+                              PsiElement(identifier)('F')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiElement(.)('.')
+              PsiElement(identifier)('instance')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDefinition: nested
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('nested')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: G
+              PsiElement(identifier)('G')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ParametrizedType: DerivedAlternative[F <<< G]
+            SimpleType: DerivedAlternative
+              CodeReferenceElement: DerivedAlternative
+                PsiElement(identifier)('DerivedAlternative')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                InfixType: F <<< G
+                  SimpleType: F
+                    CodeReferenceElement: F
+                      PsiElement(identifier)('F')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: <<<
+                    PsiElement(identifier)('<<<')
+                  PsiWhiteSpace(' ')
+                  SimpleType: G
+                    CodeReferenceElement: G
+                      PsiElement(identifier)('G')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScObject: auto
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('auto')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScObject: alternative
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('alternative')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScGivenAliasDefinition: given_Alternative_F
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(transparent)('transparent')
+                  PsiWhiteSpace(' ')
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: F
+                    PsiElement(identifier)('F')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: _
+                        PsiElement(_)('_')
+                      PsiElement(])(']')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                ParametrizedType: Alternative[F]
+                  SimpleType: Alternative
+                    CodeReferenceElement: Alternative
+                      PsiElement(identifier)('Alternative')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                GenericCall
+                  ReferenceExpression: DerivedAlternative
+                    PsiElement(identifier)('DerivedAlternative')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                    PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: Test
+              PsiElement(identifier)('Test')
+            PsiElement(.)('.')
+            PsiElement(*)('*')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: auto.alternative
+              CodeReferenceElement: auto
+                PsiElement(identifier)('auto')
+              PsiElement(.)('.')
+              PsiElement(identifier)('alternative')
+            PsiElement(.)('.')
+            ImportSelectors
+              ImportSelector
+                PsiElement(given)('given')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: fails
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: fails
+              PsiElement(identifier)('fails')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Alternative[OptList]
+                  SimpleType: Alternative
+                    CodeReferenceElement: Alternative
+                      PsiElement(identifier)('Alternative')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: OptList
+                        CodeReferenceElement: OptList
+                          PsiElement(identifier)('OptList')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    PsiComment(comment)('// Fails if companion object defined AFTER trait')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: OptList
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('OptList')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[List[A]]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: List[A]
+                  SimpleType: List
+                    CodeReferenceElement: List
+                      PsiElement(identifier)('List')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
+              PsiElement(])(']')

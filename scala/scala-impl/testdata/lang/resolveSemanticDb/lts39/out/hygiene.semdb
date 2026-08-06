@@ -1,0 +1,8 @@
+Document tests/pos/hygiene.scala
+(7:22..7:23) _empty_/hygiene.D# -> 5:9
+(7:24..7:25) _empty_/hygiene.C#[T] -> 7:16
+(16:11..16:12) _empty_/hygiene.C. -> 12:10
+(16:13..16:18) _empty_/hygiene.C.apply().
+(18:3..18:4) _empty_/hygiene.c. -> 16:7
+(18:5..18:6) _empty_/hygiene.C#x. -> 7:19
+

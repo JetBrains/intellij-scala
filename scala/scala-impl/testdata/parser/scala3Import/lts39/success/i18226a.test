@@ -1,0 +1,342 @@
+class Has[A]
+trait Foo
+
+class TestAspect[+LowerR, -UpperR]
+
+class Spec[-R] {
+  def foo[R1 <: R](aspect: TestAspect[R1, R1]): Unit = {}
+}
+
+class SuiteBuilder[R <: Has[_]] {
+  def toSpec(
+    spec: Spec[R & Has[Foo]],
+    aspect: TestAspect[
+      R & Has[Foo],
+      R & Has[Foo]
+    ]
+  ) =
+    spec.foo(aspect)
+}
+-----
+ScalaFile
+  ScClass: Has
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Has')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: TestAspect
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestAspect')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: LowerR
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('LowerR')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: UpperR
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('UpperR')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: Spec
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Spec')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('-')
+        PsiElement(identifier)('R')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R1
+              PsiElement(identifier)('R1')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: R
+                CodeReferenceElement: R
+                  PsiElement(identifier)('R')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: aspect
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('aspect')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: TestAspect[R1, R1]
+                    SimpleType: TestAspect
+                      CodeReferenceElement: TestAspect
+                        PsiElement(identifier)('TestAspect')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R1
+                          CodeReferenceElement: R1
+                            PsiElement(identifier)('R1')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: R1
+                          CodeReferenceElement: R1
+                            PsiElement(identifier)('R1')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: SuiteBuilder
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('SuiteBuilder')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Has[_]
+          SimpleType: Has
+            CodeReferenceElement: Has
+              PsiElement(identifier)('Has')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              WildcardType: _
+                PsiElement(_)('_')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: toSpec
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('toSpec')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiWhiteSpace('\n    ')
+              Parameter: spec
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('spec')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Spec[R & Has[Foo]]
+                    SimpleType: Spec
+                      CodeReferenceElement: Spec
+                        PsiElement(identifier)('Spec')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        InfixType: R & Has[Foo]
+                          SimpleType: R
+                            CodeReferenceElement: R
+                              PsiElement(identifier)('R')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: &
+                            PsiElement(identifier)('&')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Has[Foo]
+                            SimpleType: Has
+                              CodeReferenceElement: Has
+                                PsiElement(identifier)('Has')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Foo
+                                  CodeReferenceElement: Foo
+                                    PsiElement(identifier)('Foo')
+                              PsiElement(])(']')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              Parameter: aspect
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('aspect')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: TestAspect[
+      R & Has[Foo],
+      R & Has[Foo]
+    ]
+                    SimpleType: TestAspect
+                      CodeReferenceElement: TestAspect
+                        PsiElement(identifier)('TestAspect')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      PsiWhiteSpace('\n      ')
+                      TypeArgument
+                        InfixType: R & Has[Foo]
+                          SimpleType: R
+                            CodeReferenceElement: R
+                              PsiElement(identifier)('R')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: &
+                            PsiElement(identifier)('&')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Has[Foo]
+                            SimpleType: Has
+                              CodeReferenceElement: Has
+                                PsiElement(identifier)('Has')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Foo
+                                  CodeReferenceElement: Foo
+                                    PsiElement(identifier)('Foo')
+                              PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace('\n      ')
+                      TypeArgument
+                        InfixType: R & Has[Foo]
+                          SimpleType: R
+                            CodeReferenceElement: R
+                              PsiElement(identifier)('R')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: &
+                            PsiElement(identifier)('&')
+                          PsiWhiteSpace(' ')
+                          ParametrizedType: Has[Foo]
+                            SimpleType: Has
+                              CodeReferenceElement: Has
+                                PsiElement(identifier)('Has')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Foo
+                                  CodeReferenceElement: Foo
+                                    PsiElement(identifier)('Foo')
+                              PsiElement(])(']')
+                      PsiWhiteSpace('\n    ')
+                      PsiElement(])(']')
+              PsiWhiteSpace('\n  ')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: spec.foo
+              ReferenceExpression: spec
+                PsiElement(identifier)('spec')
+              PsiElement(.)('.')
+              PsiElement(identifier)('foo')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: aspect
+                PsiElement(identifier)('aspect')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

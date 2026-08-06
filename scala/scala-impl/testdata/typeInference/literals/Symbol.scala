@@ -1,0 +1,2 @@
+/*start*/'symbol/*end*/
+//Symbol

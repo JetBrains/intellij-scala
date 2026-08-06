@@ -1,0 +1,59 @@
+Document tests/pos/t7226.scala
+(5:24..5:27) _empty_/HK#Rep# -> 2:8
+(5:28..5:32) scala/package.List#
+(5:34..5:35) _empty_/HK#unzip2().[A] -> 5:14
+(5:37..5:38) _empty_/HK#unzip2().[B] -> 5:17
+(5:44..5:48) scala/Unit#
+(6:3..6:9) _empty_/HK#unzip2(). -> 5:7
+(6:15..6:27) scala/Any#asInstanceOf().
+(6:28..6:31) _empty_/HK#Rep# -> 2:8
+(6:32..6:36) scala/package.List#
+(6:38..6:41) scala/Int#
+(6:43..6:49) scala/Predef.String#
+(9:31..9:34) _empty_/HK#Rep# -> 2:8
+(9:35..9:36) _empty_/HK#unzipHK().[C] -> 9:21
+(9:38..9:39) _empty_/HK#unzipHK().[A] -> 9:15
+(9:41..9:42) _empty_/HK#unzipHK().[B] -> 9:18
+(9:48..9:52) scala/Unit#
+(10:3..10:10) _empty_/HK#unzipHK(). -> 9:7
+(10:16..10:28) scala/Any#asInstanceOf().
+(10:29..10:32) _empty_/HK#Rep# -> 2:8
+(10:33..10:37) scala/package.List#
+(10:39..10:42) scala/Int#
+(10:44..10:50) scala/Predef.String#
+(12:32..12:33) _empty_/HK#unzipHKRet0().[C] -> 12:22
+(12:34..12:35) _empty_/HK#unzipHKRet0().[A] -> 12:19
+(12:39..12:40) _empty_/HK#unzipHKRet0().[C] -> 12:22
+(12:41..12:44) scala/Int#
+(13:11..13:15) scala/package.List#
+(13:16..13:22) scala/Predef.String#
+(14:3..14:14) _empty_/HK#unzipHKRet0(). -> 12:7
+(14:15..14:17) _empty_/HK#ls(). -> 13:7
+(17:31..17:34) _empty_/HK#Rep# -> 2:8
+(17:35..17:36) _empty_/HK#unzipHKRet().[C] -> 17:21
+(17:37..17:38) _empty_/HK#unzipHKRet().[A] -> 17:18
+(17:43..17:46) _empty_/HK#Rep# -> 2:8
+(17:47..17:48) _empty_/HK#unzipHKRet().[C] -> 17:21
+(17:49..17:52) scala/Int#
+(18:12..18:15) _empty_/HK#Rep# -> 2:8
+(18:16..18:20) scala/package.List#
+(18:21..18:27) scala/Predef.String#
+(19:3..19:13) _empty_/HK#unzipHKRet(). -> 17:7
+(19:14..19:17) _empty_/HK#rls(). -> 18:7
+(24:30..24:33) _empty_/HK1#Rep# -> 23:8
+(24:34..24:35) _empty_/HK1#unzip1().[C] -> 24:20
+(24:37..24:38) _empty_/HK1#unzip1().[A] -> 24:14
+(24:40..24:41) _empty_/HK1#unzip1().[B] -> 24:17
+(24:48..24:51) _empty_/HK1#Rep# -> 23:8
+(24:52..24:53) _empty_/HK1#unzip1().[C] -> 24:20
+(24:54..24:55) _empty_/HK1#unzip1().[A] -> 24:14
+(24:59..24:62) _empty_/HK1#Rep# -> 23:8
+(24:63..24:64) _empty_/HK1#unzip1().[C] -> 24:20
+(24:65..24:66) _empty_/HK1#unzip1().[B] -> 24:17
+(25:26..25:29) _empty_/HK1#Rep# -> 23:8
+(25:30..25:34) scala/package.List#
+(25:36..25:37) _empty_/HK1#doUnzip1().[A] -> 25:16
+(25:39..25:40) _empty_/HK1#doUnzip1().[B] -> 25:19
+(25:47..25:53) _empty_/HK1#unzip1(). -> 24:7
+(25:54..25:56) _empty_/HK1#doUnzip1().(ps) -> 25:22
+

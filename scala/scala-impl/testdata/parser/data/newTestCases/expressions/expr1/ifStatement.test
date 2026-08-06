@@ -1,0 +1,64 @@
+class a {
+  if (true && true)
+
+  Expr = 1
+  else Expr = 2
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        IfStatement
+          PsiElement(if)('if')
+          PsiWhiteSpace(' ')
+          PsiElement(()('(')
+          InfixExpression
+            BooleanLiteral
+              PsiElement(true)('true')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: &&
+              PsiElement(identifier)('&&')
+            PsiWhiteSpace(' ')
+            BooleanLiteral
+              PsiElement(true)('true')
+          PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          AssignStatement
+            ReferenceExpression: Expr
+              PsiElement(identifier)('Expr')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+          PsiWhiteSpace('\n  ')
+          PsiElement(else)('else')
+          PsiWhiteSpace(' ')
+          AssignStatement
+            ReferenceExpression: Expr
+              PsiElement(identifier)('Expr')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

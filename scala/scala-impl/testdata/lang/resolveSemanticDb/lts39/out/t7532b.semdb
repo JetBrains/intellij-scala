@@ -1,0 +1,11 @@
+Document tests/pos/t7532b/A_1.scala
+
+Document tests/pos/t7532b/B_2.scala
+(1:8..1:12) pack/ -> 1:9
+(4:15..4:16) pack/R# -> 2:7
+(5:7..5:8) _empty_/Test.r. -> 4:7
+(5:9..5:13) pack/R#attr# -> 3:11
+(6:7..6:8) _empty_/Test.r. -> 4:7
+(6:9..6:12) pack/R#`@`# -> 4:12
+(7:7..7:10) pack/`@`# -> 7:8
+

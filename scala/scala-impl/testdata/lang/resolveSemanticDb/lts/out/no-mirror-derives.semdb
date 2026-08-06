@@ -1,0 +1,6 @@
+Document tests/pos/no-mirror-derives.scala
+(5:19..5:22) _empty_/Bar# -> 3:7
+(5:23..5:24) _empty_/Bar.derived().[T] -> 5:15
+(5:32..5:35) _empty_/Bar# -> 3:7
+(5:36..5:37) _empty_/Bar.derived().[T] -> 5:15
+

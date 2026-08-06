@@ -1,0 +1,39 @@
+Document tests/pos/i15926.extract.scala
+(5:33..5:36) _empty_/Nat# -> 4:14
+(6:29..6:32) _empty_/Nat# -> 4:14
+(6:44..6:47) _empty_/Nat# -> 4:14
+(8:28..8:32) _empty_/Succ# -> 6:18
+(8:33..8:36) _empty_/Nat# -> 4:14
+(10:18..10:19) _empty_/`i15926.extract$package`.Sum#[Y] -> 10:13
+(11:8..11:12) _empty_/Zero# -> 5:18
+(11:19..11:20) _empty_/`i15926.extract$package`.Sum#[X] -> 10:10
+(12:8..12:12) _empty_/Succ# -> 6:18
+(12:19..12:22) _empty_/`i15926.extract$package`.Sum# -> 10:6
+(12:23..12:27) _empty_/Succ# -> 6:18
+(12:28..12:29) _empty_/`i15926.extract$package`.Sum#[X] -> 10:10
+(12:32..12:33) local0 -> 12:13
+(14:21..14:22) _empty_/`i15926.extract$package`.IntSum#[B] -> 14:16
+(15:8..15:11) _empty_/Neg# -> 8:18
+(15:18..15:27) _empty_/`i15926.extract$package`.IntSumNeg# -> 17:6
+(15:28..15:29) _empty_/`i15926.extract$package`.IntSum#[A] -> 14:13
+(15:31..15:32) local1 -> 15:12
+(17:24..17:25) _empty_/`i15926.extract$package`.IntSumNeg#[A] -> 17:16
+(18:8..18:11) _empty_/Neg# -> 8:18
+(18:18..18:21) _empty_/Neg# -> 8:18
+(18:22..18:25) _empty_/`i15926.extract$package`.Sum# -> 10:6
+(18:26..18:27) local2 -> 18:12
+(18:29..18:30) _empty_/`i15926.extract$package`.IntSumNeg#[B] -> 17:19
+(20:12..20:16) _empty_/Succ# -> 6:18
+(20:17..20:21) _empty_/Zero# -> 5:18
+(21:12..21:16) _empty_/Succ# -> 6:18
+(21:17..21:20) _empty_/`i15926.extract$package`.One# -> 20:6
+(24:16..24:22) scala/Predef.summon().
+(24:23..24:29) _empty_/`i15926.extract$package`.IntSum# -> 14:6
+(24:30..24:33) _empty_/Neg# -> 8:18
+(24:34..24:37) _empty_/`i15926.extract$package`.One# -> 20:6
+(24:40..24:43) _empty_/Neg# -> 8:18
+(24:44..24:47) _empty_/`i15926.extract$package`.One# -> 20:6
+(24:50..24:53) scala/`=:=`#
+(24:54..24:57) _empty_/Neg# -> 8:18
+(24:58..24:61) _empty_/`i15926.extract$package`.Two# -> 21:6
+

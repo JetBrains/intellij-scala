@@ -1,0 +1,9 @@
+Document tests/pos/t2667.scala
+(3:14..3:17) scala/Int#
+(3:22..3:25) scala/Int#
+(3:29..3:32) scala/Int#
+(4:17..4:18) _empty_/A.foo(+1).[T] -> 4:11
+(4:22..4:25) scala/Int#
+(6:10..6:14) scala/Unit#
+(6:17..6:20) _empty_/A.foo(+1). -> 4:7
+

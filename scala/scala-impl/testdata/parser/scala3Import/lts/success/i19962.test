@@ -1,0 +1,311 @@
+def selfie0: (AnyRef => AnyRef) => AnyRef = (f:AnyRef => AnyRef) => f(f)
+def selfie1: Any = (f: Any => Any) => f(f)
+def selfie2: Any = (f: (Any, Any) => Any, g: (Any, Any) => Any) => f(f, g)
+def selfie3: Any = (f: (Any, Any) => Any, g: (Any, Any) => Any) => g(f, g)
+-----
+ScalaFile
+  ScFunctionDefinition: selfie0
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('selfie0')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    FunctionalType: (AnyRef => AnyRef) => AnyRef
+      TypeInParenthesis: (AnyRef => AnyRef)
+        PsiElement(()('(')
+        FunctionalType: AnyRef => AnyRef
+          SimpleType: AnyRef
+            CodeReferenceElement: AnyRef
+              PsiElement(identifier)('AnyRef')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: AnyRef
+            CodeReferenceElement: AnyRef
+              PsiElement(identifier)('AnyRef')
+        PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      SimpleType: AnyRef
+        CodeReferenceElement: AnyRef
+          PsiElement(identifier)('AnyRef')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionExpression
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: f
+            AnnotationsList
+              <empty list>
+            PsiElement(identifier)('f')
+            PsiElement(:)(':')
+            ParameterType
+              FunctionalType: AnyRef => AnyRef
+                SimpleType: AnyRef
+                  CodeReferenceElement: AnyRef
+                    PsiElement(identifier)('AnyRef')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: AnyRef
+                  CodeReferenceElement: AnyRef
+                    PsiElement(identifier)('AnyRef')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: f
+          PsiElement(identifier)('f')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: selfie1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('selfie1')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Any
+      CodeReferenceElement: Any
+        PsiElement(identifier)('Any')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionExpression
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: f
+            AnnotationsList
+              <empty list>
+            PsiElement(identifier)('f')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              FunctionalType: Any => Any
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: f
+          PsiElement(identifier)('f')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: selfie2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('selfie2')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Any
+      CodeReferenceElement: Any
+        PsiElement(identifier)('Any')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionExpression
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: f
+            AnnotationsList
+              <empty list>
+            PsiElement(identifier)('f')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              FunctionalType: (Any, Any) => Any
+                TupleType: (Any, Any)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          Parameter: g
+            AnnotationsList
+              <empty list>
+            PsiElement(identifier)('g')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              FunctionalType: (Any, Any) => Any
+                TupleType: (Any, Any)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: f
+          PsiElement(identifier)('f')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: g
+            PsiElement(identifier)('g')
+          PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: selfie3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('selfie3')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Any
+      CodeReferenceElement: Any
+        PsiElement(identifier)('Any')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    FunctionExpression
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: f
+            AnnotationsList
+              <empty list>
+            PsiElement(identifier)('f')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              FunctionalType: (Any, Any) => Any
+                TupleType: (Any, Any)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          Parameter: g
+            AnnotationsList
+              <empty list>
+            PsiElement(identifier)('g')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              FunctionalType: (Any, Any) => Any
+                TupleType: (Any, Any)
+                  PsiElement(()('(')
+                  TypesList
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                  PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(=>)('=>')
+      PsiWhiteSpace(' ')
+      MethodCall
+        ReferenceExpression: g
+          PsiElement(identifier)('g')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: g
+            PsiElement(identifier)('g')
+          PsiElement())(')')

@@ -1,0 +1,103 @@
+object main{
+  def sum(args: Int*) = {
+    var result = 0
+    for (arg <- args.elements)
+      result += arg
+    result
+  }
+}
+-----
+ScalaFile
+  ScObject: main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: sum
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('sum')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(identifier)('*')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScVariableDefinition: result
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(var)('var')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: result
+                  PsiElement(identifier)('result')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('0')
+            PsiWhiteSpace('\n    ')
+            ForStatement
+              PsiElement(for)('for')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              Enumerators
+                Generator
+                  ReferencePattern: arg
+                    PsiElement(identifier)('arg')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<-)('<-')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: args.elements
+                    ReferenceExpression: args
+                      PsiElement(identifier)('args')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('elements')
+              PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              InfixExpression
+                ReferenceExpression: result
+                  PsiElement(identifier)('result')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: +=
+                  PsiElement(identifier)('+=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: arg
+                  PsiElement(identifier)('arg')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: result
+              PsiElement(identifier)('result')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

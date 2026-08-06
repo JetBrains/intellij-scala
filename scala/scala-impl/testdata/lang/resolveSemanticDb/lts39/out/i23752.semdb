@@ -1,0 +1,22 @@
+Document tests/pos/i23752.scala
+(2:32..2:40) _empty_/MyOutput# -> 1:7
+(2:41..2:42) _empty_/i23752$package.MyOutputAlias1#[T] -> 2:27
+(7:15..7:23) _empty_/MyOutput# -> 1:7
+(7:24..7:30) _empty_/MyType# -> 5:7
+(7:34..7:37) scala/Predef.`???`().
+(8:15..8:29) _empty_/i23752$package.MyOutputAlias1# -> 2:12
+(8:30..8:36) _empty_/MyType# -> 5:7
+(8:40..8:43) scala/Predef.`???`().
+(9:15..9:29) _empty_/i23752$package.MyOutputAlias2# -> 3:12
+(9:30..9:36) _empty_/MyType# -> 5:7
+(9:40..9:43) scala/Predef.`???`().
+(12:13..12:21) _empty_/MyOutput# -> 1:7
+(12:22..12:28) _empty_/MyType# -> 5:7
+(12:32..12:35) scala/Predef.`???`().
+(13:13..13:27) _empty_/i23752$package.MyOutputAlias1# -> 2:12
+(13:28..13:34) _empty_/MyType# -> 5:7
+(13:38..13:41) scala/Predef.`???`().
+(14:13..14:27) _empty_/i23752$package.MyOutputAlias2# -> 3:12
+(14:28..14:34) _empty_/MyType# -> 5:7
+(14:38..14:41) scala/Predef.`???`().
+

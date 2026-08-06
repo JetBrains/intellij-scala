@@ -1,0 +1,481 @@
+//> using options -Xfatal-warnings -Wnonunit-statement
+
+class Node()
+class Elem(
+  prefix: String,
+  label: String,
+  minimizeEmpty: Boolean,
+  child: Node*
+) extends Node
+class Text(text: String) extends Node
+class NodeBuffer() {
+  def &+(node: Node): NodeBuffer =
+    this
+}
+class NodeSeq()
+object NodeSeq {
+  def seqToNodeSeq(seq: NodeBuffer): Seq[Node] = ???
+}
+
+object Main {
+  def example() = {
+    {
+      new Elem(null, "foo", false,
+        {
+          val $buf: NodeBuffer = new NodeBuffer()
+          $buf.&+(new Text("bar"))
+          NodeSeq.seqToNodeSeq($buf)
+        }*
+      )
+    }
+  }: @annotation.nowarn()
+}
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xfatal-warnings')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Wnonunit-statement')
+  PsiWhiteSpace('\n\n')
+  ScClass: Node
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Node')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Elem
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Elem')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: prefix
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('prefix')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: label
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('label')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: minimizeEmpty
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('minimizeEmpty')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+          PsiElement(,)(',')
+          PsiWhiteSpace('\n  ')
+          ClassParameter: child
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('child')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Node
+                CodeReferenceElement: Node
+                  PsiElement(identifier)('Node')
+              PsiElement(identifier)('*')
+          PsiWhiteSpace('\n')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Node
+            CodeReferenceElement: Node
+              PsiElement(identifier)('Node')
+  PsiWhiteSpace('\n')
+  ScClass: Text
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Text')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: text
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('text')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Node
+            CodeReferenceElement: Node
+              PsiElement(identifier)('Node')
+  PsiWhiteSpace('\n')
+  ScClass: NodeBuffer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NodeBuffer')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: &+
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('&+')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: node
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('node')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Node
+                    CodeReferenceElement: Node
+                      PsiElement(identifier)('Node')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: NodeBuffer
+            CodeReferenceElement: NodeBuffer
+              PsiElement(identifier)('NodeBuffer')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ThisReference
+            PsiElement(this)('this')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScClass: NodeSeq
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NodeSeq')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: NodeSeq
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('NodeSeq')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: seqToNodeSeq
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('seqToNodeSeq')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: seq
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('seq')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: NodeBuffer
+                    CodeReferenceElement: NodeBuffer
+                      PsiElement(identifier)('NodeBuffer')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Seq[Node]
+            SimpleType: Seq
+              CodeReferenceElement: Seq
+                PsiElement(identifier)('Seq')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Node
+                  CodeReferenceElement: Node
+                    PsiElement(identifier)('Node')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Main')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: example
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('example')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TypedExpression
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: Elem
+                          CodeReferenceElement: Elem
+                            PsiElement(identifier)('Elem')
+                        ArgumentList
+                          PsiElement(()('(')
+                          NullLiteral
+                            PsiElement(null)('null')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          StringLiteral
+                            PsiElement(string content)('"foo"')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          BooleanLiteral
+                            PsiElement(false)('false')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace('\n        ')
+                          TypedExpression
+                            BlockExpression
+                              PsiElement({)('{')
+                              PsiWhiteSpace('\n          ')
+                              ScPatternDefinition: $buf
+                                AnnotationsList
+                                  <empty list>
+                                Modifiers
+                                  <empty list>
+                                PsiElement(val)('val')
+                                PsiWhiteSpace(' ')
+                                ListOfPatterns
+                                  ReferencePattern: $buf
+                                    PsiElement(identifier)('$buf')
+                                PsiElement(:)(':')
+                                PsiWhiteSpace(' ')
+                                SimpleType: NodeBuffer
+                                  CodeReferenceElement: NodeBuffer
+                                    PsiElement(identifier)('NodeBuffer')
+                                PsiWhiteSpace(' ')
+                                PsiElement(=)('=')
+                                PsiWhiteSpace(' ')
+                                ScNewTemplateDefinition: <anonymous>
+                                  PsiElement(new)('new')
+                                  PsiWhiteSpace(' ')
+                                  ExtendsBlock
+                                    TemplateParents
+                                      ConstructorInvocation
+                                        SimpleType: NodeBuffer
+                                          CodeReferenceElement: NodeBuffer
+                                            PsiElement(identifier)('NodeBuffer')
+                                        ArgumentList
+                                          PsiElement(()('(')
+                                          PsiElement())(')')
+                              PsiWhiteSpace('\n          ')
+                              MethodCall
+                                ReferenceExpression: $buf.&+
+                                  ReferenceExpression: $buf
+                                    PsiElement(identifier)('$buf')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('&+')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ScNewTemplateDefinition: <anonymous>
+                                    PsiElement(new)('new')
+                                    PsiWhiteSpace(' ')
+                                    ExtendsBlock
+                                      TemplateParents
+                                        ConstructorInvocation
+                                          SimpleType: Text
+                                            CodeReferenceElement: Text
+                                              PsiElement(identifier)('Text')
+                                          ArgumentList
+                                            PsiElement(()('(')
+                                            StringLiteral
+                                              PsiElement(string content)('"bar"')
+                                            PsiElement())(')')
+                                  PsiElement())(')')
+                              PsiWhiteSpace('\n          ')
+                              MethodCall
+                                ReferenceExpression: NodeSeq.seqToNodeSeq
+                                  ReferenceExpression: NodeSeq
+                                    PsiElement(identifier)('NodeSeq')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('seqToNodeSeq')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: $buf
+                                    PsiElement(identifier)('$buf')
+                                  PsiElement())(')')
+                              PsiWhiteSpace('\n        ')
+                              PsiElement(})('}')
+                            SequenceArgumentType
+                              PsiElement(identifier)('*')
+                          PsiWhiteSpace('\n      ')
+                          PsiElement())(')')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  ConstructorInvocation
+                    SimpleType: annotation.nowarn
+                      CodeReferenceElement: annotation.nowarn
+                        CodeReferenceElement: annotation
+                          PsiElement(identifier)('annotation')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('nowarn')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

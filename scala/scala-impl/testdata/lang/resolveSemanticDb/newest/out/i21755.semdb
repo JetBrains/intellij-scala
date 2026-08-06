@@ -1,0 +1,9 @@
+Document tests/pos/i21755.scala
+(5:15..5:20) _empty_/GraphTraversal#NodeT# -> 2:8
+(8:55..8:71) _empty_/GraphTraversal#TraverserMethods# -> 8:28
+(8:72..8:73) _empty_/GraphTraversal#TraverserMethods#[A] -> 8:45
+(8:75..8:77) _empty_/GraphTraversal#TraverserMethods#[CC] -> 8:49
+(8:89..8:91) _empty_/GraphTraversal#TraverserMethods#[CC] -> 8:49
+(8:97..8:107) _empty_/GraphTraversal#Properties# -> 4:19
+(9:15..9:20) _empty_/GraphTraversal#NodeT# -> 2:8
+

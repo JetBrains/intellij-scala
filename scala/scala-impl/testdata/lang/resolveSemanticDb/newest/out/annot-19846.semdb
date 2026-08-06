@@ -1,0 +1,15 @@
+Document tests/pos/annot-19846.scala
+(3:28..3:31) scala/Int#
+(3:41..3:51) scala/annotation/
+(3:52..3:68) scala/annotation/StaticAnnotation#
+(5:10..5:13) scala/Int#
+(5:16..5:19) scala/Int#
+(5:21..5:32) dependentAnnotation/lambdaAnnot# -> 3:7
+(5:39..5:40) dependentAnnotation/`annot-19846$package`.f().(x) -> 5:7
+(5:41..5:42) scala/Int#`+`(+4).
+(5:48..5:49) dependentAnnotation/`annot-19846$package`.f().(x) -> 5:7
+(7:2..7:6) scala/main#
+(8:10..8:13) scala/Int#
+(9:11..9:12) dependentAnnotation/`annot-19846$package`.f(). -> 5:5
+(9:13..9:14) local0 -> 8:7
+

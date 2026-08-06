@@ -1,0 +1,3 @@
+var actuallyChar: <spot>Int</spot> = 'a'
+val actuallInt: <spot>Char</spot> = 42
+def actuallyString: <spot>Double</spot> = "hello world"

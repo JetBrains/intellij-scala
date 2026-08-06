@@ -1,0 +1,211 @@
+type Kinded[F[_]] = F[Any] | F[Nothing]
+
+def values[F[_]]: Vector[Kinded[F]] = ???
+
+def mapValues[F[_], T](f: Kinded[F] => T): Vector[T] = values[F].map { case x => f(x) }
+-----
+ScalaFile
+  ScTypeAliasDefinition: Kinded
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Kinded')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixType: F[Any] | F[Nothing]
+      ParametrizedType: F[Any]
+        SimpleType: F
+          CodeReferenceElement: F
+            PsiElement(identifier)('F')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      ParametrizedType: F[Nothing]
+        SimpleType: F
+          CodeReferenceElement: F
+            PsiElement(identifier)('F')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: Nothing
+              CodeReferenceElement: Nothing
+                PsiElement(identifier)('Nothing')
+          PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: values
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('values')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Vector[Kinded[F]]
+      SimpleType: Vector
+        CodeReferenceElement: Vector
+          PsiElement(identifier)('Vector')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: Kinded[F]
+            SimpleType: Kinded
+              CodeReferenceElement: Kinded
+                PsiElement(identifier)('Kinded')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+              PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: mapValues
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('mapValues')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: _
+            PsiElement(_)('_')
+          PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: f
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('f')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            FunctionalType: Kinded[F] => T
+              ParametrizedType: Kinded[F]
+                SimpleType: Kinded
+                  CodeReferenceElement: Kinded
+                    PsiElement(identifier)('Kinded')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: F
+                      CodeReferenceElement: F
+                        PsiElement(identifier)('F')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Vector[T]
+      SimpleType: Vector
+        CodeReferenceElement: Vector
+          PsiElement(identifier)('Vector')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: values[F].map
+        GenericCall
+          ReferenceExpression: values
+            PsiElement(identifier)('values')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+            PsiElement(])(']')
+        PsiElement(.)('.')
+        PsiElement(identifier)('map')
+      PsiWhiteSpace(' ')
+      ArgumentList
+        BlockExpression
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                MethodCall
+                  ReferenceExpression: f
+                    PsiElement(identifier)('f')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                    PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(})('}')

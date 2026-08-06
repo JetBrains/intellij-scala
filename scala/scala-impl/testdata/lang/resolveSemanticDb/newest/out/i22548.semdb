@@ -1,0 +1,6 @@
+Document tests/pos/i22548.scala
+(2:16..2:19) _empty_/Bar# -> 1:7
+(2:20..2:21) _empty_/Foo#[T] -> 2:11
+(2:45..2:48) scala/Any#
+(2:58..2:64) scala/AnyVal#
+

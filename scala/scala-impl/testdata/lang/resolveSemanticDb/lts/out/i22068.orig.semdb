@@ -1,0 +1,52 @@
+Document tests/pos/i22068.orig.scala
+(2:57..2:63) scala/Predef.String#
+(2:66..2:87) _empty_/AnyFreeSpecLike#FreeSpecStringWrapper# -> 3:25
+(2:90..2:93) scala/Predef.`???`().
+(3:55..3:61) scala/Predef.String#
+(4:30..4:33) scala/Any#
+(4:36..4:40) scala/Unit#
+(4:43..4:46) scala/Predef.`???`().
+(7:8..7:13) _empty_/types. -> 20:8
+(7:14..7:17) _empty_/types.Tag. -> 22:10
+(8:23..8:38) _empty_/AnyFreeSpecLike# -> 1:7
+(9:37..9:42) _empty_/types.Tag.Union# -> 26:16
+(9:43..9:45) _empty_/TagTest#test().[T1] -> 9:19
+(9:52..9:57) _empty_/types.Tag.Union# -> 26:16
+(9:58..9:60) _empty_/TagTest#test().[T2] -> 9:23
+(9:64..9:68) scala/Unit#
+(10:17..10:19) _empty_/AnyFreeSpecLike#FreeSpecStringWrapper#in(). -> 4:15
+(11:23..11:25) _empty_/TagTest#test().(k1) -> 9:33
+(11:26..11:29) _empty_/types.Tag.Union#`<:<`(). -> 27:17
+(11:30..11:32) _empty_/TagTest#test().(k2) -> 9:48
+(12:9..12:12) scala/Predef.`???`().
+(15:19..15:20) _empty_/TagTest#A# -> 14:9
+(16:19..16:20) _empty_/TagTest#A# -> 14:9
+(17:3..17:7) _empty_/TagTest#test(). -> 9:14
+(17:8..17:9) _empty_/TagTest#B# -> 15:9
+(17:10..17:11) scala/`|`#
+(17:12..17:13) _empty_/TagTest#C# -> 16:9
+(17:15..17:16) _empty_/TagTest#A# -> 14:9
+(21:24..21:30) scala/Predef.String#
+(23:28..23:31) _empty_/types.Tag# -> 21:15
+(23:32..23:33) _empty_/types.Tag.apply().[A] -> 23:24
+(23:37..23:40) scala/Predef.`???`().
+(24:20..24:23) _empty_/types.Tag# -> 21:15
+(24:24..24:25) _empty_/types.Tag.Full#[A] -> 24:15
+(24:27..24:28) scala/`|`#
+(24:29..24:32) _empty_/types.Tag.Set# -> 25:18
+(24:33..24:34) _empty_/types.Tag.Full#[A] -> 24:15
+(25:33..25:36) scala/Any#
+(26:31..26:34) scala/package.Seq#
+(26:35..26:38) _empty_/types.Tag# -> 21:15
+(26:39..26:42) scala/Any#
+(26:54..26:60) scala/AnyVal#
+(26:66..26:69) _empty_/types.Tag.Set# -> 25:18
+(26:70..26:71) _empty_/types.Tag.Union#[A] -> 26:22
+(27:28..27:32) _empty_/types.Tag.Full# -> 24:10
+(27:33..27:34) _empty_/types.Tag.Union#`<:<`().[B] -> 27:21
+(27:38..27:45) scala/Boolean#
+(27:48..27:51) scala/Predef.`???`().
+(29:30..29:35) _empty_/types.Tag.Union# -> 26:16
+(29:36..29:37) _empty_/types.Tag.Union.apply().[A] -> 29:26
+(29:41..29:44) scala/Predef.`???`().
+

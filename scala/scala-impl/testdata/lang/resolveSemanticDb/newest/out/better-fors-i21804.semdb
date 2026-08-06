@@ -1,0 +1,17 @@
+Document tests/pos/better-fors-i21804.scala
+(1:36..1:37) _empty_/Container#[A] -> 1:22
+(2:17..2:18) _empty_/Container#[A] -> 1:22
+(2:22..2:23) _empty_/Container#map().[B] -> 2:11
+(2:26..2:35) _empty_/Container# -> 1:12
+(2:36..2:37) _empty_/Container#map().[B] -> 2:11
+(2:41..2:50) _empty_/Container.
+(2:51..2:52) _empty_/Container#map().(f) -> 2:14
+(2:53..2:58) _empty_/Container#value. -> 1:29
+(6:26..6:32) _empty_/Animal# -> 5:14
+(8:18..8:27) _empty_/Container# -> 1:12
+(8:28..8:31) _empty_/Dog# -> 6:12
+(8:35..8:44) _empty_/Container# -> 1:12
+(8:45..8:51) _empty_/Animal# -> 5:14
+(10:10..10:13) _empty_/`better-fors-i21804$package`.opOnDog().(dog) -> 8:13
+(11:9..11:10) local0 -> 10:5
+

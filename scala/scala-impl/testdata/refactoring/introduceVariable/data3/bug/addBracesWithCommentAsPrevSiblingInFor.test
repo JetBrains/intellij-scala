@@ -1,0 +1,17 @@
+class A {
+  def test(): Unit = {
+    for (i <- 1 to 5) do
+      //comment
+      println(<selection>"text"</selection>)
+  }
+}
+-------
+class A {
+  def test(): Unit = {
+    for (i <- 1 to 5) do {
+      //comment
+      val value: String = "text"
+      println(value)
+    }
+  }
+}

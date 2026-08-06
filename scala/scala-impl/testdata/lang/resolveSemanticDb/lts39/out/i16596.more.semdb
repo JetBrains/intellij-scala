@@ -1,0 +1,110 @@
+Document tests/pos/i16596.more.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:29) scala/compiletime/ops/
+(1:30..1:33) scala/compiletime/ops/int.
+(6:30..6:33) _empty_/NatExample.Nat# -> 4:16
+(7:26..7:29) _empty_/NatExample.Nat# -> 4:16
+(7:37..7:38) _empty_/NatExample.Nat.Succ#[N] -> 7:21
+(7:48..7:51) _empty_/NatExample.Nat# -> 4:16
+(9:17..9:21) _empty_/NatExample.Nat.Zero. -> 6:17
+(9:29..9:33) _empty_/NatExample.Nat.Zero. -> 6:17
+(10:28..10:31) _empty_/NatExample.Nat# -> 4:16
+(10:40..10:41) _empty_/NatExample.Nat.buildSucc().[N] -> 10:23
+(10:46..10:50) _empty_/NatExample.Nat.Succ# -> 7:16
+(10:51..10:52) _empty_/NatExample.Nat.buildSucc().[N] -> 10:23
+(10:56..10:60) _empty_/NatExample.Nat.Succ.
+(10:61..10:62) _empty_/NatExample.Nat.buildSucc().(n) -> 10:37
+(12:20..12:23) _empty_/NatExample.Nat# -> 4:16
+(12:34..12:35) _empty_/NatExample.Nat.value().[N] -> 12:15
+(12:38..12:39) _empty_/NatExample.Nat.value().[N] -> 12:15
+(12:42..12:43) _empty_/NatExample.Nat.value().(n) -> 12:31
+(14:23..14:26) scala/Int#
+(14:31..14:34) _empty_/NatExample.Nat# -> 4:16
+(14:37..14:38) _empty_/NatExample.Nat.FromInt#[I] -> 14:18
+(15:17..15:21) _empty_/NatExample.Nat.Zero. -> 6:17
+(16:12..16:13) scala/Any#
+(16:17..16:21) _empty_/NatExample.Nat.Succ# -> 7:16
+(16:22..16:29) _empty_/NatExample.Nat.FromInt# -> 14:10
+(16:30..16:31) _empty_/NatExample.Nat.FromInt#[I] -> 14:18
+(16:32..16:33) scala/compiletime/ops/int.`-`#
+(18:5..18:11) scala/Predef.summon().
+(18:12..18:19) _empty_/NatExample.Nat.FromInt# -> 14:10
+(18:23..18:26) scala/`=:=`#
+(18:27..18:31) _empty_/NatExample.Nat.Zero. -> 6:17
+(19:5..19:11) scala/Predef.summon().
+(19:12..19:19) _empty_/NatExample.Nat.FromInt# -> 14:10
+(19:23..19:26) scala/`=:=`#
+(19:27..19:31) _empty_/NatExample.Nat.Succ# -> 7:16
+(19:32..19:36) _empty_/NatExample.Nat.Zero. -> 6:17
+(20:5..20:11) scala/Predef.summon().
+(20:12..20:19) _empty_/NatExample.Nat.FromInt# -> 14:10
+(20:23..20:26) scala/`=:=`#
+(20:27..20:31) _empty_/NatExample.Nat.Succ# -> 7:16
+(20:32..20:36) _empty_/NatExample.Nat.Succ# -> 7:16
+(20:37..20:41) _empty_/NatExample.Nat.Zero. -> 6:17
+(21:5..21:11) scala/Predef.summon().
+(21:12..21:19) _empty_/NatExample.Nat.FromInt# -> 14:10
+(21:23..21:26) scala/`=:=`#
+(21:27..21:31) _empty_/NatExample.Nat.Succ# -> 7:16
+(21:32..21:36) _empty_/NatExample.Nat.Succ# -> 7:16
+(21:37..21:41) _empty_/NatExample.Nat.Succ# -> 7:16
+(21:42..21:46) _empty_/NatExample.Nat.Zero. -> 6:17
+(22:5..22:11) scala/Predef.summon().
+(22:12..22:19) _empty_/NatExample.Nat.FromInt# -> 14:10
+(22:23..22:26) scala/`=:=`#
+(22:27..22:31) _empty_/NatExample.Nat.Succ# -> 7:16
+(22:32..22:36) _empty_/NatExample.Nat.Succ# -> 7:16
+(22:37..22:41) _empty_/NatExample.Nat.Succ# -> 7:16
+(22:42..22:46) _empty_/NatExample.Nat.Succ# -> 7:16
+(22:47..22:51) _empty_/NatExample.Nat.Zero. -> 6:17
+(24:6..24:10) scala/main#
+(25:7..25:14) scala/Predef.require().
+(25:15..25:21) scala/Predef.summon().
+(25:22..25:29) _empty_/NatExample.Nat.FromInt# -> 14:10
+(25:34..25:36) scala/Any#`==`().
+(25:37..25:41) _empty_/NatExample.Nat.Zero. -> 6:17
+(26:7..26:14) scala/Predef.require().
+(26:15..26:21) scala/Predef.summon().
+(26:22..26:29) _empty_/NatExample.Nat.FromInt# -> 14:10
+(26:34..26:36) scala/Any#`==`().
+(26:37..26:41) _empty_/NatExample.Nat.Succ.
+(26:42..26:46) _empty_/NatExample.Nat.Zero. -> 6:17
+(27:7..27:14) scala/Predef.require().
+(27:15..27:21) scala/Predef.summon().
+(27:22..27:29) _empty_/NatExample.Nat.FromInt# -> 14:10
+(27:34..27:36) scala/Any#`==`().
+(27:37..27:41) _empty_/NatExample.Nat.Succ.
+(27:42..27:46) _empty_/NatExample.Nat.Succ.
+(27:47..27:51) _empty_/NatExample.Nat.Zero. -> 6:17
+(28:7..28:14) scala/Predef.require().
+(28:15..28:21) scala/Predef.summon().
+(28:22..28:29) _empty_/NatExample.Nat.FromInt# -> 14:10
+(28:34..28:36) scala/Any#`==`().
+(28:37..28:41) _empty_/NatExample.Nat.Succ.
+(28:42..28:46) _empty_/NatExample.Nat.Succ.
+(28:47..28:51) _empty_/NatExample.Nat.Succ.
+(28:52..28:56) _empty_/NatExample.Nat.Zero. -> 6:17
+(30:7..30:14) scala/Predef.require().
+(30:15..30:21) scala/Predef.summon().
+(30:22..30:26) _empty_/NatExample.Nat.Succ# -> 7:16
+(30:27..30:31) _empty_/NatExample.Nat.Succ# -> 7:16
+(30:32..30:36) _empty_/NatExample.Nat.Succ# -> 7:16
+(30:37..30:41) _empty_/NatExample.Nat.Succ# -> 7:16
+(30:42..30:46) _empty_/NatExample.Nat.Zero. -> 6:17
+(30:57..30:59) scala/Any#`==`().
+(30:60..30:64) _empty_/NatExample.Nat.Succ.
+(30:65..30:69) _empty_/NatExample.Nat.Succ.
+(30:70..30:74) _empty_/NatExample.Nat.Succ.
+(30:75..30:79) _empty_/NatExample.Nat.Succ.
+(30:80..30:84) _empty_/NatExample.Nat.Zero. -> 6:17
+(32:7..32:14) scala/Predef.require().
+(32:15..32:21) scala/Predef.summon().
+(32:22..32:29) _empty_/NatExample.Nat.FromInt# -> 14:10
+(32:34..32:36) scala/Any#`==`().
+(32:37..32:41) _empty_/NatExample.Nat.Succ.
+(32:42..32:46) _empty_/NatExample.Nat.Succ.
+(32:47..32:51) _empty_/NatExample.Nat.Succ.
+(32:52..32:56) _empty_/NatExample.Nat.Succ.
+(32:57..32:61) _empty_/NatExample.Nat.Zero. -> 6:17
+

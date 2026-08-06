@@ -1,0 +1,41 @@
+raw""
+raw"aaa"
+raw" aaa "
+//// escape chars (actually not)
+raw"\b"
+raw"\n"
+raw"\t"
+raw"\r"
+raw"\f"
+raw"\""
+raw"\\"
+raw"\b \n \t \r \f \\"
+//// invalid escape chars (actually not)
+raw"\x \y \z"
+//// unicode escape
+raw"\u0025 \u000A \u000D"
+//// with injections
+raw"aaa \x ${ raw"bbb \y ${42} \y bbb" } \x aaa"
+-----
+Warning((217,223),Unicode escape sequences in raw interpolations are deprecated)
+Warning((224,230),Unicode escape sequences in raw interpolations are deprecated)
+Warning((231,237),Unicode escape sequences in raw interpolations are deprecated)
+-----
+raw""
+raw"aaa"
+raw" aaa "
+//// escape chars (actually not)
+raw"\b"
+raw"\n"
+raw"\t"
+raw"\r"
+raw"\f"
+raw"\""
+raw"\\"
+raw"\b \n \t \r \f \\"
+//// invalid escape chars (actually not)
+raw"\x \y \z"
+//// unicode escape
+raw"% ${'\n'} ${'\r'}"
+//// with injections
+raw"aaa \x ${ raw"bbb \y ${42} \y bbb" } \x aaa"

@@ -1,0 +1,14 @@
+Document tests/pos/i2944.scala
+(2:14..2:15) _empty_/Map2#[K] -> 1:12
+(2:18..2:19) _empty_/Map2#[K] -> 1:12
+(2:22..2:23) _empty_/Map2#get().(k) -> 2:11
+(3:12..3:13) _empty_/Map2#[K] -> 1:12
+(5:18..5:22) _empty_/Map2# -> 1:7
+(5:29..5:33) local1 -> 5:12
+(5:34..5:37) _empty_/Map2#get(). -> 2:7
+(5:40..5:52) scala/Any#asInstanceOf().
+(5:53..5:54) local0 -> 5:23
+(7:17..7:20) _empty_/Map2#get(). -> 2:7
+(7:23..7:35) scala/Any#asInstanceOf().
+(7:36..7:37) _empty_/Map2#[K] -> 1:12
+

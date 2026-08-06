@@ -1,0 +1,11 @@
+Document tests/pos/t229.scala
+(1:20..1:24) java/
+(1:25..1:29) java/util/
+(1:30..1:39) java/util/ArrayList#
+(1:40..1:46) java/lang/Object#
+(2:27..2:30) scala/Int#
+(2:41..2:45) java/
+(2:46..2:50) java/lang/
+(2:51..2:57) java/lang/Object#
+(2:60..2:64) scala/Unit#
+

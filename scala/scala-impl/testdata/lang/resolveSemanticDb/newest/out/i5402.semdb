@@ -1,0 +1,9 @@
+Document tests/pos/i5402.scala
+(2:10..2:13) scala/Int#
+(3:3..3:4) _empty_/Main.a. -> 2:7
+(4:15..4:22) scala/Predef.println(+1).
+(5:19..5:26) scala/Predef.println(+1).
+(8:3..8:4) _empty_/Main.a. -> 2:7
+(16:3..16:4) _empty_/Main.a. -> 2:7
+(23:3..23:4) _empty_/Main.a. -> 2:7
+

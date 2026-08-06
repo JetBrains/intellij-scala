@@ -1,0 +1,18 @@
+Document tests/pos/i19616.scala
+(1:11..1:15) scala/Unit#
+(2:16..2:29) scala/package.StringBuilder#
+(4:13..4:16) scala/Predef.Map.
+(4:17..4:22) scala/collection/immutable/Map.empty().
+(4:23..4:29) scala/Predef.String#
+(4:31..4:37) scala/Predef.String#
+(5:3..5:6) local2 -> 4:7
+(5:10..5:13) local1 -> 3:7
+(5:14..5:16) scala/Predef.ArrowAssoc#`->`().
+(5:17..5:19) local0 -> 2:7
+(5:20..5:28) scala/collection/mutable/StringBuilder#toString().
+(6:3..6:6) local2 -> 4:7
+(6:10..6:13) local1 -> 3:7
+(6:14..6:16) scala/Predef.ArrowAssoc#`->`().
+(6:17..6:19) local0 -> 2:7
+(6:20..6:28) scala/collection/mutable/StringBuilder#toString().
+

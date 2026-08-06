@@ -1,0 +1,17 @@
+Document tests/pos/i16331/Macro.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(3:41..3:44) scala/Int#
+(3:50..3:62) _empty_/Macro.macroDefImpl(). -> 4:7
+(4:31..4:37) scala/quoted/Quotes#
+(4:40..4:44) scala/quoted/Expr#
+(4:45..4:48) scala/Int#
+
+Document tests/pos/i16331/Main.scala
+(2:30..2:33) scala/Any#
+(2:36..2:41) _empty_/Macro. -> 2:8
+(2:42..2:50) _empty_/Macro.macroDef(). -> 3:26
+(3:18..3:23) scala/Array#
+(3:24..3:30) scala/Predef.String#
+(3:35..3:44) _empty_/Main.inlineDef(). -> 2:14
+

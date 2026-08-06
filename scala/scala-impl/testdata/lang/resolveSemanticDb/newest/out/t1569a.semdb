@@ -1,0 +1,21 @@
+Document tests/pos/t1569a.scala
+(2:26..2:27) _empty_/Bug.C#[T] -> 2:11
+(3:17..3:20) scala/Int#
+(3:25..3:26) _empty_/Bug.C# -> 2:9
+(3:27..3:28) _empty_/Bug.foo().[U] -> 3:11
+(3:34..3:35) _empty_/Bug.foo().(y) -> 3:22
+(3:36..3:38) _empty_/Bug.C#TT# -> 2:21
+(3:41..3:45) scala/Unit#
+(4:3..4:6) _empty_/Bug.foo(). -> 3:7
+(4:14..4:15) _empty_/Bug.C# -> 2:9
+(4:16..4:22) scala/Predef.String#
+(9:19..9:20) _empty_/Bug2.C# -> 8:9
+(9:32..9:38) scala/Predef.String#
+(10:14..10:17) scala/Int#
+(10:22..10:23) _empty_/Bug2.C# -> 8:9
+(10:28..10:29) _empty_/Bug2.foo().(y) -> 10:19
+(10:30..10:31) _empty_/Bug2.C#T# -> 8:18
+(10:34..10:38) scala/Unit#
+(11:3..11:6) _empty_/Bug2.foo(). -> 10:7
+(11:14..11:15) _empty_/Bug2.D# -> 9:9
+

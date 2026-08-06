@@ -1,0 +1,29 @@
+Document tests/pos/i19001.case3.scala
+(2:17..2:18) _empty_/IO#[A] -> 1:10
+(2:22..2:23) _empty_/IO#map().[B] -> 2:11
+(2:26..2:28) _empty_/IO# -> 1:7
+(2:29..2:30) _empty_/IO#map().[B] -> 2:11
+(2:34..2:37) scala/Predef.`???`().
+(5:14..5:15) _empty_/RenderResult#[T] -> 4:20
+(7:20..7:26) scala/package.Either#
+(7:27..7:36) scala/package.Throwable#
+(7:38..7:39) _empty_/`i19001.case3$package`.IOasync().[T] -> 7:13
+(7:44..7:48) scala/Unit#
+(7:53..7:57) scala/Unit#
+(7:60..7:62) _empty_/IO# -> 1:7
+(7:63..7:64) _empty_/`i19001.case3$package`.IOasync().[T] -> 7:13
+(7:68..7:71) scala/Predef.`???`().
+(9:16..9:18) _empty_/IO# -> 1:7
+(9:19..9:20) _empty_/`i19001.case3$package`.render().[T] -> 9:12
+(10:20..10:26) scala/package.Either#
+(10:27..10:36) scala/package.Throwable#
+(10:38..10:50) _empty_/RenderResult# -> 4:7
+(10:51..10:52) _empty_/`i19001.case3$package`.render().[T] -> 9:12
+(10:58..10:62) scala/Unit#
+(10:65..10:69) scala/Unit#
+(10:72..10:75) scala/Predef.`???`().
+(11:3..11:10) _empty_/`i19001.case3$package`.IOasync(). -> 7:5
+(11:11..11:19) local1 -> 10:7
+(11:21..11:24) _empty_/IO#map(). -> 2:7
+(11:27..11:32) _empty_/RenderResult#value(). -> 5:7
+

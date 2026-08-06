@@ -1,0 +1,21 @@
+Document tests/pos/java-inherited-type1/S.scala
+(1:17..1:19) _empty_/S1# -> 6:7
+
+Document tests/pos/java-inherited-type1/Test.scala
+(2:15..2:16) _empty_/J#
+(4:3..4:4) _empty_/Test.j. -> 2:7
+(4:5..4:10) _empty_/J#ident().
+(5:3..5:4) _empty_/Test.j. -> 2:7
+(5:5..5:11) _empty_/J#ident1().
+(6:3..6:4) _empty_/Test.j. -> 2:7
+(6:5..6:11) _empty_/J#select().
+(7:3..7:4) _empty_/Test.j. -> 2:7
+(7:5..7:12) _empty_/J#select1().
+(9:15..9:26) _empty_/TestMessage#
+(10:15..10:26) _empty_/TestMessage#
+(10:27..10:34) _empty_/TestMessage#Builder#
+(10:37..10:44) _empty_/Test.message. -> 9:7
+(10:45..10:54) _empty_/TestMessage#toBuilder().
+(11:3..11:10) _empty_/Test.builder. -> 10:7
+(11:11..11:18) _empty_/TestMessage#Builder#setName().
+

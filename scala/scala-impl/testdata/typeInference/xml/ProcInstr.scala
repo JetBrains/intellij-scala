@@ -1,0 +1,2 @@
+/*start*/ <?instruction?> /*end*/;
+//ProcInstr

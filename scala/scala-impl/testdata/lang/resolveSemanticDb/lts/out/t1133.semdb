@@ -1,0 +1,64 @@
+Document tests/pos/t1133.scala
+(3:18..3:23) scala/Array#
+(3:24..3:30) scala/Predef.String#
+(4:5..4:9) _empty_/Match.main().(args) -> 3:12
+(5:14..5:24) _empty_/Match.Extractor1. -> 12:10
+(5:25..5:35) _empty_/Match.Extractor2. -> 19:10
+(5:36..5:46) _empty_/Match.Extractor3. -> 26:10
+(5:84..5:94) _empty_/Match.Extractor3. -> 26:10
+(5:115..5:122) scala/Predef.println(+1).
+(5:123..5:124) local5 -> 5:109
+(6:14..6:24) _empty_/Match.Extractor3. -> 26:10
+(6:25..6:35) _empty_/Match.Extractor2. -> 19:10
+(6:36..6:46) _empty_/Match.Extractor1. -> 12:10
+(6:77..6:87) _empty_/Match.Extractor2. -> 19:10
+(6:120..6:127) scala/Predef.println(+1).
+(6:128..6:129) local6 -> 6:107
+(7:14..7:24) _empty_/Match.Extractor2. -> 19:10
+(7:25..7:35) _empty_/Match.Extractor3. -> 26:10
+(7:50..7:60) _empty_/Match.Extractor3. -> 26:10
+(7:75..7:85) _empty_/Match.Extractor3. -> 26:10
+(7:103..7:110) scala/Predef.println(+1).
+(7:111..7:112) local11 -> 7:96
+(8:19..8:26) scala/Predef.println(+1).
+(13:20..13:23) scala/Any#
+(13:27..13:28) _empty_/Match.Extractor1.unapply().(x) -> 13:17
+(14:17..14:23) scala/Predef.String#
+(14:27..14:31) scala/Some.
+(14:32..14:33) local12 -> 14:14
+(14:35..14:36) local12 -> 14:14
+(14:37..14:38) java/lang/String#`+`().
+(14:39..14:40) local12 -> 14:14
+(14:42..14:43) local12 -> 14:14
+(14:44..14:45) java/lang/String#`+`().
+(14:46..14:47) local12 -> 14:14
+(14:47..14:48) java/lang/String#`+`().
+(14:48..14:49) local12 -> 14:14
+(14:51..14:52) local12 -> 14:14
+(14:52..14:53) java/lang/String#`+`().
+(14:53..14:54) local12 -> 14:14
+(14:56..14:57) local12 -> 14:14
+(15:19..15:23) scala/None.
+(20:20..20:23) scala/Any#
+(20:27..20:28) _empty_/Match.Extractor2.unapply().(x) -> 20:17
+(21:17..21:23) scala/Predef.String#
+(21:27..21:31) scala/Some.
+(21:32..21:33) local13 -> 21:14
+(21:35..21:36) local13 -> 21:14
+(21:37..21:38) java/lang/String#`+`().
+(21:39..21:40) local13 -> 21:14
+(21:42..21:43) local13 -> 21:14
+(21:44..21:45) java/lang/String#`+`().
+(21:46..21:47) local13 -> 21:14
+(21:47..21:48) java/lang/String#`+`().
+(21:48..21:49) local13 -> 21:14
+(22:19..22:23) scala/None.
+(27:20..27:23) scala/Any#
+(27:27..27:28) _empty_/Match.Extractor3.unapply().(x) -> 27:17
+(28:17..28:23) scala/Predef.String#
+(28:27..28:31) scala/Some.
+(28:32..28:33) local14 -> 28:14
+(28:35..28:36) local14 -> 28:14
+(28:38..28:39) local14 -> 28:14
+(29:19..29:23) scala/None.
+

@@ -1,0 +1,10 @@
+Document tests/pos/i15523.scala
+(3:31..3:32) _empty_/Leaf#[A] -> 3:23
+(3:37..3:38) _empty_/Leaf#[A] -> 3:23
+(3:43..3:44) _empty_/Leaf#[B] -> 3:26
+(3:54..3:60) _empty_/Parent# -> 2:14
+(5:12..5:18) _empty_/Parent# -> 2:14
+(5:21..5:25) scala/Unit#
+(5:28..5:29) _empty_/i15523$package.run().(x) -> 5:9
+(6:8..6:12) _empty_/Leaf.
+

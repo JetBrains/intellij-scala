@@ -1,0 +1,4 @@
+Document tests/pos/i13046/B.scala
+(1:17..1:18) _empty_/A#
+(2:28..2:35) scala/Boolean#
+

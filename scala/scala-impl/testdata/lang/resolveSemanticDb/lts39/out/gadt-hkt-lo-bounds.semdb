@@ -1,0 +1,11 @@
+Document tests/pos/gadt-hkt-lo-bounds.scala
+(1:22..1:25) scala/Int#
+(4:32..4:36) _empty_/Expr# -> 3:7
+(4:37..4:42) _empty_/`gadt-hkt-lo-bounds$package`.Const# -> 1:6
+(6:21..6:25) _empty_/Expr# -> 3:7
+(6:26..6:27) _empty_/`gadt-hkt-lo-bounds$package`.foo().[F] -> 6:9
+(6:31..6:32) _empty_/`gadt-hkt-lo-bounds$package`.foo().[F] -> 6:9
+(6:33..6:34) _empty_/`gadt-hkt-lo-bounds$package`.foo().[A] -> 6:15
+(6:38..6:39) _empty_/`gadt-hkt-lo-bounds$package`.foo().(e) -> 6:18
+(7:11..7:20) _empty_/ConstExpr# -> 4:12
+

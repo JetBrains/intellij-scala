@@ -1,0 +1,39 @@
+Document tests/pos/i19354.orig.scala
+(1:8..1:13) javax/
+(1:14..1:24) javax/annotation/
+(1:25..1:35) javax/annotation/processing/
+(1:38..1:55) javax/annotation/processing/AbstractProcessor#
+(1:57..1:73) javax/annotation/processing/RoundEnvironment#
+(2:8..2:13) javax/
+(2:14..2:18) javax/lang/
+(2:19..2:24) javax/lang/model/
+(2:25..2:32) javax/lang/model/element/
+(2:35..2:46) javax/lang/model/element/ElementKind#
+(2:48..2:62) javax/lang/model/element/PackageElement#
+(2:64..2:75) javax/lang/model/element/TypeElement#
+(4:8..4:12) java/
+(4:13..4:17) java/util/
+(6:17..6:34) javax/annotation/processing/AbstractProcessor#
+(7:37..7:39) java/util/
+(7:40..7:43) java/util/Set#
+(7:49..7:60) javax/lang/model/element/TypeElement#
+(7:73..7:89) javax/annotation/processing/RoundEnvironment#
+(7:92..7:99) scala/Boolean#
+(8:5..8:16) _empty_/P#process().(annotations) -> 7:24
+(9:8..9:14) java/util/Collection#stream().
+(10:8..10:15) java/util/stream/Stream#flatMap().
+(10:30..10:38) _empty_/P#process().(roundEnv) -> 7:63
+(10:39..10:63) javax/annotation/processing/RoundEnvironment#getElementsAnnotatedWith().
+(10:64..10:74) local0 -> 10:16
+(10:76..10:82) java/util/Collection#stream().
+(11:8..11:14) java/util/stream/Stream#filter().
+(11:26..11:33) local1 -> 11:15
+(11:34..11:41) javax/lang/model/element/Element#getKind().
+(11:42..11:44) scala/Any#`==`().
+(11:45..11:56) javax/lang/model/element/ElementKind#
+(11:57..11:64) javax/lang/model/element/ElementKind#PACKAGE.
+(12:8..12:11) java/util/stream/Stream#map().
+(12:23..12:30) local2 -> 12:12
+(12:31..12:43) scala/Any#asInstanceOf().
+(12:44..12:58) javax/lang/model/element/PackageElement#
+

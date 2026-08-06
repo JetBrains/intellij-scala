@@ -1,0 +1,6 @@
+Document tests/pos/i14896.scala
+(1:29..1:32) scala/Any#
+(1:35..1:41) scala/Option#
+(1:47..1:50) scala/Int#
+(2:18..2:20) _empty_/Ex. -> 1:8
+

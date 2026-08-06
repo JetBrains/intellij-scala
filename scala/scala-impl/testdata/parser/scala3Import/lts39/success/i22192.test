@@ -1,0 +1,310 @@
+case class City(name: String, population: Int)
+
+def getCityInfo(city: City) = city match
+  case City(population = p, name = n) =>
+    s"$n has a population of $p"
+
+def getCityInfo1(city: Option[(name: String)]) = city match
+  case Some(name = n) => n
+  case _ =>
+
+def getCityInfo2(city: Option[(name: String, population: Int)]) = city match
+  case Some(name = n) => n
+  case _ =>
+-----
+ScalaFile
+  ScClass: City
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('City')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: name
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('name')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: population
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('population')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: getCityInfo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('getCityInfo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: city
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('city')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: City
+              CodeReferenceElement: City
+                PsiElement(identifier)('City')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: city
+        PsiElement(identifier)('city')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: City
+              PsiElement(identifier)('City')
+            Pattern Argument List
+              PsiElement(()('(')
+              ScNamedConstructorArgPatternImpl(named constructor argument pattern)
+                PsiElement(identifier)('population')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferencePattern: p
+                  PsiElement(identifier)('p')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ScNamedConstructorArgPatternImpl(named constructor argument pattern)
+                PsiElement(identifier)('name')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferencePattern: n
+                  PsiElement(identifier)('n')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n    ')
+          BlockOfExpressions
+            InterpolatedStringLiteral
+              InterpolatedExpressionPrefix: s
+                PsiElement(interpolated string id)('s')
+              PsiElement(interpolated string)('"')
+              PsiElement(interpolated string injection)('$')
+              ReferenceExpression: n
+                PsiElement(identifier)('n')
+              PsiElement(interpolated string)(' has a population of ')
+              PsiElement(interpolated string injection)('$')
+              ReferenceExpression: p
+                PsiElement(identifier)('p')
+              PsiElement(interpolated string end)('"')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: getCityInfo1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('getCityInfo1')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: city
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('city')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Option[(name: String)]
+              SimpleType: Option
+                CodeReferenceElement: Option
+                  PsiElement(identifier)('Option')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  NamedTupleType: (name: String)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: name: String
+                      PsiElement(identifier)('name')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement())(')')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: city
+        PsiElement(identifier)('city')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Some
+              PsiElement(identifier)('Some')
+            Pattern Argument List
+              PsiElement(()('(')
+              ScNamedConstructorArgPatternImpl(named constructor argument pattern)
+                PsiElement(identifier)('name')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferencePattern: n
+                  PsiElement(identifier)('n')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: n
+              PsiElement(identifier)('n')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          BlockOfExpressions
+            <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: getCityInfo2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('getCityInfo2')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: city
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('city')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Option[(name: String, population: Int)]
+              SimpleType: Option
+                CodeReferenceElement: Option
+                  PsiElement(identifier)('Option')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  NamedTupleType: (name: String, population: Int)
+                    PsiElement(()('(')
+                    NamedTupleTypeComponent: name: String
+                      PsiElement(identifier)('name')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    NamedTupleTypeComponent: population: Int
+                      PsiElement(identifier)('population')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement())(')')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: city
+        PsiElement(identifier)('city')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Some
+              PsiElement(identifier)('Some')
+            Pattern Argument List
+              PsiElement(()('(')
+              ScNamedConstructorArgPatternImpl(named constructor argument pattern)
+                PsiElement(identifier)('name')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferencePattern: n
+                  PsiElement(identifier)('n')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: n
+              PsiElement(identifier)('n')
+        PsiWhiteSpace('\n  ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          BlockOfExpressions
+            <empty list>

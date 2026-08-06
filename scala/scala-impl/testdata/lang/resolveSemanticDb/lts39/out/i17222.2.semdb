@@ -1,0 +1,36 @@
+Document tests/pos/i17222.2.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(8:12..8:13) _empty_/A#F# -> 7:8
+(8:14..8:15) _empty_/A#T# -> 6:8
+(12:14..12:20) _empty_/Reader# -> 3:7
+(12:21..12:22) _empty_/A# -> 5:7
+(12:34..12:35) _empty_/Reader.given_Reader_A_X#[X] -> 12:10
+(12:39..12:40) _empty_/Reader.given_Reader_A_X#[X] -> 12:10
+(16:22..16:23) _empty_/A# -> 5:7
+(17:14..17:15) _empty_/Test.B#[X] -> 16:11
+(19:19..19:20) _empty_/A# -> 5:7
+(20:17..20:18) _empty_/Test.C#F#[X] -> 20:12
+(22:22..22:23) _empty_/Test.B# -> 16:9
+(22:24..22:25) _empty_/Test.D#[X] -> 22:11
+(22:32..22:33) _empty_/Test.C# -> 19:9
+(24:15..24:16) _empty_/Test.D# -> 22:9
+(24:17..24:20) scala/Int#
+(25:16..25:17) _empty_/Test.B# -> 16:9
+(25:18..25:21) scala/Int#
+(25:28..25:29) _empty_/Test.C# -> 19:9
+(27:3..27:12) scala/compiletime/package$package.summonAll().
+(27:14..27:20) _empty_/Reader# -> 3:7
+(27:21..27:22) _empty_/Test.d. -> 24:7
+(27:29..27:32) scala/Int#
+(27:35..27:41) _empty_/Reader# -> 3:7
+(27:42..27:43) _empty_/Test.d. -> 24:7
+(27:50..27:53) scala/Int#
+(28:3..28:12) scala/compiletime/package$package.summonAll().
+(28:14..28:20) _empty_/Reader# -> 3:7
+(28:21..28:23) _empty_/Test.bc. -> 25:7
+(28:30..28:33) scala/Int#
+(28:36..28:42) _empty_/Reader# -> 3:7
+(28:43..28:45) _empty_/Test.bc. -> 25:7
+(28:52..28:55) scala/Int#
+

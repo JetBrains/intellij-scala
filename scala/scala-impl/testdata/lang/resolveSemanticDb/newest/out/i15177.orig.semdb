@@ -1,0 +1,8 @@
+Document tests/pos/i15177.orig.scala
+(2:13..2:17) scala/package.List#
+(2:18..2:19) _empty_/DomainIdProvider#[T] -> 1:24
+(4:24..4:40) _empty_/DomainIdProvider# -> 1:7
+(4:41..4:48) _empty_/Country# -> 5:12
+(6:9..6:16) _empty_/Country. -> 4:8
+(6:17..6:19) _empty_/DomainIdProvider#Id# -> 2:8
+

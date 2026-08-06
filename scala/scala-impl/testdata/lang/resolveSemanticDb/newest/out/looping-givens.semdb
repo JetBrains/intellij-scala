@@ -1,0 +1,18 @@
+Document tests/pos/looping-givens.scala
+(5:22..5:23) _empty_/A# -> 2:7
+(5:28..5:29) _empty_/B# -> 3:7
+(5:33..5:34) _empty_/A# -> 2:7
+(5:35..5:36) scala/`&`#
+(5:37..5:38) _empty_/B# -> 3:7
+(5:42..5:45) scala/Predef.`???`().
+(7:18..7:19) _empty_/A# -> 2:7
+(7:24..7:25) _empty_/B# -> 3:7
+(8:13..8:14) _empty_/A# -> 2:7
+(8:17..8:23) scala/Predef.summon().
+(9:13..9:14) _empty_/B# -> 3:7
+(9:17..9:23) scala/Predef.summon().
+(10:14..10:15) _empty_/A# -> 2:7
+(10:16..10:17) scala/`&`#
+(10:18..10:19) _empty_/B# -> 3:7
+(10:23..10:29) scala/Predef.summon().
+

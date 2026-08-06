@@ -1,0 +1,11 @@
+Document tests/pos/i24557.scala
+(4:24..4:32) _empty_/test.Iterable# -> 3:9
+(4:33..4:34) _empty_/test.I#[T] -> 4:16
+(4:47..4:48) _empty_/test.X# -> 2:16
+(4:49..4:50) _empty_/test.I#[C] -> 4:19
+(6:15..6:16) _empty_/test.X# -> 2:16
+(6:17..6:18) _empty_/test.t().[T] -> 6:9
+(6:22..6:26) scala/Unit#
+(7:5..7:6) _empty_/test.t().(i) -> 6:12
+(8:16..8:17) _empty_/test.I.
+

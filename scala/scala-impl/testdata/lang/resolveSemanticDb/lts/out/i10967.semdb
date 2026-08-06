@@ -1,0 +1,10 @@
+Document tests/pos/i10967.scala
+(3:21..3:30) _empty_/SomeTrait# -> 1:7
+(3:43..3:52) _empty_/SomeTrait# -> 1:7
+(4:18..4:31) _empty_/CollCompanion# -> 9:7
+(4:32..4:35) _empty_/CollBase#[CC1] -> 3:33
+(7:17..7:26) _empty_/SomeTrait# -> 1:7
+(7:36..7:44) _empty_/CollBase# -> 3:7
+(7:45..7:46) _empty_/Coll#[A] -> 7:12
+(9:31..9:40) _empty_/SomeTrait# -> 1:7
+

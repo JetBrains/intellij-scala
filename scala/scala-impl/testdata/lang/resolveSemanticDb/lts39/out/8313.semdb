@@ -1,0 +1,22 @@
+Document tests/pos/8313.scala
+(2:16..2:21) scala/Tuple#
+(2:26..2:31) scala/Tuple#
+(2:34..2:35) _empty_/Test.DU#[A] -> 2:11
+(3:10..3:20) scala/Tuple$package.EmptyTuple#
+(3:24..3:34) scala/Tuple$package.EmptyTuple#
+(4:10..4:14) scala/Unit#
+(4:15..4:17) scala/`*:`#
+(4:24..4:26) _empty_/Test.DU# -> 2:8
+(4:27..4:29) local0 -> 4:18
+(5:13..5:15) scala/`*:`#
+(5:22..5:24) local1 -> 5:10
+(5:25..5:27) scala/`*:`#
+(5:28..5:30) _empty_/Test.DU# -> 2:8
+(5:31..5:33) local2 -> 5:16
+(8:11..8:13) _empty_/Test.DU# -> 2:8
+(8:14..8:17) scala/Int#
+(8:18..8:20) scala/`*:`#
+(8:21..8:24) scala/Int#
+(8:25..8:27) scala/`*:`#
+(8:28..8:38) scala/Tuple$package.EmptyTuple#
+

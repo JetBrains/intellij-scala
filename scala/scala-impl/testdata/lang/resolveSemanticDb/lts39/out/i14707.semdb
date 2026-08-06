@@ -1,0 +1,13 @@
+Document tests/pos/i14707.scala
+(3:17..3:20) scala/Int#
+(3:23..3:26) scala/Int#
+(4:12..4:15) scala/Int#
+(5:11..5:12) local1 -> 3:9
+(5:13..5:14) local2 -> 4:9
+(12:22..12:25) scala/Int#
+(12:28..12:31) scala/Int#
+(13:16..13:19) scala/Int#
+(14:11..14:17) scala/AnyRef#
+(14:28..14:29) local6 -> 12:11
+(14:36..14:37) local7 -> 13:11
+

@@ -1,0 +1,74 @@
+import scala.math.Ordering.Implicits.infixOrderingOps
+
+def test =
+  if (1, 2) < (3, 4) then 1 else 2
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.math.Ordering.Implicits.infixOrderingOps
+        CodeReferenceElement: scala.math.Ordering.Implicits
+          CodeReferenceElement: scala.math.Ordering
+            CodeReferenceElement: scala.math
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('math')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Ordering')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Implicits')
+        PsiElement(.)('.')
+        PsiElement(identifier)('infixOrderingOps')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    IfStatement
+      PsiElement(if)('if')
+      PsiWhiteSpace(' ')
+      InfixExpression
+        Tuple
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('2')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: <
+          PsiElement(identifier)('<')
+        PsiWhiteSpace(' ')
+        Tuple
+          PsiElement(()('(')
+          IntegerLiteral
+            PsiElement(integer)('3')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('4')
+          PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(then)('then')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('1')
+      PsiWhiteSpace(' ')
+      PsiElement(else)('else')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('2')

@@ -1,0 +1,55 @@
+Document tests/pos/zipped.min.scala
+(5:17..5:18) _empty_/Coll#[A] -> 4:19
+(5:22..5:23) _empty_/Coll#map().[B] -> 5:11
+(5:26..5:30) _empty_/Coll# -> 4:13
+(5:31..5:32) _empty_/Coll#map().[B] -> 5:11
+(5:40..5:44) _empty_/Coll# -> 4:13
+(5:45..5:46) _empty_/Coll#map().[B] -> 5:11
+(6:24..6:28) _empty_/Coll# -> 4:13
+(6:29..6:30) _empty_/Coll#lazyZip().[B] -> 6:15
+(6:34..6:41) _empty_/Zipped2# -> 7:13
+(6:42..6:43) _empty_/Coll#[A] -> 4:19
+(6:45..6:46) _empty_/Coll#lazyZip().[B] -> 6:15
+(6:54..6:61) _empty_/Zipped2# -> 7:13
+(6:62..6:63) _empty_/Coll#[A] -> 4:19
+(6:65..6:66) _empty_/Coll#lazyZip().[B] -> 6:15
+(6:74..6:78) _empty_/Coll#lazyZip().(that) -> 6:18
+(7:33..7:37) _empty_/Coll# -> 4:13
+(7:38..7:39) _empty_/Zipped2#[X] -> 7:22
+(7:46..7:50) _empty_/Coll# -> 4:13
+(7:51..7:52) _empty_/Zipped2#[Y] -> 7:26
+(8:21..8:22) _empty_/Zipped2#[X] -> 7:22
+(8:24..8:25) _empty_/Zipped2#[Y] -> 7:26
+(8:30..8:31) _empty_/Zipped2#map().[B] -> 8:11
+(8:34..8:38) _empty_/Coll# -> 4:13
+(8:39..8:40) _empty_/Zipped2#map().[C] -> 8:14
+(8:48..8:52) _empty_/Coll# -> 4:13
+(8:53..8:54) _empty_/Zipped2#map().[C] -> 8:14
+(10:10..10:15) scala/
+(10:16..10:24) scala/language.
+(10:25..10:44) scala/language.implicitConversions.
+(11:38..11:45) _empty_/Zipped2# -> 7:13
+(11:46..11:47) _empty_/Zipped2.toColl().[X] -> 11:23
+(11:49..11:50) _empty_/Zipped2.toColl().[Y] -> 11:26
+(11:54..11:58) _empty_/Coll# -> 4:13
+(11:60..11:61) _empty_/Zipped2.toColl().[X] -> 11:23
+(11:63..11:64) _empty_/Zipped2.toColl().[Y] -> 11:26
+(11:73..11:77) _empty_/Coll# -> 4:13
+(11:79..11:80) _empty_/Zipped2.toColl().[X] -> 11:23
+(11:82..11:83) _empty_/Zipped2.toColl().[Y] -> 11:26
+(13:16..13:20) _empty_/Coll# -> 4:13
+(13:21..13:24) scala/Int#
+(13:28..13:32) scala/Unit#
+(14:14..14:16) _empty_/Test#test().(xs) -> 13:12
+(14:17..14:24) _empty_/Coll#lazyZip(). -> 6:7
+(14:25..14:27) _empty_/Test#test().(xs) -> 13:12
+(15:5..15:7) local0 -> 14:9
+(15:8..15:11) _empty_/Coll#map(). -> 5:7
+(15:17..15:20) scala/Int#
+(15:22..15:25) scala/Int#
+(15:31..15:32) local1 -> 15:13
+(15:33..15:35) scala/Tuple2#_1.
+(15:36..15:37) scala/Int#`+`(+4).
+(15:38..15:39) local1 -> 15:13
+(15:40..15:42) scala/Tuple2#_2.
+

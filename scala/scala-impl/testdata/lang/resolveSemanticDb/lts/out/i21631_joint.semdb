@@ -1,0 +1,8 @@
+Document tests/pos/i21631_joint/i21631.scala
+(1:23..1:38) _empty_/AbstractChannel#
+(2:29..2:44) _empty_/AbstractChannel#
+(2:45..2:59) _empty_/AbstractChannel#AbstractUnsafe#
+(2:66..2:80) _empty_/AbstractChannel#AbstractUnsafe#
+(3:29..3:33) scala/Unit#
+(3:36..3:39) scala/Predef.`???`().
+

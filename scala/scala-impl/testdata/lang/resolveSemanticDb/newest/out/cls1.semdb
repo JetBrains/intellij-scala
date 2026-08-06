@@ -1,0 +1,4 @@
+Document tests/pos/cls1.scala
+(6:19..6:20) test/A# -> 3:7
+(7:21..7:22) test/A#T# -> 4:8
+

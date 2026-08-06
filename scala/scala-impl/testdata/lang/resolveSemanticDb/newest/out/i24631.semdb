@@ -1,0 +1,8 @@
+Document tests/pos/i24631/test.scala
+(1:13..1:20) example/
+(1:21..1:29) example/TestJava#
+(1:30..1:38) example/TestJava#Concrete#
+(1:41..1:47) example/TestJava#create(+1).
+(2:9..2:15) scala/Predef.String#
+(2:18..2:19) _empty_/test$package.s. -> 1:5
+

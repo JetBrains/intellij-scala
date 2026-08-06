@@ -1,0 +1,11 @@
+Document tests/pos/i17052.scala
+(1:22..1:23) _empty_/i17052$package.test().[F] -> 1:10
+(1:24..1:27) scala/Any#
+(2:17..2:18) _empty_/i17052$package.test().[F] -> 1:10
+(2:19..2:20) local0 -> 2:6
+(2:37..2:38) _empty_/i17052$package.test().[F] -> 1:10
+(2:39..2:40) local0 -> 2:6
+(2:44..2:46) local1 -> 2:13
+(2:61..2:64) scala/Any#
+(2:66..2:70) _empty_/i17052$package.test().(fAny) -> 1:16
+

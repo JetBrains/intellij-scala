@@ -1,0 +1,78 @@
+
+package bar
+
+object Bar {
+  def xxx(s: String): foo.Foo = foo.Foo.create(s)
+}
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: bar
+      PsiElement(identifier)('bar')
+    PsiWhiteSpace('\n\n')
+    ScObject: Bar
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Bar')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: xxx
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('xxx')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: s
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('s')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: foo.Foo
+              CodeReferenceElement: foo.Foo
+                CodeReferenceElement: foo
+                  PsiElement(identifier)('foo')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Foo')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: foo.Foo.create
+                ReferenceExpression: foo.Foo
+                  ReferenceExpression: foo
+                    PsiElement(identifier)('foo')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Foo')
+                PsiElement(.)('.')
+                PsiElement(identifier)('create')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: s
+                  PsiElement(identifier)('s')
+                PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

@@ -1,0 +1,7 @@
+Document tests/pos/i18247.scala
+(3:28..3:30) _empty_/Op# -> 1:14
+(6:11..6:13) _empty_/Op# -> 1:14
+(7:3..7:4) _empty_/i18247$package.t1().(a) -> 6:8
+(8:10..8:12) _empty_/Op. -> 2:8
+(8:13..8:17) _empty_/Op.`==`. -> 3:16
+

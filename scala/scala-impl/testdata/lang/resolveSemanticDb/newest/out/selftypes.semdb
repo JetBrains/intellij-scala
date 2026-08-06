@@ -1,0 +1,9 @@
+Document tests/pos/selftypes.scala
+(3:19..3:21) _empty_/selftypes.AB# -> 18:9
+(5:15..5:19) scala/package.List#
+(5:25..5:27) _empty_/selftypes.B#BX# -> 15:11
+(11:19..11:21) _empty_/selftypes.AB# -> 18:9
+(13:15..13:17) _empty_/selftypes.A#AA# -> 5:10
+(18:20..18:21) _empty_/selftypes.A# -> 3:9
+(18:27..18:28) _empty_/selftypes.B# -> 11:9
+

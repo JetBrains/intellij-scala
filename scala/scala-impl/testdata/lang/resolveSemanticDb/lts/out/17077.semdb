@@ -1,0 +1,24 @@
+Document tests/pos/17077.scala
+(1:25..1:32) scala/Product#
+(2:15..2:18) scala/Predef.`???`().
+(3:32..3:35) scala/Int#
+(4:36..4:39) scala/Int#
+(4:42..4:45) scala/Any#
+(5:33..5:36) scala/Any#
+(5:39..5:46) scala/Boolean#
+(5:49..5:53) _empty_/MyProduct#canEqual().(that) -> 5:27
+(5:54..5:66) scala/Any#isInstanceOf().
+(5:67..5:76) _empty_/MyProduct# -> 1:7
+(9:20..9:23) scala/Int#
+(9:26..9:35) _empty_/MyProduct# -> 1:7
+(9:38..9:47) _empty_/MyProduct# -> 1:7
+(11:2..11:6) scala/main#
+(12:10..12:16) scala/Predef.String#
+(12:17..12:18) scala/`|`#
+(12:19..12:22) scala/Int#
+(14:5..14:6) local0 -> 12:7
+(15:12..15:28) _empty_/MyProductUnapply. -> 8:8
+(15:35..15:36) local1 -> 15:29
+(19:3..19:10) scala/Predef.println(+1).
+(19:11..19:14) local2 -> 13:7
+

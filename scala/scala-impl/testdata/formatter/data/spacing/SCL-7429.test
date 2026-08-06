@@ -1,0 +1,15 @@
+class SCL7429 {
+  def >>(t: Int) = t > 0
+
+  def !>>(t: Int) = ! >>(t)
+
+  def foo(x: Boolean) = ! x
+}
+-----
+class SCL7429 {
+  def >>(t: Int) = t > 0
+
+  def !>>(t: Int) = ! >>(t)
+
+  def foo(x: Boolean) = !x
+}

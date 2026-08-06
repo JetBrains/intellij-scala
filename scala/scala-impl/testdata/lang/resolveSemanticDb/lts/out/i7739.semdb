@@ -1,0 +1,4 @@
+Document tests/pos/i7739.scala
+(1:1..1:8) _empty_/
+(1:16..1:19) scala/Int#
+

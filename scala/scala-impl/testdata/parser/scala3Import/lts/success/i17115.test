@@ -1,0 +1,386 @@
+trait A[T <: Tuple] { val x: Int }
+given empty: A[EmptyTuple] with { val x = 1 }
+given inductive[Tup <: NonEmptyTuple](using A[Tuple.Tail[Tup]]): A[Tup] with { val x = summon[A[Tuple.Tail[Tup]]].x + 1 }
+
+object Test:
+  def main(args: Array[String]): Unit =
+    println(summon[A[(String, String, String)]].x) //this line is fine
+    println(summon[A[(String, String, String, String)]].x) //this line gives error
+end Test
+-----
+ScalaFile
+  ScTrait: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScValueDeclaration: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScGivenDefinition: empty
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('empty')
+    PsiElement(:)(':')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: A[EmptyTuple]
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScGivenDefinition: inductive
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(given)('given')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('inductive')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Tup
+        PsiElement(identifier)('Tup')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: NonEmptyTuple
+          CodeReferenceElement: NonEmptyTuple
+            PsiElement(identifier)('NonEmptyTuple')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: <anonymous>
+          ParameterType
+            ParametrizedType: A[Tuple.Tail[Tup]]
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Tuple.Tail[Tup]
+                    SimpleType: Tuple.Tail
+                      CodeReferenceElement: Tuple.Tail
+                        CodeReferenceElement: Tuple
+                          PsiElement(identifier)('Tuple')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Tail')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Tup
+                          CodeReferenceElement: Tup
+                            PsiElement(identifier)('Tup')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: A[Tup]
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Tup
+                  CodeReferenceElement: Tup
+                    PsiElement(identifier)('Tup')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(with)('with')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            ReferenceExpression: summon[A[Tuple.Tail[Tup]]].x
+              GenericCall
+                ReferenceExpression: summon
+                  PsiElement(identifier)('summon')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: A[Tuple.Tail[Tup]]
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Tuple.Tail[Tup]
+                            SimpleType: Tuple.Tail
+                              CodeReferenceElement: Tuple.Tail
+                                CodeReferenceElement: Tuple
+                                  PsiElement(identifier)('Tuple')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Tail')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Tup
+                                  CodeReferenceElement: Tup
+                                    PsiElement(identifier)('Tup')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiElement(.)('.')
+              PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: summon[A[(String, String, String)]].x
+                  GenericCall
+                    ReferenceExpression: summon
+                      PsiElement(identifier)('summon')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: A[(String, String, String)]
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              TupleType: (String, String, String)
+                                PsiElement(()('(')
+                                TypesList
+                                  SimpleType: String
+                                    CodeReferenceElement: String
+                                      PsiElement(identifier)('String')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: String
+                                    CodeReferenceElement: String
+                                      PsiElement(identifier)('String')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: String
+                                    CodeReferenceElement: String
+                                      PsiElement(identifier)('String')
+                                PsiElement())(')')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('x')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('//this line is fine')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: summon[A[(String, String, String, String)]].x
+                  GenericCall
+                    ReferenceExpression: summon
+                      PsiElement(identifier)('summon')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: A[(String, String, String, String)]
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              TupleType: (String, String, String, String)
+                                PsiElement(()('(')
+                                TypesList
+                                  SimpleType: String
+                                    CodeReferenceElement: String
+                                      PsiElement(identifier)('String')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: String
+                                    CodeReferenceElement: String
+                                      PsiElement(identifier)('String')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: String
+                                    CodeReferenceElement: String
+                                      PsiElement(identifier)('String')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: String
+                                    CodeReferenceElement: String
+                                      PsiElement(identifier)('String')
+                                PsiElement())(')')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('x')
+                PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('//this line gives error')
+        PsiWhiteSpace('\n')
+        End: Test
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')

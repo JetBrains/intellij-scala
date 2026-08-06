@@ -1,0 +1,60 @@
+Document tests/pos/i20187/A_1.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(1:23..1:29) scala/deriving/Mirror#
+(1:23..1:29) scala/deriving/Mirror.
+(9:13..9:18) _empty_/Outer# -> 7:7
+(11:10..11:11) _empty_/E.
+(11:12..11:16) _empty_/E.Foo1# -> 4:8
+(12:10..12:15) scala/Tuple.
+(12:16..12:20) scala/Tuple.Head#
+(12:21..12:22) _empty_/E.
+(12:23..12:27) _empty_/E.Foo1# -> 4:8
+(12:28..12:30) scala/`*:`#
+(12:31..12:32) _empty_/E.
+(12:33..12:37) _empty_/E.Foo2# -> 5:8
+(12:38..12:40) scala/`*:`#
+(12:41..12:51) scala/Tuple$package.EmptyTuple#
+(13:10..13:15) scala/Tuple.
+(13:16..13:20) scala/Tuple.Head#
+(13:21..13:22) _empty_/A_1$package.o. -> 9:5
+(13:23..13:28) _empty_/Outer#Inner# -> 8:14
+(13:29..13:31) scala/`*:`#
+(13:32..13:42) scala/Tuple$package.EmptyTuple#
+(14:10..14:15) scala/Tuple.
+(14:16..14:20) scala/Tuple.Last#
+(14:21..14:22) _empty_/E# -> 3:6
+(14:23..14:25) scala/`*:`#
+(14:26..14:36) scala/Tuple$package.EmptyTuple#
+(18:12..18:17) scala/Tuple.
+(18:18..18:22) scala/Tuple.Head#
+(18:23..18:26) local1 -> 17:14
+(18:27..18:29) scala/`*:`#
+(18:30..18:40) scala/Tuple$package.EmptyTuple#
+(19:3..19:9) scala/Predef.summon().
+(19:10..19:16) scala/deriving/Mirror.
+(19:17..19:19) scala/deriving/Mirror.Of#
+(19:20..19:21) local10 -> 18:8
+
+Document tests/pos/i20187/B_2.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(1:23..1:29) scala/deriving/Mirror#
+(1:23..1:29) scala/deriving/Mirror.
+(4:3..4:9) scala/Predef.summon().
+(4:10..4:16) scala/deriving/Mirror.
+(4:17..4:19) scala/deriving/Mirror.Of#
+(4:20..4:21) _empty_/A_1$package.F# -> 11:6
+(5:3..5:9) scala/Predef.summon().
+(5:10..5:16) scala/deriving/Mirror.
+(5:17..5:19) scala/deriving/Mirror.Of#
+(5:20..5:21) _empty_/A_1$package.G# -> 12:6
+(6:3..6:9) scala/Predef.summon().
+(6:10..6:16) scala/deriving/Mirror.
+(6:17..6:19) scala/deriving/Mirror.Of#
+(6:20..6:21) _empty_/A_1$package.H# -> 13:6
+(7:3..7:9) scala/Predef.summon().
+(7:10..7:16) scala/deriving/Mirror.
+(7:17..7:19) scala/deriving/Mirror.Of#
+(7:20..7:21) _empty_/A_1$package.I# -> 14:6
+

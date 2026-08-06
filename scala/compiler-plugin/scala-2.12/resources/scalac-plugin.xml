@@ -1,0 +1,4 @@
+<plugin>
+    <name>intellij-compiler-plugin</name>
+    <classname>CompilerPlugin</classname>
+</plugin>

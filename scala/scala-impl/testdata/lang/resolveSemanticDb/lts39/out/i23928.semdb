@@ -1,0 +1,4 @@
+Document tests/pos/i23928.scala
+(2:3..2:6) scala/package.Nil.
+(3:10..3:13) scala/package.Seq.
+

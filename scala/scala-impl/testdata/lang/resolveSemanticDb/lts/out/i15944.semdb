@@ -1,0 +1,37 @@
+Document tests/pos/i15944.scala
+(2:17..2:23) scala/Predef.String#
+(3:15..3:16) scala/StringContext#s().
+(3:18..3:19) _empty_/Foo.Wrap#a. -> 2:14
+(4:17..4:23) scala/Predef.String#
+(6:24..6:28) _empty_/Foo.Wrap# -> 2:9
+(6:29..6:30) _empty_/Foo.wrap().(s) -> 4:14
+(7:12..7:16) _empty_/Foo.wrap(). -> 6:17
+(10:17..10:23) scala/Predef.String#
+(11:15..11:16) scala/StringContext#s().
+(11:18..11:19) _empty_/Bar#Wrap#a. -> 10:14
+(12:14..12:18) _empty_/Bar#Wrap# -> 10:9
+(13:10..13:14) _empty_/Bar#wrap. -> 12:7
+(17:19..17:25) scala/Predef.String#
+(18:17..18:18) scala/StringContext#s().
+(18:20..18:21) _empty_/WorkingAlternative.Foo.Wrap#a. -> 17:16
+(21:12..21:15) _empty_/WorkingAlternative.Foo. -> 16:10
+(21:16..21:20) _empty_/WorkingAlternative.Foo.Wrap# -> 17:11
+(22:19..22:25) scala/Predef.String#
+(23:26..23:30) _empty_/WorkingAlternative.Foo.Wrap# -> 17:11
+(23:31..23:32) _empty_/WorkingAlternative.Bar.wrap().(s) -> 22:16
+(24:14..24:18) _empty_/WorkingAlternative.Bar.wrap(). -> 23:19
+(30:15..30:16) _empty_/C# -> 26:7
+(31:10..31:11) _empty_/Baz#c. -> 30:7
+(34:15..34:16) _empty_/C# -> 26:7
+(35:12..35:13) _empty_/Bah#c. -> 34:7
+(35:14..35:15) _empty_/C#D# -> 27:9
+(37:2..37:6) scala/main#
+(38:13..38:16) _empty_/Bah# -> 33:7
+(39:3..39:10) scala/Predef.println(+1).
+(40:9..40:12) local0 -> 38:7
+(40:13..40:14) _empty_/Bah#D# -> 35:8
+(42:13..42:16) _empty_/Baz# -> 29:7
+(43:3..43:10) scala/Predef.println(+1).
+(44:5..44:8) local1 -> 42:7
+(44:9..44:10) _empty_/Baz#D#
+

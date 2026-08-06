@@ -1,0 +1,146 @@
+package org.scalatest
+
+@org.scalatest.Finders(value = scala.Array("org.scalatest.finders.FlatSpecFinder"))
+trait FlatSpecLike extends org.scalatest.Suite with org.scalatest.words.ShouldVerb with org.scalatest.words.MustVerb with org.scalatest.words.CanVerb with org.scalatest.Informing with org.scalatest.Notifying with org.scalatest.Alerting with org.scalatest.Documenting {
+  protected def info: org.scalatest.Informer = ???
+
+  protected def note: org.scalatest.Notifier = ???
+
+  protected def alert: org.scalatest.Alerter = ???
+
+  protected def markup: org.scalatest.Documenter = ???
+
+  protected final class BehaviorWord {
+    def of(description: scala.Predef.String): scala.Unit = ???
+  }
+
+  protected val behavior: FlatSpecLike.this.BehaviorWord = ???
+
+  protected final class ItVerbStringTaggedAs(verb: scala.Predef.String, name: scala.Predef.String, tags: scala.List[org.scalatest.Tag]) {
+    def in(testFun: => scala.Unit): scala.Unit = ???
+
+    def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
+
+    def ignore(testFun: => scala.Unit): scala.Unit = ???
+  }
+
+  protected final class ItVerbString(verb: scala.Predef.String, name: scala.Predef.String) {
+    def in(testFun: => scala.Unit): scala.Unit = ???
+
+    def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
+
+    def ignore(testFun: => scala.Unit): scala.Unit = ???
+
+    def taggedAs(firstTestTag: org.scalatest.Tag, otherTestTags: org.scalatest.Tag*): FlatSpecLike.this.ItVerbStringTaggedAs = ???
+  }
+
+  protected final class ItWord {
+    def should(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = ???
+
+    def must(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = ???
+
+    def can(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = ???
+
+    def should(behaveWord: org.scalatest.words.BehaveWord): org.scalatest.words.BehaveWord = ???
+
+    def must(behaveWord: org.scalatest.words.BehaveWord): org.scalatest.words.BehaveWord = ???
+
+    def can(behaveWord: org.scalatest.words.BehaveWord): org.scalatest.words.BehaveWord = ???
+  }
+
+  protected val it: FlatSpecLike.this.ItWord = ???
+
+  protected final class IgnoreVerbStringTaggedAs(verb: scala.Predef.String, name: scala.Predef.String, tags: scala.List[org.scalatest.Tag]) {
+    def in(testFun: => scala.Unit): scala.Unit = ???
+
+    def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
+  }
+
+  protected final class IgnoreVerbString(verb: scala.Predef.String, name: scala.Predef.String) {
+    def in(testFun: => scala.Unit): scala.Unit = ???
+
+    def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
+
+    def taggedAs(firstTestTag: org.scalatest.Tag, otherTestTags: org.scalatest.Tag*): FlatSpecLike.this.IgnoreVerbStringTaggedAs = ???
+  }
+
+  protected final class IgnoreWord {
+    def should(string: scala.Predef.String): FlatSpecLike.this.IgnoreVerbString = ???
+
+    def must(string: scala.Predef.String): FlatSpecLike.this.IgnoreVerbString = ???
+
+    def can(string: scala.Predef.String): FlatSpecLike.this.IgnoreVerbString = ???
+  }
+
+  protected val ignore: FlatSpecLike.this.IgnoreWord = ???
+
+  protected final class TheyVerbStringTaggedAs(verb: scala.Predef.String, name: scala.Predef.String, tags: scala.List[org.scalatest.Tag]) {
+    def in(testFun: => scala.Unit): scala.Unit = ???
+
+    def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
+
+    def ignore(testFun: => scala.Unit): scala.Unit = ???
+  }
+
+  protected final class TheyVerbString(verb: scala.Predef.String, name: scala.Predef.String) {
+    def in(testFun: => scala.Unit): scala.Unit = ???
+
+    def is(testFun: => org.scalatest.PendingNothing): scala.Unit = ???
+
+    def ignore(testFun: => scala.Unit): scala.Unit = ???
+
+    def taggedAs(firstTestTag: org.scalatest.Tag, otherTestTags: org.scalatest.Tag*): FlatSpecLike.this.ItVerbStringTaggedAs = ???
+  }
+
+  protected final class TheyWord {
+    def should(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = ???
+
+    def must(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = ???
+
+    def can(string: scala.Predef.String): FlatSpecLike.this.ItVerbString = ???
+
+    def should(behaveWord: org.scalatest.words.BehaveWord): org.scalatest.words.BehaveWord = ???
+
+    def must(behaveWord: org.scalatest.words.BehaveWord): org.scalatest.words.BehaveWord = ???
+
+    def can(behaveWord: org.scalatest.words.BehaveWord): org.scalatest.words.BehaveWord = ???
+  }
+
+  protected val they: FlatSpecLike.this.TheyWord = ???
+
+  protected final class InAndIgnoreMethods(resultOfStringPassedToVerb: org.scalatest.words.ResultOfStringPassedToVerb) {
+    def in(testFun: => scala.Unit): scala.Unit = ???
+
+    def ignore(testFun: => scala.Unit): scala.Unit = ???
+  }
+
+  protected implicit def convertToInAndIgnoreMethods(resultOfStringPassedToVerb: org.scalatest.words.ResultOfStringPassedToVerb): FlatSpecLike.this.InAndIgnoreMethods = ???
+
+  protected final class InAndIgnoreMethodsAfterTaggedAs(resultOfTaggedAsInvocation: org.scalatest.words.ResultOfTaggedAsInvocation) {
+    def in(testFun: => scala.Unit): scala.Unit = ???
+
+    def ignore(testFun: => scala.Unit): scala.Unit = ???
+  }
+
+  protected implicit def convertToInAndIgnoreMethodsAfterTaggedAs(resultOfTaggedAsInvocation: org.scalatest.words.ResultOfTaggedAsInvocation): FlatSpecLike.this.InAndIgnoreMethodsAfterTaggedAs = ???
+
+  protected implicit val shorthandTestRegistrationFunction: (scala.Predef.String, scala.Predef.String, scala.Predef.String) => org.scalatest.words.ResultOfStringPassedToVerb = ???
+
+  protected implicit val shorthandSharedTestRegistrationFunction: scala.Predef.String => org.scalatest.words.BehaveWord = ???
+
+  override def tags: scala.Predef.Map[scala.Predef.String, scala.Predef.Set[scala.Predef.String]] = ???
+
+  override protected def runTest(testName: scala.Predef.String, args: org.scalatest.Args): org.scalatest.Status = ???
+
+  override protected def runTests(testName: scala.Option[scala.Predef.String], args: org.scalatest.Args): org.scalatest.Status = ???
+
+  override def testNames: scala.Predef.Set[scala.Predef.String] = ???
+
+  override def run(testName: scala.Option[scala.Predef.String], args: org.scalatest.Args): org.scalatest.Status = ???
+
+  protected val behave: org.scalatest.words.BehaveWord = ???
+
+  override final val styleName: scala.Predef.String = ???
+
+  override def testDataFor(testName: scala.Predef.String, theConfigMap: org.scalatest.ConfigMap = ???): org.scalatest.TestData = ???
+}

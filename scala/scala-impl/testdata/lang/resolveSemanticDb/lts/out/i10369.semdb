@@ -1,0 +1,32 @@
+Document tests/pos/i10369.scala
+(1:19..1:20) _empty_/i10369$package.Upgrade#[T] -> 1:14
+(2:8..2:11) scala/Int#
+(2:15..2:21) scala/Double#
+(3:8..3:12) scala/Char#
+(3:16..3:22) scala/Predef.String#
+(4:8..4:15) scala/Boolean#
+(4:19..4:26) scala/Boolean#
+(6:43..6:55) scala/PolyFunction#
+(7:19..7:20) local3 -> 7:13
+(7:23..7:30) _empty_/i10369$package.Upgrade# -> 1:6
+(7:31..7:32) local3 -> 7:13
+(7:36..7:37) local4 -> 7:16
+(8:13..8:16) scala/Int#
+(8:20..8:21) local5 -> 8:10
+(8:22..8:30) scala/Int#toDouble().
+(9:13..9:17) scala/Char#
+(9:21..9:22) local6 -> 9:10
+(9:23..9:31) scala/Any#toString().
+(10:13..10:20) scala/Boolean#
+(10:25..10:26) local7 -> 10:10
+(12:51..12:52) local14 -> 12:41
+(12:57..12:58) local15 -> 12:48
+(13:11..13:14) scala/Int#
+(13:18..13:19) local16 -> 13:8
+(13:20..13:28) scala/Int#toDouble().
+(14:11..14:15) scala/Char#
+(14:19..14:20) local17 -> 14:8
+(14:21..14:29) scala/Any#toString().
+(15:11..15:18) scala/Boolean#
+(15:23..15:24) local18 -> 15:8
+

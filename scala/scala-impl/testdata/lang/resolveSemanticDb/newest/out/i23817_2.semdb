@@ -1,0 +1,17 @@
+Document tests/pos/i23817_2/file_1.scala
+(3:29..3:34) scala/
+(3:35..3:43) scala/package.Iterable#
+(3:44..3:45) _empty_/Iterable#[T] -> 3:21
+(3:53..3:56) _empty_/TC1# -> 2:14
+(3:57..3:58) _empty_/Iterable#[C] -> 3:24
+(3:69..3:72) _empty_/TC1# -> 2:14
+(3:73..3:74) _empty_/Iterable#[C] -> 3:24
+
+Document tests/pos/i23817_2/file_2.scala
+(2:15..2:18) _empty_/TC1# -> 2:14
+(2:19..2:20) _empty_/test.f().[T] -> 2:9
+(2:24..2:28) scala/Unit#
+(3:5..3:6) _empty_/test.f().(c) -> 2:12
+(4:12..4:20) _empty_/Iterable.
+(4:27..4:30) scala/Predef.`???`().
+

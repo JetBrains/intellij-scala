@@ -1,0 +1,35 @@
+Document tests/pos/i19821.scala
+(6:14..6:15) _empty_/Test.T. -> 11:10
+(6:16..6:17) _empty_/Test.T.F# -> 12:10
+(6:18..6:19) _empty_/Test.T#S# -> 5:10
+(8:14..8:15) _empty_/Test.T#F# -> 6:10
+(9:14..9:15) _empty_/Test.T. -> 11:10
+(9:16..9:17) _empty_/Test.T.F# -> 12:10
+(9:18..9:19) _empty_/Test.T#S# -> 5:10
+(12:17..12:18) _empty_/Test.T.F#[X] -> 12:12
+(13:12..13:18) scala/Predef.String#
+(13:22..13:28) scala/Option#
+(13:29..13:32) scala/Int#
+(15:17..15:18) _empty_/Test.T.G#[X] -> 15:12
+(16:12..16:18) scala/Option#
+(16:25..16:28) scala/Int#
+(18:10..18:11) _empty_/Test.T# -> 4:9
+(18:22..18:28) scala/Predef.String#
+(18:32..18:35) scala/Predef.`???`().
+(20:11..20:12) _empty_/Test.t. -> 18:7
+(20:13..20:16) _empty_/Test.T#bar(). -> 9:9
+(21:11..21:12) _empty_/Test.T. -> 11:10
+(21:13..21:14) _empty_/Test.T.G# -> 15:10
+(21:15..21:16) _empty_/Test.b. -> 20:7
+(21:25..21:28) scala/Predef.`???`().
+(22:10..22:13) scala/Int#
+(22:16..22:18) _empty_/Test.m1. -> 21:7
+(24:11..24:12) _empty_/Test.t. -> 18:7
+(24:13..24:16) _empty_/Test.T#foo(). -> 8:9
+(25:10..25:11) _empty_/Test.T. -> 11:10
+(25:12..25:13) _empty_/Test.T.G# -> 15:10
+(25:14..25:15) _empty_/Test.f. -> 24:7
+(25:24..25:27) scala/Predef.`???`().
+(26:10..26:13) scala/Int#
+(26:16..26:17) _empty_/Test.m. -> 25:7
+

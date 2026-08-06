@@ -1,0 +1,29 @@
+on:
+  pull_request:
+    branches: [ idea253.x, idea261.x ]
+
+jobs:
+  build_and_test:
+    name: Scala Plugin Build & Test
+    runs-on: ubuntu-latest
+    env:
+      JAVA_OPTS: -Xmx8192m -XX:ReservedCodeCacheSize=512m
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            8
+            11
+            17
+      - uses: sbt/setup-sbt@v1
+      - uses: coursier/cache-action@v6
+      - name: Compile and package
+        run: sbt clean packageArtifact Test/compile
+      - name: Run internationalization bundle tests
+        run: sbt runJUnit5Tests
+      - name: Run typechecker tests
+        run: sbt runTypeInferenceTests
+      - name: Run assorted tests
+        run: sbt runFastTests

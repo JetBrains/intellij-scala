@@ -1,0 +1,7 @@
+Document tests/pos/i18867-3.3.scala
+(3:8..3:16) scala/language.
+(3:17..3:22) scala/language.`3.3`.
+(5:12..5:15) scala/Int#
+(5:19..5:20) _empty_/`i18867-3.3$package`.foo().(x) -> 5:9
+(7:12..7:15) _empty_/`i18867-3.3$package`.foo(). -> 5:5
+

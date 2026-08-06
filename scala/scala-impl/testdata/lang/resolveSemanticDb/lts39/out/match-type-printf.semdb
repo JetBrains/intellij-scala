@@ -1,0 +1,47 @@
+Document tests/pos/match-type-printf.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:29) scala/compiletime/ops/
+(1:30..1:33) scala/compiletime/ops/int.
+(2:8..2:13) scala/
+(2:14..2:25) scala/compiletime/
+(2:26..2:29) scala/compiletime/ops/
+(2:30..2:36) scala/compiletime/ops/string.
+(3:8..3:13) scala/
+(3:14..3:19) scala/Tuple.
+(5:20..5:26) scala/Predef.String#
+(5:31..5:36) scala/Tuple#
+(5:39..5:40) _empty_/`match-type-printf$package`.ArgTypes#[S] -> 5:15
+(6:14..6:24) scala/Tuple$package.EmptyTuple#
+(7:8..7:9) scala/Any#
+(8:5..8:11) scala/compiletime/ops/string.CharAt#
+(8:12..8:13) _empty_/`match-type-printf$package`.ArgTypes#[S] -> 5:15
+(10:9..10:15) scala/compiletime/ops/string.CharAt#
+(10:16..10:17) _empty_/`match-type-printf$package`.ArgTypes#[S] -> 5:15
+(11:23..11:26) scala/Int#
+(11:27..11:29) scala/`*:`#
+(11:30..11:38) _empty_/`match-type-printf$package`.ArgTypes# -> 5:6
+(11:39..11:48) scala/compiletime/ops/string.Substring#
+(11:49..11:50) _empty_/`match-type-printf$package`.ArgTypes#[S] -> 5:15
+(11:55..11:61) scala/compiletime/ops/string.Length#
+(11:62..11:63) _empty_/`match-type-printf$package`.ArgTypes#[S] -> 5:15
+(12:23..12:29) scala/Predef.String#
+(12:30..12:32) scala/`*:`#
+(12:33..12:41) _empty_/`match-type-printf$package`.ArgTypes# -> 5:6
+(12:42..12:51) scala/compiletime/ops/string.Substring#
+(12:52..12:53) _empty_/`match-type-printf$package`.ArgTypes#[S] -> 5:15
+(12:58..12:64) scala/compiletime/ops/string.Length#
+(12:65..12:66) _empty_/`match-type-printf$package`.ArgTypes#[S] -> 5:15
+(13:12..13:13) scala/Any#
+(13:17..13:25) _empty_/`match-type-printf$package`.ArgTypes# -> 5:6
+(13:26..13:35) scala/compiletime/ops/string.Substring#
+(13:36..13:37) _empty_/`match-type-printf$package`.ArgTypes#[S] -> 5:15
+(13:42..13:48) scala/compiletime/ops/string.Length#
+(13:49..13:50) _empty_/`match-type-printf$package`.ArgTypes#[S] -> 5:15
+(15:15..15:21) scala/Predef.String#
+(15:26..15:34) _empty_/`match-type-printf$package`.ArgTypes# -> 5:6
+(15:35..15:36) _empty_/`match-type-printf$package`.printf().(s) -> 15:12
+(15:45..15:49) scala/Unit#
+(18:3..18:9) _empty_/`match-type-printf$package`.printf(). -> 15:5
+(19:3..19:9) _empty_/`match-type-printf$package`.printf(). -> 15:5
+

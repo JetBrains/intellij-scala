@@ -1,0 +1,38 @@
+s"aaa
+s"" s"aaa
+42 s"aaa
+-----
+ScalaFile
+  InterpolatedStringLiteral
+    InterpolatedExpressionPrefix: s
+      PsiElement(interpolated string id)('s')
+    PsiElement(interpolated string)('"aaa')
+    PsiErrorElement:End of string expected
+      <empty list>
+  PsiWhiteSpace('\n')
+  InterpolatedStringLiteral
+    InterpolatedExpressionPrefix: s
+      PsiElement(interpolated string id)('s')
+    PsiElement(interpolated string)('"')
+    PsiElement(interpolated string end)('"')
+  PsiErrorElement:';' or newline expected
+    <empty list>
+  PsiWhiteSpace(' ')
+  InterpolatedStringLiteral
+    InterpolatedExpressionPrefix: s
+      PsiElement(interpolated string id)('s')
+    PsiElement(interpolated string)('"aaa')
+    PsiErrorElement:End of string expected
+      <empty list>
+  PsiWhiteSpace('\n')
+  IntegerLiteral
+    PsiElement(integer)('42')
+  PsiErrorElement:';' or newline expected
+    <empty list>
+  PsiWhiteSpace(' ')
+  InterpolatedStringLiteral
+    InterpolatedExpressionPrefix: s
+      PsiElement(interpolated string id)('s')
+    PsiElement(interpolated string)('"aaa')
+    PsiErrorElement:End of string expected
+      <empty list>

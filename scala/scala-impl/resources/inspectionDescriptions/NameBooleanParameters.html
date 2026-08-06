@@ -1,0 +1,17 @@
+<html>
+<body>
+<p>Reports and suggests naming boolean parameters.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  def execute(optionA: Boolean, optionB: Boolean): Unit = ???
+  execute(true, false)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  def execute(optionA: Boolean, optionB: Boolean): Unit = ???
+  execute(optionA = true, optionB = false)
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

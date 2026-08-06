@@ -1,0 +1,47 @@
+Document tests/pos/i20080.scala
+(4:17..4:18) _empty_/Zippable#[A] -> 2:17
+(4:27..4:28) _empty_/Zippable#[B] -> 2:21
+(4:31..4:34) _empty_/Zippable#Out# -> 3:8
+(6:25..6:40) _empty_/ZippableLowPrio# -> 10:7
+(7:21..7:26) scala/Tuple#
+(7:33..7:41) _empty_/Zippable# -> 2:7
+(7:42..7:43) _empty_/Zippable.append().[A] -> 7:16
+(7:45..7:46) _empty_/Zippable.append().[B] -> 7:28
+(7:61..7:66) scala/Tuple.
+(7:67..7:73) scala/Tuple.Append#
+(7:74..7:75) _empty_/Zippable.append().[A] -> 7:16
+(7:77..7:78) _empty_/Zippable.append().[B] -> 7:28
+(8:22..8:26) local1 -> 8:6
+(8:27..8:29) scala/Tuple#`:*`().
+(8:30..8:35) local2 -> 8:12
+(11:22..11:30) _empty_/Zippable# -> 2:7
+(11:31..11:32) _empty_/ZippableLowPrio#pair().[A] -> 11:14
+(11:34..11:35) _empty_/ZippableLowPrio#pair().[B] -> 11:17
+(11:51..11:52) _empty_/ZippableLowPrio#pair().[A] -> 11:14
+(11:54..11:55) _empty_/ZippableLowPrio#pair().[B] -> 11:17
+(12:23..12:27) local4 -> 12:6
+(12:29..12:34) local5 -> 12:12
+(19:18..19:21) scala/Any#
+(19:24..19:27) _empty_/Minimization.Fun1#Out# -> 18:10
+(21:15..21:16) _empty_/Minimization.M#[X] -> 21:10
+(22:10..22:16) scala/Predef.String#
+(22:20..22:21) _empty_/Minimization.M#[X] -> 21:10
+(26:12..26:16) _empty_/Minimization.Fun1# -> 17:9
+(26:30..26:31) _empty_/Minimization.M# -> 21:8
+(26:32..26:33) _empty_/Minimization.test().[A] -> 24:12
+(26:43..26:47) _empty_/Minimization.Fun1# -> 17:9
+(27:18..27:19) _empty_/Minimization.M# -> 21:8
+(27:20..27:21) _empty_/Minimization.test().[A] -> 24:12
+(28:20..28:23) scala/Any#
+(28:26..28:29) local7 -> 27:12
+(28:32..28:35) scala/Predef.`???`().
+(30:12..30:16) _empty_/Minimization.Fun1# -> 17:9
+(30:30..30:31) _empty_/Minimization.M# -> 21:8
+(30:32..30:33) _empty_/Minimization.test().[A] -> 24:12
+(30:44..30:47) scala/Predef.`???`().
+(32:12..32:16) _empty_/Minimization.Fun1# -> 17:9
+(32:30..32:31) _empty_/Minimization.test().[A] -> 24:12
+(32:44..32:50) scala/Predef.String#
+(32:54..32:55) _empty_/Minimization.test().[A] -> 24:12
+(32:66..32:69) scala/Predef.`???`().
+

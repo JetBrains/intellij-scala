@@ -1,0 +1,8 @@
+Document tests/pos/t6562.scala
+(3:19..3:23) scala/Unit#
+(5:9..5:12) scala/Any#
+(5:17..5:19) local2 -> 4:9
+(8:27..8:31) scala/Unit#
+(10:9..10:12) scala/Any#
+(10:17..10:19) local5 -> 9:9
+

@@ -1,0 +1,5 @@
+Document tests/pos/i6151/Test.scala
+(1:8..1:14) _empty_/Expect#
+(2:2..2:9) _empty_/Outcome#
+(2:10..2:19) _empty_/Expect#ExpectVal.
+

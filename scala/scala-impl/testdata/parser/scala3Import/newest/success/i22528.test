@@ -1,0 +1,83 @@
+trait Bar
+trait Baz
+
+def f =
+  identity(
+    locally:
+      trait Foo extends Bar, Baz
+  )
+-----
+ScalaFile
+  ScTrait: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Baz
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Baz')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: identity
+        PsiElement(identifier)('identity')
+      ArgumentList
+        PsiElement(()('(')
+        PsiWhiteSpace('\n    ')
+        MethodCall
+          ReferenceExpression: locally
+            PsiElement(identifier)('locally')
+          ArgumentList
+            BlockExpression
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n      ')
+              ScTrait: Foo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Foo')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  PsiElement(extends)('extends')
+                  PsiWhiteSpace(' ')
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Bar
+                        CodeReferenceElement: Bar
+                          PsiElement(identifier)('Bar')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    ConstructorInvocation
+                      SimpleType: Baz
+                        CodeReferenceElement: Baz
+                          PsiElement(identifier)('Baz')
+        PsiWhiteSpace('\n  ')
+        PsiElement())(')')

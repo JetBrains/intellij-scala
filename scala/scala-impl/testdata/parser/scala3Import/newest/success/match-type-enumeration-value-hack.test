@@ -1,0 +1,219 @@
+type EnumValueAux[A] = ({ type Value }) { type Value = A }
+
+type EnumValue[E <: Enumeration] = E match
+  case EnumValueAux[t] => t
+
+object Suit extends Enumeration:
+  val Hearts, Diamonds, Clubs, Spades = Val()
+
+object Test:
+  summon[Suit.Value =:= EnumValue[Suit.type]]
+end Test
+-----
+ScalaFile
+  ScTypeAliasDefinition: EnumValueAux
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EnumValueAux')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    CompoundType: ({ type Value }) { type Value = A }
+      TypeInParenthesis: ({ type Value })
+        PsiElement(()('(')
+        CompoundType: { type Value }
+          Refinement
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            ScTypeAliasDeclaration: Value
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Value')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiElement())(')')
+      PsiWhiteSpace(' ')
+      Refinement
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScTypeAliasDefinition: Value
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Value')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: EnumValue
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('EnumValue')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Enumeration
+          CodeReferenceElement: Enumeration
+            PsiElement(identifier)('Enumeration')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: E match
+  case EnumValueAux[t] => t
+      SimpleType: E
+        CodeReferenceElement: E
+          PsiElement(identifier)('E')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: EnumValueAux[t]
+            SimpleType: EnumValueAux
+              CodeReferenceElement: EnumValueAux
+                PsiElement(identifier)('EnumValueAux')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                TypeVariable: t
+                  PsiElement(identifier)('t')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: t
+            CodeReferenceElement: t
+              PsiElement(identifier)('t')
+  PsiWhiteSpace('\n\n')
+  ScObject: Suit
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Suit')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Enumeration
+            CodeReferenceElement: Enumeration
+              PsiElement(identifier)('Enumeration')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: Hearts, Diamonds, Clubs, Spades
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: Hearts
+              PsiElement(identifier)('Hearts')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: Diamonds
+              PsiElement(identifier)('Diamonds')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: Clubs
+              PsiElement(identifier)('Clubs')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: Spades
+              PsiElement(identifier)('Spades')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Val
+              PsiElement(identifier)('Val')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: Suit.Value =:= EnumValue[Suit.type]
+                SimpleType: Suit.Value
+                  CodeReferenceElement: Suit.Value
+                    CodeReferenceElement: Suit
+                      PsiElement(identifier)('Suit')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Value')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                ParametrizedType: EnumValue[Suit.type]
+                  SimpleType: EnumValue
+                    CodeReferenceElement: EnumValue
+                      PsiElement(identifier)('EnumValue')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Suit.type
+                        CodeReferenceElement: Suit
+                          PsiElement(identifier)('Suit')
+                        PsiElement(.)('.')
+                        PsiElement(type)('type')
+                    PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        End: Test
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')

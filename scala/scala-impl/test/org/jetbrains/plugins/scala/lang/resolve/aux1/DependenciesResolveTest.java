@@ -1,0 +1,57 @@
+package org.jetbrains.plugins.scala.lang.resolve.aux1;
+
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.PsiReference;
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
+
+import java.nio.file.Path;
+
+public class DependenciesResolveTest extends ScalaResolveTestCase {
+  @Override
+  public Path folderPath() {
+    return super.folderPath().resolve("resolve").resolve("aux1").resolve("idea");
+  }
+
+  @Override
+  public Path sourceRootPath() {
+    return folderPath();
+  }
+
+  public void testLocalImport() {
+    PsiReference ref = findReferenceAtCaret();
+    final PsiElement resolved = ref.resolve();
+
+    assertTrue(resolved instanceof ScPrimaryConstructor);
+
+    final ScClass clazz = (ScClass) ((ScPrimaryConstructor) resolved).containingClass();
+    final String name = clazz.getName();
+    assertEquals("Description", name);
+  }
+
+  public void testLocalImport1() {
+    PsiReference ref = findReferenceAtCaret();
+    final PsiElement resolved = ref.resolve();
+
+    assertTrue(resolved instanceof ScTypeAlias);
+
+    final ScTypeAlias alias = (ScTypeAlias) resolved;
+    final String name = alias.getName();
+    assertEquals("Den", name);
+  }
+
+  public void testLocalImport2() {
+    PsiReference ref = findReferenceAtCaret();
+    final PsiElement resolved = ref.resolve();
+
+    assertTrue(resolved instanceof PsiNamedElement);
+
+    final PsiNamedElement named = (PsiNamedElement) resolved;
+    final String name = named.getName();
+    assertEquals("popa", name);
+  }
+
+}

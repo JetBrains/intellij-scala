@@ -1,0 +1,12 @@
+Document tests/pos/poly-override.scala
+(2:14..2:20) scala/Predef.String#
+(3:14..3:20) scala/Predef.String#
+(3:25..3:31) scala/Predef.String#
+(7:20..7:25) _empty_/Super# -> 1:7
+(8:23..8:29) scala/AnyRef#
+(9:23..9:29) scala/AnyRef#
+(9:34..9:40) scala/Predef.String#
+(10:25..10:31) scala/Predef.String#
+(13:20..13:25) _empty_/Super# -> 1:7
+(14:25..14:31) scala/Predef.String#
+

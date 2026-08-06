@@ -1,0 +1,2 @@
+if (a equals b) return
+if (a == b) return

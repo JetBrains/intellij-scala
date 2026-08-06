@@ -1,0 +1,14 @@
+<settings>
+  <HoconCodeStyleSettings>
+    <option name="OBJECT_FIELDS_WITH_ASSIGNMENT_WRAP" value="2" />
+    <option name="OBJECT_FIELDS_ASSIGNMENT_ON_NEXT_LINE" value="true" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+a = b
+a += b
+-----
+a
+  = b
+a
+  += b

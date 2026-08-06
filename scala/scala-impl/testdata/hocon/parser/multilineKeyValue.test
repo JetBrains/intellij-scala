@@ -1,0 +1,34 @@
+a =
+ b
+a
+
+=
+
+1
+-----
+HOCON_FILE
+  HObjectEntries(OBJECT_ENTRIES)
+    HObjectField(OBJECT_FIELD)
+      HValuedField(VALUED_FIELD)
+        HKey(KEY)
+          HKeyPart(KEY_PART)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(EQUALS)('=')
+        PsiWhiteSpace('\n ')
+        HStringValue(STRING_VALUE)
+          HUnquotedString(UNQUOTED_STRING)
+            PsiElement(UNQUOTED_CHARS)('b')
+    PsiWhiteSpace('\n')
+    HObjectField(OBJECT_FIELD)
+      HValuedField(VALUED_FIELD)
+        HKey(KEY)
+          HKeyPart(KEY_PART)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('a')
+        PsiWhiteSpace('\n\n')
+        PsiElement(EQUALS)('=')
+        PsiWhiteSpace('\n\n')
+        HNumber(NUMBER)
+          PsiElement(UNQUOTED_CHARS)('1')

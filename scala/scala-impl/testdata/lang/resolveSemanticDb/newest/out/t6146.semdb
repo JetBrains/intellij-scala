@@ -1,0 +1,35 @@
+Document tests/pos/t6146.scala
+(10:35..10:41) _empty_/AxisCompanion#Format# -> 8:17
+(11:35..11:41) _empty_/AxisCompanion#Format# -> 8:17
+(16:21..16:34) _empty_/AxisCompanion# -> 7:7
+(18:11..18:15) _empty_/Axis. -> 16:8
+(19:17..19:23) _empty_/AxisCompanion#Format# -> 8:17
+(19:28..19:29) _empty_/Axis#test().(f) -> 19:14
+(20:12..20:18) _empty_/AxisCompanion#Format. -> 9:11
+(20:19..20:26) _empty_/AxisCompanion#Format.Integer. -> 11:19
+(22:12..22:18) _empty_/AxisCompanion#Format. -> 9:11
+(22:19..22:26) _empty_/AxisCompanion#Format.Decimal. -> 10:19
+(35:35..35:41) _empty_/T1#T2#Format# -> 33:18
+(36:35..36:41) _empty_/T1#T2#Format# -> 33:18
+(41:19..41:21) _empty_/T1# -> 31:7
+(41:22..41:25) scala/Any#
+(42:21..42:23) _empty_/T1#T2# -> 32:9
+(42:24..42:27) scala/Any#
+(47:28..47:30) _empty_/O1. -> 41:8
+(47:31..47:33) _empty_/O1.O2. -> 42:10
+(47:34..47:40) _empty_/T1#T2#Format# -> 33:18
+(50:11..50:13) _empty_/O1. -> 41:8
+(50:14..50:16) _empty_/O1.O2. -> 42:10
+(51:12..51:18) _empty_/T1#T2#Format. -> 34:12
+(51:19..51:26) _empty_/T1#T2#Format.Integer. -> 36:19
+(51:34..51:40) _empty_/T1#T2#Format. -> 34:12
+(51:41..51:48) _empty_/T1#T2#Format.Integer. -> 36:19
+(52:17..52:23) _empty_/T1#T2#Format# -> 33:18
+(53:14..53:15) _empty_/Test1#test().(f) -> 52:14
+(53:23..53:24) _empty_/Test1#test().(f) -> 52:14
+(54:6..54:8) local0 -> 53:10
+(55:14..55:16) _empty_/Test1#FI. -> 51:8
+(56:14..56:20) _empty_/T1#T2#Format. -> 34:12
+(56:21..56:28) _empty_/T1#T2#Format.Decimal. -> 35:19
+(57:14..57:20) _empty_/Shorty. -> 47:13
+

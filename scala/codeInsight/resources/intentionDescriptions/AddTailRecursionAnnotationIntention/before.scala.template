@@ -1,0 +1,2 @@
+def <spot>add</spot>(a: Int, b: Int): Int =
+  if (b == 0) a else add(a + 1, b - 1)

@@ -1,0 +1,4 @@
+  // body
+  while (cond) {
+    // body
+  }

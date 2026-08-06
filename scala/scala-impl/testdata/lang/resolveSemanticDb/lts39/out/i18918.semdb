@@ -1,0 +1,27 @@
+Document tests/pos/i18918.scala
+(4:27..4:37) _empty_/SuperTrait#InnerTrait# -> 3:15
+(9:33..9:43) _empty_/SuperTrait# -> 2:7
+(9:52..9:62) _empty_/OtherTrait# -> 7:7
+(10:2..10:8) scala/Predef.summon().
+(10:9..10:17) scala/deriving/
+(10:18..10:24) scala/deriving/Mirror.
+(10:25..10:27) scala/deriving/Mirror.Of#
+(10:28..10:31) _empty_/SuperTrait#Foo# -> 4:13
+(11:2..11:8) scala/Predef.summon().
+(11:9..11:17) scala/deriving/
+(11:18..11:24) scala/deriving/Mirror.
+(11:25..11:27) scala/deriving/Mirror.Of#
+(11:28..11:38) _empty_/SuperTrait#InnerTrait# -> 3:15
+(14:31..14:48) _empty_/TraitWithSelfType# -> 9:7
+(14:50..14:60) _empty_/OtherTrait# -> 7:7
+(15:2..15:8) scala/Predef.summon().
+(15:9..15:17) scala/deriving/
+(15:18..15:24) scala/deriving/Mirror.
+(15:25..15:27) scala/deriving/Mirror.Of#
+(15:28..15:31) _empty_/SuperTrait#Foo# -> 4:13
+(16:2..16:8) scala/Predef.summon().
+(16:9..16:17) scala/deriving/
+(16:18..16:24) scala/deriving/Mirror.
+(16:25..16:27) scala/deriving/Mirror.Of#
+(16:28..16:38) _empty_/SuperTrait#InnerTrait# -> 3:15
+

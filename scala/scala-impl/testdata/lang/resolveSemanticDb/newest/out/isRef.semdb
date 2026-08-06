@@ -1,0 +1,19 @@
+Document tests/pos/isRef.scala
+(2:13..2:16) scala/Any#
+(2:28..2:31) scala/Int#
+(3:13..3:16) scala/Any#
+(3:28..3:34) scala/Predef.String#
+(4:10..4:11) _empty_/Foo#B# -> 3:8
+(5:13..5:14) _empty_/Foo#A# -> 2:8
+(5:15..5:16) scala/`|`#
+(5:17..5:18) _empty_/Foo#B# -> 3:8
+(5:21..5:22) _empty_/Foo#b(). -> 4:7
+(10:10..10:11) _empty_/Foo2#B# -> 9:8
+(10:12..10:15) scala/Int#
+(11:13..11:14) _empty_/Foo2#A# -> 8:8
+(11:15..11:18) scala/Int#
+(11:20..11:21) scala/`|`#
+(11:22..11:23) _empty_/Foo2#B# -> 9:8
+(11:24..11:27) scala/Int#
+(11:31..11:32) _empty_/Foo2#b(). -> 10:7
+

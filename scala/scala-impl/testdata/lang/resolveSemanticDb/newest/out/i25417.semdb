@@ -1,0 +1,33 @@
+Document tests/pos/i25417.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:36) scala/compiletime/package$package.summonFrom().
+(5:7..5:14) _empty_/Decoder# -> 3:7
+(5:15..5:21) scala/Predef.String#
+(10:25..10:31) _empty_/Mirror# -> 7:7
+(10:32..10:33) _empty_/i25417$package.given_Decoder_T().[T] -> 10:8
+(10:40..10:47) _empty_/Decoder# -> 3:7
+(10:48..10:54) _empty_/i25417$package.given_Decoder_T().(mirror) -> 10:17
+(10:55..10:63) _empty_/Mirror#IronType# -> 8:8
+(10:67..10:74) _empty_/Decoder# -> 3:7
+(10:75..10:76) _empty_/i25417$package.given_Decoder_T().[T] -> 10:8
+(11:3..11:5) _empty_/i25417$package.given_Decoder_T().(ev) -> 10:36
+(11:6..11:18) scala/Any#asInstanceOf().
+(11:19..11:26) _empty_/Decoder# -> 3:7
+(11:27..11:28) _empty_/i25417$package.given_Decoder_T().[T] -> 10:8
+(14:19..14:25) scala/Predef.String#
+(16:16..16:22) _empty_/Mirror# -> 7:7
+(16:23..16:24) _empty_/Foo.T# -> 14:15
+(17:21..17:27) scala/Predef.String#
+(19:30..19:37) _empty_/Decoder# -> 3:7
+(19:38..19:41) _empty_/Foo. -> 13:8
+(19:42..19:43) _empty_/Foo.T# -> 14:15
+(21:19..21:26) _empty_/Decoder# -> 3:7
+(21:27..21:30) _empty_/Foo. -> 13:8
+(21:31..21:32) _empty_/Foo.T# -> 14:15
+(21:37..21:44) local0 -> 21:10
+(24:17..24:24) _empty_/Decoder# -> 3:7
+(24:25..24:28) _empty_/Foo. -> 13:8
+(24:29..24:30) _empty_/Foo.T# -> 14:15
+(24:34..24:50) _empty_/i25417$package.summonFooDecoder(). -> 19:12
+

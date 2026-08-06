@@ -1,0 +1,11 @@
+Document tests/pos/listAndVector.scala
+(1:10..1:13) scala/Predef.Set.
+(1:14..1:18) scala/package.List.
+(1:23..1:29) scala/package.Vector.
+(2:9..2:12) scala/Predef.Set#
+(2:13..2:23) scala/collection/
+(2:24..2:33) scala/collection/immutable/
+(2:34..2:45) scala/collection/immutable/AbstractSeq#
+(2:46..2:49) scala/Int#
+(2:54..2:56) _empty_/listAndVector$package.xs(). -> 1:5
+

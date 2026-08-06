@@ -1,0 +1,621 @@
+package org.jetbrains.plugins.scala.codeInspection
+
+import com.intellij.codeInsight.PsiEquivalenceUtil
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
+import com.intellij.psi.util.CachedValueProvider.Result
+import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScConstructorPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, PsiTypeConstants}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, _}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.AnonymousFunction
+
+import scala.annotation.tailrec
+import scala.collection.immutable.ArraySeq
+
+//noinspection ScalaWeakerAccess
+package object collections {
+  // TODO: once initialized, it doesn't change because it is used in `val`s below
+  def likeCollectionClasses: ArraySeq[String] = ArraySeq.unsafeWrapArray(ScalaApplicationSettings.getInstance().getLikeCollectionClasses)
+  def likeOptionClasses: ArraySeq[String] = ArraySeq.unsafeWrapArray(ScalaApplicationSettings.getInstance().getLikeOptionClasses)
+  def stringClass: ArraySeq[String] = ArraySeq.unsafeWrapArray(Array("java.lang.String"))
+
+  val monadicMethods: Set[String] = Set("map", "flatMap", "filter", "withFilter")
+  val foldMethodNames: Set[String] = Set("foldLeft", "/:", "foldRight", ":\\", "fold")
+  val reduceMethodNames: Set[String] = Set("reduce", "reduceLeft", "reduceRight")
+
+  def invocation(methodName: String) = new Qualified(methodName == _)
+  def invocation(methodNames: Set[String]) = new Qualified(methodNames.contains)
+
+  def unqualifed(methodName: String) = new Unqualified(methodName == _)
+  def unqualifed(methodName: Set[String]) = new Unqualified(methodName.contains)
+
+  private[collections] val `.exists` = invocation("exists").from(likeCollectionClasses)
+  private[collections] val `.forall` = invocation("forall").from(likeCollectionClasses)
+  private[collections] val `.filter` = invocation("filter").from(likeCollectionClasses)
+  private[collections] val `.filterNot` = invocation("filterNot").from(likeCollectionClasses)
+  private[collections] val `.map` = invocation("map").from(likeCollectionClasses)
+  private[collections] val `.headOption` = invocation("headOption").from(likeCollectionClasses)
+  private[collections] val `.lastOption` = invocation("lastOption").from(likeCollectionClasses)
+  private[collections] val `.head` = invocation("head").from(likeCollectionClasses)
+  private[collections] val `.last` = invocation("last").from(likeCollectionClasses)
+  private[collections] val `.sizeOrLength` = invocation(Set("size", "length")).from(likeCollectionClasses)
+  private[collections] val `.find` = invocation("find").from(likeCollectionClasses)
+  private[collections] val `.contains` = invocation("contains").from(likeCollectionClasses)
+  private[collections] val `.flatten` = invocation("flatten").from(likeCollectionClasses)
+  private[collections] val `.flatMap` = invocation("flatMap").from(likeCollectionClasses)
+  private[collections] val `.collect` = invocation("collect").from(likeCollectionClasses)
+
+  private[collections] val `.isDefined` = invocation(Set("isDefined", "nonEmpty")).from(likeOptionClasses)
+  private[collections] val `.isEmptyOnOption` = invocation("isEmpty").from(likeOptionClasses)
+  private[collections] val `.isEmpty` = invocation("isEmpty").from(likeCollectionClasses)
+  private[collections] val `.nonEmpty` = invocation("nonEmpty").from(likeCollectionClasses)
+
+  private[collections] val `.fold` = invocation(foldMethodNames).from(likeCollectionClasses)
+  private[collections] val `.foldLeft` = invocation(Set("foldLeft", "/:")).from(likeCollectionClasses)
+  private[collections] val `.reduce` = invocation(reduceMethodNames).from(likeCollectionClasses)
+  private[collections] val `.getOrElse` = invocation("getOrElse").from(likeOptionClasses)
+  private[collections] val `.get` = invocation("get").from(likeOptionClasses)
+  private[collections] val `.getOnMap` = invocation("get").from(likeCollectionClasses).ref(checkResolveToMap)
+  private[collections] val `.mapOnOption` = invocation("map").from(likeOptionClasses)
+  private[collections] val `.sort` = invocation(Set("sortWith", "sortBy", "sorted")).from(likeCollectionClasses)
+  private[collections] val `.sorted` = invocation("sorted").from(likeCollectionClasses)
+  private[collections] val `.sortBy` = invocation("sortBy").from(likeCollectionClasses)
+  private[collections] val `.reverse` = invocation("reverse").from(likeCollectionClasses)
+  private[collections] val `.iterator` = invocation("iterator").from(likeCollectionClasses)
+  private[collections] val `.apply` = invocation("apply")
+  private[collections] val `.zip` = invocation("zip").from(likeCollectionClasses)
+  private[collections] val `.unzip` = invocation("unzip").from(likeCollectionClasses)
+  private[collections] val `.unzip3` = invocation("unzip3").from(likeCollectionClasses)
+  private[collections] val `.indices` = invocation("indices").from(likeCollectionClasses)
+  private[collections] val `.take` = invocation("take").from(likeCollectionClasses)
+  private[collections] val `.drop` = invocation("drop").from(likeCollectionClasses)
+  private[collections] val `.sameElements` = invocation("sameElements").from(likeCollectionClasses)
+  private[collections] val `.corresponds` = invocation("corresponds").from(likeCollectionClasses)
+  private[collections] val `.substring` = invocation("substring").from(stringClass)
+
+  private[collections] val `.toString` = invocation("toString") // on everything
+  private[collections] val `.to` = invocation("to").from(ArraySeq("RichInt", "RichChar", "RichLong", "RichDouble", "RichFloat").map("scala.runtime." + _))
+
+  val `!=`: Qualified = invocation("!=")
+  val `==`: Qualified = invocation(Set("==", "equals"))
+  val `>`: Qualified = invocation(">")
+  val `>=`: Qualified = invocation(">=")
+  val `<`: Qualified = invocation("<")
+  val `<=`: Qualified = invocation("<=")
+  val `!`: Qualified = invocation(Set("!", "unary_!"))
+  val `-`: Qualified = invocation("-")
+  val `+`: Qualified = invocation("+")
+  val `&&`: Qualified = invocation("&&")
+
+  private val isSpecialStringToConversions = Set(
+    "toString", "toLowerCase", "toUpperCase"
+  )
+  private[collections] val `.toCollection` = new Qualified(name => name.startsWith("to") && !isSpecialStringToConversions(name)).from(likeCollectionClasses)
+  private[collections] val `.toSet` = invocation("toSet").from(likeCollectionClasses)
+  private[collections] val `.toIterator` = invocation("toIterator").from(likeCollectionClasses)
+
+  private[collections] val `.lift` = invocation("lift")
+
+  private[collections] val `.monadicMethod` = invocation(monadicMethods).from(likeCollectionClasses)
+
+  object scalaNone {
+    def unapply(expr: ScExpression): Boolean = {
+      expr match {
+        case ResolvesTo(obj: ScObject) if obj.qualifiedName == "scala.None" => true
+        case _ => false
+      }
+    }
+  }
+
+  object scalaSome {
+    def unapply(expr: ScExpression): Option[ScExpression] = expr match {
+      case MethodRepr(_, Some(ref: ScReferenceExpression), _, Seq(e)) if ref.refName == "Some" =>
+        ref.resolve() match {
+          case m: ScMember if m.containingClass.nullSafe.exists(_.qualifiedName == "scala.Some") => Some(e)
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
+  object scalaSomePattern {
+    def unapply(expr: ScPattern): Option[ScPattern] = expr match {
+      case ScConstructorPattern(ref: ScReference, args) if ref.refName == "Some" =>
+        (ref.resolve(), args.patterns) match {
+          case (m: ScMember, Seq(arg)) if m.containingClass.nullSafe.exists(_.qualifiedName == "scala.Some") => Some(arg)
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
+  object scalaOption {
+    def unapply(expr: ScExpression): Option[ScExpression] = expr match {
+      case MethodRepr(_, Some(ref: ScReferenceExpression), _, Seq(e)) if ref.refName == "Option" =>
+        ref.resolve() match {
+          case m: ScMember if m.containingClass.nullSafe.exists(_.qualifiedName == "scala.Option") => Some(e)
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
+  object IfStmt {
+    def unapply(expr: ScExpression): Option[(ScExpression, ScExpression, ScExpression)] = {
+      expr match {
+        case ScIf(Some(c), Some(stripped(tb)), Some(stripped(eb))) => Some(c, tb, eb)
+        case _ => None
+      }
+    }
+  }
+
+  object CaseClause {
+    def unapply(expr: ScCaseClause): Option[(ScPattern, Option[ScGuard], ScExpression)] = {
+      expr match {
+        case ScCaseClause(Some(pattern), guard, Some(stripped(expr))) => Some(pattern, guard, expr)
+        case _ => None
+      }
+    }
+  }
+
+  object Guard {
+    def unapply(guard: Any): Option[ScExpression] = guard match {
+      case Some(g: ScGuard) => g.expr
+      case guard: ScGuard => guard.expr
+      case _ => None
+    }
+  }
+
+  object literal {
+    def unapply(expr: ScExpression): Option[String] = {
+      expr match {
+        case lit: ScLiteral => Some(lit.getText)
+        case _ => None
+      }
+    }
+  }
+
+  object returnsBoolean {
+    def unapply(expr: ScExpression): Boolean = {
+      import expr.projectContext
+      implicit val context: Context = Context(expr)
+
+      expr.`type`() match {
+        case Right(result) =>
+          result match {
+            case FunctionType(returnType, _) => returnType.conforms(api.Boolean)
+            case _ => false
+          }
+        case _ => false
+      }
+    }
+  }
+
+  object binaryOperation {
+    def unapply(expr: ScExpression): Option[String] = {
+      val operRef = stripped(expr) match {
+        case ScFunctionExpr(Seq(x, y), Some(result)) =>
+          def checkResolve(left: ScExpression, right: ScExpression) = (stripped(left), stripped(right)) match {
+            case (leftRef: ScReferenceExpression, rightRef: ScReferenceExpression) =>
+              Set(leftRef.resolve(), rightRef.resolve()) equals Set(x, y)
+            case _ => false
+          }
+          stripped(result) match {
+            case ScInfixExpr(left, oper, right) if checkResolve(left, right) => Some(oper)
+            case ScMethodCall(refExpr: ScReferenceExpression, Seq(left, right)) if checkResolve(left, right) => Some(refExpr)
+            case _ => None
+          }
+        case ScInfixExpr(underscore(), oper, underscore()) => Some(oper)
+        case ScMethodCall(refExpr: ScReferenceExpression, Seq(underscore(), underscore()))  => Some(refExpr)
+        case _ => None
+      }
+      operRef.map(_.refName)
+    }
+  }
+
+  class BinaryOperationOnParameterAndExprTemplate(operName: String) {
+    def unapply(expr: ScExpression): Option[ScExpression] = {
+      stripped(expr) match {
+        case ScFunctionExpr(Seq(x), Some(result)) =>
+          stripped(result) match {
+            case ScInfixExpr(left, oper, right) if oper.refName == operName =>
+              (stripped(left), stripped(right)) match {
+                case (leftRef: ScReferenceExpression, rightExpr)
+                  if leftRef.resolve() == x && isIndependentOf(rightExpr, x) =>
+                  Some(rightExpr)
+                case (leftExpr: ScExpression, rightRef: ScReferenceExpression)
+                  if rightRef.resolve() == x && isIndependentOf(leftExpr, x) =>
+                  Some(leftExpr)
+                case _ => None
+              }
+            case _ => None
+          }
+        case ScInfixExpr(underscore(), oper, right) if oper.refName == operName => Some(right)
+        case ScInfixExpr(left, oper, underscore()) if oper.refName == operName => Some(left)
+        case _ => None
+      }
+    }
+  }
+
+  private[collections] val `x == ` = new BinaryOperationOnParameterAndExprTemplate("==")
+  private[collections] val `x != ` = new BinaryOperationOnParameterAndExprTemplate("!=")
+
+  object andCondition {
+    def unapply(expr: ScExpression): Option[ScExpression] = {
+      stripped(expr) match {
+        case ScFunctionExpr(Seq(x, y), Some(result)) =>
+          stripped(result) match {
+            case ScInfixExpr(left, oper, right) if oper.refName == "&&" =>
+              (stripped(left), stripped(right)) match {
+                case (leftRef: ScReferenceExpression, right: ScExpression)
+                  if leftRef.resolve() == x && isIndependentOf(right, x) =>
+                  val secondArgName = y.name
+                  val funExprText = secondArgName + " => " + right.getText
+                  Some(ScalaPsiElementFactory.createExpressionWithContextFromText(funExprText, expr.getContext, expr))
+                case _ => None
+              }
+            case _ => None
+          }
+        case ScInfixExpr(underscore(), oper, underscore()) if oper.refName == "&&" =>
+          val identityElement =
+            ScalaPsiElementFactory.createExpressionFromText("identity", ScalaFeatures.default)(expr.getProject)
+          Some(identityElement)
+        case ScInfixExpr(underscore(), oper, right) if oper.refName == "&&" => Some(right)
+        case _ => None
+      }
+    }
+  }
+
+  class ParameterlessCallOnParameterTemplate(name: String) {
+    def unapply(expr: ScExpression): Boolean = {
+      stripped(expr) match {
+        case ScFunctionExpr(Seq(x), Some(result)) =>
+          stripped(result) match {
+            case MethodRepr(_, Some(ResolvesTo(`x`)), Some(ref), Seq()) if ref.refName == name => true
+            case _ => false
+          }
+        case MethodRepr(_, Some(underscore()), Some(ref), Seq()) if ref.refName == name => true
+        case _ => false
+      }
+    }
+  }
+
+  private[collections] val `_._1` = new ParameterlessCallOnParameterTemplate("_1")
+  private[collections] val `_._2` = new ParameterlessCallOnParameterTemplate("_2")
+
+  object underscore {
+    def unapply(expr: ScExpression): Boolean = {
+      stripped(expr) match {
+        case ScParenthesisedExpr(underscore()) => true
+        case typed: ScTypedExpression if typed.expr.is[ScUnderscoreSection] => true
+        case und: ScUnderscoreSection if und.bindingExpr.isEmpty => true
+        case _ => false
+      }
+    }
+  }
+
+  def areElementsEquivalent(lhs: PsiElement, rhs: PsiElement): Boolean = (lhs, rhs) match {
+    case (Resolved(lhsSrr), Resolved(rhsSrr)) =>
+      lhsSrr.element == rhsSrr.element ||
+        lhsSrr.getActualElement == rhsSrr.getActualElement
+    case _ => PsiEquivalenceUtil.areElementsEquivalent(lhs, rhs)
+  }
+
+  def invocationText(qual: PsiElement, methName: String, args: ScExpression*): String = {
+    def argsText = argListText(args)
+
+    if (qual == null) {
+      s"$methName$argsText"
+    } else {
+      val qualText = qual.getText
+      qual match {
+        case _ childOf ScInfixExpr(`qual`, _, _) if args.size == 1 =>
+          s"$qualText $methName ${args.head.getText}"
+        case _ childOf ScPostfixExpr(`qual`, _) if args.size == 1 =>
+          s"$qualText $methName ${args.head.getText}"
+        case _: ScInfixExpr => s"($qualText).$methName$argsText"
+        case _: ScFor => s"($qualText).$methName$argsText"
+        case _ => s"$qualText.$methName$argsText"
+      }
+
+    }
+  }
+
+  def invocationText(negation: Boolean, qual: ScExpression, methName: String, args: ScExpression*): String = {
+    val baseText = invocationText(qual, methName, args: _*)
+    qual match {
+      case _ if !negation => baseText
+      case _ childOf ScInfixExpr(`qual`, _, _) => s"!($baseText)"
+      case _ => s"!$baseText"
+    }
+  }
+
+  def argListText(args: Seq[ScExpression]): String = {
+    args match {
+      case Seq(p: ScParenthesisedExpr) => p.getText
+      case Seq(b @ ScBlock(_: ScFunctionExpr)) => b.getText
+      case Seq(ScBlock(stmt: ScBlockStatement)) => s"(${stmt.getText})"
+      case Seq(b: ScBlock) => b.getText
+      case Seq((_: ScFunctionExpr) childOf (b: ScBlockExpr)) => b.getText
+      case Seq(other) => s"(${other.getText})"
+      case seq if seq.size > 1 => seq.map(_.getText).mkString("(", ", ", ")")
+      case _ => ""
+    }
+  }
+
+
+  private def checkResolveToMap(memberRef: ScReference): Boolean = memberRef.resolve() match {
+    case m: ScMember => Option(m.containingClass).exists(_.name.toLowerCase.contains("map"))
+    case _ => false
+  }
+
+  def implicitParameterExistsFor(methodName: String, baseExpr: ScExpression): Boolean = {
+    val expression =
+      ScalaPsiElementFactory.createExpressionWithContextFromText(
+        s"${baseExpr.getText}.$methodName",
+        baseExpr.getContext,
+        baseExpr
+      )
+
+    implicitParameterExistsFor(expression)
+  }
+
+  def implicitParameterExistsFor(expr: ScExpression): Boolean = {
+    if (expr == null) false
+    else
+      expr.findImplicitArguments.flatMap(_.args).exists(!_.isImplicitParameterProblem)
+  }
+
+  @tailrec
+  def stripped(expr: ScExpression): ScExpression = {
+    expr match {
+      case ScParenthesisedExpr(inner) => stripped(inner)
+      case ScBlock(inner: ScExpression) => stripped(inner)
+      case _ => expr
+    }
+  }
+
+  object stripped {
+    def unapply(expr: ScExpression): Option[ScExpression] = Some(stripped(expr))
+  }
+
+  def isIndependentOf(expr: ScExpression, parameter: ScParameter): Boolean = {
+    var result = true
+    val name = parameter.name
+    val visitor = new ScalaRecursiveElementVisitor() {
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
+        if (ref.refName == name && ref.resolve() == parameter) result = false
+        super.visitReferenceExpression(ref)
+      }
+    }
+    expr.accept(visitor)
+    result
+  }
+
+  def checkResolve(expr: ScExpression, patterns: Seq[String]): Boolean = {
+    Option(expr).collect {
+      case ref: ScReferenceExpression => ref.resolve()
+    }.flatMap {
+      case obj: ScObject     => Some(obj)
+      case member: PsiMember => Option(member.containingClass)
+      case _                 => None
+    }.exists {
+      qualifiedNameFitToPatterns(_, patterns)
+    }
+  }
+
+  private def isOfClassFrom(expr: ScExpression, patterns: Seq[String])(implicit context: Context): Boolean = {
+    val typ = expr.`type`().toOption
+    typ.exists(isOfClassFrom(_, patterns))
+  }
+
+  private def isOfClassFrom(`type`: ScType, patterns: Seq[String])(implicit context: Context): Boolean = {
+    val typeExtracted = `type`.tryExtractDesignatorSingleton
+    isOfClassFromForExtractedType(typeExtracted, patterns)
+  }
+
+  private def isOfClassFromForExtractedType(typeExtracted: ScType, patterns: Seq[String])(implicit context: Context): Boolean = {
+    val clazz = typeExtracted.extractClass
+    clazz.exists(qualifiedNameFitToPatterns(_, patterns))
+  }
+
+  private def qualifiedNameFitToPatterns(clazz: PsiClass, patterns: Seq[String]) =
+    Option(clazz).flatMap(c => Option(c.qualifiedName))
+      .exists(ScalaNamesUtil.nameFitToPatterns(_, patterns, strict = false))
+
+  def isOption(`type`: ScType)(implicit context: Context): Boolean = isOfClassFrom(`type`, likeOptionClasses)
+
+  def isOption(expr: ScExpression): Boolean = {
+    implicit val context: Context = Context(expr)
+
+    isOfClassFrom(expr, likeOptionClasses)
+  }
+
+  def isArray(expr: ScExpression): Boolean = {
+    implicit val context: Context = Context(expr)
+
+    expr match {
+      case Typeable(JavaArrayType(_)) => true
+      case _ =>
+        val typ = expr.`type`().toOption
+        typ.exists { t =>
+          val typeExtracted = t.tryExtractDesignatorSingleton
+          isArray(typeExtracted) || isIArray(typeExtracted)
+        }
+    }
+  }
+
+  private def isArray(typeExtracted: ScType)(implicit context: Context): Boolean =
+    isOfClassFromForExtractedType(typeExtracted, ArraySeq("scala.Array"))
+
+  private def isIArray(typeExtracted: ScType): Boolean =
+    typeExtracted match {
+      case pt: ScParameterizedType =>
+        pt.designator match {
+          case ScDesignatorType(ta: ScTypeAlias) =>
+            ta.qualifiedNameOpt.contains("scala.IArray")
+          case _ => false
+        }
+      case _ => false
+    }
+
+  def isString: Typeable => Boolean =
+    isExpressionOfType("java.lang.String")
+
+  def isSet: Typeable => Boolean =
+    isExpressionOfType("scala.collection.GenSetLike", "scala.collection.SetOps")
+
+  def isSeq: Typeable => Boolean =
+    isExpressionOfType("scala.collection.GenSeqLike", "scala.collection.SeqOps")
+
+  def isIndexedSeq: Typeable => Boolean =
+    isExpressionOfType("scala.collection.IndexedSeqLike", "scala.collection.IndexedSeqOps")
+
+  def isNonIndexedSeq: Typeable => Boolean = expr => isSeq(expr) && !isIndexedSeq(expr)
+
+  def isMap: Typeable => Boolean =
+    isExpressionOfType("scala.collection.GenMapLike", "scala.collection.MapOps")
+
+  def isSortedSet: Typeable => Boolean =
+    isExpressionOfType("scala.collection.SortedSetLike", "scala.collection.SortedSetOps")
+
+  def isSortedMap: Typeable => Boolean =
+    isExpressionOfType("scala.collection.SortedMapLike", "scala.collection.SortedMapOps")
+
+  def isIterator: Typeable => Boolean =
+    isExpressionOfType("scala.collection.Iterator")
+
+  @tailrec
+  private def isExpressionOfType(fqns: String*)(tpbl: Typeable): Boolean = tpbl match {
+    case Resolved(srr @ ScalaResolveResult(fun: ScFunction, _)) if fun.name == CommonNames.Apply =>
+      srr.getActualElement match {
+        case element: Typeable => isExpressionOfType(fqns: _*)(element)
+        case _ => false
+      }
+    case Typeable(scType) => fqns.exists(conformsToTypeFromClass(scType, _)(scType.projectContext, Context.Empty))
+    case _                => false
+  }
+
+  def withoutConversions(expr: ScExpression): Typeable = () => expr.getTypeWithoutImplicits()
+
+  private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
+    "prepend", "prependAll", "reduceToSize", "remove", "retain",
+    "transform", "trimEnd", "trimStart", "update",
+    "push", "pushAll", "pop", "dequeue", "dequeueAll", "dequeueFirst", "enqueue",
+    "next")
+
+  private class SideEffectsProvider(expr: ScExpression) extends CachedValueProvider[Seq[ScExpression]] {
+    override def compute(): Result[Seq[ScExpression]] = Result.create(computeExprsWithSideEffects(expr), expr)
+
+    private def computeExprsWithSideEffects(expr: ScExpression): Seq[ScExpression] = {
+
+      def isSideEffectCollectionMethod(ref: ScReferenceExpression): Boolean = {
+        val refName = ref.refName
+        (refName.endsWith("=") || refName.endsWith("=:") || sideEffectsCollectionMethods.contains(refName)) &&
+                checkResolve(ref, ArraySeq("scala.collection.mutable._", "scala.collection.Iterator"))
+      }
+
+      def isSetter(ref: ScReferenceExpression): Boolean = {
+        ref.refName.startsWith("set") || ref.refName.endsWith("_=")
+      }
+
+      def hasUnitReturnType(ref: ScReferenceExpression): Boolean = {
+        ref match {
+          case MethodRepr(Typeable(FunctionType(_, _)), _, _, _) => false
+          case ResolvesTo(fun: ScFunction) =>
+            fun.name != CommonNames.Update && // update calls are handled separately, avoid showing duplicate highlights
+              fun.hasUnitResultType
+          case ResolvesTo(m: PsiMethod) => m.getReturnType == PsiTypeConstants.Void
+          case _ => false
+        }
+      }
+
+      object definedOutside {
+        private def elementDefinedOutside(e: PsiNamedElement): Boolean =
+          !PsiTreeUtil.isAncestor(expr, e, false)
+
+        def unapply(ref: ScReference): Option[PsiElement] =
+          for {
+            srr <- ref.bind()
+            e   = srr.getActualElement
+            if elementDefinedOutside(e)
+        } yield e
+      }
+
+      val isSameLevel: PsiElement => Boolean = {
+        case `expr`                                                                              => true
+        case (ScFunctionExpr(_, _) | _: ScCaseClauses) childOf `expr`                            => true
+        case (e: ScExpression) childOf `expr` if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
+        case _: ScFunctionDefinition                                                             => false
+        case elem: PsiElement => !AnonymousFunction.isGenerateClass(elem)
+      }
+
+      val sameLevelIterator = expr.depthFirst(isSameLevel).filter(isSameLevel)
+
+      sameLevelIterator.collect {
+        case assign @ ScAssignment(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _) =>
+          assign
+        case assign @ ScAssignment(mc @ ScMethodCall(definedOutside(_), _), _) if mc.isUpdateCall =>
+          assign
+        case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _, _) if infix.isAssignmentOperator =>
+          infix
+        case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext(_ : ScVariable | _: ScValue))), Some(ref), _)
+          if isSideEffectCollectionMethod(ref) || isSetter(ref) || hasUnitReturnType(ref) =>
+          itself
+        case MethodRepr(itself, None, Some(ref @ definedOutside(_)), _) if hasUnitReturnType(ref) =>
+          itself
+      }.toSeq
+    }
+  }
+
+  def exprsWithSideEffects(expr: ScExpression): Seq[ScExpression] = CachedValuesManager.getCachedValue(expr, new SideEffectsProvider(expr))
+
+  def hasSideEffects(expr: ScExpression): Boolean = exprsWithSideEffects(expr).nonEmpty
+
+  def rightRangeInParent(expr: ScExpression, parent: ScExpression): TextRange = {
+    if (expr == parent) return TextRange.create(0, expr.getTextLength)
+
+    val endOffset = parent.end
+
+    val startOffset = expr match {
+      case _ childOf ScInfixExpr(`expr`, op, _) => op.nameId.getTextOffset
+      case _ childOf (pfix @ ScPostfixExpr(`expr`, op))  =>
+        if (pfix.getContext == pfix.getParent) op.nameId.getTextOffset
+        else
+          pfix.getContext.getTextOffset + op.getTextRangeInParent.getStartOffset
+      case _ childOf (ref @ ScReferenceExpression.withQualifier(`expr`)) =>
+        ref.nameId.getTextOffset
+      case _ => expr.getTextRange.getEndOffset
+    }
+    TextRange.create(startOffset, endOffset).shiftRight( - parent.getTextOffset)
+  }
+
+  @tailrec
+  def refNameId(expr: ScExpression): Option[PsiElement] = stripped(expr) match {
+    case MethodRepr(_: ScMethodCall, Some(base), None, _) => refNameId(base)
+    case MethodRepr(_, _,Some(ref), _) => Some(ref.nameId)
+    case _ => None
+  }
+
+  implicit final class PsiElementRange(private val elem: PsiElement) extends AnyVal {
+    def start: Int = elem.getTextRange.getStartOffset
+    def end: Int = elem.getTextRange.getEndOffset
+  }
+}

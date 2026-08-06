@@ -1,0 +1,15 @@
+Document tests/pos/inline-eta.scala
+(1:14..1:17) scala/Int#
+(4:21..4:24) scala/Int#
+(4:27..4:30) scala/Int#
+(4:33..4:34) _empty_/A.bar().(x) -> 4:18
+(5:12..5:15) _empty_/A.bar(). -> 4:14
+(6:11..6:14) scala/Int#
+(6:18..6:21) scala/Int#
+(6:24..6:27) _empty_/A.bar(). -> 4:14
+(8:15..8:19) scala/package.List#
+(8:20..8:23) scala/Int#
+(9:5..9:7) _empty_/A.foo().(xs) -> 8:11
+(9:8..9:11) scala/collection/immutable/List#map().
+(9:12..9:15) _empty_/Foo# -> 1:7
+

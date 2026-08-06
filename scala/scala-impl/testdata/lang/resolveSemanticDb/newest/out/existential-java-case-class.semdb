@@ -1,0 +1,5 @@
+Document tests/pos/existential-java-case-class/Client.scala
+(1:18..1:19) _empty_/J#
+(3:19..3:22) scala/Any#
+(3:26..3:27) _empty_/J#
+

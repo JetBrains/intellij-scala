@@ -1,0 +1,8 @@
+Document tests/pos/i3273/Test_2.scala
+(1:20..1:25) _empty_/Foo_1#
+(2:26..2:30) java/
+(2:31..2:35) java/util/
+(2:36..2:40) java/util/List#
+(2:46..2:50) scala/Unit#
+(2:53..2:56) scala/Predef.`???`().
+

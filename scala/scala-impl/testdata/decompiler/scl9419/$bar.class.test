@@ -1,0 +1,5 @@
+sealed trait |[A, B]
+
+object | {
+  def foo(): scala.Int = ???
+}

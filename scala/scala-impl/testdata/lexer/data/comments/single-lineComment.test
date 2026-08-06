@@ -1,0 +1,22 @@
+object a{
+  val x = 4 //This value is unuseful.
+}
+-----
+object {object}
+white space in line { }
+identifier {a}
+{ {{}
+white space in line {
+  }
+val {val}
+white space in line { }
+identifier {x}
+white space in line { }
+= {=}
+white space in line { }
+integer {4}
+white space in line { }
+comment {//This value is unuseful.}
+white space in line {
+}
+} {}}

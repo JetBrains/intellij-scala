@@ -1,0 +1,128 @@
+Document tests/pos/builders.scala
+(4:19..4:23) _empty_/builders.Builder#[Elem] -> 3:30
+(4:26..4:30) scala/Unit#
+(5:17..5:19) _empty_/builders.Builder#[To] -> 3:25
+(8:39..8:47) _empty_/builders. -> 1:8
+(8:48..8:55) _empty_/builders.Builder# -> 3:9
+(8:56..8:64) scala/package.Iterable#
+(8:65..8:66) _empty_/builders.iterableBuilder().[A] -> 8:32
+(8:68..8:76) scala/package.Iterable#
+(8:77..8:78) _empty_/builders.iterableBuilder().[B] -> 8:35
+(8:80..8:81) _empty_/builders.iterableBuilder().[B] -> 8:35
+(8:89..8:96) _empty_/builders.Builder# -> 3:9
+(8:97..8:105) scala/package.Iterable#
+(8:106..8:107) _empty_/builders.iterableBuilder().[A] -> 8:32
+(8:110..8:118) scala/package.Iterable#
+(8:119..8:120) _empty_/builders.iterableBuilder().[B] -> 8:35
+(8:123..8:124) _empty_/builders.iterableBuilder().[B] -> 8:35
+(9:5..9:12) scala/Predef.println(+1).
+(10:27..10:32) scala/
+(10:33..10:43) scala/collection/
+(10:44..10:51) scala/collection/mutable/
+(10:52..10:62) scala/collection/mutable/ListBuffer#
+(10:63..10:64) _empty_/builders.iterableBuilder().[B] -> 8:35
+(11:19..11:20) _empty_/builders.iterableBuilder().[B] -> 8:35
+(11:23..11:27) scala/Unit#
+(11:32..11:35) local0 -> 10:17
+(11:36..11:38) scala/collection/mutable/Growable#`+=`().
+(11:39..11:43) local1 -> 11:13
+(12:17..12:25) scala/package.Iterable#
+(12:26..12:27) _empty_/builders.iterableBuilder().[B] -> 8:35
+(12:31..12:34) local0 -> 10:17
+(12:35..12:41) scala/collection/mutable/ListBuffer#toList().
+(15:35..15:43) _empty_/builders. -> 1:8
+(15:44..15:51) _empty_/builders.Builder# -> 3:9
+(15:52..15:56) scala/package.List#
+(15:57..15:58) _empty_/builders.listBuilder().[A] -> 15:28
+(15:60..15:64) scala/package.List#
+(15:65..15:66) _empty_/builders.listBuilder().[B] -> 15:31
+(15:68..15:69) _empty_/builders.listBuilder().[B] -> 15:31
+(15:77..15:84) _empty_/builders.Builder# -> 3:9
+(15:85..15:89) scala/package.List#
+(15:90..15:91) _empty_/builders.listBuilder().[A] -> 15:28
+(15:94..15:98) scala/package.List#
+(15:99..15:100) _empty_/builders.listBuilder().[B] -> 15:31
+(15:103..15:104) _empty_/builders.listBuilder().[B] -> 15:31
+(16:5..16:12) scala/Predef.println(+1).
+(17:27..17:32) scala/
+(17:33..17:43) scala/collection/
+(17:44..17:51) scala/collection/mutable/
+(17:52..17:62) scala/collection/mutable/ListBuffer#
+(17:63..17:64) _empty_/builders.listBuilder().[B] -> 15:31
+(18:19..18:20) _empty_/builders.listBuilder().[B] -> 15:31
+(18:23..18:27) scala/Unit#
+(18:32..18:35) local6 -> 17:17
+(18:36..18:38) scala/collection/mutable/Growable#`+=`().
+(18:39..18:43) local7 -> 18:13
+(19:17..19:21) scala/package.List#
+(19:22..19:23) _empty_/builders.listBuilder().[B] -> 15:31
+(19:27..19:30) local6 -> 17:17
+(19:31..19:37) scala/collection/mutable/ListBuffer#toList().
+(40:27..40:31) scala/package.List#
+(40:32..40:33) _empty_/builders.Iter#[A] -> 40:14
+(41:19..41:20) _empty_/builders.Iter#[A] -> 40:14
+(41:29..41:37) scala/package.Iterable#
+(41:38..41:39) _empty_/builders.Iter#`++`().[B] -> 41:13
+(41:54..41:61) _empty_/builders.Builder# -> 3:9
+(41:62..41:63) _empty_/builders.Iter#[C] -> 40:17
+(41:65..41:66) _empty_/builders.Iter#`++`().[D] -> 41:22
+(41:68..41:69) _empty_/builders.Iter#`++`().[B] -> 41:13
+(41:73..41:74) _empty_/builders.Iter#`++`().[D] -> 41:22
+(42:17..42:22) _empty_/builders.Iter#elems. -> 40:20
+(42:24..42:25) _empty_/builders.Iter#`++`().(b) -> 41:51
+(42:26..42:28) _empty_/builders.Builder#`+=`(). -> 4:9
+(42:29..42:30) local12 -> 42:12
+(43:17..43:19) _empty_/builders.Iter#`++`().(xs) -> 41:25
+(43:21..43:22) _empty_/builders.Iter#`++`().(b) -> 41:51
+(43:23..43:25) _empty_/builders.Builder#`+=`(). -> 4:9
+(43:26..43:27) local13 -> 43:12
+(44:7..44:8) _empty_/builders.Iter#`++`().(b) -> 41:51
+(44:9..44:15) _empty_/builders.Builder#result(). -> 5:9
+(46:22..46:23) _empty_/builders.Iter#[A] -> 40:14
+(46:27..46:28) _empty_/builders.Iter#map().[B] -> 46:13
+(46:42..46:49) _empty_/builders.Builder# -> 3:9
+(46:50..46:51) _empty_/builders.Iter#[C] -> 40:17
+(46:53..46:54) _empty_/builders.Iter#map().[D] -> 46:16
+(46:56..46:57) _empty_/builders.Iter#map().[B] -> 46:13
+(46:61..46:62) _empty_/builders.Iter#map().[D] -> 46:16
+(47:17..47:22) _empty_/builders.Iter#elems. -> 40:20
+(47:24..47:25) _empty_/builders.Iter#map().(b) -> 46:39
+(47:26..47:28) _empty_/builders.Builder#`+=`(). -> 4:9
+(47:29..47:30) _empty_/builders.Iter#map().(f) -> 46:19
+(47:31..47:32) local14 -> 47:12
+(48:7..48:8) _empty_/builders.Iter#map().(b) -> 46:39
+(48:9..48:15) _empty_/builders.Builder#result(). -> 5:9
+(52:19..52:24) scala/Array#
+(52:25..52:31) scala/Predef.String#
+(52:36..52:40) scala/Unit#
+(53:18..53:22) _empty_/builders.Iter# -> 40:9
+(53:23..53:26) scala/Int#
+(53:28..53:32) scala/package.List#
+(53:33..53:36) scala/Int#
+(53:39..53:43) scala/package.List.
+(55:18..55:22) _empty_/builders.Iter# -> 40:9
+(55:23..55:26) scala/Int#
+(55:28..55:36) scala/package.Iterable#
+(55:37..55:40) scala/Int#
+(55:43..55:47) scala/package.List.
+(56:13..56:17) scala/package.List#
+(56:18..56:21) scala/Int#
+(56:25..56:27) local15 -> 53:9
+(56:28..56:31) _empty_/builders.Iter#map(). -> 46:9
+(56:35..56:36) scala/Int#`+`(+4).
+(58:13..58:21) scala/package.Iterable#
+(58:22..58:25) scala/Int#
+(58:29..58:31) local16 -> 55:9
+(58:32..58:35) _empty_/builders.Iter#map(). -> 46:9
+(58:39..58:40) scala/Int#`+`(+4).
+(59:13..59:17) scala/package.List#
+(59:18..59:21) scala/Int#
+(59:25..59:27) local17 -> 56:9
+(61:13..61:21) scala/package.Iterable#
+(61:22..61:25) scala/Int#
+(61:29..61:31) local18 -> 58:9
+(62:5..62:12) scala/Predef.println(+1).
+(62:13..62:15) local19 -> 59:9
+(64:5..64:12) scala/Predef.println(+1).
+(64:13..64:15) local20 -> 61:9
+

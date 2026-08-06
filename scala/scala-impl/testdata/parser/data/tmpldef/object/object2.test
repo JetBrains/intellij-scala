@@ -1,0 +1,13 @@
+object a
+-----
+ScalaFile
+  ScObject: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    ExtendsBlock
+      <empty list>

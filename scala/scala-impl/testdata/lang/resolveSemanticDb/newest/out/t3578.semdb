@@ -1,0 +1,77 @@
+Document tests/pos/t3578.scala
+(3:19..3:25) _empty_/Test.JValue# -> 2:25
+(4:26..4:32) _empty_/Test.JValue# -> 2:25
+(4:42..4:48) _empty_/Test.JValue# -> 2:25
+(4:51..4:57) _empty_/Test.JValue# -> 2:25
+(4:61..4:67) local0 -> 4:18
+(4:69..4:75) local1 -> 4:34
+(5:11..5:19) _empty_/Test.JNothing. -> 20:15
+(5:27..5:28) local2 -> 5:21
+(6:14..6:22) _empty_/Test.JNothing. -> 20:15
+(6:27..6:28) local3 -> 6:11
+(7:11..7:18) _empty_/Test.JObject.
+(7:27..7:33) _empty_/Test.JField# -> 26:14
+(7:38..7:45) _empty_/Test.JObject.
+(7:46..7:48) local4 -> 7:19
+(7:53..7:57) scala/package.List.
+(7:58..7:59) local5 -> 7:24
+(8:14..8:20) _empty_/Test.JField# -> 26:14
+(8:22..8:29) _empty_/Test.JObject.
+(8:38..8:45) _empty_/Test.JObject.
+(8:46..8:47) local6 -> 8:11
+(8:51..8:53) local7 -> 8:30
+(9:11..9:17) _empty_/Test.JArray.
+(9:23..9:29) _empty_/Test.JArray.
+(9:38..9:44) _empty_/Test.JArray.
+(9:45..9:47) local8 -> 9:18
+(9:52..9:54) local9 -> 9:30
+(10:11..10:17) _empty_/Test.JArray.
+(10:26..10:32) _empty_/Test.JValue# -> 2:25
+(10:37..10:43) _empty_/Test.JArray.
+(10:44..10:46) local10 -> 10:18
+(10:51..10:55) scala/package.List.
+(10:56..10:57) local11 -> 10:23
+(11:14..11:20) _empty_/Test.JValue# -> 2:25
+(11:22..11:28) _empty_/Test.JArray.
+(11:37..11:43) _empty_/Test.JArray.
+(11:44..11:45) local12 -> 11:11
+(11:49..11:51) local13 -> 11:29
+(12:15..12:21) _empty_/Test.JField# -> 26:14
+(12:27..12:33) _empty_/Test.JField# -> 26:14
+(12:38..12:45) _empty_/Test.JObject.
+(12:46..12:48) local14 -> 12:11
+(12:52..12:54) local15 -> 12:23
+(12:58..12:61) scala/package.Nil.
+(13:11..13:17) _empty_/Test.JField.
+(13:30..13:36) _empty_/Test.JValue# -> 2:25
+(13:41..13:47) _empty_/Test.JField.
+(13:48..13:49) local16 -> 13:18
+(13:51..13:57) local19 -> 4:11
+(13:58..13:60) local17 -> 13:21
+(13:62..13:64) local18 -> 13:26
+(14:20..14:26) _empty_/Test.JArray.
+(14:27..14:28) local20 -> 14:11
+(14:32..14:33) local21 -> 14:14
+(14:37..14:40) scala/package.Nil.
+(16:7..16:13) local19 -> 4:11
+(16:20..16:25) _empty_/Test.JValue#`++`().(other) -> 3:12
+(20:32..20:38) _empty_/Test.JValue# -> 2:25
+(21:29..21:35) _empty_/Test.JValue# -> 2:25
+(22:25..22:31) scala/Predef.String#
+(22:41..22:47) _empty_/Test.JValue# -> 2:25
+(23:27..23:33) scala/Double#
+(23:43..23:49) _empty_/Test.JValue# -> 2:25
+(24:24..24:30) scala/package.BigInt#
+(24:40..24:46) _empty_/Test.JValue# -> 2:25
+(25:27..25:34) scala/Boolean#
+(25:44..25:50) _empty_/Test.JValue# -> 2:25
+(26:27..26:33) scala/Predef.String#
+(26:42..26:48) _empty_/Test.JValue# -> 2:25
+(26:58..26:64) _empty_/Test.JValue# -> 2:25
+(27:27..27:31) scala/package.List#
+(27:32..27:38) _empty_/Test.JField# -> 26:14
+(27:49..27:55) _empty_/Test.JValue# -> 2:25
+(28:26..28:30) scala/package.List#
+(28:31..28:37) _empty_/Test.JValue# -> 2:25
+(28:48..28:54) _empty_/Test.JValue# -> 2:25
+

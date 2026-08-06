@@ -1,0 +1,16 @@
+f (
+  """blah blah
+     |  blah blah blah
+     |     blah blah blah
+  """.stripMargin, """blah blah
+                        |  blah blah
+                     """.stripMargin)
+-----
+f(
+  """blah blah
+     |  blah blah blah
+     |     blah blah blah
+  """.stripMargin,
+  """blah blah
+     |  blah blah
+                     """.stripMargin)

@@ -1,0 +1,6 @@
+Document tests/pos/val-same-name-tuple-elem.scala
+(2:14..2:20) scala/Predef.String#
+(2:30..2:40) scala/Tuple$package.EmptyTuple.
+(3:9..3:12) _empty_/`val-same-name-tuple-elem$package`.foo. -> 2:5
+(3:9..3:12) scala/NamedTuple.apply(+1).
+

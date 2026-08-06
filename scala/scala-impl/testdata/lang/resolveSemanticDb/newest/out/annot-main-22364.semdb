@@ -1,0 +1,11 @@
+Document tests/pos/annot-main-22364.scala
+(1:14..1:15) _empty_/`annot-main-22364$package`.id().[T] -> 1:8
+(1:18..1:19) _empty_/`annot-main-22364$package`.id().[T] -> 1:8
+(1:22..1:23) _empty_/`annot-main-22364$package`.id().(x) -> 1:11
+(3:14..3:17) scala/Int#
+(3:27..3:37) scala/annotation/
+(3:38..3:48) scala/annotation/Annotation#
+(5:2..5:5) _empty_/ann# -> 3:7
+(5:6..5:8) _empty_/`annot-main-22364$package`.id(). -> 1:5
+(5:15..5:19) scala/main#
+

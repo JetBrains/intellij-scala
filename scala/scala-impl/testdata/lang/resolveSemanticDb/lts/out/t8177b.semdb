@@ -1,0 +1,22 @@
+Document tests/pos/t8177b.scala
+(3:25..3:30) _empty_/Thing# -> 2:7
+(3:42..3:45) scala/Int#
+(4:40..4:45) _empty_/Thing# -> 2:7
+(4:57..4:60) _empty_/ThingHolder.Alias#[AIn] -> 4:33
+(12:25..12:36) _empty_/ThingHolder. -> 4:8
+(12:37..12:42) _empty_/ThingHolder.Alias# -> 4:27
+(12:43..12:46) _empty_/View#[AIn] -> 12:12
+(12:69..12:71) _empty_/View#in. -> 12:21
+(12:72..12:73) _empty_/Thing#A# -> 2:20
+(12:76..12:78) _empty_/View#in. -> 12:21
+(12:79..12:80) _empty_/Thing#A# -> 2:20
+(12:83..12:84) _empty_/View#f().(p) -> 12:66
+(13:23..13:27) _empty_/View# -> 12:7
+(13:28..13:31) scala/Int#
+(13:33..13:41) _empty_/IntThing. -> 3:8
+(13:69..13:71) _empty_/View#in. -> 12:21
+(13:72..13:73) _empty_/Thing#A# -> 2:20
+(13:76..13:78) _empty_/View#in. -> 12:21
+(13:79..13:80) _empty_/Thing#A# -> 2:20
+(13:83..13:84) _empty_/SubView#f().(p) -> 13:66
+

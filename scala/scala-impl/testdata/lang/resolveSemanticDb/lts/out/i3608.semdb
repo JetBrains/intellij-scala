@@ -1,0 +1,7 @@
+Document tests/pos/i3608.scala
+(3:28..3:32) scala/Unit#
+(3:39..3:42) _empty_/A#Bar# -> 5:9
+(8:17..8:18) _empty_/A# -> 1:7
+(9:8..9:11) _empty_/A#Foo# -> 2:9
+(9:13..9:23) _empty_/A#Foo#inlineMeth(). -> 3:16
+

@@ -1,0 +1,9 @@
+Document tests/pos/i22567.scala
+(4:23..4:29) scala/Predef.String#
+(4:35..4:38) scala/Int#
+(4:45..4:49) scala/Unit#
+(8:9..8:15) scala/Predef.String#
+(9:12..9:14) _empty_/A1. -> 3:8
+(9:15..9:17) _empty_/A1.f1(). -> 4:7
+(9:17..10:2) _empty_/A1.f1().(x1) -> 4:19
+

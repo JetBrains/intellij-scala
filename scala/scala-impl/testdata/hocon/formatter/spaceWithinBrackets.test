@@ -1,0 +1,19 @@
+<settings>
+  <codeStyleSettings language="HOCON">
+    <option name="SPACE_WITHIN_BRACKETS" value="true" />
+  </codeStyleSettings>
+</settings>
+-----
+a = [42]
+a = [ 42]
+a = [42 ]
+a = [ 42 ]
+a = [  42 ]
+a = [  42  ]
+-----
+a = [ 42 ]
+a = [ 42 ]
+a = [ 42 ]
+a = [ 42 ]
+a = [ 42 ]
+a = [ 42 ]

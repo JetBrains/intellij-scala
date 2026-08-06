@@ -1,0 +1,7 @@
+class a:
+  if <start>true<unary> op then return
+end a
+------
+class a:
+  if (!(true)) op then return
+end a

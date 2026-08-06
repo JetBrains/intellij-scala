@@ -1,0 +1,23 @@
+Document tests/pos/i11499.scala
+(5:27..5:28) _empty_/data.OptionT#[F] -> 5:16
+(5:29..5:35) scala/Option#
+(5:36..5:37) _empty_/data.OptionT#[A] -> 5:22
+(7:31..7:38) _empty_/data.OptionT# -> 5:8
+(7:39..7:40) _empty_/data.fold().[F] -> 7:12
+(7:42..7:43) _empty_/data.fold().[A] -> 7:18
+(7:49..7:56) _empty_/Functor# -> 1:7
+(7:57..7:58) _empty_/data.fold().[F] -> 7:12
+(7:62..7:63) _empty_/data.fold().[F] -> 7:12
+(7:64..7:65) _empty_/data.fold().[B] -> 7:21
+(7:69..7:72) scala/Predef.`???`().
+(9:31..9:38) _empty_/data.OptionT# -> 5:8
+(9:39..9:40) _empty_/data.cata().[F] -> 9:12
+(9:42..9:43) _empty_/data.cata().[A] -> 9:18
+(9:49..9:56) _empty_/Functor# -> 1:7
+(9:57..9:58) _empty_/data.cata().[F] -> 9:12
+(9:62..9:63) _empty_/data.cata().[F] -> 9:12
+(9:64..9:65) _empty_/data.cata().[B] -> 9:21
+(10:5..10:9) _empty_/data.fold(). -> 7:7
+(10:10..10:15) _empty_/data.cata().(value) -> 9:24
+(10:17..10:18) _empty_/data.cata().(f) -> 9:46
+

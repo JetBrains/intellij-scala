@@ -1,0 +1,21 @@
+Document tests/pos/i12679.scala
+(4:22..4:28) scala/Predef.String#
+(4:36..4:42) scala/Predef.String#
+(4:50..4:51) _empty_/Example.foo().[F] -> 4:11
+(4:52..4:56) scala/Unit#
+(4:60..4:63) scala/Predef.`???`().
+(6:22..6:29) scala/Boolean#
+(6:32..6:33) _empty_/Example.foo(+1).[F] -> 6:11
+(6:34..6:38) scala/Unit#
+(6:42..6:45) scala/Predef.`???`().
+(8:31..8:37) scala/Option#
+(8:38..8:44) scala/Predef.String#
+(8:53..8:60) scala/Boolean#
+(9:5..9:13) _empty_/Example.example().(maybeQux) -> 8:21
+(9:14..9:18) scala/Option#fold().
+(9:19..9:22) _empty_/Example.foo(+1). -> 6:7
+(9:23..9:24) _empty_/Example.example().[F] -> 8:15
+(9:26..9:30) _empty_/Example.example().(bool) -> 8:47
+(9:33..9:36) _empty_/Example.foo(). -> 4:7
+(9:37..9:38) _empty_/Example.example().[F] -> 8:15
+

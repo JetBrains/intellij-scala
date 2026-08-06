@@ -1,0 +1,12 @@
+[0,44]: PackageDef
+[0,0]: Ident
+[0,44]: DefDef
+[9,14]: ValDef
+[12,14]: Ident
+[17,21]: Ident
+[26,44]: Block
+[26,44]: ValDef
+[33,36]: Ident
+[39,44]: Apply
+[39,42]: Select
+[39,40]: Ident

@@ -1,0 +1,8 @@
+Document tests/pos/adhoc-extension/A.scala
+
+Document tests/pos/adhoc-extension/B.scala
+(2:8..2:16) scala/language.
+(2:17..2:32) scala/language.adhocExtensions.
+(3:17..3:18) adhoc/A# -> 4:7
+(4:18..4:21) adhoc/Abs# -> 5:16
+

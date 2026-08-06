@@ -1,0 +1,5 @@
+Document tests/pos/i11712.scala
+(3:21..3:28) scala/Predef.println(+1).
+(5:3..5:14) _empty_/Test.transparent(). -> 3:7
+(6:3..6:10) scala/Predef.println().
+

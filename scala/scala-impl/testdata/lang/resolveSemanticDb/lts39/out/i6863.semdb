@@ -1,0 +1,7 @@
+Document tests/pos/i6863/lib_1.scala
+(2:19..2:23) scala/Unit#
+(2:30..2:33) _empty_/Ctx# -> 1:7
+
+Document tests/pos/i6863/test_1.scala
+(2:3..2:6) _empty_/lib_1$package.foo(). -> 2:12
+

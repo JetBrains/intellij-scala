@@ -1,0 +1,51 @@
+Document tests/pos/i24694/A_1.scala
+(3:13..3:17) _empty_/Show# -> 1:7
+(3:13..3:17) _empty_/Show.given_Show_List().[A] -> 3:10
+(3:20..3:24) _empty_/Show# -> 1:7
+(3:25..3:29) scala/package.List#
+(3:30..3:31) _empty_/Show.given_Show_List().[A] -> 3:10
+(3:36..3:39) scala/Predef.`???`().
+(5:21..5:24) scala/Any#
+(5:26..5:38) scala/package.Serializable#
+(7:31..7:33) _empty_/Eq# -> 5:7
+(7:34..7:35) _empty_/Eq.fromUniversalEquals().[A] -> 7:27
+(7:39..7:42) scala/Predef.`???`().
+(10:25..10:26) _empty_/expect.same$default$3().[A] -> 10:12
+(10:25..10:26) _empty_/expect.same().[A] -> 10:12
+(10:35..10:36) _empty_/expect.same$default$3().[A] -> 10:12
+(10:35..10:36) _empty_/expect.same().[A] -> 10:12
+(11:12..11:14) _empty_/Eq# -> 5:7
+(11:15..11:16) _empty_/expect.same().[A] -> 10:12
+(11:20..11:22) _empty_/Eq. -> 6:8
+(11:23..11:42) _empty_/Eq.fromUniversalEquals(). -> 7:7
+(11:43..11:44) _empty_/expect.same$default$3().[A] -> 10:12
+(12:14..12:18) _empty_/Show# -> 1:7
+(12:19..12:20) _empty_/expect.same().[A] -> 10:12
+(13:6..13:10) scala/Unit#
+(13:13..13:16) scala/Predef.`???`().
+(17:9..17:13) _empty_/Show# -> 1:7
+(17:14..17:22) _empty_/XmlEvent# -> 15:14
+(17:26..17:29) scala/Predef.`???`().
+
+Document tests/pos/i24694/B_2.scala
+(1:17..1:23) scala/Option#
+(1:24..1:28) scala/package.List#
+(1:29..1:37) _empty_/XmlEvent# -> 15:14
+(3:5..3:11) _empty_/expect. -> 9:8
+(3:12..3:16) _empty_/expect.same(). -> 10:7
+(3:17..3:21) scala/package.List.
+(3:22..3:27) scala/collection/immutable/List.empty().
+(3:28..3:36) _empty_/XmlEvent# -> 15:14
+(3:39..3:44) _empty_/B_2$package.test().(input) -> 1:10
+(3:45..3:48) scala/Option#get().
+(3:49..4:5) _empty_/expect.same().(showA) -> 12:7
+(4:15..4:20) _empty_/B_2$package.test().(input) -> 1:10
+(4:21..4:24) scala/Option#map().
+(5:5..5:11) _empty_/expect. -> 9:8
+(5:12..5:16) _empty_/expect.same(). -> 10:7
+(5:17..5:21) scala/package.List.
+(5:22..5:27) scala/collection/immutable/List.empty().
+(5:28..5:36) _empty_/XmlEvent# -> 15:14
+(5:39..5:45) local1 -> 4:26
+(5:46..6:5) _empty_/expect.same().(showA) -> 12:7
+

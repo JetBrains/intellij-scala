@@ -1,0 +1,153 @@
+//> using options -source 3.5
+import bson.*
+
+def stringMapHandler[V](using writer: BSONWriter[Map[String, V]]): BSONHandler[Map[String, V]] = ???
+def typedMapHandler[K, V: BSONHandler] = stringMapHandler[V] // warn
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-source')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('3.5')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: bson
+        PsiElement(identifier)('bson')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: stringMapHandler
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('stringMapHandler')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: V
+        PsiElement(identifier)('V')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: writer
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('writer')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: BSONWriter[Map[String, V]]
+              SimpleType: BSONWriter
+                CodeReferenceElement: BSONWriter
+                  PsiElement(identifier)('BSONWriter')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Map[String, V]
+                    SimpleType: Map
+                      CodeReferenceElement: Map
+                        PsiElement(identifier)('Map')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: V
+                          CodeReferenceElement: V
+                            PsiElement(identifier)('V')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: BSONHandler[Map[String, V]]
+      SimpleType: BSONHandler
+        CodeReferenceElement: BSONHandler
+          PsiElement(identifier)('BSONHandler')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          ParametrizedType: Map[String, V]
+            SimpleType: Map
+              CodeReferenceElement: Map
+                PsiElement(identifier)('Map')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: V
+                  CodeReferenceElement: V
+                    PsiElement(identifier)('V')
+              PsiElement(])(']')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: typedMapHandler
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('typedMapHandler')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: K
+        PsiElement(identifier)('K')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: V
+        PsiElement(identifier)('V')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ScContextBoundImpl(context bound)
+          SimpleType: BSONHandler
+            CodeReferenceElement: BSONHandler
+              PsiElement(identifier)('BSONHandler')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: stringMapHandler
+        PsiElement(identifier)('stringMapHandler')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: V
+            CodeReferenceElement: V
+              PsiElement(identifier)('V')
+        PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// warn')

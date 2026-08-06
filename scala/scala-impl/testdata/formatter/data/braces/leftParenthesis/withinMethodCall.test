@@ -1,0 +1,7 @@
+class a {
+  call (   ) ( x    )
+}
+------
+class a {
+  call()(x)
+}

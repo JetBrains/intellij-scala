@@ -1,0 +1,10 @@
+if (true) {
+        false
+    } else
+          if (false) {
+          } else true
+-------
+if (true) {
+  false
+} else if (false) {
+} else true

@@ -1,0 +1,9 @@
+Document tests/pos/typeinferNull.scala
+(3:20..3:23) scala/package.Nil.
+(4:12..4:16) scala/package.List.
+(6:11..6:15) scala/package.List#
+(6:16..6:20) scala/Null#
+(6:24..6:26) _empty_/typeinferNull.x1. -> 3:7
+(7:3..7:5) _empty_/typeinferNull.`y1_=`().
+(7:8..7:10) _empty_/typeinferNull.x2. -> 4:7
+

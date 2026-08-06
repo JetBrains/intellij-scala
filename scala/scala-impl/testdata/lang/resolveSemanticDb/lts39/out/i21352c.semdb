@@ -1,0 +1,38 @@
+Document tests/pos/i21352c.scala
+(4:21..4:34) _empty_/ReadImplicits# -> 6:7
+(5:22..5:26) _empty_/Read# -> 3:7
+(5:27..5:31) scala/Unit#
+(5:35..5:38) scala/Predef.`???`().
+(7:10..7:15) scala/
+(7:16..7:24) scala/deriving/
+(8:14..8:18) _empty_/Read# -> 3:7
+(8:19..8:25) scala/Option#
+(8:26..8:36) scala/Tuple$package.EmptyTuple#
+(8:41..8:44) scala/Predef.`???`().
+(9:14..9:18) _empty_/Read# -> 3:7
+(9:19..9:25) scala/Option#
+(9:26..9:30) scala/Unit#
+(9:35..9:38) scala/Predef.`???`().
+(10:25..10:30) scala/Tuple#
+(10:36..10:40) _empty_/Read# -> 3:7
+(10:41..10:47) scala/Option#
+(10:48..10:49) _empty_/ReadImplicits#cons1().[H] -> 10:17
+(10:53..10:57) _empty_/Read# -> 3:7
+(10:58..10:64) scala/Option#
+(10:65..10:66) _empty_/ReadImplicits#cons1().[T] -> 10:20
+(10:73..10:77) _empty_/Read# -> 3:7
+(10:78..10:84) scala/Option#
+(10:85..10:86) _empty_/ReadImplicits#cons1().[H] -> 10:17
+(10:87..10:89) scala/`*:`#
+(10:90..10:91) _empty_/ReadImplicits#cons1().[T] -> 10:20
+(10:96..10:99) scala/Predef.`???`().
+(13:16..13:20) _empty_/Fragment#query().[B] -> 13:13
+(13:16..13:20) _empty_/Read# -> 3:7
+(13:23..13:29) scala/Predef.String#
+(13:32..13:35) scala/Predef.`???`().
+(15:2..15:6) scala/main#
+(16:10..16:18) _empty_/Fragment# -> 12:7
+(16:21..16:24) scala/Predef.`???`().
+(17:3..17:4) local0 -> 16:7
+(17:5..17:10) _empty_/Fragment#query(). -> 13:7
+

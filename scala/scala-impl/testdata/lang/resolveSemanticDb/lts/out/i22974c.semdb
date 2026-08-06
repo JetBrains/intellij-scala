@@ -1,0 +1,36 @@
+Document tests/pos/i22974c.scala
+(3:30..3:36) _empty_/other.Absent# -> 2:25
+(4:39..4:42) scala/Int#
+(5:29..5:30) _empty_/other.Present#[A] -> 5:24
+(5:31..5:32) scala/`|`#
+(5:33..5:46) _empty_/other.PresentAbsent# -> 4:14
+(6:29..6:35) _empty_/other.Absent# -> 2:25
+(6:36..6:37) scala/`|`#
+(6:38..6:45) _empty_/other.Present# -> 5:15
+(6:46..6:47) _empty_/other.Maybe#[A] -> 6:22
+(6:52..6:58) _empty_/other.Absent# -> 2:25
+(6:59..6:60) scala/`|`#
+(6:61..6:68) _empty_/other.Present# -> 5:15
+(6:69..6:70) _empty_/other.Maybe#[A] -> 6:22
+(8:23..8:28) _empty_/other.Maybe# -> 6:15
+(8:29..8:30) _empty_/other.flatten().[A] -> 8:14
+(8:29..8:30) _empty_/other.isEmpty().[A] -> 8:14
+(9:28..9:33) _empty_/other.Maybe# -> 6:15
+(9:34..9:35) _empty_/other.flatten().[B] -> 9:24
+(9:42..9:46) _empty_/other.flatten().(self) -> 8:17
+(9:47..9:54) _empty_/other.isEmpty(). -> 10:9
+(9:60..9:66) _empty_/other.Absent. -> 3:15
+(9:72..9:75) scala/Predef.`???`().
+(10:18..10:25) scala/Boolean#
+(10:28..10:32) _empty_/other.isEmpty().(self) -> 8:17
+(10:33..10:45) scala/Any#isInstanceOf().
+(10:46..10:52) _empty_/other.Absent# -> 2:25
+(14:15..14:19) scala/Unit#
+(15:12..15:17) _empty_/other. -> 1:8
+(16:14..16:19) _empty_/other.Maybe# -> 6:15
+(16:20..16:25) _empty_/other.Maybe# -> 6:15
+(16:26..16:29) scala/Int#
+(16:34..16:37) scala/Predef.`???`().
+(17:5..17:8) local0 -> 16:9
+(17:9..17:16) _empty_/other.flatten(). -> 9:16
+

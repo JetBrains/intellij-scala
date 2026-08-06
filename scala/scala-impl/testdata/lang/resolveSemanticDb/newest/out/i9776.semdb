@@ -1,0 +1,20 @@
+Document tests/pos/i9776.scala
+(3:8..3:13) scala/
+(3:14..3:24) scala/annotation/
+(3:25..3:31) scala/annotation/switch#
+(8:29..8:34) _empty_/Fruit# -> 5:14
+(9:30..9:35) _empty_/Fruit# -> 5:14
+(10:30..10:35) _empty_/Fruit# -> 5:14
+(12:23..12:28) _empty_/Fruit# -> 5:14
+(12:31..12:38) scala/Boolean#
+(13:6..13:11) _empty_/Fruit.isCitrus().(fruit) -> 12:16
+(14:12..14:18) _empty_/Fruit.Orange. -> 10:15
+(21:12..21:15) scala/Int#
+(25:29..25:40) _empty_/TaggedFruit# -> 20:14
+(28:30..28:41) _empty_/TaggedFruit# -> 20:14
+(31:30..31:41) _empty_/TaggedFruit# -> 20:14
+(35:23..35:34) _empty_/TaggedFruit# -> 20:14
+(35:37..35:44) scala/Boolean#
+(36:6..36:11) _empty_/TaggedFruit.isCitrus().(fruit) -> 35:16
+(36:12..36:15) _empty_/TaggedFruit#tag(). -> 21:7
+

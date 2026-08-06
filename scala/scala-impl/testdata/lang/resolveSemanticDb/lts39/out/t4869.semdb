@@ -1,0 +1,8 @@
+Document tests/pos/t4869.scala
+(6:15..6:16) _empty_/A#f().[T] -> 6:9
+(6:19..6:20) _empty_/C# -> 4:7
+(6:26..6:27) _empty_/A#f().[T] -> 6:9
+(7:11..7:15) scala/package.List.
+(7:20..7:23) scala/collection/immutable/List#map().
+(7:24..7:25) _empty_/A#f(). -> 6:7
+

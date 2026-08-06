@@ -1,0 +1,71 @@
+Document tests/pos/java-records/FromScala.scala
+(3:14..3:18) scala/Unit#
+(4:13..4:15) _empty_/R0#
+(6:14..6:18) scala/Unit#
+(8:13..8:15) _empty_/R1#
+(11:12..11:15) scala/Int#
+(11:18..11:19) local1 -> 8:9
+(11:20..11:21) _empty_/R1#i().
+(12:12..12:18) scala/Predef.String#
+(12:21..12:22) local1 -> 8:9
+(12:23..12:24) _empty_/R1#s().
+(15:15..15:18) scala/Int#
+(15:21..15:22) local1 -> 8:9
+(15:23..15:29) _empty_/R1#getInt().
+(16:15..16:21) scala/Predef.String#
+(16:24..16:25) local1 -> 8:9
+(16:26..16:35) _empty_/R1#getString().
+(19:17..19:21) java/
+(19:22..19:26) java/lang/
+(19:27..19:33) java/lang/Record#
+(19:36..19:37) local1 -> 8:9
+(21:14..21:18) scala/Unit#
+(23:14..23:16) _empty_/R2#
+(23:17..23:18) _empty_/R2#R#
+(26:12..26:15) scala/Int#
+(26:18..26:20) local7 -> 23:9
+(26:21..26:22) _empty_/R2#R#i().
+(27:12..27:18) scala/Predef.String#
+(27:21..27:23) local7 -> 23:9
+(27:24..27:25) _empty_/R2#R#s().
+(30:13..30:16) scala/Int#
+(30:19..30:21) local7 -> 23:9
+(30:22..30:28) _empty_/R2#R#getInt().
+(33:20..33:27) _empty_/IntLike# -> 1:7
+(33:30..33:32) local7 -> 23:9
+(34:19..34:23) java/
+(34:24..34:28) java/lang/
+(34:29..34:35) java/lang/Record#
+(34:38..34:40) local7 -> 23:9
+(38:14..38:16) _empty_/R3#
+(39:9..39:11) _empty_/R3#
+(41:12..41:15) scala/Int#
+(41:18..41:20) local13 -> 38:9
+(41:21..41:22) _empty_/R3#i().
+(42:12..42:16) scala/Long#
+(42:19..42:21) local13 -> 38:9
+(42:22..42:23) _empty_/R3#l(+1).
+(43:12..43:18) scala/Predef.String#
+(43:21..43:23) local13 -> 38:9
+(43:24..43:25) _empty_/R3#s().
+(45:13..45:17) scala/Long#
+(45:20..45:22) local13 -> 38:9
+(45:23..45:24) _empty_/R3#l().
+(47:19..47:23) java/
+(47:24..47:28) java/lang/
+(47:29..47:35) java/lang/Record#
+(47:38..47:40) local13 -> 38:9
+(49:14..49:18) scala/Unit#
+(51:12..51:15) scala/Int#
+(51:18..51:20) local19 -> 50:9
+(51:21..51:22) _empty_/R4#t().
+(53:14..53:18) scala/Unit#
+(54:14..54:16) _empty_/R5#
+(55:13..55:18) scala/Array#
+(55:19..55:22) scala/Int#
+(55:26..55:28) local21 -> 54:9
+(55:29..55:35) _empty_/R5#values().
+
+Document tests/pos/java-records/IntLike.scala
+(2:15..2:18) scala/Int#
+

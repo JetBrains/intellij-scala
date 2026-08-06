@@ -1,0 +1,62 @@
+package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes
+
+import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.namesByType
+
+class TypePluralNamesProvider extends GenericTypeNamesProvider {
+
+  import TypePluralNamesProvider._
+
+  override def names(`type`: ScParameterizedType): Seq[String] = `type` match {
+    case IsTraversable(designator, argument) =>
+      val argumentNames = argument match {
+        case IsTraversable(_, _) => Seq.empty
+        case _ => pluralizeNames(argument)
+      }
+
+      namesByType(designator) ++ argumentNames
+    case _ => Seq.empty
+  }
+
+}
+
+object TypePluralNamesProvider {
+
+  private[namesSuggester] def pluralizeNames(`type`: ScType): Seq[String] =
+    namesByType(`type`, withPlurals = false, shortVersion = false).map {
+      case letter@IsLetter() => letter + "s"
+      case string => StringUtil.pluralize(string)
+    }
+
+  private object IsLetter {
+
+    def unapply(string: String): Boolean = string.length == 1 && {
+      val character = string(0)
+      character.isLetter && character.isLower
+    }
+  }
+
+  private[refactoring] object IsTraversable {
+
+    import GenericTypeNamesProvider.isInheritor
+
+    def unapply(`type`: ScParameterizedType): Option[(ScType, ScType)] = `type` match {
+      case ParameterizedType(designator, Seq(argument)) if isMultiElementTraversable(`type`, designator) =>
+        Some(designator, argument)
+      case _ => None
+    }
+
+    private def isMultiElementTraversable(`type`: ScParameterizedType, designator: ScType): Boolean = designator.canonicalText match {
+      case "_root_.scala.Array" => true
+      case _ if isInheritor(designator, "scala.Option") => false // do not suggest plural names for optional values
+      case _ =>
+        isInheritor(`type`,
+          "scala.collection.GenTraversableOnce",
+          "scala.collection.IterableOnce", // Traversable and TraversableOnce are replaced with Iterable and IterableOnce, respectively (https://docs.scala-lang.org/overviews/core/collections-migration-213.html)
+          "java.lang.Iterable",
+        )
+    }
+  }
+}

@@ -1,0 +1,235 @@
+def toCsvFlat[A <: Product](a: A)(using m: scala.deriving.Mirror.ProductOf[A]) = {
+  def flatTuple(any: Any): Tuple = any match
+    case p: Product => p.productIterator.map(flatTuple).foldLeft(EmptyTuple: Tuple)(_ ++ _)
+    case a          => Tuple1(a)
+
+  val tuple = flatTuple(Tuple.fromProductTyped(a)).toList
+}
+-----
+ScalaFile
+  ScFunctionDefinition: toCsvFlat
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('toCsvFlat')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Product
+          CodeReferenceElement: Product
+            PsiElement(identifier)('Product')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: a
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('a')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('m')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: scala.deriving.Mirror.ProductOf[A]
+              SimpleType: scala.deriving.Mirror.ProductOf
+                CodeReferenceElement: scala.deriving.Mirror.ProductOf
+                  CodeReferenceElement: scala.deriving.Mirror
+                    CodeReferenceElement: scala.deriving
+                      CodeReferenceElement: scala
+                        PsiElement(identifier)('scala')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('deriving')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Mirror')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('ProductOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScFunctionDefinition: flatTuple
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('flatTuple')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: any
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('any')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Any
+                  CodeReferenceElement: Any
+                    PsiElement(identifier)('Any')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MatchStatement
+          ReferenceExpression: any
+            PsiElement(identifier)('any')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: p
+                  PsiElement(identifier)('p')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  SimpleType: Product
+                    CodeReferenceElement: Product
+                      PsiElement(identifier)('Product')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                MethodCall
+                  MethodCall
+                    ReferenceExpression: p.productIterator.map(flatTuple).foldLeft
+                      MethodCall
+                        ReferenceExpression: p.productIterator.map
+                          ReferenceExpression: p.productIterator
+                            ReferenceExpression: p
+                              PsiElement(identifier)('p')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('productIterator')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('map')
+                        ArgumentList
+                          PsiElement(()('(')
+                          ReferenceExpression: flatTuple
+                            PsiElement(identifier)('flatTuple')
+                          PsiElement())(')')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('foldLeft')
+                    ArgumentList
+                      PsiElement(()('(')
+                      TypedExpression
+                        ReferenceExpression: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
+                        PsiElement(:)(':')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Tuple
+                          CodeReferenceElement: Tuple
+                            PsiElement(identifier)('Tuple')
+                      PsiElement())(')')
+                  ArgumentList
+                    PsiElement(()('(')
+                    InfixExpression
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ++
+                        PsiElement(identifier)('++')
+                      PsiWhiteSpace(' ')
+                      UnderscoreSection
+                        PsiElement(_)('_')
+                    PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              ReferencePattern: a
+                PsiElement(identifier)('a')
+              PsiWhiteSpace('          ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              BlockOfExpressions
+                MethodCall
+                  ReferenceExpression: Tuple1
+                    PsiElement(identifier)('Tuple1')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                    PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      ScPatternDefinition: tuple
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: tuple
+            PsiElement(identifier)('tuple')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: flatTuple(Tuple.fromProductTyped(a)).toList
+          MethodCall
+            ReferenceExpression: flatTuple
+              PsiElement(identifier)('flatTuple')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: Tuple.fromProductTyped
+                  ReferenceExpression: Tuple
+                    PsiElement(identifier)('Tuple')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('fromProductTyped')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: a
+                    PsiElement(identifier)('a')
+                  PsiElement())(')')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('toList')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

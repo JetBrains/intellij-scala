@@ -1,0 +1,9 @@
+Document tests/pos/t1131.scala
+(2:10..2:13) scala/Any#
+(5:17..5:18) _empty_/C# -> 1:7
+(5:28..5:34) scala/Predef.String#
+(6:15..6:19) scala/Unit#
+(6:22..6:26) scala/Unit#
+(7:3..7:4) _empty_/A#f(). -> 6:7
+(7:7..7:8) _empty_/C#p(). -> 2:7
+

@@ -1,0 +1,27 @@
+package org.jetbrains.plugins.scala.lang.psi.impl.base
+package patterns
+
+import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+
+final class ScStableReferencePatternImpl(node: ASTNode,
+                                         override val toString: String)
+  extends ScalaPsiElementImpl(node)
+    with ScPatternImpl
+    with ScStableReferencePattern {
+
+  override def referenceExpression: Option[ScReferenceExpression] =
+    Option(findChildByClass(classOf[ScReferenceExpression]))
+
+  override def isIrrefutableForImpl(scrutineeType: ScType, deep: Boolean): Boolean = {
+    // TODO: this is obviously wrong but fixing is is difficult
+    //       because we need to fix narrowing for dependent types first
+    false
+  }
+
+  override def `type`(): TypeResult = this.flatMapType(referenceExpression)
+}

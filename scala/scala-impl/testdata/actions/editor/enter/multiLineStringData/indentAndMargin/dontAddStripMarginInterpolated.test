@@ -1,0 +1,14 @@
+val a =
+  s"""
+blah blah blah
+ blah blah blah
+   blah blah blah<caret>
+   """
+-----
+val a =
+  s"""
+blah blah blah
+ blah blah blah
+   blah blah blah
+   <caret>
+   """

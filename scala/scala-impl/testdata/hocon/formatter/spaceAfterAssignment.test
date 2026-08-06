@@ -1,0 +1,19 @@
+<settings>
+  <HoconCodeStyleSettings>
+    <option name="SPACE_AFTER_ASSIGNMENT" value="true" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+a =b
+a = b
+a =  b
+a +=b
+a += b
+a +=  b
+-----
+a = b
+a = b
+a = b
+a += b
+a += b
+a += b

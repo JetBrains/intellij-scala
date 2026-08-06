@@ -1,0 +1,16 @@
+Document tests/pos/typealias_dubious.scala
+(3:18..3:24) scala/AnyRef#
+(7:24..7:31) _empty_/MailBox# -> 1:7
+(9:17..9:19) _empty_/Actor#in. -> 7:15
+(9:20..9:27) _empty_/MailBox#Message# -> 3:8
+(9:32..9:35) scala/sys/
+(9:36..9:41) scala/sys/package.error().
+(11:17..11:22) _empty_/Actor# -> 6:16
+(11:25..11:28) scala/sys/
+(11:29..11:34) scala/sys/package.error().
+(13:24..13:31) _empty_/MailBox# -> 1:7
+(13:32..13:39) _empty_/MailBox#Message# -> 3:8
+(14:5..14:13) _empty_/Actor#unstable(). -> 11:7
+(14:14..14:18) _empty_/Actor#send(). -> 9:7
+(14:19..14:22) _empty_/Actor#dubiousSend().(msg) -> 13:19
+

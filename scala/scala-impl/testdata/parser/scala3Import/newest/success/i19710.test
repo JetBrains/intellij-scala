@@ -1,0 +1,275 @@
+import scala.util.NotGiven
+
+type HasName1 = [n] =>> [x] =>> x match {
+    case n => true
+    case _ => false
+  }
+@main def Test = {
+  summon[HasName1["foo"]["foo"] =:= true]
+  summon[NotGiven[HasName1["foo"]["bar"] =:= true]]
+  summon[Tuple.Filter[(1, "foo", 2, "bar"), HasName1["foo"]] =:= Tuple1["foo"]] // error
+}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.util.NotGiven
+        CodeReferenceElement: scala.util
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('util')
+        PsiElement(.)('.')
+        PsiElement(identifier)('NotGiven')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: HasName1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HasName1')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TypeLambda: [n] =>> [x] =>> x match {
+    case n => true
+    case _ => false
+  }
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: n
+          PsiElement(identifier)('n')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=>>)('=>>')
+      PsiWhiteSpace(' ')
+      TypeLambda: [x] =>> x match {
+    case n => true
+    case _ => false
+  }
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: x
+            PsiElement(identifier)('x')
+          PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=>>)('=>>')
+        PsiWhiteSpace(' ')
+        MatchType: x match {
+    case n => true
+    case _ => false
+  }
+          SimpleType: x
+            CodeReferenceElement: x
+              PsiElement(identifier)('x')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          ScMatchTypeCasesImpl(match type cases)
+            ScMatchTypeCaseImpl(match type case)
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              TypeVariable: n
+                PsiElement(identifier)('n')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              LiteralType: true
+                BooleanLiteral
+                  PsiElement(true)('true')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCaseImpl(match type case)
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              TypeVariable: _
+                PsiElement(_)('_')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              LiteralType: false
+                BooleanLiteral
+                  PsiElement(false)('false')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: HasName1["foo"]["foo"] =:= true
+              ParametrizedType: HasName1["foo"]["foo"]
+                ParametrizedType: HasName1["foo"]
+                  SimpleType: HasName1
+                    CodeReferenceElement: HasName1
+                      PsiElement(identifier)('HasName1')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      LiteralType: "foo"
+                        StringLiteral
+                          PsiElement(string content)('"foo"')
+                    PsiElement(])(']')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: "foo"
+                      StringLiteral
+                        PsiElement(string content)('"foo"')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: true
+                BooleanLiteral
+                  PsiElement(true)('true')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            ParametrizedType: NotGiven[HasName1["foo"]["bar"] =:= true]
+              SimpleType: NotGiven
+                CodeReferenceElement: NotGiven
+                  PsiElement(identifier)('NotGiven')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  InfixType: HasName1["foo"]["bar"] =:= true
+                    ParametrizedType: HasName1["foo"]["bar"]
+                      ParametrizedType: HasName1["foo"]
+                        SimpleType: HasName1
+                          CodeReferenceElement: HasName1
+                            PsiElement(identifier)('HasName1')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            LiteralType: "foo"
+                              StringLiteral
+                                PsiElement(string content)('"foo"')
+                          PsiElement(])(']')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          LiteralType: "bar"
+                            StringLiteral
+                              PsiElement(string content)('"bar"')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: =:=
+                      PsiElement(identifier)('=:=')
+                    PsiWhiteSpace(' ')
+                    LiteralType: true
+                      BooleanLiteral
+                        PsiElement(true)('true')
+                PsiElement(])(']')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Tuple.Filter[(1, "foo", 2, "bar"), HasName1["foo"]] =:= Tuple1["foo"]
+              ParametrizedType: Tuple.Filter[(1, "foo", 2, "bar"), HasName1["foo"]]
+                SimpleType: Tuple.Filter
+                  CodeReferenceElement: Tuple.Filter
+                    CodeReferenceElement: Tuple
+                      PsiElement(identifier)('Tuple')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Filter')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, "foo", 2, "bar")
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: "foo"
+                          StringLiteral
+                            PsiElement(string content)('"foo"')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: "bar"
+                          StringLiteral
+                            PsiElement(string content)('"bar"')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    ParametrizedType: HasName1["foo"]
+                      SimpleType: HasName1
+                        CodeReferenceElement: HasName1
+                          PsiElement(identifier)('HasName1')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          LiteralType: "foo"
+                            StringLiteral
+                              PsiElement(string content)('"foo"')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Tuple1["foo"]
+                SimpleType: Tuple1
+                  CodeReferenceElement: Tuple1
+                    PsiElement(identifier)('Tuple1')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    LiteralType: "foo"
+                      StringLiteral
+                        PsiElement(string content)('"foo"')
+                  PsiElement(])(']')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// error')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

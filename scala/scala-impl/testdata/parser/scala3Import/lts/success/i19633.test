@@ -1,0 +1,551 @@
+object Repro {
+  trait Responsive {
+    type Response
+  }
+
+  object Responsive {
+    type Aux[R] = Responsive {type Response = R}
+    type Response[R] = R match {case Aux[r] => r}
+  }
+
+  case class StringRequest(name: String) extends Responsive {
+    type Response = String
+  }
+
+  def withImplicit[R <: Responsive](request: R)(implicit ct: scala.reflect.ClassTag[Responsive.Response[R]]): Responsive.Response[R] = ???
+
+  def withFunction[R <: Responsive](request: R)(call: R => Responsive.Response[R]): Responsive.Response[R] = ???
+
+  def stringWithFunction(req: StringRequest): String = withFunction(req)(_.getClass.getSimpleName)
+
+  def stringWithImplicit(req: StringRequest): String = withImplicit(req)
+
+  def main(args: Array[String]): Unit = {}
+}
+-----
+ScalaFile
+  ScObject: Repro
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Repro')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Responsive
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Responsive')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDeclaration: Response
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Response')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScObject: Responsive
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Responsive')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Aux
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Aux')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: R
+                    PsiElement(identifier)('R')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                CompoundType: Responsive {type Response = R}
+                  SimpleType: Responsive
+                    CodeReferenceElement: Responsive
+                      PsiElement(identifier)('Responsive')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    ScTypeAliasDefinition: Response
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Response')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Response
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Response')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: R
+                    PsiElement(identifier)('R')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MatchType: R match {case Aux[r] => r}
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace(' ')
+                  PsiElement({)('{')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Aux[r]
+                        SimpleType: Aux
+                          CodeReferenceElement: Aux
+                            PsiElement(identifier)('Aux')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            TypeVariable: r
+                              PsiElement(identifier)('r')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: r
+                        CodeReferenceElement: r
+                          PsiElement(identifier)('r')
+                  PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: StringRequest
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('StringRequest')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                ClassParameter: name
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('name')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Responsive
+                  CodeReferenceElement: Responsive
+                    PsiElement(identifier)('Responsive')
+            PsiWhiteSpace(' ')
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ScTypeAliasDefinition: Response
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Response')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: withImplicit
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('withImplicit')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Responsive
+                CodeReferenceElement: Responsive
+                  PsiElement(identifier)('Responsive')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: request
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('request')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: ct
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('ct')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: scala.reflect.ClassTag[Responsive.Response[R]]
+                    SimpleType: scala.reflect.ClassTag
+                      CodeReferenceElement: scala.reflect.ClassTag
+                        CodeReferenceElement: scala.reflect
+                          CodeReferenceElement: scala
+                            PsiElement(identifier)('scala')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('reflect')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('ClassTag')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: Responsive.Response[R]
+                          SimpleType: Responsive.Response
+                            CodeReferenceElement: Responsive.Response
+                              CodeReferenceElement: Responsive
+                                PsiElement(identifier)('Responsive')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('Response')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Responsive.Response[R]
+            SimpleType: Responsive.Response
+              CodeReferenceElement: Responsive.Response
+                CodeReferenceElement: Responsive
+                  PsiElement(identifier)('Responsive')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Response')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: withFunction
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('withFunction')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Responsive
+                CodeReferenceElement: Responsive
+                  PsiElement(identifier)('Responsive')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: request
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('request')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: call
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('call')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: R => Responsive.Response[R]
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: Responsive.Response[R]
+                      SimpleType: Responsive.Response
+                        CodeReferenceElement: Responsive.Response
+                          CodeReferenceElement: Responsive
+                            PsiElement(identifier)('Responsive')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Response')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: R
+                            CodeReferenceElement: R
+                              PsiElement(identifier)('R')
+                        PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Responsive.Response[R]
+            SimpleType: Responsive.Response
+              CodeReferenceElement: Responsive.Response
+                CodeReferenceElement: Responsive
+                  PsiElement(identifier)('Responsive')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Response')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: stringWithFunction
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('stringWithFunction')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: req
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('req')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: StringRequest
+                    CodeReferenceElement: StringRequest
+                      PsiElement(identifier)('StringRequest')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            MethodCall
+              ReferenceExpression: withFunction
+                PsiElement(identifier)('withFunction')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: req
+                  PsiElement(identifier)('req')
+                PsiElement())(')')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: _.getClass.getSimpleName
+                ReferenceExpression: _.getClass
+                  UnderscoreSection
+                    PsiElement(_)('_')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('getClass')
+                PsiElement(.)('.')
+                PsiElement(identifier)('getSimpleName')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: stringWithImplicit
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('stringWithImplicit')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: req
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('req')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: StringRequest
+                    CodeReferenceElement: StringRequest
+                      PsiElement(identifier)('StringRequest')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: withImplicit
+              PsiElement(identifier)('withImplicit')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: req
+                PsiElement(identifier)('req')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,11 @@
+Document tests/pos/i12997.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(5:11..5:14) scala/Int#
+(6:5..6:11) scala/Predef.summon().
+(6:12..6:15) scala/Int#
+(11:11..11:14) scala/Int#
+(12:5..12:17) scala/compiletime/package$package.summonInline().
+(12:18..12:21) scala/Int#
+(15:9..15:18) _empty_/i12997$package.summonInt(). -> 10:12
+

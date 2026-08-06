@@ -1,0 +1,62 @@
+public final class Test$ {
+    public static fun method1() : void {
+        println("method1")
+    }
+    public static fun method2() : void {
+        println("method2")
+    }
+    public static fun method3() : void {
+        println("method3")
+    }
+    public static fun main(args: java.lang.String[]) : void {
+        final var anything: java.lang.Object = 42
+        switch (anything)
+            UastEmptyExpression -> {
+
+            }
+            UastEmptyExpression -> {
+                println("42")
+            }
+            UastEmptyExpression -> {
+                method1()
+                method2()
+                method3()
+            }
+            UastEmptyExpression -> {
+                switch (inner)
+                    UastEmptyExpression -> {
+
+                    }
+                    UastEmptyExpression -> {
+                        println("42")
+                    }
+                    UastEmptyExpression -> {
+                        method1()
+                        method2()
+                        method3()
+                    }
+            }
+            UastEmptyExpression -> {
+
+            }
+            UastEmptyExpression -> {
+                println("42")
+            }
+
+        switch (method1())
+            UastEmptyExpression -> {
+                "method result match"
+            }
+
+        switch (42)
+            UastEmptyExpression -> {
+                "literal match"
+            }
+
+        switch (21 + 21)
+            UastEmptyExpression -> {
+                "binary expression match"
+            }
+
+    }
+}

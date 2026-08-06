@@ -1,0 +1,36 @@
+package org.jetbrains.plugins.scala.lang.resolve
+
+import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.junit.Assert._
+
+import java.nio.file.Path
+
+class OverloadedResolutionTest extends ScalaResolveTestCase {
+
+  override def folderPath: Path = super.folderPath / "resolve" / "overloadedResolution"
+
+  def testSCL7890(): Unit = doTest()
+
+  def testSCL12277_1(): Unit = doTest()
+
+  def testSCL12277_2(): Unit = doTest()
+
+  def testSCL12120(): Unit = doTest()
+
+  //SCL-15381
+  def testByNameParameter(): Unit = doTest()
+
+  def testSCL15408(): Unit = doTest()
+
+  def testScalaPluginCachedMethods(): Unit = doTest()
+
+  private def doTest(): Unit = {
+    findReferenceAtCaret() match {
+      case ref: ScReference =>
+        val variants = ref.multiResolveScala(false)
+        assertTrue(s"Single resolve expected, was: ${variants.length}", variants.length == 1)
+    }
+  }
+
+}

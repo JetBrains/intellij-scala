@@ -1,0 +1,2 @@
+/*start*/ <!-- comment --> /*end*/;
+//Comment

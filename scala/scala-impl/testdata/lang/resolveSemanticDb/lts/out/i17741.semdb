@@ -1,0 +1,24 @@
+Document tests/pos/i17741.scala
+(5:11..5:17) scala/Predef.String#
+(6:10..6:16) scala/Predef.String#
+(7:18..7:25) scala/Boolean#
+(8:10..8:14) _empty_/Node# -> 3:7
+(9:11..9:15) _empty_/Node# -> 3:7
+(10:18..10:24) scala/Predef.String#
+(10:34..10:38) _empty_/Node# -> 3:7
+(12:16..12:20) _empty_/Node# -> 3:7
+(12:23..12:33) _empty_/NodeBuffer# -> 11:7
+(17:25..17:35) _empty_/NodeBuffer# -> 11:7
+(17:38..17:41) scala/package.Seq#
+(17:42..17:46) _empty_/Node# -> 3:7
+(17:50..17:53) scala/Predef.`???`().
+(23:11..23:15) _empty_/Elem# -> 4:7
+(25:21..25:31) _empty_/NodeBuffer# -> 11:7
+(25:38..25:48) _empty_/NodeBuffer# -> 11:7
+(26:11..26:15) local0 -> 25:15
+(26:16..26:18) _empty_/NodeBuffer#`&+`(). -> 12:7
+(26:23..26:27) _empty_/Text# -> 10:7
+(27:11..27:18) _empty_/NodeSeq. -> 16:8
+(27:19..27:31) _empty_/NodeSeq.seqToNodeSeq(). -> 17:7
+(27:32..27:36) local0 -> 25:15
+

@@ -1,0 +1,11 @@
+class Test {
+  def foo(str: String) = {
+    <start>str<notnull>
+  }
+}
+-----
+class Test {
+  def foo(str: String) = {
+    if (str != null) {}
+  }
+}

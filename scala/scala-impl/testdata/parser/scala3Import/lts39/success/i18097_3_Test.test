@@ -1,0 +1,188 @@
+package test
+
+final case class Test(value: Opaque)
+
+def test: Test =
+  bar.go match
+    case Some(value) => Test(value) // was error: Found: (value : Unit) Required: test.Opaque
+    case _           => ???
+
+def test2: Test =
+  go(bar) match
+    case Some(value) => Test(value)
+    case _           => ???
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: test
+      PsiElement(identifier)('test')
+    PsiWhiteSpace('\n\n')
+    ScClass: Test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(final)('final')
+        PsiWhiteSpace(' ')
+        PsiElement(case)('case')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Test')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: value
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('value')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Opaque
+                  CodeReferenceElement: Opaque
+                    PsiElement(identifier)('Opaque')
+            PsiElement())(')')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: test
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('test')
+      Parameters
+        <empty list>
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: Test
+        CodeReferenceElement: Test
+          PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace('\n  ')
+      MatchStatement
+        ReferenceExpression: bar.go
+          ReferenceExpression: bar
+            PsiElement(identifier)('bar')
+          PsiElement(.)('.')
+          PsiElement(identifier)('go')
+        PsiWhiteSpace(' ')
+        PsiElement(match)('match')
+        PsiWhiteSpace('\n    ')
+        CaseClauses
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ConstructorPattern
+              CodeReferenceElement: Some
+                PsiElement(identifier)('Some')
+              Pattern Argument List
+                PsiElement(()('(')
+                ReferencePattern: value
+                  PsiElement(identifier)('value')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              MethodCall
+                ReferenceExpression: Test
+                  PsiElement(identifier)('Test')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: value
+                    PsiElement(identifier)('value')
+                  PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiComment(comment)('// was error: Found: (value : Unit) Required: test.Opaque')
+          PsiWhiteSpace('\n    ')
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            WildcardPattern
+              PsiElement(_)('_')
+            PsiWhiteSpace('           ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: test2
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('test2')
+      Parameters
+        <empty list>
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: Test
+        CodeReferenceElement: Test
+          PsiElement(identifier)('Test')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace('\n  ')
+      MatchStatement
+        MethodCall
+          ReferenceExpression: go
+            PsiElement(identifier)('go')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: bar
+              PsiElement(identifier)('bar')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(match)('match')
+        PsiWhiteSpace('\n    ')
+        CaseClauses
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ConstructorPattern
+              CodeReferenceElement: Some
+                PsiElement(identifier)('Some')
+              Pattern Argument List
+                PsiElement(()('(')
+                ReferencePattern: value
+                  PsiElement(identifier)('value')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              MethodCall
+                ReferenceExpression: Test
+                  PsiElement(identifier)('Test')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: value
+                    PsiElement(identifier)('value')
+                  PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            WildcardPattern
+              PsiElement(_)('_')
+            PsiWhiteSpace('           ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')

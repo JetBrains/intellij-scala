@@ -1,0 +1,33 @@
+UFile (package = )
+    UImportStatement (isOnDemand = false)
+    UClass (name = Test$)
+        UMethod (name = foo)
+            UBlockExpression
+                UDeclarationsExpression
+                    ULocalVariable (name = runnable)
+                        UObjectLiteralExpression
+                            UClass (name = <anonymous>)
+                                UMethod (name = run)
+                                    UBlockExpression
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = runnable)
+                    UMethodCall(name = run)
+                        UIdentifier (Identifier (run))
+                UDeclarationsExpression
+                    ULocalVariable (name = closeableRunnable)
+                        UObjectLiteralExpression
+                            UClass (name = <anonymous>)
+                                UMethod (name = close)
+                                    UBlockExpression
+                                UMethod (name = run)
+                                    UBlockExpression
+                UDeclarationsExpression
+                    ULocalVariable (name = runnableIs)
+                        UObjectLiteralExpression
+                            UClass (name = <anonymous>)
+                                UMethod (name = read)
+                                    UBlockExpression
+                                        UReturnExpression
+                                            ULiteralExpression (value = 0)
+                                UMethod (name = run)
+                                    UBlockExpression

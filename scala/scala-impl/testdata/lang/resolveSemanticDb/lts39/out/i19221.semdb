@@ -1,0 +1,140 @@
+Document tests/pos/i19221.scala
+(6:20..6:28) scala/Product1#
+(6:29..6:30) _empty_/A# -> 2:13
+(7:15..7:18) scala/Int#
+(7:30..7:35) _empty_/Both#toSeq(). -> 10:7
+(7:36..7:42) scala/collection/SeqOps#length().
+(8:16..8:19) scala/Int#
+(8:22..8:23) _empty_/E# -> 3:13
+(8:30..8:35) _empty_/Both#toSeq(). -> 10:7
+(8:36..8:41) scala/collection/SeqOps#apply().
+(8:42..8:43) _empty_/Both#apply().(i) -> 8:13
+(9:15..9:18) scala/Int#
+(9:21..9:24) scala/package.Seq#
+(9:25..9:26) _empty_/E# -> 3:13
+(9:30..9:35) _empty_/Both#toSeq(). -> 10:7
+(9:36..9:40) scala/collection/IterableOps#drop().
+(9:41..9:42) _empty_/Both#drop().(n) -> 9:12
+(10:14..10:17) scala/package.Seq#
+(10:18..10:19) _empty_/E# -> 3:13
+(10:30..10:33) scala/package.Seq.
+(10:38..10:39) _empty_/E# -> 3:13
+(10:45..10:46) _empty_/E# -> 3:13
+(12:22..12:25) scala/Any#
+(12:29..12:33) _empty_/Both#canEqual().(that) -> 12:16
+(12:34..12:46) scala/Any#isInstanceOf().
+(12:47..12:51) _empty_/Both# -> 6:7
+(12:53..12:62) scala/unchecked#
+(14:11..14:12) _empty_/A# -> 2:13
+(14:24..14:25) _empty_/A# -> 2:13
+(15:11..15:12) _empty_/B# -> 2:28
+(15:24..15:25) _empty_/B# -> 2:28
+(16:11..16:14) scala/package.Seq#
+(16:15..16:16) _empty_/C# -> 2:43
+(16:20..16:23) scala/package.Seq.
+(16:28..16:29) _empty_/C# -> 2:43
+(19:26..19:34) scala/Product1#
+(19:35..19:36) _empty_/A# -> 2:13
+(20:15..20:18) scala/Int#
+(20:30..20:35) _empty_/AlmostBoth#toSeq(). -> 23:7
+(20:36..20:42) scala/collection/SeqOps#length().
+(21:16..21:19) scala/Int#
+(21:22..21:23) _empty_/E# -> 3:13
+(21:30..21:35) _empty_/AlmostBoth#toSeq(). -> 23:7
+(21:36..21:41) scala/collection/SeqOps#apply().
+(21:42..21:43) _empty_/AlmostBoth#apply().(i) -> 21:13
+(22:15..22:18) scala/Int#
+(22:21..22:24) scala/package.Seq#
+(22:25..22:26) _empty_/E# -> 3:13
+(22:30..22:35) _empty_/AlmostBoth#toSeq(). -> 23:7
+(22:36..22:40) scala/collection/IterableOps#drop().
+(22:41..22:42) _empty_/AlmostBoth#drop().(n) -> 22:12
+(23:14..23:17) scala/package.Seq#
+(23:18..23:19) _empty_/E# -> 3:13
+(23:30..23:33) scala/package.Seq.
+(23:38..23:39) _empty_/E# -> 3:13
+(23:45..23:46) _empty_/E# -> 3:13
+(25:22..25:25) scala/Any#
+(25:29..25:33) _empty_/AlmostBoth#canEqual().(that) -> 25:16
+(25:34..25:46) scala/Any#isInstanceOf().
+(25:47..25:57) _empty_/AlmostBoth# -> 19:7
+(25:59..25:68) scala/unchecked#
+(27:11..27:12) _empty_/A# -> 2:13
+(27:24..27:25) _empty_/A# -> 2:13
+(28:11..28:14) scala/package.Seq#
+(28:15..28:16) _empty_/C# -> 2:43
+(28:20..28:23) scala/package.Seq.
+(28:28..28:29) _empty_/C# -> 2:43
+(31:36..31:43) scala/Boolean#
+(31:67..31:71) _empty_/Both# -> 6:7
+(32:36..32:43) scala/Boolean#
+(32:67..32:77) _empty_/AlmostBoth# -> 19:7
+(35:42..35:45) scala/Any#
+(35:48..35:52) _empty_/Both# -> 6:7
+(35:68..35:72) _empty_/Both# -> 6:7
+(36:42..36:45) scala/Any#
+(36:48..36:58) _empty_/AlmostBoth# -> 19:7
+(36:68..36:78) _empty_/AlmostBoth# -> 19:7
+(37:42..37:45) scala/Any#
+(37:48..37:55) _empty_/GetBoth# -> 31:7
+(37:68..37:75) _empty_/GetBoth# -> 31:7
+(38:42..38:45) scala/Any#
+(38:48..38:61) _empty_/GetAlmostBoth# -> 32:7
+(38:68..38:81) _empty_/GetAlmostBoth# -> 32:7
+(41:14..41:17) scala/Any#
+(41:20..41:23) scala/package.Seq#
+(41:24..41:25) _empty_/E# -> 3:13
+(41:29..41:30) _empty_/Test#t1a().(x) -> 41:11
+(41:44..41:48) _empty_/Both. -> 35:8
+(41:66..41:68) local0 -> 41:49
+(42:14..42:17) scala/Any#
+(42:20..42:23) scala/package.Seq#
+(42:24..42:25) _empty_/E# -> 3:13
+(42:29..42:30) _empty_/Test#t1b().(x) -> 42:11
+(42:44..42:54) _empty_/AlmostBoth. -> 36:8
+(42:66..42:68) local1 -> 42:55
+(43:14..43:17) scala/Any#
+(43:20..43:23) scala/package.Seq#
+(43:24..43:25) _empty_/E# -> 3:13
+(43:29..43:30) _empty_/Test#t1c().(x) -> 43:11
+(43:44..43:51) _empty_/GetBoth. -> 37:8
+(43:66..43:68) local2 -> 43:52
+(44:14..44:17) scala/Any#
+(44:20..44:23) scala/package.Seq#
+(44:24..44:25) _empty_/E# -> 3:13
+(44:29..44:30) _empty_/Test#t1d().(x) -> 44:11
+(44:44..44:57) _empty_/GetAlmostBoth. -> 38:8
+(44:66..44:68) local3 -> 44:58
+(46:14..46:17) scala/Any#
+(46:21..46:22) _empty_/E# -> 3:13
+(46:24..46:27) scala/package.Seq#
+(46:28..46:29) _empty_/E# -> 3:13
+(46:34..46:35) _empty_/Test#t2a().(x) -> 46:11
+(46:49..46:53) _empty_/Both. -> 35:8
+(46:75..46:76) local4 -> 46:54
+(46:78..46:80) local5 -> 46:57
+(47:14..47:17) scala/Any#
+(47:21..47:22) _empty_/E# -> 3:13
+(47:24..47:27) scala/package.Seq#
+(47:28..47:29) _empty_/E# -> 3:13
+(47:34..47:35) _empty_/Test#t2b().(x) -> 47:11
+(47:49..47:59) _empty_/AlmostBoth. -> 36:8
+(47:75..47:76) local6 -> 47:60
+(47:78..47:80) local7 -> 47:63
+(48:14..48:17) scala/Any#
+(48:21..48:22) _empty_/E# -> 3:13
+(48:24..48:27) scala/package.Seq#
+(48:28..48:29) _empty_/E# -> 3:13
+(48:34..48:35) _empty_/Test#t2c().(x) -> 48:11
+(48:49..48:56) _empty_/GetBoth. -> 37:8
+(48:75..48:76) local8 -> 48:57
+(48:78..48:80) local9 -> 48:60
+(49:14..49:17) scala/Any#
+(49:21..49:22) _empty_/E# -> 3:13
+(49:24..49:27) scala/package.Seq#
+(49:28..49:29) _empty_/E# -> 3:13
+(49:34..49:35) _empty_/Test#t2d().(x) -> 49:11
+(49:49..49:62) _empty_/GetAlmostBoth. -> 38:8
+(49:75..49:76) local10 -> 49:63
+(49:78..49:80) local11 -> 49:66
+

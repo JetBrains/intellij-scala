@@ -1,0 +1,152 @@
+def test(input: Option[List[XmlEvent]]) =
+  val works =
+    expect.same(List.empty[XmlEvent], input.get)
+  val fails = input.map: tokens =>
+    expect.same(List.empty[XmlEvent], tokens)
+-----
+ScalaFile
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: input
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('input')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Option[List[XmlEvent]]
+              SimpleType: Option
+                CodeReferenceElement: Option
+                  PsiElement(identifier)('Option')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: List[XmlEvent]
+                    SimpleType: List
+                      CodeReferenceElement: List
+                        PsiElement(identifier)('List')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: XmlEvent
+                          CodeReferenceElement: XmlEvent
+                            PsiElement(identifier)('XmlEvent')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: works
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: works
+            PsiElement(identifier)('works')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace('\n    ')
+        MethodCall
+          ReferenceExpression: expect.same
+            ReferenceExpression: expect
+              PsiElement(identifier)('expect')
+            PsiElement(.)('.')
+            PsiElement(identifier)('same')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: List.empty
+                ReferenceExpression: List
+                  PsiElement(identifier)('List')
+                PsiElement(.)('.')
+                PsiElement(identifier)('empty')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: XmlEvent
+                    CodeReferenceElement: XmlEvent
+                      PsiElement(identifier)('XmlEvent')
+                PsiElement(])(']')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: input.get
+              ReferenceExpression: input
+                PsiElement(identifier)('input')
+              PsiElement(.)('.')
+              PsiElement(identifier)('get')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: fails
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: fails
+            PsiElement(identifier)('fails')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: input.map
+            ReferenceExpression: input
+              PsiElement(identifier)('input')
+            PsiElement(.)('.')
+            PsiElement(identifier)('map')
+          ArgumentList
+            BlockExpression
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              FunctionExpression
+                Parameters
+                  ParametersClause
+                    Parameter: tokens
+                      PsiElement(identifier)('tokens')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n    ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: expect.same
+                      ReferenceExpression: expect
+                        PsiElement(identifier)('expect')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('same')
+                    ArgumentList
+                      PsiElement(()('(')
+                      GenericCall
+                        ReferenceExpression: List.empty
+                          ReferenceExpression: List
+                            PsiElement(identifier)('List')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('empty')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: XmlEvent
+                              CodeReferenceElement: XmlEvent
+                                PsiElement(identifier)('XmlEvent')
+                          PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: tokens
+                        PsiElement(identifier)('tokens')
+                      PsiElement())(')')

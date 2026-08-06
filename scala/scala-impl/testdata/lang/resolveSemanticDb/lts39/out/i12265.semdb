@@ -1,0 +1,15 @@
+Document tests/pos/i12265.scala
+(2:16..2:19) scala/Int#
+(2:23..2:27) scala/Unit#
+(3:16..3:20) scala/Long#
+(3:23..3:27) scala/Unit#
+(4:3..4:8) _empty_/OK.apply(). -> 2:7
+(5:3..5:8) _empty_/OK.apply(+1). -> 3:7
+(9:14..9:17) scala/Int#
+(10:16..10:19) _empty_/KO.Key# -> 9:8
+(10:23..10:27) scala/Unit#
+(11:16..11:20) scala/Long#
+(11:23..11:27) scala/Unit#
+(12:3..12:8) _empty_/KO.apply(). -> 10:7
+(13:3..13:8) _empty_/KO.apply(+1). -> 11:7
+

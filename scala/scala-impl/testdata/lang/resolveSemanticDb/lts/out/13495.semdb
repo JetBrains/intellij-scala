@@ -1,0 +1,39 @@
+Document tests/pos/13495.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:36) scala/annotation/showAsInfix#
+(1:25..1:36) scala/annotation/showAsInfix.
+(5:32..5:41) _empty_/Test.Component# -> 4:9
+(7:23..7:28) _empty_/Test.CList# -> 12:16
+(7:33..7:38) _empty_/Test.CList# -> 12:16
+(7:41..7:42) _empty_/Test.Deletable#[L] -> 7:18
+(8:12..8:14) _empty_/Test.`&:`# -> 14:27
+(8:21..8:22) local0 -> 8:10
+(8:23..8:24) scala/`|`#
+(8:25..8:32) _empty_/Test.Deleted# -> 5:16
+(8:34..8:36) _empty_/Test.`&:`# -> 14:27
+(8:37..8:46) _empty_/Test.Deletable# -> 7:8
+(8:47..8:48) local1 -> 8:15
+(9:10..9:14) _empty_/Test.CNil# -> 13:16
+(9:18..9:22) _empty_/Test.CNil# -> 13:16
+(13:29..13:34) _empty_/Test.CList# -> 12:16
+(14:4..14:15) scala/annotation/showAsInfix#
+(14:36..14:45) _empty_/Test.Component# -> 4:9
+(14:53..14:58) _empty_/Test.CList# -> 12:16
+(14:63..14:64) _empty_/Test.`&:`#[C] -> 14:31
+(14:69..14:70) _empty_/Test.`&:`#[L] -> 14:48
+(14:80..14:85) _empty_/Test.CList# -> 12:16
+(16:19..16:22) scala/Int#
+(16:27..16:30) scala/Int#
+(16:40..16:49) _empty_/Test.Component# -> 4:9
+(17:19..17:22) scala/Int#
+(17:27..17:30) scala/Int#
+(17:40..17:49) _empty_/Test.Component# -> 4:9
+(19:10..19:19) _empty_/Test.Deletable# -> 7:8
+(19:20..19:21) _empty_/Test.A# -> 16:14
+(19:22..19:24) _empty_/Test.`&:`# -> 14:27
+(19:25..19:26) _empty_/Test.B# -> 17:14
+(19:27..19:29) _empty_/Test.`&:`# -> 14:27
+(19:30..19:34) _empty_/Test.CNil# -> 13:16
+(19:38..19:41) scala/Predef.`???`().
+

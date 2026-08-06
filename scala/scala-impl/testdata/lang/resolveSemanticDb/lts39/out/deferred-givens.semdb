@@ -1,0 +1,44 @@
+Document tests/pos/deferred-givens.scala
+(2:8..2:19) scala/compiletime/
+(4:7..4:10) _empty_/Ord# -> 3:7
+(4:11..4:17) scala/Double#
+(7:15..7:18) _empty_/A#Elem# -> 7:8
+(7:15..7:18) _empty_/Ord# -> 3:7
+(8:13..8:19) scala/Predef.summon().
+(8:20..8:23) _empty_/Ord# -> 3:7
+(8:24..8:28) _empty_/A#Elem# -> 7:8
+(10:18..10:19) _empty_/A# -> 6:7
+(11:15..11:21) scala/Double#
+(12:18..12:21) _empty_/Ord# -> 3:7
+(12:22..12:26) _empty_/AC#Elem# -> 11:8
+(12:30..12:33) scala/Predef.`???`().
+(14:18..14:19) _empty_/A# -> 6:7
+(15:15..15:21) scala/Double#
+(19:9..19:12) _empty_/Ord# -> 3:7
+(19:13..19:17) _empty_/B#Elem# -> 18:8
+(20:13..20:19) scala/Predef.summon().
+(20:20..20:23) _empty_/Ord# -> 3:7
+(20:24..20:28) _empty_/B#Elem# -> 18:8
+(22:17..22:18) _empty_/B# -> 17:7
+(23:15..23:21) scala/Predef.String#
+(24:18..24:21) _empty_/Ord# -> 3:7
+(24:22..24:26) _empty_/C#Elem# -> 23:8
+(24:30..24:33) scala/Predef.`???`().
+(26:15..26:18) _empty_/Ord# -> 3:7
+(26:19..26:25) scala/Predef.String#
+(28:15..28:18) _empty_/Ord# -> 3:7
+(28:19..28:25) scala/Predef.String#
+(28:36..28:37) _empty_/B# -> 17:7
+(29:15..29:21) scala/Predef.String#
+(31:18..31:21) _empty_/Ord# -> 3:7
+(31:22..31:28) scala/Predef.String#
+(31:39..31:40) _empty_/B# -> 17:7
+(32:15..32:21) scala/Predef.String#
+(33:18..33:21) _empty_/Ord# -> 3:7
+(33:22..33:26) _empty_/E#Elem# -> 32:8
+(33:30..33:31) _empty_/E#x. -> 31:15
+(35:12..35:15) _empty_/F#[X] -> 35:9
+(35:12..35:15) _empty_/Ord# -> 3:7
+(35:25..35:26) _empty_/B# -> 17:7
+(36:15..36:16) _empty_/F#[X] -> 35:9
+

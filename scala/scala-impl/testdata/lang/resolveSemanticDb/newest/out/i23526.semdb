@@ -1,0 +1,25 @@
+Document tests/pos/i23526.scala
+(2:17..2:18) _empty_/B#[A] -> 1:10
+(3:14..3:16) _empty_/B#[To] -> 1:14
+(9:21..9:28) scala/reflect/
+(9:29..9:37) scala/reflect/ClassTag#
+(9:38..9:39) _empty_/Factory.newB().[A] -> 9:12
+(9:48..9:49) _empty_/B# -> 1:7
+(9:50..9:51) _empty_/Factory.newB().[A] -> 9:12
+(9:53..9:56) _empty_/Col# -> 6:7
+(9:57..9:58) _empty_/Factory.newB().[A] -> 9:12
+(9:74..9:77) _empty_/Col# -> 6:7
+(9:78..9:79) _empty_/Factory.newB().[A] -> 9:12
+(9:87..9:90) _empty_/Col# -> 6:7
+(9:91..9:92) _empty_/Factory.newB().[A] -> 9:12
+(13:11..13:18) _empty_/Factory. -> 8:8
+(13:19..13:23) _empty_/Factory.newB(). -> 9:7
+(13:24..13:30) _empty_/B#addOne(). -> 2:7
+(13:34..13:37) _empty_/B#res(). -> 3:7
+(14:11..14:21) scala/collection/
+(14:22..14:31) scala/collection/immutable/
+(14:32..14:40) scala/collection/immutable/ArraySeq.
+(14:41..14:51) scala/collection/immutable/ArraySeq.newBuilder().
+(14:52..14:58) scala/collection/mutable/Growable#addOne().
+(14:62..14:68) scala/collection/mutable/Builder#result().
+

@@ -1,0 +1,87 @@
+Document tests/pos/i17222.4.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(8:12..8:13) _empty_/A#F# -> 7:8
+(8:14..8:15) _empty_/A#T# -> 6:8
+(10:12..10:18) _empty_/Reader# -> 3:7
+(10:19..10:20) _empty_/A# -> 5:7
+(10:32..10:33) _empty_/`i17222.4$package`.given_Reader_A_X#[X] -> 10:8
+(10:37..10:38) _empty_/`i17222.4$package`.given_Reader_A_X#[X] -> 10:8
+(12:22..12:23) _empty_/Box#[T] -> 12:16
+(15:26..15:27) _empty_/`i17222.4$package`.summonOne().[T] -> 15:22
+(17:12..17:23) scala/compiletime/package$package.erasedValue().
+(17:24..17:25) _empty_/`i17222.4$package`.summonOne().[T] -> 15:22
+(18:15..18:18) _empty_/Box# -> 12:12
+(18:25..18:37) scala/compiletime/package$package.summonInline().
+(18:38..18:39) local2 -> 18:19
+(20:3..20:6) _empty_/Box.
+(20:7..20:10) local3 -> 16:7
+(20:12..20:24) scala/Any#asInstanceOf().
+(20:25..20:26) _empty_/`i17222.4$package`.summonOne().[T] -> 15:22
+(21:5..21:14) _empty_/`i17222.4$package`.summonOne(). -> 15:12
+(24:2..24:6) scala/main#
+(27:22..27:23) _empty_/A# -> 5:7
+(28:14..28:15) local4 -> 27:11
+(30:19..30:20) _empty_/A# -> 5:7
+(31:17..31:18) local8 -> 31:12
+(34:16..34:17) local6 -> 27:9
+(34:18..34:21) scala/Int#
+(34:28..34:29) local10 -> 30:9
+(36:3..36:12) _empty_/`i17222.4$package`.summonOne(). -> 15:12
+(36:13..36:16) _empty_/Box# -> 12:12
+(36:17..36:23) _empty_/Reader# -> 3:7
+(36:24..36:26) local14 -> 34:7
+(36:33..36:36) scala/Int#
+(39:12..39:13) _empty_/A# -> 5:7
+(39:25..39:28) scala/Int#
+(39:37..39:38) local6 -> 27:9
+(39:39..39:42) scala/Int#
+(39:49..39:50) local10 -> 30:9
+(41:3..41:12) _empty_/`i17222.4$package`.summonOne(). -> 15:12
+(41:13..41:16) _empty_/Box# -> 12:12
+(41:17..41:23) _empty_/Reader# -> 3:7
+(41:24..41:27) local18 -> 39:7
+(41:34..41:37) scala/Int#
+(44:21..44:22) local6 -> 27:9
+(44:23..44:26) scala/Int#
+(44:33..44:34) local10 -> 30:9
+(46:3..46:12) _empty_/`i17222.4$package`.summonOne(). -> 15:12
+(46:13..46:16) _empty_/Box# -> 12:12
+(46:17..46:23) _empty_/Reader# -> 3:7
+(46:24..46:26) local20
+(46:33..46:36) scala/Int#
+(49:15..49:16) _empty_/A# -> 5:7
+(50:14..50:17) scala/Int#
+(51:17..51:18) local23 -> 51:12
+(53:3..53:12) _empty_/`i17222.4$package`.summonOne(). -> 15:12
+(53:13..53:16) _empty_/Box# -> 12:12
+(53:17..53:23) _empty_/Reader# -> 3:7
+(53:24..53:25) local27 -> 49:7
+(53:32..53:35) scala/Int#
+(56:15..56:16) local6 -> 27:9
+(56:17..56:20) scala/Int#
+(57:17..57:18) local30 -> 57:12
+(59:3..59:12) _empty_/`i17222.4$package`.summonOne(). -> 15:12
+(59:13..59:16) _empty_/Box# -> 12:12
+(59:17..59:23) _empty_/Reader# -> 3:7
+(59:24..59:25) local34 -> 56:7
+(59:32..59:35) scala/Int#
+(62:16..62:17) _empty_/A# -> 5:7
+(62:23..62:24) local10 -> 30:9
+(63:14..63:17) scala/Int#
+(65:3..65:12) _empty_/`i17222.4$package`.summonOne(). -> 15:12
+(65:13..65:16) _empty_/Box# -> 12:12
+(65:17..65:23) _empty_/Reader# -> 3:7
+(65:24..65:26) local39 -> 62:7
+(65:33..65:36) scala/Int#
+(68:22..68:23) local6 -> 27:9
+(68:24..68:25) local41 -> 68:11
+(68:32..68:33) local10 -> 30:9
+(69:15..69:16) local42 -> 68:9
+(69:17..69:20) scala/Int#
+(71:3..71:12) _empty_/`i17222.4$package`.summonOne(). -> 15:12
+(71:13..71:16) _empty_/Box# -> 12:12
+(71:17..71:23) _empty_/Reader# -> 3:7
+(71:24..71:25) local46 -> 69:7
+(71:32..71:35) scala/Int#
+

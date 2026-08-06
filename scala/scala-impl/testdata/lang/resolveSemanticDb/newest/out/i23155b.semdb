@@ -1,0 +1,13 @@
+Document tests/pos/i23155b.scala
+(3:10..3:18) _empty_/Unpack_T. -> 1:8
+(3:32..3:37) local0 -> 3:19
+(5:19..5:22) scala/Int#
+(5:24..5:27) scala/Int#
+(5:31..5:35) scala/Some#
+(5:36..5:39) scala/Int#
+(5:40..5:42) scala/`*:`#
+(5:43..5:46) scala/Int#
+(5:47..5:49) scala/`*:`#
+(5:50..5:60) scala/Tuple$package.EmptyTuple#
+(5:64..5:67) scala/Predef.`???`().
+

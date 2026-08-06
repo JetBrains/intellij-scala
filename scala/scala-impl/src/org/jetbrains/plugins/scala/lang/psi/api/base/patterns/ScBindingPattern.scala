@@ -1,0 +1,140 @@
+package org.jetbrains.plugins.scala.lang.psi.api.base
+package patterns
+
+import com.intellij.navigation.NavigationItem
+import com.intellij.psi._
+import com.intellij.psi.javadoc.PsiDocComment
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.hasStablePath
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+
+import javax.swing.Icon
+
+trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem with PsiDocCommentOwner {
+
+  def isWildcard: Boolean = name == "_"
+
+  override def isStable: Boolean = {
+    val typedPattern = {
+      val parent =
+        ScalaPsiUtil
+          .stub(this)
+          .fold(this.getParent) {
+            stub => stub.getParentStub.getPsi
+          }
+      parent match {
+        case typedPattern: ScTypedPatternLike =>
+          typedPattern.typePattern
+        case _ => None
+      }
+    }
+    typedPattern match {
+      case Some(typeElement) =>
+        //for the case when type belongs to the pattern and not to the name context, example:
+        // var (v1: String, v2: 42) = ???
+        typeElement.typeElement.isSingleton
+      case None =>
+        nameContext match {
+          case v: ScValueOrVariable => v.isStable
+          case _                    => true
+        }
+    }
+  }
+
+  override def isVar: Boolean = nameContext.is[ScVariable]
+
+  override def isVal: Boolean = nameContext.is[ScValue]
+
+  def isClassMember: Boolean = nameContext.getContext match {
+    case _: ScTemplateBody | _: ScEarlyDefinitions => true
+    case _ => false
+  }
+
+  def isBeanProperty: Boolean = nameContext match {
+    case a: ScAnnotationsHolder => PropertyMethods.isBeanProperty(a)
+    case _ => false
+  }
+
+  def containingClass: ScTemplateDefinition = nameContext match {
+    case memb: ScMember => memb.containingClass
+    case _ => null
+  }
+
+  override def getOriginalElement: PsiElement = {
+    val ccontainingClass = containingClass
+    if (ccontainingClass == null) return this
+    val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]
+    if (ccontainingClass eq originalClass) return this
+    if (!originalClass.is[ScTypeDefinition]) return this
+    val c = originalClass.asInstanceOf[ScTypeDefinition]
+    val membersIterator = c.members.iterator
+    while (membersIterator.hasNext) {
+      val member = membersIterator.next()
+      member match {
+        case _: ScValue | _: ScVariable =>
+          val d = member.asInstanceOf[ScDeclaredElementsHolder]
+          val elemsIterator = d.declaredElements.iterator
+          while (elemsIterator.hasNext) {
+            val nextElem = elemsIterator.next()
+            if (nextElem.name == name) return nextElem
+          }
+        case _ =>
+      }
+    }
+    this
+  }
+
+  override def getDocComment: PsiDocComment = {
+    nameContext match {
+      case d: PsiDocCommentOwner => d.getDocComment
+      case _ => null
+    }
+  }
+
+  override def isDeprecated: Boolean = {
+    nameContext match {
+      case d: PsiDocCommentOwner => d.isDeprecated
+      case _ => false
+    }
+  }
+
+  override def getIcon(flags: Int): Icon = Icons.PATTERN_VAL
+
+  /**
+   * It's for Java only
+   */
+  override def getContainingClass: PsiClass = {
+    nameContext match {
+      case m: PsiMember => m.getContainingClass
+      case _ => null
+    }
+  }
+
+  override def getModifierList: PsiModifierList = {
+    nameContext match {
+      case owner: PsiModifierListOwner => owner.getModifierList
+      case _ => null
+    }
+  }
+
+  override def hasModifierProperty(name: String): Boolean = {
+    nameContext match {
+      case owner: PsiModifierListOwner => owner.hasModifierProperty(name)
+      case _ => false
+    }
+  }
+
+  override def aliasExport: Option[PsiNamedElement] =
+    if (!hasStablePath(this)) None
+    else `type`().toOption.collect {
+      case ScDesignatorType(o: ScObject) if o.name == name => o
+      case ScProjectionType(_, o: ScObject) if o.name == name => o
+    }
+}

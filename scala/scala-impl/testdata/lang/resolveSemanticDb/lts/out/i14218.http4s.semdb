@@ -1,0 +1,16 @@
+Document tests/pos/i14218.http4s.scala
+(6:20..6:23) _empty_/Bar# -> 4:13
+(6:24..6:25) _empty_/Bar.empty().[F] -> 6:13
+(6:33..6:36) _empty_/Bar# -> 4:13
+(6:37..6:44) scala/Nothing#
+(11:24..11:27) _empty_/Bar# -> 4:13
+(11:28..11:29) _empty_/Foo.apply().[F] -> 11:13
+(11:33..11:36) _empty_/Bar. -> 5:8
+(11:37..11:42) _empty_/Bar.empty(). -> 6:7
+(11:45..11:48) _empty_/Foo# -> 8:13
+(11:49..11:50) _empty_/Foo.apply().[F] -> 11:13
+(14:19..14:22) _empty_/Foo# -> 8:13
+(14:23..14:24) _empty_/Test#test().[F] -> 14:12
+(14:28..14:31) _empty_/Foo. -> 10:8
+(14:32..14:33) _empty_/Test#test().[F] -> 14:12
+

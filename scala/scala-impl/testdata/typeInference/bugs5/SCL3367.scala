@@ -1,0 +1,2 @@
+/*start*/new {}/*end*/
+//Object

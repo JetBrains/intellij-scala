@@ -1,0 +1,234 @@
+trait Document[Doc <: Document[Doc]]
+sealed trait Conversion[Doc, V]
+
+case class C[Doc <: Document[Doc]]() extends Conversion[Doc, Doc]
+
+def Test[Doc <: Document[Doc], V](conversion: Conversion[Doc, V]) =
+  conversion match
+    case C() | C() => ??? // error
+-----
+ScalaFile
+  ScTrait: Document
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Document')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Doc
+        PsiElement(identifier)('Doc')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Document[Doc]
+          SimpleType: Document
+            CodeReferenceElement: Document
+              PsiElement(identifier)('Document')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: Doc
+                CodeReferenceElement: Doc
+                  PsiElement(identifier)('Doc')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Conversion
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Conversion')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Doc
+        PsiElement(identifier)('Doc')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: V
+        PsiElement(identifier)('V')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Doc
+        PsiElement(identifier)('Doc')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Document[Doc]
+          SimpleType: Document
+            CodeReferenceElement: Document
+              PsiElement(identifier)('Document')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: Doc
+                CodeReferenceElement: Doc
+                  PsiElement(identifier)('Doc')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Conversion[Doc, Doc]
+            SimpleType: Conversion
+              CodeReferenceElement: Conversion
+                PsiElement(identifier)('Conversion')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Doc
+                  CodeReferenceElement: Doc
+                    PsiElement(identifier)('Doc')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Doc
+                  CodeReferenceElement: Doc
+                    PsiElement(identifier)('Doc')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: Doc
+        PsiElement(identifier)('Doc')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Document[Doc]
+          SimpleType: Document
+            CodeReferenceElement: Document
+              PsiElement(identifier)('Document')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: Doc
+                CodeReferenceElement: Doc
+                  PsiElement(identifier)('Doc')
+            PsiElement(])(']')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: V
+        PsiElement(identifier)('V')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: conversion
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('conversion')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Conversion[Doc, V]
+              SimpleType: Conversion
+                CodeReferenceElement: Conversion
+                  PsiElement(identifier)('Conversion')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Doc
+                    CodeReferenceElement: Doc
+                      PsiElement(identifier)('Doc')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: V
+                    CodeReferenceElement: V
+                      PsiElement(identifier)('V')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MatchStatement
+      ReferenceExpression: conversion
+        PsiElement(identifier)('conversion')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n    ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          CompositePattern
+            ConstructorPattern
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+              Pattern Argument List
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            ConstructorPattern
+              CodeReferenceElement: C
+                PsiElement(identifier)('C')
+              Pattern Argument List
+                PsiElement(()('(')
+                PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// error')

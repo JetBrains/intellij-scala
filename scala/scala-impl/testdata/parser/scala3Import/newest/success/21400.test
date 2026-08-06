@@ -1,0 +1,119 @@
+//> using options -Xkind-projector:underscores
+
+import scala.compiletime.ops.int.S
+
+type IndexOf[T <: Tuple, E] <: Int = T match
+  case E *: _  => 0
+  case _ *: es => 1 // S[IndexOf[es, E]]
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xkind-projector:underscores')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int.S
+        CodeReferenceElement: scala.compiletime.ops.int
+          CodeReferenceElement: scala.compiletime.ops
+            CodeReferenceElement: scala.compiletime
+              CodeReferenceElement: scala
+                PsiElement(identifier)('scala')
+              PsiElement(.)('.')
+              PsiElement(identifier)('compiletime')
+            PsiElement(.)('.')
+            PsiElement(identifier)('ops')
+          PsiElement(.)('.')
+          PsiElement(identifier)('int')
+        PsiElement(.)('.')
+        PsiElement(identifier)('S')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: IndexOf
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('IndexOf')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Tuple
+          CodeReferenceElement: Tuple
+            PsiElement(identifier)('Tuple')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(<:)('<:')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: T match
+  case E *: _  => 0
+  case _ *: es => 1
+      SimpleType: T
+        CodeReferenceElement: T
+          PsiElement(identifier)('T')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: E *: _
+            SimpleType: E
+              CodeReferenceElement: E
+                PsiElement(identifier)('E')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            TypeVariable: _
+              PsiElement(_)('_')
+          PsiWhiteSpace('  ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: 0
+            IntegerLiteral
+              PsiElement(integer)('0')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: _ *: es
+            TypeVariable: _
+              PsiElement(_)('_')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: *:
+              PsiElement(identifier)('*:')
+            PsiWhiteSpace(' ')
+            TypeVariable: es
+              PsiElement(identifier)('es')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: 1
+            IntegerLiteral
+              PsiElement(integer)('1')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// S[IndexOf[es, E]]')

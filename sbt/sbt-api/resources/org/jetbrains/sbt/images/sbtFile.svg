@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <g fill="none" fill-rule="evenodd">
+    <polygon fill="#9AA7B0" fill-opacity=".8" points="7 1 3 5 7 5"/>
+    <path fill="#9AA7B0" fill-opacity=".8" d="M9.15243264,14.9997 L3.0004,14.9997 L3.0004,5.9997 L8.0004,5.9997 L8.0004,0.9997 L13.0004,0.9997 L13.0004,6.9997 L13.0004,7.09963414 L8.56464745,8.28819045 L7.27055223,13.1178196 L9.15243264,14.9997 Z"/>
+    <polygon fill="#6C4139" fill-rule="nonzero" points="12.193 7.899 15.657 9.899 15.657 13.899 12.193 15.899 8.729 13.899 8.729 9.899" transform="rotate(15 12.193 11.899)"/>
+  </g>
+</svg>

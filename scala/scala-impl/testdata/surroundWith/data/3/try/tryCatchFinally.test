@@ -1,0 +1,11 @@
+class a:
+  <start>CNN<try>
+end a
+-----
+class a:
+  try
+    CNN
+  catch
+    case  =>
+  finally {}
+end a

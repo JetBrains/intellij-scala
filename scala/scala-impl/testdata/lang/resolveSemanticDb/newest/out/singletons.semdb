@@ -1,0 +1,12 @@
+Document tests/pos/singletons.scala
+(5:17..5:18) _empty_/Test.x. -> 4:7
+(6:14..6:15) _empty_/Test.y. -> 5:13
+(9:23..9:24) _empty_/Test.O. -> 8:10
+(9:25..9:26) _empty_/Test.O.x. -> 8:24
+(11:19..11:26) scala/Predef.println(+1).
+(12:14..12:15) _empty_/Test.a. -> 11:13
+(15:17..15:18) _empty_/Test.f(). -> 14:7
+(18:19..18:21) _empty_/Test.dc. -> 17:7
+(20:19..20:21) _empty_/Test.fc. -> 19:7
+(25:20..25:23) _empty_/Test.str. -> 24:7
+

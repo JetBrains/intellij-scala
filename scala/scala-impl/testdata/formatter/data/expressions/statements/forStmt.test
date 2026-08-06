@@ -1,0 +1,27 @@
+class a {
+  for (i <- 0 to 2)
+  List(i)
+  for (i <- 0 to 2)
+  yield i
+  for (i <- 0 to 2) yield {
+  i
+  }
+  for (i <- 0 to 2)
+  yield {
+  i
+  }
+}
+-----
+class a {
+  for (i <- 0 to 2)
+    List(i)
+  for (i <- 0 to 2)
+    yield i
+  for (i <- 0 to 2) yield {
+    i
+  }
+  for (i <- 0 to 2)
+    yield {
+      i
+    }
+}

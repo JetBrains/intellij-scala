@@ -1,0 +1,16 @@
+= <li/>;
+1;
+
+------
+= {=}
+white space in line { }
+XML_START_TAG_START {<}
+XML_NAME {li}
+XML_EMPTY_ELEMENT_END {/>}
+; {;}
+white space in line {
+}
+integer {1}
+; {;}
+white space in line {
+}

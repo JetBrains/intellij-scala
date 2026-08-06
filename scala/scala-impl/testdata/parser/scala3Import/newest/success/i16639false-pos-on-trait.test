@@ -1,0 +1,135 @@
+// scalac -Wunsued:all
+//Avoid warning on setter in trait Regression test : issue10154 scala
+
+trait T {
+  private var x: String = _
+
+  def y: String = {
+    if (x eq null) x = "hello, world"
+    x
+  }
+}
+
+/*
+➜  skalac -version
+Scala compiler version 2.13.10-20220920-001308-98972e5 -- Copyright 2002-2022, LAMP/EPFL and Lightbend, Inc.
+
+➜  skalac -d /tmp -Wunused -Vprint:typer t12646.scala
+t12646.scala:3: warning: parameter value x_= in variable x is never used
+  private var x: String = _
+              ^
+[[syntax trees at end of                     typer]] // t12646.scala
+package <empty> {
+  abstract trait T extends scala.AnyRef {
+    def /*T*/$init$(): Unit = {
+      ()
+    };
+    <accessor> private val x: String = _;
+    <accessor> private def x_=(x$1: String): Unit;
+    def y: String = {
+      if (T.this.x.eq(null))
+        T.this.x_=("hello, world")
+      else
+        ();
+      T.this.x
+    }
+  }
+}
+
+1 warning
+*/
+-----
+ScalaFile
+  PsiComment(comment)('// scalac -Wunsued:all')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//Avoid warning on setter in trait Regression test : issue10154 scala')
+  PsiWhiteSpace('\n\n')
+  ScTrait: T
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('T')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScVariableDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(var)('var')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          UnderscoreSection
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: y
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('y')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            IfStatement
+              PsiElement(if)('if')
+              PsiWhiteSpace(' ')
+              PsiElement(()('(')
+              InfixExpression
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: eq
+                  PsiElement(identifier)('eq')
+                PsiWhiteSpace(' ')
+                NullLiteral
+                  PsiElement(null)('null')
+              PsiElement())(')')
+              PsiWhiteSpace(' ')
+              AssignStatement
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"hello, world"')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  PsiComment(BlockComment)('/*\n➜  skalac -version\nScala compiler version 2.13.10-20220920-001308-98972e5 -- Copyright 2002-2022, LAMP/EPFL and Lightbend, Inc.\n\n➜  skalac -d /tmp -Wunused -Vprint:typer t12646.scala\nt12646.scala:3: warning: parameter value x_= in variable x is never used\n  private var x: String = _\n              ^\n[[syntax trees at end of                     typer]] // t12646.scala\npackage <empty> {\n  abstract trait T extends scala.AnyRef {\n    def /*T*/$init$(): Unit = {\n      ()\n    };\n    <accessor> private val x: String = _;\n    <accessor> private def x_=(x$1: String): Unit;\n    def y: String = {\n      if (T.this.x.eq(null))\n        T.this.x_=("hello, world")\n      else\n        ();\n      T.this.x\n    }\n  }\n}\n\n1 warning\n*/')

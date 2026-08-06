@@ -1,0 +1,9 @@
+class a {
+  abacaba(daba,
+  caba)
+}
+------
+class a {
+  abacaba(daba,
+    caba)
+}

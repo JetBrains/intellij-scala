@@ -1,0 +1,37 @@
+{
+  key = value
+  kye : vlaue
+}
+-----
+HOCON_FILE
+  HObject(OBJECT)
+    PsiElement(LBRACE)('{')
+    HObjectEntries(OBJECT_ENTRIES)
+      PsiWhiteSpace('\n  ')
+      HObjectField(OBJECT_FIELD)
+        HValuedField(VALUED_FIELD)
+          HKey(KEY)
+            HKeyPart(KEY_PART)
+              HUnquotedString(UNQUOTED_STRING)
+                PsiElement(UNQUOTED_CHARS)('key')
+          PsiWhiteSpace(' ')
+          PsiElement(EQUALS)('=')
+          PsiWhiteSpace(' ')
+          HStringValue(STRING_VALUE)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('value')
+      PsiWhiteSpace('\n  ')
+      HObjectField(OBJECT_FIELD)
+        HValuedField(VALUED_FIELD)
+          HKey(KEY)
+            HKeyPart(KEY_PART)
+              HUnquotedString(UNQUOTED_STRING)
+                PsiElement(UNQUOTED_CHARS)('kye')
+          PsiWhiteSpace(' ')
+          PsiElement(COLON)(':')
+          PsiWhiteSpace(' ')
+          HStringValue(STRING_VALUE)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('vlaue')
+      PsiWhiteSpace('\n')
+    PsiElement(RBRACE)('}')

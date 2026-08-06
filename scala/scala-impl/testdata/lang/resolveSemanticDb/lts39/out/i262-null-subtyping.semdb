@@ -1,0 +1,22 @@
+Document tests/pos/i262-null-subtyping.scala
+(2:22..2:25) scala/Any#
+(3:10..3:14) _empty_/O.Base# -> 2:9
+(4:10..4:13) scala/Any#
+(4:19..4:23) _empty_/O.Base# -> 2:9
+(6:10..6:16) scala/AnyRef#
+(6:22..6:26) _empty_/O.Base# -> 2:9
+(11:10..11:11) _empty_/O.A# -> 8:9
+(11:12..11:13) scala/`&`#
+(11:14..11:15) _empty_/O.B# -> 9:9
+(12:10..12:11) _empty_/O.A# -> 8:9
+(12:12..12:13) scala/`|`#
+(12:14..12:15) _empty_/O.B# -> 9:9
+(14:11..14:12) _empty_/O.A# -> 8:9
+(14:13..14:14) scala/`&`#
+(14:15..14:16) _empty_/O.B# -> 9:9
+(14:34..14:40) scala/Predef.String#
+(15:11..15:12) _empty_/O.A# -> 8:9
+(15:13..15:14) scala/`|`#
+(15:15..15:16) _empty_/O.B# -> 9:9
+(15:34..15:40) scala/Predef.String#
+

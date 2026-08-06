@@ -1,0 +1,43 @@
+class AtTheBeginning
+class AfterNewLine
+  class AfterSpace
+;class AfterSemicolon
+}class AfterRightBrace
+aclass AfterLetter
+_class AfterSymbol
+-----
+class {class}
+white space in line { }
+class identifier {AtTheBeginning}
+white space in line {
+}
+class {class}
+white space in line { }
+class identifier {AfterNewLine}
+white space in line {
+  }
+class {class}
+white space in line { }
+class identifier {AfterSpace}
+white space in line {
+}
+; {;}
+class {class}
+white space in line { }
+class identifier {AfterSemicolon}
+white space in line {
+}
+} {}}
+class {class}
+white space in line { }
+class identifier {AfterRightBrace}
+white space in line {
+}
+identifier {aclass}
+white space in line { }
+identifier {AfterLetter}
+white space in line {
+}
+identifier {_class}
+white space in line { }
+identifier {AfterSymbol}

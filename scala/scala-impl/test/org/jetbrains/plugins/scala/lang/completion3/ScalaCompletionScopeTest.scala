@@ -1,0 +1,76 @@
+package org.jetbrains.plugins.scala.lang.completion3
+
+import com.intellij.psi.{PsiMember, PsiNamedElement, PsiPackage}
+import org.jetbrains.plugins.scala.lang.completion.isAccessible
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class ScalaCompletionScopeTest extends ScalaCompletionTestBase {
+
+  import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, PsiElementExt}
+
+  @Test
+  def testBasicCompletion0(): Unit = checkCompletionsAreInScopeAndAccessible("File", 0)
+
+  @Test
+  def testBasicCompletion1(): Unit = checkCompletionsAreInScopeAndAccessible("File", 1)
+
+  @Test
+  def testBasicCompletion2(): Unit = checkCompletionsAreInScopeAndAccessible("File", 2)
+
+  @Test
+  def testTypeCompletion1(): Unit = checkCompletionsAreInScopeAndAccessible("null: ", 1)
+
+  @Test
+  def testTypeCompletion2(): Unit = checkCompletionsAreInScopeAndAccessible("null: ", 2)
+
+  @Test
+  def testAfterDotCompletion1(): Unit = checkCompletionsAreInScopeAndAccessible("\"\".", 1)
+
+  @Test
+  def testAfterDotCompletion2(): Unit = checkCompletionsAreInScopeAndAccessible("\"\".", 2)
+
+  @Test
+  def testBasicCompletion1EmptyPrefix(): Unit = checkCompletionsAreInScopeAndAccessible("", 1)
+
+  private def checkCompletionsAreInScopeAndAccessible(prefix: String, invocationCount: Int): Unit = {
+    val scope = getModule.getModuleWithDependenciesAndLibrariesScope(true)
+
+    val (lookup, items) = activeLookupWithItems(
+      fileText =
+        s"""object A {
+           |  $prefix$CARET
+           |}""".stripMargin,
+      invocationCount = invocationCount
+    )
+
+    val namedElements = for {
+      item <- items
+      itemElement = item.getPsiElement
+
+      if (itemElement match {
+        case _: SyntheticNamedElement |
+             _: PsiPackage => false
+        case _: PsiNamedElement => true
+        case _ => false
+      })
+    } yield itemElement.asInstanceOf[PsiNamedElement]
+
+    assertTrue(namedElements.nonEmpty)
+
+    for {
+      element <- namedElements
+      file <- element.containingVirtualFile
+    } assertTrue("Module scope doesn't contain element from " + file.getCanonicalPath, scope.contains(file))
+
+    for {
+      element <- namedElements
+      if invocationCount <= 1 && element.isInstanceOf[PsiMember]
+
+      member = element.asInstanceOf[PsiMember]
+      name = member.qualifiedNameOpt.getOrElse(member.getName)
+    } assertTrue(name + " is not accessible", isAccessible(member)(lookup.getPsiElement))
+  }
+}

@@ -1,0 +1,36 @@
+Document tests/pos/i21239.alt.scala
+(10:8..10:12) java/
+(10:13..10:17) java/util/
+(10:18..10:28) java/util/concurrent/
+(10:29..10:35) java/util/concurrent/atomic/
+(10:36..10:51) java/util/concurrent/atomic/AtomicReference#
+(14:27..14:42) java/util/concurrent/atomic/AtomicReference#
+(14:43..14:49) scala/AnyRef#
+(15:25..15:32) lib/WormOps# -> 20:9
+(16:27..16:31) lib/Worms.Worm# -> 14:17
+(16:32..16:33) lib/Worms.Worm.wormAsAtomic().[V] -> 16:18
+(17:34..17:49) java/util/concurrent/atomic/AtomicReference#
+(17:50..17:56) scala/AnyRef#
+(17:60..17:64) lib/Worms.Worm.wormAsAtomic().(worm) -> 16:21
+(19:10..19:15) lib/Worms. -> 13:10
+(19:16..19:20) lib/Worms.Worm. -> 15:12
+(21:25..21:29) lib/Worms.Worm# -> 14:17
+(21:30..21:31) lib/WormOps#get().[V] -> 21:16
+(21:30..21:31) lib/WormOps#get2().[V] -> 21:16
+(22:16..22:17) lib/WormOps#get().[V] -> 21:16
+(22:21..22:25) lib/WormOps#get().(worm) -> 21:19
+(22:26..22:38) lib/Worms.Worm.wormAsAtomic(). -> 17:20
+(22:39..22:42) java/util/concurrent/atomic/AtomicReference#get().
+(22:45..22:57) scala/Any#asInstanceOf().
+(22:58..22:59) lib/WormOps#get().[V] -> 21:16
+(23:17..23:18) lib/WormOps#get2().[V] -> 21:16
+(23:21..23:24) lib/WormOps#get(). -> 22:11
+(26:10..26:13) lib/ -> 12:9
+(26:14..26:19) lib/Worms. -> 13:10
+(26:20..26:24) lib/Worms.Worm. -> 15:12
+(28:21..28:25) lib/Worms.Worm# -> 14:17
+(28:26..28:32) scala/Predef.String#
+(28:36..28:42) scala/Predef.String#
+(28:45..28:49) test/Test.usage().(worm) -> 28:15
+(28:50..28:54) lib/WormOps#get2(). -> 23:11
+

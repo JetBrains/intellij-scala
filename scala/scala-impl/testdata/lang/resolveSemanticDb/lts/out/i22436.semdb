@@ -1,0 +1,10 @@
+Document tests/pos/i22436/atest.scala
+(2:26..2:43) _empty_/ProtocolTransport# -> 6:7
+(2:46..2:50) scala/Unit#
+(2:53..2:56) scala/Predef.`???`().
+
+Document tests/pos/i22436/defs.scala
+(3:8..3:25) _empty_/ProtocolTransport. -> 1:8
+(5:2..5:12) scala/annotation/
+(5:13..5:19) scala/annotation/nowarn#
+

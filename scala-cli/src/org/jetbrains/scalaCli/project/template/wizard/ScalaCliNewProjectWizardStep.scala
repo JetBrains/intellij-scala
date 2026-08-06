@@ -1,0 +1,123 @@
+package org.jetbrains.scalaCli.project.template.wizard
+
+import com.intellij.ide.projectWizard.NewProjectWizardCollector
+import com.intellij.ide.wizard.{AbstractNewProjectWizardStep, CommitStepException}
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
+import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
+import com.intellij.openapi.observable.properties.{GraphProperty, ObservableProperty, PropertyGraph}
+import com.intellij.openapi.observable.util.BindUtil
+import com.intellij.openapi.project.Project
+import com.intellij.ui.UIBundle
+import com.intellij.ui.dsl.builder.{ButtonKt, Panel, Row, TopGap}
+import com.intellij.util.SystemProperties
+import org.jetbrains.annotations.TestOnly
+import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
+import org.jetbrains.plugins.scala.project.Versions
+import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
+import org.jetbrains.sbt.project.template.wizard.buildSystem.{ScalaNewProjectWizardData, ScalaSampleCodeNewProjectWizardData, addScalaSampleCode}
+import org.jetbrains.sbt.project.template.wizard.ScalaVersionStepLike.{MinSupportedScala3Version, filterScala2OrSupportedScala3Versions}
+import org.jetbrains.sbt.project.template.wizard.{ScalaNewProjectWizardMultiStep, ScalaVersionStepLike}
+import org.jetbrains.scalaCli.project.importing.ScalaCliConfigSetup
+import org.jetbrains.scalaCli.{ScalaCliBundle, ScalaCliUtils}
+
+import java.nio.file.Path
+import javax.swing.JLabel
+import kotlin.Unit.{INSTANCE => KUnit}
+
+/** inspired by [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard]] */
+final class ScalaCliNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
+  extends AbstractNewProjectWizardStep(parent)
+    with ScalaNewProjectWizardData
+    with ScalaSampleCodeNewProjectWizardData
+    with ScalaVersionStepLike {
+
+  override protected val defaultAvailableScalaVersions: Seq[String] =
+    filterAvailableScalaVersions(Versions.Scala.allHardcodedVersions.map(_.presentation))
+
+  override protected def filterAvailableScalaVersions(scalaVersions: Seq[String]): Seq[String] =
+    filterScala2OrSupportedScala3Versions(scalaVersions, MinSupportedScala3Version)
+
+  @inline private def propertyGraph: PropertyGraph = getPropertyGraph
+
+  private val moduleNameProperty: GraphProperty[String] = propertyGraph.lazyProperty(() => parent.getName)
+  private def getModuleName: String = moduleNameProperty.get()
+
+  private val addSampleCodeProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
+  BindUtil.bindBooleanStorage(addSampleCodeProperty, "NewProjectWizard.addSampleCodeState")
+  private def needToAddSampleCode: Boolean = addSampleCodeProperty.get()
+
+  @TestOnly override def setScalaVersion(version: String): Unit = scalaVersionComboBox.setSelectedItemEnsuring(version)
+  @TestOnly override def setUseIndentationBasedSyntax(use: Boolean): Unit = setUseIndentationBasedSyntaxProperty(use)
+  @TestOnly override def availableScalaVersions: Seq[String] = availableScalaVersionsForTests
+  @TestOnly override def setAddSampleCode(value: java.lang.Boolean): Unit = addSampleCodeProperty.set(value)
+
+  locally {
+    moduleNameProperty.dependsOn(parent.getNameProperty: ObservableProperty[String], (() => parent.getName): kotlin.jvm.functions.Function0[? <: String])
+
+    getData.putUserData(ScalaNewProjectWizardData.KEY, this)
+    getData.putUserData(ScalaSampleCodeNewProjectWizardData.KEY, this)
+  }
+
+  override def setupProject(project: Project): Unit = {
+    val builder = new ScalaCliModuleBuilder(this.selections)
+    builder.setName(getModuleName)
+    val projectRoot = getContext.getProjectDirectory.toAbsolutePath
+    builder.setContentEntryPath(projectRoot.toString)
+
+    ExternalProjectsManagerImpl.setupCreatedProject(project)
+    /** NEWLY_CREATED_PROJECT must be set up to prevent the call of markDirtyAllExternalProjects in ExternalProjectsDataStorage#load.
+     * As a result, NEWLY_IMPORTED_PROJECT must also be set to keep the same behaviour as before in ExternalSystemStartupActivity.kt:48 (do not call ExternalSystemUtil#refreshProjects).
+     * Similar thing is done in AbstractGradleModuleBuilder#setupModule */
+    project.putUserData(ExternalSystemDataKeys.NEWLY_CREATED_PROJECT, java.lang.Boolean.TRUE)
+    project.putUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT, java.lang.Boolean.TRUE)
+
+    setupUseIndentationBasedSyntaxInProject(project)
+
+    if (needToAddSampleCode) {
+      val files = addScalaSampleCode(
+        project,
+        projectRoot.toString,
+        isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")),
+        packagePrefix = None,
+        withOnboardingTips = false
+      )
+      builder.openFileEditorAfterProjectOpened = files
+    }
+
+    builder.commit(project)
+
+    val setup = new ScalaCliConfigSetup(projectRoot)
+    val task = new BspConfigSetupTask(setup)
+    task.queue()
+  }
+
+  override def setupUI(panel: Panel): Unit = {
+    panel.onApply(() => {
+      val installationPath =
+        if (ApplicationManager.getApplication.isUnitTestMode)
+          getContext.getProjectDirectory.resolve(moduleNameProperty.get())
+        else
+          Path.of(SystemProperties.getUserHome)
+      val isScalaCliInstalled = ScalaCliUtils.isScalaCliInstalled(installationPath)
+      if (!isScalaCliInstalled) {
+        throw new CommitStepException(ScalaCliBundle.message("scala.cli.not.installed"))
+      }
+      KUnit
+    })
+
+    setUpScalaUI(panel, downloadSourcesCheckbox = false)
+
+    panel.row(null: JLabel, (row: Row) => {
+      val cb = row.checkBox(UIBundle.message("label.project.wizard.new.project.add.sample.code"))
+      ButtonKt.bindSelected(cb, addSampleCodeProperty: com.intellij.openapi.observable.properties.ObservableMutableProperty[java.lang.Boolean])
+      ButtonKt.whenStateChangedFromUi(cb, null, value => {
+        NewProjectWizardCollector.Base.INSTANCE.logAddSampleCodeChanged(parent, value)
+        KUnit
+      })
+      KUnit
+    }).topGap(TopGap.SMALL)
+
+    initSelectionsAndUi(getContext.getDisposable)
+  }
+}

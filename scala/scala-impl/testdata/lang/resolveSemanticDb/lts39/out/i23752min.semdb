@@ -1,0 +1,6 @@
+Document tests/pos/i23752min.scala
+(5:10..5:24) _empty_/i23752min$package.MyOutputAlias2# -> 2:6
+(5:25..5:31) scala/Predef.String#
+(5:35..5:38) scala/Predef.`???`().
+(7:2..7:6) scala/main#
+

@@ -1,0 +1,6 @@
+Document tests/pos/i8573.scala
+(2:25..2:26) _empty_/Example1.Foo#[A] -> 2:19
+(2:29..2:30) _empty_/Example1.Foo#[A] -> 2:19
+(6:25..6:26) _empty_/Example2.Foo#[A] -> 6:19
+(6:29..6:30) _empty_/Example2.Foo#[A] -> 6:19
+

@@ -1,0 +1,33 @@
+Document tests/pos/i24689b.scala
+(5:14..5:15) _empty_/B# -> 2:7
+(5:19..5:23) scala/Unit#
+(5:27..5:30) scala/Predef.`???`().
+(6:20..6:21) _empty_/A# -> 1:7
+(6:24..6:28) scala/Unit#
+(7:5..7:8) _empty_/Test1.foo(). -> 5:7
+(7:15..7:23) _empty_/Test1.transfer(+1). -> 10:7
+(7:24..7:26) local0 -> 7:9
+(8:5..8:8) _empty_/Test1.foo(). -> 5:7
+(8:9..8:17) _empty_/Test1.transfer(+1). -> 10:7
+(9:5..9:8) _empty_/Test1.foo(). -> 5:7
+(9:9..9:17) _empty_/Test1.transfer(+1). -> 10:7
+(10:20..10:21) _empty_/B# -> 2:7
+(10:24..10:28) scala/Unit#
+(10:31..10:34) scala/Predef.`???`().
+(13:17..13:18) _empty_/B# -> 2:7
+(13:22..13:26) scala/Unit#
+(13:32..13:33) _empty_/Test2.foo().[T] -> 13:11
+(13:37..13:40) scala/Predef.`???`().
+(14:20..14:21) _empty_/A# -> 1:7
+(14:24..14:28) scala/Unit#
+(15:5..15:8) _empty_/Test2.foo(). -> 13:7
+(15:15..15:23) _empty_/Test2.transfer(+1). -> 18:7
+(15:24..15:26) local2 -> 15:9
+(16:5..16:8) _empty_/Test2.foo(). -> 13:7
+(16:9..16:17) _empty_/Test2.transfer(+1). -> 18:7
+(17:5..17:8) _empty_/Test2.foo(). -> 13:7
+(17:9..17:17) _empty_/Test2.transfer(+1). -> 18:7
+(18:20..18:21) _empty_/B# -> 2:7
+(18:24..18:28) scala/Unit#
+(18:31..18:34) scala/Predef.`???`().
+

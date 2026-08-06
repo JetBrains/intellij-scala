@@ -1,0 +1,25 @@
+class A {
+  def test(b: Boolean): Unit = {
+    if (b)
+      //comment 1
+
+      //comment 2
+
+      println(<selection>"yes"</selection>)
+    else println("no")
+  }
+}
+-------
+class A {
+  def test(b: Boolean): Unit = {
+    if (b) {
+      //comment 1
+
+      //comment 2
+
+      val value: String = "yes"
+      println(value)
+    }
+    else println("no")
+  }
+}

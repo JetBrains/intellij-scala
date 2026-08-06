@@ -1,0 +1,7 @@
+class a:
+  <start>false<else_cond>
+end a
+-----
+class a:
+  if false then {} else {}
+end a

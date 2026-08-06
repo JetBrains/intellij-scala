@@ -1,0 +1,79 @@
+Document tests/pos/phantom-Eq2/Phantom-Eq_1.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:53) scala/language.experimental.erasedDefinitions.
+(2:8..2:13) scala/
+(2:14..2:24) scala/annotation/
+(2:25..2:39) scala/annotation/publicInBinary#
+(7:34..7:48) scala/annotation/publicInBinary#
+(8:25..8:34) _empty_/EqUtil.PhantomEq# -> 7:15
+(8:35..8:36) _empty_/EqUtil.PhantomEqEq#[T] -> 8:20
+(8:38..8:39) _empty_/EqUtil.PhantomEqEq#[T] -> 8:20
+(10:20..10:21) _empty_/EqUtil.`===`().[T] -> 10:14
+(11:20..11:21) _empty_/EqUtil.`===`().[U] -> 11:13
+(11:37..11:46) _empty_/EqUtil.PhantomEq# -> 7:15
+(11:47..11:48) _empty_/EqUtil.`===`().[T] -> 10:14
+(11:50..11:51) _empty_/EqUtil.`===`().[U] -> 11:13
+(11:56..11:57) _empty_/EqUtil.`===`().(x) -> 10:17
+(11:58..11:64) scala/Any#equals().
+(11:65..11:66) _empty_/EqUtil.`===`().(y) -> 11:17
+(13:26..13:37) _empty_/EqUtil.PhantomEqEq# -> 8:8
+(13:38..13:44) scala/Predef.String#
+(13:52..13:61) _empty_/EqUtil.PhantomEq# -> 7:15
+(13:62..13:68) scala/Predef.String#
+(13:70..13:76) scala/Predef.String#
+(14:23..14:34) _empty_/EqUtil.PhantomEqEq# -> 8:8
+(14:35..14:38) scala/Int#
+(14:52..14:61) _empty_/EqUtil.PhantomEq# -> 7:15
+(14:62..14:65) scala/Int#
+(14:67..14:70) scala/Int#
+(15:26..15:37) _empty_/EqUtil.PhantomEqEq# -> 8:8
+(15:38..15:44) scala/Double#
+(15:52..15:61) _empty_/EqUtil.PhantomEq# -> 7:15
+(15:62..15:68) scala/Double#
+(15:70..15:76) scala/Double#
+(16:27..16:36) _empty_/EqUtil.PhantomEq# -> 7:15
+(16:37..16:41) scala/Byte#
+(16:43..16:49) java/lang/Number#
+(16:57..16:66) _empty_/EqUtil.PhantomEq# -> 7:15
+(16:67..16:71) scala/Byte#
+(16:73..16:79) java/lang/Number#
+(17:27..17:36) _empty_/EqUtil.PhantomEq# -> 7:15
+(17:37..17:43) java/lang/Number#
+(17:45..17:49) scala/Byte#
+(17:57..17:66) _empty_/EqUtil.PhantomEq# -> 7:15
+(17:67..17:73) java/lang/Number#
+(17:75..17:79) scala/Byte#
+(18:45..18:54) _empty_/EqUtil.PhantomEq# -> 7:15
+(18:55..18:56) _empty_/EqUtil.eqSeq().[T] -> 18:24
+(18:58..18:59) _empty_/EqUtil.eqSeq().[U] -> 18:27
+(18:65..18:74) _empty_/EqUtil.PhantomEq# -> 7:15
+(18:75..18:78) scala/package.Seq#
+(18:79..18:80) _empty_/EqUtil.eqSeq().[T] -> 18:24
+(18:83..18:86) scala/package.Seq#
+(18:87..18:88) _empty_/EqUtil.eqSeq().[U] -> 18:27
+(19:9..19:18) _empty_/EqUtil.PhantomEq# -> 7:15
+(19:19..19:22) scala/package.Seq#
+(19:23..19:24) _empty_/EqUtil.eqSeq().[T] -> 18:24
+(19:27..19:30) scala/package.Seq#
+(19:31..19:32) _empty_/EqUtil.eqSeq().[U] -> 18:27
+
+Document tests/pos/phantom-Eq2/Phantom-Eq_2.scala
+(5:10..5:16) _empty_/EqUtil. -> 5:8
+(7:9..7:12) _empty_/EqUtil.`===`(). -> 11:9
+(8:5..8:8) _empty_/EqUtil.`===`(). -> 11:9
+(9:7..9:10) _empty_/EqUtil.`===`(). -> 11:9
+(11:3..11:7) scala/package.List.
+(11:14..11:17) _empty_/EqUtil.`===`(). -> 11:9
+(11:18..11:21) scala/package.Nil.
+(12:3..12:7) scala/package.List.
+(12:14..12:17) _empty_/EqUtil.`===`(). -> 11:9
+(12:18..12:24) scala/package.Vector.
+(14:5..14:11) scala/Int#toByte().
+(14:12..14:15) _empty_/EqUtil.`===`(). -> 11:9
+(14:20..14:26) java/lang/Number#
+(15:7..15:13) java/lang/Number#
+(15:15..15:18) _empty_/EqUtil.`===`(). -> 11:9
+(15:21..15:27) scala/Int#toByte().
+

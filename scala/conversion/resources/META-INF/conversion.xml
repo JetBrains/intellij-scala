@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<idea-plugin>
+
+    <extensions defaultExtensionNs="com.intellij">
+
+        <copyPastePostProcessor
+                implementation="org.jetbrains.plugins.scala.conversion.copy.JavaCopyPastePostProcessor"/>
+        <copyPastePostProcessor
+                implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor"/>
+        <copyPastePostProcessor
+                implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor"/>
+
+        <filePasteProvider implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider"
+                           id="scalaFilePasteProvider"
+                           order="first"/>
+    </extensions>
+
+    <actions>
+        <!--suppress PluginXmlCapitalization -->
+        <action id="Scala.RenameJavaToScala" class="org.jetbrains.plugins.scala.conversion.ConvertJavaToScalaAction">
+            <add-to-group group-id="RefactoringMenu" anchor="last"/>
+            <add-to-group group-id="EditorTabPopupMenu" anchor="last"/>
+            <keyboard-shortcut first-keystroke="control shift G" keymap="$default"/>
+        </action>
+    </actions>
+</idea-plugin>

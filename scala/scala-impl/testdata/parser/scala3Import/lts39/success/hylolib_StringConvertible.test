@@ -1,0 +1,103 @@
+package hylo
+
+/** A type whose instances can be described by a character string. */
+trait StringConvertible:
+  type Self
+
+  /** Returns a textual description of `self`. */
+  extension (self: Self)
+    def description: String = self.toString
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: hylo
+      PsiElement(identifier)('hylo')
+    PsiWhiteSpace('\n\n')
+    ScTrait: StringConvertible
+      DocComment
+        ScPsiDocToken(DOC_COMMENT_START)('/**')
+        ScDocParagraph
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+          ScPsiDocToken(DOC_COMMENT_DATA)('A type whose instances can be described by a character string.')
+          ScPsiDocToken(DOC_WHITESPACE)(' ')
+        ScPsiDocToken(DOC_COMMENT_END)('*/')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('StringConvertible')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDeclaration: Self
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Self')
+          PsiWhiteSpace('\n\n  ')
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('Returns a textual description of ')
+              DocSyntaxElement 8
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+                ScPsiDocToken(DOC_COMMENT_DATA)('self')
+                ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+              ScPsiDocToken(DOC_COMMENT_DATA)('.')
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          Extension on Self
+            PsiElement(extension)('extension')
+            PsiWhiteSpace(' ')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                Parameter: self
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(identifier)('self')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  ParameterType
+                    SimpleType: Self
+                      CodeReferenceElement: Self
+                        PsiElement(identifier)('Self')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScExtensionBody
+              ScFunctionDefinition: description
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('description')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: self.toString
+                  ReferenceExpression: self
+                    PsiElement(identifier)('self')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('toString')

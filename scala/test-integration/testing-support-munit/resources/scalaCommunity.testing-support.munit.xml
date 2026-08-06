@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin visibility="public">
+    <dependencies>
+        <plugin id="JUnit"/>
+        <module name="scalaCommunity.testing-support"/>
+        <module name="intellij.platform.smRunner"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitTestFramework"/>
+
+        <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfigurationType"/>
+
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfigurationProducer"/>
+    </extensions>
+</idea-plugin>

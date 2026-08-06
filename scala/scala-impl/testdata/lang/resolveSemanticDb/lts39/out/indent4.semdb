@@ -1,0 +1,26 @@
+Document tests/pos/indent4.scala
+(5:5..5:12) scala/Predef.println(+1).
+(5:13..5:14) local0 -> 4:9
+(9:5..9:12) scala/Predef.println(+1).
+(9:13..9:14) local1 -> 8:9
+(11:13..11:17) scala/package.List.
+(12:13..12:14) local2 -> 11:8
+(13:5..13:12) scala/Predef.println(+1).
+(13:13..13:14) local3 -> 12:9
+(15:14..15:18) scala/package.List.
+(16:13..16:14) local4 -> 15:9
+(17:5..17:12) scala/Predef.println(+1).
+(17:13..17:14) local5 -> 16:9
+(20:10..20:14) scala/package.List.
+(22:13..22:14) local6 -> 20:5
+(23:5..23:12) scala/Predef.println(+1).
+(23:13..23:14) local7 -> 22:9
+(26:6..26:13) scala/Predef.println(+1).
+(28:12..28:16) scala/package.List.
+(29:6..29:13) scala/Predef.println(+1).
+(29:14..29:15) local8 -> 28:7
+(32:6..32:13) scala/Predef.println(+1).
+(34:13..34:17) scala/package.List.
+(35:6..35:13) scala/Predef.println(+1).
+(35:14..35:15) local9 -> 34:8
+

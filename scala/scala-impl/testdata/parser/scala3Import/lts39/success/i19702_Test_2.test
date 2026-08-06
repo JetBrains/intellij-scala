@@ -1,0 +1,48 @@
+@main def hello =
+  test.$.test()
+
+  println("?")
+-----
+ScalaFile
+  ScFunctionDefinition: hello
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('hello')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: test.$.test
+          ReferenceExpression: test.$
+            ReferenceExpression: test
+              PsiElement(identifier)('test')
+            PsiElement(.)('.')
+            PsiElement(identifier)('$')
+          PsiElement(.)('.')
+          PsiElement(identifier)('test')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')
+      PsiWhiteSpace('\n\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          StringLiteral
+            PsiElement(string content)('"?"')
+          PsiElement())(')')

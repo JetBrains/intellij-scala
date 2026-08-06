@@ -1,0 +1,41 @@
+Document tests/pos/flow.scala
+(2:20..2:27) _empty_/FlowOps# -> 1:7
+(2:28..2:29) _empty_/FlowOps#Repr#[O] -> 2:14
+(5:31..5:38) _empty_/FlowOps# -> 1:7
+(5:39..5:42) _empty_/Flow#[Out] -> 5:18
+(6:29..6:33) _empty_/Flow# -> 5:7
+(6:34..6:36) _empty_/Flow#[In] -> 5:13
+(6:38..6:39) _empty_/Flow#Repr#[O] -> 6:23
+(7:17..7:20) _empty_/Flow#[Out] -> 5:18
+(7:24..7:25) _empty_/Flow#map().[T] -> 7:11
+(7:28..7:32) _empty_/Flow#Repr# -> 6:17
+(7:33..7:34) _empty_/Flow#map().[T] -> 7:11
+(11:17..11:21) scala/Unit#
+(12:12..12:16) _empty_/Flow# -> 5:7
+(12:17..12:23) scala/Predef.String#
+(12:25..12:31) scala/Predef.String#
+(13:8..13:11) _empty_/Flow#map(). -> 7:7
+(13:17..13:18) local0 -> 13:12
+(14:8..14:11) _empty_/Flow#map(). -> 7:7
+(14:17..14:18) local1 -> 14:12
+(15:8..15:11) _empty_/Flow#map(). -> 7:7
+(15:17..15:18) local2 -> 15:12
+(16:8..16:11) _empty_/Flow#map(). -> 7:7
+(16:17..16:18) local3 -> 16:12
+(17:8..17:11) _empty_/Flow#map(). -> 7:7
+(17:17..17:18) local4 -> 17:12
+(18:8..18:11) _empty_/Flow#map(). -> 7:7
+(18:17..18:18) local5 -> 18:12
+(19:8..19:11) _empty_/Flow#map(). -> 7:7
+(19:17..19:18) local6 -> 19:12
+(20:8..20:11) _empty_/Flow#map(). -> 7:7
+(20:17..20:18) local7 -> 20:12
+(21:8..21:11) _empty_/Flow#map(). -> 7:7
+(21:17..21:18) local8 -> 21:12
+(22:8..22:11) _empty_/Flow#map(). -> 7:7
+(22:17..22:18) local9 -> 22:12
+(23:8..23:11) _empty_/Flow#map(). -> 7:7
+(23:17..23:18) local10 -> 23:12
+(24:8..24:11) _empty_/Flow#map(). -> 7:7
+(24:17..24:18) local11 -> 24:12
+

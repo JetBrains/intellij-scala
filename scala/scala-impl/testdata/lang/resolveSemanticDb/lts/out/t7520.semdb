@@ -1,0 +1,9 @@
+Document tests/pos/t7520.scala
+(2:10..2:19) scala/Singleton#
+(3:22..3:23) _empty_/A#x. -> 2:7
+(8:11..8:12) _empty_/B#x. -> 7:7
+(8:23..8:32) scala/Singleton#
+(8:35..8:36) _empty_/B#x. -> 7:7
+(9:10..9:11) _empty_/B#x. -> 7:7
+(9:19..9:21) _empty_/B#xs. -> 8:7
+

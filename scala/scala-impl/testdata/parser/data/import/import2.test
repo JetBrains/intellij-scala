@@ -1,0 +1,19 @@
+import one.selector.{import_selector}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: one.selector
+        CodeReferenceElement: one
+          PsiElement(identifier)('one')
+        PsiElement(.)('.')
+        PsiElement(identifier)('selector')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: import_selector
+            PsiElement(identifier)('import_selector')
+        PsiElement(})('}')

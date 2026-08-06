@@ -1,0 +1,13 @@
+Document tests/pos/t4062.scala
+(1:17..1:23) scala/Predef.String#
+(3:13..3:19) scala/Option#
+(3:20..3:26) scala/Predef.String#
+(3:33..3:39) scala/Predef.String#
+(3:49..3:50) _empty_/A# -> 1:7
+(3:51..3:52) _empty_/B#f. -> 3:29
+(4:3..4:4) _empty_/B#a. -> 3:9
+(5:10..5:14) scala/Some.
+(5:15..5:18) _empty_/B#f. -> 3:29
+(5:23..5:28) scala/Predef.print().
+(5:29..5:30) _empty_/B#f. -> 3:29
+

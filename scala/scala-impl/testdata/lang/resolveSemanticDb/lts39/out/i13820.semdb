@@ -1,0 +1,11 @@
+Document tests/pos/i13820.scala
+(3:15..3:19) _empty_/Expr# -> 1:7
+(3:31..3:32) _empty_/i13820$package.foo().[A] -> 3:9
+(3:38..3:39) _empty_/i13820$package.foo().(e) -> 3:12
+(4:12..4:16) _empty_/Expr# -> 1:7
+(4:29..4:32) scala/Int#
+(5:12..5:15) scala/Int#
+(5:18..5:21) scala/Predef.`???`().
+(5:24..5:26) local2 -> 4:8
+(5:27..5:28) _empty_/Expr#T# -> 1:19
+

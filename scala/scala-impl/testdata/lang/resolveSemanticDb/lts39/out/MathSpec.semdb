@@ -1,0 +1,26 @@
+Document tests/pos/MathSpec.scala
+(2:15..2:21) scala/Double#
+(2:24..2:30) scala/Double#
+(5:24..5:31) _empty_/MathSig# -> 1:7
+(7:33..7:39) scala/Double#
+(8:5..8:12) scala/Predef.require().
+(8:13..8:14) _empty_/MathSpec#sqrt().(x) -> 7:30
+(8:15..8:17) scala/Double#`>=`(+3).
+(9:11..9:15) _empty_/MathSig#sqrt(). -> 2:7
+(9:16..9:17) _empty_/MathSpec#sqrt().(x) -> 7:30
+(10:5..10:13) scala/Predef.Ensuring#ensuring(+2).
+(11:6..11:7) _empty_/MathSpec#sqrt().(x) -> 7:30
+(11:8..11:9) scala/Double#`*`(+6).
+(11:10..11:11) _empty_/MathSpec#sqrt().(x) -> 7:30
+(11:12..11:13) scala/Double#`-`(+6).
+(11:14..11:20) local0 -> 10:16
+(11:22..11:25) scala/runtime/RichDouble#abs().
+(11:26..11:27) scala/Double#`<`(+6).
+(11:28..11:35) _empty_/MathSpec#epsilon. -> 6:7
+(15:24..15:31) _empty_/MathSig# -> 1:7
+(16:15..16:21) scala/Double#
+(16:24..16:30) scala/Double#
+(17:5..17:8) scala/Predef.`???`().
+(20:21..20:29) _empty_/MathImpl# -> 15:7
+(21:21..21:29) _empty_/MathSpec# -> 5:7
+

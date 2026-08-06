@@ -1,0 +1,25 @@
+object PatternMatchingMain {
+
+  def main(args: Array[String]): Unit = {
+
+    <selection>0 match {
+      case 0 => "zero"
+      case 1 => "one"
+      case 2 => "two"
+      case _ => "other"
+    }</selection>
+  }
+}
+------
+object PatternMatchingMain {
+
+  def main(args: Array[String]): Unit = {
+
+    val value: String = 0 match {
+      case 0 => "zero"
+      case 1 => "one"
+      case 2 => "two"
+      case _ => "other"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+class LiteralTypes {
+  val a: 1 = ???
+
+  val b: 1L = ???
+
+  val c: 1.0D = ???
+
+  val d: 1.0F = ???
+
+  val e: true = ???
+
+  val f: 'c' = ???
+
+  val g: "foo" = ???
+
+  val h: 'foo = ???
+
+  val aNeg: -1 = ???
+
+  val bNeg: -1L = ???
+
+  val cNeg: -1.0D = ???
+
+  val dNeg: -1.0F = ???
+
+  type multiline = "aa\naa\"\""
+
+  type a = 1
+
+  type b = 1L
+
+  type c = 1.0D
+
+  type d = 1.0F
+
+  type e = true
+
+  type f = 'c'
+
+  type g = "foo"
+
+  type h = 'foo
+
+  type aNeg = -1
+
+  type bNeg = -1L
+
+  type cNeg = -1.0D
+
+  type dNeg = -1.0F
+}

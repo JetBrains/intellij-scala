@@ -1,0 +1,73 @@
+Document tests/pos/i18211.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:29) scala/compiletime/ops/
+(1:30..1:33) scala/compiletime/ops/int.
+(3:18..3:21) scala/Int#
+(3:26..3:29) scala/Int#
+(3:32..3:33) _empty_/i18211$package.AnyInt#[A] -> 3:13
+(4:8..4:9) scala/Any#
+(4:13..4:14) _empty_/i18211$package.AnyInt#[A] -> 3:13
+(7:22..7:27) scala/Tuple#
+(7:32..7:35) scala/Int#
+(7:38..7:39) _empty_/i18211$package.IndexOf#[T] -> 7:17
+(8:8..8:18) scala/Tuple$package.EmptyTuple#
+(9:8..9:9) _empty_/i18211$package.IndexOf#[A] -> 7:14
+(9:10..9:12) scala/`*:`#
+(10:10..10:12) scala/`*:`#
+(11:5..11:12) _empty_/i18211$package.IndexOf# -> 7:6
+(11:13..11:14) _empty_/i18211$package.IndexOf#[A] -> 7:14
+(11:16..11:17) local1 -> 10:13
+(13:12..13:18) _empty_/i18211$package.AnyInt# -> 3:6
+(13:25..13:26) scala/compiletime/ops/int.S#
+(13:27..13:28) local2 -> 13:19
+(17:22..17:27) scala/Tuple#
+(19:20..19:25) scala/Tuple#
+(19:33..19:40) _empty_/i18211$package.IndexOf# -> 7:6
+(19:41..19:42) _empty_/i18211$package.Indexes.of().[A] -> 19:12
+(19:44..19:45) _empty_/i18211$package.Indexes.of().[T] -> 19:15
+(19:47..19:49) scala/compiletime/ops/int.`>=`#
+(19:52..19:55) scala/`=:=`#
+(20:14..20:21) scala/ValueOf#
+(20:22..20:29) _empty_/i18211$package.IndexOf# -> 7:6
+(20:30..20:31) _empty_/i18211$package.Indexes.of().[A] -> 19:12
+(20:33..20:34) _empty_/i18211$package.Indexes.of().[T] -> 19:15
+(21:13..21:20) _empty_/i18211$package.Indexes# -> 17:6
+(21:21..21:22) _empty_/i18211$package.Indexes.of().[A] -> 19:12
+(21:24..21:29) scala/Tuple.
+(21:30..21:34) scala/Tuple.Drop#
+(21:35..21:36) _empty_/i18211$package.Indexes.of().[T] -> 19:15
+(21:38..21:39) scala/compiletime/ops/int.S#
+(21:40..21:47) _empty_/i18211$package.IndexOf# -> 7:6
+(21:48..21:49) _empty_/i18211$package.Indexes.of().[A] -> 19:12
+(21:51..21:52) _empty_/i18211$package.Indexes.of().[T] -> 19:15
+(22:6..22:13) _empty_/i18211$package.Indexes# -> 17:6
+(22:14..22:15) _empty_/i18211$package.Indexes.of().[A] -> 19:12
+(22:17..22:18) _empty_/i18211$package.Indexes.of().[T] -> 19:15
+(22:22..22:25) scala/Predef.`???`().
+(24:25..24:30) scala/Tuple#
+(24:36..24:43) _empty_/i18211$package.IndexOf# -> 7:6
+(24:44..24:45) _empty_/i18211$package.Indexes.empty().[A] -> 24:17
+(24:47..24:48) _empty_/i18211$package.Indexes.empty().[T] -> 24:20
+(24:50..24:53) scala/`=:=`#
+(24:61..24:68) _empty_/i18211$package.Indexes# -> 17:6
+(24:69..24:70) _empty_/i18211$package.Indexes.empty().[A] -> 24:17
+(24:72..24:73) _empty_/i18211$package.Indexes.empty().[T] -> 24:20
+(24:77..24:80) scala/Predef.`???`().
+(28:18..28:23) scala/Tuple#
+(28:28..28:29) _empty_/GetAll#apply().[T] -> 28:13
+(28:46..28:53) _empty_/i18211$package.Indexes# -> 17:6
+(28:54..28:55) _empty_/GetAll#[A] -> 27:14
+(28:57..28:58) _empty_/GetAll#apply().[T] -> 28:13
+(28:62..28:66) scala/package.List#
+(28:67..28:68) _empty_/GetAll#[A] -> 27:14
+(28:72..28:75) scala/Predef.`???`().
+(30:16..30:22) _empty_/GetAll# -> 27:7
+(30:23..30:24) _empty_/i18211$package.getAll().[A] -> 30:12
+(30:32..30:38) _empty_/GetAll# -> 27:7
+(30:39..30:40) _empty_/i18211$package.getAll().[A] -> 30:12
+(36:3..36:9) _empty_/i18211$package.getAll(). -> 30:5
+(36:10..36:16) scala/Predef.String#
+(39:3..39:9) _empty_/i18211$package.getAll(). -> 30:5
+(39:10..39:16) scala/Predef.String#
+

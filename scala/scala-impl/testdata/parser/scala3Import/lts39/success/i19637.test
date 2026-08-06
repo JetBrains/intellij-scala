@@ -1,0 +1,198 @@
+import java.util.stream.*
+import java.util.function.*
+
+val map: java.util.Map[String, String] = Stream.of("1", "2", "3").collect(Collectors.toMap(
+  (s: String) => s,
+  Function.identity(),
+  {
+    case ("1", "1") => "1"
+    case (_, l) => l
+  }
+))
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.util.stream
+        CodeReferenceElement: java.util
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('util')
+        PsiElement(.)('.')
+        PsiElement(identifier)('stream')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.util.function
+        CodeReferenceElement: java.util
+          CodeReferenceElement: java
+            PsiElement(identifier)('java')
+          PsiElement(.)('.')
+          PsiElement(identifier)('util')
+        PsiElement(.)('.')
+        PsiElement(identifier)('function')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: map
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: map
+        PsiElement(identifier)('map')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: java.util.Map[String, String]
+      SimpleType: java.util.Map
+        CodeReferenceElement: java.util.Map
+          CodeReferenceElement: java.util
+            CodeReferenceElement: java
+              PsiElement(identifier)('java')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Map')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Stream.of("1", "2", "3").collect
+        MethodCall
+          ReferenceExpression: Stream.of
+            ReferenceExpression: Stream
+              PsiElement(identifier)('Stream')
+            PsiElement(.)('.')
+            PsiElement(identifier)('of')
+          ArgumentList
+            PsiElement(()('(')
+            StringLiteral
+              PsiElement(string content)('"1"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"2"')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            StringLiteral
+              PsiElement(string content)('"3"')
+            PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('collect')
+      ArgumentList
+        PsiElement(()('(')
+        MethodCall
+          ReferenceExpression: Collectors.toMap
+            ReferenceExpression: Collectors
+              PsiElement(identifier)('Collectors')
+            PsiElement(.)('.')
+            PsiElement(identifier)('toMap')
+          ArgumentList
+            PsiElement(()('(')
+            PsiWhiteSpace('\n  ')
+            FunctionExpression
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: s
+                    AnnotationsList
+                      <empty list>
+                    PsiElement(identifier)('s')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                  PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: s
+                PsiElement(identifier)('s')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n  ')
+            MethodCall
+              ReferenceExpression: Function.identity
+                ReferenceExpression: Function
+                  PsiElement(identifier)('Function')
+                PsiElement(.)('.')
+                PsiElement(identifier)('identity')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace('\n  ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      LiteralPattern
+                        StringLiteral
+                          PsiElement(string content)('"1"')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      LiteralPattern
+                        StringLiteral
+                          PsiElement(string content)('"1"')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    StringLiteral
+                      PsiElement(string content)('"1"')
+                PsiWhiteSpace('\n    ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  TuplePattern
+                    PsiElement(()('(')
+                    ArgumentPatterns
+                      WildcardPattern
+                        PsiElement(_)('_')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferencePattern: l
+                        PsiElement(identifier)('l')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    ReferenceExpression: l
+                      PsiElement(identifier)('l')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')
+            PsiWhiteSpace('\n')
+            PsiElement())(')')
+        PsiElement())(')')

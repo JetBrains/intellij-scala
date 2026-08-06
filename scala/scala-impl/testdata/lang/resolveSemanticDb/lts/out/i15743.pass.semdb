@@ -1,0 +1,16 @@
+Document tests/pos/i15743.pass.scala
+(3:17..3:22) scala/Tuple#
+(3:26..3:31) scala/Tuple#
+(3:37..3:40) scala/Int#
+(3:41..3:43) scala/`*:`#
+(3:44..3:45) _empty_/Pass#pass().[T] -> 3:12
+(4:13..4:16) scala/Int#
+(4:20..4:22) _empty_/Pass#pass().(t2) -> 3:33
+(4:24..4:27) scala/Int#
+(4:28..4:30) scala/`*:`#
+(4:31..4:32) _empty_/Pass#pass().[T] -> 3:12
+(4:34..4:38) scala/NonEmptyTuple#head().
+(4:39..4:42) scala/Int#
+(4:43..4:45) scala/`*:`#
+(4:46..4:47) _empty_/Pass#pass().[T] -> 3:12
+

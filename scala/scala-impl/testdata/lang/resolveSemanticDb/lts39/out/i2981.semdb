@@ -1,0 +1,18 @@
+Document tests/pos/i2981.scala
+(2:20..2:25) _empty_/HList# -> 1:7
+(4:30..4:35) _empty_/HList# -> 1:7
+(6:40..6:55) _empty_/FromTraversable# -> 4:7
+(6:56..6:60) _empty_/HNil# -> 2:7
+(7:9..7:24) _empty_/FromTraversable# -> 4:7
+(7:25..7:29) _empty_/HNil# -> 2:7
+(11:18..11:23) _empty_/HList# -> 1:7
+(11:30..11:35) _empty_/HList# -> 1:7
+(11:53..11:68) _empty_/FromTraversable# -> 4:7
+(11:69..11:70) _empty_/Filter.apply().[A] -> 11:13
+(12:44..12:59) _empty_/FromTraversable# -> 4:7
+(12:60..12:61) _empty_/Filter.apply().[O] -> 11:25
+(12:65..12:69) scala/Unit#
+(15:14..15:20) _empty_/Filter. -> 10:8
+(15:21..15:25) _empty_/HNil# -> 2:7
+(15:27..15:31) _empty_/HNil# -> 2:7
+

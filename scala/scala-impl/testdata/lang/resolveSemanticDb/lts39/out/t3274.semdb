@@ -1,0 +1,6 @@
+Document tests/pos/t3274.scala
+(1:17..1:18) _empty_/B# -> 7:7
+(3:22..3:23) _empty_/B#Y# -> 8:9
+(7:17..7:18) _empty_/A# -> 1:7
+(8:20..8:24) scala/Unit#
+

@@ -1,0 +1,6 @@
+Document tests/pos/t651.scala
+(9:29..9:42) test/Test3#MatchableImpl# -> 4:9
+(10:39..10:48) test/Test3#MatchableImpl#MatchImpl# -> 5:11
+(11:30..11:39) test/Test3#MatchableImpl#MatchImpl# -> 5:11
+(11:42..11:50) test/Test3#BracePairImpl#BraceImpl#MyMatch1. -> 10:22
+

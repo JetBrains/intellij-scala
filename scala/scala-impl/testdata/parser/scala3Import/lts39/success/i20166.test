@@ -1,0 +1,386 @@
+import scala.compiletime.ops.int.*
+
+// NOTE ops.int.S is documented as equivalent to MyS
+
+type MyS[X] = X match
+  case 0 => 1
+  case 1 => 2
+  case 2 => 3
+
+type M[I <: Int] = 4 match
+  case 1 - 1 => "0"
+  case MyS[I] => "2"
+  case S[I] => "2" // Not provablyDisjoint before changes
+  case 2 + I => "3"
+  case I + 3 => "4"
+
+val _: M[1] = "4"
+
+
+type M2[I <: Int, P] = I match
+  case P => "b"
+  case _ => "c"
+
+val _: M2[5, 2 + 3] = "b"
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('int')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  PsiComment(comment)('// NOTE ops.int.S is documented as equivalent to MyS')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: MyS
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MyS')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: X
+        PsiElement(identifier)('X')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: X match
+  case 0 => 1
+  case 1 => 2
+  case 2 => 3
+      SimpleType: X
+        CodeReferenceElement: X
+          PsiElement(identifier)('X')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: 0
+            IntegerLiteral
+              PsiElement(integer)('0')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: 1
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: 1
+            IntegerLiteral
+              PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: 2
+            IntegerLiteral
+              PsiElement(integer)('2')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: 2
+            IntegerLiteral
+              PsiElement(integer)('2')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: 3
+            IntegerLiteral
+              PsiElement(integer)('3')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: M
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('M')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: 4 match
+  case 1 - 1 => "0"
+  case MyS[I] => "2"
+  case S[I] => "2" // Not provablyDisjoint before changes
+  case 2 + I => "3"
+  case I + 3 => "4"
+      LiteralType: 4
+        IntegerLiteral
+          PsiElement(integer)('4')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: 1 - 1
+            LiteralType: 1
+              IntegerLiteral
+                PsiElement(integer)('1')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: -
+              PsiElement(identifier)('-')
+            PsiWhiteSpace(' ')
+            LiteralType: 1
+              IntegerLiteral
+                PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "0"
+            StringLiteral
+              PsiElement(string content)('"0"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: MyS[I]
+            SimpleType: MyS
+              CodeReferenceElement: MyS
+                PsiElement(identifier)('MyS')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "2"
+            StringLiteral
+              PsiElement(string content)('"2"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ParametrizedType: S[I]
+            SimpleType: S
+              CodeReferenceElement: S
+                PsiElement(identifier)('S')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "2"
+            StringLiteral
+              PsiElement(string content)('"2"')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// Not provablyDisjoint before changes')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: 2 + I
+            LiteralType: 2
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            SimpleType: I
+              CodeReferenceElement: I
+                PsiElement(identifier)('I')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "3"
+            StringLiteral
+              PsiElement(string content)('"3"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          InfixType: I + 3
+            SimpleType: I
+              CodeReferenceElement: I
+                PsiElement(identifier)('I')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            LiteralType: 3
+              IntegerLiteral
+                PsiElement(integer)('3')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "4"
+            StringLiteral
+              PsiElement(string content)('"4"')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: M[1]
+      SimpleType: M
+        CodeReferenceElement: M
+          PsiElement(identifier)('M')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          LiteralType: 1
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    StringLiteral
+      PsiElement(string content)('"4"')
+  PsiWhiteSpace('\n\n\n')
+  ScTypeAliasDefinition: M2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('M2')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: P
+        PsiElement(identifier)('P')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: I match
+  case P => "b"
+  case _ => "c"
+      SimpleType: I
+        CodeReferenceElement: I
+          PsiElement(identifier)('I')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          SimpleType: P
+            CodeReferenceElement: P
+              PsiElement(identifier)('P')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "b"
+            StringLiteral
+              PsiElement(string content)('"b"')
+        PsiWhiteSpace('\n  ')
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TypeVariable: _
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          LiteralType: "c"
+            StringLiteral
+              PsiElement(string content)('"c"')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      WildcardPattern
+        PsiElement(_)('_')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: M2[5, 2 + 3]
+      SimpleType: M2
+        CodeReferenceElement: M2
+          PsiElement(identifier)('M2')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          LiteralType: 5
+            IntegerLiteral
+              PsiElement(integer)('5')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          InfixType: 2 + 3
+            LiteralType: 2
+              IntegerLiteral
+                PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            LiteralType: 3
+              IntegerLiteral
+                PsiElement(integer)('3')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    StringLiteral
+      PsiElement(string content)('"b"')

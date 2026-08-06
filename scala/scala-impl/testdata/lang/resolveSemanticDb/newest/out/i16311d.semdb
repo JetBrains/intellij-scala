@@ -1,0 +1,44 @@
+Document tests/pos/i16311d.scala
+(3:26..3:27) _empty_/C#WithTag#[T] -> 3:17
+(3:28..3:29) scala/`&`#
+(3:30..3:36) _empty_/C#Tagged# -> 2:9
+(3:37..3:38) _empty_/C#WithTag#[U] -> 3:20
+(6:38..6:47) _empty_/C#FromInput# -> 5:9
+(6:48..6:55) _empty_/C#WithTag# -> 3:8
+(6:56..6:57) _empty_/C#coercedScalaInput().[T] -> 6:34
+(6:59..6:62) scala/Int#
+(6:67..6:70) scala/Predef.`???`().
+(7:44..7:53) _empty_/C#FromInput# -> 5:9
+(7:54..7:55) _empty_/C#optionInput().[T] -> 7:28
+(7:59..7:68) _empty_/C#FromInput# -> 5:9
+(7:69..7:75) scala/Option#
+(7:76..7:77) _empty_/C#optionInput().[T] -> 7:28
+(7:82..7:85) scala/Predef.`???`().
+(10:37..10:57) _empty_/C#WithoutInputTypeTags# -> 9:9
+(10:58..10:64) scala/Option#
+(10:65..10:72) _empty_/C#WithTag# -> 3:8
+(10:73..10:74) _empty_/C#coercedOptArgTpe().[T] -> 10:33
+(10:76..10:79) scala/Int#
+(10:85..10:88) scala/Predef.`???`().
+(13:36..13:45) _empty_/C#InputType# -> 12:9
+(13:46..13:47) _empty_/C#OptionInputType#[T] -> 13:25
+(13:58..13:67) _empty_/C#InputType# -> 12:9
+(13:68..13:74) scala/Option#
+(13:75..13:76) _empty_/C#OptionInputType#[T] -> 13:25
+(16:33..16:42) _empty_/C#InputType# -> 12:9
+(16:43..16:44) _empty_/C#argument().[T] -> 16:16
+(16:67..16:76) _empty_/C#FromInput# -> 5:9
+(16:77..16:78) _empty_/C#argument().[T] -> 16:16
+(16:86..16:106) _empty_/C#WithoutInputTypeTags# -> 9:9
+(16:107..16:108) _empty_/C#argument().[T] -> 16:16
+(16:112..16:120) _empty_/C#Argument# -> 15:8
+(16:121..16:127) scala/Option#
+(16:128..16:129) _empty_/C#argument().[T] -> 16:16
+(16:134..16:137) scala/Predef.`???`().
+(18:14..18:22) _empty_/C#argument(). -> 16:7
+(18:39..18:42) scala/Predef.`???`().
+(18:45..18:54) _empty_/C#InputType# -> 12:9
+(18:55..18:62) _empty_/C#WithTag# -> 3:8
+(18:63..18:70) scala/Boolean#
+(18:72..18:75) scala/Int#
+

@@ -1,0 +1,12 @@
+Document tests/pos/i15991.scala
+(2:18..2:21) scala/Any#
+(2:24..2:30) scala/Predef.String#
+(2:31..2:33) scala/`*:`#
+(2:34..2:40) scala/Predef.String#
+(2:41..2:43) scala/`*:`#
+(2:44..2:54) scala/Tuple$package.EmptyTuple#
+(7:9..7:12) _empty_/Foo. -> 1:8
+(8:5..8:6) local0 -> 7:13
+(8:7..8:8) java/lang/String#`+`().
+(8:9..8:10) local1 -> 7:16
+

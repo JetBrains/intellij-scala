@@ -1,0 +1,12 @@
+Document tests/pos/i19407.scala
+(5:9..5:16) _empty_/Decoder# -> 2:7
+(5:17..5:20) scala/Int#
+(5:24..5:27) scala/Predef.`???`().
+(9:15..9:28) _empty_/GeneratedEnum# -> 1:7
+(9:33..9:40) _empty_/Decoder# -> 2:7
+(9:41..9:42) _empty_/GeneratedEnumDecoder.given_Decoder_A().[A] -> 9:10
+(10:5..10:11) scala/Predef.summon().
+(10:12..10:19) _empty_/Decoder# -> 2:7
+(10:20..10:23) scala/Int#
+(11:5..11:8) scala/Predef.`???`().
+

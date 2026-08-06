@@ -1,0 +1,15 @@
+//### replaceAll=true
+object O {
+  def foo() {
+    List(0).map(x => (<selection>x + 1</selection>) * (x + 1)).map(x => x + 1)
+  }
+}
+------
+object O {
+  def foo() {
+    List(0).map(x => {
+      val value: Int = x + 1
+      value * value
+    }).map(x => x + 1)
+  }
+}

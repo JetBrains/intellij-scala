@@ -1,0 +1,7 @@
+object test:
+  def foo: Int => Unit =
+    x =>
+      "42"
+      <start>/** qwe. */<exhaustive>
+end test
+-----

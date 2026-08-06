@@ -1,0 +1,8 @@
+class Test:
+  <start>42<match>
+end Test
+-----
+class Test:
+  42 match
+    case  =>
+end Test

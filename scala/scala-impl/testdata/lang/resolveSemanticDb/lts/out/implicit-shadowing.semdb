@@ -1,0 +1,31 @@
+Document tests/pos/implicit-shadowing.scala
+(5:25..5:26) _empty_/Test.C# -> 3:9
+(7:14..7:15) _empty_/Test.C# -> 3:9
+(7:19..7:29) scala/Predef.implicitly().
+(7:30..7:31) _empty_/Test.C# -> 3:9
+(8:14..8:17) scala/Int#
+(8:21..8:31) scala/Predef.implicitly().
+(8:32..8:33) _empty_/Test.C# -> 3:9
+(10:5..10:6) local1 -> 7:9
+(10:11..10:12) _empty_/Test.C# -> 3:9
+(16:12..16:14) _empty_/Test.C1# -> 13:9
+(17:14..17:16) _empty_/Test.C2# -> 14:9
+(18:7..18:17) scala/Predef.implicitly().
+(18:18..18:20) _empty_/Test.C1# -> 13:9
+(18:21..18:22) _empty_/Test.f().[T] -> 16:9
+(19:7..19:17) scala/Predef.implicitly().
+(19:18..19:20) _empty_/Test.C2# -> 14:9
+(19:21..19:22) local4 -> 17:11
+(23:13..23:15) _empty_/Test.C1# -> 13:9
+(23:16..23:17) _empty_/Test.h().[T] -> 23:9
+(23:23..23:27) scala/Unit#
+(24:15..24:17) _empty_/Test.C2# -> 14:9
+(24:18..24:19) local8 -> 24:11
+(24:25..24:29) scala/Unit#
+(25:7..25:17) scala/Predef.implicitly().
+(25:18..25:20) _empty_/Test.C1# -> 13:9
+(25:21..25:22) _empty_/Test.h().[T] -> 23:9
+(26:7..26:17) scala/Predef.implicitly().
+(26:18..26:20) _empty_/Test.C2# -> 14:9
+(26:21..26:22) local8 -> 24:11
+

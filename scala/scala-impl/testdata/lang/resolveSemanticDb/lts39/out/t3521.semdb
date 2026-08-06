@@ -1,0 +1,4 @@
+Document tests/pos/t3521/a.scala
+(2:4..2:15) _empty_/DoubleValue#
+(2:16..2:21) _empty_/DoubleValue#`<init>`(+1).(value)
+

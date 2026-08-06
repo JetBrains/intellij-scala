@@ -1,0 +1,55 @@
+class C {
+  foo add (x).toString sub (2,3)
+}
+-----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        InfixExpression
+          InfixExpression
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: add
+              PsiElement(identifier)('add')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: (x).toString
+              ExpressionInParenthesis
+                PsiElement(()('(')
+                ReferenceExpression: x
+                  PsiElement(identifier)('x')
+                PsiElement())(')')
+              PsiElement(.)('.')
+              PsiElement(identifier)('toString')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: sub
+            PsiElement(identifier)('sub')
+          PsiWhiteSpace(' ')
+          Tuple
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiElement(,)(',')
+            IntegerLiteral
+              PsiElement(integer)('3')
+            PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

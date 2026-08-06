@@ -1,0 +1,27 @@
+def f(): BigInt = {
+  /*start*/1/*end*/
+}
+/*
+Seq(double2Double,
+    double2DoubleConflict,
+    doubleWrapper,
+    float2Float,
+    float2FloatConflict,
+    floatWrapper,
+    int2Integer,
+    int2IntegerConflict,
+    int2bigInt,
+    int2double,
+    int2float,
+    int2long,
+    intWrapper,
+    long2Long,
+    long2LongConflict,
+    long2bigInt,
+    longWrapper,
+    any2ArrowAssoc,
+    any2Ensuring,
+    any2stringadd,
+    any2stringfmt),
+Some(int2bigInt)
+*/

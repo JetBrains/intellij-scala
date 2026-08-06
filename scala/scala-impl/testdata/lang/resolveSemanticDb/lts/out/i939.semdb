@@ -1,0 +1,6 @@
+Document tests/pos/i939.scala
+(3:32..3:35) scala/Any#
+(3:39..3:43) _empty_/IntMap.Nil.equals().(that) -> 3:25
+(5:34..5:40) scala/Any#equals().
+(5:41..5:45) _empty_/IntMap.Nil.equals().(that) -> 3:25
+

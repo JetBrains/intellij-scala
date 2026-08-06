@@ -1,0 +1,6 @@
+Document tests/pos/alias.scala
+(1:16..1:19) scala/Int#
+(3:12..3:15) scala/Int#
+(3:25..3:26) _empty_/A# -> 1:7
+(3:27..3:28) _empty_/B#x. -> 3:9
+

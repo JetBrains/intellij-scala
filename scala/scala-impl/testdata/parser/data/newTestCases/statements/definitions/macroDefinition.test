@@ -1,0 +1,47 @@
+class a {
+  def foo = macro A.fooImpl
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScMacroDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          PsiElement(macro)('macro')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: A.fooImpl
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+            PsiElement(.)('.')
+            PsiElement(identifier)('fooImpl')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

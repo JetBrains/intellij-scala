@@ -1,0 +1,59 @@
+Document tests/pos/i21239.orig.scala
+(5:8..5:12) java/
+(5:13..5:17) java/util/
+(5:18..5:28) java/util/concurrent/
+(5:29..5:35) java/util/concurrent/atomic/
+(5:36..5:51) java/util/concurrent/atomic/AtomicReference#
+(7:23..7:38) java/util/concurrent/atomic/AtomicReference#
+(7:39..7:45) scala/AnyRef#
+(9:23..9:29) scala/AnyRef#
+(9:36..9:42) scala/AnyRef#
+(11:23..11:27) _empty_/`i21239.orig$package`.Worm# -> 7:13
+(11:28..11:29) _empty_/`i21239.orig$package`.Worm.get().[V] -> 11:14
+(11:28..11:29) _empty_/`i21239.orig$package`.Worm.getOrSet().[V] -> 11:14
+(11:28..11:29) _empty_/`i21239.orig$package`.Worm.setIfEmpty().[V] -> 11:14
+(11:28..11:29) _empty_/`i21239.orig$package`.Worm.wormAsAtomic().[V] -> 11:14
+(12:30..12:45) java/util/concurrent/atomic/AtomicReference#
+(12:46..12:52) scala/AnyRef#
+(12:56..12:60) _empty_/`i21239.orig$package`.Worm.wormAsAtomic().(worm) -> 11:17
+(14:33..14:34) _empty_/`i21239.orig$package`.Worm.setIfEmpty().[V] -> 11:14
+(14:37..14:44) scala/Boolean#
+(15:15..15:19) _empty_/`i21239.orig$package`.Worm.setIfEmpty().(worm) -> 11:17
+(15:20..15:23) java/util/concurrent/atomic/AtomicReference#get().
+(16:10..16:11) local2 -> 15:11
+(16:12..16:14) java/lang/Object#eq().
+(16:15..16:29) _empty_/`i21239.orig$package`.Worm.notSetSentinel. -> 9:7
+(17:21..17:22) _empty_/`i21239.orig$package`.Worm.setIfEmpty().(v) -> 14:27
+(18:9..18:13) _empty_/`i21239.orig$package`.Worm.setIfEmpty().(worm) -> 11:17
+(18:14..18:17) java/util/concurrent/atomic/AtomicReference#set().
+(18:18..18:23) local3 -> 17:13
+(18:24..18:36) scala/Any#asInstanceOf().
+(18:37..18:43) scala/AnyRef#
+(22:21..22:22) _empty_/`i21239.orig$package`.Worm.get().[V] -> 11:14
+(23:15..23:19) _empty_/`i21239.orig$package`.Worm.get().(worm) -> 11:17
+(23:20..23:23) java/util/concurrent/atomic/AtomicReference#get().
+(24:10..24:11) local4 -> 23:11
+(24:12..24:14) java/lang/Object#eq().
+(24:15..24:29) _empty_/`i21239.orig$package`.Worm.notSetSentinel. -> 9:7
+(25:15..25:36) java/lang/IllegalStateException#
+(26:12..26:13) local4 -> 23:11
+(26:14..26:26) scala/Any#asInstanceOf().
+(26:27..26:28) _empty_/`i21239.orig$package`.Worm.get().[V] -> 11:14
+(28:31..28:32) _empty_/`i21239.orig$package`.Worm.getOrSet().[V] -> 11:14
+(28:35..28:36) _empty_/`i21239.orig$package`.Worm.getOrSet().[V] -> 11:14
+(29:15..29:19) _empty_/`i21239.orig$package`.Worm.getOrSet().(worm) -> 11:17
+(29:20..29:23) java/util/concurrent/atomic/AtomicReference#get().
+(30:10..30:11) local5 -> 29:11
+(30:12..30:14) java/lang/Object#eq().
+(30:15..30:29) _empty_/`i21239.orig$package`.Worm.notSetSentinel. -> 9:7
+(31:21..31:22) _empty_/`i21239.orig$package`.Worm.getOrSet().(v) -> 28:25
+(32:9..32:13) _empty_/`i21239.orig$package`.Worm.getOrSet().(worm) -> 11:17
+(32:14..32:17) java/util/concurrent/atomic/AtomicReference#set().
+(32:18..32:23) local6 -> 31:13
+(32:24..32:36) scala/Any#asInstanceOf().
+(32:37..32:43) scala/AnyRef#
+(33:9..33:14) local6 -> 31:13
+(34:12..34:13) local5 -> 29:11
+(34:14..34:26) scala/Any#asInstanceOf().
+(34:27..34:28) _empty_/`i21239.orig$package`.Worm.getOrSet().[V] -> 11:14
+

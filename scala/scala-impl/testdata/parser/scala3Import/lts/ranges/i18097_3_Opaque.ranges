@@ -1,0 +1,17 @@
+[0,127]: PackageDef
+[8,12]: Ident
+[14,29]: TypeDef
+[25,29]: Ident
+[30,47]: ValDef
+[39,42]: Ident
+[45,47]: Tuple
+[49,74]: TypeDef
+[70,74]: Ident
+[76,127]: ExtMethods
+[87,95]: ValDef
+[92,95]: Ident
+[99,127]: DefDef
+[107,121]: AppliedTypeTree
+[107,113]: Ident
+[114,120]: Ident
+[124,127]: Ident

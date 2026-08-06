@@ -1,0 +1,17 @@
+Document tests/pos/depmet_implicit_tpbetareduce.scala
+(5:25..5:36) _empty_/HOSeq#Accumulator# -> 2:9
+(5:37..5:38) _empty_/HOSeq#Iterable#m# -> 4:10
+(5:40..5:41) _empty_/HOSeq#Iterable#accumulator().[t] -> 5:21
+(7:38..7:49) _empty_/HOSeq#Accumulator# -> 2:9
+(7:56..7:59) _empty_/HOSeq#listAccumulator().[elT] -> 7:32
+(7:67..7:78) _empty_/HOSeq#Accumulator# -> 2:9
+(7:85..7:88) _empty_/HOSeq#listAccumulator().[elT] -> 7:32
+(8:26..8:34) _empty_/HOSeq#Iterable# -> 3:9
+(8:35..8:36) _empty_/HOSeq#List#[t] -> 8:15
+(9:18..9:22) _empty_/HOSeq#List# -> 8:9
+(9:23..9:24) _empty_/HOSeq#List#m#[x] -> 9:13
+(10:25..10:36) _empty_/HOSeq#Accumulator# -> 2:9
+(10:43..10:44) _empty_/HOSeq#List#accumulator().[t] -> 10:21
+(10:48..10:63) _empty_/HOSeq#listAccumulator(). -> 7:16
+(10:64..10:65) _empty_/HOSeq#List#accumulator().[t] -> 10:21
+

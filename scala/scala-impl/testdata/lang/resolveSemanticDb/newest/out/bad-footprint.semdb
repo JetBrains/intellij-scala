@@ -1,0 +1,87 @@
+Document tests/pos/bad-footprint.scala
+(4:31..4:34) scala/Any#
+(5:31..5:36) scala/Tuple#
+(5:44..5:49) scala/Tuple#
+(5:54..5:55) _empty_/NamedTuple.NamedTuple#[V] -> 5:39
+(5:59..5:72) _empty_/NamedTuple.AnyNamedTuple# -> 4:15
+(5:75..5:76) _empty_/NamedTuple.NamedTuple#[V] -> 5:39
+(7:10..7:33) _empty_/NamedTupleDecomposition. -> 17:8
+(12:17..12:30) _empty_/NamedTuple.AnyNamedTuple# -> 4:15
+(12:39..12:44) scala/Tuple.
+(12:45..12:50) scala/Tuple.Union#
+(12:51..12:60) _empty_/NamedTuple.DropNames# -> 7:42
+(12:61..12:62) _empty_/NamedTuple.Map#[X] -> 12:12
+(13:5..13:15) _empty_/NamedTuple.NamedTuple# -> 5:15
+(13:16..13:21) _empty_/NamedTuple.Names# -> 7:35
+(13:22..13:23) _empty_/NamedTuple.Map#[X] -> 12:12
+(13:26..13:31) scala/Tuple.
+(13:32..13:35) scala/Tuple.Map#
+(13:36..13:45) _empty_/NamedTuple.DropNames# -> 7:42
+(13:46..13:47) _empty_/NamedTuple.Map#[X] -> 12:12
+(13:50..13:51) _empty_/NamedTuple.Map#[F] -> 12:32
+(15:5..15:15) _empty_/NamedTuple. -> 2:8
+(18:10..18:20) _empty_/NamedTuple. -> 2:8
+(21:19..21:32) _empty_/NamedTuple.AnyNamedTuple# -> 4:15
+(21:37..21:42) scala/Tuple#
+(21:45..21:46) _empty_/NamedTupleDecomposition.Names#[X] -> 21:14
+(22:10..22:20) _empty_/NamedTuple.NamedTuple# -> 5:15
+(22:30..22:31) local0 -> 22:21
+(25:24..25:37) _empty_/NamedTuple.AnyNamedTuple# -> 4:15
+(25:42..25:47) scala/Tuple#
+(25:50..25:52) _empty_/NamedTupleDecomposition.DropNames#[NT] -> 25:18
+(26:10..26:20) _empty_/NamedTuple.NamedTuple# -> 5:15
+(26:30..26:31) local1 -> 26:24
+(27:5..27:28) _empty_/NamedTupleDecomposition. -> 17:8
+(32:10..32:20) _empty_/NamedTuple. -> 2:8
+(34:16..34:20) _empty_/Expr# -> 29:7
+(34:21..34:22) _empty_/Expr.Of#[A] -> 34:11
+(36:23..36:24) _empty_/Expr.StripExpr#[E] -> 36:18
+(37:10..37:14) _empty_/Expr. -> 31:8
+(37:15..37:17) _empty_/Expr.Of# -> 34:8
+(37:24..37:25) local2 -> 37:18
+(39:28..39:34) scala/Predef.String#
+(39:49..39:53) _empty_/Expr. -> 31:8
+(39:54..39:56) _empty_/Expr.Of# -> 34:8
+(39:57..39:58) _empty_/Expr.Ref#[A] -> 39:18
+(41:24..41:37) _empty_/NamedTuple.AnyNamedTuple# -> 4:15
+(41:42..41:43) _empty_/Expr.Join#[A] -> 41:19
+(42:11..42:15) _empty_/Expr. -> 31:8
+(42:16..42:18) _empty_/Expr.Of# -> 34:8
+(42:19..42:29) _empty_/NamedTuple. -> 2:8
+(42:30..42:33) _empty_/NamedTuple.Map# -> 12:8
+(42:34..42:35) _empty_/Expr.Join#[A] -> 41:19
+(42:37..42:46) _empty_/Expr.StripExpr# -> 36:8
+(43:5..43:9) _empty_/Expr. -> 31:8
+(49:20..49:25) _empty_/Query# -> 45:7
+(49:26..49:27) _empty_/Query.map().[R] -> 49:14
+(50:19..50:23) _empty_/Expr. -> 31:8
+(50:24..50:27) _empty_/Expr.Ref# -> 39:14
+(50:28..50:29) _empty_/Query.map().[R] -> 49:14
+(50:34..50:38) _empty_/Expr. -> 31:8
+(50:39..50:41) _empty_/Expr.Of# -> 34:8
+(50:42..50:43) _empty_/Query.map().[B] -> 50:13
+(50:47..50:52) _empty_/Query# -> 45:7
+(50:53..50:54) _empty_/Query.map().[B] -> 50:13
+(50:58..50:61) scala/Predef.`???`().
+(52:26..52:29) scala/Int#
+(52:37..52:43) scala/Predef.String#
+(52:57..52:60) scala/Int#
+(55:10..55:14) _empty_/Expr. -> 31:8
+(56:10..56:20) _empty_/NamedTuple. -> 2:8
+(58:15..58:20) _empty_/Query# -> 45:7
+(58:21..58:25) _empty_/City# -> 52:12
+(58:29..58:32) scala/Predef.`???`().
+(60:5..60:11) _empty_/Test.cities. -> 58:7
+(60:12..60:15) _empty_/Query.map(). -> 50:9
+(61:14..61:24) _empty_/NamedTuple.NamedTuple# -> 5:15
+(63:10..63:14) _empty_/Expr. -> 31:8
+(63:15..63:17) _empty_/Expr.Of# -> 34:8
+(63:18..63:24) scala/Predef.String#
+(63:27..63:31) _empty_/Expr. -> 31:8
+(63:32..63:34) _empty_/Expr.Of# -> 34:8
+(63:35..63:38) scala/Int#
+(63:44..63:47) scala/Predef.`???`().
+(64:7..64:11) _empty_/Expr. -> 31:8
+(64:12..64:16) _empty_/Expr.Join.
+(64:17..64:18) local4 -> 61:11
+

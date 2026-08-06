@@ -1,0 +1,10 @@
+Document tests/pos/i15897.scala
+(2:21..2:25) scala/Unit#
+(4:20..4:22) _empty_/O.AC# -> 2:9
+(4:24..4:28) _empty_/O.`mode_=`(). -> 7:7
+(4:31..4:34) scala/Predef.`???`().
+(6:13..6:19) scala/AnyRef#
+(6:22..6:25) scala/Predef.`???`().
+(7:18..7:24) scala/AnyRef#
+(7:27..7:31) scala/Unit#
+

@@ -1,0 +1,145 @@
+UFile (package = )
+    UClass (name = Lambdas$)
+        UMethod (name = lambdasUsage)
+            UBlockExpression
+                UDeclarationsExpression
+                    ULocalVariable (name = seq)
+                        UQualifiedReferenceExpression
+                            USimpleNameReferenceExpression (identifier = Seq)
+                            UMethodCall(name = empty)
+                                UIdentifier (Identifier (empty))
+                UDeclarationsExpression
+                    ULocalVariable (name = lambda)
+                        (x: Int) => x + 1
+                            UParameter (name = x)
+                            UBlockExpression
+                                UReturnExpression
+                                    UBinaryExpression (operator = +)
+                                        USimpleNameReferenceExpression (identifier = x)
+                                        ULiteralExpression (value = 1)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = map)
+                        UIdentifier (Identifier (map))
+                        USimpleNameReferenceExpression (identifier = lambda)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = map)
+                        UIdentifier (Identifier (map))
+                        UastEmptyExpression
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = map)
+                        UIdentifier (Identifier (map))
+                        lambda(_)
+                            UParameter (name = _$0)
+                            UBlockExpression
+                                UReturnExpression
+                                    UMethodCall(name = lambda)
+                                        UIdentifier (Identifier (lambda))
+                                        ScalaUnderscoreSection
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = map)
+                        UIdentifier (Identifier (map))
+                        x => x + 1
+                            UParameter (name = x)
+                            UBlockExpression
+                                UReturnExpression
+                                    UBinaryExpression (operator = +)
+                                        USimpleNameReferenceExpression (identifier = x)
+                                        ULiteralExpression (value = 1)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = map)
+                        UIdentifier (Identifier (map))
+                        x =>
+      x - 1
+                            UParameter (name = x)
+                            UBlockExpression
+                                UReturnExpression
+                                    UBinaryExpression (operator = -)
+                                        USimpleNameReferenceExpression (identifier = x)
+                                        ULiteralExpression (value = 1)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = map)
+                        UIdentifier (Identifier (map))
+                        _ + 1
+                            UParameter (name = _$0)
+                            UBlockExpression
+                                UReturnExpression
+                                    UBinaryExpression (operator = +)
+                                        ScalaUnderscoreSection
+                                        ULiteralExpression (value = 1)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = map)
+                        UIdentifier (Identifier (map))
+                        _ - 1
+                            UParameter (name = _$0)
+                            UBlockExpression
+                                UReturnExpression
+                                    UBinaryExpression (operator = -)
+                                        ScalaUnderscoreSection
+                                        ULiteralExpression (value = 1)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = map)
+                        UIdentifier (Identifier (map))
+                        _.toString
+                            UParameter (name = _$0)
+                            UBlockExpression
+                                UReturnExpression
+                                    UQualifiedReferenceExpression
+                                        ScalaUnderscoreSection
+                                        UMethodCall(name = toString)
+                                            UIdentifier (Identifier (toString))
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = map)
+                        UIdentifier (Identifier (map))
+                        _.hashCode()
+                            UParameter (name = _$0)
+                            UBlockExpression
+                                UReturnExpression
+                                    UQualifiedReferenceExpression
+                                        ScalaUnderscoreSection
+                                        UMethodCall(name = hashCode)
+                                            UIdentifier (Identifier (hashCode))
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = collect)
+                        UIdentifier (Identifier (collect))
+                        { // partial lambda
+      case _: String => 1
+    }
+                            UParameter (name = <anonymous>)
+                            UBlockExpression
+                                UReturnExpression
+                                    UExpressionList (match)
+                                        USwitchClauseExpressionWithBody
+                                            UastEmptyExpression
+                                            UExpressionList (case_clause)
+                                                ULiteralExpression (value = 1)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = foreach)
+                        UIdentifier (Identifier (foreach))
+                        UCallableReferenceExpression (name = println)
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = foreach)
+                        UIdentifier (Identifier (foreach))
+                        println(_)
+                            UParameter (name = _$0)
+                            UBlockExpression
+                                UReturnExpression
+                                    UMethodCall(name = println)
+                                        UIdentifier (Identifier (println))
+                                        ScalaUnderscoreSection
+                UQualifiedReferenceExpression
+                    USimpleNameReferenceExpression (identifier = seq)
+                    UMethodCall(name = foreach)
+                        UIdentifier (Identifier (foreach))
+                        UCallableReferenceExpression (name = println)

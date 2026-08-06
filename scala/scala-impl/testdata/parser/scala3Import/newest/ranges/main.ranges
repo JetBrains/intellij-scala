@@ -1,0 +1,14 @@
+[0,106]: PackageDef
+[0,0]: Ident
+[0,64]: PackageDef
+[8,11]: Ident
+[15,64]: DefDef
+[33,37]: Ident
+[40,64]: Apply
+[40,47]: Ident
+[48,63]: Literal
+[66,106]: DefDef
+[84,88]: Ident
+[91,106]: Apply
+[91,98]: Ident
+[99,105]: Literal

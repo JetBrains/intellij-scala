@@ -1,0 +1,39 @@
+val im = 1
+val re = 2
+val im$re = 4
+s"$im$re"
+-----
+val {val}
+white space in line { }
+identifier {im}
+white space in line { }
+= {=}
+white space in line { }
+integer {1}
+white space in line {
+}
+val {val}
+white space in line { }
+identifier {re}
+white space in line { }
+= {=}
+white space in line { }
+integer {2}
+white space in line {
+}
+val {val}
+white space in line { }
+identifier {im$re}
+white space in line { }
+= {=}
+white space in line { }
+integer {4}
+white space in line {
+}
+interpolated string id {s}
+interpolated string {"}
+interpolated string injection {$}
+identifier {im}
+interpolated string injection {$}
+identifier {re}
+interpolated string end {"}

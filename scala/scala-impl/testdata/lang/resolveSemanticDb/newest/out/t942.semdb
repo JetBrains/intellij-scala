@@ -1,0 +1,4 @@
+Document tests/pos/t942/Test_2.scala
+(2:10..2:18) _empty_/Amount_1#
+(2:19..2:22) _empty_/Foo# -> 1:16
+

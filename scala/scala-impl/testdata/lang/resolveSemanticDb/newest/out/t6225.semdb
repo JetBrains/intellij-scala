@@ -1,0 +1,18 @@
+Document tests/pos/t6225.scala
+(2:9..2:16) library/ -> 8:9
+(5:23..5:26) library/x/X#Foo# -> 4:11
+(5:33..5:36) library/x/X#Foo# -> 4:11
+(9:28..9:35) library/ -> 8:9
+(9:36..9:37) library/x/ -> 2:17
+(9:38..9:39) library/x/X# -> 3:9
+(13:10..13:17) library/ -> 8:9
+(13:18..13:19) library/y/
+(13:21..13:24) library/x/X#Foo# -> 4:11
+(13:26..13:29) library/x/X#foo. -> 5:18
+(14:3..14:13) scala/Predef.implicitly().
+(14:14..14:17) library/x/X#Foo# -> 4:11
+(18:10..18:17) library/ -> 8:9
+(18:18..18:19) library/y/
+(19:3..19:13) scala/Predef.implicitly().
+(19:14..19:17) library/x/X#Foo# -> 4:11
+

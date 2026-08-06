@@ -1,0 +1,4 @@
+Document tests/pos/i4395.scala
+(2:14..2:16) scala/Any#`##`().
+(3:19..3:21) scala/Any#`##`().
+

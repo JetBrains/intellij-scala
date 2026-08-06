@@ -1,0 +1,50 @@
+Document tests/pos/i22061.scala
+(6:14..6:17) scala/Int#
+(9:19..9:20) _empty_/TraitExtendingClass.A# -> 4:9
+(11:23..11:26) scala/Int#
+(13:4..13:8) scala/main#
+(13:21..13:25) scala/Unit#
+(15:17..15:18) _empty_/TraitExtendingClass.A# -> 4:9
+(16:17..16:18) _empty_/TraitExtendingClass.B# -> 9:9
+(17:17..17:18) _empty_/TraitExtendingClass.C# -> 11:9
+(19:5..19:12) scala/Predef.println(+1).
+(19:13..19:14) local3 -> 16:9
+(19:15..19:16) _empty_/TraitExtendingClass.A#x. -> 6:11
+(22:10..22:13) scala/Int#
+(22:18..22:21) scala/Int#
+(22:35..22:38) scala/Int#
+(22:47..22:48) _empty_/i22061$package.f().(x) -> 22:32
+(22:48..22:49) scala/Int#`*`(+3).
+(22:50..22:51) _empty_/i22061$package.f().(i) -> 22:7
+(22:51..22:52) scala/Int#`+`(+4).
+(22:52..22:53) _empty_/i22061$package.f().(j) -> 22:15
+(23:9..23:10) _empty_/i22061$package.f(). -> 22:5
+(25:36..25:39) scala/Int#
+(26:18..26:19) _empty_/A# -> 25:16
+(27:18..27:19) _empty_/A# -> 25:16
+(29:29..29:32) scala/Int#
+(30:18..30:19) _empty_/B# -> 29:16
+(31:18..31:19) _empty_/B# -> 29:16
+(33:34..33:37) scala/Int#
+(34:18..34:19) _empty_/C# -> 33:16
+(35:18..35:19) _empty_/C# -> 33:16
+(37:27..37:30) scala/Int#
+(38:18..38:19) _empty_/D# -> 37:16
+(39:18..39:19) _empty_/D# -> 37:16
+(41:36..41:39) scala/Int#
+(41:52..41:55) scala/Int#
+(42:18..42:19) _empty_/E# -> 41:16
+(43:18..43:19) _empty_/E# -> 41:16
+(45:29..45:32) scala/Int#
+(45:41..45:44) scala/Int#
+(46:18..46:19) _empty_/F# -> 45:16
+(47:18..47:19) _empty_/F# -> 45:16
+(49:34..49:37) scala/Int#
+(49:50..49:53) scala/Int#
+(50:18..50:19) _empty_/G# -> 49:16
+(51:18..51:19) _empty_/G# -> 49:16
+(53:27..53:30) scala/Int#
+(53:39..53:42) scala/Int#
+(54:18..54:19) _empty_/H# -> 53:16
+(55:18..55:19) _empty_/H# -> 53:16
+

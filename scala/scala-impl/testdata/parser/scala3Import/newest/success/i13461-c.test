@@ -1,0 +1,538 @@
+object Time:
+  opaque type Time = String
+  opaque type Seconds <: Time = String
+
+  transparent inline def sec(n: Double): Seconds =
+    s"${n}s": Seconds // opaque type aliases have to be dealiased in nested calls, otherwise the resulting program might not be typed correctly
+
+  transparent inline def testInference(): List[Time] =
+    List(sec(5)) // infers List[String] and returns List[Time] & List[String], not List[Seconds]
+  transparent inline def testGuarded(): List[Time] =
+    List(sec(5)): List[Seconds] // returns List[Seconds]
+  transparent inline def testExplicitTime(): List[Time] =
+    List[Seconds](sec(5)) // returns List[Seconds]
+  transparent inline def testExplicitString(): List[Time] =
+    List[String](sec(5)) // returns List[Time] & List[String]
+
+end Time
+
+@main def main() =
+  val t1: List[String] = Time.testInference() // returns List[Time.Time] & List[String]
+  val t2: List[Time.Seconds] = Time.testGuarded() // returns List[Time.Seconds]
+  val t3: List[Time.Seconds] = Time.testExplicitTime() // returns List[Time.Seconds]
+  val t4: List[String] = Time.testExplicitString() // returns List[Time.Time] & List[String]
+-----
+ScalaFile
+  ScObject: Time
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Time')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Time
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Time')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Seconds
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Seconds')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Time
+            CodeReferenceElement: Time
+              PsiElement(identifier)('Time')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: sec
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('sec')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: n
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('n')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Double
+                    CodeReferenceElement: Double
+                      PsiElement(identifier)('Double')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Seconds
+            CodeReferenceElement: Seconds
+              PsiElement(identifier)('Seconds')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          TypedExpression
+            InterpolatedStringLiteral
+              InterpolatedExpressionPrefix: s
+                PsiElement(interpolated string id)('s')
+              PsiElement(interpolated string)('"')
+              PsiElement(interpolated string injection)('$')
+              BlockExpression
+                PsiElement({)('{')
+                ReferenceExpression: n
+                  PsiElement(identifier)('n')
+                PsiElement(})('}')
+              PsiElement(interpolated string)('s')
+              PsiElement(interpolated string end)('"')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Seconds
+              CodeReferenceElement: Seconds
+                PsiElement(identifier)('Seconds')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// opaque type aliases have to be dealiased in nested calls, otherwise the resulting program might not be typed correctly')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: testInference
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testInference')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[Time]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: List
+              PsiElement(identifier)('List')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: sec
+                  PsiElement(identifier)('sec')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('5')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// infers List[String] and returns List[Time] & List[String], not List[Seconds]')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: testGuarded
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testGuarded')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[Time]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          TypedExpression
+            MethodCall
+              ReferenceExpression: List
+                PsiElement(identifier)('List')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  ReferenceExpression: sec
+                    PsiElement(identifier)('sec')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('5')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: List[Seconds]
+              SimpleType: List
+                CodeReferenceElement: List
+                  PsiElement(identifier)('List')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Seconds
+                    CodeReferenceElement: Seconds
+                      PsiElement(identifier)('Seconds')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// returns List[Seconds]')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: testExplicitTime
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testExplicitTime')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[Time]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: List
+                PsiElement(identifier)('List')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: Seconds
+                    CodeReferenceElement: Seconds
+                      PsiElement(identifier)('Seconds')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: sec
+                  PsiElement(identifier)('sec')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('5')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// returns List[Seconds]')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: testExplicitString
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(transparent)('transparent')
+            PsiWhiteSpace(' ')
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testExplicitString')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[Time]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Time
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            GenericCall
+              ReferenceExpression: List
+                PsiElement(identifier)('List')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement(])(']')
+            ArgumentList
+              PsiElement(()('(')
+              MethodCall
+                ReferenceExpression: sec
+                  PsiElement(identifier)('sec')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('5')
+                  PsiElement())(')')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// returns List[Time] & List[String]')
+        PsiWhiteSpace('\n\n')
+        End: Time
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Time')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: main
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: t1
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: t1
+            PsiElement(identifier)('t1')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: List[String]
+          SimpleType: List
+            CodeReferenceElement: List
+              PsiElement(identifier)('List')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Time.testInference
+            ReferenceExpression: Time
+              PsiElement(identifier)('Time')
+            PsiElement(.)('.')
+            PsiElement(identifier)('testInference')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// returns List[Time.Time] & List[String]')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: t2
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: t2
+            PsiElement(identifier)('t2')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: List[Time.Seconds]
+          SimpleType: List
+            CodeReferenceElement: List
+              PsiElement(identifier)('List')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: Time.Seconds
+                CodeReferenceElement: Time.Seconds
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Seconds')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Time.testGuarded
+            ReferenceExpression: Time
+              PsiElement(identifier)('Time')
+            PsiElement(.)('.')
+            PsiElement(identifier)('testGuarded')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// returns List[Time.Seconds]')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: t3
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: t3
+            PsiElement(identifier)('t3')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: List[Time.Seconds]
+          SimpleType: List
+            CodeReferenceElement: List
+              PsiElement(identifier)('List')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: Time.Seconds
+                CodeReferenceElement: Time.Seconds
+                  CodeReferenceElement: Time
+                    PsiElement(identifier)('Time')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Seconds')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Time.testExplicitTime
+            ReferenceExpression: Time
+              PsiElement(identifier)('Time')
+            PsiElement(.)('.')
+            PsiElement(identifier)('testExplicitTime')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiComment(comment)('// returns List[Time.Seconds]')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: t4
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: t4
+            PsiElement(identifier)('t4')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        ParametrizedType: List[String]
+          SimpleType: List
+            CodeReferenceElement: List
+              PsiElement(identifier)('List')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: Time.testExplicitString
+            ReferenceExpression: Time
+              PsiElement(identifier)('Time')
+            PsiElement(.)('.')
+            PsiElement(identifier)('testExplicitString')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// returns List[Time.Time] & List[String]')

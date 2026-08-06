@@ -1,0 +1,362 @@
+package org.jetbrains.plugins.scala.lang.parser.parsing.builder
+
+import com.intellij.lang.PsiBuilder
+import com.intellij.lang.impl.PsiBuilderAdapter
+import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
+import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
+import org.jetbrains.plugins.scala.lang.parser.IndentationWidth
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl.IndentationRegionHolder
+import org.jetbrains.plugins.scala.project.ProjectPsiFileExt.enableFeaturesCheckInTests
+import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
+
+import scala.collection.mutable
+
+// TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
+//  update all ScalaPsiBuilderImpl instantiations passing proper isScala3 value
+class ScalaPsiBuilderImpl(
+  delegate:              PsiBuilder,
+  override val isScala3: Boolean,
+  presetFeatures:        Option[ScalaFeatures] = None
+) extends PsiBuilderAdapter(delegate)
+    with ScalaPsiBuilder {
+
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
+  import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+
+  private var newlinesEnabled = List.empty[Boolean]
+
+  private var inBracedRegion: Int = 0
+
+  private var inQuotedPattern: Int = 0
+
+  private lazy val containingFile = Option {
+    myDelegate.getUserData(CONTAINING_FILE_KEY)
+  }
+
+  override def skipExternalToken(): Boolean = false
+
+  override final lazy val isMetaEnabled: Boolean = features.hasMetaEnabled
+
+  override final lazy val isStrictMode: Boolean =
+    containingFile.exists(_.isCompilerStrictMode)
+
+  override final lazy val features: ScalaFeatures = presetFeatures.getOrElse {
+    def featuresByVersion: ScalaFeatures = {
+      val version = if (isScala3) ScalaVersion.Latest.Scala_3_5 else ScalaVersion.Latest.Scala_2_13
+      ScalaFeatures.onlyByVersion(version)
+    }
+
+    containingFile match {
+      case Some(file) =>
+        val fileModule = file.module
+        fileModule match {
+          case Some(module) =>
+            module.features
+          case None         =>
+            val featuresFromPusher = ScalaFeaturePusher.getFeatures(file)
+            featuresFromPusher.getOrElse(featuresByVersion)
+        }
+      case None =>
+        featuresByVersion
+    }
+  }
+
+  final lazy val scalaLanguageLevel: ScalaLanguageLevel = features.languageLevel
+
+  final private lazy val isAtLeast2_12: Boolean = scalaLanguageLevel >= ScalaLanguageLevel.Scala_2_12
+
+  override final def isTrailingComma: Boolean = getTokenType match {
+    case `tCOMMA` => features.hasTrailingCommasEnabled ||
+      (isUnitTestMode && !enableFeaturesCheckInTests)
+    case _ => false
+  }
+
+  override final def isIdBinding: Boolean =
+    this.invalidVarId || isAtLeast2_12
+
+  override def newlineBeforeCurrentToken: Boolean =
+    findPreviousNewLineSafe.isDefined
+
+  override def twoNewlinesBeforeCurrentToken: Boolean =
+    findPreviousNewLineSafe.exists { text =>
+      s"start $text end".split('\n').exists { line =>
+        line.forall(isWhiteSpace)
+      }
+    }
+
+  override final def disableNewlines(): Unit =
+    newlinesEnabled = false :: newlinesEnabled
+
+  override final def enableNewlines(): Unit =
+    newlinesEnabled = true :: newlinesEnabled
+
+  private def enterBracedRegion(): Unit =
+    inBracedRegion += 1
+
+  private def exitBracedRegion(): Unit = {
+    assert(isInsideBracedRegion)
+    inBracedRegion -= 1
+  }
+
+  override final def isInsideBracedRegion: Boolean = inBracedRegion > 0
+
+  override final def enterQuotedPattern(): Unit =
+    inQuotedPattern += 1
+
+  override final def exitQuotedPattern(): Unit = {
+    assert(inQuotedPattern > 0)
+    inQuotedPattern -= 1
+  }
+
+  override final def isInQuotedPattern: Boolean =
+    inQuotedPattern > 0
+
+  override final def restoreNewlinesState(): Unit = {
+    assert(newlinesEnabled.nonEmpty)
+    newlinesEnabled = newlinesEnabled.tail
+  }
+
+  protected final def isNewlinesEnabled: Boolean =
+    newlinesEnabled.isEmpty || newlinesEnabled.head
+
+  private def findPreviousNewLineSafe =
+    if (isNewlinesEnabled && canStartStatement)
+      this.findPreviousNewLine
+    else
+      None
+
+  private def canStartStatement: Boolean = getTokenType match {
+    case null => false
+    case `kCATCH` |
+         `kELSE` |
+         `kEXTENDS` |
+         `kFINALLY` |
+         `kMATCH` |
+         `kWITH` |
+         `kYIELD` |
+         `tCOMMA` |
+         `tDOT` |
+         `tSEMICOLON` |
+         `tCOLON` |
+         `tASSIGN` |
+         `tFUNTYPE` |
+         `ImplicitFunctionArrow` |
+         `tCHOOSE` |
+         `tUPPER_BOUND` |
+         `tLOWER_BOUND` |
+         `tVIEW` |
+         `tINNER_CLASS` |
+         `tLSQBRACKET` |
+         `tRSQBRACKET` |
+         `tRPARENTHESIS` |
+         `tRBRACE` => false
+    case `kCASE` =>
+      this.predict { builder =>
+        builder.getTokenType match {
+          case ObjectKeyword |
+               ClassKeyword |
+               `tIDENTIFIER` => true
+          case _ =>
+            false
+        }
+      }
+    case _ => true
+  }
+
+  def isScala3IndentationBasedSyntaxEnabled: Boolean =
+    features.indentationBasedSyntaxEnabled
+
+  private var indentationRegionStack = List(IndentationRegionHolder.initial)
+
+  override def currentIndentationRegion: IndentationRegion = indentationRegionStack.head.region
+
+  override def pushIndentationRegion(region: IndentationRegion): Unit = {
+    region match {
+      case IndentationRegion.Indented(indent) =>
+        assert(currentIndentationRegion.isIndent(indent))
+      case _: IndentationRegion.Braced =>
+        // braced regions can have a lower indentation than the current indentation
+        enterBracedRegion()
+      case _: IndentationRegion.SingleExpr =>
+        // single expression regions have the indentation level of the previous region
+      case _: IndentationRegion.BracelessCaseClause =>
+        // braceless case clauses have the indentation level of the previous region
+    }
+
+    val prevHolder = indentationRegionStack.head
+
+    prevHolder.rollback(getCurrentOffset)
+
+    indentationRegionStack ::= new IndentationRegionHolder(region, getCurrentOffset, prevHolder.prevIndents)
+  }
+
+  override def popIndentationRegion(region: IndentationRegion): Unit = {
+    val popped :: rest = indentationRegionStack
+    assert(popped.region eq region)
+    indentationRegionStack = rest
+
+    if (region.isBraced) {
+      exitBracedRegion()
+    }
+  }
+
+  override def allPreviousIndentations(region: IndentationRegion): Set[IndentationWidth] = {
+    val it = indentationRegionStack.iterator
+
+    // skip all regions until the current one...
+    while (it.hasNext && (it.next().region ne region)) {}
+
+    // ... and then return the next region's previous indents
+    // this is important so that the same indent can be used within the same region
+    // for multiple infix expressions.
+    //
+    // Example:
+    // ```
+    //   block:
+    //      5
+    //    + 10    // this indentation is added to previous the indentations
+    //    + 15    // but shouldn't matter here
+    //      a
+    //    + b     // neither should it matter here
+    //      block:
+    //        c
+    //    +   d   // but it should matter here
+    // ```
+    if (it.hasNext) {
+      it.next().prevIndents
+    } else {
+      Set.empty
+    }
+  }
+
+  private val indentationCache = mutable.HashMap.empty[Int, Option[IndentationWidth]]
+
+  /**
+   * Return
+   *   - Some(Indent[2]) for `  <caret>foo`
+   *   - Some(Indent[2]) for `  /* comment */ <caret>foo`
+   *   - None for `def foo = <caret>bar`
+   */
+  def findPrecedingIndentation: Option[IndentationWidth] = {
+    indentationCache.getOrElseUpdate(getCurrentOffset, lookBehindForPrecedingIndentation(this, 0))
+  }
+
+  override def advanceLexer(): Unit = {
+    if (isScala3) {
+      findPrecedingIndentation.foreach { indent =>
+        indentationRegionStack.head.addIntent(indent, getCurrentOffset)
+      }
+    }
+    super.advanceLexer()
+  }
+
+
+  private val errorMarkerStack = new mutable.Stack[ErrorTrackingMarkerParent]
+
+  override def countDoneErrorsIn[T](body: => T): (Int, T) = {
+    object ErrorCounter extends ErrorTrackingMarkerParent {
+      var errors = 0
+
+      override def reportErrors(errorCount: Int): Unit = errors += errorCount
+      override def dropFromStack(): Nothing = throw new IllegalStateException("Completed marker from outer stack")
+    }
+
+    errorMarkerStack.push(ErrorCounter)
+
+    val result = body
+    dropMarkerFromStack(ErrorCounter)
+
+    ErrorCounter.errors -> result
+  }
+
+  private[builder] def pushPrecedeErrorTrackingMarker(precedingMarker: ErrorTrackingMarker, before: ErrorTrackingMarker): Unit = {
+    val idx = errorMarkerStack.indexOf(before)
+    if (idx == -1) {
+      errorMarkerStack.push(precedingMarker)
+    } else {
+      errorMarkerStack.insert(idx + 1, precedingMarker)
+    }
+  }
+
+  private[builder] def finishErrorTrackingMarker(marker: ErrorTrackingMarker,
+                                                 isDrop: Boolean = false,
+                                                 isRollback: Boolean = false): Unit = {
+    if (isDrop) {
+      val markerIdx = errorMarkerStack.indexOf(marker)
+
+      if (marker.droppedFromStack) {
+        assert(markerIdx == -1, "Marker was not dropped from stack?")
+      } else {
+        assert(markerIdx >= 0, "Marker was not found in stack")
+        errorMarkerStack.remove(markerIdx)
+        errorMarkerStack(markerIdx).reportErrors(marker.errors)
+      }
+    } else {
+      dropMarkerFromStack(marker)
+      if (!isRollback) {
+        errorMarkerStack.top.reportErrors(marker.errors)
+      }
+    }
+  }
+
+  private[this] def dropMarkerFromStack(marker: ErrorTrackingMarkerParent): Unit = {
+    var droppedErrors = 0
+    errorMarkerStack.dropWhileInPlace {
+      case `marker` => false
+      case m =>
+        droppedErrors += m.dropFromStack()
+        true
+    }
+    marker.reportErrors(droppedErrors)
+    val dropped = errorMarkerStack.pop()
+    assert(dropped eq marker, "Marker was not on the stack")
+  }
+
+  override def mark(): PsiBuilder.Marker = {
+    val original = super.mark()
+    if (errorMarkerStack.isEmpty) {
+      original
+    } else {
+      val wrapped = new ErrorTrackingMarker(original, this)
+      errorMarkerStack.push(wrapped)
+      wrapped
+    }
+  }
+
+  override def error(message: String): Unit = {
+    super.error(message)
+    errorMarkerStack.headOption.foreach(_.reportErrors(1))
+  }
+}
+
+object ScalaPsiBuilderImpl {
+  private class IndentationRegionHolder(val region: IndentationRegion, val start: Int, private var cachedPrevIndents: Set[IndentationWidth]) {
+    private var saves: List[(Int, Set[IndentationWidth])] = List(start -> cachedPrevIndents)
+
+    def prevIndents: Set[IndentationWidth] = cachedPrevIndents
+
+    def addIntent(indent: IndentationWidth, start: Int): Unit = {
+      if (start > saves.head._1) {
+        val newPrevIndents = cachedPrevIndents + indent
+        if (newPrevIndents ne cachedPrevIndents) {
+          cachedPrevIndents = newPrevIndents
+          saves = (start -> newPrevIndents) :: saves
+        }
+      }
+    }
+
+    def rollback(offset: Int): Unit = {
+      saves = saves.dropWhile(_._1 > offset)
+      cachedPrevIndents = saves.head._2
+    }
+
+    override def toString: String = s"IndentationRegionHolder($region at $start, cachedPrevIndents: ${cachedPrevIndents.mkString(", ")})"
+  }
+
+  private object IndentationRegionHolder {
+    val initial: IndentationRegionHolder = IndentationRegionHolder(IndentationRegion.initial, 0)
+    def apply(region: IndentationRegion, start: Int): IndentationRegionHolder =
+      new IndentationRegionHolder(region, start, Set.empty)
+  }
+}

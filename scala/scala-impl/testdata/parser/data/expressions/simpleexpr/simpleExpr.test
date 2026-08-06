@@ -1,0 +1,40 @@
+class A {
+  (a+b).id
+}
+-----
+ScalaFile
+  ScClass: A
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('A')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: (a+b).id
+          ExpressionInParenthesis
+            PsiElement(()('(')
+            InfixExpression
+              ReferenceExpression: a
+                PsiElement(identifier)('a')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              ReferenceExpression: b
+                PsiElement(identifier)('b')
+            PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('id')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,218 @@
+object Outer:
+  def Test =
+    object Inner:
+      var x: Int = 2
+      class Rgb():
+        def f = x
+
+    type Id[X] = X
+    type TRgb = Id[Inner.Rgb]
+
+    val ok = new Inner.Rgb()
+    val crash = new Id[Inner.Rgb]
+-----
+ScalaFile
+  ScObject: Outer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Outer')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: Test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScObject: Inner
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(object)('object')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Inner')
+              ExtendsBlock
+                ScTemplateBody
+                  PsiElement(:)(':')
+                  PsiWhiteSpace('\n      ')
+                  ScVariableDefinition: x
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(var)('var')
+                    PsiWhiteSpace(' ')
+                    ListOfPatterns
+                      ReferencePattern: x
+                        PsiElement(identifier)('x')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                  PsiWhiteSpace('\n      ')
+                  ScClass: Rgb
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(class)('class')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('Rgb')
+                    PrimaryConstructor
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                    ExtendsBlock
+                      ScTemplateBody
+                        PsiElement(:)(':')
+                        PsiWhiteSpace('\n        ')
+                        ScFunctionDefinition: f
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(def)('def')
+                          PsiWhiteSpace(' ')
+                          PsiElement(identifier)('f')
+                          Parameters
+                            <empty list>
+                          PsiWhiteSpace(' ')
+                          PsiElement(=)('=')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: x
+                            PsiElement(identifier)('x')
+            PsiWhiteSpace('\n\n    ')
+            ScTypeAliasDefinition: Id
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('Id')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: X
+                  PsiElement(identifier)('X')
+                PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              SimpleType: X
+                CodeReferenceElement: X
+                  PsiElement(identifier)('X')
+            PsiWhiteSpace('\n    ')
+            ScTypeAliasDefinition: TRgb
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(type)('type')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('TRgb')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Id[Inner.Rgb]
+                SimpleType: Id
+                  CodeReferenceElement: Id
+                    PsiElement(identifier)('Id')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Inner.Rgb
+                      CodeReferenceElement: Inner.Rgb
+                        CodeReferenceElement: Inner
+                          PsiElement(identifier)('Inner')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Rgb')
+                  PsiElement(])(']')
+            PsiWhiteSpace('\n\n    ')
+            ScPatternDefinition: ok
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: ok
+                  PsiElement(identifier)('ok')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      SimpleType: Inner.Rgb
+                        CodeReferenceElement: Inner.Rgb
+                          CodeReferenceElement: Inner
+                            PsiElement(identifier)('Inner')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Rgb')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: crash
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: crash
+                  PsiElement(identifier)('crash')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ScNewTemplateDefinition: <anonymous>
+                PsiElement(new)('new')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: Id[Inner.Rgb]
+                        SimpleType: Id
+                          CodeReferenceElement: Id
+                            PsiElement(identifier)('Id')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Inner.Rgb
+                              CodeReferenceElement: Inner.Rgb
+                                CodeReferenceElement: Inner
+                                  PsiElement(identifier)('Inner')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Rgb')
+                          PsiElement(])(']')

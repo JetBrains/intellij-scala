@@ -1,0 +1,9 @@
+class a {
+  <start>abc<yield>
+}
+-----
+class a {
+  for () yield {
+    abc
+  }
+}

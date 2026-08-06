@@ -1,0 +1,9 @@
+class C1 {
+  class C2 {
+    def f1 = {
+    }
+
+    def f2 = { // -
+    }
+  }
+}

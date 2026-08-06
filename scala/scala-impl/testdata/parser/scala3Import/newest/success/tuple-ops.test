@@ -1,0 +1,591 @@
+import Tuple.*
+
+def test =
+  summon[Disjoint[(1, 2, 3), (4, 5)] =:= true]
+  summon[Disjoint[(1, 2, 6), (4, 5)] =:= true]
+  summon[Disjoint[(1, 2, 6), EmptyTuple] =:= true]
+  summon[Disjoint[EmptyTuple, EmptyTuple] =:= true]
+
+  summon[Contains[(1, 2, 3), Int] =:= true]
+  summon[Contains[(1, 2, 3), 2] =:= true]
+  summon[Contains[(1, 2, 3), 4] =:= false]
+
+  summon[Disjoint[(1, 2, 3), (4, 2)] =:= false]
+  summon[Disjoint[("a", "b"), ("b", "c")] =:= false]
+  summon[Disjoint[(1, 2, 6), Tuple1[2]] =:= false]
+  summon[Disjoint[Tuple1[3], (4, 3, 6)] =:= false]
+
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Tuple
+        PsiElement(identifier)('Tuple')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Disjoint[(1, 2, 3), (4, 5)] =:= true
+              ParametrizedType: Disjoint[(1, 2, 3), (4, 5)]
+                SimpleType: Disjoint
+                  CodeReferenceElement: Disjoint
+                    PsiElement(identifier)('Disjoint')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, 2, 3)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 3
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    TupleType: (4, 5)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 4
+                          IntegerLiteral
+                            PsiElement(integer)('4')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 5
+                          IntegerLiteral
+                            PsiElement(integer)('5')
+                      PsiElement())(')')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: true
+                BooleanLiteral
+                  PsiElement(true)('true')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Disjoint[(1, 2, 6), (4, 5)] =:= true
+              ParametrizedType: Disjoint[(1, 2, 6), (4, 5)]
+                SimpleType: Disjoint
+                  CodeReferenceElement: Disjoint
+                    PsiElement(identifier)('Disjoint')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, 2, 6)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 6
+                          IntegerLiteral
+                            PsiElement(integer)('6')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    TupleType: (4, 5)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 4
+                          IntegerLiteral
+                            PsiElement(integer)('4')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 5
+                          IntegerLiteral
+                            PsiElement(integer)('5')
+                      PsiElement())(')')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: true
+                BooleanLiteral
+                  PsiElement(true)('true')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Disjoint[(1, 2, 6), EmptyTuple] =:= true
+              ParametrizedType: Disjoint[(1, 2, 6), EmptyTuple]
+                SimpleType: Disjoint
+                  CodeReferenceElement: Disjoint
+                    PsiElement(identifier)('Disjoint')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, 2, 6)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 6
+                          IntegerLiteral
+                            PsiElement(integer)('6')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: EmptyTuple
+                      CodeReferenceElement: EmptyTuple
+                        PsiElement(identifier)('EmptyTuple')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: true
+                BooleanLiteral
+                  PsiElement(true)('true')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Disjoint[EmptyTuple, EmptyTuple] =:= true
+              ParametrizedType: Disjoint[EmptyTuple, EmptyTuple]
+                SimpleType: Disjoint
+                  CodeReferenceElement: Disjoint
+                    PsiElement(identifier)('Disjoint')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: EmptyTuple
+                      CodeReferenceElement: EmptyTuple
+                        PsiElement(identifier)('EmptyTuple')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: EmptyTuple
+                      CodeReferenceElement: EmptyTuple
+                        PsiElement(identifier)('EmptyTuple')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: true
+                BooleanLiteral
+                  PsiElement(true)('true')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Contains[(1, 2, 3), Int] =:= true
+              ParametrizedType: Contains[(1, 2, 3), Int]
+                SimpleType: Contains
+                  CodeReferenceElement: Contains
+                    PsiElement(identifier)('Contains')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, 2, 3)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 3
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: true
+                BooleanLiteral
+                  PsiElement(true)('true')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Contains[(1, 2, 3), 2] =:= true
+              ParametrizedType: Contains[(1, 2, 3), 2]
+                SimpleType: Contains
+                  CodeReferenceElement: Contains
+                    PsiElement(identifier)('Contains')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, 2, 3)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 3
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    LiteralType: 2
+                      IntegerLiteral
+                        PsiElement(integer)('2')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: true
+                BooleanLiteral
+                  PsiElement(true)('true')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Contains[(1, 2, 3), 4] =:= false
+              ParametrizedType: Contains[(1, 2, 3), 4]
+                SimpleType: Contains
+                  CodeReferenceElement: Contains
+                    PsiElement(identifier)('Contains')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, 2, 3)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 3
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    LiteralType: 4
+                      IntegerLiteral
+                        PsiElement(integer)('4')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: false
+                BooleanLiteral
+                  PsiElement(false)('false')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Disjoint[(1, 2, 3), (4, 2)] =:= false
+              ParametrizedType: Disjoint[(1, 2, 3), (4, 2)]
+                SimpleType: Disjoint
+                  CodeReferenceElement: Disjoint
+                    PsiElement(identifier)('Disjoint')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, 2, 3)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 3
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    TupleType: (4, 2)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 4
+                          IntegerLiteral
+                            PsiElement(integer)('4')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                      PsiElement())(')')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: false
+                BooleanLiteral
+                  PsiElement(false)('false')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Disjoint[("a", "b"), ("b", "c")] =:= false
+              ParametrizedType: Disjoint[("a", "b"), ("b", "c")]
+                SimpleType: Disjoint
+                  CodeReferenceElement: Disjoint
+                    PsiElement(identifier)('Disjoint')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: ("a", "b")
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: "a"
+                          StringLiteral
+                            PsiElement(string content)('"a"')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: "b"
+                          StringLiteral
+                            PsiElement(string content)('"b"')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    TupleType: ("b", "c")
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: "b"
+                          StringLiteral
+                            PsiElement(string content)('"b"')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: "c"
+                          StringLiteral
+                            PsiElement(string content)('"c"')
+                      PsiElement())(')')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: false
+                BooleanLiteral
+                  PsiElement(false)('false')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Disjoint[(1, 2, 6), Tuple1[2]] =:= false
+              ParametrizedType: Disjoint[(1, 2, 6), Tuple1[2]]
+                SimpleType: Disjoint
+                  CodeReferenceElement: Disjoint
+                    PsiElement(identifier)('Disjoint')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (1, 2, 6)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 6
+                          IntegerLiteral
+                            PsiElement(integer)('6')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    ParametrizedType: Tuple1[2]
+                      SimpleType: Tuple1
+                        CodeReferenceElement: Tuple1
+                          PsiElement(identifier)('Tuple1')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          LiteralType: 2
+                            IntegerLiteral
+                              PsiElement(integer)('2')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: false
+                BooleanLiteral
+                  PsiElement(false)('false')
+          PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      GenericCall
+        ReferenceExpression: summon
+          PsiElement(identifier)('summon')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            InfixType: Disjoint[Tuple1[3], (4, 3, 6)] =:= false
+              ParametrizedType: Disjoint[Tuple1[3], (4, 3, 6)]
+                SimpleType: Disjoint
+                  CodeReferenceElement: Disjoint
+                    PsiElement(identifier)('Disjoint')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: Tuple1[3]
+                      SimpleType: Tuple1
+                        CodeReferenceElement: Tuple1
+                          PsiElement(identifier)('Tuple1')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          LiteralType: 3
+                            IntegerLiteral
+                              PsiElement(integer)('3')
+                        PsiElement(])(']')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    TupleType: (4, 3, 6)
+                      PsiElement(()('(')
+                      TypesList
+                        LiteralType: 4
+                          IntegerLiteral
+                            PsiElement(integer)('4')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 3
+                          IntegerLiteral
+                            PsiElement(integer)('3')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 6
+                          IntegerLiteral
+                            PsiElement(integer)('6')
+                      PsiElement())(')')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: =:=
+                PsiElement(identifier)('=:=')
+              PsiWhiteSpace(' ')
+              LiteralType: false
+                BooleanLiteral
+                  PsiElement(false)('false')
+          PsiElement(])(']')

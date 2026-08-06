@@ -1,0 +1,542 @@
+// 5
+// Finally, an alternative way to fix the original issue,
+// by reimplementing `getOrSet` to not even need
+// our `get` extension.
+import java.util.concurrent.atomic.AtomicReference
+
+opaque type Worm[V] = AtomicReference[AnyRef]
+object Worm:
+  val notSetSentinel: AnyRef = new AnyRef {}
+
+  extension [V](worm: Worm[V])
+    inline def wormAsAtomic: AtomicReference[AnyRef] = worm // deprecate?
+
+    inline def setIfEmpty(v: => V): Boolean =
+      val x = worm.get()
+      if x eq notSetSentinel then
+        val value = v
+        worm.set(value.asInstanceOf[AnyRef])
+        true
+      else false
+
+    inline def get: V =
+      val x = worm.get()
+      if x eq notSetSentinel then
+        throw IllegalStateException("Retrieved value before being set")
+      else x.asInstanceOf[V]
+
+    inline def getOrSet(v: => V): V =
+      val x = worm.get()
+      if x eq notSetSentinel then
+        val value = v
+        worm.set(value.asInstanceOf[AnyRef])
+        value
+      else x.asInstanceOf[V]
+-----
+ScalaFile
+  PsiComment(comment)('// 5')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// Finally, an alternative way to fix the original issue,')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// by reimplementing `getOrSet` to not even need')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// our `get` extension.')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.util.concurrent.atomic.AtomicReference
+        CodeReferenceElement: java.util.concurrent.atomic
+          CodeReferenceElement: java.util.concurrent
+            CodeReferenceElement: java.util
+              CodeReferenceElement: java
+                PsiElement(identifier)('java')
+              PsiElement(.)('.')
+              PsiElement(identifier)('util')
+            PsiElement(.)('.')
+            PsiElement(identifier)('concurrent')
+          PsiElement(.)('.')
+          PsiElement(identifier)('atomic')
+        PsiElement(.)('.')
+        PsiElement(identifier)('AtomicReference')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Worm
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(opaque)('opaque')
+    PsiWhiteSpace(' ')
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Worm')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: V
+        PsiElement(identifier)('V')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: AtomicReference[AnyRef]
+      SimpleType: AtomicReference
+        CodeReferenceElement: AtomicReference
+          PsiElement(identifier)('AtomicReference')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: AnyRef
+            CodeReferenceElement: AnyRef
+              PsiElement(identifier)('AnyRef')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScObject: Worm
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Worm')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: notSetSentinel
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: notSetSentinel
+              PsiElement(identifier)('notSetSentinel')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: AnyRef
+            CodeReferenceElement: AnyRef
+              PsiElement(identifier)('AnyRef')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: AnyRef
+                    CodeReferenceElement: AnyRef
+                      PsiElement(identifier)('AnyRef')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        Extension on Worm[V]
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: V
+              PsiElement(identifier)('V')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: worm
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('worm')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Worm[V]
+                    SimpleType: Worm
+                      CodeReferenceElement: Worm
+                        PsiElement(identifier)('Worm')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: V
+                          CodeReferenceElement: V
+                            PsiElement(identifier)('V')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: wormAsAtomic
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('wormAsAtomic')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: AtomicReference[AnyRef]
+                SimpleType: AtomicReference
+                  CodeReferenceElement: AtomicReference
+                    PsiElement(identifier)('AtomicReference')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: AnyRef
+                      CodeReferenceElement: AnyRef
+                        PsiElement(identifier)('AnyRef')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: worm
+                PsiElement(identifier)('worm')
+            PsiWhiteSpace(' ')
+            PsiComment(comment)('// deprecate?')
+            PsiWhiteSpace('\n\n    ')
+            ScFunctionDefinition: setIfEmpty
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('setIfEmpty')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: v
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('v')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              BlockExpression
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: x
+                      PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: worm.get
+                      ReferenceExpression: worm
+                        PsiElement(identifier)('worm')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('get')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                IfStatement
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: eq
+                      PsiElement(identifier)('eq')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: notSetSentinel
+                      PsiElement(identifier)('notSetSentinel')
+                  PsiWhiteSpace(' ')
+                  PsiElement(then)('then')
+                  BlockExpression
+                    PsiWhiteSpace('\n        ')
+                    ScPatternDefinition: value
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: value
+                          PsiElement(identifier)('value')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: v
+                        PsiElement(identifier)('v')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: worm.set
+                        ReferenceExpression: worm
+                          PsiElement(identifier)('worm')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('set')
+                      ArgumentList
+                        PsiElement(()('(')
+                        GenericCall
+                          ReferenceExpression: value.asInstanceOf
+                            ReferenceExpression: value
+                              PsiElement(identifier)('value')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('asInstanceOf')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: AnyRef
+                                CodeReferenceElement: AnyRef
+                                  PsiElement(identifier)('AnyRef')
+                            PsiElement(])(']')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n        ')
+                    BooleanLiteral
+                      PsiElement(true)('true')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(else)('else')
+                  PsiWhiteSpace(' ')
+                  BooleanLiteral
+                    PsiElement(false)('false')
+            PsiWhiteSpace('\n\n    ')
+            ScFunctionDefinition: get
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('get')
+              Parameters
+                <empty list>
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: V
+                CodeReferenceElement: V
+                  PsiElement(identifier)('V')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              BlockExpression
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: x
+                      PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: worm.get
+                      ReferenceExpression: worm
+                        PsiElement(identifier)('worm')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('get')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                IfStatement
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: eq
+                      PsiElement(identifier)('eq')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: notSetSentinel
+                      PsiElement(identifier)('notSetSentinel')
+                  PsiWhiteSpace(' ')
+                  PsiElement(then)('then')
+                  PsiWhiteSpace('\n        ')
+                  ThrowStatement
+                    PsiElement(throw)('throw')
+                    PsiWhiteSpace(' ')
+                    MethodCall
+                      ReferenceExpression: IllegalStateException
+                        PsiElement(identifier)('IllegalStateException')
+                      ArgumentList
+                        PsiElement(()('(')
+                        StringLiteral
+                          PsiElement(string content)('"Retrieved value before being set"')
+                        PsiElement())(')')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(else)('else')
+                  PsiWhiteSpace(' ')
+                  GenericCall
+                    ReferenceExpression: x.asInstanceOf
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('asInstanceOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: V
+                          CodeReferenceElement: V
+                            PsiElement(identifier)('V')
+                      PsiElement(])(']')
+            PsiWhiteSpace('\n\n    ')
+            ScFunctionDefinition: getOrSet
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('getOrSet')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: v
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('v')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      SimpleType: V
+                        CodeReferenceElement: V
+                          PsiElement(identifier)('V')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: V
+                CodeReferenceElement: V
+                  PsiElement(identifier)('V')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              BlockExpression
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: x
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: x
+                      PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: worm.get
+                      ReferenceExpression: worm
+                        PsiElement(identifier)('worm')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('get')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                PsiWhiteSpace('\n      ')
+                IfStatement
+                  PsiElement(if)('if')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    ReferenceExpression: x
+                      PsiElement(identifier)('x')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: eq
+                      PsiElement(identifier)('eq')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: notSetSentinel
+                      PsiElement(identifier)('notSetSentinel')
+                  PsiWhiteSpace(' ')
+                  PsiElement(then)('then')
+                  BlockExpression
+                    PsiWhiteSpace('\n        ')
+                    ScPatternDefinition: value
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(val)('val')
+                      PsiWhiteSpace(' ')
+                      ListOfPatterns
+                        ReferencePattern: value
+                          PsiElement(identifier)('value')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: v
+                        PsiElement(identifier)('v')
+                    PsiWhiteSpace('\n        ')
+                    MethodCall
+                      ReferenceExpression: worm.set
+                        ReferenceExpression: worm
+                          PsiElement(identifier)('worm')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('set')
+                      ArgumentList
+                        PsiElement(()('(')
+                        GenericCall
+                          ReferenceExpression: value.asInstanceOf
+                            ReferenceExpression: value
+                              PsiElement(identifier)('value')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('asInstanceOf')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: AnyRef
+                                CodeReferenceElement: AnyRef
+                                  PsiElement(identifier)('AnyRef')
+                            PsiElement(])(']')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n        ')
+                    ReferenceExpression: value
+                      PsiElement(identifier)('value')
+                  PsiWhiteSpace('\n      ')
+                  PsiElement(else)('else')
+                  PsiWhiteSpace(' ')
+                  GenericCall
+                    ReferenceExpression: x.asInstanceOf
+                      ReferenceExpression: x
+                        PsiElement(identifier)('x')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('asInstanceOf')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: V
+                          CodeReferenceElement: V
+                            PsiElement(identifier)('V')
+                      PsiElement(])(']')

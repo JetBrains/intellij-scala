@@ -1,0 +1,12 @@
+Document tests/pos/i6190a.scala
+(3:23..3:29) scala/Predef.String#
+(4:22..4:28) scala/Predef.String#
+(4:32..4:36) _empty_/Rule# -> 3:12
+(5:19..5:25) scala/Predef.String#
+(5:28..5:32) _empty_/Rule# -> 3:12
+(5:39..5:43) _empty_/Rule# -> 3:12
+(5:44..5:48) _empty_/Rule.apply().(name) -> 5:13
+(8:11..8:15) scala/package.List.
+(8:26..8:29) scala/collection/immutable/List#map().
+(8:30..8:34) _empty_/Rule. -> 4:8
+

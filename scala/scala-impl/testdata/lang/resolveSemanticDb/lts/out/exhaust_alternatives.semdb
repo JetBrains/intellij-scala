@@ -1,0 +1,10 @@
+Document tests/pos/exhaust_alternatives.scala
+(2:24..2:31) scala/Boolean#
+(2:41..2:42) _empty_/X# -> 1:23
+(3:23..3:24) _empty_/X# -> 1:23
+(6:15..6:16) _empty_/X# -> 1:23
+(6:20..6:21) _empty_/Test.test().(x) -> 6:12
+(7:10..7:11) _empty_/A.
+(8:10..8:11) _empty_/A.
+(8:21..8:22) _empty_/B. -> 3:13
+

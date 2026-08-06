@@ -1,0 +1,3 @@
+package typeDefinition
+
+private class PackagePrivate

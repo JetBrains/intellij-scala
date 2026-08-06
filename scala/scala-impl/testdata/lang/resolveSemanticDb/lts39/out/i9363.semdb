@@ -1,0 +1,9 @@
+Document tests/pos/i9363.scala
+(2:38..2:41) scala/Int#
+(4:20..4:23) _empty_/Foo# -> 1:7
+(5:19..5:22) scala/Int#
+(5:25..5:37) _empty_/Foo#fooProtected(). -> 2:24
+(8:12..8:15) scala/Int#
+(8:18..8:21) _empty_/Foo. -> 4:8
+(8:22..8:25) _empty_/Foo.foo(). -> 5:14
+

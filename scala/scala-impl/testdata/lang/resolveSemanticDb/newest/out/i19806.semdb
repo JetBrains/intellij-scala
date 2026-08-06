@@ -1,0 +1,17 @@
+Document tests/pos/i19806/J_SCALA_ONLY.java
+(5:14..5:16) scala/Predef.`???`().
+(7:17..7:24) p/Module. -> 5:8
+(7:35..9:4) scala/Predef.`???`().
+(11:17..11:18) p/ -> 3:9
+(11:19..11:26) p/Module. -> 5:8
+(11:36..13:4) scala/Predef.`???`().
+(15:17..15:23) p/Module. -> 5:8
+(15:24..15:36) p/Module.InnerModule. -> 6:10
+(15:52..17:4) scala/Predef.`???`().
+(19:17..19:18) p/ -> 3:9
+(19:19..19:25) p/Module. -> 5:8
+(19:26..19:38) p/Module.InnerModule. -> 6:10
+(19:53..21:4) scala/Predef.`???`().
+
+Document tests/pos/i19806/Module.scala
+

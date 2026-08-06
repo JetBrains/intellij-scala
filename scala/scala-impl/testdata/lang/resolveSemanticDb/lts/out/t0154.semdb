@@ -1,0 +1,5 @@
+Document tests/pos/t0154.scala
+(3:25..3:31) scala/AnyRef#
+(5:15..5:21) scala/AnyRef#
+(6:15..6:26) test/MyMatchers#StringMatch. -> 3:7
+

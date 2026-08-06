@@ -1,0 +1,4 @@
+Document tests/pos/largecasetest.scala
+(2:13..2:16) scala/Int#
+(2:20..2:21) _empty_/Test.foo().(x) -> 2:9
+

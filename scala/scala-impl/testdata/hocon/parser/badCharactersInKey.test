@@ -1,0 +1,21 @@
+k@k = value
+-----
+HOCON_FILE
+  HObjectEntries(OBJECT_ENTRIES)
+    HObjectField(OBJECT_FIELD)
+      HValuedField(VALUED_FIELD)
+        HKey(KEY)
+          HKeyPart(KEY_PART)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('k')
+          PsiErrorElement:key must be a concatenation of unquoted, quoted or multiline strings (characters $ " { } [ ] : = , + # ` ^ ? ! @ * & \ are forbidden unquoted)
+            PsiElement(BAD_CHARACTER)('@')
+          HKeyPart(KEY_PART)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('k')
+        PsiWhiteSpace(' ')
+        PsiElement(EQUALS)('=')
+        PsiWhiteSpace(' ')
+        HStringValue(STRING_VALUE)
+          HUnquotedString(UNQUOTED_STRING)
+            PsiElement(UNQUOTED_CHARS)('value')

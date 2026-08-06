@@ -1,0 +1,40 @@
+val int: Int = 42
+val byte: Byte = 42
+val char: Char = 'x'
+val unit: Unit = ()
+val bool: Boolean = false
+val long: Long = 42L
+val short: Short = 42
+val float: Float = 42f
+val double: Double = 42.0
+val str: String = null
+val obj: Object = null
+val arr: Array[Int] = null
+val seq: Seq[Int] = null
+val chars: Array[Char] = null
+
+int.formatted("%d")
+byte.formatted("%d")
+char.formatted("%c")
+bool.formatted("%b")
+long.formatted("%d")
+short.formatted("%d")
+float.formatted("%f")
+double.formatted("%f")
+
+// %s accepts any type
+int.formatted("%s")
+byte.formatted("%s")
+char.formatted("%s")
+unit.formatted("%s")
+bool.formatted("%s")
+long.formatted("%s")
+short.formatted("%s")
+float.formatted("%s")
+double.formatted("%s")
+str.formatted("%s")
+obj.formatted("%s")
+arr.formatted("%s")
+seq.formatted("%s")
+chars.formatted("%s")
+-----

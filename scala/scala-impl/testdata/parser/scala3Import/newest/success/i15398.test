@@ -1,0 +1,405 @@
+object i15398 {
+  type Tuple23 = (Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int)
+
+  summon[Tuple.Size[Tuple23] =:= 23]
+  val m = summon[scala.deriving.Mirror.Of[Tuple23]]
+  summon[m.MirroredLabel =:= "Tuple"]
+  summon[m.MirroredElemTypes =:= Tuple23]
+  summon[m.MirroredElemLabels =:= ("_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10", "_11", "_12", "_13", "_14", "_15", "_16", "_17", "_18", "_19", "_20", "_21", "_22", "_23")]
+}
+-----
+ScalaFile
+  ScObject: i15398
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('i15398')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Tuple23
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Tuple23')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          TupleType: (Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: Tuple.Size[Tuple23] =:= 23
+                ParametrizedType: Tuple.Size[Tuple23]
+                  SimpleType: Tuple.Size
+                    CodeReferenceElement: Tuple.Size
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Size')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Tuple23
+                        CodeReferenceElement: Tuple23
+                          PsiElement(identifier)('Tuple23')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                LiteralType: 23
+                  IntegerLiteral
+                    PsiElement(integer)('23')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: m
+              PsiElement(identifier)('m')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: scala.deriving.Mirror.Of[Tuple23]
+                  SimpleType: scala.deriving.Mirror.Of
+                    CodeReferenceElement: scala.deriving.Mirror.Of
+                      CodeReferenceElement: scala.deriving.Mirror
+                        CodeReferenceElement: scala.deriving
+                          CodeReferenceElement: scala
+                            PsiElement(identifier)('scala')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('deriving')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Mirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Of')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Tuple23
+                        CodeReferenceElement: Tuple23
+                          PsiElement(identifier)('Tuple23')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: m.MirroredLabel =:= "Tuple"
+                SimpleType: m.MirroredLabel
+                  CodeReferenceElement: m.MirroredLabel
+                    CodeReferenceElement: m
+                      PsiElement(identifier)('m')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('MirroredLabel')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                LiteralType: "Tuple"
+                  StringLiteral
+                    PsiElement(string content)('"Tuple"')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: m.MirroredElemTypes =:= Tuple23
+                SimpleType: m.MirroredElemTypes
+                  CodeReferenceElement: m.MirroredElemTypes
+                    CodeReferenceElement: m
+                      PsiElement(identifier)('m')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('MirroredElemTypes')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                SimpleType: Tuple23
+                  CodeReferenceElement: Tuple23
+                    PsiElement(identifier)('Tuple23')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: m.MirroredElemLabels =:= ("_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10", "_11", "_12", "_13", "_14", "_15", "_16", "_17", "_18", "_19", "_20", "_21", "_22", "_23")
+                SimpleType: m.MirroredElemLabels
+                  CodeReferenceElement: m.MirroredElemLabels
+                    CodeReferenceElement: m
+                      PsiElement(identifier)('m')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('MirroredElemLabels')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                TupleType: ("_1", "_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10", "_11", "_12", "_13", "_14", "_15", "_16", "_17", "_18", "_19", "_20", "_21", "_22", "_23")
+                  PsiElement(()('(')
+                  TypesList
+                    LiteralType: "_1"
+                      StringLiteral
+                        PsiElement(string content)('"_1"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_2"
+                      StringLiteral
+                        PsiElement(string content)('"_2"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_3"
+                      StringLiteral
+                        PsiElement(string content)('"_3"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_4"
+                      StringLiteral
+                        PsiElement(string content)('"_4"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_5"
+                      StringLiteral
+                        PsiElement(string content)('"_5"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_6"
+                      StringLiteral
+                        PsiElement(string content)('"_6"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_7"
+                      StringLiteral
+                        PsiElement(string content)('"_7"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_8"
+                      StringLiteral
+                        PsiElement(string content)('"_8"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_9"
+                      StringLiteral
+                        PsiElement(string content)('"_9"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_10"
+                      StringLiteral
+                        PsiElement(string content)('"_10"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_11"
+                      StringLiteral
+                        PsiElement(string content)('"_11"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_12"
+                      StringLiteral
+                        PsiElement(string content)('"_12"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_13"
+                      StringLiteral
+                        PsiElement(string content)('"_13"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_14"
+                      StringLiteral
+                        PsiElement(string content)('"_14"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_15"
+                      StringLiteral
+                        PsiElement(string content)('"_15"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_16"
+                      StringLiteral
+                        PsiElement(string content)('"_16"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_17"
+                      StringLiteral
+                        PsiElement(string content)('"_17"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_18"
+                      StringLiteral
+                        PsiElement(string content)('"_18"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_19"
+                      StringLiteral
+                        PsiElement(string content)('"_19"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_20"
+                      StringLiteral
+                        PsiElement(string content)('"_20"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_21"
+                      StringLiteral
+                        PsiElement(string content)('"_21"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_22"
+                      StringLiteral
+                        PsiElement(string content)('"_22"')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    LiteralType: "_23"
+                      StringLiteral
+                        PsiElement(string content)('"_23"')
+                  PsiElement())(')')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

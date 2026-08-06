@@ -1,0 +1,21 @@
+class a {
+  try {
+  do Expr; while(true)
+   }
+   catch {
+
+    case _ =>
+   }
+   finally true
+}
+-----
+class a {
+  try {
+    do Expr; while (true)
+  }
+  catch {
+
+    case _ =>
+  }
+  finally true
+}

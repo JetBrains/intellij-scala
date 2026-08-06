@@ -1,0 +1,8 @@
+Document tests/pos/i6909.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(6:9..6:12) _empty_/Foo# -> 2:7
+(6:13..6:16) scala/Int#
+(6:24..6:27) _empty_/Foo# -> 2:7
+(6:28..6:31) scala/Int#
+

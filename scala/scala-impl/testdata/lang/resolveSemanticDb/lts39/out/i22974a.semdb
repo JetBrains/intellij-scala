@@ -1,0 +1,52 @@
+Document tests/pos/i22974a/Maybe_1.scala
+(2:8..2:13) pack/Maybe_1$package.Maybe. -> 4:8
+(3:27..3:33) pack/Maybe_1$package.Maybe.Absent# -> 5:25
+(3:34..3:35) scala/`|`#
+(3:36..3:43) pack/Maybe_1$package.Maybe.Present# -> 9:15
+(3:44..3:45) pack/Maybe_1$package.Maybe#[A] -> 3:20
+(3:50..3:56) pack/Maybe_1$package.Maybe.Absent# -> 5:25
+(3:57..3:58) scala/`|`#
+(3:59..3:66) pack/Maybe_1$package.Maybe.Present# -> 9:15
+(3:67..3:68) pack/Maybe_1$package.Maybe#[A] -> 3:20
+(6:30..6:36) pack/Maybe_1$package.Maybe.Absent# -> 5:25
+(8:41..8:44) scala/Int#
+(9:29..9:30) pack/Maybe_1$package.Maybe.Present#[A] -> 9:24
+(9:31..9:32) scala/`|`#
+(9:33..9:41) pack/Maybe_1$package.Maybe.internal. -> 7:10
+(9:42..9:55) pack/Maybe_1$package.Maybe.internal.PresentAbsent# -> 8:16
+(11:23..11:28) pack/Maybe_1$package.Maybe# -> 3:13
+(11:29..11:30) pack/Maybe_1$package.Maybe.flatten().[A] -> 11:14
+(11:29..11:30) pack/Maybe_1$package.Maybe.isDefined().[A] -> 11:14
+(12:28..12:33) pack/Maybe_1$package.Maybe# -> 3:13
+(12:34..12:35) pack/Maybe_1$package.Maybe.flatten().[B] -> 12:24
+(12:39..12:42) scala/Predef.`???`().
+(13:27..13:34) scala/Boolean#
+(13:37..13:40) scala/Predef.`???`().
+
+Document tests/pos/i22974a/macro_1.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(3:42..3:49) scala/Boolean#
+(3:52..3:55) scala/Any#
+(4:6..4:21) _empty_/macro_1$package.passThorughImpl(). -> 6:5
+(4:24..4:33) _empty_/macro_1$package.passThorugh().(condition) -> 3:31
+(6:32..6:36) scala/quoted/Expr#
+(6:37..6:44) scala/Boolean#
+(6:53..6:59) scala/quoted/Quotes#
+(6:62..6:66) scala/quoted/Expr#
+(6:67..6:70) scala/Any#
+(6:74..6:83) _empty_/macro_1$package.passThorughImpl().(condition) -> 6:21
+
+Document tests/pos/i22974a/main_2.scala
+(2:15..2:19) scala/Unit#
+(3:12..3:16) pack/ -> 1:9
+(3:17..3:22) pack/Maybe_1$package.Maybe. -> 4:8
+(4:14..4:19) pack/Maybe_1$package.Maybe# -> 3:13
+(4:20..4:25) pack/Maybe_1$package.Maybe# -> 3:13
+(4:26..4:29) scala/Int#
+(4:34..4:37) scala/Predef.`???`().
+(5:5..5:16) _empty_/macro_1$package.passThorugh(). -> 3:12
+(5:17..5:20) local0 -> 4:9
+(5:21..5:28) pack/Maybe_1$package.Maybe.flatten(). -> 12:16
+(5:29..5:38) pack/Maybe_1$package.Maybe.isDefined(). -> 13:16
+

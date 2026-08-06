@@ -1,0 +1,71 @@
+package com.example
+
+import org.jooq.impl.AbstractRoutine
+
+// Works in Scala 2.12 and 2.13 but is broken in Scala 3
+class MyRoutineScala extends AbstractRoutine[String] {}
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: com.example
+      CodeReferenceElement: com
+        PsiElement(identifier)('com')
+      PsiElement(.)('.')
+      PsiElement(identifier)('example')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: org.jooq.impl.AbstractRoutine
+          CodeReferenceElement: org.jooq.impl
+            CodeReferenceElement: org.jooq
+              CodeReferenceElement: org
+                PsiElement(identifier)('org')
+              PsiElement(.)('.')
+              PsiElement(identifier)('jooq')
+            PsiElement(.)('.')
+            PsiElement(identifier)('impl')
+          PsiElement(.)('.')
+          PsiElement(identifier)('AbstractRoutine')
+    PsiWhiteSpace('\n\n')
+    ScClass: MyRoutineScala
+      PsiComment(comment)('// Works in Scala 2.12 and 2.13 but is broken in Scala 3')
+      PsiWhiteSpace('\n')
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('MyRoutineScala')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            ParametrizedType: AbstractRoutine[String]
+              SimpleType: AbstractRoutine
+                CodeReferenceElement: AbstractRoutine
+                  PsiElement(identifier)('AbstractRoutine')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiElement(})('}')

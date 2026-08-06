@@ -1,0 +1,15 @@
+enum
+export
+given
+then
+-----
+identifier {enum}
+white space in line {
+}
+identifier {export}
+white space in line {
+}
+identifier {given}
+white space in line {
+}
+identifier {then}

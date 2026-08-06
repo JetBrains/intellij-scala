@@ -1,0 +1,13 @@
+Document tests/pos/i2009.scala
+(4:19..4:20) _empty_/Test.Gen#[T] -> 3:13
+(4:24..4:25) _empty_/Test.Gen#map().[U] -> 4:13
+(4:28..4:31) _empty_/Test.Gen# -> 3:9
+(4:32..4:33) _empty_/Test.Gen#map().[U] -> 4:13
+(4:37..4:40) scala/Predef.`???`().
+(7:24..7:27) _empty_/Test.Gen# -> 3:9
+(7:28..7:29) _empty_/Test.f().[T] -> 7:9
+(7:33..7:36) _empty_/Test.Gen# -> 3:9
+(7:43..7:44) _empty_/Test.f().[T] -> 7:9
+(8:5..8:6) _empty_/Test.f().(g) -> 7:21
+(8:7..8:10) _empty_/Test.Gen#map(). -> 4:9
+

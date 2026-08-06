@@ -1,0 +1,7 @@
+class a {
+  for    { x <- yy}   { }
+}
+------
+class a {
+  for {x <- yy} {}
+}

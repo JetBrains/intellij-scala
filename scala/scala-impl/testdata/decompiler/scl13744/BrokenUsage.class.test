@@ -1,0 +1,12 @@
+package test
+
+trait BrokenUsage {
+  @test.testAnnotation
+  val field: scala.Int
+
+  object Foo {
+    lazy val x: scala.Int = ???
+  }
+
+  def x(y: scala.Int)(z: scala.Int): scala.Int
+}

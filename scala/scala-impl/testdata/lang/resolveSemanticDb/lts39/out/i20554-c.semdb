@@ -1,0 +1,7 @@
+Document tests/pos/i20554-c.scala
+(2:23..2:26) scala/Int#
+(2:31..2:34) scala/Int#
+(2:44..2:54) scala/annotation/
+(2:55..2:71) scala/annotation/StaticAnnotation#
+(4:2..4:14) _empty_/MyAnnotation# -> 2:7
+

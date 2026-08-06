@@ -1,0 +1,8 @@
+Document tests/pos/11512/C_1.scala
+(1:17..1:18) _empty_/U# -> 4:7
+(2:10..2:13) scala/Int#
+(5:10..5:13) scala/Int#
+(5:16..5:19) scala/Predef.`???`().
+(7:26..7:27) _empty_/U# -> 4:7
+(7:33..7:34) _empty_/T# -> 1:7
+

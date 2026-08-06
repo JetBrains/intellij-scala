@@ -1,0 +1,7 @@
+Document tests/pos/t4524.scala
+(2:10..2:11) _empty_/test.A. -> 4:10
+(3:14..3:15) _empty_/test.A.B# -> 5:11
+(3:22..3:23) _empty_/test.A. -> 4:10
+(3:24..3:25) _empty_/test.A.B# -> 5:11
+(6:9..6:10) _empty_/test.A# -> 3:9
+

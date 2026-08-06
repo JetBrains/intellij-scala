@@ -1,0 +1,6 @@
+Document tests/pos/spec-vector.scala
+(2:23..2:26) scala/Int#
+(2:28..2:34) scala/Double#
+(3:25..3:28) scala/Int#
+(3:31..3:37) scala/Double#
+

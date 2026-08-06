@@ -1,0 +1,11 @@
+Document tests/pos/uninitialized-future-migration.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:41) scala/language.`future-migration`.
+(2:8..2:13) scala/
+(2:14..2:25) scala/compiletime/
+(2:26..2:39) scala/compiletime/package$package.uninitialized().
+(5:10..5:13) scala/Int#
+(6:10..6:13) scala/Int#
+(6:16..6:29) scala/compiletime/package$package.uninitialized().
+

@@ -1,0 +1,26 @@
+Document tests/pos/t1565.scala
+(9:12..9:16) scala/package.List.
+(10:3..10:5) _empty_/Bug1565.xs. -> 9:7
+(10:6..10:12) scala/collection/immutable/List#filter().
+(10:18..10:19) local0 -> 10:13
+(10:20..10:21) scala/Int#`<`(+3).
+(11:3..11:5) _empty_/Bug1565.xs. -> 9:7
+(11:6..11:12) scala/collection/immutable/List#filter().
+(11:20..11:21) local1 -> 11:14
+(11:22..11:23) scala/Int#`<`(+3).
+(12:3..12:5) _empty_/Bug1565.xs. -> 9:7
+(12:6..12:12) scala/collection/immutable/List#filter().
+(12:20..12:21) local2 -> 12:15
+(12:22..12:23) scala/Int#`<`(+3).
+(13:3..13:5) _empty_/Bug1565.xs. -> 9:7
+(13:6..13:12) scala/collection/immutable/List#filter().
+(13:17..13:18) scala/Int#`<`(+3).
+(14:3..14:5) _empty_/Bug1565.xs. -> 9:7
+(14:6..14:12) scala/collection/immutable/List#filter().
+(14:16..14:17) scala/Int#`<`(+3).
+(15:3..15:5) _empty_/Bug1565.xs. -> 9:7
+(15:6..15:13) scala/collection/immutable/List#foreach().
+(16:16..16:17) local3 -> 15:16
+(16:18..16:19) scala/Int#`+`(+4).
+(17:5..17:9) local4 -> 16:9
+

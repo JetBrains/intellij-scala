@@ -1,0 +1,44 @@
+Document tests/pos/first-class-patterns.scala
+(4:20..4:21) _empty_/Matcher#[A] -> 3:17
+(4:24..4:30) scala/Option#
+(4:31..4:32) _empty_/Matcher#[B] -> 3:20
+(7:23..7:30) _empty_/Matcher# -> 3:9
+(7:31..7:34) scala/Int#
+(7:36..7:39) scala/Int#
+(8:20..8:23) scala/Int#
+(8:26..8:32) scala/Option#
+(8:33..8:36) scala/Int#
+(9:10..9:11) _empty_/Even.unapply().(x) -> 8:17
+(9:12..9:13) scala/Int#`%`(+3).
+(9:16..9:18) scala/Int#`==`(+3).
+(9:26..9:30) scala/Some.
+(9:31..9:32) _empty_/Even.unapply().(x) -> 8:17
+(9:39..9:43) scala/None.
+(12:25..12:29) scala/package.List#
+(12:30..12:31) _empty_/`first-class-patterns$package`.collect().[A] -> 12:15
+(12:37..12:44) _empty_/Matcher# -> 3:9
+(12:45..12:46) _empty_/`first-class-patterns$package`.collect().[A] -> 12:15
+(12:48..12:49) _empty_/`first-class-patterns$package`.collect().[B] -> 12:18
+(12:53..12:57) scala/package.List#
+(12:58..12:59) _empty_/`first-class-patterns$package`.collect().[B] -> 12:18
+(13:5..13:7) _empty_/`first-class-patterns$package`.collect().(xs) -> 12:21
+(14:12..14:15) scala/package.Nil.
+(14:20..14:23) scala/package.Nil.
+(15:12..15:13) _empty_/`first-class-patterns$package`.collect().(m) -> 12:34
+(15:17..15:19) scala/package.`::`.
+(15:27..15:28) local0 -> 15:14
+(15:32..15:39) _empty_/`first-class-patterns$package`.collect(). -> 12:7
+(15:40..15:43) local1 -> 15:20
+(15:45..15:46) _empty_/`first-class-patterns$package`.collect().(m) -> 12:34
+(16:14..16:16) scala/package.`::`.
+(16:24..16:31) _empty_/`first-class-patterns$package`.collect(). -> 12:7
+(16:32..16:35) local2 -> 16:17
+(16:37..16:38) _empty_/`first-class-patterns$package`.collect().(m) -> 12:34
+(18:4..18:8) scala/main#
+(19:14..19:18) scala/package.List.
+(20:14..20:21) _empty_/`first-class-patterns$package`.collect(). -> 12:7
+(20:22..20:24) local3 -> 19:9
+(20:26..20:30) _empty_/Even. -> 7:10
+(21:5..21:12) scala/Predef.println(+1).
+(21:13..21:15) local4 -> 20:9
+

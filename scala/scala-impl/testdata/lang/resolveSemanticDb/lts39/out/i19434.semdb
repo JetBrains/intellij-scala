@@ -1,0 +1,22 @@
+Document tests/pos/i19434.scala
+(5:31..5:37) scala/Predef.String#
+(5:38..5:39) scala/`&`#
+(5:40..5:49) scala/Singleton#
+(5:57..5:58) _empty_/Test.Named.Named#[A] -> 5:51
+(5:61..5:62) _empty_/Test.Named.Named#[A] -> 5:51
+(7:23..7:28) scala/Tuple#
+(7:32..7:33) _empty_/Test.DropNames#[T] -> 7:18
+(8:10..8:15) _empty_/Test.Named. -> 4:10
+(8:16..8:21) _empty_/Test.Named.Named# -> 5:17
+(8:28..8:30) scala/`*:`#
+(8:37..8:38) local0 -> 8:25
+(8:39..8:41) scala/`*:`#
+(8:42..8:51) _empty_/Test.DropNames# -> 7:8
+(8:52..8:54) local1 -> 8:31
+(9:10..9:11) scala/Any#
+(9:15..9:16) _empty_/Test.DropNames#[T] -> 7:18
+(11:14..11:19) scala/Tuple#
+(11:22..11:31) _empty_/Test.DropNames# -> 7:8
+(11:32..11:33) _empty_/Test.f().[T] -> 11:9
+(11:37..11:40) scala/Predef.`???`().
+

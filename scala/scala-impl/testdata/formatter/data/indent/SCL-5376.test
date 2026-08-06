@@ -1,0 +1,19 @@
+(1 to 100)
+  .foreach {
+  println(_)
+}
+
+(1 to 100).
+map(
+  _
+)
+-----
+(1 to 100)
+  .foreach {
+    println(_)
+  }
+
+(1 to 100).
+  map(
+    _
+  )

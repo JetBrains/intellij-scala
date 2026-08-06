@@ -1,0 +1,303 @@
+Document tests/pos/i12915.scala
+(4:11..4:12) _empty_/E# -> 1:7
+(4:13..4:16) scala/Int#
+(4:20..4:23) scala/Predef.`???`().
+(5:11..5:12) _empty_/E# -> 1:7
+(5:13..5:19) scala/Predef.String#
+(5:23..5:26) scala/Predef.`???`().
+(6:11..6:12) _empty_/E# -> 1:7
+(6:13..6:17) scala/package.List#
+(6:18..6:21) scala/Int#
+(6:26..6:29) scala/Predef.`???`().
+(7:11..7:12) _empty_/E# -> 1:7
+(7:13..7:17) scala/package.List#
+(7:18..7:24) scala/Predef.String#
+(7:29..7:32) scala/Predef.`???`().
+(8:11..8:12) _empty_/E# -> 1:7
+(8:13..8:19) scala/Double#
+(8:23..8:26) scala/Predef.`???`().
+(9:11..9:12) _empty_/E# -> 1:7
+(9:14..9:20) scala/Predef.String#
+(9:22..9:28) scala/Predef.String#
+(9:33..9:36) scala/Predef.`???`().
+(10:11..10:12) _empty_/E# -> 1:7
+(10:14..10:20) scala/Predef.String#
+(10:22..10:25) scala/Int#
+(10:30..10:33) scala/Predef.`???`().
+(11:11..11:12) _empty_/E# -> 1:7
+(11:14..11:17) scala/Int#
+(11:19..11:23) scala/package.List#
+(11:24..11:30) scala/Predef.String#
+(11:36..11:39) scala/Predef.`???`().
+(12:11..12:12) _empty_/E# -> 1:7
+(12:13..12:17) scala/Long#
+(12:21..12:24) scala/Predef.`???`().
+(13:12..13:13) _empty_/E# -> 1:7
+(13:15..13:19) scala/Long#
+(13:21..13:25) scala/Long#
+(13:30..13:33) scala/Predef.`???`().
+(14:12..14:13) _empty_/E# -> 1:7
+(14:15..14:19) scala/Long#
+(14:21..14:25) scala/Long#
+(14:27..14:30) scala/Int#
+(14:35..14:38) scala/Predef.`???`().
+(15:12..15:13) _empty_/E# -> 1:7
+(15:14..15:18) scala/package.List#
+(15:19..15:23) scala/Long#
+(15:28..15:31) scala/Predef.`???`().
+(16:12..16:13) _empty_/E# -> 1:7
+(16:14..16:18) scala/package.List#
+(16:19..16:22) scala/Int#
+(16:27..16:30) scala/Predef.`???`().
+(17:12..17:13) _empty_/E# -> 1:7
+(17:15..17:21) scala/Predef.String#
+(17:23..17:29) scala/Predef.String#
+(17:34..17:37) scala/Predef.`???`().
+(18:12..18:13) _empty_/E# -> 1:7
+(18:15..18:21) scala/Predef.String#
+(18:23..18:29) scala/Predef.String#
+(18:31..18:37) scala/Predef.String#
+(18:42..18:45) scala/Predef.`???`().
+(19:12..19:13) _empty_/E# -> 1:7
+(19:15..19:18) scala/Int#
+(19:20..19:26) scala/Predef.String#
+(19:31..19:34) scala/Predef.`???`().
+(20:12..20:13) _empty_/E# -> 1:7
+(20:15..20:21) scala/Predef.String#
+(20:23..20:27) scala/Long#
+(20:29..20:35) scala/Predef.String#
+(20:40..20:43) scala/Predef.`???`().
+(21:12..21:13) _empty_/E# -> 1:7
+(21:15..21:19) scala/Long#
+(21:21..21:27) scala/Predef.String#
+(21:29..21:35) scala/Predef.String#
+(21:40..21:43) scala/Predef.`???`().
+(22:12..22:13) _empty_/E# -> 1:7
+(22:15..22:21) scala/Predef.String#
+(22:23..22:29) scala/Predef.String#
+(22:31..22:35) scala/Long#
+(22:40..22:43) scala/Predef.`???`().
+(23:12..23:13) _empty_/E# -> 1:7
+(23:15..23:21) scala/Predef.String#
+(23:23..23:26) scala/Int#
+(23:28..23:34) scala/Predef.String#
+(23:39..23:42) scala/Predef.`???`().
+(24:12..24:13) _empty_/E# -> 1:7
+(24:15..24:18) scala/Int#
+(24:20..24:26) scala/Predef.String#
+(24:28..24:34) scala/Predef.String#
+(24:39..24:42) scala/Predef.`???`().
+(25:12..25:13) _empty_/E# -> 1:7
+(25:15..25:21) scala/Predef.String#
+(25:23..25:29) scala/Predef.String#
+(25:31..25:34) scala/Int#
+(25:39..25:42) scala/Predef.`???`().
+(26:12..26:13) _empty_/E# -> 1:7
+(26:15..26:21) scala/Predef.String#
+(26:23..26:29) scala/Predef.String#
+(26:31..26:38) scala/Boolean#
+(26:43..26:46) scala/Predef.`???`().
+(27:12..27:13) _empty_/E# -> 1:7
+(27:15..27:22) scala/Boolean#
+(27:24..27:31) scala/Boolean#
+(27:33..27:39) scala/Predef.String#
+(27:44..27:47) scala/Predef.`???`().
+(28:12..28:13) _empty_/E# -> 1:7
+(28:15..28:21) scala/Predef.String#
+(28:23..28:26) scala/Int#
+(28:28..28:35) scala/Boolean#
+(28:40..28:43) scala/Predef.`???`().
+(29:12..29:13) _empty_/E# -> 1:7
+(29:14..29:18) scala/package.List#
+(29:20..29:26) scala/Predef.String#
+(29:28..29:34) scala/Predef.String#
+(29:40..29:43) scala/Predef.`???`().
+(30:12..30:13) _empty_/E# -> 1:7
+(30:14..30:18) scala/package.List#
+(30:20..30:23) scala/Int#
+(30:25..30:31) scala/Predef.String#
+(30:37..30:40) scala/Predef.`???`().
+(31:12..31:13) _empty_/E# -> 1:7
+(31:14..31:18) scala/package.List#
+(31:20..31:26) scala/Predef.String#
+(31:28..31:31) scala/Int#
+(31:37..31:40) scala/Predef.`???`().
+(32:12..32:13) _empty_/E# -> 1:7
+(32:14..32:18) scala/package.List#
+(32:20..32:24) scala/Long#
+(32:26..32:32) scala/Predef.String#
+(32:38..32:41) scala/Predef.`???`().
+(33:12..33:13) _empty_/E# -> 1:7
+(33:14..33:18) scala/package.List#
+(33:20..33:26) scala/Predef.String#
+(33:28..33:32) scala/Long#
+(33:38..33:41) scala/Predef.`???`().
+(34:12..34:13) _empty_/E# -> 1:7
+(34:14..34:18) scala/package.List#
+(34:20..34:27) scala/Boolean#
+(34:29..34:35) scala/Predef.String#
+(34:41..34:44) scala/Predef.`???`().
+(35:12..35:13) _empty_/E# -> 1:7
+(35:14..35:18) scala/package.List#
+(35:20..35:26) scala/Predef.String#
+(35:28..35:35) scala/Boolean#
+(35:41..35:44) scala/Predef.`???`().
+(36:12..36:13) _empty_/E# -> 1:7
+(36:14..36:18) scala/package.List#
+(36:21..36:27) scala/Predef.String#
+(36:29..36:35) scala/Predef.String#
+(36:38..36:44) scala/Predef.String#
+(36:50..36:53) scala/Predef.`???`().
+(37:12..37:13) _empty_/E# -> 1:7
+(37:14..37:18) scala/package.List#
+(37:21..37:27) scala/Predef.String#
+(37:29..37:32) scala/Int#
+(37:35..37:41) scala/Predef.String#
+(37:47..37:50) scala/Predef.`???`().
+(38:12..38:13) _empty_/E# -> 1:7
+(38:14..38:18) scala/package.List#
+(38:21..38:25) scala/Long#
+(38:27..38:33) scala/Predef.String#
+(38:36..38:42) scala/Predef.String#
+(38:48..38:51) scala/Predef.`???`().
+(39:12..39:13) _empty_/E# -> 1:7
+(39:14..39:18) scala/package.List#
+(39:21..39:28) scala/Boolean#
+(39:30..39:36) scala/Predef.String#
+(39:39..39:45) scala/Predef.String#
+(39:51..39:54) scala/Predef.`???`().
+(40:12..40:13) _empty_/E# -> 1:7
+(40:14..40:18) scala/package.List#
+(40:21..40:27) scala/Predef.String#
+(40:29..40:35) scala/Predef.String#
+(40:38..40:41) scala/Int#
+(40:47..40:50) scala/Predef.`???`().
+(41:12..41:13) _empty_/E# -> 1:7
+(41:14..41:18) scala/package.List#
+(41:21..41:27) scala/Predef.String#
+(41:29..41:35) scala/Predef.String#
+(41:39..41:45) scala/Predef.String#
+(41:47..41:50) scala/Int#
+(41:57..41:60) scala/Predef.`???`().
+(42:12..42:13) _empty_/E# -> 1:7
+(42:14..42:18) scala/package.List#
+(42:21..42:28) scala/Boolean#
+(42:30..42:34) scala/Long#
+(42:38..42:44) scala/Predef.String#
+(42:46..42:49) scala/Int#
+(42:56..42:59) scala/Predef.`???`().
+(43:12..43:13) _empty_/E# -> 1:7
+(43:14..43:18) scala/package.List#
+(43:21..43:24) scala/Int#
+(43:26..43:30) scala/Long#
+(43:34..43:41) scala/Boolean#
+(43:43..43:46) scala/Int#
+(43:53..43:56) scala/Predef.`???`().
+(44:12..44:13) _empty_/E# -> 1:7
+(44:14..44:18) scala/package.List#
+(44:21..44:27) scala/Predef.String#
+(44:30..44:33) scala/Int#
+(44:35..44:41) scala/Predef.String#
+(44:46..44:52) scala/Predef.String#
+(44:54..44:57) scala/Int#
+(44:64..44:67) scala/Predef.`???`().
+(45:12..45:13) _empty_/E# -> 1:7
+(45:14..45:18) scala/package.List#
+(45:21..45:28) scala/Boolean#
+(45:31..45:34) scala/Int#
+(45:36..45:42) scala/Predef.String#
+(45:47..45:53) scala/Predef.String#
+(45:55..45:58) scala/Int#
+(45:65..45:68) scala/Predef.`???`().
+(46:12..46:13) _empty_/E# -> 1:7
+(46:14..46:18) scala/package.List#
+(46:21..46:27) scala/Predef.String#
+(46:30..46:33) scala/Int#
+(46:35..46:41) scala/Predef.String#
+(46:46..46:53) scala/Boolean#
+(46:55..46:58) scala/Int#
+(46:65..46:68) scala/Predef.`???`().
+(47:12..47:13) _empty_/E# -> 1:7
+(47:15..47:18) scala/Int#
+(47:20..47:24) scala/package.List#
+(47:25..47:31) scala/Predef.String#
+(47:34..47:38) scala/Long#
+(47:43..47:46) scala/Predef.`???`().
+(48:12..48:13) _empty_/E# -> 1:7
+(48:15..48:18) scala/Int#
+(48:20..48:24) scala/package.List#
+(48:25..48:28) scala/Int#
+(48:31..48:35) scala/Long#
+(48:40..48:43) scala/Predef.`???`().
+(49:12..49:13) _empty_/E# -> 1:7
+(49:15..49:18) scala/Int#
+(49:20..49:24) scala/package.List#
+(49:25..49:29) scala/Long#
+(49:32..49:36) scala/Long#
+(49:41..49:44) scala/Predef.`???`().
+(50:12..50:13) _empty_/E# -> 1:7
+(50:15..50:21) scala/Predef.String#
+(50:23..50:27) scala/package.List#
+(50:28..50:34) scala/Predef.String#
+(50:37..50:41) scala/Long#
+(50:46..50:49) scala/Predef.`???`().
+(51:12..51:13) _empty_/E# -> 1:7
+(51:15..51:18) scala/Int#
+(51:20..51:24) scala/package.List#
+(51:25..51:31) scala/Predef.String#
+(51:34..51:41) scala/Boolean#
+(51:46..51:49) scala/Predef.`???`().
+(52:12..52:13) _empty_/E# -> 1:7
+(52:14..52:18) scala/Char#
+(52:22..52:25) scala/Predef.`???`().
+(54:13..54:17) scala/package.List.
+(55:5..55:7) _empty_/X#e1. -> 4:7
+(56:5..56:7) _empty_/X#e2. -> 5:7
+(57:5..57:7) _empty_/X#e3. -> 6:7
+(58:5..58:7) _empty_/X#e4. -> 7:7
+(59:5..59:7) _empty_/X#e5. -> 8:7
+(60:5..60:7) _empty_/X#e6. -> 9:7
+(61:5..61:7) _empty_/X#e7. -> 10:7
+(62:5..62:7) _empty_/X#e8. -> 11:7
+(63:5..63:7) _empty_/X#e9. -> 12:7
+(64:5..64:8) _empty_/X#e10. -> 13:7
+(65:5..65:8) _empty_/X#e11. -> 14:7
+(66:5..66:8) _empty_/X#e12. -> 15:7
+(67:5..67:8) _empty_/X#e13. -> 16:7
+(68:5..68:8) _empty_/X#e14. -> 17:7
+(69:5..69:8) _empty_/X#e15. -> 18:7
+(70:5..70:8) _empty_/X#e16. -> 19:7
+(71:5..71:8) _empty_/X#e17. -> 20:7
+(72:5..72:8) _empty_/X#e18. -> 21:7
+(73:5..73:8) _empty_/X#e19. -> 22:7
+(74:5..74:8) _empty_/X#e20. -> 23:7
+(75:5..75:8) _empty_/X#e21. -> 24:7
+(76:5..76:8) _empty_/X#e22. -> 25:7
+(77:5..77:8) _empty_/X#e23. -> 26:7
+(78:5..78:8) _empty_/X#e24. -> 27:7
+(79:5..79:8) _empty_/X#e25. -> 28:7
+(80:5..80:8) _empty_/X#e26. -> 29:7
+(81:5..81:8) _empty_/X#e27. -> 30:7
+(82:5..82:8) _empty_/X#e28. -> 31:7
+(83:5..83:8) _empty_/X#e29. -> 32:7
+(84:5..84:8) _empty_/X#e30. -> 33:7
+(85:5..85:8) _empty_/X#e31. -> 34:7
+(86:5..86:8) _empty_/X#e32. -> 35:7
+(87:5..87:8) _empty_/X#e33. -> 36:7
+(88:5..88:8) _empty_/X#e34. -> 37:7
+(89:5..89:8) _empty_/X#e35. -> 38:7
+(90:5..90:8) _empty_/X#e36. -> 39:7
+(91:5..91:8) _empty_/X#e37. -> 40:7
+(92:5..92:8) _empty_/X#e38. -> 41:7
+(93:5..93:8) _empty_/X#e39. -> 42:7
+(94:5..94:8) _empty_/X#e40. -> 43:7
+(95:5..95:8) _empty_/X#e41. -> 44:7
+(96:5..96:8) _empty_/X#e42. -> 45:7
+(97:5..97:8) _empty_/X#e43. -> 46:7
+(98:5..98:8) _empty_/X#e44. -> 47:7
+(99:5..99:8) _empty_/X#e45. -> 48:7
+(100:5..100:8) _empty_/X#e46. -> 49:7
+(101:5..101:8) _empty_/X#e47. -> 50:7
+(102:5..102:8) _empty_/X#e48. -> 51:7
+(103:5..103:8) _empty_/X#e49. -> 52:7
+

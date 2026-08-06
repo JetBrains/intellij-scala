@@ -1,0 +1,256 @@
+package defaultArgBug
+
+class staticAnnot(arg: Int) extends scala.annotation.StaticAnnotation
+class refiningAnnot(arg: Int) extends scala.annotation.RefiningAnnotation
+
+def f1(a: Int, b: Int @staticAnnot(a + a) = 42): Int = b
+def f2(a: Int, b: Int @refiningAnnot(a + a) = 42): Int = b
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: defaultArgBug
+      PsiElement(identifier)('defaultArgBug')
+    PsiWhiteSpace('\n\n')
+    ScClass: staticAnnot
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('staticAnnot')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: arg
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('arg')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: scala.annotation.StaticAnnotation
+              CodeReferenceElement: scala.annotation.StaticAnnotation
+                CodeReferenceElement: scala.annotation
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('annotation')
+                PsiElement(.)('.')
+                PsiElement(identifier)('StaticAnnotation')
+    PsiWhiteSpace('\n')
+    ScClass: refiningAnnot
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('refiningAnnot')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: arg
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('arg')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+            PsiElement())(')')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: scala.annotation.RefiningAnnotation
+              CodeReferenceElement: scala.annotation.RefiningAnnotation
+                CodeReferenceElement: scala.annotation
+                  CodeReferenceElement: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('annotation')
+                PsiElement(.)('.')
+                PsiElement(identifier)('RefiningAnnotation')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: f1
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('f1')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          Parameter: b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('b')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              TypeWithAnnotation: Int @staticAnnot(a + a)
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: staticAnnot
+                          CodeReferenceElement: staticAnnot
+                            PsiElement(identifier)('staticAnnot')
+                        ArgumentList
+                          PsiElement(()('(')
+                          InfixExpression
+                            ReferenceExpression: a
+                              PsiElement(identifier)('a')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: a
+                              PsiElement(identifier)('a')
+                          PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('42')
+          PsiElement())(')')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+    PsiWhiteSpace('\n')
+    ScFunctionDefinition: f2
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('f2')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          Parameter: a
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('a')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          Parameter: b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('b')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              TypeWithAnnotation: Int @refiningAnnot(a + a)
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                AnnotationsList
+                  Annotation
+                    PsiElement(@)('@')
+                    AnnotationExpression
+                      ConstructorInvocation
+                        SimpleType: refiningAnnot
+                          CodeReferenceElement: refiningAnnot
+                            PsiElement(identifier)('refiningAnnot')
+                        ArgumentList
+                          PsiElement(()('(')
+                          InfixExpression
+                            ReferenceExpression: a
+                              PsiElement(identifier)('a')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: +
+                              PsiElement(identifier)('+')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: a
+                              PsiElement(identifier)('a')
+                          PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('42')
+          PsiElement())(')')
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: Int
+        CodeReferenceElement: Int
+          PsiElement(identifier)('Int')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: b
+        PsiElement(identifier)('b')

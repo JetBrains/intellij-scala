@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+        <!ELEMENT intellij-compat (name,id?,description?,version,vendor?,ideaVersion+)>
+        <!ELEMENT id (#PCDATA)>
+        <!ELEMENT name (#PCDATA)>
+        <!ELEMENT description (#PCDATA)>
+        <!ELEMENT vendor (#PCDATA)>
+        <!ELEMENT version (#PCDATA)>
+
+        <!ELEMENT ideaVersion (extension+)>
+        <!ATTLIST ideaVersion
+                since-build CDATA #REQUIRED
+                until-build CDATA #REQUIRED
+                pluginId CDATA #IMPLIED
+                defaultPackage CDATA #IMPLIED
+                >
+
+        <!ELEMENT extension (name?, description?)>
+        <!ATTLIST extension
+                interface CDATA #REQUIRED
+                implementation CDATA #REQUIRED
+                pluginId CDATA #IMPLIED>

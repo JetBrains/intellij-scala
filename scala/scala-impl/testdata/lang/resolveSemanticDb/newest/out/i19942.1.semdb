@@ -1,0 +1,42 @@
+Document tests/pos/i19942.1.scala
+(3:26..3:27) _empty_/`i19942.1$package`.Derived#[A] -> 3:21
+(5:26..5:33) _empty_/`i19942.1$package`.Derived# -> 3:13
+(5:34..5:35) _empty_/`i19942.1$package`.Derived.instance().[A] -> 5:14
+(5:52..5:53) _empty_/`i19942.1$package`.Derived.instance().[A] -> 5:14
+(5:56..5:63) _empty_/`i19942.1$package`.Derived.instance().(derived) -> 5:17
+(6:40..6:41) _empty_/`i19942.1$package`.Derived.`<<<`#[F] -> 6:18
+(6:42..6:43) _empty_/`i19942.1$package`.Derived.`<<<`#[G] -> 6:24
+(6:44..6:45) _empty_/`i19942.1$package`.Derived.`<<<`#[x] -> 6:33
+(8:8..8:15) _empty_/`i19942.1$package`.Derived. -> 4:8
+(9:8..9:13) scala/
+(9:14..9:25) scala/compiletime/
+(9:26..9:38) scala/compiletime/package$package.summonInline().
+(11:33..11:40) _empty_/`i19942.1$package`.Derived# -> 3:13
+(11:41..11:52) _empty_/Alternative# -> 1:7
+(11:53..11:54) _empty_/`i19942.1$package`.DerivedAlternative#[F] -> 11:25
+(13:27..13:38) _empty_/Alternative# -> 1:7
+(13:39..13:40) _empty_/`i19942.1$package`.DerivedAlternative.apply().[F] -> 13:20
+(14:12..14:30) _empty_/`i19942.1$package`.DerivedAlternative. -> 12:8
+(15:5..15:17) scala/compiletime/package$package.summonInline().
+(15:18..15:36) _empty_/`i19942.1$package`.DerivedAlternative# -> 11:6
+(15:37..15:38) _empty_/`i19942.1$package`.DerivedAlternative.apply().[F] -> 13:20
+(15:41..15:49) _empty_/`i19942.1$package`.Derived.instance(). -> 5:42
+(16:33..16:51) _empty_/`i19942.1$package`.DerivedAlternative# -> 11:6
+(16:52..16:53) _empty_/`i19942.1$package`.DerivedAlternative.nested().[F] -> 16:18
+(16:54..16:57) _empty_/`i19942.1$package`.Derived.`<<<`# -> 6:14
+(16:58..16:59) _empty_/`i19942.1$package`.DerivedAlternative.nested().[G] -> 16:24
+(16:63..16:66) scala/Predef.`???`().
+(20:40..20:51) _empty_/Alternative# -> 1:7
+(20:52..20:53) _empty_/auto.alternative.given_Alternative_F().[F] -> 20:31
+(20:57..20:75) _empty_/`i19942.1$package`.DerivedAlternative. -> 12:8
+(20:76..20:77) _empty_/auto.alternative.given_Alternative_F().[F] -> 20:31
+(23:10..23:14) _empty_/Test. -> 28:8
+(24:10..24:14) _empty_/auto. -> 18:8
+(24:15..24:26) _empty_/auto.alternative. -> 19:10
+(25:15..25:21) scala/Predef.summon().
+(25:22..25:33) _empty_/Alternative# -> 1:7
+(25:34..25:41) _empty_/Test.OptList# -> 29:8
+(29:21..29:27) scala/Option#
+(29:28..29:32) scala/package.List#
+(29:33..29:34) _empty_/Test.OptList#[A] -> 29:16
+

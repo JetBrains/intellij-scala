@@ -1,0 +1,4105 @@
+import scala.compiletime.ops.int.{ +, -, Max }
+import scala.compiletime.ops.string.{ Substring, Length, Matches, CharAt }
+
+class Regex[P] private() extends Serializable:
+  def unapply(s: CharSequence)(implicit n: Regex.Sanitizer[P]): Option[P] = ???
+
+object Regex:
+  def apply[R <: String & Singleton](regex: R): Regex[Compile[R]] = ???
+
+  abstract class Sanitizer[T]
+  object Sanitizer:
+    given Sanitizer[EmptyTuple] = ???
+    given stringcase: [T <: Tuple: Sanitizer] => Sanitizer[String *: T] = ???
+    given optioncase: [T <: Tuple: Sanitizer] => Sanitizer[Option[String] *: T] = ???
+    given Sanitizer[String] = ???
+    given Sanitizer[Option[String]] = ???
+
+  type Compile[R <: String] = Matches["", R] match
+    case _ => Reverse[EmptyTuple, Loop[R, 0, Length[R], EmptyTuple, IsPiped[R, 0, Length[R], 0]]]
+
+  type Loop[R <: String, Lo <: Int, Hi <: Int, Acc <: Tuple, Opt <: Int] <: Tuple = Lo match
+    case Hi => Acc
+    case _  => CharAt[R, Lo] match
+      case '\\' => CharAt[R, Lo + 1] match
+        case 'Q' => Loop[R, ToClosingQE[R, Lo + 2], Hi, Acc, Opt]
+        case _ => Loop[R, Lo + 2, Hi, Acc, Opt]
+      case '[' => Loop[R, ToClosingBracket[R, Lo + 1, 0], Hi, Acc, Opt]
+      case ')' => Loop[R, Lo + 1, Hi, Acc, Max[0, Opt - 1]]
+      case '(' => Opt match
+        case 0 => IsMarked[R, ToClosingParenthesis[R, Lo + 1, 0], Hi] match
+          case true => IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, 1]
+            case true  => Loop[R, Lo + 1, Hi, Option[String] *: Acc, 1]
+          case false => IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, IsPiped[R, Lo + 1, Hi, 0]]
+            case true  => Loop[R, Lo + 1, Hi, String *: Acc, IsPiped[R, Lo + 1, Hi, 0]]
+        case _ => IsCapturing[R, Lo + 1] match
+          case false => Loop[R, Lo + 1, Hi, Acc, Opt + 1]
+          case true  => Loop[R, Lo + 1, Hi, Option[String] *: Acc, Opt + 1]
+      case _ => Loop[R, Lo + 1, Hi, Acc, Opt]
+
+  type IsCapturing[R <: String, At <: Int] <: Boolean = CharAt[R, At] match
+    case '?' => CharAt[R, At + 1] match
+      case '<' => CharAt[R, At + 2] match
+        case '=' | '!' => false
+        case _ => true
+      case _ => false
+    case _ => true
+
+  type IsMarked[R <: String, At <: Int, Hi <: Int] <: Boolean = At match
+    case Hi => false
+    case _ => CharAt[R, At] match
+      case '?' | '*' => true
+      case '{' => CharAt[R, At + 1] match
+        case '0' => true
+        case _ => false
+      case _ => false
+
+  type IsPiped[R <: String, At <: Int, Hi <: Int, Lvl <: Int] <: Int = At match
+    case Hi => 0
+    case _ => CharAt[R, At] match
+      case '\\' => CharAt[R, At + 1] match
+        case 'Q' => IsPiped[R, ToClosingQE[R, At + 2], Hi, Lvl]
+        case _ => IsPiped[R, At + 2, Hi, Lvl]
+      case '[' => IsPiped[R, ToClosingBracket[R, At + 1, 0], Hi, Lvl]
+      case '(' => IsPiped[R, ToClosingParenthesis[R, At + 1, 0], Hi, Lvl + 1]
+      case '|' => 1
+      case ')' => 0
+      case _ => IsPiped[R, At + 1, Hi, Lvl]
+
+  type ToClosingParenthesis[R <: String, At <: Int, Lvl <: Int] <: Int = CharAt[R, At] match
+    case '\\' => CharAt[R, At + 1] match
+      case 'Q' => ToClosingParenthesis[R, ToClosingQE[R, At + 2], Lvl]
+      case _ => ToClosingParenthesis[R, At + 2, Lvl]
+    case '[' => ToClosingParenthesis[R, ToClosingBracket[R, At + 1, 0], Lvl]
+    case ')' => Lvl match
+      case 0 => At + 1
+      case _ => ToClosingParenthesis[R, At + 1, Lvl - 1]
+    case '(' => ToClosingParenthesis[R, At + 1, Lvl + 1]
+    case _   => ToClosingParenthesis[R, At + 1, Lvl]
+
+  type ToClosingBracket[R <: String, At <: Int, Lvl <: Int] <: Int = CharAt[R, At] match
+    case '\\' => CharAt[R, At + 1] match
+      case 'Q' => ToClosingBracket[R, ToClosingQE[R, At + 2], Lvl]
+      case _ => ToClosingBracket[R, At + 2, Lvl]
+    case '[' => ToClosingBracket[R, At + 1, Lvl + 1]
+    case ']' => Lvl match
+      case 0 => At + 1
+      case _ => ToClosingBracket[R, At + 1, Lvl - 1]
+    case _ => ToClosingBracket[R, At + 1, Lvl]
+
+  type ToClosingQE[R <: String, At <: Int] <: Int = CharAt[R, At] match
+    case '\\' => CharAt[R, At + 1] match
+      case 'E' => At + 2
+      case _ => ToClosingQE[R, At + 2]
+    case _ => ToClosingQE[R, At + 1]
+
+  type Reverse[Acc <: Tuple, X <: Tuple] <: Tuple = X match
+    case x *: xs    => Reverse[x *: Acc, xs]
+    case EmptyTuple => Acc
+
+object Test:
+  def main(args: Array[String]): Unit =
+    val r75 = Regex("(x|y|z[QW])*(longish|loquatious|excessive|overblown[QW])*")
+    "xyzQzWlongishoverblownW" match
+      case r75((Some(g0), Some(g1))) => ??? // failure
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('int')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: +
+            PsiElement(identifier)('+')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: -
+            PsiElement(identifier)('-')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: Max
+            PsiElement(identifier)('Max')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.string
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('string')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: Substring
+            PsiElement(identifier)('Substring')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: Length
+            PsiElement(identifier)('Length')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: Matches
+            PsiElement(identifier)('Matches')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: CharAt
+            PsiElement(identifier)('CharAt')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Regex
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Regex')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: P
+        PsiElement(identifier)('P')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        AccessModifier
+          PsiElement(private)('private')
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Serializable
+            CodeReferenceElement: Serializable
+              PsiElement(identifier)('Serializable')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: unapply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('unapply')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: CharSequence
+                    CodeReferenceElement: CharSequence
+                      PsiElement(identifier)('CharSequence')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(implicit)('implicit')
+              PsiWhiteSpace(' ')
+              Parameter: n
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('n')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Regex.Sanitizer[P]
+                    SimpleType: Regex.Sanitizer
+                      CodeReferenceElement: Regex.Sanitizer
+                        CodeReferenceElement: Regex
+                          PsiElement(identifier)('Regex')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Sanitizer')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: P
+                          CodeReferenceElement: P
+                            PsiElement(identifier)('P')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Option[P]
+            SimpleType: Option
+              CodeReferenceElement: Option
+                PsiElement(identifier)('Option')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: P
+                  CodeReferenceElement: P
+                    PsiElement(identifier)('P')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+  PsiWhiteSpace('\n\n')
+  ScObject: Regex
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Regex')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: apply
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('apply')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              InfixType: String & Singleton
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
+                PsiWhiteSpace(' ')
+                SimpleType: Singleton
+                  CodeReferenceElement: Singleton
+                    PsiElement(identifier)('Singleton')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: regex
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('regex')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Regex[Compile[R]]
+            SimpleType: Regex
+              CodeReferenceElement: Regex
+                PsiElement(identifier)('Regex')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Compile[R]
+                  SimpleType: Compile
+                    CodeReferenceElement: Compile
+                      PsiElement(identifier)('Compile')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: Sanitizer
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(abstract)('abstract')
+          PsiWhiteSpace(' ')
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Sanitizer')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n  ')
+        ScObject: Sanitizer
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Sanitizer')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScGivenAliasDefinition: given_Sanitizer_EmptyTuple
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(given)('given')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                ParametrizedType: Sanitizer[EmptyTuple]
+                  SimpleType: Sanitizer
+                    CodeReferenceElement: Sanitizer
+                      PsiElement(identifier)('Sanitizer')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n    ')
+              ScGivenAliasDefinition: stringcase
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('stringcase')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: T
+                    PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Tuple
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Sanitizer
+                        CodeReferenceElement: Sanitizer
+                          PsiElement(identifier)('Sanitizer')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                ParametrizedType: Sanitizer[String *: T]
+                  SimpleType: Sanitizer
+                    CodeReferenceElement: Sanitizer
+                      PsiElement(identifier)('Sanitizer')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      InfixType: String *: T
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n    ')
+              ScGivenAliasDefinition: optioncase
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('optioncase')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: T
+                    PsiElement(identifier)('T')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<:)('<:')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Tuple
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ScContextBoundImpl(context bound)
+                      SimpleType: Sanitizer
+                        CodeReferenceElement: Sanitizer
+                          PsiElement(identifier)('Sanitizer')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                ParametrizedType: Sanitizer[Option[String] *: T]
+                  SimpleType: Sanitizer
+                    CodeReferenceElement: Sanitizer
+                      PsiElement(identifier)('Sanitizer')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      InfixType: Option[String] *: T
+                        ParametrizedType: Option[String]
+                          SimpleType: Option
+                            CodeReferenceElement: Option
+                              PsiElement(identifier)('Option')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: String
+                                CodeReferenceElement: String
+                                  PsiElement(identifier)('String')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n    ')
+              ScGivenAliasDefinition: given_Sanitizer_String
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(given)('given')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                ParametrizedType: Sanitizer[String]
+                  SimpleType: Sanitizer
+                    CodeReferenceElement: Sanitizer
+                      PsiElement(identifier)('Sanitizer')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+              PsiWhiteSpace('\n    ')
+              ScGivenAliasDefinition: given_Sanitizer_Option
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(given)('given')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                ParametrizedType: Sanitizer[Option[String]]
+                  SimpleType: Sanitizer
+                    CodeReferenceElement: Sanitizer
+                      PsiElement(identifier)('Sanitizer')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: Option[String]
+                        SimpleType: Option
+                          CodeReferenceElement: Option
+                            PsiElement(identifier)('Option')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Compile
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Compile')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: Matches["", R] match
+    case _ => Reverse[EmptyTuple, Loop[R, 0, Length[R], EmptyTuple, IsPiped[R, 0, Length[R], 0]]]
+            ParametrizedType: Matches["", R]
+              SimpleType: Matches
+                CodeReferenceElement: Matches
+                  PsiElement(identifier)('Matches')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: ""
+                    StringLiteral
+                      PsiElement(string content)('""')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Reverse[EmptyTuple, Loop[R, 0, Length[R], EmptyTuple, IsPiped[R, 0, Length[R], 0]]]
+                  SimpleType: Reverse
+                    CodeReferenceElement: Reverse
+                      PsiElement(identifier)('Reverse')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      ParametrizedType: Loop[R, 0, Length[R], EmptyTuple, IsPiped[R, 0, Length[R], 0]]
+                        SimpleType: Loop
+                          CodeReferenceElement: Loop
+                            PsiElement(identifier)('Loop')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            LiteralType: 0
+                              IntegerLiteral
+                                PsiElement(integer)('0')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: Length[R]
+                              SimpleType: Length
+                                CodeReferenceElement: Length
+                                  PsiElement(identifier)('Length')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: EmptyTuple
+                              CodeReferenceElement: EmptyTuple
+                                PsiElement(identifier)('EmptyTuple')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: IsPiped[R, 0, Length[R], 0]
+                              SimpleType: IsPiped
+                                CodeReferenceElement: IsPiped
+                                  PsiElement(identifier)('IsPiped')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  ParametrizedType: Length[R]
+                                    SimpleType: Length
+                                      CodeReferenceElement: Length
+                                        PsiElement(identifier)('Length')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: R
+                                          CodeReferenceElement: R
+                                            PsiElement(identifier)('R')
+                                      PsiElement(])(']')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(])(']')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Loop
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Loop')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Lo
+              PsiElement(identifier)('Lo')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Hi
+              PsiElement(identifier)('Hi')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Acc
+              PsiElement(identifier)('Acc')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Opt
+              PsiElement(identifier)('Opt')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: Lo match
+    case Hi => Acc
+    case _  => CharAt[R, Lo] match
+      case '\\' => CharAt[R, Lo + 1] match
+        case 'Q' => Loop[R, ToClosingQE[R, Lo + 2], Hi, Acc, Opt]
+        case _ => Loop[R, Lo + 2, Hi, Acc, Opt]
+      case '[' => Loop[R, ToClosingBracket[R, Lo + 1, 0], Hi, Acc, Opt]
+      case ')' => Loop[R, Lo + 1, Hi, Acc, Max[0, Opt - 1]]
+      case '(' => Opt match
+        case 0 => IsMarked[R, ToClosingParenthesis[R, Lo + 1, 0], Hi] match
+          case true => IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, 1]
+            case true  => Loop[R, Lo + 1, Hi, Option[String] *: Acc, 1]
+          case false => IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, IsPiped[R, Lo + 1, Hi, 0]]
+            case true  => Loop[R, Lo + 1, Hi, String *: Acc, IsPiped[R, Lo + 1, Hi, 0]]
+        case _ => IsCapturing[R, Lo + 1] match
+          case false => Loop[R, Lo + 1, Hi, Acc, Opt + 1]
+          case true  => Loop[R, Lo + 1, Hi, Option[String] *: Acc, Opt + 1]
+      case _ => Loop[R, Lo + 1, Hi, Acc, Opt]
+            SimpleType: Lo
+              CodeReferenceElement: Lo
+                PsiElement(identifier)('Lo')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Hi
+                  CodeReferenceElement: Hi
+                    PsiElement(identifier)('Hi')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Acc
+                  CodeReferenceElement: Acc
+                    PsiElement(identifier)('Acc')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace('  ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: CharAt[R, Lo] match
+      case '\\' => CharAt[R, Lo + 1] match
+        case 'Q' => Loop[R, ToClosingQE[R, Lo + 2], Hi, Acc, Opt]
+        case _ => Loop[R, Lo + 2, Hi, Acc, Opt]
+      case '[' => Loop[R, ToClosingBracket[R, Lo + 1, 0], Hi, Acc, Opt]
+      case ')' => Loop[R, Lo + 1, Hi, Acc, Max[0, Opt - 1]]
+      case '(' => Opt match
+        case 0 => IsMarked[R, ToClosingParenthesis[R, Lo + 1, 0], Hi] match
+          case true => IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, 1]
+            case true  => Loop[R, Lo + 1, Hi, Option[String] *: Acc, 1]
+          case false => IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, IsPiped[R, Lo + 1, Hi, 0]]
+            case true  => Loop[R, Lo + 1, Hi, String *: Acc, IsPiped[R, Lo + 1, Hi, 0]]
+        case _ => IsCapturing[R, Lo + 1] match
+          case false => Loop[R, Lo + 1, Hi, Acc, Opt + 1]
+          case true  => Loop[R, Lo + 1, Hi, Option[String] *: Acc, Opt + 1]
+      case _ => Loop[R, Lo + 1, Hi, Acc, Opt]
+                  ParametrizedType: CharAt[R, Lo]
+                    SimpleType: CharAt
+                      CodeReferenceElement: CharAt
+                        PsiElement(identifier)('CharAt')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Lo
+                          CodeReferenceElement: Lo
+                            PsiElement(identifier)('Lo')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: '\\'
+                        CharLiteral
+                          PsiElement(Character)(''\\'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      MatchType: CharAt[R, Lo + 1] match
+        case 'Q' => Loop[R, ToClosingQE[R, Lo + 2], Hi, Acc, Opt]
+        case _ => Loop[R, Lo + 2, Hi, Acc, Opt]
+                        ParametrizedType: CharAt[R, Lo + 1]
+                          SimpleType: CharAt
+                            CodeReferenceElement: CharAt
+                              PsiElement(identifier)('CharAt')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              InfixType: Lo + 1
+                                SimpleType: Lo
+                                  CodeReferenceElement: Lo
+                                    PsiElement(identifier)('Lo')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                LiteralType: 1
+                                  IntegerLiteral
+                                    PsiElement(integer)('1')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(match)('match')
+                        PsiWhiteSpace('\n        ')
+                        ScMatchTypeCasesImpl(match type cases)
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            LiteralType: 'Q'
+                              CharLiteral
+                                PsiElement(Character)(''Q'')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            ParametrizedType: Loop[R, ToClosingQE[R, Lo + 2], Hi, Acc, Opt]
+                              SimpleType: Loop
+                                CodeReferenceElement: Loop
+                                  PsiElement(identifier)('Loop')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  ParametrizedType: ToClosingQE[R, Lo + 2]
+                                    SimpleType: ToClosingQE
+                                      CodeReferenceElement: ToClosingQE
+                                        PsiElement(identifier)('ToClosingQE')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: R
+                                          CodeReferenceElement: R
+                                            PsiElement(identifier)('R')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        InfixType: Lo + 2
+                                          SimpleType: Lo
+                                            CodeReferenceElement: Lo
+                                              PsiElement(identifier)('Lo')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 2
+                                            IntegerLiteral
+                                              PsiElement(integer)('2')
+                                      PsiElement(])(']')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Hi
+                                    CodeReferenceElement: Hi
+                                      PsiElement(identifier)('Hi')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Acc
+                                    CodeReferenceElement: Acc
+                                      PsiElement(identifier)('Acc')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Opt
+                                    CodeReferenceElement: Opt
+                                      PsiElement(identifier)('Opt')
+                                PsiElement(])(']')
+                          PsiWhiteSpace('\n        ')
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            TypeVariable: _
+                              PsiElement(_)('_')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            ParametrizedType: Loop[R, Lo + 2, Hi, Acc, Opt]
+                              SimpleType: Loop
+                                CodeReferenceElement: Loop
+                                  PsiElement(identifier)('Loop')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  InfixType: Lo + 2
+                                    SimpleType: Lo
+                                      CodeReferenceElement: Lo
+                                        PsiElement(identifier)('Lo')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Hi
+                                    CodeReferenceElement: Hi
+                                      PsiElement(identifier)('Hi')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Acc
+                                    CodeReferenceElement: Acc
+                                      PsiElement(identifier)('Acc')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Opt
+                                    CodeReferenceElement: Opt
+                                      PsiElement(identifier)('Opt')
+                                PsiElement(])(']')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: '['
+                        CharLiteral
+                          PsiElement(Character)(''['')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Loop[R, ToClosingBracket[R, Lo + 1, 0], Hi, Acc, Opt]
+                        SimpleType: Loop
+                          CodeReferenceElement: Loop
+                            PsiElement(identifier)('Loop')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: ToClosingBracket[R, Lo + 1, 0]
+                              SimpleType: ToClosingBracket
+                                CodeReferenceElement: ToClosingBracket
+                                  PsiElement(identifier)('ToClosingBracket')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  InfixType: Lo + 1
+                                    SimpleType: Lo
+                                      CodeReferenceElement: Lo
+                                        PsiElement(identifier)('Lo')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 1
+                                      IntegerLiteral
+                                        PsiElement(integer)('1')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Acc
+                              CodeReferenceElement: Acc
+                                PsiElement(identifier)('Acc')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Opt
+                              CodeReferenceElement: Opt
+                                PsiElement(identifier)('Opt')
+                          PsiElement(])(']')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: ')'
+                        CharLiteral
+                          PsiElement(Character)('')'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Loop[R, Lo + 1, Hi, Acc, Max[0, Opt - 1]]
+                        SimpleType: Loop
+                          CodeReferenceElement: Loop
+                            PsiElement(identifier)('Loop')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: Lo + 1
+                              SimpleType: Lo
+                                CodeReferenceElement: Lo
+                                  PsiElement(identifier)('Lo')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Acc
+                              CodeReferenceElement: Acc
+                                PsiElement(identifier)('Acc')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: Max[0, Opt - 1]
+                              SimpleType: Max
+                                CodeReferenceElement: Max
+                                  PsiElement(identifier)('Max')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  InfixType: Opt - 1
+                                    SimpleType: Opt
+                                      CodeReferenceElement: Opt
+                                        PsiElement(identifier)('Opt')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: -
+                                      PsiElement(identifier)('-')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 1
+                                      IntegerLiteral
+                                        PsiElement(integer)('1')
+                                PsiElement(])(']')
+                          PsiElement(])(']')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: '('
+                        CharLiteral
+                          PsiElement(Character)(''('')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      MatchType: Opt match
+        case 0 => IsMarked[R, ToClosingParenthesis[R, Lo + 1, 0], Hi] match
+          case true => IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, 1]
+            case true  => Loop[R, Lo + 1, Hi, Option[String] *: Acc, 1]
+          case false => IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, IsPiped[R, Lo + 1, Hi, 0]]
+            case true  => Loop[R, Lo + 1, Hi, String *: Acc, IsPiped[R, Lo + 1, Hi, 0]]
+        case _ => IsCapturing[R, Lo + 1] match
+          case false => Loop[R, Lo + 1, Hi, Acc, Opt + 1]
+          case true  => Loop[R, Lo + 1, Hi, Option[String] *: Acc, Opt + 1]
+                        SimpleType: Opt
+                          CodeReferenceElement: Opt
+                            PsiElement(identifier)('Opt')
+                        PsiWhiteSpace(' ')
+                        PsiElement(match)('match')
+                        PsiWhiteSpace('\n        ')
+                        ScMatchTypeCasesImpl(match type cases)
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            LiteralType: 0
+                              IntegerLiteral
+                                PsiElement(integer)('0')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            MatchType: IsMarked[R, ToClosingParenthesis[R, Lo + 1, 0], Hi] match
+          case true => IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, 1]
+            case true  => Loop[R, Lo + 1, Hi, Option[String] *: Acc, 1]
+          case false => IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, IsPiped[R, Lo + 1, Hi, 0]]
+            case true  => Loop[R, Lo + 1, Hi, String *: Acc, IsPiped[R, Lo + 1, Hi, 0]]
+                              ParametrizedType: IsMarked[R, ToClosingParenthesis[R, Lo + 1, 0], Hi]
+                                SimpleType: IsMarked
+                                  CodeReferenceElement: IsMarked
+                                    PsiElement(identifier)('IsMarked')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: R
+                                      CodeReferenceElement: R
+                                        PsiElement(identifier)('R')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    ParametrizedType: ToClosingParenthesis[R, Lo + 1, 0]
+                                      SimpleType: ToClosingParenthesis
+                                        CodeReferenceElement: ToClosingParenthesis
+                                          PsiElement(identifier)('ToClosingParenthesis')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: R
+                                            CodeReferenceElement: R
+                                              PsiElement(identifier)('R')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        TypeArgument
+                                          InfixType: Lo + 1
+                                            SimpleType: Lo
+                                              CodeReferenceElement: Lo
+                                                PsiElement(identifier)('Lo')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: +
+                                              PsiElement(identifier)('+')
+                                            PsiWhiteSpace(' ')
+                                            LiteralType: 1
+                                              IntegerLiteral
+                                                PsiElement(integer)('1')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        TypeArgument
+                                          LiteralType: 0
+                                            IntegerLiteral
+                                              PsiElement(integer)('0')
+                                        PsiElement(])(']')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    SimpleType: Hi
+                                      CodeReferenceElement: Hi
+                                        PsiElement(identifier)('Hi')
+                                  PsiElement(])(']')
+                              PsiWhiteSpace(' ')
+                              PsiElement(match)('match')
+                              PsiWhiteSpace('\n          ')
+                              ScMatchTypeCasesImpl(match type cases)
+                                ScMatchTypeCaseImpl(match type case)
+                                  PsiElement(case)('case')
+                                  PsiWhiteSpace(' ')
+                                  LiteralType: true
+                                    BooleanLiteral
+                                      PsiElement(true)('true')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace(' ')
+                                  MatchType: IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, 1]
+            case true  => Loop[R, Lo + 1, Hi, Option[String] *: Acc, 1]
+                                    ParametrizedType: IsCapturing[R, Lo + 1]
+                                      SimpleType: IsCapturing
+                                        CodeReferenceElement: IsCapturing
+                                          PsiElement(identifier)('IsCapturing')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: R
+                                            CodeReferenceElement: R
+                                              PsiElement(identifier)('R')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        TypeArgument
+                                          InfixType: Lo + 1
+                                            SimpleType: Lo
+                                              CodeReferenceElement: Lo
+                                                PsiElement(identifier)('Lo')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: +
+                                              PsiElement(identifier)('+')
+                                            PsiWhiteSpace(' ')
+                                            LiteralType: 1
+                                              IntegerLiteral
+                                                PsiElement(integer)('1')
+                                        PsiElement(])(']')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(match)('match')
+                                    PsiWhiteSpace('\n            ')
+                                    ScMatchTypeCasesImpl(match type cases)
+                                      ScMatchTypeCaseImpl(match type case)
+                                        PsiElement(case)('case')
+                                        PsiWhiteSpace(' ')
+                                        LiteralType: false
+                                          BooleanLiteral
+                                            PsiElement(false)('false')
+                                        PsiWhiteSpace(' ')
+                                        PsiElement(=>)('=>')
+                                        PsiWhiteSpace(' ')
+                                        ParametrizedType: Loop[R, Lo + 1, Hi, Acc, 1]
+                                          SimpleType: Loop
+                                            CodeReferenceElement: Loop
+                                              PsiElement(identifier)('Loop')
+                                          TypeArgumentsList
+                                            PsiElement([)('[')
+                                            TypeArgument
+                                              SimpleType: R
+                                                CodeReferenceElement: R
+                                                  PsiElement(identifier)('R')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              InfixType: Lo + 1
+                                                SimpleType: Lo
+                                                  CodeReferenceElement: Lo
+                                                    PsiElement(identifier)('Lo')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: +
+                                                  PsiElement(identifier)('+')
+                                                PsiWhiteSpace(' ')
+                                                LiteralType: 1
+                                                  IntegerLiteral
+                                                    PsiElement(integer)('1')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Hi
+                                                CodeReferenceElement: Hi
+                                                  PsiElement(identifier)('Hi')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Acc
+                                                CodeReferenceElement: Acc
+                                                  PsiElement(identifier)('Acc')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              LiteralType: 1
+                                                IntegerLiteral
+                                                  PsiElement(integer)('1')
+                                            PsiElement(])(']')
+                                      PsiWhiteSpace('\n            ')
+                                      ScMatchTypeCaseImpl(match type case)
+                                        PsiElement(case)('case')
+                                        PsiWhiteSpace(' ')
+                                        LiteralType: true
+                                          BooleanLiteral
+                                            PsiElement(true)('true')
+                                        PsiWhiteSpace('  ')
+                                        PsiElement(=>)('=>')
+                                        PsiWhiteSpace(' ')
+                                        ParametrizedType: Loop[R, Lo + 1, Hi, Option[String] *: Acc, 1]
+                                          SimpleType: Loop
+                                            CodeReferenceElement: Loop
+                                              PsiElement(identifier)('Loop')
+                                          TypeArgumentsList
+                                            PsiElement([)('[')
+                                            TypeArgument
+                                              SimpleType: R
+                                                CodeReferenceElement: R
+                                                  PsiElement(identifier)('R')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              InfixType: Lo + 1
+                                                SimpleType: Lo
+                                                  CodeReferenceElement: Lo
+                                                    PsiElement(identifier)('Lo')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: +
+                                                  PsiElement(identifier)('+')
+                                                PsiWhiteSpace(' ')
+                                                LiteralType: 1
+                                                  IntegerLiteral
+                                                    PsiElement(integer)('1')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Hi
+                                                CodeReferenceElement: Hi
+                                                  PsiElement(identifier)('Hi')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              InfixType: Option[String] *: Acc
+                                                ParametrizedType: Option[String]
+                                                  SimpleType: Option
+                                                    CodeReferenceElement: Option
+                                                      PsiElement(identifier)('Option')
+                                                  TypeArgumentsList
+                                                    PsiElement([)('[')
+                                                    TypeArgument
+                                                      SimpleType: String
+                                                        CodeReferenceElement: String
+                                                          PsiElement(identifier)('String')
+                                                    PsiElement(])(']')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: *:
+                                                  PsiElement(identifier)('*:')
+                                                PsiWhiteSpace(' ')
+                                                SimpleType: Acc
+                                                  CodeReferenceElement: Acc
+                                                    PsiElement(identifier)('Acc')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              LiteralType: 1
+                                                IntegerLiteral
+                                                  PsiElement(integer)('1')
+                                            PsiElement(])(']')
+                                PsiWhiteSpace('\n          ')
+                                ScMatchTypeCaseImpl(match type case)
+                                  PsiElement(case)('case')
+                                  PsiWhiteSpace(' ')
+                                  LiteralType: false
+                                    BooleanLiteral
+                                      PsiElement(false)('false')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace(' ')
+                                  MatchType: IsCapturing[R, Lo + 1] match
+            case false => Loop[R, Lo + 1, Hi, Acc, IsPiped[R, Lo + 1, Hi, 0]]
+            case true  => Loop[R, Lo + 1, Hi, String *: Acc, IsPiped[R, Lo + 1, Hi, 0]]
+                                    ParametrizedType: IsCapturing[R, Lo + 1]
+                                      SimpleType: IsCapturing
+                                        CodeReferenceElement: IsCapturing
+                                          PsiElement(identifier)('IsCapturing')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: R
+                                            CodeReferenceElement: R
+                                              PsiElement(identifier)('R')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        TypeArgument
+                                          InfixType: Lo + 1
+                                            SimpleType: Lo
+                                              CodeReferenceElement: Lo
+                                                PsiElement(identifier)('Lo')
+                                            PsiWhiteSpace(' ')
+                                            CodeReferenceElement: +
+                                              PsiElement(identifier)('+')
+                                            PsiWhiteSpace(' ')
+                                            LiteralType: 1
+                                              IntegerLiteral
+                                                PsiElement(integer)('1')
+                                        PsiElement(])(']')
+                                    PsiWhiteSpace(' ')
+                                    PsiElement(match)('match')
+                                    PsiWhiteSpace('\n            ')
+                                    ScMatchTypeCasesImpl(match type cases)
+                                      ScMatchTypeCaseImpl(match type case)
+                                        PsiElement(case)('case')
+                                        PsiWhiteSpace(' ')
+                                        LiteralType: false
+                                          BooleanLiteral
+                                            PsiElement(false)('false')
+                                        PsiWhiteSpace(' ')
+                                        PsiElement(=>)('=>')
+                                        PsiWhiteSpace(' ')
+                                        ParametrizedType: Loop[R, Lo + 1, Hi, Acc, IsPiped[R, Lo + 1, Hi, 0]]
+                                          SimpleType: Loop
+                                            CodeReferenceElement: Loop
+                                              PsiElement(identifier)('Loop')
+                                          TypeArgumentsList
+                                            PsiElement([)('[')
+                                            TypeArgument
+                                              SimpleType: R
+                                                CodeReferenceElement: R
+                                                  PsiElement(identifier)('R')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              InfixType: Lo + 1
+                                                SimpleType: Lo
+                                                  CodeReferenceElement: Lo
+                                                    PsiElement(identifier)('Lo')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: +
+                                                  PsiElement(identifier)('+')
+                                                PsiWhiteSpace(' ')
+                                                LiteralType: 1
+                                                  IntegerLiteral
+                                                    PsiElement(integer)('1')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Hi
+                                                CodeReferenceElement: Hi
+                                                  PsiElement(identifier)('Hi')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Acc
+                                                CodeReferenceElement: Acc
+                                                  PsiElement(identifier)('Acc')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              ParametrizedType: IsPiped[R, Lo + 1, Hi, 0]
+                                                SimpleType: IsPiped
+                                                  CodeReferenceElement: IsPiped
+                                                    PsiElement(identifier)('IsPiped')
+                                                TypeArgumentsList
+                                                  PsiElement([)('[')
+                                                  TypeArgument
+                                                    SimpleType: R
+                                                      CodeReferenceElement: R
+                                                        PsiElement(identifier)('R')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    InfixType: Lo + 1
+                                                      SimpleType: Lo
+                                                        CodeReferenceElement: Lo
+                                                          PsiElement(identifier)('Lo')
+                                                      PsiWhiteSpace(' ')
+                                                      CodeReferenceElement: +
+                                                        PsiElement(identifier)('+')
+                                                      PsiWhiteSpace(' ')
+                                                      LiteralType: 1
+                                                        IntegerLiteral
+                                                          PsiElement(integer)('1')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    SimpleType: Hi
+                                                      CodeReferenceElement: Hi
+                                                        PsiElement(identifier)('Hi')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    LiteralType: 0
+                                                      IntegerLiteral
+                                                        PsiElement(integer)('0')
+                                                  PsiElement(])(']')
+                                            PsiElement(])(']')
+                                      PsiWhiteSpace('\n            ')
+                                      ScMatchTypeCaseImpl(match type case)
+                                        PsiElement(case)('case')
+                                        PsiWhiteSpace(' ')
+                                        LiteralType: true
+                                          BooleanLiteral
+                                            PsiElement(true)('true')
+                                        PsiWhiteSpace('  ')
+                                        PsiElement(=>)('=>')
+                                        PsiWhiteSpace(' ')
+                                        ParametrizedType: Loop[R, Lo + 1, Hi, String *: Acc, IsPiped[R, Lo + 1, Hi, 0]]
+                                          SimpleType: Loop
+                                            CodeReferenceElement: Loop
+                                              PsiElement(identifier)('Loop')
+                                          TypeArgumentsList
+                                            PsiElement([)('[')
+                                            TypeArgument
+                                              SimpleType: R
+                                                CodeReferenceElement: R
+                                                  PsiElement(identifier)('R')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              InfixType: Lo + 1
+                                                SimpleType: Lo
+                                                  CodeReferenceElement: Lo
+                                                    PsiElement(identifier)('Lo')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: +
+                                                  PsiElement(identifier)('+')
+                                                PsiWhiteSpace(' ')
+                                                LiteralType: 1
+                                                  IntegerLiteral
+                                                    PsiElement(integer)('1')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              SimpleType: Hi
+                                                CodeReferenceElement: Hi
+                                                  PsiElement(identifier)('Hi')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              InfixType: String *: Acc
+                                                SimpleType: String
+                                                  CodeReferenceElement: String
+                                                    PsiElement(identifier)('String')
+                                                PsiWhiteSpace(' ')
+                                                CodeReferenceElement: *:
+                                                  PsiElement(identifier)('*:')
+                                                PsiWhiteSpace(' ')
+                                                SimpleType: Acc
+                                                  CodeReferenceElement: Acc
+                                                    PsiElement(identifier)('Acc')
+                                            PsiElement(,)(',')
+                                            PsiWhiteSpace(' ')
+                                            TypeArgument
+                                              ParametrizedType: IsPiped[R, Lo + 1, Hi, 0]
+                                                SimpleType: IsPiped
+                                                  CodeReferenceElement: IsPiped
+                                                    PsiElement(identifier)('IsPiped')
+                                                TypeArgumentsList
+                                                  PsiElement([)('[')
+                                                  TypeArgument
+                                                    SimpleType: R
+                                                      CodeReferenceElement: R
+                                                        PsiElement(identifier)('R')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    InfixType: Lo + 1
+                                                      SimpleType: Lo
+                                                        CodeReferenceElement: Lo
+                                                          PsiElement(identifier)('Lo')
+                                                      PsiWhiteSpace(' ')
+                                                      CodeReferenceElement: +
+                                                        PsiElement(identifier)('+')
+                                                      PsiWhiteSpace(' ')
+                                                      LiteralType: 1
+                                                        IntegerLiteral
+                                                          PsiElement(integer)('1')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    SimpleType: Hi
+                                                      CodeReferenceElement: Hi
+                                                        PsiElement(identifier)('Hi')
+                                                  PsiElement(,)(',')
+                                                  PsiWhiteSpace(' ')
+                                                  TypeArgument
+                                                    LiteralType: 0
+                                                      IntegerLiteral
+                                                        PsiElement(integer)('0')
+                                                  PsiElement(])(']')
+                                            PsiElement(])(']')
+                          PsiWhiteSpace('\n        ')
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            TypeVariable: _
+                              PsiElement(_)('_')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            MatchType: IsCapturing[R, Lo + 1] match
+          case false => Loop[R, Lo + 1, Hi, Acc, Opt + 1]
+          case true  => Loop[R, Lo + 1, Hi, Option[String] *: Acc, Opt + 1]
+                              ParametrizedType: IsCapturing[R, Lo + 1]
+                                SimpleType: IsCapturing
+                                  CodeReferenceElement: IsCapturing
+                                    PsiElement(identifier)('IsCapturing')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: R
+                                      CodeReferenceElement: R
+                                        PsiElement(identifier)('R')
+                                  PsiElement(,)(',')
+                                  PsiWhiteSpace(' ')
+                                  TypeArgument
+                                    InfixType: Lo + 1
+                                      SimpleType: Lo
+                                        CodeReferenceElement: Lo
+                                          PsiElement(identifier)('Lo')
+                                      PsiWhiteSpace(' ')
+                                      CodeReferenceElement: +
+                                        PsiElement(identifier)('+')
+                                      PsiWhiteSpace(' ')
+                                      LiteralType: 1
+                                        IntegerLiteral
+                                          PsiElement(integer)('1')
+                                  PsiElement(])(']')
+                              PsiWhiteSpace(' ')
+                              PsiElement(match)('match')
+                              PsiWhiteSpace('\n          ')
+                              ScMatchTypeCasesImpl(match type cases)
+                                ScMatchTypeCaseImpl(match type case)
+                                  PsiElement(case)('case')
+                                  PsiWhiteSpace(' ')
+                                  LiteralType: false
+                                    BooleanLiteral
+                                      PsiElement(false)('false')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace(' ')
+                                  ParametrizedType: Loop[R, Lo + 1, Hi, Acc, Opt + 1]
+                                    SimpleType: Loop
+                                      CodeReferenceElement: Loop
+                                        PsiElement(identifier)('Loop')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: R
+                                          CodeReferenceElement: R
+                                            PsiElement(identifier)('R')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        InfixType: Lo + 1
+                                          SimpleType: Lo
+                                            CodeReferenceElement: Lo
+                                              PsiElement(identifier)('Lo')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 1
+                                            IntegerLiteral
+                                              PsiElement(integer)('1')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        SimpleType: Hi
+                                          CodeReferenceElement: Hi
+                                            PsiElement(identifier)('Hi')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        SimpleType: Acc
+                                          CodeReferenceElement: Acc
+                                            PsiElement(identifier)('Acc')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        InfixType: Opt + 1
+                                          SimpleType: Opt
+                                            CodeReferenceElement: Opt
+                                              PsiElement(identifier)('Opt')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 1
+                                            IntegerLiteral
+                                              PsiElement(integer)('1')
+                                      PsiElement(])(']')
+                                PsiWhiteSpace('\n          ')
+                                ScMatchTypeCaseImpl(match type case)
+                                  PsiElement(case)('case')
+                                  PsiWhiteSpace(' ')
+                                  LiteralType: true
+                                    BooleanLiteral
+                                      PsiElement(true)('true')
+                                  PsiWhiteSpace('  ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace(' ')
+                                  ParametrizedType: Loop[R, Lo + 1, Hi, Option[String] *: Acc, Opt + 1]
+                                    SimpleType: Loop
+                                      CodeReferenceElement: Loop
+                                        PsiElement(identifier)('Loop')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: R
+                                          CodeReferenceElement: R
+                                            PsiElement(identifier)('R')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        InfixType: Lo + 1
+                                          SimpleType: Lo
+                                            CodeReferenceElement: Lo
+                                              PsiElement(identifier)('Lo')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 1
+                                            IntegerLiteral
+                                              PsiElement(integer)('1')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        SimpleType: Hi
+                                          CodeReferenceElement: Hi
+                                            PsiElement(identifier)('Hi')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        InfixType: Option[String] *: Acc
+                                          ParametrizedType: Option[String]
+                                            SimpleType: Option
+                                              CodeReferenceElement: Option
+                                                PsiElement(identifier)('Option')
+                                            TypeArgumentsList
+                                              PsiElement([)('[')
+                                              TypeArgument
+                                                SimpleType: String
+                                                  CodeReferenceElement: String
+                                                    PsiElement(identifier)('String')
+                                              PsiElement(])(']')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: *:
+                                            PsiElement(identifier)('*:')
+                                          PsiWhiteSpace(' ')
+                                          SimpleType: Acc
+                                            CodeReferenceElement: Acc
+                                              PsiElement(identifier)('Acc')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        InfixType: Opt + 1
+                                          SimpleType: Opt
+                                            CodeReferenceElement: Opt
+                                              PsiElement(identifier)('Opt')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 1
+                                            IntegerLiteral
+                                              PsiElement(integer)('1')
+                                      PsiElement(])(']')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Loop[R, Lo + 1, Hi, Acc, Opt]
+                        SimpleType: Loop
+                          CodeReferenceElement: Loop
+                            PsiElement(identifier)('Loop')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: Lo + 1
+                              SimpleType: Lo
+                                CodeReferenceElement: Lo
+                                  PsiElement(identifier)('Lo')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Acc
+                              CodeReferenceElement: Acc
+                                PsiElement(identifier)('Acc')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Opt
+                              CodeReferenceElement: Opt
+                                PsiElement(identifier)('Opt')
+                          PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: IsCapturing
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('IsCapturing')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: At
+              PsiElement(identifier)('At')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: CharAt[R, At] match
+    case '?' => CharAt[R, At + 1] match
+      case '<' => CharAt[R, At + 2] match
+        case '=' | '!' => false
+        case _ => true
+      case _ => false
+    case _ => true
+            ParametrizedType: CharAt[R, At]
+              SimpleType: CharAt
+                CodeReferenceElement: CharAt
+                  PsiElement(identifier)('CharAt')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: At
+                    CodeReferenceElement: At
+                      PsiElement(identifier)('At')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: '?'
+                  CharLiteral
+                    PsiElement(Character)(''?'')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: CharAt[R, At + 1] match
+      case '<' => CharAt[R, At + 2] match
+        case '=' | '!' => false
+        case _ => true
+      case _ => false
+                  ParametrizedType: CharAt[R, At + 1]
+                    SimpleType: CharAt
+                      CodeReferenceElement: CharAt
+                        PsiElement(identifier)('CharAt')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        InfixType: At + 1
+                          SimpleType: At
+                            CodeReferenceElement: At
+                              PsiElement(identifier)('At')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: '<'
+                        CharLiteral
+                          PsiElement(Character)(''<'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      MatchType: CharAt[R, At + 2] match
+        case '=' | '!' => false
+        case _ => true
+                        ParametrizedType: CharAt[R, At + 2]
+                          SimpleType: CharAt
+                            CodeReferenceElement: CharAt
+                              PsiElement(identifier)('CharAt')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              InfixType: At + 2
+                                SimpleType: At
+                                  CodeReferenceElement: At
+                                    PsiElement(identifier)('At')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                LiteralType: 2
+                                  IntegerLiteral
+                                    PsiElement(integer)('2')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(match)('match')
+                        PsiWhiteSpace('\n        ')
+                        ScMatchTypeCasesImpl(match type cases)
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            InfixType: '=' | '!'
+                              LiteralType: '='
+                                CharLiteral
+                                  PsiElement(Character)(''='')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: |
+                                PsiElement(identifier)('|')
+                              PsiWhiteSpace(' ')
+                              LiteralType: '!'
+                                CharLiteral
+                                  PsiElement(Character)(''!'')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            LiteralType: false
+                              BooleanLiteral
+                                PsiElement(false)('false')
+                          PsiWhiteSpace('\n        ')
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            TypeVariable: _
+                              PsiElement(_)('_')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      LiteralType: false
+                        BooleanLiteral
+                          PsiElement(false)('false')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: true
+                  BooleanLiteral
+                    PsiElement(true)('true')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: IsMarked
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('IsMarked')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: At
+              PsiElement(identifier)('At')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Hi
+              PsiElement(identifier)('Hi')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: At match
+    case Hi => false
+    case _ => CharAt[R, At] match
+      case '?' | '*' => true
+      case '{' => CharAt[R, At + 1] match
+        case '0' => true
+        case _ => false
+      case _ => false
+            SimpleType: At
+              CodeReferenceElement: At
+                PsiElement(identifier)('At')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Hi
+                  CodeReferenceElement: Hi
+                    PsiElement(identifier)('Hi')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: false
+                  BooleanLiteral
+                    PsiElement(false)('false')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: CharAt[R, At] match
+      case '?' | '*' => true
+      case '{' => CharAt[R, At + 1] match
+        case '0' => true
+        case _ => false
+      case _ => false
+                  ParametrizedType: CharAt[R, At]
+                    SimpleType: CharAt
+                      CodeReferenceElement: CharAt
+                        PsiElement(identifier)('CharAt')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      InfixType: '?' | '*'
+                        LiteralType: '?'
+                          CharLiteral
+                            PsiElement(Character)(''?'')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: |
+                          PsiElement(identifier)('|')
+                        PsiWhiteSpace(' ')
+                        LiteralType: '*'
+                          CharLiteral
+                            PsiElement(Character)(''*'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      LiteralType: true
+                        BooleanLiteral
+                          PsiElement(true)('true')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: '{'
+                        CharLiteral
+                          PsiElement(Character)(''{'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      MatchType: CharAt[R, At + 1] match
+        case '0' => true
+        case _ => false
+                        ParametrizedType: CharAt[R, At + 1]
+                          SimpleType: CharAt
+                            CodeReferenceElement: CharAt
+                              PsiElement(identifier)('CharAt')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              InfixType: At + 1
+                                SimpleType: At
+                                  CodeReferenceElement: At
+                                    PsiElement(identifier)('At')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                LiteralType: 1
+                                  IntegerLiteral
+                                    PsiElement(integer)('1')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(match)('match')
+                        PsiWhiteSpace('\n        ')
+                        ScMatchTypeCasesImpl(match type cases)
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            LiteralType: '0'
+                              CharLiteral
+                                PsiElement(Character)(''0'')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            LiteralType: true
+                              BooleanLiteral
+                                PsiElement(true)('true')
+                          PsiWhiteSpace('\n        ')
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            TypeVariable: _
+                              PsiElement(_)('_')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            LiteralType: false
+                              BooleanLiteral
+                                PsiElement(false)('false')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      LiteralType: false
+                        BooleanLiteral
+                          PsiElement(false)('false')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: IsPiped
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('IsPiped')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: At
+              PsiElement(identifier)('At')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Hi
+              PsiElement(identifier)('Hi')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Lvl
+              PsiElement(identifier)('Lvl')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: At match
+    case Hi => 0
+    case _ => CharAt[R, At] match
+      case '\\' => CharAt[R, At + 1] match
+        case 'Q' => IsPiped[R, ToClosingQE[R, At + 2], Hi, Lvl]
+        case _ => IsPiped[R, At + 2, Hi, Lvl]
+      case '[' => IsPiped[R, ToClosingBracket[R, At + 1, 0], Hi, Lvl]
+      case '(' => IsPiped[R, ToClosingParenthesis[R, At + 1, 0], Hi, Lvl + 1]
+      case '|' => 1
+      case ')' => 0
+      case _ => IsPiped[R, At + 1, Hi, Lvl]
+            SimpleType: At
+              CodeReferenceElement: At
+                PsiElement(identifier)('At')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Hi
+                  CodeReferenceElement: Hi
+                    PsiElement(identifier)('Hi')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: CharAt[R, At] match
+      case '\\' => CharAt[R, At + 1] match
+        case 'Q' => IsPiped[R, ToClosingQE[R, At + 2], Hi, Lvl]
+        case _ => IsPiped[R, At + 2, Hi, Lvl]
+      case '[' => IsPiped[R, ToClosingBracket[R, At + 1, 0], Hi, Lvl]
+      case '(' => IsPiped[R, ToClosingParenthesis[R, At + 1, 0], Hi, Lvl + 1]
+      case '|' => 1
+      case ')' => 0
+      case _ => IsPiped[R, At + 1, Hi, Lvl]
+                  ParametrizedType: CharAt[R, At]
+                    SimpleType: CharAt
+                      CodeReferenceElement: CharAt
+                        PsiElement(identifier)('CharAt')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: '\\'
+                        CharLiteral
+                          PsiElement(Character)(''\\'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      MatchType: CharAt[R, At + 1] match
+        case 'Q' => IsPiped[R, ToClosingQE[R, At + 2], Hi, Lvl]
+        case _ => IsPiped[R, At + 2, Hi, Lvl]
+                        ParametrizedType: CharAt[R, At + 1]
+                          SimpleType: CharAt
+                            CodeReferenceElement: CharAt
+                              PsiElement(identifier)('CharAt')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            TypeArgument
+                              InfixType: At + 1
+                                SimpleType: At
+                                  CodeReferenceElement: At
+                                    PsiElement(identifier)('At')
+                                PsiWhiteSpace(' ')
+                                CodeReferenceElement: +
+                                  PsiElement(identifier)('+')
+                                PsiWhiteSpace(' ')
+                                LiteralType: 1
+                                  IntegerLiteral
+                                    PsiElement(integer)('1')
+                            PsiElement(])(']')
+                        PsiWhiteSpace(' ')
+                        PsiElement(match)('match')
+                        PsiWhiteSpace('\n        ')
+                        ScMatchTypeCasesImpl(match type cases)
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            LiteralType: 'Q'
+                              CharLiteral
+                                PsiElement(Character)(''Q'')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            ParametrizedType: IsPiped[R, ToClosingQE[R, At + 2], Hi, Lvl]
+                              SimpleType: IsPiped
+                                CodeReferenceElement: IsPiped
+                                  PsiElement(identifier)('IsPiped')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  ParametrizedType: ToClosingQE[R, At + 2]
+                                    SimpleType: ToClosingQE
+                                      CodeReferenceElement: ToClosingQE
+                                        PsiElement(identifier)('ToClosingQE')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: R
+                                          CodeReferenceElement: R
+                                            PsiElement(identifier)('R')
+                                      PsiElement(,)(',')
+                                      PsiWhiteSpace(' ')
+                                      TypeArgument
+                                        InfixType: At + 2
+                                          SimpleType: At
+                                            CodeReferenceElement: At
+                                              PsiElement(identifier)('At')
+                                          PsiWhiteSpace(' ')
+                                          CodeReferenceElement: +
+                                            PsiElement(identifier)('+')
+                                          PsiWhiteSpace(' ')
+                                          LiteralType: 2
+                                            IntegerLiteral
+                                              PsiElement(integer)('2')
+                                      PsiElement(])(']')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Hi
+                                    CodeReferenceElement: Hi
+                                      PsiElement(identifier)('Hi')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Lvl
+                                    CodeReferenceElement: Lvl
+                                      PsiElement(identifier)('Lvl')
+                                PsiElement(])(']')
+                          PsiWhiteSpace('\n        ')
+                          ScMatchTypeCaseImpl(match type case)
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            TypeVariable: _
+                              PsiElement(_)('_')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            ParametrizedType: IsPiped[R, At + 2, Hi, Lvl]
+                              SimpleType: IsPiped
+                                CodeReferenceElement: IsPiped
+                                  PsiElement(identifier)('IsPiped')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  InfixType: At + 2
+                                    SimpleType: At
+                                      CodeReferenceElement: At
+                                        PsiElement(identifier)('At')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Hi
+                                    CodeReferenceElement: Hi
+                                      PsiElement(identifier)('Hi')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  SimpleType: Lvl
+                                    CodeReferenceElement: Lvl
+                                      PsiElement(identifier)('Lvl')
+                                PsiElement(])(']')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: '['
+                        CharLiteral
+                          PsiElement(Character)(''['')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: IsPiped[R, ToClosingBracket[R, At + 1, 0], Hi, Lvl]
+                        SimpleType: IsPiped
+                          CodeReferenceElement: IsPiped
+                            PsiElement(identifier)('IsPiped')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: ToClosingBracket[R, At + 1, 0]
+                              SimpleType: ToClosingBracket
+                                CodeReferenceElement: ToClosingBracket
+                                  PsiElement(identifier)('ToClosingBracket')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  InfixType: At + 1
+                                    SimpleType: At
+                                      CodeReferenceElement: At
+                                        PsiElement(identifier)('At')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 1
+                                      IntegerLiteral
+                                        PsiElement(integer)('1')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
+                          PsiElement(])(']')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: '('
+                        CharLiteral
+                          PsiElement(Character)(''('')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: IsPiped[R, ToClosingParenthesis[R, At + 1, 0], Hi, Lvl + 1]
+                        SimpleType: IsPiped
+                          CodeReferenceElement: IsPiped
+                            PsiElement(identifier)('IsPiped')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: ToClosingParenthesis[R, At + 1, 0]
+                              SimpleType: ToClosingParenthesis
+                                CodeReferenceElement: ToClosingParenthesis
+                                  PsiElement(identifier)('ToClosingParenthesis')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  InfixType: At + 1
+                                    SimpleType: At
+                                      CodeReferenceElement: At
+                                        PsiElement(identifier)('At')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 1
+                                      IntegerLiteral
+                                        PsiElement(integer)('1')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  LiteralType: 0
+                                    IntegerLiteral
+                                      PsiElement(integer)('0')
+                                PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: Lvl + 1
+                              SimpleType: Lvl
+                                CodeReferenceElement: Lvl
+                                  PsiElement(identifier)('Lvl')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                          PsiElement(])(']')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: '|'
+                        CharLiteral
+                          PsiElement(Character)(''|'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 1
+                        IntegerLiteral
+                          PsiElement(integer)('1')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: ')'
+                        CharLiteral
+                          PsiElement(Character)('')'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 0
+                        IntegerLiteral
+                          PsiElement(integer)('0')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: IsPiped[R, At + 1, Hi, Lvl]
+                        SimpleType: IsPiped
+                          CodeReferenceElement: IsPiped
+                            PsiElement(identifier)('IsPiped')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: At + 1
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Hi
+                              CodeReferenceElement: Hi
+                                PsiElement(identifier)('Hi')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
+                          PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: ToClosingParenthesis
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ToClosingParenthesis')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: At
+              PsiElement(identifier)('At')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Lvl
+              PsiElement(identifier)('Lvl')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: CharAt[R, At] match
+    case '\\' => CharAt[R, At + 1] match
+      case 'Q' => ToClosingParenthesis[R, ToClosingQE[R, At + 2], Lvl]
+      case _ => ToClosingParenthesis[R, At + 2, Lvl]
+    case '[' => ToClosingParenthesis[R, ToClosingBracket[R, At + 1, 0], Lvl]
+    case ')' => Lvl match
+      case 0 => At + 1
+      case _ => ToClosingParenthesis[R, At + 1, Lvl - 1]
+    case '(' => ToClosingParenthesis[R, At + 1, Lvl + 1]
+    case _   => ToClosingParenthesis[R, At + 1, Lvl]
+            ParametrizedType: CharAt[R, At]
+              SimpleType: CharAt
+                CodeReferenceElement: CharAt
+                  PsiElement(identifier)('CharAt')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: At
+                    CodeReferenceElement: At
+                      PsiElement(identifier)('At')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: '\\'
+                  CharLiteral
+                    PsiElement(Character)(''\\'')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: CharAt[R, At + 1] match
+      case 'Q' => ToClosingParenthesis[R, ToClosingQE[R, At + 2], Lvl]
+      case _ => ToClosingParenthesis[R, At + 2, Lvl]
+                  ParametrizedType: CharAt[R, At + 1]
+                    SimpleType: CharAt
+                      CodeReferenceElement: CharAt
+                        PsiElement(identifier)('CharAt')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        InfixType: At + 1
+                          SimpleType: At
+                            CodeReferenceElement: At
+                              PsiElement(identifier)('At')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 'Q'
+                        CharLiteral
+                          PsiElement(Character)(''Q'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: ToClosingParenthesis[R, ToClosingQE[R, At + 2], Lvl]
+                        SimpleType: ToClosingParenthesis
+                          CodeReferenceElement: ToClosingParenthesis
+                            PsiElement(identifier)('ToClosingParenthesis')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: ToClosingQE[R, At + 2]
+                              SimpleType: ToClosingQE
+                                CodeReferenceElement: ToClosingQE
+                                  PsiElement(identifier)('ToClosingQE')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  InfixType: At + 2
+                                    SimpleType: At
+                                      CodeReferenceElement: At
+                                        PsiElement(identifier)('At')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
+                                PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
+                          PsiElement(])(']')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: ToClosingParenthesis[R, At + 2, Lvl]
+                        SimpleType: ToClosingParenthesis
+                          CodeReferenceElement: ToClosingParenthesis
+                            PsiElement(identifier)('ToClosingParenthesis')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: At + 2
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 2
+                                IntegerLiteral
+                                  PsiElement(integer)('2')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
+                          PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: '['
+                  CharLiteral
+                    PsiElement(Character)(''['')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ToClosingParenthesis[R, ToClosingBracket[R, At + 1, 0], Lvl]
+                  SimpleType: ToClosingParenthesis
+                    CodeReferenceElement: ToClosingParenthesis
+                      PsiElement(identifier)('ToClosingParenthesis')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      ParametrizedType: ToClosingBracket[R, At + 1, 0]
+                        SimpleType: ToClosingBracket
+                          CodeReferenceElement: ToClosingBracket
+                            PsiElement(identifier)('ToClosingBracket')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: At + 1
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            LiteralType: 0
+                              IntegerLiteral
+                                PsiElement(integer)('0')
+                          PsiElement(])(']')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Lvl
+                        CodeReferenceElement: Lvl
+                          PsiElement(identifier)('Lvl')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: ')'
+                  CharLiteral
+                    PsiElement(Character)('')'')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: Lvl match
+      case 0 => At + 1
+      case _ => ToClosingParenthesis[R, At + 1, Lvl - 1]
+                  SimpleType: Lvl
+                    CodeReferenceElement: Lvl
+                      PsiElement(identifier)('Lvl')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 0
+                        IntegerLiteral
+                          PsiElement(integer)('0')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: ToClosingParenthesis[R, At + 1, Lvl - 1]
+                        SimpleType: ToClosingParenthesis
+                          CodeReferenceElement: ToClosingParenthesis
+                            PsiElement(identifier)('ToClosingParenthesis')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: At + 1
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: Lvl - 1
+                              SimpleType: Lvl
+                                CodeReferenceElement: Lvl
+                                  PsiElement(identifier)('Lvl')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: -
+                                PsiElement(identifier)('-')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                          PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: '('
+                  CharLiteral
+                    PsiElement(Character)(''('')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ToClosingParenthesis[R, At + 1, Lvl + 1]
+                  SimpleType: ToClosingParenthesis
+                    CodeReferenceElement: ToClosingParenthesis
+                      PsiElement(identifier)('ToClosingParenthesis')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      InfixType: Lvl + 1
+                        SimpleType: Lvl
+                          CodeReferenceElement: Lvl
+                            PsiElement(identifier)('Lvl')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace('   ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ToClosingParenthesis[R, At + 1, Lvl]
+                  SimpleType: ToClosingParenthesis
+                    CodeReferenceElement: ToClosingParenthesis
+                      PsiElement(identifier)('ToClosingParenthesis')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Lvl
+                        CodeReferenceElement: Lvl
+                          PsiElement(identifier)('Lvl')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: ToClosingBracket
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ToClosingBracket')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: At
+              PsiElement(identifier)('At')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Lvl
+              PsiElement(identifier)('Lvl')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: CharAt[R, At] match
+    case '\\' => CharAt[R, At + 1] match
+      case 'Q' => ToClosingBracket[R, ToClosingQE[R, At + 2], Lvl]
+      case _ => ToClosingBracket[R, At + 2, Lvl]
+    case '[' => ToClosingBracket[R, At + 1, Lvl + 1]
+    case ']' => Lvl match
+      case 0 => At + 1
+      case _ => ToClosingBracket[R, At + 1, Lvl - 1]
+    case _ => ToClosingBracket[R, At + 1, Lvl]
+            ParametrizedType: CharAt[R, At]
+              SimpleType: CharAt
+                CodeReferenceElement: CharAt
+                  PsiElement(identifier)('CharAt')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: At
+                    CodeReferenceElement: At
+                      PsiElement(identifier)('At')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: '\\'
+                  CharLiteral
+                    PsiElement(Character)(''\\'')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: CharAt[R, At + 1] match
+      case 'Q' => ToClosingBracket[R, ToClosingQE[R, At + 2], Lvl]
+      case _ => ToClosingBracket[R, At + 2, Lvl]
+                  ParametrizedType: CharAt[R, At + 1]
+                    SimpleType: CharAt
+                      CodeReferenceElement: CharAt
+                        PsiElement(identifier)('CharAt')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        InfixType: At + 1
+                          SimpleType: At
+                            CodeReferenceElement: At
+                              PsiElement(identifier)('At')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 'Q'
+                        CharLiteral
+                          PsiElement(Character)(''Q'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: ToClosingBracket[R, ToClosingQE[R, At + 2], Lvl]
+                        SimpleType: ToClosingBracket
+                          CodeReferenceElement: ToClosingBracket
+                            PsiElement(identifier)('ToClosingBracket')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: ToClosingQE[R, At + 2]
+                              SimpleType: ToClosingQE
+                                CodeReferenceElement: ToClosingQE
+                                  PsiElement(identifier)('ToClosingQE')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(,)(',')
+                                PsiWhiteSpace(' ')
+                                TypeArgument
+                                  InfixType: At + 2
+                                    SimpleType: At
+                                      CodeReferenceElement: At
+                                        PsiElement(identifier)('At')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: +
+                                      PsiElement(identifier)('+')
+                                    PsiWhiteSpace(' ')
+                                    LiteralType: 2
+                                      IntegerLiteral
+                                        PsiElement(integer)('2')
+                                PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
+                          PsiElement(])(']')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: ToClosingBracket[R, At + 2, Lvl]
+                        SimpleType: ToClosingBracket
+                          CodeReferenceElement: ToClosingBracket
+                            PsiElement(identifier)('ToClosingBracket')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: At + 2
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 2
+                                IntegerLiteral
+                                  PsiElement(integer)('2')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            SimpleType: Lvl
+                              CodeReferenceElement: Lvl
+                                PsiElement(identifier)('Lvl')
+                          PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: '['
+                  CharLiteral
+                    PsiElement(Character)(''['')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ToClosingBracket[R, At + 1, Lvl + 1]
+                  SimpleType: ToClosingBracket
+                    CodeReferenceElement: ToClosingBracket
+                      PsiElement(identifier)('ToClosingBracket')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      InfixType: Lvl + 1
+                        SimpleType: Lvl
+                          CodeReferenceElement: Lvl
+                            PsiElement(identifier)('Lvl')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: ']'
+                  CharLiteral
+                    PsiElement(Character)('']'')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: Lvl match
+      case 0 => At + 1
+      case _ => ToClosingBracket[R, At + 1, Lvl - 1]
+                  SimpleType: Lvl
+                    CodeReferenceElement: Lvl
+                      PsiElement(identifier)('Lvl')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 0
+                        IntegerLiteral
+                          PsiElement(integer)('0')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: ToClosingBracket[R, At + 1, Lvl - 1]
+                        SimpleType: ToClosingBracket
+                          CodeReferenceElement: ToClosingBracket
+                            PsiElement(identifier)('ToClosingBracket')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: At + 1
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: Lvl - 1
+                              SimpleType: Lvl
+                                CodeReferenceElement: Lvl
+                                  PsiElement(identifier)('Lvl')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: -
+                                PsiElement(identifier)('-')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                          PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ToClosingBracket[R, At + 1, Lvl]
+                  SimpleType: ToClosingBracket
+                    CodeReferenceElement: ToClosingBracket
+                      PsiElement(identifier)('ToClosingBracket')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Lvl
+                        CodeReferenceElement: Lvl
+                          PsiElement(identifier)('Lvl')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: ToClosingQE
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('ToClosingQE')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: At
+              PsiElement(identifier)('At')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: CharAt[R, At] match
+    case '\\' => CharAt[R, At + 1] match
+      case 'E' => At + 2
+      case _ => ToClosingQE[R, At + 2]
+    case _ => ToClosingQE[R, At + 1]
+            ParametrizedType: CharAt[R, At]
+              SimpleType: CharAt
+                CodeReferenceElement: CharAt
+                  PsiElement(identifier)('CharAt')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: At
+                    CodeReferenceElement: At
+                      PsiElement(identifier)('At')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                LiteralType: '\\'
+                  CharLiteral
+                    PsiElement(Character)(''\\'')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                MatchType: CharAt[R, At + 1] match
+      case 'E' => At + 2
+      case _ => ToClosingQE[R, At + 2]
+                  ParametrizedType: CharAt[R, At + 1]
+                    SimpleType: CharAt
+                      CodeReferenceElement: CharAt
+                        PsiElement(identifier)('CharAt')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        InfixType: At + 1
+                          SimpleType: At
+                            CodeReferenceElement: At
+                              PsiElement(identifier)('At')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: +
+                            PsiElement(identifier)('+')
+                          PsiWhiteSpace(' ')
+                          LiteralType: 1
+                            IntegerLiteral
+                              PsiElement(integer)('1')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(match)('match')
+                  PsiWhiteSpace('\n      ')
+                  ScMatchTypeCasesImpl(match type cases)
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      LiteralType: 'E'
+                        CharLiteral
+                          PsiElement(Character)(''E'')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      InfixType: At + 2
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 2
+                          IntegerLiteral
+                            PsiElement(integer)('2')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCaseImpl(match type case)
+                      PsiElement(case)('case')
+                      PsiWhiteSpace(' ')
+                      TypeVariable: _
+                        PsiElement(_)('_')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: ToClosingQE[R, At + 2]
+                        SimpleType: ToClosingQE
+                          CodeReferenceElement: ToClosingQE
+                            PsiElement(identifier)('ToClosingQE')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            InfixType: At + 2
+                              SimpleType: At
+                                CodeReferenceElement: At
+                                  PsiElement(identifier)('At')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 2
+                                IntegerLiteral
+                                  PsiElement(integer)('2')
+                          PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: ToClosingQE[R, At + 1]
+                  SimpleType: ToClosingQE
+                    CodeReferenceElement: ToClosingQE
+                      PsiElement(identifier)('ToClosingQE')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      InfixType: At + 1
+                        SimpleType: At
+                          CodeReferenceElement: At
+                            PsiElement(identifier)('At')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                    PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Reverse
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Reverse')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Acc
+              PsiElement(identifier)('Acc')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: X
+              PsiElement(identifier)('X')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: X match
+    case x *: xs    => Reverse[x *: Acc, xs]
+    case EmptyTuple => Acc
+            SimpleType: X
+              CodeReferenceElement: X
+                PsiElement(identifier)('X')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                InfixType: x *: xs
+                  TypeVariable: x
+                    PsiElement(identifier)('x')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  TypeVariable: xs
+                    PsiElement(identifier)('xs')
+                PsiWhiteSpace('    ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Reverse[x *: Acc, xs]
+                  SimpleType: Reverse
+                    CodeReferenceElement: Reverse
+                      PsiElement(identifier)('Reverse')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      InfixType: x *: Acc
+                        SimpleType: x
+                          CodeReferenceElement: x
+                            PsiElement(identifier)('x')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: *:
+                          PsiElement(identifier)('*:')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Acc
+                          CodeReferenceElement: Acc
+                            PsiElement(identifier)('Acc')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: xs
+                        CodeReferenceElement: xs
+                          PsiElement(identifier)('xs')
+                    PsiElement(])(']')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Acc
+                  CodeReferenceElement: Acc
+                    PsiElement(identifier)('Acc')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: r75
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: r75
+                  PsiElement(identifier)('r75')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: Regex
+                  PsiElement(identifier)('Regex')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"(x|y|z[QW])*(longish|loquatious|excessive|overblown[QW])*"')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MatchStatement
+              StringLiteral
+                PsiElement(string content)('"xyzQzWlongishoverblownW"')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace('\n      ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: r75
+                      PsiElement(identifier)('r75')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      TuplePattern
+                        PsiElement(()('(')
+                        ArgumentPatterns
+                          ConstructorPattern
+                            CodeReferenceElement: Some
+                              PsiElement(identifier)('Some')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ReferencePattern: g0
+                                PsiElement(identifier)('g0')
+                              PsiElement())(')')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          ConstructorPattern
+                            CodeReferenceElement: Some
+                              PsiElement(identifier)('Some')
+                            Pattern Argument List
+                              PsiElement(()('(')
+                              ReferencePattern: g1
+                                PsiElement(identifier)('g1')
+                              PsiElement())(')')
+                        PsiElement())(')')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    ReferenceExpression: ???
+                      PsiElement(identifier)('???')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// failure')

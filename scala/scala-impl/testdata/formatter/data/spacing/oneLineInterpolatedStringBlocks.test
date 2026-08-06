@@ -1,0 +1,15 @@
+class a {
+  val a = 42
+  val b = s"test${    val c = 69;    c+a  }random"
+  val c = s"test${    val c = 69;    c+a}$a"
+  val d = s"test${val c = 69; c + a}${  a  }"
+  val e = s"test$$"
+}
+-------
+class a {
+  val a = 42
+  val b = s"test${val c = 69; c + a}random"
+  val c = s"test${val c = 69; c + a}$a"
+  val d = s"test${val c = 69; c + a}${a}"
+  val e = s"test$$"
+}

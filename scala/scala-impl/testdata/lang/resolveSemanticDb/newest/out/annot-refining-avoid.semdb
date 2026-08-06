@@ -1,0 +1,13 @@
+Document tests/pos/annot-refining-avoid.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:43) scala/annotation/RefiningAnnotation.
+(3:23..3:41) scala/annotation/RefiningAnnotation#
+(5:16..5:19) scala/Int#
+(5:21..5:28) _empty_/myAnnot# -> 3:7
+(9:14..9:21) _empty_/`annot-refining-avoid$package`.Refined# -> 5:6
+(9:24..9:27) scala/Predef.`???`().
+(10:5..10:8) local0 -> 9:9
+(11:3..11:9) local1 -> 8:7
+(11:11..11:18) _empty_/`annot-refining-avoid$package`.Refined# -> 5:6
+

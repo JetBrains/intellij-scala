@@ -1,0 +1,17 @@
+var a = 3
+if (a > 4) {
+  a = 4
+}
+a
+-----
+0(1) element: None
+1(2) Lit: 3
+2(3) VAR a
+3(4) element: IfStatement
+4(5) READ a
+5(6) READ >
+6(7,9) Lit: 4
+7(8) Lit: 4
+8(9) WRITE a
+9(10) READ a
+10() element: None

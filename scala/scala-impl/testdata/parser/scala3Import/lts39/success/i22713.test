@@ -1,0 +1,266 @@
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
+
+def Test = {
+  val worker: ScheduledExecutorService = ???
+  object Worker extends Runnable {
+    def fails(): Either[Exception, Unit] = Right(worker.schedule(this, 5, TimeUnit.NANOSECONDS))
+    def works(): Either[Exception, Unit] = Right {
+      worker.schedule(this, 5, TimeUnit.NANOSECONDS); ()
+    }
+    def run(): Unit = ???
+  }
+}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.util.concurrent.ScheduledExecutorService
+        CodeReferenceElement: java.util.concurrent
+          CodeReferenceElement: java.util
+            CodeReferenceElement: java
+              PsiElement(identifier)('java')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('concurrent')
+        PsiElement(.)('.')
+        PsiElement(identifier)('ScheduledExecutorService')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: java.util.concurrent.TimeUnit
+        CodeReferenceElement: java.util.concurrent
+          CodeReferenceElement: java.util
+            CodeReferenceElement: java
+              PsiElement(identifier)('java')
+            PsiElement(.)('.')
+            PsiElement(identifier)('util')
+          PsiElement(.)('.')
+          PsiElement(identifier)('concurrent')
+        PsiElement(.)('.')
+        PsiElement(identifier)('TimeUnit')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: worker
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: worker
+            PsiElement(identifier)('worker')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: ScheduledExecutorService
+          CodeReferenceElement: ScheduledExecutorService
+            PsiElement(identifier)('ScheduledExecutorService')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+      PsiWhiteSpace('\n  ')
+      ScObject: Worker
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(object)('object')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('Worker')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          PsiElement(extends)('extends')
+          PsiWhiteSpace(' ')
+          TemplateParents
+            ConstructorInvocation
+              SimpleType: Runnable
+                CodeReferenceElement: Runnable
+                  PsiElement(identifier)('Runnable')
+          PsiWhiteSpace(' ')
+          ScTemplateBody
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: fails
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('fails')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Either[Exception, Unit]
+                SimpleType: Either
+                  CodeReferenceElement: Either
+                    PsiElement(identifier)('Either')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Exception
+                      CodeReferenceElement: Exception
+                        PsiElement(identifier)('Exception')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: Right
+                  PsiElement(identifier)('Right')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: worker.schedule
+                      ReferenceExpression: worker
+                        PsiElement(identifier)('worker')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('schedule')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ThisReference
+                        PsiElement(this)('this')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('5')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: TimeUnit.NANOSECONDS
+                        ReferenceExpression: TimeUnit
+                          PsiElement(identifier)('TimeUnit')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('NANOSECONDS')
+                      PsiElement())(')')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: works
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('works')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Either[Exception, Unit]
+                SimpleType: Either
+                  CodeReferenceElement: Either
+                    PsiElement(identifier)('Either')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Exception
+                      CodeReferenceElement: Exception
+                        PsiElement(identifier)('Exception')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeArgument
+                    SimpleType: Unit
+                      CodeReferenceElement: Unit
+                        PsiElement(identifier)('Unit')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: Right
+                  PsiElement(identifier)('Right')
+                PsiWhiteSpace(' ')
+                ArgumentList
+                  BlockExpression
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    MethodCall
+                      ReferenceExpression: worker.schedule
+                        ReferenceExpression: worker
+                          PsiElement(identifier)('worker')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('schedule')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ThisReference
+                          PsiElement(this)('this')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('5')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: TimeUnit.NANOSECONDS
+                          ReferenceExpression: TimeUnit
+                            PsiElement(identifier)('TimeUnit')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('NANOSECONDS')
+                        PsiElement())(')')
+                    PsiElement(;)(';')
+                    PsiWhiteSpace(' ')
+                    UnitExpression
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: run
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('run')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Unit
+                CodeReferenceElement: Unit
+                  PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+      PsiWhiteSpace('\n')
+      PsiElement(})('}')

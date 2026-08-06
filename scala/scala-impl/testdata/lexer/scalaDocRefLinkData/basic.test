@@ -1,0 +1,63 @@
+identifier
+identifier2
+this
+package
+.
+#
+(
+)
+[
+]
+`quoted identifier`
+identifier\.with\.space\
+back\\slash
+!
+$
+*
+-----
+identifier {identifier}
+white space in line {
+}
+identifier {identifier2}
+white space in line {
+}
+identifier {this}
+white space in line {
+}
+identifier {package}
+white space in line {
+}
+. {.}
+white space in line {
+}
+# {#}
+white space in line {
+}
+( {(}
+white space in line {
+}
+) {)}
+white space in line {
+}
+[ {[}
+white space in line {
+}
+] {]}
+white space in line {
+}
+identifier {`quoted identifier`}
+white space in line {
+}
+identifier {identifier\.with\.space\}
+white space in line {
+}
+identifier {back\\slash}
+white space in line {
+}
+identifier {!}
+white space in line {
+}
+identifier {$}
+white space in line {
+}
+identifier {*}

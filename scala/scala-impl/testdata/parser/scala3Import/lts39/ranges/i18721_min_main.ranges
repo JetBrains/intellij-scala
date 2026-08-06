@@ -1,0 +1,17 @@
+[0,72]: PackageDef
+[0,0]: Ident
+[0,72]: TypeDef
+[14,72]: Template
+[14,14]: DefDef
+[14,14]: TypeTree
+[14,72]: DefDef
+[21,46]: ValDef
+[26,46]: RefinedTypeTree
+[26,29]: Ident
+[32,44]: ValDef
+[41,44]: Ident
+[49,52]: Ident
+[59,72]: Apply
+[59,63]: Ident
+[64,71]: Select
+[64,67]: Ident

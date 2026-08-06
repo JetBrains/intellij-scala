@@ -1,0 +1,29 @@
+Document tests/pos/i24894a/Bar_1.scala
+(2:10..2:16) scala/quoted/
+(4:33..4:38) scala/Array#
+(4:39..4:45) scala/Predef.String#
+(4:52..4:60) _empty_/Bar.macroBar(). -> 5:7
+(5:24..5:30) scala/quoted/Quotes#
+(5:33..5:37) scala/quoted/Expr#
+(5:38..5:43) scala/Array#
+(5:44..5:50) scala/Predef.String#
+(6:13..6:18) scala/package.Range.
+(6:31..6:34) scala/collection/immutable/Range#map().
+(6:37..6:45) scala/Any#toString().
+(6:47..6:50) scala/collection/IndexedSeqOps#map().
+(6:51..6:55) scala/quoted/Expr.
+(6:60..6:66) scala/collection/IterableOnceOps#toList().
+(7:8..7:13) scala/Array.
+(7:14..7:20) scala/Predef.String#
+(7:25..7:32) scala/quoted/Varargs.
+(7:33..7:34) local1 -> 6:9
+
+Document tests/pos/i24894a/Foo_2.scala
+(1:2..1:7) _empty_/Param#
+(1:8..1:11) _empty_/Bar. -> 1:8
+(1:8..1:13) _empty_/Param#`<init>`().(value)
+(1:12..1:15) _empty_/Bar.bar(). -> 4:26
+(2:2..2:7) _empty_/Param#
+(2:8..2:13) _empty_/Param#`<init>`().(value)
+(2:8..2:13) scala/Array.
+

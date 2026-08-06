@@ -1,0 +1,8 @@
+Document tests/pos/i15460.scala
+(1:17..1:20) scala/Int#
+(1:22..1:23) scala/`|`#
+(1:31..1:37) scala/Predef.String#
+(3:12..3:13) _empty_/i15460$package.C# -> 1:6
+(3:16..3:20) scala/Unit#
+(5:9..5:12) _empty_/i15460$package.foo(). -> 3:5
+

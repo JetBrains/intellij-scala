@@ -1,0 +1,26 @@
+// comment
+def foo = macro A.fooImpl
+-----
+ScalaFile
+  ScMacroDefinition: foo
+    PsiComment(comment)('// comment')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    PsiElement(macro)('macro')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: A.fooImpl
+      CodeReferenceElement: A
+        PsiElement(identifier)('A')
+      PsiElement(.)('.')
+      PsiElement(identifier)('fooImpl')

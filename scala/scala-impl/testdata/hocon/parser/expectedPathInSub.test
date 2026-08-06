@@ -1,0 +1,19 @@
+a = ${}
+-----
+HOCON_FILE
+  HObjectEntries(OBJECT_ENTRIES)
+    HObjectField(OBJECT_FIELD)
+      HValuedField(VALUED_FIELD)
+        HKey(KEY)
+          HKeyPart(KEY_PART)
+            HUnquotedString(UNQUOTED_STRING)
+              PsiElement(UNQUOTED_CHARS)('a')
+        PsiWhiteSpace(' ')
+        PsiElement(EQUALS)('=')
+        PsiWhiteSpace(' ')
+        HSubstitution(SUBSTITUTION)
+          PsiElement(DOLLAR)('$')
+          PsiElement(SUB_LBRACE)('{')
+          PsiErrorElement:expected path expression
+            <empty list>
+          PsiElement(SUB_RBRACE)('}')

@@ -1,0 +1,98 @@
+//note: this test case is based on i21749.test, but was added manually to main test as an explicit test case to run it in multiple scala versions
+object Test {
+  1 match {
+    case 1 =>
+      case class Test(name: String)
+      Nil
+    case 2 =>
+      Nil
+  }
+}
+-----
+ScalaFile
+  ScObject: Test
+    PsiComment(comment)('//note: this test case is based on i21749.test, but was added manually to main test as an explicit test case to run it in multiple scala versions')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MatchStatement
+          IntegerLiteral
+            PsiElement(integer)('1')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace(' ')
+          PsiElement({)('{')
+          PsiWhiteSpace('\n    ')
+          CaseClauses
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              LiteralPattern
+                IntegerLiteral
+                  PsiElement(integer)('1')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace('\n      ')
+              BlockOfExpressions
+                ScClass: Test
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  PsiElement(class)('class')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('Test')
+                  PrimaryConstructor
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        ClassParameter: name
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('name')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                        PsiElement())(')')
+                  ExtendsBlock
+                    <empty list>
+                PsiWhiteSpace('\n      ')
+                ReferenceExpression: Nil
+                  PsiElement(identifier)('Nil')
+            PsiWhiteSpace('\n    ')
+            CaseClause
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              LiteralPattern
+                IntegerLiteral
+                  PsiElement(integer)('2')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace('\n      ')
+              BlockOfExpressions
+                ReferenceExpression: Nil
+                  PsiElement(identifier)('Nil')
+          PsiWhiteSpace('\n  ')
+          PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,11 @@
+[0,37]: PackageDef
+[0,0]: Ident
+[0,37]: TypeDef
+[9,37]: LambdaTypeTree
+[9,10]: TypeDef
+[9,9]: TypeBoundsTree
+[14,37]: MatchTypeTree
+[14,15]: Ident
+[24,37]: CaseDef
+[29,32]: Ident
+[36,37]: Ident

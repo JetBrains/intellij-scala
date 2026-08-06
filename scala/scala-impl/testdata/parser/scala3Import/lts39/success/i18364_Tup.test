@@ -1,0 +1,200 @@
+// Capturing the regression will implementing the fix for i18364
+// That broke in CI, "case _" "Unreachable case except for null"
+// Because IArray is an opaque alias of Array
+object Tup:
+  /** Convert an immutable array into a tuple of unknown arity and types */
+  def fromIArray[T](xs: IArray[T]): Tuple =
+    val xs2: IArray[Object] = xs match
+      case xs: IArray[Object] @unchecked => xs
+      case _ => xs.map(_.asInstanceOf[Object])
+    runtime.Tuples.fromIArray(xs2)
+-----
+ScalaFile
+  ScObject: Tup
+    PsiComment(comment)('// Capturing the regression will implementing the fix for i18364')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// That broke in CI, "case _" "Unreachable case except for null"')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// Because IArray is an opaque alias of Array')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Tup')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: fromIArray
+          DocComment
+            ScPsiDocToken(DOC_COMMENT_START)('/**')
+            ScDocParagraph
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+              ScPsiDocToken(DOC_COMMENT_DATA)('Convert an immutable array into a tuple of unknown arity and types')
+              ScPsiDocToken(DOC_WHITESPACE)(' ')
+            ScPsiDocToken(DOC_COMMENT_END)('*/')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('fromIArray')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: xs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('xs')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: IArray[T]
+                    SimpleType: IArray
+                      CodeReferenceElement: IArray
+                        PsiElement(identifier)('IArray')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T
+                          CodeReferenceElement: T
+                            PsiElement(identifier)('T')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Tuple
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: xs2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: xs2
+                  PsiElement(identifier)('xs2')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: IArray[Object]
+                SimpleType: IArray
+                  CodeReferenceElement: IArray
+                    PsiElement(identifier)('IArray')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: Object
+                      CodeReferenceElement: Object
+                        PsiElement(identifier)('Object')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MatchStatement
+                ReferenceExpression: xs
+                  PsiElement(identifier)('xs')
+                PsiWhiteSpace(' ')
+                PsiElement(match)('match')
+                PsiWhiteSpace('\n      ')
+                CaseClauses
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    Scala3 TypedPattern
+                      ReferencePattern: xs
+                        PsiElement(identifier)('xs')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      TypePattern
+                        TypeWithAnnotation: IArray[Object] @unchecked
+                          ParametrizedType: IArray[Object]
+                            SimpleType: IArray
+                              CodeReferenceElement: IArray
+                                PsiElement(identifier)('IArray')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Object
+                                  CodeReferenceElement: Object
+                                    PsiElement(identifier)('Object')
+                              PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          AnnotationsList
+                            Annotation
+                              PsiElement(@)('@')
+                              AnnotationExpression
+                                ConstructorInvocation
+                                  SimpleType: unchecked
+                                    CodeReferenceElement: unchecked
+                                      PsiElement(identifier)('unchecked')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      ReferenceExpression: xs
+                        PsiElement(identifier)('xs')
+                  PsiWhiteSpace('\n      ')
+                  CaseClause
+                    PsiElement(case)('case')
+                    PsiWhiteSpace(' ')
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    BlockOfExpressions
+                      MethodCall
+                        ReferenceExpression: xs.map
+                          ReferenceExpression: xs
+                            PsiElement(identifier)('xs')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('map')
+                        ArgumentList
+                          PsiElement(()('(')
+                          GenericCall
+                            ReferenceExpression: _.asInstanceOf
+                              UnderscoreSection
+                                PsiElement(_)('_')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('asInstanceOf')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Object
+                                  CodeReferenceElement: Object
+                                    PsiElement(identifier)('Object')
+                              PsiElement(])(']')
+                          PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: runtime.Tuples.fromIArray
+                ReferenceExpression: runtime.Tuples
+                  ReferenceExpression: runtime
+                    PsiElement(identifier)('runtime')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Tuples')
+                PsiElement(.)('.')
+                PsiElement(identifier)('fromIArray')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: xs2
+                  PsiElement(identifier)('xs2')
+                PsiElement())(')')

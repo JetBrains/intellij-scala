@@ -1,0 +1,108 @@
+r <<= a b c
+a <= b c d
+a = b c d
+a >= b c d
+a != b c d
+a =!= b c d
+-----
+ScalaFile
+  InfixExpression
+    ReferenceExpression: r
+      PsiElement(identifier)('r')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: <<=
+      PsiElement(identifier)('<<=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: a
+        PsiElement(identifier)('a')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: c
+        PsiElement(identifier)('c')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    InfixExpression
+      ReferenceExpression: a
+        PsiElement(identifier)('a')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: <=
+        PsiElement(identifier)('<=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: c
+      PsiElement(identifier)('c')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: d
+      PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  AssignStatement
+    ReferenceExpression: a
+      PsiElement(identifier)('a')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: c
+        PsiElement(identifier)('c')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: d
+        PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    InfixExpression
+      ReferenceExpression: a
+        PsiElement(identifier)('a')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: >=
+        PsiElement(identifier)('>=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: c
+      PsiElement(identifier)('c')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: d
+      PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    InfixExpression
+      ReferenceExpression: a
+        PsiElement(identifier)('a')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: !=
+        PsiElement(identifier)('!=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: c
+      PsiElement(identifier)('c')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: d
+      PsiElement(identifier)('d')
+  PsiWhiteSpace('\n')
+  InfixExpression
+    InfixExpression
+      ReferenceExpression: a
+        PsiElement(identifier)('a')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: =!=
+        PsiElement(identifier)('=!=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: b
+        PsiElement(identifier)('b')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: c
+      PsiElement(identifier)('c')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: d
+      PsiElement(identifier)('d')

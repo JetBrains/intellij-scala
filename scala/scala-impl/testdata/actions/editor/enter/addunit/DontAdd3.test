@@ -1,0 +1,12 @@
+object A {
+  def foo() {
+    |<caret>
+  }
+}
+-----
+object A {
+  def foo() {
+    |
+    <caret>
+  }
+}

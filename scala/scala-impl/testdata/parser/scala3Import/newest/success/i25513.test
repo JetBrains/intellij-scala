@@ -1,0 +1,90 @@
+type Foo[A, B] = (
+  (A, B) match
+    case (Int, Int) => (A, B),
+  A
+)
+-----
+ScalaFile
+  ScTypeAliasDefinition: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: B
+        PsiElement(identifier)('B')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    TupleType: (
+  (A, B) match
+    case (Int, Int) => (A, B),
+  A
+)
+      PsiElement(()('(')
+      PsiWhiteSpace('\n  ')
+      TypesList
+        MatchType: (A, B) match
+    case (Int, Int) => (A, B)
+          TupleType: (A, B)
+            PsiElement(()('(')
+            TypesList
+              SimpleType: A
+                CodeReferenceElement: A
+                  PsiElement(identifier)('A')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(match)('match')
+          PsiWhiteSpace('\n    ')
+          ScMatchTypeCasesImpl(match type cases)
+            ScMatchTypeCaseImpl(match type case)
+              PsiElement(case)('case')
+              PsiWhiteSpace(' ')
+              TupleType: (Int, Int)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiElement())(')')
+              PsiWhiteSpace(' ')
+              PsiElement(=>)('=>')
+              PsiWhiteSpace(' ')
+              TupleType: (A, B)
+                PsiElement(()('(')
+                TypesList
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+                PsiElement())(')')
+        PsiElement(,)(',')
+        PsiWhiteSpace('\n  ')
+        SimpleType: A
+          CodeReferenceElement: A
+            PsiElement(identifier)('A')
+      PsiWhiteSpace('\n')
+      PsiElement())(')')

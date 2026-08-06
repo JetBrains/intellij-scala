@@ -1,0 +1,123 @@
+object Obj:
+  @scala.annotation.static
+  val some_static_value: Int = {
+    val some_local_value: Int = {
+      val some_local_value_1 = ???
+      some_local_value_1
+    }
+    some_local_value
+  }
+
+class Obj
+-----
+ScalaFile
+  ScObject: Obj
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Obj')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: some_static_value
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: scala.annotation.static
+                    CodeReferenceElement: scala.annotation.static
+                      CodeReferenceElement: scala.annotation
+                        CodeReferenceElement: scala
+                          PsiElement(identifier)('scala')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('annotation')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('static')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace('\n  ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: some_static_value
+              PsiElement(identifier)('some_static_value')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          BlockExpression
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: some_local_value
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: some_local_value
+                  PsiElement(identifier)('some_local_value')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              BlockExpression
+                PsiElement({)('{')
+                PsiWhiteSpace('\n      ')
+                ScPatternDefinition: some_local_value_1
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfPatterns
+                    ReferencePattern: some_local_value_1
+                      PsiElement(identifier)('some_local_value_1')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                PsiWhiteSpace('\n      ')
+                ReferenceExpression: some_local_value_1
+                  PsiElement(identifier)('some_local_value_1')
+                PsiWhiteSpace('\n    ')
+                PsiElement(})('}')
+            PsiWhiteSpace('\n    ')
+            ReferenceExpression: some_local_value
+              PsiElement(identifier)('some_local_value')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Obj
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Obj')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>

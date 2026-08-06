@@ -1,0 +1,11 @@
+Document tests/pos/i15312.scala
+(2:3..2:4) _empty_/i15312$package.F#[t] -> 1:8
+(3:20..3:25) scala/Float#
+(3:30..3:33) scala/Int#
+(4:20..4:23) scala/Int#
+(4:28..4:34) scala/Predef.String#
+(6:8..6:9) _empty_/i15312$package.F# -> 1:6
+(6:20..6:25) scala/Float#
+(7:8..7:9) _empty_/i15312$package.F# -> 1:6
+(7:20..7:23) scala/Int#
+

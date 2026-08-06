@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<idea-plugin>
+    <dependencies>
+        <module name="scalaCommunity.bsp"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <newProjectWizard.scala.buildSystem implementation="org.jetbrains.scalaCli.project.template.wizard.ScalaCliNewProjectWizard" />
+        <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.scalaCli.codeInspection.BspScalaCliInspectionSuppressor"/>
+        <postStartupActivity implementation="org.jetbrains.scalaCli.project.ScalaCliFileListenerSetupActivity"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="org.intellij">
+        <bsp.bspSetupProvider implementation="org.jetbrains.scalaCli.project.importing.ScalaCliConfigSetupProvider"/>
+        <scala.newScalaFileActionExtension implementation="org.jetbrains.scalaCli.actions.ScalaCliNewScalaFileActionExtension"/>
+        <scala.fileDeclarationsContributor implementation="org.jetbrains.scalaCli.script.ScalaCliScriptFileDeclarationsContributor"/>
+    </extensions>
+</idea-plugin>

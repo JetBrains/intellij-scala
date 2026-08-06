@@ -1,0 +1,4 @@
+Document tests/pos/trailing-comma-pattern.scala
+(2:7..2:11) scala/package.List.
+(3:7..3:11) scala/package.List.
+

@@ -1,0 +1,8 @@
+Document tests/pos/i8537.scala
+(1:8..1:11) scala/Int#
+(1:15..1:21) scala/Predef.String#
+(2:8..2:11) scala/Int#
+(2:15..2:21) scala/Predef.String#
+(3:8..3:11) scala/Int#
+(3:15..3:21) scala/Predef.String#
+

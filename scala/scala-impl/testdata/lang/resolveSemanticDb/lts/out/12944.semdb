@@ -1,0 +1,26 @@
+Document tests/pos/12944/12944_1.scala
+(2:20..2:21) _empty_/Test1.`++`#[L] -> 2:11
+(2:23..2:24) _empty_/Test1.`++`#[R] -> 2:14
+(3:11..3:14) scala/Int#
+(3:16..3:19) scala/Int#
+(4:11..4:17) scala/Predef.String#
+(4:19..4:25) scala/Predef.String#
+(5:11..5:17) scala/Predef.String#
+(5:19..5:22) scala/Int#
+(6:11..6:14) scala/Int#
+(6:16..6:22) scala/Predef.String#
+(8:17..8:20) scala/Int#
+(8:24..8:25) _empty_/Test1.Bar#[W] -> 8:12
+(8:26..8:28) _empty_/Test1.`++`# -> 2:8
+(8:32..8:34) _empty_/Test1.`++`# -> 2:8
+(8:35..8:36) _empty_/Test1.Bar#[W] -> 8:12
+(10:15..10:21) scala/Predef.summon().
+(10:22..10:25) _empty_/Test1.Bar# -> 8:8
+(10:29..10:32) scala/`=:=`#
+
+Document tests/pos/12944/12944_2.scala
+(1:8..1:13) _empty_/Test1. -> 1:8
+(4:15..4:21) scala/Predef.summon().
+(4:22..4:25) _empty_/Test1.Bar# -> 8:8
+(4:29..4:32) scala/`=:=`#
+

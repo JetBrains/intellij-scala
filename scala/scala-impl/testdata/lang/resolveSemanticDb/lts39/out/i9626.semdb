@@ -1,0 +1,7 @@
+Document tests/pos/i9626.scala
+(1:35..1:39) scala/Unit#
+(1:42..1:46) scala/Unit#
+(2:11..2:13) _empty_/i9626$package.scaffolding().(op) -> 1:31
+(4:12..4:23) _empty_/i9626$package.scaffolding(). -> 1:12
+(4:26..4:33) scala/Predef.println(+1).
+

@@ -1,0 +1,8 @@
+class C {
+  if (true)<caret>
+}
+-----
+class C {
+  if (true)
+    <caret>
+}

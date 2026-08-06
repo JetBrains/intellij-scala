@@ -1,0 +1,7 @@
+class Test {
+  <start>true || false<assert>
+}
+-----
+class Test {
+  assert(true || false)
+}

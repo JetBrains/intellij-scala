@@ -1,0 +1,54 @@
+case class Breaks(x: Boolean, y: Boolean) derives Featureful
+-----
+ScalaFile
+  ScClass: Breaks
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Breaks')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: y
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('y')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      DerivesClause
+        PsiElement(derives)('derives')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: Featureful
+          PsiElement(identifier)('Featureful')

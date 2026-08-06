@@ -1,0 +1,7 @@
+Document tests/pos/i22676.scala
+(6:20..6:21) example/Example#Output#[A] -> 6:15
+(7:10..7:15) example/Example#Input# -> 4:9
+(7:19..7:22) scala/Int#
+(11:16..11:23) example/Example# -> 3:7
+(11:24..11:29) example/Example#Input# -> 4:9
+

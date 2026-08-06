@@ -1,0 +1,34 @@
+Document tests/pos/i19962.scala
+(1:15..1:21) scala/AnyRef#
+(1:25..1:31) scala/AnyRef#
+(1:36..1:42) scala/AnyRef#
+(1:48..1:54) scala/AnyRef#
+(1:58..1:64) scala/AnyRef#
+(1:69..1:70) local0 -> 1:46
+(1:71..1:72) local0 -> 1:46
+(2:14..2:17) scala/Any#
+(2:24..2:27) scala/Any#
+(2:31..2:34) scala/Any#
+(2:39..2:40) local1 -> 2:21
+(2:41..2:42) local1 -> 2:21
+(3:14..3:17) scala/Any#
+(3:25..3:28) scala/Any#
+(3:30..3:33) scala/Any#
+(3:38..3:41) scala/Any#
+(3:47..3:50) scala/Any#
+(3:52..3:55) scala/Any#
+(3:60..3:63) scala/Any#
+(3:68..3:69) local2 -> 3:21
+(3:70..3:71) local2 -> 3:21
+(3:73..3:74) local3 -> 3:43
+(4:14..4:17) scala/Any#
+(4:25..4:28) scala/Any#
+(4:30..4:33) scala/Any#
+(4:38..4:41) scala/Any#
+(4:47..4:50) scala/Any#
+(4:52..4:55) scala/Any#
+(4:60..4:63) scala/Any#
+(4:68..4:69) local5 -> 4:43
+(4:70..4:71) local4 -> 4:21
+(4:73..4:74) local5 -> 4:43
+

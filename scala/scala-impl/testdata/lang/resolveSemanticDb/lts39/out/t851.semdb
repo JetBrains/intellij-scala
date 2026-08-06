@@ -1,0 +1,27 @@
+Document tests/pos/t851.scala
+(2:12..2:18) scala/Predef.String#
+(6:12..6:18) scala/Predef.String#
+(7:17..7:23) java/lang/String#length().
+(10:12..10:18) scala/Predef.String#
+(11:17..11:23) java/lang/String#length().
+(15:12..15:18) scala/Predef.String#
+(16:17..16:23) java/lang/String#length().
+(18:9..18:10) java/lang/String#`+`().
+(18:11..18:12) local3 -> 16:9
+(20:12..20:18) scala/Predef.String#
+(21:17..21:23) java/lang/String#length().
+(25:18..25:23) scala/Array#
+(25:24..25:30) scala/Predef.String#
+(25:34..25:38) scala/Unit#
+(26:5..26:12) scala/Console.
+(26:13..26:20) scala/Console.println(+1).
+(26:21..26:24) _empty_/test.ok1(). -> 2:7
+(26:25..26:26) java/lang/String#`+`().
+(26:27..26:30) _empty_/test.ok2(). -> 6:7
+(26:31..26:32) java/lang/String#`+`().
+(26:33..26:36) _empty_/test.ok3(). -> 10:7
+(26:37..26:38) java/lang/String#`+`().
+(26:39..26:42) _empty_/test.ok4(). -> 15:7
+(26:43..26:44) java/lang/String#`+`().
+(26:45..26:48) _empty_/test.bad(). -> 20:7
+

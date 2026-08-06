@@ -1,0 +1,126 @@
+Document tests/pos/i25894/DFVal_1.scala
+(3:25..3:31) dfhdl/DFType# -> 12:7
+(5:17..5:22) dfhdl/DFVal# -> 3:13
+(5:23..5:29) dfhdl/DFType# -> 12:7
+(5:31..5:42) dfhdl/stubs_1$package.ModifierAny# -> 8:6
+(6:22..6:28) dfhdl/DFType# -> 12:7
+(6:32..6:37) dfhdl/DFVal# -> 3:13
+(6:38..6:39) dfhdl/DFVal_1$package.DFConstOf#[T] -> 6:17
+(6:41..6:49) dfhdl/Modifier. -> 9:8
+(6:50..6:55) dfhdl/Modifier.CONST# -> 10:8
+(7:20..7:26) dfhdl/DFType# -> 12:7
+(7:30..7:35) dfhdl/DFVal# -> 3:13
+(7:36..7:37) dfhdl/DFVal_1$package.DFValTP#[T] -> 7:15
+(7:39..7:47) dfhdl/Modifier# -> 7:7
+(9:19..9:22) scala/Predef.`???`().
+(12:10..12:16) dfhdl/DFXInt. -> 25:8
+(12:17..12:20) dfhdl/DFXInt.Ops. -> 26:10
+
+Document tests/pos/i25894/MutableDB_1.scala
+
+Document tests/pos/i25894/hdl_1.scala
+(3:10..3:21) dfhdl/DFBoolOrBit. -> 16:8
+(4:10..4:19) dfhdl/DFDecimal. -> 21:8
+(4:20..4:23) dfhdl/DFDecimal.Ops. -> 22:10
+(6:8..6:11) dfhdl/hdl. -> 2:8
+
+Document tests/pos/i25894/stubs_1.scala
+(2:8..2:13) dfhdl/DFVal. -> 11:8
+(2:14..2:17) dfhdl/DFVal.Ops. -> 13:10
+(3:8..3:13) dfhdl/DFVal. -> 11:8
+(3:14..3:17) dfhdl/DFVal.Ops. -> 13:10
+(8:20..8:28) dfhdl/Modifier# -> 7:7
+(10:16..10:24) dfhdl/Modifier# -> 7:7
+(14:22..14:31) dfhdl/MutableDB# -> 2:7
+(18:7..18:18) dfhdl/ExactOp2Aux# -> 5:7
+(18:19..18:21) dfhdl/DFBoolOrBit.bl().[Op] -> 17:12
+(18:23..18:26) dfhdl/DFC# -> 14:7
+(18:28..18:29) dfhdl/DFBoolOrBit.bl().[O] -> 17:16
+(19:6..19:17) dfhdl/ExactOp2Aux# -> 5:7
+(19:18..19:28) dfhdl/DFVal.Ops.BoolOnlyOp# -> 14:10
+(19:30..19:33) dfhdl/DFC# -> 14:7
+(19:35..19:36) dfhdl/DFBoolOrBit.bl().[O] -> 17:16
+(19:40..19:43) scala/Predef.`???`().
+(23:12..23:18) dfhdl/DFXInt. -> 25:8
+(23:19..23:22) dfhdl/DFXInt.Ops. -> 26:10
+(27:14..27:17) scala/Int#
+(28:14..28:20) scala/Predef.String#
+(29:24..29:25) dfhdl/DFXInt.Ops.A# -> 27:10
+(29:28..29:39) dfhdl/ExactOp2Aux# -> 5:7
+(29:40..29:42) dfhdl/DFXInt.Ops.arith1().[Op] -> 29:18
+(29:44..29:47) dfhdl/DFC# -> 14:7
+(29:49..29:56) dfhdl/DFVal_1$package.DFValTP# -> 7:6
+(29:57..29:63) dfhdl/DFType# -> 12:7
+(29:68..29:71) scala/Predef.`???`().
+(30:24..30:25) dfhdl/DFXInt.Ops.B# -> 28:10
+(30:28..30:39) dfhdl/ExactOp2Aux# -> 5:7
+(30:40..30:42) dfhdl/DFXInt.Ops.arith2().[Op] -> 30:18
+(30:44..30:47) dfhdl/DFC# -> 14:7
+(30:49..30:56) dfhdl/DFVal_1$package.DFValTP# -> 7:6
+(30:57..30:63) dfhdl/DFType# -> 12:7
+(30:68..30:71) scala/Predef.`???`().
+(31:15..31:26) dfhdl/ExactOp2Aux# -> 5:7
+(31:27..31:34) dfhdl/DFVal.Ops.CarryOp# -> 15:10
+(31:36..31:39) dfhdl/DFC# -> 14:7
+(31:41..31:48) dfhdl/DFVal_1$package.DFValTP# -> 7:6
+(31:49..31:55) dfhdl/DFType# -> 12:7
+(31:60..31:63) scala/Predef.`???`().
+(32:15..32:26) dfhdl/ExactOp2Aux# -> 5:7
+(32:27..32:34) dfhdl/DFVal.Ops.CarryOp# -> 15:10
+(32:36..32:39) dfhdl/DFC# -> 14:7
+(32:41..32:48) dfhdl/DFVal_1$package.DFValTP# -> 7:6
+(32:49..32:55) dfhdl/DFType# -> 12:7
+(32:60..32:63) scala/Predef.`???`().
+(34:21..34:30) dfhdl/DFVal_1$package.DFConstOf# -> 6:6
+(34:31..34:37) dfhdl/DFType# -> 12:7
+
+Document tests/pos/i25894/stubs_2.scala
+(2:8..2:13) dfhdl/DFVal. -> 11:8
+(2:14..2:17) dfhdl/DFVal.Ops. -> 13:10
+(3:8..3:13) dfhdl/DFVal. -> 11:8
+(3:14..3:17) dfhdl/DFVal.Ops. -> 13:10
+(8:20..8:28) dfhdl/Modifier# -> 7:7
+(10:16..10:24) dfhdl/Modifier# -> 7:7
+(14:22..14:31) dfhdl/MutableDB# -> 2:7
+(18:7..18:18) dfhdl/ExactOp2Aux# -> 5:7
+(18:19..18:21) dfhdl/DFBoolOrBit.bl().[Op] -> 17:12
+(18:23..18:26) dfhdl/DFC# -> 14:7
+(18:28..18:29) dfhdl/DFBoolOrBit.bl().[O] -> 17:16
+(19:6..19:17) dfhdl/ExactOp2Aux# -> 5:7
+(19:18..19:28) dfhdl/DFVal.Ops.BoolOnlyOp# -> 14:10
+(19:30..19:33) dfhdl/DFC# -> 14:7
+(19:35..19:36) dfhdl/DFBoolOrBit.bl().[O] -> 17:16
+(19:40..19:43) scala/Predef.`???`().
+(23:12..23:18) dfhdl/DFXInt. -> 25:8
+(23:19..23:22) dfhdl/DFXInt.Ops. -> 26:10
+(27:14..27:17) scala/Int#
+(28:14..28:20) scala/Predef.String#
+(29:24..29:25) dfhdl/DFXInt.Ops.A# -> 27:10
+(29:28..29:39) dfhdl/ExactOp2Aux# -> 5:7
+(29:40..29:42) dfhdl/DFXInt.Ops.arith1().[Op] -> 29:18
+(29:44..29:47) dfhdl/DFC# -> 14:7
+(29:49..29:56) dfhdl/DFVal_1$package.DFValTP# -> 7:6
+(29:57..29:63) dfhdl/DFType# -> 12:7
+(29:68..29:71) scala/Predef.`???`().
+(30:24..30:25) dfhdl/DFXInt.Ops.B# -> 28:10
+(30:28..30:39) dfhdl/ExactOp2Aux# -> 5:7
+(30:40..30:42) dfhdl/DFXInt.Ops.arith2().[Op] -> 30:18
+(30:44..30:47) dfhdl/DFC# -> 14:7
+(30:49..30:56) dfhdl/DFVal_1$package.DFValTP# -> 7:6
+(30:57..30:63) dfhdl/DFType# -> 12:7
+(30:68..30:71) scala/Predef.`???`().
+(31:15..31:26) dfhdl/ExactOp2Aux# -> 5:7
+(31:27..31:34) dfhdl/DFVal.Ops.CarryOp# -> 15:10
+(31:36..31:39) dfhdl/DFC# -> 14:7
+(31:41..31:48) dfhdl/DFVal_1$package.DFValTP# -> 7:6
+(31:49..31:55) dfhdl/DFType# -> 12:7
+(31:60..31:63) scala/Predef.`???`().
+(32:15..32:26) dfhdl/ExactOp2Aux# -> 5:7
+(32:27..32:34) dfhdl/DFVal.Ops.CarryOp# -> 15:10
+(32:36..32:39) dfhdl/DFC# -> 14:7
+(32:41..32:48) dfhdl/DFVal_1$package.DFValTP# -> 7:6
+(32:49..32:55) dfhdl/DFType# -> 12:7
+(32:60..32:63) scala/Predef.`???`().
+(34:21..34:30) dfhdl/DFVal_1$package.DFConstOf# -> 6:6
+(34:31..34:37) dfhdl/DFType# -> 12:7
+

@@ -1,0 +1,31 @@
+Document tests/pos/FromString-typeparam.scala
+(3:21..3:27) scala/Predef.String#
+(3:30..3:31) _empty_/FromString#[A] -> 2:18
+(5:7..5:17) _empty_/FromString# -> 2:7
+(5:18..5:21) scala/Int#
+(5:27..5:32) scala/collection/StringOps#toInt().
+(7:7..7:17) _empty_/FromString# -> 2:7
+(7:18..7:24) scala/Double#
+(7:30..7:38) scala/collection/StringOps#toDouble().
+(9:13..9:23) _empty_/FromString# -> 2:7
+(9:13..9:23) _empty_/`FromString-typeparam$package`.add().[N] -> 9:9
+(9:25..9:32) _empty_/`FromString-typeparam$package`.add().[N] -> 9:9
+(9:25..9:32) scala/package.Numeric#
+(9:38..9:44) scala/Predef.String#
+(9:49..9:55) scala/Predef.String#
+(9:58..9:59) _empty_/`FromString-typeparam$package`.add().[N] -> 9:9
+(10:13..10:19) scala/Predef.summon().
+(10:20..10:27) scala/package.Numeric#
+(10:28..10:29) _empty_/`FromString-typeparam$package`.add().[N] -> 9:9
+(11:11..11:17) scala/Predef.summon().
+(11:18..11:28) _empty_/FromString# -> 2:7
+(11:29..11:30) _empty_/`FromString-typeparam$package`.add().[N] -> 9:9
+(12:3..12:6) local0 -> 10:7
+(12:7..12:11) scala/math/Numeric#plus().
+(12:12..12:13) local1 -> 11:7
+(12:14..12:24) _empty_/FromString#fromString(). -> 3:7
+(12:25..12:26) _empty_/`FromString-typeparam$package`.add().(a) -> 9:35
+(12:29..12:30) local1 -> 11:7
+(12:31..12:41) _empty_/FromString#fromString(). -> 3:7
+(12:42..12:43) _empty_/`FromString-typeparam$package`.add().(b) -> 9:46
+

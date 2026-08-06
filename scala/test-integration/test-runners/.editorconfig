@@ -1,0 +1,7 @@
+root = true
+
+[*.java]
+ij_java_indent_size = 2
+
+[org/jetbrains/plugins/scala/testingSupport/scalaTest/ScalaTestReporterWithLocation.java]
+ij_java_indent_size = 4

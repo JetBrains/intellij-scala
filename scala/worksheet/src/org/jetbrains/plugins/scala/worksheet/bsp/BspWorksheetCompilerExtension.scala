@@ -1,0 +1,23 @@
+package org.jetbrains.plugins.scala.worksheet.bsp
+
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.module.Module
+import org.jetbrains.bsp.BspUtil
+import org.jetbrains.bsp.project.test.environment.BspJvmEnvironment
+import org.jetbrains.plugins.scala.worksheet.actions.topmenu.TopComponentAction
+
+import java.nio.file.Path
+
+private[worksheet] object BspWorksheetCompilerExtension {
+  def worksheetClasspath(module: Module): Option[Seq[Path]] = {
+    if (BspUtil.isBspModule(module)) {
+      BspJvmEnvironment.resolveForWorksheet(module).toOption.map { env =>
+        env.classpath
+      }
+    } else None
+  }
+
+  def extraWorksheetActions(): Seq[TopComponentAction with AnAction] = {
+    Seq(new ConfigureBspTargetForWorksheet)
+  }
+}

@@ -1,0 +1,249 @@
+package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
+package typedef
+
+import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.extensions.{Model, PsiElementExt, PsiModifierListOwnerExt, PsiNamedElementExt, StringsExt}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames._
+
+class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
+
+  override def injectFunctions(source: ScTypeDefinition): Seq[String] = {
+    source match {
+      case ObjectWithCaseClassCompanion(_, cls: ScClass) =>
+        val className            = cls.name
+        val typeArgs             = typeArgsFromTypeParams(cls)
+        val typeParamsDefinition = typeParamsString(cls.typeParameters)
+        lazy val isScala3 = source.isInScala3File
+        lazy val zeroParamsReturnType =
+          if (isScala3) "true" else BooleanCanonical
+
+        val unapply: Option[String] =
+          if (cls.tooBigForUnapply) None
+          else cls.constructor match {
+            case Some(constr: ScPrimaryConstructor) =>
+              val clauses = constr.parameterList.clauses
+              val params = clauses.headOption.map(_.parameters).getOrElse(Seq.empty)
+              val returnTypeText =
+                if (params.isEmpty) zeroParamsReturnType
+                else if (source.isInScala3File) className + typeArgsFromTypeParams(cls) // in scala 3 the unapply method returns the case class itself
+                else {
+                  val params = clauses.head.parameters
+                  if (params.isEmpty) zeroParamsReturnType
+                  else {
+                    val caseClassParamTypes = params.map(p => paramTypeText(p, defaultTypeText = AnyCanonical))
+                    val optionTypeArg = caseClassParamTypes match {
+                      case Seq(text) => text
+                      case seq       => seq.commaSeparated(Model.Parentheses)
+                    }
+                    OptionCanonical + "[" + optionTypeArg + "]"
+                  }
+                }
+              val unapplyName = if (params.lastOption.exists(_.isRepeatedParameter)) UnapplySeq else Unapply
+
+              Some("def " + unapplyName + typeParamsDefinition + "(x$0: " + className + typeArgs + "): " + returnTypeText + " = throw new Error()")
+            case None => None
+          }
+
+        val apply: Option[String] = if (cls.hasAbstractModifier) None else {
+          cls.constructor match {
+            case Some(constr: ScPrimaryConstructor) =>
+
+              val paramString = asFunctionParameters(constr.effectiveParameterClauses, defaultExpressionString)
+              val modifiersString = if (constr.isInScala3File) makeModifierText(constr) else ""
+
+              val applyMethodText =
+                modifiersString +
+                  "def " + Apply + typeParamsDefinition + paramString + ": " + className + typeArgs + " = throw new Error()"
+
+              Some(applyMethodText)
+            case None => None
+          }
+        }
+
+        apply.toList ::: unapply.toList
+
+      case cls: ScClass if cls.isCase => copyMethodText(cls) ::: scala3AccessorMethods(cls)
+      case _                          => Seq.empty
+    }
+  }
+  private def hasCopyMethod(psiClass: PsiClass) = psiClass match {
+    case td: ScTypeDefinition => td.functions.exists(_.name == Copy)
+    case c: PsiClass          => c.getMethods.exists(_.name == Copy)
+  }
+
+  override def injectSupers(source: ScTypeDefinition): Seq[String] = source match {
+    case ObjectWithCaseClassCompanion(obj, cc) if obj.isSyntheticObject && !obj.isInScala3File =>
+      val effectiveParamClauses = cc.constructor.map(_.effectiveParameterClauses).getOrElse(Seq.empty)
+      val extendsFunction = cc.typeParameters.isEmpty && effectiveParamClauses.size == 1
+      if (extendsFunction) {
+        val paramTypes =
+          for {
+            clause <- effectiveParamClauses
+            param  <- clause.parameters
+          } yield paramTypeText(param, defaultTypeText = NothingCanonical)
+
+        val functionClassName = FunctionCanonical + paramTypes.length
+        val typeParameters = (paramTypes :+ cc.name).commaSeparated(Model.SquareBrackets)
+        val functionTypeText = functionClassName + typeParameters
+
+        Seq(functionTypeText)
+      }
+      else Seq.empty
+    case _ =>
+      Seq.empty
+  }
+
+  private def paramTypeText(param: ScParameter, defaultTypeText: String) = {
+    val typeText = param.typeElement.fold(defaultTypeText)(toText(defaultTypeText))
+    if (param.isRepeatedParameter) SeqCanonical + "[" + typeText + "]"
+    else typeText
+  }
+
+  //strips keywords and modifiers from class parameters
+  private def asFunctionParameters(effectiveClauses: Seq[ScParameterClause], defaultParamString: ScParameter => String): String = {
+    val builder = new StringBuilder()
+
+    def addAnnotation(a: ScAnnotation): Unit = {
+      builder += '@'
+      builder ++= annotationText(a)
+      builder += ' '
+    }
+
+    def addParamText(p: ScParameter, isFirstParam: Boolean): Unit = {
+      val paramType = p.typeElement.fold("Any")(toText("Any"))
+      val defaultExpr = defaultParamString(p)
+      val repeatedSuffix = if (p.isRepeatedParameter) "*" else ""
+
+      if (!isFirstParam) {
+        builder += ','
+      }
+
+      p.annotations.foreach(addAnnotation)
+      builder ++= p.name
+      builder ++= " : "
+      builder ++= paramType
+      builder ++= repeatedSuffix
+      builder ++= defaultExpr
+    }
+
+    def addClauseText(clause: ScParameterClause) = {
+      val modifier =
+        if (clause.hasImplicitKeyword)   "implicit "
+        else if (clause.hasUsingKeyword) "using "
+        else                             ""
+
+      builder += '('
+      builder ++= modifier
+      var isFirstParam = true
+      clause.parameters.foreach { param =>
+        addParamText(param, isFirstParam)
+        isFirstParam = false
+      }
+      builder += ')'
+    }
+
+    effectiveClauses.foreach(addClauseText)
+    builder.toString
+  }
+
+  private def annotationText(annotation: ScAnnotation): String =
+    ScalaPsiUtil.stub(annotation)
+      .filterByType[ScAnnotationStub]
+      .map(_.annotationText)
+      .getOrElse(annotation.getText.stripPrefix("@"))
+
+  private def toText(fallback: String)(psi: PsiElement): String =
+    if (psi.hasParseError) fallback else psi.getText
+
+  private def defaultExpressionString(p: ScParameter): String =
+    if (p.isDefaultParam) " = " + p.getDefaultExpression.fold("{}")(toText("{}")) else ""
+
+  private[this] def typeParamsString(tparams: Seq[ScTypeParam]): String =
+    if (tparams.isEmpty) ""
+    else
+      tparams
+        .map(ScalaPsiUtil.typeParamString(_, withContextBounds = false))
+        .mkString("[", ",", "]")
+
+  private[this] def shouldGenerateCopyMethod(cls: ScClass): Boolean =
+    !cls.hasAbstractModifier &&
+      (cls.constructor match {
+        case Some(cons: ScPrimaryConstructor) =>
+          val hasRepeatedParam = cons.parameterList.clauses.exists(cl => cl.hasRepeatedParam)
+
+          // That may not look entirely reasonable, but that's how it's done in scalac
+          lazy val hasUserDefinedCopyMethod =
+            !cls.isSynthetic &&
+              (hasCopyMethod(cls) ||
+                cls.supers.exists(hasCopyMethod))
+
+          !hasRepeatedParam && !hasUserDefinedCopyMethod
+        case _ => false
+      })
+
+
+  private def copyMethodText(caseClass: ScClass): List[String] = {
+    if (!shouldGenerateCopyMethod(caseClass))
+      return List.empty
+
+    caseClass.constructor
+      .map { constr =>
+        val clauses = constr.effectiveParameterClauses
+        val className = caseClass.name
+
+        val (clauseWithDefault, restClauses) =
+          if (clauses.isEmpty) (Seq.empty, Seq.empty)
+          else                 clauses.splitAt(1)
+
+        val paramString =
+          asFunctionParameters(clauseWithDefault, defaultParamString = p => " = " + className + ".this." + p.name) +
+            asFunctionParameters(restClauses, defaultExpressionString)
+
+        val typeParamsDefinition = typeParamsString(caseClass.typeParameters)
+        val returnType = className + typeArgsFromTypeParams(caseClass)
+        makeModifierText(constr) + "def copy" + typeParamsDefinition + paramString + " : " + returnType + " = throw new Error(\"\")"
+      }.toList
+  }
+
+  private def typeArgsFromTypeParams(caseClass: ScClass): String =
+    if (caseClass.typeParameters.isEmpty) ""
+    else caseClass.typeParameters.map(_.name).commaSeparated(model = Model.SquareBrackets)
+
+  private def scala3AccessorMethods(caseClass: ScClass): List[String] = {
+    for {
+      constr <- caseClass.constructor.toList
+      if caseClass.isInScala3File
+      clause <- constr.parameterList.clauses.take(1)
+      (param, i)  <- clause.parameters.zipWithIndex
+    } yield {
+      val accessorName = "_" + (i + 1)
+      val accessorType = paramTypeText(param, defaultTypeText = AnyCanonical)
+
+      "def " + accessorName + " : " + accessorType + " = throw new Error(\"\")"
+    }
+  }
+
+  private def makeModifierText(constr: ScPrimaryConstructor): String = {
+    Option(constr.getModifierList)
+      .flatMap(_.accessModifier)
+      .fold("") { mod =>
+        val privateOrProtected =
+          if (mod.isProtected) "protected"
+          else "private"
+
+        val qualifier = mod.idText match {
+          case Some(qual) => "[" + qual + "]"
+          case _ if mod.isThis => "[this]"
+          case _ => ""
+        }
+
+        privateOrProtected + qualifier + " "
+      }
+  }
+}

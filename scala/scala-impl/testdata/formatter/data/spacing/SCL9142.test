@@ -1,0 +1,13 @@
+val a = new String(
+  //nice comment
+  {
+    "foo" + "bar"
+  }
+)
+------
+val a = new String(
+  //nice comment
+  {
+    "foo" + "bar"
+  }
+)

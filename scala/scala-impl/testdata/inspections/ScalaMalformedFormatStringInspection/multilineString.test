@@ -1,0 +1,40 @@
+// expression kind
+"""value: %d""".format("""1""") // call format
+"""value: %d""" format """2""" //  infix format
+3.formatted("""%f""") // call formatted
+4 formatted """%f""" // infix formatted
+String.format("""%d""", """5""") // java call format
+String format("""%d""", """6""") // java infix format
+printf("""%d""", """7""") // printf
+System.out.printf("""%d""", """8""") // System.out.printf
+
+// warning for kind
+"""value: %d""".format() // no argument
+"""value: %1$d""".format() // no positional argument
+"""value: %d""".format("""9""") // inconvertible type 1
+"""value: %f""".format(10) // inconvertible type 2
+"""value: """.format(11) // unused argument
+-----
+WARNING (29, 31) Format specifier %d cannot be used for an argument """1""" (String)
+WARNING (42, 49) Argument """1""" (String) cannot be used for a format specifier %d
+WARNING (76, 78) Format specifier %d cannot be used for an argument """2""" (String)
+WARNING (89, 96) Argument """2""" (String) cannot be used for a format specifier %d
+WARNING (114, 115) Argument 3 (Int) cannot be used for a format specifier %f
+WARNING (129, 131) Format specifier %f cannot be used for an argument 3 (Int)
+WARNING (154, 155) Argument 4 (Int) cannot be used for a format specifier %f
+WARNING (169, 171) Format specifier %f cannot be used for an argument 4 (Int)
+WARNING (211, 213) Format specifier %d cannot be used for an argument """5""" (String)
+WARNING (218, 225) Argument """5""" (String) cannot be used for a format specifier %d
+WARNING (264, 266) Format specifier %d cannot be used for an argument """6""" (String)
+WARNING (271, 278) Argument """6""" (String) cannot be used for a format specifier %d
+WARNING (311, 313) Format specifier %d cannot be used for an argument """7""" (String)
+WARNING (318, 325) Argument """7""" (String) cannot be used for a format specifier %d
+WARNING (358, 360) Format specifier %d cannot be used for an argument """8""" (String)
+WARNING (365, 372) Argument """8""" (String) cannot be used for a format specifier %d
+WARNING (426, 428) No argument for a format specifier %d
+WARNING (466, 470) No argument at position 1
+WARNING (519, 521) Format specifier %d cannot be used for an argument """9""" (String)
+WARNING (532, 539) Argument """9""" (String) cannot be used for a format specifier %d
+WARNING (575, 577) Format specifier %f cannot be used for an argument 10 (Int)
+WARNING (588, 590) Argument 10 (Int) cannot be used for a format specifier %f
+WARNING NOT_USED_ELEMENT_ATTRIBUTES (637, 639) No format specifier for an argument 11

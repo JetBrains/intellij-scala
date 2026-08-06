@@ -1,0 +1,17 @@
+""""""
+"""aaa"""
+""" aaa """
+//// escape chars (actually not)
+"""\b"""
+"""\n"""
+"""\t"""
+"""\r"""
+"""\f"""
+"""\""""""
+"""\\"""
+"""\b \n \t \r \f \" \\"""
+//// invalid escape chars (actually not)
+"""\x \y \z"""
+//// unicode escape
+"""\u0025 \u000A \u000D"""
+-----

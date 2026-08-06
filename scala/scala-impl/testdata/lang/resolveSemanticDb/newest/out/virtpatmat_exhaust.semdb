@@ -1,0 +1,42 @@
+Document tests/pos/virtpatmat_exhaust.scala
+(2:22..2:28) _empty_/Option# -> 1:14
+(2:33..2:39) _empty_/Option# -> 1:14
+(2:49..2:55) _empty_/Option# -> 1:14
+(3:20..3:27) scala/Boolean#
+(3:37..3:43) _empty_/Option# -> 1:14
+(4:26..4:32) _empty_/Option# -> 1:14
+(10:14..10:20) _empty_/Option# -> 1:14
+(10:24..10:27) _empty_/test.f().(opt) -> 10:9
+(11:10..11:16) _empty_/Choice.
+(11:17..11:21) _empty_/None. -> 4:13
+(11:23..11:27) _empty_/None. -> 4:13
+(12:10..12:16) _empty_/Choice.
+(12:17..12:21) _empty_/None. -> 4:13
+(12:23..12:27) _empty_/Some.
+(13:10..13:16) _empty_/Choice.
+(13:17..13:21) _empty_/None. -> 4:13
+(13:23..13:29) _empty_/Choice.
+(14:10..14:16) _empty_/Choice.
+(14:17..14:21) _empty_/Some.
+(14:29..14:33) _empty_/None. -> 4:13
+(15:10..15:16) _empty_/Choice.
+(15:17..15:21) _empty_/Some.
+(15:30..15:34) _empty_/None. -> 4:13
+(16:10..16:16) _empty_/Choice.
+(16:17..16:21) _empty_/Some.
+(16:26..16:30) _empty_/Some.
+(17:10..17:16) _empty_/Choice.
+(17:17..17:21) _empty_/Some.
+(17:26..17:32) _empty_/Choice.
+(18:10..18:16) _empty_/Choice.
+(18:17..18:23) _empty_/Choice.
+(18:31..18:35) _empty_/None. -> 4:13
+(19:10..19:16) _empty_/Choice.
+(19:17..19:23) _empty_/Choice.
+(19:31..19:35) _empty_/Some.
+(20:10..20:16) _empty_/Choice.
+(20:17..20:23) _empty_/Choice.
+(20:31..20:37) _empty_/Choice.
+(21:10..21:14) _empty_/Some.
+(22:10..22:14) _empty_/None. -> 4:13
+

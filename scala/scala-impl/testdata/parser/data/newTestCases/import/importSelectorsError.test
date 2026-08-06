@@ -1,0 +1,35 @@
+import a.{b => , c, z => l}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: a
+        PsiElement(identifier)('a')
+      PsiElement(.)('.')
+      ImportSelectors
+        PsiElement({)('{')
+        ImportSelector
+          CodeReferenceElement: b
+            PsiElement(identifier)('b')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiErrorElement:Identifier or '_' expected
+            <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: c
+            PsiElement(identifier)('c')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ImportSelector
+          CodeReferenceElement: z
+            PsiElement(identifier)('z')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('l')
+        PsiElement(})('}')

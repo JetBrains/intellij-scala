@@ -1,0 +1,5 @@
+some.key = [<caret>]
+-----
+some.key = [
+  <caret>
+]

@@ -1,0 +1,44 @@
+xml match {
+  case <xml>{patterns @ _*} </xml> =>
+}
+-----
+ScalaFile
+  MatchStatement
+    ReferenceExpression: xml
+      PsiElement(identifier)('xml')
+    PsiWhiteSpace(' ')
+    PsiElement(match)('match')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    CaseClauses
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        XmlPattern
+          XmlStartTag
+            PsiElement(XML_START_TAG_START)('<')
+            PsiElement(XML_NAME)('xml')
+            PsiElement(XML_TAG_END)('>')
+          PsiElement(ScalaXmlInjectionStart)('{')
+          ArgumentPatterns
+            NamingPattern: patterns
+              PsiElement(identifier)('patterns')
+              PsiWhiteSpace(' ')
+              PsiElement(@)('@')
+              PsiWhiteSpace(' ')
+              SequenceWildcardPattern: _
+                PsiElement(_)('_')
+                PsiElement(identifier)('*')
+          PsiElement(ScalaXmlInjection End)('}')
+          PsiWhiteSpace(' ')
+          XmlEndTag
+            PsiElement(XML_END_TAG_START)('</')
+            PsiElement(XML_NAME)('xml')
+            PsiElement(XML_TAG_END)('>')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        BlockOfExpressions
+          <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')

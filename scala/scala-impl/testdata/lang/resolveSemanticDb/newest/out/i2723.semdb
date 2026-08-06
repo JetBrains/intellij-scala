@@ -1,0 +1,10 @@
+Document tests/pos/i2723.scala
+(1:17..1:22) scala/Array#
+(1:23..1:29) scala/Predef.String#
+(1:35..1:39) scala/Unit#
+(2:25..2:30) scala/Array#
+(2:31..2:37) scala/Predef.String#
+(2:41..2:45) scala/Unit#
+(2:48..2:52) _empty_/App#App$$inline$init().
+(2:59..2:63) _empty_/App#main().(args) -> 2:19
+

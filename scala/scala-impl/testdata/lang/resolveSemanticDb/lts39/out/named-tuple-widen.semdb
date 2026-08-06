@@ -1,0 +1,16 @@
+Document tests/pos/named-tuple-widen.scala
+(4:14..4:15) _empty_/A# -> 2:7
+(4:22..4:23) _empty_/B# -> 3:7
+(4:27..4:30) scala/Predef.`???`().
+(5:14..5:15) _empty_/A# -> 2:7
+(5:21..5:22) _empty_/B# -> 3:7
+(5:26..5:29) scala/Predef.`???`().
+(6:13..6:16) scala/Predef.`???`().
+(6:22..6:24) _empty_/`named-tuple-widen$package`.y1. -> 4:5
+(6:30..6:32) _empty_/`named-tuple-widen$package`.y2. -> 5:5
+(7:9..7:19) scala/NamedTuple.
+(7:20..7:33) scala/NamedTuple.AnyNamedTuple#
+(7:36..7:38) _empty_/`named-tuple-widen$package`.z1(). -> 6:5
+(8:9..8:11) _empty_/`named-tuple-widen$package`.`z1_=`().
+(8:14..8:16) _empty_/`named-tuple-widen$package`.z2(). -> 7:5
+

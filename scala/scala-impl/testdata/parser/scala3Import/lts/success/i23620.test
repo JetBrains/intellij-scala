@@ -1,0 +1,290 @@
+trait Foo
+trait Bar
+
+type FooOrBar = FooOrBar.Type
+object FooOrBar:
+  opaque type Type <: (Foo | Bar) = Foo | Bar
+
+  def bar: FooOrBar = new Bar {}
+
+trait Buz
+
+@main def main =
+  val p: FooOrBar | Buz = FooOrBar.bar
+
+  p match
+    case _: Foo => println("foo")
+    case _: Buz => println("buz")
+    case _: Bar => println("bar")
+-----
+ScalaFile
+  ScTrait: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: Bar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Bar')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: FooOrBar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FooOrBar')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SimpleType: FooOrBar.Type
+      CodeReferenceElement: FooOrBar.Type
+        CodeReferenceElement: FooOrBar
+          PsiElement(identifier)('FooOrBar')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Type')
+  PsiWhiteSpace('\n')
+  ScObject: FooOrBar
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('FooOrBar')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Type
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Type')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          TypeInParenthesis: (Foo | Bar)
+            PsiElement(()('(')
+            InfixType: Foo | Bar
+              SimpleType: Foo
+                CodeReferenceElement: Foo
+                  PsiElement(identifier)('Foo')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              SimpleType: Bar
+                CodeReferenceElement: Bar
+                  PsiElement(identifier)('Bar')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: Foo | Bar
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: Bar
+              CodeReferenceElement: Bar
+                PsiElement(identifier)('Bar')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: bar
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('bar')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: FooOrBar
+            CodeReferenceElement: FooOrBar
+              PsiElement(identifier)('FooOrBar')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Bar
+                    CodeReferenceElement: Bar
+                      PsiElement(identifier)('Bar')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScTrait: Buz
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Buz')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: main
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: p
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: p
+            PsiElement(identifier)('p')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        InfixType: FooOrBar | Buz
+          SimpleType: FooOrBar
+            CodeReferenceElement: FooOrBar
+              PsiElement(identifier)('FooOrBar')
+          PsiWhiteSpace(' ')
+          CodeReferenceElement: |
+            PsiElement(identifier)('|')
+          PsiWhiteSpace(' ')
+          SimpleType: Buz
+            CodeReferenceElement: Buz
+              PsiElement(identifier)('Buz')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: FooOrBar.bar
+          ReferenceExpression: FooOrBar
+            PsiElement(identifier)('FooOrBar')
+          PsiElement(.)('.')
+          PsiElement(identifier)('bar')
+      PsiWhiteSpace('\n\n  ')
+      MatchStatement
+        ReferenceExpression: p
+          PsiElement(identifier)('p')
+        PsiWhiteSpace(' ')
+        PsiElement(match)('match')
+        PsiWhiteSpace('\n    ')
+        CaseClauses
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            Scala3 TypedPattern
+              WildcardPattern
+                PsiElement(_)('_')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              TypePattern
+                SimpleType: Foo
+                  CodeReferenceElement: Foo
+                    PsiElement(identifier)('Foo')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              MethodCall
+                ReferenceExpression: println
+                  PsiElement(identifier)('println')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"foo"')
+                  PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            Scala3 TypedPattern
+              WildcardPattern
+                PsiElement(_)('_')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              TypePattern
+                SimpleType: Buz
+                  CodeReferenceElement: Buz
+                    PsiElement(identifier)('Buz')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              MethodCall
+                ReferenceExpression: println
+                  PsiElement(identifier)('println')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"buz"')
+                  PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            Scala3 TypedPattern
+              WildcardPattern
+                PsiElement(_)('_')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              TypePattern
+                SimpleType: Bar
+                  CodeReferenceElement: Bar
+                    PsiElement(identifier)('Bar')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            BlockOfExpressions
+              MethodCall
+                ReferenceExpression: println
+                  PsiElement(identifier)('println')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"bar"')
+                  PsiElement())(')')

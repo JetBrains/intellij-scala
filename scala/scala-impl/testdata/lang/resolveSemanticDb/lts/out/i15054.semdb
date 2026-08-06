@@ -1,0 +1,23 @@
+Document tests/pos/i15054.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:35) scala/annotation/Annotation.
+(3:30..3:33) scala/Int#
+(3:37..3:43) scala/Predef.String#
+(3:53..3:63) scala/annotation/Annotation#
+(5:2..5:14) _empty_/AnAnnotation# -> 3:7
+(5:17..5:25) scala/Any#toString().
+(7:2..7:14) _empty_/AnAnnotation# -> 3:7
+(7:17..7:25) scala/Any#toString().
+(7:26..7:32) java/lang/String#length().
+(7:33..7:41) scala/Any#toString().
+(11:4..11:16) _empty_/AnAnnotation# -> 3:7
+(11:19..11:27) scala/Any#toString().
+(13:4..13:16) _empty_/AnAnnotation# -> 3:7
+(13:19..13:27) scala/Any#toString().
+(13:28..13:34) java/lang/String#length().
+(13:35..13:43) scala/Any#toString().
+(15:3..15:4) local0 -> 12:7
+(15:5..15:6) scala/Int#`+`(+4).
+(15:7..15:8) local1 -> 14:7
+

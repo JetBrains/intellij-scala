@@ -1,0 +1,38 @@
+Document tests/pos/i3964.scala
+(3:19..3:25) _empty_/Animal# -> 2:7
+(4:19..4:25) _empty_/Animal# -> 2:7
+(7:28..7:34) _empty_/Animal# -> 2:7
+(8:15..8:18) _empty_/Test2.Bar# -> 7:9
+(8:23..8:26) _empty_/Cat# -> 4:7
+(9:12..9:15) _empty_/Test2.Bar# -> 7:9
+(9:25..9:28) _empty_/Cat# -> 4:7
+(9:37..9:40) _empty_/Test2.Bar# -> 7:9
+(9:45..9:48) _empty_/Cat# -> 4:7
+(11:28..11:34) _empty_/Animal# -> 2:7
+(12:12..12:15) _empty_/Test2.Foo# -> 11:9
+(12:25..12:28) _empty_/Cat# -> 4:7
+(12:37..12:40) _empty_/Test2.Foo# -> 11:9
+(12:45..12:48) _empty_/Cat# -> 4:7
+(15:31..15:34) scala/Int#
+(16:22..16:25) _empty_/Test3.Vec# -> 15:9
+(18:40..18:43) scala/Int#
+(19:22..19:25) _empty_/Test3.Lst# -> 18:18
+(21:12..21:15) _empty_/Test3.Vec# -> 15:9
+(21:38..21:42) _empty_/Test3.Vec8# -> 16:9
+(22:12..22:15) _empty_/Test3.Vec# -> 15:9
+(22:38..22:41) _empty_/Test3.Vec# -> 15:9
+(24:12..24:15) _empty_/Test3.Lst# -> 18:18
+(24:38..24:42) _empty_/Test3.Lst8# -> 19:9
+(25:12..25:15) _empty_/Test3.Lst# -> 18:18
+(25:38..25:41) _empty_/Test3.Lst# -> 18:18
+(27:29..27:32) scala/Int#
+(27:42..27:45) _empty_/Test3.Vec# -> 15:9
+(27:46..27:47) _empty_/Test3.VecN#n. -> 27:26
+(28:22..28:26) _empty_/Test3.VecN# -> 27:9
+(29:13..29:17) _empty_/Test3.VecN# -> 27:9
+(30:10..30:13) _empty_/Test3.Vec# -> 15:9
+(30:32..30:35) _empty_/Test3.v9a. -> 29:7
+(31:13..31:17) _empty_/Test3.Vec9# -> 28:9
+(32:10..32:13) _empty_/Test3.Vec# -> 15:9
+(32:32..32:35) _empty_/Test3.v9b. -> 31:7
+

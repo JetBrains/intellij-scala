@@ -1,0 +1,164 @@
+package org.jetbrains.jps.incremental.scala
+
+import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.ModuleChunk
+import org.jetbrains.jps.builders.DirtyFilesHolder
+import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
+import org.jetbrains.jps.incremental.fs.CompilationRound
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
+import org.jetbrains.jps.incremental.scala.data.CompilationDataFactory
+import org.jetbrains.jps.incremental.scala.model.JpsScalaProjectMetadataExtensionService.chunkHasScala
+import org.jetbrains.jps.incremental.{java => _, scala => _, _}
+import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, IncrementalityType}
+
+import java.nio.file.{Files, Path}
+import java.util.concurrent.atomic.AtomicBoolean
+import java.{util => ju}
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
+
+class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuilder(category) {
+
+  import ModuleLevelBuilder.{ExitCode => JpsExitCode}
+
+  override def getPresentableName: String = JpsBundle.message("idea.incremental.builder.presentable.name")
+
+  override def build(context: CompileContext,
+                     chunk: ModuleChunk,
+                     dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
+                     outputConsumer: ModuleLevelBuilder.OutputConsumer): JpsExitCode = {
+
+    if (!isEnabled(context, chunk) || ChunkExclusionService.isExcluded(chunk))
+      return JpsExitCode.NOTHING_DONE
+
+    val sourceDependencies = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
+    if (sourceDependencies.nonEmpty) {
+      val message = "IDEA incremental compiler cannot handle shared source modules: " +
+        sourceDependencies.map(_.getName).mkString(", ") +
+        ".\nPlease enable sbt incremental compiler for the project."
+      context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.ERROR, message))
+      return JpsExitCode.ABORT
+    }
+
+    val sources = collectSources(context, chunk, dirtyFilesHolder)
+    if (sources.isEmpty) return JpsExitCode.NOTHING_DONE
+
+    if (ScalaBuilder.hasBuildModules(chunk)) return JpsExitCode.NOTHING_DONE // *.scala files in sbt "build" modules are rightly excluded from compilation
+
+    if (!chunkHasScala(context)(chunk)) {
+      ScalaBuilder.warnChunkHasNoScalaSdk(context, chunk)
+      return JpsExitCode.NOTHING_DONE
+    }
+
+    val packageObjectsData = local.PackageObjectsData.getFor(context)
+    if (JavaBuilderUtil.isForcedRecompilationAllJavaModules(context)) { //rebuild
+      packageObjectsData.clear()
+    }
+    else {
+      val additionalFiles = packageObjectsData.invalidatedPackageObjects(sources).filter(Files.exists(_))
+      if (additionalFiles.nonEmpty) {
+        (sources ++ additionalFiles).foreach(f => FSOperations.markDirty(context, CompilationRound.NEXT, f.toFile))
+        return JpsExitCode.ADDITIONAL_PASS_REQUIRED
+      }
+    }
+
+    val callback = JavaBuilderUtil.getDependenciesRegistrar(context)
+
+    val modules = chunk.getModules.asScala.toSet
+
+    val successfullyCompiled = mutable.Set.empty[Path]
+
+    val compilerName = "scalac"
+
+    val client = new local.IdeClientIdea(compilerName, context, chunk, outputConsumer,
+      callback, successfullyCompiled, packageObjectsData)
+
+    val scalaSources = sources.filter(_.getFileName.toString.endsWith(".scala"))
+
+    ScalaBuilder.compile(context, chunk, sources.toSeq, Seq.empty, modules, client) match {
+      case Left(CompilationDataFactory.NoCompilationData) =>
+        JpsExitCode.NOTHING_DONE
+      case Left(error) =>
+        //noinspection ReferencePassedToNls
+        client.error(error)
+        JpsExitCode.ABORT
+      case _ if client.hasReportedErrors || client.isCanceled => JpsExitCode.ABORT
+      case Right(code) =>
+        JavaBuilderUtil.registerFilesToCompile(context, scalaSources.map(_.toFile).asJava)
+        JavaBuilderUtil.registerSuccessfullyCompiled(context, successfullyCompiled.map(_.toFile).asJava)
+        client.progress(JpsBundle.message("compilation.completed"), Some(1.0F))
+        ScalaBuilder.exitCode(code)
+    }
+  }
+
+  override def getCompilableFileExtensions: ju.List[String] =
+    ju.Arrays.asList("scala", "java")
+
+  private def isEnabled(context: CompileContext, chunk: ModuleChunk): Boolean = {
+    val settings = ScalaBuilder.projectSettings(context)
+
+    def correctIncrementalityType: Boolean = settings.getIncrementalityType == IncrementalityType.IDEA
+
+    def correctCompileOrder: Boolean = {
+      val compileOrder = settings.getCompilerSettings(chunk).getCompileOrder
+      val category = getCategory
+      compileOrder match {
+        case CompileOrder.JavaThenScala =>
+          // Java code needs to be compiled before Scala. The Java JPS builder will compile the Java code, and it runs
+          // with a TRANSLATOR builder category. We need to run after it. OVERWRITING_TRANSLATOR runs after TRANSLATOR.
+          category == BuilderCategory.OVERWRITING_TRANSLATOR
+        case CompileOrder.ScalaThenJava | CompileOrder.Mixed =>
+          category == BuilderCategory.SOURCE_PROCESSOR
+      }
+    }
+
+    correctIncrementalityType && correctCompileOrder
+  }
+
+  /**
+   * @note We return a [[Set]] to make sure that the source file paths are deduplicated. If the same source is passed
+   *       to `scalac` multiple times in a given compilation scope, the compilation will fail with
+   *       `"Class/object is already defined as ..."`.
+   * @see [[https://youtrack.jetbrains.com/issue/SCL-8988 SCL-8988]]
+   */
+  private def collectSources(
+    context: CompileContext,
+    chunk: ModuleChunk,
+    dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]
+  ): Set[Path] = {
+
+    val builder = Set.newBuilder[Path]
+
+    val project = context.getProjectDescriptor
+
+    val compileOrder = ScalaBuilder.projectSettings(context).getCompilerSettings(chunk).getCompileOrder
+    val extensionsToCollect = compileOrder match {
+      case CompileOrder.Mixed => List(".scala", ".java")
+      case _ => List(".scala")
+    }
+
+    def checkAndCollectFile(file: Path): Boolean = {
+      val fileName = file.getFileName.toString
+      if (extensionsToCollect.exists(fileName.endsWith))
+        builder += file
+
+      true
+    }
+
+    dirtyFilesHolder.processDirtyFiles((_, file, _) => checkAndCollectFile(file.toPath))
+
+    val loggedMessageOnce = new AtomicBoolean(false)
+    for {
+      target <- chunk.getTargets.asScala
+      tempRoot <- project.getBuildRootIndex.getTempTargetRoots(target, context).asScala
+    } {
+      ScalaBuilder.logSearchingForCompilableFiles(context, chunk.getPresentableShortName, loggedMessageOnce)
+      FileUtil.processFilesRecursively(tempRoot.getRootFile, file => checkAndCollectFile(file.toPath))
+    }
+
+    // If there are no scala files to compile, return an empty set
+    val result = builder.result()
+    if (!result.exists(_.getFileName.toString.endsWith(".scala"))) Set.empty
+    else result
+  }
+}

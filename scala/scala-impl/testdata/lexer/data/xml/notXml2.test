@@ -1,0 +1,37 @@
+object B {
+    val notXml = List(1, 2, 3).sortWith(_<_) 
+}
+-----
+object {object}
+white space in line { }
+identifier {B}
+white space in line { }
+{ {{}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {notXml}
+white space in line { }
+= {=}
+white space in line { }
+identifier {List}
+( {(}
+integer {1}
+, {,}
+white space in line { }
+integer {2}
+, {,}
+white space in line { }
+integer {3}
+) {)}
+. {.}
+identifier {sortWith}
+( {(}
+_ {_}
+identifier {<}
+_ {_}
+) {)}
+white space in line { 
+}
+} {}}

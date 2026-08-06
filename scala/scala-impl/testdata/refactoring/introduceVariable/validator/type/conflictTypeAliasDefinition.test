@@ -1,0 +1,7 @@
+//T
+object My{
+  type T = Int
+  val t:<selection>T</selection> = 34
+}
+------
+Introduced type alias conflicts with type name: T

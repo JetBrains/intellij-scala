@@ -1,0 +1,14 @@
+Document tests/pos/i21189-alt.scala
+(1:23..1:26) _empty_/MySortedSet#[T] -> 1:19
+(1:23..1:26) _empty_/Ord# -> 3:7
+(1:36..1:45) _empty_/SortedSet# -> 10:7
+(1:46..1:47) _empty_/MySortedSet#[T] -> 1:19
+(5:25..5:39) _empty_/ParentOfSorted# -> 7:7
+(5:40..5:41) _empty_/Sorted#[T] -> 5:14
+(8:14..8:17) _empty_/Ord# -> 3:7
+(8:18..8:19) _empty_/ParentOfSorted#[T] -> 7:22
+(10:21..10:24) _empty_/Ord# -> 3:7
+(10:21..10:24) _empty_/SortedSet#[T] -> 10:17
+(10:34..10:40) _empty_/Sorted# -> 5:7
+(10:41..10:42) _empty_/SortedSet#[T] -> 10:17
+

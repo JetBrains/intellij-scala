@@ -1,0 +1,6 @@
+Document tests/pos/22219.scala
+(1:22..1:23) scala/`|`#
+(4:14..4:25) _empty_/`22219$package`.MonthNumber# -> 1:6
+(5:10..5:21) _empty_/`22219$package`.MonthNumber# -> 1:6
+(5:24..5:25) local0 -> 4:7
+

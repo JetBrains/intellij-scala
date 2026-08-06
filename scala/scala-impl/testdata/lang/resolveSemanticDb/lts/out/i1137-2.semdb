@@ -1,0 +1,9 @@
+Document tests/pos/i1137-2/A_1.scala
+(2:21..2:27) scala/Double#
+(2:37..2:43) scala/AnyVal#
+
+Document tests/pos/i1137-2/B_2.scala
+(2:10..2:15) _empty_/ATest. -> 1:8
+(3:12..3:13) _empty_/ATest.A# -> 2:9
+(3:20..3:21) _empty_/ATest.A# -> 2:9
+

@@ -1,0 +1,43 @@
+
+case class TestService(port: Int) derives AutoLayer // was error
+-----
+ScalaFile
+  ScClass: TestService
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TestService')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: port
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('port')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      DerivesClause
+        PsiElement(derives)('derives')
+        PsiWhiteSpace(' ')
+        CodeReferenceElement: AutoLayer
+          PsiElement(identifier)('AutoLayer')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('// was error')

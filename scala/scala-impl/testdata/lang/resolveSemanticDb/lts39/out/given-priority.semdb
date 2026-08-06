@@ -1,0 +1,17 @@
+Document tests/pos/given-priority.scala
+(3:8..3:16) scala/language.
+(3:17..3:22) scala/language.`3.6`.
+(6:17..6:18) _empty_/A# -> 5:7
+(14:13..14:14) _empty_/A# -> 5:7
+(16:32..16:52) _empty_/LowPriorityImplicits# -> 13:7
+(17:13..17:14) _empty_/B# -> 6:7
+(20:10..20:25) _empty_/NormalImplicits. -> 16:8
+(21:11..21:17) scala/Predef.summon().
+(21:18..21:19) _empty_/A# -> 5:7
+(22:10..22:11) _empty_/B# -> 6:7
+(22:14..22:15) local0 -> 21:7
+(23:11..23:17) scala/Predef.summon().
+(23:18..23:19) _empty_/B# -> 6:7
+(24:10..24:11) _empty_/B# -> 6:7
+(24:14..24:15) local1 -> 23:7
+

@@ -1,0 +1,4 @@
+class A {
+  def foo(a: Int) {}
+  this.<spot>foo</spot>(a)
+}

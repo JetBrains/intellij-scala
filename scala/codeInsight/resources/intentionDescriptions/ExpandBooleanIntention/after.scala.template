@@ -1,0 +1,9 @@
+class X {
+  def f(a: Boolean): Boolean = {
+    if (a) {
+      return true
+    } else {
+      return false
+    }
+  }
+}

@@ -1,0 +1,50 @@
+/**
+  * comment text
+  * @note this is very long note
+  * __sieugfouiwe  __suirg ewfh ieu r peaspr eptyi seg
+  * srugoier ugiuyeri gihrg iur tgiuero t
+  * @see dslhkf erhg poryeg yurgiouy irug iure giuhreius g
+  * g oduhr giur iururuie hgro hgirueg ireu
+  */
+-----
+DOC_COMMENT_START {/**}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {comment text}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@note}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {this is very long note}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_UNDERLINE_TAG 4 {__}
+DOC_COMMENT_DATA {sieugfouiwe  }
+DOC_UNDERLINE_TAG 4 {__}
+DOC_COMMENT_DATA {suirg ewfh ieu r peaspr eptyi seg}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {srugoier ugiuyeri gihrg iur tgiuero t}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_TAG_NAME {@see}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {dslhkf erhg poryeg yurgiouy irug iure giuhreius g}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_LEADING_ASTERISKS {*}
+DOC_WHITESPACE { }
+DOC_COMMENT_DATA {g oduhr giur iururuie hgro hgirueg ireu}
+DOC_WHITESPACE {
+  }
+DOC_COMMENT_END {*/}

@@ -1,0 +1,5 @@
+package org.jetbrains.plugins.scala.testingSupport.utest.utest_0_8.scala2_12
+
+import org.jetbrains.plugins.scala.testingSupport.utest.utest_0_8.UTest_0_8_BeforeAfterTest
+
+class UTest_0_8_Scala_2_12_BeforeAfterTest extends UTest_0_8_Scala_2_12_TestBase with UTest_0_8_BeforeAfterTest

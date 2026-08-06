@@ -1,0 +1,28 @@
+Document tests/pos/i12474.scala
+(3:8..3:13) scala/
+(3:14..3:25) scala/compiletime/
+(3:26..3:37) scala/compiletime/package$package.erasedValue().
+(6:15..6:16) bugreport/Show#[A] -> 5:12
+(6:19..6:25) scala/Predef.String#
+(8:30..8:34) bugreport/Show# -> 5:7
+(8:35..8:40) bugreport/i12474$package.showTuple().[Types] -> 8:22
+(9:10..9:21) scala/compiletime/package$package.erasedValue().
+(9:22..9:27) bugreport/i12474$package.showTuple().[Types] -> 8:22
+(10:19..10:21) scala/`*:`#
+(12:13..12:17) bugreport/Show# -> 5:7
+(12:18..12:22) local0 -> 10:14
+(12:23..12:25) scala/`*:`#
+(12:26..12:30) local1 -> 10:22
+(13:27..13:31) local0 -> 10:14
+(13:32..13:34) scala/`*:`#
+(13:35..13:39) local1 -> 10:22
+(13:42..13:48) scala/Predef.String#
+(14:7..14:15) local6 -> 11:11
+(14:16..14:28) scala/Any#asInstanceOf().
+(14:29..14:33) bugreport/Show# -> 5:7
+(14:34..14:39) bugreport/i12474$package.showTuple().[Types] -> 8:22
+(16:2..16:6) scala/main#
+(17:3..17:12) bugreport/i12474$package.showTuple(). -> 8:12
+(17:14..17:17) scala/Int#
+(17:19..17:22) scala/Int#
+

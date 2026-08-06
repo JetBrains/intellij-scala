@@ -1,0 +1,13 @@
+class a {
+  <start>ABC
+  deF<catch>
+}
+-----
+class a {
+  try {
+    ABC
+    deF
+  } catch {
+    case  =>
+  }
+}

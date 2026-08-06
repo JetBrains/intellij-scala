@@ -1,0 +1,16 @@
+[0,51]: PackageDef
+[0,0]: Ident
+[0,51]: DefDef
+[12,38]: ValDef
+[15,38]: PolyFunction
+[16,17]: TypeDef
+[16,16]: TypeBoundsTree
+[22,38]: Function
+[23,27]: ValDef
+[26,27]: Ident
+[32,38]: SingletonTypeTree
+[32,33]: Ident
+[41,44]: Ident
+[47,51]: Apply
+[47,48]: Ident
+[49,50]: Number

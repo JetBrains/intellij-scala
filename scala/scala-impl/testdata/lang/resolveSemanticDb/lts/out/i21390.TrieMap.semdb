@@ -1,0 +1,18 @@
+Document tests/pos/i21390.TrieMap.scala
+(9:8..9:13) scala/
+(9:14..9:22) scala/language.
+(9:23..9:35) scala/language.experimental.
+(9:36..9:51) scala/language.experimental.captureChecking.
+(11:18..11:22) scala/package.List#
+(11:23..11:24) _empty_/Foo#[X] -> 11:11
+(12:15..12:16) _empty_/Foo#[X] -> 11:11
+(12:21..12:22) _empty_/Foo#[X] -> 11:11
+(12:35..12:36) _empty_/Foo#`<init>`(+1).(a) -> 12:12
+(12:37..12:39) scala/Any#`==`().
+(12:40..12:41) _empty_/Foo#`<init>`(+1).(b) -> 12:18
+(12:48..12:49) _empty_/Foo#`<init>`(+1).(a) -> 12:12
+(12:53..12:56) scala/package.Nil.
+(12:62..12:63) _empty_/Foo#`<init>`(+1).(a) -> 12:12
+(12:67..12:68) _empty_/Foo#`<init>`(+1).(b) -> 12:18
+(12:72..12:75) scala/package.Nil.
+

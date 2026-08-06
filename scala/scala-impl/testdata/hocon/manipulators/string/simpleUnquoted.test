@@ -1,0 +1,5 @@
+k = <caret>simple
+-----
+[other]
+-----
+k = other

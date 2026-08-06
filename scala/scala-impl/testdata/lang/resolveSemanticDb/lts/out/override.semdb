@@ -1,0 +1,12 @@
+Document tests/pos/override.scala
+(1:17..1:23) scala/AnyRef#
+(3:10..3:11) _empty_/A# -> 1:7
+(6:17..6:23) scala/AnyRef#
+(10:17..10:23) scala/AnyRef#
+(10:29..10:30) _empty_/A# -> 1:7
+(10:36..10:37) _empty_/B# -> 6:7
+(11:29..11:30) _empty_/B#f(). -> 7:7
+(12:10..12:11) _empty_/A# -> 1:7
+(13:10..13:11) _empty_/C#a. -> 12:7
+(13:19..13:20) _empty_/C#a. -> 12:7
+

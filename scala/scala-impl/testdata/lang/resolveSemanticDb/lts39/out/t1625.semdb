@@ -1,0 +1,8 @@
+Document tests/pos/t1625.scala
+(2:14..2:20) scala/Predef.String#
+(2:25..2:31) scala/Predef.String#
+(2:37..2:44) scala/Boolean#
+(2:50..2:53) scala/Int#
+(2:58..2:61) scala/Int#
+(2:65..2:68) scala/Int#
+

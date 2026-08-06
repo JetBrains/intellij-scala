@@ -1,0 +1,25 @@
+object CoreSpec  {
+  jam.brew
+}
+-----
+ScalaFile
+  ScObject: CoreSpec
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('CoreSpec')
+    PsiWhiteSpace('  ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ReferenceExpression: jam.brew
+          ReferenceExpression: jam
+            PsiElement(identifier)('jam')
+          PsiElement(.)('.')
+          PsiElement(identifier)('brew')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

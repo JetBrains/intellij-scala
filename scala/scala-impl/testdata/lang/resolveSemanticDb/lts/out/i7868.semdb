@@ -1,0 +1,112 @@
+Document tests/pos/i7868.scala
+(3:8..3:16) scala/language.
+(3:17..3:29) scala/language.experimental.
+(3:30..3:48) scala/language.experimental.namedTypeArguments.
+(4:8..4:13) scala/
+(4:14..4:25) scala/compiletime/
+(5:8..5:13) scala/
+(5:14..5:25) scala/compiletime/
+(5:26..5:29) scala/compiletime/ops/
+(5:30..5:33) scala/compiletime/ops/int.
+(7:51..7:54) scala/Int#
+(7:63..7:68) _empty_/Coproduct#[Value] -> 7:35
+(7:69..7:70) scala/`&`#
+(7:71..7:74) _empty_/Coproduct#[Set] -> 7:29
+(7:83..7:88) _empty_/Coproduct#[Index] -> 7:42
+(10:28..10:29) _empty_/Coproduct.`+:`#[A] -> 10:19
+(10:30..10:31) scala/`|`#
+(10:32..10:33) _empty_/Coproduct.`+:`#[B] -> 10:23
+(12:35..12:38) scala/Int#
+(13:15..13:20) _empty_/Coproduct.At#[Value] -> 12:19
+(13:21..13:24) scala/`<:<`#
+(13:25..13:28) _empty_/Coproduct.At#[Set] -> 12:13
+(18:31..18:33) _empty_/Coproduct.At# -> 12:9
+(18:34..18:38) _empty_/Coproduct.At.atHead#[Head] -> 18:18
+(18:39..18:41) _empty_/Coproduct.`+:`# -> 10:15
+(18:42..18:46) _empty_/Coproduct.At.atHead#[Tail] -> 18:24
+(18:48..18:52) _empty_/Coproduct.At.atHead#[Head] -> 18:18
+(19:17..19:21) _empty_/Coproduct.At.atHead#[Head] -> 18:18
+(19:22..19:25) scala/`<:<`#
+(19:26..19:30) _empty_/Coproduct.At.atHead#[Head] -> 18:18
+(19:31..19:33) _empty_/Coproduct.`+:`# -> 10:15
+(19:34..19:38) _empty_/Coproduct.At.atHead#[Tail] -> 18:24
+(19:41..19:47) scala/Predef.summon().
+(19:48..19:52) _empty_/Coproduct.At.atHead#[Head] -> 18:18
+(19:53..19:56) scala/`<:<`#
+(19:57..19:61) _empty_/Coproduct.At.atHead#[Head] -> 18:18
+(19:62..19:64) _empty_/Coproduct.`+:`# -> 10:15
+(19:65..19:69) _empty_/Coproduct.At.atHead#[Tail] -> 18:24
+(22:50..22:53) scala/Int#
+(23:26..23:28) _empty_/Coproduct.At# -> 12:9
+(23:29..23:33) _empty_/Coproduct.At.atTail#[Tail] -> 22:24
+(23:29..23:33) _empty_/Coproduct.At.atTail().[Tail] -> 22:24
+(23:35..23:40) _empty_/Coproduct.At.atTail#[Value] -> 22:30
+(23:35..23:40) _empty_/Coproduct.At.atTail().[Value] -> 22:30
+(23:42..23:51) _empty_/Coproduct.At.atTail#[NextIndex] -> 22:37
+(23:42..23:51) _empty_/Coproduct.At.atTail().[NextIndex] -> 22:37
+(24:9..24:11) _empty_/Coproduct.At# -> 12:9
+(24:12..24:16) _empty_/Coproduct.At.atTail#[Head] -> 22:18
+(24:17..24:19) _empty_/Coproduct.`+:`# -> 10:15
+(24:20..24:24) _empty_/Coproduct.At.atTail#[Tail] -> 22:24
+(24:26..24:31) _empty_/Coproduct.At.atTail#[Value] -> 22:30
+(24:33..24:34) scala/compiletime/ops/int.S#
+(24:35..24:44) _empty_/Coproduct.At.atTail#[NextIndex] -> 22:37
+(25:17..25:22) _empty_/Coproduct.At.atTail#[Value] -> 22:30
+(25:23..25:26) scala/`<:<`#
+(25:27..25:31) _empty_/Coproduct.At.atTail#[Head] -> 22:18
+(25:32..25:34) _empty_/Coproduct.`+:`# -> 10:15
+(25:35..25:39) _empty_/Coproduct.At.atTail#[Tail] -> 22:24
+(25:42..25:48) _empty_/Coproduct.At.atTail#atNext. -> 23:18
+(25:49..25:53) _empty_/Coproduct.At#cast(). -> 13:9
+(27:21..27:22) _empty_/Coproduct.At.given_A().[A] -> 27:12
+(27:32..27:33) _empty_/Coproduct.At.given_A().[A] -> 27:12
+(27:45..27:51) scala/Predef.summon().
+(27:52..27:53) _empty_/Coproduct.At.given_A().[A] -> 27:12
+(30:23..30:24) _empty_/Coproduct.upCast().[A] -> 30:14
+(30:50..30:51) _empty_/Coproduct.upCast().[A] -> 30:14
+(30:52..30:55) scala/`<:<`#
+(30:56..30:57) _empty_/Coproduct.upCast().[B] -> 30:17
+(30:62..30:63) _empty_/Coproduct.upCast().[B] -> 30:17
+(30:66..30:67) _empty_/Coproduct.upCast().(a) -> 30:20
+(30:68..30:80) scala/Any#asInstanceOf().
+(30:81..30:82) _empty_/Coproduct.upCast().[B] -> 30:17
+(32:33..32:36) scala/Int#
+(32:45..32:50) _empty_/Coproduct.from().[Value] -> 32:17
+(32:69..32:71) _empty_/Coproduct.At# -> 12:9
+(32:72..32:75) _empty_/Coproduct.from().[Set] -> 32:12
+(32:77..32:82) _empty_/Coproduct.from().[Value] -> 32:17
+(32:84..32:89) _empty_/Coproduct.from().[Index] -> 32:24
+(32:94..32:101) scala/ValueOf#
+(32:102..32:107) _empty_/Coproduct.from().[Index] -> 32:24
+(32:113..32:122) _empty_/Coproduct# -> 7:18
+(32:123..32:126) _empty_/Coproduct.from().[Set] -> 32:12
+(32:128..32:133) _empty_/Coproduct.from().[Value] -> 32:17
+(32:135..32:140) _empty_/Coproduct.from().[Index] -> 32:24
+(33:5..33:14) _empty_/Coproduct. -> 9:8
+(33:15..33:18) _empty_/Coproduct.from().[Set] -> 32:12
+(33:20..33:25) _empty_/Coproduct.from().[Value] -> 32:17
+(33:27..33:32) _empty_/Coproduct.from().[Index] -> 32:24
+(33:34..33:40) _empty_/Coproduct.upCast(). -> 30:7
+(33:41..33:46) _empty_/Coproduct.from().(value) -> 32:38
+(33:48..33:53) _empty_/Coproduct.from().[Value] -> 32:17
+(33:61..33:63) _empty_/Coproduct.from().(at) -> 32:65
+(33:64..33:68) _empty_/Coproduct.At#cast(). -> 13:9
+(33:69..33:75) scala/`<:<`#liftCo().
+(33:84..33:89) _empty_/Coproduct.from().[Value] -> 32:17
+(33:90..33:91) scala/`&`#
+(33:92..33:93) local1 -> 33:77
+(33:97..33:104) scala/Predef.valueOf().
+(33:105..33:110) _empty_/Coproduct.from().[Index] -> 32:24
+(38:21..38:24) scala/App#
+(39:10..39:19) _empty_/Coproduct. -> 9:8
+(42:11..42:15) _empty_/Coproduct.from(). -> 32:7
+(42:22..42:25) scala/Int#
+(42:26..42:28) _empty_/Coproduct.`+:`# -> 10:15
+(42:29..42:35) scala/Predef.String#
+(42:36..42:38) _empty_/Coproduct.`+:`# -> 10:15
+(42:39..42:42) scala/package.Seq#
+(42:43..42:49) scala/Double#
+(42:51..42:53) _empty_/Coproduct.`+:`# -> 10:15
+(42:54..42:61) scala/Nothing#
+(42:63..42:66) scala/package.Nil.
+

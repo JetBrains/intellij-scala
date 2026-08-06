@@ -1,0 +1,9 @@
+Document tests/pos/t1056.scala
+(2:12..2:27) scala/PartialFunction#
+(2:28..2:34) scala/Predef.String#
+(2:35..2:41) scala/Predef.String#
+(3:12..3:13) _empty_/Test.T# -> 2:8
+(4:3..4:4) _empty_/Test.g(). -> 3:7
+(4:14..4:20) scala/Predef.String#
+(4:24..4:25) local1 -> 4:11
+

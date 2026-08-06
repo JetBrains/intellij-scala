@@ -1,0 +1,13 @@
+class Test {
+  42 match {
+    case _ => <start>29 + 32<match>
+  }
+}
+-----
+class Test {
+  42 match {
+    case _ => 29 + 32 match {
+      case  =>
+    }
+  }
+}

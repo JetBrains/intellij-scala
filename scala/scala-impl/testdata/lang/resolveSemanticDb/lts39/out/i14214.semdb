@@ -1,0 +1,33 @@
+Document tests/pos/i14214.scala
+(2:7..2:12) _empty_/Dummy# -> 1:7
+(2:15..2:18) scala/Predef.`???`().
+(4:12..4:15) _empty_/Foo# -> 3:7
+(4:18..4:21) scala/Predef.`???`().
+(6:17..6:22) _empty_/Dummy# -> 1:7
+(6:25..6:28) _empty_/Bar# -> 5:7
+(6:31..6:34) scala/Predef.`???`().
+(9:3..9:9) scala/Predef.summon().
+(9:10..9:15) _empty_/Dummy# -> 1:7
+(9:20..9:23) _empty_/Foo# -> 3:7
+(10:3..10:9) scala/Predef.summon().
+(10:10..10:15) _empty_/Dummy# -> 1:7
+(10:20..10:23) _empty_/Foo# -> 3:7
+(10:31..10:34) _empty_/i14214$package.foo. -> 4:7
+(11:3..11:9) scala/Predef.summon().
+(11:10..11:15) _empty_/Dummy# -> 1:7
+(11:20..11:23) _empty_/Foo# -> 3:7
+(11:35..11:40) _empty_/Dummy# -> 1:7
+(11:46..11:49) _empty_/i14214$package.foo. -> 4:7
+(12:3..12:9) scala/Predef.summon().
+(12:10..12:15) _empty_/Dummy# -> 1:7
+(12:20..12:23) _empty_/Bar# -> 5:7
+(13:3..13:9) scala/Predef.summon().
+(13:10..13:15) _empty_/Dummy# -> 1:7
+(13:20..13:23) _empty_/Bar# -> 5:7
+(13:31..13:34) _empty_/i14214$package.bar(). -> 6:7
+(14:3..14:9) scala/Predef.summon().
+(14:10..14:15) _empty_/Dummy# -> 1:7
+(14:20..14:23) _empty_/Bar# -> 5:7
+(14:35..14:40) _empty_/Dummy# -> 1:7
+(14:46..14:49) _empty_/i14214$package.bar(). -> 6:7
+

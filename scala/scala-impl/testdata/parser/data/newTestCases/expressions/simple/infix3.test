@@ -1,0 +1,54 @@
+class a {
+  a | b op1 c op2 d op3
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        PostfixExpression
+          InfixExpression
+            InfixExpression
+              InfixExpression
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: b
+                  PsiElement(identifier)('b')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: op1
+                PsiElement(identifier)('op1')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: c
+                PsiElement(identifier)('c')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: op2
+              PsiElement(identifier)('op2')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: d
+              PsiElement(identifier)('d')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: op3
+            PsiElement(identifier)('op3')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

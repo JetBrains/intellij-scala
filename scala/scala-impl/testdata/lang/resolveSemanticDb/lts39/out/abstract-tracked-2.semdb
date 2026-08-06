@@ -1,0 +1,14 @@
+Document tests/pos/abstract-tracked-2.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:46) scala/language.experimental.modularity.
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:29) scala/language.future.
+(5:21..5:24) scala/Int#
+(7:2..7:6) scala/main#
+(8:15..8:18) _empty_/Vec# -> 4:16
+(9:16..9:20) local0 -> 10:9
+(11:16..11:20) local0 -> 10:9
+

@@ -1,0 +1,89 @@
+package p1
+package p2
+
+import scala.collection.immutable.List
+import scala.collection.immutable.Map
+
+// Package
+package p3 {
+  import scala.collection.immutable.List
+  import scala.collection.immutable.Map
+
+  /*
+    Abstract class
+  */
+  abstract class C {
+    val vl1 = ""
+    var vr1 = ""
+    type MyType = Int
+    val vl2 = { // -
+
+    }
+    def f // -
+    trait MyTrait1 {}
+    trait MyTrait2 { // -
+
+    }
+
+    println
+
+    for (e <- Nil) {
+    }
+
+    // In between
+
+    def f1 = { // -
+      def f1_1 = {
+
+      }
+
+      def f1_2 = {
+
+      }
+    }
+
+    // Mixed   // -
+    /*
+      comment
+    */
+    // here
+    def f2 = {
+
+    }
+  }
+
+  trait T {     // -
+    def f = {}
+
+    new Runnable { // -
+      def run = {
+      }
+
+      def f = {
+      }
+    }
+
+    def f1 = {  // -
+      println
+    }
+
+    def f2 = {  // -
+
+    }
+
+    def f3 = {} // -
+    def f4
+    object O1
+    object O2
+  }
+}
+
+package p4 {   // -
+
+}
+
+class C {      // -
+  def f1
+  // Expanded  // -
+  def f2
+}

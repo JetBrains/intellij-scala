@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin>
+    <dependencies>
+        <plugin id="JUnit"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="com.intellij.sbt">
+        <configurationDetailsExtractor implementation="org.jetbrains.plugins.scala.junit.JUnitConfigurationDetailsExtractor"/>
+    </extensions>
+</idea-plugin>

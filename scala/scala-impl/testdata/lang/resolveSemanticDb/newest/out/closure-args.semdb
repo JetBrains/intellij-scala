@@ -1,0 +1,45 @@
+Document tests/pos/closure-args.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:49) scala/language.experimental.relaxedLambdaSyntax.
+(3:9..3:13) scala/package.List.
+(3:17..3:20) scala/collection/immutable/List#map().
+(4:3..4:6) scala/Predef.`???`().
+(6:10..6:14) scala/package.List.
+(7:8..7:11) scala/Int#
+(7:14..7:16) _empty_/`closure-args$package`.xs. -> 6:5
+(8:4..8:7) scala/collection/immutable/List#map().
+(8:14..8:15) local1 -> 8:9
+(8:16..8:17) scala/Int#`*`(+3).
+(8:18..8:19) local1 -> 8:9
+(9:4..9:10) scala/collection/immutable/List#filter().
+(9:17..9:18) local2 -> 9:12
+(9:19..9:20) scala/Int#`>`(+3).
+(12:9..12:15) scala/Predef.String#
+(12:18..12:20) _empty_/`closure-args$package`.xs. -> 6:5
+(13:4..13:7) scala/collection/immutable/List#map().
+(13:14..13:15) local3 -> 13:9
+(13:16..13:24) scala/Any#toString().
+(13:25..13:26) java/lang/String#`+`().
+(13:27..13:29) _empty_/`closure-args$package`.xs. -> 6:5
+(13:30..13:39) scala/collection/StrictOptimizedLinearSeqOps#dropWhile().
+(13:46..13:47) local4 -> 13:41
+(13:48..13:49) scala/Int#`>`(+3).
+(14:4..14:10) scala/collection/immutable/List#filter().
+(14:18..14:19) local5 -> 14:12
+(14:20..14:27) java/lang/String#isEmpty().
+(17:9..17:15) scala/Predef.String#
+(17:18..17:20) _empty_/`closure-args$package`.xs. -> 6:5
+(18:4..18:7) scala/collection/immutable/List#map().
+(18:14..18:15) local6 -> 18:9
+(18:16..18:24) scala/Any#toString().
+(18:25..18:26) java/lang/String#`+`().
+(18:27..18:29) _empty_/`closure-args$package`.xs. -> 6:5
+(18:30..18:37) scala/collection/immutable/List#collect().
+(18:49..18:50) local8 -> 18:44
+(18:51..18:52) scala/Int#`>`(+3).
+(18:58..18:59) local8 -> 18:44
+(19:4..19:10) scala/collection/immutable/List#filter().
+(19:18..19:19) local9 -> 19:12
+(19:20..19:27) java/lang/String#isEmpty().
+

@@ -1,0 +1,14 @@
+Document tests/pos/i18795.scala
+(3:21..3:24) scala/App#
+(3:30..3:34) example/Test# -> 7:7
+(4:3..4:7) example/Test#load(). -> 9:7
+(10:13..10:14) example/Test#load$default$2().[T] -> 9:12
+(10:13..10:14) example/Test#load().[T] -> 9:12
+(12:18..12:19) example/Test#load().[T] -> 9:12
+(12:23..12:29) scala/Option#
+(12:30..12:36) scala/Predef.String#
+(12:44..12:45) example/Test#load$default$2().[T] -> 9:12
+(12:50..12:54) scala/None.
+(13:6..13:10) scala/Unit#
+(13:13..13:16) scala/Predef.`???`().
+

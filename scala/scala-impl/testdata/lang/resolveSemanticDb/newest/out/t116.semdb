@@ -1,0 +1,4 @@
+Document tests/pos/t116.scala
+(2:15..2:18) scala/Int#
+(4:21..4:22) _empty_/C# -> 1:7
+

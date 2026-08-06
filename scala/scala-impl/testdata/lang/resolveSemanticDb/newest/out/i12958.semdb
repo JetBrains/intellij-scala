@@ -1,0 +1,9 @@
+Document tests/pos/i12958.scala
+(3:38..3:41) scala/Any#
+(6:38..6:41) scala/Any#
+(8:10..8:16) mylib/Export. -> 2:10
+(11:8..11:13) mylib/ -> 1:9
+(12:8..12:14) mylib/Import. -> 5:10
+(14:21..14:29) mylib/i12958$package.exported().
+(15:21..15:29) mylib/Import.imported(). -> 6:28
+

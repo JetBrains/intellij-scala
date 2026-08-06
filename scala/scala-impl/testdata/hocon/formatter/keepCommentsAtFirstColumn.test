@@ -1,0 +1,16 @@
+<settings>
+  <HoconCodeStyleSettings>
+    <option name="HASH_COMMENTS_AT_FIRST_COLUMN" value="true" />
+    <option name="DOUBLE_SLASH_COMMENTS_AT_FIRST_COLUMN" value="true" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+obj {
+# hash comment
+// double slash comment
+}
+-----
+obj {
+# hash comment
+// double slash comment
+}

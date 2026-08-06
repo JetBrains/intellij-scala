@@ -1,0 +1,248 @@
+// --- Valid cases related to #11253/#9541 ---
+
+trait U[E <: Enum[E]] extends Enum[E]
+trait TValid extends Enum[E9]
+
+enum E4 extends Enum[E4] { case X }
+
+enum E9 extends Enum[E9] with TValid { case X }
+
+enum E10 extends U[E10] { case X }
+-----
+ScalaFile
+  PsiComment(comment)('// --- Valid cases related to #11253/#9541 ---')
+  PsiWhiteSpace('\n\n')
+  ScTrait: U
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('U')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: E
+        PsiElement(identifier)('E')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Enum[E]
+          SimpleType: Enum
+            CodeReferenceElement: Enum
+              PsiElement(identifier)('Enum')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: E
+                CodeReferenceElement: E
+                  PsiElement(identifier)('E')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Enum[E]
+            SimpleType: Enum
+              CodeReferenceElement: Enum
+                PsiElement(identifier)('Enum')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E
+                  CodeReferenceElement: E
+                    PsiElement(identifier)('E')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n')
+  ScTrait: TValid
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TValid')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Enum[E9]
+            SimpleType: Enum
+              CodeReferenceElement: Enum
+                PsiElement(identifier)('Enum')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E9
+                  CodeReferenceElement: E9
+                    PsiElement(identifier)('E9')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScEnum: E4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('E4')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Enum[E4]
+            SimpleType: Enum
+              CodeReferenceElement: Enum
+                PsiElement(identifier)('Enum')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E4
+                  CodeReferenceElement: E4
+                    PsiElement(identifier)('E4')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScEnumCases: X
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: X
+            PsiElement(identifier)('X')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScEnum: E9
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('E9')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Enum[E9]
+            SimpleType: Enum
+              CodeReferenceElement: Enum
+                PsiElement(identifier)('Enum')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E9
+                  CodeReferenceElement: E9
+                    PsiElement(identifier)('E9')
+              PsiElement(])(']')
+        PsiWhiteSpace(' ')
+        PsiElement(with)('with')
+        PsiWhiteSpace(' ')
+        ConstructorInvocation
+          SimpleType: TValid
+            CodeReferenceElement: TValid
+              PsiElement(identifier)('TValid')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScEnumCases: X
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: X
+            PsiElement(identifier)('X')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScEnum: E10
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('E10')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: U[E10]
+            SimpleType: U
+              CodeReferenceElement: U
+                PsiElement(identifier)('U')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: E10
+                  CodeReferenceElement: E10
+                    PsiElement(identifier)('E10')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ScEnumCases: X
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumSingletonCase: X
+            PsiElement(identifier)('X')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')

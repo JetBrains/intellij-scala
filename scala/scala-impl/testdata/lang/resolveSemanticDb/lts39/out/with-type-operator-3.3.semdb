@@ -1,0 +1,8 @@
+Document tests/pos/with-type-operator-3.3.scala
+(3:8..3:13) scala/
+(3:14..3:22) scala/language.
+(3:23..3:28) scala/language.`3.3`.
+(5:10..5:13) scala/Int#
+(5:19..5:25) scala/Predef.String#
+(5:28..5:31) scala/Predef.`???`().
+

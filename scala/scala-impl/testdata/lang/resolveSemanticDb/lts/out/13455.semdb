@@ -1,0 +1,16 @@
+Document tests/pos/13455.scala
+(3:13..3:14) _empty_/`13455$package`.X#[T] -> 3:8
+(4:8..4:9) _empty_/R# -> 1:14
+(4:20..4:26) scala/Predef.String#
+(5:20..5:23) scala/Int#
+(7:11..7:12) _empty_/`13455$package`.X# -> 3:6
+(7:13..7:14) _empty_/`13455$package`.x().[T] -> 7:7
+(7:18..7:21) scala/Predef.`???`().
+(9:11..9:14) scala/Int#
+(9:17..9:21) scala/Unit#
+(9:24..9:27) scala/Predef.`???`().
+(10:9..10:10) _empty_/`13455$package`.i(). -> 9:5
+(10:11..10:12) _empty_/`13455$package`.x(). -> 7:5
+(10:13..10:16) scala/Int#
+(10:20..10:26) scala/Predef.String#
+

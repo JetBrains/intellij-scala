@@ -1,0 +1,8 @@
+class a {
+  def value() = 4
+  def foo = {
+    <selection>2</selection>
+  }
+}
+------
+Introduced variable will conflict with (or may be hidden by) field or method without parameters: value

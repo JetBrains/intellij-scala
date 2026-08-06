@@ -1,0 +1,16 @@
+Document tests/pos/given-loop-prevention.scala
+(6:9..6:12) _empty_/Foo# -> 3:7
+(7:9..7:13) scala/package.List#
+(7:14..7:17) _empty_/Foo# -> 3:7
+(7:21..7:25) scala/package.List.
+(7:26..7:32) scala/Predef.summon().
+(7:33..7:36) _empty_/Foo# -> 3:7
+(11:4..11:14) scala/annotation/
+(11:15..11:21) scala/annotation/nowarn#
+(12:9..12:13) scala/package.List#
+(12:14..12:17) _empty_/Foo# -> 3:7
+(12:21..12:25) scala/package.List.
+(12:26..12:32) scala/Predef.summon().
+(12:33..12:36) _empty_/Foo# -> 3:7
+(13:9..13:12) _empty_/Foo# -> 3:7
+

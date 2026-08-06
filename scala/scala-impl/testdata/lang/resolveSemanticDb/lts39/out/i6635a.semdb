@@ -1,0 +1,13 @@
+Document tests/pos/i6635a.scala
+(6:30..6:38) _empty_/Test.ExprBase# -> 2:18
+(7:14..7:17) scala/Int#
+(8:12..8:13) _empty_/Test.Lit#A# -> 7:10
+(13:26..13:34) _empty_/Test.ExprBase# -> 2:18
+(13:40..13:43) _empty_/Test.Lit# -> 6:18
+(13:49..13:51) _empty_/Test.castTestFail2a().(e1) -> 13:22
+(13:61..13:63) _empty_/Test.castTestFail2a().(e1) -> 13:22
+(13:64..13:65) _empty_/Test.ExprBase#A# -> 3:10
+(13:68..13:70) _empty_/Test.castTestFail2a().(e2) -> 13:36
+(13:71..13:72) _empty_/Test.Lit#A# -> 7:10
+(13:75..13:76) _empty_/Test.castTestFail2a().(x) -> 13:58
+

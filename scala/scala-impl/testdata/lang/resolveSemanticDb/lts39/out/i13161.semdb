@@ -1,0 +1,7 @@
+Document tests/pos/i13161.scala
+(1:27..1:33) scala/Predef.String#
+(4:14..4:18) scala/Some.
+(5:14..5:18) scala/Some.
+(5:25..5:26) local0 -> 5:19
+(8:24..8:25) _empty_/i13161$package.f(). -> 1:24
+

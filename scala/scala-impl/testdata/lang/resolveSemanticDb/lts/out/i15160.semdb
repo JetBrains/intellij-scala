@@ -1,0 +1,23 @@
+Document tests/pos/i15160.scala
+(2:15..2:16) _empty_/Eq#[A] -> 1:10
+(2:22..2:23) _empty_/Eq#[A] -> 1:10
+(2:26..2:33) scala/Boolean#
+(5:17..5:19) _empty_/Eq# -> 1:7
+(5:20..5:26) scala/Predef.String#
+(6:15..6:21) scala/Predef.String#
+(6:27..6:33) scala/Predef.String#
+(6:37..6:39) _empty_/i15160$package.stringEq.eqv().(a1) -> 6:11
+(6:40..6:42) scala/Any#`==`().
+(6:43..6:45) _empty_/i15160$package.stringEq.eqv().(a2) -> 6:23
+(10:22..10:25) _empty_/Newtype#[Src] -> 9:24
+(12:46..12:47) _empty_/Newtype#derive().[F] -> 12:30
+(12:48..12:51) _empty_/Newtype#[Src] -> 9:24
+(12:55..12:56) _empty_/Newtype#derive().[F] -> 12:30
+(12:57..12:61) _empty_/Newtype#Type# -> 10:15
+(12:65..12:67) _empty_/Newtype#derive().(ev) -> 12:42
+(15:23..15:30) _empty_/Newtype# -> 9:16
+(15:31..15:37) scala/Predef.String#
+(16:13..16:15) _empty_/Eq# -> 1:7
+(16:16..16:20) _empty_/Newtype#Type# -> 10:15
+(16:24..16:30) _empty_/Newtype#derive(). -> 12:23
+

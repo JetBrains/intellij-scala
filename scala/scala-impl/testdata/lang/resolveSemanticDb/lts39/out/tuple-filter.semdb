@@ -1,0 +1,35 @@
+Document tests/pos/tuple-filter.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:29) scala/compiletime/ops/
+(1:30..1:33) scala/compiletime/ops/int.
+(3:14..3:21) scala/Boolean#
+(3:24..3:25) _empty_/`tuple-filter$package`.P#[x] -> 3:8
+(5:8..5:9) scala/Any#
+(10:15..10:18) scala/Int#
+(10:24..10:25) scala/compiletime/ops/int.`<`#
+(10:26..10:27) _empty_/`tuple-filter$package`.Pos#[X] -> 10:10
+(13:3..13:9) scala/Predef.summon().
+(13:10..13:15) scala/Tuple.
+(13:16..13:22) scala/Tuple.Filter#
+(13:37..13:38) _empty_/`tuple-filter$package`.P# -> 3:6
+(13:40..13:43) scala/`=:=`#
+(14:3..14:9) scala/Predef.summon().
+(14:10..14:15) scala/Tuple.
+(14:16..14:22) scala/Tuple.Filter#
+(14:37..14:46) _empty_/`tuple-filter$package`.RejectAll# -> 8:6
+(14:48..14:51) scala/`=:=`#
+(14:52..14:62) scala/Tuple$package.EmptyTuple#
+(15:3..15:9) scala/Predef.summon().
+(15:10..15:15) scala/Tuple.
+(15:16..15:22) scala/Tuple.Filter#
+(15:23..15:33) scala/Tuple$package.EmptyTuple#
+(15:35..15:36) _empty_/`tuple-filter$package`.P# -> 3:6
+(15:38..15:41) scala/`=:=`#
+(15:42..15:52) scala/Tuple$package.EmptyTuple#
+(16:3..16:9) scala/Predef.summon().
+(16:10..16:15) scala/Tuple.
+(16:16..16:22) scala/Tuple.Filter#
+(16:39..16:42) _empty_/`tuple-filter$package`.Pos# -> 10:6
+(16:44..16:47) scala/`=:=`#
+

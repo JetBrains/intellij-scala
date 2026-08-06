@@ -1,0 +1,61 @@
+Document tests/pos/i18183.migration.scala
+(6:8..6:13) scala/
+(6:14..6:18) scala/util/
+(6:19..6:26) scala/util/control/
+(6:27..6:39) scala/util/control/NoStackTrace#
+(6:27..6:39) scala/util/control/NoStackTrace.
+(8:45..8:46) _empty_/EitherT#[F] -> 8:26
+(8:47..8:53) scala/package.Either#
+(8:54..8:55) _empty_/EitherT#[A] -> 8:32
+(8:57..8:58) _empty_/EitherT#[B] -> 8:35
+(9:25..9:26) _empty_/EitherT#[B] -> 8:35
+(9:30..9:31) _empty_/EitherT#[F] -> 8:26
+(9:32..9:33) _empty_/EitherT#semiflatMap().[D] -> 9:19
+(9:48..9:53) _empty_/Monad# -> 15:7
+(9:54..9:55) _empty_/EitherT#[F] -> 8:26
+(9:59..9:66) _empty_/EitherT# -> 8:18
+(9:67..9:68) _empty_/EitherT#[F] -> 8:26
+(9:70..9:71) _empty_/EitherT#[A] -> 8:32
+(9:73..9:74) _empty_/EitherT#semiflatMap().[D] -> 9:19
+(9:78..9:81) scala/Predef.`???`().
+(13:18..13:19) _empty_/Applicative#pure().[A] -> 13:12
+(13:22..13:23) _empty_/Applicative#[F] -> 12:19
+(13:24..13:25) _empty_/Applicative#pure().[A] -> 13:12
+(15:27..15:38) _empty_/Applicative# -> 12:7
+(15:39..15:40) _empty_/Monad#[F] -> 15:13
+(16:27..16:32) _empty_/Monad# -> 15:7
+(16:33..16:34) _empty_/Async#[F] -> 16:13
+(20:38..20:44) scala/Predef.String#
+(20:55..20:61) scala/Predef.String#
+(22:43..22:48) _empty_/Async# -> 16:7
+(22:49..22:50) _empty_/CSRF2#[F] -> 22:19
+(23:10..23:15) _empty_/CSRF2. -> 33:8
+(25:33..25:39) scala/Predef.String#
+(25:53..25:58) _empty_/Async# -> 16:7
+(25:59..25:60) _empty_/CSRF2#signToken().[M] -> 25:17
+(25:64..25:65) _empty_/CSRF2#signToken().[M] -> 25:17
+(25:66..25:75) _empty_/CSRF2.CSRFToken# -> 34:8
+(25:79..25:82) scala/Predef.`???`().
+(27:40..27:45) _empty_/Async# -> 16:7
+(27:46..27:47) _empty_/CSRF2#refreshedToken().[M] -> 27:22
+(27:51..27:58) _empty_/EitherT# -> 8:18
+(27:59..27:60) _empty_/CSRF2#refreshedToken().[M] -> 27:22
+(27:62..27:77) _empty_/CSRF2.CSRFCheckFailed# -> 37:8
+(27:79..27:88) _empty_/CSRF2.CSRFToken# -> 34:8
+(28:5..28:12) _empty_/EitherT.
+(28:13..28:23) _empty_/CSRF2#extractRaw(). -> 30:7
+(28:29..28:40) _empty_/EitherT#semiflatMap(). -> 9:7
+(28:41..28:50) _empty_/CSRF2#signToken(). -> 25:7
+(28:51..28:52) _empty_/CSRF2#refreshedToken().[M] -> 27:22
+(30:24..30:29) _empty_/Async# -> 16:7
+(30:24..30:29) _empty_/CSRF2#extractRaw().[M] -> 30:18
+(30:41..30:47) scala/Predef.String#
+(30:50..30:51) _empty_/CSRF2#extractRaw().[M] -> 30:18
+(30:52..30:58) scala/package.Either#
+(30:59..30:74) _empty_/CSRF2.CSRFCheckFailed# -> 37:8
+(30:76..30:82) scala/Predef.String#
+(30:87..30:90) scala/Predef.`???`().
+(36:39..36:48) scala/package.Exception#
+(36:75..36:87) scala/util/control/NoStackTrace#
+(37:26..37:41) _empty_/CSRF2.CSRFCheckFailed. -> 36:15
+

@@ -1,0 +1,646 @@
+//> using options -Yno-deep-subtypes
+
+object Record:
+  opaque type Record[F] = Unit
+
+  extension [F](record: Record[F])
+    def &[A](other: Record[A]): Record[F & A] = ()
+
+  class has[Name, Value]()
+
+  extension (self: String)
+    def ~[Value](value: Value): Record[has[self.type, Value]] = ()
+
+import Record.~
+
+val r = "f1" ~ 1 & "f2" ~ "hello" & "f3" ~ true & "f4" ~ 4 & "f5" ~ 5 &
+  "f6" ~ 6 & "f7" ~ 7 & "f8" ~ 8 & "f9" ~ 9 & "f10" ~ 10 &
+  "f11" ~ 11 & "f12" ~ 12 & "f13" ~ 13 & "f14" ~ 14 & "f15" ~ 15 &
+  "f16" ~ 16 & "f17" ~ 17 & "f18" ~ 18 & "f19" ~ 19 & "f20" ~ 20 &
+  "f21" ~ 21 & "f22" ~ 22 & "f23" ~ 23 & "f24" ~ 24 & "f25" ~ 25
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Yno-deep-subtypes')
+  PsiWhiteSpace('\n\n')
+  ScObject: Record
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Record')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Record
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Record')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+        PsiWhiteSpace('\n\n  ')
+        Extension on Record[F]
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: record
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('record')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Record[F]
+                    SimpleType: Record
+                      CodeReferenceElement: Record
+                        PsiElement(identifier)('Record')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: F
+                          CodeReferenceElement: F
+                            PsiElement(identifier)('F')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: &
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('&')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: A
+                  PsiElement(identifier)('A')
+                PsiElement(])(']')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: other
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('other')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      ParametrizedType: Record[A]
+                        SimpleType: Record
+                          CodeReferenceElement: Record
+                            PsiElement(identifier)('Record')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: A
+                              CodeReferenceElement: A
+                                PsiElement(identifier)('A')
+                          PsiElement(])(']')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Record[F & A]
+                SimpleType: Record
+                  CodeReferenceElement: Record
+                    PsiElement(identifier)('Record')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    InfixType: F & A
+                      SimpleType: F
+                        CodeReferenceElement: F
+                          PsiElement(identifier)('F')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              UnitExpression
+                PsiElement(()('(')
+                PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScClass: has
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(class)('class')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('has')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: Name
+              PsiElement(identifier)('Name')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Value
+              PsiElement(identifier)('Value')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement())(')')
+          ExtendsBlock
+            <empty list>
+        PsiWhiteSpace('\n\n  ')
+        Extension on String
+          PsiElement(extension)('extension')
+          PsiWhiteSpace(' ')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: self
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('self')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: ~
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('~')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: Value
+                  PsiElement(identifier)('Value')
+                PsiElement(])(']')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: value
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('value')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      SimpleType: Value
+                        CodeReferenceElement: Value
+                          PsiElement(identifier)('Value')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Record[has[self.type, Value]]
+                SimpleType: Record
+                  CodeReferenceElement: Record
+                    PsiElement(identifier)('Record')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: has[self.type, Value]
+                      SimpleType: has
+                        CodeReferenceElement: has
+                          PsiElement(identifier)('has')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: self.type
+                            CodeReferenceElement: self
+                              PsiElement(identifier)('self')
+                            PsiElement(.)('.')
+                            PsiElement(type)('type')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: Value
+                            CodeReferenceElement: Value
+                              PsiElement(identifier)('Value')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              UnitExpression
+                PsiElement(()('(')
+                PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: Record.~
+        CodeReferenceElement: Record
+          PsiElement(identifier)('Record')
+        PsiElement(.)('.')
+        PsiElement(identifier)('~')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: r
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: r
+        PsiElement(identifier)('r')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      InfixExpression
+        InfixExpression
+          InfixExpression
+            InfixExpression
+              InfixExpression
+                InfixExpression
+                  InfixExpression
+                    InfixExpression
+                      InfixExpression
+                        InfixExpression
+                          InfixExpression
+                            InfixExpression
+                              InfixExpression
+                                InfixExpression
+                                  InfixExpression
+                                    InfixExpression
+                                      InfixExpression
+                                        InfixExpression
+                                          InfixExpression
+                                            InfixExpression
+                                              InfixExpression
+                                                InfixExpression
+                                                  InfixExpression
+                                                    InfixExpression
+                                                      StringLiteral
+                                                        PsiElement(string content)('"f1"')
+                                                      PsiWhiteSpace(' ')
+                                                      ReferenceExpression: ~
+                                                        PsiElement(identifier)('~')
+                                                      PsiWhiteSpace(' ')
+                                                      IntegerLiteral
+                                                        PsiElement(integer)('1')
+                                                    PsiWhiteSpace(' ')
+                                                    ReferenceExpression: &
+                                                      PsiElement(identifier)('&')
+                                                    PsiWhiteSpace(' ')
+                                                    InfixExpression
+                                                      StringLiteral
+                                                        PsiElement(string content)('"f2"')
+                                                      PsiWhiteSpace(' ')
+                                                      ReferenceExpression: ~
+                                                        PsiElement(identifier)('~')
+                                                      PsiWhiteSpace(' ')
+                                                      StringLiteral
+                                                        PsiElement(string content)('"hello"')
+                                                  PsiWhiteSpace(' ')
+                                                  ReferenceExpression: &
+                                                    PsiElement(identifier)('&')
+                                                  PsiWhiteSpace(' ')
+                                                  InfixExpression
+                                                    StringLiteral
+                                                      PsiElement(string content)('"f3"')
+                                                    PsiWhiteSpace(' ')
+                                                    ReferenceExpression: ~
+                                                      PsiElement(identifier)('~')
+                                                    PsiWhiteSpace(' ')
+                                                    BooleanLiteral
+                                                      PsiElement(true)('true')
+                                                PsiWhiteSpace(' ')
+                                                ReferenceExpression: &
+                                                  PsiElement(identifier)('&')
+                                                PsiWhiteSpace(' ')
+                                                InfixExpression
+                                                  StringLiteral
+                                                    PsiElement(string content)('"f4"')
+                                                  PsiWhiteSpace(' ')
+                                                  ReferenceExpression: ~
+                                                    PsiElement(identifier)('~')
+                                                  PsiWhiteSpace(' ')
+                                                  IntegerLiteral
+                                                    PsiElement(integer)('4')
+                                              PsiWhiteSpace(' ')
+                                              ReferenceExpression: &
+                                                PsiElement(identifier)('&')
+                                              PsiWhiteSpace(' ')
+                                              InfixExpression
+                                                StringLiteral
+                                                  PsiElement(string content)('"f5"')
+                                                PsiWhiteSpace(' ')
+                                                ReferenceExpression: ~
+                                                  PsiElement(identifier)('~')
+                                                PsiWhiteSpace(' ')
+                                                IntegerLiteral
+                                                  PsiElement(integer)('5')
+                                            PsiWhiteSpace(' ')
+                                            ReferenceExpression: &
+                                              PsiElement(identifier)('&')
+                                            PsiWhiteSpace('\n  ')
+                                            InfixExpression
+                                              StringLiteral
+                                                PsiElement(string content)('"f6"')
+                                              PsiWhiteSpace(' ')
+                                              ReferenceExpression: ~
+                                                PsiElement(identifier)('~')
+                                              PsiWhiteSpace(' ')
+                                              IntegerLiteral
+                                                PsiElement(integer)('6')
+                                          PsiWhiteSpace(' ')
+                                          ReferenceExpression: &
+                                            PsiElement(identifier)('&')
+                                          PsiWhiteSpace(' ')
+                                          InfixExpression
+                                            StringLiteral
+                                              PsiElement(string content)('"f7"')
+                                            PsiWhiteSpace(' ')
+                                            ReferenceExpression: ~
+                                              PsiElement(identifier)('~')
+                                            PsiWhiteSpace(' ')
+                                            IntegerLiteral
+                                              PsiElement(integer)('7')
+                                        PsiWhiteSpace(' ')
+                                        ReferenceExpression: &
+                                          PsiElement(identifier)('&')
+                                        PsiWhiteSpace(' ')
+                                        InfixExpression
+                                          StringLiteral
+                                            PsiElement(string content)('"f8"')
+                                          PsiWhiteSpace(' ')
+                                          ReferenceExpression: ~
+                                            PsiElement(identifier)('~')
+                                          PsiWhiteSpace(' ')
+                                          IntegerLiteral
+                                            PsiElement(integer)('8')
+                                      PsiWhiteSpace(' ')
+                                      ReferenceExpression: &
+                                        PsiElement(identifier)('&')
+                                      PsiWhiteSpace(' ')
+                                      InfixExpression
+                                        StringLiteral
+                                          PsiElement(string content)('"f9"')
+                                        PsiWhiteSpace(' ')
+                                        ReferenceExpression: ~
+                                          PsiElement(identifier)('~')
+                                        PsiWhiteSpace(' ')
+                                        IntegerLiteral
+                                          PsiElement(integer)('9')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: &
+                                      PsiElement(identifier)('&')
+                                    PsiWhiteSpace(' ')
+                                    InfixExpression
+                                      StringLiteral
+                                        PsiElement(string content)('"f10"')
+                                      PsiWhiteSpace(' ')
+                                      ReferenceExpression: ~
+                                        PsiElement(identifier)('~')
+                                      PsiWhiteSpace(' ')
+                                      IntegerLiteral
+                                        PsiElement(integer)('10')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: &
+                                    PsiElement(identifier)('&')
+                                  PsiWhiteSpace('\n  ')
+                                  InfixExpression
+                                    StringLiteral
+                                      PsiElement(string content)('"f11"')
+                                    PsiWhiteSpace(' ')
+                                    ReferenceExpression: ~
+                                      PsiElement(identifier)('~')
+                                    PsiWhiteSpace(' ')
+                                    IntegerLiteral
+                                      PsiElement(integer)('11')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: &
+                                  PsiElement(identifier)('&')
+                                PsiWhiteSpace(' ')
+                                InfixExpression
+                                  StringLiteral
+                                    PsiElement(string content)('"f12"')
+                                  PsiWhiteSpace(' ')
+                                  ReferenceExpression: ~
+                                    PsiElement(identifier)('~')
+                                  PsiWhiteSpace(' ')
+                                  IntegerLiteral
+                                    PsiElement(integer)('12')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: &
+                                PsiElement(identifier)('&')
+                              PsiWhiteSpace(' ')
+                              InfixExpression
+                                StringLiteral
+                                  PsiElement(string content)('"f13"')
+                                PsiWhiteSpace(' ')
+                                ReferenceExpression: ~
+                                  PsiElement(identifier)('~')
+                                PsiWhiteSpace(' ')
+                                IntegerLiteral
+                                  PsiElement(integer)('13')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: &
+                              PsiElement(identifier)('&')
+                            PsiWhiteSpace(' ')
+                            InfixExpression
+                              StringLiteral
+                                PsiElement(string content)('"f14"')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: ~
+                                PsiElement(identifier)('~')
+                              PsiWhiteSpace(' ')
+                              IntegerLiteral
+                                PsiElement(integer)('14')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: &
+                            PsiElement(identifier)('&')
+                          PsiWhiteSpace(' ')
+                          InfixExpression
+                            StringLiteral
+                              PsiElement(string content)('"f15"')
+                            PsiWhiteSpace(' ')
+                            ReferenceExpression: ~
+                              PsiElement(identifier)('~')
+                            PsiWhiteSpace(' ')
+                            IntegerLiteral
+                              PsiElement(integer)('15')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: &
+                          PsiElement(identifier)('&')
+                        PsiWhiteSpace('\n  ')
+                        InfixExpression
+                          StringLiteral
+                            PsiElement(string content)('"f16"')
+                          PsiWhiteSpace(' ')
+                          ReferenceExpression: ~
+                            PsiElement(identifier)('~')
+                          PsiWhiteSpace(' ')
+                          IntegerLiteral
+                            PsiElement(integer)('16')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: &
+                        PsiElement(identifier)('&')
+                      PsiWhiteSpace(' ')
+                      InfixExpression
+                        StringLiteral
+                          PsiElement(string content)('"f17"')
+                        PsiWhiteSpace(' ')
+                        ReferenceExpression: ~
+                          PsiElement(identifier)('~')
+                        PsiWhiteSpace(' ')
+                        IntegerLiteral
+                          PsiElement(integer)('17')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: &
+                      PsiElement(identifier)('&')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      StringLiteral
+                        PsiElement(string content)('"f18"')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: ~
+                        PsiElement(identifier)('~')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('18')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  InfixExpression
+                    StringLiteral
+                      PsiElement(string content)('"f19"')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: ~
+                      PsiElement(identifier)('~')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('19')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: &
+                  PsiElement(identifier)('&')
+                PsiWhiteSpace(' ')
+                InfixExpression
+                  StringLiteral
+                    PsiElement(string content)('"f20"')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ~
+                    PsiElement(identifier)('~')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('20')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: &
+                PsiElement(identifier)('&')
+              PsiWhiteSpace('\n  ')
+              InfixExpression
+                StringLiteral
+                  PsiElement(string content)('"f21"')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ~
+                  PsiElement(identifier)('~')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('21')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: &
+              PsiElement(identifier)('&')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              StringLiteral
+                PsiElement(string content)('"f22"')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ~
+                PsiElement(identifier)('~')
+              PsiWhiteSpace(' ')
+              IntegerLiteral
+                PsiElement(integer)('22')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: &
+            PsiElement(identifier)('&')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            StringLiteral
+              PsiElement(string content)('"f23"')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ~
+              PsiElement(identifier)('~')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('23')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: &
+          PsiElement(identifier)('&')
+        PsiWhiteSpace(' ')
+        InfixExpression
+          StringLiteral
+            PsiElement(string content)('"f24"')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ~
+            PsiElement(identifier)('~')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('24')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: &
+        PsiElement(identifier)('&')
+      PsiWhiteSpace(' ')
+      InfixExpression
+        StringLiteral
+          PsiElement(string content)('"f25"')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ~
+          PsiElement(identifier)('~')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('25')

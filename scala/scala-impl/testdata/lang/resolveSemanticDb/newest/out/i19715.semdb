@@ -1,0 +1,23 @@
+Document tests/pos/i19715.scala
+(2:14..2:17) scala/Int#
+(2:20..2:26) scala/Predef.String#
+(4:13..4:16) _empty_/Tup# -> 1:7
+(5:15..5:16) _empty_/NT#t. -> 4:10
+(7:17..7:19) _empty_/NT# -> 4:7
+(8:16..8:19) scala/Int#
+(8:22..8:29) scala/Boolean#
+(9:13..9:23) scala/Conversion#
+(9:24..9:26) _empty_/NT# -> 4:7
+(9:28..9:31) _empty_/Tup# -> 1:7
+(9:37..9:42) _empty_/NT#toTup(). -> 5:7
+(10:22..10:24) _empty_/NT# -> 4:7
+(10:27..10:30) _empty_/Tup# -> 1:7
+(10:33..10:35) _empty_/NT.c1. -> 9:9
+(10:36..10:37) _empty_/NT.c2().(t) -> 10:19
+(13:16..13:18) _empty_/NT# -> 4:7
+(13:19..13:22) _empty_/Tup# -> 1:7
+(14:11..14:13) local0 -> 13:7
+(14:14..14:17) _empty_/NT.app(). -> 8:9
+(15:10..15:17) scala/Boolean#
+(15:20..15:21) local1 -> 14:7
+

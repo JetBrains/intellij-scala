@@ -1,0 +1,528 @@
+package demo
+
+object Demo extends Utils {
+  // Test case 1: Basic case class with @publicInBinary private constructor
+  val test1 = TestClass(???)
+
+  // Test case 2: Regular class with @publicInBinary private constructor
+  val test2 = RegularClass.create(42)
+
+  // Test case 3: Nested class with @publicInBinary private constructor
+  val outer = new Outer
+  val test3 = outer.Inner.make("hello")
+
+  // Test case 4: @publicInBinary on private[Scope] method
+  val wpm = new WithPrivateMethod
+  val test4 = WithPrivateMethod.callSecret(wpm, 21)
+
+  // Test case 5: @publicInBinary on private val accessor (via constructor)
+  val test5a = WithPrivateVal.create("secret")
+  val test5b = WithPrivateVal.getHidden(test5a)
+
+  // Test case 6: Multiple @publicInBinary constructors
+  val test6a = MultiConstructor.make1(100)
+  val test6b = MultiConstructor.make2(200, "custom")
+
+  // Test case 7: Case class with @publicInBinary and parameters
+  val test7 = DataClass.make("test", 123)
+
+  // Test case 8: @publicInBinary on private[Scope] val
+  val wpvs = new WithPrivateValScoped
+  val test8 = WithPrivateValScoped.getSecret(wpvs)
+
+  // Test case 9: @publicInBinary on private[Scope] lazy val
+  val wlv = new WithLazyVal
+  val test9 = WithLazyVal.getComputed(wlv)
+
+  // Test case 10: Top-level class with @publicInBinary
+  val test10 = TopLevelPublicInBinary.create(3.14)
+
+  // Test case 11: Trait with companion having @publicInBinary class
+  val test11: Describable = DescribableImpl.create("description")
+}
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: demo
+      PsiElement(identifier)('demo')
+    PsiWhiteSpace('\n\n')
+    ScObject: Demo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Demo')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        PsiElement(extends)('extends')
+        PsiWhiteSpace(' ')
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Utils
+              CodeReferenceElement: Utils
+                PsiElement(identifier)('Utils')
+        PsiWhiteSpace(' ')
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: test1
+            PsiComment(comment)('// Test case 1: Basic case class with @publicInBinary private constructor')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test1
+                PsiElement(identifier)('test1')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: TestClass
+                PsiElement(identifier)('TestClass')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: test2
+            PsiComment(comment)('// Test case 2: Regular class with @publicInBinary private constructor')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test2
+                PsiElement(identifier)('test2')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: RegularClass.create
+                ReferenceExpression: RegularClass
+                  PsiElement(identifier)('RegularClass')
+                PsiElement(.)('.')
+                PsiElement(identifier)('create')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('42')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: outer
+            PsiComment(comment)('// Test case 3: Nested class with @publicInBinary private constructor')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: outer
+                PsiElement(identifier)('outer')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: Outer
+                      CodeReferenceElement: Outer
+                        PsiElement(identifier)('Outer')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: test3
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test3
+                PsiElement(identifier)('test3')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: outer.Inner.make
+                ReferenceExpression: outer.Inner
+                  ReferenceExpression: outer
+                    PsiElement(identifier)('outer')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Inner')
+                PsiElement(.)('.')
+                PsiElement(identifier)('make')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"hello"')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: wpm
+            PsiComment(comment)('// Test case 4: @publicInBinary on private[Scope] method')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: wpm
+                PsiElement(identifier)('wpm')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: WithPrivateMethod
+                      CodeReferenceElement: WithPrivateMethod
+                        PsiElement(identifier)('WithPrivateMethod')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: test4
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test4
+                PsiElement(identifier)('test4')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: WithPrivateMethod.callSecret
+                ReferenceExpression: WithPrivateMethod
+                  PsiElement(identifier)('WithPrivateMethod')
+                PsiElement(.)('.')
+                PsiElement(identifier)('callSecret')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: wpm
+                  PsiElement(identifier)('wpm')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('21')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: test5a
+            PsiComment(comment)('// Test case 5: @publicInBinary on private val accessor (via constructor)')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test5a
+                PsiElement(identifier)('test5a')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: WithPrivateVal.create
+                ReferenceExpression: WithPrivateVal
+                  PsiElement(identifier)('WithPrivateVal')
+                PsiElement(.)('.')
+                PsiElement(identifier)('create')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"secret"')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: test5b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test5b
+                PsiElement(identifier)('test5b')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: WithPrivateVal.getHidden
+                ReferenceExpression: WithPrivateVal
+                  PsiElement(identifier)('WithPrivateVal')
+                PsiElement(.)('.')
+                PsiElement(identifier)('getHidden')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: test5a
+                  PsiElement(identifier)('test5a')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: test6a
+            PsiComment(comment)('// Test case 6: Multiple @publicInBinary constructors')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test6a
+                PsiElement(identifier)('test6a')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: MultiConstructor.make1
+                ReferenceExpression: MultiConstructor
+                  PsiElement(identifier)('MultiConstructor')
+                PsiElement(.)('.')
+                PsiElement(identifier)('make1')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('100')
+                PsiElement())(')')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: test6b
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test6b
+                PsiElement(identifier)('test6b')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: MultiConstructor.make2
+                ReferenceExpression: MultiConstructor
+                  PsiElement(identifier)('MultiConstructor')
+                PsiElement(.)('.')
+                PsiElement(identifier)('make2')
+              ArgumentList
+                PsiElement(()('(')
+                IntegerLiteral
+                  PsiElement(integer)('200')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"custom"')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: test7
+            PsiComment(comment)('// Test case 7: Case class with @publicInBinary and parameters')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test7
+                PsiElement(identifier)('test7')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: DataClass.make
+                ReferenceExpression: DataClass
+                  PsiElement(identifier)('DataClass')
+                PsiElement(.)('.')
+                PsiElement(identifier)('make')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"test"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                IntegerLiteral
+                  PsiElement(integer)('123')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: wpvs
+            PsiComment(comment)('// Test case 8: @publicInBinary on private[Scope] val')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: wpvs
+                PsiElement(identifier)('wpvs')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: WithPrivateValScoped
+                      CodeReferenceElement: WithPrivateValScoped
+                        PsiElement(identifier)('WithPrivateValScoped')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: test8
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test8
+                PsiElement(identifier)('test8')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: WithPrivateValScoped.getSecret
+                ReferenceExpression: WithPrivateValScoped
+                  PsiElement(identifier)('WithPrivateValScoped')
+                PsiElement(.)('.')
+                PsiElement(identifier)('getSecret')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: wpvs
+                  PsiElement(identifier)('wpvs')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: wlv
+            PsiComment(comment)('// Test case 9: @publicInBinary on private[Scope] lazy val')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: wlv
+                PsiElement(identifier)('wlv')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ScNewTemplateDefinition: <anonymous>
+              PsiElement(new)('new')
+              PsiWhiteSpace(' ')
+              ExtendsBlock
+                TemplateParents
+                  ConstructorInvocation
+                    SimpleType: WithLazyVal
+                      CodeReferenceElement: WithLazyVal
+                        PsiElement(identifier)('WithLazyVal')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: test9
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test9
+                PsiElement(identifier)('test9')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: WithLazyVal.getComputed
+                ReferenceExpression: WithLazyVal
+                  PsiElement(identifier)('WithLazyVal')
+                PsiElement(.)('.')
+                PsiElement(identifier)('getComputed')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: wlv
+                  PsiElement(identifier)('wlv')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: test10
+            PsiComment(comment)('// Test case 10: Top-level class with @publicInBinary')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test10
+                PsiElement(identifier)('test10')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: TopLevelPublicInBinary.create
+                ReferenceExpression: TopLevelPublicInBinary
+                  PsiElement(identifier)('TopLevelPublicInBinary')
+                PsiElement(.)('.')
+                PsiElement(identifier)('create')
+              ArgumentList
+                PsiElement(()('(')
+                DoubleLiteral
+                  PsiElement(double)('3.14')
+                PsiElement())(')')
+          PsiWhiteSpace('\n\n  ')
+          ScPatternDefinition: test11
+            PsiComment(comment)('// Test case 11: Trait with companion having @publicInBinary class')
+            PsiWhiteSpace('\n  ')
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test11
+                PsiElement(identifier)('test11')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Describable
+              CodeReferenceElement: Describable
+                PsiElement(identifier)('Describable')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: DescribableImpl.create
+                ReferenceExpression: DescribableImpl
+                  PsiElement(identifier)('DescribableImpl')
+                PsiElement(.)('.')
+                PsiElement(identifier)('create')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"description"')
+                PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

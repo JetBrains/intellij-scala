@@ -1,0 +1,456 @@
+import scala.compiletime.*
+
+object Inlines:
+  inline def testInline[A](): Boolean =
+    inline erasedValue[A] match
+      case _: Tuple =>
+        constValue[Tuple.Size[A & Tuple]] == 2
+      case _ =>
+        false
+end Inlines
+
+case class Foo2(x: Boolean, y: String)
+case class Foo3(x: Boolean, y: String, z: Int)
+
+object Test:
+  def main(args: Array[String]): Unit =
+    // Note: the assert's don't do anything since it's a pos test; they show intent (and pass if we run the test)
+    assert(!Inlines.testInline[Foo2]())
+    assert(!Inlines.testInline[Foo3]())
+    assert(Inlines.testInline[(Boolean, String)]())
+    assert(!Inlines.testInline[(Boolean, String, Int)]())
+end Test
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('compiletime')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScObject: Inlines
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Inlines')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: testInline
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testInline')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Boolean
+            CodeReferenceElement: Boolean
+              PsiElement(identifier)('Boolean')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: erasedValue
+                PsiElement(identifier)('erasedValue')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: A
+                    CodeReferenceElement: A
+                      PsiElement(identifier)('A')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: Tuple
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n        ')
+                BlockOfExpressions
+                  InfixExpression
+                    GenericCall
+                      ReferenceExpression: constValue
+                        PsiElement(identifier)('constValue')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          ParametrizedType: Tuple.Size[A & Tuple]
+                            SimpleType: Tuple.Size
+                              CodeReferenceElement: Tuple.Size
+                                CodeReferenceElement: Tuple
+                                  PsiElement(identifier)('Tuple')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('Size')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                InfixType: A & Tuple
+                                  SimpleType: A
+                                    CodeReferenceElement: A
+                                      PsiElement(identifier)('A')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: &
+                                    PsiElement(identifier)('&')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: Tuple
+                                    CodeReferenceElement: Tuple
+                                      PsiElement(identifier)('Tuple')
+                              PsiElement(])(']')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: ==
+                      PsiElement(identifier)('==')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+              PsiWhiteSpace('\n      ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n        ')
+                BlockOfExpressions
+                  BooleanLiteral
+                    PsiElement(false)('false')
+        PsiWhiteSpace('\n')
+        End: Inlines
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Inlines')
+  PsiWhiteSpace('\n\n')
+  ScClass: Foo2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo2')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: y
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('y')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Foo3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo3')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: x
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('x')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Boolean
+                CodeReferenceElement: Boolean
+                  PsiElement(identifier)('Boolean')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: y
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('y')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: z
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('z')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            PsiComment(comment)('// Note: the assert's don't do anything since it's a pos test; they show intent (and pass if we run the test)')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: assert
+                PsiElement(identifier)('assert')
+              ArgumentList
+                PsiElement(()('(')
+                PrefixExpression
+                  ReferenceExpression: !
+                    PsiElement(identifier)('!')
+                  MethodCall
+                    GenericCall
+                      ReferenceExpression: Inlines.testInline
+                        ReferenceExpression: Inlines
+                          PsiElement(identifier)('Inlines')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('testInline')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Foo2
+                            CodeReferenceElement: Foo2
+                              PsiElement(identifier)('Foo2')
+                        PsiElement(])(']')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: assert
+                PsiElement(identifier)('assert')
+              ArgumentList
+                PsiElement(()('(')
+                PrefixExpression
+                  ReferenceExpression: !
+                    PsiElement(identifier)('!')
+                  MethodCall
+                    GenericCall
+                      ReferenceExpression: Inlines.testInline
+                        ReferenceExpression: Inlines
+                          PsiElement(identifier)('Inlines')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('testInline')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Foo3
+                            CodeReferenceElement: Foo3
+                              PsiElement(identifier)('Foo3')
+                        PsiElement(])(']')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: assert
+                PsiElement(identifier)('assert')
+              ArgumentList
+                PsiElement(()('(')
+                MethodCall
+                  GenericCall
+                    ReferenceExpression: Inlines.testInline
+                      ReferenceExpression: Inlines
+                        PsiElement(identifier)('Inlines')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('testInline')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        TupleType: (Boolean, String)
+                          PsiElement(()('(')
+                          TypesList
+                            SimpleType: Boolean
+                              CodeReferenceElement: Boolean
+                                PsiElement(identifier)('Boolean')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: String
+                              CodeReferenceElement: String
+                                PsiElement(identifier)('String')
+                          PsiElement())(')')
+                      PsiElement(])(']')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: assert
+                PsiElement(identifier)('assert')
+              ArgumentList
+                PsiElement(()('(')
+                PrefixExpression
+                  ReferenceExpression: !
+                    PsiElement(identifier)('!')
+                  MethodCall
+                    GenericCall
+                      ReferenceExpression: Inlines.testInline
+                        ReferenceExpression: Inlines
+                          PsiElement(identifier)('Inlines')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('testInline')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          TupleType: (Boolean, String, Int)
+                            PsiElement(()('(')
+                            TypesList
+                              SimpleType: Boolean
+                                CodeReferenceElement: Boolean
+                                  PsiElement(identifier)('Boolean')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: String
+                                CodeReferenceElement: String
+                                  PsiElement(identifier)('String')
+                              PsiElement(,)(',')
+                              PsiWhiteSpace(' ')
+                              SimpleType: Int
+                                CodeReferenceElement: Int
+                                  PsiElement(identifier)('Int')
+                            PsiElement())(')')
+                        PsiElement(])(']')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                PsiElement())(')')
+        PsiWhiteSpace('\n')
+        End: Test
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')

@@ -1,0 +1,11 @@
+Document tests/pos/simpleMatchRef.scala
+(3:10..3:13) scala/Int#
+(3:16..3:19) scala/Predef.`???`().
+(4:14..4:17) scala/Any#
+(4:20..4:24) scala/Unit#
+(4:27..4:28) _empty_/Foo#foo().(x) -> 4:11
+(5:10..5:11) _empty_/Foo#X. -> 3:7
+(5:15..5:22) scala/Predef.println(+1).
+(6:10..6:11) _empty_/Y. -> 10:8
+(6:15..6:22) scala/Predef.println(+1).
+

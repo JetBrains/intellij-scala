@@ -1,0 +1,11 @@
+Document tests/pos/i6862/lib_1.scala
+(2:19..2:23) scala/Unit#
+(2:30..2:33) _empty_/Ctx# -> 1:7
+(3:15..3:18) _empty_/Ctx# -> 1:7
+(3:23..3:27) scala/Unit#
+(3:30..3:34) scala/Unit#
+(3:37..3:40) scala/Predef.`???`().
+
+Document tests/pos/i6862/test_1.scala
+(2:3..2:6) _empty_/lib_1$package.foo(). -> 2:12
+

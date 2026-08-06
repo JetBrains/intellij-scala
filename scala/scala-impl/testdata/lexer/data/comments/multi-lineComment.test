@@ -1,0 +1,16 @@
+object a{
+/*
+  val x = "str\"ing"*/
+}
+-----
+object {object}
+white space in line { }
+identifier {a}
+{ {{}
+white space in line {
+}
+BlockComment {/*
+  val x = "str\"ing"*/}
+white space in line {
+}
+} {}}

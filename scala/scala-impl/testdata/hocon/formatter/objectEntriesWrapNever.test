@@ -1,0 +1,20 @@
+<settings>
+  <option name="RIGHT_MARGIN" value="5" />
+  <HoconCodeStyleSettings>
+    <option name="OBJECT_FIELDS_WITH_COLON_WRAP" value="0" />
+    <option name="OBJECT_FIELDS_WITH_ASSIGNMENT_WRAP" value="0" />
+    <option name="INCLUDED_RESOURCE_WRAP" value="0" />
+  </HoconCodeStyleSettings>
+</settings>
+-----
+a: b
+a = b
+a += b
+include "stuff"
+include file("stuff")
+-----
+a: b
+a = b
+a += b
+include "stuff"
+include file("stuff")

@@ -1,0 +1,13 @@
+Document tests/pos/t690.scala
+(5:25..5:26) test/test#T# -> 3:8
+(6:17..6:18) test/test#Manager#T# -> 5:10
+(8:21..8:28) test/test#Manager# -> 4:9
+(9:33..9:34) test/test#T# -> 3:8
+(10:26..10:27) test/test#M0.T# -> 9:19
+(10:37..10:40) test/test#Manager#foo(). -> 6:9
+(10:41..10:42) test/test#M0.foo().(t) -> 10:22
+(12:11..12:12) test/test#T# -> 3:8
+(13:3..13:5) test/test#M0. -> 8:10
+(13:6..13:9) test/test#M0.foo(). -> 10:18
+(13:10..13:11) test/test#t(). -> 12:7
+

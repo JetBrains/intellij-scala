@@ -1,0 +1,11 @@
+class a {
+  <start>val a = 2
+  x+y<braces>
+}
+-----
+class a {
+  {
+    val a = 2
+    x + y
+  }
+}

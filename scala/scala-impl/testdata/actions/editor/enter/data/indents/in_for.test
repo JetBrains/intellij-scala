@@ -1,0 +1,8 @@
+for {
+  i <- seq<caret>
+}
+-----
+for {
+  i <- seq
+  <caret>
+}

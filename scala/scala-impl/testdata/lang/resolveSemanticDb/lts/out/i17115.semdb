@@ -1,0 +1,40 @@
+Document tests/pos/i17115.scala
+(1:14..1:19) scala/Tuple#
+(1:30..1:33) scala/Int#
+(2:14..2:15) _empty_/A# -> 1:7
+(2:16..2:26) scala/Tuple$package.EmptyTuple#
+(3:24..3:37) scala/NonEmptyTuple#
+(3:45..3:46) _empty_/A# -> 1:7
+(3:47..3:52) scala/Tuple.
+(3:53..3:57) scala/Tuple.Tail#
+(3:58..3:61) _empty_/i17115$package.inductive#[Tup] -> 3:17
+(3:58..3:61) _empty_/i17115$package.inductive().[Tup] -> 3:17
+(3:66..3:67) _empty_/A# -> 1:7
+(3:68..3:71) _empty_/i17115$package.inductive#[Tup] -> 3:17
+(3:88..3:94) scala/Predef.summon().
+(3:95..3:96) _empty_/A# -> 1:7
+(3:97..3:102) scala/Tuple.
+(3:103..3:107) scala/Tuple.Tail#
+(3:108..3:111) _empty_/i17115$package.inductive#[Tup] -> 3:17
+(3:115..3:116) _empty_/A#x. -> 1:27
+(3:117..3:118) scala/Int#`+`(+4).
+(6:18..6:23) scala/Array#
+(6:24..6:30) scala/Predef.String#
+(6:34..6:38) scala/Unit#
+(7:5..7:12) scala/Predef.println(+1).
+(7:13..7:19) scala/Predef.summon().
+(7:20..7:21) _empty_/A# -> 1:7
+(7:23..7:29) scala/Predef.String#
+(7:31..7:37) scala/Predef.String#
+(7:39..7:45) scala/Predef.String#
+(7:49..7:50) _empty_/i17115$package.inductive#x. -> 3:84
+(8:5..8:12) scala/Predef.println(+1).
+(8:13..8:19) scala/Predef.summon().
+(8:20..8:21) _empty_/A# -> 1:7
+(8:23..8:29) scala/Predef.String#
+(8:31..8:37) scala/Predef.String#
+(8:39..8:45) scala/Predef.String#
+(8:47..8:53) scala/Predef.String#
+(8:57..8:58) _empty_/i17115$package.inductive#x. -> 3:84
+(9:5..9:9) _empty_/Test. -> 5:8
+

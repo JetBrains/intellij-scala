@@ -1,0 +1,14 @@
+class s {
+  def foo = {
+    <selection>z</selection>(44)
+  }
+  def z(i: Int) = 33
+}
+------
+class s {
+  def foo = {
+    val value: Int => Int = z _
+    value(44)
+  }
+  def z(i: Int) = 33
+}

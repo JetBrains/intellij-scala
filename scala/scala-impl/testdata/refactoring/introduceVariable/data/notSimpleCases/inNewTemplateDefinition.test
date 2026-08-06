@@ -1,0 +1,9 @@
+class A(i: Int, j: Int) {
+  def foo = new A(<selection>0</selection>, 1)
+}
+------
+class A(i: Int, j: Int) {
+  private val value: Int = 0
+
+  def foo = new A(value, 1)
+}

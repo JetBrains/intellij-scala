@@ -1,0 +1,7 @@
+Document tests/pos/inline-named-typeargs.scala
+(3:55..3:59) scala/package.List#
+(3:60..3:64) _empty_/t1.construct().[Elem] -> 3:36
+(3:68..3:72) _empty_/t1.construct().[Coll] -> 3:42
+(3:73..3:77) _empty_/t1.construct().[Elem] -> 3:36
+(3:81..3:84) scala/Predef.`???`().
+

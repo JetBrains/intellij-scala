@@ -1,0 +1,4 @@
+Document tests/pos/t5508-min-okay2.scala
+(2:27..2:30) scala/Int#
+(3:24..3:27) _empty_/TopTrait#_st. -> 2:21
+

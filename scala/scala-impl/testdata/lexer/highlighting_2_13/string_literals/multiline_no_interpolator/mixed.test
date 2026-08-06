@@ -1,0 +1,415 @@
+scala.util.Properties.versionString
+/////////////////////
+"""\"""
+"""\\"""
+"""\\\"""
+"""\${}"""
+"""\\${}"""
+"""\\\${}"""
+/////////////////////
+"""\d\g\h\j"""
+"""\t\n\r\a"""
+////////////////
+"""\u"""
+"""\uu"""
+"""\uuu"""
+"""\u002"""
+"""\\u0025"""
+"""\\uu0025"""
+////////////////
+""" \u002"""
+"""\u002 """
+////////////////
+"""\u002 \"""
+"""\ \u002"""
+"""\u002 \u"""
+"""\u002 \u002"""
+"""\uu002"""
+"""\uuu002"""
+////////////////
+"""\u0025 \u002"""
+"""\u0025 ${""} \u002"""
+"""${""} \u0025 \u002"""
+"""\u0025 \u002 ${""}"""
+/////////////////////
+"""\u0025"""
+"""\uu0025"""
+"""\uuu0025"""
+"""\u0025666"""
+"""\uu0025666"""
+"""\uuu0025666"""
+"""\u0025\u0025\u0025666"""
+"""\uu0025\uu0025\uu0025666"""
+"""\uuu0025\uuu0025\uuu0025666"""
+"""uu\uuu0025uu\uuu0025uu\uuu0025666"""
+// backslash
+"""\"""
+"""\ \ \"""
+"""\\"""
+"""\\\"""
+"""\\\\"""
+"""\f\t\n\r"""
+"""\f\t\n\r\"""
+// backslash with wrong escaped if it was ordinary interpolator
+"""\q\w\e"""
+"""\q\w\e\t\n\r\f"""
+//backslashes with injections
+"""\${42}\${42}\"""
+"""\ ${42} \ ${42} \"""
+"""\t${42}\t${42}\r${42}"""
+"""outer \a ${s"inner \a inner"} \a outer ${s"inner \a inner"} \a outer"""
+-----
+identifier {scala}
+. {.}
+identifier {util}
+. {.}
+identifier {Properties}
+. {.}
+identifier {versionString}
+white space in line {
+}
+comment {/////////////////////}
+white space in line {
+}
+multiline string {"""}
+multiline string {\"}
+multiline string {""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\\}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\\}
+multiline string {\"}
+multiline string {""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\$}
+multiline string {{}"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\\}
+multiline string {${}"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\\}
+multiline string {\$}
+multiline string {{}"""}
+white space in line {
+}
+comment {/////////////////////}
+white space in line {
+}
+multiline string {"""}
+multiline string {\d}
+multiline string {\g}
+multiline string {\h}
+multiline string {\j}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\t}
+multiline string {\n}
+multiline string {\r}
+multiline string {\a}
+multiline string {"""}
+white space in line {
+}
+comment {////////////////}
+white space in line {
+}
+multiline string {"""}
+multiline string {\u}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\uu}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\uuu}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\u002}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\\}
+multiline string {u0025"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\\}
+multiline string {uu0025"""}
+white space in line {
+}
+comment {////////////////}
+white space in line {
+}
+multiline string {""" }
+multiline string {\u002}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\u002}
+multiline string { """}
+white space in line {
+}
+comment {////////////////}
+white space in line {
+}
+multiline string {"""}
+multiline string {\u002}
+multiline string { }
+multiline string {\"}
+multiline string {""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\ }
+multiline string {\u002}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\u002}
+multiline string { }
+multiline string {\u}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\u002}
+multiline string { }
+multiline string {\u002}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\uu002}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\uuu002}
+multiline string {"""}
+white space in line {
+}
+comment {////////////////}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+multiline string { }
+multiline string {\u002}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+multiline string { ${""} }
+multiline string {\u002}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""${""} }
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+multiline string { }
+multiline string {\u002}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+multiline string { }
+multiline string {\u002}
+multiline string { ${""}"""}
+white space in line {
+}
+comment {/////////////////////}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+multiline string {666"""}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+multiline string {666"""}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+multiline string {666"""}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+VALID_STRING_ESCAPE_TOKEN {\u0025}
+multiline string {666"""}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+VALID_STRING_ESCAPE_TOKEN {\uu0025}
+multiline string {666"""}
+white space in line {
+}
+multiline string {"""}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+multiline string {666"""}
+white space in line {
+}
+multiline string {"""uu}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+multiline string {uu}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+multiline string {uu}
+VALID_STRING_ESCAPE_TOKEN {\uuu0025}
+multiline string {666"""}
+white space in line {
+}
+comment {// backslash}
+white space in line {
+}
+multiline string {"""}
+multiline string {\"}
+multiline string {""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\ }
+multiline string {\ }
+multiline string {\"}
+multiline string {""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\\}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\\}
+multiline string {\"}
+multiline string {""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\\}
+multiline string {\\}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\f}
+multiline string {\t}
+multiline string {\n}
+multiline string {\r}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\f}
+multiline string {\t}
+multiline string {\n}
+multiline string {\r}
+multiline string {\"}
+multiline string {""}
+white space in line {
+}
+comment {// backslash with wrong escaped if it was ordinary interpolator}
+white space in line {
+}
+multiline string {"""}
+multiline string {\q}
+multiline string {\w}
+multiline string {\e}
+multiline string {"""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\q}
+multiline string {\w}
+multiline string {\e}
+multiline string {\t}
+multiline string {\n}
+multiline string {\r}
+multiline string {\f}
+multiline string {"""}
+white space in line {
+}
+comment {//backslashes with injections}
+white space in line {
+}
+multiline string {"""}
+multiline string {\$}
+multiline string {{42}}
+multiline string {\$}
+multiline string {{42}}
+multiline string {\"}
+multiline string {""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\ }
+multiline string {${42} }
+multiline string {\ }
+multiline string {${42} }
+multiline string {\"}
+multiline string {""}
+white space in line {
+}
+multiline string {"""}
+multiline string {\t}
+multiline string {${42}}
+multiline string {\t}
+multiline string {${42}}
+multiline string {\r}
+multiline string {${42}"""}
+white space in line {
+}
+multiline string {"""outer }
+multiline string {\a}
+multiline string { ${s"inner }
+multiline string {\a}
+multiline string { inner"} }
+multiline string {\a}
+multiline string { outer ${s"inner }
+multiline string {\a}
+multiline string { inner"} }
+multiline string {\a}
+multiline string { outer"""}

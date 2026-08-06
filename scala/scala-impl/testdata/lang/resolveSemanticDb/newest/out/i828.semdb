@@ -1,0 +1,5 @@
+Document tests/pos/i828.scala
+(2:10..2:13) scala/Int#
+(2:21..2:33) scala/Any#asInstanceOf().
+(2:34..2:41) scala/Nothing#
+

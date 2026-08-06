@@ -1,0 +1,17 @@
+<html>
+<body>
+Reports usage of the <code>?</code> identifier in kind-projector syntax.
+<p>Teh <code>?</code> identifier is going to be used for wildcard arguments in types in Scala 3 (see <a href="https://dotty.epfl.ch/docs/reference/changed-features/wildcards.html">Wildcard Arguments in Types</a>).
+    Its usage in kind-projector type lambdas is deprecated and is going to be superseeded by <code>*</code>.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  List[?]
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  List[*]
+</code></pre>
+<!-- tooltip end -->
+<p><small>This inspection runs when the <b>Kind Projector</b> plugin is enabled.</small></p>
+</body>
+</html>

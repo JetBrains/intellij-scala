@@ -1,0 +1,13 @@
+Document tests/pos/i25442.scala
+(3:23..3:26) scala/Int#
+(6:17..6:18) protectedCtorsPos/A# -> 3:7
+(9:17..9:18) protectedCtorsPos/A# -> 3:7
+(10:23..10:24) protectedCtorsPos/A# -> 3:7
+(14:23..14:26) scala/Int#
+(17:12..17:13) protectedCtorsPos/D# -> 14:7
+(17:23..17:24) protectedCtorsPos/D# -> 14:7
+(17:25..17:26) protectedCtorsPos/E#d. -> 17:9
+(17:27..17:35) scala/Any#hashCode().
+(18:17..18:18) protectedCtorsPos/E# -> 17:7
+(18:23..18:24) protectedCtorsPos/D# -> 14:7
+

@@ -1,0 +1,6 @@
+case class Person(name: String, age: Int)
+
+p match {
+  case Seq(person: Person) => "a person"
+  case _ => "other"
+}

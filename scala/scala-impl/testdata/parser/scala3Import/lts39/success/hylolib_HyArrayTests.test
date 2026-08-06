@@ -1,0 +1,247 @@
+import hylo.*
+import hylo.given
+
+class HyArrayTests extends munit.FunSuite:
+
+  test("reserveCapacity"):
+    var a = HyArray[Int]()
+    a = a.append(1)
+    a = a.append(2)
+
+    a = a.reserveCapacity(10)
+    assert(a.capacity >= 10)
+    assertEquals(a.count, 2)
+    assertEquals(a.at(0), 1)
+    assertEquals(a.at(1), 2)
+
+end HyArrayTests
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: hylo
+        PsiElement(identifier)('hylo')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: hylo
+        PsiElement(identifier)('hylo')
+      PsiElement(.)('.')
+      ImportSelectors
+        ImportSelector
+          PsiElement(given)('given')
+  PsiWhiteSpace('\n\n')
+  ScClass: HyArrayTests
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HyArrayTests')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: munit.FunSuite
+            CodeReferenceElement: munit.FunSuite
+              CodeReferenceElement: munit
+                PsiElement(identifier)('munit')
+              PsiElement(.)('.')
+              PsiElement(identifier)('FunSuite')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        MethodCall
+          MethodCall
+            ReferenceExpression: test
+              PsiElement(identifier)('test')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"reserveCapacity"')
+              PsiElement())(')')
+          ArgumentList
+            BlockExpression
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScVariableDefinition: a
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(var)('var')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: a
+                    PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  GenericCall
+                    ReferenceExpression: HyArray
+                      PsiElement(identifier)('HyArray')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                  ArgumentList
+                    PsiElement(()('(')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              AssignStatement
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: a.append
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('append')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('1')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              AssignStatement
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: a.append
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('append')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('2')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n    ')
+              AssignStatement
+                ReferenceExpression: a
+                  PsiElement(identifier)('a')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: a.reserveCapacity
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('reserveCapacity')
+                  ArgumentList
+                    PsiElement(()('(')
+                    IntegerLiteral
+                      PsiElement(integer)('10')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: assert
+                  PsiElement(identifier)('assert')
+                ArgumentList
+                  PsiElement(()('(')
+                  InfixExpression
+                    ReferenceExpression: a.capacity
+                      ReferenceExpression: a
+                        PsiElement(identifier)('a')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('capacity')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: >=
+                      PsiElement(identifier)('>=')
+                    PsiWhiteSpace(' ')
+                    IntegerLiteral
+                      PsiElement(integer)('10')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: assertEquals
+                  PsiElement(identifier)('assertEquals')
+                ArgumentList
+                  PsiElement(()('(')
+                  ReferenceExpression: a.count
+                    ReferenceExpression: a
+                      PsiElement(identifier)('a')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('count')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: assertEquals
+                  PsiElement(identifier)('assertEquals')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: a.at
+                      ReferenceExpression: a
+                        PsiElement(identifier)('a')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('at')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('0')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: assertEquals
+                  PsiElement(identifier)('assertEquals')
+                ArgumentList
+                  PsiElement(()('(')
+                  MethodCall
+                    ReferenceExpression: a.at
+                      ReferenceExpression: a
+                        PsiElement(identifier)('a')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('at')
+                    ArgumentList
+                      PsiElement(()('(')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                      PsiElement())(')')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  IntegerLiteral
+                    PsiElement(integer)('2')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n\n')
+        End: HyArrayTests
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('HyArrayTests')

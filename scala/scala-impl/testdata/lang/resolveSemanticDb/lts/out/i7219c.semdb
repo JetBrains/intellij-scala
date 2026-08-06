@@ -1,0 +1,19 @@
+Document tests/pos/i7219c.scala
+(6:20..6:26) scala/Predef.String#
+(8:10..8:16) _empty_/Foo.MyEnum.
+(12:15..12:18) _empty_/Foo. -> 3:8
+(12:19..12:23) _empty_/Foo.Blue#
+(15:8..15:11) _empty_/Foo. -> 3:8
+(17:12..17:18) _empty_/Foo.MyEnum# -> 4:8
+(17:21..17:24) scala/package.Seq#
+(17:25..17:28) _empty_/Bar. -> 11:8
+(17:29..17:33) _empty_/Bar.Blue# -> 12:8
+(17:37..17:38) _empty_/i7219c$package.foo().(a) -> 17:9
+(18:8..18:11) _empty_/Foo.Red.
+(18:15..18:18) scala/package.Seq.
+(18:19..18:24) scala/collection/SeqFactory.Delegate#empty().
+(19:11..19:14) _empty_/Foo. -> 3:8
+(19:15..19:19) _empty_/Foo.Blue#
+(19:23..19:26) scala/package.Seq.
+(19:27..19:28) local0 -> 19:8
+

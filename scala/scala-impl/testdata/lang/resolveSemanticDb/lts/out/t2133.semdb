@@ -1,0 +1,8 @@
+Document tests/pos/t2133.scala
+(13:19..13:25) scala/AnyRef#
+(13:31..13:34) _empty_/Foo# -> 1:7
+(13:40..13:44) _empty_/Foo2# -> 7:7
+(14:10..14:13) _empty_/Foo2#bip. -> 8:10
+(15:10..15:13) _empty_/Foo#bar. -> 2:10
+(17:14..17:16) _empty_/Foo2#bip.fn(). -> 9:9
+

@@ -1,0 +1,24 @@
+Document tests/pos/i0268.scala
+(4:26..4:29) scala/Int#
+(4:39..4:43) typespatmat/Box2# -> 3:14
+(4:44..4:47) scala/Int#
+(5:26..5:32) scala/Predef.String#
+(6:39..6:43) typespatmat/Box2# -> 3:14
+(6:44..6:50) scala/Predef.String#
+(7:28..7:29) typespatmat/Gen#[T] -> 7:22
+(7:39..7:43) typespatmat/Box2# -> 3:14
+(7:44..7:45) typespatmat/Gen#[T] -> 7:22
+(10:21..10:25) typespatmat/Box2# -> 3:14
+(10:26..10:27) typespatmat/Box2.double2().[T] -> 10:15
+(10:31..10:32) typespatmat/Box2.double2().[T] -> 10:15
+(10:35..10:36) typespatmat/Box2.double2().(x) -> 10:18
+(11:10..11:14) typespatmat/Int2.
+(11:21..11:22) local0 -> 11:15
+(11:23..11:24) scala/Int#`*`(+3).
+(12:10..12:14) typespatmat/Str2.
+(12:21..12:22) local1 -> 12:15
+(12:23..12:24) java/lang/String#`+`().
+(12:25..12:26) local1 -> 12:15
+(13:10..13:13) typespatmat/Gen.
+(13:20..13:21) local2 -> 13:14
+

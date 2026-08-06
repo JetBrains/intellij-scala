@@ -1,0 +1,36 @@
+Document tests/pos/i19198.scala
+(1:8..1:16) scala/deriving/
+(1:17..1:23) scala/deriving/Mirror#
+(1:17..1:23) scala/deriving/Mirror.
+(2:8..2:19) scala/compiletime/
+(2:20..2:32) scala/compiletime/package$package.summonInline().
+(4:26..4:39) scala/NonEmptyTuple#
+(4:42..4:46) scala/Unit#
+(5:3..5:15) scala/compiletime/package$package.summonInline().
+(5:16..5:22) scala/deriving/Mirror.
+(5:23..5:25) scala/deriving/Mirror.Of#
+(5:26..5:31) scala/Tuple.
+(5:32..5:36) scala/Tuple.Head#
+(5:37..5:40) _empty_/i19198$package.check1().[Tps] -> 4:19
+(7:26..7:39) scala/NonEmptyTuple#
+(7:42..7:46) scala/Unit#
+(8:19..8:24) scala/Tuple.
+(8:25..8:29) scala/Tuple.Head#
+(8:30..8:33) _empty_/i19198$package.check2().[Tps] -> 7:19
+(9:3..9:15) scala/compiletime/package$package.summonInline().
+(9:16..9:22) scala/deriving/Mirror.
+(9:23..9:25) scala/deriving/Mirror.Of#
+(9:26..9:34) local0 -> 8:8
+(11:2..11:6) scala/main#
+(11:17..11:21) scala/Unit#
+(12:3..12:9) _empty_/i19198$package.check1(). -> 4:12
+(12:10..12:16) scala/Option#
+(12:17..12:20) scala/Int#
+(12:22..12:24) scala/`*:`#
+(12:25..12:35) scala/Tuple$package.EmptyTuple#
+(13:3..13:9) _empty_/i19198$package.check2(). -> 7:12
+(13:10..13:16) scala/Option#
+(13:17..13:20) scala/Int#
+(13:22..13:24) scala/`*:`#
+(13:25..13:35) scala/Tuple$package.EmptyTuple#
+

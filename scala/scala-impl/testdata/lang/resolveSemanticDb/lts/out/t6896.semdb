@@ -1,0 +1,12 @@
+Document tests/pos/t6896.scala
+(2:18..2:23) scala/Array#
+(2:24..2:30) scala/Predef.String#
+(2:34..2:38) scala/Unit#
+(3:5..3:12) scala/Predef.println(+1).
+(5:15..5:18) scala/Int#
+(5:23..5:26) scala/Int#
+(5:30..5:33) scala/Predef.`???`().
+(6:15..6:21) scala/Predef.String#
+(6:26..6:32) scala/Predef.String#
+(6:36..6:39) scala/Predef.`???`().
+
