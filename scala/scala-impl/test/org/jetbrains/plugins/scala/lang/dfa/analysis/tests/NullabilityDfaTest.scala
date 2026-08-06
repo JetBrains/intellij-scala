@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages.{ConditionAlwaysFalse, ConditionAlwaysTrue}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
-import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaNullAccessProblem.{npeOnInvocation, nullableToUnannotatedParam}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaNullAccessProblem.{npeOnInvocation, nullableToNotNullParam, nullableToUnannotatedParam}
 import org.junit.Test
 
 class NullabilityDfaTest extends ScalaDfaTestBase {
@@ -315,6 +315,45 @@ class NullabilityDfaTest extends ScalaDfaTestBase {
       |""".stripMargin
   })(
     "x" -> nullableToUnannotatedParam.alwaysMessage
+  )
+
+  @Test
+  def test_nullable_array_parameter_SCL_25159(): Unit = test(codeFromMethodBody() {
+    """
+      |class Wrapper(@Nullable param: String, @Nullable arrayParam: Array[Int])
+      |new Wrapper(null, null)
+      |""".stripMargin
+  })()
+
+  @Test
+  def test_not_null_array_parameter(): Unit = test(codeFromMethodBody() {
+    """
+      |class Wrapper(@NotNull arrayParam: Array[Int])
+      |new Wrapper(null)
+      |""".stripMargin
+  })(
+    "null" -> nullableToNotNullParam.alwaysMessage,
+  )
+
+  @Test
+  def test_nullable_array_return_type(): Unit = test(codeFromMethodBody() {
+    """
+      |@Nullable def getArray(): Array[Int] = null
+      |getArray().toString()
+      |""".stripMargin
+  })(
+    "toString" -> npeOnInvocation.sometimesMessage,
+  )
+
+  @Test
+  def test_unannotated_array_parameter(): Unit = test(codeFromMethodBody() {
+    """
+      |class Wrapper(param: String, arrayParam: Array[Int])
+      |new Wrapper(null, null)
+      |""".stripMargin
+  })(
+    "null" -> nullableToUnannotatedParam.alwaysMessage,
+    "null" -> nullableToUnannotatedParam.alwaysMessage,
   )
 
   @Test
