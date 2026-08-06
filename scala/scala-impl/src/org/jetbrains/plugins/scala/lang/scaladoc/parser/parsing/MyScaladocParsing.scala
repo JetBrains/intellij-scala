@@ -7,7 +7,7 @@ import com.intellij.psi.xml.XmlTokenType
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderFactory}
 import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaParserBundle}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
@@ -49,7 +49,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
   /** intended to be overridden in case a user of this class wants
    * another implementation of `ScalaPsiBuilder` */
   def mkScalaPsiBuilder(delegate: PsiBuilder, isScala3: Boolean): ScalaPsiBuilder =
-    new ScalaPsiBuilderImpl(delegate, isScala3)
+    ScalaPsiBuilderFactory.create(delegate, isScala3)
 
   def parse(root: IElementType): Unit = {
     val rootMarker = builder.mark()

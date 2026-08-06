@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaModifier, ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderFactory}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClauses
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -1492,7 +1492,7 @@ object ScalaPsiElementFactory {
       textFinal
     )
 
-    val scalaPsiBuilder = new ScalaPsiBuilderImpl(delegate, features.isScala3, Some(features))
+    val scalaPsiBuilder = ScalaPsiBuilderFactory.create(delegate, features.isScala3, Some(features))
     val marker = scalaPsiBuilder.mark()
     parse(scalaPsiBuilder)
     advanceLexer(scalaPsiBuilder)(marker, parserDefinition.getFileNodeType)

@@ -3,21 +3,28 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
-import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.lang.parser.{IndentationWidth, PsiBuilderExt, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl.IndentationRegionHolder
-import org.jetbrains.plugins.scala.project.ProjectPsiFileExt.enableFeaturesCheckInTests
-import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
+import org.jetbrains.plugins.scala.project.{ScalaFeatures, ScalaLanguageLevel}
 
 import scala.collection.mutable
 
 // TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
 //  update all ScalaPsiBuilderImpl instantiations passing proper isScala3 value
-class ScalaPsiBuilderImpl(
-  delegate:              PsiBuilder,
-  override val isScala3: Boolean,
-  presetFeatures:        Option[ScalaFeatures] = None
+/**
+ * Do not create via constructor, use ScalaPsiBuilderFactory instead.
+ *
+ * `computeFeatures` and `computeIsStrictMode` are by-name: they are evaluated lazily, on the first access
+ *
+ * @see [[org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderFactory]]
+ */
+class ScalaPsiBuilderImpl @ApiStatus.Obsolete(
+  delegate:                    PsiBuilder,
+  override val isScala3:       Boolean,
+  computeFeatures:             => ScalaFeatures,
+  computeIsStrictMode:         => Boolean = false,
+  allowTrailingCommaByDefault: Boolean = false,
 ) extends PsiBuilderAdapter(delegate)
     with ScalaPsiBuilder {
 
@@ -30,45 +37,20 @@ class ScalaPsiBuilderImpl(
 
   private var inQuotedPattern: Int = 0
 
-  private lazy val containingFile = Option {
-    myDelegate.getUserData(CONTAINING_FILE_KEY)
-  }
-
   override def skipExternalToken(): Boolean = false
 
   override final lazy val isMetaEnabled: Boolean = features.hasMetaEnabled
 
-  override final lazy val isStrictMode: Boolean =
-    containingFile.exists(_.isCompilerStrictMode)
+  override final lazy val isStrictMode: Boolean = computeIsStrictMode
 
-  override final lazy val features: ScalaFeatures = presetFeatures.getOrElse {
-    def featuresByVersion: ScalaFeatures = {
-      val version = if (isScala3) ScalaVersion.Latest.Scala_3_5 else ScalaVersion.Latest.Scala_2_13
-      ScalaFeatures.onlyByVersion(version)
-    }
-
-    containingFile match {
-      case Some(file) =>
-        val fileModule = file.module
-        fileModule match {
-          case Some(module) =>
-            module.features
-          case None         =>
-            val featuresFromPusher = ScalaFeaturePusher.getFeatures(file)
-            featuresFromPusher.getOrElse(featuresByVersion)
-        }
-      case None =>
-        featuresByVersion
-    }
-  }
+  override final lazy val features: ScalaFeatures = computeFeatures
 
   final lazy val scalaLanguageLevel: ScalaLanguageLevel = features.languageLevel
 
   final private lazy val isAtLeast2_12: Boolean = scalaLanguageLevel >= ScalaLanguageLevel.Scala_2_12
 
   override final def isTrailingComma: Boolean = getTokenType match {
-    case `tCOMMA` => features.hasTrailingCommasEnabled ||
-      (isUnitTestMode && !enableFeaturesCheckInTests)
+    case `tCOMMA` => features.hasTrailingCommasEnabled || allowTrailingCommaByDefault
     case _ => false
   }
 
@@ -192,7 +174,8 @@ class ScalaPsiBuilderImpl(
   }
 
   override def popIndentationRegion(region: IndentationRegion): Unit = {
-    val popped :: rest = indentationRegionStack: @unchecked
+    val popped = indentationRegionStack.head
+    val rest = indentationRegionStack.tail
     assert(popped.region eq region)
     indentationRegionStack = rest
 

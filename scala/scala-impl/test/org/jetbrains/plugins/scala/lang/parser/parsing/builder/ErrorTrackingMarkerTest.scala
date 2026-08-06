@@ -18,7 +18,7 @@ class ErrorTrackingMarkerTest extends SimpleTestCase {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: ScalaPsiBuilderImpl = {
       val delegate = PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder, new ScalaLexer(false), ScalaLanguage.INSTANCE, "")
-      new ScalaPsiBuilderImpl(delegate, isScala3 = false)
+      ScalaPsiBuilderFactory.create(delegate, isScala3 = false)
     }
 
     val doneMarker = builder.mark()
