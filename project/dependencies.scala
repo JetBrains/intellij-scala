@@ -151,7 +151,7 @@ object Dependencies {
   def junitJupiterParams(version: String): ModuleID = "org.junit.jupiter" % "junit-jupiter-params" % version
   def junitVintageEngine(version: String): ModuleID = "org.junit.vintage" % "junit-vintage-engine" % version
 
-  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.3"
+  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.6.0"
 
   // Transitive dependencies of scalastyle. The versions are deliberately outdated, to keep compatibility with scalastyle.
   val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
