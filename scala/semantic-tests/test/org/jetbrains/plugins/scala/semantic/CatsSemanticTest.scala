@@ -989,7 +989,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.SemilatticeFunctions
     //cats.kernel.SemilatticeInstances
     cats.kernel.TryMonoid
-    //cats.kernel.TrySemigroup
+    cats.kernel.TrySemigroup
     //cats.kernel.UnboundedEnumerable
     //cats.kernel.UpperBounded
     //cats.kernel.UpperBoundedEnumerable
