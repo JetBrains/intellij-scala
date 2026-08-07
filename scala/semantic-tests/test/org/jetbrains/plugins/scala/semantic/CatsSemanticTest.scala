@@ -730,7 +730,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.effect.unsafe.WorkStealingThreadPool
     //cats.effect.unsafe.WorkerThread
     cats.effect.unsafe.implicits
-    //cats.effect.unsafe.metrics.ComputePoolSampler
+    cats.effect.unsafe.metrics.ComputePoolSampler
     cats.effect.unsafe.metrics.ComputePoolSamplerMBean
     cats.effect.unsafe.metrics.CpuStarvation
     cats.effect.unsafe.metrics.CpuStarvationMBean
@@ -1552,7 +1552,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.syntax.ListSyntaxBinCompat0
     //cats.syntax.MonadErrorOps
     //cats.syntax.MonadErrorRethrowOps
-    //cats.syntax.MonadErrorSyntax
+    cats.syntax.MonadErrorSyntax
     //cats.syntax.MonadIdOps
     //cats.syntax.MonadOps
     cats.syntax.MonadSyntax

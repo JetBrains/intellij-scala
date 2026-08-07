@@ -344,7 +344,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.matchers.LazyArg
     org.scalatest.matchers.LazyMessage
     //org.scalatest.matchers.MatchFailed
-    //org.scalatest.matchers.MatchPatternHelper
+    org.scalatest.matchers.MatchPatternHelper
     //org.scalatest.matchers.MatchPatternMacro
     //org.scalatest.matchers.MatchResult
     //org.scalatest.matchers.MatchSucceeded
@@ -424,8 +424,8 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.matchers.dsl.ResultOfOnlyApplication
     //org.scalatest.matchers.dsl.ResultOfRegexWordApplication
     //org.scalatest.matchers.dsl.ResultOfSizeWordApplication
-    //org.scalatest.matchers.dsl.ResultOfTheSameElementsAsApplication
-    //org.scalatest.matchers.dsl.ResultOfTheSameElementsInOrderAsApplication
+    org.scalatest.matchers.dsl.ResultOfTheSameElementsAsApplication
+    org.scalatest.matchers.dsl.ResultOfTheSameElementsInOrderAsApplication
     org.scalatest.matchers.dsl.ResultOfTheSameInstanceAsApplication
     //org.scalatest.matchers.dsl.ResultOfTheTypeInvocation
     org.scalatest.matchers.dsl.ResultOfThrownByApplication
