@@ -109,7 +109,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.Rerunner
     org.scalatest.ResourcefulReporter
     //org.scalatest.Resources
-    //org.scalatest.Retries
+    org.scalatest.Retries
     //org.scalatest.RunningTest
     //org.scalatest.ScalaTestStatefulStatus
     org.scalatest.ScalaTestVersions
@@ -635,7 +635,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.tools.TestSpecificReporter
     //org.scalatest.tools.TestsfileElement
     //org.scalatest.tools.TextElement
-    //org.scalatest.tools.Utils
+    org.scalatest.tools.Utils
     //org.scalatest.tools.XmlReporter
     //org.scalatest.tools.XmlReporterConfiguration
     //org.scalatest.tools.XmlSocketReporter

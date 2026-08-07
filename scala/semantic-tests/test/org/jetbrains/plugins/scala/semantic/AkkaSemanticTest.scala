@@ -49,7 +49,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.ActorSystem
     //akka.actor.ActorSystemImpl
     //akka.actor.Address
-    //akka.actor.AddressFromURIString
+    akka.actor.AddressFromURIString
     //akka.actor.AddressTerminated
     akka.actor.AllDeadLetters
     //akka.actor.AllForOneStrategy
@@ -541,7 +541,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.event.LoggingAdapter
     //akka.event.LoggingBus
     akka.event.LoggingFilter
-    //akka.event.LoggingFilterWithMarker
+    akka.event.LoggingFilterWithMarker
     akka.event.LoggingFilterWithMarkerWrapper
     //akka.event.LoggingReceive
     //akka.event.LookupClassification
