@@ -173,7 +173,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val keyword = if (isGiven) "given " else "def "
     val name = if (isAnonymous) "" else normalized(f.name)
     val signature = textOf(f.signatureClauses, inPrivateConstructor = false, inCaseClass = false)
-    val tpe = if (f.isConstructor) "" else (if (signature.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && signature.isEmpty) "" else ": ") + textOf(f.returnType)
+    val tpe = if (f.isConstructor) "" else (if (signature.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && signature.isEmpty) "" else ": ") +
+      textOf(if (f.returnTypeElement.isDefined) f.returnType else f.returnType.map(_.removeAliasDefinitionsIn(f)))
     val rhs = f match {
       case ScFunctionDefinition.withBody(body) =>
         val rhs = textOfStatement(normalized(body), indent + "  ")
@@ -227,9 +228,11 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         "while (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " +
           e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("")
       case mi: MethodInvocation =>
+        val explicitTypeArguments = mi.getEffectiveInvokedExpr.is[ScGenericCall]
         val targs = mi match {
           case TypeArgumentOwner.CallWithInferredTypeArguments(hints) => hints match {
-            case Seq(TypeArgumentOwner.TypeArgumentHint.Bracketed(anchor, typeArguments)) => "[" + typeArguments.map(textOf(_)).mkString(", ") + "]"
+            case Seq(TypeArgumentOwner.TypeArgumentHint.Bracketed(anchor, typeArguments)) =>
+              "[" + typeArguments.map(t => textOf(if (explicitTypeArguments) t else t.removeAliasDefinitionsIn(mi))).mkString(", ") + "]"
             case _ => ""
           }
           case _ => ""
@@ -273,7 +276,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         case Some(r) if r.element != r.getActualElement && r.element.name == "apply" =>
           ".apply"
         case _ => ""
-      }) + inferredTypeArgumentsFor(r).map(_.map(textOf(_)).mkString("[", ", ", "]")).getOrElse("") +
+      }) + inferredTypeArgumentsFor(r).map(_.map(t => textOf(t.removeAliasDefinitionsIn(r))).mkString("[", ", ", "]")).getOrElse("") +
         (if (!r.getParent.is[ScMethodCall, ScGenericCall] && r.resolve().is[PsiMethod] && !r.resolve().is[ScMember]) "()" else "")
       case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
@@ -288,9 +291,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
             sb.toString
           } + "}")
       case e: ScFunctionExpr =>
-        "(" + e.parameters.map(p => p.name + ": " + textOf(p.`type`().get)).mkString(", ") + ") => " + e.result.map(textOfExpression(_, indent)).getOrElse("")
+        "(" + e.parameters.map(p => p.name + ": " + textOf(if (p.typeElement.isDefined) p.`type`().get else p.`type`().get.removeAliasDefinitionsIn(e))).mkString(", ") + ") => " + e.result.map(textOfExpression(_, indent)).getOrElse("")
       case e: ScTuple =>
-        "scala.Tuple" + e.exprs.length + ".apply[" + e.exprs.map(e => e.`type`().map(textOf(_)).getOrElse("NotInferred")).mkString(", ") + "](" + e.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")"
+        "scala.Tuple" + e.exprs.length + ".apply[" + e.exprs.map(e => e.`type`().map(t => textOf(t.removeAliasDefinitionsIn(e))).getOrElse("NotInferred")).mkString(", ") + "](" + e.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")"
       case m: ScMatch =>
         m.expression.map(textOfExpression(_, indent + "  ")).getOrElse("") + " match {\n" +
           m.clauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n") +
@@ -359,7 +362,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def textOfImplicitConversion(function: ScalaResolveResult, expression: String, place: PsiElement): String = {
     val typeArgText = function.element match {
       case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
-        owner.typeParameters.map(tp => function.substitutor(TypeParameterType(tp))).map(textOf(_)).mkString("[", ", ", "]")
+        owner.typeParameters.map(tp => function.substitutor(TypeParameterType(tp))).map(t => textOf(t.removeAliasDefinitionsIn(place))).mkString("[", ", ", "]")
       case _ => ""
     }
     textOfReferenceTo(function, place, function.name) + typeArgText + "(" + expression + ")" + textOfImplicitArguments(function.implicitArguments, place)
@@ -370,7 +373,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       clause.args.map { arg =>
         val typeArgText = arg.element match {
           case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
-            owner.typeParameters.map(tp => arg.substitutor(TypeParameterType(tp))).map(textOf(_)).mkString("[", ", ", "]")
+            owner.typeParameters.map(tp => arg.substitutor(TypeParameterType(tp))).map(t => textOf(t.removeAliasDefinitionsIn(place))).mkString("[", ", ", "]")
           case _ => ""
         }
         val prefix = arg.fromType match {
@@ -423,7 +426,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val symbolType = symbol.`type`()
     val isConstant = (v.hasModifierPropertyScala("final") || v.hasModifierPropertyScala("inline")) && !v.hasExplicitType && !v.isAbstract && symbolType.exists(canBeTypeOfConstant)
     val name = normalized(symbol.name)
-    val tpe = if (isConstant) "" else (spaceAfter(name) + ": " + textOf(symbolType))
+    val tpe = if (isConstant) "" else (spaceAfter(name) + ": " +
+      textOf(if (v.typeElement.isDefined) symbolType else symbolType.map(_.removeAliasDefinitionsIn(v))))
     val rhs = if (isConstant) (" = " + v.asInstanceOf[ScValueOrVariableDefinition].expr.map(_.getText).getOrElse("")) else v match {
       case ScValueOrVariableDefinition.withExpr(expr) =>
         val rhs = textOfStatement(normalized(expr), indent + "  ")
