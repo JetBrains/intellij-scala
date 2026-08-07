@@ -504,7 +504,7 @@ object SourceCode {
                 }
                 tpt match {
                   case Inferred() =>
-                    printTypeOrAnnots(tpt.tpe)
+                    printTypeOrAnnots(tpt.tpe.dealiasDeep)
                   case _ =>
                     printTypeTree(tpt)
                 }
@@ -1123,7 +1123,7 @@ object SourceCode {
             this += ".type"
           case tpe => printType(tpe)
         }
-        printTypeAndAnnots(tree.tpe)
+        printTypeAndAnnots(tree.tpe.dealiasDeep)
 
       case TypeIdent(name) =>
         printType(tree.tpe)
@@ -1635,6 +1635,13 @@ object SourceCode {
         case Apply(Select(New(annot), "<init>"), args) => Some((annot, Nil, args))
         case Apply(TypeApply(Select(New(annot), "<init>"), targs), args) => Some((annot, targs, args))
         case _ => None
+      }
+    }
+
+    extension (tpe: TypeRepr) {
+      private def dealiasDeep: TypeRepr = tpe.dealias match {
+        case AppliedType(constructor, arguments) => AppliedType(constructor, arguments.map(_.dealiasDeep))
+        case tp => tp
       }
     }
 
