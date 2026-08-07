@@ -576,11 +576,9 @@ object SourceCode {
       case Repeated(elems, _) =>
         printTrees(elems, ", ")
 
-      case TypeBoundsTree(lo, hi) =>
-        this += "? >: "
-        printTypeTree(lo)
-        this += " <: "
-        printTypeTree(hi)
+      case tree @ TypeBoundsTree(_, _) =>
+        this += "?"
+        printBoundsTree(tree)
 
       case tpt: WildcardTypeTree =>
         printType(tpt.tpe)
@@ -1375,10 +1373,16 @@ object SourceCode {
         printType(tpe.resType)
 
       case tpe@TypeBounds(lo, hi) =>
-        this += "? >: "
-        printType(lo)
-        this += " <: "
-        printType(hi)
+        this += "?"
+        if (lo.typeSymbol != TypeRepr.of[Nothing].typeSymbol) {
+          this += " >: "
+          printType(lo)
+        }
+        if (hi.typeSymbol != TypeRepr.of[Any].typeSymbol) {
+          this += " <: "
+          printType(hi)
+        }
+        this
 
       case MatchCase(pat, rhs) =>
         this += "case "
