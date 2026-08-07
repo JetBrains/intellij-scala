@@ -1506,22 +1506,18 @@ object SourceCode {
     }
 
     private def printBoundsTree(bounds: TypeBoundsTree)(using elideThis: Option[Symbol]): this.type = {
-      if bounds.low.tpe == bounds.hi.tpe then
-        this += " = "
-        printTypeTree(bounds.low)
-      else
-        bounds.low match {
-          case Inferred() if bounds.low.tpe.typeSymbol == TypeRepr.of[Nothing].typeSymbol =>
-          case low =>
-            this += " >: "
-            printTypeTree(low)
-        }
-        bounds.hi match {
-          case Inferred() if bounds.hi.tpe.typeSymbol == TypeRepr.of[Any].typeSymbol => this
-          case hi =>
-            this += " <: "
-            printTypeTree(hi)
-        }
+      bounds.low match {
+        case Inferred() if bounds.low.tpe.typeSymbol == TypeRepr.of[Nothing].typeSymbol =>
+        case low =>
+          this += " >: "
+          printTypeTree(low)
+      }
+      bounds.hi match {
+        case Inferred() if bounds.hi.tpe.typeSymbol == TypeRepr.of[Any].typeSymbol => this
+        case hi =>
+          this += " <: "
+          printTypeTree(hi)
+      }
     }
 
     private def printBounds(bounds: TypeBounds)(using elideThis: Option[Symbol]): this.type = {
