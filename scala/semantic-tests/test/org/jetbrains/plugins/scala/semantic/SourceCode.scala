@@ -499,7 +499,12 @@ object SourceCode {
                 case tpe =>
                   printType(tpe)
               }
-              printTypeOrAnnots(tpt.tpe)
+              tpt match {
+                case Inferred() =>
+                  printTypeOrAnnots(tpt.tpe)
+                case _ =>
+                  printTypeTree(tpt)
+              }
             }
         }
 
