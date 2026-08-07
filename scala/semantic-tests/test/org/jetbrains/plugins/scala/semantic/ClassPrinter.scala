@@ -470,8 +470,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   }
 
   private def textOfBoundsIn(o: ScTypeBoundsOwner): String = {
-    val lower = o.lowerTypeElement.flatMap(_.`type`().toOption).map(textOf(_)).filter(_ != "_root_.scala.Nothing").map(" >: " + _).getOrElse("")
-    val upper = o.upperTypeElement.flatMap(_.`type`().toOption).map(textOf(_)).filter(_ != "_root_.scala.Any").map(" <: " + _).getOrElse("")
+    val lower = o.lowerTypeElement.flatMap(_.`type`().toOption).map(textOf(_)).filter(_ != "scala.Nothing").map(" >: " + _).getOrElse("")
+    val upper = o.upperTypeElement.flatMap(_.`type`().toOption).map(textOf(_)).filter(_ != "scala.Any").map(" <: " + _).getOrElse("")
     lower + upper
   }
 
