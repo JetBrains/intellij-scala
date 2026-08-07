@@ -577,7 +577,7 @@ object SourceCode {
         printTrees(elems, ", ")
 
       case TypeBoundsTree(lo, hi) =>
-        this += "_ >: "
+        this += "? >: "
         printTypeTree(lo)
         this += " <: "
         printTypeTree(hi)
@@ -1074,7 +1074,7 @@ object SourceCode {
 
     private def printTypeOrBoundsTree(tpt: Tree)(using elideThis: Option[Symbol] = None): this.type = tpt match {
       case TypeBoundsTree(lo, hi) =>
-        this += "_ >: "
+        this += "? >: "
         printTypeTree(lo)
         this += " <: "
         printTypeTree(hi)
@@ -1375,7 +1375,7 @@ object SourceCode {
         printType(tpe.resType)
 
       case tpe@TypeBounds(lo, hi) =>
-        this += "_ >: "
+        this += "? >: "
         printType(lo)
         this += " <: "
         printType(hi)
