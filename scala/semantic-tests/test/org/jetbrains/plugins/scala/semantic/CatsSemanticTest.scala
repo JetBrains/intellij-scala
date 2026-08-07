@@ -391,8 +391,8 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.NonEmptyList
     //cats.data.NonEmptyListEq
     //cats.data.NonEmptyListInstances
-    //cats.data.NonEmptyListInstances0
-    //cats.data.NonEmptyListInstances1
+    cats.data.NonEmptyListInstances0
+    cats.data.NonEmptyListInstances1
     //cats.data.NonEmptyListOrder
     //cats.data.NonEmptyListPartialOrder
     //cats.data.NonEmptyMapImpl
@@ -541,7 +541,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.ZipSeq
     //cats.data.ZipStream
     //cats.data.ZipVector
-    cats.effect.ArrayStack
+    //cats.effect.ArrayStack
     //cats.effect.ByteStack
     //cats.effect.CallbackStack
     //cats.effect.ContState
@@ -720,7 +720,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.effect.unsafe.SchedulerCompanionPlatform
     //cats.effect.unsafe.SelectorSystem
     //cats.effect.unsafe.SleepSystem
-    cats.effect.unsafe.StripedHashtable
+    //cats.effect.unsafe.StripedHashtable
     //cats.effect.unsafe.ThreadSafeHashtable
     //cats.effect.unsafe.TimerHeap
     cats.effect.unsafe.UnsafeNonFatal
@@ -1458,7 +1458,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.syntax.ApplyFABCOps
     //cats.syntax.ApplyFABOps
     //cats.syntax.ApplyOps
-    //cats.syntax.ApplySyntax
+    cats.syntax.ApplySyntax
     cats.syntax.ApplySyntaxBinCompat0
     cats.syntax.ArrowChoiceSyntax
     cats.syntax.ArrowSyntax
@@ -1476,8 +1476,8 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.syntax.ComonadSyntax
     cats.syntax.ComposeSyntax
     cats.syntax.ContravariantMonoidalOps
-    //cats.syntax.ContravariantMonoidalSyntax
-    //cats.syntax.ContravariantSemigroupalSyntax
+    cats.syntax.ContravariantMonoidalSyntax
+    cats.syntax.ContravariantSemigroupalSyntax
     cats.syntax.ContravariantSyntax
     //cats.syntax.DistributiveOps
     //cats.syntax.DistributiveSyntax
@@ -1620,7 +1620,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.syntax.SemigroupalBuilder
     //cats.syntax.SemigroupalOps
     //cats.syntax.SemigroupalOps2
-    //cats.syntax.SemigroupalSyntax
+    cats.syntax.SemigroupalSyntax
     //cats.syntax.SeparateOps
     //cats.syntax.SeparateOpsBinCompat0
     //cats.syntax.SeqOps

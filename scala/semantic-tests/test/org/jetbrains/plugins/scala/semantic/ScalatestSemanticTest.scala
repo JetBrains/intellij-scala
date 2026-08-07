@@ -183,10 +183,10 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.diagrams.AnchorValue
     //org.scalatest.diagrams.DiagrammedApplyExpr
     //org.scalatest.diagrams.DiagrammedAssertionsMacro
-    //org.scalatest.diagrams.DiagrammedByNameExpr
+    org.scalatest.diagrams.DiagrammedByNameExpr
     //org.scalatest.diagrams.DiagrammedExpr
     //org.scalatest.diagrams.DiagrammedSelectExpr
-    //org.scalatest.diagrams.DiagrammedSimpleExpr
+    org.scalatest.diagrams.DiagrammedSimpleExpr
     //org.scalatest.diagrams.Diagrams
     org.scalatest.enablers.Aggregating
     //org.scalatest.enablers.AggregatingHighPriorityImplicits
@@ -262,7 +262,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.exceptions.DuplicateTestNameException
     //org.scalatest.exceptions.GeneratorDrivenPropertyCheckFailedException
     org.scalatest.exceptions.ModifiableMessage
-    org.scalatest.exceptions.ModifiablePayload
+    //org.scalatest.exceptions.ModifiablePayload
     //org.scalatest.exceptions.NotAllowedException
     //org.scalatest.exceptions.NotSerializableWrapperException
     org.scalatest.exceptions.PayloadField
@@ -389,15 +389,15 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.matchers.dsl.ResultOfAWordToBePropertyMatcherApplication
     org.scalatest.matchers.dsl.ResultOfAWordToSymbolApplication
     org.scalatest.matchers.dsl.ResultOfAllElementsOfApplication
-    //org.scalatest.matchers.dsl.ResultOfAllOfApplication
+    org.scalatest.matchers.dsl.ResultOfAllOfApplication
     //org.scalatest.matchers.dsl.ResultOfAnTypeInvocation
     org.scalatest.matchers.dsl.ResultOfAnWordToAnMatcherApplication
     org.scalatest.matchers.dsl.ResultOfAnWordToBePropertyMatcherApplication
     org.scalatest.matchers.dsl.ResultOfAnWordToSymbolApplication
     org.scalatest.matchers.dsl.ResultOfAtLeastOneElementOfApplication
-    //org.scalatest.matchers.dsl.ResultOfAtLeastOneOfApplication
+    org.scalatest.matchers.dsl.ResultOfAtLeastOneOfApplication
     org.scalatest.matchers.dsl.ResultOfAtMostOneElementOfApplication
-    //org.scalatest.matchers.dsl.ResultOfAtMostOneOfApplication
+    org.scalatest.matchers.dsl.ResultOfAtMostOneOfApplication
     //org.scalatest.matchers.dsl.ResultOfBeThrownBy
     //org.scalatest.matchers.dsl.ResultOfBeWordForAType
     //org.scalatest.matchers.dsl.ResultOfBeWordForAnType
@@ -406,22 +406,22 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.matchers.dsl.ResultOfDefinedAt
     //org.scalatest.matchers.dsl.ResultOfGreaterThanComparison
     //org.scalatest.matchers.dsl.ResultOfGreaterThanOrEqualToComparison
-    //org.scalatest.matchers.dsl.ResultOfInOrderApplication
+    org.scalatest.matchers.dsl.ResultOfInOrderApplication
     org.scalatest.matchers.dsl.ResultOfInOrderElementsOfApplication
-    //org.scalatest.matchers.dsl.ResultOfInOrderOnlyApplication
+    org.scalatest.matchers.dsl.ResultOfInOrderOnlyApplication
     org.scalatest.matchers.dsl.ResultOfKeyWordApplication
     //org.scalatest.matchers.dsl.ResultOfLengthWordApplication
     //org.scalatest.matchers.dsl.ResultOfLessThanComparison
     //org.scalatest.matchers.dsl.ResultOfLessThanOrEqualToComparison
     //org.scalatest.matchers.dsl.ResultOfMessageWordApplication
     org.scalatest.matchers.dsl.ResultOfNoElementsOfApplication
-    //org.scalatest.matchers.dsl.ResultOfNoneOfApplication
+    org.scalatest.matchers.dsl.ResultOfNoneOfApplication
     //org.scalatest.matchers.dsl.ResultOfNotExist
     //org.scalatest.matchers.dsl.ResultOfNotWordForAny
     org.scalatest.matchers.dsl.ResultOfOfTypeInvocation
     org.scalatest.matchers.dsl.ResultOfOneElementOfApplication
-    //org.scalatest.matchers.dsl.ResultOfOneOfApplication
-    //org.scalatest.matchers.dsl.ResultOfOnlyApplication
+    org.scalatest.matchers.dsl.ResultOfOneOfApplication
+    org.scalatest.matchers.dsl.ResultOfOnlyApplication
     //org.scalatest.matchers.dsl.ResultOfRegexWordApplication
     //org.scalatest.matchers.dsl.ResultOfSizeWordApplication
     org.scalatest.matchers.dsl.ResultOfTheSameElementsAsApplication
@@ -643,19 +643,19 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.XmlUtility
     //org.scalatest.verbs.ArrayWrapper
     org.scalatest.verbs.BehaveWord
-    //org.scalatest.verbs.CanVerb
+    org.scalatest.verbs.CanVerb
     org.scalatest.verbs.CompileWord
-    //org.scalatest.verbs.MustVerb
+    org.scalatest.verbs.MustVerb
     org.scalatest.verbs.ResultOfAfterWordApplication
     org.scalatest.verbs.ResultOfStringPassedToVerb
     org.scalatest.verbs.ResultOfTaggedAsInvocation
-    //org.scalatest.verbs.ShouldVerb
+    org.scalatest.verbs.ShouldVerb
     org.scalatest.verbs.StringVerbBehaveLikeInvocation
     org.scalatest.verbs.StringVerbBlockRegistration
     org.scalatest.verbs.StringVerbStringInvocation
     org.scalatest.verbs.SubjectWithAfterWordRegistration
     org.scalatest.verbs.TypeCheckWord
-    //org.scalatest.verbs.WillVerb
+    org.scalatest.verbs.WillVerb
     //org.scalatest.wordspec.AnyWordSpec
     //org.scalatest.wordspec.AnyWordSpecLike
     org.scalatest.wordspec.AsyncWordSpec
