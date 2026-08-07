@@ -18,6 +18,13 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[SlowTests2]))
 abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase {
 
+  override protected def setUp(): Unit = {
+    super.setUp()
+    // The wizard triggers the sbt import right after creating the project, before the test can access it,
+    // so the caches and repositories have to be configured as soon as the sbt project is linked.
+    SbtCachesSetupUtil.setupCoursierAndIvyCacheForNewlyLinkedSbtProjects(getTestRootDisposable)
+  }
+
   override def tearDown(): Unit = {
     inWriteAction {
       val projectJdkTable = ProjectJdkTable.getInstance()
