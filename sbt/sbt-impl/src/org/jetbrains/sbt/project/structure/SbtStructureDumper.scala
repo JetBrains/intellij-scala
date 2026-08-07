@@ -2,28 +2,22 @@
 package org.jetbrains.sbt.project.structure
 
 import com.intellij.execution.configuration.EnvironmentVariablesData
-import com.intellij.execution.configurations.ParametersList
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.platform.eel.EelDescriptor
-import com.intellij.platform.eel.provider.LocalEelDescriptor
-import org.jetbrains.annotations.VisibleForTesting
+import org.jetbrains.annotations.{TestOnly, VisibleForTesting}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter}
-import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
+import org.jetbrains.sbt.process.options.SbtProcessOptionsResolver
 import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
-import org.jetbrains.sbt.project.EelPathKotlinUtils
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.shell.communication.{SbtShellBuildMessagesEventProcessor, SbtShellCommandRequest}
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
-import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, normalizedLocalPath}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, normalizedLocalPath}
 
-import java.io.IOException
-import java.nio.file.{Files, Path}
+import java.nio.file.Path
 import java.util.UUID
 import scala.annotation.unused
 import scala.concurrent.Future
@@ -130,8 +124,6 @@ object SbtStructureDumper:
   final class FromProcess extends SbtStructureDumper:
     private val runner: SbtRunner = SbtRunner(processOutputCollector)
 
-    private val log = Logger.getInstance(getClass)
-
     override def cancel(): Unit = runner.cancel()
 
     //noinspection ApiStatus,UnstableApiUsage
@@ -169,22 +161,16 @@ object SbtStructureDumper:
        - Does not set `shellPrompt := { _ => "" }` — from what I've observed, setting `shellPrompt` to `""` prevents the
          prompt from being displayed before shutting down the sbt process (only a cosmetic issue).
        
-       Applied only to sbt 1.5.0+ because:
-       - the ability to apply plugin jars via `unmanagedJars` has worked only since sbt 1.3.4.
-         I'm not sure which exact change in sbt enabled this, as there were multiple fixes to the `addPluginSbtFile` command.
-       - some sbt 1.4.x versions are broken due to missing the necessary files for the arm64 architecture,
-         making it difficult to test for other potential issues.
+       Enabled only for sbt 1.x from 1.12.1 and sbt 2.x from 2.0.0-RC9. In principle, applying plugin jars via
+       `unmanagedJars` has been possible since sbt 1.3.4, but the `addPluginSbtFile` command had a bug: sbt could not start
+       when a build depended on another build that did not have a project directory (https://github.com/sbt/sbt/issues/8570). This bug is
+       fixed only in sbt 1.12.1+ and 2.0.0-RC9+, so the new import is enabled only for those versions.
       */
       val isNewImportEnabled =
-        sbtVersion >= (if sbtVersion.isSbt2 then SbtVersion("2.0.0-RC9") else SbtVersion("1.5.0"))
+        sbtVersion >= (if sbtVersion.isSbt2 then SbtVersion("2.0.0-RC9") else SbtVersion("1.12.1"))
 
-      val importId = UUID.randomUUID().toString
       val additionalVmOptionsForNewImport =
-        if (isNewImportEnabled)
-          Seq(
-            s"-Dsbt.structure.options=$optString",
-            s"-D$IdeaImportId=$importId"
-          )
+        if isNewImportEnabled then Seq(s"-Dsbt.structure.options=$optString")
         else Nil
 
       val sbtProcessOptions = SbtProcessOptionsResolver.resolveForSeparateProcess(
@@ -200,18 +186,15 @@ object SbtStructureDumper:
         if (isNewImportEnabled) getDumpProcessArgsForNewImport
         else getDumpProcessArgsForLegacySbt
 
-      val StructureDumpConfig(sbtCommandsString, extraSbtFileToRemove, launcherArgs) =
+      val (sbtCommandsString, launcherArgs) =
         dumpProcessArgsMethod(
-          structureFile,
           context.eelDescriptor,
           optString,
           sbtStructureJar,
           maybePreferScala2Command,
           dumpStructureToCommand,
           sbtVersion,
-          sbtProcessOptions,
           project,
-          importId
         )
 
       val buildMessages = runner.runSbt(
@@ -228,137 +211,51 @@ object SbtStructureDumper:
         project = project,
       )
 
-      extraSbtFileToRemove.foreach { path =>
-        try {
-          logPluginFileEvent("pre-remove(eager-cleanup)", importId, path)
-          val deleted = Files.deleteIfExists(path)
-          logPluginFileEvent(s"removed(eager-cleanup) deleted=$deleted", importId, path)
-        } catch {
-          case exc: Throwable =>
-            log.warn(s"[sbt import] cannot remove the temporary sbt file in $path ", exc)
-        }
-      }
-
       buildMessages
     end dumpFromProcess
 
-    /**
-     * @param extraSbtFileToRemove optional path to a temporary sbt file that needs cleanup after the dump.
-     *                             Used in the new import logic (sbt 1.5.0+) to remove the temporary plugin file
-     *                             created in the global plugin directory.
-     */
-    private case class StructureDumpConfig(
-      sbtCommands: String,
-      extraSbtFileToRemove: Option[Path],
-      launcherArgs: Seq[String]
-    )
+    private type StructureDumpConfig = (sbtCommands: String, launcherArgs: Seq[String])
 
     /**
      * Builds config for dumping the project structure in the new import way (without state transformations).
-     *
-     * Due to the sbt issue [[https://github.com/sbt/sbt/issues/8570]] when using `--addPluginSbtFile` in sbt 1.x < 1.12.1
-     * and sbt 2.x < 2.0.0-RC9 the new import relies on adding an sbt file to the global plugins directory.
-     * The same trick is used in [[SbtProcessManager.createShellProcessHandler]] when an sbt version is lower than 1.2.0.
-     * This is less safe and a worse approach by design, but it's the only way I managed to come up with
-     * to avoid applying the `sbt-structure` plugin via state transformations.
-     *
-     * In sbt 1.x >= 1.12.1 and sbt 2.x >= 2.0.0-RC9, the issue described in [[https://github.com/sbt/sbt/issues/8570]] is fixed, so
-     * the approach with `--addPluginSbtFile` can be used.
      */
     private def getDumpProcessArgsForNewImport(
-      @unused structureFilePath: Path,
       eelDescriptor: EelDescriptor,
       @unused optString: String,
       sbtStructureJar: Path,
       maybePreferScala2Command: String,
       dumpStructureToCommand: String,
       sbtVersion: SbtVersion,
-      sbtProcessOptions: SbtProcessOptions,
-      project: Option[Project],
-      importId: String
-    )(using context: ImportContext): StructureDumpConfig = {
+      project: Option[Project]
+    ): StructureDumpConfig = {
       val commands = buildSbtCompositeCommand(maybePreferScala2Command, dumpStructureToCommand)
 
-      val isAddPluginSbtFileEnabled = sbtVersion.isSbt2 || sbtVersion >= SbtVersion("1.12.1")
-      if (isAddPluginSbtFileEnabled) {
-        val fileConverter =
-          if (sbtVersion.isSbt2) "given FileConverter = fileConverter.value"
-          else ""
+      val fileConverter =
+        if (sbtVersion.isSbt2) "given FileConverter = fileConverter.value"
+        else ""
 
-        val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(
-          raw"""Compile / unmanagedJars ++= {
-               |$fileConverter
-               |Seq(file("${sbtStructureJar.normalizedLocalPath}")).classpath
-               |}
-               |""".stripMargin,
-          eelDescriptor,
-          project
-        )
+      val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(
+        raw"""Compile / unmanagedJars ++= {
+             |$fileConverter
+             |Seq(file("${sbtStructureJar.normalizedLocalPath}")).classpath
+             |}
+             |""".stripMargin,
+        eelDescriptor,
+        project
+      )
 
-        val launcherArgs = Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.normalizedLocalPath}")
-        StructureDumpConfig(commands, extraSbtFileToRemove = None, launcherArgs)
-      } else {
-        val parametersList = new ParametersList()
-        parametersList.addAll(sbtProcessOptions.allVmOptions *)
-
-        val globalPluginsDir = SbtUtil.globalPluginsDirectory(sbtVersion, parametersList, eelDescriptor)
-        if !globalPluginsDir.exists then
-          Files.createDirectories(globalPluginsDir)
-
-        val tempPluginFile = eelDescriptor match
-          case LocalEelDescriptor.INSTANCE =>
-            val f = Files.createTempFile(globalPluginsDir, "idea-structure", Sbt.Extension)
-            Runtime.getRuntime.addShutdownHook(Thread(() => {
-              logPluginFileEvent("pre-remove(shutdown-hook)", importId, f)
-              deleteFileIfExists(f)
-              logPluginFileEvent("removed(shutdown-hook)", importId, f)
-            }))
-            f
-          case remote =>
-            EelPathKotlinUtils.createTemporaryFile("idea-structure", Sbt.Extension, globalPluginsDir, remote)
-        logPluginFileEvent("created", importId, tempPluginFile)
-
-        // Unfortunately, when using an sbt file in the global plugin directory instead of `--addPluginSbtFile`,
-        // the plugin jar cannot be added with `unmanagedJars` settings. The `unmanagedJars` setting is not considered
-        // in the global plugin build, which differs from `--addPluginSbtFile`, which behaves more like adding an sbt file as part of the project build.
-        val pluginContent = createGuardedPluginContent(
-          importId, sbtVersion, SbtUtil.sbtStructurePluginDeclaration(sbtVersion, context.repoDir)
-        )
-
-        Files.writeString(tempPluginFile, pluginContent)
-        logPluginFileEvent("written", importId, tempPluginFile)
-        StructureDumpConfig(commands, extraSbtFileToRemove = Some(tempPluginFile), launcherArgs = Nil)
-      }
+      val launcherArgs = Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.normalizedLocalPath}")
+      (sbtCommands = commands, launcherArgs = launcherArgs)
     }
 
-    private def deleteFileIfExists(path: Path): Unit =
-      try Files.deleteIfExists(path)
-      catch case _: IOException => ()
-
-    /**
-     * Diagnostic logging for the lifecycle of the temporary `idea-structure*.sbt` plugin file.
-     *
-     * @see SCL-25691
-     */
-    private def logPluginFileEvent(event: String, importId: String, path: Path): Unit =
-      try {
-        val exists = Try(Files.exists(path)).getOrElse(false)
-        log.info(s"[sbt import][idea-structure-plugin] $event | importId=$importId | exists=$exists | path=$path")
-      } catch {
-        case _: Throwable =>
-      }
-
     private def getDumpProcessArgsForLegacySbt(
-      @unused structureFilePath: Path,
       @unused eelDescriptor: EelDescriptor,
       optString: String,
       sbtStructureJar: Path,
       maybePreferScala2Command: String,
       dumpStructureToCommand: String,
       sbtVersion: SbtVersion,
-      @unused sbtProcessOptions: SbtProcessOptions,
-      @unused project: Option[Project],
-      @unused importId: String
+      @unused project: Option[Project]
     ): StructureDumpConfig = {
       val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
       val setCommands = Seq(
@@ -375,33 +272,23 @@ object SbtStructureDumper:
         maybePreferScala2Command,
         dumpStructureToCommand
       )
-      StructureDumpConfig(commands, extraSbtFileToRemove = None, launcherArgs = Nil)
+      (sbtCommands = commands, launcherArgs = Seq.empty[String])
     }
   end FromProcess
 
-
   /**
-   * JVM system property used to identify a specific sbt import.
-   * Its value (a unique import id) is passed to the sbt import process and checked inside the generated global plugin file
-   * to ensure the plugin settings are activated only for the current import.
+   * Builds the guarded plugin-file content that older plugin versions used to write into sbt's global plugins directory.
    *
-   * The idea for this implementation is based on [[org.jetbrains.sbt.shell.process.utils.SpecialSbtVmOptions.IdeaRunIdVmOption]]
-   *
-   * @see [[createGuardedPluginContent]]
-   */
-  private val IdeaImportId = "idea.import.id"
-
-  /**
-   * Wraps the given sbt settings in a guard condition that activates them only when the sbt import process
-   * was launched with the matching `importId` set with the [[IdeaImportId]] system property.
-   *
-   * This prevents the temporary global plugin file from interfering with other concurrently running imports or sbt sessions.
+   * The current import no longer relies on such files. This is kept only for tests, to simulate a stale file hanging
+   * in the global plugins directory and to verify that it does not break the current import. The settings are guarded by
+   * the `idea.import.id` system property, which the current import never sets.
    */
   @VisibleForTesting
+  @TestOnly
   private[project] def createGuardedPluginContent(importId: String, sbtVersion: SbtVersion, settings: Seq[String]): String = {
     val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
     val settingsString = s"$SeqFqn(${settings.mkString(",")})"
-    s"""if (java.lang.System.getProperty("$IdeaImportId", "false") == "$importId") { $settingsString } else $SeqFqn.empty"""
+    s"""if (java.lang.System.getProperty("idea.import.id", "false") == "$importId") { $settingsString } else $SeqFqn.empty"""
   }
 
   private def buildSbtCompositeCommand(commands: String*): String =
