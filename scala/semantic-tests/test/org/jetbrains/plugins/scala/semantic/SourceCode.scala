@@ -485,27 +485,31 @@ object SourceCode {
               case Repeated(_, _) | Inlined(None, Nil, Repeated(_, _))  => this
               case _ => this += ": " += highlightTypeDef("_*")
             }
-          case _ =>
-            inParens {
+          case _ => tpt match {
+            case Inferred() =>
               printTree(term)
-              this += (if (dotty.tools.dotc.util.Chars.isOperatorPart(sb.last)) " : " else ": ")
-              def printTypeOrAnnots(tpe: TypeRepr): Unit = tpe match {
-                case AnnotatedType(tp, annot) if tp == term.tpe =>
-                  printAnnotation(annot)
-                case AnnotatedType(tp, annot) =>
-                  printTypeOrAnnots(tp)
-                  this += " "
-                  printAnnotation(annot)
-                case tpe =>
-                  printType(tpe)
+            case _ =>
+              inParens {
+                printTree(term)
+                this += (if (dotty.tools.dotc.util.Chars.isOperatorPart(sb.last)) " : " else ": ")
+                def printTypeOrAnnots(tpe: TypeRepr): Unit = tpe match {
+                  case AnnotatedType(tp, annot) if tp == term.tpe =>
+                    printAnnotation(annot)
+                  case AnnotatedType(tp, annot) =>
+                    printTypeOrAnnots(tp)
+                    this += " "
+                    printAnnotation(annot)
+                  case tpe =>
+                    printType(tpe)
+                }
+                tpt match {
+                  case Inferred() =>
+                    printTypeOrAnnots(tpt.tpe)
+                  case _ =>
+                    printTypeTree(tpt)
+                }
               }
-              tpt match {
-                case Inferred() =>
-                  printTypeOrAnnots(tpt.tpe)
-                case _ =>
-                  printTypeTree(tpt)
-              }
-            }
+          }
         }
 
       case Assign(lhs, rhs) =>
