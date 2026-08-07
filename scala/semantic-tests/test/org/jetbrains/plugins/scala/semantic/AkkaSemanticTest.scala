@@ -67,7 +67,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.ContextualTypedActorFactory
     //akka.actor.CoordinatedShutdown
     //akka.actor.CoordinatedShutdownTerminationWatcher
-    //akka.actor.CreatorConsumer
+    akka.actor.CreatorConsumer
     //akka.actor.CreatorFunctionConsumer
     //akka.actor.DeadLetter
     //akka.actor.DeadLetterActorRef
@@ -789,7 +789,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.http.javadsl.model.ws.WebSocket
     //akka.http.javadsl.model.ws.WebSocketRequest
     akka.http.javadsl.model.ws.WebSocketUpgrade
-    //akka.http.javadsl.model.ws.WebSocketUpgradeResponse
+    akka.http.javadsl.model.ws.WebSocketUpgradeResponse
     akka.http.javadsl.server.AllDirectives
     akka.http.javadsl.server.AuthenticationFailedRejection
     //akka.http.javadsl.server.AuthorizationFailedRejection
@@ -901,7 +901,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.javadsl.settings.ServerSettings
     akka.http.javadsl.settings.SettingsCompanion
     //akka.http.javadsl.settings.WebSocketSettings
-    //akka.http.javadsl.unmarshalling.StringUnmarshaller
+    akka.http.javadsl.unmarshalling.StringUnmarshaller
     akka.http.javadsl.unmarshalling.StringUnmarshallerPredef
     //akka.http.javadsl.unmarshalling.Unmarshaller
     akka.http.javadsl.unmarshalling.UnmarshallerBase
@@ -1017,7 +1017,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.StatusCode
     //akka.http.scaladsl.model.StatusCodes
     //akka.http.scaladsl.model.Trailer
-    //akka.http.scaladsl.model.TransferEncoding
+    akka.http.scaladsl.model.TransferEncoding
     //akka.http.scaladsl.model.TransferEncodings
     akka.http.scaladsl.model.UniversalEntity
     //akka.http.scaladsl.model.Uri
@@ -1050,7 +1050,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.headers.HttpChallenges
     //akka.http.scaladsl.model.headers.HttpCookie
     //akka.http.scaladsl.model.headers.HttpCookiePair
-    //akka.http.scaladsl.model.headers.HttpCredentials
+    akka.http.scaladsl.model.headers.HttpCredentials
     //akka.http.scaladsl.model.headers.HttpEncoding
     //akka.http.scaladsl.model.headers.HttpEncodingRange
     //akka.http.scaladsl.model.headers.HttpEncodings
@@ -1190,7 +1190,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.http.scaladsl.server.Rejection
     //akka.http.scaladsl.server.RejectionError
     //akka.http.scaladsl.server.RejectionHandler
-    //akka.http.scaladsl.server.RejectionWithOptionalCause
+    akka.http.scaladsl.server.RejectionWithOptionalCause
     //akka.http.scaladsl.server.RequestContext
     //akka.http.scaladsl.server.RequestContextImpl
     //akka.http.scaladsl.server.RequestEntityExpectedRejection
@@ -1297,7 +1297,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.io.DnsProvider
     akka.io.IO
     //akka.io.Inet
-    //akka.io.InetAddressDnsProvider
+    akka.io.InetAddressDnsProvider
     //akka.io.InetAddressDnsResolver
     akka.io.IpVersionSelector
     akka.io.PeriodicCacheCleanup
@@ -1339,7 +1339,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.io.dns.SRVRecord
     //akka.io.dns.UnknownRecord
     //akka.io.dns.internal.AsyncDnsManager
-    //akka.io.dns.internal.AsyncDnsProvider
+    akka.io.dns.internal.AsyncDnsProvider
     //akka.io.dns.internal.AsyncDnsResolver
     //akka.io.dns.internal.DnsClient
     //akka.io.dns.internal.DomainName
@@ -1749,7 +1749,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.artery.tcp.ssl.PeerSubjectVerifier
     //akka.remote.artery.tcp.ssl.PemManagersProvider
     //akka.remote.artery.tcp.ssl.RotatingKeysSSLEngineProvider
-    //akka.remote.artery.tcp.ssl.SSLEngineConfig
+    akka.remote.artery.tcp.ssl.SSLEngineConfig
     akka.remote.artery.tcp.ssl.SessionVerifier
     //akka.remote.artery.tcp.ssl.X509Readers
     //akka.remote.routing.RemoteRouterConfig
@@ -1803,7 +1803,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.routing.FromConfig
     //akka.routing.GetRoutees
     akka.routing.Group
-    //akka.routing.GroupBase
+    akka.routing.GroupBase
     //akka.routing.Listen
     akka.routing.ListenerMessage
     //akka.routing.Listeners
@@ -1858,14 +1858,14 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.serialization.ByteStringSerializer
     //akka.serialization.DisabledJavaSerializer
     //akka.serialization.IntSerializer
-    //akka.serialization.JSerializer
+    akka.serialization.JSerializer
     //akka.serialization.JavaSerializer
     //akka.serialization.LongSerializer
     //akka.serialization.NullSerializer
     //akka.serialization.Serialization
     akka.serialization.SerializationExtension
     //akka.serialization.SerializationSetup
-    //akka.serialization.Serializer
+    akka.serialization.Serializer
     //akka.serialization.SerializerDetails
     //akka.serialization.SerializerWithStringManifest
     //akka.serialization.Serializers
@@ -2086,7 +2086,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.stream.impl.ProcessorModuleIslandTag
     //akka.stream.impl.ProcessorModulePhase
     //akka.stream.impl.PublisherSink
-    //akka.stream.impl.PublisherSource
+    akka.stream.impl.PublisherSource
     //akka.stream.impl.Pump
     //akka.stream.impl.PushAttributes
     //akka.stream.impl.PushNotUsed
@@ -2126,7 +2126,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.SubReceive
     //akka.stream.impl.SubscribePending
     //akka.stream.impl.SubscriberManagement
-    akka.stream.impl.SubscriberSink
+    //akka.stream.impl.SubscriberSink
     akka.stream.impl.SubscriberSource
     akka.stream.impl.SubscriptionTimeoutException
     //akka.stream.impl.SubscriptionWithCursor
