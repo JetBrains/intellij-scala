@@ -15,4 +15,15 @@ trait ImplicitHintsTestBase extends InlayHintsTestBase {
       ImplicitHints.expanded = oldExpanded
     }
   }
+
+  /** Error tooltip messages of all implicit hint inlays in `text`, in document order. */
+  protected def errorTooltips(text: String): Seq[String] = {
+    val oldEnabled = ImplicitHints.enabled
+    try {
+      ImplicitHints.enabled = true
+      inlayErrorTooltips(text.trim)
+    } finally {
+      ImplicitHints.enabled = oldEnabled
+    }
+  }
 }

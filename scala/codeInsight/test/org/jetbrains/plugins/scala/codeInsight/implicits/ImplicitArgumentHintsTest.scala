@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
+import org.junit.Assert.assertEquals
 
 class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
   import Hint.{End => E, Start => S}
@@ -221,6 +223,45 @@ class ImplicitArgumentHintsTestScala3 extends ImplicitArgumentHintsTest {
          |  foo[Int](1)$S(given_Ctx)$E[String]("text")
          |}
          |""".stripMargin
+    )
+  }
+
+  // SCL-23860: for an underspecified expected type the compiler refuses the search
+  // ("No implicit search was attempted ... not specific enough"). The inlay hint must use that
+  // wording in its error tooltip instead of the generic "No implicits found for parameter".
+  def testNoSearchAttemptedTooltipForUnderspecifiedExpectedType(): Unit = {
+    val tooltips = errorTooltips(
+      s"""
+         |trait Mode[X[_]]
+         |
+         |def fallible[F[_], M >: Mode[F]](using M): (F[Int], M) = null
+         |
+         |val result = fallible
+         |""".stripMargin
+    )
+
+    // the same tooltip is attached to both the collapsed and the expanded presentation
+    assertEquals(
+      Seq(ScalaCodeInsightBundle.message("no.implicit.search.was.attempted.for.parameter", "x$1: M")),
+      tooltips.distinct
+    )
+  }
+
+  // ...while an ordinary missing given still reports "No implicits found for parameter".
+  def testNotFoundTooltipForSpecificExpectedType(): Unit = {
+    val tooltips = errorTooltips(
+      s"""
+         |trait Mode[F[+x]]
+         |
+         |def fallible(using Mode[Option]): Unit = ???
+         |
+         |val result = fallible
+         |""".stripMargin
+    )
+
+    assertEquals(
+      Seq(ScalaCodeInsightBundle.message("no.implicits.found.for.parameter", "x$1: Mode[Option]")),
+      tooltips.distinct
     )
   }
 }

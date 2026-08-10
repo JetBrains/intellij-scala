@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorPart, ScalaAnnotationHold
 import org.jetbrains.plugins.scala.annotator.hints.onlyErrorStripeAttributes
 import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.probableArgumentsFor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -35,21 +36,34 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
     args.filter(hasProblemToHighlight(_, settings)) match {
       case Seq() =>
       case params =>
-        val presentableTypes = params
-          .map(_.implicitSearchState.map(_.presentableTypeText).getOrElse(ScalaBundle.message("unknown.type")))
-        val notFound = args.filter(_.isNotFoundImplicitParameter)
+        // In Scala 3 no search is attempted for underspecified expected types (SCL-23860,
+        // see ImplicitCollector.tooUnspecificToSearch); report those with the compiler's
+        // wording and without the import fix — importing an instance cannot help there.
+        val (tooUnspecific, searched) = params.partition(ImplicitCollector.isTooUnspecificToSearch)
+
+        def presentableTypes(params: Seq[ScalaResolveResult]): Seq[String] =
+          params.map(ImplicitCollector.expectedTypeText(_).getOrElse(ScalaBundle.message("unknown.type")))
 
         // TODO Can we detect a "current" color scheme in a "current" editor somehow?
         implicit val scheme: EditorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme
 
-        holder.newAnnotation(HighlightSeverity.ERROR, message(presentableTypes))
-          .range(lastLineRange(element))
-          .withFix(ImportImplicitInstanceFix(() => notFound, element))
-          .enforcedTextAttributes(onlyErrorStripeAttributes)  //make annotation invisible in editor in favor of inlay hint
-          .create()
+        if (searched.nonEmpty) {
+          val notFound = args.filter(arg => arg.isNotFoundImplicitParameter && !tooUnspecific.contains(arg))
+
+          holder.newAnnotation(HighlightSeverity.ERROR, message(presentableTypes(searched)))
+            .range(lastLineRange(element))
+            .withFix(ImportImplicitInstanceFix(() => notFound, element))
+            .enforcedTextAttributes(onlyErrorStripeAttributes)  //make annotation invisible in editor in favor of inlay hint
+            .create()
+        }
+
+        if (tooUnspecific.nonEmpty) {
+          holder.newAnnotation(HighlightSeverity.ERROR, notSpecificEnoughMessage(presentableTypes(tooUnspecific)))
+            .range(lastLineRange(element))
+            .enforcedTextAttributes(onlyErrorStripeAttributes)  //make annotation invisible in editor in favor of inlay hint
+            .create()
+        }
     }
-
-
   }
 
   private def hasProblemToHighlight(param: ScalaResolveResult, settings: ScalaProjectSettings): Boolean = {
@@ -70,4 +84,7 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
 
   def message(types: Seq[String]): String =
     ScalaBundle.message("no.implicit.arguments.of.type", types.mkString(", "))
+
+  def notSpecificEnoughMessage(types: Seq[String]): String =
+    ScalaBundle.message("no.implicit.search.was.attempted.type.not.specific.enough", types.mkString(", "))
 }

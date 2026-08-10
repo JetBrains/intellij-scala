@@ -403,6 +403,24 @@ class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotator
         |""".stripMargin
     ))
   }
+
+  // SCL-23860: for an underspecified expected type (here `M`'s only useful bound is `Any`)
+  // the compiler refuses the search ("No implicit search was attempted ... not specific enough").
+  // Report the same instead of the generic "no implicit arguments" message.
+  def testNoSearchAttemptedForUnderspecifiedExpectedType(): Unit = {
+    import Message._
+
+    assertMatches(messages3(
+      """
+        |trait Mode[X[_]]
+        |
+        |def fallible[F[_], M >: Mode[F]](using M): (F[Int], M) = null
+        |
+        |val result = fallible
+        |""".stripMargin)) {
+      case Error("fallible", m) :: Nil if m == ImplicitParametersAnnotator.notSpecificEnoughMessage(Seq("M")) =>
+    }
+  }
 }
 
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example
