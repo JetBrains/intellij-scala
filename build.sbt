@@ -1228,7 +1228,7 @@ lazy val mavenIntegration =
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
         "org.jetbrains.idea.maven",
-        "org.jetbrains.idea.reposearch" // required for Maven (IJPL-35276)
+        "intellij.java.aetherDependencyResolver.plugin" // required for Maven (IJPL-35276)
       ).map(_.toPlugin),
       libraryDependencies ++= Seq(
         Dependencies.intellijMavenTestFramework % Test,

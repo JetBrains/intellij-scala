@@ -38,7 +38,7 @@ class BazelScalaRunLineMarkerContributor extends BazelJavaRunLineMarkerContribut
 
       val arguments = BazelScalaTestRunLineMarkerLogic.getExtraProgramArguments(psiElement).asJava
       val descriptor = new BazelRunnerActionDescriptor(testFilter, arguments, util.Map.of())
-      new GutterAction(null, descriptor)
+      new GutterAction(descriptor)
     }
   }
 }
