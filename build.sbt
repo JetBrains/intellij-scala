@@ -218,6 +218,7 @@ lazy val sbtKotlinIjPluginInterop =
             "kotlinc.kotlin-jps-common.jar",
             "kotlinc.kotlin-compiler-common.jar",
             "intellij.kotlin.base.facet.jar", // KTIJ-39613
+            "intellij.libraries.kotlinc.kotlin.compiler.common.jar"
           )
 
           PluginJars(descriptor, root, classpath.filter(file => requiredJars(file.getName)))
