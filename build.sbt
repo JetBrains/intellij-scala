@@ -1,5 +1,5 @@
 import Common.*
-import CompilationCache.compilationCacheSettings
+import CompilationCache.{compilationCacheSettings, farmHashCache}
 import Dependencies.provided
 import DynamicDependenciesFetcher.*
 import LocalRepoPackager.{localRepoDependencies, localRepoUpdate, relativeJarPath, sbtDep}
@@ -43,6 +43,10 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 (Global / scalacOptions) := globalScalacOptions
 
 Global / intellijAttachSources := true
+
+// One shared farm hash cache per sbt session, required by `compilationCacheSettings` (see CompilationCache).
+// The ultimate build loads this file as well, so this is the only definition needed.
+Global / farmHashCache := new java.util.concurrent.ConcurrentHashMap()
 
 // Warn about old JDK used early, before compilation fails
 Global / onLoad := {
