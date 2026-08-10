@@ -27,6 +27,23 @@ abstract class InlayHintsTestBase extends base.ScalaLightCodeInsightFixtureTestC
     myFixture.testInlays(f(_).get, f(_).isDefined)
   }
 
+  /** Error tooltip messages of all inlays in `text`, in document order. */
+  protected def inlayErrorTooltips(text: String): Seq[String] = {
+    import scala.jdk.CollectionConverters._
+
+    configureFromFileText(text)
+    myFixture.doHighlighting()
+
+    val editor = getEditor
+    editor.getInlayModel
+      .getInlineElementsInRange(0, editor.getDocument.getTextLength)
+      .asScala
+      .toSeq
+      .map(_.getRenderer)
+      .collect { case renderer: TextPartsHintRenderer => renderer }
+      .flatMap(_.parts.flatMap(_.errorTooltip).map(_.message))
+  }
+
   private def inlayText(withTooltips: Boolean): Inlay[_] => Option[String] = (_: Inlay[_]).getRenderer match {
     case renderer: TextPartsHintRenderer if withTooltips =>
       Some(renderer.parts.flatMap(p => p.string + p.tooltip().map(" /* " + _ + " */ ").mkString.replace("\"", "'").replace("\n", "\\n")).mkString)

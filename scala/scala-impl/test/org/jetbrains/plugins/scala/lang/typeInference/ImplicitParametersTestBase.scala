@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.junit.Assert
 
@@ -12,8 +13,14 @@ trait ImplicitParametersTestBase extends TypeInferenceTestBase {
       Some(fileText.withNormalizedSeparator.trim)
     )
 
-    val expr      = findSelectedExpression(scalaFile)
-    val implicits = expr.findImplicitArguments
+    val implicitOwner: ImplicitArgumentsOwner =
+      findSelectedExpression(scalaFile) match {
+        case td: ScNewTemplateDefinition =>
+          td.firstConstructorInvocation.getOrElse(td)
+        case expr =>
+          expr
+      }
+    val implicits = implicitOwner.findImplicitArguments
 
     Assert.assertTrue("Expression with implicit parameters expected", implicits.nonEmpty)
 

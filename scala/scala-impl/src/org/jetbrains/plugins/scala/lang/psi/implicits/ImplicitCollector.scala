@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiv
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, SyntheticImplicitInstances}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.{isUnderspecified, _}
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -66,6 +66,9 @@ object ImplicitCollector {
     fullInfo:                   Boolean,
     previousDivergenceStack:    Option[DivergenceChecker.DivergenceStack]
   ) {
+    lazy val tooUnspecificToSearch: Boolean =
+      ImplicitCollector.isUnderspecified(isImplicitConversion, extensionData.isDefined, place, tp)
+
     def presentableTypeText: String = {
       implicit val tpc: TypePresentationContext = TypePresentationContext(place)
       implicit val context: Context = Context(place)
@@ -103,6 +106,46 @@ object ImplicitCollector {
 
   def isValidImplicitResult(srr: ScalaResolveResult): Boolean =
     !srr.problems.contains(WrongTypeParameterInferred) && srr.implicitReason != TypeDoesntConformResult
+
+  /** Whether the implicit search for `parameter` was refused, see [[ImplicitCollector.tooUnspecificToSearch]]. */
+  def isTooUnspecificToSearch(parameter: ScalaResolveResult): Boolean =
+    parameter.implicitSearchState.exists(_.tooUnspecificToSearch)
+
+  /**
+   * Presentation of `parameter`'s expected type for error messages. For an underspecified inference
+   * variable this is the bare type parameter name (`M`), like the compiler reports it, rather than
+   * the presentation of the abstract type (`M_`).
+   */
+  def expectedTypeText(parameter: ScalaResolveResult): Option[String] =
+    parameter.implicitSearchState.map { state =>
+      state.tp match {
+        case ScAbstractType(typeParameter, _, _) if isUnderspecified(state.tp) => typeParameter.name
+        case _                                                                 => state.presentableTypeText
+      }
+    }
+
+  /**
+   * Mirrors `Implicits.isUnderspecified` in the Scala 3 compiler: no implicit search is attempted
+   * if the expected type is not specific enough, i.e. an inference variable whose only useful
+   * information is an `Any`/`AnyRef` upper bound (`def f[M](using M)`, `def f[A, M >: Box[A]](using M)`).
+   * Searching anyway would match an *arbitrary* implicit in scope (SCL-23860, e.g. `Predef.$conforms`),
+   * whereas the compiler reports "No implicit search was attempted ... not specific enough".
+   * Implicit conversions are exempt: dotc handles them with a different rule (`ViewProto`).
+   */
+  private def isUnderspecified(isImplicitConversion: Boolean,
+                               isExtensionConversion: Boolean,
+                               place: PsiElement,
+                               tp: ScType): Boolean =
+    !isImplicitConversion && !isExtensionConversion &&
+      place.isInScala3File && isUnderspecified(tp)
+
+
+  /** Mirrors `dotty.tools.dotc.typer.Implicits#isUnderspecified` for implicit parameter types. */
+  @tailrec
+  private def isUnderspecified(tpe: ScType): Boolean = tpe match {
+    case ScAbstractType(_, _, upper) => isUnderspecified(upper)
+    case tp                          => tp.isAny || tp.isAnyRef
+  }
 }
 
 /**
@@ -163,6 +206,9 @@ class ImplicitCollector(
   private val mostSpecificUtil: MostSpecificUtil = MostSpecificUtil(place, 1)
 
   private def isExtensionConversion: Boolean = extensionData.isDefined
+
+  lazy val tooUnspecificToSearch: Boolean =
+    ImplicitCollector.isUnderspecified(isImplicitConversion, isExtensionConversion, place, tp)
 
   /**
    * Returns `true` when a candidate may expose target extension methods via its resulting type.
@@ -272,6 +318,8 @@ class ImplicitCollector(
   }
 
   def collect(): Seq[ScalaResolveResult] = {
+    if (tooUnspecificToSearch) return Seq.empty
+
     DivergenceChecker.withDivergenceStackOpt(previousDivergenceStack) {
       targetClass match {
         case Some(c) if SyntheticImplicitInstances.tagsAndManifists.contains(c.qualifiedName) => return Seq.empty

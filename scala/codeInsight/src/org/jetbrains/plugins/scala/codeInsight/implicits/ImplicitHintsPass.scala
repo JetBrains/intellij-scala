@@ -505,17 +505,25 @@ private object ImplicitHintsPass {
   }
 
   private def typeSuffix(parameter: ScalaResolveResult): String = {
-    val paramType = parameter.implicitSearchState.map(_.presentableTypeText).getOrElse("NotInferred")
+    val paramType = expectedTypeText(parameter).getOrElse("NotInferred")
     s": $paramType"
   }
 
   private def paramWithType(parameter: ScalaResolveResult): String =
     StringUtil.escapeXmlEntities(parameter.name + typeSuffix(parameter))
 
-  private def notFoundTooltip(parameter: ScalaResolveResult, owner: Option[ImplicitArgumentsOwner]): ErrorTooltip = {
-    val message = ScalaCodeInsightBundle.message("no.implicits.found.for.parameter", paramWithType(parameter))
-    notFoundErrorTooltip(message, Seq(parameter), owner)
-  }
+  private def notFoundTooltip(parameter: ScalaResolveResult, owner: Option[ImplicitArgumentsOwner]): ErrorTooltip =
+    // In Scala 3 no search is attempted for underspecified expected types (SCL-23860, see
+    // ImplicitCollector.tooUnspecificToSearch); use the compiler's wording and omit the import
+    // fix — importing an instance cannot help when no search happens.
+    if (isTooUnspecificToSearch(parameter))
+      ErrorTooltip.fromString(
+        ScalaCodeInsightBundle.message("no.implicit.search.was.attempted.for.parameter", paramWithType(parameter))
+      )
+    else {
+      val message = ScalaCodeInsightBundle.message("no.implicits.found.for.parameter", paramWithType(parameter))
+      notFoundErrorTooltip(message, Seq(parameter), owner)
+    }
 
   private def notFoundTooltip(
     parameters: Seq[ScalaResolveResult],
@@ -525,9 +533,15 @@ private object ImplicitHintsPass {
       case Seq()  => None
       case Seq(p) => Some(notFoundTooltip(p, owner))
       case ps =>
-        val message =
-          ScalaCodeInsightBundle.message("no.implicits.found.for.parameters", ps.map(paramWithType).mkString(", "))
-        Some(notFoundErrorTooltip(message, ps, owner))
+        // report the underspecified ones separately, they need the other wording (see above)
+        val (tooUnspecific, searched) = ps.partition(isTooUnspecificToSearch)
+
+        if (searched.isEmpty) Some(notFoundTooltip(tooUnspecific.head, owner))
+        else {
+          val message =
+            ScalaCodeInsightBundle.message("no.implicits.found.for.parameters", searched.map(paramWithType).mkString(", "))
+          Some(notFoundErrorTooltip(message, searched, owner))
+        }
     }
 
   private def notFoundErrorTooltip(
