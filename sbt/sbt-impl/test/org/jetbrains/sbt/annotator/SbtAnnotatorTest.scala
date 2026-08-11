@@ -14,9 +14,8 @@ import org.jetbrains.plugins.scala.{SlowTests2, SlowTests}
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.{MockSbtBase, MockSbtBuildModule, MockSbt_0_13, MockSbt_1_0, MockSbt_2, SbtBundle, SbtVersion}
+import org.jetbrains.sbt.{MockSbtBase, MockSbtBuildModule, MockSbt_1_0, MockSbt_2, SbtBundle, SbtVersion}
 import org.junit.Assert.assertNotNull
-import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
 import scala.annotation.nowarn
@@ -88,22 +87,6 @@ abstract class SbtAnnotatorTestBase extends HeavyPlatformTestCase
 }
 
 @Category(Array(classOf[SlowTests2]))
-@Ignore
-class SbtAnnotatorTest_0_13_1 extends SbtAnnotatorTestBase with MockSbt_0_13 {
-  override implicit val sbtVersion: SbtVersion = SbtVersion("0.13.1")
-
-  def test(): Unit = runTest(sbtVersion, Expectations.sbt_0_13(sbtVersion))
-}
-
-@Category(Array(classOf[SlowTests2]))
-@Ignore
-class SbtAnnotatorTest_0_13_7 extends SbtAnnotatorTestBase with MockSbt_0_13 {
-  override implicit val sbtVersion: SbtVersion = SbtVersion("0.13.7")
-
-  def test(): Unit = runTest(sbtVersion, Expectations.sbt_0_13_7)
-}
-
-@Category(Array(classOf[SlowTests2]))
 class SbtAnnotatorTest_1 extends SbtAnnotatorTestBase with MockSbt_1_0 {
   def test(): Unit = runTest(sbtVersion, Expectations.sbt_1_0)
 }
@@ -123,31 +106,12 @@ object Expectations {
     Error("object Bar", SbtBundle.message("sbt.annotation.sbtFileMustContainOnlyExpressions"))
   )
 
-  def sbt012_013(sbtVersion: SbtVersion): Seq[Error] = sbtAll ++ Seq(
-    Error("organization", SbtBundle.message("sbt.annotation.expressionMustConform", "SettingKey[String]")),
-    Error(""""some string"""", SbtBundle.message("sbt.annotation.expressionMustConform", "String")),
-    Error("null", SbtBundle.message("sbt.annotation.expectedExpressionType")),
-    Error("""version := "SNAPSHOT"""", SbtBundle.message("sbt.annotation.blankLineRequired", sbtVersion.minor))
-  )
-
-  def sbt_0_12: Seq[Error] = sbt012_013(SbtVersion("0.12.4")) ++ Seq(
-    Error(
-      """lazy val foo = project.in(file("foo")).enablePlugins(sbt.plugins.JvmPlugin)""",
-      SbtBundle.message("sbt.annotation.sbtFileMustContainOnlyExpressions"))
-  )
-
-  def sbt_0_13(sbtVersion: SbtVersion): Seq[Error] = sbt012_013(sbtVersion) ++ Seq(
-    Error("???", SbtBundle.message("sbt.annotation.expectedExpressionType"))
-  )
-
-  val sbt_0_13_7: Seq[Error] = sbtAll ++ Seq(
+  val sbt_1_0: Seq[Error] = sbtAll ++ Seq(
     Error("organization", SbtBundle.message("sbt.annotation.expressionMustConformSbt0136", "SettingKey[String]")),
     Error(""""some string"""", SbtBundle.message("sbt.annotation.expressionMustConformSbt0136", "String")),
     Error("null", SbtBundle.message("sbt.annotation.expectedExpressionTypeSbt0136")),
     Error("???", SbtBundle.message("sbt.annotation.expectedExpressionTypeSbt0136"))
   )
-
-  val sbt_1_0: Seq[Error] = sbt_0_13_7
 
   // TODO: we need to review SBT 2.0 new rules and adopt SbtAnnotator.scala along with the expected data
   val sbt_2: Seq[Error] = sbtAll ++ Seq(
