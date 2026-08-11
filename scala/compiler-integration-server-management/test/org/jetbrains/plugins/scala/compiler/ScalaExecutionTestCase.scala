@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.debugger.impl.OutputChecker
 import com.intellij.execution.ExecutionTestCase
 import com.intellij.execution.configurations.JavaParameters
+import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.NioFiles
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.testFramework.EdtTestUtil
+import com.intellij.testFramework.{EdtTestUtil, IndexingTestUtil, PlatformTestUtil, StartupActivityTestUtil}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.base.{ScalaSdkOwner, SourceRootTestUtil}
@@ -23,6 +24,7 @@ import java.io.{ObjectInputStream, ObjectOutputStream}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.security.MessageDigest
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.{Try, Using}
@@ -163,6 +165,15 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
         CompileServerLauncher.stopServerAndWait()
       }
       EdtTestUtil.runInEdtAndWait { () =>
+        // Drain the async tail of the test run (post-startup activities are never joined in unit test mode, the
+        // execution UI is populated via invokeLater after the run has already finished) while the project is still
+        // alive, so that lazily created project services register and dispose under a healthy container. The
+        // compilation step used to absorb all of this by pumping the EDT for the duration of the whole build.
+        // See also the platform precedent in DaemonAnalyzerTestCase.tearDown (IJPL-840).
+        StartupActivityTestUtil.waitForProjectActivitiesToComplete(getProject): @nowarn("cat=deprecation")
+        IndexingTestUtil.waitUntilIndexesAreReady(getProject)
+        NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
+        PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
         disposeLibraries(getModule)
       }
     } finally {
@@ -175,6 +186,9 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
       val message = s"Skipping project compilation: checksums are the same ($testAppPath)"
       Log.info(message)
       System.out.println(s"##teamcity[message text='$message' status='NORMAL']")
+      // The CompilerTester used by the compilation branch runs this barrier in its constructor;
+      // keep the two branches equivalent (the VFS refresh in setUp schedules scanning work).
+      IndexingTestUtil.waitUntilIndexesAreReady(getProject)
     } else {
       super.compileProject()
       writeChecksumsToDisk(calculateSrcChecksums())
