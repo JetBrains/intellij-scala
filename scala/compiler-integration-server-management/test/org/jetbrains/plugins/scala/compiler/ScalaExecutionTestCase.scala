@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compiler
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.debugger.impl.OutputChecker
 import com.intellij.execution.ExecutionTestCase
 import com.intellij.execution.configurations.JavaParameters
@@ -96,6 +97,15 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
   override protected def setUpProject(): Unit = {
     super.setUpProject()
     inWriteAction(ProjectRootManager.getInstance(getProject).setProjectSdk(getTestProjectJdk))
+    // DaemonCodeAnalyzer is a lazy project service which every test of this base class creates implicitly at an
+    // uncontrolled moment: the execution console UI touches it from asynchronous callbacks. If the first access
+    // happens while the project is already being disposed in tearDown, the service construction dies halfway on a
+    // silently swallowed AlreadyDisposedException after DaemonListeners has already registered application-level
+    // editor listeners, which are then never unregistered (they are parented in the Disposer tree only after
+    // registration). Create the service eagerly while the project is provably alive: any later access then returns
+    // this instance, which is disposed together with the project. Its listeners also land in the
+    // EditorListenerTracker baseline, which is snapshotted right after setUpProject().
+    DaemonCodeAnalyzer.getInstance(getProject)
   }
 
   override protected def setUpModule(): Unit = {
