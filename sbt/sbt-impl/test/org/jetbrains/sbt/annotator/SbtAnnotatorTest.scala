@@ -7,7 +7,6 @@ import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots.{ModuleRootModificationUtil, ProjectRootManager}
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.junit5.TestApplication
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message}
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, ScalaSDKLoader, SmartJDKLoader}
 import org.jetbrains.plugins.scala.base.{ScalaSdkOwner, SourceRootTestUtil}
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{PathExt, inReadAction}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.dependencymanager.TestDependencyManagerForSbt
 import org.jetbrains.sbt.language.SbtFileImpl
@@ -116,9 +115,9 @@ abstract class SbtAnnotatorTestBase(
 
   /** Must be called under a read action. */
   protected final def loadTestFile(): SbtFileImpl =
-    val filePath = s"$testdataPath/SbtAnnotator.sbt"
-    val virtualFile = LocalFileSystem.getInstance.findFileByPath(FileUtil.toSystemIndependentName(filePath))
-    assertNotNull(virtualFile, filePath)
+    val filePath = Path.of(testdataPath, "SbtAnnotator.sbt").toCanonicalPath
+    val virtualFile = LocalFileSystem.getInstance.findFileByNioFile(filePath)
+    assertNotNull(virtualFile, filePath.toString)
     val sbtFile = PsiManager.getInstance(getProject).findFile(virtualFile).asInstanceOf[SbtFileImpl]
     sbtFile.putUserData(ModuleUtilCore.KEY_MODULE, getModule)
     sbtFile
@@ -132,7 +131,9 @@ abstract class SbtAnnotatorTestBase(
 
   private def setUpProjectSettings(): Unit =
     val projectSettings = SbtProjectSettings.default
-    projectSettings.setExternalProjectPath(getProject.getBasePath)
+    val projectBasePath = getProject.getBasePath
+    assertNotNull(projectBasePath)
+    projectSettings.setExternalProjectPath(projectBasePath)
     SbtSettings.getInstance(getProject).linkProject(projectSettings)
     setSbtVersion(sbtVersion)
     // The JUnit 3 predecessor also called the deprecated Module.setOption("external.root.project.path", ...) and
@@ -141,7 +142,9 @@ abstract class SbtAnnotatorTestBase(
     // annotator queries the build module). SbtAnnotator therefore falls back to SbtVersion.Latest.Sbt_1, as before.
 
   private def setSbtVersion(sbtVersion: SbtVersion): Unit =
-    val projectSettings = SbtSettings.getInstance(getProject).getLinkedProjectSettings(getProject.getBasePath)
+    val projectBasePath = getProject.getBasePath
+    assertNotNull(projectBasePath)
+    val projectSettings = SbtSettings.getInstance(getProject).getLinkedProjectSettings(projectBasePath)
     assertNotNull(projectSettings)
     projectSettings.setSbtVersion(sbtVersion.minor)
 end SbtAnnotatorTestBase
