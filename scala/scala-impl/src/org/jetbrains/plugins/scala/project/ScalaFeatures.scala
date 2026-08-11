@@ -136,8 +136,9 @@ object ScalaFeatures {
       languageLevel >= ScalaLanguageLevel.Scala_3_6
 
     override def `supports 'into' modifier`: Boolean = {
-      // should become non-preview in 3.9
-      hasPreviewFlag && languageLevel >= ScalaLanguageLevel.Scala_3_7
+      // stabilized in 3.9, before that it was a preview feature (since 3.7)
+      languageLevel >= ScalaLanguageLevel.Scala_3_9 ||
+        (hasPreviewFlag && languageLevel >= ScalaLanguageLevel.Scala_3_7)
     }
 
     def copy(
