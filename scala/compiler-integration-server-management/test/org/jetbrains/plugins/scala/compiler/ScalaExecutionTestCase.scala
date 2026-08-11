@@ -106,19 +106,29 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
 
   override protected def setUp(): Unit = {
     if (usesManagedSourcesAndCompilation) {
-      // Make sure that the src and output dirs are clean before run, to avoid and collisions between previous test data state
+      // Make sure that the src dir is clean before run, to avoid collisions with stale files from a previous
+      // test data state (e.g. renamed or deleted source files).
       // Note, we could do that in the end of the test in "tearDown",
       // but it might just be helpful to leave them in place to inspect the created sources after local test execution
       NioFiles.deleteRecursively(srcPath)
-      NioFiles.deleteRecursively(appOutputPath)
-
       Files.createDirectories(srcPath)
-      Files.createDirectories(classFilesOutputPath)
-      Files.createDirectories(checksumsPath)
-
       sourceFiles.foreach { case (filePath, fileContents) =>
         ensureFileExistsAndHasContent(filePath, fileContents)
       }
+
+      // Only clean the output dir when the previously compiled classes cannot be reused for the freshly written
+      // sources (in that case `compileProject` skips the rebuild). All test methods of a test class share the same
+      // sources, so the test project is compiled once per test class instead of once per test method. The decision
+      // must be made BEFORE anything under `appOutputPath` is deleted, otherwise the checksums are always missing
+      // and every test method triggers a full rebuild.
+      if (!compiledOutputIsUpToDate) {
+        NioFiles.deleteRecursively(appOutputPath)
+      }
+
+      // `classFilesOutputPath` must exist before `super.setUp()`: `ExecutionTestCase#setUp` runs its own
+      // unconditional `compileProject()` when the module output dir does not exist.
+      Files.createDirectories(classFilesOutputPath)
+      Files.createDirectories(checksumsPath)
     }
 
     super.setUp()
@@ -161,56 +171,55 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
   }
 
   override protected def compileProject(): Unit = {
-    def loadChecksumsFromDisk(): Map[Path, Array[Byte]] =
-      Using(new ObjectInputStream(Files.newInputStream(checksumsFilePath)))(_.readObject())
-        .map(_.asInstanceOf[Map[String, Array[Byte]]])
-        .map(_.map { case (path, checksum) => (Path.of(path), checksum) })
-        .getOrElse(Map.empty)
-
-    val messageDigest = MessageDigest.getInstance("MD5")
-
-    def calculateSrcCheksums(): Map[Path, Array[Byte]] = {
-      def checksum(file: Path): Array[Byte] = {
-        val fileBytes = Files.readAllBytes(file)
-        messageDigest.digest(fileBytes)
-      }
-
-      def checksumsInDir(dir: Path): Seq[(Path, Array[Byte])] =
-        dir.children().flatMap { f =>
-          if (f.isDirectory) checksumsInDir(f) else Seq((f, checksum(f)))
-        }
-
-      checksumsInDir(srcPath).toMap
-    }
-
-    def shouldCompile(srcChecksums: Map[Path, Array[Byte]], diskChecksums: Map[Path, Array[Byte]]): Boolean = {
-      val checksumsAreSame = srcChecksums.forall { case (srcPath, srcSum) =>
-        diskChecksums.get(srcPath).exists(java.util.Arrays.equals(srcSum, _))
-      }
-      !checksumsAreSame
-    }
-
-    def writeChecksumsToDisk(checksums: Map[Path, Array[Byte]]): Unit = {
-      val strings = checksums.map { case (path, sum) => (path.toString, sum) }
-      Using(new ObjectOutputStream(Files.newOutputStream(checksumsFilePath)))(_.writeObject(strings))
-    }
-
-    val srcChecksums = calculateSrcCheksums()
-
-    val compareChecksums = for {
-      diskChecksums <- Try(loadChecksumsFromDisk())
-    } yield shouldCompile(srcChecksums, diskChecksums)
-
-    val needsCompilation = compareChecksums.getOrElse(true)
-
-    if (needsCompilation) {
-      super.compileProject()
-      writeChecksumsToDisk(srcChecksums)
-    } else {
+    if (compiledOutputIsUpToDate) {
       val message = s"Skipping project compilation: checksums are the same ($testAppPath)"
       Log.info(message)
       System.out.println(s"##teamcity[message text='$message' status='NORMAL']")
+    } else {
+      super.compileProject()
+      writeChecksumsToDisk(calculateSrcChecksums())
     }
+  }
+
+  /**
+   * The compiled classes can be reused iff the compiled output is not empty and the checksums of the current
+   * sources are exactly the ones recorded after the last successful compilation.
+   */
+  private def compiledOutputIsUpToDate: Boolean =
+    classFilesOutputPath.isDirectory && classFilesOutputPath.children().nonEmpty &&
+      Try(checksumsMatch(calculateSrcChecksums(), loadChecksumsFromDisk())).getOrElse(false)
+
+  private def checksumsMatch(srcChecksums: Map[Path, Array[Byte]], diskChecksums: Map[Path, Array[Byte]]): Boolean =
+    // Exact equality of the file sets: a source file that was removed since the last compilation must also
+    // trigger a rebuild, so that no stale class files remain in the output dir.
+    srcChecksums.keySet == diskChecksums.keySet &&
+      srcChecksums.forall { case (path, sum) => diskChecksums.get(path).exists(java.util.Arrays.equals(sum, _)) }
+
+  private def loadChecksumsFromDisk(): Map[Path, Array[Byte]] =
+    Using(new ObjectInputStream(Files.newInputStream(checksumsFilePath)))(_.readObject())
+      .map(_.asInstanceOf[Map[String, Array[Byte]]])
+      .map(_.map { case (path, checksum) => (Path.of(path), checksum) })
+      .getOrElse(Map.empty)
+
+  private def calculateSrcChecksums(): Map[Path, Array[Byte]] = {
+    val messageDigest = MessageDigest.getInstance("MD5")
+
+    def checksum(file: Path): Array[Byte] = {
+      val fileBytes = Files.readAllBytes(file)
+      messageDigest.digest(fileBytes)
+    }
+
+    def checksumsInDir(dir: Path): Seq[(Path, Array[Byte])] =
+      dir.children().flatMap { f =>
+        if (f.isDirectory) checksumsInDir(f) else Seq((f, checksum(f)))
+      }
+
+    checksumsInDir(srcPath).toMap
+  }
+
+  private def writeChecksumsToDisk(checksums: Map[Path, Array[Byte]]): Unit = {
+    val strings = checksums.map { case (path, sum) => (path.toString, sum) }
+    Using(new ObjectOutputStream(Files.newOutputStream(checksumsFilePath)))(_.writeObject(strings))
   }
 
   override protected def createJavaParameters(mainClass: String): JavaParameters = {
