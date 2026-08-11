@@ -2320,7 +2320,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part22 extends ReferenceCompa
   def test_interop_tostring(): Unit = doTest("interop-tostring", true)
   def test_interop_type_field(): Unit = doTest("interop-type-field", true)
   def test_intersection(): Unit = doTest("intersection", true) // #unionType, #intersectionType
-  def test_into_separate(): Unit = doTest("into-separate", false)
+  def test_into_separate(): Unit = doTest("into-separate", true)
   def test_isApplicableSafe(): Unit = doTest("isApplicableSafe", true)
   def test_isRef(): Unit = doTest("isRef", true) // #intersectionType
   def test_itay(): Unit = doTest("itay", true)
