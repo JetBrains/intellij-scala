@@ -147,10 +147,10 @@ object SourceCode {
         val isAnonymous = name == "$anon"
 
         printDefAnnotations(cdef)
-        printProtectedOrPrivate(cdef)
 
         val flags = cdef.symbol.flags
         if (cdef.symbol.flags.is(Flags.Override) || cdef.symbol.allOverriddenSymbols.nonEmpty) this += highlightKeyword("override ")
+        printProtectedOrPrivate(cdef)
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Sealed)) this += highlightKeyword("sealed ")
         if (flags.is(Flags.Final) && !flags.is(Flags.Module) && !isAnonymous) this += highlightKeyword("final ")
@@ -287,10 +287,9 @@ object SourceCode {
 
         val flags = vdef.symbol.flags
         if (flags.is(Flags.Override) || vdef.symbol.allOverriddenSymbols.nonEmpty) this += highlightKeyword("override ")
+        printProtectedOrPrivate(vdef)
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Final) && !flags.is(Flags.Module)) this += highlightKeyword("final ")
-
-        printProtectedOrPrivate(vdef)
 
         if (flags.is(Flags.Lazy)) this += highlightKeyword("lazy ")
         if (vdef.symbol.flags.is(Flags.Mutable)) this += highlightKeyword("var ")
@@ -336,11 +335,10 @@ object SourceCode {
 
         val flags = ddef.symbol.flags
         if (flags.is(Flags.Override) || (!isConstructor && ddef.symbol.allOverriddenSymbols.nonEmpty)) this += highlightKeyword("override ")
+        printProtectedOrPrivate(ddef)
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Final) && !flags.is(Flags.Module)) this += highlightKeyword("final ")
         if (flags.is(Flags.Inline)) this += highlightKeyword("inline ")
-
-        printProtectedOrPrivate(ddef)
 
         val name1: String = if (isConstructor) "this" else splicedName(ddef.symbol).getOrElse(name)
         this += highlightKeyword("def ") += highlightValDef(name1)
