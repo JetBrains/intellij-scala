@@ -150,6 +150,7 @@ object SourceCode {
         printProtectedOrPrivate(cdef)
 
         val flags = cdef.symbol.flags
+        if (cdef.symbol.flags.is(Flags.Override)) this += highlightKeyword("override ")
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Sealed)) this += highlightKeyword("sealed ")
         if (flags.is(Flags.Final) && !flags.is(Flags.Module) && !isAnonymous) this += highlightKeyword("final ")
@@ -273,6 +274,7 @@ object SourceCode {
 
       case tdef @ TypeDef(name, rhs) =>
         printDefAnnotations(tdef)
+        if (tdef.symbol.flags.is(Flags.Override)) this += highlightKeyword("override ")
         printProtectedOrPrivate(tdef)
         this += highlightKeyword("type ")
         printTargDef((tdef, tdef), isMember = true)
