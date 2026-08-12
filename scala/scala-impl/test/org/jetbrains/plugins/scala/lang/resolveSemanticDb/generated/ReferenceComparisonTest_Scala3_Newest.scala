@@ -135,7 +135,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part2 extends ReferenceCompari
   def test_attributes(): Unit = doTest("attributes", true)
   def test_automatic_tupling_of_function_parameters(): Unit = doTest("automatic-tupling-of-function-parameters", true)
   def test_autoTuplingTest(): Unit = doTest("autoTuplingTest", true)
-  def test_avoid(): Unit = doTest("avoid", false)
+  def test_avoid(): Unit = doTest("avoid", true)
   def test_B(): Unit = doTest("B", true)
   def test_backquoted_type_operator(): Unit = doTest("backquoted_type_operator", true)
   def test_bad_footprint(): Unit = doTest("bad-footprint", true) // #opaque, #export, #matchType, #extension
@@ -299,7 +299,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part3 extends ReferenceCompari
   def test_erasure_nsquared(): Unit = doTest("erasure-nsquared", true)
   def test_ErasureAnd(): Unit = doTest("ErasureAnd", true)
   def test_escapes2(): Unit = doTest("escapes2", true)
-  def test_escapingRefs(): Unit = doTest("escapingRefs", false)
+  def test_escapingRefs(): Unit = doTest("escapingRefs", true)
   def test_eta(): Unit = doTest("eta", true)
   def test_exbound(): Unit = doTest("exbound", true)
   def test_exhaust_2(): Unit = doTest("exhaust_2", true)
