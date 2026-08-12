@@ -14,7 +14,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.OnlyCauseStackTrace
     //akka.UnsupportedAkkaVersion
     //akka.Version
-    //akka.actor.AbstractActor
+    akka.actor.AbstractActor
     akka.actor.AbstractActorWithStash
     akka.actor.AbstractActorWithTimers
     akka.actor.AbstractActorWithUnboundedStash
@@ -187,7 +187,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.DeathPactException
     akka.actor.typed.DispatcherSelector
     //akka.actor.typed.Dispatchers
-    //akka.actor.typed.ExtensibleBehavior
+    akka.actor.typed.ExtensibleBehavior
     akka.actor.typed.Extension
     akka.actor.typed.ExtensionId
     akka.actor.typed.ExtensionSetup
@@ -304,7 +304,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.javadsl.BuiltReceive
     akka.actor.typed.javadsl.GroupRouter
     akka.actor.typed.javadsl.PoolRouter
-    //akka.actor.typed.javadsl.Receive
+    akka.actor.typed.javadsl.Receive
     //akka.actor.typed.javadsl.ReceiveBuilder
     akka.actor.typed.javadsl.Routers
     akka.actor.typed.javadsl.StashBuffer
@@ -447,7 +447,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.dispatch.ExecutorServiceFactory
     akka.dispatch.ExecutorServiceFactoryProvider
     //akka.dispatch.Filter
-    //akka.dispatch.Foreach
+    akka.dispatch.Foreach
     //akka.dispatch.ForkJoinExecutorConfigurator
     //akka.dispatch.Futures
     akka.dispatch.LoadMetrics
@@ -1353,64 +1353,64 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.io.dns.internal.ResolvConfParser
     //akka.io.dns.internal.ResponseCode
     //akka.io.dns.internal.TcpDnsClient
-    //akka.japi.Creator
-    //akka.japi.Effect
-    //akka.japi.Function
-    //akka.japi.Function2
+    akka.japi.Creator
+    akka.japi.Effect
+    akka.japi.Function
+    akka.japi.Function2
     //akka.japi.JavaPartialFunction
     //akka.japi.Option
     //akka.japi.Pair
     akka.japi.Predicate
-    //akka.japi.Procedure
+    akka.japi.Procedure
     akka.japi.Throwables
     //akka.japi.Util
-    //akka.japi.function.Creator
-    //akka.japi.function.Effect
-    //akka.japi.function.Function
-    //akka.japi.function.Function10
-    //akka.japi.function.Function11
-    //akka.japi.function.Function12
-    //akka.japi.function.Function13
-    //akka.japi.function.Function14
-    //akka.japi.function.Function15
-    //akka.japi.function.Function16
-    //akka.japi.function.Function17
-    //akka.japi.function.Function18
-    //akka.japi.function.Function19
-    //akka.japi.function.Function2
-    //akka.japi.function.Function20
-    //akka.japi.function.Function21
-    //akka.japi.function.Function22
-    //akka.japi.function.Function3
-    //akka.japi.function.Function4
-    //akka.japi.function.Function5
-    //akka.japi.function.Function6
-    //akka.japi.function.Function7
-    //akka.japi.function.Function8
-    //akka.japi.function.Function9
+    akka.japi.function.Creator
+    akka.japi.function.Effect
+    akka.japi.function.Function
+    akka.japi.function.Function10
+    akka.japi.function.Function11
+    akka.japi.function.Function12
+    akka.japi.function.Function13
+    akka.japi.function.Function14
+    akka.japi.function.Function15
+    akka.japi.function.Function16
+    akka.japi.function.Function17
+    akka.japi.function.Function18
+    akka.japi.function.Function19
+    akka.japi.function.Function2
+    akka.japi.function.Function20
+    akka.japi.function.Function21
+    akka.japi.function.Function22
+    akka.japi.function.Function3
+    akka.japi.function.Function4
+    akka.japi.function.Function5
+    akka.japi.function.Function6
+    akka.japi.function.Function7
+    akka.japi.function.Function8
+    akka.japi.function.Function9
     akka.japi.function.Predicate
-    //akka.japi.function.Procedure
-    //akka.japi.function.Procedure10
-    //akka.japi.function.Procedure11
-    //akka.japi.function.Procedure12
-    //akka.japi.function.Procedure13
-    //akka.japi.function.Procedure14
-    //akka.japi.function.Procedure15
-    //akka.japi.function.Procedure16
-    //akka.japi.function.Procedure17
-    //akka.japi.function.Procedure18
-    //akka.japi.function.Procedure19
-    //akka.japi.function.Procedure2
-    //akka.japi.function.Procedure20
-    //akka.japi.function.Procedure21
-    //akka.japi.function.Procedure22
-    //akka.japi.function.Procedure3
-    //akka.japi.function.Procedure4
-    //akka.japi.function.Procedure5
-    //akka.japi.function.Procedure6
-    //akka.japi.function.Procedure7
-    //akka.japi.function.Procedure8
-    //akka.japi.function.Procedure9
+    akka.japi.function.Procedure
+    akka.japi.function.Procedure10
+    akka.japi.function.Procedure11
+    akka.japi.function.Procedure12
+    akka.japi.function.Procedure13
+    akka.japi.function.Procedure14
+    akka.japi.function.Procedure15
+    akka.japi.function.Procedure16
+    akka.japi.function.Procedure17
+    akka.japi.function.Procedure18
+    akka.japi.function.Procedure19
+    akka.japi.function.Procedure2
+    akka.japi.function.Procedure20
+    akka.japi.function.Procedure21
+    akka.japi.function.Procedure22
+    akka.japi.function.Procedure3
+    akka.japi.function.Procedure4
+    akka.japi.function.Procedure5
+    akka.japi.function.Procedure6
+    akka.japi.function.Procedure7
+    akka.japi.function.Procedure8
+    akka.japi.function.Procedure9
     akka.japi.pf.CaseStatement
     akka.japi.pf.UnitCaseStatement
     //akka.japi.tuple.Tuple10
@@ -2433,11 +2433,11 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.stream.stage.AbstractOutHandler
     akka.stream.stage.AsyncCallback
     //akka.stream.stage.ConcurrentAsyncCallbackState
-    //akka.stream.stage.GraphStage
+    akka.stream.stage.GraphStage
     //akka.stream.stage.GraphStageLogic
     akka.stream.stage.GraphStageLogicWithLogging
     //akka.stream.stage.GraphStageWithMaterializedValue
-    //akka.stream.stage.InHandler
+    akka.stream.stage.InHandler
     //akka.stream.stage.OutHandler
     //akka.stream.stage.StageLogging
     //akka.stream.stage.TimerGraphStageLogic

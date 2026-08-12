@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnu
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -351,13 +351,21 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     if (fileContext == null) file else containingFileOf(fileContext)
   }
 
-  private def textOfConstructorInvocation(ci: ScConstructorInvocation, indent: String, emptyParens: Boolean = true) =
-    ci.typeElement.`type`().map(textOf(_, parens = 1)).getOrElse("NotInferred") + (ci.arguments match {
+  private def textOfConstructorInvocation(ci: ScConstructorInvocation, indent: String, emptyParens: Boolean = true) = {
+    val tpe = {
+      val elementType = ci.typeElement.`type`()
+      if (ci.typeArgList.nonEmpty) elementType else elementType.map {
+        case ParameterizedType(designator, args) => ParameterizedType(designator, args.map(_.removeAliasDefinitionsIn(ci)))
+        case t => t
+      }
+    }
+    tpe.map(textOf(_, parens = 1)).getOrElse("NotInferred") + (ci.arguments match {
       case Seq() => if (emptyParens) "()" else ""
       case Seq(list) if list.exprs.isEmpty => if (emptyParens) "()" else ""
       case lists => lists.map("(" + _.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString
     }) +
       textOfImplicitArguments(ci.findImplicitArguments, ci)
+  }
 
   private def textOfImplicitConversion(function: ScalaResolveResult, expression: String, place: PsiElement): String = {
     val typeArgText = function.element match {
