@@ -180,7 +180,10 @@ object SourceCode {
           case Apply(Select(New(tpt), _), _) => tpt.tpe.typeSymbol != Symbol.requiredClass("java.lang.Object")
           case TypeSelect(Select(Ident("_root_"), "scala"), "Product") if flags.is(Flags.Case) => false
           case TypeSelect(Select(Ident("_root_"), "scala"), "Serializable") if flags.is(Flags.Case) => false
-          case tpt: TypeTree => tpt.tpe.typeSymbol != Symbol.requiredClass("java.lang.Object")
+          case tpt: TypeTree =>
+            val symbol = tpt.tpe.typeSymbol
+            symbol != Symbol.requiredClass("java.lang.Object") &&
+              !(flags.is(Flags.Case) && (symbol == Symbol.requiredClass("scala.deriving.Mirror.Product") || symbol == Symbol.requiredClass("scala.deriving.Mirror.Singleton")))
           case _ => true
         }
         if (isAnonymous)
