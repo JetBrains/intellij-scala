@@ -538,12 +538,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def textOf(annotation: ScAnnotation): String =
     textOf(annotation, emptyParens = false)
 
-  private def textOf(annotation: ScAnnotation, emptyParens: Boolean): String = {
-    val invocation = annotation.constructorInvocation
-    val prefix = invocation.simpleTypeElement.map(e => textOf(e.`type`())).getOrElse("")
-    val args = invocation.arguments.map(_.exprs.map(textOfExpression(_, "")).mkString(", ")).map("(" + _ + ")").mkString
-    "@" + prefix + (if (!emptyParens && args == "()") "" else args)
-  }
+  private def textOf(annotation: ScAnnotation, emptyParens: Boolean): String =
+    "@" + textOfConstructorInvocation(annotation.constructorInvocation, "", emptyParens)
 
   private def textOfModifiers(ml: ScModifierList, hasSupers: => Boolean = false): String = {
     def scope = ml.getParent match {
