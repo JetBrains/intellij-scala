@@ -64,7 +64,27 @@ object WideningTest {
       |
       |val x = Test[<1, "x", c.type, E.A.type>](???).map(identity(_))
       |val y: Test[<1, "x", c.type, E.A.type>] = x // Error
-      |""".stripMargin.multi
+      |""".stripMargin.multi,
+    """// NonWideningOfFinalFields_<Literal,StringLit,DependentType,Enum>
+      |enum E { case A, B }  [Scala3]
+      |val c: Any = ???
+      |
+      |object Test {
+      |  final val x = <1, "x", c, E.A>
+      |}
+      |
+      |val y: <1, "x", c.type, E.A.type> = Test.x // <fine, fine, Error, Error>
+      |""".stripMargin.multi,
+    """// NonWideningOfFinalDefs_<Literal,StringLit,DependentType,Enum>
+      |enum E { case A, B }  [Scala3]
+      |val c: Any = ???
+      |
+      |object Test {
+      |  final def x = <1, "x", c, E.A>
+      |}
+      |
+      |val y: <1, "x", c.type, E.A.type> = Test.x // Error
+      |""".stripMargin.multi,
   ).flatten
 
   lazy val testDataInScala2: Seq[SimpleTestData] = testData.map(toTestData("[Scala3]")).filterNot(_.testName.contains("Enum"))
