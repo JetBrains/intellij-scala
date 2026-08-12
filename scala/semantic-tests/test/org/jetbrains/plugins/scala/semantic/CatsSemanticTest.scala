@@ -216,8 +216,8 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.EitherTMonadError
     //cats.data.EitherTMonadErrorF
     cats.data.EitherTMonoid
-    //cats.data.EitherTOrder
-    //cats.data.EitherTPartialOrder
+    cats.data.EitherTOrder
+    cats.data.EitherTPartialOrder
     cats.data.EitherTSemigroup
     //cats.data.EitherTSemigroupK
     //cats.data.EitherTTraverse
@@ -295,7 +295,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.IorTMonad
     //cats.data.IorTMonadError
     //cats.data.IorTMonadErrorF
-    //cats.data.IorTMonoid
+    cats.data.IorTMonoid
     cats.data.IorTOrder
     cats.data.IorTSemigroup
     //cats.data.IorTTraverse
@@ -393,7 +393,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.NonEmptyListInstances
     cats.data.NonEmptyListInstances0
     cats.data.NonEmptyListInstances1
-    //cats.data.NonEmptyListOrder
+    cats.data.NonEmptyListOrder
     //cats.data.NonEmptyListPartialOrder
     //cats.data.NonEmptyMapImpl
     //cats.data.NonEmptyMapInstances
@@ -405,9 +405,9 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.NonEmptySetImpl
     //cats.data.NonEmptySetInstances
     //cats.data.NonEmptySetInstances0
-    //cats.data.NonEmptySetInstances1
+    cats.data.NonEmptySetInstances1
     //cats.data.NonEmptySetOps
-    //cats.data.NonEmptySetOrder
+    cats.data.NonEmptySetOrder
     //cats.data.NonEmptyVector
     //cats.data.NonEmptyVectorInstances
     //cats.data.NonEmptyVectorInstances0
@@ -445,8 +445,8 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.OptionTMonadErrorMonad
     cats.data.OptionTMonoid
     //cats.data.OptionTMonoidK
-    //cats.data.OptionTOrder
-    //cats.data.OptionTPartialOrder
+    cats.data.OptionTOrder
+    cats.data.OptionTPartialOrder
     cats.data.OptionTSemigroup
     //cats.data.OptionTSemigroupK
     //cats.data.OptionTTraverse
@@ -531,7 +531,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.WriterTInvariant
     //cats.data.WriterTMonad
     //cats.data.WriterTMonadError
-    //cats.data.WriterTMonoid
+    cats.data.WriterTMonoid
     //cats.data.WriterTMonoidK
     cats.data.WriterTSemigroup
     //cats.data.WriterTSemigroupK
@@ -1204,9 +1204,9 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.kernel.instances.partialOrder
     //cats.kernel.laws.BandLaws
     cats.kernel.laws.BoundedEnumerableLaws
-    //cats.kernel.laws.BoundedSemilatticeLaws
-    //cats.kernel.laws.CommutativeGroupLaws
-    //cats.kernel.laws.CommutativeMonoidLaws
+    cats.kernel.laws.BoundedSemilatticeLaws
+    cats.kernel.laws.CommutativeGroupLaws
+    cats.kernel.laws.CommutativeMonoidLaws
     //cats.kernel.laws.CommutativeSemigroupLaws
     //cats.kernel.laws.EqLaws
     //cats.kernel.laws.GroupLaws
@@ -1258,11 +1258,11 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.laws.CategoryLaws
     //cats.laws.ChoiceLaws
     //cats.laws.CoflatMapLaws
-    //cats.laws.CommutativeApplicativeLaws
+    cats.laws.CommutativeApplicativeLaws
     //cats.laws.CommutativeApplyLaws
     //cats.laws.CommutativeArrowLaws
     //cats.laws.CommutativeFlatMapLaws
-    //cats.laws.CommutativeMonadLaws
+    cats.laws.CommutativeMonadLaws
     //cats.laws.ComonadLaws
     //cats.laws.ComposeLaws
     //cats.laws.ContravariantLaws
