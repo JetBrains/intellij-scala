@@ -46,7 +46,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val annotations = cls.annotations.map(a => "\n" + indent + textOf(a)).mkString
 
     val modifiers = {
-      val s = textOf(cls.getModifierList)
+      val s = textOfModifiers(cls.getModifierList, (if (cls.isObject) ScalaPsiUtil.superValsSignatures(cls) else ScalaPsiUtil.superTypeSignatures(cls)).nonEmpty)
       if (normalize && cls.is[ScClass] && (cls.hasModifierPropertyScala("implicit") || isValueClass(cls))) s.replace("final ", "")
       else if (normalize && cls.is[ScObject] && cls.hasModifierPropertyScala("case")) s.replace("final ", "")
       else s
@@ -142,7 +142,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     e.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)
 
   private def textOf(pc: ScPrimaryConstructor, inCaseClass: Boolean): String = {
-    val modifiers = textOf(pc.getModifierList)
+    val modifiers = textOfModifiers(pc.getModifierList)
     val inPrivateConstructor = isPrivate(pc)
     val clauses = {
       val signatureClausesInParameterList = pc.signatureClauses.filter {
@@ -169,7 +169,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val isGiven = f.isInstanceOf[ScGiven]
     val isAnonymous = isGiven && f.name.startsWith("given_") // .isAnonymous?
     val annotations = f.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
-    val modifiers = textOf(f.getModifierList)
+    val modifiers = textOfModifiers(f.getModifierList, f.superMethod.isDefined)
     val keyword = if (isGiven) "given " else "def "
     val name = if (isAnonymous) "" else normalized(f.name)
     val signature = textOf(f.signatureClauses, inPrivateConstructor = false, inCaseClass = false)
@@ -421,7 +421,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textOf(v: ScValueOrVariable, symbol: ScTypedDefinition, indent: String): String = {
     val annotations = v.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
-    val modifiers = textOf(v.getModifierList)
+    val modifiers = textOfModifiers(v.getModifierList, ScalaPsiUtil.superValsSignatures(symbol).nonEmpty)
     val keyword = if (v.is[ScValue]) "val " else "var "
     val symbolType = symbol.`type`()
     val isConstant = (v.hasModifierPropertyScala("final") || v.hasModifierPropertyScala("inline")) && !v.hasExplicitType && !v.isAbstract && symbolType.exists(canBeTypeOfConstant)
@@ -452,7 +452,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textOf(t: ScTypeAlias, indent: String): String = {
     val annotations = t.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
-    val modifiers = textOf(t.getModifierList)
+    val modifiers = textOfModifiers(t.getModifierList, ScalaPsiUtil.superTypeSignatures(t).nonEmpty)
     val name = normalized(t.name)
     val tps = if (t.typeParameters.isEmpty) "" else t.typeParameters.map(textOf).mkString("[", ", ", "]")
     val bounds = textOfBoundsIn(t)
@@ -507,11 +507,12 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def textOf(p: ScParameter, inCaseClass: Boolean): String = {
     val annotations = p.annotations.map(textOf).mkString(" ")
     val modifiers = {
+      lazy val hasSupers = p.is[ScClassParameter] && ScalaPsiUtil.superValsSignatures(p).nonEmpty
       val s = {
-        val s0 = textOf(p.getModifierList)
+        val s0 = textOfModifiers(p.getModifierList, hasSupers)
         p.owner match {
           case _: ScPrimaryConstructor if normalize && !(inCaseClass || p.isVal || p.isVar) && isField(p) => "private[this] " + (if (s0.isEmpty) "" else s0 + " ") + "val "
-          case _ => s0
+          case _ => if (inCaseClass && !p.isVal && hasSupers) s0 + "val " else s0
         }
       }
       if (withPrivate) s else s.replace("private[this] ", "").replace("private ", "")
@@ -544,7 +545,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     "@" + prefix + (if (!emptyParens && args == "()") "" else args)
   }
 
-  private def textOf(ml: ScModifierList): String = {
+  private def textOfModifiers(ml: ScModifierList, hasSupers: => Boolean = false): String = {
     def scope = ml.getParent match {
       case Parent(p: ScPackaging) => p.packageName.split('.').lastOption.getOrElse("")
       case Parent(c: ScNamedElement) => c.name
@@ -552,7 +553,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     }
     def qualifier = ml.accessModifier.flatMap(m => if (m.isThis) Some("this") else m.idText).filter(q => !normalize || q != scope).map("[" + _ + "]").getOrElse("")
     (if (ml.isAbstract && ml.isOverride) "abstract " else "") +
-      (if (ml.isOverride) "override " else "") +
+      (if (ml.isOverride || hasSupers) "override " else "") +
       (if (ml.isPrivate) "private" + qualifier + " " else "") +
       (if (ml.isProtected) "protected" + qualifier + " " else "") +
       (if (ml.isImplicit) "implicit " else "") +
