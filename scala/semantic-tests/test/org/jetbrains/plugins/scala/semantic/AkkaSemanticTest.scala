@@ -101,7 +101,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.actor.LocalRef
     //akka.actor.LocalScope
     //akka.actor.LoggingFSM
-    //akka.actor.MinimalActorRef
+    akka.actor.MinimalActorRef
     //akka.actor.NoArgsReflectConstructor
     //akka.actor.NoScopeGiven
     akka.actor.NoSerializationVerificationNeeded
@@ -185,7 +185,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.BehaviorSignalInterceptor
     //akka.actor.typed.ChildFailed
     //akka.actor.typed.DeathPactException
-    //akka.actor.typed.DispatcherSelector
+    akka.actor.typed.DispatcherSelector
     //akka.actor.typed.Dispatchers
     //akka.actor.typed.ExtensibleBehavior
     akka.actor.typed.Extension
@@ -193,7 +193,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.actor.typed.ExtensionSetup
     akka.actor.typed.Extensions
     //akka.actor.typed.LogOptions
-    //akka.actor.typed.MailboxSelector
+    akka.actor.typed.MailboxSelector
     //akka.actor.typed.MessageAdaptionFailure
     //akka.actor.typed.PostStop
     //akka.actor.typed.PreRestart
@@ -306,7 +306,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.actor.typed.javadsl.PoolRouter
     //akka.actor.typed.javadsl.Receive
     //akka.actor.typed.javadsl.ReceiveBuilder
-    //akka.actor.typed.javadsl.Routers
+    akka.actor.typed.javadsl.Routers
     akka.actor.typed.javadsl.StashBuffer
     akka.actor.typed.javadsl.StashOverflowException
     akka.actor.typed.javadsl.TimerScheduler
@@ -320,7 +320,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.scaladsl.Behaviors
     akka.actor.typed.scaladsl.GroupRouter
     akka.actor.typed.scaladsl.PoolRouter
-    //akka.actor.typed.scaladsl.Routers
+    akka.actor.typed.scaladsl.Routers
     akka.actor.typed.scaladsl.StashBuffer
     akka.actor.typed.scaladsl.StashOverflowException
     akka.actor.typed.scaladsl.TimerScheduler
@@ -679,7 +679,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.engine.ws.Randoms
     akka.http.impl.engine.ws.StreamingCharsetDecoder
     akka.http.impl.engine.ws.StreamingCharsetDecoderInstance
-    //akka.http.impl.engine.ws.UpgradeToWebSocketLowLevel
+    akka.http.impl.engine.ws.UpgradeToWebSocketLowLevel
     //akka.http.impl.engine.ws.Utf8Decoder
     //akka.http.impl.engine.ws.Utf8Encoder
     //akka.http.impl.engine.ws.WebSocket
@@ -1191,7 +1191,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.server.RejectionError
     //akka.http.scaladsl.server.RejectionHandler
     akka.http.scaladsl.server.RejectionWithOptionalCause
-    //akka.http.scaladsl.server.RequestContext
+    akka.http.scaladsl.server.RequestContext
     //akka.http.scaladsl.server.RequestContextImpl
     //akka.http.scaladsl.server.RequestEntityExpectedRejection
     //akka.http.scaladsl.server.Route
@@ -1281,7 +1281,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.unmarshalling.MultipartUnmarshallers
     //akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers
     //akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers
-    //akka.http.scaladsl.unmarshalling.Unmarshal
+    akka.http.scaladsl.unmarshalling.Unmarshal
     //akka.http.scaladsl.unmarshalling.Unmarshaller
     //akka.http.scaladsl.unmarshalling.sse.EventStreamParser
     //akka.http.scaladsl.unmarshalling.sse.EventStreamUnmarshalling
@@ -1540,7 +1540,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.persistence.Persistence
     akka.persistence.PersistenceIdentity
     //akka.persistence.PersistencePlugin
-    //akka.persistence.PersistenceRecovery
+    akka.persistence.PersistenceRecovery
     akka.persistence.PersistenceSettings
     akka.persistence.PersistenceStash
     akka.persistence.PersistentActor
@@ -2116,7 +2116,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.SoftShutdown
     //akka.stream.impl.SourceModule
     akka.stream.impl.SourceModuleIslandTag
-    //akka.stream.impl.SourceModulePhase
+    akka.stream.impl.SourceModulePhase
     //akka.stream.impl.Stages
     //akka.stream.impl.StreamLayout
     //akka.stream.impl.StreamSubscriptionTimeoutSupport

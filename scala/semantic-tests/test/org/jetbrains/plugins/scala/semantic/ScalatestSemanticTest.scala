@@ -5,7 +5,7 @@ import org.junit.Test
 
 class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
   @Test def test(): Unit = doTest("""
-    //org.scalatest.Alerter
+    org.scalatest.Alerter
     org.scalatest.Alerting
     //org.scalatest.AppendedClues
     //org.scalatest.Args
@@ -70,7 +70,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.FutureAsyncTestHolder
     //org.scalatest.FutureOutcome
     //org.scalatest.GivenWhenThen
-    //org.scalatest.Informer
+    org.scalatest.Informer
     org.scalatest.Informing
     org.scalatest.InsertionOrderSet
     //org.scalatest.Inside
@@ -84,7 +84,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.MessageRecordingInformer
     org.scalatest.NameTransformer
     org.scalatest.NonImplicitAssertions
-    //org.scalatest.Notifier
+    org.scalatest.Notifier
     org.scalatest.Notifying
     //org.scalatest.OneInstancePerTest
     //org.scalatest.OptionValues
@@ -116,7 +116,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.Sequential
     //org.scalatest.SequentialNestedSuiteExecution
     //org.scalatest.SeveredStackTraces
-    //org.scalatest.Shell
+    org.scalatest.Shell
     //org.scalatest.ShellImpl
     //org.scalatest.Slowpoke
     //org.scalatest.SlowpokeDetector
@@ -517,7 +517,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.DashboardReporter
     //org.scalatest.tools.DashboardReporterConfiguration
     //org.scalatest.tools.DiscoverySuite
-    //org.scalatest.tools.DistributedTestRunnerSuite
+    org.scalatest.tools.DistributedTestRunnerSuite
     //org.scalatest.tools.Durations
     //org.scalatest.tools.EventHolder
     org.scalatest.tools.EventHolderDefaultListModel
