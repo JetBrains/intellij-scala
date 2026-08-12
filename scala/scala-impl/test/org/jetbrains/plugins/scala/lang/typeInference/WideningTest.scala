@@ -7,32 +7,32 @@ import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.{Simpl
 object WideningTest {
   private lazy val testData: Seq[String] = Seq(
     """
-      |// WideningOnVal_<Literal,StringLit,DependentType,Enum>
+      |// WideningOnVal_<Literal,StringLit,DependentType,Enum,Structural>
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |val x = <1, "x", c, E.A>
-      |val y: <1, "x", c.type, E.A.type> = x // Error
+      |val x = <1, "x", c, E.A, new { def bar: Int = 1 }>
+      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }> = x // Error <in both, in both, in both, in both, in [Scala3]>
       |""".stripMargin.multi,
     """
-      |// WideningOnTypedVal_<Literal,StringLit,DependentType,Enum>
+      |// WideningOnTypedVal_<Literal,StringLit,DependentType,Enum,Structural>
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |val x: <1, "x", c.type, E.A.type> = <1, "x", c, E.A>
+      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }> = <1, "x", c, E.A, new { def bar: Int = 1 }>
       |val y = x
-      |val z: <1, "x", c.type, E.A.type> = y // Error <in both, in both, in [Scala3], in both>
+      |val z: <1, "x", c.type, E.A.type, Object { def bar: Int }> = y // <Error in both, Error in both, Error in [Scala3], Error in both, fine>
       |""".stripMargin.multi,
     """
-      |// WideningThroughFunc_<Literal,StringLit,DependentType,Enum>
+      |// WideningThroughFunc_<Literal,StringLit,DependentType,Enum,Structural>
       |def test[T](t: T): T = t
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |val x: <1, "x", c.type, E.A.type> = test(<1, "x", c, E.A>)
+      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }> = test(<1, "x", c, E.A, new { def bar: Int = 1 }>)
       |""".stripMargin.multi,
     """
-      |// WideningIntoContainer_<Literal,StringLit,DependentType,Enum>
+      |// WideningIntoContainer_<Literal,StringLit,DependentType,Enum,Structural>
       |// SCL-23271
       |case class Test[T](t: T) {
       |  def foo(t: T): Unit = ()
@@ -40,21 +40,21 @@ object WideningTest {
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |Test(<1, "x", c, E.A>).foo(<2, "y", c: Any, E.B>)
+      |Test(<1, "x", c, E.A, new { def bar: Int = 1 }>).foo(<2, "y", c: Any, E.B, new Object>) // <fine, fine, fine, fine, Error in [Scala2]>
       |""".stripMargin.multi,
     """
-      |// WideningIntoContainer2_<Literal,StringLit,DependentType,Enum>
+      |// WideningIntoContainer2_<Literal,StringLit,DependentType,Enum,Structural>
       |case class Test[T](t: T) {
       |  def foo(t: T): Unit = ()
       |}
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |val x: <1, "x", c.type, E.A.type> = ???
-      |Test(x).foo(<2, "y", c: Any, E.B>)
+      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }> = ???
+      |Test(x).foo(<2, "y", c: Any, E.B, new Object>) // <fine, fine, fine, fine, Error in [Scala2]>
       |""".stripMargin.multi,
     """
-      |// WideningOnContainerTypeInference_<Literal,StringLit,DependentType,Enum>
+      |// WideningOnContainerTypeInference_<Literal,StringLit,DependentType,Enum,Structural>
       |case class Test[T](t: T) {
       |  def map[TT](t: T => TT): Test[TT] = ???
       |}
@@ -62,28 +62,28 @@ object WideningTest {
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |val x = Test[<1, "x", c.type, E.A.type>](???).map(identity(_))
-      |val y: Test[<1, "x", c.type, E.A.type>] = x // Error
+      |val x = Test[<1, "x", c.type, E.A.type, Object { def bar: Int }>](???).map(identity(_))
+      |val y: Test[<1, "x", c.type, E.A.type, Object { def bar: Int }>] = x // <Error, Error, Error, Error, fine>
       |""".stripMargin.multi,
-    """// NonWideningOfFinalFields_<Literal,StringLit,DependentType,Enum>
+    """// NonWideningOfFinalFields_<Literal,StringLit,DependentType,Enum,Structural>
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
       |object Test {
-      |  final val x = <1, "x", c, E.A>
+      |  final val x = <1, "x", c, E.A, new { def bar: Int = 1 }>
       |}
       |
-      |val y: <1, "x", c.type, E.A.type> = Test.x // <fine, fine, Error, Error>
+      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }> = Test.x // <fine, fine, Error, Error, Error in [Scala3]>
       |""".stripMargin.multi,
-    """// NonWideningOfFinalDefs_<Literal,StringLit,DependentType,Enum>
+    """// NonWideningOfFinalDefs_<Literal,StringLit,DependentType,Enum,Structural>
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
       |object Test {
-      |  final def x = <1, "x", c, E.A>
+      |  final def x = <1, "x", c, E.A, new { def bar: Int = 1 }>
       |}
       |
-      |val y: <1, "x", c.type, E.A.type> = Test.x // Error
+      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }> = Test.x // <Error in both, Error in both, Error in both, Error in both, Error in [Scala3]>
       |""".stripMargin.multi,
   ).flatten
 
