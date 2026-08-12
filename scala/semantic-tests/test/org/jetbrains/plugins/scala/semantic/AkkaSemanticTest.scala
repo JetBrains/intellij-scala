@@ -8,9 +8,9 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.AkkaException
     akka.AkkaVersion
     akka.ConfigurationException
-    //akka.Done
+    akka.Done
     //akka.Main
-    //akka.NotUsed
+    akka.NotUsed
     //akka.OnlyCauseStackTrace
     //akka.UnsupportedAkkaVersion
     //akka.Version
@@ -29,13 +29,13 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.Actor
     //akka.actor.ActorCell
     //akka.actor.ActorContext
-    //akka.actor.ActorIdentity
+    akka.actor.ActorIdentity
     //akka.actor.ActorInitializationException
     //akka.actor.ActorInterruptedException
     //akka.actor.ActorKilledException
     //akka.actor.ActorLogMarker
     //akka.actor.ActorLogging
-    //akka.actor.ActorNotFound
+    akka.actor.ActorNotFound
     //akka.actor.ActorPath
     //akka.actor.ActorPathExtractor
     akka.actor.ActorPaths
@@ -45,12 +45,12 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.actor.ActorRefScope
     akka.actor.ActorRefWithCell
     //akka.actor.ActorSelection
-    //akka.actor.ActorSelectionMessage
+    akka.actor.ActorSelectionMessage
     //akka.actor.ActorSystem
     //akka.actor.ActorSystemImpl
     //akka.actor.Address
     akka.actor.AddressFromURIString
-    //akka.actor.AddressTerminated
+    akka.actor.AddressTerminated
     akka.actor.AllDeadLetters
     //akka.actor.AllForOneStrategy
     //akka.actor.ArgsReflectConstructor
@@ -59,17 +59,17 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.actor.Cancellable
     //akka.actor.Cell
     //akka.actor.ChildActorPath
-    //akka.actor.ChildNameReserved
+    akka.actor.ChildNameReserved
     //akka.actor.ChildRestartStats
     akka.actor.ChildStats
     akka.actor.ClassicActorContextProvider
     akka.actor.ClassicActorSystemProvider
-    //akka.actor.ContextualTypedActorFactory
+    akka.actor.ContextualTypedActorFactory
     //akka.actor.CoordinatedShutdown
     //akka.actor.CoordinatedShutdownTerminationWatcher
     akka.actor.CreatorConsumer
     //akka.actor.CreatorFunctionConsumer
-    //akka.actor.DeadLetter
+    akka.actor.DeadLetter
     //akka.actor.DeadLetterActorRef
     akka.actor.DeadLetterSuppression
     //akka.actor.DeathPactException
@@ -86,37 +86,37 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.actor.ExtensionIdProvider
     //akka.actor.FSM
     //akka.actor.FunctionRef
-    //akka.actor.Identify
+    akka.actor.Identify
     //akka.actor.IgnoreActorRef
     //akka.actor.IllegalActorStateException
     //akka.actor.IndirectActorProducer
     akka.actor.InternalActorRef
-    //akka.actor.InvalidActorNameException
+    akka.actor.InvalidActorNameException
     //akka.actor.InvalidMessageException
     akka.actor.JVMShutdownHooks
-    //akka.actor.Kill
+    akka.actor.Kill
     //akka.actor.LightArrayRevolverScheduler
     //akka.actor.LocalActorRef
     //akka.actor.LocalActorRefProvider
     akka.actor.LocalRef
-    //akka.actor.LocalScope
+    akka.actor.LocalScope
     //akka.actor.LoggingFSM
     akka.actor.MinimalActorRef
     //akka.actor.NoArgsReflectConstructor
-    //akka.actor.NoScopeGiven
+    akka.actor.NoScopeGiven
     akka.actor.NoSerializationVerificationNeeded
     //akka.actor.Nobody
     akka.actor.NotInfluenceReceiveTimeout
     //akka.actor.OneForOneStrategy
     //akka.actor.OriginalRestartException
     //akka.actor.PathUtils
-    //akka.actor.PoisonPill
+    akka.actor.PoisonPill
     akka.actor.PossiblyHarmful
     //akka.actor.PostRestartException
     //akka.actor.PreRestartException
     //akka.actor.Props
     //akka.actor.ProviderSelection
-    //akka.actor.ReceiveTimeout
+    akka.actor.ReceiveTimeout
     //akka.actor.ReflectiveDynamicAccess
     //akka.actor.RelativeActorPath
     //akka.actor.RepointableActorRef
@@ -125,11 +125,11 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.ScalaActorRef
     //akka.actor.ScalaActorSelection
     //akka.actor.Scheduler
-    //akka.actor.SchedulerException
+    akka.actor.SchedulerException
     akka.actor.Scope
-    //akka.actor.SelectChildName
-    //akka.actor.SelectChildPattern
-    //akka.actor.SelectParent
+    akka.actor.SelectChildName
+    akka.actor.SelectChildPattern
+    akka.actor.SelectParent
     akka.actor.SelectionPathElement
     //akka.actor.SerializedActorRef
     //akka.actor.SerializedIgnore
@@ -138,14 +138,14 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.actor.StashFactory
     //akka.actor.StashOverflowException
     //akka.actor.StashSupport
-    //akka.actor.Status
-    //akka.actor.StopChild
+    akka.actor.Status
+    akka.actor.StopChild
     akka.actor.StoppingSupervisorStrategy
     //akka.actor.SupervisorStrategy
     akka.actor.SupervisorStrategyConfigurator
     //akka.actor.SupervisorStrategyLowPriorityImplicits
-    //akka.actor.SuppressedDeadLetter
-    //akka.actor.SystemGuardian
+    akka.actor.SuppressedDeadLetter
+    akka.actor.SystemGuardian
     //akka.actor.Terminated
     akka.actor.TimerScheduler
     //akka.actor.TimerSchedulerImpl
@@ -184,7 +184,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.BehaviorInterceptor
     //akka.actor.typed.BehaviorSignalInterceptor
     //akka.actor.typed.ChildFailed
-    //akka.actor.typed.DeathPactException
+    akka.actor.typed.DeathPactException
     akka.actor.typed.DispatcherSelector
     //akka.actor.typed.Dispatchers
     akka.actor.typed.ExtensibleBehavior
@@ -194,9 +194,9 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.actor.typed.Extensions
     //akka.actor.typed.LogOptions
     akka.actor.typed.MailboxSelector
-    //akka.actor.typed.MessageAdaptionFailure
-    //akka.actor.typed.PostStop
-    //akka.actor.typed.PreRestart
+    akka.actor.typed.MessageAdaptionFailure
+    akka.actor.typed.PostStop
+    akka.actor.typed.PreRestart
     //akka.actor.typed.Props
     //akka.actor.typed.RecipientRef
     akka.actor.typed.RestartSupervisorStrategy
@@ -223,13 +223,13 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.internal.ActorFlightRecorder
     //akka.actor.typed.internal.ActorMdc
     //akka.actor.typed.internal.ActorRefImpl
-    //akka.actor.typed.internal.AdaptMessage
-    //akka.actor.typed.internal.AdaptWithRegisteredMessageAdapter
+    akka.actor.typed.internal.AdaptMessage
+    akka.actor.typed.internal.AdaptWithRegisteredMessageAdapter
     //akka.actor.typed.internal.BehaviorImpl
     //akka.actor.typed.internal.BehaviorTags
-    //akka.actor.typed.internal.CachedProps
-    //akka.actor.typed.internal.Create
-    //akka.actor.typed.internal.DeathWatchNotification
+    akka.actor.typed.internal.CachedProps
+    akka.actor.typed.internal.Create
+    akka.actor.typed.internal.DeathWatchNotification
     akka.actor.typed.internal.DeliveryFlightRecorder
     //akka.actor.typed.internal.EarliestFirstSystemMessageList
     //akka.actor.typed.internal.EventStreamExtension
@@ -242,10 +242,10 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.internal.LoggerClass
     //akka.actor.typed.internal.MiscMessageSerializer
     //akka.actor.typed.internal.MonitorInterceptor
-    //akka.actor.typed.internal.NoMessage
-    //akka.actor.typed.internal.NoOpActorFlightRecorder
+    akka.actor.typed.internal.NoMessage
+    akka.actor.typed.internal.NoOpActorFlightRecorder
     akka.actor.typed.internal.NoOpDeliveryFlightRecorder
-    //akka.actor.typed.internal.PoisonPill
+    akka.actor.typed.internal.PoisonPill
     akka.actor.typed.internal.PoisonPillInterceptor
     //akka.actor.typed.internal.PropsImpl
     //akka.actor.typed.internal.RestartSupervisor
@@ -256,13 +256,13 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.internal.Supervisor
     //akka.actor.typed.internal.SystemMessage
     //akka.actor.typed.internal.SystemMessageList
-    //akka.actor.typed.internal.Terminate
+    akka.actor.typed.internal.Terminate
     akka.actor.typed.internal.TimerSchedulerCrossDslSupport
     //akka.actor.typed.internal.TimerSchedulerImpl
     //akka.actor.typed.internal.TransformMessagesInterceptor
     //akka.actor.typed.internal.UnstashException
-    //akka.actor.typed.internal.Unwatch
-    //akka.actor.typed.internal.Watch
+    akka.actor.typed.internal.Unwatch
+    akka.actor.typed.internal.Watch
     //akka.actor.typed.internal.WithMdcBehaviorInterceptor
     //akka.actor.typed.internal.adapter.ActorAdapter
     //akka.actor.typed.internal.adapter.ActorContextAdapter
@@ -278,7 +278,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.internal.adapter.SchedulerAdapter
     //akka.actor.typed.internal.pubsub.TopicImpl
     akka.actor.typed.internal.receptionist.AbstractServiceKey
-    //akka.actor.typed.internal.receptionist.DefaultServiceKey
+    akka.actor.typed.internal.receptionist.DefaultServiceKey
     //akka.actor.typed.internal.receptionist.LocalReceptionist
     //akka.actor.typed.internal.receptionist.Platform
     akka.actor.typed.internal.receptionist.ReceptionistBehaviorProvider
@@ -345,9 +345,9 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.cluster.ClusterNodeMBean
     //akka.cluster.ClusterReadView
     //akka.cluster.ClusterRemoteWatcher
-    //akka.cluster.ClusterScope
+    akka.cluster.ClusterScope
     //akka.cluster.ClusterSettings
-    //akka.cluster.ClusterUserAction
+    akka.cluster.ClusterUserAction
     //akka.cluster.ConfigValidation
     //akka.cluster.CoordinatedShutdownLeave
     //akka.cluster.CrossDcHeartbeatSender
@@ -361,8 +361,8 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.cluster.GossipStatus
     //akka.cluster.GossipTargetSelector
     //akka.cluster.HeartbeatNodeRing
-    //akka.cluster.InternalClusterAction
-    //akka.cluster.Invalid
+    akka.cluster.InternalClusterAction
+    akka.cluster.Invalid
     //akka.cluster.JoinConfigCompatCheckCluster
     //akka.cluster.JoinConfigCompatChecker
     //akka.cluster.JoinSeedNodeProcess
@@ -374,13 +374,13 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.cluster.Reachability
     //akka.cluster.SeedNodeProcess
     //akka.cluster.UniqueAddress
-    //akka.cluster.Valid
+    akka.cluster.Valid
     //akka.cluster.VectorClock
     //akka.cluster.VectorClockStats
     //akka.cluster.protobuf.ClusterMessageSerializer
     //akka.cluster.routing.ClusterRouterActor
     //akka.cluster.routing.ClusterRouterConfigBase
-    //akka.cluster.routing.ClusterRouterGroup
+    akka.cluster.routing.ClusterRouterGroup
     //akka.cluster.routing.ClusterRouterGroupActor
     //akka.cluster.routing.ClusterRouterGroupSettings
     //akka.cluster.routing.ClusterRouterPool
@@ -391,15 +391,15 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.cluster.sbr.DowningStrategy
     //akka.cluster.sbr.KeepMajority
     //akka.cluster.sbr.KeepOldest
-    //akka.cluster.sbr.KeepOldestSettings
+    akka.cluster.sbr.KeepOldestSettings
     //akka.cluster.sbr.LeaseMajority
-    //akka.cluster.sbr.LeaseMajoritySettings
+    akka.cluster.sbr.LeaseMajoritySettings
     //akka.cluster.sbr.SplitBrainResolver
     //akka.cluster.sbr.SplitBrainResolverBase
     //akka.cluster.sbr.SplitBrainResolverProvider
     //akka.cluster.sbr.SplitBrainResolverSettings
     akka.cluster.sbr.StaticQuorum
-    //akka.cluster.sbr.StaticQuorumSettings
+    akka.cluster.sbr.StaticQuorumSettings
     //akka.compat.Future
     akka.compat.PartialFunction
     akka.coordination.lease.LeaseException
@@ -431,7 +431,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.dispatch.CachingConfig
     //akka.dispatch.ControlAwareMessageQueueSemantics
     akka.dispatch.ControlMessage
-    //akka.dispatch.DefaultDispatcherPrerequisites
+    akka.dispatch.DefaultDispatcherPrerequisites
     //akka.dispatch.DefaultExecutorServiceConfigurator
     //akka.dispatch.DefaultSystemMessageQueue
     akka.dispatch.DequeBasedMessageQueue
@@ -461,20 +461,20 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.dispatch.MonitorableThreadFactory
     akka.dispatch.MultipleConsumerSemantics
     //akka.dispatch.NodeMessageQueue
-    //akka.dispatch.NonBlockingBoundedMailbox
-    //akka.dispatch.OnComplete
-    //akka.dispatch.OnFailure
-    //akka.dispatch.OnSuccess
+    akka.dispatch.NonBlockingBoundedMailbox
+    akka.dispatch.OnComplete
+    akka.dispatch.OnFailure
+    akka.dispatch.OnSuccess
     //akka.dispatch.PinnedDispatcher
     //akka.dispatch.PinnedDispatcherConfigurator
     akka.dispatch.PriorityGenerator
     akka.dispatch.ProducesMessageQueue
     akka.dispatch.ProducesPushTimeoutSemanticsMailbox
     //akka.dispatch.QueueBasedMessageQueue
-    //akka.dispatch.Recover
+    akka.dispatch.Recover
     akka.dispatch.RequiresMessageQueue
     akka.dispatch.SaneRejectedExecutionHandler
-    //akka.dispatch.SingleConsumerOnlyUnboundedMailbox
+    akka.dispatch.SingleConsumerOnlyUnboundedMailbox
     akka.dispatch.SystemMessageQueue
     //akka.dispatch.TaskInvocation
     //akka.dispatch.ThreadPoolConfig
@@ -501,27 +501,27 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.dispatch.affinity.ThrowOnOverflowRejectionHandler
     akka.dispatch.internal.SameThreadExecutionContext
     //akka.dispatch.internal.ScalaBatchable
-    //akka.dispatch.sysmsg.Create
-    //akka.dispatch.sysmsg.DeathWatchNotification
+    akka.dispatch.sysmsg.Create
+    akka.dispatch.sysmsg.DeathWatchNotification
     //akka.dispatch.sysmsg.EarliestFirstSystemMessageList
-    //akka.dispatch.sysmsg.Failed
+    akka.dispatch.sysmsg.Failed
     //akka.dispatch.sysmsg.LatestFirstSystemMessageList
-    //akka.dispatch.sysmsg.NoMessage
-    //akka.dispatch.sysmsg.Recreate
-    //akka.dispatch.sysmsg.Resume
+    akka.dispatch.sysmsg.NoMessage
+    akka.dispatch.sysmsg.Recreate
+    akka.dispatch.sysmsg.Resume
     akka.dispatch.sysmsg.StashWhenFailed
     akka.dispatch.sysmsg.StashWhenWaitingForChildren
-    //akka.dispatch.sysmsg.Supervise
-    //akka.dispatch.sysmsg.Suspend
+    akka.dispatch.sysmsg.Supervise
+    akka.dispatch.sysmsg.Suspend
     //akka.dispatch.sysmsg.SystemMessage
     //akka.dispatch.sysmsg.SystemMessageList
-    //akka.dispatch.sysmsg.Terminate
-    //akka.dispatch.sysmsg.Unwatch
-    //akka.dispatch.sysmsg.Watch
+    akka.dispatch.sysmsg.Terminate
+    akka.dispatch.sysmsg.Unwatch
+    akka.dispatch.sysmsg.Watch
     //akka.event.ActorClassificationUnsubscriber
     akka.event.ActorClassifier
     akka.event.ActorEventBus
-    //akka.event.ActorWithLogClass
+    akka.event.ActorWithLogClass
     //akka.event.AddressTerminatedTopic
     //akka.event.BusLogging
     //akka.event.DeadLetterListener
@@ -544,11 +544,11 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.event.LoggingFilterWithMarker
     akka.event.LoggingFilterWithMarkerWrapper
     //akka.event.LoggingReceive
-    //akka.event.LookupClassification
+    akka.event.LookupClassification
     //akka.event.ManagedActorClassification
     //akka.event.MarkerLoggingAdapter
-    //akka.event.NoLogging
-    //akka.event.NoMarkerLogging
+    akka.event.NoLogging
+    akka.event.NoMarkerLogging
     akka.event.PredicateClassifier
     //akka.event.ScanningClassification
     //akka.event.SubchannelClassification
@@ -576,17 +576,17 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.engine.HttpIdleTimeoutException
     //akka.http.impl.engine.client.HttpsProxyGraphStage
     //akka.http.impl.engine.client.OutgoingConnectionBlueprint
-    //akka.http.impl.engine.client.PoolFlow
+    akka.http.impl.engine.client.PoolFlow
     //akka.http.impl.engine.client.PoolId
     //akka.http.impl.engine.client.PoolInterface
     //akka.http.impl.engine.client.PoolMaster
     //akka.http.impl.engine.client.PoolMasterActor
-    //akka.http.impl.engine.client.ProxyConnectionFailedException
+    akka.http.impl.engine.client.ProxyConnectionFailedException
     //akka.http.impl.engine.client.pool.NewHostConnectionPool
     akka.http.impl.engine.client.pool.SlotContext
     //akka.http.impl.engine.client.pool.SlotState
     //akka.http.impl.engine.http2.BufferedOutlet
-    //akka.http.impl.engine.http2.BufferedOutletExtended
+    akka.http.impl.engine.http2.BufferedOutletExtended
     //akka.http.impl.engine.http2.ByteFlag
     //akka.http.impl.engine.http2.ConfigurablePing
     //akka.http.impl.engine.http2.FrameEvent
@@ -621,7 +621,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.engine.http2.RequestRendering
     //akka.http.impl.engine.http2.ResponseRendering
     //akka.http.impl.engine.http2.StreamPrioritizer
-    //akka.http.impl.engine.http2.TelemetryAttributes
+    akka.http.impl.engine.http2.TelemetryAttributes
     //akka.http.impl.engine.http2.TelemetrySpi
     //akka.http.impl.engine.http2.client.PersistentConnection
     //akka.http.impl.engine.http2.client.ResponseParsing
@@ -653,15 +653,15 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.engine.rendering.ResponseRenderingContext
     //akka.http.impl.engine.rendering.ResponseRenderingOutput
     //akka.http.impl.engine.server.GracefulTerminatorStage
-    //akka.http.impl.engine.server.HttpAttributes
+    akka.http.impl.engine.server.HttpAttributes
     //akka.http.impl.engine.server.HttpServerBluePrint
     akka.http.impl.engine.server.InternalCustomHeader
     //akka.http.impl.engine.server.MasterServerTerminator
     akka.http.impl.engine.server.ServerTerminationDeadlineReached
     akka.http.impl.engine.server.ServerTerminator
-    //akka.http.impl.engine.server.UpgradeToOtherProtocolResponseHeader
-    //akka.http.impl.engine.ws.FrameData
-    //akka.http.impl.engine.ws.FrameError
+    akka.http.impl.engine.server.UpgradeToOtherProtocolResponseHeader
+    akka.http.impl.engine.ws.FrameData
+    akka.http.impl.engine.ws.FrameError
     //akka.http.impl.engine.ws.FrameEvent
     akka.http.impl.engine.ws.FrameEventOrError
     //akka.http.impl.engine.ws.FrameEventParser
@@ -670,12 +670,12 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.engine.ws.FrameHeader
     //akka.http.impl.engine.ws.FrameLogger
     //akka.http.impl.engine.ws.FrameOutHandler
-    //akka.http.impl.engine.ws.FrameStart
+    akka.http.impl.engine.ws.FrameStart
     //akka.http.impl.engine.ws.Handshake
     //akka.http.impl.engine.ws.Masking
     //akka.http.impl.engine.ws.MessageToFrameRenderer
     //akka.http.impl.engine.ws.Protocol
-    //akka.http.impl.engine.ws.ProtocolException
+    akka.http.impl.engine.ws.ProtocolException
     //akka.http.impl.engine.ws.Randoms
     akka.http.impl.engine.ws.StreamingCharsetDecoder
     akka.http.impl.engine.ws.StreamingCharsetDecoderInstance
@@ -706,7 +706,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.settings.ClientConnectionSettingsImpl
     //akka.http.impl.settings.ConnectionPoolSettingsImpl
     //akka.http.impl.settings.ConnectionPoolSetup
-    //akka.http.impl.settings.HostConnectionPoolSetup
+    akka.http.impl.settings.HostConnectionPoolSetup
     //akka.http.impl.settings.HttpsProxySettingsImpl
     //akka.http.impl.settings.ParserSettingsImpl
     //akka.http.impl.settings.PreviewServerSettingsImpl
@@ -718,7 +718,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.http.impl.util.ByteStringParserInput
     //akka.http.impl.util.ByteStringRendering
     //akka.http.impl.util.CustomCharsetByteStringRendering
-    //akka.http.impl.util.DefaultNoLogging
+    akka.http.impl.util.DefaultNoLogging
     //akka.http.impl.util.EnhancedByteArray
     //akka.http.impl.util.EnhancedByteStringSource
     //akka.http.impl.util.EnhancedByteStringTraversableOnce
@@ -909,9 +909,9 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.ClientTransport
     //akka.http.scaladsl.ConnectionContext
     //akka.http.scaladsl.DefaultSSLContextCreation
-    //akka.http.scaladsl.DeprecatedSslContextParameters
+    akka.http.scaladsl.DeprecatedSslContextParameters
     //akka.http.scaladsl.Http
-    //akka.http.scaladsl.HttpConnectionContext
+    akka.http.scaladsl.HttpConnectionContext
     //akka.http.scaladsl.HttpExt
     //akka.http.scaladsl.HttpsConnectionContext
     //akka.http.scaladsl.OutgoingConnectionBuilder
@@ -1008,7 +1008,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.http.scaladsl.model.RequestEntity
     //akka.http.scaladsl.model.RequestEntityAcceptance
     //akka.http.scaladsl.model.RequestResponseAssociation
-    //akka.http.scaladsl.model.RequestTimeoutException
+    akka.http.scaladsl.model.RequestTimeoutException
     //akka.http.scaladsl.model.ResponseEntity
     //akka.http.scaladsl.model.ResponsePromise
     //akka.http.scaladsl.model.SensitiveHttpHeader
@@ -1056,8 +1056,8 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.headers.HttpEncodings
     //akka.http.scaladsl.model.headers.HttpOrigin
     //akka.http.scaladsl.model.headers.HttpOriginRange
-    //akka.http.scaladsl.model.headers.IgnoredDirective
-    //akka.http.scaladsl.model.headers.IncludeSubDomains
+    akka.http.scaladsl.model.headers.IgnoredDirective
+    akka.http.scaladsl.model.headers.IncludeSubDomains
     //akka.http.scaladsl.model.headers.Language
     //akka.http.scaladsl.model.headers.LanguageRange
     //akka.http.scaladsl.model.headers.Link
@@ -1065,7 +1065,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.headers.LinkParams
     //akka.http.scaladsl.model.headers.LinkValue
     //akka.http.scaladsl.model.headers.Location
-    //akka.http.scaladsl.model.headers.MaxAge
+    akka.http.scaladsl.model.headers.MaxAge
     //akka.http.scaladsl.model.headers.ModeledCompanion
     //akka.http.scaladsl.model.headers.ModeledCustomHeader
     //akka.http.scaladsl.model.headers.ModeledCustomHeaderCompanion
@@ -1081,8 +1081,8 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.headers.RequestHeader
     //akka.http.scaladsl.model.headers.RequestResponseHeader
     //akka.http.scaladsl.model.headers.ResponseHeader
-    //akka.http.scaladsl.model.headers.RetryAfterDateTime
-    //akka.http.scaladsl.model.headers.RetryAfterDuration
+    akka.http.scaladsl.model.headers.RetryAfterDateTime
+    akka.http.scaladsl.model.headers.RetryAfterDuration
     akka.http.scaladsl.model.headers.RetryAfterParameter
     //akka.http.scaladsl.model.headers.SameSite
     //akka.http.scaladsl.model.headers.Server
@@ -1144,7 +1144,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.http2.PeerClosedStreamException
     //akka.http.scaladsl.model.sse.ServerSentEvent
     //akka.http.scaladsl.model.ws.BinaryMessage
-    //akka.http.scaladsl.model.ws.InvalidUpgradeResponse
+    akka.http.scaladsl.model.ws.InvalidUpgradeResponse
     """)
 
   @Test def test2(): Unit = doTest("""
@@ -1152,39 +1152,39 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.ws.PeerClosedConnectionException
     //akka.http.scaladsl.model.ws.TextMessage
     //akka.http.scaladsl.model.ws.UpgradeToWebSocket
-    //akka.http.scaladsl.model.ws.ValidUpgrade
+    akka.http.scaladsl.model.ws.ValidUpgrade
     //akka.http.scaladsl.model.ws.WebSocketRequest
     //akka.http.scaladsl.model.ws.WebSocketUpgrade
     akka.http.scaladsl.model.ws.WebSocketUpgradeResponse
     //akka.http.scaladsl.server.AuthenticationFailedRejection
-    //akka.http.scaladsl.server.AuthorizationFailedRejection
+    akka.http.scaladsl.server.AuthorizationFailedRejection
     //akka.http.scaladsl.server.CharsetNegotiator
-    //akka.http.scaladsl.server.CircuitBreakerOpenRejection
+    akka.http.scaladsl.server.CircuitBreakerOpenRejection
     //akka.http.scaladsl.server.ConjunctionMagnet
     //akka.http.scaladsl.server.ContentNegotiator
     //akka.http.scaladsl.server.Directive
     akka.http.scaladsl.server.Directives
     //akka.http.scaladsl.server.EncodingNegotiator
     //akka.http.scaladsl.server.ExceptionHandler
-    //akka.http.scaladsl.server.ExpectedWebSocketRequestRejection
+    akka.http.scaladsl.server.ExpectedWebSocketRequestRejection
     //akka.http.scaladsl.server.HttpApp
     //akka.http.scaladsl.server.ImplicitPathMatcherConstruction
-    //akka.http.scaladsl.server.InvalidOriginRejection
-    //akka.http.scaladsl.server.InvalidRequiredValueForQueryParamRejection
+    akka.http.scaladsl.server.InvalidOriginRejection
+    akka.http.scaladsl.server.InvalidRequiredValueForQueryParamRejection
     //akka.http.scaladsl.server.LanguageNegotiator
     akka.http.scaladsl.server.LowerPriorityRouteResultImplicits
     akka.http.scaladsl.server.LowerPriorityRoutingLogImplicits
     //akka.http.scaladsl.server.MalformedFormFieldRejection
     //akka.http.scaladsl.server.MalformedHeaderRejection
     //akka.http.scaladsl.server.MalformedQueryParamRejection
-    //akka.http.scaladsl.server.MalformedRequestContentRejection
+    akka.http.scaladsl.server.MalformedRequestContentRejection
     //akka.http.scaladsl.server.MediaTypeNegotiator
-    //akka.http.scaladsl.server.MethodRejection
-    //akka.http.scaladsl.server.MissingAttributeRejection
-    //akka.http.scaladsl.server.MissingCookieRejection
-    //akka.http.scaladsl.server.MissingFormFieldRejection
-    //akka.http.scaladsl.server.MissingHeaderRejection
-    //akka.http.scaladsl.server.MissingQueryParamRejection
+    akka.http.scaladsl.server.MethodRejection
+    akka.http.scaladsl.server.MissingAttributeRejection
+    akka.http.scaladsl.server.MissingCookieRejection
+    akka.http.scaladsl.server.MissingFormFieldRejection
+    akka.http.scaladsl.server.MissingHeaderRejection
+    akka.http.scaladsl.server.MissingQueryParamRejection
     //akka.http.scaladsl.server.PathMatcher
     //akka.http.scaladsl.server.PathMatchers
     akka.http.scaladsl.server.Rejection
@@ -1193,21 +1193,21 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.http.scaladsl.server.RejectionWithOptionalCause
     akka.http.scaladsl.server.RequestContext
     //akka.http.scaladsl.server.RequestContextImpl
-    //akka.http.scaladsl.server.RequestEntityExpectedRejection
+    akka.http.scaladsl.server.RequestEntityExpectedRejection
     //akka.http.scaladsl.server.Route
     //akka.http.scaladsl.server.RouteConcatenation
     //akka.http.scaladsl.server.RouteResult
     akka.http.scaladsl.server.RoutingLog
-    //akka.http.scaladsl.server.SchemeRejection
+    akka.http.scaladsl.server.SchemeRejection
     //akka.http.scaladsl.server.StandardRoute
-    //akka.http.scaladsl.server.TooManyRangesRejection
+    akka.http.scaladsl.server.TooManyRangesRejection
     //akka.http.scaladsl.server.TransformationRejection
-    //akka.http.scaladsl.server.UnacceptedResponseContentTypeRejection
+    akka.http.scaladsl.server.UnacceptedResponseContentTypeRejection
     //akka.http.scaladsl.server.UnacceptedResponseEncodingRejection
-    //akka.http.scaladsl.server.UnsatisfiableRangeRejection
+    akka.http.scaladsl.server.UnsatisfiableRangeRejection
     //akka.http.scaladsl.server.UnsupportedRequestContentTypeRejection
-    //akka.http.scaladsl.server.UnsupportedRequestEncodingRejection
-    //akka.http.scaladsl.server.UnsupportedWebSocketSubprotocolRejection
+    akka.http.scaladsl.server.UnsupportedRequestEncodingRejection
+    akka.http.scaladsl.server.UnsupportedWebSocketSubprotocolRejection
     //akka.http.scaladsl.server.ValidationRejection
     //akka.http.scaladsl.server.directives.AttributeDirectives
     //akka.http.scaladsl.server.directives.AuthenticationDirective
@@ -1223,7 +1223,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.server.directives.DirectoryListing
     //akka.http.scaladsl.server.directives.ExecutionDirectives
     //akka.http.scaladsl.server.directives.FileAndResourceDirectives
-    //akka.http.scaladsl.server.directives.FileInfo
+    akka.http.scaladsl.server.directives.FileInfo
     //akka.http.scaladsl.server.directives.FileUploadDirectives
     //akka.http.scaladsl.server.directives.FormFieldDirectives
     //akka.http.scaladsl.server.directives.FormFieldDirectivesInstances
@@ -1349,7 +1349,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.io.dns.internal.Question
     //akka.io.dns.internal.RecordClassSerializer
     //akka.io.dns.internal.RecordTypeSerializer
-    //akka.io.dns.internal.ResolvConf
+    akka.io.dns.internal.ResolvConf
     //akka.io.dns.internal.ResolvConfParser
     //akka.io.dns.internal.ResponseCode
     //akka.io.dns.internal.TcpDnsClient
@@ -1357,7 +1357,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.japi.Effect
     akka.japi.Function
     akka.japi.Function2
-    //akka.japi.JavaPartialFunction
+    akka.japi.JavaPartialFunction
     //akka.japi.Option
     //akka.japi.Pair
     akka.japi.Predicate
@@ -1471,7 +1471,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.parboiled2.support.Unpack
     //akka.parboiled2.support.hlist.::
     //akka.parboiled2.support.hlist.HList
-    //akka.parboiled2.support.hlist.HNil
+    akka.parboiled2.support.hlist.HNil
     //akka.parboiled2.support.hlist.ops.hlist
     akka.parboiled2.support.hlist.syntax.HListOps
     //akka.parboiled2.util.Base64
@@ -1480,7 +1480,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.pattern.AskTimeoutException
     //akka.pattern.AskableActorRef
     //akka.pattern.AskableActorSelection
-    //akka.pattern.AutoReset
+    akka.pattern.AutoReset
     akka.pattern.BackoffOnFailureOptions
     //akka.pattern.BackoffOnFailureOptionsImpl
     akka.pattern.BackoffOnStopOptions
@@ -1495,21 +1495,21 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.pattern.ExplicitlyAskableActorRef
     //akka.pattern.ExplicitlyAskableActorSelection
     //akka.pattern.ExtendedBackoffOptions
-    //akka.pattern.ForwardDeathLetters
-    //akka.pattern.ForwardTo
+    akka.pattern.ForwardDeathLetters
+    akka.pattern.ForwardTo
     akka.pattern.FutureRef
     akka.pattern.FutureRefImpl
     //akka.pattern.FutureTimeoutSupport
     //akka.pattern.GracefulStopSupport
     //akka.pattern.HandleBackoff
     akka.pattern.HandlingWhileStopped
-    //akka.pattern.ManualReset
+    akka.pattern.ManualReset
     //akka.pattern.Patterns
     //akka.pattern.PipeToSupport
     //akka.pattern.PromiseActorRef
     //akka.pattern.PromiseRef
     akka.pattern.PromiseRefImpl
-    //akka.pattern.ReplyWith
+    akka.pattern.ReplyWith
     //akka.pattern.RetrySupport
     //akka.pattern.StatusReply
     //akka.pattern.internal.BackoffOnRestartSupervisor
@@ -1525,18 +1525,18 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.persistence.AtLeastOnceDelivery
     //akka.persistence.AtLeastOnceDeliveryLike
     //akka.persistence.AtomicWrite
-    //akka.persistence.DeleteMessagesFailure
-    //akka.persistence.DeleteMessagesSuccess
-    //akka.persistence.DeleteSnapshotFailure
-    //akka.persistence.DeleteSnapshotSuccess
-    //akka.persistence.DeleteSnapshotsFailure
-    //akka.persistence.DeleteSnapshotsSuccess
+    akka.persistence.DeleteMessagesFailure
+    akka.persistence.DeleteMessagesSuccess
+    akka.persistence.DeleteSnapshotFailure
+    akka.persistence.DeleteSnapshotSuccess
+    akka.persistence.DeleteSnapshotsFailure
+    akka.persistence.DeleteSnapshotsSuccess
     akka.persistence.DiscardConfigurator
-    //akka.persistence.DiscardToDeadLetterStrategy
+    akka.persistence.DiscardToDeadLetterStrategy
     //akka.persistence.Eventsourced
-    //akka.persistence.FilteredPayload
-    //akka.persistence.JournalProtocol
-    //akka.persistence.NonPersistentRepr
+    akka.persistence.FilteredPayload
+    akka.persistence.JournalProtocol
+    akka.persistence.NonPersistentRepr
     //akka.persistence.Persistence
     akka.persistence.PersistenceIdentity
     //akka.persistence.PersistencePlugin
@@ -1550,23 +1550,23 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.persistence.PluginProvider
     akka.persistence.Protocol
     //akka.persistence.Recovery
-    //akka.persistence.RecoveryCompleted
+    akka.persistence.RecoveryCompleted
     //akka.persistence.RecoveryPermitter
     akka.persistence.RecoveryTimedOut
-    //akka.persistence.ReplyToStrategy
+    akka.persistence.ReplyToStrategy
     akka.persistence.RuntimePluginConfig
-    //akka.persistence.SaveSnapshotFailure
-    //akka.persistence.SaveSnapshotSuccess
+    akka.persistence.SaveSnapshotFailure
+    akka.persistence.SaveSnapshotSuccess
     //akka.persistence.SelectedSnapshot
     //akka.persistence.SnapshotMetadata
-    //akka.persistence.SnapshotOffer
-    //akka.persistence.SnapshotProtocol
+    akka.persistence.SnapshotOffer
+    akka.persistence.SnapshotProtocol
     //akka.persistence.SnapshotSelectionCriteria
     //akka.persistence.Snapshotter
     akka.persistence.StashOverflowStrategy
     akka.persistence.StashOverflowStrategyConfigurator
     akka.persistence.ThrowExceptionConfigurator
-    //akka.persistence.ThrowOverflowExceptionStrategy
+    akka.persistence.ThrowOverflowExceptionStrategy
     akka.persistence.TraitOrder
     //akka.persistence.fsm.AbstractPersistentFSM
     //akka.persistence.fsm.AbstractPersistentFSMBase
@@ -1579,23 +1579,23 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.persistence.journal.AsyncReplayTimeoutException
     //akka.persistence.journal.AsyncWriteJournal
     //akka.persistence.journal.AsyncWriteProxy
-    //akka.persistence.journal.AsyncWriteTarget
+    akka.persistence.journal.AsyncWriteTarget
     //akka.persistence.journal.EmptyEventSeq
     akka.persistence.journal.EventAdapter
     //akka.persistence.journal.EventAdapters
     //akka.persistence.journal.EventSeq
-    //akka.persistence.journal.EventsSeq
-    //akka.persistence.journal.IdentityEventAdapter
-    //akka.persistence.journal.IdentityEventAdapters
-    //akka.persistence.journal.NoopReadEventAdapter
-    //akka.persistence.journal.NoopWriteEventAdapter
+    akka.persistence.journal.EventsSeq
+    akka.persistence.journal.IdentityEventAdapter
+    akka.persistence.journal.IdentityEventAdapters
+    akka.persistence.journal.NoopReadEventAdapter
+    akka.persistence.journal.NoopWriteEventAdapter
     //akka.persistence.journal.PersistencePluginProxy
     akka.persistence.journal.PersistencePluginProxyExtension
     //akka.persistence.journal.PersistencePluginProxyExtensionImpl
     akka.persistence.journal.ReadEventAdapter
     //akka.persistence.journal.ReplayFilter
     //akka.persistence.journal.ReplayMediator
-    //akka.persistence.journal.SingleEventSeq
+    akka.persistence.journal.SingleEventSeq
     //akka.persistence.journal.Tagged
     akka.persistence.journal.WriteEventAdapter
     //akka.persistence.journal.WriteJournalBase
@@ -1613,7 +1613,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.persistence.serialization.FilteredPayloadSerializer
     akka.persistence.serialization.Message
     //akka.persistence.serialization.MessageSerializer
-    //akka.persistence.serialization.Snapshot
+    akka.persistence.serialization.Snapshot
     //akka.persistence.serialization.SnapshotSerializer
     //akka.persistence.snapshot.NoSnapshotStore
     //akka.persistence.snapshot.SnapshotStore
@@ -1623,10 +1623,10 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.persistence.state.DurableStateStoreRegistry
     akka.persistence.state.javadsl.DurableStateStore
     akka.persistence.state.javadsl.DurableStateUpdateStore
-    //akka.persistence.state.javadsl.GetObjectResult
+    akka.persistence.state.javadsl.GetObjectResult
     akka.persistence.state.scaladsl.DurableStateStore
     akka.persistence.state.scaladsl.DurableStateUpdateStore
-    //akka.persistence.state.scaladsl.GetObjectResult
+    akka.persistence.state.scaladsl.GetObjectResult
     //akka.pki.pem.DERPrivateKeyLoader
     //akka.pki.pem.PEMDecoder
     akka.pki.pem.PEMLoadingException
@@ -1634,7 +1634,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.BoundAddressesExtension
     //akka.remote.ByteStringUtils
     akka.remote.DaemonMsg
-    //akka.remote.DaemonMsgCreate
+    akka.remote.DaemonMsgCreate
     //akka.remote.DeadlineFailureDetector
     //akka.remote.DefaultFailureDetectorRegistry
     //akka.remote.FailureDetector
@@ -1653,17 +1653,17 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.RemoteDeploymentWatcher
     //akka.remote.RemoteLogMarker
     akka.remote.RemoteRef
-    //akka.remote.RemoteScope
+    akka.remote.RemoteScope
     //akka.remote.RemoteSettings
     //akka.remote.RemoteSystemDaemon
     //akka.remote.RemoteTransport
     akka.remote.RemoteTransportException
     akka.remote.RemoteTransportExceptionNoStackTrace
     //akka.remote.RemoteWatcher
-    //akka.remote.UniqueAddress
+    akka.remote.UniqueAddress
     //akka.remote.artery.ActorRefResolveCacheWithAddress
-    //akka.remote.artery.ActorSystemTerminating
-    //akka.remote.artery.ActorSystemTerminatingAck
+    akka.remote.artery.ActorSystemTerminating
+    akka.remote.artery.ActorSystemTerminatingAck
     akka.remote.artery.ArteryMessage
     //akka.remote.artery.ArterySettings
     //akka.remote.artery.ArteryTransport
@@ -1671,7 +1671,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.artery.AssociationRegistry
     //akka.remote.artery.AssociationState
     //akka.remote.artery.ByteFlag
-    //akka.remote.artery.CacheStatistics
+    akka.remote.artery.CacheStatistics
     akka.remote.artery.ControlMessage
     //akka.remote.artery.Decoder
     //akka.remote.artery.Deserializer
@@ -1682,8 +1682,8 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.artery.EnvelopeBufferPool
     //akka.remote.artery.FixedSizePartitionHub
     //akka.remote.artery.FixedSizePartitionQueue
-    //akka.remote.artery.Flush
-    //akka.remote.artery.FlushAck
+    akka.remote.artery.Flush
+    akka.remote.artery.FlushAck
     //akka.remote.artery.FlushBeforeDeathWatchNotification
     //akka.remote.artery.FlushOnShutdown
     //akka.remote.artery.GracefulShutdownQuarantinedEvent
@@ -1699,7 +1699,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.artery.LoggingRemoteInstrument
     //akka.remote.artery.LruBoundedCache
     //akka.remote.artery.MessageDispatcher
-    //akka.remote.artery.NoOpRemotingFlightRecorder
+    akka.remote.artery.NoOpRemotingFlightRecorder
     //akka.remote.artery.ObjectPool
     akka.remote.artery.OutOfBuffersException
     akka.remote.artery.OutboundContext
@@ -1708,7 +1708,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.artery.OutboundHandshake
     //akka.remote.artery.OutboundTestStage
     akka.remote.artery.OversizedPayloadException
-    //akka.remote.artery.Quarantined
+    akka.remote.artery.Quarantined
     //akka.remote.artery.QuarantinedEvent
     akka.remote.artery.RemoteInstrument
     //akka.remote.artery.RemoteInstruments
@@ -1722,12 +1722,12 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.artery.SharedTestState
     //akka.remote.artery.SystemMessageAcker
     //akka.remote.artery.SystemMessageDelivery
-    //akka.remote.artery.TestManagementCommands
-    //akka.remote.artery.TestState
-    //akka.remote.artery.ThisActorSystemQuarantinedEvent
+    akka.remote.artery.TestManagementCommands
+    akka.remote.artery.TestState
+    akka.remote.artery.ThisActorSystemQuarantinedEvent
     //akka.remote.artery.aeron.AeronSource
     //akka.remote.artery.aeron.TaskRunner
-    //akka.remote.artery.compress.CompressionProtocol
+    akka.remote.artery.compress.CompressionProtocol
     //akka.remote.artery.compress.CompressionTable
     //akka.remote.artery.compress.DecompressionTable
     //akka.remote.artery.compress.InboundActorRefCompression
@@ -1735,7 +1735,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.remote.artery.compress.InboundCompressions
     //akka.remote.artery.compress.InboundCompressionsImpl
     //akka.remote.artery.compress.InboundManifestCompression
-    //akka.remote.artery.compress.NoInboundCompressions
+    akka.remote.artery.compress.NoInboundCompressions
     //akka.remote.artery.compress.TopHeavyHitters
     //akka.remote.artery.compress.UnknownCompressedIdException
     //akka.remote.artery.tcp.ArteryTcpTransport
@@ -1772,21 +1772,21 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.serialization.WrappedPayloadSupport
     //akka.remote.testkit.Blackhole
     //akka.remote.testkit.Direction
-    //akka.remote.testkit.ForceDisassociate
-    //akka.remote.testkit.ForceDisassociateAck
-    //akka.remote.testkit.SetThrottle
-    //akka.remote.testkit.SetThrottleAck
+    akka.remote.testkit.ForceDisassociate
+    akka.remote.testkit.ForceDisassociateAck
+    akka.remote.testkit.SetThrottle
+    akka.remote.testkit.SetThrottleAck
     //akka.remote.testkit.ThrottleMode
     //akka.remote.testkit.TokenBucket
     //akka.remote.testkit.Unthrottled
-    //akka.routing.ActorRefRoutee
-    //akka.routing.ActorSelectionRoutee
-    //akka.routing.AddRoutee
-    //akka.routing.AdjustPoolSize
+    akka.routing.ActorRefRoutee
+    akka.routing.ActorSelectionRoutee
+    akka.routing.AddRoutee
+    akka.routing.AdjustPoolSize
     //akka.routing.BalancingPool
     akka.routing.BalancingPoolDeploy
     akka.routing.BalancingRoutingLogic
-    //akka.routing.Broadcast
+    akka.routing.Broadcast
     //akka.routing.BroadcastGroup
     //akka.routing.BroadcastPool
     akka.routing.BroadcastRoutingLogic
@@ -1797,19 +1797,19 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.routing.ConsistentHashingRoutingLogic
     //akka.routing.ConsistentRoutee
     akka.routing.CustomRouterConfig
-    //akka.routing.Deafen
+    akka.routing.Deafen
     //akka.routing.DefaultOptimalSizeExploringResizer
     //akka.routing.DefaultResizer
     //akka.routing.FromConfig
-    //akka.routing.GetRoutees
+    akka.routing.GetRoutees
     akka.routing.Group
     akka.routing.GroupBase
-    //akka.routing.Listen
+    akka.routing.Listen
     akka.routing.ListenerMessage
     //akka.routing.Listeners
     //akka.routing.MurmurHash
     akka.routing.NoRoutee
-    //akka.routing.NoRouter
+    akka.routing.NoRouter
     //akka.routing.OptimalSizeExploringResizer
     //akka.routing.Pool
     akka.routing.PoolBase
@@ -1817,7 +1817,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.routing.RandomGroup
     //akka.routing.RandomPool
     akka.routing.RandomRoutingLogic
-    //akka.routing.RemoveRoutee
+    akka.routing.RemoveRoutee
     //akka.routing.ResizablePoolActor
     //akka.routing.ResizablePoolCell
     akka.routing.Resizer
@@ -1839,15 +1839,15 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.routing.ScatterGatherFirstCompletedGroup
     //akka.routing.ScatterGatherFirstCompletedPool
     //akka.routing.ScatterGatherFirstCompletedRoutees
-    //akka.routing.ScatterGatherFirstCompletedRoutingLogic
+    akka.routing.ScatterGatherFirstCompletedRoutingLogic
     //akka.routing.SeveralRoutees
     //akka.routing.SmallestMailboxPool
     //akka.routing.SmallestMailboxRoutingLogic
     //akka.routing.TailChoppingGroup
     //akka.routing.TailChoppingPool
     //akka.routing.TailChoppingRoutees
-    //akka.routing.TailChoppingRoutingLogic
-    //akka.routing.WithListeners
+    akka.routing.TailChoppingRoutingLogic
+    akka.routing.WithListeners
     akka.serialization.AsyncSerializer
     //akka.serialization.AsyncSerializerWithStringManifest
     akka.serialization.AsyncSerializerWithStringManifestCS
@@ -1870,28 +1870,28 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.serialization.SerializerWithStringManifest
     //akka.serialization.Serializers
     //akka.serialization.StringSerializer
-    //akka.stream.AbruptIOTerminationException
+    akka.stream.AbruptIOTerminationException
     akka.stream.AbruptStageTerminationException
-    //akka.stream.AbruptTerminationException
+    akka.stream.AbruptTerminationException
     //akka.stream.AbstractShape
     //akka.stream.ActorAttributes
     //akka.stream.ActorMaterializer
     //akka.stream.ActorMaterializerHelper
     //akka.stream.ActorMaterializerSettings
-    //akka.stream.AmorphousShape
+    akka.stream.AmorphousShape
     //akka.stream.Attributes
     akka.stream.BackpressureTimeoutException
     //akka.stream.BidiShape
-    //akka.stream.BindFailedException
+    akka.stream.BindFailedException
     akka.stream.BoundedSourceQueue
-    //akka.stream.BufferOverflowException
-    //akka.stream.Client
+    akka.stream.BufferOverflowException
+    akka.stream.Client
     //akka.stream.ClosedShape
-    //akka.stream.CompletionStrategy
+    akka.stream.CompletionStrategy
     akka.stream.CompletionTimeoutException
     akka.stream.ConnectionException
     //akka.stream.DelayOverflowStrategy
-    //akka.stream.EagerClose
+    akka.stream.EagerClose
     //akka.stream.FanInShape
     //akka.stream.FanInShape10
     //akka.stream.FanInShape11
@@ -1937,16 +1937,16 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.FanOutShape8
     //akka.stream.FanOutShape9
     akka.stream.FlowMonitor
-    //akka.stream.FlowMonitorState
+    akka.stream.FlowMonitorState
     //akka.stream.FlowShape
     //akka.stream.Graph
-    //akka.stream.GraphDelegate
+    akka.stream.GraphDelegate
     //akka.stream.IOOperationIncompleteException
     //akka.stream.IOResult
     //akka.stream.IOSettings
-    //akka.stream.IgnoreBoth
-    //akka.stream.IgnoreCancel
-    //akka.stream.IgnoreComplete
+    akka.stream.IgnoreBoth
+    akka.stream.IgnoreCancel
+    akka.stream.IgnoreComplete
     akka.stream.InPort
     akka.stream.InitialTimeoutException
     //akka.stream.Inlet
@@ -1954,21 +1954,21 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.InvalidSequenceNumberException
     akka.stream.KillSwitch
     //akka.stream.KillSwitches
-    //akka.stream.MaterializationContext
+    akka.stream.MaterializationContext
     //akka.stream.MaterializationException
     //akka.stream.Materializer
     akka.stream.MaterializerLoggingProvider
     akka.stream.NeverMaterializedException
     akka.stream.OutPort
     //akka.stream.Outlet
-    //akka.stream.OverflowStrategies
+    akka.stream.OverflowStrategies
     //akka.stream.OverflowStrategy
     akka.stream.QueueCompletionResult
     //akka.stream.QueueOfferResult
     akka.stream.RateExceededException
-    //akka.stream.RemoteStreamRefActorTerminatedException
+    akka.stream.RemoteStreamRefActorTerminatedException
     //akka.stream.RestartSettings
-    //akka.stream.Server
+    akka.stream.Server
     //akka.stream.Shape
     //akka.stream.SharedKillSwitch
     akka.stream.SinkRef
@@ -1978,16 +1978,16 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.stream.StreamDetachedException
     akka.stream.StreamIdleTimeoutException
     akka.stream.StreamLimitReachedException
-    //akka.stream.StreamRefAttributes
+    akka.stream.StreamRefAttributes
     akka.stream.StreamRefResolver
     //akka.stream.StreamRefSettings
-    //akka.stream.StreamRefSubscriptionTimeoutException
+    akka.stream.StreamRefSubscriptionTimeoutException
     //akka.stream.StreamSubscriptionTimeoutSettings
     //akka.stream.StreamSubscriptionTimeoutTerminationMode
     akka.stream.StreamTcpException
     akka.stream.StreamTimeoutException
-    //akka.stream.SubscriptionWithCancelException
-    //akka.stream.SubstreamCancelStrategies
+    akka.stream.SubscriptionWithCancelException
+    akka.stream.SubstreamCancelStrategies
     //akka.stream.SubstreamCancelStrategy
     //akka.stream.Supervision
     //akka.stream.SystemMaterializer
@@ -1995,7 +1995,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.TLSClosing
     //akka.stream.TLSProtocol
     //akka.stream.TLSRole
-    //akka.stream.TargetRefNotInitializedYetException
+    akka.stream.TargetRefNotInitializedYetException
     //akka.stream.TerminationSignal
     //akka.stream.ThrottleMode
     akka.stream.TooManySubstreamsOpenException
@@ -2014,16 +2014,16 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.ActorSubscription
     akka.stream.impl.ActorSubscriptionWithCursor
     akka.stream.impl.Always
-    //akka.stream.impl.AppendTraversal
+    akka.stream.impl.AppendTraversal
     //akka.stream.impl.AtomicTraversalBuilder
     //akka.stream.impl.BatchingInputBuffer
     //akka.stream.impl.BoundedBuffer
     //akka.stream.impl.BoundedSourceQueueStage
     //akka.stream.impl.Buffer
     //akka.stream.impl.BuilderKey
-    //akka.stream.impl.Cancel
+    akka.stream.impl.Cancel
     akka.stream.impl.CancelSink
-    //akka.stream.impl.CancelledSubscription
+    akka.stream.impl.CancelledSubscription
     akka.stream.impl.CancellingSubscriber
     //akka.stream.impl.ChainedBuffer
     akka.stream.impl.CollectorState
@@ -2040,10 +2040,10 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.EmptyPublisher
     //akka.stream.impl.EmptySource
     akka.stream.impl.EmptyTraversal
-    //akka.stream.impl.EnterIsland
+    akka.stream.impl.EnterIsland
     //akka.stream.impl.ErrorPublisher
-    //akka.stream.impl.ExitIsland
-    //akka.stream.impl.ExposedPublisher
+    akka.stream.impl.ExitIsland
+    akka.stream.impl.ExposedPublisher
     //akka.stream.impl.ExposedPublisherReceive
     //akka.stream.impl.ExtendedActorMaterializer
     //akka.stream.impl.FailedSource
@@ -2056,7 +2056,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.FirstReducerState
     //akka.stream.impl.FixedSizeBuffer
     akka.stream.impl.FlowNames
-    //akka.stream.impl.ForwardWire
+    akka.stream.impl.ForwardWire
     //akka.stream.impl.GraphStageIsland
     akka.stream.impl.GraphStageTag
     //akka.stream.impl.HeadOptionStage
@@ -2080,26 +2080,26 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.stream.impl.Phase
     akka.stream.impl.PhaseIsland
     //akka.stream.impl.PhasedFusingActorMaterializer
-    //akka.stream.impl.Pop
-    //akka.stream.impl.PopAttributes
+    akka.stream.impl.Pop
+    akka.stream.impl.PopAttributes
     //akka.stream.impl.ProcessorModule
     akka.stream.impl.ProcessorModuleIslandTag
     //akka.stream.impl.ProcessorModulePhase
     //akka.stream.impl.PublisherSink
     akka.stream.impl.PublisherSource
     //akka.stream.impl.Pump
-    //akka.stream.impl.PushAttributes
-    //akka.stream.impl.PushNotUsed
+    akka.stream.impl.PushAttributes
+    akka.stream.impl.PushNotUsed
     //akka.stream.impl.QueueSink
     //akka.stream.impl.QueueSource
     //akka.stream.impl.ReactiveStreamsCompliance
     akka.stream.impl.ReducerState
     //akka.stream.impl.RejectAdditionalSubscribers
-    //akka.stream.impl.RequestMore
+    akka.stream.impl.RequestMore
     //akka.stream.impl.ResizableMultiReaderRingBuffer
     //akka.stream.impl.RetryFlowCoordinator
-    //akka.stream.impl.SavedIslandData
-    //akka.stream.impl.SegmentInfo
+    akka.stream.impl.SavedIslandData
+    akka.stream.impl.SegmentInfo
     //akka.stream.impl.SeqActorName
     akka.stream.impl.SeqActorNameImpl
     //akka.stream.impl.SeqStage
@@ -2124,7 +2124,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.stream.impl.SubFlowImpl
     //akka.stream.impl.SubFusingActorMaterializerImpl
     //akka.stream.impl.SubReceive
-    //akka.stream.impl.SubscribePending
+    akka.stream.impl.SubscribePending
     //akka.stream.impl.SubscriberManagement
     //akka.stream.impl.SubscriberSink
     akka.stream.impl.SubscriberSource
@@ -2135,7 +2135,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.Timers
     akka.stream.impl.TlsModuleIslandTag
     //akka.stream.impl.TlsModulePhase
-    //akka.stream.impl.TransferPhase
+    akka.stream.impl.TransferPhase
     //akka.stream.impl.TransferState
     //akka.stream.impl.Transform
     //akka.stream.impl.Traversal
@@ -2149,7 +2149,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.Unzip
     //akka.stream.impl.VirtualProcessor
     //akka.stream.impl.VirtualPublisher
-    //akka.stream.impl.WaitingForUpstreamSubscription
+    akka.stream.impl.WaitingForUpstreamSubscription
     //akka.stream.impl.fusing.ActorGraphInterpreter
     //akka.stream.impl.fusing.AggregateWithBoundary
     //akka.stream.impl.fusing.Batch
@@ -2228,7 +2228,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.streamref.SourceRefImpl
     //akka.stream.impl.streamref.SourceRefStageImpl
     //akka.stream.impl.streamref.StreamRefResolverImpl
-    //akka.stream.impl.streamref.StreamRefSettingsImpl
+    akka.stream.impl.streamref.StreamRefSettingsImpl
     akka.stream.impl.streamref.StreamRefsMaster
     //akka.stream.impl.streamref.StreamRefsProtocol
     //akka.stream.javadsl.Balance
@@ -2275,8 +2275,8 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.javadsl.Tcp
     //akka.stream.javadsl.Unzip
     //akka.stream.javadsl.UnzipWith
-    //akka.stream.javadsl.Zip
-    //akka.stream.javadsl.ZipLatest
+    akka.stream.javadsl.Zip
+    akka.stream.javadsl.ZipLatest
     //akka.stream.javadsl.ZipLatestWith
     akka.stream.javadsl.ZipN
     //akka.stream.javadsl.ZipWith
@@ -2336,7 +2336,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.scaladsl.TLS
     //akka.stream.scaladsl.TLSPlacebo
     //akka.stream.scaladsl.Tcp
-    //akka.stream.scaladsl.TcpAttributes
+    akka.stream.scaladsl.TcpAttributes
     //akka.stream.scaladsl.TcpIdleTimeoutException
     akka.stream.scaladsl.Unzip
     akka.stream.scaladsl.UnzipWith
@@ -2415,24 +2415,24 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.scaladsl.ZipWithN
     //akka.stream.serialization.StreamRefSerializer
     //akka.stream.snapshot.ConnectionSnapshot
-    //akka.stream.snapshot.ConnectionSnapshotImpl
+    akka.stream.snapshot.ConnectionSnapshotImpl
     //akka.stream.snapshot.HideImpl
     //akka.stream.snapshot.InterpreterSnapshot
     //akka.stream.snapshot.LogicSnapshot
-    //akka.stream.snapshot.LogicSnapshotImpl
+    akka.stream.snapshot.LogicSnapshotImpl
     //akka.stream.snapshot.MaterializerState
     //akka.stream.snapshot.RunningInterpreter
-    //akka.stream.snapshot.RunningInterpreterImpl
+    akka.stream.snapshot.RunningInterpreterImpl
     //akka.stream.snapshot.StreamSnapshot
-    //akka.stream.snapshot.StreamSnapshotImpl
+    akka.stream.snapshot.StreamSnapshotImpl
     //akka.stream.snapshot.UninitializedInterpreter
-    //akka.stream.snapshot.UninitializedInterpreterImpl
+    akka.stream.snapshot.UninitializedInterpreterImpl
     //akka.stream.stage.AbstractGraphStageWithMaterializedValue
     akka.stream.stage.AbstractInHandler
     akka.stream.stage.AbstractInOutHandler
     akka.stream.stage.AbstractOutHandler
     akka.stream.stage.AsyncCallback
-    //akka.stream.stage.ConcurrentAsyncCallbackState
+    akka.stream.stage.ConcurrentAsyncCallbackState
     akka.stream.stage.GraphStage
     //akka.stream.stage.GraphStageLogic
     akka.stream.stage.GraphStageLogicWithLogging
@@ -2442,7 +2442,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.stage.StageLogging
     //akka.stream.stage.TimerGraphStageLogic
     akka.stream.stage.TimerGraphStageLogicWithLogging
-    //akka.stream.stage.TimerMessages
+    akka.stream.stage.TimerMessages
     //akka.util.AlwaysIncreasingClock
     //akka.util.Base62
     //akka.util.BoundedBlockingQueue

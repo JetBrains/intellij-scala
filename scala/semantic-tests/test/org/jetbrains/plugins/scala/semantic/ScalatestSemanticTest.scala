@@ -38,7 +38,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.ConfigMap
     //org.scalatest.ConfigMapWrapperSuite
     //org.scalatest.CountDownLatch
-    //org.scalatest.DeferredAbortedSuite
+    org.scalatest.DeferredAbortedSuite
     //org.scalatest.DispatchReporter
     org.scalatest.DistributedSuiteSorter
     org.scalatest.DistributedTestSorter
@@ -48,7 +48,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.DocSpecLike
     org.scalatest.Documenter
     org.scalatest.Documenting
-    //org.scalatest.DynaTags
+    org.scalatest.DynaTags
     //org.scalatest.EitherValues
     //org.scalatest.EncodedOrdering
     org.scalatest.Engine
@@ -100,7 +100,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.PathMessageRecordingInformer
     //org.scalatest.PathMessageRecordingNotifier
     //org.scalatest.Payloads
-    //org.scalatest.Pending
+    org.scalatest.Pending
     org.scalatest.PendingStatement
     //org.scalatest.PrivateMethodTester
     //org.scalatest.RandomTestOrder
@@ -110,7 +110,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.ResourcefulReporter
     //org.scalatest.Resources
     org.scalatest.Retries
-    //org.scalatest.RunningTest
+    org.scalatest.RunningTest
     //org.scalatest.ScalaTestStatefulStatus
     org.scalatest.ScalaTestVersions
     //org.scalatest.Sequential
@@ -118,7 +118,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.SeveredStackTraces
     org.scalatest.Shell
     //org.scalatest.ShellImpl
-    //org.scalatest.Slowpoke
+    org.scalatest.Slowpoke
     //org.scalatest.SlowpokeDetector
     //org.scalatest.StatefulStatus
     //org.scalatest.Status
@@ -129,7 +129,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.Stopper
     //org.scalatest.StreamlinedXmlEquality
     //org.scalatest.StreamlinedXmlNormMethods
-    //org.scalatest.Succeeded
+    org.scalatest.Succeeded
     //org.scalatest.SucceededStatus
     //org.scalatest.Suite
     //org.scalatest.SuiteHelpers
@@ -180,7 +180,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.concurrent.TimeLimitedTests
     //org.scalatest.concurrent.TimeLimits
     //org.scalatest.concurrent.Waiters
-    //org.scalatest.diagrams.AnchorValue
+    org.scalatest.diagrams.AnchorValue
     //org.scalatest.diagrams.DiagrammedApplyExpr
     //org.scalatest.diagrams.DiagrammedAssertionsMacro
     org.scalatest.diagrams.DiagrammedByNameExpr
@@ -227,13 +227,13 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.events.Event
     org.scalatest.events.ExceptionalEvent
     org.scalatest.events.Formatter
-    //org.scalatest.events.IndentedText
+    org.scalatest.events.IndentedText
     //org.scalatest.events.InfoProvided
-    //org.scalatest.events.LineInFile
+    org.scalatest.events.LineInFile
     org.scalatest.events.Location
     //org.scalatest.events.MarkupProvided
-    //org.scalatest.events.MotionToSuppress
-    //org.scalatest.events.NameInfo
+    org.scalatest.events.MotionToSuppress
+    org.scalatest.events.NameInfo
     //org.scalatest.events.NoteProvided
     org.scalatest.events.NotificationEvent
     //org.scalatest.events.Ordinal
@@ -245,19 +245,19 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.events.ScopeClosed
     //org.scalatest.events.ScopeOpened
     //org.scalatest.events.ScopePending
-    //org.scalatest.events.SeeStackDepthException
+    org.scalatest.events.SeeStackDepthException
     //org.scalatest.events.SuiteAborted
     //org.scalatest.events.SuiteCompleted
     //org.scalatest.events.SuiteStarting
-    //org.scalatest.events.Summary
+    org.scalatest.events.Summary
     //org.scalatest.events.TestCanceled
     //org.scalatest.events.TestFailed
     //org.scalatest.events.TestIgnored
     //org.scalatest.events.TestPending
     //org.scalatest.events.TestStarting
     //org.scalatest.events.TestSucceeded
-    //org.scalatest.events.TopOfClass
-    //org.scalatest.events.TopOfMethod
+    org.scalatest.events.TopOfClass
+    org.scalatest.events.TopOfMethod
     org.scalatest.exceptions.DiscardedEvaluationException
     //org.scalatest.exceptions.DuplicateTestNameException
     //org.scalatest.exceptions.GeneratorDrivenPropertyCheckFailedException
@@ -483,22 +483,22 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.tagobjects.Retryable
     org.scalatest.tagobjects.SafariBrowser
     org.scalatest.tagobjects.Slow
-    //org.scalatest.time.Day
-    //org.scalatest.time.Days
-    //org.scalatest.time.Hour
-    //org.scalatest.time.Hours
-    //org.scalatest.time.Microsecond
-    //org.scalatest.time.Microseconds
-    //org.scalatest.time.Millis
-    //org.scalatest.time.Millisecond
-    //org.scalatest.time.Milliseconds
-    //org.scalatest.time.Minute
-    //org.scalatest.time.Minutes
-    //org.scalatest.time.Nanosecond
-    //org.scalatest.time.Nanoseconds
+    org.scalatest.time.Day
+    org.scalatest.time.Days
+    org.scalatest.time.Hour
+    org.scalatest.time.Hours
+    org.scalatest.time.Microsecond
+    org.scalatest.time.Microseconds
+    org.scalatest.time.Millis
+    org.scalatest.time.Millisecond
+    org.scalatest.time.Milliseconds
+    org.scalatest.time.Minute
+    org.scalatest.time.Minutes
+    org.scalatest.time.Nanosecond
+    org.scalatest.time.Nanoseconds
     org.scalatest.time.Now
-    //org.scalatest.time.Second
-    //org.scalatest.time.Seconds
+    org.scalatest.time.Second
+    org.scalatest.time.Seconds
     //org.scalatest.time.Span
     //org.scalatest.time.SpanSugar
     org.scalatest.time.Units
@@ -511,11 +511,11 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.AnsiYellow
     //org.scalatest.tools.ArgsParser
     //org.scalatest.tools.ColorBar
-    //org.scalatest.tools.ConcurrentConfig
+    org.scalatest.tools.ConcurrentConfig
     //org.scalatest.tools.ConcurrentDistributor
-    //org.scalatest.tools.CustomReporterConfiguration
+    org.scalatest.tools.CustomReporterConfiguration
     //org.scalatest.tools.DashboardReporter
-    //org.scalatest.tools.DashboardReporterConfiguration
+    org.scalatest.tools.DashboardReporterConfiguration
     //org.scalatest.tools.DiscoverySuite
     org.scalatest.tools.DistributedTestRunnerSuite
     //org.scalatest.tools.Durations
@@ -525,71 +525,71 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.EventHolderListCellRenderer
     //org.scalatest.tools.EventToPresent
     org.scalatest.tools.FileReporter
-    //org.scalatest.tools.FileReporterConfiguration
-    //org.scalatest.tools.FilterAlertProvided
-    //org.scalatest.tools.FilterInfoProvided
-    //org.scalatest.tools.FilterMarkupProvided
-    //org.scalatest.tools.FilterNoteProvided
+    org.scalatest.tools.FileReporterConfiguration
+    org.scalatest.tools.FilterAlertProvided
+    org.scalatest.tools.FilterInfoProvided
+    org.scalatest.tools.FilterMarkupProvided
+    org.scalatest.tools.FilterNoteProvided
     //org.scalatest.tools.FilterReporter
-    //org.scalatest.tools.FilterScopeClosed
-    //org.scalatest.tools.FilterScopeOpened
-    //org.scalatest.tools.FilterScopePending
-    //org.scalatest.tools.FilterSuiteCompleted
-    //org.scalatest.tools.FilterSuiteStarting
-    //org.scalatest.tools.FilterTestCanceled
-    //org.scalatest.tools.FilterTestIgnored
-    //org.scalatest.tools.FilterTestPending
-    //org.scalatest.tools.FilterTestStarting
-    //org.scalatest.tools.FilterTestSucceeded
+    org.scalatest.tools.FilterScopeClosed
+    org.scalatest.tools.FilterScopeOpened
+    org.scalatest.tools.FilterScopePending
+    org.scalatest.tools.FilterSuiteCompleted
+    org.scalatest.tools.FilterSuiteStarting
+    org.scalatest.tools.FilterTestCanceled
+    org.scalatest.tools.FilterTestIgnored
+    org.scalatest.tools.FilterTestPending
+    org.scalatest.tools.FilterTestStarting
+    org.scalatest.tools.FilterTestSucceeded
     //org.scalatest.tools.Fragment
-    //org.scalatest.tools.GraphicReporterConfiguration
-    //org.scalatest.tools.HtmlReporterConfiguration
+    org.scalatest.tools.GraphicReporterConfiguration
+    org.scalatest.tools.HtmlReporterConfiguration
     //org.scalatest.tools.IconEmbellishedListCellRenderer
     //org.scalatest.tools.JUnitXmlReporter
-    //org.scalatest.tools.JunitXmlReporterConfiguration
+    org.scalatest.tools.JunitXmlReporterConfiguration
     //org.scalatest.tools.JvmArg
     //org.scalatest.tools.Memento
     //org.scalatest.tools.MemoryReporter
-    //org.scalatest.tools.MemoryReporterConfiguration
+    org.scalatest.tools.MemoryReporterConfiguration
     //org.scalatest.tools.NameValuePair
     org.scalatest.tools.NarrowJOptionPane
     //org.scalatest.tools.NestedSuiteElement
-    //org.scalatest.tools.NestedSuiteParam
+    org.scalatest.tools.NestedSuiteParam
     //org.scalatest.tools.PackageElement
-    //org.scalatest.tools.ParsedArgs
-    //org.scalatest.tools.PresentAlertProvided
-    //org.scalatest.tools.PresentAllDurations
-    //org.scalatest.tools.PresentDiscoveryCompleted
-    //org.scalatest.tools.PresentDiscoveryStarting
-    //org.scalatest.tools.PresentFilePathname
-    //org.scalatest.tools.PresentFullStackTraces
-    //org.scalatest.tools.PresentInfoProvided
-    //org.scalatest.tools.PresentJson
-    //org.scalatest.tools.PresentMarkupProvided
-    //org.scalatest.tools.PresentNoteProvided
-    //org.scalatest.tools.PresentReminderWithFullStackTraces
-    //org.scalatest.tools.PresentReminderWithShortStackTraces
-    //org.scalatest.tools.PresentReminderWithoutCanceledTests
-    //org.scalatest.tools.PresentReminderWithoutStackTraces
-    //org.scalatest.tools.PresentRunAborted
-    //org.scalatest.tools.PresentRunCompleted
-    //org.scalatest.tools.PresentRunStarting
-    //org.scalatest.tools.PresentRunStopped
-    //org.scalatest.tools.PresentScopeClosed
-    //org.scalatest.tools.PresentScopeOpened
-    //org.scalatest.tools.PresentScopePending
-    //org.scalatest.tools.PresentShortStackTraces
-    //org.scalatest.tools.PresentSuiteAborted
-    //org.scalatest.tools.PresentSuiteCompleted
-    //org.scalatest.tools.PresentSuiteStarting
-    //org.scalatest.tools.PresentTestCanceled
-    //org.scalatest.tools.PresentTestFailed
-    //org.scalatest.tools.PresentTestIgnored
-    //org.scalatest.tools.PresentTestPending
-    //org.scalatest.tools.PresentTestStarting
-    //org.scalatest.tools.PresentTestSucceeded
-    //org.scalatest.tools.PresentUnformatted
-    //org.scalatest.tools.PresentWithoutColor
+    org.scalatest.tools.ParsedArgs
+    org.scalatest.tools.PresentAlertProvided
+    org.scalatest.tools.PresentAllDurations
+    org.scalatest.tools.PresentDiscoveryCompleted
+    org.scalatest.tools.PresentDiscoveryStarting
+    org.scalatest.tools.PresentFilePathname
+    org.scalatest.tools.PresentFullStackTraces
+    org.scalatest.tools.PresentInfoProvided
+    org.scalatest.tools.PresentJson
+    org.scalatest.tools.PresentMarkupProvided
+    org.scalatest.tools.PresentNoteProvided
+    org.scalatest.tools.PresentReminderWithFullStackTraces
+    org.scalatest.tools.PresentReminderWithShortStackTraces
+    org.scalatest.tools.PresentReminderWithoutCanceledTests
+    org.scalatest.tools.PresentReminderWithoutStackTraces
+    org.scalatest.tools.PresentRunAborted
+    org.scalatest.tools.PresentRunCompleted
+    org.scalatest.tools.PresentRunStarting
+    org.scalatest.tools.PresentRunStopped
+    org.scalatest.tools.PresentScopeClosed
+    org.scalatest.tools.PresentScopeOpened
+    org.scalatest.tools.PresentScopePending
+    org.scalatest.tools.PresentShortStackTraces
+    org.scalatest.tools.PresentSuiteAborted
+    org.scalatest.tools.PresentSuiteCompleted
+    org.scalatest.tools.PresentSuiteStarting
+    org.scalatest.tools.PresentTestCanceled
+    org.scalatest.tools.PresentTestFailed
+    org.scalatest.tools.PresentTestIgnored
+    org.scalatest.tools.PresentTestPending
+    org.scalatest.tools.PresentTestStarting
+    org.scalatest.tools.PresentTestSucceeded
+    org.scalatest.tools.PresentUnformatted
+    org.scalatest.tools.PresentWithoutColor
     //org.scalatest.tools.PrettyPrinter
     //org.scalatest.tools.PrintReporter
     //org.scalatest.tools.ProgressBarPanel
@@ -610,36 +610,36 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.RunpathUrl
     org.scalatest.tools.SbtDispatchReporter
     //org.scalatest.tools.ScalaTestAntTask
-    //org.scalatest.tools.SlowpokeConfig
+    org.scalatest.tools.SlowpokeConfig
     //org.scalatest.tools.SocketReporter
-    //org.scalatest.tools.SocketReporterConfiguration
+    org.scalatest.tools.SocketReporterConfiguration
     //org.scalatest.tools.StandardErrReporter
-    //org.scalatest.tools.StandardErrReporterConfiguration
+    org.scalatest.tools.StandardErrReporterConfiguration
     //org.scalatest.tools.StandardOutReporter
-    //org.scalatest.tools.StandardOutReporterConfiguration
+    org.scalatest.tools.StandardOutReporterConfiguration
     //org.scalatest.tools.StatusJPanel
     org.scalatest.tools.StoppingState
     //org.scalatest.tools.StringReporter
     //org.scalatest.tools.StyleElement
-    //org.scalatest.tools.SuiteConfig
+    org.scalatest.tools.SuiteConfig
     //org.scalatest.tools.SuiteDiscoveryHelper
     //org.scalatest.tools.SuiteElement
     //org.scalatest.tools.SuiteParam
-    //org.scalatest.tools.SuiteResult
+    org.scalatest.tools.SuiteResult
     //org.scalatest.tools.SuiteResultHolder
     //org.scalatest.tools.SuiteRunner
     //org.scalatest.tools.SuiteSortingReporter
     //org.scalatest.tools.TestElement
     //org.scalatest.tools.TestSortingReporter
-    //org.scalatest.tools.TestSpec
+    org.scalatest.tools.TestSpec
     org.scalatest.tools.TestSpecificReporter
     //org.scalatest.tools.TestsfileElement
     //org.scalatest.tools.TextElement
     org.scalatest.tools.Utils
     //org.scalatest.tools.XmlReporter
-    //org.scalatest.tools.XmlReporterConfiguration
+    org.scalatest.tools.XmlReporterConfiguration
     //org.scalatest.tools.XmlSocketReporter
-    //org.scalatest.tools.XmlSocketReporterConfiguration
+    org.scalatest.tools.XmlSocketReporterConfiguration
     //org.scalatest.tools.XmlUtility
     //org.scalatest.verbs.ArrayWrapper
     org.scalatest.verbs.BehaveWord

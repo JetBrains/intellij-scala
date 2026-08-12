@@ -100,7 +100,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.NonEmptyReducible
     //cats.NonEmptyTraverse
     //cats.NotNull
-    //cats.Now
+    cats.Now
     //cats.Parallel
     //cats.ParallelArityFunctions
     //cats.ParallelArityFunctions2
@@ -616,9 +616,9 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.effect.kernel.ResourceMonad
     //cats.effect.kernel.ResourceMonadCancel
     //cats.effect.kernel.ResourceMonadError
-    //cats.effect.kernel.ResourceMonoid
+    cats.effect.kernel.ResourceMonoid
     cats.effect.kernel.ResourcePlatform
-    //cats.effect.kernel.ResourceSemigroup
+    cats.effect.kernel.ResourceSemigroup
     //cats.effect.kernel.ResourceSemigroupK
     //cats.effect.kernel.ResourceSync
     //cats.effect.kernel.ResourceTemporal
@@ -650,7 +650,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.effect.kernel.syntax.MonadCancelOps_
     //cats.effect.kernel.syntax.MonadCancelSyntax
     cats.effect.kernel.syntax.ResourceSyntax
-    //cats.effect.metrics.CpuStarvationWarningMetrics
+    cats.effect.metrics.CpuStarvationWarningMetrics
     //cats.effect.metrics.JvmCpuStarvationMetrics
     //cats.effect.std.AtomicCell
     //cats.effect.std.Backpressure
@@ -1218,7 +1218,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.laws.EqLaws
     //cats.kernel.laws.GroupLaws
     //cats.kernel.laws.HashLaws
-    //cats.kernel.laws.IsEq
+    cats.kernel.laws.IsEq
     //cats.kernel.laws.LowerBoundedLaws
     //cats.kernel.laws.MonoidLaws
     //cats.kernel.laws.OrderLaws

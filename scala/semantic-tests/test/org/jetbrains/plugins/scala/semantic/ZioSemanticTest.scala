@@ -20,7 +20,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.ChunkPlatformSpecific
     //zio.Clock
     //zio.ClockPlatformSpecific
-    //zio.ClockSyntaxPlatformSpecific
+    zio.ClockSyntaxPlatformSpecific
     //zio.Config
     //zio.ConfigProvider
     //zio.Console
@@ -58,7 +58,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.IsReloadableVersionSpecific
     //zio.IsSubtypeOfError
     //zio.IsSubtypeOfOutput
-    //zio.LogAnnotation
+    zio.LogAnnotation
     //zio.LogLevel
     //zio.LogSpan
     //zio.NonEmptyChunk
@@ -128,7 +128,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.ZippableLowPriority1
     zio.ZippableLowPriority2
     zio.ZippableLowPriority3
-    //zio.internal.Blocking
+    zio.internal.Blocking
     //zio.internal.BoundedHubArb
     //zio.internal.BoundedHubPow2
     //zio.internal.BoundedHubSingle
@@ -194,7 +194,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.internal.metrics.MetricHook
     //zio.internal.stacktracer.BuildInfo
     //zio.internal.stacktracer.Macros
-    //zio.internal.stacktracer.ParsedTrace
+    zio.internal.stacktracer.ParsedTrace
     //zio.internal.stacktracer.SourceLocation
     //zio.internal.stacktracer.Tracer
     //zio.internal.stacktracer.TracerUtils
@@ -203,7 +203,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     zio.metrics.MetricClient
     //zio.metrics.MetricKey
     //zio.metrics.MetricKeyType
-    //zio.metrics.MetricLabel
+    zio.metrics.MetricLabel
     zio.metrics.MetricListener
     //zio.metrics.MetricPair
     //zio.metrics.MetricState
@@ -257,7 +257,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.stream.ZStreamVersionSpecific
     //zio.stream.compression.CompressionException
     //zio.stream.compression.CompressionLevel
-    //zio.stream.compression.CompressionParameters
+    zio.stream.compression.CompressionParameters
     //zio.stream.compression.CompressionStrategy
     //zio.stream.compression.Deflate
     //zio.stream.compression.FlushMode
