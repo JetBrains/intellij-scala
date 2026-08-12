@@ -1,9 +1,16 @@
 package org.jetbrains.plugins.scala.semantic
 
 import org.jetbrains.plugins.scala.corpus.scala3.CatsTest
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.junit.Test
 
 class CatsSemanticTest extends SemanticTestBase(CatsTest) {
+  override protected def setUp(): Unit = {
+    super.setUp()
+    val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+    profile.setSettings(profile.getSettings.copy(additionalCompilerOptions = Seq("-Ykind-projector")))
+  }
+
   @Test def test(): Unit = doTest("""
     //cats.Align
     //cats.Alternative
@@ -29,8 +36,8 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.ComposedApplicative
     //cats.ComposedApplicativeContravariantMonoidal
     //cats.ComposedApply
-    //cats.ComposedBifoldable
-    //cats.ComposedBifunctor
+    cats.ComposedBifoldable
+    cats.ComposedBifunctor
     //cats.ComposedBitraverse
     //cats.ComposedContravariant
     //cats.ComposedContravariantCovariant
@@ -73,7 +80,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.FunctorFilterInstances0
     cats.Inject
     //cats.InjectInstances
-    //cats.InjectK
+    cats.InjectK
     //cats.InjectKInstances
     //cats.Invariant
     //cats.InvariantInstances0
