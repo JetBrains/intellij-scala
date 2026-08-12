@@ -166,10 +166,12 @@ object SourceCode {
         else this += highlightKeyword("class ") += highlightTypeDef(name)
 
         if (!flags.is(Flags.Module)) {
+          var n = 1
           for paramClause <- paramss do
             paramClause match
               case TermParamClause(params) =>
-                if (params.nonEmpty || flags.is(Flags.Case)) printMethdArgsDefs(params)
+                if (params.nonEmpty || flags.is(Flags.Case)) printMethdArgsDefs(params, n)
+                n += params.length
               case TypeParamClause(params) =>
                 printTargsDefs(stats.collect { case targ: TypeDef => targ  }.filter(_.symbol.isTypeParam).zip(params))
         }
@@ -342,9 +344,10 @@ object SourceCode {
 
         val name1: String = if (isConstructor) "this" else splicedName(ddef.symbol).getOrElse(name)
         this += highlightKeyword("def ") += highlightValDef(name1)
+        var n = 1
         for clause <-  paramss do
           clause match
-            case TermParamClause(params) => printMethdArgsDefs(params)
+            case TermParamClause(params) => printMethdArgsDefs(params, n); n += params.length
             case TypeParamClause(params) => if (!isConstructor) printTargsDefs(params.zip(params))
         if (!isConstructor) {
           this += ": "
@@ -907,16 +910,16 @@ object SourceCode {
     private val WildcardName: Regex = "_\\$\\d+".r
 
     @tailrec
-    private def printSeparatedParamDefs(list: List[ValDef])(using elideThis: Option[Symbol]): Unit = list match {
+    private def printSeparatedParamDefs(list: List[ValDef], n: Int)(using elideThis: Option[Symbol]): Unit = list match {
       case Nil =>
-      case x :: Nil => printParamDef(x)
+      case x :: Nil => printParamDef(x, n)
       case x :: xs =>
-        printParamDef(x)
+        printParamDef(x, n)
         this += ", "
-        printSeparatedParamDefs(xs)
+        printSeparatedParamDefs(xs, n + 1)
     }
 
-    private def printMethdArgsDefs(args: List[ValDef])(using elideThis: Option[Symbol]): Unit = {
+    private def printMethdArgsDefs(args: List[ValDef], n: Int)(using elideThis: Option[Symbol]): Unit = {
       val argFlags = args match {
         case Nil => Flags.EmptyFlags
         case arg :: _ => arg.symbol.flags
@@ -925,7 +928,7 @@ object SourceCode {
         if (argFlags.is(Flags.Implicit) && !argFlags.is(Flags.Given)) this += "implicit "
         if (argFlags.is(Flags.Given)) this += "using "
 
-        printSeparatedParamDefs(args)
+        printSeparatedParamDefs(args, n)
       }
     }
 
@@ -937,7 +940,7 @@ object SourceCode {
       inParens {
         if (argFlags.is(Flags.Implicit) && !argFlags.is(Flags.Given)) this += "implicit "
 
-        printSeparatedParamDefs(args)
+        printSeparatedParamDefs(args, 1)
       }
     }
 
@@ -957,7 +960,7 @@ object SourceCode {
       this
     }
 
-    private def printParamDef(arg: ValDef)(using elideThis: Option[Symbol]): Unit = {
+    private def printParamDef(arg: ValDef, n: Int)(using elideThis: Option[Symbol]): Unit = {
       val name = splicedName(arg.symbol).getOrElse(arg.symbol.name)
       val sym = arg.symbol.owner
 
@@ -980,6 +983,14 @@ object SourceCode {
 
       this += highlightValDef(name) += ": "
       printTypeTree(arg.tpt)
+
+      sym.owner.declaredMethod(sym.name + "$default$" + n) match {
+        case List(fun) =>
+          val DefDef(_, _, _, Some(body)) = fun.tree: @unchecked
+          this += " = "
+          printTree(body)
+        case _ =>
+      }
     }
 
     private def printCaseDef(caseDef: CaseDef): this.type = {
