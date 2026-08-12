@@ -346,7 +346,6 @@ private object TextToTextTestConfig {
       withSources = true,
       sourceExceptions = Set(
         "org.scalacheck.Gen", // private type | N/A
-        "org.scalacheck.Properties", // mutable.ListBuffer[String, Prop)] | Properties.this.props.type
         "org.scalacheck.commands.Commands", // private type | N/A
       )
     ),
@@ -597,13 +596,8 @@ private object TextToTextTestConfig {
         "org.scalatest.diagrams.DiagramsMacro", // Cannot resolve x$1.reflect.Term
         "org.scalatest.events.Event", // Object vs Any
         "org.scalatest.exceptions.NotSerializableWrapperException", // case class with Serializable
-        "org.scalatest.matchers.AMatcher", // with Object { toString }
-        "org.scalatest.matchers.AnMatcher", // with Object { toString }
         "org.scalatest.matchers.Matcher", // T with T, T with Any, Expr[...]
         "org.scalatest.matchers.TypeMatcherMacro", // Cannot resolve x$1.reflect.Term
-        "org.scalatest.matchers.dsl.EndWithWord", // with Object { toString }
-        "org.scalatest.matchers.dsl.FullyMatchWord", // with Object { toString }
-        "org.scalatest.matchers.dsl.IncludeWord", // with Object { toString }
         "org.scalatest.matchers.dsl.MatchPatternWord", // Expr[...]
         "org.scalatest.matchers.dsl.MatcherFactory1", // SC with SC, TC1 vs Nothing, Expr[...]
         "org.scalatest.matchers.dsl.MatcherFactory2", // SC with SC, TC1 vs Nothing, Expr[...]
@@ -615,7 +609,6 @@ private object TextToTextTestConfig {
         "org.scalatest.matchers.dsl.MatcherFactory8", // SC with SC, TC1 vs Nothing, Expr[...]
         "org.scalatest.matchers.dsl.NotWord", // Expr[...]
         "org.scalatest.matchers.dsl.ResultOfNotWordForAny", // Expr[...]
-        "org.scalatest.matchers.dsl.StartWithWord", // with Object { toString }
         "org.scalatest.matchers.must.Matchers", // Multiple `extension`
         "org.scalatest.matchers.must.TypeMatcherMacro", // Cannot resolve x$1.reflect.Term
         "org.scalatest.matchers.should.Matchers", // Multiple `extension`

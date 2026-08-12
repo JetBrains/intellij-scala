@@ -7,7 +7,7 @@ import java.nio.file.Path
 
 class PathDependentsTest extends TypeInferenceTestBase {
 
-  override protected def shouldPass: Boolean = false
+  override protected def shouldPass: Boolean = true
 
   override def folderPath: Path = super.folderPath / "bugs5"
 
