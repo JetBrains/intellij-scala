@@ -444,19 +444,20 @@ object SourceCode {
             printQualTree(fn)
           case _ => printQualTree(fn)
         }
-        fn.tpe match {
-          case mt: MethodType if mt.isImplicit =>
-            argsPrefix += "using "
-          case _ =>
-        }
         val args1 = args match {
           case init :+ Typed(Repeated(Nil, _), _) => init // drop empty var args at the end
           case _ => args
         }
+        val args2 = args1.filter(!_.symbol.name.contains("$default$"))
+        fn.tpe match {
+          case mt: MethodType if mt.isImplicit && args2.nonEmpty =>
+            argsPrefix += "using "
+          case _ =>
+        }
 
         inParens {
           this += argsPrefix
-          printTrees(args1, ", ")
+          printTrees(args2, ", ")
         }
 
       case TypeApply(fn, args) =>
