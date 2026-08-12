@@ -51,7 +51,8 @@ object WideningTest {
       |val c: Any = ???
       |
       |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }> = ???
-      |Test(x).foo(<2, "y", c: Any, E.B, new Object>) // <fine, fine, fine, fine, Error in [Scala2]>
+      |val y = Test(x)
+      |y.foo(<2, "y", c: Any, E.B, new Object>) // <fine, fine, fine, fine, Error>
       |""".stripMargin.multi,
     """
       |// WideningOnContainerTypeInference_<Literal,StringLit,DependentType,Enum,Structural>
@@ -83,8 +84,23 @@ object WideningTest {
       |  final def x = <1, "x", c, E.A, new { def bar: Int = 1 }>
       |}
       |
-      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }> = Test.x // <Error in both, Error in both, Error in both, Error in both, Error in [Scala3]>
+      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }> = Test.x // Error in <both, both, both, both, [Scala3]>
       |""".stripMargin.multi,
+    """// WidenOnImplicit_<Literal,StringLit,DependentType,Enum,Structural>
+      |enum E { case A, B }  [Scala3]
+      |trait C // we need C, otherwise the implicit search will be underspecified
+      |val c: C = ???
+      |
+      |class Test[Upper] {
+      |  def test[X <: Upper](implicit x: X): X = x
+      |}
+      |
+      |val inst = new Test[<Int, String, C, E, C>]
+      |implicit val x: <1, "x", c.type, E.A.type, C { def bar: Int }> = <1, "x", c, E.A, new C { def bar: Int = 1 }>
+      |
+      |val y = inst.test
+      |val z: <1, "x", c.type, E.A.type, C { def bar: Int }> = x
+      |""".stripMargin.multi
   ).flatten
 
   lazy val testDataInScala2: Seq[SimpleTestData] = testData.map(toTestData("[Scala3]")).filterNot(_.testName.contains("Enum"))
@@ -93,7 +109,7 @@ object WideningTest {
   private implicit class StringExt(private val string: String) {
     def single: Seq[String] = Seq(string)
     def multi: Seq[String] = {
-      val pattern = "<([^>]+)>".r
+      val pattern = "<([^<>]+)>".r
       val infos = pattern.findAllMatchIn(string).map { m =>
         val options = m.group(1).split(',').map(_.trim).toSeq
         (m.group(0), options)

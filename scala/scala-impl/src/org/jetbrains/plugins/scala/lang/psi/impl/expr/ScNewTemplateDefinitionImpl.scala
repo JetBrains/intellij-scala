@@ -117,15 +117,42 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
         case None => (ScCompoundType.signaturesFromPsi(earlyHolders), Map.empty[String, TypeAliasSignature])
       }
 
-    val pt                = this.expectedType()
-    val superTypeElements = extendsBlock.templateParents.fold(Seq.empty[ScTypeElement])(_.allTypeElements)
+    val pt                 = this.expectedType()
+    val superTypeElements  = extendsBlock.templateParents.fold(Seq.empty[ScTypeElement])(_.allTypeElements)
+    val declaredSuperTypes = extendsBlock.superTypes
+
+    /**
+     * An anonymous class is local to the expression that creates it, so Scala 3 approximates its type
+     * by one that doesn't mention the class. That approximation only keeps members which are already
+     * declared by one of the parents, i.e. `new { def bar: Int = 1 }` is simply an `AnyRef`.
+     * Only when the approximation doesn't conform to the expected type, the expression is ascribed to
+     * the expected type instead, so that e.g. `val x: AnyRef { def bar: Int } = new { def bar = 1 }`
+     * still works.
+     *
+     * See `TypeOps.classBound` and `Typer.ensureNoLocalRefs` in the Scala 3 compiler.
+     */
+    val keepsRefinement =
+      !this.isInScala3File || {
+        val approximation =
+          declaredSuperTypes match {
+            case Nil => api.AnyRef
+            case List(one) => one
+            case _   => ScCompoundType(declaredSuperTypes)
+          }
+
+        pt.exists(!approximation.conforms(_))
+      }
 
     val superTypes =
-      if (superTypeElements.isEmpty && this.isInScala3File) pt.toSeq
-      else                                                  extendsBlock.superTypes
+      if (superTypeElements.isEmpty && this.isInScala3File && keepsRefinement) pt.toSeq
+      else if (declaredSuperTypes.isEmpty)                                     Seq(api.AnyRef)
+      else                                                                     declaredSuperTypes
 
-    if (superTypeElements.length > 1 || termSignatures.nonEmpty || typeSignatures.nonEmpty) {
-      Right(ScCompoundType(superTypes, termSignatures, typeSignatures))
+    if (superTypeElements.length > 1 || (keepsRefinement && (termSignatures.nonEmpty || typeSignatures.nonEmpty))) {
+      Right(
+        if (keepsRefinement) ScCompoundType(superTypes, termSignatures, typeSignatures)
+        else                 ScCompoundType(superTypes)
+      )
     } else if (superTypeElements.length == 1) {
       superTypeElements.head.getNonValueType()
     } else superTypes.headOption.asTypeResult

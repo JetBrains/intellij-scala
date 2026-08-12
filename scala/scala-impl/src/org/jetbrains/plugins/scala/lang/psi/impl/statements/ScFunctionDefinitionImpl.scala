@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.{ImplicitValueClass, ImplicitValueClassDumbMode}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, Widening, api}
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S],
@@ -158,7 +158,7 @@ private object ScFunctionDefinitionImpl {
       case None =>
         fun.body match {
           case Some(b) =>
-            def rhsType = b.`type`().map(ScLiteralType.widenRecursive)
+            def rhsType = b.`type`().map(Widening.widenInferredDefinitionType(_, Widening.DefinitionKind.Def))
             if (fun.scalaLanguageLevel.exists(_.isScala3) && !fun.isExtensionMethod) fun.superMethod match {
               case Some(f: ScFunction) if f.getTypeParameters.length == fun.getTypeParameters.length =>
                 val superMethod = fun.superMethodCall

@@ -49,6 +49,12 @@ sealed trait ConstraintSystem extends ConstraintsResult {
 
   def withTypeParamId(id: Long): ConstraintSystem
 
+  /**
+   * Marks the type parameter as one whose inferred type must not be widened, because it explicitly
+   * asks for a singleton type, see [[Widening.isSingletonBounded]].
+   */
+  def withoutWidening(id: Long): ConstraintSystem
+
   def withLower(id: Long, lower: ScType, variance: Variance = Contravariant)(implicit context: Context): ConstraintSystem
 
   def withUpper(id: Long, upper: ScType, variance: Variance = Covariant)(implicit context: Context): ConstraintSystem
@@ -68,6 +74,7 @@ object ConstraintSystem {
   val empty: ConstraintSystem = ConstraintSystemImpl(
     LongMap.empty,
     LongMap.empty,
+    Set.empty,
     Set.empty
   )
 
@@ -102,7 +109,8 @@ object ConstraintSystem {
 
 private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
                                               lowerMap: LongMap[Set[ScType]],
-                                              additionalIds: Set[Long])
+                                              additionalIds: Set[Long],
+                                              noWideningIds: Set[Long])
   extends ConstraintSystem {
 
   import ConstraintSystem._
@@ -118,16 +126,21 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
   override def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty
 
   override def +(constraints: ConstraintSystem)(implicit context: Context): ConstraintSystem = constraints match {
-    case ConstraintSystemImpl(otherUpperMap, otherLowerMap, otherAdditionalIds) => ConstraintSystemImpl(
+    case ConstraintSystemImpl(otherUpperMap, otherLowerMap, otherAdditionalIds, otherNoWideningIds) => ConstraintSystemImpl(
       upperMap.merge(otherUpperMap)(isAny),
       lowerMap.merge(otherLowerMap)(isNothing),
-      additionalIds ++ otherAdditionalIds
+      additionalIds ++ otherAdditionalIds,
+      noWideningIds ++ otherNoWideningIds
     )
     case multi: MultiConstraintSystem => multi + this
   }
 
   override def withTypeParamId(id: Long): ConstraintSystem = copy(
     additionalIds = additionalIds + id
+  )
+
+  override def withoutWidening(id: Long): ConstraintSystem = copy(
+    noWideningIds = noWideningIds + id
   )
 
   override def withLower(id: Long, rawLower: ScType, variance: Variance)(implicit context: Context): ConstraintSystem =
@@ -159,7 +172,8 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
 
   override def removeTypeParamIds(ids: Set[Long]): ConstraintSystem = copy(
     upperMap = upperMap.removeIds(ids),
-    lowerMap = lowerMap.removeIds(ids)
+    lowerMap = lowerMap.removeIds(ids),
+    noWideningIds = noWideningIds -- ids
   )
 
   private def substitutionBoundsImpl(canThrowSCE: Boolean, checkWeak: Boolean)
@@ -181,22 +195,25 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
           recursion(!solve(newVisited)(_) && canThrowSCE) _
         }
 
-        lowerMap.getOrDefault(id) match {
-          case set if set.nonEmpty =>
-            val substitutor = needTvMap(set).fold {
-              tvMap += ((id, Nothing))
-              return false
-            } {
-              case true => ScSubstitutor(tvMap)
-              case _    => ScSubstitutor.empty
-            }
+        var instantiatedFromBelow =
+          lowerMap.getOrDefault(id) match {
+            case set if set.nonEmpty =>
+              val substitutor = needTvMap(set).fold {
+                tvMap += ((id, Nothing))
+                return false
+              } {
+                case true => ScSubstitutor(tvMap)
+                case _    => ScSubstitutor.empty
+              }
 
-            val lower = set.map(substitutor).reduce(_.lub(_, checkWeak))
+              val lower = set.map(substitutor).reduce(_.lub(_, checkWeak))
 
-            lMap  += ((id, lower))
-            tvMap += ((id, lower))
-          case _ =>
-        }
+              lMap  += ((id, lower))
+              tvMap += ((id, lower))
+              true
+            case _ =>
+              false
+          }
 
         upperMap.getOrDefault(id) match {
           case set if set.nonEmpty =>
@@ -219,6 +236,15 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
               case _ => tvMap += ((id, upper))
             }
           case _ =>
+        }
+
+        // A type argument that was inferred from below is widened, so that e.g. `Some(1)` is a
+        // `Some[Int]` and not a `Some[1]`.
+        // Corresponds to `ConstraintHandling.instanceType` in the Scala 3 compiler.
+        if (instantiatedFromBelow && !noWideningIds(id)) {
+          tvMap.get(id).foreach { inferred =>
+            tvMap += ((id, Widening.widenInferred(inferred, uMap.get(id))))
+          }
         }
 
         if (!tvMap.contains(id)) {
@@ -394,6 +420,10 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
 
   override def withTypeParamId(id: Long): ConstraintSystem = map {
     _.withTypeParamId(id)
+  }
+
+  override def withoutWidening(id: Long): ConstraintSystem = map {
+    _.withoutWidening(id)
   }
 
   override def withLower(id: Long, lower: ScType, variance: Variance)(implicit context: Context): ConstraintSystem = map {
