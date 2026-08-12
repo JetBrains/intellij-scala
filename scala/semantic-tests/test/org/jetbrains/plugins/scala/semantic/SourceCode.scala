@@ -150,7 +150,7 @@ object SourceCode {
         printProtectedOrPrivate(cdef)
 
         val flags = cdef.symbol.flags
-        if (cdef.symbol.flags.is(Flags.Override)) this += highlightKeyword("override ")
+        if (cdef.symbol.flags.is(Flags.Override) || cdef.symbol.allOverriddenSymbols.nonEmpty) this += highlightKeyword("override ")
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Sealed)) this += highlightKeyword("sealed ")
         if (flags.is(Flags.Final) && !flags.is(Flags.Module) && !isAnonymous) this += highlightKeyword("final ")
@@ -274,7 +274,7 @@ object SourceCode {
 
       case tdef @ TypeDef(name, rhs) =>
         printDefAnnotations(tdef)
-        if (tdef.symbol.flags.is(Flags.Override)) this += highlightKeyword("override ")
+        if (tdef.symbol.flags.is(Flags.Override) || tdef.symbol.allOverriddenSymbols.nonEmpty) this += highlightKeyword("override ")
         printProtectedOrPrivate(tdef)
         this += highlightKeyword("type ")
         printTargDef((tdef, tdef), isMember = true)
@@ -284,7 +284,7 @@ object SourceCode {
 
         val flags = vdef.symbol.flags
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
-        if (flags.is(Flags.Override)) this += highlightKeyword("override ")
+        if (flags.is(Flags.Override) || vdef.symbol.allOverriddenSymbols.nonEmpty) this += highlightKeyword("override ")
         if (flags.is(Flags.Final) && !flags.is(Flags.Module)) this += highlightKeyword("final ")
 
         printProtectedOrPrivate(vdef)
@@ -334,7 +334,7 @@ object SourceCode {
         val flags = ddef.symbol.flags
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Inline)) this += highlightKeyword("inline ")
-        if (flags.is(Flags.Override)) this += highlightKeyword("override ")
+        if (flags.is(Flags.Override) || (!isConstructor && ddef.symbol.allOverriddenSymbols.nonEmpty)) this += highlightKeyword("override ")
         if (flags.is(Flags.Final) && !flags.is(Flags.Module)) this += highlightKeyword("final ")
 
         printProtectedOrPrivate(ddef)
@@ -966,7 +966,7 @@ object SourceCode {
         body.collectFirst {
           case vdef @ ValDef(`name`, _, _) if vdef.symbol.flags.is(Flags.ParamAccessor) =>
             var printedPrefix = false
-            if (vdef.symbol.flags.is(Flags.Override)) {
+            if (vdef.symbol.flags.is(Flags.Override) || vdef.symbol.allOverriddenSymbols.nonEmpty) {
               this += "override "
               printedPrefix = true
             }
