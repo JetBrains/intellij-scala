@@ -125,9 +125,10 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
      * An anonymous class is local to the expression that creates it, so Scala 3 approximates its type
      * by one that doesn't mention the class. That approximation only keeps members which are already
      * declared by one of the parents, i.e. `new { def bar: Int = 1 }` is simply an `AnyRef`.
-     * Only when the approximation doesn't conform to the expected type, the expression is ascribed to
-     * the expected type instead, so that e.g. `val x: AnyRef { def bar: Int } = new { def bar = 1 }`
-     * still works.
+     * There are two exceptions: parents which are `Selectable` keep the refinement, since selecting
+     * such a member is the whole point of `Selectable`, and if the approximation doesn't conform to
+     * the expected type, the expression is ascribed to the expected type instead, so that e.g.
+     * `val x: AnyRef { def bar: Int } = new { def bar = 1 }` still works.
      *
      * See `TypeOps.classBound` and `Typer.ensureNoLocalRefs` in the Scala 3 compiler.
      */
@@ -135,12 +136,12 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
       !this.isInScala3File || {
         val approximation =
           declaredSuperTypes match {
-            case Nil => api.AnyRef
-            case List(one) => one
-            case _   => ScCompoundType(declaredSuperTypes)
+            case Nil      => api.AnyRef
+            case Seq(one) => one
+            case _        => ScCompoundType(declaredSuperTypes)
           }
 
-        pt.exists(!approximation.conforms(_))
+        TypeDefinitionMembers.isSelectable(approximation) || pt.exists(!approximation.conforms(_))
       }
 
     val superTypes =

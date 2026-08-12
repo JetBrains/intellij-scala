@@ -7,32 +7,32 @@ import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.{Simpl
 object WideningTest {
   private lazy val testData: Seq[String] = Seq(
     """
-      |// WideningOnVal_<Literal,StringLit,DependentType,Enum,Structural>
+      |// WideningOnVal_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |val x = <1, "x", c, E.A, new { def bar: Int = 1 }>
-      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }> = x // Error <in both, in both, in both, in both, in [Scala3]>
+      |val x = <1, "x", c, E.A, new { def bar: Int = 1 }, new reflect.Selectable { def bar: Int = 1 }>
+      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = x // <Error in both, Error in both, Error in both, Error in both, Error in [Scala3], fine>
       |""".stripMargin.multi,
     """
-      |// WideningOnTypedVal_<Literal,StringLit,DependentType,Enum,Structural>
+      |// WideningOnTypedVal_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }> = <1, "x", c, E.A, new { def bar: Int = 1 }>
+      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = <1, "x", c, E.A, new { def bar: Int = 1 }, new reflect.Selectable { def bar: Int = 1 }>
       |val y = x
-      |val z: <1, "x", c.type, E.A.type, Object { def bar: Int }> = y // <Error in both, Error in both, Error in [Scala3], Error in both, fine>
+      |val z: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = y // <Error in both, Error in both, Error in [Scala3], Error in both, fine, fine>
       |""".stripMargin.multi,
     """
-      |// WideningThroughFunc_<Literal,StringLit,DependentType,Enum,Structural>
+      |// WideningThroughFunc_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
       |def test[T](t: T): T = t
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }> = test(<1, "x", c, E.A, new { def bar: Int = 1 }>)
+      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = test(<1, "x", c, E.A, new { def bar: Int = 1 }, new reflect.Selectable { def bar: Int = 1 }>)
       |""".stripMargin.multi,
     """
-      |// WideningIntoContainer_<Literal,StringLit,DependentType,Enum,Structural>
+      |// WideningIntoContainer_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
       |// SCL-23271
       |case class Test[T](t: T) {
       |  def foo(t: T): Unit = ()
@@ -40,22 +40,23 @@ object WideningTest {
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |Test(<1, "x", c, E.A, new { def bar: Int = 1 }>).foo(<2, "y", c: Any, E.B, new Object>) // <fine, fine, fine, fine, Error in [Scala2]>
+      |val y = Test(<1, "x", c, E.A, new { def bar: Int = 1 }, new reflect.Selectable { def bar: Int = 1 }>)
+      |y.foo(<2, "y", c: Any, E.B, new Object, new reflect.Selectable {}>) // <fine, fine, fine, fine, Error in [Scala2], Error in [Scala3]>
       |""".stripMargin.multi,
     """
-      |// WideningIntoContainer2_<Literal,StringLit,DependentType,Enum,Structural>
+      |// WideningIntoContainer2_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
       |case class Test[T](t: T) {
       |  def foo(t: T): Unit = ()
       |}
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }> = ???
+      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = ???
       |val y = Test(x)
-      |y.foo(<2, "y", c: Any, E.B, new Object>) // <fine, fine, fine, fine, Error>
+      |y.foo(<2, "y", c: Any, E.B, new Object, new reflect.Selectable {}>) // <fine, fine, fine, fine, Error, Error>
       |""".stripMargin.multi,
     """
-      |// WideningOnContainerTypeInference_<Literal,StringLit,DependentType,Enum,Structural>
+      |// WideningOnContainerTypeInference_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
       |case class Test[T](t: T) {
       |  def map[TT](t: T => TT): Test[TT] = ???
       |}
@@ -63,30 +64,30 @@ object WideningTest {
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
-      |val x = Test[<1, "x", c.type, E.A.type, Object { def bar: Int }>](???).map(identity(_))
-      |val y: Test[<1, "x", c.type, E.A.type, Object { def bar: Int }>] = x // <Error, Error, Error, Error, fine>
+      |val x = Test[<1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }>](???).map(identity(_))
+      |val y: Test[<1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }>] = x // <Error, Error, Error, Error, fine, fine>
       |""".stripMargin.multi,
-    """// NonWideningOfFinalFields_<Literal,StringLit,DependentType,Enum,Structural>
+    """// NonWideningOfFinalFields_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
       |object Test {
-      |  final val x = <1, "x", c, E.A, new { def bar: Int = 1 }>
+      |  final val x = <1, "x", c, E.A, new { def bar: Int = 1 }, new reflect.Selectable { def bar: Int = 1 }>
       |}
       |
-      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }> = Test.x // <fine, fine, Error, Error, Error in [Scala3]>
+      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = Test.x // <fine, fine, Error, Error, Error in [Scala3], fine>
       |""".stripMargin.multi,
-    """// NonWideningOfFinalDefs_<Literal,StringLit,DependentType,Enum,Structural>
+    """// NonWideningOfFinalDefs_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
       |enum E { case A, B }  [Scala3]
       |val c: Any = ???
       |
       |object Test {
-      |  final def x = <1, "x", c, E.A, new { def bar: Int = 1 }>
+      |  final def x = <1, "x", c, E.A, new { def bar: Int = 1 }, new reflect.Selectable { def bar: Int = 1 }>
       |}
       |
-      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }> = Test.x // Error in <both, both, both, both, [Scala3]>
+      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = Test.x // <Error in both, Error in both, Error in both, Error in both, Error in [Scala3], fine>
       |""".stripMargin.multi,
-    """// WidenOnImplicit_<Literal,StringLit,DependentType,Enum,Structural>
+    """// WidenOnImplicit_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
       |enum E { case A, B }  [Scala3]
       |trait C // we need C, otherwise the implicit search will be underspecified
       |val c: C = ???
@@ -95,16 +96,18 @@ object WideningTest {
       |  def test[X <: Upper](implicit x: X): X = x
       |}
       |
-      |val inst = new Test[<Int, String, C, E, C>]
-      |implicit val x: <1, "x", c.type, E.A.type, C { def bar: Int }> = <1, "x", c, E.A, new C { def bar: Int = 1 }>
+      |val inst = new Test[<Int, String, C, E, C, reflect.Selectable>]
+      |implicit val x: <1, "x", c.type, E.A.type, C { def bar: Int }, reflect.Selectable { def bar: Int }> = <1, "x", c, E.A, new C { def bar: Int = 1 }, new reflect.Selectable { def bar: Int = 1 }>
       |
       |val y = inst.test
-      |val z: <1, "x", c.type, E.A.type, C { def bar: Int }> = x
+      |val z: <1, "x", c.type, E.A.type, C { def bar: Int }, reflect.Selectable { def bar: Int }> = x
       |""".stripMargin.multi
   ).flatten
 
-  lazy val testDataInScala2: Seq[SimpleTestData] = testData.map(toTestData("[Scala3]")).filterNot(_.testName.contains("Enum"))
-  lazy val testDataInScala3: Seq[SimpleTestData] = testData.map(toTestData("[Scala2]"))
+  lazy val testDataInScala2: Seq[SimpleTestData] =
+    testData.map(toTestData("[Scala3]")).filterNot(_.testName.contains("Enum")).filterNot(_.testName.contains("Selectable"))
+  lazy val testDataInScala3: Seq[SimpleTestData] =
+    testData.map(toTestData("[Scala2]"))
 
   private implicit class StringExt(private val string: String) {
     def single: Seq[String] = Seq(string)
