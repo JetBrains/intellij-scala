@@ -1556,14 +1556,15 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       r.visitType(rightVisitor)
       if (result == null) {
-        r match {
-          case lit: ScLiteralType if lit.allowWiden && !u.typeParameter.upperType.conforms(Singleton) =>
-            result = conformsInner(l, lit.wideType, visited, constraints, checkWeak)
-          case lit: ScLiteralType =>
-            result = constraints.withLower(u.typeParameter.typeParamId, lit.blockWiden)
-          case _ =>
-            result = constraints.withLower(u.typeParameter.typeParamId, r)
-        }
+        val id = u.typeParameter.typeParamId
+
+        // Note that the lower bound is recorded as is. Widening of an inferred type argument only
+        // happens once all the bounds are known, see [[ConstraintSystem.substitutionBounds]].
+        val withLower = constraints.withLower(id, r)
+
+        result =
+          if (Widening.isSingletonBounded(u.typeParameter.upperType)) withLower.withoutWidening(id)
+          else                                                        withLower
       }
     }
 

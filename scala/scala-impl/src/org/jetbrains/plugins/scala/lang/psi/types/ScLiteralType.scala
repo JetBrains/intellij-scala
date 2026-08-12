@@ -4,10 +4,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumSingletonCase
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 final class ScLiteralType private(val value: ScLiteral.Value[_],
@@ -48,36 +44,4 @@ object ScLiteralType {
 
   def unapply(literalType: ScLiteralType): Some[(Value[_], Boolean)] =
     Some(literalType.value, literalType.allowWiden)
-
-  def widenRecursive(`type`: ScType)(implicit context: Context): ScType = {
-    import api._
-    import recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
-
-    def isSingleton(param: ScTypeParam) = param.upperBound.exists {
-      _.conforms(Singleton(param.projectContext))
-    }
-
-    def widenRecursiveInner(`type`: ScType, visited: Set[ParameterizedType]): ScType = `type`.recursiveUpdate {
-      case literalType: ScLiteralType => ReplaceWith(literalType.widen)
-      // Enum values can be seen as having literal types, SCL-21726
-      case ScProjectionType(_, o: ScEnumSingletonCase) =>
-        ReplaceWith(if (o.superTypes.length == 1) o.superTypes.head else ScCompoundType(o.superTypes)(`type`.projectContext))
-      case parameterizedType@ParameterizedType(oldDesignator@designator.ScDesignatorType(definition: ScTypeDefinition), typeArguments) if !visited(parameterizedType) =>
-        val newDesignator = widenRecursiveInner(oldDesignator, visited + parameterizedType)
-
-        val newArgs = definition.typeParameters
-          .zip(typeArguments)
-          .map {
-            case (param, arg) if isSingleton(param) => arg
-            case (_, arg) => widenRecursiveInner(arg, visited + parameterizedType)
-          }
-
-        ReplaceWith(ScParameterizedType(newDesignator, newArgs))
-      case _: ParameterizedType |
-           _: ScCompoundType => Stop
-      case _ => ProcessSubtypes
-    }
-
-    widenRecursiveInner(`type`, Set.empty)
-  }
 }

@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, Singleton}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Widening, api}
 
 class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFunctionExpr {
 
@@ -47,16 +47,11 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     }
   }
 
-  private[this] def widenSingletonsInRetType(retType: ScType): ScType = retType match {
-    case lit: ScLiteralType =>
-      this.expectedType() match {
-        case Some(FunctionType(expectedRetTpe, _)) =>
-          val eTpe = expectedRetTpe.removeAbstracts
-          if (!eTpe.isNothing && eTpe.conforms(Singleton)) lit
-          else                                             lit.widen
-        case _ => lit.widen
-      }
-    case tpe => tpe
+  private[this] def widenSingletonsInRetType(retType: ScType): ScType = {
+    val expectedRetTpe = this.expectedType().collect {
+      case FunctionType(expectedRetTpe, _) => expectedRetTpe.removeAbstracts
+    }
+    Widening.widenInferred(retType, expectedRetTpe)
   }
 
   protected override def innerType: TypeResult = {

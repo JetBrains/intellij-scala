@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.canNotBeOverridden
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
-import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
+import org.jetbrains.plugins.scala.lang.psi.types.Widening
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.annotation.nowarn
@@ -45,9 +45,12 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
         new Failure(NlsString(ScalaBundle.message("cannot.infer.type.without.an.expression")))
       }.flatMap {
         _.`type`()
-      }.map {
-        case literalType: ScLiteralType if this.hasFinalModifier => literalType
-        case t => ScLiteralType.widenRecursive(t)
+      }.map { ty =>
+        val definitionKind: Widening.DefinitionKind =
+          if (this.hasFinalModifier && !hasModifierProperty("lazy")) Widening.DefinitionKind.ConstantVal
+          else Widening.DefinitionKind.Val
+
+        Widening.widenInferredDefinitionType(ty, definitionKind)
       }
   }
 

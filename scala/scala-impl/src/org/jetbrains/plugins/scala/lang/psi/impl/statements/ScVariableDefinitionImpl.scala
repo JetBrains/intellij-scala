@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.canNotBeOverridden
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
-import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
+import org.jetbrains.plugins.scala.lang.psi.types.Widening
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.annotation.nowarn
@@ -36,7 +36,7 @@ final class ScVariableDefinitionImpl private[psi] (
 
   override def `type`(): TypeResult = typeElement match {
     case Some(te) => te.`type`()
-    case None => expr.map(_.`type`().map(ScLiteralType.widenRecursive)).
+    case None => expr.map(_.`type`().map(Widening.widenInferredDefinitionType(_, Widening.DefinitionKind.Var))).
       getOrElse(Failure(ScalaBundle.message("cannot.infer.type.without.an.expression")))
   }
 
