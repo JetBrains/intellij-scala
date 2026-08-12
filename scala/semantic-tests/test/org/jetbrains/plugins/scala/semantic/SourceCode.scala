@@ -177,10 +177,10 @@ object SourceCode {
         }
 
         val parents1 = parents.filter {
-          case tpt: TypeTree => tpt.tpe.typeSymbol != Symbol.requiredClass("java.lang.Object")
           case Apply(Select(New(tpt), _), _) => tpt.tpe.typeSymbol != Symbol.requiredClass("java.lang.Object")
-          case TypeSelect(Select(Ident("_root_"), "scala"), "Product") => false
-          case TypeSelect(Select(Ident("_root_"), "scala"), "Serializable") => false
+          case TypeSelect(Select(Ident("_root_"), "scala"), "Product") if flags.is(Flags.Case) => false
+          case TypeSelect(Select(Ident("_root_"), "scala"), "Serializable") if flags.is(Flags.Case) => false
+          case tpt: TypeTree => tpt.tpe.typeSymbol != Symbol.requiredClass("java.lang.Object")
           case _ => true
         }
         if (isAnonymous)
