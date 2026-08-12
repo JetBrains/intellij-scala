@@ -283,8 +283,8 @@ object SourceCode {
         printDefAnnotations(vdef)
 
         val flags = vdef.symbol.flags
-        if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Override) || vdef.symbol.allOverriddenSymbols.nonEmpty) this += highlightKeyword("override ")
+        if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Final) && !flags.is(Flags.Module)) this += highlightKeyword("final ")
 
         printProtectedOrPrivate(vdef)
@@ -332,10 +332,10 @@ object SourceCode {
         val isConstructor = name == "<init>"
 
         val flags = ddef.symbol.flags
-        if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
-        if (flags.is(Flags.Inline)) this += highlightKeyword("inline ")
         if (flags.is(Flags.Override) || (!isConstructor && ddef.symbol.allOverriddenSymbols.nonEmpty)) this += highlightKeyword("override ")
+        if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
         if (flags.is(Flags.Final) && !flags.is(Flags.Module)) this += highlightKeyword("final ")
+        if (flags.is(Flags.Inline)) this += highlightKeyword("inline ")
 
         printProtectedOrPrivate(ddef)
 
