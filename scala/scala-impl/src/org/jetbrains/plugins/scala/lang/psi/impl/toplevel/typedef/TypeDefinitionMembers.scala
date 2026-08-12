@@ -562,7 +562,7 @@ object TypeDefinitionMembers {
     true
   }
 
-  private def isSelectable(tpe: ScType)(implicit context: Context): Boolean = {
+  def isSelectable(tpe: ScType)(implicit context: Context): Boolean = {
     val selectableFqn = "scala.Selectable"
     val baseTpes = BaseTypes.iterator(tpe)
     baseTpes.exists {
