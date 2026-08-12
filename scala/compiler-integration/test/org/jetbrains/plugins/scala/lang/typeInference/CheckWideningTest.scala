@@ -5,4 +5,6 @@ import org.jetbrains.plugins.scala.{CheckTestDataTestBase, LatestScalaVersions, 
 
 sealed abstract class CheckWideningTestBase(testData: Seq[TestData], minScalaVersion: ScalaVersion) extends CheckTestDataTestBase(testData, minScalaVersion)
 final class CheckWideningTest_Scala2 extends CheckWideningTestBase(WideningTest.testDataInScala2, LatestScalaVersions.Scala_2_13)
-final class CheckWideningTest_Scala3 extends CheckWideningTestBase(WideningTest.testDataInScala3, LatestScalaVersions.Scala_3_LTS)
+final class CheckWideningTest_Scala3_LTS extends CheckWideningTestBase(WideningTest.testDataInScala3, LatestScalaVersions.Scala_3_LTS)
+final class CheckWideningTest_Scala3_Next extends CheckWideningTestBase(WideningTest.testDataInScala3, LatestScalaVersions.Scala_3_Next_RC)
+
