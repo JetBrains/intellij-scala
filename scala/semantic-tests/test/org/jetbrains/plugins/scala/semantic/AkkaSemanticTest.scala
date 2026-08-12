@@ -386,7 +386,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.cluster.routing.ClusterRouterPool
     //akka.cluster.routing.ClusterRouterPoolActor
     //akka.cluster.routing.ClusterRouterPoolSettings
-    //akka.cluster.routing.ClusterRouterSettingsBase
+    akka.cluster.routing.ClusterRouterSettingsBase
     akka.cluster.sbr.DownAllNodes
     //akka.cluster.sbr.DowningStrategy
     //akka.cluster.sbr.KeepMajority

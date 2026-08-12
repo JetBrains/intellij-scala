@@ -124,17 +124,21 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   }
 
   private def printTo(sb: StringBuilder, extendsBlock: ScExtendsBlock, indent: String): Unit =
-    extendsBlock.members.filter(m => withPrivate || !isPrivate(m)).foreach {
-      case f: ScFunction =>
-        sb ++= textOf(f, indent)
-      case v: ScValueOrVariable =>
-        sb ++= textOf(v, v.declaredElements.head, indent)
-      case t: ScTypeAlias =>
-        sb ++= textOf(t, indent)
-      case t: ScExtension =>
-        sb ++= textOf(t, indent)
-      case td: ScTypeDefinition =>
-        printTo(sb, td, indent + "  ")
+    extendsBlock.templateBody.map(_.children.toSeq).getOrElse(Seq.empty).foreach {
+      case m: ScMember if withPrivate || !isPrivate(m) => m match {
+        case f: ScFunction =>
+          sb ++= textOf(f, indent)
+        case v: ScValueOrVariable =>
+          sb ++= textOf(v, v.declaredElements.head, indent)
+        case t: ScTypeAlias =>
+          sb ++= textOf(t, indent)
+        case t: ScExtension =>
+          sb ++= textOf(t, indent)
+        case td: ScTypeDefinition =>
+          printTo(sb, td, indent + "  ")
+      }
+      case e: ScExpression =>
+        sb ++= "\n" + indent + "  " + textOfExpression(e, indent) + "\n"
       case _ =>
     }
 
