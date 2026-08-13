@@ -3,9 +3,10 @@ package org.jetbrains.plugins.scala.util
 import com.intellij.codeInsight.runner.JavaMainMethodProvider
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.util.PsiMethodUtil
-import com.intellij.psi.{PsiClass, PsiMethod}
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
@@ -13,6 +14,19 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 object ScalaMainMethodUtil {
+
+  def hasMain(element: PsiElement): Boolean = {
+    val isIdentifier = element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER
+    val hasMain = element.getParent match {
+      case fun: ScFunctionDefinition =>
+        ScalaMainMethodUtil.isMainMethod(fun)
+      case c: PsiClass =>
+        ScalaMainMethodUtil.hasMainMethodFromProvidersOnly(c)
+      case _ =>
+        false
+    }
+    isIdentifier && hasMain
+  }
 
   def isMainMethod(funDef: ScFunctionDefinition): Boolean =
     isScala2MainMethod(funDef) ||

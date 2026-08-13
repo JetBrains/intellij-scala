@@ -3,11 +3,9 @@ package org.jetbrains.plugins.scala.runner
 import com.intellij.execution.lineMarker.RunLineMarkerContributor.Info
 import com.intellij.execution.lineMarker.{ExecutorAction, RunLineMarkerContributor}
 import com.intellij.icons.AllIcons
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.incremental.Highlighting.ElementHighlightingExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributor.RunIcon
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
@@ -30,16 +28,7 @@ class ScalaRunLineMarkerContributor extends RunLineMarkerContributor {
       case _ =>
     }
 
-    val isIdentifier = element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER
-    val hasMain = element.getParent match {
-      case fun: ScFunctionDefinition =>
-        ScalaMainMethodUtil.isMainMethod(fun)
-      case c: PsiClass =>
-        ScalaMainMethodUtil.hasMainMethodFromProvidersOnly(c)
-      case _ =>
-        false
-    }
-    if (isIdentifier && hasMain)
+    if (ScalaMainMethodUtil.hasMain(element))
       new Info(RunIcon, ExecutorAction.getActions(0), null)
     else
       null
