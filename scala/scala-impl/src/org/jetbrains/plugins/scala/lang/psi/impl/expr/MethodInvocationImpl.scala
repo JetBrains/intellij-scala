@@ -284,14 +284,14 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       val inferredConstraints = applicability.constraints
 
       inferredConstraints
-        .substitutionBounds(canThrowSCE = useExpectedType)
+        .substitutionBounds(canThrowSCE = useExpectedType, widenInferredTypeArguments = true)
         .toSeq
         .flatMap { initialBounds =>
           val constraintsWithBounds =
             constraintsWithTypeParameterBounds(inferredConstraints, initialBounds, typeParameters)
 
           constraintsWithBounds
-            .substitutionBounds(canThrowSCE = useExpectedType)
+            .substitutionBounds(canThrowSCE = useExpectedType, widenInferredTypeArguments = true)
             .toSeq
             .flatMap { bounds =>
               typeParameters.collect {
