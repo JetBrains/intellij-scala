@@ -15,7 +15,8 @@ class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with S
     editor.getSettings.isVariableInplaceRenameEnabled &&
       processor != null &&
       processor.canProcessElement(element) &&
-      isLocal(element)
+      isLocal(element) &&
+      !hasSyntheticGivenName(element)
   }
 
   override def createRenamer(elementToRename: PsiElement, editor: Editor): VariableInplaceRenamer = {
