@@ -49,7 +49,7 @@ object Versions {
   val junitInterfaceVersion: String = "0.13.3"
 
   val bspVersion = "2.1.0"
-  val sbtStructureVersion: String = "2026.2.5"
+  val sbtStructureVersion: String = "2026.2.7"
   val sbtIdeaShellVersion: String = "2025.3.0"
 
   // spray-json is a dependency of scala-compiler-indices-protocol. Make sure the versions match.
