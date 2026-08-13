@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.util.GeneratedHighlightingParameterizedTest
-import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.{SimpleTestData, testDataFromCode}
+import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.{SimpleTestData, testDataFromVersionTaggedCode}
 
 object WideningTest {
   private lazy val testData: Seq[String] = Seq(
@@ -144,15 +144,7 @@ object WideningTest {
   }
 
   private def toTestData(removeTag: String)(code: String): SimpleTestData =
-    testDataFromCode(
-      code.linesIterator
-        .map {
-          case line if line.contains(removeTag) => line.take(line.indexOf("//").max(0))
-          case line => line
-        }
-        .map(_.replace("[Scala2]", "").replace("[Scala3]", ""))
-        .mkString("\n")
-    )
+    testDataFromVersionTaggedCode(removeTag)(code)
 }
 
 abstract class WideningTestBase(minScalaVersion: ScalaVersion) extends GeneratedHighlightingParameterizedTest(minScalaVersion) {

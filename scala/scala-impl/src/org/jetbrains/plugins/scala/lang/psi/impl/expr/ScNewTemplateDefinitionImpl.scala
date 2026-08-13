@@ -51,13 +51,29 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   }
 
   protected override def innerType: TypeResult = {
-    def filterTypeSignatures(aliases: Seq[ScTypeAlias]): Map[String, TypeAliasSignature] =
+    /**
+     * An anonymous class is local to the expression that creates it, so Scala 3 approximates its type
+     * by one that doesn't mention the class. That approximation only keeps a member when one of the
+     * parents already declares it, so that `new Foo { override type X = Int }` of a `trait Foo { type X }`
+     * is a `Foo { type X = Int }`, while `new { def bar: Int = 1 }` is simply an `AnyRef`.
+     * Members of a `Selectable` parent are always kept, since selecting them is the whole point of it.
+     *
+     * See `TypeOps.classBound` in the Scala 3 compiler.
+     */
+    def isRefinable(hasMemberInParent: => Boolean): Boolean =
+      !this.isInScala3File || definedExpectedType.nonEmpty || parentsAreSelectable || hasMemberInParent
+
+    def filterTypeSignatures(aliases: Seq[ScTypeAlias]): Map[String, TypeAliasSignature] = {
+      lazy val types = TypeDefinitionMembers.getTypes(this)
+
       aliases.flatMap { alias =>
         val sig = TypeAliasSignature(alias)
 
         if (alias.isPrivate || alias.isProtected) None
-        else                                      Option((alias.name, sig))
+        else if (!isRefinable(types.forName(alias.name).findNode(alias).exists(_.supers.nonEmpty))) None
+        else Option((alias.name, sig))
       }.toMap
+    }
 
     def filterTermSignatures(terms: Seq[ScDeclaredElementsHolder]): Map[TermSignature, ScType] = {
       lazy val sigs = TypeDefinitionMembers.getSignatures(this)
@@ -69,14 +85,15 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
           case _           => false
         }
 
-        !isAvalableOutside || {
+        val supers =
+          sigs
+            .forName(sig.name)
+            .findNode(sig.namedElement)
+            .map(_.supers.map(sig => (sig.info.namedElement, sig.info.substitutor)))
+            .getOrElse(Seq.empty)
+
+        !isAvalableOutside || !isRefinable(supers.nonEmpty) || {
           val maybeTpe = OverridingAnnotator.typeForSigElement(sig.namedElement)
-          val supers =
-            sigs
-              .forName(sig.name)
-              .findNode(sig.namedElement)
-              .map(_.supers.map(sig => (sig.info.namedElement, sig.info.substitutor)))
-              .getOrElse(Seq.empty)
 
             maybeTpe.exists(
               tpe =>
@@ -117,46 +134,44 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
         case None => (ScCompoundType.signaturesFromPsi(earlyHolders), Map.empty[String, TypeAliasSignature])
       }
 
-    val pt                 = this.expectedType()
+    val pt                 = definedExpectedType
     val superTypeElements  = extendsBlock.templateParents.fold(Seq.empty[ScTypeElement])(_.allTypeElements)
     val declaredSuperTypes = extendsBlock.superTypes
 
-    /**
-     * An anonymous class is local to the expression that creates it, so Scala 3 approximates its type
-     * by one that doesn't mention the class. That approximation only keeps members which are already
-     * declared by one of the parents, i.e. `new { def bar: Int = 1 }` is simply an `AnyRef`.
-     * There are two exceptions: parents which are `Selectable` keep the refinement, since selecting
-     * such a member is the whole point of `Selectable`, and if the approximation doesn't conform to
-     * the expected type, the expression is ascribed to the expected type instead, so that e.g.
-     * `val x: AnyRef { def bar: Int } = new { def bar = 1 }` still works.
-     *
-     * See `TypeOps.classBound` and `Typer.ensureNoLocalRefs` in the Scala 3 compiler.
-     */
-    val keepsRefinement =
-      !this.isInScala3File || {
-        val approximation =
-          declaredSuperTypes match {
-            case Nil      => api.AnyRef
-            case Seq(one) => one
-            case _        => ScCompoundType(declaredSuperTypes)
-          }
-
-        TypeDefinitionMembers.isSelectable(approximation) || pt.exists(!approximation.conforms(_))
-      }
-
     val superTypes =
-      if (superTypeElements.isEmpty && this.isInScala3File && keepsRefinement) pt.toSeq
-      else if (declaredSuperTypes.isEmpty)                                     Seq(api.AnyRef)
-      else                                                                     declaredSuperTypes
+      if (superTypeElements.isEmpty && this.isInScala3File && pt.nonEmpty) pt.toSeq
+      else if (declaredSuperTypes.isEmpty)                                 Seq(api.AnyRef)
+      else                                                                 declaredSuperTypes
 
-    if (superTypeElements.length > 1 || (keepsRefinement && (termSignatures.nonEmpty || typeSignatures.nonEmpty))) {
-      Right(
-        if (keepsRefinement) ScCompoundType(superTypes, termSignatures, typeSignatures)
-        else                 ScCompoundType(superTypes)
-      )
-    } else if (superTypeElements.length == 1) {
+    if (superTypeElements.length > 1 || termSignatures.nonEmpty || typeSignatures.nonEmpty)
+      Right(ScCompoundType(superTypes, termSignatures, typeSignatures))
+    else if (superTypeElements.length == 1)
       superTypeElements.head.getNonValueType()
-    } else superTypes.headOption.asTypeResult
+    else
+      superTypes.headOption.asTypeResult
+  }
+
+  /**
+   * The expected type, but only if it is fully defined. An expected type that is still an undetermined
+   * type parameter tells us nothing about the anonymous class, and Scala 3 ignores it as well.
+   *
+   * See `isFullyDefined(pt, ForceDegree.none)` in `Typer.ensureNoLocalRefs` in the Scala 3 compiler.
+   */
+  private def definedExpectedType: Option[ScType] =
+    this.expectedType().filterNot(_.subtypeExists {
+      case _: ScAbstractType | _: api.UndefinedType | _: api.TypeParameterType => true
+      case _                                                                  => false
+    })
+
+  /** Whether the members declared by this anonymous class are reachable through a `Selectable` parent. */
+  private def parentsAreSelectable: Boolean = {
+    val declaredSuperTypes = extendsBlock.superTypes
+
+    val parents =
+      if (declaredSuperTypes.lengthCompare(1) <= 0) declaredSuperTypes.headOption.getOrElse(api.AnyRef)
+      else                                          ScCompoundType(declaredSuperTypes)
+
+    TypeDefinitionMembers.isSelectable(parents)
   }
 
   override def desugaredApply: Option[ScExpression] = {
