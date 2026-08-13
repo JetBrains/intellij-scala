@@ -38,7 +38,7 @@
         For a sneak peek at what's in store, check our EAP and nightly build
     </change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
-    <idea-version since-build="263.3053" until-build="263.*"/>
+    <idea-version since-build="263.3261" until-build="263.*"/>
 
     <!-- <depends optional="true" config-file="packagesearch.xml">com.jetbrains.packagesearch.intellij-plugin</depends> -->
 

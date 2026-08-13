@@ -15,7 +15,7 @@ interface SharedSourcesOwnersEntityBuilder : WorkspaceEntityBuilder<SharedSource
 }
 
 internal object SharedSourcesOwnersEntityType : EntityType<SharedSourcesOwnersEntity, SharedSourcesOwnersEntityBuilder>() {
-  override val entityClass: Class<SharedSourcesOwnersEntity> get() = SharedSourcesOwnersEntity::class.java
+  override val entityImplClass: Class<*> get() = SharedSourcesOwnersEntityImpl::class.java
   override val entityImplBuilderClass: Class<*> get() = SharedSourcesOwnersEntityImpl.Builder::class.java
   operator fun invoke(
     ownerModuleIds: List<String>,

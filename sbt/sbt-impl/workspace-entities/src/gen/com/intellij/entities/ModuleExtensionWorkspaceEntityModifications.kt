@@ -16,4 +16,3 @@ interface ModuleExtensionWorkspaceEntityBuilder<T : ModuleExtensionWorkspaceEnti
 
 var ModuleEntityBuilder.moduleExtensionWorkspaceEntity: ModuleExtensionWorkspaceEntityBuilder<out ModuleExtensionWorkspaceEntity>
   by WorkspaceEntity.extensionBuilder(ModuleExtensionWorkspaceEntity::class.java)
-

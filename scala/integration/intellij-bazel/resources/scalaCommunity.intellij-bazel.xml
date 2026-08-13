@@ -20,6 +20,6 @@
     </extensions>
     <extensions defaultExtensionNs="com.intellij">
         <!-- order="first" here to override zio-intellij's runLineMarkerContributor -->
-        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.bazel.BazelScalaRunLineMarkerContributor" language="Scala" order="first"/>
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.bazel.BazelScalaRunConfigurationProducer" order="first"/>
     </extensions>
 </idea-plugin>

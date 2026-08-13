@@ -17,7 +17,7 @@ interface SbtModuleEntityBuilder : WorkspaceEntityBuilder<SbtModuleEntity>, Modu
 }
 
 internal object SbtModuleEntityType : EntityType<SbtModuleEntity, SbtModuleEntityBuilder>() {
-  override val entityClass: Class<SbtModuleEntity> get() = SbtModuleEntity::class.java
+  override val entityImplClass: Class<*> get() = SbtModuleEntityImpl::class.java
   override val entityImplBuilderClass: Class<*> get() = SbtModuleEntityImpl.Builder::class.java
   operator fun invoke(
     sbtModuleId: String,

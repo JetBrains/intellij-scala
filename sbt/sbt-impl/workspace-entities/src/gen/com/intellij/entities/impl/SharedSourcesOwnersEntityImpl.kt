@@ -14,7 +14,6 @@ import com.intellij.platform.workspace.storage.impl.WorkspaceEntityBase
 import com.intellij.platform.workspace.storage.impl.WorkspaceEntityData
 import com.intellij.platform.workspace.storage.impl.containers.MutableWorkspaceList
 import com.intellij.platform.workspace.storage.impl.containers.toMutableWorkspaceList
-import com.intellij.platform.workspace.storage.instrumentation.EntityStorageInstrumentation
 import com.intellij.platform.workspace.storage.instrumentation.EntityStorageInstrumentationApi
 import com.intellij.platform.workspace.storage.instrumentation.MutableEntityStorageInstrumentation
 import com.intellij.platform.workspace.storage.instrumentation.instrumentation
@@ -24,11 +23,9 @@ import com.intellij.platform.workspace.storage.metadata.model.EntityMetadata
 @GeneratedCodeImplVersion(7)
 @OptIn(WorkspaceEntityInternalApi::class)
 internal class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourcesOwnersEntityData) : SharedSourcesOwnersEntity, WorkspaceEntityBase(dataSource) {
-
   private companion object {
     internal val MODULE_CONNECTION_ID: ConnectionId = ConnectionId.create(ModuleEntity::class.java, ModuleExtensionWorkspaceEntity::class.java, ConnectionId.ConnectionType.ABSTRACT_ONE_TO_ONE, false)
     private val connections = listOf<ConnectionId>(MODULE_CONNECTION_ID)
-
   }
 
   override val module: ModuleEntity
@@ -39,7 +36,6 @@ internal class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourc
       readField("ownerModuleIds")
       return dataSource.ownerModuleIds
     }
-
   override val entitySource: EntitySource
     get() {
       readField("entitySource")
@@ -50,31 +46,10 @@ internal class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourc
     return connections
   }
 
-
   internal class Builder(result: SharedSourcesOwnersEntityData?) : ModifiableWorkspaceEntityBase<SharedSourcesOwnersEntity, SharedSourcesOwnersEntityData>(result), SharedSourcesOwnersEntityBuilder {
     internal constructor() : this(SharedSourcesOwnersEntityData())
 
-    override fun applyToBuilder(builder: MutableEntityStorage) {
-      if (this.diff != null) {
-        if (existsInBuilder(builder)) {
-          this.diff = builder
-          return
-        } else {
-          error("Entity SharedSourcesOwnersEntity is already created in a different builder")
-        }
-      }
-      this.diff = builder
-      addToBuilder()
-      this.id = getEntityData().createEntityId()
-// After adding entity data to the builder, we need to unbind it and move the control over entity data to builder
-// Builder may switch to snapshot at any moment and lock entity data to modification
-      this.currentEntityData = null
-// Process linked entities that are connected without a builder
-      processLinkedEntities(builder)
-      checkInitialization() // TODO uncomment and check failed tests
-    }
-
-    private fun checkInitialization() {
+    override fun checkInitialization() {
       val _diff = diff
       if (!getEntityData().isEntitySourceInitialized()) {
         error("Field WorkspaceEntity#entitySource should be initialized")
@@ -112,14 +87,12 @@ internal class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourc
       updateChildToParentReferences(parents)
     }
 
-
     override var entitySource: EntitySource
       get() = getEntityData().entitySource
       set(value) {
         checkModificationAllowed()
         getEntityData(true).entitySource = value
         changedProperty.add("entitySource")
-
       }
     override var module: ModuleEntityBuilder
       get() {
@@ -137,10 +110,8 @@ internal class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourc
         checkModificationAllowed()
         val _diff = diff
         if (_diff != null && value is ModifiableWorkspaceEntityBase<*, *> && value.diff == null) {
-          if (value is ModifiableWorkspaceEntityBase<*, *>) {
-            value.entityLinks[EntityLink(true, MODULE_CONNECTION_ID)] = this
-          }
-// else you're attaching a new entity to an existing entity that is not modifiable
+          value.entityLinks[EntityLink(true, MODULE_CONNECTION_ID)] = this
+          @Suppress("UNCHECKED_CAST")
           _diff.addEntity(value as ModifiableWorkspaceEntityBase<WorkspaceEntity, *>)
         }
         if (_diff != null && (value !is ModifiableWorkspaceEntityBase<*, *> || value.diff != null)) {
@@ -149,12 +120,10 @@ internal class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourc
           if (value is ModifiableWorkspaceEntityBase<*, *>) {
             value.entityLinks[EntityLink(true, MODULE_CONNECTION_ID)] = this
           }
-// else you're attaching a new entity to an existing entity that is not modifiable
           this.entityLinks[EntityLink(false, MODULE_CONNECTION_ID)] = value
         }
         changedProperty.add("module")
       }
-
     private val ownerModuleIdsUpdater: (value: List<String>) -> Unit = { value ->
 
       changedProperty.add("ownerModuleIds")
@@ -178,32 +147,14 @@ internal class SharedSourcesOwnersEntityImpl(private val dataSource: SharedSourc
 
     override fun getEntityClass(): Class<SharedSourcesOwnersEntity> = SharedSourcesOwnersEntity::class.java
   }
-
 }
 
 @OptIn(WorkspaceEntityInternalApi::class)
 internal class SharedSourcesOwnersEntityData : WorkspaceEntityData<SharedSourcesOwnersEntity>() {
   lateinit var ownerModuleIds: MutableList<String>
-
   internal fun isOwnerModuleIdsInitialized(): Boolean = ::ownerModuleIds.isInitialized
-
-  override fun wrapAsModifiable(diff: MutableEntityStorage): WorkspaceEntityBuilder<SharedSourcesOwnersEntity> {
-    val modifiable = SharedSourcesOwnersEntityImpl.Builder(null)
-    modifiable.diff = diff
-    modifiable.id = createEntityId()
-    return modifiable
-  }
-
-  override fun createEntity(snapshot: EntityStorageInstrumentation): SharedSourcesOwnersEntity {
-    val entityId = createEntityId()
-    return snapshot.initializeEntity(entityId) {
-      val entity = SharedSourcesOwnersEntityImpl(this)
-      entity.snapshot = snapshot
-      entity.id = entityId
-      entity
-    }
-  }
-
+  override fun newInstance(): SharedSourcesOwnersEntity = SharedSourcesOwnersEntityImpl(this)
+  override fun newBuilderInstance(): ModifiableWorkspaceEntityBase<SharedSourcesOwnersEntity, *> = SharedSourcesOwnersEntityImpl.Builder(null)
   override fun getMetadata(): EntityMetadata {
     return MetadataStorageImpl.getMetadataByTypeFqn("com.intellij.entities.SharedSourcesOwnersEntity") as EntityMetadata
   }
