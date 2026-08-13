@@ -138,9 +138,22 @@ class EnumCaseWideningTest extends TypeInferenceTestBase {
     s"""
        |enum Color { case Green }
        |object A {
-       |  val x = ${START}Color.Green$END
+       |  val x = Color.Green
+       |  val y = ${START}x$END
        |}
        |//Color
+       |""".stripMargin
+  )
+
+  // The widening above happens on the `val`, the enum case itself is a singleton, just like in the
+  // compiler, where `Color.Green` is a `(Color.Green : Color)` and only `val x = Color.Green` is a `Color`
+  def test_no_widening_of_the_enum_case_itself(): Unit = doTest(
+    s"""
+       |enum Color { case Green }
+       |object A {
+       |  val x = ${START}Color.Green$END
+       |}
+       |//Color.Green.type
        |""".stripMargin
   )
 
