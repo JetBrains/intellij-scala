@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMessageExt
@@ -9,19 +10,26 @@ import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange, TestUtils}
 import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
+import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.{IdeaProjectFixtureOptions, TestProjectCopyOptions}
-import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
+import org.jetbrains.sbt.project.{RequiresJdk, SbtExternalSystemImportingTestLike}
 import org.junit.Assert.{assertTrue, fail}
 import org.junit.experimental.categories.Category
 
 import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
-@Category(Array(classOf[SlowTests]))
-class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingTestLike {
+abstract class CompileSimpleProjectWithSemanticDbTestBase extends SbtExternalSystemImportingTestLike {
+
+  protected def sbtVersion: SbtVersion
 
   override protected lazy val getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/compilation/projects/${getTestName(true)}"
+
+  override protected def setupBeforeProjectImport(): Unit = {
+    super.setupBeforeProjectImport()
+    injectVariable(getTestProjectPath / "project" / "build.properties", "$SBT_VERSION$", sbtVersion.minor)
+  }
 
   // `CompilerDataFactory.semanticDbOptionsFor` calculates the SemanticDB target relative to the IDEA project path.
   // Keep the opened IDEA project path equal to the sbt project root used by the test.
@@ -128,4 +136,15 @@ class CompileSimpleProjectWithSemanticDbTest extends SbtExternalSystemImportingT
       }
     }
   }
+}
+
+@Category(Array(classOf[SlowTests]))
+class CompileSimpleProjectWithSemanticDbTest_Sbt_1 extends CompileSimpleProjectWithSemanticDbTestBase {
+  override protected def sbtVersion: SbtVersion = SbtVersion.Latest.Sbt_1
+}
+
+@Category(Array(classOf[SlowTests]))
+@RequiresJdk(LanguageLevel.JDK_17)
+class CompileSimpleProjectWithSemanticDbTest_Sbt_2 extends CompileSimpleProjectWithSemanticDbTestBase {
+  override protected def sbtVersion: SbtVersion = SbtVersion.Latest.Sbt_2
 }
