@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
@@ -128,7 +129,8 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     val enabledIfScala3 = enableInScala3 || !element.isInScala3File
     val enabledIfCBH = !disableIfCBHIsUsed || !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(element.getContainingFile)
 
-    enabledIfScala3 && enabledIfCBH && Search.Util.shouldProcessElement(element) && {
+    enabledIfScala3 && enabledIfCBH && Search.Util.shouldProcessElement(element) &&
+      IntentionAvailabilityChecker.checkInspection(this, element) && {
       element match {
         case _: ScNamedTupleComponent | _: ScNamedConstructorArgPattern => false
         case m: ScMember if isTopLevelDefinitionInWorksheetFile(m) => false
