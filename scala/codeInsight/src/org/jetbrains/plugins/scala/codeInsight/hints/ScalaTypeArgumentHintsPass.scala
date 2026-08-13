@@ -57,7 +57,7 @@ private object ScalaTypeArgumentHintsPass {
     if (cs.isEmpty) Seq.empty
     else
       cs
-        .substitutionBounds(canThrowSCE = false)(invoked, Context(invoked))
+        .substitutionBounds(canThrowSCE = false, widenInferredTypeArguments = true)(invoked, Context(invoked))
         .toSeq
         .flatMap { bounds =>
           typeParams.map { tp =>
