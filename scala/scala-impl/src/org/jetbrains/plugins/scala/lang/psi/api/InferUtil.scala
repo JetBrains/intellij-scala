@@ -727,7 +727,7 @@ object InferUtil {
       )
 
     val tpe = if (problems.isEmpty) {
-      constraints.substitutionBounds(canThrowSCE) match {
+      constraints.substitutionBounds(canThrowSCE, widenInferredTypeArguments = true) match {
         case Some(bounds @ SubstitutionBounds(_, lowerMap, upperMap)) =>
           val unSubst = bounds.substitutor
           if (!filterTypeParams) {
@@ -813,10 +813,12 @@ object InferUtil {
               }.map(_.update(sub))
             )
 
-            newConstraints match {
-              case ConstraintSystem(substitutor) => updateWithSubst(substitutor.followed(contrSubst))
-              case _ if !canThrowSCE             => updateWithSubst(unSubst.followed(contrSubst))
-              case _                             => throw new SafeCheckException
+            newConstraints
+              .substitutionBounds(canThrowSCE = true, widenInferredTypeArguments = true)
+              .map(_.substitutor) match {
+              case Some(substitutor)    => updateWithSubst(substitutor.followed(contrSubst))
+              case None if !canThrowSCE => updateWithSubst(unSubst.followed(contrSubst))
+              case None                 => throw new SafeCheckException
             }
           }
         case None => throw new SafeCheckException

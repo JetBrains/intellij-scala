@@ -65,7 +65,19 @@ sealed trait ConstraintSystem extends ConstraintsResult {
 
   def removeTypeParamIds(ids: Set[Long]): ConstraintSystem
 
-  def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean = true)
+  /**
+   * Solves the constraints.
+   *
+   * @param widenInferredTypeArguments whether a type argument that was inferred from below should be
+   *                                   widened, see [[Widening.widenInferred]]. Only the callers that
+   *                                   actually ''instantiate'' a type parameter should ask for this;
+   *                                   callers that merely read an approximation out of the constraints
+   *                                   (match type reduction, for instance) must not.
+   *                                   Corresponds to the distinction between
+   *                                   `ConstraintHandling.instanceType` and
+   *                                   `ConstraintHandling.approximation` in the Scala 3 compiler.
+   */
+  def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean = true, widenInferredTypeArguments: Boolean = false)
                         (implicit projectContext: ProjectContext, context: Context): Option[ConstraintSystem.SubstitutionBounds]
 }
 
@@ -116,9 +128,11 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
   import ConstraintSystem._
   import ConstraintSystemImpl._
 
-  private[this] var substWithBounds: Option[SubstitutionBounds] = _
+  /** Lazily filled cache, indexed by [[cacheIndex]]. */
+  private[this] val cachedBounds = new Array[Option[SubstitutionBounds]](4)
 
-  private[this] var substWithBoundsNoSCE: Option[SubstitutionBounds] = _
+  private[this] def cacheIndex(canThrowSCE: Boolean, widenInferredTypeArguments: Boolean): Int =
+    (if (canThrowSCE) 2 else 0) + (if (widenInferredTypeArguments) 1 else 0)
 
   override def isApplicable(id: Long): Boolean =
     upperMap.contains(id) || lowerMap.contains(id)
@@ -155,19 +169,17 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
       case Some(upper) => copy(upperMap = upperMap.update(id, upper))
     }
 
-  override def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean)
+  override def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean)
                                  (implicit projectContext: ProjectContext, context: Context): Option[SubstitutionBounds] = {
-    def init(get: => Option[SubstitutionBounds])
-            (set: Option[SubstitutionBounds] => Unit) = get match {
+    val index = cacheIndex(canThrowSCE, widenInferredTypeArguments)
+
+    cachedBounds(index) match {
       case null =>
-        val value = substitutionBoundsImpl(canThrowSCE, checkWeak)
-        set(value)
+        val value = substitutionBoundsImpl(canThrowSCE, checkWeak, widenInferredTypeArguments)
+        cachedBounds(index) = value
         value
       case value => value
     }
-
-    if (canThrowSCE) init(substWithBounds)(substWithBounds = _)
-    else init(substWithBoundsNoSCE)(substWithBoundsNoSCE = _)
   }
 
   override def removeTypeParamIds(ids: Set[Long]): ConstraintSystem = copy(
@@ -176,7 +188,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
     noWideningIds = noWideningIds -- ids
   )
 
-  private def substitutionBoundsImpl(canThrowSCE: Boolean, checkWeak: Boolean)
+  private def substitutionBoundsImpl(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean)
                                     (implicit projectContext: ProjectContext, context: Context): Option[SubstitutionBounds] = {
     var tvMap = LongMap.empty[ScType]
     var lMap = LongMap.empty[ScType]
@@ -195,7 +207,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
           recursion(!solve(newVisited)(_) && canThrowSCE) _
         }
 
-        var instantiatedFromBelow =
+        val instantiatedFromBelow =
           lowerMap.getOrDefault(id) match {
             case set if set.nonEmpty =>
               val substitutor = needTvMap(set).fold {
@@ -241,7 +253,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
         // A type argument that was inferred from below is widened, so that e.g. `Some(1)` is a
         // `Some[Int]` and not a `Some[1]`.
         // Corresponds to `ConstraintHandling.instanceType` in the Scala 3 compiler.
-        if (instantiatedFromBelow && !noWideningIds(id)) {
+        if (widenInferredTypeArguments && instantiatedFromBelow && !noWideningIds(id)) {
           tvMap.get(id).foreach { inferred =>
             tvMap += ((id, Widening.widenInferred(inferred, uMap.get(id))))
           }
@@ -434,10 +446,10 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
     _.withUpper(id, upper, variance)
   }
 
-  override def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean)
+  override def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean)
                                  (implicit projectContext: ProjectContext, context: Context): Option[ConstraintSystem.SubstitutionBounds] =
     impls.iterator.flatMap {
-      _.substitutionBounds(canThrowSCE, checkWeak)
+      _.substitutionBounds(canThrowSCE, checkWeak, widenInferredTypeArguments)
     }.nextOption()
 
   override def removeTypeParamIds(ids: Set[Long]): ConstraintSystem = map {
