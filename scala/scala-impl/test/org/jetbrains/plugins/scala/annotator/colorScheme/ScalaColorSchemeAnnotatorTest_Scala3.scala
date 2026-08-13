@@ -171,6 +171,35 @@ class ScalaColorSchemeAnnotatorTest_Scala3 extends ScalaColorSchemeAnnotatorTest
     editorHighlightingFixture.assertHighlights(text, ExpectedHighlight("ordering", GIVEN))
   }
 
+  //SCL-23464
+  @Test
+  def testSyntheticGivenNames(): Unit = {
+    val code =
+      """trait Ord[T]
+        |
+        |//type class instance, desugared to a class and an implicit def
+        |given [T](using Ord[T]): Ord[List[T]] with {}
+        |
+        |//desugared to an implicit object
+        |given Ord[String] with {}
+        |
+        |given Ord[Int] = ???
+        |
+        |object usage {
+        |  given_Ord_List[String]
+        |  given_Ord_String
+        |  given_Ord_Int
+        |}
+        |""".stripMargin
+
+    testAnnotations(code, GIVEN,
+      """Info((225,239),given_Ord_List,Scala Given)
+        |Info((250,266),given_Ord_String,Scala Given)
+        |Info((269,282),given_Ord_Int,Scala Given)
+        |""".stripMargin
+    )
+  }
+
   @Test
   def testSoftKeywords_Open(): Unit = {
     val text =
