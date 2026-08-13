@@ -17,10 +17,10 @@ import scala.annotation.tailrec
 
 object DynamicResolveProcessor {
 
-  val APPLY_DYNAMIC_NAMED = "applyDynamicNamed"
-  val APPLY_DYNAMIC       = "applyDynamic"
-  val SELECT_DYNAMIC      = "selectDynamic"
-  val UPDATE_DYNAMIC      = "updateDynamic"
+  val APPLY_DYNAMIC_NAMED = CommonNames.ApplyDynamicNamed
+  val APPLY_DYNAMIC       = CommonNames.ApplyDynamic
+  val SELECT_DYNAMIC      = CommonNames.SelectDynamic
+  val UPDATE_DYNAMIC      = CommonNames.UpdateDynamic
 
   def getDynamicNameForMethodInvocation(expressions: Iterable[Expression]): String = {
     val qualifiers = expressions.collect {

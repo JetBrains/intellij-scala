@@ -214,6 +214,13 @@ object ScFunction {
     val WithFilter = "withFilter"
     val ForComprehensions: Set[String] = Set(Foreach, Map, FlatMap, Filter, WithFilter)
 
-    val Special: Set[String] = GetSet ++ Unapplies ++ ForComprehensions
+    val SelectDynamic = "selectDynamic"
+    val ApplyDynamic = "applyDynamic"
+    val ApplyDynamicNamed = "applyDynamicNamed"
+    val UpdateDynamic = "updateDynamic"
+    /** The methods backing `scala.Dynamic` and Scala 3 structural types (`scala.Selectable`). */
+    val Dynamics: Set[String] = Set(SelectDynamic, ApplyDynamic, ApplyDynamicNamed, UpdateDynamic)
+
+    val Special: Set[String] = GetSet ++ Unapplies ++ ForComprehensions ++ Dynamics
   }
 }
