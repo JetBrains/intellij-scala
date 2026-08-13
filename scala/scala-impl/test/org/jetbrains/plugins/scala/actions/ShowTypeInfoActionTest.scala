@@ -369,6 +369,9 @@ class ShowTypeInfoActionTest_Scala3 extends ShowTypeInfoActionTest_Scala2 {
     "{ type Builder = Parsers.<wbr>Builder }"
   )
 
+  // Scala 3 approximates an anonymous class by its parents and only keeps the members they already
+  // declare, and `AnyRef` doesn't declare a `Builder`, so the refinement is dropped.
+  // See `TypeOps.classBound` in the Scala 3 compiler.
   def testTypeAliasInRefinementWithPotentialNameCollision_NewTemplateDefinition(): Unit = doShowTypeInfoTest(
     s"""object Parsers {
        |  trait Builder
@@ -378,6 +381,6 @@ class ShowTypeInfoActionTest_Scala3 extends ShowTypeInfoActionTest_Scala2 {
        |  }
        |}
        |""".stripMargin,
-    "Object { type Builder = Parsers.<wbr>Builder }"
+    if (version.isScala2) "Object { type Builder = Parsers.<wbr>Builder }" else "AnyRef"
   )
 }

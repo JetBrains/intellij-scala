@@ -516,22 +516,32 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
        |""".stripMargin
   )
 
-  def testTypeAliasInRefinementWithPotentialNameCollision_NewTemplateDefinition(): Unit = doTest(
-    s"""object Parsers {
-       |  trait Builder
-       |
-       |  val value2$CARET = new AnyRef {
-       |    type Builder = Parsers.Builder
-       |  }
-       |}
-       |""".stripMargin,
-    s"""object Parsers {
-       |  trait Builder
-       |
-       |  val value2$CARET: Object {type Builder = Parsers.Builder} = new AnyRef {
-       |    type Builder = Parsers.Builder
-       |  }
-       |}
-       |""".stripMargin
-  )
+  // Scala 3 approximates an anonymous class by its parents and only keeps the members they already
+  // declare, and `AnyRef` doesn't declare a `Builder`, so the refinement is dropped. The name collision
+  // this test is about is still covered for both versions by the explicit refinement above.
+  // See `TypeOps.classBound` in the Scala 3 compiler.
+  def testTypeAliasInRefinementWithPotentialNameCollision_NewTemplateDefinition(): Unit = {
+    val annotation =
+      if (version.isScala2) "Object {type Builder = Parsers.Builder}"
+      else                  "AnyRef"
+
+    doTest(
+      s"""object Parsers {
+         |  trait Builder
+         |
+         |  val value2$CARET = new AnyRef {
+         |    type Builder = Parsers.Builder
+         |  }
+         |}
+         |""".stripMargin,
+      s"""object Parsers {
+         |  trait Builder
+         |
+         |  val value2$CARET: $annotation = new AnyRef {
+         |    type Builder = Parsers.Builder
+         |  }
+         |}
+         |""".stripMargin
+    )
+  }
 }

@@ -1,0 +1,9 @@
+package org.jetbrains.plugins.scala.lang.typeInference
+
+import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.TestData
+import org.jetbrains.plugins.scala.{CheckTestDataTestBase, LatestScalaVersions, ScalaVersion}
+
+sealed abstract class CheckRefinementApproximationTestBase(testData: Seq[TestData], minScalaVersion: ScalaVersion) extends CheckTestDataTestBase(testData, minScalaVersion)
+final class CheckRefinementApproximationTest_Scala2 extends CheckRefinementApproximationTestBase(RefinementApproximationTest.testDataInScala2, LatestScalaVersions.Scala_2_13)
+final class CheckRefinementApproximationTest_Scala3_LTS extends CheckRefinementApproximationTestBase(RefinementApproximationTest.testDataInScala3, LatestScalaVersions.Scala_3_LTS)
+final class CheckRefinementApproximationTest_Scala3_Next extends CheckRefinementApproximationTestBase(RefinementApproximationTest.testDataInScala3, LatestScalaVersions.Scala_3_Next_RC)

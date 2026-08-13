@@ -108,7 +108,24 @@ sealed trait GeneratedParameterizedTestFactory extends AssertionMatchers { self:
 object GeneratedParameterizedTestFactory {
   
   final def testDataFromCode(code: String): SimpleTestData = SimpleTestData.fromCode(code)
-  
+
+  /**
+   * Like [[testDataFromCode]], but for code that is shared between scala versions and marks the parts
+   * that only apply to one of them with a `[Scala2]`/`[Scala3]` tag.
+   * Every line that contains `removeTag` loses everything from its comment on, so that both
+   * version-specific code and version-specific error expectations can be written in a single test case.
+   */
+  final def testDataFromVersionTaggedCode(removeTag: String)(code: String): SimpleTestData =
+    testDataFromCode(
+      code.linesIterator
+        .map {
+          case line if line.contains(removeTag) => line.take(line.indexOf("//").max(0))
+          case line                             => line
+        }
+        .map(_.replace("[Scala2]", "").replace("[Scala3]", ""))
+        .mkString("\n")
+    )
+
   trait TestData {
     def testName: String
 
