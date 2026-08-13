@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumSingletonCase
 import org.jetbrains.plugins.scala.lang.psi.types.api.Singleton
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
 import org.jetbrains.plugins.scala.project.ProjectContext
-
-import scala.annotation.tailrec
 
 /**
  * The single place that implements the widening rules of the Scala compilers.
@@ -39,28 +38,6 @@ object Widening {
   }
 
   /**
-   * The underlying type of a singleton type, or `None` if `tpe` isn't a singleton type.
-   *
-   * Corresponds to `Type.underlying` of a `SingletonType` in the Scala 3 compiler.
-   *
-   * Note that `object`s (and thus also `this` and singleton enum cases) are ''not'' dereferenced:
-   * their singleton type is the only way to denote them, so both compilers keep it.
-   */
-  private def underlyingOfSingleton(tpe: ScType): Option[ScType] = tpe match {
-    case lit: ScLiteralType => Some(lit.wideType)
-    // Singleton enum cases are `object`s, but unlike ordinary objects they have a proper
-    // underlying type, which both compilers widen to, SCL-21726
-    case ScProjectionType(_, enumCase: ScEnumSingletonCase) =>
-      val superTypes = enumCase.superTypes
-      Some(
-        if (superTypes.lengthCompare(1) == 0) superTypes.head
-        else ScCompoundType(superTypes)(tpe.projectContext)
-      )
-    case designator: DesignatorOwner if designator.isSingleton => designator.designatorSingletonType
-    case _                                                     => None
-  }
-
-  /**
    * Widens a singleton type to its underlying non-singleton base type by applying one or more
    * `underlying` dereferences. Identity for all other types.
    *
@@ -72,11 +49,7 @@ object Widening {
    *   // <x.type>.widenSingleton == Any
    * }}}
    */
-  @tailrec
-  def widenSingleton(tpe: ScType): ScType = underlyingOfSingleton(tpe) match {
-    case Some(underlying) => widenSingleton(underlying)
-    case None             => tpe
-  }
+  def widenSingleton(tpe: ScType): ScType = widen(tpe, stopAtLiteralType = false)
 
   /**
    * Widens references to terms to their declared types, but stops at literal types.
@@ -84,14 +57,54 @@ object Widening {
    * Corresponds to `Type.widenTermRefExpr` in the Scala 3 compiler, which is applied to the type of
    * a right hand side before it becomes the inferred type of a definition.
    */
-  @tailrec
-  def widenTermRef(tpe: ScType): ScType = tpe match {
-    case _: ScLiteralType => tpe
-    case _ =>
-      underlyingOfSingleton(tpe) match {
-        case Some(underlying) => widenTermRef(underlying)
-        case None             => tpe
+  def widenTermRef(tpe: ScType): ScType = widen(tpe, stopAtLiteralType = true)
+
+  /**
+   * Repeatedly replaces a singleton type by its underlying type, which corresponds to `Type.underlying`
+   * of a `SingletonType` in the Scala 3 compiler.
+   *
+   * Note that `object`s (and thus also `this`) are ''not'' dereferenced: their singleton type is the
+   * only way to denote them, so both compilers keep it.
+   */
+  private def widen(tpe: ScType, stopAtLiteralType: Boolean): ScType = tpe match {
+    case _: ScLiteralType if stopAtLiteralType => tpe
+    case lit: ScLiteralType                    => lit.wideType
+    // Singleton enum cases are `object`s, but unlike ordinary objects they have a proper
+    // underlying type, which both compilers widen to, SCL-21726
+    case ScProjectionType(_, enumCase: ScEnumSingletonCase) =>
+      val superTypes = enumCase.superTypes
+      superTypes.headOption.getOrElse(
+        ScCompoundType(superTypes)(tpe.projectContext)
+      )
+    case designator: DesignatorOwner if designator.isSingleton =>
+      // Dereferencing an `x.type` asks for the type of `x`, which may itself be inferred and lead
+      // back to `x.type`, e.g. for the (illegal) `val x = x`. The guard has to be held for the whole
+      // walk, because the cycle may run through the inference of an enclosing definition rather than
+      // through the dereferencing below.
+      dereferencing.withoutRevisiting(designator.element, ifAlreadyVisited = tpe) {
+        designator.designatorSingletonType match {
+          case Some(underlying) => widen(underlying, stopAtLiteralType)
+          case None             => tpe
+        }
       }
+    case _ => tpe
+  }
+
+  /** The elements whose `x.type` is currently being dereferenced on this thread. */
+  private object dereferencing {
+    private val elements: ThreadLocal[Set[PsiNamedElement]] =
+      ThreadLocal.withInitial(() => Set.empty[PsiNamedElement])
+
+    def withoutRevisiting[R](element: PsiNamedElement, ifAlreadyVisited: => R)(compute: => R): R = {
+      val outer = elements.get
+
+      if (outer.contains(element)) ifAlreadyVisited
+      else {
+        elements.set(outer + element)
+        try compute
+        finally elements.set(outer)
+      }
+    }
   }
 
   /**
