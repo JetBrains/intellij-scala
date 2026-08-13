@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeR
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScGivenDefinition, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -104,9 +104,22 @@ object ScalaRenameUtil {
     result.asJavaCollection
   }
 
+  /**
+   * References to a structural given resolve to one of the definitions it is desugared to,
+   * so we have to get back to the given itself in order to rename it.
+   */
+  object OriginalGiven {
+    def unapply(element: PsiElement): Option[ScGiven] = element match {
+      case givenElement: ScGiven                               => Some(givenElement)
+      case ScGivenDefinition.DesugaredDefinition(givenElement) => Some(givenElement)
+      case _                                                   => None
+    }
+  }
+
   def findSubstituteElement(elementToRename: PsiElement): Option[PsiNamedElement] = {
     elementToRename match {
       case ScalaConstructor(constr) => Some(constr.containingClass)
+      case OriginalGiven(givenElement) => Some(givenElement)
       case fun: ScFunction if Seq("apply", "unapply", "unapplySeq") contains fun.name =>
         fun.containingClass match {
           case newTempl: ScNewTemplateDefinition => ScalaPsiUtil.findInstanceBinding(newTempl)

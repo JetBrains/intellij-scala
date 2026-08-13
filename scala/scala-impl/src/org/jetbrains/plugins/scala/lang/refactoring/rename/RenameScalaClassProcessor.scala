@@ -28,6 +28,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = element match {
     case PsiClassWrapper(definition) => definition
+    case ScalaRenameUtil.OriginalGiven(givenElement) => givenElement
     case _ => element
   }
 

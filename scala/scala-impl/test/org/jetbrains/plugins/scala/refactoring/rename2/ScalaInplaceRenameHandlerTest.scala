@@ -10,11 +10,11 @@ import org.junit.Assert
 
 class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
 
-  private def memberHandler = new ScalaMemberInplaceRenameHandler
+  protected def memberHandler = new ScalaMemberInplaceRenameHandler
 
-  private def localHandler = new ScalaLocalInplaceRenameHandler
+  protected def localHandler = new ScalaLocalInplaceRenameHandler
 
-  private def isAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Boolean = {
+  protected def isAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Boolean = {
     val dataContext = SimpleDataContext.builder()
       .add(CommonDataKeys.PSI_ELEMENT, myFixture.getElementAtCaret)
       .add(CommonDataKeys.EDITOR, myFixture.getEditor)
@@ -23,21 +23,21 @@ class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
     handler.isAvailableOnDataContext(dataContext)
   }
 
-  private def checkIsAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Unit = {
+  protected def checkIsAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Unit = {
     Assert.assertTrue(s"$handler is not available", isAvailable(handler))
   }
 
-  private def checkIsNotAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Unit = {
+  protected def checkIsNotAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Unit = {
     Assert.assertTrue(s"$handler is available", !isAvailable(handler))
   }
 
-  private def checkIsLocalHandler(fileText: String): Unit = {
+  protected def checkIsLocalHandler(fileText: String): Unit = {
     myFixture.configureByText("dummy.scala", fileText.withNormalizedSeparator.trim)
     checkIsAvailable(localHandler)
     checkIsNotAvailable(memberHandler)
   }
 
-  private def checkIsMemberHandler(fileText: String): Unit = {
+  protected def checkIsMemberHandler(fileText: String): Unit = {
     myFixture.configureByText("dummy.scala", fileText.withNormalizedSeparator.trim)
     checkIsAvailable(memberHandler)
     checkIsNotAvailable(localHandler)

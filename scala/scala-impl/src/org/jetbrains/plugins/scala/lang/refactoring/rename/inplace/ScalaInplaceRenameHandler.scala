@@ -12,6 +12,7 @@ import com.intellij.ui.components.JBList
 import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, invokeLaterInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScGivenPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -40,6 +41,18 @@ trait ScalaInplaceRenameHandler {
     } else {
       null
     }
+  }
+
+  /**
+   * Elements with a synthetic given name have no name in the code that could be renamed in place:
+   *  - an anonymous given is renamed with the dialog, which makes its name explicit,
+   *    see [[org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScGivenImpl.setName]]
+   *  - a given pattern cannot be renamed at all, see [[ScalaVetoDefaultRenameCondition]]
+   */
+  protected final def hasSyntheticGivenName(element: PsiElement): Boolean = element match {
+    case ScalaRenameUtil.OriginalGiven(givenElement) => givenElement.nameElement.isEmpty
+    case _: ScGivenPattern                           => true
+    case _                                           => false
   }
 
   protected final def isLocal(element: PsiElement): Boolean =

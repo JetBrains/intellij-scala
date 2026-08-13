@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.rename
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScGivenPattern
 
 /**
  * This condition is called when no available RenameHandler is found.
@@ -17,6 +18,11 @@ class ScalaVetoDefaultRenameCondition extends Condition[PsiElement]{
       // We get ScEnd here if the cursor is located on the actual end-token of an end marker
       // In that case we don't want to rename anything.
       // This is in line with other tokens like `package`, `class`, `def`, etc.
+      true
+    case _: ScGivenPattern =>
+      // The name of a given pattern is synthesized from its type (see ScalaPsiUtil.generateGivenName)
+      // and, unlike a given definition, a pattern cannot be given an explicit name.
+      // So there is no way to rename it.
       true
     case _ =>
       false

@@ -17,7 +17,8 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
     editor.getSettings.isVariableInplaceRenameEnabled &&
       processor != null &&
       processor.canProcessElement(element) &&
-      !isLocal(element)
+      !isLocal(element) &&
+      !hasSyntheticGivenName(element)
   }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {

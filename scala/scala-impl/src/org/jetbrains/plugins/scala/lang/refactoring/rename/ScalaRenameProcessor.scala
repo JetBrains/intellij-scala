@@ -19,7 +19,9 @@ trait ScalaRenameProcessor { this: RenamePsiElementProcessor =>
 
     val allRefs = ReferencesSearch.search(element, searchScope.intersectWith(element.getUseScope)).findAll()
     val filtered = allRefs.asScala.filterNot(isAliased).filterNot(ScalaRenameProcessor.isIndirectReference(_, element))
-    new util.ArrayList[PsiReference](filtered.asJavaCollection)
+    val references = new util.ArrayList[PsiReference](filtered.asJavaCollection)
+    ScalaGivenRenameUtil.syntheticGivenNameReferences(element, references).foreach(references.add)
+    references
   }
 
   override def setToSearchForTextOccurrences(element: PsiElement, enabled: Boolean): Unit = {
