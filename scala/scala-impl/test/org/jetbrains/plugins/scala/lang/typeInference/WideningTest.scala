@@ -104,10 +104,28 @@ object WideningTest {
       |""".stripMargin.multi
   ).flatten
 
+  /** Test data that uses syntax which only exists in Scala 3 and is therefore not run in Scala 2. */
+  private lazy val scala3OnlyTestData: Seq[String] = Seq(
+    """// NonWideningInMatchType_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
+      |// Reducing a match type instantiates the type variables of its pattern, but in contrast to an
+      |// inferred type argument, what a pattern captured must not be widened #SCL-23271
+      |// `Wrapper` has to be covariant, otherwise the capture is bounded from above as well, which
+      |// suppresses widening anyway. This is `Tuple.Head[tup.type]`, boiled down.
+      |class Wrapper[+T]
+      |enum E { case A, B }
+      |val c: Any = ???
+      |
+      |type Unwrap[X] = X match { case Wrapper[t] => t }
+      |
+      |val w: Wrapper[<1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }>] = ???
+      |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = ??? : Unwrap[w.type]
+      |""".stripMargin.multi
+  ).flatten
+
   lazy val testDataInScala2: Seq[SimpleTestData] =
     testData.map(toTestData("[Scala3]")).filterNot(_.testName.contains("Enum")).filterNot(_.testName.contains("Selectable"))
   lazy val testDataInScala3: Seq[SimpleTestData] =
-    testData.map(toTestData("[Scala2]"))
+    (testData ++ scala3OnlyTestData).map(toTestData("[Scala2]"))
 
   private implicit class StringExt(private val string: String) {
     def single: Seq[String] = Seq(string)
