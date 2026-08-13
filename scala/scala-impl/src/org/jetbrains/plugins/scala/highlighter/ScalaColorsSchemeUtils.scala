@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.highlighter
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
-import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.{PsiClass, PsiElement, PsiField, PsiMethod, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, PsiClassExt, PsiMemberExt}
@@ -11,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssi
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScEnumSingletonCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.{DesugaredDefinition, DesugaredTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
@@ -73,7 +72,7 @@ object ScalaColorsSchemeUtils {
                             refElement: Option[ScReference] = None,
                             qualNameToType: Map[String, StdType] = Map.empty): HighlightInfoType =
     resolvedElement match {
-      case _: ScGiven | DesugaredTypeDefinition(_)                                             => ScalaHighlightInfoTypes.GIVEN
+      case _: ScGiven | DesugaredDefinition(_)                                                 => ScalaHighlightInfoTypes.GIVEN
       case _: ScEnum | ScObject.Companion(_: ScEnum)                                           => ScalaHighlightInfoTypes.ENUM
       case _: ScEnumClassCase | ScObject.Companion(_: ScEnumClassCase)                         => ScalaHighlightInfoTypes.ENUM_CLASS_CASE
       case _: ScEnumSingletonCase                                                              => ScalaHighlightInfoTypes.ENUM_SINGLETON_CASE
