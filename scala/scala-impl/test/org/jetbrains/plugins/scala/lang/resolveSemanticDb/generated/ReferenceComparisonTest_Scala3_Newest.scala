@@ -1374,7 +1374,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part13 extends ReferenceCompar
   def test_i12299a(): Unit = doTest("i12299a", false) // #export
   def test_i12306(): Unit = doTest("i12306", true) // #extension, #unionType
   def test_i12373(): Unit = doTest("i12373", true)
-  def test_i12379a(): Unit = doTest("i12379a", false)
+  def test_i12379a(): Unit = doTest("i12379a", true)
   def test_i12379b(): Unit = doTest("i12379b", true)
   def test_i12390_gadt(): Unit = doTest("i12390-gadt", true) // #enum
   def test_i12395(): Unit = doTest("i12395", true)
@@ -3004,7 +3004,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part29 extends ReferenceCompar
   def test_t2261(): Unit = doTest("t2261", true)
   def test_t2305(): Unit = doTest("t2305", true)
   def test_t2310(): Unit = doTest("t2310", true)
-  def test_t2331(): Unit = doTest("t2331", false)
+  def test_t2331(): Unit = doTest("t2331", true)
   def test_t2368(): Unit = doTest("t2368", true)
   def test_t2399(): Unit = doTest("t2399", false)
   def test_t2405(): Unit = doTest("t2405", true)
