@@ -1438,41 +1438,60 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
 ////////////////////////////////////////////
 import Common.TestCategory.*
 
-def runInputTask(key: InputKey[?], input: String, inState: State, resultState: State): State = {
-  val extracted = Project.extract(inState)
-  try {
-    extracted.runInputTask(key, input, inState)
-    resultState
-  } catch {
-    case _: Exception => resultState.fail
-  }
+def runTestCategoryCommand(name: String, category: String) = Command.args(name, s"Run the $category test category") { (state, _) =>
+  import com.github.sbt.junit.jupiter.sbt.Import.jupiterTestFramework
+
+  def args(category: String, keyword: String): Seq[String] =
+    Seq("-v", "-s", "-a", "+c", "+q", s"--include-$keyword=$category", s"--exclude-$keyword=$randomTypingTests,$flakyTests")
+
+  val newState = state.appendWithSession(Seq(
+    Test / testOptions ++= Seq(
+      Tests.Argument(TestFrameworks.JUnit, args(category, "categories"): _*),
+      Tests.Argument(jupiterTestFramework, args(category, "tags"): _*)
+    )
+  ))
+
+  Project.extract(newState).runInputTask(Test / testOnly, "", newState)._1
 }
 
-def runTestsInTC(category: String): String =
-  s"testOnly -- -v -s -a +c +q --include-categories=$category --exclude-categories=$flakyTests"
+Global / commands ++= Seq(
+  ("runFileSetTests", fileSetTests),
+  ("runCompilationTestsZinc", compilationTestsZinc),
+  ("runCompilationTestsIDEA", compilationTestsIDEA),
+  ("runCompilerHighlightingTests", compilerHighlightingTests),
+  ("runCompletionTests", completionTests),
+  ("runEditorTests", editorTests),
+  ("runSlowTests", slowTests),
+  ("runSlowTests2", slowTests2),
+  ("runDebuggerTests", debuggerTests),
+  ("runDebuggerEvaluationTests", debuggerEvaluationTests),
+  ("runScalacTests", scalacTests),
+  ("runTypeInferenceTests", typecheckerTests),
+  ("runTestingSupportTests", testingSupportTests),
+  ("runTextToTextTests", textToTextTests),
+  ("runWorksheetEvaluationTests", worksheetEvaluationTests),
+  ("runHighlightingTests", highlightingTests),
+  ("runNightlyTests", randomTypingTests),
+  ("runBundleSortingTests", bundleSortingTests)
+).map((runTestCategoryCommand _).tupled)
 
-addCommandAlias("runFileSetTests", runTestsInTC(fileSetTests))
-addCommandAlias("runCompilationTestsZinc", runTestsInTC(compilationTestsZinc))
-addCommandAlias("runCompilationTestsIDEA", runTestsInTC(compilationTestsIDEA))
-addCommandAlias("runCompilerHighlightingTests", runTestsInTC(compilerHighlightingTests))
-addCommandAlias("runCompletionTests", runTestsInTC(completionTests))
-addCommandAlias("runEditorTests", runTestsInTC(editorTests))
-addCommandAlias("runSlowTests", runTestsInTC(slowTests))
-addCommandAlias("runSlowTests2", runTestsInTC(slowTests2))
-addCommandAlias("runDebuggerTests", runTestsInTC(debuggerTests))
-addCommandAlias("runDebuggerEvaluationTests", runTestsInTC(debuggerEvaluationTests))
-addCommandAlias("runScalacTests", runTestsInTC(scalacTests))
-addCommandAlias("runTypeInferenceTests", runTestsInTC(typecheckerTests))
-addCommandAlias("runTestingSupportTests", runTestsInTC(testingSupportTests))
-addCommandAlias("runTextToTextTests", runTestsInTC(textToTextTests))
-addCommandAlias("runWorksheetEvaluationTests", runTestsInTC(worksheetEvaluationTests))
-addCommandAlias("runHighlightingTests", runTestsInTC(highlightingTests))
-addCommandAlias("runNightlyTests", runTestsInTC(randomTypingTests))
+lazy val runFlakyTests = Command.args("runFlakyTests", s"Run the FlakyTests test category") { (state, _) =>
+  import com.github.sbt.junit.jupiter.sbt.Import.jupiterTestFramework
 
-addCommandAlias("runFlakyTests", s"testOnly -- -v -s -a +c +q --include-categories=$flakyTests")
+  def args(keyword: String): Seq[String] =
+    Seq("-v", "-s", "-a", "+c", "+q", s"--include-$keyword=$flakyTests", s"--exclude-$keyword=$randomTypingTests")
 
-//it's run during "Package" step on TC
-addCommandAlias("runBundleSortingTests", runTestsInTC(bundleSortingTests))
+  val newState = state.appendWithSession(Seq(
+    Test / testOptions ++= Seq(
+      Tests.Argument(TestFrameworks.JUnit, args("categories"): _*),
+      Tests.Argument(jupiterTestFramework, args("tags"): _*)
+    )
+  ))
+
+  Project.extract(newState).runInputTask(Test / testOnly, "", newState)._1
+}
+
+Global / commands += runFlakyTests
 
 lazy val categoriesToExclude = List(
   fileSetTests,
@@ -1495,14 +1514,28 @@ lazy val categoriesToExclude = List(
   flakyTests
 )
 
-def runFastTestsInTC(glob: String): String =
-  s"testOnly $glob -- -v -s -a +c +q --exclude-categories=${categoriesToExclude.mkString(",")}"
+def runFastTestsCommand(name: String, glob: String) = Command.args(name, "") { (state, _) =>
+  import com.github.sbt.junit.jupiter.sbt.Import.jupiterTestFramework
 
-addCommandAlias("runFastTests", runFastTestsInTC("*"))
-// subsets of tests to split the complete test run into smaller chunks
-addCommandAlias("runFastTestsComIntelliJ", runFastTestsInTC("com.intellij.*"))
-addCommandAlias("runFastTestsOrgJetbrains", runFastTestsInTC("org.jetbrains.*"))
-addCommandAlias("runFastTestsScala", runFastTestsInTC("scala.*"))
+  def args(keyword: String): Seq[String] =
+    Seq("-v", "-s", "-a", "+c", "+q", s"--exclude-$keyword=${categoriesToExclude.mkString(",")}")
+
+  val newState = state.appendWithSession(Seq(
+    Test / testOptions ++= Seq(
+      Tests.Argument(TestFrameworks.JUnit, args("categories"): _*),
+      Tests.Argument(jupiterTestFramework, args("tags"): _*)
+    )
+  ))
+
+  Project.extract(newState).runInputTask(Test / testOnly, glob, newState)._1
+}
+
+Global / commands ++= Seq(
+  ("runFastTests", "*"),
+  ("runFastTestsComIntelliJ", "com.intellij.*"),
+  ("runFastTestsOrgJetbrains", "org.jetbrains.*"),
+  ("runFastTestsScala", "scala.*")
+).map((runFastTestsCommand _).tupled)
 
 // Compiler plugin tests command definitions.
 addCommandAlias("runCompilerPluginTests-2_12", "compiler-plugin-2_12/testOnly -- -v -s -a +c +q")
