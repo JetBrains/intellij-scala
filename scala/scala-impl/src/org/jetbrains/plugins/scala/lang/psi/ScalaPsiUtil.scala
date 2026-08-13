@@ -1830,7 +1830,26 @@ object ScalaPsiUtil {
     parentNode.removeChild(elementNode)
   }
 
-  def generateGivenName(tes: ScTypeElement*): String = {
+  /**
+   * The type elements the synthetic name of an anonymous given is derived from.
+   *
+   * @see [[generateGivenName]]
+   */
+  def givenNameTypeElements(element: PsiElement): Seq[ScTypeElement] = element match {
+    case alias: ScGivenAlias         => alias.typeElement.toSeq
+    case givenDef: ScGivenDefinition => givenDef.extendsBlock.templateParents.toSeq.flatMap(_.typeElements)
+    case pattern: ScGivenPattern     => Seq(pattern.typeElement)
+    case _                           => Seq.empty
+  }
+
+  def generateGivenName(tes: ScTypeElement*): String =
+    generateGivenName(tes, _.refName)
+
+  /**
+   * @param nameOf name that a reference inside the type contributes to the generated name.
+   *               The rename refactoring overrides this to compute the name a given will have ''after'' the rename.
+   */
+  def generateGivenName(tes: Seq[ScTypeElement], nameOf: ScReference => String): String = {
     // refercne: https://docs.scala-lang.org/scala3/reference/contextual/relationship-implicits.html#
 
     def fallback(te: ScTypeElement): String =
@@ -1845,10 +1864,10 @@ object ScalaPsiUtil {
       case tt: ScTupleTypeElement => tt.components.map(transformInner).mkString("_")
       case tt: ScNamedTupleTypeElement => tt.components.flatMap(_.typeElement).map(transformInner).mkString("_")
       case te: ScParenthesisedTypeElement => te.innerElement.fold("")(transform(isRoot))
-      case ScSimpleTypeElement(ref) if te.isSingleton => s"${ref.refName}_type"
-      case ScSimpleTypeElement(ref) => ref.refName
-      case ScInfixTypeElement(lhs, op, rhs) if isRoot => s"${op.refName}_${transformInner(lhs)}_${rhs.fold("")(transformInner)}"
-      case ScInfixTypeElement(_, op, _) => op.refName
+      case ScSimpleTypeElement(ref) if te.isSingleton => s"${nameOf(ref)}_type"
+      case ScSimpleTypeElement(ref) => nameOf(ref)
+      case ScInfixTypeElement(lhs, op, rhs) if isRoot => s"${nameOf(op)}_${transformInner(lhs)}_${rhs.fold("")(transformInner)}"
+      case ScInfixTypeElement(_, op, _) => nameOf(op)
       case ScParameterizedTypeElement(base, args) if isRoot => (transform(isRoot)(base) +: args.map(transformInner)).mkString("_")
       case ScParameterizedTypeElement(base, _) => transformInner(base)
       case e: ScTypeVariableTypeElement => e.name
@@ -1872,7 +1891,7 @@ object ScalaPsiUtil {
 
         val ret    = depFun.returnTypeElement.fold("")(transform(isRoot))
         if (params.isEmpty) ret else s"${params}_to_$ret"
-      case proj: ScTypeProjection => proj.refName
+      case proj: ScTypeProjection => nameOf(proj)
       case func: ScPolyFunctionTypeElement => func.typeParameters.headOption.fold("")(_.typeParameterText)
       case func: ScTypeLambdaTypeElement => func.resultTypeElement.fold("")(transform(isRoot))
       case _: ScSplicedBlock =>

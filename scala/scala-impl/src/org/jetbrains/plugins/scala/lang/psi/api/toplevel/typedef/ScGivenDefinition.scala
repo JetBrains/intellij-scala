@@ -31,4 +31,10 @@ object ScGivenDefinition {
     def unapply(tdef: ScTypeDefinition): Option[ScGivenDefinition] =
       Option(tdef.originalGivenElement)
   }
+
+  /** Any of the definitions a structural given is desugared to, see [[ScGivenDefinition.desugaredDefinitions]] */
+  object DesugaredDefinition {
+    def unapply(member: ScMember): Option[ScGivenDefinition] =
+      Option(member.originalGivenElement)
+  }
 }

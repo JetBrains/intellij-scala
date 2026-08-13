@@ -100,6 +100,8 @@ trait ScReference extends ScalaPsiElement with ScPolyResolvable {
     }
     element match {
       case isWrapper(named) => return isReferenceTo(named, resolved, rr)
+      //references to a structural given resolve to one of its desugared definitions
+      case givenDefinition: ScGivenDefinition if isDesugaredDefinitionOf(resolved, givenDefinition) => return true
       case td: ScTypeDefinition =>
         resolved match {
           case Constructor(constr) =>
@@ -151,6 +153,12 @@ trait ScReference extends ScalaPsiElement with ScPolyResolvable {
     }
     isIndirectReferenceTo(resolved, element)
   }
+
+  private def isDesugaredDefinitionOf(resolved: PsiElement, givenDefinition: ScGivenDefinition): Boolean =
+    resolved match {
+      case member: ScMember => member.originalGivenElement == givenDefinition
+      case _                => false
+    }
 
   private def isSyntheticForCaseClass(method: ScFunction,
                                       templateDefinition: ScTemplateDefinition): Boolean =

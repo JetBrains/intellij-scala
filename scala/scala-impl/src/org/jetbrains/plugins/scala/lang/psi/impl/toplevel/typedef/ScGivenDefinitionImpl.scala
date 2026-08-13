@@ -69,10 +69,7 @@ class ScGivenDefinitionImpl(
       .getOrElse(ScalaPsiUtil.generateGivenName(typeElements: _*))
 
   private def typeElements: Seq[ScTypeElement] =
-    extendsBlock
-      .templateParents
-      .toSeq
-      .flatMap(_.typeElements)
+    ScalaPsiUtil.givenNameTypeElements(this)
 
   override def clauses: Option[ScParameters] = _clauses()
 
