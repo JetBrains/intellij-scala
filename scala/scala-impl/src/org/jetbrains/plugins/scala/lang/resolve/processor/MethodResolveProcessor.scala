@@ -1058,7 +1058,12 @@ object MethodResolveProcessor {
     import proc._
     val initialRR = cand.resolveResult
 
-    val constraintsSubst = initialRR.applicabilityConstraints.substOrEmpty
+    implicit val projectContext: ProjectContext = initialRR.element
+    implicit val context: Context               = Context(ref)
+
+    // The return type is only known once the type parameters of the previous clauses are
+    // instantiated, which is why the inferred type arguments are widened here.
+    val constraintsSubst = initialRR.applicabilityConstraints.instantiationSubstOrEmpty
     val subst            = initialRR.substitutor.followed(constraintsSubst)
 
     val returnType = initialRR.element match {
