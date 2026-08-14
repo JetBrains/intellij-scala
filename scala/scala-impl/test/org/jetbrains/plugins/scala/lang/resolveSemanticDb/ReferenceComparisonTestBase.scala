@@ -95,9 +95,12 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
           var allSuccess = true
           var newProblems = List.empty[String]
 
-          if (!ref.targets.exists(
-            target => isInRefinement(target.element) || target.isDynamic)
-          ) {
+          // A member of a refinement has no symbol of its own in semanticdb, so a reference to it is
+          // attributed to the member of a parent that it overrides. If it doesn't override anything,
+          // there is nothing we could compare our target to.
+          val refinementTargets = ref.targets.filter(target => isRefinementMember(target.element))
+
+          if (!ref.targets.exists(_.isDynamic)) {
             def ignoreSemanticDbRef(ref: SDbRef): Boolean = {
               // ignore locals and implicits involving ClassTag
               ref.pointsToLocal ||
@@ -111,21 +114,28 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
 
             for (semanticDbRef <- semanticDbReferences if !ignoreSemanticDbRef(semanticDbRef)) {
 //              assertResolves(semanticDbRef.symbol, ref.targets.map(_.element))
-              didTest = true
               val semanticDbTargetPos = semanticDbRef.targetPosition
               val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.symbol)
-              val textFits = ref.targets.exists(_.symbol == semanticDbTargetSymbol)
-              val positionFits = semanticDbTargetPos.exists(ref.targets.map(_.adjustedPosition).contains)
 
-              if (!textFits && !positionFits) {
+              def fits(target: RefTarget): Boolean =
+                semanticDbTargetPos.contains(target.adjustedPosition) ||
+                  (target.hasComparableSymbol && target.symbol == semanticDbTargetSymbol)
+
+              val targetFits = ref.targets.exists(fits)
+              // for a refinement member, pointing to one of the parent members it overrides is fine
+              val overriddenFits = refinementTargets.exists(_.overridden.exists(fits))
+
+              if (targetFits || overriddenFits) {
+                didTest = true
+                atLeastOneSuccess = true
+              } else if (refinementTargets.isEmpty) {
+                didTest = true
                 val ours = ref.targets
                   .map(target => s"${target.symbol} at ${target.position}")
                   .mkString("\n")
                 val semPos = semanticDbTargetPos.fold("<no position>")(_.toString)
                 newProblems :+= s"$ref resolves to $semanticDbTargetSymbol in semanticdb ($semPos), but we resolve to:\n$ours"
                 allSuccess = false
-              } else {
-                atLeastOneSuccess = true
               }
             }
           }
@@ -254,6 +264,12 @@ object ReferenceComparisonTestBase {
     lazy val symbol: String = ComparisonSymbol.fromPsi(element)
     def adjustedPosition: TextPos = posOfNavigationElementWithAdjustedEscapeId(element)
     def position: TextPos = TextPos.of(element.getNavigationElement)
+
+    /** Whether [[symbol]] can be computed, which isn't the case for a written down refinement. */
+    def hasComparableSymbol: Boolean = !isInRefinement(element)
+
+    /** The members of the parents that this target overrides, see [[overriddenMembers]]. */
+    lazy val overridden: Seq[RefTarget] = overriddenMembers(element).map(PhysicalRefTarget)
 
     def isDynamic: Boolean = element match {
       case fn: ScFunction =>

@@ -137,7 +137,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part2 extends ReferenceCompar
   def test_attributes(): Unit = doTest("attributes", true)
   def test_automatic_tupling_of_function_parameters(): Unit = doTest("automatic-tupling-of-function-parameters", true)
   def test_autoTuplingTest(): Unit = doTest("autoTuplingTest", true)
-  def test_avoid(): Unit = doTest("avoid", false)
+  def test_avoid(): Unit = doTest("avoid", true)
   def test_B(): Unit = doTest("B", true)
   def test_backquoted_type_operator(): Unit = doTest("backquoted_type_operator", true)
   def test_bad_footprint(): Unit = doTest("bad-footprint", true) // #opaque, #export, #matchType, #extension

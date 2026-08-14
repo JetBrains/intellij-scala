@@ -1,9 +1,13 @@
 package org.jetbrains.plugins.scala.lang
 
 import com.intellij.openapi.fileTypes.BinaryFileTypeDecompilers
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 
 import scala.annotation.nowarn
 
@@ -49,4 +53,25 @@ package object resolveSemanticDb {
   }
 
   def isInRefinement(e: PsiElement): Boolean = e.contexts.exists(_.is[ScRefinement])
+
+  /**
+   * Whether `e` is a member that only exists as part of a refinement, either because it is written
+   * down as one, or because it is a member of an anonymous class, which Scala 3 approximates by a
+   * refinement of the parents, see
+   * [[org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNewTemplateDefinitionImpl]].
+   *
+   * Such a member has no symbol of its own in semanticdb.
+   */
+  def isRefinementMember(e: PsiElement): Boolean =
+    isInRefinement(e) || e.parentOfType[ScTemplateDefinition].exists(_.is[ScNewTemplateDefinition])
+
+  /** The members of the parents that `member` overrides. */
+  def overriddenMembers(member: PsiNamedElement): Seq[PsiNamedElement] =
+    member.parentOfType[ScTemplateDefinition].toSeq.flatMap { clazz =>
+      val node = member match {
+        case alias: ScTypeAlias => TypeDefinitionMembers.getTypes(clazz).forName(alias.name).findNode(alias)
+        case _                  => TypeDefinitionMembers.getSignatures(clazz).forName(member.name).findNode(member)
+      }
+      node.toSeq.flatMap(_.supers.map(_.info.namedElement))
+    }
 }

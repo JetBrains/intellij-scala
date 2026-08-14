@@ -122,7 +122,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part1 extends ReferenceComparison
 final class ReferenceComparisonTest_Scala3_LTS_Part2 extends ReferenceComparisonTest_Scala3_LTS {
   def test_automatic_tupling_of_function_parameters(): Unit = doTest("automatic-tupling-of-function-parameters", true)
   def test_autoTuplingTest(): Unit = doTest("autoTuplingTest", true)
-  def test_avoid(): Unit = doTest("avoid", false)
+  def test_avoid(): Unit = doTest("avoid", true)
   def test_B(): Unit = doTest("B", true)
   def test_backquoted_type_operator(): Unit = doTest("backquoted_type_operator", true)
   def test_basicFromTasty(): Unit = doTest("basicFromTasty", true)
