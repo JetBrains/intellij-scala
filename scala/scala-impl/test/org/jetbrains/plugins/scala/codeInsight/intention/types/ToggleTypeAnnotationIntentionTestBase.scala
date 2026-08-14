@@ -516,6 +516,49 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
        |""".stripMargin
   )
 
+  // Overriding a member of a parent with the very same type adds nothing to the parent, so the
+  // refinement of the approximated anonymous class doesn't keep it in Scala 3.
+  // Whether it is kept isn't observable by conformance, which is why this is tested here rather than in
+  // [[org.jetbrains.plugins.scala.lang.typeInference.RefinementApproximationTest]].
+  // See `TypeOps.classBound` in the Scala 3 compiler.
+  def testRefinementOfEquallyTypedParentMember(): Unit = {
+    val annotation =
+      if (version.isScala2) "Object {def toString(): String}"
+      else                  "Object"
+
+    doTest(
+      s"""object Test {
+         |  val value$CARET = new Object {
+         |    override def toString(): String = "test"
+         |  }
+         |}
+         |""".stripMargin,
+      s"""object Test {
+         |  val value$CARET: $annotation = new Object {
+         |    override def toString(): String = "test"
+         |  }
+         |}
+         |""".stripMargin
+    )
+  }
+
+  // Narrowing a member of a parent, `Object.toString` in this case, does add something to it,
+  // so the refinement keeps the member in both versions.
+  def testRefinementOfNarrowedParentMember_NewTemplateDefinition(): Unit = doTest(
+    s"""object Test {
+       |  val value$CARET = new Object {
+       |    override def toString(): "test" = "test"
+       |  }
+       |}
+       |""".stripMargin,
+    s"""object Test {
+       |  val value$CARET: Object {def toString(): "test"} = new Object {
+       |    override def toString(): "test" = "test"
+       |  }
+       |}
+       |""".stripMargin
+  )
+
   // Scala 3 approximates an anonymous class by its parents and only keeps the members they already
   // declare, and `AnyRef` doesn't declare a `Builder`, so the refinement is dropped. The name collision
   // this test is about is still covered for both versions by the explicit refinement above.
