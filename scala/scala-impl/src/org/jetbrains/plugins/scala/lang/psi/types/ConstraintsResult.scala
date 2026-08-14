@@ -29,12 +29,28 @@ object ConstraintsResult {
     }
 
     def toSubst(implicit ctx: ProjectContext): Option[ScSubstitutor] = result match {
-      case ConstraintSystem(subst) => subst.toOption
+      case ConstraintSystem(subst) => Some(subst)
       case _                       => None
     }
 
     def substOrEmpty(implicit ctx: ProjectContext): ScSubstitutor =
       toSubst.getOrElse(ScSubstitutor.empty)
+
+    /**
+     * Like [[toSubst]], but for callers that ''instantiate'' the type parameters, so that type
+     * arguments inferred from below are widened, see [[ConstraintSystem.substitutionBounds]].
+     */
+    def toInstantiationSubst(implicit ctx: ProjectContext, context: Context): Option[ScSubstitutor] =
+      result match {
+        case constraints: ConstraintSystem =>
+          constraints
+            .substitutionBounds(canThrowSCE = true, widenInferredTypeArguments = true)
+            .map(_.substitutor)
+        case _ => None
+      }
+
+    def instantiationSubstOrEmpty(implicit ctx: ProjectContext, context: Context): ScSubstitutor =
+      toInstantiationSubst.getOrElse(ScSubstitutor.empty)
   }
 
   case object Left extends ConstraintsResult

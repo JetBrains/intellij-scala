@@ -663,7 +663,7 @@ class ImplicitCollector(
     def noImplicitParametersResult(nonValueType: ScType): Option[ScalaResolveResult] = {
       val (valueType, typeParams) = filterTypeParamsAndInferValueType(nonValueType, !isLeadingImplicitsCase)
 
-      val subst = conformanceConstraints.substOrEmpty
+      val subst = conformanceConstraints.instantiationSubstOrEmpty
 
       val result = c.copy(
         subst                    = c.substitutor.followed(subst),
@@ -683,7 +683,7 @@ class ImplicitCollector(
       val (valueType, typeParams) = filterTypeParamsAndInferValueType(resType, inferValueType = !isLeadingImplicitsCase)
       val allConstraints          = constraints + conformanceConstraints
 
-      val constraintSubst = allConstraints.toSubst
+      val constraintSubst = allConstraints.toInstantiationSubst
 
       constraintSubst.fold(reportWrong(c, CantInferTypeParameterResult)) { subst =>
         val allImportsUsed =
@@ -788,7 +788,7 @@ class ImplicitCollector(
         else
           conversionDataCheckedResult match {
             case Some(earlierError) =>
-              constraints.toSubst.fold(earlierError)(constraintSubst =>
+              constraints.toInstantiationSubst.fold(earlierError)(constraintSubst =>
                 earlierError.copy(subst = earlierError.substitutor.followed(constraintSubst))
               ).toOption
             case _ =>
@@ -820,7 +820,7 @@ class ImplicitCollector(
     def compute(): Option[ScalaResolveResult] = {
       methodType match {
         case None =>
-          val constraintsSubst = constraints.substOrEmpty
+          val constraintsSubst = constraints.instantiationSubstOrEmpty
           val withSubst        = c.copy(subst = c.substitutor.followed(constraintsSubst))
 
           if (c.implicitReason != NoResult) Option(withSubst)

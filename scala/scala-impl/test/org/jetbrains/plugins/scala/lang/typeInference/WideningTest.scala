@@ -119,6 +119,58 @@ object WideningTest {
       |
       |val w: Wrapper[<1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }>] = ???
       |val y: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = ??? : Unwrap[w.type]
+      |""".stripMargin.multi,
+    """// WideningOfExtensionReceiver_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
+      |// The receiver of an extension method call instantiates the type parameters of the extension,
+      |// which are therefore widened like any other inferred type argument #SCL-21053
+      |class Test[T]
+      |enum E { case A, B }
+      |val c: Any = ???
+      |
+      |extension [X](x: X) def ext: Test[X] = ???
+      |
+      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = ???
+      |val y = x.ext
+      |val z: Test[<1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }>] = y // <Error, Error, Error, Error, fine, fine>
+      |""".stripMargin.multi,
+    """// WideningOfExtensionReceiverBeforeGivenSearch_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
+      |// The type parameters of an extension are instantiated before the givens of its using clauses
+      |// are searched for, so the search has to be done with the widened receiver type #SCL-21053
+      |trait C // we need C, otherwise the given search will be underspecified
+      |enum E { case A, B }
+      |val c: C = ???
+      |trait Bar[T]
+      |given Bar[<Int, String, C, E, C { def bar: Int }, reflect.Selectable { def bar: Int }>] = ???
+      |
+      |extension [X](x: X) def ext(using Bar[X]): Unit = ()
+      |
+      |val x: <1, "x", c.type, E.A.type, C { def bar: Int }, reflect.Selectable { def bar: Int }> = ???
+      |x.ext
+      |""".stripMargin.multi,
+    """// WideningBeforeApplyExpansion_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
+      |// The type parameters of a call are instantiated, and therefore widened, before `apply` is
+      |// resolved on its result type. The overload is only decided by the second clause, so the
+      |// widening has to happen while the alternatives are still being checked #SCL-23271
+      |trait Bar[T] { def apply(t: T): Int = 123 }
+      |enum E { case A, B }
+      |val c: Any = ???
+      |
+      |def foo[T](t: T)(u: Unit): String = ???
+      |def foo[T](t: T): Bar[T] = ???
+      |
+      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = ???
+      |foo(x)(<2, "y", c: Any, E.B, new Object, new reflect.Selectable {}>) // <fine, fine, fine, fine, Error, Error>
+      |""".stripMargin.multi,
+    """// NonWideningOfSingletonBoundedExtensionReceiver_<Literal,StringLit,Enum>
+      |// A type parameter that asks for a singleton type is not widened, so the given of the using
+      |// clause is searched for with the singleton receiver type #SCL-21053
+      |enum E { case A, B }
+      |trait Bar[T]
+      |given Bar[<1, "x", E.A.type>] = ???
+      |
+      |extension [X <: Singleton](x: X) def ext(using Bar[X]): Unit = ()
+      |
+      |<1, "x", E.A>.ext
       |""".stripMargin.multi
   ).flatten
 
