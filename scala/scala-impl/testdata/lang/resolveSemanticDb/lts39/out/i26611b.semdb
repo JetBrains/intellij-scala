@@ -1,0 +1,12 @@
+Document tests/pos/i26611b.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(1:23..1:29) scala/deriving/Mirror#
+(1:23..1:29) scala/deriving/Mirror.
+(3:21..3:24) scala/Int#
+(10:8..10:14) scala/deriving/Mirror.
+(10:15..10:22) scala/deriving/Mirror.Product#
+(10:23..10:24) scala/`|`#
+(10:25..10:28) scala/Any#
+(10:31..10:36) _empty_/Local. -> 4:8
+
