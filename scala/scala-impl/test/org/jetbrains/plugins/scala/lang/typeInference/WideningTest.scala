@@ -101,6 +101,17 @@ object WideningTest {
       |
       |val y = inst.test
       |val z: <1, "x", c.type, E.A.type, C { def bar: Int }, reflect.Selectable { def bar: Int }> = x
+      |""".stripMargin.multi,
+    """// NonWideningWithSAMExpectedType_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
+      |// The expected type of a lambda may be a SAM type instead of a function type, and it is the
+      |// abstract method of the SAM that asks for the singleton result type #SCL-23271
+      |enum E { case A, B }  [Scala3]
+      |val c: Any = ???
+      |
+      |trait T { def apply(): <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> }
+      |
+      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = ???
+      |val t: T = () => x
       |""".stripMargin.multi
   ).flatten
 
@@ -155,11 +166,28 @@ object WideningTest {
       |enum E { case A, B }
       |val c: Any = ???
       |
-      |def foo[T](t: T)(u: Unit): String = ???
+      |// nothing conforms to `Marker`, so only the second alternative is applicable
+      |class Marker
+      |def foo[T](t: T)(marker: Marker): String = ???
       |def foo[T](t: T): Bar[T] = ???
       |
       |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = ???
-      |foo(x)(<2, "y", c: Any, E.B, new Object, new reflect.Selectable {}>) // <fine, fine, fine, fine, Error, Error>
+      |// the argument of `apply` only conforms to the widened type of `x`, so the alternative is
+      |// only applicable if `T` was widened before `apply` was resolved on `Bar[T]`
+      |foo(x)(<2, "y", c: Any, E.B, x, x>)
+      |""".stripMargin.multi,
+    """// WideningWithUndeterminedSAMResultType_<Literal,StringLit,DependentType,Enum,Structural,Selectable>
+      |// The result type of the SAM only suppresses widening if it asks for a singleton type itself.
+      |// An undetermined type parameter doesn't, it is instantiated to the widened type #SCL-23271
+      |class Test[T]
+      |trait Callable[T] { def call(): T }
+      |def run[T](task: Callable[T]): Test[T] = ???
+      |enum E { case A, B }
+      |val c: Any = ???
+      |
+      |val x: <1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }> = ???
+      |val y = run(() => x)
+      |val z: Test[<1, "x", c.type, E.A.type, Object { def bar: Int }, reflect.Selectable { def bar: Int }>] = y // <Error, Error, Error, Error, fine, fine>
       |""".stripMargin.multi,
     """// NonWideningOfSingletonBoundedExtensionReceiver_<Literal,StringLit,Enum>
       |// A type parameter that asks for a singleton type is not widened, so the given of the using

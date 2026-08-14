@@ -8,9 +8,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Widening, api}
+import org.jetbrains.plugins.scala.util.SAMUtil
 
 class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFunctionExpr {
 
@@ -48,9 +49,26 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
   }
 
   private[this] def widenSingletonsInRetType(retType: ScType): ScType = {
-    val expectedRetTpe = this.expectedType().collect {
-      case FunctionType(expectedRetTpe, _) => expectedRetTpe.removeAbstracts
+    // The expected type doesn't have to be a function type, it may also be a SAM type, whose
+    // abstract method is what determines the expected result type, as in
+    // `((x => x): T)` for a `trait T { def apply(x: s.type): s.type }`
+    def asFunctionType(expected: ScType): Option[ScType] = expected match {
+      case functionType @ FunctionType(_, _) => Option(functionType)
+      case _                                 => SAMUtil.SAMToFunctionType(expected, this)
     }
+
+    val expectedRetTpe = this.expectedType().flatMap(asFunctionType).collect {
+      // The result type is in covariant position, so an expected type that isn't fully determined
+      // yet only bounds it from above
+      case FunctionType(expectedRetTpe, _) => expectedRetTpe.removeVarianceAbstracts()
+    }.filter {
+      // An expected result type that is still an undetermined type parameter says nothing about the
+      // result type, and since it conforms to anything, `Singleton` included, it would suppress
+      // widening altogether
+      case _: UndefinedType => false
+      case _                => true
+    }
+
     Widening.widenInferred(retType, expectedRetTpe)
   }
 
