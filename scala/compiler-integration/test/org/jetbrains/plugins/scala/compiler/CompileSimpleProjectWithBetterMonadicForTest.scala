@@ -10,7 +10,10 @@ import org.jetbrains.plugins.scala.util.{CompilerTestUtil, TestUtils}
 import org.jetbrains.sbt.SbtVersion
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.jetbrains.sbt.project.{RequiresJdk, SbtExternalSystemImportingTestLike}
+import org.junit.Test
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 /**
  * Reproduces [[https://youtrack.jetbrains.com/issue/SCL-25761]].
@@ -20,6 +23,7 @@ import org.junit.experimental.categories.Category
  * This test verifies that compiler plugin paths containing placeholders are resolved correctly
  * and the project compiles successfully in both sbt 1.x and sbt 2.x.
  */
+@RunWith(classOf[JUnit4])
 abstract class CompileSimpleProjectWithBetterMonadicForTestBase extends SbtExternalSystemImportingTestLike {
 
   protected def sbtVersion: SbtVersion
@@ -43,6 +47,7 @@ abstract class CompileSimpleProjectWithBetterMonadicForTestBase extends SbtExter
       super.tearDown()
     }
 
+  @Test
   def testBetterMonadicFor(): Unit = {
     importProject(false)
 

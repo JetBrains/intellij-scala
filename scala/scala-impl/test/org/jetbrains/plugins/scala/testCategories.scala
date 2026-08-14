@@ -64,3 +64,5 @@ trait CompilationTests_IDEA
  * the `compiler-integration` module.
  */
 trait CompilerHighlightingTests
+
+trait BundleSortingTests
