@@ -1440,21 +1440,43 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
 // Test category commands.
 import Common.TestCategory.*
 
-def runTestCategoryCommand(name: String, category: String) = Command.args(name, s"Run the $category test category") { (state, _) =>
-  import com.github.sbt.junit.jupiter.sbt.Import.jupiterTestFramework
+def runTestCategoryCommand(
+  name: String,
+  description: String,
+  includeCategories: Seq[String],
+  excludeCategories: Seq[String],
+  glob: String
+): Command =
+  Command.args(name, description) { (state, _) =>
+    import com.github.sbt.junit.jupiter.sbt.Import.jupiterTestFramework
 
-  def args(category: String, keyword: String): Seq[String] =
-    Seq("-v", "-s", "-a", "+c", "+q", s"--include-$keyword=$category", s"--exclude-$keyword=$randomTypingTests,$flakyTests")
+    def args(keyword: String): Seq[String] = {
+      val common = Seq("-v", "-s", "-a", "+c", "+q")
 
-  val newState = state.appendWithSession(Seq(
-    Test / testOptions ++= Seq(
-      Tests.Argument(TestFrameworks.JUnit, args(category, "categories"): _*),
-      Tests.Argument(jupiterTestFramework, args(category, "tags"): _*)
-    )
-  ))
+      def handle(verb: String, categories: Seq[String]): Seq[String] =
+        if (categories.isEmpty) Seq.empty
+        else Seq(categories.mkString(start = s"--$verb-$keyword=", sep = ",", end = ""))
 
-  Project.extract(newState).runInputTask(Test / testOnly, "", newState)._1
-}
+      common ++ handle(verb = "include", categories = includeCategories) ++ handle(verb = "exclude", categories = excludeCategories)
+    }
+
+    val newState = state.appendWithSession(Seq(
+      Test / testOptions ++= Seq(
+        Tests.Argument(TestFrameworks.JUnit, args(keyword = "categories"): _*),
+        Tests.Argument(jupiterTestFramework, args(keyword = "tags"): _*)
+      )
+    ))
+
+    Project.extract(newState).runInputTask(Test / testOnly, glob, newState)._1
+  }
+
+def runRegularTestCategoryCommand(name: String, category: String): Command = runTestCategoryCommand(
+  name = name,
+  description = s"Run the $category test category",
+  includeCategories = Seq(category),
+  excludeCategories = Seq(randomTypingTests, flakyTests),
+  glob = ""
+)
 
 Global / commands ++= Seq(
   ("runFileSetTests", fileSetTests),
@@ -1473,43 +1495,26 @@ Global / commands ++= Seq(
   ("runTextToTextTests", textToTextTests),
   ("runWorksheetEvaluationTests", worksheetEvaluationTests),
   ("runHighlightingTests", highlightingTests),
-  ("runNightlyTests", randomTypingTests),
   ("runBundleSortingTests", bundleSortingTests)
-).map((runTestCategoryCommand _).tupled)
+).map((runRegularTestCategoryCommand _).tupled)
 
 // Special categories commands NightlyTests and FlakyTests
 
-lazy val runNightlyTests = Command.args("runNightlyTests", "Run the FlakyTests test category") { (state, _) =>
-  import com.github.sbt.junit.jupiter.sbt.Import.jupiterTestFramework
+lazy val runNightlyTests = runTestCategoryCommand(
+  name = "runNightlyTests",
+  description = "Run the NightlyTests test category",
+  includeCategories = Seq(randomTypingTests),
+  excludeCategories = Seq(flakyTests),
+  glob = ""
+)
 
-  def args(keyword: String): Seq[String] =
-    Seq("-v", "-s", "-a", "+c", "+q", s"--include-$keyword=$randomTypingTests", s"--exclude-$keyword=$flakyTests")
-
-  val newState = state.appendWithSession(Seq(
-    Test / testOptions ++= Seq(
-      Tests.Argument(TestFrameworks.JUnit, args("categories"): _*),
-      Tests.Argument(jupiterTestFramework, args("tags"): _*)
-    )
-  ))
-
-  Project.extract(newState).runInputTask(Test / testOnly, "", newState)._1
-}
-
-lazy val runFlakyTests = Command.args("runFlakyTests", "Run the FlakyTests test category") { (state, _) =>
-  import com.github.sbt.junit.jupiter.sbt.Import.jupiterTestFramework
-
-  def args(keyword: String): Seq[String] =
-    Seq("-v", "-s", "-a", "+c", "+q", s"--include-$keyword=$flakyTests", s"--exclude-$keyword=$randomTypingTests")
-
-  val newState = state.appendWithSession(Seq(
-    Test / testOptions ++= Seq(
-      Tests.Argument(TestFrameworks.JUnit, args("categories"): _*),
-      Tests.Argument(jupiterTestFramework, args("tags"): _*)
-    )
-  ))
-
-  Project.extract(newState).runInputTask(Test / testOnly, "", newState)._1
-}
+lazy val runFlakyTests = runTestCategoryCommand(
+  name = "runFlakyTests",
+  description = "Run the FlakyTests test category",
+  includeCategories = Seq(flakyTests),
+  excludeCategories = Seq(randomTypingTests),
+  glob = ""
+)
 
 Global / commands ++= Seq(runNightlyTests, runFlakyTests)
 
@@ -1534,21 +1539,13 @@ lazy val categoriesToExclude = List(
   flakyTests
 )
 
-def runFastTestsCommand(name: String, glob: String) = Command.args(name, "") { (state, _) =>
-  import com.github.sbt.junit.jupiter.sbt.Import.jupiterTestFramework
-
-  def args(keyword: String): Seq[String] =
-    Seq("-v", "-s", "-a", "+c", "+q", s"--exclude-$keyword=${categoriesToExclude.mkString(",")}")
-
-  val newState = state.appendWithSession(Seq(
-    Test / testOptions ++= Seq(
-      Tests.Argument(TestFrameworks.JUnit, args("categories"): _*),
-      Tests.Argument(jupiterTestFramework, args("tags"): _*)
-    )
-  ))
-
-  Project.extract(newState).runInputTask(Test / testOnly, glob, newState)._1
-}
+def runFastTestsCommand(name: String, glob: String): Command = runTestCategoryCommand(
+  name = name,
+  description = "",
+  includeCategories = Seq.empty,
+  excludeCategories = categoriesToExclude,
+  glob = glob
+)
 
 Global / commands ++= Seq(
   ("runFastTests", "*"),
