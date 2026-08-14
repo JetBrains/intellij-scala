@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{JavaConstructor, ScConstructorInvocation, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScTemplateDef
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import javax.swing.Icon
@@ -53,15 +54,15 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   protected override def innerType: TypeResult = {
     /**
      * An anonymous class is local to the expression that creates it, so Scala 3 approximates its type
-     * by one that doesn't mention the class. That approximation only keeps a member when one of the
-     * parents already declares it, so that `new Foo { override type X = Int }` of a `trait Foo { type X }`
+     * by one that doesn't mention the class. That approximation only keeps a member when it narrows a
+     * member of one of the parents, so that `new Foo { override type X = Int }` of a `trait Foo { type X }`
      * is a `Foo { type X = Int }`, while `new { def bar: Int = 1 }` is simply an `AnyRef`.
      * Members of a `Selectable` parent are always kept, since selecting them is the whole point of it.
      *
      * See `TypeOps.classBound` in the Scala 3 compiler.
      */
-    def isRefinable(hasMemberInParent: => Boolean): Boolean =
-      !this.isInScala3File || definedExpectedType.nonEmpty || parentsAreSelectable || hasMemberInParent
+    def isRefinable(narrowsMemberInParent: => Boolean): Boolean =
+      !this.isInScala3File || definedExpectedType.nonEmpty || parentsAreSelectable || narrowsMemberInParent
 
     def filterTypeSignatures(aliases: Seq[ScTypeAlias]): Map[String, TypeAliasSignature] = {
       lazy val types = TypeDefinitionMembers.getTypes(this)
@@ -92,16 +93,31 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
             .map(_.supers.map(sig => (sig.info.namedElement, sig.info.substitutor)))
             .getOrElse(Seq.empty)
 
-        !isAvalableOutside || !isRefinable(supers.nonEmpty) || {
-          val maybeTpe = OverridingAnnotator.typeForSigElement(sig.namedElement)
+        !isAvalableOutside || !isRefinable(narrowsInheritedMember(sig.namedElement, supers))
+      }
+    }
 
-            maybeTpe.exists(
-              tpe =>
-                supers.exists { case (superElem, subst) =>
-                  val superTpe = OverridingAnnotator.typeForSigElement(superElem)
-                  superTpe.exists(t => subst(t).equiv(tpe))
-                }
-            )
+    /**
+     * Whether the member narrows the type of a member it overrides, which is what makes it worth
+     * keeping in the refinement: `new Foo { override def bar: Int = 1 }` of a `trait Foo { def bar: Any }`
+     * is a `Foo { def bar: Int }`, while overriding with the very same type, as in
+     * `new Object { override def toString: String = "" }`, adds nothing to `Object`.
+     *
+     * Corresponds to the conformance checks in `TypeOps.classBound` in the Scala 3 compiler.
+     */
+    def narrowsInheritedMember(member: PsiNamedElement, supers: Seq[(PsiNamedElement, ScSubstitutor)]): Boolean = {
+      // The signatures of a member and the members it overrides only differ in their result type
+      def resultType(named: PsiNamedElement): Option[ScType] = named match {
+        case function: ScFunction => function.returnType.toOption
+        case method: PsiMethod    => Option(method.getReturnType).map(_.toScType())
+        case named                => OverridingAnnotator.typeForSigElement(named)
+      }
+
+      resultType(member).exists { memberType =>
+        supers.exists { case (superMember, substitutor) =>
+          resultType(superMember).map(substitutor(_)).exists { superType =>
+            memberType.conforms(superType) && !superType.conforms(memberType)
+          }
         }
       }
     }

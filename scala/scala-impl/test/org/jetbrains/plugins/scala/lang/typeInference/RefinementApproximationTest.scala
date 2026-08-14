@@ -6,8 +6,13 @@ import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.{Simpl
 
 /**
  * An anonymous class is local to the expression that creates it, so Scala 3 approximates its type by
- * one that doesn't mention the class, which drops every member that none of the parents declares.
- * Scala 2 in contrast infers the full refinement.
+ * one that doesn't mention the class, which drops every member that doesn't narrow a member of one of
+ * the parents. Scala 2 in contrast infers the full refinement.
+ *
+ * Whether a member that overrides one of the parents with the very same type is dropped isn't
+ * observable by conformance, it is covered by
+ * [[org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotationIntentionTestBase]]
+ * instead.
  *
  * These tests are checked against the real compilers by
  * [[org.jetbrains.plugins.scala.lang.typeInference.CheckRefinementApproximationTest_Scala2]] and friends.
@@ -38,6 +43,12 @@ object RefinementApproximationTest {
       |val x = new Foo { override def foo: Int = 1 }
       |val y: Foo { def foo: Int } = x
       |val z: Int = x.foo
+      |""".stripMargin,
+    """
+      |// RefinementOfNarrowedJavaParentMember
+      |// `toString` is declared by `Object` with a wider type, so both versions keep the narrowed one
+      |val x = new Object { override def toString(): "test" = "test" }
+      |val y: "test" = x.toString()
       |""".stripMargin,
     """
       |// RefinementOfTypeMemberNotDeclaredByParent
