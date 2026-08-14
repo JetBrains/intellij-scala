@@ -2,15 +2,18 @@ package org.jetbrains.plugins.scala.internal.bundle
 
 import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
+import org.jetbrains.plugins.scala.BundleSortingTests
 import org.jetbrains.plugins.scala.internal.bundle.ScalaBundleSorting._
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import scala.annotation.unused
 
 @RunWith(classOf[JUnitParamsRunner])
+@Category(Array(classOf[BundleSortingTests]))
 class ScalaBundleSortingTest {
 
   @unused("used reflectively by the @Parameters annotation")
