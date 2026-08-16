@@ -21,5 +21,6 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- order="first" here to override zio-intellij's runLineMarkerContributor -->
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.bazel.BazelScalaRunConfigurationProducer" order="first"/>
+        <runConfigurationProducerSuppressor implementation="org.jetbrains.plugins.scala.bazel.BazelScalaRunConfigurationSuppressor"/>
     </extensions>
 </idea-plugin>
