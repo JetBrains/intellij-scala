@@ -569,7 +569,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.DefaultParsingErrorHandler
     akka.http.ParsingErrorHandler
     //akka.http.ccompat.MapHelpers
-    //akka.http.ccompat.QuerySeqOptimized
+    akka.http.ccompat.QuerySeqOptimized
     akka.http.ccompat.pre213
     akka.http.ccompat.since213
     //akka.http.impl.engine.HttpConnectionIdleTimeoutBidi

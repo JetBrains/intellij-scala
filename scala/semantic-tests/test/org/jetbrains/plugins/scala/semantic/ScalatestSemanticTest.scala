@@ -416,7 +416,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.matchers.dsl.ResultOfMessageWordApplication
     org.scalatest.matchers.dsl.ResultOfNoElementsOfApplication
     org.scalatest.matchers.dsl.ResultOfNoneOfApplication
-    //org.scalatest.matchers.dsl.ResultOfNotExist
+    org.scalatest.matchers.dsl.ResultOfNotExist
     //org.scalatest.matchers.dsl.ResultOfNotWordForAny
     org.scalatest.matchers.dsl.ResultOfOfTypeInvocation
     org.scalatest.matchers.dsl.ResultOfOneElementOfApplication
