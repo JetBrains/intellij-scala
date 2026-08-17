@@ -47,7 +47,7 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
         _.`type`()
       }.map { ty =>
         val definitionKind: Widening.DefinitionKind =
-          if (this.hasFinalModifier && !hasModifierProperty("lazy")) Widening.DefinitionKind.ConstantVal
+          if (this.hasFinalModifier && !hasModifierPropertyScala(ScalaModifier.LAZY)) Widening.DefinitionKind.ConstantVal
           else Widening.DefinitionKind.Val
 
         Widening.widenInferredDefinitionType(ty, definitionKind)

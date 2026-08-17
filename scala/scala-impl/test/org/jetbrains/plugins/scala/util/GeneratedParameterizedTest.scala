@@ -107,13 +107,29 @@ sealed trait GeneratedParameterizedTestFactory extends AssertionMatchers { self:
 
 object GeneratedParameterizedTestFactory {
   
+  /**
+   * A single test case, written as a code fragment whose first line is a comment naming the test and
+   * whose expected errors are marked with a `// Error` comment on the offending line, see
+   * [[SimpleTestData.fromCode]].
+   */
   final def testDataFromCode(code: String): SimpleTestData = SimpleTestData.fromCode(code)
 
   /**
-   * Like [[testDataFromCode]], but for code that is shared between scala versions and marks the parts
-   * that only apply to one of them with a `[Scala2]`/`[Scala3]` tag.
-   * Every line that contains `removeTag` loses everything from its comment on, so that both
-   * version-specific code and version-specific error expectations can be written in a single test case.
+   * Like [[testDataFromCode]], but for test code that is shared between the Scala versions and marks
+   * the parts that don't apply to all of them with a `[Scala2]`/`[Scala3]` tag.
+   *
+   * A tagged line is stripped from its comment on, which removes the tag together with any error
+   * expectation in that comment; a tagged line without a comment is emptied entirely, which removes
+   * version-specific code. Either way the line itself is kept, since error expectations are line based.
+   *
+   * @param removeTag the tag of the version the test data is ''not'' generated for, i.e. `"[Scala3]"`
+   *                  when generating the Scala 2 test data
+   * @example {{{
+   *   // with removeTag = "[Scala3]", i.e. when generating the Scala 2 test data
+   *   enum E { case A }  [Scala3]        ~> // emptied, the enum only exists in Scala 3
+   *   val x: 1 = 1 // Error in [Scala3]  ~> val x: 1 = 1             // no error expected here
+   *   val y: 1 = 1 // Error in [Scala2]  ~> val y: 1 = 1 // Error in // an error is expected here
+   * }}}
    */
   final def testDataFromVersionTaggedCode(removeTag: String)(code: String): SimpleTestData =
     testDataFromCode(
@@ -145,6 +161,12 @@ object GeneratedParameterizedTestFactory {
       errors.nonEmpty.option(FailureExpectation(errors)(linesCovered, messagesCovered))
   }
 
+  /**
+   * @param onlyForUs whether only the plugin reports this error, but not the real compiler, which is
+   *                  how a known difference is expressed. The tests that run the compiler on the same
+   *                  code ignore these, see
+   *                  [[org.jetbrains.plugins.scala.CheckTestDataTestBase]].
+   */
   case class TestDataError(line: Option[Int], message: Option[TestDataErrorMessage], onlyForUs: Boolean) {
     assert(line.nonEmpty || message.nonEmpty)
   }
@@ -162,6 +184,18 @@ object GeneratedParameterizedTestFactory {
   }
 
   object SimpleTestData {
+    /**
+     * Reads a test case from a code fragment whose first line is a comment naming the test and whose
+     * lines with an expected error carry a `// Error` comment. The expectation is exhaustive: a line
+     * without the marker must not have an error either. `// Error(IntelliJ)` marks an error that only
+     * we report, see [[TestDataError.onlyForUs]].
+     *
+     * @example {{{
+     *   // LiteralTypeOfVal
+     *   val x = 1
+     *   val y: 1 = x // Error
+     * }}}
+     */
     def fromCode(code: String): SimpleTestData = {
       val lines = code.strip.linesIterator.toSeq
 

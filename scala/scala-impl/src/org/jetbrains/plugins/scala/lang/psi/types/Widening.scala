@@ -21,13 +21,33 @@ import org.jetbrains.plugins.scala.project.ProjectContext
  */
 object Widening {
 
-  /** The kind of definition an inferred type is computed for, see [[widenInferredDefinitionType]]. */
+  /**
+   * The kind of definition an inferred type is computed for, see [[widenInferredDefinitionType]].
+   *
+   * The kind only makes a difference in Scala 2, which widens the right hand side of a `var` or `def`
+   * completely, but keeps a path in the type of a `val`:
+   * {{{
+   *   val c: Any    = ???
+   *   val x: c.type = c
+   *
+   *   val       v = x // Scala 2: c.type, Scala 3: Any
+   *   var       w = x // Scala 2 and 3: Any
+   *   def       d = x // Scala 2 and 3: Any
+   *   final val f = 1 // Scala 2 and 3: 1
+   * }}}
+   */
   sealed trait DefinitionKind
   object DefinitionKind {
-    /** A `val` (including a `lazy val`), whose type is only widened as far as Scala 2's `deconst` goes. */
+    /**
+     * A `val` (including a `lazy val`), whose type is only widened as far as Scala 2's `deconst` goes,
+     * that is: a literal type is dropped, but a path isn't.
+     */
     case object Val extends DefinitionKind
 
-    /** A constant value definition (`final val`), which keeps its literal type. */
+    /**
+     * A constant value definition (`final val`), which keeps its literal type:
+     * `final val one = 1` is a `1` rather than an `Int`.
+     */
     case object ConstantVal extends DefinitionKind
 
     /** A `var`, which is always widened completely in Scala 2. */
@@ -44,9 +64,13 @@ object Widening {
    * Corresponds to `Type.widen` in the Scala 3 compiler and to `Type.widen` in the Scala 2 compiler.
    *
    * @example {{{
-   *   val c: Any = ???
+   *   val c: Any    = ???
    *   val x: c.type = c
-   *   // <x.type>.widenSingleton == Any
+   *   final val one = 1
+   *
+   *   widenSingleton(<x.type>)   == Any // dereferences as often as it can
+   *   widenSingleton(<one.type>) == Int // including the literal type of the constant
+   *   widenSingleton(<Int>)      == Int // identity for a type that isn't a singleton
    * }}}
    */
   def widenSingleton(tpe: ScType): ScType = widen(tpe, stopAtLiteralType = false)
@@ -56,6 +80,13 @@ object Widening {
    *
    * Corresponds to `Type.widenTermRefExpr` in the Scala 3 compiler, which is applied to the type of
    * a right hand side before it becomes the inferred type of a definition.
+   *
+   * @example {{{
+   *   final val one = 1
+   *   val x: one.type = one
+   *
+   *   widenTermRef(<x.type>) == <1>  // as opposed to widenSingleton, which yields Int
+   * }}}
    */
   def widenTermRef(tpe: ScType): ScType = widen(tpe, stopAtLiteralType = true)
 
@@ -111,8 +142,15 @@ object Widening {
    * Widens all top level singleton types, also descending into the operands of unions and
    * intersections.
    *
-   * Corresponds to `Type.widenSingletons` in the Scala 3 compiler. Note that, unlike the type of a
-   * definition, ''type arguments'' are never widened here: `Test[1]` stays `Test[1]`.
+   * Corresponds to `Type.widenSingletons` in the Scala 3 compiler. Note that only the ''top level''
+   * of the type is widened, so that in particular type arguments are left alone.
+   *
+   * @example {{{
+   *   widenSingletons(<1 | "a">)             == Int | String // descends into a union...
+   *   widenSingletons(<AnyRef & "a">)        == AnyRef & String // ...and into an intersection
+   *   widenSingletons(<Test[1]>)             == Test[1]      // but not into a type argument
+   *   widenSingletons(<Test { type X = 1 }>) == Test { type X = 1 } // nor into a refinement
+   * }}}
    */
   def widenSingletons(tpe: ScType)(implicit context: Context): ScType = tpe match {
     case ScOrType(lhs, rhs) =>
@@ -130,6 +168,16 @@ object Widening {
    * Corresponds to `Type.isSingletonBounded` in the Scala 3 compiler. Intersections are inspected
    * explicitly, because conformance to `Singleton` isn't derived from the components of an
    * intersection, so that e.g. `Int with Singleton` would not be recognized otherwise.
+   *
+   * @example {{{
+   *   isSingletonBounded(<Singleton>)          == true
+   *   isSingletonBounded(<Int with Singleton>) == true  // only the components conform to Singleton
+   *   isSingletonBounded(<Int>)                == false
+   *   isSingletonBounded(<Nothing>)            == false // conforms to everything, but demands nothing
+   * }}}
+   *
+   * @param bound the upper bound of an inferred type, e.g. the upper bound of a type parameter
+   *              (`def f[T <: Singleton]`) or an expected type
    */
   def isSingletonBounded(bound: ScType)(implicit context: Context): Boolean = {
     implicit val projectContext: ProjectContext = bound.projectContext
@@ -147,6 +195,17 @@ object Widening {
    * Corresponds to `ConstraintHandling.widenInferred` in the Scala 3 compiler: singleton types are
    * only widened if the widened type still conforms to the expected type, and not at all if the
    * expected type is bounded by `Singleton`.
+   *
+   * @param tpe   the type that was inferred from below, i.e. from the actual arguments or the right
+   *              hand side
+   * @param bound the upper bound the result has to stay within, `None` if the inferred type is
+   *              unconstrained. A bound only ever ''suppresses'' widening, it never widens further.
+   * @example {{{
+   *   widenInferred(<1>, None)                    == Int  // nothing keeps the literal type
+   *   widenInferred(<1>, Some(<Int>))             == Int  // Int still conforms to the bound
+   *   widenInferred(<1>, Some(<1>))               == <1>  // Int would no longer conform
+   *   widenInferred(<1>, Some(<Int with Singleton>)) == <1> // the bound asks for a singleton
+   * }}}
    */
   def widenInferred(tpe: ScType, bound: Option[ScType])(implicit context: Context): ScType =
     if (bound.exists(isSingletonBounded)) tpe
@@ -173,18 +232,12 @@ object Widening {
     if (context.isScala3) {
       widenTermRef(tpe) match {
         case lit: ScLiteralType if kind == DefinitionKind.ConstantVal => lit
-        case widened                                                 => widenInferred(widened, None)
+        case widened                                                  => widenInferred(widened, None)
       }
     } else
       kind match {
         case DefinitionKind.Var | DefinitionKind.Def => widenSingleton(tpe)
         case DefinitionKind.ConstantVal              => tpe
-        case DefinitionKind.Val                      => deconst(tpe)
+        case DefinitionKind.Val                      => tpe.widenIfLiteral
       }
-
-  /** Corresponds to `Type.deconst` in the Scala 2 compiler: drops a top level constant type. */
-  private def deconst(tpe: ScType): ScType = tpe match {
-    case lit: ScLiteralType => lit.wideType
-    case _                  => tpe
-  }
 }

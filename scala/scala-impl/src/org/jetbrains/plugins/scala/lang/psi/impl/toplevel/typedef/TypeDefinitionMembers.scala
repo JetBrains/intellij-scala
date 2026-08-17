@@ -562,7 +562,7 @@ object TypeDefinitionMembers {
     true
   }
 
-  def isSelectable(tpe: ScType)(implicit context: Context): Boolean = {
+  def inheritsSelectable(tpe: ScType)(implicit context: Context): Boolean = {
     val selectableFqn = "scala.Selectable"
     val baseTpes = BaseTypes.iterator(tpe)
     baseTpes.exists {
@@ -573,7 +573,7 @@ object TypeDefinitionMembers {
 
   def processSelectable(typ: ScType, place: PsiElement, state: ResolveState, execute: (PsiElement, ResolveState) => Boolean)
                        (implicit context: Context): Boolean = {
-    if (!isSelectable(typ)) {
+    if (!inheritsSelectable(typ)) {
       return true
     }
 

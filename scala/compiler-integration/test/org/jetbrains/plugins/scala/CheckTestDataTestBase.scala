@@ -77,14 +77,15 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
       for (case (test, idx) <- tests.zipWithIndex) {
         val failureExpectation = test.failureExpectation.get
         val actualErrors = errors.filter(_.getVirtualFile.getName.contains(s"test${idx}_"))
+        // Errors that only we report say nothing about what the compiler is supposed to do
+        val expectedErrors = failureExpectation.errors.filterNot(_.onlyForUs)
         try {
-          // expect at least one failure
+          // expect at least one failure, unless every expected error is one that only we report
           assert(
-            actualErrors.nonEmpty,
+            actualErrors.nonEmpty || expectedErrors.isEmpty,
             s"Expected to find errors, but found none"
           )
 
-          val expectedErrors = failureExpectation.errors.filterNot(_.onlyForUs)
           for (expectedError <- expectedErrors) {
             for (expectedLine <- expectedError.line) {
               assert(
@@ -111,7 +112,7 @@ abstract class CheckTestDataTestBase(testData: Seq[TestData], minScalaVersion: S
           }
 
           if (failureExpectation.messagesCovered) {
-            val expectedMessagesWithErrors = expectedErrors.filterNot(_.onlyForUs).map(_.message.get.scalaCompilerMessage).toSet
+            val expectedMessagesWithErrors = expectedErrors.map(_.message.get.scalaCompilerMessage).toSet
             val actualMessagesWithErrors = actualErrors.map(_.getMessage).toSet
             assert(
               actualMessagesWithErrors == expectedMessagesWithErrors,
