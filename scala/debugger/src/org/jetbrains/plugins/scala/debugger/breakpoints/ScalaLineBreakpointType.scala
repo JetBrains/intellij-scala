@@ -11,7 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import com.intellij.util.concurrency.annotations.RequiresReadLock
-import com.intellij.xdebugger.breakpoints.{XLineBreakpoint, XLineBreakpointType}
+import com.intellij.xdebugger.breakpoints.XLineBreakpoint
 import com.intellij.xdebugger.impl.XSourcePositionImpl
 import com.intellij.xdebugger.impl.breakpoints.XBreakpointBase
 import com.intellij.xdebugger.{XDebuggerUtil, XSourcePosition}
@@ -62,8 +62,6 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
     result
   }
 
-  private type BreakpointVariant = XLineBreakpointType[JavaLineBreakpointProperties]#XLineBreakpointVariant
-
   private type JavaBPVariant = JavaLineBreakpointType#JavaBreakpointVariant
 
   @RequiresReadLock
@@ -84,11 +82,10 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
     if (lambdas.isEmpty) return Collections.emptyList()
 
-    val elementAtLine = SourcePosition.createFromLine(file, line).getElementAt
-
     val res = new java.util.LinkedList[JavaBPVariant]()
 
-    val method = findContainingDefinition(elementAtLine, lambdas)
+    val method = Option(SourcePosition.createFromLine(file, line).getElementAt)
+      .flatMap(findContainingDefinition(_, lambdas))
 
     val extraPriorityForLambdas = positionsOnLine.sizeCompare(lambdas) == 0
     for ((lambda, ordinal) <- lambdas.zipWithIndex) {
@@ -129,24 +126,27 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
       position.isInstanceOf[ScalaLambdaSourcePosition] &&
         ScalaPositionManager.isLambda(element) && element.getTextRange == method.getTextRange
     } else {
+      val element = position.getElementAt
       position.isInstanceOf[ScalaSourcePositionWithWholeLineHighlighted] &&
-        position.getLine == position.getElementAt.getLineNumber
+        element != null && position.getLine == element.getLineNumber
     }
   }
 
   @Nullable
   override def getContainingMethod(@NotNull breakpoint: LineBreakpoint[_]): PsiElement = {
-    val position: SourcePosition = breakpoint.getSourcePosition
-    if (position == null || position.getElementAt == null) return null
+    val position = breakpoint.getSourcePosition
+    if (position == null) return null
+    val element = position.getElementAt
+    if (element == null) return null
 
     val ordinal = lambdaOrdinal(breakpoint)
     val lambdas = ScalaPositionManager.lambdasOnLine(position.getFile, position.getLine)
     if (!isLambda(breakpoint) || ordinal > lambdas.size - 1) {
-      val element = position.getElementAt
       findContainingDefinition(element, lambdas).orNull
     } else lambdas(ordinal)
   }
 
+  //noinspection ApiStatus,UnstableApiUsage
   override def getHighlightRange(breakpoint: XLineBreakpoint[JavaLineBreakpointProperties]): TextRange = {
     BreakpointManager.getJavaBreakpoint(breakpoint) match {
       case lineBp: LineBreakpoint[_] if isLambda(lineBp) =>
