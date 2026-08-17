@@ -217,6 +217,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       case u: ScThisReference => "this"
       case s: ScSuperReference => "super" + s.staticSuper.map("[" + textOf(_) + "]").getOrElse("")
       case l: ScInterpolatedStringLiteral => l.desugaredExpression.map(p => textOfExpression(p._2, indent)).getOrElse("")
+      case f: ScFor => f.desugared(forDisplay = true).map(textOfExpression(_, indent)).getOrElse("")
       case l: ScLiteral => if (l.getValue == null) "null" else l.literalType.asInstanceOf[ScLiteralType].value.presentation
       case e: ScUnderscoreSection => "_"
       case e: ScIf =>
