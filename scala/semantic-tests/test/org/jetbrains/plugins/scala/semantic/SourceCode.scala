@@ -1370,10 +1370,14 @@ object SourceCode {
         printType(thistpe)
         this += highlightTypeDef(".super")
 
-      case TypeLambda(paramNames, tparams, body) =>
-        inSquare(printMethodicTypeParams(paramNames, tparams))
-        this += highlightTypeDef(" =>> ")
-        printType(body)
+      case TypeLambda(paramNames, tparams, body) => body match {
+        case AppliedType(constructor, arguments) if arguments.map { case ParamRef(_, i) => i; case _ => -1 } == tparams.indices =>
+          printType(constructor)
+        case _ =>
+          inSquare(printMethodicTypeParams(paramNames, tparams))
+          this += highlightTypeDef(" =>> ")
+          printType(body)
+      }
 
       case ParamRef(lambda, idx) =>
         lambda match {
