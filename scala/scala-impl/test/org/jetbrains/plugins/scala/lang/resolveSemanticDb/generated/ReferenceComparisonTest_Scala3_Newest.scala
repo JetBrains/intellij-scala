@@ -1818,7 +1818,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part18 extends ReferenceCompar
   def test_i18260(): Unit = doTest("i18260", true)
   def test_i18261(): Unit = doTest("i18261", true) // #matchType
   def test_i18261_min(): Unit = doTest("i18261.min", true) // #matchType
-  def test_i18263(): Unit = doTest("i18263", false)
+  def test_i18263(): Unit = doTest("i18263", true)
   def test_i18275(): Unit = doTest("i18275", true) // #enum, #derives
   def test_i18276a(): Unit = doTest("i18276a", false)
   def test_i18276b(): Unit = doTest("i18276b", true)

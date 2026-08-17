@@ -365,7 +365,7 @@ class ScalaDocumentationProviderTest_QuickNavigateInfo_Scala3 extends ScalaDocum
       s"""class Wrapper {
          |  protected final lazy val ${|}field2 = "hello"
          |}""".stripMargin,
-      """<a href="psi_element://Wrapper">Wrapper</a> <default><br>protected final lazy val field2: &quot;hello&quot; = "hello""""
+      """<a href="psi_element://Wrapper">Wrapper</a> <default><br>protected final lazy val field2: <a href="psi_element://java.lang.String">String</a> = "hello""""
     )
 
 

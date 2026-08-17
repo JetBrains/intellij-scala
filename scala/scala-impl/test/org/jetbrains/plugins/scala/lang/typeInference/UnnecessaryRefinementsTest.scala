@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-class UnnecessaryRefinementsTest extends TypeInferenceTestBase {
+class üUnnecessaryRefinementsTest extends TypeInferenceTestBase {
   def testSCL17678(): Unit = doTest(
     s"""
       |trait Foo { def m: Unit }
