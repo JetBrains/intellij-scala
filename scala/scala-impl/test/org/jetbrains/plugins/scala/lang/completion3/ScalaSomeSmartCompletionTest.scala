@@ -83,29 +83,34 @@ class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
   )
 
   @Test
-  def testSomeSmart4(): Unit = doCompletionTest(
-    fileText =
-      s"""
-         |class TUI {
-         |  class A
-         |  def foo(x: Option[A]) = 1
-         |  val ko = new {def z: A = new A}
-         |  val u: Option[A] = ko.$CARET
-         |}
+  def testSomeSmart4(): Unit = {
+    val ty =
+      if (version.isScala3) ": { def z: A }"
+      else ""
+    doCompletionTest(
+      fileText =
+        s"""
+           |class TUI {
+           |  class A
+           |  def foo(x: Option[A]) = 1
+           |  val ko$ty = new {def z: A = new A}
+           |  val u: Option[A] = ko.$CARET
+           |}
         """.stripMargin,
-    resultText =
-      s"""
-         |class TUI {
-         |  class A
-         |  def foo(x: Option[A]) = 1
-         |  val ko = new {def z: A = new A}
-         |  val u: Option[A] = Some(ko.z)$CARET
-         |}
+      resultText =
+        s"""
+           |class TUI {
+           |  class A
+           |  def foo(x: Option[A]) = 1
+           |  val ko$ty = new {def z: A = new A}
+           |  val u: Option[A] = Some(ko.z)$CARET
+           |}
         """.stripMargin,
-    item = "z",
-    invocationCount = 2,
-    completionType = SMART
-  )
+      item = "z",
+      invocationCount = 2,
+      completionType = SMART
+    )
+  }
 
   @Test
   def testSomeSmart5(): Unit = doCompletionTest(

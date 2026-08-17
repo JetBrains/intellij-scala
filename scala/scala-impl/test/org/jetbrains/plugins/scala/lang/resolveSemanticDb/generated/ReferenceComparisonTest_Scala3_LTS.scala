@@ -1708,7 +1708,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part17 extends ReferenceCompariso
   def test_i18247(): Unit = doTest("i18247", true)
   def test_i18253(): Unit = doTest("i18253", true)
   def test_i18260(): Unit = doTest("i18260", true)
-  def test_i18263(): Unit = doTest("i18263", false)
+  def test_i18263(): Unit = doTest("i18263", true)
   def test_i18276a(): Unit = doTest("i18276a", false)
   def test_i18276b(): Unit = doTest("i18276b", true)
   def test_i18302a(): Unit = doTest("i18302a", true)

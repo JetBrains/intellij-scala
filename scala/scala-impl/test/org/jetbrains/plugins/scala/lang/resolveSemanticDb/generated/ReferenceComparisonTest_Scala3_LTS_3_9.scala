@@ -1824,7 +1824,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part18 extends ReferenceCompa
   def test_i18260(): Unit = doTest("i18260", true)
   def test_i18261(): Unit = doTest("i18261", true) // #matchType
   def test_i18261_min(): Unit = doTest("i18261.min", true) // #matchType
-  def test_i18263(): Unit = doTest("i18263", false)
+  def test_i18263(): Unit = doTest("i18263", true)
   def test_i18275(): Unit = doTest("i18275", true) // #enum, #derives
   def test_i18276a(): Unit = doTest("i18276a", false)
   def test_i18276b(): Unit = doTest("i18276b", true)
@@ -2153,7 +2153,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part21 extends ReferenceCompa
   def test_i24007(): Unit = doTest("i24007", true) // #intersectionType
   def test_i24038a(): Unit = doTest("i24038a", false) // #matchType, #transparentInline
   def test_i24038b(): Unit = doTest("i24038b", false) // #matchType
-  def test_i24056(): Unit = doTest("i24056", false)
+  def test_i24056(): Unit = doTest("i24056", true)
   def test_i24074(): Unit = doTest("i24074", true)
   def test_i24076(): Unit = doTest("i24076", true) // #transparentInline
   def test_i24094(): Unit = doTest("i24094", false)
