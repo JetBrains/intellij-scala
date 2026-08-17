@@ -1,0 +1,108 @@
+import scala.deriving.Mirror
+
+case class Local(y: Int)
+object Local
+
+// `| Any` is for make typer pass
+// Run Local <:< Mirror.Product check at typer (baseTypeCache for `Mirror.Product` on `Local$` <- NoType)
+// PostTyper adds `MirrorPrpduct` as a parent of `Local$`, we should invalidate baseTypeCache for `Local$`
+// otherwise, Recheck fails `Local$ <:< Mirror.Product`.
+val x: Mirror.Product | Any = Local
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.deriving.Mirror
+        CodeReferenceElement: scala.deriving
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('deriving')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Mirror')
+  PsiWhiteSpace('\n\n')
+  ScClass: Local
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(case)('case')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Local')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: y
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('y')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+          PsiElement())(')')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: Local
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Local')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: x
+    PsiComment(comment)('// `| Any` is for make typer pass')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// Run Local <:< Mirror.Product check at typer (baseTypeCache for `Mirror.Product` on `Local$` <- NoType)')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// PostTyper adds `MirrorPrpduct` as a parent of `Local$`, we should invalidate baseTypeCache for `Local$`')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// otherwise, Recheck fails `Local$ <:< Mirror.Product`.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: x
+        PsiElement(identifier)('x')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    InfixType: Mirror.Product | Any
+      SimpleType: Mirror.Product
+        CodeReferenceElement: Mirror.Product
+          CodeReferenceElement: Mirror
+            PsiElement(identifier)('Mirror')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Product')
+      PsiWhiteSpace(' ')
+      CodeReferenceElement: |
+        PsiElement(identifier)('|')
+      PsiWhiteSpace(' ')
+      SimpleType: Any
+        CodeReferenceElement: Any
+          PsiElement(identifier)('Any')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: Local
+      PsiElement(identifier)('Local')
