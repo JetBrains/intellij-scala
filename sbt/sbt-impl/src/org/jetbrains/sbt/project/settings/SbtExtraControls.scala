@@ -2,7 +2,7 @@ package org.jetbrains.sbt.project.settings
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.ui.panel.ComponentPanelBuilder
-import com.intellij.ui.components.{ActionLink, JBLabel}
+import com.intellij.ui.components.{ActionLink, Badge, JBLabel}
 import com.intellij.ui.{JBColor, TitledSeparator}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.ui.{JBUI, UI, UIUtil}
@@ -10,9 +10,9 @@ import org.jetbrains.annotations.{Nls, Nullable}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 import org.jetbrains.sbt.project.settings.SbtExtraControls.JCheckBoxPanel
 
-import java.awt._
+import java.awt.*
 import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing._
+import javax.swing.*
 import scala.annotation.{nowarn, unused}
 
 final class SbtExtraControls {
@@ -112,7 +112,9 @@ final class SbtExtraControls {
     extraComponents: Seq[JComponent]
   ): JPanel = {
     val panelBuilder = UI.PanelFactory.panel(component): @nowarn("cat=deprecation")
-    val panelBuilderWithTooltip = if (tooltip != null) panelBuilder.withTooltip(tooltip) else panelBuilder
+    val panelBuilderWithTooltip =
+      if (tooltip != null) panelBuilder.withTooltip(tooltip): @nowarn("cat=deprecation")
+      else panelBuilder
     val panel = panelBuilderWithTooltip.createPanel()
 
     panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
@@ -123,7 +125,7 @@ final class SbtExtraControls {
     }
 
     if (betaBadge) {
-      addToPanel(new JBLabel(AllIcons.General.Beta))
+      addToPanel(new JBLabel(Badge.beta))
     }
     extraComponents.foreach(addToPanel)
 

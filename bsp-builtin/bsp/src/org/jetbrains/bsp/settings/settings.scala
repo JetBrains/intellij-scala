@@ -183,7 +183,7 @@ class BspProjectSettingsControl(settings: BspProjectSettings)
     content.add(new TitledSeparator(BspBundle.message("bsp.protocol.scala.cli.mill.project")), fillLineConstraints)
 
     val panelBuilder = UI.PanelFactory.panel(autoRegenerateBspConfigCheckBox): @nowarn("cat=deprecation")
-    val panelBuilderWithTooltip = panelBuilder.withTooltip(BspBundle.message("bsp.protocol.auto.generate.config.tooltip"))
+    val panelBuilderWithTooltip = panelBuilder.withTooltip(BspBundle.message("bsp.protocol.auto.generate.config.tooltip")): @nowarn("cat=deprecation")
     val panel = panelBuilderWithTooltip.createPanel()
 
     content.add(panel, fillLineConstraints)
