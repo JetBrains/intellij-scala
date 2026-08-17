@@ -185,18 +185,20 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   private def definedExpectedType: Option[ScType] =
     this.expectedType().filterNot(_.subtypeExists {
       case _: ScAbstractType | _: api.UndefinedType | _: api.TypeParameterType => true
-      case _                                                                  => false
+      case _                                                                   => false
     })
 
   /** Whether the members declared by this anonymous class are reachable through a `Selectable` parent. */
   private def parentsAreSelectable: Boolean = {
     val declaredSuperTypes = extendsBlock.superTypes
 
-    val parents =
-      if (declaredSuperTypes.lengthCompare(1) <= 0) declaredSuperTypes.headOption.getOrElse(api.AnyRef)
-      else                                          ScCompoundType(declaredSuperTypes)
+    val parents = declaredSuperTypes match {
+      case List() => api.AnyRef
+      case List(one) => one
+      case multiple => ScCompoundType(multiple)
+    }
 
-    TypeDefinitionMembers.isSelectable(parents)
+    TypeDefinitionMembers.inheritsSelectable(parents)
   }
 
   override def desugaredApply: Option[ScExpression] = {

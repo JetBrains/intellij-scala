@@ -28,17 +28,30 @@ object ConstraintsResult {
       case _                             => ConstraintSystem.empty
     }
 
+    /**
+     * The substitutor that maps every constrained type parameter to an approximation of its solution,
+     * `None` if the constraints are unsolvable.
+     *
+     * Use [[toInstantiationSubst]] instead whenever the result becomes the actual type argument of
+     * a call, since only that one widens.
+     */
     def toSubst(implicit ctx: ProjectContext): Option[ScSubstitutor] = result match {
       case ConstraintSystem(subst) => Some(subst)
       case _                       => None
     }
 
+    /** Like [[toSubst]], but falls back to the identity substitutor instead of `None`. */
     def substOrEmpty(implicit ctx: ProjectContext): ScSubstitutor =
       toSubst.getOrElse(ScSubstitutor.empty)
 
     /**
      * Like [[toSubst]], but for callers that ''instantiate'' the type parameters, so that type
      * arguments inferred from below are widened, see [[ConstraintSystem.substitutionBounds]].
+     *
+     * @example {{{
+     *   def f[T](x: T): T = x
+     *   f(1) // toSubst: T -> 1, toInstantiationSubst: T -> Int
+     * }}}
      */
     def toInstantiationSubst(implicit ctx: ProjectContext, context: Context): Option[ScSubstitutor] =
       result match {
@@ -49,6 +62,7 @@ object ConstraintsResult {
         case _ => None
       }
 
+    /** Like [[toInstantiationSubst]], but falls back to the identity substitutor instead of `None`. */
     def instantiationSubstOrEmpty(implicit ctx: ProjectContext, context: Context): ScSubstitutor =
       toInstantiationSubst.getOrElse(ScSubstitutor.empty)
   }
@@ -82,8 +96,16 @@ sealed trait ConstraintSystem extends ConstraintsResult {
   def removeTypeParamIds(ids: Set[Long]): ConstraintSystem
 
   /**
-   * Solves the constraints.
+   * Solves the constraints, i.e. picks a type between the lower and the upper bounds of every
+   * constrained type parameter, `None` if there is no such type for one of them.
    *
+   * @param canThrowSCE                whether an unsolvable constraint may be reported as `None`.
+   *                                   Callers that only need a best effort approximation (to render
+   *                                   a type, for instance) pass `false` and get `Nothing` for the
+   *                                   type parameters that couldn't be solved.
+   * @param checkWeak                  whether numeric widening is taken into account when the lower
+   *                                   bounds are joined, so that the lower bounds `Int` and `Long`
+   *                                   are solved as `Long` rather than as their common supertype
    * @param widenInferredTypeArguments whether a type argument that was inferred from below should be
    *                                   widened, see [[Widening.widenInferred]]. Only the callers that
    *                                   actually ''instantiate'' a type parameter should ask for this;
@@ -144,11 +166,28 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
   import ConstraintSystem._
   import ConstraintSystemImpl._
 
-  /** Lazily filled cache, indexed by [[cacheIndex]]. */
-  private[this] val cachedBounds = new Array[Option[SubstitutionBounds]](4)
+  /**
+   * Solving is expensive, so the solution of this immutable system is cached. Every flag that
+   * influences the outcome has to be part of the key, or a caller would be served the solution that
+   * was computed for someone else's flags.
+   */
+  private[this] val cachedBounds = new Array[Option[SubstitutionBounds]](1 << 3)
 
-  private[this] def cacheIndex(canThrowSCE: Boolean, widenInferredTypeArguments: Boolean): Int =
-    (if (canThrowSCE) 2 else 0) + (if (widenInferredTypeArguments) 1 else 0)
+  private[this] def cacheIndex(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean): Int =
+    (if (canThrowSCE) 4 else 0) | (if (checkWeak) 2 else 0) | (if (widenInferredTypeArguments) 1 else 0)
+
+  private[this] def cachedBoundsFor(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean)
+                                   (compute: => Option[SubstitutionBounds]): Option[SubstitutionBounds] = {
+    val index = cacheIndex(canThrowSCE, checkWeak, widenInferredTypeArguments)
+
+    cachedBounds(index) match {
+      case null =>
+        val value = compute
+        cachedBounds(index) = value
+        value
+      case value => value
+    }
+  }
 
   override def isApplicable(id: Long): Boolean =
     upperMap.contains(id) || lowerMap.contains(id)
@@ -186,17 +225,10 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
     }
 
   override def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean)
-                                 (implicit projectContext: ProjectContext, context: Context): Option[SubstitutionBounds] = {
-    val index = cacheIndex(canThrowSCE, widenInferredTypeArguments)
-
-    cachedBounds(index) match {
-      case null =>
-        val value = substitutionBoundsImpl(canThrowSCE, checkWeak, widenInferredTypeArguments)
-        cachedBounds(index) = value
-        value
-      case value => value
+                                 (implicit projectContext: ProjectContext, context: Context): Option[SubstitutionBounds] =
+    cachedBoundsFor(canThrowSCE, checkWeak, widenInferredTypeArguments) {
+      substitutionBoundsImpl(canThrowSCE, checkWeak, widenInferredTypeArguments)
     }
-  }
 
   override def removeTypeParamIds(ids: Set[Long]): ConstraintSystem = copy(
     upperMap = upperMap.removeIds(ids),
