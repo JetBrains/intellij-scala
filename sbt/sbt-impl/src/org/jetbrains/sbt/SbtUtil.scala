@@ -17,7 +17,7 @@ import com.intellij.platform.eel.provider.utils.{EelPathUtils, EelProjectUtils}
 import com.intellij.platform.workspace.storage.{EntityStorage, SymbolicEntityId, WorkspaceEntityWithSymbolicId}
 import com.intellij.util.SystemProperties
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
-import com.intellij.util.net.{ProxyConfiguration, ProxyCredentialStore, ProxyCredentialStoreKt, ProxySettings, ProxyUtils}
+import com.intellij.util.net.ProxyUtils
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.Version
@@ -311,18 +311,8 @@ object SbtUtil {
     def resolveOpt[T <: WorkspaceEntityWithSymbolicId](id: SymbolicEntityId[T]): Option[T] = Option(storage.resolve(id))
   }
 
-  def getStaticProxyConfigurationJvmOptions: Map[String, String] = {
-    val proxyConfiguration = ProxySettings.getInstance().getProxyConfiguration
-    val credentialStore = ProxyCredentialStore.getInstance()
-    val credentialProvider = ProxyCredentialStoreKt.asProxyCredentialProvider(credentialStore)
-    proxyConfiguration match {
-      case c: ProxyConfiguration.StaticProxyConfiguration =>
-        val stringToString = ProxyUtils.asJvmProperties(c, credentialProvider)
-        stringToString.asScala.toMap
-      case _ =>
-        Map.empty
-    }
-  }
+  def getStaticProxyConfigurationJvmOptions: Map[String, String] =
+    ProxyUtils.getCurrentSettingsAsJvmProperties().asScala.toMap
 
   def getWorkingDirPath(project: Project): String =
     getWorkingDirPathOpt(project)
