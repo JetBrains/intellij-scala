@@ -189,7 +189,6 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   }
 
   private def textOfStatement(s: ScBlockStatement, indent: String): String = s match {
-    case b: ScBlock => "{" + b.statements.filter(!_.is[ScImportStmt]).map(s => textOfStatement(s, indent)).mkString("") + "\n" + indent + "}"
     case t: ScTypeDefinition =>
       val sb = new StringBuilder()
       printTo(sb, t)
@@ -197,6 +196,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     case f: ScFunction => textOf(f, indent).stripSuffix("\n")
     case v: ScValueOrVariable => v.declaredElements.headOption.map(textOf(v, _, indent).stripSuffix("\n")).getOrElse("")
     case t: ScTypeAlias => textOf(t, indent).stripSuffix("\n")
+    case _: ScImportStmt => ""
+    case b: ScBlock => textOfExpression(b, indent.stripSuffix("  "))
     case e: ScExpression => "\n" + indent + "  " + textOfExpression(e, indent)
     case _ => "<stmt>"
   }
