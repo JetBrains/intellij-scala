@@ -60,9 +60,15 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
      * Members of a `Selectable` parent are always kept, since selecting them is the whole point of it.
      *
      * See `TypeOps.classBound` in the Scala 3 compiler.
+     *
+     * Scala 2 keeps more, namely every member that isn't already a member of a parent, so that
+     * `new Foo { def baz: Int = 1 }` of a `trait Foo` is a `Foo { def baz: Int }`. But a member that
+     * merely implements or overrides an inherited one without narrowing its type is dropped as well,
+     * so `new Foo { def bar: Int = 1 }` of a `trait Foo { def bar: Int }` is just a `Foo`.
      */
-    def isRefinable(narrowsMemberInParent: => Boolean): Boolean =
-      !this.isInScala3File || definedExpectedType.nonEmpty || parentsAreSelectable || narrowsMemberInParent
+    def isRefinable(overridesMemberInParent: => Boolean, narrowsMemberInParent: => Boolean): Boolean =
+      if (this.isInScala3File) definedExpectedType.nonEmpty || parentsAreSelectable || narrowsMemberInParent
+      else                     !overridesMemberInParent || narrowsMemberInParent
 
     def filterTypeSignatures(aliases: Seq[ScTypeAlias]): Map[String, TypeAliasSignature] = {
       lazy val types = TypeDefinitionMembers.getTypes(this)
@@ -70,8 +76,11 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
       aliases.flatMap { alias =>
         val sig = TypeAliasSignature(alias)
 
+        // An alias that overrides an abstract type in a parent always narrows it
+        def overridesTypeInParent = types.forName(alias.name).findNode(alias).exists(_.supers.nonEmpty)
+
         if (alias.isPrivate || alias.isProtected) None
-        else if (!isRefinable(types.forName(alias.name).findNode(alias).exists(_.supers.nonEmpty))) None
+        else if (!isRefinable(overridesTypeInParent, overridesTypeInParent)) None
         else Option((alias.name, sig))
       }.toMap
     }
@@ -93,7 +102,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
             .map(_.supers.map(sig => (sig.info.namedElement, sig.info.substitutor)))
             .getOrElse(Seq.empty)
 
-        !isAvalableOutside || !isRefinable(narrowsInheritedMember(sig.namedElement, supers))
+        !isAvalableOutside || !isRefinable(supers.nonEmpty, narrowsInheritedMember(sig.namedElement, supers))
       }
     }
 

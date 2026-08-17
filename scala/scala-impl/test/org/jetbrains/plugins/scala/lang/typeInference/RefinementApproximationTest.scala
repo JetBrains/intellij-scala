@@ -7,10 +7,10 @@ import org.jetbrains.plugins.scala.util.GeneratedParameterizedTestFactory.{Simpl
 /**
  * An anonymous class is local to the expression that creates it, so Scala 3 approximates its type by
  * one that doesn't mention the class, which drops every member that doesn't narrow a member of one of
- * the parents. Scala 2 in contrast infers the full refinement.
+ * the parents. Scala 2 in contrast keeps every member that isn't a member of a parent already.
  *
- * Whether a member that overrides one of the parents with the very same type is dropped isn't
- * observable by conformance, it is covered by
+ * Whether a member that overrides one of the parents with the very same type is dropped, which both
+ * versions do, isn't observable by conformance, it is covered by
  * [[org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotationIntentionTestBase]]
  * instead.
  *
