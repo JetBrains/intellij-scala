@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.debugger.breakpoints
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.ui.breakpoints._
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
@@ -11,11 +10,10 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
-import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.intellij.xdebugger.breakpoints.{XLineBreakpoint, XLineBreakpointType}
 import com.intellij.xdebugger.impl.XSourcePositionImpl
-import com.intellij.xdebugger.impl.breakpoints.XLineBreakpointImpl
+import com.intellij.xdebugger.impl.breakpoints.XBreakpointBase
 import com.intellij.xdebugger.{XDebuggerUtil, XSourcePosition}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
@@ -34,7 +32,6 @@ import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 
 import java.util.Collections
 import javax.swing.Icon
-import scala.annotation.nowarn
 
 class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", DebuggerBundle.message("line.breakpoints.tab.title")) {
 
@@ -153,26 +150,12 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
   override def getHighlightRange(breakpoint: XLineBreakpoint[JavaLineBreakpointProperties]): TextRange = {
     BreakpointManager.getJavaBreakpoint(breakpoint) match {
       case lineBp: LineBreakpoint[_] if isLambda(lineBp) =>
-        val dumbService = DumbService.getInstance(lineBp.getProject)
-        if (dumbService.isDumb) {
+        if (DumbService.getInstance(lineBp.getProject).isDumb) {
           breakpoint match {
-            case breakpointImpl: XLineBreakpointImpl[_] =>
-              val project = lineBp.getProject
-              ReadAction
-                .nonBlocking[Unit](() => {
-                  if (lineBp.isValid) {
-                    getContainingMethod(lineBp) //populating caches outside edt
-                  }
-                })
-                .finishOnUiThread(ModalityState.nonModal(), _ => {
-                  val highlighter = breakpointImpl.getHighlighter
-                  if (highlighter != null)
-                    highlighter.dispose()
-                  breakpointImpl.updateUI(): @nowarn("cat=deprecation")
-                })
-                .coalesceBy(lineBp)
-                .inSmartMode(project)
-                .submit(AppExecutorUtil.getAppExecutorService)
+            case base: XBreakpointBase[_, _, _] =>
+              // The lambda body range needs resolve; once indexes are ready, ask the
+              // platform to recompute the range and redraw the highlighter.
+              invokeWhenSmart(lineBp.getProject)(base.fireBreakpointChanged())
             case _ =>
           }
           null
@@ -183,7 +166,6 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
         }.orNull
       case _ => null
     }
-
   }
 
   private def lambdaOrdinal(breakpoint: LineBreakpoint[_]): Integer = {
