@@ -1141,8 +1141,10 @@ object SourceCode {
         }
         printTypeAndAnnots(tree.tpe.dealiasDeep)
 
-      case TypeIdent(name) =>
-        printType(tree.tpe)
+      case TypeIdent(name) => name match {
+        case WildcardName() => this += "*"
+        case _ => printType(tree.tpe)
+      }
 
       case TypeSelect(qual, name) =>
         printTree(qual) += "." += highlightTypeDef(name)
@@ -1202,8 +1204,11 @@ object SourceCode {
         printTypeTree(result)
 
       case LambdaTypeTree(tparams, body) =>
-        printTargsDefs(tparams.zip(tparams), isDef = false)
-        this += highlightTypeDef(" =>> ")
+        val tparams1 = tparams.filter(tparam => !WildcardName.matches(tparam.name))
+        if (tparams1.nonEmpty) {
+          printTargsDefs(tparams1.zip(tparams1), isDef = false)
+          this += highlightTypeDef(" =>> ")
+        }
         printTypeOrBoundsTree(body)
 
       case TypeBind(name, _) =>
