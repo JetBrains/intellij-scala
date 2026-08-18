@@ -23,7 +23,8 @@ class PredefElementTest extends PredefElementTestBase {
 
 
 class PredefElementTest_with_ScalaObject extends PredefElementTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_2_11
+  // `scala.ScalaObject` was removed in Scala 2.11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_10
 
   def testTrait(): Unit = doTest()
 }
