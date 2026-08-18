@@ -338,9 +338,9 @@ object ScMatchType {
         isProvablyDisjoint(lhs, andLhs) || isProvablyDisjoint(lhs, andRhs)
       case (ScTypePolymorphicType(lhsRes, lhsParams), ScTypePolymorphicType(rhsRes, rhsParams)) =>
         lhsParams.size == rhsParams.size && isProvablyDisjoint(lhsRes, rhsRes)
-      case (_: ScTypePolymorphicType, _)                            => true
-      case (_, _: ScTypePolymorphicType)                            => true
-      case (ScLiteralType(lhsValue, _), ScLiteralType(rhsValue, _)) => lhsValue != rhsValue
+      case (_: ScTypePolymorphicType, _)                      => true
+      case (_, _: ScTypePolymorphicType)                      => true
+      case (ScLiteralType(lhsValue), ScLiteralType(rhsValue)) => lhsValue != rhsValue
       case (lhs: DesignatorOwner, rhs: DesignatorOwner) if lhs.isSingleton && rhs.isSingleton =>
         lhs.element != rhs.element
       case (DesignatorOwner(lhsCls: PsiClass), DesignatorOwner(rhsCls: PsiClass)) =>

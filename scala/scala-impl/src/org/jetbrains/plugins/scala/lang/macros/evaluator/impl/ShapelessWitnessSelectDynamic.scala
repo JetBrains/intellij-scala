@@ -24,7 +24,7 @@ object ShapelessWitnessSelectDynamic extends ScalaMacroTypeable with ShapelessUt
     ref.refName match {
       case ScalaNamesUtil.BacktickedName(literalText) =>
         createExpressionWithContextFromText(literalText, ref.getContext, ref).getNonValueType() match {
-          case Right(ScLiteralType(value, _)) => Some(value.presentation)
+          case Right(ScLiteralType(value)) => Some(value.presentation)
           case _ => None
         }
       case _ => None

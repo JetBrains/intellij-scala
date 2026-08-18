@@ -80,11 +80,11 @@ package object expr {
 
     def longValue: Option[Long] =
       valType.removeAbstracts.removeAliasDefinitions() match {
-        case ScLiteralType(ScIntegerLiteralImpl.Value(int), _) =>
+        case ScLiteralType(ScIntegerLiteralImpl.Value(int)) =>
           Some(int.toLong)
         // If a literal type is of type Long (even 1L),
         // it actually never conforms to Char/Byte/Short/Int.
-        // case ScLiteralType(ScLongLiteralImpl.Value(long), _) => Some(long)
+        // case ScLiteralType(ScLongLiteralImpl.Value(long)) => Some(long)
         case _ =>
           // If the type is not a literal type (for example, in Scala 2.12),
           // we also search for an explicit integer literal

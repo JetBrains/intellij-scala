@@ -127,7 +127,7 @@ package object types {
     }
 
     def equivalentToLiteral(b: Boolean)(implicit context: Context): Boolean =
-      scType.equiv(ScLiteralType(ScBooleanLiteralImpl.Value(b), allowWiden = false)(projectContext.project))
+      scType.equiv(ScLiteralType(ScBooleanLiteralImpl.Value(b))(projectContext.project))
 
     def isNumericType: Boolean = scType match {
       case valType: ValType => stdTypes.allNumericTypes.contains(valType)
@@ -283,6 +283,8 @@ package object types {
     }
 
     /**
+     * Widens a singleton type to its underlying non-singleton type, see [[Widening.widenSingleton]].
+     *
      * @example {{{
      * Int           -> Int
      * String        -> String
@@ -293,18 +295,17 @@ package object types {
      * strValue.type -> String
      * objValue.type -> AnyRef
      * anyValue.type -> Any
+     * indirectValue.type -> Int
      *
      * where:
      * val strValue: String = ???
      * val intValue: Int = ???
      * val objValue: AnyRef = ???
      * val anyValue: Any = ???
+     * val indirectValue: intValue.type = intValue
      * }}}
      */
-    def widen: ScType = scType match {
-      case lit: ScLiteralType if lit.allowWiden => lit.wideType
-      case other                                => other.tryExtractDesignatorSingleton
-    }
+    def widen: ScType = Widening.widenSingleton(scType)
 
     def extractDesignatorSingleton: Option[ScType] = scType match {
       case desinatorOwner: DesignatorOwner => desinatorOwner.designatorSingletonType
@@ -325,12 +326,19 @@ package object types {
       case _ => false
     }
 
+    /**
+     * Drops a top level literal type, but keeps every other singleton type, which corresponds to
+     * `Type.deconst` in the Scala 2 compiler. Use [[widen]] to also drop `x.type`.
+     *
+     * @example {{{
+     * 1             -> Int
+     * intValue.type -> intValue.type
+     * }}}
+     */
     def widenIfLiteral: ScType = scType match {
       case litTy: ScLiteralType => litTy.wideType
       case _                    => scType
     }
-
-
   }
 
   implicit class ScalaSeqExt(private val context: PsiElement) {

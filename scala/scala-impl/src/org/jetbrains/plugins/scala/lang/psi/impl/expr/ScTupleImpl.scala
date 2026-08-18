@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Singleton, TupleType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, Widening}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TupleType, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTuple {
@@ -18,14 +18,11 @@ class ScTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTuple
           case _                      => Seq.empty
         }
 
+        // The component types are inferred, so their literal types are widened unless the expected
+        // component asks for a singleton, see Widening.widenInferred
         val widenedComponents = components.zipWithIndex.map {
-          case (lit: ScLiteralType, idx) =>
-            val expectedComp   = expectedComponents.lift(idx)
-            val inferSingleton = expectedComp.exists(_.conforms(Singleton))
-
-            if (inferSingleton) lit
-            else                lit.widen
-          case (other, _) => other
+          case (lit: ScLiteralType, idx) => Widening.widenInferred(lit, expectedComponents.lift(idx))
+          case (other, _)                => other
         }
 
         TupleType(widenedComponents, context = this)

@@ -989,7 +989,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
           if (containingClassName == "scala.compiletime.ops.int" && ta.name == "S") {
             r match {
-              case ScLiteralType(ScIntegerLiteralImpl.Value(int), _) if int > 0 =>
+              case ScLiteralType(ScIntegerLiteralImpl.Value(int)) if int > 0 =>
                 val tvar = p.typeArguments.head
                 val decremented = ScIntegerLiteralImpl.Value(int - 1)
                 result = equivInner(tvar, ScLiteralType(decremented)(projectContext), constraints, falseUndef = false)
