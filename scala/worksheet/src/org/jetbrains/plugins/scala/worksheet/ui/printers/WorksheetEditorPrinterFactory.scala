@@ -55,15 +55,6 @@ object WorksheetEditorPrinterFactory {
     foldGroup: Option[WorksheetFoldGroup] = None
   ): Unit = {
 
-    class MyCaretAdapterBase extends CaretListener {
-      override def equals(obj: Any): Boolean = obj match {
-        case _: MyCaretAdapterBase => true
-        case _ => false
-      }
-
-      override def hashCode(): Int = 12345
-    }
-
     def createListener(recipient: Editor, editor: Editor): CaretListener = foldGroup match {
       case Some(group) =>
         new CaretListener {
@@ -89,7 +80,6 @@ object WorksheetEditorPrinterFactory {
       cache.getPatchedFlag(don) match {
         case "50" | null =>
           cache.removePatchedFlag(don)
-          don.getCaretModel.removeCaretListener(new MyCaretAdapterBase)
           don.getCaretModel.addCaretListener(createListener(recipient, don))
           cache.setPatchedFlag(don, if (foldGroup.isDefined) "100" else "50")
         case _ =>
