@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.vfs.VfsUtil
-import junit.framework.TestCase.{assertEquals, assertTrue}
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.{assertCompilingScalaSources, assertNoErrorsOrWarnings}
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
+import org.junit.Assert.{assertEquals, assertTrue, fail}
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -61,6 +61,8 @@ class ZincAnnotationProcessingTest extends ScalaCompilerTestBase {
       case (Seq(aBefore, bBefore), Seq(aAfter, bAfter)) =>
         assertEquals("A.scala was recompiled when it shouldn't have been", aBefore, aAfter)
         assertTrue("B.scala was not recompiled when it should have been", bBefore < bAfter)
+      case _ =>
+        fail("Unexpected testdata shape")
     }
   }
 }
