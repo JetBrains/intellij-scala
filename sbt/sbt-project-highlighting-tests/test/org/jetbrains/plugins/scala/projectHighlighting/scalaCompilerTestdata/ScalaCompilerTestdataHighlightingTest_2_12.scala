@@ -35,6 +35,10 @@ class ScalaCompilerTestdataHighlightingTest_2_12 extends ScalaCompilerTestdataHi
     "pos/unchecked-a.scala" -> Set(
       (107,110), // Type Any does not conform to upper bound Y of type parameter A
     ),
+    // this file is actually an error in Scala > 2.10, so I just ignore it here
+    "pos/implicit-anyval-2.10.scala" -> Set(
+      (20,26), // Cannot upcast String to AnyVal
+    ),
   )
 
   override protected val reporter: HighlightingProgressReporter =
