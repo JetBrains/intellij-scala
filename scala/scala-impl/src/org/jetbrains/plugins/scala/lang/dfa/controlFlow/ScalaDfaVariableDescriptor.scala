@@ -23,7 +23,9 @@ case class ScalaDfaVariableDescriptor(variable: PsiElement,
     case _ => "<unknown>"
   }
 
-  override def getDfType(qualifier: DfaVariableValue): DfType = variable match {
+  override def getDfType(qualifier: DfaVariableValue): DfType = dfType
+
+  def dfType: DfType = variable match {
     case typeable: Typeable =>
       val scType = typeable.`type`().getOrAny
       val nullability = variable match {

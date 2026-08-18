@@ -11,6 +11,7 @@ import com.intellij.psi.{CommonClassNames, PsiElement, PsiMethod}
 import com.intellij.util.containers.FList
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.tryRetrieveCollectionSizeDirectly
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{inferExpressionType, literalToDfType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
@@ -194,7 +195,12 @@ trait ExpressionTransformation { this: ScalaDfaControlFlowBuilder =>
       ScalaDfaVariableDescriptor.fromReferenceExpression(expression) match {
         case Some(descriptor) =>
           rreq.result {
-            pushVariable(descriptor, expression)
+            val dfType = descriptor.dfType
+            // A reference like `Nil` already knows its collection size from its type, but the memory
+            // state only tracks sizes of values assigned into it, so pushing it as a variable would
+            // hide the size from collection access assertions. Push its df type directly instead.
+            if (tryRetrieveCollectionSizeDirectly(dfType).isDefined) push(dfType, ScalaStatementAnchor(expression))
+            else pushVariable(descriptor, expression)
             //buildImplicitConversion(Some(expression), Some(expectedType))
           }
         case _ =>
