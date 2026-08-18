@@ -85,6 +85,18 @@ class ScalaDocCommentSelectionerTest extends ExtendWordSelectionHandlerTestBase 
          | * paragraph 3 line 1
          | * paragraph 3 line 2
          | */
+         |class A$End
+         |""".stripMargin,
+      s"""$Start/**
+         | * paragraph 1 line 1
+         | * paragraph 1 line 2
+         | *
+         | * paragraph 2 line 1
+         | * ${Caret}paragraph 2 line 2
+         | *
+         | * paragraph 3 line 1
+         | * paragraph 3 line 2
+         | */
          |class A
          |$End""".stripMargin,
     ))
