@@ -42,7 +42,7 @@ object SpecialSupportUtils {
     }
   }
 
-  private def tryRetrieveCollectionSizeDirectly(dfType: DfType): Option[Int] = dfType match {
+  def tryRetrieveCollectionSizeDirectly(dfType: DfType): Option[Int] = dfType match {
     case referenceType: DfReferenceType => referenceType.getSpecialFieldType match {
       case intConstant: DfIntConstantType => Some(intConstant.getValue.intValue)
       case _ => None

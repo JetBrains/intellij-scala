@@ -118,12 +118,12 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |""".stripMargin
   }) {
     """
-      |0: PUSH Nil
+      |0: PUSH_VAL NOT_NULL UNMODIFIABLE size=0
       |1: ASSIGN_TO grades
       |2: POP
       |3: PUSH Student
       |4: PUSH_VAL 22
-      |5: PUSH grades
+      |5: PUSH_VAL NOT_NULL UNMODIFIABLE size=0
       |6: CALL Student#apply
       |7: ASSIGN_TO s1
       |8: POP

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests.invocations
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaCollectionAccessProblem.{indexOutOfBoundsProblem, noSuchElementProblem}
-import org.junit.{Ignore, Test}
+import org.junit.Test
 
 class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
 
@@ -80,7 +80,6 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
     "list.head" -> noSuchElementProblem.alwaysMessage
   )
 
-  @Ignore("Failing test")
   @Test
   def testNilReference(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
