@@ -4,9 +4,9 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNamedTuple, ScNamedTupleExprComponent}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{NamedTupleType, Singleton, StdTypes}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{NamedTupleType, StdTypes}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, Widening}
 
 final class ScNamedTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScNamedTuple {
   protected override def innerType: TypeResult = {
@@ -31,11 +31,13 @@ final class ScNamedTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) w
             case _ => Seq.empty
           }
 
+        // The component types are inferred, so their literal types are widened unless the expected
+        // component asks for a singleton, see Widening.widenInferred
         val widenedComponents =
-          components.zipAll(expectedComponents, null, null).collect {
-            case (t@(_, _: ScLiteralType), (_, expectedType)) if expectedType.conforms(Singleton) => t
-            case ((name, ty: ScLiteralType), _) => (name, ty.widen)
-            case (other@(_, _), _) => other
+          components.zipWithIndex.map {
+            case ((name, ty: ScLiteralType), idx) =>
+              (name, Widening.widenInferred(ty, expectedComponents.lift(idx).map(_._2)))
+            case (other, _) => other
           }
 
         NamedTupleType(widenedComponents)

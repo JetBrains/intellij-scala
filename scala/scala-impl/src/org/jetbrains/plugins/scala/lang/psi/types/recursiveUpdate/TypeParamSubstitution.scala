@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{TypeParamId, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
-import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScAbstractType, ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScAbstractType, ScType}
 
 import scala.collection.immutable.LongMap
 
@@ -44,12 +44,10 @@ private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends LeafSub
     }
   }
 
+  // A type argument is widened before it is substituted, if it is widened at all, see
+  // org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.substitutionBounds
   private def updatedTypeParameter(tpt: TypeParameterType): ScType =
-    tvMap.getOrElse(tpt.typeParamId, null) match {
-      case null             => tpt
-      case v: ScLiteralType => v.blockWiden
-      case v                => v
-    }
+    tvMap.getOrElse(tpt.typeParamId, tpt)
 }
 
 private object TypeParamSubstitution {

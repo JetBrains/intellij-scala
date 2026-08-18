@@ -79,7 +79,7 @@ private [documentationProvider] class ScalaDocTypeRenderer(
       infixTypeText(Infix("|"), renderedOr, lhs, rhs, render)
     case mt@ScMethodType(retType, params, _) =>
       render(FunctionType(retType, params.map(_.paramType))(mt.elementScope, Context.Empty))
-    case ScLiteralType(value, _) =>
+    case ScLiteralType(value) =>
       nameRenderer.escapeName(value.presentation)
     case ScMatchType(scrutinee, cases, _) =>
       scrutineeText(scrutinee, cases.map(_.apply()))

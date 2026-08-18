@@ -37,7 +37,7 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
       case ScalaResolveResult(synth: ScSyntheticFunction, _) =>
         @tailrec
         def foldConstTypes(left: Option[ScType], right: Option[ScType]): TypeResult = (left, right) match {
-          case (Some(ScLiteralType(valueLeft, _)), Some(ScLiteralType(valueRight, _))) =>
+          case (Some(ScLiteralType(valueLeft)), Some(ScLiteralType(valueRight))) =>
             Option(evaluateConstInfix(valueLeft.value, valueRight.value, synth.name))
               .fold(super.innerType) { value =>
                 Right(ScLiteralType(value)(synth.getProject))

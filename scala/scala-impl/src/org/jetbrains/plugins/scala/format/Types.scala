@@ -21,7 +21,7 @@ object Types {
       case Long => 0L
       case Float => 0.0F
       case Double => 0D
-      case ScLiteralType(value, _) => value.value
+      case ScLiteralType(value) => value.value
       case ScDesignatorType(element) => element.name match {
         case "String" => ""
         case "Boolean" => lang.Boolean.valueOf(true)

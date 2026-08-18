@@ -472,7 +472,7 @@ trait ScalaTypePresentation extends TypePresentation {
       case mt@ScMethodType(retType, params, _) =>
         implicit val elementScope: ElementScope = mt.elementScope
         innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
-      case ScLiteralType(value, _) =>
+      case ScLiteralType(value) =>
         value.presentation
       case ScMatchType(scrutinee, cases, _) =>
         val scrutineeText = innerTypeText(scrutinee)
