@@ -1562,9 +1562,13 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         // happens once all the bounds are known, see [[ConstraintSystem.substitutionBounds]].
         val withLower = constraints.withLower(id, r)
 
-        result =
-          if (Widening.isSingletonBounded(u.typeParameter.upperType)) withLower.withoutWidening(id)
-          else                                                        withLower
+        result = {
+          // A type parameter that asks for a singleton type must not be widened, which the declared
+          // bound expresses on its own, so it is recorded rather than kept on the side, SCL-21053
+          val upperType = u.typeParameter.upperType
+          if (Widening.isSingletonBounded(upperType)) withLower.withUpper(id, upperType)
+          else withLower
+        }
       }
     }
 

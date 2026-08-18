@@ -53,7 +53,7 @@ class CachingTest extends ScalaFixtureTestCase {
       highlightSequentially()
     }
 
-    assertEquals("Conformance: (A, B) → ConstraintSystemImpl(LongMap(),LongMap(),Set(),Set())", trace)
+    assertEquals("Conformance: (A, B) → ConstraintSystemImpl(LongMap(),LongMap(),Set())", trace)
   }
 
   private def open(@Language("Scala") code: String): Any =
