@@ -712,6 +712,10 @@ class TestInstanceOfAutoBoxing3 extends ComparingUnrelatedTypesInspectionTest {
   )
 }
 
+/**
+ * We used to detect problems here, but it makes the code way more complicated,
+ * because some numerical literals are comparable even though they have different types.
+ */
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_13
 ))
@@ -719,11 +723,13 @@ class TestLiteralTypes extends ComparingUnrelatedTypesInspectionTest {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
-  override protected val description: String =
-    ScalaInspectionBundle.message("comparing.unrelated.types.hint", "3", "4")
+  override protected val description: String = null
+
+  override protected def descriptionMatches(s: String): Boolean =
+    s != null && s.contains("Comparing unrelated types:")
 
   @Test
-  def testLiteralTypes(): Unit = checkTextHasError(
+  def testLiteralTypes(): Unit = checkTextHasNoErrors(
     s"""
       |val a: 3 = 3
       |val b: 4 = 4
@@ -732,7 +738,7 @@ class TestLiteralTypes extends ComparingUnrelatedTypesInspectionTest {
   )
 
   @Test
-  def testLiteralTypesInInstanceOf(): Unit = checkTextHasError(
+  def testLiteralTypesInInstanceOf(): Unit = checkTextHasNoErrors(
     s"""
        |val a: 3 = 3
        |println(${START}a.isInstanceOf[4]$END)
