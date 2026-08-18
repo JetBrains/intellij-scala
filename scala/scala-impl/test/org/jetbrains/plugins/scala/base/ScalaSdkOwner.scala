@@ -89,7 +89,7 @@ object ScalaSdkOwner {
   //       (or better, move ScalaLanguageLevel.getDefault to Scala_2_13 and use ScalaVersion.default again)
   //       for now just use defaultVersionOverride with Some(preferableSdkVersion) for test-(base)classes
   //       that should already work in newest version (SCL-15634)
-  val defaultSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_11 // ScalaVersion.default
+  val defaultSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_12 // ScalaVersion.default
   val preferableSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_13
   val allTestVersions: SortedSet[ScalaVersion] = SortedSet.from(LatestScalaVersions.allStableWithoutScalaNext.flatMap(_.generateAllMinorVersions))
 
