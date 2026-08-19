@@ -14,6 +14,4 @@ class JavaConstructorParameters extends TypeInferenceTestBase{
   def testSCL9875(): Unit = doTest()
 
   def testSCL12071(): Unit = doTest()
-
-  def testSCL11568(): Unit = doTest()
 }
