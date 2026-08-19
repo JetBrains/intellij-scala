@@ -81,6 +81,15 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
   )
 
   @Test
+  def testAccessOnNil(): Unit = test(codeFromMethodBody(returnType = "Int") {
+    """
+      |Nil.head
+      |""".stripMargin
+  })(
+    "Nil.head" -> noSuchElementProblem.alwaysMessage
+  )
+
+  @Test
   def testNilReference(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val x = 488
