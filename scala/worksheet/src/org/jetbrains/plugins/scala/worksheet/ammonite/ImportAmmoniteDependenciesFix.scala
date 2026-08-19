@@ -11,8 +11,10 @@ import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.psi.PsiFile
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.DependencyManagerBase.{Resolver, UseJetBrainsMavenCentralMirrorPropertyKey}
 import org.jetbrains.plugins.scala.components.libextensions.JarPathStringExt
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction, invokeLater}
+import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.template.Artifact
@@ -172,8 +174,20 @@ object ImportAmmoniteDependenciesFix {
     (scalaVersion, ammoniteVersion)
   }
 
+  /**
+   * Prefer the JetBrains Maven Central mirror in tests, whose agents get throttled (HTTP 429) by Maven Central.
+   *
+   * Note: the mirror responds with 404 to bare directory URLs, so directory listings must be requested
+   * as an explicit `index.html` (Maven Central serves the same document under both forms).
+   */
+  private def mavenCentralBaseUrl: String =
+    if (java.lang.Boolean.getBoolean(UseJetBrainsMavenCentralMirrorPropertyKey) || isUnitTestMode)
+      Resolver.JetBrainsMavenCentralMirror.root
+    else
+      Resolver.MavenCentral.root
+
   def loadAmmoniteVersion(scalaVersion: String, cancelable: Boolean): Try[String] = {
-    val url = s"https://repo1.maven.org/maven2/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/"
+    val url = s"$mavenCentralBaseUrl/com/lihaoyi/$AMMONITE_PREFIX$scalaVersion/index.html"
     val lines: Try[Seq[String]] = HttpDownloadUtil.loadLinesFrom(url, cancelable, None)
 
     val versions = lines.map(detectAmmoniteVersions)
@@ -203,7 +217,7 @@ object ImportAmmoniteDependenciesFix {
 
   // TODO: why "versionS"?
   def loadScalaVersions(forScala: MyScalaVersion, cancelable: Boolean): Try[Option[Version]] = {
-    val url = "https://repo1.maven.org/maven2/com/lihaoyi/"
+    val url = s"$mavenCentralBaseUrl/com/lihaoyi/index.html"
     val mavenInfoLines = HttpDownloadUtil.loadLinesFrom(url, cancelable, None)
     mavenInfoLines.map(detectScalaVersion(_, forScala))
   }
