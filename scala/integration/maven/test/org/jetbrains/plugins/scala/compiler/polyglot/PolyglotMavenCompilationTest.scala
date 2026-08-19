@@ -95,6 +95,22 @@ class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends ScalaMave
         |  <module>module1</module>
         |  <module>module2</module>
         |</modules>
+        |
+        |<!-- Prefer the JetBrains Maven Central mirror to avoid HTTP Error 429 Too Many Requests in the CI.
+        |     Maven's implicit central repository remains as a fallback. -->
+        |<repositories>
+        |  <repository>
+        |    <id>jetbrains-maven-central-mirror</id>
+        |    <url>https://cache-redirector.jetbrains.com/maven-central/</url>
+        |  </repository>
+        |</repositories>
+        |
+        |<pluginRepositories>
+        |  <pluginRepository>
+        |    <id>jetbrains-maven-central-mirror</id>
+        |    <url>https://cache-redirector.jetbrains.com/maven-central/</url>
+        |  </pluginRepository>
+        |</pluginRepositories>
         |""".stripMargin,
       false,
     )
@@ -128,6 +144,10 @@ class PolyglotMavenCompilationTest(jdkVersion: TestJdkVersion) extends ScalaMave
         |</dependencies>
         |
         |<repositories>
+        |  <repository>
+        |    <id>jetbrains-maven-central-mirror</id>
+        |    <url>https://cache-redirector.jetbrains.com/maven-central/</url>
+        |  </repository>
         |  <repository>
         |    <id>mavenCentral</id>
         |    <url>https://repo1.maven.org/maven2/</url>
