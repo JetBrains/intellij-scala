@@ -47,8 +47,15 @@ object ScPattern {
   implicit class Ext(private val pattern: ScPattern) extends AnyVal {
     import pattern.{elementScope, projectContext, thisContext}
 
-    def expectedType: Option[ScType] = cachedInUserData("expectedType", pattern, BlockModificationTracker(pattern)) {
-      _expectedType
+    def expectedType: Option[ScType] = {
+      // Only a known expected type is cached (`null` is what the cache uses to mark an absent value):
+      // the expected type of a pattern may be unknown just because it is requested while the type it
+      // depends on is still being inferred, and caching that would make it unknown forever, see SCL-20702.
+      Option(
+        cachedInUserData("expectedType", pattern, BlockModificationTracker(pattern)) {
+          _expectedType.orNull
+        }
+      )
     }
 
     // TODO Don't use the return keyword

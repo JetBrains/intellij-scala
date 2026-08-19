@@ -1550,7 +1550,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part15 extends ReferenceCompar
   def test_i14914(): Unit = doTest("i14914", true)
   def test_i14921(): Unit = doTest("i14921", true) // #matchType, #extension
   def test_i14932(): Unit = doTest("i14932", true)
-  def test_i14953(): Unit = doTest("i14953", false) // #export
+  def test_i14953(): Unit = doTest("i14953", true) // #export
   def test_i14966(): Unit = doTest("i14966", true) // #export
   def test_i14966a(): Unit = doTest("i14966a", true) // #export
   def test_i14999(): Unit = doTest("i14999", true)
