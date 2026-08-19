@@ -145,7 +145,10 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
             val message = ScalaBundle.message("type.cannot.be.matched.by.a.named.tuple.pattern", exprType.presentableText)
             holder.createErrorAnnotation(nt, message)
         }
-      case _  if patType.isFinalType && neverMatches =>
+      //NOTE: `isTupleAsInfixArgList` has to be checked here as well and not only in the case above:
+      //since Scala 2.12 the `TupleN` classes are final, so a tuple pattern reaches this case
+      //(see SCL-15634)
+      case _  if patType.isFinalType && neverMatches && !isTupleAsInfixArgList =>
         val (exprTypeText, patTypeText) = TypePresentation.different(exprType, patType)
         val message = ScalaBundle.message("pattern.type.incompatible.with.expected", patTypeText, exprTypeText)
         holder.createErrorAnnotation(pattern, message)
