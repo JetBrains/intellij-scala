@@ -1211,7 +1211,7 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |  def monad: Monad[F]
          |}
          |
-         |class Bar extends Foo[Either[String, ?]] {
+         |class Bar extends Foo[Either[String, *]] {
          |  $CARET_TAG
          |}
       """.stripMargin
@@ -1222,8 +1222,8 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |  def monad: Monad[F]
          |}
          |
-         |class Bar extends Foo[Either[String, ?]] {
-         |  override def monad: Monad[Either[String, ?]] = ???
+         |class Bar extends Foo[Either[String, *]] {
+         |  override def monad: Monad[Either[String, *]] = ???
          |}
       """.stripMargin
     val methodName = "monad"
@@ -1348,8 +1348,8 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
          |  def unlift: G[G ~> F]
          |}
          |
-         |implicit def reader[F[_]: Monad, R]: Unlift[F, ReaderT[F, R, ?]] =
-         |    new Unlift[F, ReaderT[F, R, ?]] {
+         |implicit def reader[F[_]: Monad, R]: Unlift[F, ReaderT[F, R, *]] =
+         |    new Unlift[F, ReaderT[F, R, *]] {
          |      $CARET_TAG
          |    }
       """.stripMargin
@@ -1364,9 +1364,9 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
         |  def unlift: G[G ~> F]
         |}
         |
-        |implicit def reader[F[_]: Monad, R]: Unlift[F, ReaderT[F, R, ?]] =
-        |    new Unlift[F, ReaderT[F, R, ?]] {
-        |      override def unlift: ReaderT[F, R, ReaderT[F, R, ?] ~> F] = ???
+        |implicit def reader[F[_]: Monad, R]: Unlift[F, ReaderT[F, R, *]] =
+        |    new Unlift[F, ReaderT[F, R, *]] {
+        |      override def unlift: ReaderT[F, R, ReaderT[F, R, *] ~> F] = ???
         |    }
       """.stripMargin
     val methodName = "unlift"

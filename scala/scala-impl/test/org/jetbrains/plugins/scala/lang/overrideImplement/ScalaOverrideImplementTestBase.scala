@@ -73,7 +73,7 @@ abstract class ScalaOverrideImplementTestBase extends ScalaLightCodeInsightFixtu
     val oldSettings = prepareSettings(settings)
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("kind-projector")
+      plugins = defaultProfile.getSettings.plugins :+ ScalacPlugin("kind-projector-0.10.1.jar")
     )
     defaultProfile.setSettings(newSettings)
 

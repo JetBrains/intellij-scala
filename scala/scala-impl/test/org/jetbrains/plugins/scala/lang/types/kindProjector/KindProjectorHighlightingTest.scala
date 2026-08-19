@@ -215,7 +215,7 @@ class KindProjectorHighlightingTest extends KindProjectorHighlightingTestBase {
         |}
         |
         |class A {
-        |  val h: Convert[Either[Unit, ?], Option] = λ[Either[Unit, ?] Convert Option](_.fold(_ => None, a => Some(a)))
+        |  val h: Convert[Either[Unit, *], Option] = λ[Either[Unit, *] Convert Option](_.fold(_ => None, a => Some(a)))
         |}
       """.stripMargin
     )
@@ -240,11 +240,11 @@ class KindProjectorHighlightingTest extends KindProjectorHighlightingTestBase {
         |  def andThen[H[_]](f: FunctionK[G, H]): FunctionK[F, H] =
         |    f.compose(self)
         |
-        |  def or[H[_]](h: FunctionK[H, G]): FunctionK[EitherK[F, H, ?], G] =
-        |    λ[FunctionK[EitherK[F, H, ?], G]](fa => fa.fold(self, h))
+        |  def or[H[_]](h: FunctionK[H, G]): FunctionK[EitherK[F, H, *], G] =
+        |    λ[FunctionK[EitherK[F, H, *], G]](fa => fa.fold(self, h))
         |
-        |  def and[H[_]](h: FunctionK[F, H]): FunctionK[F, Tuple2K[G, H, ?]] =
-        |    λ[FunctionK[F, Tuple2K[G, H, ?]]](fa => Tuple2K(self(fa), h(fa)))
+        |  def and[H[_]](h: FunctionK[F, H]): FunctionK[F, Tuple2K[G, H, *]] =
+        |    λ[FunctionK[F, Tuple2K[G, H, *]]](fa => Tuple2K(self(fa), h(fa)))
         |}
       """.stripMargin
     )
@@ -276,15 +276,15 @@ class KindProjectorHighlightingTest extends KindProjectorHighlightingTestBase {
         |    final def mapK[T[_]](f: F ~> T): Coyoneda[T, A] = ???
         |  }
         |
-        |  type FreeC[S[_], A] = Free[Coyoneda[S, ?], A]
+        |  type FreeC[S[_], A] = Free[Coyoneda[S, *], A]
         |
         |  trait ~>[-F[_], +G[_]] {
         |    def apply[A](fa: F[A]): G[A]
         |  }
         |
-        |  def injectFC[F[_], G[_]](implicit fk: F ~> G): FreeC[F, ?] ~> FreeC[G, ?]
-        |    = λ[FreeC[F, ?] ~> FreeC[G, ?]](
-        |      _.mapK(λ[Coyoneda[F, ?] ~> Coyoneda[G, ?]](_.mapK(fk)))
+        |  def injectFC[F[_], G[_]](implicit fk: F ~> G): FreeC[F, *] ~> FreeC[G, *]
+        |    = λ[FreeC[F, *] ~> FreeC[G, *]](
+        |      _.mapK(λ[Coyoneda[F, *] ~> Coyoneda[G, *]](_.mapK(fk)))
         |    )
         |}
       """.stripMargin
