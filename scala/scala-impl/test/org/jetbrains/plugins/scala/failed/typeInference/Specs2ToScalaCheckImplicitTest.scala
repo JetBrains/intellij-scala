@@ -3,10 +3,15 @@ package org.jetbrains.plugins.scala.failed.typeInference
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class Specs2ToScalaCheckImplicitTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false
+
+  //specs2 2.4.15 and scalaz-core 7.1.0 are not published for Scala 2.12+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version <= LatestScalaVersions.Scala_2_11
 
   override protected def additionalLibraries: Seq[LibraryLoader] =
     Seq(
