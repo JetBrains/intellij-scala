@@ -87,16 +87,14 @@ class GradleProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends Ex
         |version = '1.0-SNAPSHOT'
         |""".stripMargin)
     createProjectSubFile("module2/build.gradle",
-      """plugins {
+      s"""plugins {
         |    id 'scala'
         |}
         |
         |group = 'org.example'
         |version = '1.0-SNAPSHOT'
         |
-        |repositories {
-        |    mavenCentral()
-        |}
+        |${GradleTestUtil.repositoriesBlock}
         |
         |dependencies {
         |    implementation project(':module1')
