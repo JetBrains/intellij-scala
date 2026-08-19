@@ -80,10 +80,12 @@ class GroovyMixedGradleCompilationTest(jdkVersion: TestJdkVersion) extends Exter
 
     createProjectSubDirs("src/main/groovy", "src/main/java", "src/main/kotlin", "src/main/scala")
     createProjectSubFile("settings.gradle",
-      """rootProject.name = 'groovy-mixed'
+      s"""${GradleTestUtil.pluginManagementBlock}
+        |
+        |rootProject.name = 'groovy-mixed'
         |""".stripMargin)
     createProjectConfig(
-      """plugins {
+      s"""plugins {
         |    id 'groovy'
         |    id 'java'
         |    id 'org.jetbrains.kotlin.jvm' version '2.3.21'
@@ -93,9 +95,7 @@ class GroovyMixedGradleCompilationTest(jdkVersion: TestJdkVersion) extends Exter
         |group = 'org.example'
         |version = '1.0-SNAPSHOT'
         |
-        |repositories {
-        |    mavenCentral()
-        |}
+        |${GradleTestUtil.repositoriesBlock}
         |
         |dependencies {
         |    implementation 'org.apache.groovy:groovy:4.0.14'

@@ -73,11 +73,13 @@ class PolyglotGradleCompilationTest(jdkVersion: TestJdkVersion) extends External
 
     createProjectSubDirs("module1/src/main/java", "module1/src/main/kotlin", "module2/src/main/scala")
     createProjectSubFile("settings.gradle",
-      """rootProject.name = 'polyglot-gradle'
+      s"""${GradleTestUtil.pluginManagementBlock}
+        |
+        |rootProject.name = 'polyglot-gradle'
         |include 'module1', 'module2'
         |""".stripMargin)
     createProjectSubFile("module1/build.gradle",
-      """plugins {
+      s"""plugins {
         |  id 'java'
         |  id 'org.jetbrains.kotlin.jvm' version '2.3.21'
         |}
@@ -90,21 +92,17 @@ class PolyglotGradleCompilationTest(jdkVersion: TestJdkVersion) extends External
         |  targetCompatibility = JavaVersion.VERSION_1_8
         |}
         |
-        |repositories {
-        |  mavenCentral()
-        |}
+        |${GradleTestUtil.repositoriesBlock}
         |""".stripMargin)
     createProjectSubFile("module2/build.gradle",
-      """plugins {
+      s"""plugins {
         |  id 'scala'
         |}
         |
         |group = 'org.example'
         |version = '1.0-SNAPSHOT'
         |
-        |repositories {
-        |  mavenCentral()
-        |}
+        |${GradleTestUtil.repositoriesBlock}
         |
         |dependencies {
         |  implementation 'org.scala-lang:scala-library:2.13.15'
