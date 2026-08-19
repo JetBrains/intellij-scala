@@ -193,6 +193,55 @@ class ExportsResolveTest extends SimpleResolveTestBase {
         |""".stripMargin
     )
 
+  // same as testSCL20702, but the exported val has an explicit type
+  def testSCL20702ExplicitType(): Unit =
+    checkTextHasNoErrors(
+      """
+        |class IMap[K, V] {
+        |  val m: Map[K, V] = Map.empty[K, V]
+        |  export m.*
+        |}
+        |
+        |object m extends IMap[String, String]()
+        |
+        |val xs: Iterable[String] = m.values
+        |
+        |""".stripMargin
+    )
+
+  // same as testSCL20702, but the object doesn't shadow the name of the exported val
+  def testSCL20702WithoutNameClash(): Unit =
+    checkTextHasNoErrors(
+      """
+        |class IMap[K, V] {
+        |  val m = Map.empty[K, V]
+        |  export m.*
+        |}
+        |
+        |object mm extends IMap[String, String]()
+        |
+        |val xs: Iterable[String] = mm.values
+        |
+        |""".stripMargin
+    )
+
+  def testExportedMembersOfValOfLocalClass(): Unit =
+    checkTextHasNoErrors(
+      """
+        |class A { def foo: Int = 1 }
+        |
+        |class Holder {
+        |  val m = new A
+        |  export m.*
+        |}
+        |
+        |object m extends Holder()
+        |
+        |val xs: Int = m.foo
+        |
+        |""".stripMargin
+    )
+
   def testSCL20917(): Unit =
     checkTextHasNoErrors(
       """
