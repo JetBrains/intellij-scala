@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.process.options
 
 import org.jetbrains.sbt.SbtRuntimeTestBase
+import org.jetbrains.sbt.project.SbtCachesSetupUtil
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert.{assertEquals, assertTrue}
 
@@ -48,13 +49,17 @@ abstract class SbtOptionsIntegrationTestBase extends SbtRuntimeTestBase {
     outputFile = Files.createTempFile("quoted-path-options", ".txt")
 
     val sbtSettings = SbtSettings.getInstance(getMyProject)
-    sbtSettings.sbtOptions = Seq(
+    val testSbtOptions = Seq(
       "-timings",
       "-color=always",
       "-no-colors",
       "-Doption.source.sbt=settings",
       s"""-sbt-dir "$expectedSbtDirPathWithSpaces""""
     ).mkString(" ")
+    // Append instead of assigning, to preserve the CI cache options set up by
+    // SbtCachesSetupUtil.setupCoursierAndIvyCache before the import.
+    sbtSettings.sbtOptions =
+      Seq(sbtSettings.sbtOptions, testSbtOptions).filter(_.nonEmpty).mkString(" ")
     val vmParametersWithOutputFile = appendVmParameter(
       sbtSettings.vmParameters,
       s"-Dquoted.settings.outputFile=${normalize(outputFile)}"
@@ -111,7 +116,14 @@ abstract class SbtOptionsIntegrationTestBase extends SbtRuntimeTestBase {
     ))
 
   protected final def doTestNoShareAndTimingsOptionsArePassedToSeparateSbtProcess(): Unit = {
-    SbtSettings.getInstance(getMyProject).sbtOptions = "-no-share -timings -color=always"
+    // Deliberately rebuilds the options from scratch: the quoted-path options from
+    // configureQuotedPathOptionSourcesBeforeImport must be discarded (-sbt-dir would win over -no-share's
+    // sbt.global.base), but the CI cache options must be kept. -no-share's project-local sbt.ivy.home still
+    // wins over the cache options' -Dsbt.ivy.home because settings tokens are rendered in order and the JVM
+    // takes the last definition of a system property.
+    SbtSettings.getInstance(getMyProject).sbtOptions =
+      SbtCachesSetupUtil.asOptionsString(SbtCachesSetupUtil.cacheAndRepositoryVmOptions) +
+        " -no-share -timings -color=always"
     assertExtractedProperties(Seq(
       "sbt.global.base" -> "project/.sbtboot",
       "sbt.boot.directory" -> "project/.boot",
