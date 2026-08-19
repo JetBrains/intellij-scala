@@ -11,17 +11,48 @@ import org.jetbrains.sbt.settings.SbtSettings
 import java.util
 
 object SbtCachesSetupUtil {
-  def setupCoursierAndIvyCache(project: Project): Unit = {
-    propagateEnvVarAsSbtOption(project, "TC_SBT_COURSIER_HOME", "sbt.coursier.home")
-    propagateEnvVarAsSbtOption(project, "TC_SBT_IVY_HOME", "sbt.ivy.home")
+  def setupCoursierAndIvyCache(project: Project): Unit =
+    appendOption(project)(asOptionsString(cacheAndRepositoryVmOptions))
 
-    // Propagates the community/project/repositories configuration file to the tests running sbt.
-    // This allows them to contact the JetBrains Maven Central repository, which avoids
-    // HTTP Error 429 Too Many Requests in the CI.
-    val repositoriesFile = (TestUtils.findCommunityRootPath / "project" / "repositories").toCanonicalPath
-    val repoConfig = s"-Dsbt.repository.config=$repositoriesFile"
-    appendOption(project)(repoConfig)
-  }
+  /**
+   * `-Dsbt.coursier.home` / `-Dsbt.ivy.home` derived from the `TC_SBT_*` environment variables provisioned on
+   * TeamCity agents; empty in local runs where the variables are not set.
+   */
+  def coursierAndIvyCacheVmOptions: Seq[String] =
+    Seq("TC_SBT_COURSIER_HOME" -> "sbt.coursier.home", "TC_SBT_IVY_HOME" -> "sbt.ivy.home")
+      .flatMap { case (envVar, prop) => sys.env.get(envVar).map(value => s"-D$prop=$value") }
+
+  /**
+   * Propagates the community/project/repositories configuration file to the tests running sbt.
+   * This allows them to contact the JetBrains Maven Central repository, which avoids
+   * HTTP Error 429 Too Many Requests in the CI.
+   */
+  def repositoryConfigVmOption: String =
+    s"-Dsbt.repository.config=${(TestUtils.findCommunityRootPath / "project" / "repositories").toCanonicalPath}"
+
+  def cacheAndRepositoryVmOptions: Seq[String] =
+    coursierAndIvyCacheVmOptions :+ repositoryConfigVmOption
+
+  /**
+   * [[cacheAndRepositoryVmOptions]] plus `-Dsbt.override.build.repos=true`, which makes the build's own dependency
+   * resolution (not only the launcher/boot resolution) go through the repositories file.
+   *
+   * ONLY for forks of repo-controlled testdata builds with no custom resolvers. Never use it on the global import
+   * path: project-highlighting tests import real-world projects whose builds may need resolvers absent from
+   * community/project/repositories (and its ivy repositories are bootOnly).
+   */
+  def cacheAndRepositoryVmOptionsWithBuildReposOverride: Seq[String] =
+    cacheAndRepositoryVmOptions :+ "-Dsbt.override.build.repos=true"
+
+  /**
+   * Serializes options into a whitespace-joined string for whitespace-tokenized sinks
+   * ([[SbtSettings#sbtOptions]], `SbtRunConfiguration.vmparams`), wrapping tokens that
+   * contain whitespace in double quotes. Both downstream parsers strip whole-token quotes, so a quoted token
+   * round-trips to a single argument. Values ending in `\` or containing `"` would break the quoting, which is
+   * acceptable for the directory paths passed here.
+   */
+  def asOptionsString(options: Seq[String]): String =
+    options.map(opt => if (opt.exists(_.isWhitespace)) "\"" + opt + "\"" else opt).mkString(" ")
 
   /**
    * Same as [[setupCoursierAndIvyCache]], but for tests in which there is no seam between project creation and the
@@ -48,10 +79,6 @@ object SbtCachesSetupUtil {
       }
     }
     ExternalSystemSettingsListenerEx.EP_NAME.getPoint.registerExtension(listener, parentDisposable)
-  }
-
-  private def propagateEnvVarAsSbtOption(project: Project, envVar: String, opt: String): Unit = {
-    sys.env.get(envVar).map(p => s"-D$opt=$p").foreach(appendOption(project))
   }
 
   private def appendOption(project: Project)(opt: String): Unit = {
