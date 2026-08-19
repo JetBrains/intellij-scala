@@ -30,6 +30,10 @@ class SbtBuildFilesLanguageTest extends SbtExternalSystemImportingTestLike {
 
   override protected def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 
+  // Resolve the testdata build's own dependencies through the JetBrains Maven Central mirror,
+  // to avoid HTTP Error 429 Too Many Requests in the CI (SCL-25750).
+  override protected def overrideBuildRepositories: Boolean = true
+
   @Test
   def buildFilesLanguage(): Unit = {
     injectVariable(

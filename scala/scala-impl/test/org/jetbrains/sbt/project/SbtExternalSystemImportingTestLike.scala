@@ -38,12 +38,26 @@ trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTes
 
     setupSbtProjectSettings()
 
-    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject)
+    SbtCachesSetupUtil.setupCoursierAndIvyCache(getMyProject, overrideBuildRepositories)
     SbtProjectImportTestUtils.suppressSbtStructureDumpErrorAndWarningConsoleOutput(this)
   }
 
   protected def getTestSbtProjectSettings: TestSbtProjectSettings =
     TestSbtProjectSettings.Default
+
+  /**
+   * When `true`, the sbt import runs with `-Dsbt.override.build.repos=true` so that the build's own dependency
+   * resolution (libraryDependencies and sbt plugins, not only the launcher/boot resolution) also goes through the
+   * JetBrains Maven Central mirror, avoiding HTTP Error 429 Too Many Requests in the CI.
+   *
+   * Only enable for repo-controlled testdata builds without custom resolvers;
+   * see [[SbtCachesSetupUtil.cacheAndRepositoryVmOptionsWithBuildReposOverride]].
+   *
+   * Note: coursier embeds the source repository host in its cache layout, so tests asserting absolute library paths
+   * must keep their expectations in sync via the `buildReposOverridden` parameter of
+   * [[ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt]] and friends.
+   */
+  protected def overrideBuildRepositories: Boolean = false
 
   final override protected lazy val getCurrentExternalProjectSettings: SbtProjectSettings =
     new SbtProjectSettings

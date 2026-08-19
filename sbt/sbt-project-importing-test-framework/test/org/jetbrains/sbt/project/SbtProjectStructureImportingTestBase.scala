@@ -50,6 +50,10 @@ abstract class SbtProjectStructureImportingTestBase extends SbtExternalSystemImp
    */
   protected def isPreview: Boolean = false
 
+  // Resolve the testdata builds' own dependencies through the JetBrains Maven Central mirror,
+  // to avoid HTTP Error 429 Too Many Requests in the CI (SCL-25750).
+  override protected def overrideBuildRepositories: Boolean = true
+
   override protected def getTestDataProjectPath: String =
     generateTestProjectPath(getTestName(true))
 

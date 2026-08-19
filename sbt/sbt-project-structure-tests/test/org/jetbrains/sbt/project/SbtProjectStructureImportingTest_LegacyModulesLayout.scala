@@ -38,7 +38,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     super.getTestSbtProjectSettings.copy(separateProdAndTestSources = false)
 
   def testSimple(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     runSimpleTest("simple", scalaLibraries)
 
     // Adding the assertion here not to create a separate heavy test for such a tiny check
@@ -58,7 +58,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
 
   //noinspection RedundantDefaultArgument
   def testSimple_Scala3(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.0.2")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
     runSimpleTest("simple-scala3", scalaLibraries, DefaultSbtContentRootsScala3)
   }
 
@@ -125,7 +125,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
   def testTwoLinkedProjects(): Unit = {
     val originalProjectName = "twoLinkedProjects"
     val linkedProjectName = "simple"
-    val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
     SbtProjectImportTestUtils.linkSbtProjectWithNewSettingsToProject(
       getMyProject,
@@ -179,7 +179,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
 
   def testProjectWithUppercaseName(): Unit = runTest {
     new project("MyProjectWithUppercaseName") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       libraries ++= scalaLibraries
 
       modules := Seq(
@@ -220,9 +220,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
       modules := Seq(
         new module("root"),
         new module("root.subproject1") {
-          libraryDependencies := ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+          libraryDependencies := ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
         }, new module("root.subproject2") {
-          libraryDependencies := ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+          libraryDependencies := ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
         })
     }
   )
@@ -232,7 +232,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
    */
   def testCrossCompiledPart(): Unit = runTest(
     new project("root") {
-      private val scala3libraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.0.2")
+      private val scala3libraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
 
       modules := Seq(
         new module("root"),
@@ -246,7 +246,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
 
   def testUnmanagedDependency(): Unit = runTest(
     new project("unmanagedDependency") {
-      val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+      val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       val managedLibrary: library = new library("sbt: org.apache.commons:commons-compress:1.21:jar")
       libraries := scalaLibraries :+ managedLibrary
 
@@ -264,7 +264,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
 
   def testSharedSources(): Unit = runTest(
     new project("sharedSourcesProject") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       libraries := scalaLibraries
 
       lazy val root: module = new module("sharedSourcesProject") {
@@ -311,7 +311,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
 
   def testSharedSourcesWithNestedProjectDependencies(): Unit = runTest(
     new project("sharedSourcesWithNestedProjectDependencies") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       libraries := scalaLibraries
 
       lazy val root: module = new module("sharedSourcesWithNestedProjectDependencies") {
@@ -1221,7 +1221,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     val projectName = "sharedSourcesInsideMultiBuildProject"
     runTest(
       new project(projectName) {
-        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
         libraries := scalaLibraries
 
         val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
@@ -1272,7 +1272,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
   // It's done by explicitly setting the ModuleNameDeduplicationStrategy.NUMBER_SUFFIX in these modules.
   def testMultiBuildProjectWithTheSameProjectIdFromIDEAPerspective(): Unit = runTest(
     new project("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       libraries := scalaLibraries
 
       val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
@@ -1337,8 +1337,8 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
    */
   @RequiresJdk(LanguageLevel.JDK_17)
   def testSimpleSbt2Latest(): Unit = {
-    val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.3.3", useScalaSdkExtraClasspath = false)
-    val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.6.2", useScalaSdkExtraClasspath = false)
+    val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.3.3", useScalaSdkExtraClasspath = false)
+    val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.6.2", useScalaSdkExtraClasspath = false)
 
     val expectedScalaLibraries = expectedScala_3_3 ++ expectedScala_3_6
 

@@ -12,7 +12,19 @@ import java.util
 
 object SbtCachesSetupUtil {
   def setupCoursierAndIvyCache(project: Project): Unit =
-    appendOption(project)(asOptionsString(cacheAndRepositoryVmOptions))
+    setupCoursierAndIvyCache(project, overrideBuildRepositories = false)
+
+  /**
+   * @param overrideBuildRepositories when `true`, additionally passes `-Dsbt.override.build.repos=true` so that the
+   *                                  build's own dependency resolution also goes through a repositories file.
+   *                                  See the warning on [[cacheAndRepositoryVmOptionsWithBuildReposOverride]].
+   */
+  def setupCoursierAndIvyCache(project: Project, overrideBuildRepositories: Boolean): Unit = {
+    val options =
+      if (overrideBuildRepositories) cacheAndRepositoryVmOptionsWithBuildReposOverride
+      else cacheAndRepositoryVmOptions
+    appendOption(project)(asOptionsString(options))
+  }
 
   /**
    * `-Dsbt.coursier.home` / `-Dsbt.ivy.home` derived from the `TC_SBT_*` environment variables provisioned on
@@ -34,15 +46,30 @@ object SbtCachesSetupUtil {
     coursierAndIvyCacheVmOptions :+ repositoryConfigVmOption
 
   /**
-   * [[cacheAndRepositoryVmOptions]] plus `-Dsbt.override.build.repos=true`, which makes the build's own dependency
-   * resolution (not only the launcher/boot resolution) go through the repositories file.
+   * The repositories file paired with `-Dsbt.override.build.repos=true`. It differs from
+   * community/project/repositories in two ways:
+   *  - it has a non-bootOnly `sbt-plugin-releases` ivy entry, because under the override the bootOnly entries are
+   *    excluded from build resolution while some legacy sbt plugins used by testdata builds are not published to
+   *    Maven Central (and thus cannot be served by the JetBrains mirror);
+   *  - it has no direct `maven-central` entry: sbt's coursier tries all repositories against the local cache before
+   *    going to the network, so a repo1.maven.org entry would shadow the mirror whenever an artifact is already
+   *    cached under the repo1 host directory, making the coursier cache paths asserted by project-structure tests
+   *    depend on cache warmth. With the mirror alone the paths are deterministic (the mirror is a pull-through
+   *    proxy of Maven Central, so no artifacts are lost).
+   */
+  private def overrideRepositoryConfigVmOption: String =
+    s"-Dsbt.repository.config=${(TestUtils.getTestDataDir / "sbt" / "repositories").toCanonicalPath}"
+
+  /**
+   * [[coursierAndIvyCacheVmOptions]] plus a repositories file and `-Dsbt.override.build.repos=true`, which makes the
+   * build's own dependency resolution (not only the launcher/boot resolution) go through that file, so that
+   * Maven Central artifacts are fetched via the JetBrains mirror. See [[overrideRepositoryConfigVmOption]].
    *
-   * ONLY for forks of repo-controlled testdata builds with no custom resolvers. Never use it on the global import
-   * path: project-highlighting tests import real-world projects whose builds may need resolvers absent from
-   * community/project/repositories (and its ivy repositories are bootOnly).
+   * ONLY for repo-controlled testdata builds with no custom resolvers. Never use it on the global import
+   * path: project-highlighting tests import real-world projects whose builds may need other resolvers.
    */
   def cacheAndRepositoryVmOptionsWithBuildReposOverride: Seq[String] =
-    cacheAndRepositoryVmOptions :+ "-Dsbt.override.build.repos=true"
+    coursierAndIvyCacheVmOptions ++ Seq(overrideRepositoryConfigVmOption, "-Dsbt.override.build.repos=true")
 
   /**
    * Serializes options into a whitespace-joined string for whitespace-tokenized sinks

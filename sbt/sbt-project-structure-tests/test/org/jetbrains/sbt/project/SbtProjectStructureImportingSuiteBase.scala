@@ -56,7 +56,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   }
 
   def testSimple(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     runSimpleTest("simple", "2.13", scalaLibraries)
 
     // Adding some extra assertions here not to create a separate heavy test for such a tiny check
@@ -84,14 +84,14 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
 
   //noinspection RedundantDefaultArgument
   def testSimple_Scala3(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.0.2")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
     runSimpleTest("simple-scala3", "3.0.2", scalaLibraries, DefaultSbtContentRootsScala3, DefaultMainSbtContentRootsScala3, DefaultTestSbtContentRootsScala3)
   }
 
   // Test case to check whether the build module is added when the root project is skipped with ideSkipProject := true
   // TODO For now the added build module has incorrect data, fix it with SCL-25022
   def testNoRootModule(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     val projectName = "dummy"
     val scalaVersion = "2.13"
     runTest(
@@ -189,7 +189,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
       )
     Files.writeString(sbtFileFromOtherImport.toPath, fileContent)
 
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     runSimpleTest("root", "2.13", scalaLibraries)
   }
 
@@ -351,7 +351,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
 
   def testLibraryDependenciesOrder(): Unit = {
     val expectedProject: project = new project("libraryDependenciesOrder") {
-      val scalaLibraries: Seq[dependency[library]] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14").map { library =>
+      val scalaLibraries: Seq[dependency[library]] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14").map { library =>
         new dependency(library) { scope := DependencyScope.COMPILE }
       }
 
@@ -497,7 +497,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
 
   def testUnmanagedDependency(): Unit = runTest(
     new project("unmanagedDependency") {
-      val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+      val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       val managedLibrary: library = new library("sbt: org.apache.commons:commons-compress:1.21:jar")
       libraries := scalaLibraries :+ managedLibrary
 
@@ -1188,7 +1188,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   //SCL-22637
   def testPackagePrefix(): Unit = runTest(
     new project("packagePrefix") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       libraries := scalaLibraries
       packagePrefix := "com.example"
       lazy val root: module = new module("packagePrefix") {
@@ -1219,8 +1219,8 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
 
   @RequiresJdk(LanguageLevel.JDK_17)
   def testSimpleSbt2Latest(): Unit = {
-    val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.3.3", useScalaSdkExtraClasspath = false)
-    val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("3.6.2", useScalaSdkExtraClasspath = false)
+    val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.3.3", useScalaSdkExtraClasspath = false)
+    val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.6.2", useScalaSdkExtraClasspath = false)
 
     val expectedScalaLibraries = expectedScala_3_3 ++ expectedScala_3_6
 
@@ -1406,7 +1406,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   def testProjectIntegrationTestSourcesOutsideContentRoot(): Unit = {
     runTest(
       new project("root") {
-        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
         libraries := scalaLibraries
 
         lazy val root: module = new module("root") {
@@ -1540,7 +1540,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   //  3. An unmanaged source directory in one project matches the source directory base in another project
   def testCustomSourceDirectories(): Unit = runTest(
     new project("root") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       libraries := scalaLibraries
 
       lazy val root: module = new module("root") {
@@ -1621,7 +1621,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   def testUnmanagedSourceDirIsProjectBase(): Unit =
     runTest(
       new project("root") {
-        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
         libraries := scalaLibraries
 
         lazy val root: module = new module("root") {
@@ -1661,7 +1661,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   def testTheSameSourceBaseDirsInProject(): Unit =
     runTest(
       new project("root") {
-        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
         libraries := scalaLibraries
 
         lazy val root: module = new module("root") {
@@ -1918,7 +1918,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   }
 
   def testSimpleSbt1313(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
 
     runSimpleTest("simple", "2.13", scalaLibraries,
       expectedSbtCompletionVariantsForParentModule = customSbtContentRootsForParent(13),
@@ -1942,7 +1942,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   }
 
   def testSimpleSbt149(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
 
     runSimpleTest("simple", "2.13", scalaLibraries,
       expectedSbtCompletionVariantsForParentModule = DefaultSbtContentRootsScala213,
@@ -2315,7 +2315,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   // It's done by explicitly setting the ModuleNameDeduplicationStrategy.NUMBER_SUFFIX in these modules.
   def testMultiBuildProjectWithTheSameProjectIdFromIDEAPerspective(): Unit = runTest(
     new project("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       libraries := scalaLibraries
 
       val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
@@ -2413,7 +2413,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
       "1.12.1"
     )
 
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     runTest(
       new project("simpleTwoBuilds") {
         libraries := scalaLibraries
@@ -2512,7 +2512,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
       "2.0.0-RC9"
     )
 
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     runTest(
       new project("simpleTwoBuilds") {
         libraries := scalaLibraries
@@ -2616,7 +2616,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
       "1.12.5"
     )
 
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     runTest(
       new project("root") {
         libraries := scalaLibraries
@@ -2694,7 +2694,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
       "2.0.0-RC9"
     )
 
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     runTest(
       new project("root") {
         libraries := scalaLibraries
@@ -2773,7 +2773,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   }
 
   def testScalafixConfigDisabled(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     runTest(
       new project("root") {
         libraries := scalaLibraries
@@ -2816,8 +2816,8 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   }
 
   def testBspDisabledConfigLevel(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
-    val scalaSdk = expectedScalaSdkLibraryFromCoursier(useEnv = true)("2.13.14", SbtProjectSystem.Id, useScalaSdkExtraClasspath = true)
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+    val scalaSdk = expectedScalaSdkLibraryFromCoursier(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14", SbtProjectSystem.Id, useScalaSdkExtraClasspath = true)
     runTest(
       new project("root") {
         libraries := scalaLibraries
@@ -2912,7 +2912,7 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
   // See https://www.scala-sbt.org/1.x/docs/Configuring-Scala.html#Configuring+Scala+tool+dependencies
   def testManagedScalaInstanceOff(): Unit = runTest(
     new project("scalaInstance") {
-      val scalaSdk_2_13_14: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+      val scalaSdk_2_13_14: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
 
       lazy val scalaInstance: module = new module("scalaInstance")
       lazy val scalaInstanceMain: module = new module("scalaInstance.main") { libraryDependencies := scalaSdk_2_13_14 }

@@ -16,6 +16,10 @@ class SbtDetectLibraryMavenCoordinates extends SbtExternalSystemImportingTestLik
   override protected def getTestDataProjectPath: String =
     s"${TestUtils.getTestDataPath}/sbt/projects/registerLibraryMavenCoordinates"
 
+  // Resolve the testdata build's own dependencies through the JetBrains Maven Central mirror,
+  // to avoid HTTP Error 429 Too Many Requests in the CI (SCL-25750).
+  override protected def overrideBuildRepositories: Boolean = true
+
   def testLibraryMavenCoordinatesAreDetected(): Unit = {
     importProject(false)
 

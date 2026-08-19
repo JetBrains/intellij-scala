@@ -39,14 +39,23 @@ object ProjectStructureTestUtils {
   private def withoutPathSuffix(path: String) =
     path.stripSuffix("/").stripSuffix("\\")
 
-  private def coursierCacheArtifact(useEnv: Boolean)(relativePath: String): String =
-    coursierCacheRoot(useEnv) + "/https/repo1.maven.org/maven2/" + relativePath
+  // Coursier embeds the source repository URL in its cache layout. With -Dsbt.override.build.repos=true the
+  // Maven Central artifacts are fetched through the JetBrains mirror and cached under its host directory.
+  private def mavenRepositoryCachePath(buildReposOverridden: Boolean): String = {
+    val root =
+      if (buildReposOverridden) DependencyManagerBase.Resolver.JetBrainsMavenCentralMirror.root
+      else DependencyManagerBase.Resolver.MavenCentral.root
+    root.replaceFirst("://", "/") // "https://host/path" -> "https/host/path"
+  }
+
+  private def coursierCacheArtifact(useEnv: Boolean, buildReposOverridden: Boolean)(relativePath: String): String =
+    coursierCacheRoot(useEnv) + "/" + mavenRepositoryCachePath(buildReposOverridden) + "/" + relativePath
 
   private def ivyCacheArtifact(useEnv: Boolean)(relativePath: String): String =
     ivyCacheRootHome(useEnv) + "/" + relativePath
 
-  private def coursierCacheArtifacts(useEnv: Boolean)(relativePaths: String*): Seq[String] =
-    relativePaths.map(coursierCacheArtifact(useEnv))
+  private def coursierCacheArtifacts(useEnv: Boolean, buildReposOverridden: Boolean)(relativePaths: String*): Seq[String] =
+    relativePaths.map(coursierCacheArtifact(useEnv, buildReposOverridden))
 
   private def ivyCacheArtifacts(useEnv: Boolean)(relativePaths: String*): Seq[String] =
     relativePaths.map(ivyCacheArtifact(useEnv))
@@ -68,40 +77,40 @@ object ProjectStructureTestUtils {
     s"$id-${scalaVersion.minor}"
   }
 
-  def expectedScalaLibraryForSbt(useEnv: Boolean)(scalaVersion: String): library =
-    expectedScalaLibrary(useEnv)(scalaVersion, SbtProjectSystem.Id)
+  def expectedScalaLibraryForSbt(useEnv: Boolean, buildReposOverridden: Boolean = false)(scalaVersion: String): library =
+    expectedScalaLibrary(useEnv, buildReposOverridden)(scalaVersion, SbtProjectSystem.Id)
 
-  def expectedScalaLibrary(useEnv: Boolean)(scalaVersion: String, projectSystemId: ProjectSystemId): library = {
+  def expectedScalaLibrary(useEnv: Boolean, buildReposOverridden: Boolean = false)(scalaVersion: String, projectSystemId: ProjectSystemId): library = {
     val scalaVersionFromString = ScalaVersion.fromString(scalaVersion).get
-    expectedScalaLibraryFromCoursier(useEnv)(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString, projectSystemId))
+    expectedScalaLibraryFromCoursier(useEnv, buildReposOverridden)(scalaVersionFromString, createScalaLibraryName(scalaVersionFromString, projectSystemId))
   }
 
   /**
    * @see [[org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier]]
    */
-  def expectedScalaLibraryWithScalaSdkForSbt(useEnv: Boolean)(scalaVersion: String, useScalaSdkExtraClasspath: Boolean = true): Seq[library] =
-    expectedScalaLibraryWithScalaSdk(useEnv)(scalaVersion, SbtProjectSystem.Id, useScalaSdkExtraClasspath)
+  def expectedScalaLibraryWithScalaSdkForSbt(useEnv: Boolean, buildReposOverridden: Boolean = false)(scalaVersion: String, useScalaSdkExtraClasspath: Boolean = true): Seq[library] =
+    expectedScalaLibraryWithScalaSdk(useEnv, buildReposOverridden)(scalaVersion, SbtProjectSystem.Id, useScalaSdkExtraClasspath)
 
   /**
    * @see [[org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier]]
    */
-  def expectedScalaLibraryWithScalaSdk(useEnv: Boolean)(
+  def expectedScalaLibraryWithScalaSdk(useEnv: Boolean, buildReposOverridden: Boolean = false)(
     scalaVersionStr: String,
     projectSystemId: ProjectSystemId,
     useScalaSdkExtraClasspath: Boolean
   ): Seq[library] = {
     val scalaVersion = ScalaVersion.fromString(scalaVersionStr).get
 
-    val scalaLibrary = expectedScalaLibraryFromCoursier(useEnv: Boolean)(scalaVersion, createScalaLibraryName(scalaVersion, projectSystemId))
+    val scalaLibrary = expectedScalaLibraryFromCoursier(useEnv, buildReposOverridden)(scalaVersion, createScalaLibraryName(scalaVersion, projectSystemId))
     val scalaLibraryTransitive = scalaVersionStr match {
-      case "3.0.2" => Seq(expectedScalaLibrary(useEnv)("2.13.6", projectSystemId))
-      case "3.3.3" => Seq(expectedScalaLibrary(useEnv)("2.13.12", projectSystemId))
-      case "3.6.2" => Seq(expectedScalaLibrary(useEnv)("2.13.15", projectSystemId))
-      case "3.8.2" => Seq(expectedTransitiveScalaLibraryFromCoursier(useEnv)("3.8.2", projectSystemId))
-      case "3.8.3" => Seq(expectedTransitiveScalaLibraryFromCoursier(useEnv)("3.8.3", projectSystemId))
+      case "3.0.2" => Seq(expectedScalaLibrary(useEnv, buildReposOverridden)("2.13.6", projectSystemId))
+      case "3.3.3" => Seq(expectedScalaLibrary(useEnv, buildReposOverridden)("2.13.12", projectSystemId))
+      case "3.6.2" => Seq(expectedScalaLibrary(useEnv, buildReposOverridden)("2.13.15", projectSystemId))
+      case "3.8.2" => Seq(expectedTransitiveScalaLibraryFromCoursier(useEnv, buildReposOverridden)("3.8.2", projectSystemId))
+      case "3.8.3" => Seq(expectedTransitiveScalaLibraryFromCoursier(useEnv, buildReposOverridden)("3.8.3", projectSystemId))
       case _ => Nil
     }
-    val scalaSdkLibrary = expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(scalaVersion, projectSystemId, useScalaSdkExtraClasspath)
+    val scalaSdkLibrary = expectedScalaSdkLibraryFromCoursier(useEnv, buildReposOverridden)(scalaVersion, projectSystemId, useScalaSdkExtraClasspath)
 
     scalaSdkLibrary +: scalaLibraryTransitive :+ scalaLibrary
   }
@@ -113,18 +122,18 @@ object ProjectStructureTestUtils {
    *  - scala3-library_3:3.8.3:jar
    *  - scala-library:3.8.3:jar
    */
-  private def expectedTransitiveScalaLibraryFromCoursier(useEnv: Boolean)(version: String, projectSystemId: ProjectSystemId): library = {
+  private def expectedTransitiveScalaLibraryFromCoursier(useEnv: Boolean, buildReposOverridden: Boolean)(version: String, projectSystemId: ProjectSystemId): library = {
     new library(s"${projectSystemId.getReadableName}: org.scala-lang:scala-library:$version:jar") {
-      libClasses := coursierCacheArtifacts(useEnv)(s"org/scala-lang/scala-library/$version/scala-library-$version.jar")
-      libSources := coursierCacheArtifacts(useEnv)(s"org/scala-lang/scala-library/$version/scala-library-$version-sources.jar")
+      libClasses := coursierCacheArtifacts(useEnv, buildReposOverridden)(s"org/scala-lang/scala-library/$version/scala-library-$version.jar")
+      libSources := coursierCacheArtifacts(useEnv, buildReposOverridden)(s"org/scala-lang/scala-library/$version/scala-library-$version-sources.jar")
     }
   }
 
-  private def expectedScalaLibraryFromCoursier(useEnv: Boolean)(scalaVersion: ScalaVersion, libraryName: String): library = {
+  private def expectedScalaLibraryFromCoursier(useEnv: Boolean, buildReposOverridden: Boolean)(scalaVersion: ScalaVersion, libraryName: String): library = {
     val jars = expectedScalaLibraryJars(scalaVersion)
     new library(libraryName) {
-      libClasses := coursierCacheArtifacts(useEnv)(jars.libClasses*)
-      libSources := coursierCacheArtifacts(useEnv)(jars.libSources*)
+      libClasses := coursierCacheArtifacts(useEnv, buildReposOverridden)(jars.libClasses*)
+      libSources := coursierCacheArtifacts(useEnv, buildReposOverridden)(jars.libSources*)
       //SCL-8356
       //libJavadocs := coursierCacheArtifacts(s"org/scala-lang/$artifact/$version/$artifact-$version-javadoc.jar")
     }
@@ -151,13 +160,13 @@ object ProjectStructureTestUtils {
   /**
    * @see [[org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier]]
    */
-  def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(
+  def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean, buildReposOverridden: Boolean = false)(
     scalaVersionStr: String,
     projectSystemId: ProjectSystemId,
     useScalaSdkExtraClasspath: Boolean
   ): library = {
     val scalaVersion = ScalaVersion.fromString(scalaVersionStr).get
-    expectedScalaSdkLibraryFromCoursier(useEnv)(scalaVersion, projectSystemId, useScalaSdkExtraClasspath)
+    expectedScalaSdkLibraryFromCoursier(useEnv, buildReposOverridden)(scalaVersion, projectSystemId, useScalaSdkExtraClasspath)
   }
 
   /**
@@ -166,7 +175,7 @@ object ProjectStructureTestUtils {
    *                                  without the Scaladoc extra classpath. Therefore, for tests running with sbt 1.12+ & Scala 3, no extra classpath should be included.
    *                                  See SCL-24645
    */
-  private def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean)(
+  private def expectedScalaSdkLibraryFromCoursier(useEnv: Boolean, buildReposOverridden: Boolean)(
     scalaVersion: ScalaVersion,
     projectSystemId: ProjectSystemId,
     useScalaSdkExtraClasspath: Boolean
@@ -178,7 +187,7 @@ object ProjectStructureTestUtils {
     val effectiveData = if useScalaSdkExtraClasspath then expectedData else expectedData.copy(extraClasspath = Nil)
 
     new library(sdkLibraryName) {
-      scalaSdkSettings := Some(toScalaSdkAttributesCoursier(effectiveData, scalaVersion, useEnv, projectSystemId))
+      scalaSdkSettings := Some(toScalaSdkAttributesCoursier(effectiveData, scalaVersion, useEnv, buildReposOverridden, projectSystemId))
     }
   }
 
@@ -228,13 +237,14 @@ object ProjectStructureTestUtils {
     expectedData: ScalaSdkExpectedClasspath,
     scalaVersion: ScalaVersion,
     useEnv: Boolean,
+    buildReposOverridden: Boolean,
     projectSystemId: ProjectSystemId
   ): ScalaSdkAttributes = {
     toScalaSdkAttributesImpl(
       expectedData,
       scalaVersion,
       projectSystemId,
-      relativePathToAbsolute = coursierCacheArtifact(useEnv)
+      relativePathToAbsolute = coursierCacheArtifact(useEnv, buildReposOverridden)
     )
   }
 

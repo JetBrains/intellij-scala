@@ -7,7 +7,7 @@ class SbtShellProjectStructureImportingTest_NewShell extends SbtShellProjectStru
   override protected def useNewShell: Boolean = true
 
   def testShellCustomPrompt(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
 
     runSimpleTest("root", "2.13", scalaLibraries)
 

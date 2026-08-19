@@ -20,7 +20,7 @@ final class SbtLinkedProjectsStructureImportingTest
   def testTwoLinkedProjects(): Unit = {
     val originalProjectName = "twoLinkedProjects"
     val linkedProjectName = "simple"
-    val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
+    val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     val linkedSbtProjectPath = generateTestProjectPath(linkedProjectName)
     SbtProjectImportTestUtils.linkSbtProjectWithNewSettingsToProject(
       getMyProject,
