@@ -61,6 +61,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt, ScalaFeatures, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 
 import java.{util => ju}
@@ -1433,6 +1434,10 @@ object ScalaPsiUtil {
     typeElement: ScTypeElement,
     index: Int
   ): String = {
+    if (ScalaApplicationSettings.getInstance.PRECISE_TEXT_FOR_TYPE_PARAMETERS) {
+      return s"evidence$$${index + 1}"
+    }
+
     val boundName = simpleBoundName(typeElement)
     val tpName = NameTransformer.encode(typeParameter.name)
 
