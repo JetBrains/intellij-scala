@@ -54,9 +54,7 @@ class ResolveCompilerBridgeTest extends ExternalSystemImportingTestCase {
         |group = 'org.example'
         |version = '1.0-SNAPSHOT'
         |
-        |repositories {
-        |    mavenCentral()
-        |}
+        |${GradleTestUtil.repositoriesBlock}
         |
         |dependencies {
         |    implementation 'org.scala-lang:scala3-library_3:$scalaVersion'
