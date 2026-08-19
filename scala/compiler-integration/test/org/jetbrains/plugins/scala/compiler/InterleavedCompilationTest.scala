@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.project.SbtCachesSetupUtil
 import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -132,6 +133,13 @@ class InterleavedCompilationTest(jdkVersion: TestJdkVersion) extends SbtProjectC
     javaParams.setJarPath(launcher.toCanonicalPath.toString)
     javaParams.setWorkingDirectory(getProjectPath)
     javaParams.setJdk(sdk)
+    // Point the forked sbt at the shared TC caches and the JetBrains Maven Central mirror,
+    // to avoid HTTP Error 429 Too Many Requests in the CI (the raw fork bypasses SbtSettings.sbtOptions).
+    (SbtCachesSetupUtil.cacheAndRepositoryVmOptionsWithBuildReposOverride ++ Seq(
+      "-Dsbt.log.noformat=true",
+      "-Dfile.encoding=UTF-8",
+      "-Djline.terminal=jline.UnsupportedTerminal"
+    )).foreach(javaParams.getVMParametersList.add)
 
     val commandLine = javaParams.toCommandLine
     commandLine.addParameter(command)
