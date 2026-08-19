@@ -1,5 +1,6 @@
 [repositories]
   local
+  scala-plugin-bundled: file://${scala.plugin.test.repo.dir}/
   jetbrains-maven-central: https://cache-redirector.jetbrains.com/maven-central/
   sbt-plugin-releases: https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
   sbt-maven-releases: https://repo.scala-sbt.org/scalasbt/maven-releases/, bootOnly

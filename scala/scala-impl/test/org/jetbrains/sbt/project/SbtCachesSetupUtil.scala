@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.settings.SbtSettings
 
+import java.nio.file.Path
 import java.util
 
 object SbtCachesSetupUtil {
@@ -46,8 +47,25 @@ object SbtCachesSetupUtil {
     coursierAndIvyCacheVmOptions :+ repositoryConfigVmOption
 
   /**
-   * The repositories file paired with `-Dsbt.override.build.repos=true`. It differs from
-   * community/project/repositories in two ways:
+   * The bundled Scala plugin repository (`<plugin dist>/repo`), which hosts the sbt plugins that the Scala plugin
+   * injects into imported builds (sbt-structure-extractor, sbt-idea-shell) and their org.jetbrains.scala dependencies.
+   *
+   * Mirrors the test fallback of `org.jetbrains.sbt.SbtUtil.getDirInPlugin`, which is not accessible from this module.
+   */
+  private lazy val scalaPluginBundledRepo: Path = {
+    val candidates = Seq(TestUtils.findUltimateRootPath, TestUtils.findCommunityRootPath)
+      .map(_ / "target" / "plugin" / "Scala" / "repo")
+    candidates.find(_.exists).getOrElse {
+      throw new IllegalStateException(
+        s"Cannot locate the bundled Scala plugin repository, tried: ${candidates.mkString(", ")}"
+      )
+    }
+  }
+
+  /**
+   * The repositories file paired with `-Dsbt.override.build.repos=true`
+   * (community/scala/scala-impl/testdata/sbt/repositories). It differs from community/project/repositories
+   * in three ways:
    *  - it has a non-bootOnly `sbt-plugin-releases` ivy entry, because under the override the bootOnly entries are
    *    excluded from build resolution while some legacy sbt plugins used by testdata builds are not published to
    *    Maven Central (and thus cannot be served by the JetBrains mirror);
@@ -55,10 +73,22 @@ object SbtCachesSetupUtil {
    *    going to the network, so a repo1.maven.org entry would shadow the mirror whenever an artifact is already
    *    cached under the repo1 host directory, making the coursier cache paths asserted by project-structure tests
    *    depend on cache warmth. With the mirror alone the paths are deterministic (the mirror is a pull-through
-   *    proxy of Maven Central, so no artifacts are lost).
+   *    proxy of Maven Central, so no artifacts are lost);
+   *  - it has a `scala-plugin-bundled` entry for [[scalaPluginBundledRepo]], whose machine-specific path is
+   *    substituted by the sbt launcher from the system property passed in [[bundledRepoPathVmOption]]. It keeps the
+   *    plugins injected by sbt shell imports resolvable: old sbt versions (verified with 1.7.2) drop build-defined
+   *    resolvers under the override, including the injected `MavenCache` resolver that normally serves these
+   *    plugins, while recent versions (verified with 1.12.15) preserve file-based resolvers.
    */
   private def overrideRepositoryConfigVmOption: String =
     s"-Dsbt.repository.config=${(TestUtils.getTestDataDir / "sbt" / "repositories").toCanonicalPath}"
+
+  /**
+   * Fills the `${scala.plugin.test.repo.dir}` substitution in the repositories file. The value is the URI path form
+   * (forward slashes, percent-encoded) so that the resulting `file://` URL is valid on Windows too.
+   */
+  private def bundledRepoPathVmOption: String =
+    s"-Dscala.plugin.test.repo.dir=${scalaPluginBundledRepo.toUri.getRawPath.stripSuffix("/")}"
 
   /**
    * [[coursierAndIvyCacheVmOptions]] plus a repositories file and `-Dsbt.override.build.repos=true`, which makes the
@@ -69,7 +99,7 @@ object SbtCachesSetupUtil {
    * path: project-highlighting tests import real-world projects whose builds may need other resolvers.
    */
   def cacheAndRepositoryVmOptionsWithBuildReposOverride: Seq[String] =
-    coursierAndIvyCacheVmOptions ++ Seq(overrideRepositoryConfigVmOption, "-Dsbt.override.build.repos=true")
+    coursierAndIvyCacheVmOptions ++ Seq(overrideRepositoryConfigVmOption, bundledRepoPathVmOption, "-Dsbt.override.build.repos=true")
 
   /**
    * Serializes options into a whitespace-joined string for whitespace-tokenized sinks
