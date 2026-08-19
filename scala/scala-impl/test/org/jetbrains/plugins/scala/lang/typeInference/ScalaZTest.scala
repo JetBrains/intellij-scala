@@ -1,16 +1,20 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
 class ScalaZTest extends ScalaLightCodeInsightFixtureTestCase {
 
+  //scalaz-core 7.2.x is only published for Scala 2.12+ (7.1.x only for Scala 2.11 and older)
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_12
+
   override protected def additionalLibraries: Seq[LibraryLoader] =
-    Seq(IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.1.0"))
+    Seq(IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.2.36"))
 
   //SCL-6096
   def testSCL6096(): Unit =
@@ -19,7 +23,7 @@ class ScalaZTest extends ScalaLightCodeInsightFixtureTestCase {
          |  import scalaz.Lens.lensg
          |  import scalaz.State
          |  import scalaz.syntax.traverse.ToTraverseOps
-         |  import scalaz.std.indexedSeq.indexedSeqInstance
+         |  import scalaz.std.vector.vectorInstance
          |  // this "unused import" is required! ^^^
          |
          |  case class X(y: Int)
@@ -29,7 +33,7 @@ class ScalaZTest extends ScalaLightCodeInsightFixtureTestCase {
          |  def foo(x: X):String = x.toString
          |  def foo(x: Int): String = "ok"
          |  def sequenced(x: X, s: State[X,Any]*) =
-         |    foo(s.toIndexedSeq.sequenceU.exec(x))
+         |    foo(s.toVector.sequenceU.exec(x))
          |}
          |""".stripMargin
     )
