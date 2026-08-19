@@ -494,7 +494,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textOf(clause: ScParameterClause, inPrivateConstructor: Boolean, inCaseClass: Boolean): String = {
     val ps = clause.parameters.filter(p => withPrivate || !inPrivateConstructor || ((inCaseClass || p.isVal || p.isVar) && !isPrivate(p)))
-    ps.map(textOf(_, inCaseClass)).mkString(if (ps.nonEmpty) (if (clause.hasImplicitKeyword) "(implicit " else if (clause.hasUsingKeyword) "(using " else "(") else "(", ", ", ")")
+    val isEffectivelyImplicit = ps.exists(_.name.startsWith("evidence$")) // SCL-25836
+    ps.map(textOf(_, inCaseClass)).mkString(if (ps.nonEmpty) (if (clause.hasImplicitKeyword || isEffectivelyImplicit) "(implicit " else if (clause.hasUsingKeyword) "(using " else "(") else "(", ", ", ")")
   }
 
   private def textOf(clause: ScTypeParamClause): String =
