@@ -1475,7 +1475,7 @@ class TypeInferenceBug5Test_with_xml extends TypeInferenceBugs5TestBase {
 }
 
 class TypeInferenceBugs5_with_StreamWithFilter extends TypeInferenceBugs5TestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version < ScalaVersion.Latest.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2_11
 
   def testSCL5669A(): Unit = doTest()
 }

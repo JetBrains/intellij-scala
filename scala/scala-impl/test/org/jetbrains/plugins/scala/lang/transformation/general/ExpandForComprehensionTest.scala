@@ -110,11 +110,6 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
     after = "Seq(A).map(a => a + _)"
   )()
 
-  def testWithoutFilterWith(): Unit = check(
-    before = "for (v <- new W if p(v)) v.p()",
-    after = "(new W).filter(v => p(v)).foreach(v => v.p())"
-  )(header = "class W { def filter(f: (A) => Boolean): W = ???\n def foreach(f: (A) => Unit) = ??? }")
-
   def test_SCL14584(): Unit = check(
     before = "for { x <- Option(1) } yield { val y = 2; val z = 3; x + y + z }",
     after = "Option(1).map(x => { val y = 2; val z = 3; x + y + z })"
@@ -244,6 +239,19 @@ class ExpandForComprehensionTest extends ExpandForComprehensionTestBase {
          |  .foreach { case (i, previous) => xs(i) = previous }
          |""".stripMargin
   )()
+}
+
+//Only the Scala 2.11 and older compilers rewrite a missing `withFilter` to `filter`
+//(see ScForImpl.compilerRewritesWithFilterToFilter)
+class ExpandForComprehensionTest_Scala2_11 extends ExpandForComprehensionTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version <= ScalaVersion.Latest.Scala_2_11
+
+  def testWithoutFilterWith(): Unit = check(
+    before = "for (v <- new W if p(v)) v.p()",
+    after = "(new W).filter(v => p(v)).foreach(v => v.p())"
+  )(header = "class W { def filter(f: (A) => Boolean): W = ???\n def foreach(f: (A) => Unit) = ??? }")
 }
 
 class ExpandForComprehensionTest_WithBetterMonadicFor extends ExpandForComprehensionTestBase {

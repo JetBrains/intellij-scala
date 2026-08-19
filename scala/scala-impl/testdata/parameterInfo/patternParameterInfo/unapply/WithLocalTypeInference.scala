@@ -4,4 +4,4 @@ object Example {
     case Some(<caret>) =>
   }
 }
-//TEXT: x: Int, STRIKEOUT: false
+//TEXT: value: Int, STRIKEOUT: false
