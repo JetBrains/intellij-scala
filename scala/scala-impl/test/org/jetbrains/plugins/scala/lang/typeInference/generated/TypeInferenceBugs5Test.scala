@@ -1474,6 +1474,14 @@ class TypeInferenceBug5Test_with_xml extends TypeInferenceBugs5TestBase {
   def testSCL4981(): Unit = doTest()
 }
 
+//SAM conversions (e.g. `val f: BinaryOperator[Int] = (a, b) => a + b`) are only supported since Scala 2.12
+class TypeInferenceBugs5Test_with_SAM extends TypeInferenceBugs5TestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_12
+
+  def testSCL11568(): Unit = doTest()
+}
+
 class TypeInferenceBugs5_with_StreamWithFilter extends TypeInferenceBugs5TestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2_11
 

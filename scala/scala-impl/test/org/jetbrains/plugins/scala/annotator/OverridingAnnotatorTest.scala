@@ -582,6 +582,32 @@ class OverridingAnnotatorTest_Scala2 extends OverridingAnnotatorTestBase {
   )
 }
 
+//SAM types are only supported since Scala 2.12
+class OverridingAnnotatorTest_since_2_12 extends OverridingAnnotatorTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= ScalaVersion.Latest.Scala_2_12
+
+  def testSCL12605(): Unit =
+    assertNoErrors(
+      """class Bug {
+        |  def main(args: Array[String]): Unit = {
+        |    val bug = new Bug()
+        |    bug.buggy(bug, (x, y) => x + y)
+        |  }
+        |
+        |  def buggy(y: Bug): Bug = ???
+        |
+        |  def buggy(y: Bug, function: DDFunction): Bug = ???
+        |}
+        |
+        |trait DDFunction {
+        |  def apply(x: Double, y: Double): Double
+        |}
+        |""".stripMargin
+    )
+}
+
 class OverridingAnnotatorTest_Scala3 extends OverridingAnnotatorTest_Scala2 {
 
   // min 3.6 is chosen primarily for "deferred" givens tests
