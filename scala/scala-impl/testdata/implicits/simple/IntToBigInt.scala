@@ -18,6 +18,7 @@ Seq(ArrowAssoc,
     long2Long,
     long2bigInt,
     longWrapper,
+    orderingToOrdered,
     any2stringadd),
 Some(int2bigInt)
 */
