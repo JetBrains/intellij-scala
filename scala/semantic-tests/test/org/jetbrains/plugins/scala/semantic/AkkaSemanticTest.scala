@@ -315,7 +315,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.actor.typed.receptionist.ReceptionistSetup
     //akka.actor.typed.receptionist.ServiceKey
     //akka.actor.typed.scaladsl.AbstractBehavior
-    //akka.actor.typed.scaladsl.ActorContext
+    akka.actor.typed.scaladsl.ActorContext
     //akka.actor.typed.scaladsl.AskPattern
     //akka.actor.typed.scaladsl.Behaviors
     akka.actor.typed.scaladsl.GroupRouter
@@ -1260,7 +1260,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.server.util.TupleAppendOneInstances
     //akka.http.scaladsl.server.util.TupleFoldInstances
     //akka.http.scaladsl.server.util.TupleOps
-    //akka.http.scaladsl.server.util.Tupler
+    akka.http.scaladsl.server.util.Tupler
     //akka.http.scaladsl.settings.ClientConnectionSettings
     //akka.http.scaladsl.settings.ConnectionPoolSettings
     //akka.http.scaladsl.settings.Http2ClientSettings
