@@ -120,8 +120,10 @@ object SbtCachesSetupUtil {
    * `AbstractExternalSystemSettings.linkProject`, which happens strictly before the import is scheduled
    * (see [[org.jetbrains.plugins.scala.project.template.ModuleBuilderUtil.doSetupModule]]), so the sbt options are
    * guaranteed to be set before `SbtExternalSystemManager.executionSettingsFor` reads them.
+   *
+   * @param overrideBuildRepositories see [[setupCoursierAndIvyCache]]
    */
-  def setupCoursierAndIvyCacheForNewlyLinkedSbtProjects(parentDisposable: Disposable): Unit = {
+  def setupCoursierAndIvyCacheForNewlyLinkedSbtProjects(parentDisposable: Disposable, overrideBuildRepositories: Boolean = false): Unit = {
     val listener = new ExternalSystemSettingsListenerEx {
       override def onProjectsLinked(
         project: Project,
@@ -131,7 +133,7 @@ object SbtCachesSetupUtil {
         // This method is also called for the default project instance, whose settings act as a template
         // for the "New Projects" configuration and must not be polluted.
         if (!project.isDefault && manager.getSystemId == SbtProjectSystem.Id) {
-          setupCoursierAndIvyCache(project)
+          setupCoursierAndIvyCache(project, overrideBuildRepositories)
         }
       }
     }

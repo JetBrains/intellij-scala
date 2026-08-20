@@ -22,8 +22,22 @@ abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase {
     super.setUp()
     // The wizard triggers the sbt import right after creating the project, before the test can access it,
     // so the caches and repositories have to be configured as soon as the sbt project is linked.
-    SbtCachesSetupUtil.setupCoursierAndIvyCacheForNewlyLinkedSbtProjects(getTestRootDisposable)
+    SbtCachesSetupUtil.setupCoursierAndIvyCacheForNewlyLinkedSbtProjects(getTestRootDisposable, overrideBuildRepositories)
   }
+
+  /**
+   * When `true`, the sbt import of the wizard-created project runs with `-Dsbt.override.build.repos=true` so that
+   * its dependency resolution goes through the JetBrains Maven Central mirror, avoiding HTTP Error 429
+   * Too Many Requests in the CI.
+   *
+   * Only enable for wizard-generated builds without custom resolvers;
+   * see [[SbtCachesSetupUtil.cacheAndRepositoryVmOptionsWithBuildReposOverride]].
+   *
+   * Note: coursier embeds the source repository host in its cache layout, so tests asserting absolute library paths
+   * must keep their expectations in sync via the `buildReposOverridden` parameter of
+   * [[ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt]] and friends.
+   */
+  protected def overrideBuildRepositories: Boolean = false
 
   override def tearDown(): Unit = {
     inWriteAction {

@@ -19,6 +19,10 @@ import org.junit.experimental.categories.Category
 class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase {
   import NewSbtProjectWizardTestBase.SbtWizardProjectConfig
 
+  // Resolve the wizard-created builds' dependencies through the JetBrains Maven Central mirror,
+  // to avoid HTTP Error 429 Too Many Requests in the CI (SCL-25750).
+  override protected def overrideBuildRepositories: Boolean = true
+
   def testCreateProjectWithLowerCaseName(): Unit =
     runSimpleCreateSbtProjectTest(
       projectName = "lower_case_project_name",
@@ -112,7 +116,7 @@ class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase {
     val expectedIntellijProjectStructure: project = new project(projectName) {
       lazy val scalaLibraries =
         if (useCoursier)
-          ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)(scalaVersion, useScalaSdkExtraClasspath)
+          ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)(scalaVersion, useScalaSdkExtraClasspath)
         else
           ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkFromIvy(useEnv = true)(scalaVersion)
 
