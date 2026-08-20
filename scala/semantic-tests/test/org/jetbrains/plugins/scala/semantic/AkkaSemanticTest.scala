@@ -1605,6 +1605,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.persistence.journal.japi.AsyncWriteJournal
     //akka.persistence.journal.leveldb.CompactionSegmentManagement
     //akka.persistence.journal.leveldb.Key
+    //akka.persistence.journal.leveldb.LeveldbJournal
     //akka.persistence.journal.leveldb.LeveldbCompaction
     //akka.persistence.journal.leveldb.LeveldbJournal
     //akka.persistence.journal.leveldb.LeveldbRecovery

@@ -124,7 +124,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.SemigroupalArityFunctions
     //cats.Show
     cats.ShowInstances
-    //cats.ShowInstances0
+    cats.ShowInstances0
     //cats.StackSafeMonad
     //cats.Traverse
     //cats.TraverseFilter
@@ -359,19 +359,19 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.NestedFunctorFilter
     //cats.data.NestedInstances
     //cats.data.NestedInstances0
-    //cats.data.NestedInstances1
-    //cats.data.NestedInstances10
-    //cats.data.NestedInstances11
-    //cats.data.NestedInstances12
-    //cats.data.NestedInstances13
-    //cats.data.NestedInstances2
-    //cats.data.NestedInstances3
+    cats.data.NestedInstances1
+    cats.data.NestedInstances10
+    cats.data.NestedInstances11
+    cats.data.NestedInstances12
+    cats.data.NestedInstances13
+    cats.data.NestedInstances2
+    cats.data.NestedInstances3
     cats.data.NestedInstances4
     //cats.data.NestedInstances5
     //cats.data.NestedInstances6
-    //cats.data.NestedInstances7
-    //cats.data.NestedInstances8
-    //cats.data.NestedInstances9
+    cats.data.NestedInstances7
+    cats.data.NestedInstances8
+    cats.data.NestedInstances9
     cats.data.NestedInvariant
     cats.data.NestedInvariantSemigroupalApply
     cats.data.NestedMonoidK
@@ -793,7 +793,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.free.FreeTInstances0
     cats.free.FreeTInstances1
     //cats.free.FreeTInstances2
-    cats.free.FreeTInstances3
+    //cats.free.FreeTInstances3
     cats.free.FreeTMonad
     cats.free.FreeTMonoidK
     //cats.free.FreeTSemigroupK
@@ -885,7 +885,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.instances.OrderInstances
     //cats.instances.OrderingInstances
     cats.instances.ParallelInstances
-    //cats.instances.ParallelInstances1
+    cats.instances.ParallelInstances1
     //cats.instances.PartialFunctionInstances
     //cats.instances.PartialOrderInstances
     //cats.instances.PartialOrderingInstances
@@ -899,8 +899,8 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.instances.SortedMapEq
     //cats.instances.SortedMapHash
     //cats.instances.SortedMapInstances
-    //cats.instances.SortedMapInstances1
-    //cats.instances.SortedMapInstances2
+    cats.instances.SortedMapInstances1
+    cats.instances.SortedMapInstances2
     //cats.instances.SortedMapInstancesBinCompat0
     //cats.instances.SortedMapInstancesBinCompat1
     cats.instances.SortedMapInstancesBinCompat2
@@ -948,7 +948,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.Comparison
     //cats.kernel.Eq
     //cats.kernel.EqFunctions
-    //cats.kernel.EqInstances
+    cats.kernel.EqInstances
     cats.kernel.EqInstances0
     //cats.kernel.EqToEquivConversion
     cats.kernel.FutureMonoid
@@ -966,7 +966,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.LowerBoundedFunctions
     //cats.kernel.Monoid
     //cats.kernel.MonoidFunctions
-    //cats.kernel.MonoidInstances
+    cats.kernel.MonoidInstances
     //cats.kernel.Next
     //cats.kernel.Order
     //cats.kernel.OrderFunctions
@@ -1146,14 +1146,14 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.SortedMapHash
     //cats.kernel.instances.SortedMapInstances
     //cats.kernel.instances.SortedMapInstances1
-    //cats.kernel.instances.SortedMapInstances2
+    cats.kernel.instances.SortedMapInstances2
     cats.kernel.instances.SortedMapInstances3
     //cats.kernel.instances.SortedMapMonoid
     //cats.kernel.instances.SortedMapOrder
     //cats.kernel.instances.SortedMapPartialOrder
     //cats.kernel.instances.SortedMapSemigroup
     //cats.kernel.instances.SortedSetHash
-    cats.kernel.instances.SortedSetInstances
+    //cats.kernel.instances.SortedSetInstances
     cats.kernel.instances.SortedSetInstances1
     //cats.kernel.instances.SortedSetOrder
     //cats.kernel.instances.SortedSetSemilattice
