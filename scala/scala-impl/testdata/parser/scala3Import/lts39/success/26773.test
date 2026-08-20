@@ -1,0 +1,180 @@
+trait HttpHeader
+class Accept extends HttpHeader
+
+def parseLine(s: String): (Int, HttpHeader) = (0, new Accept)
+
+@main def run(): Unit =
+  val (_, accept: Accept) = parseLine("Accept: text/plain").runtimeChecked
+  println(accept)
+-----
+ScalaFile
+  ScTrait: HttpHeader
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('HttpHeader')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScClass: Accept
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Accept')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: HttpHeader
+            CodeReferenceElement: HttpHeader
+              PsiElement(identifier)('HttpHeader')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: parseLine
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('parseLine')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: s
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('s')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    TupleType: (Int, HttpHeader)
+      PsiElement(()('(')
+      TypesList
+        SimpleType: Int
+          CodeReferenceElement: Int
+            PsiElement(identifier)('Int')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        SimpleType: HttpHeader
+          CodeReferenceElement: HttpHeader
+            PsiElement(identifier)('HttpHeader')
+      PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    Tuple
+      PsiElement(()('(')
+      IntegerLiteral
+        PsiElement(integer)('0')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      ScNewTemplateDefinition: <anonymous>
+        PsiElement(new)('new')
+        PsiWhiteSpace(' ')
+        ExtendsBlock
+          TemplateParents
+            ConstructorInvocation
+              SimpleType: Accept
+                CodeReferenceElement: Accept
+                  PsiElement(identifier)('Accept')
+      PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: run
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('run')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Unit
+      CodeReferenceElement: Unit
+        PsiElement(identifier)('Unit')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: accept
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              WildcardPattern
+                PsiElement(_)('_')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: accept
+                  PsiElement(identifier)('accept')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  SimpleType: Accept
+                    CodeReferenceElement: Accept
+                      PsiElement(identifier)('Accept')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: parseLine("Accept: text/plain").runtimeChecked
+          MethodCall
+            ReferenceExpression: parseLine
+              PsiElement(identifier)('parseLine')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"Accept: text/plain"')
+              PsiElement())(')')
+          PsiElement(.)('.')
+          PsiElement(identifier)('runtimeChecked')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: accept
+            PsiElement(identifier)('accept')
+          PsiElement())(')')
