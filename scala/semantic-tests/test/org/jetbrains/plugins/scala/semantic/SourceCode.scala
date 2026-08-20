@@ -388,23 +388,10 @@ object SourceCode {
         this += "_"
 
       case tree: Ident =>
-        if (tree.name.startsWith("evidence$") && tree.symbol.isValDef && (tree.symbol.flags.is(Flags.Implicit) || tree.symbol.flags.is(Flags.Given))) {
-          val ValDef(name, tpt, _) = tree.symbol.tree: @unchecked
-          tpt.tpe match {
-            case AppliedType(tycon, List(arg)) =>
-              val paramss = tree.symbol.owner.tree match {
-                case DefDef(_, paramss, _, _) => paramss
-                case ClassDef(_, DefDef(_, paramss, _, _), _, _, _) => paramss
-              }
-              val targContextBounds = paramss.flatMap {
-                case TermParamClause(params) => params.collect {
-                  case param @ ValDef(name, _, _) if (param.symbol.flags.is(Flags.Implicit) || param.symbol.flags.is(Flags.Given)) && name.startsWith("evidence$") => param
-                }
-                case TypeParamClause(_) => Seq.empty
-              }
-              this += decapitalize(tycon.typeSymbol.name) + "$" + arg.typeSymbol.name + "$" + targContextBounds.indexWhere(_.name == name)
-            case _ =>
-              printType(tree.tpe)
+       if (tree.name.startsWith("evidence$")) {
+          tree.tpe.widen match {
+            case AppliedType(tycon, List(arg)) => this += decapitalize(tycon.typeSymbol.name) + "$" + arg.typeSymbol.name + "$0"
+            case _ => printType(tree.tpe)
           }
         } else {
           splicedName(tree.symbol) match {
