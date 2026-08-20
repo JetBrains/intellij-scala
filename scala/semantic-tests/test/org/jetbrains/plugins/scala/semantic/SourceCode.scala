@@ -166,14 +166,18 @@ object SourceCode {
         else this += highlightKeyword("class ") += highlightTypeDef(name)
 
         if (!flags.is(Flags.Module)) {
+          val contextBounds: List[ValDef] = paramss.flatMap {
+            case TermParamClause(params) => params.collect { case ContextBound(param) => param }
+            case TypeParamClause(_) => Seq.empty
+          }
           var n = 1
           for paramClause <- paramss do
             paramClause match
               case TermParamClause(params) =>
-                if (params.nonEmpty || flags.is(Flags.Case)) printMethdArgsDefs(params, n)
+                if (params.nonEmpty || flags.is(Flags.Case)) printMethdArgsDefs(params, n, contextBounds)
                 n += params.length
               case TypeParamClause(params) =>
-                printTargsDefs(stats.collect { case targ: TypeDef => targ  }.filter(_.symbol.isTypeParam).zip(params))
+                printTargsDefs(stats.collect { case targ: TypeDef => targ  }.filter(_.symbol.isTypeParam).zip(params), contextBounds)
         }
 
         val parents1 = parents.filter {
@@ -345,11 +349,15 @@ object SourceCode {
 
         val name1: String = if (isConstructor) "this" else splicedName(ddef.symbol).getOrElse(name)
         this += highlightKeyword("def ") += highlightValDef(name1)
+        val contextBounds: List[ValDef] = paramss.flatMap {
+          case TermParamClause(params) => params.collect { case ContextBound(param) => param }
+          case TypeParamClause(_) => Seq.empty
+        }
         var n = 1
         for clause <-  paramss do
           clause match
-            case TermParamClause(params) => printMethdArgsDefs(params, n); n += params.length
-            case TypeParamClause(params) => if (!isConstructor) printTargsDefs(params.zip(params))
+            case TermParamClause(params) => printMethdArgsDefs(params, n, contextBounds); n += params.length
+            case TypeParamClause(params) => if (!isConstructor) printTargsDefs(params.zip(params), contextBounds)
         if (!isConstructor) {
           this += ": "
           printTypeTree(tpt)
@@ -380,12 +388,32 @@ object SourceCode {
         this += "_"
 
       case tree: Ident =>
-        splicedName(tree.symbol) match {
-          case Some(name) => this += (name match {
-            case WildcardName() => "_"
-            case s => s
-          })
-          case _ => printType(tree.tpe)
+        if (tree.name.startsWith("evidence$") && tree.symbol.isValDef && (tree.symbol.flags.is(Flags.Implicit) || tree.symbol.flags.is(Flags.Given))) {
+          val ValDef(name, tpt, _) = tree.symbol.tree: @unchecked
+          tpt.tpe match {
+            case AppliedType(tycon, List(arg)) =>
+              val paramss = tree.symbol.owner.tree match {
+                case DefDef(_, paramss, _, _) => paramss
+                case ClassDef(_, DefDef(_, paramss, _, _), _, _, _) => paramss
+              }
+              val targContextBounds = paramss.flatMap {
+                case TermParamClause(params) => params.collect {
+                  case param @ ValDef(name, _, _) if (param.symbol.flags.is(Flags.Implicit) || param.symbol.flags.is(Flags.Given)) && name.startsWith("evidence$") => param
+                }
+                case TypeParamClause(_) => Seq.empty
+              }
+              this += decapitalize(tycon.typeSymbol.name) + "$" + arg.typeSymbol.name + "$" + targContextBounds.indexWhere(_.name == name)
+            case _ =>
+              printType(tree.tpe)
+          }
+        } else {
+          splicedName(tree.symbol) match {
+            case Some(name) => this += (name match {
+              case WildcardName() => "_"
+              case s => s
+            })
+            case _ => printType(tree.tpe)
+          }
         }
 
       case Select(qual, name) =>
@@ -830,14 +858,14 @@ object SourceCode {
       this
     }
 
-    private def printTargsDefs(targs: List[(TypeDef, TypeDef)], isDef:Boolean = true)(using elideThis: Option[Symbol]): Unit = {
+    private def printTargsDefs(targs: List[(TypeDef, TypeDef)], contextBounds: List[ValDef] = Nil, isDef:Boolean = true)(using elideThis: Option[Symbol]): Unit = {
       if (targs.nonEmpty) {
         @tailrec
         def printSeparated(list: List[(TypeDef, TypeDef)]): Unit = list match {
           case Nil =>
-          case x :: Nil => printTargDef(x, isDef = isDef)
+          case x :: Nil => printTargDef(x, contextBounds, isDef = isDef)
           case x :: xs =>
-            printTargDef(x, isDef = isDef)
+            printTargDef(x, contextBounds, isDef = isDef)
             this += ", "
             printSeparated(xs)
         }
@@ -846,7 +874,7 @@ object SourceCode {
       }
     }
 
-    private def printTargDef(arg: (TypeDef, TypeDef), isMember: Boolean = false, isDef:Boolean = true)(using elideThis: Option[Symbol]): this.type = {
+    private def printTargDef(arg: (TypeDef, TypeDef), contextBounds: List[ValDef] = Nil, isMember: Boolean = false, isDef:Boolean = true)(using elideThis: Option[Symbol]): this.type = {
       val (argDef, argCons) = arg
 
       if (isDef) {
@@ -906,6 +934,13 @@ object SourceCode {
           this += " = "
           printTypeTree(rhs)
       }
+      contextBounds.foreach {
+        case ValDef(_, Applied(tpt, List(targ)), _) if targ.symbol == argCons.symbol =>
+          this += ": "
+          printTypeTree(tpt)
+        case _ =>
+      }
+      this
     }
 
     private val WildcardName: Regex = "_\\$\\d+".r
@@ -920,16 +955,19 @@ object SourceCode {
         printSeparatedParamDefs(xs, n + 1)
     }
 
-    private def printMethdArgsDefs(args: List[ValDef], n: Int)(using elideThis: Option[Symbol]): Unit = {
+    private def printMethdArgsDefs(args: List[ValDef], n: Int, contextBounds: List[ValDef])(using elideThis: Option[Symbol]): Unit = {
       val argFlags = args match {
         case Nil => Flags.EmptyFlags
         case arg :: _ => arg.symbol.flags
       }
-      inParens {
-        if (argFlags.is(Flags.Implicit) && !argFlags.is(Flags.Given)) this += "implicit "
-        if (argFlags.is(Flags.Given)) this += "using "
+      val args2 = args.filterNot(contextBounds.contains)
+      if (args.isEmpty || args2.nonEmpty) {
+        inParens {
+          if (argFlags.is(Flags.Implicit) && !argFlags.is(Flags.Given)) this += "implicit "
+          if (argFlags.is(Flags.Given)) this += "using "
 
-        printSeparatedParamDefs(args, n)
+          printSeparatedParamDefs(args2, n)
+        }
       }
     }
 
@@ -1622,6 +1660,9 @@ object SourceCode {
 
     private def escapedString(str: String): String = str flatMap escapedChar
 
+    private def decapitalize(s: String): String =
+      if (s.isEmpty) s else s.take(1).toLowerCase + s.drop(1)
+
     private val names = collection.mutable.Map.empty[Symbol, String]
     private val namesIndex = collection.mutable.Map.empty[String, Int]
 
@@ -1659,6 +1700,13 @@ object SourceCode {
         case New(annot) => Some((annot, Nil, Nil))
         case Apply(Select(New(annot), "<init>"), args) => Some((annot, Nil, args))
         case Apply(TypeApply(Select(New(annot), "<init>"), targs), args) => Some((annot, targs, args))
+        case _ => None
+      }
+    }
+
+    private object ContextBound {
+      def unapply(tree: Tree): Option[ValDef] = tree match {
+        case param @ ValDef(name, Applied(_, List(_)), _) if (param.symbol.flags.is(Flags.Implicit) || param.symbol.flags.is(Flags.Given)) && name.startsWith("evidence$") => Some(param)
         case _ => None
       }
     }

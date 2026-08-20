@@ -149,7 +149,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val modifiers = textOfModifiers(pc.getModifierList)
     val inPrivateConstructor = isPrivate(pc)
     val clauses = {
-      val signatureClausesInParameterList = pc.effectiveSignatureClauses.filter {
+      val signatureClausesInParameterList = pc.signatureClauses.filter {
         case TypeClause(clause) => !pc.leadingTypeParametersClause.contains(clause)
         case TermClause(_)      => true
       }
@@ -176,7 +176,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val modifiers = textOfModifiers(f.getModifierList, f.superMethod.isDefined)
     val keyword = if (isGiven) "given " else "def "
     val name = if (isAnonymous) "" else normalized(f.name)
-    val signature = textOf(f.effectiveSignatureClauses, inPrivateConstructor = false, inCaseClass = false)
+    val signature = textOf(f.signatureClauses, inPrivateConstructor = false, inCaseClass = false)
     val tpe = if (f.isConstructor) "" else (if (signature.isEmpty) spaceAfter(name) else "") + (if (isAnonymous && signature.isEmpty) "" else ": ") +
       textOf(if (f.returnTypeElement.isDefined) f.returnType else f.returnType.map(_.removeAliasDefinitionsIn(f)))
     val rhs = f match {
@@ -427,7 +427,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   }
 
   private def textOf(e: ScExtension, indent: String): String = {
-    val signature = textOf(e.effectiveSignatureClauses, inPrivateConstructor = false, inCaseClass = false)
+    val signature = textOf(e.signatureClauses, inPrivateConstructor = false, inCaseClass = false)
     val methods = e.extensionMethods.map(textOf(_, indent + "  ")).mkString
     "\n" + indent + "  " + "extension " + signature + methods
   }
@@ -482,7 +482,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val name = normalized(p.name)
     val clauses = p.typeParametersClause.map(_.typeParameters.map(textOf).mkString("[", ", ", "]")).mkString
     val typeBounds = textOfBoundsIn(p)
-    (if (annotations.isEmpty) "" else annotations + " ") + variance + name + clauses + typeBounds
+    val contextBound = p.contextBound.map(t => ": " + textOf(t)).mkString
+    (if (annotations.isEmpty) "" else annotations + " ") + variance + name + clauses + typeBounds + contextBound
   }
 
   private def textOfBoundsIn(o: ScTypeBoundsOwner): String = {
@@ -492,7 +493,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   }
 
   private def textOf(clause: ScParameterClause, inPrivateConstructor: Boolean, inCaseClass: Boolean): String = {
-    val ps = clause.effectiveParameters.filter(p => withPrivate || !inPrivateConstructor || ((inCaseClass || p.isVal || p.isVar) && !isPrivate(p)))
+    val ps = clause.parameters.filter(p => withPrivate || !inPrivateConstructor || ((inCaseClass || p.isVal || p.isVar) && !isPrivate(p)))
     val isEffectivelyImplicit = ps.exists(_.name.startsWith("evidence$")) // SCL-25836
     ps.map(textOf(_, inCaseClass)).mkString(if (ps.nonEmpty) (if (clause.hasImplicitKeyword || isEffectivelyImplicit) "(implicit " else if (clause.hasUsingKeyword) "(using " else "(") else "(", ", ", ")")
   }
