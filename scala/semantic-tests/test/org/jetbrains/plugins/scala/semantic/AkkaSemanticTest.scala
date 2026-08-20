@@ -78,7 +78,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.Deployer
     //akka.actor.DiagnosticActorLogging
     //akka.actor.Dropped
-    //akka.actor.DynamicAccess
+    akka.actor.DynamicAccess
     //akka.actor.EmptyLocalActorRef
     akka.actor.ExtendedActorSystem
     akka.actor.Extension

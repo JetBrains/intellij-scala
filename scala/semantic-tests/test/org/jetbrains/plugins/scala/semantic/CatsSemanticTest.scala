@@ -573,7 +573,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.effect.Selector
     //cats.effect.SyncIO
     //cats.effect.SyncIOCompanionPlatform
-    //cats.effect.SyncIOLowPriorityImplicits
+    cats.effect.SyncIOLowPriorityImplicits
     //cats.effect.SyncStep
     //cats.effect.Trace
     cats.effect.implicits
@@ -1045,7 +1045,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.DurationGroup
     cats.kernel.instances.DurationInstances
     //cats.kernel.instances.DurationOrder
-    //cats.kernel.instances.EitherEq
+    cats.kernel.instances.EitherEq
     //cats.kernel.instances.EitherHash
     //cats.kernel.instances.EitherInstances
     //cats.kernel.instances.EitherInstances0
@@ -1077,7 +1077,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.kernel.instances.IntInstances
     //cats.kernel.instances.IntOrder
     //cats.kernel.instances.LazyListEq
-    //cats.kernel.instances.LazyListHash
+    cats.kernel.instances.LazyListHash
     cats.kernel.instances.LazyListInstances
     cats.kernel.instances.LazyListInstances1
     cats.kernel.instances.LazyListInstances2
@@ -1085,7 +1085,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.LazyListOrder
     //cats.kernel.instances.LazyListPartialOrder
     //cats.kernel.instances.ListEq
-    //cats.kernel.instances.ListHash
+    cats.kernel.instances.ListHash
     cats.kernel.instances.ListInstances
     cats.kernel.instances.ListInstances1
     cats.kernel.instances.ListInstances2
@@ -1102,16 +1102,16 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.MapInstances
     cats.kernel.instances.MapInstances1
     //cats.kernel.instances.MapMonoid
-    //cats.kernel.instances.OptionCommutativeMonoid
-    //cats.kernel.instances.OptionEq
-    //cats.kernel.instances.OptionHash
+    cats.kernel.instances.OptionCommutativeMonoid
+    cats.kernel.instances.OptionEq
+    cats.kernel.instances.OptionHash
     cats.kernel.instances.OptionInstances
     cats.kernel.instances.OptionInstances0
     cats.kernel.instances.OptionInstances1
     cats.kernel.instances.OptionInstances2
-    //cats.kernel.instances.OptionMonoid
-    //cats.kernel.instances.OptionOrder
-    //cats.kernel.instances.OptionPartialOrder
+    cats.kernel.instances.OptionMonoid
+    cats.kernel.instances.OptionOrder
+    cats.kernel.instances.OptionPartialOrder
     cats.kernel.instances.OrderInstances
     cats.kernel.instances.PartialOrderInstances
     //cats.kernel.instances.QueueEq
@@ -1159,7 +1159,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.kernel.instances.SortedSetSemilattice
     //cats.kernel.instances.StaticMethods
     //cats.kernel.instances.StreamEq
-    //cats.kernel.instances.StreamHash
+    cats.kernel.instances.StreamHash
     cats.kernel.instances.StreamInstances
     cats.kernel.instances.StreamInstances1
     cats.kernel.instances.StreamInstances2
@@ -1589,7 +1589,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.syntax.ParallelBitraverseSyntax
     //cats.syntax.ParallelFlatSequenceOps
     //cats.syntax.ParallelFlatSequenceOps1
-    //cats.syntax.ParallelFlatSyntax
+    cats.syntax.ParallelFlatSyntax
     //cats.syntax.ParallelFlatTraversableOps
     //cats.syntax.ParallelFlatTraversableOps1
     //cats.syntax.ParallelFoldMapAOps
@@ -1602,12 +1602,12 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.syntax.ParallelSequenceOps
     //cats.syntax.ParallelSequenceOps1
     //cats.syntax.ParallelSequence_Ops
-    //cats.syntax.ParallelSyntax
+    cats.syntax.ParallelSyntax
     //cats.syntax.ParallelTraversableOps
     //cats.syntax.ParallelTraversableOps1
     //cats.syntax.ParallelTraversable_Ops
     //cats.syntax.ParallelTraverseFilterOps
-    //cats.syntax.ParallelTraverseFilterSyntax
+    cats.syntax.ParallelTraverseFilterSyntax
     cats.syntax.ParallelTraverseSyntax
     //cats.syntax.ParallelUnorderedFlatSequenceOps
     //cats.syntax.ParallelUnorderedSequenceOps
