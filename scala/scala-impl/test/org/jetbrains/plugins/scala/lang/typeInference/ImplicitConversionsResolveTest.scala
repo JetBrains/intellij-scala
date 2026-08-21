@@ -85,6 +85,52 @@ class ImplicitConversionsResolveTest extends ScalaLightCodeInsightFixtureTestCas
 
 
 @Category(Array(classOf[TypecheckerTests]))
+class ImplicitConversionsScala212ResolveTest extends ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == LatestScalaVersions.Scala_2_12
+
+  override protected def additionalCompilerOptions: Seq[String] =
+    Seq("-Xsource:3")
+
+  /**
+   * [[https://youtrack.jetbrains.com/issue/SCL-25850 SCL-25850]]
+   * Package-object implicits remain in scope in Scala 2.12 with `-Xsource:3`.
+   */
+  def testSCL25850(): Unit = checkTextHasNoErrors(
+    """
+      |package mySbt {
+      |  trait Scoped
+      |
+      |  final class TaskKey[A] extends Scoped
+      |
+      |  object Keys {
+      |    val compile: TaskKey[Unit] = new TaskKey[Unit]
+      |    val compilerReporter: TaskKey[Unit] = new TaskKey[Unit]
+      |  }
+      |
+      |  trait SlashSyntax {
+      |    implicit def mySbtSlashSyntaxRichScopeFromScoped(scope: Scoped): RichScope =
+      |      new RichScope
+      |  }
+      |
+      |  final class RichScope {
+      |    def /[A](key: TaskKey[A]): TaskKey[A] = key
+      |  }
+      |}
+      |
+      |package object mySbt extends mySbt.SlashSyntax
+      |
+      |object Reproducer {
+      |  import mySbt.Keys.compile
+      |
+      |  compile / mySbt.Keys.compilerReporter
+      |}
+      |""".stripMargin
+  )
+}
+
+
+@Category(Array(classOf[TypecheckerTests]))
 class ImplicitConversionsScala3ResolveTest extends ScalaLightCodeInsightFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_7
 

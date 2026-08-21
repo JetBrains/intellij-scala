@@ -123,13 +123,11 @@ abstract class ImplicitProcessor(
   }
 
   final def candidatesByType(expandedType: ScType): Set[ScalaResolveResult] = {
-    val isScala3OrEquivalent =
-      getPlace.isInScala3File ||
-        getPlace.source3Options.isSource3Enabled ||
-        getPlace.source3Options.implicitResolution
+    val shouldExcludePackagePrefix =
+      getPlace.isInScala3File || getPlace.source3Options.packagePrefixImplicits
 
     val includePackagePrefix =
-      !isScala3OrEquivalent || getPlace.isSource3MigrationEnabled
+      !shouldExcludePackagePrefix || getPlace.isSource3MigrationEnabled
 
     val scopeParts =
       ImplicitProcessor
