@@ -61,12 +61,13 @@ class ScalaAnnotator extends Annotator
     annotate(element, HighlightingAdvisor.isTypeAwareHighlightingEnabled(element))
   }
 
-  def annotate(element: PsiElement, typeAware: Boolean, checkShouldInspect: Boolean = true)(implicit holder: ScalaAnnotationHolder): Unit = {
+  def annotate(element: PsiElement, typeAware: Boolean, checkShouldInspect: Boolean = true, treatAsSource: Boolean = false)(implicit holder: ScalaAnnotationHolder): Unit = {
     val file = element.getContainingFile
     if (checkShouldInspect && !HighlightingAdvisor.shouldInspect(file))
       return
 
     val (compiled, isInSources) = file match {
+      case _ if treatAsSource => (/* compiled = */false, /* isInSources = */true)
       case file: ScalaFile =>
         val isInSources = file.getVirtualFile.nullSafe.exists {
           ProjectRootManager.getInstance(file.getProject).getFileIndex.isInSourceContent

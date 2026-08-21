@@ -442,7 +442,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.data.OptionTFunctor
     //cats.data.OptionTFunctorFilter
     //cats.data.OptionTInstances
-    cats.data.OptionTInstances0
+    //cats.data.OptionTInstances0
     cats.data.OptionTInstances1
     cats.data.OptionTInstances2
     cats.data.OptionTInstances3
@@ -669,7 +669,6 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.effect.std.EnvCompanionPlatform
     cats.effect.std.FailureSignal
     //cats.effect.std.Hotswap
-    //cats.effect.std.MapRef
     //cats.effect.std.MapRefCompanionPlatform
     //cats.effect.std.Mutex
     //cats.effect.std.PQueue
@@ -764,7 +763,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.evidence.As
     cats.evidence.AsInstances
     //cats.evidence.AsSupport
-    cats.evidence.Is
+    //cats.evidence.Is
     cats.evidence.IsInstances
     cats.evidence.IsSupport
     //cats.free.Cofree

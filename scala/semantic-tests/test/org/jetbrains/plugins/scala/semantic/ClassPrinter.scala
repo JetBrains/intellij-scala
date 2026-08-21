@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.semantic.ClassPrinter.{Keywords, isIdentifier
 
 import scala.annotation.tailrec
 
-class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivate: Boolean = true, normalize: Boolean = false) {
+class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivate: Boolean = true, normalize: Boolean = false)(highlight: PsiElement => Seq[String]) {
   def textOf(e: PsiElement): String = e match {
     case cls: ScTypeDefinition =>
       val sb = new StringBuilder()
@@ -120,6 +120,8 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       }
     }
 
+    sb ++= highlighted(cls)("")
+
     sb ++= "\n"
   }
 
@@ -145,7 +147,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def isPrivate(e: ScModifierListOwner): Boolean =
     e.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)
 
-  private def textOf(pc: ScPrimaryConstructor, inCaseClass: Boolean): String = {
+  private def textOf(pc: ScPrimaryConstructor, inCaseClass: Boolean): String = highlighted(pc) {
     val modifiers = textOfModifiers(pc.getModifierList)
     val inPrivateConstructor = isPrivate(pc)
     val clauses = {
@@ -163,13 +165,13 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     if (normalize && !inCaseClass && s == "()") "" else s
   }
 
-  private def textOf(c: ScEnumCase, indent: String): String = {
+  private def textOf(c: ScEnumCase, indent: String): String = highlighted(c) {
     val tps = if (c.typeParameters.isEmpty) "" else c.typeParameters.map(textOf).mkString("[", ", ", "]")
     val ps = c.constructors.filterByType[ScPrimaryConstructor].map(textOf(_, inCaseClass = true)).mkString
     "\n" + indent + "  " + "case " + c.name + tps + ps + "\n"
   }
 
-  private def textOf(f: ScFunction, indent: String): String = {
+  private def textOf(f: ScFunction, indent: String): String = highlighted(f) {
     val isGiven = f.isInstanceOf[ScGiven]
     val isAnonymous = isGiven && f.name.startsWith("given_") // .isAnonymous?
     val annotations = f.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
@@ -188,21 +190,24 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     annotations + "\n" + indent + "  " + modifiers + keyword + name + signature + tpe + rhs + "\n"
   }
 
-  private def textOfStatement(s: ScBlockStatement, indent: String): String = s match {
-    case t: ScTypeDefinition =>
-      val sb = new StringBuilder()
-      printTo(sb, t)
-      sb.toString.stripSuffix("\n")
-    case f: ScFunction => textOf(f, indent).stripSuffix("\n")
-    case v: ScValueOrVariable => v.declaredElements.headOption.map(textOf(v, _, indent).stripSuffix("\n")).getOrElse("")
-    case t: ScTypeAlias => textOf(t, indent).stripSuffix("\n")
-    case _: ScImportStmt => ""
-    case b: ScBlock => textOfExpression(b, indent.stripSuffix("  "))
-    case e: ScExpression => "\n" + indent + "  " + textOfExpression(e, indent)
-    case _ => "<stmt>"
+  private def textOfStatement(s: ScBlockStatement, indent: String): String = {
+    val text = s match {
+      case t: ScTypeDefinition =>
+        val sb = new StringBuilder()
+        printTo(sb, t)
+        sb.toString.stripSuffix("\n")
+      case f: ScFunction => textOf(f, indent).stripSuffix("\n")
+      case v: ScValueOrVariable => v.declaredElements.headOption.map(textOf(v, _, indent).stripSuffix("\n")).getOrElse("")
+      case t: ScTypeAlias => textOf(t, indent).stripSuffix("\n")
+      case _: ScImportStmt => ""
+      case b: ScBlock => textOfExpression(b, indent.stripSuffix("  "))
+      case e: ScExpression => "\n" + indent + "  " + textOfExpression(e, indent)
+      case _ => "<stmt>"
+    }
+    if (s.is[ScExpression]) text else highlighted(s)(text)
   }
 
-  private def textOfExpression(e: ScExpression, indent: String): String = {
+  private def textOfExpression(e: ScExpression, indent: String): String = highlighted(e) {
     val text = e match {
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
       case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") +
@@ -334,18 +339,20 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     }
   }
 
-  private def textOfPattern(p: ScPattern): String = p match {
-    case _: ScWildcardPattern => "_"
-    case p: ScNamingPattern => p.name + " @ " + textOfPattern(p.named)
-    case p: ScLiteralPattern => textOfExpression(p.getLiteral, "")
-    case p: ScStableReferencePattern => p.referenceExpression.map(textOfExpression(_, "")).getOrElse("")
-    case p: ScTuplePattern => "(" + p.patternList.map(_.patterns.map(textOfPattern).mkString(", ")).getOrElse("") + ")"
-    case p: ScTypedPattern => p.name + ": " + textOf(p.`type`())
-    case p: Sc3TypedPattern => textOfPattern(p.pattern) + ": " + textOf(p.`type`())
-    case p: ScReferencePattern => p.name
-    case p: ScExtractorPattern => textOfReference(p.ref) + "(" + p.argPatterns.map(textOfPattern).mkString(", ") + ")"
-    case p: ScCompositePattern => "(" + p.subpatterns.map(textOfPattern).mkString(" | ") + ")"
-    case _ => "<pattern>"
+  private def textOfPattern(p: ScPattern): String = highlighted(p) {
+    p match {
+      case _: ScWildcardPattern => "_"
+      case p: ScNamingPattern => p.name + " @ " + textOfPattern(p.named)
+      case p: ScLiteralPattern => textOfExpression(p.getLiteral, "")
+      case p: ScStableReferencePattern => p.referenceExpression.map(textOfExpression(_, "")).getOrElse("")
+      case p: ScTuplePattern => "(" + p.patternList.map(_.patterns.map(textOfPattern).mkString(", ")).getOrElse("") + ")"
+      case p: ScTypedPattern => p.name + ": " + textOf(p.`type`())
+      case p: Sc3TypedPattern => textOfPattern(p.pattern) + ": " + textOf(p.`type`())
+      case p: ScReferencePattern => p.name
+      case p: ScExtractorPattern => textOfReference(p.ref) + "(" + p.argPatterns.map(textOfPattern).mkString(", ") + ")"
+      case p: ScCompositePattern => "(" + p.subpatterns.map(textOfPattern).mkString(" | ") + ")"
+      case _ => "<pattern>"
+    }
   }
 
   @tailrec
@@ -432,7 +439,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     "\n" + indent + "  " + "extension " + signature + methods
   }
 
-  private def textOf(v: ScValueOrVariable, symbol: ScTypedDefinition, indent: String): String = {
+  private def textOf(v: ScValueOrVariable, symbol: ScTypedDefinition, indent: String): String = highlighted(v) {
     val annotations = v.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
     val modifiers = textOfModifiers(v.getModifierList, ScalaPsiUtil.superValsSignatures(symbol).nonEmpty)
     val keyword = if (v.is[ScValue]) "val " else "var "
@@ -463,20 +470,20 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     sb ++= "\n"
   }
 
-  private def textOf(t: ScTypeAlias, indent: String): String = {
-    val annotations = t.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
-    val modifiers = textOfModifiers(t.getModifierList, ScalaPsiUtil.superTypeSignatures(t).nonEmpty)
-    val name = normalized(t.name)
-    val tps = if (t.typeParameters.isEmpty) "" else t.typeParameters.map(textOf).mkString("[", ", ", "]")
-    val bounds = textOfBoundsIn(t)
-    val rhs = t match {
-      case definition: ScTypeAliasDefinition if !(normalize && definition.isOpaque) => " = " + textOf(definition.aliasedType)
-      case _ => ""
-    }
-    annotations + "\n" + indent + "  " + modifiers + "type " + name + tps + bounds + rhs + "\n"
+  private def textOf(t: ScTypeAlias, indent: String): String = highlighted(t) {
+      val annotations = t.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
+      val modifiers = textOfModifiers(t.getModifierList, ScalaPsiUtil.superTypeSignatures(t).nonEmpty)
+      val name = normalized(t.name)
+      val tps = if (t.typeParameters.isEmpty) "" else t.typeParameters.map(textOf).mkString("[", ", ", "]")
+      val bounds = textOfBoundsIn(t)
+      val rhs = t match {
+        case definition: ScTypeAliasDefinition if !(normalize && definition.isOpaque) => " = " + textOf(definition.aliasedType)
+        case _ => ""
+      }
+      annotations + "\n" + indent + "  " + modifiers + "type " + name + tps + bounds + rhs + "\n"
   }
 
-  private def textOf(p: ScTypeParam): String = {
+  private def textOf(p: ScTypeParam): String = highlighted(p) {
     val annotations = p.annotations.map(textOf).mkString(" ")
     val variance = if (p.isCovariant) "+" else if (p.isContravariant) "-" else ""
     val name = normalized(p.name)
@@ -492,14 +499,15 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     lower + upper
   }
 
-  private def textOf(clause: ScParameterClause, inPrivateConstructor: Boolean, inCaseClass: Boolean): String = {
+  private def textOf(clause: ScParameterClause, inPrivateConstructor: Boolean, inCaseClass: Boolean): String = highlighted(clause) {
     val ps = clause.parameters.filter(p => withPrivate || !inPrivateConstructor || ((inCaseClass || p.isVal || p.isVar) && !isPrivate(p)))
     val isEffectivelyImplicit = ps.exists(_.name.startsWith("evidence$")) // SCL-25836
     ps.map(textOf(_, inCaseClass)).mkString(if (ps.nonEmpty) (if (clause.hasImplicitKeyword || isEffectivelyImplicit) "(implicit " else if (clause.hasUsingKeyword) "(using " else "(") else "(", ", ", ")")
   }
 
-  private def textOf(clause: ScTypeParamClause): String =
+  private def textOf(clause: ScTypeParamClause): String = highlighted(clause) {
     clause.typeParameters.map(textOf).mkString("[", ", ", "]")
+  }
 
   private def textOf(
     signatureClauses: Seq[ScSignatureClause],
@@ -518,7 +526,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     }.mkString
   }
 
-  private def textOf(p: ScParameter, inCaseClass: Boolean): String = {
+  private def textOf(p: ScParameter, inCaseClass: Boolean): String = highlighted(p) {
     val annotations = p.annotations.map(textOf).mkString(" ")
     val modifiers = {
       lazy val hasSupers = p.is[ScClassParameter] && ScalaPsiUtil.superValsSignatures(p).nonEmpty
@@ -552,8 +560,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
   private def textOf(annotation: ScAnnotation): String =
     textOf(annotation, emptyParens = false)
 
-  private def textOf(annotation: ScAnnotation, emptyParens: Boolean): String =
+  private def textOf(annotation: ScAnnotation, emptyParens: Boolean): String = highlighted(annotation) {
     "@" + textOfConstructorInvocation(annotation.constructorInvocation, "", emptyParens)
+  }
 
   private def textOfModifiers(ml: ScModifierList, hasSupers: => Boolean = false): String = {
     def scope = ml.getParent match {
@@ -603,6 +612,9 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def spaceAfter(name: String): String =
     if (name.lastOption.exists(c => !c.isLetterOrDigit && c != '`')) " " else ""
+
+  private def highlighted(e: PsiElement)(s: String): String =
+    s + highlight(e).map("/* " + _ + " */").mkString
 }
 
 private object ClassPrinter {

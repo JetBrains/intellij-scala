@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.corpus.{ProjectCorpusTestBase, ProjectCorpusTestDef}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -83,7 +85,12 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
     val psiText = try {
       ScalaApplicationSettings.PRECISE_TEXT = true
       ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = true
-      textOfCompilationUnit(sourceCls, withPrivate = true, normalize = true)
+      val annotator = new ScalaAnnotator()
+      textOfCompilationUnit(sourceCls, withPrivate = true, normalize = true) { element =>
+        val holder = new AnnotatorHolderMock(sourceCls.getContainingFile)
+        annotator.annotate(element, typeAware = true, checkShouldInspect = false, treatAsSource = true)(holder)
+        holder.errorAnnotations.map(_.message)
+      }
     } finally {
       ScalaApplicationSettings.PRECISE_TEXT = false
       ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = false
@@ -98,7 +105,7 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
   }
 
   // Copy of org.jetbrains.plugins.scala.text.TextToTextTestBase.textOfCompilationUnit
-  private def textOfCompilationUnit(cls: ScTypeDefinition, withPrivate: Boolean, normalize: Boolean): String = {
+  private def textOfCompilationUnit(cls: ScTypeDefinition, withPrivate: Boolean, normalize: Boolean)(highlight: PsiElement => Seq[String]): String = {
     val packageName = cls.qualifiedName.substring(0, cls.qualifiedName.lastIndexOf('.'))
 
     val companionTypeAlias = ScalaPsiManager.instance(cls.getProject).getTopLevelDefinitionsByPackage(packageName, cls.getResolveScope).collect {
@@ -109,7 +116,7 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
 
     sb ++= "package " + packageName + "\n"
 
-    val printer = new ClassPrinter(version.isScala3, withPrivate = withPrivate, normalize = normalize)
+    val printer = new ClassPrinter(version.isScala3, withPrivate = withPrivate, normalize = normalize)(highlight)
     ((companionTypeAlias.toSeq :+ cls) ++ cls.baseCompanionTypeDefinition.toSeq).sortBy(_.getTextOffset).foreach {
       case td: ScTypeDefinition => printer.printTo(sb, td)
       case ta: ScTypeAlias => printer.printTo(sb, ta)
