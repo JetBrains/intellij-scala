@@ -33,7 +33,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.DurationSyntax
     zio.EitherCompat
     //zio.Enqueue
-    //zio.ExecutionStrategy
+    zio.ExecutionStrategy
     //zio.Executor
     //zio.ExecutorPlatformSpecific
     //zio.Exit
@@ -51,8 +51,8 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.HasNoScopeCompanionVersionSpecific
     //zio.HasNoScopeMacro
     //zio.Hub
-    //zio.InterruptStatus
-    //zio.IntersectionTypeCompat
+    zio.InterruptStatus
+    zio.IntersectionTypeCompat
     zio.IsReloadable
     //zio.IsReloadableMacros
     //zio.IsReloadableVersionSpecific
@@ -136,7 +136,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.internal.DefaultExecutors
     zio.internal.ExecutionMetrics
     //zio.internal.FastList
-    //zio.internal.FiberMessage
+    zio.internal.FiberMessage
     //zio.internal.FiberRenderer
     zio.internal.FiberRunnable
     //zio.internal.FiberRuntime
@@ -180,7 +180,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.internal.macros.LayerMacros
     //zio.internal.macros.LayerTree
     //zio.internal.macros.Node
-    //zio.internal.macros.ProvideMethod
+    zio.internal.macros.ProvideMethod
     //zio.internal.macros.RemainderMethod
     //zio.internal.macros.RenderedGraph
     //zio.internal.macros.StringUtils
@@ -190,7 +190,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     zio.internal.metrics.ConcurrentMetricHooks
     //zio.internal.metrics.ConcurrentMetricHooksPlatformSpecific
     //zio.internal.metrics.ConcurrentMetricRegistry
-    //zio.internal.metrics.MetricEventType
+    zio.internal.metrics.MetricEventType
     //zio.internal.metrics.MetricHook
     //zio.internal.stacktracer.BuildInfo
     //zio.internal.stacktracer.Macros
@@ -206,7 +206,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     zio.metrics.MetricLabel
     zio.metrics.MetricListener
     //zio.metrics.MetricPair
-    //zio.metrics.MetricState
+    zio.metrics.MetricState
     //zio.metrics.Metrics
     //zio.metrics.PollingMetric
     //zio.metrics.jvm.BufferPools
@@ -256,11 +256,11 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.stream.ZStreamProvideMacro
     //zio.stream.ZStreamVersionSpecific
     //zio.stream.compression.CompressionException
-    //zio.stream.compression.CompressionLevel
+    zio.stream.compression.CompressionLevel
     zio.stream.compression.CompressionParameters
-    //zio.stream.compression.CompressionStrategy
+    zio.stream.compression.CompressionStrategy
     //zio.stream.compression.Deflate
-    //zio.stream.compression.FlushMode
+    zio.stream.compression.FlushMode
     //zio.stream.compression.Gunzipper
     //zio.stream.compression.Gzipper
     //zio.stream.encoding.EncodingException

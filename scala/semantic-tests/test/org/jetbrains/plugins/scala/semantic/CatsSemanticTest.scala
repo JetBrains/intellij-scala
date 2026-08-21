@@ -580,7 +580,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.effect.instances.AllInstances
     //cats.effect.kernel.Async
     //cats.effect.kernel.AsyncPlatform
-    //cats.effect.kernel.CancelScope
+    cats.effect.kernel.CancelScope
     //cats.effect.kernel.Clock
     //cats.effect.kernel.ClockPlatform
     cats.effect.kernel.Cont
@@ -718,8 +718,8 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.effect.unsafe.IORuntimeConfigCompanionPlatform
     //cats.effect.unsafe.LocalQueue
     //cats.effect.unsafe.NoOpFiberMonitor
-    //cats.effect.unsafe.ParkedSignal
-    //cats.effect.unsafe.PollResult
+    cats.effect.unsafe.ParkedSignal
+    cats.effect.unsafe.PollResult
     cats.effect.unsafe.PollingContext
     cats.effect.unsafe.PollingSystem
     //cats.effect.unsafe.ScalQueue
@@ -764,7 +764,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.evidence.As
     cats.evidence.AsInstances
     //cats.evidence.AsSupport
-    //cats.evidence.Is
+    cats.evidence.Is
     cats.evidence.IsInstances
     cats.evidence.IsSupport
     //cats.free.Cofree

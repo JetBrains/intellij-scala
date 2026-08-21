@@ -615,7 +615,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.http.impl.engine.http2.PriorityNode
     //akka.http.impl.engine.http2.PriorityTree
     //akka.http.impl.engine.http2.ProtocolSwitch
-    //akka.http.impl.engine.http2.PullFrameResult
+    akka.http.impl.engine.http2.PullFrameResult
     //akka.http.impl.engine.http2.RequestErrorFlow
     //akka.http.impl.engine.http2.RequestParsing
     //akka.http.impl.engine.http2.RequestRendering
@@ -651,7 +651,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.engine.rendering.RenderSupport
     //akka.http.impl.engine.rendering.RequestRenderingContext
     //akka.http.impl.engine.rendering.ResponseRenderingContext
-    //akka.http.impl.engine.rendering.ResponseRenderingOutput
+    akka.http.impl.engine.rendering.ResponseRenderingOutput
     //akka.http.impl.engine.server.GracefulTerminatorStage
     akka.http.impl.engine.server.HttpAttributes
     //akka.http.impl.engine.server.HttpServerBluePrint
@@ -957,7 +957,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.marshalling.LowPriorityToResponseMarshallerImplicits
     //akka.http.scaladsl.marshalling.Marshal
     //akka.http.scaladsl.marshalling.Marshaller
-    //akka.http.scaladsl.marshalling.Marshalling
+    akka.http.scaladsl.marshalling.Marshalling
     //akka.http.scaladsl.marshalling.MultipartMarshallers
     //akka.http.scaladsl.marshalling.NoStrictlyCompatibleElementMarshallingAvailableException
     //akka.http.scaladsl.marshalling.PredefinedToEntityMarshallers
@@ -1006,7 +1006,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.ParsingException
     //akka.http.scaladsl.model.RemoteAddress
     akka.http.scaladsl.model.RequestEntity
-    //akka.http.scaladsl.model.RequestEntityAcceptance
+    akka.http.scaladsl.model.RequestEntityAcceptance
     //akka.http.scaladsl.model.RequestResponseAssociation
     akka.http.scaladsl.model.RequestTimeoutException
     //akka.http.scaladsl.model.ResponseEntity
@@ -1143,7 +1143,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.http.scaladsl.model.http2.Http2SettingsHeader
     //akka.http.scaladsl.model.http2.PeerClosedStreamException
     //akka.http.scaladsl.model.sse.ServerSentEvent
-    //akka.http.scaladsl.model.ws.BinaryMessage
+    akka.http.scaladsl.model.ws.BinaryMessage
     akka.http.scaladsl.model.ws.InvalidUpgradeResponse
     """)
 
@@ -1580,10 +1580,10 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.persistence.journal.AsyncWriteJournal
     //akka.persistence.journal.AsyncWriteProxy
     akka.persistence.journal.AsyncWriteTarget
-    //akka.persistence.journal.EmptyEventSeq
+    akka.persistence.journal.EmptyEventSeq
     akka.persistence.journal.EventAdapter
     //akka.persistence.journal.EventAdapters
-    //akka.persistence.journal.EventSeq
+    akka.persistence.journal.EventSeq
     akka.persistence.journal.EventsSeq
     akka.persistence.journal.IdentityEventAdapter
     akka.persistence.journal.IdentityEventAdapters
@@ -1605,7 +1605,6 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.persistence.journal.japi.AsyncWriteJournal
     //akka.persistence.journal.leveldb.CompactionSegmentManagement
     //akka.persistence.journal.leveldb.Key
-    //akka.persistence.journal.leveldb.LeveldbJournal
     //akka.persistence.journal.leveldb.LeveldbCompaction
     //akka.persistence.journal.leveldb.LeveldbJournal
     //akka.persistence.journal.leveldb.LeveldbRecovery
@@ -1772,12 +1771,12 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.serialization.ThrowableSupport
     //akka.remote.serialization.WrappedPayloadSupport
     //akka.remote.testkit.Blackhole
-    //akka.remote.testkit.Direction
+    akka.remote.testkit.Direction
     akka.remote.testkit.ForceDisassociate
     akka.remote.testkit.ForceDisassociateAck
     akka.remote.testkit.SetThrottle
     akka.remote.testkit.SetThrottleAck
-    //akka.remote.testkit.ThrottleMode
+    akka.remote.testkit.ThrottleMode
     //akka.remote.testkit.TokenBucket
     //akka.remote.testkit.Unthrottled
     akka.routing.ActorRefRoutee
@@ -1887,11 +1886,11 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.stream.BoundedSourceQueue
     akka.stream.BufferOverflowException
     akka.stream.Client
-    //akka.stream.ClosedShape
+    akka.stream.ClosedShape
     akka.stream.CompletionStrategy
     akka.stream.CompletionTimeoutException
     akka.stream.ConnectionException
-    //akka.stream.DelayOverflowStrategy
+    akka.stream.DelayOverflowStrategy
     akka.stream.EagerClose
     //akka.stream.FanInShape
     //akka.stream.FanInShape10
@@ -1965,7 +1964,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.stream.OverflowStrategies
     //akka.stream.OverflowStrategy
     akka.stream.QueueCompletionResult
-    //akka.stream.QueueOfferResult
+    akka.stream.QueueOfferResult
     akka.stream.RateExceededException
     akka.stream.RemoteStreamRefActorTerminatedException
     //akka.stream.RestartSettings
@@ -1984,21 +1983,21 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.StreamRefSettings
     akka.stream.StreamRefSubscriptionTimeoutException
     //akka.stream.StreamSubscriptionTimeoutSettings
-    //akka.stream.StreamSubscriptionTimeoutTerminationMode
+    akka.stream.StreamSubscriptionTimeoutTerminationMode
     akka.stream.StreamTcpException
     akka.stream.StreamTimeoutException
     akka.stream.SubscriptionWithCancelException
     akka.stream.SubstreamCancelStrategies
-    //akka.stream.SubstreamCancelStrategy
+    akka.stream.SubstreamCancelStrategy
     //akka.stream.Supervision
     //akka.stream.SystemMaterializer
-    //akka.stream.TLSClientAuth
-    //akka.stream.TLSClosing
+    akka.stream.TLSClientAuth
+    akka.stream.TLSClosing
     //akka.stream.TLSProtocol
-    //akka.stream.TLSRole
+    akka.stream.TLSRole
     akka.stream.TargetRefNotInitializedYetException
     //akka.stream.TerminationSignal
-    //akka.stream.ThrottleMode
+    akka.stream.ThrottleMode
     akka.stream.TooManySubstreamsOpenException
     //akka.stream.UniformFanInShape
     //akka.stream.UniformFanOutShape
@@ -2011,7 +2010,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.ActorRefBackpressureSource
     //akka.stream.impl.ActorRefSinkStage
     //akka.stream.impl.ActorRefSource
-    //akka.stream.impl.ActorSubscriberMessage
+    akka.stream.impl.ActorSubscriberMessage
     //akka.stream.impl.ActorSubscription
     akka.stream.impl.ActorSubscriptionWithCursor
     akka.stream.impl.Always
@@ -2231,7 +2230,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.streamref.StreamRefResolverImpl
     akka.stream.impl.streamref.StreamRefSettingsImpl
     akka.stream.impl.streamref.StreamRefsMaster
-    //akka.stream.impl.streamref.StreamRefsProtocol
+    akka.stream.impl.streamref.StreamRefsProtocol
     //akka.stream.javadsl.Balance
     //akka.stream.javadsl.BidiFlow
     //akka.stream.javadsl.Broadcast

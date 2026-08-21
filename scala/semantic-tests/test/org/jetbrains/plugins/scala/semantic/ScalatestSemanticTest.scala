@@ -53,7 +53,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.EncodedOrdering
     org.scalatest.Engine
     //org.scalatest.Entry
-    //org.scalatest.Exceptional
+    org.scalatest.Exceptional
     //org.scalatest.Fact
     //org.scalatest.Failed
     //org.scalatest.FailedStatus
@@ -137,7 +137,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.SuiteRerunner
     //org.scalatest.Suites
     //org.scalatest.SuperEngine
-    //org.scalatest.Tag
+    org.scalatest.Tag
     org.scalatest.TestData
     org.scalatest.TestRegistration
     //org.scalatest.TestRerunner
@@ -523,7 +523,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.tools.EventHolderDefaultListModel
     org.scalatest.tools.EventHolderJList
     //org.scalatest.tools.EventHolderListCellRenderer
-    //org.scalatest.tools.EventToPresent
+    org.scalatest.tools.EventToPresent
     org.scalatest.tools.FileReporter
     org.scalatest.tools.FileReporterConfiguration
     org.scalatest.tools.FilterAlertProvided
