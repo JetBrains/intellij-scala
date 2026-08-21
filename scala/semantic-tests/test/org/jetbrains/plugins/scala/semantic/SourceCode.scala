@@ -190,7 +190,8 @@ object SourceCode {
           case tpt: TypeTree =>
             val symbol = tpt.tpe.typeSymbol
             symbol != Symbol.requiredClass("java.lang.Object") &&
-              !(flags.is(Flags.Case) && (symbol == Symbol.requiredClass("scala.deriving.Mirror.Product") || symbol == Symbol.requiredClass("scala.deriving.Mirror.Singleton")))
+              !(flags.is(Flags.Case) && (symbol == Symbol.requiredClass("scala.deriving.Mirror.Product") || symbol == Symbol.requiredClass("scala.deriving.Mirror.Singleton"))) &&
+              !(flags.is(Flags.Module) && (symbol == Symbol.requiredClass("scala.deriving.Mirror.Sum")))
           case _ => true
         }
         if (isAnonymous)
