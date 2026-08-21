@@ -90,7 +90,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.InvariantMonoidalMonoid
     //cats.InvariantSemigroupal
     //cats.InvariantSemigroupalSemigroup
-    //cats.Later
+    cats.Later
     //cats.LeftFunctor
     //cats.Monad
     //cats.MonadError
@@ -726,7 +726,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.effect.unsafe.SchedulerCompanionPlatform
     //cats.effect.unsafe.SelectorSystem
     //cats.effect.unsafe.SleepSystem
-    cats.effect.unsafe.StripedHashtable
+    //cats.effect.unsafe.StripedHashtable
     //cats.effect.unsafe.ThreadSafeHashtable
     //cats.effect.unsafe.TimerHeap
     cats.effect.unsafe.UnsafeNonFatal

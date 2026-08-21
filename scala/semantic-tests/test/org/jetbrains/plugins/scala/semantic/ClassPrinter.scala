@@ -265,19 +265,17 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       case gc: ScGenericCall =>
         textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
       case sc: ScAssignment =>
-        val parameterName = sc.leftExpression match {
-          case expr: ScReferenceExpression => expr.bind().collect { case r if r.isNamedParameter => r.name }
-          case _ => None
-        }
-        parameterName match {
-          case Some(name) => name + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
-          case None =>
-            sc.mirrorMethodCall match {
-              case Some(mc) if !(mc.getEffectiveInvokedExpr.getText.endsWith("_=") && (sc.assignNavigationElement match { case v: ScVariable => true; case p: ScClassParameter => p.isVar; case _ => false })) =>
-                textOfExpression(mc, indent)
-              case _ =>
-                textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
+        def text = textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
+        sc.leftExpression match {
+          case expr: ScReferenceExpression => expr.bind().match {
+            case Some(result) if result.isNamedParameter => result.name + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
+            case Some(result) if result.isAssignment => sc.mirrorMethodCall match {
+              case Some(call) => textOfExpression(call, indent)
+              case _ => text
             }
+            case _ => text
+          }
+          case _ => text
         }
       case r: ScReferenceExpression => (r.qualifier match {
         case Some(q) => textOfExpression(q, indent) + "." + r.refName

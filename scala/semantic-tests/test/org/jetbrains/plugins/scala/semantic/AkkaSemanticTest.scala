@@ -221,7 +221,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.internal.AbstractSupervisor
     //akka.actor.typed.internal.ActorContextImpl
     //akka.actor.typed.internal.ActorFlightRecorder
-    //akka.actor.typed.internal.ActorMdc
+    akka.actor.typed.internal.ActorMdc
     //akka.actor.typed.internal.ActorRefImpl
     akka.actor.typed.internal.AdaptMessage
     akka.actor.typed.internal.AdaptWithRegisteredMessageAdapter
@@ -254,8 +254,8 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.internal.StashBufferImpl
     //akka.actor.typed.internal.StopSupervisor
     //akka.actor.typed.internal.Supervisor
-    //akka.actor.typed.internal.SystemMessage
-    //akka.actor.typed.internal.SystemMessageList
+    akka.actor.typed.internal.SystemMessage
+    akka.actor.typed.internal.SystemMessageList
     akka.actor.typed.internal.Terminate
     akka.actor.typed.internal.TimerSchedulerCrossDslSupport
     //akka.actor.typed.internal.TimerSchedulerImpl
@@ -470,7 +470,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.dispatch.PriorityGenerator
     akka.dispatch.ProducesMessageQueue
     akka.dispatch.ProducesPushTimeoutSemanticsMailbox
-    //akka.dispatch.QueueBasedMessageQueue
+    akka.dispatch.QueueBasedMessageQueue
     akka.dispatch.Recover
     akka.dispatch.RequiresMessageQueue
     akka.dispatch.SaneRejectedExecutionHandler
@@ -513,8 +513,8 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.dispatch.sysmsg.StashWhenWaitingForChildren
     akka.dispatch.sysmsg.Supervise
     akka.dispatch.sysmsg.Suspend
-    //akka.dispatch.sysmsg.SystemMessage
-    //akka.dispatch.sysmsg.SystemMessageList
+    akka.dispatch.sysmsg.SystemMessage
+    akka.dispatch.sysmsg.SystemMessageList
     akka.dispatch.sysmsg.Terminate
     akka.dispatch.sysmsg.Unwatch
     akka.dispatch.sysmsg.Watch
@@ -585,7 +585,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.engine.client.pool.NewHostConnectionPool
     akka.http.impl.engine.client.pool.SlotContext
     //akka.http.impl.engine.client.pool.SlotState
-    //akka.http.impl.engine.http2.BufferedOutlet
+    akka.http.impl.engine.http2.BufferedOutlet
     akka.http.impl.engine.http2.BufferedOutletExtended
     //akka.http.impl.engine.http2.ByteFlag
     //akka.http.impl.engine.http2.ConfigurablePing
@@ -1069,7 +1069,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.headers.ModeledCompanion
     //akka.http.scaladsl.model.headers.ModeledCustomHeader
     //akka.http.scaladsl.model.headers.ModeledCustomHeaderCompanion
-    //akka.http.scaladsl.model.headers.ModeledHeader
+    akka.http.scaladsl.model.headers.ModeledHeader
     //akka.http.scaladsl.model.headers.OAuth2BearerToken
     //akka.http.scaladsl.model.headers.Origin
     //akka.http.scaladsl.model.headers.ProductVersion
@@ -2084,7 +2084,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.stream.impl.PopAttributes
     //akka.stream.impl.ProcessorModule
     akka.stream.impl.ProcessorModuleIslandTag
-    //akka.stream.impl.ProcessorModulePhase
+    akka.stream.impl.ProcessorModulePhase
     //akka.stream.impl.PublisherSink
     akka.stream.impl.PublisherSource
     //akka.stream.impl.Pump
