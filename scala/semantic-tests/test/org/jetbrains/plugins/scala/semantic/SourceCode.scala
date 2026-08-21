@@ -152,8 +152,12 @@ object SourceCode {
         if (cdef.symbol.flags.is(Flags.Override) || cdef.symbol.allOverriddenSymbols.nonEmpty) this += highlightKeyword("override ")
         printProtectedOrPrivate(cdef)
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
-        if (flags.is(Flags.Sealed)) this += highlightKeyword("sealed ")
         if (flags.is(Flags.Final) && !flags.is(Flags.Module) && !isAnonymous) this += highlightKeyword("final ")
+        if (flags.is(Flags.Sealed)) this += highlightKeyword("sealed ")
+        if (flags.is(Flags.Open)) this += highlightKeyword("open ")
+        if (flags.is(Flags.Abstract) && !flags.is(Flags.Trait)) this += highlightKeyword("abstract ")
+        if (flags.is(Flags.Transparent)) this += highlightKeyword("transparent ")
+        if (flags.is(Flags.Opaque)) this += highlightKeyword("opaque ")
         if (flags.is(Flags.Case)) this += highlightKeyword("case ")
 
         if (name == "package$") {
@@ -161,7 +165,6 @@ object SourceCode {
         }
         else if (flags.is(Flags.Module)) this += highlightKeyword("object ") += highlightTypeDef(name.stripSuffix("$"))
         else if (flags.is(Flags.Trait)) this += highlightKeyword("trait ") += highlightTypeDef(name)
-        else if (flags.is(Flags.Abstract)) this += highlightKeyword("abstract class ") += highlightTypeDef(name)
         else if (isAnonymous) ()
         else this += highlightKeyword("class ") += highlightTypeDef(name)
 
@@ -341,6 +344,7 @@ object SourceCode {
         val isConstructor = name == "<init>"
 
         val flags = ddef.symbol.flags
+        if (flags.is(Flags.Abstract)) this += highlightKeyword("abstract ")
         if (flags.is(Flags.Override) || (!isConstructor && ddef.symbol.allOverriddenSymbols.nonEmpty)) this += highlightKeyword("override ")
         printProtectedOrPrivate(ddef)
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
