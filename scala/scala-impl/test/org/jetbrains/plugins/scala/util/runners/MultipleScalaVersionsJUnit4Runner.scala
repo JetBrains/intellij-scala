@@ -7,7 +7,8 @@ import org.jetbrains.plugins.scala.util.Annotations
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils.Status.Warning
 import org.junit.Test
-import org.junit.runner.Runner
+import org.junit.runner.{Description, Runner}
+import org.junit.runner.manipulation.Filter
 import org.junit.runners.model.{FrameworkMethod, InvalidTestClassError}
 import org.junit.runners.{BlockJUnit4ClassRunner, Suite}
 
@@ -32,7 +33,37 @@ import scala.jdk.CollectionConverters._
  * @param cls The test class instance provided reflectively by the JUnit 4 runtime.
  */
 class MultipleScalaVersionsJUnit4Runner(cls: Class[?])
-  extends Suite(cls, MultipleScalaVersionsJUnit4Runner.createRunners(cls).asJava)
+  extends Suite(cls, MultipleScalaVersionsJUnit4Runner.createRunners(cls).asJava) {
+
+  override def filter(filter: Filter): Unit = {
+    val ideaFilter = new Filter {
+      override def shouldRun(description: Description): Boolean = {
+        // 1. If the standard filter accepts it (e.g., full suite run), let it pass.
+        if (filter.shouldRun(description)) {
+          return true
+        }
+
+        if (description.isTest) {
+          // 2. If it's a test method, strip the suffix and test the bare name
+          val methodName = description.getMethodName
+          if (methodName != null && methodName.contains("[")) {
+            val originalName = methodName.substring(0, methodName.indexOf('['))
+            val strippedDesc = Description.createTestDescription(description.getClassName, originalName)
+            return filter.shouldRun(strippedDesc)
+          }
+          false
+        } else {
+          // 3. If it's a Suite description (like our inner runners), check if ANY child passes
+          description.getChildren.asScala.exists(shouldRun)
+        }
+      }
+
+      override def describe(): String = filter.describe()
+    }
+
+    super.filter(ideaFilter)
+  }
+}
 
 object MultipleScalaVersionsJUnit4Runner {
 
