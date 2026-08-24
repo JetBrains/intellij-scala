@@ -3,6 +3,7 @@
 package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod}
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
@@ -17,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameter, TypeParameterType}
@@ -26,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 import org.jetbrains.plugins.scala.semantic.ClassPrinter.{Keywords, isIdentifier}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.getInstance as ScalaApplicationSettings
 
 import scala.annotation.tailrec
 
@@ -633,5 +636,42 @@ private object ClassPrinter {
     } else {
       false
     }
+  }
+
+  def textOf(cls: ScTypeDefinition): String = try {
+    ScalaApplicationSettings.PRECISE_TEXT = true
+    ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = true
+    val annotator = new ScalaAnnotator()
+    textOfCompilationUnit(cls, withPrivate = true, normalize = true) { element =>
+      val holder = new AnnotatorHolderMock(cls.getContainingFile)
+      annotator.annotate(element, typeAware = true, checkShouldInspect = false, treatAsSource = true)(holder)
+      holder.errorAnnotations.map(_.message)
+    }
+  } finally {
+    ScalaApplicationSettings.PRECISE_TEXT = false
+    ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = false
+  }
+
+  // Copy of org.jetbrains.plugins.scala.text.TextToTextTestBase.textOfCompilationUnit
+  private def textOfCompilationUnit(cls: ScTypeDefinition, withPrivate: Boolean, normalize: Boolean)(highlight: PsiElement => Seq[String]): String = {
+    val packageName = cls.qualifiedName.substring(0, cls.qualifiedName.lastIndexOf('.'))
+
+    val companionTypeAlias = ScalaPsiManager.instance(cls.getProject).getTopLevelDefinitionsByPackage(packageName, cls.getResolveScope).collect {
+      case a: ScTypeAlias if a.name == cls.name => a
+    }
+
+    val sb = new StringBuilder()
+
+    sb ++= "package " + packageName + "\n"
+
+    val printer = new ClassPrinter(isScala3 = true, withPrivate = withPrivate, normalize = normalize)(highlight)
+    ((companionTypeAlias.toSeq :+ cls) ++ cls.baseCompanionTypeDefinition.toSeq).sortBy(_.getTextOffset).foreach {
+      case td: ScTypeDefinition => printer.printTo(sb, td)
+      case ta: ScTypeAlias => printer.printTo(sb, ta)
+    }
+
+    sb.setLength(sb.length - 1)
+
+    sb.toString
   }
 }
