@@ -7,7 +7,7 @@ import com.intellij.codeInsight.lookup.{Lookup, LookupElement}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.impl.NonBlockingReadActionImpl
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.testFramework.{NavigationTestUtil, PlatformTestUtil}
 import junit.framework.TestCase.{assertEquals, assertNotNull, fail}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -65,6 +65,7 @@ abstract class ScalaCommandCompletionTestBase extends ScalaCompletionTestBase wi
         lookup.finishLookup(Lookup.AUTO_INSERT_SELECT_CHAR)
         NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
         PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
+        NavigationTestUtil.awaitPendingNavigation(getProject)
       }
     }
 
