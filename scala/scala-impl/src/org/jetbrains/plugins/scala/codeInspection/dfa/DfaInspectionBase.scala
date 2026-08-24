@@ -7,9 +7,10 @@ import com.intellij.psi.{PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.dfa.DfaInspectionBase.visitorProviderKey
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaVisitor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaResult
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 abstract class DfaInspectionBase(createReporter: ProblemsHolder => ScalaDfaResult => Unit) extends LocalInspectionTool {
-  override def isAvailableForFile(file: PsiFile): Boolean = super.isAvailableForFile(file) && !DumbService.isDumb(file.getProject)
+  override def isAvailableForFile(file: PsiFile): Boolean = super.isAvailableForFile(file) && !DumbService.isDumb(file.getProject) && IntentionAvailabilityChecker.checkInspection(this, file)
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = ???
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean, session: LocalInspectionToolSession): PsiElementVisitor = {
     var provider = session.getUserData(visitorProviderKey)

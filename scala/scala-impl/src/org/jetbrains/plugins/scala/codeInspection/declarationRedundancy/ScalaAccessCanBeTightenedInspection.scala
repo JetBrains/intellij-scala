@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScTypeAliasDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 import scala.annotation.tailrec
 
@@ -67,7 +68,9 @@ final class ScalaAccessCanBeTightenedInspection extends HighlightingPassInspecti
   override def shouldProcessElement(element: PsiElement): Boolean =
     element match {
       case t: ScTypeDefinition if t.isPackageObject => false
-      case m: ScMember => !m.isLocal && !Option(m.containingClass).exists(isLocalClass) && !isBeanProperty(m)
+      case m: ScMember =>
+        !m.isLocal && !Option(m.containingClass).exists(isLocalClass) && !isBeanProperty(m) &&
+          IntentionAvailabilityChecker.checkInspection(this, m)
       case p: ScPatternList => shouldProcessElement(p.getContext)
       case _ => false
     }

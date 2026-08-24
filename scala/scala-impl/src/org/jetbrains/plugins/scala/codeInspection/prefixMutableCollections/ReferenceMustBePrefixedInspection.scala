@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult.withActual
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 class ReferenceMustBePrefixedInspection extends LocalInspectionTool {
 
@@ -30,6 +31,8 @@ class ReferenceMustBePrefixedInspection extends LocalInspectionTool {
         .foreach(registerProblem(reference, _, holder))
     case _ =>
   }
+
+  override def isAvailableForFile(file: PsiFile): Boolean = IntentionAvailabilityChecker.checkInspection(this, file)
 
   private def registerProblem(reference: ScReference, quickFix: AddPrefixQuickFix, holder: ProblemsHolder): Unit = {
     holder.registerProblem(reference, getDisplayName, quickFix)

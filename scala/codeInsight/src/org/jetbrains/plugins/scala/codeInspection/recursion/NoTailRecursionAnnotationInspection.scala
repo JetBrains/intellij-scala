@@ -7,13 +7,16 @@ import org.jetbrains.plugins.scala.annotator.FunctionAnnotator
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, intention}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 final class NoTailRecursionAnnotationInspection extends LocalInspectionTool {
 
   import intention.recursion.AddTailRecursionAnnotationIntention._
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
-    case element@CanBeTailRecursive(function) if FunctionAnnotator.canBeTailRecursive(function) =>
+    case element@CanBeTailRecursive(function)
+      if IntentionAvailabilityChecker.checkInspection(this, element) &&
+         FunctionAnnotator.canBeTailRecursive(function) =>
       val quickFix = new AbstractFixOnPsiElement(
         ScalaCodeInsightBundle.message("no.tailrec.annotation.fix"),
         function

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.relativeImports
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElementVisitor, PsiPackage}
+import com.intellij.psi.{PsiElementVisitor, PsiFile, PsiPackage}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -11,12 +11,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 class RelativeImportInspection extends LocalInspectionTool {
   import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
+
+  override def isAvailableForFile(file: PsiFile): Boolean =
+    IntentionAvailabilityChecker.checkInspection(this, file)
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case ScImportExpr.qualifier(qualifier) =>
