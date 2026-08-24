@@ -2240,7 +2240,7 @@
         <action id="Scala.MakeExplicit" class="org.jetbrains.plugins.scala.actions.MakeExplicitAction">
             <keyboard-shortcut keymap="$default" first-keystroke="alt ENTER"/>
         </action>
-        <action id="Scala.Desugar" class="org.jetbrains.plugins.scala.lang.transformation.DesugarCodeAction">
+        <action id="Scala.Desugar" class="org.jetbrains.plugins.scala.semantic.DesugarCodeAction">
             <add-to-group group-id="CodeMenu" anchor="last"/>
             <add-to-group group-id="EditorPopupMenu" anchor="last"/>
             <keyboard-shortcut first-keystroke="control alt D" keymap="$default"/>
