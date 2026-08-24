@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 class ChainedPackageInspection extends LocalInspectionTool {
 
@@ -19,7 +20,7 @@ class ChainedPackageInspection extends LocalInspectionTool {
 
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] =
     file match {
-      case file: ScalaFile =>
+      case file: ScalaFile if IntentionAvailabilityChecker.checkInspection(this, file) =>
         val maybeProblemDescriptor = for {
           firstPackaging <- file.firstPackaging
           if firstPackaging.isVisible(manager.getProject, file)

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.redundantBlock
 
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiWhiteSpace}
+import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.parentheses.registerRedundantParensProblem
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection.{InCaseClauseQuickFix, UnwrapExpressionQuickFix}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 final class RedundantBlockInspection extends LocalInspectionTool with DumbAware {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
@@ -23,6 +24,8 @@ final class RedundantBlockInspection extends LocalInspectionTool with DumbAware 
       }
     case _ =>
   }
+  
+  override def isAvailableForFile(file: PsiFile): Boolean = IntentionAvailabilityChecker.checkInspection(this, file)
 }
 
 object RedundantBlockInspection {
