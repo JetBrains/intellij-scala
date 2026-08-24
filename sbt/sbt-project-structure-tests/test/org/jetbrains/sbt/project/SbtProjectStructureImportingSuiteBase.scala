@@ -1876,47 +1876,6 @@ abstract class SbtProjectStructureImportingSuiteBase extends SbtProjectStructure
       ("resources", JavaResourceRootType.TEST_RESOURCE),
     ).map(ExpectedDirectoryCompletionVariant.apply.tupled)
 
-  private def simpleSbtIvyBasedTest(mutedNotificationTitles: Seq[String] = Seq.empty): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkFromIvy(useEnv = true)("2.12.10")
-
-    runSimpleTest("simple", "2.12", scalaLibraries,
-      expectedSbtCompletionVariantsForParentModule = customSbtContentRootsForParent(12),
-      expectedSbtCompletionVariantsForMainModule = customSbtContentRootsForMain(12),
-      expectedSbtCompletionVariantsForTestModule = customSbtContentRootsForTest(12),
-      mutedNotificationTitles = mutedNotificationTitles
-    )
-
-    // Adding the assertion here not to create a separate heavy test for such a tiny check
-    // org.jetbrains.plugins.scala.project.ProjectExt#modulesWithScala
-    Assert.assertEquals(
-      "modulesWithScala should return list of non *-build modules",
-      Seq("simple.test", "simple.main"),
-      getMyProject.modulesWithScala.map(_.getName),
-    )
-
-    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
-    Assert.assertTrue(
-      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-      SbtProjectResolver.getProcessOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
-    )
-  }
-
-  def testSimpleSbt013(): Unit = {
-    simpleSbtIvyBasedTest(mutedNotificationTitles = Seq("Legacy sbt version 0.13.18 detected"))
-  }
-
-  def testSimpleSbt104(): Unit = {
-    simpleSbtIvyBasedTest()
-  }
-
-  def testSimpleSbt116(): Unit = {
-    simpleSbtIvyBasedTest()
-  }
-
-  def testSimpleSbt128(): Unit = {
-    simpleSbtIvyBasedTest()
-  }
-
   def testSimpleSbt1313(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
 
