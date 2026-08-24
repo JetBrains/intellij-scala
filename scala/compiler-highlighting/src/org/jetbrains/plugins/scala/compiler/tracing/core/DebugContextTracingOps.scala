@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.compiler.tracing.core
 
 import com.intellij.concurrency.JobScheduler
 import com.intellij.openapi.diagnostic.Logger
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.{BaseEvent, ContextTraceEvent, EventContext, TraceEvent}
+import org.jetbrains.plugins.scala.compiler.tracing.core.events.{BaseEvent, ContextTraceEvent}
 
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
 

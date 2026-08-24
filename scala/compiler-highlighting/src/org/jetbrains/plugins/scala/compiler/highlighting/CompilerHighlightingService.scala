@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.build.CompilerEventReporter
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{CompilationKind, CompilationRequestPhaseEvent, EnsureServerRunningPhaseEvent, QueueRescheduledPhaseEvent, QueueWaitKind, QueueWaitOutcome, QueueWaitPhaseEvent, RequestId}
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.{ContextTraceEvent, EndEvent, EventContext, TraceEvent}
+import org.jetbrains.plugins.scala.compiler.tracing.core.events.{ContextTraceEvent, EndEvent, EventContext}
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiFileExt, ScalaLanguageLevel}

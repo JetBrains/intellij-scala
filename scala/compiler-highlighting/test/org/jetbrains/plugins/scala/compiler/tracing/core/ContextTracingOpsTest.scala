@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.tracing.core
 
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.{ContextTraceEvent, EndEvent, EventContext, TraceEvent}
+import org.jetbrains.plugins.scala.compiler.tracing.core.events.{ContextTraceEvent, EndEvent, EventContext}
 import org.junit.Assert.*
 import org.junit.{Before, Test}
 

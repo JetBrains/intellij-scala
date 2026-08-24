@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.events
 
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.{BaseEvent, TraceEvent}
-
 /**
  * The phase a trace event belongs to. Compiler-based highlighting has just '''two''' phases, split at the
  * moment the compile server first replies (the `CompilationStarted` event that opens a

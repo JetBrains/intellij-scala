@@ -2,9 +2,7 @@ package org.jetbrains.plugins.scala.compiler.tracing.core
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 import org.jetbrains.plugins.scala.compiler.tracing.core.events.ContextTraceEvent
 import org.jetbrains.plugins.scala.compiler.tracing.core.otel.OtelConfig
 

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.compiler.tracing.core.otel
 import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.`export`.BatchSpanProcessor
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.{ContextTraceEvent, EventContext, TraceEvent}
+import org.jetbrains.plugins.scala.compiler.tracing.core.events.ContextTraceEvent
 import org.jetbrains.plugins.scala.compiler.tracing.core.{TraceFileWriter, TraceFormat, TracerService}
 
 import java.nio.file.Path

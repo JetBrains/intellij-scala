@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.tracing.core
 
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.{ContextTraceEvent, EventContext, TraceEvent}
+import org.jetbrains.plugins.scala.compiler.tracing.core.events.ContextTraceEvent
 
 /**
  * A tracing operations implementation that automatically manages parent-child context propagation.

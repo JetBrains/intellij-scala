@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.compiler.tracing.core
 import com.intellij.openapi.diagnostic.Logger
 
 import java.util
-import java.util.Map
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
 /**

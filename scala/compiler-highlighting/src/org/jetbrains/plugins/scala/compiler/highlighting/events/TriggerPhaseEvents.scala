@@ -48,7 +48,6 @@ object TriggerPhaseEvents {
       case InMemoryDocument => "Document (In memory)"
       case Document => "Document"
       case Worksheet => "Worksheet"
-      case _ => super.toString
 
   enum LockWaitKind:
     case ProjectReady, JpsBuild
@@ -150,7 +149,7 @@ object TriggerPhaseEvents {
    *                    "BSP Incremental", "JPS Incremental")
    * @param file        the file(s) the compilation is invoked for (comma-separated when more than one)
    * @param reason      the debug reason that scheduled the compilation
-   * @param closeParent whether opening this span consumes its `requestId` parent; `false` for incremental
+   * @param closeParentValue whether opening this span consumes its `requestId` parent; `false` for incremental
    *                    compilations, which keep the request chain open for a follow-up document compilation
    * @param closeOnEnd  whether ending this span (without a handoff) removes it from the context registry
    */
