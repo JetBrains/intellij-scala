@@ -8,6 +8,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.testFramework.NavigationTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.annotator.gutter.LineMarkerInfoPresentationUtils
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.TestIndentUtils
@@ -59,6 +60,7 @@ final class SuperMemberGutterNavigationFixture(private val originalFixture: Code
 
     navigationHandler.navigate(createSimpleClickEvent(), lineMarkerInfo.getElement)
     PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
+    NavigationTestUtil.awaitPendingNavigation(project)
 
     val selectedEditor = FileEditorManager.getInstance(project).getSelectedTextEditor
     assertNotNull(s"Expected selected editor after gutter navigation for file $fileName", selectedEditor)

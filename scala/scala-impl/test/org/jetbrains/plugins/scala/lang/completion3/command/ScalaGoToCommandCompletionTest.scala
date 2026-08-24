@@ -118,7 +118,7 @@ final class ScalaGoToCommandCompletionTest extends ScalaCommandCompletionTestBas
          |}""".stripMargin,
     resultText =
       s"""trait Base {
-         |  def foo$CARET(a: Int): Unit
+         |  def ${CARET}foo(a: Int): Unit
          |}
          |
          |class Child extends Base {
@@ -140,7 +140,7 @@ final class ScalaGoToCommandCompletionTest extends ScalaCommandCompletionTestBas
          |}""".stripMargin,
     resultText =
       s"""trait Base {
-         |  def foo$CARET(a: Int): Int = a
+         |  def ${CARET}foo(a: Int): Int = a
          |}
          |
          |class Child extends Base {
