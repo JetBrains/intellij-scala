@@ -23,6 +23,12 @@ final class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTo
       override def visitWikiSyntax(s: ScDocSyntaxElement): Unit = {
         if (!s.isVisible(holder.getProject, holder.getFile)) return
 
+        if (s.getNode.getElementType == ScalaDocTokenType.DOC_AUTOLINK) {
+          // Markdown autolinks include both delimiters in one element. This inspection only verifies
+          // constructs whose opening and closing tokens are separate PSI children.
+          return
+        }
+
         val firstElementType = s.getFirstChild.getNode.getElementType
         if (!ScalaDocSyntaxElementType.canClose(firstElementType,
           s.getLastChild.getNode.getElementType) &&
