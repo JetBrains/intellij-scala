@@ -452,7 +452,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
       case GFMElementTypes.STRIKETHROUGH => ScalaDocTokenType.DOC_STRIKETHROUGH_TAG
       case MarkdownElementTypes.CODE_SPAN => ScalaDocTokenType.DOC_MONOSPACE_TAG
       case WikiLinkParser.WIKI_LINK => ScalaDocTokenType.DOC_LINK_TAG
-      case MarkdownElementTypes.AUTOLINK => ScalaDocTokenType.DOC_LINK_TAG
+      case MarkdownElementTypes.AUTOLINK => ScalaDocTokenType.DOC_AUTOLINK
       case MarkdownElementTypes.LINK_DEFINITION => ScalaDocTokenType.DOC_LINK_TAG
 
       // Tokens

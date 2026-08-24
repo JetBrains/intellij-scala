@@ -28,15 +28,18 @@ class WikiLinkParser extends SequentialParser {
           iterator = iterator.advance()
 
           @tailrec
-          def eatUntilClosingBracket(iterator: TokensCache#RangesListIterator): Option[TokensCache#RangesListIterator] = {
+          def eatUntilClosingBracket(iterator: TokensCache#RangesListIterator): Option[(Int, TokensCache#RangesListIterator)] = {
             val x = isClosingBracket(iterator, bracketLength)
             if (x.nonEmpty || iterator.getType == null) x
             else eatUntilClosingBracket(iterator.advance())
           }
 
           eatUntilClosingBracket(iterator) match {
-            case Some(closingBracketIterator) =>
-              val range = new IntRange(startIndex, closingBracketIterator.getIndex)
+            case Some((rangeEnd, closingBracketIterator)) =>
+              // `closingBracketIterator` continues parsing, but an earlier sequential parser can make it
+              // skip an adjacent inline construct. Use the closing bracket's own end for the Wiki link range
+              // so it cannot absorb that already-parsed gap.
+              val range = new IntRange(startIndex, rangeEnd)
               result.withNode(new SequentialParser.Node(range, WIKI_LINK))
               iterator = closingBracketIterator
             case None =>
@@ -56,13 +59,20 @@ class WikiLinkParser extends SequentialParser {
     Option.when(iterator.getType == MarkdownTokenTypes.LBRACKET && iterator.getLength > 1)(iterator.getLength)
 
   @tailrec
-  private def isClosingBracket(iterator: TokensCache#RangesListIterator, expectedLen: Int): Option[TokensCache#RangesListIterator] = {
+  private def isClosingBracket(iterator: TokensCache#RangesListIterator, expectedLen: Int): Option[(Int, TokensCache#RangesListIterator)] = {
     if (expectedLen < 0) {
       None
     } else if (iterator.getType == MarkdownTokenTypes.RBRACKET) {
-      isClosingBracket(iterator.advance(), expectedLen - iterator.getLength)
+      val nextIterator = iterator.advance()
+      val remainingBrackets = expectedLen - iterator.getLength
+      if (remainingBrackets == 0 && nextIterator.getType != MarkdownTokenTypes.RBRACKET)
+        // `nextIterator.getIndex` may point after a code span, autolink, or image removed from rangesToGlue.
+        // Keep traversal at that iterator, while delimiting the node immediately after the actual closing bracket.
+        Some((iterator.getIndex + 1, nextIterator))
+      else
+        isClosingBracket(nextIterator, remainingBrackets)
     } else {
-      Option.when(expectedLen == 0)(iterator)
+      None
     }
   }
 

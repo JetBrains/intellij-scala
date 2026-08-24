@@ -2501,6 +2501,44 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_ref_link_followed_by_code_span(): Unit = checkTree(
+    """
+      |/**
+      | * [[scala.Predef.String]] `suffix`
+      | */
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  DocComment
+      |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+      |    ScDocParagraph
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 64
+      |        ScPsiDocToken(DOC_LINK_TAG 64)('[[')
+      |        ScDocReferenceLink
+      |          ScDocRefQuerySegment('String')
+      |            ScDocRefQuerySegment('Predef')
+      |              ScDocRefQuerySegment('scala')
+      |                PsiElement(identifier)('scala')
+      |              PsiElement(.)('.')
+      |              PsiElement(identifier)('Predef')
+      |            PsiElement(.)('.')
+      |            PsiElement(identifier)('String')
+      |        ScPsiDocToken(DOC_LINK_CLOSE_TAG 0)(']]')
+      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+      |      DocSyntaxElement 8
+      |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      |        ScPsiDocToken(DOC_COMMENT_DATA)('suffix')
+      |        ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
+      |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |    ScPsiDocToken(DOC_COMMENT_END)('*/')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_multibracket_links(): Unit = checkTree(
     """
       |/**
