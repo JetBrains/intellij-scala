@@ -4,6 +4,7 @@ import com.intellij.execution.configuration.EnvironmentVariablesData
 import com.intellij.execution.configurations.*
 import com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType
 import com.intellij.execution.process.{ColoredProcessHandler, KillableProcessHandler, OSProcessHandler, OSProcessUtil}
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{ActionGroup, DefaultActionGroup}
 import com.intellij.openapi.components.Service
@@ -29,12 +30,13 @@ import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.isUnitTestMode
+import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.{detectSbtVersion as _, *}
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.process.mock.MockSbtProcessForTests
 import org.jetbrains.sbt.process.options.reporting.WarningsCollectingBuildReporter
 import org.jetbrains.sbt.process.options.{SbtProcessOptions, SbtProcessOptionsResolver}
-import org.jetbrains.sbt.process.{SbtProcessOutputDiagnosticsCollector, SbtRunner}
+import org.jetbrains.sbt.process.{SbtProcessEnvironment, SbtProcessOutputDiagnosticsCollector, SbtRunner}
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.shell.SbtProcessManager.*
@@ -46,7 +48,7 @@ import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities
 
 import java.io.{OutputStreamWriter, PrintWriter}
 import java.nio.file.Path
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
 import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters.*
 
@@ -69,6 +71,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   import SbtProcessManager.ProcessData
 
   private val log = Logger.getInstance(getClass)
+  private val shownEnvironmentWarningMessages = ConcurrentHashMap.newKeySet[String]()
 
   @volatile private var processData: Option[ProcessData] = None
   private var processDestroyInProgress: Option[ProcessData] = None
@@ -232,10 +235,21 @@ final class SbtProcessManager(project: Project) extends Disposable {
     environment: Map[String, String],
     withNewShell: Boolean
   ): PtyCommandLine = {
+    val preparedEnvironment = SbtProcessEnvironment.prepare(
+      environment,
+      passParentEnvironment,
+      SbtProcessEnvironment.isTerminalPropsSanitizationEnabled
+    )
+    preparedEnvironment.warnings.foreach { warning =>
+      log.warn(s"${warning.message}\n${warning.details}")
+      if (shownEnvironmentWarningMessages.add(warning.message))
+        ScalaNotificationGroups.sbtShell.createNotification(warning.message, warning.details.replace("\n", "<br>"), NotificationType.WARNING).notify(project)
+    }
+
     val pty = new PtyCommandLine()
     pty.withExePath(vmExecutable.toString)
     pty.withWorkingDirectory(workingDir)
-    pty.withEnvironment(environment.asJava)
+    pty.withEnvironment(preparedEnvironment.variables.asJava)
 
     if isUnitTestMode && SystemInfo.isWindows then
       pty.withEnvironment(SbtRunner.defaultCoursierDirectoriesAsEnvVariables().asJava)
