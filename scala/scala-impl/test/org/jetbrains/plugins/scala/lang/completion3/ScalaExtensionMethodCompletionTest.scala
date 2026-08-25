@@ -90,4 +90,70 @@ class ScalaExtensionMethodCompletionTest extends ScalaCompletionTestBase {
 
     assertEquals(1, items.count(_.getLookupString == "name"))
   }
+
+  @Test
+  def testExtensionWithConversionApplicableReceiverIsCompleted(): Unit = doCompletionTest(
+    s"""class OriginalReceiver
+       |class ConvertedReceiver
+       |
+       |given Conversion[OriginalReceiver, ConvertedReceiver] = null
+       |
+       |extension (receiver: ConvertedReceiver)
+       |  def convertedExtension: Int = 1
+       |
+       |(null: OriginalReceiver).convertedEx$CARET""".stripMargin,
+    """class OriginalReceiver
+       |class ConvertedReceiver
+       |
+       |given Conversion[OriginalReceiver, ConvertedReceiver] = null
+       |
+       |extension (receiver: ConvertedReceiver)
+       |  def convertedExtension: Int = 1
+       |
+       |(null: OriginalReceiver).convertedExtension""".stripMargin,
+    item = "convertedExtension"
+  )
+
+  @Test
+  def testExtensionWithUnrelatedReceiverIsNotCompleted(): Unit = checkNoBasicCompletion(
+    s"""class ActualReceiver
+       |class UnrelatedReceiver
+       |
+       |extension (receiver: UnrelatedReceiver)
+       |  def unrelatedExtension: Int = 1
+       |
+       |(null: ActualReceiver).unrelatedEx$CARET""".stripMargin,
+    item = "unrelatedExtension"
+  )
+
+  @Test
+  def testExtensionWithAmbiguousReceiverConversionIsNotCompleted(): Unit = checkNoBasicCompletion(
+    s"""class OriginalReceiver
+       |class ConvertedReceiver
+       |
+       |given firstConversion: Conversion[OriginalReceiver, ConvertedReceiver] = null
+       |given secondConversion: Conversion[OriginalReceiver, ConvertedReceiver] = null
+       |
+       |extension (receiver: ConvertedReceiver)
+       |  def ambiguousExtension: Int = 1
+       |
+       |(null: OriginalReceiver).ambiguousEx$CARET""".stripMargin,
+    item = "ambiguousExtension"
+  )
+
+  @Test
+  def testExtensionRequiringChainedReceiverConversionsIsNotCompleted(): Unit = checkNoBasicCompletion(
+    s"""class OriginalReceiver
+       |class IntermediateReceiver
+       |class FinalReceiver
+       |
+       |given Conversion[OriginalReceiver, IntermediateReceiver] = null
+       |given Conversion[IntermediateReceiver, FinalReceiver] = null
+       |
+       |extension (receiver: FinalReceiver)
+       |  def chainedExtension: Int = 1
+       |
+       |(null: OriginalReceiver).chainedEx$CARET""".stripMargin,
+    item = "chainedExtension"
+  )
 }

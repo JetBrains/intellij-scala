@@ -72,34 +72,45 @@ sealed trait SignatureProcessor[T <: Signature] {
 
   @tailrec
   protected final def processAll(clazz: PsiClass, substitutor: ScSubstitutor, sink: Sink): Unit = clazz match {
-    case null                                           => ()
+    case null =>
+      ()
     case tdef @ ScGivenDefinition.DesugaredTypeDefinition(gvn) =>
       /**
-       * We should be careful around these synthetic definitions. They introduce their own
-       * synthetic type parameters and if those get mixed with original non-synthetic ones,
-       * we will have very tricky-to-find errors.
-       * e.g.
+       * We should be careful around these synthetic definitions. They introduce their own synthetic
+       * type parameters, and mixing those with the original non-synthetic ones causes subtle errors.
+       * The suffixes below distinguish the physical PSI elements; all three parameters are named `A`
+       * in the generated source text. For example:
        * {{{
        *   given foo[A#1]: Functor[B =>> Bar[A#1, B]] with
-       *     extension (a: A) def bar: Int = 123
-       *   //generates
+       *     extension (a: A#1) def bar: Int = 123
+       *   // generates
        *   class foo[A#2] extends Functor[B =>> Bar[A#2, B]]
        *   implicit def foo[A#3]: foo[A#3] = new foo[A#3]
        * }}}
-       * When implicit collector then searches for extensions inside givens,
-       * we eventually trigger `processAll(foo, A#2 := A#3)`
-       * and IF WE DO NOT unify type parameters here, we simply get resolve result
-       * defined in terms of non-synthetic given type parameters.
+       *
+       * When the implicit collector searches for extensions inside givens, we eventually trigger
+       * `processAll(foo, A#2 := A#3)`. The values below are then conceptually:
+       * {{{
+       *   givenTypeParameters         = Seq(A#1)
+       *   syntheticTdefTypeParameters = Seq(A#2)
+       *   unifyTypeParams             = (A#1 := A#2, A#2 := A#3)
+       * }}}
+       *
+       * The extra `A#1 := A#2` binding lets signatures from the source given follow the existing
+       * synthetic-class substitution. Without unifying the parameters here, resolve results remain
+       * defined in terms of the non-synthetic `A#1` instead of the factory method's `A#3`.
        */
       val givenTypeParameters         = gvn.typeParameters.map(TypeParameter(_))
       val syntheticTdefTypeParameters = tdef.typeParameters.map(TypeParameter(_))
-      val unifyTypeParams = substitutor.withBindings(givenTypeParameters, syntheticTdefTypeParameters)
+      val unifyTypeParams             = substitutor.withBindings(givenTypeParameters, syntheticTdefTypeParameters)
       processAll(gvn, unifyTypeParams, sink)
-    case syn: ScSyntheticClass                          => processAll(realClass(syn), substitutor, sink)
+    case syn: ScSyntheticClass =>
+      processAll(realClass(syn), substitutor, sink)
     case td: ScTemplateDefinition =>
       processScala(td, substitutor, sink)
       addExportedSignatures(clazz, substitutor, sink)
-    case _ => processJava(clazz, substitutor, sink)
+    case _ =>
+      processJava(clazz, substitutor, sink)
   }
 
   private def realClass(syn: ScSyntheticClass): ScTemplateDefinition =

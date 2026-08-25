@@ -25,6 +25,178 @@ class ImplicitConversionAndExtensionResolveTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
+  // SCL-25859
+  def testDirectReceiverExtensionIsPreferredToConversionAssistedReceiverExtension(): Unit = doResolveTest(
+    s"""
+       |class DirectReceiver
+       |class ConvertedReceiver
+       |
+       |given Conversion[DirectReceiver, ConvertedReceiver] = null
+       |
+       |extension (receiver: ConvertedReceiver)
+       |  def choose(argument: String): Unit = ()
+       |
+       |extension (receiver: DirectReceiver)
+       |  ${REFTGT}def choose(argument: String): Unit = ()
+       |
+       |(null: DirectReceiver).cho${REFSRC}ose("")
+       |""".stripMargin
+  )
+
+  def testDirectReceiverExtensionIsPreferredWithNonSymbolicSlashName(): Unit = doResolveTest(
+    s"""
+       |class DirectReceiver
+       |class ConvertedReceiver
+       |
+       |given Conversion[DirectReceiver, ConvertedReceiver] = null
+       |
+       |extension (receiver: ConvertedReceiver)
+       |  def slash(argument: String): Unit = ()
+       |
+       |extension (receiver: DirectReceiver)
+       |  ${REFTGT}def slash(argument: String): Unit = ()
+       |
+       |(null: DirectReceiver).sla${REFSRC}sh("")
+       |""".stripMargin
+  )
+
+  def testDirectGenericReceiverExtensionIsPreferredToConversionAssistedReceiverExtension(): Unit = doResolveTest(
+    s"""
+       |class DirectReceiver
+       |class ConvertedReceiver
+       |
+       |given Conversion[DirectReceiver, ConvertedReceiver] = null
+       |
+       |extension (receiver: ConvertedReceiver)
+       |  def choose(argument: String): Unit = ()
+       |
+       |extension [T](receiver: T)
+       |  ${REFTGT}def choose(argument: String): Unit = ()
+       |
+       |(null: DirectReceiver).cho${REFSRC}ose("")
+       |""".stripMargin
+  )
+
+  def testDirectSupertypeReceiverExtensionIsPreferredToConversionAssistedReceiverExtension(): Unit = doResolveTest(
+    s"""
+       |class DirectReceiverParent
+       |class DirectReceiver extends DirectReceiverParent
+       |class ConvertedReceiver
+       |
+       |given Conversion[DirectReceiver, ConvertedReceiver] = null
+       |
+       |extension (receiver: ConvertedReceiver)
+       |  def choose(argument: String): Unit = ()
+       |
+       |extension (receiver: DirectReceiverParent)
+       |  ${REFTGT}def choose(argument: String): Unit = ()
+       |
+       |(null: DirectReceiver).cho${REFSRC}ose("")
+       |""".stripMargin
+  )
+
+  def testConversionAssistedReceiverExtensionRemainsAvailableWithoutDirectExtension(): Unit = doResolveTest(
+    s"""
+       |class OriginalReceiver
+       |class ConvertedReceiver
+       |
+       |given Conversion[OriginalReceiver, ConvertedReceiver] = null
+       |
+       |extension (receiver: ConvertedReceiver)
+       |  ${REFTGT}def choose(argument: String): Unit = ()
+       |
+       |(null: OriginalReceiver).cho${REFSRC}ose("")
+       |""".stripMargin
+  )
+
+  def testInnerConversionAssistedExtensionKeepsPrecedenceOverOuterDirectExtension(): Unit = doResolveTest(
+    s"""
+       |class DirectReceiver
+       |class ConvertedReceiver
+       |
+       |object Outer:
+       |  extension (receiver: DirectReceiver)
+       |    def choose(argument: String): Unit = ()
+       |
+       |  object Inner:
+       |    given Conversion[DirectReceiver, ConvertedReceiver] = null
+       |
+       |    extension (receiver: ConvertedReceiver)
+       |      ${REFTGT}def choose(argument: String): Unit = ()
+       |
+       |    (null: DirectReceiver).cho${REFSRC}ose("")
+       |""".stripMargin
+  )
+
+  def testDirectReceiverExtensionIsPreferredWithSymbolicNameAndOldStyleConversion(): Unit = doResolveTest(
+    s"""
+       |class DirectReceiver
+       |class ConvertedReceiver
+       |
+       |implicit def convert(receiver: DirectReceiver): ConvertedReceiver = null
+       |
+       |extension (receiver: ConvertedReceiver)
+       |  def /(argument: String): Unit = ()
+       |
+       |extension (receiver: DirectReceiver)
+       |  ${REFTGT}def /(argument: String): Unit = ()
+       |
+       |(null: DirectReceiver) ${REFSRC}/ ""
+       |""".stripMargin
+  )
+
+  def testDirectSubtypeReceiverExtensionIsMoreSpecificThanDirectSupertypeReceiverExtension(): Unit = doResolveTest(
+    s"""
+       |class ParentReceiver
+       |class ChildReceiver extends ParentReceiver
+       |
+       |extension (receiver: ParentReceiver)
+       |  def choose(argument: String): Unit = ()
+       |
+       |extension (receiver: ChildReceiver)
+       |  ${REFTGT}def choose(argument: String): Unit = ()
+       |
+       |(null: ChildReceiver).cho${REFSRC}ose("")
+       |""".stripMargin
+  )
+
+  def testDirectReceiverExtensionPreventsConvertedReceiverFallbackWhenLaterArgumentIsWrong(): Unit = doResolveTest(
+    s"""
+       |class DirectReceiver
+       |class ConvertedReceiver
+       |
+       |given Conversion[DirectReceiver, ConvertedReceiver] = null
+       |
+       |extension (receiver: DirectReceiver)
+       |  ${REFTGT}def choose(argument: Int): Unit = ()
+       |
+       |extension (receiver: ConvertedReceiver)
+       |  def choose(argument: String): Unit = ()
+       |
+       |(null: DirectReceiver).cho${REFSRC}ose("")
+       |""".stripMargin
+  )
+
+  def testLaterArgumentConversionDoesNotLowerPriorityOfDirectReceiverExtension(): Unit = doResolveTest(
+    s"""
+       |class DirectReceiver
+       |class ConvertedReceiver
+       |class OriginalArgument
+       |class ConvertedArgument
+       |
+       |given Conversion[DirectReceiver, ConvertedReceiver] = null
+       |given Conversion[OriginalArgument, ConvertedArgument] = null
+       |
+       |extension (receiver: DirectReceiver)
+       |  ${REFTGT}def choose(argument: ConvertedArgument): Unit = ()
+       |
+       |extension (receiver: ConvertedReceiver)
+       |  def choose(argument: OriginalArgument): Unit = ()
+       |
+       |(null: DirectReceiver).cho${REFSRC}ose(null: OriginalArgument)
+       |""".stripMargin
+  )
+
   def testOneExtensionMethodDrownsOutImplicits(): Unit = doResolveTest(
     s"""
        |object Blub {

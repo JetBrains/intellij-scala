@@ -111,6 +111,152 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
+  // SCL-25859
+  def testDirectAndConversionAssistedReceiversForSameExtensionNameDoNotCauseAmbiguity(): Unit = checkTextHasNoErrors(
+    """
+      |class DirectReceiver
+      |class ConvertedReceiver
+      |
+      |given Conversion[DirectReceiver, ConvertedReceiver] = null
+      |
+      |extension (receiver: ConvertedReceiver) def choose(argument: String): Unit = ()
+      |extension (receiver: DirectReceiver) def choose(argument: String): Unit = ()
+      |
+      |(null: DirectReceiver).choose("")
+      |""".stripMargin
+  )
+
+  def testSymbolicExtensionOverloadsWithDirectAndOldStyleConvertedReceiversDoNotCauseAmbiguity(): Unit = checkTextHasNoErrors(
+    """
+      |class DirectReceiver
+      |class ConvertedReceiver
+      |
+      |implicit def convert(receiver: DirectReceiver): ConvertedReceiver = null
+      |
+      |extension (receiver: ConvertedReceiver) def /(argument: String): Unit = ()
+      |extension (receiver: DirectReceiver) def /(argument: String): Unit = ()
+      |
+      |(null: DirectReceiver) / ""
+      |""".stripMargin
+  )
+
+  def testGenericDirectAndConvertedConcreteReceiversForSameExtensionNameDoNotCauseAmbiguity(): Unit = checkTextHasNoErrors(
+    """
+      |class DirectReceiver
+      |class ConvertedReceiver
+      |
+      |given Conversion[DirectReceiver, ConvertedReceiver] = null
+      |
+      |extension (receiver: ConvertedReceiver) def choose(argument: String): Unit = ()
+      |extension [T](receiver: T) def choose(argument: String): Unit = ()
+      |
+      |(null: DirectReceiver).choose("")
+      |""".stripMargin
+  )
+
+  def testConversionStillMakesExtensionReceiverApplicableWhenNoDirectExtensionExists(): Unit = checkTextHasNoErrors(
+    """
+      |class OriginalReceiver
+      |class ConvertedReceiver
+      |
+      |given Conversion[OriginalReceiver, ConvertedReceiver] = null
+      |
+      |extension (receiver: ConvertedReceiver) def choose(argument: String): Unit = ()
+      |
+      |(null: OriginalReceiver).choose("")
+      |""".stripMargin
+  )
+
+  def testDirectSubtypeExtensionReceiverIsMoreSpecificThanDirectSupertypeReceiver(): Unit = checkTextHasNoErrors(
+    """
+      |class ParentReceiver
+      |class ChildReceiver extends ParentReceiver
+      |
+      |extension (receiver: ParentReceiver) def choose(argument: String): Unit = ()
+      |extension (receiver: ChildReceiver) def choose(argument: String): Unit = ()
+      |
+      |(null: ChildReceiver).choose("")
+      |""".stripMargin
+  )
+
+  def testTwoConversionAssistedExtensionReceiversRemainAmbiguous(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |class OriginalReceiver
+       |class FirstConvertedReceiver
+       |class SecondConvertedReceiver
+       |
+       |given Conversion[OriginalReceiver, FirstConvertedReceiver] = null
+       |given Conversion[OriginalReceiver, SecondConvertedReceiver] = null
+       |
+       |extension (receiver: FirstConvertedReceiver) def choose(argument: String): Unit = ()
+       |extension (receiver: SecondConvertedReceiver) def choose(argument: String): Unit = ()
+       |
+       |(null: OriginalReceiver).cho${CARET}ose("")
+       |""".stripMargin
+  )
+
+  def testWrongLaterArgumentOnDirectReceiverDoesNotFallBackToConvertedReceiver(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |class DirectReceiver
+       |class ConvertedReceiver
+       |
+       |given Conversion[DirectReceiver, ConvertedReceiver] = null
+       |
+       |extension (receiver: DirectReceiver) def choose(argument: Int): Unit = ()
+       |extension (receiver: ConvertedReceiver) def choose(argument: String): Unit = ()
+       |
+       |(null: DirectReceiver).choose("${CARET}")
+       |""".stripMargin
+  )
+
+  def testExpectedResultTypeDoesNotSelectConvertedReceiverOverDirectReceiver(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |class DirectReceiver
+       |class ConvertedReceiver
+       |class DirectResult
+       |class ConvertedResult
+       |
+       |given Conversion[DirectReceiver, ConvertedReceiver] = null
+       |
+       |extension (receiver: DirectReceiver) def choose: DirectResult = null
+       |extension (receiver: ConvertedReceiver) def choose: ConvertedResult = null
+       |
+       |val result: ConvertedResult = (null: DirectReceiver).cho${CARET}ose
+       |""".stripMargin
+  )
+
+  def testLaterArgumentConversionDoesNotLowerPriorityOfDirectReceiverExtension(): Unit = checkTextHasNoErrors(
+    """
+      |class DirectReceiver
+      |class ConvertedReceiver
+      |class OriginalArgument
+      |class ConvertedArgument
+      |
+      |given Conversion[DirectReceiver, ConvertedReceiver] = null
+      |given Conversion[OriginalArgument, ConvertedArgument] = null
+      |
+      |extension (receiver: DirectReceiver) def choose(argument: ConvertedArgument): Unit = ()
+      |extension (receiver: ConvertedReceiver) def choose(argument: OriginalArgument): Unit = ()
+      |
+      |(null: DirectReceiver).choose(null: OriginalArgument)
+      |""".stripMargin
+  )
+
+  def testExtensionReceiverConversionsAreNotChained(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |class OriginalReceiver
+       |class IntermediateReceiver
+       |class FinalReceiver
+       |
+       |given Conversion[OriginalReceiver, IntermediateReceiver] = null
+       |given Conversion[IntermediateReceiver, FinalReceiver] = null
+       |
+       |extension (receiver: FinalReceiver) def choose: Unit = ()
+       |
+       |(null: OriginalReceiver).cho${CARET}ose
+       |""".stripMargin
+  )
+
   def testPriorityOfExtensionOverConversionFromImplicitScope(): Unit = checkTextHasNoErrors(
     """
       |trait A

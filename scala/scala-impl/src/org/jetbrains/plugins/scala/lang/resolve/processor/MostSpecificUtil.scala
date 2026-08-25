@@ -369,8 +369,10 @@ class MostSpecificUtil(
     (r1.implicitConversionClass, r2.implicitConversionClass) match {
       case (Some(t1), Some(t2)) if ScalaPsiUtil.isInheritorDeep(t1, t2) => true
       case _ =>
-        if (r1.repr.isExtensionCall ^ r2.repr.isExtensionCall) false
-        else if (r1.callByNameImplicit ^ r2.callByNameImplicit) !r1.callByNameImplicit
+        if (r1.repr.isExtensionCall ^ r2.repr.isExtensionCall)
+          false
+        else if (r1.callByNameImplicit ^ r2.callByNameImplicit)
+          !r1.callByNameImplicit
         else {
           val weightR1R2 = relativeWeight(r1, r2, checkImplicits)
           val weightR2R1 = relativeWeight(r2, r1, checkImplicits)
