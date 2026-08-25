@@ -5,7 +5,7 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -22,14 +22,23 @@ import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 object SyntheticImplicitInstances {
-  val tagsAndManifists: Set[String] = Set(
-    "scala.reflect.ClassManifest",
-    "scala.reflect.Manifest",
-    "scala.reflect.OptManifest",
-    "scala.reflect.ClassTag",
-    "scala.reflect.api.TypeTags.TypeTag",
-    "scala.reflect.api.TypeTags.WeakTypeTag"
-  )
+  val ClassManifest = "scala.reflect.ClassManifest"
+  val Manifest      = "scala.reflect.Manifest"
+  val OptManifest   = "scala.reflect.OptManifest"
+  val ClassTag      = "scala.reflect.ClassTag"
+  val TypeTag       = "scala.reflect.api.TypeTags.TypeTag"
+  val WeakTypeTag   = "scala.reflect.api.TypeTags.WeakTypeTag"
+
+  val tagsAndManifists: Set[String] =
+    Set(ClassManifest, Manifest, OptManifest, ClassTag, TypeTag, WeakTypeTag)
+
+  /**
+   * Tags which the compiler can only materialize for a type it is able to erase, i.e. not for an abstract type.
+   * `OptManifest` is excluded because `NoManifest` is always available, and `WeakTypeTag` because it is
+   * specifically meant to be materializable for abstract types as well.
+   */
+  private val tagsRequiringConcreteType: Set[String] =
+    Set(ClassManifest, Manifest, ClassTag, TypeTag)
 
   val ValueOf         = "scala.ValueOf"
   val TypeTest        = "scala.reflect.TypeTest"
@@ -121,9 +130,24 @@ object SyntheticImplicitInstances {
       case (ConformsWitness, Seq(t1, t2)) => t1.conforms(t2)
       case (EquivWitness, Seq(t1, t2))    => t1.equiv(t2)
       case (CanEqual, Seq(lhs, rhs))      => eligibleForSyntheticCanEqual(lhs, rhs, place)
-      case _ if params.size == 1          => tagsAndManifists.contains(typeFqn)
+      case (_, Seq(t))                    => tagsAndManifists.contains(typeFqn) && eligibleForTag(typeFqn, t)
       case _                              => false
     }
+
+  /**
+   * The compiler materializes a tag by erasing its type argument, which it cannot do for an abstract type.
+   * In such a case there has to be an existing value to refer to (e.g. a context bound evidence parameter),
+   * otherwise the tag is simply not available.
+   */
+  private def eligibleForTag(tagFqn: String, argType: ScType)(implicit context: Context): Boolean =
+    !tagsRequiringConcreteType.contains(tagFqn) || !isAbstract(argType.removeAliasDefinitions())
+
+  private def isAbstract(t: ScType): Boolean = t match {
+    case _: TypeParameterType                           => true
+    case ScProjectionType(_, _: ScTypeAliasDeclaration) => true
+    case ScDesignatorType(_: ScTypeAliasDeclaration)    => true
+    case _                                              => false
+  }
 
   private def eligibleForSyntheticCanEqual(
     lhs: ScType,

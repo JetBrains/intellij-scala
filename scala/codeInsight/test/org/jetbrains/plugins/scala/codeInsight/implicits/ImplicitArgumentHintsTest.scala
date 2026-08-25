@@ -105,6 +105,219 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
       expand = true
     )
 
+  //SCL-14357
+  def testClassTagMaterialized(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |  g[Int]()$S(ClassTag)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357
+  def testClassTagFromContextBoundEvidence(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |  def f[T: ClassTag](): Unit = g[T]()$S(classTag$$T$$0)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357
+  def testClassTagFromExplicitImplicitParameter(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |  def f[T](implicit tag: ClassTag[T]): Unit = g[T]()$S(tag)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357
+  def testClassTagFromExistingImplicitValue(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |  implicit val tag: ClassTag[Int] = ClassTag.Int
+       |  g[Int]()$S(tag)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357
+  def testManifestFromContextBoundEvidence(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  def g[T: Manifest](): Unit = ()
+       |  def f[T: Manifest](): Unit = g[T]()$S(manifest$$T$$0)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357, materialization must still happen when there is no value to refer to
+  def testClassTagMaterializedForArbitraryClasses(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  class Bar
+       |  class Baz[A]
+       |  object Qux
+       |  type Alias = Bar
+       |
+       |  def g[T: ClassTag](): Unit = ()
+       |
+       |  g[Bar]()$S(ClassTag)$E
+       |  g[Baz[Bar]]()$S(ClassTag)$E
+       |  g[Qux.type]()$S(ClassTag)$E
+       |  g[Alias]()$S(ClassTag)$E
+       |  g[List[Bar]]()$S(ClassTag)$E
+       |  g[Array[Bar]]()$S(ClassTag)$E
+       |  g[Bar with Serializable]()$S(ClassTag)$E
+       |  g[(Bar, Int)]()$S(ClassTag)$E
+       |  g[Bar => Int]()$S(ClassTag)$E
+       |  g[Unit]()$S(ClassTag)$E
+       |  g[Nothing]()$S(ClassTag)$E
+       |  g[Any]()$S(ClassTag)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357, an implicit of an unrelated type must not shadow materialization
+  def testClassTagMaterializedDespiteUnrelatedImplicit(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  class Bar
+       |  def g[T: ClassTag](): Unit = ()
+       |  implicit val s: String = ""
+       |  g[Bar]()$S(ClassTag)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357, a ClassTag of a different type argument must not be picked up
+  def testClassTagMaterializedDespiteNonConformingClassTag(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |  implicit val tag: ClassTag[String] = ClassTag(classOf[String])
+       |  g[Int]()$S(ClassTag)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357, only implicit values are eligible
+  def testClassTagMaterializedDespiteNonImplicitValue(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |  val tag: ClassTag[Int] = ClassTag.Int
+       |  g[Int]()$S(ClassTag)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357, an evidence parameter of an unrelated type parameter must not be picked up
+  def testClassTagMaterializedDespiteEvidenceForOtherTypeParameter(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  class Bar
+       |  def g[T: ClassTag](): Unit = ()
+       |  def f[T: ClassTag](): Unit = g[Bar]()$S(ClassTag)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357
+  def testManifestMaterializedForArbitraryClasses(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  class Bar
+       |  def g[T: Manifest](): Unit = ()
+       |  g[Bar]()$S(Manifest)$E
+       |  g[List[Bar]]()$S(Manifest)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357, a ClassTag cannot be materialized for an unbounded method type parameter
+  def testClassTagNotAvailableForMethodTypeParameter(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |  def h[T](): Unit = g[T]()$S(?: ClassTag[T])$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357, an upper bound does not make a ClassTag available either
+  def testClassTagNotAvailableForBoundedMethodTypeParameter(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |  def h[T <: AnyRef](): Unit = g[T]()$S(?: ClassTag[T])$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357
+  def testClassTagNotAvailableForClassTypeParameter(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |  class C[T] { def m(): Unit = g[T]()$S(?: ClassTag[T])$E }
+       |}""".stripMargin
+  )
+
+  //SCL-14357
+  def testClassTagNotAvailableForAbstractTypeMember(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  trait H { type T }
+       |  def g[T: ClassTag](): Unit = ()
+       |  def h(x: H): Unit = g[x.T]()$S(?: ClassTag[x.T])$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357
+  def testClassTagNotAvailableForOwnAbstractTypeMember(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |  class C { type T; def m(): Unit = g[T]()$S(?: ClassTag[T])$E }
+       |}""".stripMargin
+  )
+
+  //SCL-14357
+  def testManifestNotAvailableForMethodTypeParameter(): Unit = doTest(
+    s"""
+       |object Foo {
+       |  def g[T: Manifest](): Unit = ()
+       |  def h[T](): Unit = g[T]()$S(?: Manifest[T])$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357, NoManifest is always available, so an OptManifest is materialized even for an abstract type
+  def testOptManifestAvailableForMethodTypeParameter(): Unit = doTest(
+    s"""
+       |import scala.reflect.OptManifest
+       |object Foo {
+       |  def g[T: OptManifest](): Unit = ()
+       |  def h[T](): Unit = g[T]()$S(OptManifest)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14357, an abstract type is fine as long as there is an evidence parameter to refer to
+  def testClassTagForClassTypeParameterWithContextBound(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |  class C[T: ClassTag] { def m(): Unit = g[T]()$S(classTag$$T$$0)$E }
+       |}""".stripMargin
+  )
+
 }
 
 class ImplicitArgumentHintsTestScala3 extends ImplicitArgumentHintsTest {
