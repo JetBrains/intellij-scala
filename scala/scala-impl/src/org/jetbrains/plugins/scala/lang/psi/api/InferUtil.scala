@@ -20,8 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ApplicabilityCh
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -340,6 +341,43 @@ object InferUtil {
   }
 
   /**
+   * Widens the singleton types in `tpe` that hide one of `typeParams` behind a term, so that an
+   * expected type checked against `tpe` can constrain that type parameter.
+   *
+   * `scala.Predef.summon[T](using x: T): x.type` returns `T` under the singleton type of its own
+   * parameter, where no substitutor reaches it: `x.type` mentions `x`, not `T`. Checking it against
+   * the expected type of `val r: RecordLike[Int] = summon` therefore yields no constraint at all and
+   * leaves `T` uninstantiated, while the compiler solves `T <: RecordLike[Int]` here. Widening the
+   * singleton to its underlying `T` restores that.
+   *
+   * Only singletons that do expose a type parameter are widened, so that a `val y: x.type = x` is
+   * still checked against the singleton type itself.
+   */
+  private def exposeTypeParametersBehindSingletons(tpe: ScType, typeParams: Seq[TypeParameter]): ScType =
+    if (typeParams.isEmpty) tpe
+    else {
+      val typeParamIds = typeParams.map(_.typeParamId).toSet
+
+      def mentionsTypeParameter(tpe: ScType): Boolean = tpe.subtypeExists {
+        case TypeParameterType(typeParameter) => typeParamIds.contains(typeParameter.typeParamId)
+        case _                                => false
+      }
+
+      tpe.recursiveUpdate {
+        case designator: DesignatorOwner if designator.isSingleton =>
+          val widened = Widening.widenSingleton(designator)
+
+          if ((widened ne designator) && mentionsTypeParameter(widened)) {
+            ReplaceWith(widened)
+          } else {
+            ProcessSubtypes
+          }
+        case _ =>
+          ProcessSubtypes
+      }
+    }
+
+  /**
    * Updates polymorphic type according to `expectedType`
    */
   def updateAccordingToExpectedType(
@@ -410,7 +448,7 @@ object InferUtil {
         case _ => internal
       }
 
-      val valueType          = sameDepth.inferValueType
+      val valueType          = exposeTypeParametersBehindSingletons(sameDepth.inferValueType, typeParams)
       val expectedParam      = Parameter("", None, expected, expected)
       val expressionToUpdate = Expression(ScSubstitutor.bind(typeParams)(UndefinedType(_)).apply(valueType))
 
