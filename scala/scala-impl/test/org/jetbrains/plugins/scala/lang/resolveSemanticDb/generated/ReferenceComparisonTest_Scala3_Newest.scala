@@ -2348,7 +2348,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part23 extends ReferenceCompar
   def test_localmodules(): Unit = doTest("localmodules", true)
   def test_lookuprefined(): Unit = doTest("lookuprefined", false)
   def test_lookupswitch(): Unit = doTest("lookupswitch", true)
-  def test_looping_givens(): Unit = doTest("looping-givens", false) // #unionType
+  def test_looping_givens(): Unit = doTest("looping-givens", true)
   def test_looping_jsig(): Unit = doTest("looping-jsig", true)
   def test_macro(): Unit = doTest("macro", true)
   def test_macro_deprecate_dont_touch_backquotedidents(): Unit = doTest("macro-deprecate-dont-touch-backquotedidents", true)

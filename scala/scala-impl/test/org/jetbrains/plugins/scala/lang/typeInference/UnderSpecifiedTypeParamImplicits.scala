@@ -114,4 +114,61 @@ class UnderSpecifiedTypeParamImplicits extends TypeInferenceTestBase with Implic
        |${START}new Test$END
        """.stripMargin
   )
+
+  // `summon[T](using x: T): x.type` hides `T` behind the singleton type of its own parameter, where
+  // the expected type used to be unable to reach it, leaving `T` unbounded and the search refused as
+  // underspecified - see InferUtil.exposeTypeParametersBehindSingletons.
+  def testSummonWithExpectedTypeIsSearched(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |trait RecordLike[R]
+       |given RecordLike[Int] = ???
+       |
+       |val r: RecordLike[Int] = ${START}summon${END}
+       |""".stripMargin
+  )
+
+  def testSummonOfSimpleTypeIsSearched(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |given Int = 1
+       |
+       |val i: Int = ${START}summon${END}
+       |""".stripMargin
+  )
+
+  // The same for a hand-written `summon`, and for one that wraps the argument rather than
+  // returning it directly.
+  def testDependentResultTypeIsSearched(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |trait RecordLike[R]
+       |given RecordLike[Int] = ???
+       |
+       |def mySummon[T](using x: T): x.type = x
+       |
+       |val r: RecordLike[Int] = ${START}mySummon${END}
+       |""".stripMargin
+  )
+
+  def testWrappedDependentResultTypeIsSearched(): Unit = checkNoImplicitParameterProblems(
+    s"""
+       |trait RecordLike[R]
+       |class Wrapper[A]
+       |given RecordLike[Int] = ???
+       |
+       |def mySummon[T](using x: T): Wrapper[x.type] = ???
+       |
+       |val r: Wrapper[RecordLike[Int]] = ${START}mySummon${END}
+       |""".stripMargin
+  )
+
+  // Without an expected type nothing can constrain `M`, so the search is still refused.
+  def testResultTypeMentioningTypeParameterNotSearched(): Unit = checkHasImplicitArgumentProblems(
+    s"""
+       |class Box[A]
+       |given Box[Int] = ???
+       |
+       |def f[A, M >: Box[A]](using M): (A, M) = ???
+       |
+       |${START}f${END}
+       |""".stripMargin
+  )
 }
