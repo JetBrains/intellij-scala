@@ -8,12 +8,12 @@ import org.jetbrains.plugins.scala.caches.measure
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiven, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, SyntheticImplicitInstances}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.{isUnderspecified, _}
@@ -337,11 +337,6 @@ class ImplicitCollector(
     if (tooUnspecificToSearch) return Seq.empty
 
     DivergenceChecker.withDivergenceStackOpt(previousDivergenceStack) {
-      targetClass match {
-        case Some(c) if SyntheticImplicitInstances.tagsAndManifists.contains(c.qualifiedName) => return Seq.empty
-        case _                                                                                =>
-      }
-
       ProgressManager.checkCanceled()
       if (fullInfo) {
         //@TODO: should this branch also uses visibleNamesCandidatesByLevel?
