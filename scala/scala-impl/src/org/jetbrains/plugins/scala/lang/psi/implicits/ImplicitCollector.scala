@@ -69,11 +69,27 @@ object ImplicitCollector {
     lazy val tooUnspecificToSearch: Boolean =
       ImplicitCollector.isUnderspecified(isImplicitConversion, extensionData.isDefined, place, tp)
 
-    def presentableTypeText: String = {
+    def presentableTypeText: String = presentableText(tp)
+
+    /**
+     * Presentation of the type the search was done for. An inference variable is presented by the
+     * bound it was constrained to (`Int` for `val i: Int = summon`), the way the compiler reports it,
+     * rather than as an abstract type (`T_`).
+     */
+    def presentableSearchedTypeText: String = {
+      implicit val context: Context = Context(place)
+
+      tp match {
+        case abstractType: ScAbstractType => presentableText(abstractType.simplifyType)
+        case _                            => presentableTypeText
+      }
+    }
+
+    private def presentableText(tpe: ScType): String = {
       implicit val tpc: TypePresentationContext = TypePresentationContext(place)
       implicit val context: Context = Context(place)
 
-      Using.resource(SlowOperations.knownIssue("SCL-23054"))(_ => tp.presentableText)
+      Using.resource(SlowOperations.knownIssue("SCL-23054"))(_ => tpe.presentableText)
     }
   }
 
@@ -120,7 +136,7 @@ object ImplicitCollector {
     parameter.implicitSearchState.map { state =>
       state.tp match {
         case ScAbstractType(typeParameter, _, _) if isUnderspecified(state.tp) => typeParameter.name
-        case _                                                                 => state.presentableTypeText
+        case _                                                                 => state.presentableSearchedTypeText
       }
     }
 

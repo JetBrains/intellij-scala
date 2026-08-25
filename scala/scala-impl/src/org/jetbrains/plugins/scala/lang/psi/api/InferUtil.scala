@@ -140,6 +140,7 @@ object InferUtil {
         val inferredParamsBuffer = ArraySeq.newBuilder[Parameter]
         val exprsBuffer          = ArraySeq.newBuilder[Compatibility.Expression]
         val resolveResultsBuffer = ArraySeq.newBuilder[ScalaResolveResult]
+        val unresolvedBuffer     = ArraySeq.newBuilder[(Parameter, ScType)]
 
         //todo: do we need to execute this loop several times?
         var i = 0
@@ -149,7 +150,7 @@ object InferUtil {
             case t @ ScTypePolymorphicType(ImplicitMethodOrFunctionType(retTypeSingle, paramsSingle), typeParamsSingle) =>
               val abstractSubstitutor = t.abstractOrLowerTypeSubstitutor
 
-              val (inferredParams, exprs, resolveResults) =
+              val found =
                 findImplicits(
                   paramsSingle,
                   coreElement,
@@ -163,22 +164,29 @@ object InferUtil {
               val (updatedWithLocalTypeInference, conformanceResult) =
                 localTypeInferenceWithApplicabilityExt(
                   retTypeSingle,
-                  inferredParams,
-                  exprs,
+                  found.inferredParams,
+                  found.exprs,
                   typeParamsSingle,
                   canThrowSCE = canThrowSCE || fullInfo
                 )
 
               updatedType            = updatedWithLocalTypeInference
               constraints           += conformanceResult.constraints
-              inferredParamsBuffer ++= inferredParams
-              exprsBuffer          ++= exprs
-              resolveResultsBuffer ++= resolveResults
+              inferredParamsBuffer ++= found.inferredParams
+              exprsBuffer          ++= found.exprs
+              resolveResultsBuffer ++= found.resolveResults
+              unresolvedBuffer     ++= found.unresolved
           }
         }
 
         implicitParameters = Option(resolveResultsBuffer.result())
-        val dependentSubst = ScSubstitutor.paramToExprType(inferredParamsBuffer.result(), exprsBuffer.result())
+        val dependentSubst =
+          FoundImplicits(
+            inferredParamsBuffer.result(),
+            exprsBuffer.result(),
+            resolveResultsBuffer.result(),
+            unresolvedBuffer.result()
+          ).dependentSubstitutor
         updatedType        = dependentSubst(updatedType)
       case mt @ ScMethodType(retType, _, isImplicit)
         if !isImplicit && updateDeep =>
@@ -195,7 +203,7 @@ object InferUtil {
 
         return (mt.copy(result = updatedReturnType), appliedClauses)
       case ImplicitMethodOrFunctionType(retType, params) =>
-        val (inferredParams, exprs, resolveResults) =
+        val found =
           findImplicits(
             params,
             coreElement,
@@ -205,9 +213,9 @@ object InferUtil {
             implicitRecursionDepth
           )
 
-        implicitParameters = Option(resolveResults)
+        implicitParameters = Option(found.resolveResults)
         updatedType        = retType
-        val dependentSubst = ScSubstitutor.paramToExprType(inferredParams, exprs)
+        val dependentSubst = found.dependentSubstitutor
         updatedType        = dependentSubst(updatedType)
       case _ =>
     }
@@ -237,6 +245,36 @@ object InferUtil {
     }
   }
 
+  /**
+   * Outcome of the search for the implicit arguments of a single clause.
+   *
+   * @param inferredParams parameters an argument was found for, aligned with `exprs`
+   * @param exprs          types of the found arguments
+   * @param resolveResults one result per parameter, including the not found and ambiguous ones
+   * @param unresolved     parameters no argument was found for, with the searched for type
+   */
+  private case class FoundImplicits(
+    inferredParams: Seq[Parameter],
+    exprs:          Seq[Compatibility.Expression],
+    resolveResults: Seq[ScalaResolveResult],
+    unresolved:     Seq[(Parameter, ScType)]
+  ) {
+    /**
+     * Substitutor for a result type depending on the implicit parameters, e.g. the `x.type` of
+     * `summon[T](using x: T): x.type`.
+     *
+     * Parameters without an argument are substituted with the type that was searched for, so that
+     * a failed search leaves an approximation of the result type (`Int`) instead of a reference to
+     * a parameter which is not there (`x.type`) and which conforms to nothing.
+     */
+    def dependentSubstitutor: ScSubstitutor = {
+      val (unresolvedParams, unresolvedTypes) = unresolved.unzip
+      ScSubstitutor
+        .paramToExprType(inferredParams, exprs)
+        .followed(ScSubstitutor.paramToType(unresolvedParams, unresolvedTypes))
+    }
+  }
+
   private def findImplicits(
     params:                 Seq[Parameter],
     coreElement:            Option[ScNamedElement],
@@ -245,15 +283,16 @@ object InferUtil {
     throwOnAmbiguous:       Boolean,
     implicitRecursionDepth: Int           = 0,
     abstractSubstitutor:    ScSubstitutor = ScSubstitutor.empty
-  ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
+  ): FoundImplicits = {
 
     implicit val projectContext: ProjectContext = place.getProject
     implicit val context: Context = Context(place)
 
-    val inferredParams = ArraySeq.newBuilder[Parameter]
-    val exprs          = ArraySeq.newBuilder[Compatibility.Expression]
-    val resolveResults = ArraySeq.newBuilder[ScalaResolveResult]
-    val paramsIterator = params.iterator
+    val inferredParams   = ArraySeq.newBuilder[Parameter]
+    val exprs            = ArraySeq.newBuilder[Compatibility.Expression]
+    val resolveResults   = ArraySeq.newBuilder[ScalaResolveResult]
+    val unresolvedParams = ArraySeq.newBuilder[(Parameter, ScType)]
+    val paramsIterator   = params.iterator
 
     while (paramsIterator.hasNext) {
       val param     = paramsIterator.next()
@@ -329,15 +368,23 @@ object InferUtil {
 
         resolveResults += result
 
-        compilerGenerated.foreach { srr =>
-          val resultType = srr.inferredType.getOrElse(paramType)
-          inferredParams += param
-          exprs         += Expression(resultType)
+        compilerGenerated match {
+          case Some(srr) =>
+            val resultType = srr.inferredType.getOrElse(paramType)
+            inferredParams += param
+            exprs          += Expression(resultType)
+          case None =>
+            unresolvedParams += ((param, paramType.removeAbstracts))
         }
       }
     }
 
-    (inferredParams.result(), exprs.result(), resolveResults.result())
+    FoundImplicits(
+      inferredParams.result(),
+      exprs.result(),
+      resolveResults.result(),
+      unresolvedParams.result()
+    )
   }
 
   /**

@@ -21,7 +21,8 @@ class ScDerivesClauseAnnotatorTest extends AnnotatorSimpleTestCase {
           |""".stripMargin
       )
     )(
-      Error("Foo", "Expression of type Foo[Nothing] doesn't conform to expected type Foo[A]"),
+      // the type parameters inferred from the expected type are kept when the implicit search
+      // fails, so `derived` still returns `Foo[A]` and only the missing implicit is reported
       Error("Foo", "No implicit arguments of type: Foo[Int]"),
     )
 

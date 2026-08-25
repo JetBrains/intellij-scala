@@ -720,3 +720,50 @@ class ImplicitParametersAnnotatorFailingTest extends ImplicitParametersAnnotator
     )
   }
 }
+
+/**
+ * Unlike the tests above these have a Scala library, so they can use `summon`, whose result type
+ * `x.type` depends on the using parameter that is searched for.
+ */
+class ImplicitParametersHighlightingTest_Scala3 extends ScalaHighlightingTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= ScalaVersion.Latest.Scala_3
+
+  private def notFound(types: String*) = ImplicitParametersAnnotator.message(types)
+
+  def testSummonWithGiven(): Unit = assertNoErrors(
+    """given Int = 1
+      |val i: Int = summon
+      |""".stripMargin
+  )
+
+  // The type parameter of `summon` is inferred from the expected type, so the missing given is
+  // reported as `Int` and not as the underspecified `T`. And since the search failed, the result
+  // type `x.type` is approximated with `Int` instead of referring to the parameter that is missing,
+  // which would additionally be reported as a type mismatch.
+  def testSummonWithoutGiven(): Unit = assertErrors(
+    """val i: Int = summon
+      |""".stripMargin,
+    Message.Error("summon", notFound("Int"))
+  )
+
+  def testSummonWithExplicitTypeArgumentWithoutGiven(): Unit = assertErrors(
+    """val i: Int = summon[Int]
+      |""".stripMargin,
+    Message.Error("summon[Int]", notFound("Int"))
+  )
+
+  def testDependentResultTypeWithoutGiven(): Unit = assertErrors(
+    """def mySummon[T](using t: T): t.type = t
+      |val i: Int = mySummon
+      |""".stripMargin,
+    Message.Error("mySummon", notFound("Int"))
+  )
+
+  def testTypeParameterResultTypeWithoutGiven(): Unit = assertErrors(
+    """def mySummon[T](using t: T): T = t
+      |val i: Int = mySummon
+      |""".stripMargin,
+    Message.Error("mySummon", notFound("Int"))
+  )
+}

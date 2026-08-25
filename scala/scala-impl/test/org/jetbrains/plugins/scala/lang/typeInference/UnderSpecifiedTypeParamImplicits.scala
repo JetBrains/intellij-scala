@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 
 class UnderSpecifiedTypeParamImplicits extends TypeInferenceTestBase with ImplicitParametersTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
@@ -55,10 +57,10 @@ class UnderSpecifiedTypeParamImplicits extends TypeInferenceTestBase with Implic
          |""".stripMargin
     )
     val param = implicits.head
-    org.junit.Assert.assertTrue("Expected an implicit parameter problem", param.isImplicitParameterProblem)
+    assertTrue("Expected an implicit parameter problem", param.isImplicitParameterProblem)
 
-    val probable = org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.probableArgumentsFor(param)
-    org.junit.Assert.assertTrue(
+    val probable = ImplicitCollector.probableArgumentsFor(param)
+    assertTrue(
       s"No probable arguments expected for an underspecified expected type, got: ${probable.map(_._1.name)}",
       probable.isEmpty
     )
@@ -171,4 +173,20 @@ class UnderSpecifiedTypeParamImplicits extends TypeInferenceTestBase with Implic
        |${START}f${END}
        |""".stripMargin
   )
+
+  // A search that was attempted and found nothing must be reported as such, for the type parameters
+  // inferred from the expected type - not as a refused search for the unconstrained type parameter.
+  def testMissingImplicitIsReportedForTheExpectedType(): Unit = {
+    val param = implicitArgumentsProblems(
+      s"""
+         |val i: Int = ${START}summon${END}
+         |""".stripMargin
+    ).head
+
+    assertFalse(
+      "The search is constrained by the expected type, so it must be attempted",
+      ImplicitCollector.isTooUnspecificToSearch(param)
+    )
+    assertEquals(Some("Int"), ImplicitCollector.expectedTypeText(param))
+  }
 }
