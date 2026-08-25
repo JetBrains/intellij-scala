@@ -14,7 +14,7 @@ object Versions {
   // run runtimeDependencies/update manually
   val sbtVersion: String = "1.13.0"
   val bloopVersion = "2.1.1"
-  val zincVersion = "1.12.0"
+  val zincVersion = "1.12.1"
 
   val nailgunVersion = "1.3.1"
 
