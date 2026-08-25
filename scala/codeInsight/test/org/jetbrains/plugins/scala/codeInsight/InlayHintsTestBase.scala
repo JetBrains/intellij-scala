@@ -4,8 +4,11 @@ package codeInsight
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.editor.Inlay
 import org.jetbrains.plugins.scala.base
+import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.junit.experimental.categories.Category
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Category(Array(classOf[EditorTests]))
 abstract class InlayHintsTestBase extends base.ScalaLightCodeInsightFixtureTestCase {
@@ -25,6 +28,20 @@ abstract class InlayHintsTestBase extends base.ScalaLightCodeInsightFixtureTestC
     configureFromFileText(text)
     val f = inlayText(withTooltips)
     myFixture.testInlays(f(_).get, f(_).isDefined)
+  }
+
+  /** All the [[Text]] parts of all the inlays in `text`, in document order. */
+  protected def inlayPartsIn(text: String): Seq[Text] = {
+    configureFromFileText(text)
+    myFixture.doHighlighting()
+
+    val document = myFixture.getEditor.getDocument
+    myFixture.getEditor.getInlayModel
+      .getInlineElementsInRange(0, document.getTextLength)
+      .asScala
+      .toSeq
+      .flatMap(inlay => Option(inlay.getRenderer).collect { case renderer: TextPartsHintRenderer => renderer })
+      .flatMap(_.parts)
   }
 
   /** Error tooltip messages of all inlays in `text`, in document order. */

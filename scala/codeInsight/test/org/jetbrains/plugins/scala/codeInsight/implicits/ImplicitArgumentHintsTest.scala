@@ -7,6 +7,9 @@ import org.junit.Assert.assertEquals
 class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
   import Hint.{End => E, Start => S}
 
+  //Scala 3 renders a compound type with `&` instead of `with`
+  protected def compoundTypeText: String = "Bar with Serializable"
+
   def testSimpleImplicitArgument(): Unit = doTest(
     s"""
        |class A
@@ -111,7 +114,7 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
        |import scala.reflect.ClassTag
        |object Foo {
        |  def g[T: ClassTag](): Unit = ()
-       |  g[Int]()$S(ClassTag)$E
+       |  g[Int]()$S(ClassTag.Int)$E
        |}""".stripMargin
   )
 
@@ -167,18 +170,18 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
        |
        |  def g[T: ClassTag](): Unit = ()
        |
-       |  g[Bar]()$S(ClassTag)$E
-       |  g[Baz[Bar]]()$S(ClassTag)$E
-       |  g[Qux.type]()$S(ClassTag)$E
-       |  g[Alias]()$S(ClassTag)$E
-       |  g[List[Bar]]()$S(ClassTag)$E
-       |  g[Array[Bar]]()$S(ClassTag)$E
-       |  g[Bar with Serializable]()$S(ClassTag)$E
-       |  g[(Bar, Int)]()$S(ClassTag)$E
-       |  g[Bar => Int]()$S(ClassTag)$E
-       |  g[Unit]()$S(ClassTag)$E
-       |  g[Nothing]()$S(ClassTag)$E
-       |  g[Any]()$S(ClassTag)$E
+       |  g[Bar]()$S(ClassTag(classOf[Bar]))$E
+       |  g[Baz[Bar]]()$S(ClassTag(classOf[Baz[Bar]]))$E
+       |  g[Qux.type]()$S(ClassTag(classOf[Qux.type]))$E
+       |  g[Alias]()$S(ClassTag(classOf[Bar]))$E
+       |  g[List[Bar]]()$S(ClassTag(classOf[List[Bar]]))$E
+       |  g[Array[Bar]]()$S(ClassTag(classOf[Array[Bar]]))$E
+       |  g[Bar with Serializable]()$S(ClassTag(classOf[$compoundTypeText]))$E
+       |  g[(Bar, Int)]()$S(ClassTag(classOf[(Bar, Int)]))$E
+       |  g[Bar => Int]()$S(ClassTag(classOf[Bar => Int]))$E
+       |  g[Unit]()$S(ClassTag.Unit)$E
+       |  g[Nothing]()$S(ClassTag.Nothing)$E
+       |  g[Any]()$S(ClassTag.Any)$E
        |}""".stripMargin
   )
 
@@ -190,7 +193,7 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
        |  class Bar
        |  def g[T: ClassTag](): Unit = ()
        |  implicit val s: String = ""
-       |  g[Bar]()$S(ClassTag)$E
+       |  g[Bar]()$S(ClassTag(classOf[Bar]))$E
        |}""".stripMargin
   )
 
@@ -201,7 +204,7 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
        |object Foo {
        |  def g[T: ClassTag](): Unit = ()
        |  implicit val tag: ClassTag[String] = ClassTag(classOf[String])
-       |  g[Int]()$S(ClassTag)$E
+       |  g[Int]()$S(ClassTag.Int)$E
        |}""".stripMargin
   )
 
@@ -212,7 +215,7 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
        |object Foo {
        |  def g[T: ClassTag](): Unit = ()
        |  val tag: ClassTag[Int] = ClassTag.Int
-       |  g[Int]()$S(ClassTag)$E
+       |  g[Int]()$S(ClassTag.Int)$E
        |}""".stripMargin
   )
 
@@ -223,7 +226,7 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
        |object Foo {
        |  class Bar
        |  def g[T: ClassTag](): Unit = ()
-       |  def f[T: ClassTag](): Unit = g[Bar]()$S(ClassTag)$E
+       |  def f[T: ClassTag](): Unit = g[Bar]()$S(ClassTag(classOf[Bar]))$E
        |}""".stripMargin
   )
 
@@ -318,6 +321,80 @@ class ImplicitArgumentHintsTest extends ImplicitHintsTestBase {
        |}""".stripMargin
   )
 
+  //SCL-14358, types which have a predefined tag are shown as a reference to it
+  def testPredefinedClassTags(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  def g[T: ClassTag](): Unit = ()
+       |
+       |  g[Byte]()$S(ClassTag.Byte)$E
+       |  g[Short]()$S(ClassTag.Short)$E
+       |  g[Char]()$S(ClassTag.Char)$E
+       |  g[Int]()$S(ClassTag.Int)$E
+       |  g[Long]()$S(ClassTag.Long)$E
+       |  g[Float]()$S(ClassTag.Float)$E
+       |  g[Double]()$S(ClassTag.Double)$E
+       |  g[Boolean]()$S(ClassTag.Boolean)$E
+       |  g[Unit]()$S(ClassTag.Unit)$E
+       |  g[Any]()$S(ClassTag.Any)$E
+       |  g[AnyVal]()$S(ClassTag.AnyVal)$E
+       |  g[AnyRef]()$S(ClassTag.AnyRef)$E
+       |  g[Nothing]()$S(ClassTag.Nothing)$E
+       |  g[Null]()$S(ClassTag.Null)$E
+       |  g[Object]()$S(ClassTag.Object)$E
+       |}""".stripMargin
+  )
+
+  //SCL-14358, the type argument is shown, no matter whether it was explicit or inferred
+  def testClassTagForInferredTypeArgument(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  class Bar
+       |  def g[T: ClassTag](p: T): Unit = ()
+       |
+       |  g(new Bar)$S(ClassTag(classOf[Bar]))$E
+       |  g(42)$S(ClassTag.Int)$E
+       |  g("a")$S(ClassTag(classOf[String]))$E
+       |}""".stripMargin
+  )
+
+  //SCL-14358, `.apply` is only shown when the corresponding hint is enabled, which it isn't by default
+  def testClassTagApplyIsNotShownByDefault(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |object Foo {
+       |  class Bar
+       |  def g[T: ClassTag](): Unit = ()
+       |  g[Bar]()$S(ClassTag(classOf[Bar]))$E
+       |}""".stripMargin
+  )
+
+  //SCL-14358, every part of the presentation resolves
+  def testMaterializedClassTagNavigation(): Unit = doNavigationTest(
+    """
+      |import scala.reflect.ClassTag
+      |object Foo {
+      |  def g[T: ClassTag](): Unit = ()
+      |  g[List[String]]()
+      |}""".stripMargin,
+    "(ClassTag{scala.reflect.ClassTag}" +
+      "(classOf{scala.Predef.classOf}" +
+      "[List{scala.collection.immutable.List}[String{java.lang.String}]]))"
+  )
+
+  //SCL-14358, a predefined tag resolves to the value in the `ClassTag` object
+  def testPredefinedClassTagNavigation(): Unit = doNavigationTest(
+    """
+      |import scala.reflect.ClassTag
+      |object Foo {
+      |  def g[T: ClassTag](): Unit = ()
+      |  g[Int]()
+      |}""".stripMargin,
+    "(ClassTag{scala.reflect.ClassTag}.Int{scala.reflect.ClassTag.Int})"
+  )
+
 }
 
 class ImplicitArgumentHintsTestScala3 extends ImplicitArgumentHintsTest {
@@ -325,6 +402,8 @@ class ImplicitArgumentHintsTestScala3 extends ImplicitArgumentHintsTest {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_3_0
+
+  override protected def compoundTypeText: String = "Bar & Serializable"
 
   def testMultipleUsingClausesTrailing(): Unit = {
     doTest(

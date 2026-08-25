@@ -8,7 +8,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.pom.Navigatable
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.DocumentUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.HighlightingAdvisor
@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaApplyMethodHintsPass, ScalaHintsSettings, ScalaInlayParameterHintsPass, ScalaTypeArgumentHintsPass, ScalaTypeHintsPass}
+import org.jetbrains.plugins.scala.codeInsight.hints.textPartsOf
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInfoGenerator
 import org.jetbrains.plugins.scala.extensions.{&, _}
@@ -30,12 +31,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaFile, SyntheticImplicitInstances}
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.fromScMethodLike
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 import scala.collection.mutable
 
@@ -251,7 +257,7 @@ private object ImplicitHintsPass {
   ): Seq[Hint] = {
     val hintPrefix =
       Hint(
-        namedBasicPresentation(conversion),
+        namedBasicPresentation(conversion, Option(owner)),
         e,
         position = HintPosition.BeforeElement,
         menu     = menu.ImplicitConversion,
@@ -386,22 +392,116 @@ private object ImplicitHintsPass {
     val result = argument.isImplicitParameterProblem
       .option(problemPresentation(parameter = argument, owner))
       .getOrElse(
-        namedBasicPresentation(argument) ++
+        namedBasicPresentation(argument, owner) ++
           argument.implicitArguments.flatMap(clause => collapsedPresentationOf(clause.args, owner))
       )
     result
   }
 
-  private def namedBasicPresentation(result: ScalaResolveResult): Seq[Text] = {
-    val delegate = result.element match {
-      case f: ScFunction => Option(f.syntheticNavigationElement).getOrElse(f)
-      case element => element
+  private def namedBasicPresentation(
+    result: ScalaResolveResult,
+    place:  Option[PsiElement] = None
+  )(implicit
+    scheme: EditorColorsScheme
+  ): Seq[Text] =
+    MaterializedClassTag.unapply(result) match {
+      case Some(argType) => MaterializedClassTag.presentationOf(result, argType, place)
+      case None =>
+        val delegate = result.element match {
+          case f: ScFunction => Option(f.syntheticNavigationElement).getOrElse(f)
+          case element => element
+        }
+
+        val tooltip = () => ScalaDocQuickInfoGenerator.getQuickNavigateInfo(delegate, delegate, result.substitutor)
+        Seq(
+          Text(result.name, navigatable = delegate.asOptionOfUnsafe[Navigatable], tooltip = tooltip)
+        )
     }
 
-    val tooltip = () => ScalaDocQuickInfoGenerator.getQuickNavigateInfo(delegate, delegate, result.substitutor)
-    Seq(
-      Text(result.name, navigatable = delegate.asOptionOfUnsafe[Navigatable], tooltip = tooltip)
+  /**
+   * A `ClassTag` materialized by the compiler has no value to refer to, so instead of the bare `ClassTag`
+   * we show the expression the compiler would have generated, see SCL-14358:
+   *   - `ClassTag.Int` for the types which have a predefined tag in the `scala.reflect.ClassTag` object
+   *   - `ClassTag.apply[Foo](classOf[Foo])` for anything else, where `.apply` and `[Foo]` are only shown
+   *     if the corresponding hint settings are enabled
+   *
+   * Every part of the presentation is navigable: the tag object and its member, `scala.Predef.classOf`,
+   * and each class mentioned in the rendered type argument.
+   */
+  private object MaterializedClassTag {
+    private val ClassTagFqn = SyntheticImplicitInstances.ClassTag
+    private val PredefFqn   = "scala.Predef"
+
+    private val predefinedTagNames = Set(
+      StdType.Name.Byte, StdType.Name.Short, StdType.Name.Char, StdType.Name.Int, StdType.Name.Long,
+      StdType.Name.Float, StdType.Name.Double, StdType.Name.Boolean, StdType.Name.Unit, StdType.Name.Any,
+      StdType.Name.AnyVal, StdType.Name.AnyRef, StdType.Name.Nothing, StdType.Name.Null
     )
+
+    def unapply(result: ScalaResolveResult): Option[ScType] = result.element match {
+      // a materialized instance resolves to the tag class itself, not to any value of that type
+      case cls: PsiClass if cls.qualifiedName == ClassTagFqn =>
+        cls.getTypeParameters.headOption.map(tp => result.substitutor(TypeParameterType(tp)))
+      case _ => None
+    }
+
+    def presentationOf(
+      result:  ScalaResolveResult,
+      argType: ScType,
+      place:   Option[PsiElement]
+    )(implicit
+      scheme: EditorColorsScheme
+    ): Seq[Text] = {
+      val contextElement = place.getOrElse(result.element)
+      val elementScope   = ElementScope(contextElement)
+      val tagObject      = elementScope.getCachedObject(ClassTagFqn)
+
+      def memberOf(owner: Option[ScObject], name: String): Text = {
+        val target  = owner.toSeq.flatMap(_.allTermsByName(name)).headOption
+        val tooltip = () => target.flatMap(t => ScalaDocQuickInfoGenerator.getQuickNavigateInfo(t, contextElement))
+        Text(name, navigatable = target.flatMap(_.asOptionOfUnsafe[Navigatable]), tooltip = tooltip)
+      }
+
+      val classTag = Text(ClassTagName, navigatable = tagObject.flatMap(_.asOptionOfUnsafe[Navigatable]))
+
+      predefinedTagName(argType, contextElement) match {
+        case Some(tagName) => Seq(classTag, Text("."), memberOf(tagObject, tagName))
+        case None =>
+          implicit val tpc: TypePresentationContext = TypePresentationContext(contextElement)
+          implicit val ctx: Context                 = Context(contextElement)
+
+          // Int.MaxValue, because a hint of a materialized tag is never long enough to be worth folding.
+          // A fresh Seq per use, because Text is compared by identity and carries mutable highlighting state.
+          def argParts     = textPartsOf(argType, Int.MaxValue, contextElement)
+          val applyPart    = if (showApplyMethod) Seq(Text("."), memberOf(tagObject, "apply")) else Seq.empty
+          val typeArgsPart = if (showTypeArguments) (Text("[") +: argParts) :+ Text("]") else Seq.empty
+
+          val classOfPart =
+            Text("(") +: memberOf(elementScope.getCachedObject(PredefFqn), "classOf") +: Text("[") +:
+              argParts :+ Text("]") :+ Text(")")
+
+          classTag +: (applyPart ++ typeArgsPart ++ classOfPart)
+      }
+    }
+
+    private def predefinedTagName(argType: ScType, contextElement: PsiElement): Option[String] =
+      argType.removeAliasDefinitionsIn(contextElement) match {
+        case std: StdType if predefinedTagNames.contains(std.name) => Some(std.name)
+        case other =>
+          // `scala.reflect.ClassTag.Object` is the tag for `java.lang.Object`
+          other.extractClass
+            .map(_.qualifiedName)
+            .collect { case CommonQualifiedNames.JavaLangObjectFqn => ObjectTagName }
+      }
+
+    private def showApplyMethod: Boolean =
+      ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_APPLY_METHOD_HINTS
+
+    private def showTypeArguments: Boolean =
+      ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_SHOW_TYPE_ARGUMENT_HINTS
+
+    private final val ClassTagName = "ClassTag"
+    private final val ObjectTagName = "Object"
   }
 
   private def problemPresentation(parameter: ScalaResolveResult, owner: Option[ImplicitArgumentsOwner])
@@ -482,7 +582,7 @@ private object ImplicitHintsPass {
                                     (implicit scheme: EditorColorsScheme): Seq[Text] = {
     result match {
       case OkResult =>
-        namedBasicPresentation(argument)
+        namedBasicPresentation(argument, owner)
 
       case ImplicitParameterNotFoundResult =>
         val presentationOfArguments =
@@ -490,15 +590,15 @@ private object ImplicitHintsPass {
             .implicitArguments
             .flatMap(clause => collapsedPresentationOf(clause.args, owner))
 
-        namedBasicPresentation(argument) ++ presentationOfArguments
+        namedBasicPresentation(argument, owner) ++ presentationOfArguments
 
       case DivergedImplicitResult =>
-        namedBasicPresentation(argument)
+        namedBasicPresentation(argument, owner)
           .withErrorTooltipIfEmpty(ScalaCodeInsightBundle.message("implicit.is.diverged"))
           .withAttributes(errorAttributes)
 
       case CantInferTypeParameterResult =>
-        namedBasicPresentation(argument)
+        namedBasicPresentation(argument, owner)
           .withErrorTooltipIfEmpty(ScalaCodeInsightBundle.message("can.t.infer.proper.types.for.type.parameters"))
           .withAttributes(errorAttributes)
     }
