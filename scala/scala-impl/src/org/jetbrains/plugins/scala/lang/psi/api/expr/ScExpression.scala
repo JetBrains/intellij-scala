@@ -661,13 +661,40 @@ object ScExpression {
         } catch {
           case _: SafeCheckException =>
             expr.updateWithImplicitParameters(
-              scType,
+              typeForFailedImplicitSearch(expr, expectedType),
               checkExpectedType = false,
               fromUnderscore    = fromUnderscore,
               pt                = expectedType
             )
         }
       } else scType
+    }
+
+    /**
+     * No implicit argument was found for the type parameters inferred from the expected type.
+     *
+     * Retry without the expected type: an implicit conversion applied to the result may still make
+     * the expression typecheck. But if that does not find the implicit arguments either, keep the
+     * type parameters inferred from the expected type, so that the failure is reported for the type
+     * that is actually required (`no implicit Int found` for `val i: Int = summon`, rather than
+     * `no implicit search was attempted, T is not specific enough`).
+     */
+    private def typeForFailedImplicitSearch(
+      expr:         ScExpression,
+      expectedType: Option[ScType]
+    )(implicit context: Context): ScType = {
+      val updateDeep   = expectedType.exists(FunctionType.isFunctionType) || expr.is[ScUnderscoreSection]
+      val (_, clauses) = expr.updatedWithImplicitArguments(scType, checkExpectedType = false, updateDeep = updateDeep)
+
+      if (!clauses.exists(_.args.exists(_.isImplicitParameterProblem))) scType
+      else
+        InferUtil.updateAccordingToExpectedType(
+          scType,
+          filterTypeParams = false,
+          expectedType     = expectedType,
+          expr             = expr,
+          canThrowSCE      = false
+        )
     }
 
     def dropMethodTypeEmptyParams(expr: ScExpression, expectedType: Option[ScType]): ScType = {

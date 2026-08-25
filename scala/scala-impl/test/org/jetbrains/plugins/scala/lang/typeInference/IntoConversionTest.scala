@@ -112,6 +112,7 @@ class IntoConversionTest extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 
+  // a `given into[A]` does not provide an `A`, so the summon call has no argument for its using parameter
   def testSummonNonIntoFromIntoGiven(): Unit = {
     checkHasErrorAroundCaret(
       s"""import scala.Conversion.into
@@ -121,7 +122,7 @@ class IntoConversionTest extends ScalaLightCodeInsightFixtureTestCase {
          |
          |def test(): Unit = {
          |  given into[A] = ???
-         |  summon[A].te${CARET}st
+         |  sum${CARET}mon[A].test
          |}
          |""".stripMargin
     )
