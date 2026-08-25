@@ -45,7 +45,7 @@ abstract class DependencyManagerBase {
 
   private def defaultResolvers: Seq[Resolver] =
     if (java.lang.Boolean.getBoolean(UseJetBrainsMavenCentralMirrorPropertyKey) || isUnitTestMode)
-      Seq(Resolver.JetBrainsMavenCentralMirror, Resolver.MavenCentral)
+      Seq(Resolver.JetBrainsMavenCentralMirror)
     else
       Seq(Resolver.MavenCentral)
 
