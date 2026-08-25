@@ -27,12 +27,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
+import org.jetbrains.plugins.scala.lang.resolve.processor.{MethodResolveProcessor, MostSpecificUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.annotation.tailrec
-import scala.collection.mutable
+import scala.collection.{View, mutable}
 import scala.util.Using
 
 object ImplicitCollector {
@@ -337,11 +337,33 @@ class ImplicitCollector(
   }
 
   private def collectCompatibleExtensionCandidates(candidates: collection.Set[ScalaResolveResult]): Seq[ScalaResolveResult] = {
-    val withoutLocalTypeInference = collectCompatibleCandidates(candidates, withLocalTypeInference = false).toSeq
+    def collect(allowReceiverConversion: Boolean): Seq[ScalaResolveResult] = {
+      val withoutLocalTypeInference =
+        collectCompatibleCandidates(
+          candidates,
+          withLocalTypeInference             = false,
+          allowExtensionReceiverConversions = allowReceiverConversion
+        ).toSeq
 
-    // If there is exactly one extension method, that one will be chosen regardless of application errors
-    if (withoutLocalTypeInference.sizeIs == 1) withoutLocalTypeInference
-    else withoutLocalTypeInference ++ collectCompatibleCandidates(candidates, withLocalTypeInference = true)
+      // If there is exactly one extension method, that one will be chosen regardless of application errors.
+      if (withoutLocalTypeInference.sizeIs == 1)
+        withoutLocalTypeInference
+      else
+        withoutLocalTypeInference ++ collectCompatibleCandidates(
+          candidates,
+          withLocalTypeInference             = true,
+          allowExtensionReceiverConversions = allowReceiverConversion
+        )
+    }
+
+    // Scalac resolves the synthesized extension receiver without views first and retries with
+    // implicit conversions only when that phase is empty. Mixing both phases makes a directly
+    // applicable receiver ambiguous with, or even less specific than, a converted receiver.
+    val withoutReceiverConversions = collect(allowReceiverConversion = false)
+    if (withoutReceiverConversions.nonEmpty)
+      withoutReceiverConversions
+    else
+      collect(allowReceiverConversion = true)
   }
 
 
@@ -380,10 +402,52 @@ class ImplicitCollector(
         else                                           None
     }
 
+  /**
+   * Checks one implicit-search candidate against this collector's expected type [[tp]] at [[place]].
+   * The result can carry an inferred substitutor, applied context arguments, or a diagnostic
+   * [[ImplicitResult]] used while looking for extensions inside an otherwise incompatible carrier.
+   *
+   * A non-generic given is checked in the first pass without local type inference:
+   * {{{
+   *   given Ordering[Int] = ???
+   *   summon[Ordering[Int]]
+   * }}}
+   *
+   * A generic candidate is deferred until the local-inference pass, where `A` can be inferred as
+   * `Int` from the requested `Ordering[List[Int]]`:
+   * {{{
+   *   given listOrdering[A](using Ordering[A]): Ordering[List[A]] = ???
+   *   summon[Ordering[List[Int]]]
+   * }}}
+   *
+   * For an extension receiver, the conversion-enabled pass may also check whether the qualifier can
+   * be adapted to the declared receiver type:
+   * {{{
+   *   given Conversion[Source, Target] = ???
+   *   extension (target: Target) def value: Int = 1
+   *   (new Source).value
+   * }}}
+   * Passing `allowExtensionReceiverConversions = false` rejects that candidate in the direct
+   * receiver phase; the conversion-enabled fallback accepts it only when no direct receiver applies.
+   *
+   * @param c candidate found in lexical or implicit scope; it can be a regular given/implicit,
+   *          an extension method, or a value whose result type can provide extensions.
+   * @param withLocalTypeInference whether unresolved candidate type parameters may be inferred from
+   *                               the current search target. Generic functions are deferred when this
+   *                               is `false`.
+   * @param checkFast whether to perform only the preliminary compatibility check used to filter the
+   *                  candidate set, skipping expensive context-argument application where possible.
+   * @param allowExtensionReceiverConversions whether a nonconforming extension receiver may be made
+   *                                          applicable through an implicit conversion. This has no
+   *                                          effect on non-extension candidates.
+   * @return the compatible (possibly adapted) resolve result, or `None` when the candidate cannot
+   *         participate in this search.
+   */
   def checkCompatible(
-    c:                      ScalaResolveResult,
-    withLocalTypeInference: Boolean,
-    checkFast:              Boolean = false
+    c:                                 ScalaResolveResult,
+    withLocalTypeInference:            Boolean,
+    checkFast:                         Boolean = false,
+    allowExtensionReceiverConversions: Boolean = true,
   ): Option[ScalaResolveResult] = {
     ProgressManager.checkCanceled()
 
@@ -420,7 +484,13 @@ class ImplicitCollector(
           }
         }
 
-        checkFunctionTypeConformance(c, withLocalTypeInference, checkFast, typeParams)
+        checkFunctionTypeConformance(
+          c,
+          withLocalTypeInference,
+          checkFast,
+          typeParams,
+          allowExtensionReceiverConversions
+        )
       case _ =>
         if (withLocalTypeInference) {
           //only functions may have local type inference
@@ -434,40 +504,110 @@ class ImplicitCollector(
     }
   }
 
-  private def collectCompatibleCandidates(
-    candidates:             collection.Set[ScalaResolveResult],
-    withLocalTypeInference: Boolean,
-  ): Set[ScalaResolveResult] = {
-    val filteredCandidates = mutable.HashSet.empty[ScalaResolveResult]
+  /**
+   * Extension methods need receiver-specificity selection before their receiver constraints are
+   * folded into the result substitutor. By the time [[MethodResolveProcessor]] performs ordinary
+   * overload resolution, a qualified extension has already been applied to its receiver, so its
+   * remaining clauses no longer contain the information that distinguishes receiver overloads.
+   *
+   * For example, both declarations below reach later overload processing as `result: String`, even
+   * though the second receiver is more specific for `List[Int]`:
+   * {{{
+   *   extension [A](value: Iterable[A]) def result: String = "iterable"
+   *   extension [A](value: List[A]) def result: String = "list"
+   *
+   *   List(1).result // must select the List receiver
+   * }}}
+   * Grouping by name and selecting here compares the complete extension types, including their
+   * receiver clauses, before qualifier application folds those constraints into the substitutor.
+   */
+  private def pickMostSpecificExtensions(
+    candidates: mutable.HashSet[ScalaResolveResult]
+  ): mutable.HashSet[ScalaResolveResult] =
+    if (withExtensions)
+      pickMostSpecificExtensionsByName(candidates)
+    else
+      candidates
 
+  private def pickMostSpecificExtensionsByName(
+    candidates: mutable.HashSet[ScalaResolveResult]
+  ): mutable.HashSet[ScalaResolveResult] = {
+    val candidatesByName = candidates.view.groupBy(_.name)
+    candidatesByName
+      .flatMap {
+        case (_, sameNameCandidates) =>
+          if (sameNameCandidates.forall(_.isExtensionCall)) {
+            val mostSpecific = mostSpecificUtil.mostSpecificForResolveResult(sameNameCandidates)
+            mostSpecific.fold(sameNameCandidates)(result => View(result))
+          } else {
+            // Implicit-scope candidates are not partitioned by kind, so this group can contain an
+            // `extension ... def choose` together with a `given choose: Conversion[...]`. Keep such
+            // a group intact: later resolution applies category-specific precedence, while comparing
+            // extensions and conversions as ordinary overloads here would be invalid.
+            sameNameCandidates
+          }
+      }
+      .to(mutable.HashSet)
+  }
+
+  private def collectCompatibleCandidates(
+    candidates:                        collection.Set[ScalaResolveResult],
+    withLocalTypeInference:            Boolean,
+    allowExtensionReceiverConversions: Boolean = true,
+  ): Set[ScalaResolveResult] = {
+    val filteredCandidatesRaw = mutable.HashSet.empty[ScalaResolveResult]
+    val extensionsFromGivens  = mutable.HashSet.empty[ScalaResolveResult]
+
+    // Stage 1: perform a cheap conformance check before the more expensive processing below.
+    // Keep possible extension carriers even when the carrier itself does not conform. For example,
+    // `given syntax: Syntax` must survive if `Syntax` contains
+    // `extension (receiver: Receiver) def render: Result`, although `Syntax` is not the requested
+    // `Receiver => Result` conversion type.
     val iterator = candidates.iterator
     while (iterator.hasNext) {
       val c = iterator.next()
 
       if (canContainTargetMethod(c)) {
-        //no point in filtering candidates by type if they are potentially holding
-        //extensions, that we are looking for
-        filteredCandidates += c
-      } else filteredCandidates ++= checkCompatible(c, withLocalTypeInference, checkFast = true)
+        filteredCandidatesRaw += c
+      } else {
+        filteredCandidatesRaw ++= checkCompatible(
+          c,
+          withLocalTypeInference,
+          checkFast                         = true,
+          allowExtensionReceiverConversions = allowExtensionReceiverConversions
+        )
+      }
     }
 
+    val filteredCandidates = pickMostSpecificExtensions(filteredCandidatesRaw)
     var results = Set.empty[ScalaResolveResult]
 
+    // Stage 2: fully check each surviving candidate and retain only non-dominated applicable results.
+    // An ordinary candidate such as `given Ordering[Int]` can become a result directly. An extension
+    // carrier such as `given syntax: Syntax` instead contributes `Syntax.render` to
+    // `extensionsFromGivens`; the carrier's own type-conformance failure is not returned as a result.
     while (filteredCandidates.nonEmpty) {
       val next = mostSpecificUtil.nextMostSpecific(filteredCandidates)
       next match {
         case Some(c) =>
           filteredCandidates.remove(c)
 
-          val compatible = checkCompatible(c, withLocalTypeInference)
+          val compatible = checkCompatible(
+            c,
+            withLocalTypeInference,
+            allowExtensionReceiverConversions = allowExtensionReceiverConversions
+          )
 
-          if (withExtensions) {
-            //process return types of all candidates to search for extensions
+          // In extension-search mode, inspect only ordinary implicit/given results as extension
+          // carriers. For example, `given syntax: Syntax` may expose `Syntax.render`; an already
+          // found `extension (receiver: Receiver) def syntax: Syntax` must not have its return type
+          // inspected recursively for `render`.
+          if (withExtensions && !c.isExtensionCall) {
             for {
               result <- compatible
             } {
               val extensions = collectExtensionsFromImplicitResult(result, extensionData)
-              filteredCandidates ++= extensions
+              extensionsFromGivens ++= extensions
             }
           }
 
@@ -485,6 +625,24 @@ class ImplicitCollector(
             case _ =>
           }
         case None => ()
+      }
+    }
+
+    // Stage 3: fully check the extensions discovered while processing the surviving carriers.
+    // For `given syntax: Syntax`, this validates `Syntax.render` against the actual `Receiver`,
+    // applies the requested extension-name predicate, and merges the applicable extension by
+    // specificity with results found directly in stage 2.
+    val extensionsToCheck = pickMostSpecificExtensions(extensionsFromGivens)
+    extensionsToCheck.foreach { extension =>
+      val compatible = checkCompatible(
+        extension,
+        withLocalTypeInference,
+        allowExtensionReceiverConversions = allowExtensionReceiverConversions
+      )
+      val applicable = compatible.flatMap(applyExtensionPredicate)
+      applicable.foreach { current =>
+        results = results.filter(noLessSpecificThan(current))
+        results += current
       }
     }
 
@@ -905,10 +1063,11 @@ class ImplicitCollector(
   }
 
   private def checkFunctionTypeConformance(
-    c:                      ScalaResolveResult,
-    withLocalTypeInference: Boolean,
-    checkFast:              Boolean,
-    typeParams:             Seq[ScTypeParam],
+    c:                                 ScalaResolveResult,
+    withLocalTypeInference:            Boolean,
+    checkFast:                         Boolean,
+    typeParams:                        Seq[ScTypeParam],
+    allowExtensionReceiverConversions: Boolean = true,
   ): Option[ScalaResolveResult] = measure("ImplicitCollector.checkFunctionByType") {
     implicit val elementScope: ElementScope = c.element.elementScope
 
@@ -981,7 +1140,7 @@ class ImplicitCollector(
               if (isImplicitConversion) {
                 val pt = maskTypeParametersInExtensions(tp, cand)
                 if (cand.isExtensionCall)
-                  checkExtensionConformance(place, undefined, pt)
+                  checkExtensionConformance(place, undefined, pt, allowExtensionReceiverConversions)
                 else
                   checkWeakConformance(place, undefined, pt)
               } else undefined.conforms(tp, ConstraintSystem.empty)
@@ -1034,7 +1193,43 @@ class ImplicitCollector(
     }
   }
 
-  private def checkExtensionConformance(place: PsiElement, tpe: ScType, pt: ScType): ConstraintsResult = {
+  /**
+   * Checks whether the actual qualifier encoded by `pt` conforms to the receiver encoded by `tpe`.
+   * Direct subtype conformance succeeds without another implicit search:
+   * {{{
+   *   class Parent
+   *   class Child extends Parent
+   *   extension (receiver: Parent) def label: String = "parent"
+   *
+   *   (new Child).label
+   * }}}
+   *
+   * When receiver conversions are allowed, a single implicit conversion can make an otherwise
+   * incompatible qualifier applicable:
+   * {{{
+   *   class Source
+   *   class Target
+   *   given Conversion[Source, Target] = _ => new Target
+   *   extension (receiver: Target) def label: String = "target"
+   *
+   *   (new Source).label
+   * }}}
+   *
+   * @param place call site used for type context and the nested implicit-conversion search
+   * @param tpe candidate extension function type; its first argument is the declared receiver type
+   * @param pt expected function type synthesized for the call; its first argument is the actual
+   *           qualifier type
+   * @param allowReceiverConversion whether to search for a conversion from the actual qualifier to
+   *                                the declared receiver after direct conformance fails
+   * @return the direct conformance constraints, an empty constraint system when exactly one receiver
+   *         conversion is found, or a failed result otherwise
+   */
+  private def checkExtensionConformance(
+    place:                   PsiElement,
+    tpe:                     ScType,
+    pt:                      ScType,
+    allowReceiverConversion: Boolean,
+  ): ConstraintsResult = {
     implicit val elementScope: ElementScope = place.elementScope
     implicit val context: Context = Context(place)
 
@@ -1046,7 +1241,12 @@ class ImplicitCollector(
         val conforms = ptArg.conforms(extensionArg, ConstraintSystem.empty)
 
         if (conforms.isRight) conforms
-        else {
+        else if (allowReceiverConversion) {
+          // A Scala 3 extension can still be applicable when an implicit conversion adapts the
+          // qualifier from `ptArg` to its declared `extensionArg` receiver. Search for exactly one
+          // such `ptArg => extensionArg` conversion here. The direct receiver phase passes `false`
+          // to avoid letting an adapted receiver compete with a directly conforming one; only the
+          // fallback phase is allowed to perform this nested implicit search.
           val conversionType = FunctionType(extensionArg, Seq(ptArg))
 
           val implicitCollector = new ImplicitCollector(
@@ -1057,11 +1257,12 @@ class ImplicitCollector(
             isImplicitConversion = true
           )
 
-          implicitCollector.collect() match {
+          val conversionCandidates = implicitCollector.collect()
+          conversionCandidates match {
             case Seq(_) => ConstraintSystem.empty
             case _      => ConstraintsResult.Left
           }
-        }
+        } else ConstraintsResult.Left
       }
 
     conformanceResult.getOrElse(ConstraintsResult.Left)

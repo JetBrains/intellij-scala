@@ -1357,7 +1357,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part13 extends ReferenceCompariso
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_LTS_Part14 extends ReferenceComparisonTest_Scala3_LTS {
   def test_i12915(): Unit = doTest("i12915", true)
-  def test_i12945(): Unit = doTest("i12945", false) // #opaque
+  def test_i12945(): Unit = doTest("i12945", true) // #opaque
   def test_i12949(): Unit = doTest("i12949", true) // #export, #givenImport, #transparentInline
   def test_i12950(): Unit = doTest("i12950", true) // #opaque, #extension, #export, #transparentInline, #unionType, #givenImport
   def test_i12953(): Unit = doTest("i12953", true)
@@ -1828,9 +1828,9 @@ final class ReferenceComparisonTest_Scala3_LTS_Part18 extends ReferenceCompariso
   def test_i21931(): Unit = doTest("i21931", true)
   def test_i21951(): Unit = doTest("i21951", true)
   def test_i21951b(): Unit = doTest("i21951b", false)
-  def test_i21981(): Unit = doTest("i21981", false) // #extension, #typeLambda
-  def test_i21981_alt(): Unit = doTest("i21981.alt", false) // #extension, #typeLambda
-  def test_i21981_contrak(): Unit = doTest("i21981.contrak", false) // #extension, #typeLambda
+  def test_i21981(): Unit = doTest("i21981", true) // #extension, #typeLambda
+  def test_i21981_alt(): Unit = doTest("i21981.alt", true) // #extension, #typeLambda
+  def test_i21981_contrak(): Unit = doTest("i21981.contrak", true) // #extension, #typeLambda
   def test_i21981_orig(): Unit = doTest("i21981.orig", false) // #extension, #typeLambda
   def test_i22061(): Unit = doTest("i22061", true)
   def test_i22062(): Unit = doTest("i22062", true) // #unionType

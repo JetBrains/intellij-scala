@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElemen
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.Signature.ExportedSigInfo
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ExtensionSignatureInfo, PhysicalMethodSignature, ScCompoundType, Signature, TermSignature, TypeSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
@@ -71,13 +72,45 @@ sealed trait SignatureProcessor[T <: Signature] {
 
   @tailrec
   protected final def processAll(clazz: PsiClass, substitutor: ScSubstitutor, sink: Sink): Unit = clazz match {
-    case null                                           => ()
-    case ScGivenDefinition.DesugaredTypeDefinition(gvn) => processAll(gvn, substitutor, sink)
-    case syn: ScSyntheticClass                          => processAll(realClass(syn), substitutor, sink)
+    case null =>
+      ()
+    case tdef @ ScGivenDefinition.DesugaredTypeDefinition(gvn) =>
+      /**
+       * A parameterized structural given and its synthetic type definition have distinct physical
+       * type parameters. The suffixes below make the different PSI identities explicit; all three
+       * parameters are named `A` in the generated source text.
+       * {{{
+       *   given provider[A_given]: Provider[A_given] with
+       *     extension (value: A_given) def provide: Unit = ()
+       *
+       *   // Synthetic definitions used to model the given:
+       *   class provider[A_tdef] extends Provider[A_tdef]
+       *   implicit def provider[A_method]: provider[A_method] = ???
+       * }}}
+       *
+       * When this method receives the synthetic class with `substitutor = (A_tdef := A_method)`,
+       * the values below are conceptually:
+       * {{{
+       *   givenTypeParameters         = Seq(A_given)
+       *   syntheticTdefTypeParameters = Seq(A_tdef)
+       *   unifyTypeParams             = (A_given := A_tdef, A_tdef := A_method)
+       * }}}
+       *
+       * Adding the first binding lets signatures declared in the source given follow the existing
+       * synthetic-class substitution. Without it, receiver-specificity inference can leak
+       * `A_given` instead of producing a type expressed in terms of `A_method`.
+       */
+      val givenTypeParameters         = gvn.typeParameters.map(TypeParameter(_))
+      val syntheticTdefTypeParameters = tdef.typeParameters.map(TypeParameter(_))
+      val unifyTypeParams             = substitutor.withBindings(givenTypeParameters, syntheticTdefTypeParameters)
+      processAll(gvn, unifyTypeParams, sink)
+    case syn: ScSyntheticClass =>
+      processAll(realClass(syn), substitutor, sink)
     case td: ScTemplateDefinition =>
       processScala(td, substitutor, sink)
       addExportedSignatures(clazz, substitutor, sink)
-    case _ => processJava(clazz, substitutor, sink)
+    case _ =>
+      processJava(clazz, substitutor, sink)
   }
 
   private def realClass(syn: ScSyntheticClass): ScTemplateDefinition =

@@ -37,6 +37,17 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   final def syntheticContainingClass_=(containingClass: ScTypeDefinition): Unit =
     putUserData(syntheticContainingClassKey, containingClass)
 
+  /**
+   * The source structural given from which this synthetic member was created.
+   *
+   * [[ScGivenDefinition.desugaredDefinitions]] sets this association on the synthetic implicit
+   * object, or on the synthetic class and implicit factory method for a parameterized given.
+   * Consumers use it to treat those synthetic declarations as representations of the source given
+   * during resolution, navigation, documentation, highlighting, and refactoring.
+   *
+   * @return the source [[ScGivenDefinition]], or `null` for a member that was not produced by
+   *         structural-given desugaring.
+   */
   final def originalGivenElement: ScGivenDefinition =
     getUserData(originalGivenElementKey)
 

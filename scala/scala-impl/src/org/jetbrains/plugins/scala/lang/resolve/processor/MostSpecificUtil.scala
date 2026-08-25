@@ -47,13 +47,13 @@ class MostSpecificUtil(
       noImplicit = false
     ).map(_.repr)
 
-  def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] =
+  def mostSpecificForResolveResult(applicable: Iterable[ScalaResolveResult]): Option[ScalaResolveResult] =
     mostSpecificGeneric(
       applicable.map(r => InnerScalaResolveResult(r, r.substitutor)),
       noImplicit = false
     ).map(_.repr)
 
-  def mostSpecificForImplicitParameters(applicable: Set[ScalaResolveResult]): Option[ScalaResolveResult] =
+  def mostSpecificForImplicitParameters(applicable: Iterable[ScalaResolveResult]): Option[ScalaResolveResult] =
     mostSpecificGeneric(
       applicable.map(r => innerSrrForImplicitCandidate(r, withSubst = true)),
       noImplicit = true
@@ -369,7 +369,10 @@ class MostSpecificUtil(
     (r1.implicitConversionClass, r2.implicitConversionClass) match {
       case (Some(t1), Some(t2)) if ScalaPsiUtil.isInheritorDeep(t1, t2) => true
       case _ =>
-        if (r1.callByNameImplicit ^ r2.callByNameImplicit) !r1.callByNameImplicit
+        if (r1.repr.isExtensionCall ^ r2.repr.isExtensionCall)
+          false
+        else if (r1.callByNameImplicit ^ r2.callByNameImplicit)
+          !r1.callByNameImplicit
         else {
           val weightR1R2 = relativeWeight(r1, r2, checkImplicits)
           val weightR2R1 = relativeWeight(r2, r1, checkImplicits)
@@ -403,7 +406,7 @@ class MostSpecificUtil(
   }
 
   private def mostSpecificGeneric(
-    applicable: Set[InnerScalaResolveResult],
+    applicable: Iterable[InnerScalaResolveResult],
     noImplicit: Boolean
   ): Option[InnerScalaResolveResult] = {
     def calc(checkImplicits: Boolean): Option[InnerScalaResolveResult] = {
@@ -462,9 +465,7 @@ class MostSpecificUtil(
     val res = element match {
       case m: PsiMethod =>
         val scope = place.elementScope
-        m.methodTypeProvider(scope).polymorphicType(
-          dropExtensionClauses = isExtensionCall
-        )
+        m.methodTypeProvider(scope).polymorphicType()
       case fun: ScSyntheticFunction => fun.polymorphicType()
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
         case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, place, true) =>
