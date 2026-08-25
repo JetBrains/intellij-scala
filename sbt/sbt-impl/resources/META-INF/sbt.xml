@@ -190,6 +190,9 @@
         <registryKey key="sbt.shell.import.old" defaultValue="false" restartRequired="false"
                      description="Use old sbt shell import mechanism with `set` command instead of modifying system properties."/>
 
+        <registryKey key="sbt.terminal.props.sanitization" defaultValue="true" restartRequired="false"
+                     description="Clear SBT_TERMINAL_PROPS in sbt processes started directly by IntelliJ IDEA. The sbt client passes this terminal setting to a server it starts; when inherited by an IDEA-managed process, sbt skips its local console input channel."/>
+
         <newProjectWizard.languageGenerator implementation="org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard"/>
         <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.SbtScalaNewProjectWizard" />
         <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.IntelliJScalaNewProjectWizard" />
