@@ -48,7 +48,7 @@ package object hints {
     } yield segment.toLowerCase
   }
 
-  private[hints] def textPartsOf(tpe: ScType, maxChars: Int, originalElement: PsiElement)(implicit scheme: EditorColorsScheme, tpc: TypePresentationContext, context: Context): Seq[Text] = {
+  private[codeInsight] def textPartsOf(tpe: ScType, maxChars: Int, originalElement: PsiElement)(implicit scheme: EditorColorsScheme, tpc: TypePresentationContext, context: Context): Seq[Text] = {
     def toText(diff: Tree[TypeDiff]): Text = diff match {
       case Node(diffs @_*) =>
         Text(foldedString,
