@@ -65,6 +65,35 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
+  // SCL-19475
+  def testMemberArgumentConstrainsExtensionContextBound(): Unit = checkTextHasNoErrors(
+    """
+      |trait Monad[F[_]]
+      |
+      |given Monad[List] = new Monad[List] {}
+      |given Monad[Option] = new Monad[Option] {}
+      |
+      |extension [F[_]: Monad](value: Int)
+      |  def bar(argument: F[Int]): Int = 123
+      |
+      |123.bar(Option(123))
+      |""".stripMargin
+  )
+
+  def testLiteralMemberArgumentIsWidenedWhenConstrainingExtensionContextBound(): Unit = checkTextHasNoErrors(
+    """
+      |trait Evidence[T]
+      |
+      |given Evidence[Int] = new Evidence[Int] {}
+      |given Evidence[String] = new Evidence[String] {}
+      |
+      |extension [T: Evidence](value: Int)
+      |  def bar(argument: T): Int = 123
+      |
+      |123.bar("value")
+      |""".stripMargin
+  )
+
   def testCollectiveExtension(): Unit = checkTextHasNoErrors(
     """
       |object A {

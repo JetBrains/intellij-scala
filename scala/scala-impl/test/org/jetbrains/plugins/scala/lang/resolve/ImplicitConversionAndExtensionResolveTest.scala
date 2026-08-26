@@ -25,6 +25,25 @@ class ImplicitConversionAndExtensionResolveTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
+  // SCL-19475
+  def testMemberArgumentConstrainsContextBoundBeforeImplicitConversionIsApplied(): Unit = doResolveTest(
+    s"""
+       |class FooOps[F[_]] {
+       |  ${REFTGT}def bar(value: F[Int]): Int = 123
+       |}
+       |
+       |trait Monad[F[_]]
+       |
+       |import scala.language.implicitConversions
+       |implicit def fooOps[A, F[_]: Monad](value: A): FooOps[F] = new FooOps[F]
+       |
+       |implicit val listMonad: Monad[List] = new Monad[List] {}
+       |implicit val optionMonad: Monad[Option] = new Monad[Option] {}
+       |
+       |123.ba${REFSRC}r(Option(123))
+       |""".stripMargin
+  )
+
   // SCL-25859
   def testDirectReceiverExtensionIsPreferredToConversionAssistedReceiverExtension(): Unit = doResolveTest(
     s"""

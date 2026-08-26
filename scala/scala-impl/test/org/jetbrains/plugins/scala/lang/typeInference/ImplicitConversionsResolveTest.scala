@@ -131,8 +131,263 @@ class ImplicitConversionsScala212ResolveTest extends ScalaLightCodeInsightFixtur
 
 
 @Category(Array(classOf[TypecheckerTests]))
-class ImplicitConversionsScala3ResolveTest extends ScalaLightCodeInsightFixtureTestCase {
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_7
+class ImplicitConversionsScala213ResolveTest extends ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == LatestScalaVersions.Scala_2_13
+
+  def testReceiverConstrainsImplicitConversionContextBound(): Unit = checkTextHasNoErrors(
+    """
+      |class FooOps[F[_]] {
+      |  def bar(f: F[Int]): Int = 123
+      |}
+      |
+      |trait Monad[F[_]]
+      |
+      |import scala.language.implicitConversions
+      |implicit def fooOps[F[_]: Monad](value: F[Int]): FooOps[F] = new FooOps[F]
+      |
+      |implicit val ml: Monad[List] = new Monad[List] {}
+      |implicit val mo: Monad[Option] = new Monad[Option] {}
+      |
+      |Option(123).bar(Option(123))
+      |""".stripMargin
+  )
+
+  // Scala 2 chooses a view before checking the selected member's arguments.
+  // Unlike Scala 3, the argument to bar therefore cannot disambiguate F here.
+  def testMemberArgumentDoesNotConstrainImplicitConversionContextBound(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |class FooOps[F[_]] {
+       |  def bar(f: F[Int]): Int = 123
+       |}
+       |
+       |trait Monad[F[_]]
+       |
+       |import scala.language.implicitConversions
+       |implicit def fooOps[A, F[_]: Monad](value: A): FooOps[F] = new FooOps[F]
+       |
+       |implicit val ml: Monad[List] = new Monad[List] {}
+       |implicit val mo: Monad[Option] = new Monad[Option] {}
+       |
+       |123.ba${CARET}r(Option(123))
+       |""".stripMargin
+  )
+}
+
+
+trait ImplicitConversionsScala3SCL19475Tests {
+  self: ScalaLightCodeInsightFixtureTestCase =>
+
+  // SCL-19475: the ticket reproduction, kept verbatim.
+  def testSCL19475TicketReproduction(): Unit = checkTextHasNoErrors(
+    """
+      |class FooOps[F[_]] {
+      |  def bar(f: F[Int]): Int = 123
+      |}
+      |
+      |trait Monad[F[_]]
+      |
+      |import scala.language.implicitConversions
+      |implicit def fooOps[A, F[_]: Monad](a: A): FooOps[F] = new FooOps[F] {}
+      |
+      |implicit val ml: Monad[List] = new Monad[List] {}
+      |implicit val mo: Monad[Option] = new Monad[Option] {}
+      |
+      |123.bar(Option(123))
+      |""".stripMargin
+  )
+
+  def testMemberArgumentConstrainsExplicitImplicitConversionUsingClause(): Unit = checkTextHasNoErrors(
+    """
+      |class FooOps[T] {
+      |  def bar(value: T): Int = 123
+      |}
+      |
+      |trait Evidence[T]
+      |
+      |import scala.language.implicitConversions
+      |implicit def fooOps[A, T](value: A)(using Evidence[T]): FooOps[T] = new FooOps[T]
+      |
+      |given Evidence[Int] = new Evidence[Int] {}
+      |given Evidence[String] = new Evidence[String] {}
+      |
+      |123.bar("value")
+      |""".stripMargin
+  )
+
+  def testSingletonBoundedMemberArgumentIsNotWidenedBeforeImplicitConversionUsingClause(): Unit = checkTextHasNoErrors(
+    """
+      |class FooOps[T] {
+      |  def bar(value: T): Int = 123
+      |}
+      |
+      |trait Evidence[T]
+      |
+      |import scala.language.implicitConversions
+      |implicit def fooOps[A, T <: Singleton](value: A)(using Evidence[T]): FooOps[T] = new FooOps[T]
+      |
+      |given Evidence["value"] = new Evidence["value"] {}
+      |
+      |123.bar("value")
+      |""".stripMargin
+  )
+
+  def testExpectedMemberResultConstrainsImplicitConversionContextBound(): Unit = checkTextHasNoErrors(
+    """
+      |class FooOps[T] {
+      |  def result: T = ???
+      |}
+      |
+      |trait Evidence[T]
+      |
+      |import scala.language.implicitConversions
+      |implicit def fooOps[A, T: Evidence](value: A): FooOps[T] = new FooOps[T]
+      |
+      |given Evidence[Int] = new Evidence[Int] {}
+      |given Evidence[String] = new Evidence[String] {}
+      |
+      |val result: String = 123.result
+      |""".stripMargin
+  )
+
+  def testUnconstrainedImplicitConversionContextBoundRemainsAmbiguous(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |class FooOps[F[_]] {
+       |  def bar(value: Int): Int = 123
+       |}
+       |
+       |trait Monad[F[_]]
+       |
+       |import scala.language.implicitConversions
+       |implicit def fooOps[A, F[_]: Monad](value: A): FooOps[F] = new FooOps[F]
+       |
+       |implicit val listMonad: Monad[List] = new Monad[List] {}
+       |implicit val optionMonad: Monad[Option] = new Monad[Option] {}
+       |
+       |123.ba${CARET}r(123)
+       |""".stripMargin
+  )
+}
+
+
+@Category(Array(classOf[TypecheckerTests]))
+abstract class ImplicitConversionsScala3ResolveTestBase
+  extends ScalaLightCodeInsightFixtureTestCase
+    with ImplicitConversionsScala3SCL19475Tests {
+
+  // Regression source: scala3@c69985cf44, tests/pos/i6914.scala.
+  def testExpectedTypeConstrainsGenericConversionEvidence(): Unit = checkTextHasNoErrors(
+    """
+      |trait Expr[T]
+      |trait Liftable[T]
+      |
+      |object test1 {
+      |  class ToExpr[T](using Liftable[T]) extends Conversion[T, Expr[T]] {
+      |    def apply(x: T): Expr[T] = ???
+      |  }
+      |  given toExpr[T](using Liftable[T]): ToExpr[T] = new ToExpr[T]
+      |
+      |  given Liftable[Int] = ???
+      |  given Liftable[String] = ???
+      |
+      |  def x = summon[ToExpr[String]]
+      |  def y = summon[Conversion[String, Expr[String]]]
+      |
+      |  def a: Expr[String] = "abc"
+      |}
+      |
+      |object test2 {
+      |  given autoToExpr[T](using Liftable[T]): Conversion[T, Expr[T]] with {
+      |    def apply(x: T): Expr[T] = ???
+      |  }
+      |
+      |  given Liftable[Int] = ???
+      |  given Liftable[String] = ???
+      |
+      |  def a: Expr[String] = "abc"
+      |}
+      |""".stripMargin
+  )
+
+  // Regression source: scala3@233c8ec8e6, tests/pos/i15867.specs2.scala.
+  def testInheritedConversionToNestedClassForOperatorSelection(): Unit = checkTextHasNoErrors(
+    """
+      |class Foo:
+      |  given Conversion[String, Data] with
+      |    def apply(str: String): Data = new Data(str)
+      |
+      |  class Data(str: String):
+      |    def |(str: String) = new Data(this.str + str)
+      |
+      |class Bar extends Foo:
+      |  "str" | "ing"
+      |""".stripMargin
+  )
+
+  // Regression source: scala3@30f9f48257, tests/pos/typeclass-encoding.scala.
+  // The second, implicit-only selection in that source is intentionally omitted:
+  // the compiler test itself documents that expression as unsupported.
+  def testConversionWithDependentResultFromImplicitEvidence(): Unit = checkTextHasNoErrors(
+    """
+      |object runtime {
+      |  trait TypeClass {
+      |    type This
+      |    type StaticPart[This]
+      |  }
+      |
+      |  trait Implementation[From] {
+      |    type This = From
+      |    type Implemented <: TypeClass
+      |    def inject(x: From): Implemented { type This = From }
+      |  }
+      |
+      |  class CompanionOf[T] { type StaticPart[_] }
+      |
+      |  def inst[From, To <: TypeClass](
+      |    implicit ev1: Implementation[From] { type Implemented = To },
+      |    ev2: CompanionOf[To]
+      |  ): Implementation[From] { type Implemented = To } & ev2.StaticPart[From] =
+      |    ev1.asInstanceOf
+      |
+      |  implicit def inject[From](x: From)(
+      |    implicit ev1: Implementation[From]
+      |  ): ev1.Implemented { type This = From } = ev1.inject(x)
+      |}
+      |
+      |object semiGroups {
+      |  import runtime.*
+      |
+      |  trait SemiGroup extends TypeClass {
+      |    def add(that: This): This
+      |  }
+      |
+      |  trait Monoid extends SemiGroup {
+      |    type StaticPart[This] <: MonoidStatic[This]
+      |  }
+      |
+      |  abstract class MonoidStatic[This] { def unit: This }
+      |
+      |  implicit def companionOfMonoid: CompanionOf[Monoid] {
+      |    type StaticPart[X] = MonoidStatic[X]
+      |  } = new CompanionOf[Monoid] {
+      |    type StaticPart[X] = MonoidStatic[X]
+      |  }
+      |
+      |  implicit object extend_Int_Monoid extends MonoidStatic[Int], Implementation[Int] {
+      |    type Implemented = Monoid
+      |    def unit: Int = 0
+      |    def inject($this: Int) = new Monoid {
+      |      type This = Int
+      |      def add(that: This): This = $this + that
+      |    }
+      |  }
+      |
+      |  def sum[T](xs: List[T])(
+      |    implicit evidence: Implementation[T] { type Implemented = Monoid }
+      |  ) = xs.foldLeft(inst[T, Monoid].unit)((x, y) => inject(x) `add` y)
+      |}
+      |""".stripMargin
+  )
 
   def testSCL21884(): Unit = checkTextHasNoErrors(
     """
@@ -182,7 +437,7 @@ class ImplicitConversionsScala3ResolveTest extends ScalaLightCodeInsightFixtureT
       |object A {
       |  trait X
       |  given X = ???
-      |  given X => Conversion[Int, String] = ???
+      |  given conversion(using X): Conversion[Int, String] = ???
       |  val s: String = 123
       |
       |  trait Foo
@@ -196,7 +451,7 @@ class ImplicitConversionsScala3ResolveTest extends ScalaLightCodeInsightFixtureT
     """
       |object A {
       |  trait Foo { type X }
-      |  given Foo { type X = Int }
+      |  given foo: Foo with { type X = Int }
       |  given Int = 123
       |  implicit def int22s(using f: Foo)(i: f.X)(using f.X): String = ???
       |  val x: String = 123
@@ -263,4 +518,17 @@ class ImplicitConversionsScala3ResolveTest extends ScalaLightCodeInsightFixtureT
       |
       |""".stripMargin
   )
+}
+
+@Category(Array(classOf[TypecheckerTests]))
+class ImplicitConversionsScala33ResolveTest
+  extends ImplicitConversionsScala3ResolveTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == LatestScalaVersions.Scala_3_3
+}
+
+class ImplicitConversionsScala3ResolveTest extends ImplicitConversionsScala3ResolveTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_7
 }

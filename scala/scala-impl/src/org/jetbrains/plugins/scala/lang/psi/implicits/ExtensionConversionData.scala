@@ -70,8 +70,10 @@ object ExtensionConversionHelper {
   private def update(candidate: ScalaResolveResult, foundInType: ScalaResolveResult)
                     (implicit context: ProjectContext = foundInType.projectContext): ScalaResolveResult = {
 
-    foundInType.applicabilityConstraints match {
-      case ConstraintSystem(substitutor) =>
+    // The member application instantiates these type parameters before they drive context argument search.
+    // Use compiler-compatible widening here, while preserving types whose bounds require a singleton.
+    foundInType.applicabilityConstraints.toInstantiationSubst match {
+      case Some(substitutor) =>
         val parameterType = candidate.inferredType
 
         val combinedSubstitutor = candidate.substitutor.followed(foundInType.substitutor).followed(substitutor)
