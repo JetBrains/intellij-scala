@@ -177,11 +177,20 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
       val parentEnvironmentType = if (passParentEnvironment) GeneralCommandLine.ParentEnvironmentType.CONSOLE else ParentEnvironmentType.NONE
       // It is required due to #SCL-19498
       val fullEnvironment = environment + ("HISTCONTROL" -> "ignorespace")
+      val preparedEnvironment = SbtProcessEnvironment.prepare(
+        fullEnvironment,
+        passParentEnvironment,
+        SbtProcessEnvironment.isTerminalPropsSanitizationEnabled
+      )
+      preparedEnvironment.warnings.foreach { warning =>
+        reporter.warning(warning.message, None, warning.details)
+        Log.warn(s"${warning.message}\n${warning.details}")
+      }
       val commandLine =
         new GeneralCommandLine(processCommands.asJava)
           .withParentEnvironmentType(parentEnvironmentType)
           .withWorkingDirectory(directory)
-          .withEnvironment(fullEnvironment.asJava)
+          .withEnvironment(preparedEnvironment.variables.asJava)
       val procString = commandLine.getCommandLineString
       reporter.log(procString)
 
