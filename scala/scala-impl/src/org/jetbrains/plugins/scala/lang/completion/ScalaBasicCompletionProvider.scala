@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern,
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScInterpolated, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScPatterned, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
@@ -226,13 +226,80 @@ object ScalaBasicCompletionProvider {
       getPlace.doResolve(this)
 
       ProgressManager.checkCanceled()
-      _lookupElementsBuilder.result()
+      val lookupElements = _lookupElementsBuilder.result()
+      presentImportExtensionMethods(lookupElements)
     }
 
     override protected final def postProcess(resolveResult: ScalaResolveResult): Unit = {
       ProgressManager.checkCanceled()
       val newElements = validLookupElement(resolveResult)
       _lookupElementsBuilder ++= newElements
+    }
+
+    /**
+     * Adds receiver and source-owner text to Scala 3 extensions completed in
+     * an import selector.
+     *
+     * For example:
+     * {{{
+     * object Definitions:
+     *   extension (target: User)
+     *     def present(suffix: String): String = ???
+     *
+     * import Definitions.pre
+     * // present(suffix: String) for User in Definitions
+     * }}}
+     *
+     * Ordinary completion returns the items unchanged. Each extension lookup
+     * item is updated in place because it was already created by the generic
+     * resolver before this import-specific context is applied.
+     */
+    private def presentImportExtensionMethods(
+      lookupElements: Seq[LookupElement]
+    ): Seq[LookupElement] = {
+      if (!isInImport)
+        return lookupElements
+
+      lookupElements.map(presentImportExtensionMethod)
+    }
+
+    private def presentImportExtensionMethod(lookupElement: LookupElement): LookupElement = {
+      lookupElement.asOptionOf[ScalaLookupItem].foreach(presentExtensionLookupItem)
+      lookupElement
+    }
+
+    private def presentExtensionLookupItem(lookupItem: ScalaLookupItem): Unit = {
+      lookupItem.getPsiElement match {
+        case function: ScFunction if function.isExtensionMethod =>
+          presentImportExtension(lookupItem, function)
+        case _ =>
+      }
+    }
+
+    private def presentImportExtension(lookupItem: ScalaLookupItem, function: ScFunction): Unit =
+      importExtensionPresentation(function).foreach {
+        case (receiverType, ownerName) =>
+          lookupItem.presentExtension(receiverType, ownerName)
+      }
+
+    /**
+     * Returns the receiver and source owner used to present an extension in
+     * an import selector.
+     *
+     * For `Definitions.present` declared for `User`, this returns
+     * `Some("User" -> Some("Definitions"))`.
+     */
+    private def importExtensionPresentation(function: ScFunction): Option[(String, Option[String])] = {
+      val extensionReceiverType = function.extensionMethodOwner
+        .flatMap(_.targetTypeElement)
+        .map(_.getText)
+        .filter(_.nonEmpty)
+      extensionReceiverType.map { receiverType =>
+        val ownerName = Option(function.containingClass)
+          .flatMap(owner => Option(owner.name))
+          .orElse(function.topLevelQualifier)
+        receiverType -> ownerName
+      }
     }
 
     protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = {

@@ -87,14 +87,24 @@ final class ScalaDocumentationProviderTest_Scala3Definitions extends ScalaDocume
          |""".stripMargin
 
     val expectedContent =
-      """
-        |<span style="color:#000080;font-weight:bold;">infix</span>
-        | <span style="color:#000080;font-weight:bold;">def</span>
-        | <span style="color:#000000;">comp</span>
-        |(str2:
-        | <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>
-        |): <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>
-        |""".stripMargin.withoutNewLines
+      """<span style="color:#000080;font-weight:bold;">extension</span> (str: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>)
+        |  <span style="color:#000080;font-weight:bold;">infix</span> <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">comp</span>(str2: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>): <span style=""><a href="psi_element://scala.Boolean"><code>Boolean</code></a></span>""".stripMargin
+
+    doGenerateDocDefinitionTest(fileContent, expectedContent)
+  }
+
+  def testExtensionWithTypeAndContextParameters(): Unit = {
+    val fileContent =
+      s"""class Box[T]
+         |trait Context[T]
+         |
+         |extension [T](target: Box[T])(using context: Context[T])
+         |  def ${|}present(suffix: String): String = ???
+         |""".stripMargin
+
+    val expectedContent =
+      """<span style="color:#000080;font-weight:bold;">extension</span> [<span style="color:#20999d;">T</span>](target: <span style="color:#000000;"><a href="psi_element://Box"><code>Box</code></a></span>[<span style="color:#20999d;">T</span>])(<span style="color:#000080;font-weight:bold;">using</span> context: <span style="color:#000000;"><a href="psi_element://Context"><code>Context</code></a></span>[<span style="color:#20999d;">T</span>])
+         |  <span style="color:#000080;font-weight:bold;">def</span> <span style="color:#000000;">present</span>(suffix: <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>): <span style="color:#000000;"><a href="psi_element://java.lang.String"><code>String</code></a></span>""".stripMargin
 
     doGenerateDocDefinitionTest(fileContent, expectedContent)
   }

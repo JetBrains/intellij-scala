@@ -47,4 +47,22 @@ class ScalaPsiPresentationUtilsTest extends ScalaLightCodeInsightFixtureTestCase
 
     assertEquals("foo(first: Int)(using Int)[A](second: A): A", text)
   }
+
+  def testExtensionMethodPresentationTextUsesShortAndLongTiers(): Unit = {
+    configureScalaFromFileText(
+      """class User
+        |
+        |object Definitions:
+        |  extension (target: User)
+        |    def present[A](suffix: A)(using render: Render[A]): String = ???
+        |
+        |trait Render[A]
+        |""".stripMargin
+    )
+
+    val function = getFile.elements.findByType[ScFunction].get
+
+    assertEquals("User.present", ScalaPsiPresentationUtils.extensionMethodShortText(function))
+    assertEquals("User.present[A](suffix: A)(using render: Render[A])", ScalaPsiPresentationUtils.extensionMethodPresentableText(function))
+  }
 }

@@ -244,8 +244,18 @@ private class ScalaDocDefinitionGenerator private(
   private def appendFunction(fun: ScFunction): Unit = {
     appendContainerInfoSection(fun)
     appendDefinitionSection {
+      fun.extensionMethodOwner.foreach(appendExtensionHeader)
       appendDeclMainSection(fun)
     }
+  }
+
+  private def appendExtensionHeader(extension: ScExtension): Unit = {
+    builder.appendKeyword("extension").append(" ")
+    builder.append(typeParamsRenderer.renderParams(extension))
+    extension.allClauses.foreach { clause =>
+      builder.append(definitionParamsRenderer.renderClause(clause).replaceAll("\\n\\s*", ""))
+    }
+    builder.append("\n  ")
   }
 
   private def appendTypeAlias(tpe: ScTypeAlias): Unit = {

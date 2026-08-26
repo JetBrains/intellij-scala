@@ -178,4 +178,36 @@ class ScalaUsageGroupingRuleTest extends ScalaLightCodeInsightFixtureTestCase {
       actualUsageIcons
     )
   }
+
+  def testScala3ExtensionUsageGroupsAreReceiverQualified(): Unit = {
+    myFixture.configureByText(
+      "Usage.scala",
+      s"""object Definitions:
+         |  extension (s: String)
+         |    def ext1: String = new ${CARET}MyToken("string").toString
+         |
+         |  extension (i: Int)
+         |    def ext1: String = new MyToken("int").toString
+         |
+         |class MyToken(name: String)
+         |""".stripMargin
+    )
+
+    val usages = myFixture.testFindUsagesUsingAction().asScala.toSeq.sortBy(_.getNavigationOffset)
+    val rules = FileStructureGroupRuleProvider.EP_NAME.getExtensions
+      .map(_.getUsageGroupingRule(getProject))
+      .filter(_ != null)
+      .toSeq
+    val actual = usages.map { usage =>
+      rules.flatMap(_.getParentGroupsFor(usage, Array()).asScala.toSeq).map(_.getPresentableGroupText)
+    }
+
+    assertCollectionEquals(
+      Seq(
+        Seq("Usage.scala", "Definitions", "String.ext1"),
+        Seq("Usage.scala", "Definitions", "Int.ext1")
+      ),
+      actual
+    )
+  }
 }
