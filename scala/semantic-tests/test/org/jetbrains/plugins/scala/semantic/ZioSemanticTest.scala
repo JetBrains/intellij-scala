@@ -62,7 +62,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.LogLevel
     //zio.LogSpan
     //zio.NonEmptyChunk
-    //zio.NonEmptyOps
+    zio.NonEmptyOps
     zio.NonEmptySeq
     //zio.Promise
     //zio.ProvideSomePartiallyApplied

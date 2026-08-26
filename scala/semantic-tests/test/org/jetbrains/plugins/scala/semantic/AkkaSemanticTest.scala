@@ -253,7 +253,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.internal.SimpleSupervisor
     //akka.actor.typed.internal.StashBufferImpl
     //akka.actor.typed.internal.StopSupervisor
-    //akka.actor.typed.internal.Supervisor
+    akka.actor.typed.internal.Supervisor
     akka.actor.typed.internal.SystemMessage
     akka.actor.typed.internal.SystemMessageList
     akka.actor.typed.internal.Terminate
@@ -310,7 +310,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.actor.typed.javadsl.StashBuffer
     akka.actor.typed.javadsl.StashOverflowException
     akka.actor.typed.javadsl.TimerScheduler
-    //akka.actor.typed.pubsub.Topic
+    akka.actor.typed.pubsub.Topic
     //akka.actor.typed.receptionist.Receptionist
     akka.actor.typed.receptionist.ReceptionistSetup
     //akka.actor.typed.receptionist.ServiceKey
@@ -1069,7 +1069,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.headers.ModeledCompanion
     //akka.http.scaladsl.model.headers.ModeledCustomHeader
     //akka.http.scaladsl.model.headers.ModeledCustomHeaderCompanion
-    akka.http.scaladsl.model.headers.ModeledHeader
+    //akka.http.scaladsl.model.headers.ModeledHeader
     //akka.http.scaladsl.model.headers.OAuth2BearerToken
     //akka.http.scaladsl.model.headers.Origin
     //akka.http.scaladsl.model.headers.ProductVersion
@@ -2459,7 +2459,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.util.DoubleLinkedList
     akka.util.ErrorMessages
     //akka.util.FastFrequencySketch
-    //akka.util.FlightRecorderLoader
+    akka.util.FlightRecorderLoader
     //akka.util.FrequencyList
     //akka.util.FrequencySketch
     //akka.util.FrequencySketchUtil
