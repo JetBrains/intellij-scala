@@ -1,12 +1,17 @@
 package org.jetbrains.sbt.project
 
+import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
@@ -737,6 +742,448 @@ class SbtProjectStructureImportingTestCase_NonSourceConfigurationsWithNestedProj
       }
     )
   }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_JavaLanguageLevelAndTargetByteCodeLevel_NoOptions extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  //noinspection TypeAnnotation
+  // SCL-16204, SCL-17597
+  def javaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
+    val projectLanguageLevel = SbtProjectStructureImportingTestCase_JavaLanguageLevelAndTargetByteCodeLevel_NoOptions.this.projectJdkLanguageLevel
+    val projectName = "java-language-level-and-target-byte-code-level-no-options"
+    importJavaLanguageLevelNoOptionsProject(projectLanguageLevel, projectName)
+
+    // Emulate User changing the settings manually
+    emulateManualJavaLanguageLevelOptionsChange()
+
+    // Manually set settings should be rewritten if no explicit javac options provided
+    importJavaLanguageLevelNoOptionsProject(projectLanguageLevel, projectName)
+  }
+
+  private def emulateManualJavaLanguageLevelOptionsChange(): Unit =
+    ExternalSystemApiUtil.executeProjectChangeAction(ApplicationManager.getApplication, () => {
+      val ManuallySetTarget = "9"
+      val ManuallySetSource = LanguageLevel.JDK_1_9
+
+      setOptions(getMyProject, ManuallySetSource, ManuallySetTarget, Seq("-some-root-option"))
+
+      val projectModules = getMyProject.modules
+      projectModules.foreach(setOptions(_, ManuallySetSource, ManuallySetTarget, Seq("-some-module-option")))
+    })
+
+  private def importJavaLanguageLevelNoOptionsProject(projectLanguageLevel: LanguageLevel, projectName: String): Unit = runTest(
+    new project(projectName) {
+      javacOptions := Nil
+      javaLanguageLevel := projectLanguageLevel
+      javaTargetBytecodeLevel := null
+
+      def createModule(name: String): module = new module(name) {
+        javaLanguageLevel := projectLanguageLevel
+        javaTargetBytecodeLevel := null
+        javacOptions := Nil
+      }
+
+      val root = createModule(s"$projectName")
+      val rootMain = createModule(s"$projectName.main")
+      val rootTest = createModule(s"$projectName.test")
+      val module1 = createModule(s"$projectName.module1")
+      val module1Main = createModule(s"$projectName.module1.main")
+      val module1Test = createModule(s"$projectName.module1.test")
+
+      modules := Seq(root, rootMain, rootTest, module1, module1Main, module1Test)
+    }
+  )
+end SbtProjectStructureImportingTestCase_JavaLanguageLevelAndTargetByteCodeLevel_NoOptions
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_JavacOptionsPerModuleAndScope extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  // noinspection TypeAnnotation
+  // because with prod/test sources feature it started to be possible to support different options for
+  // Compile and Test scope in IDEA, so I have enriched this test with different options for the Test scope
+  def javacOptionsPerModuleAndScope(): Unit = {
+    val projectName = "javac-options-per-module"
+    runTest(new project(projectName) {
+      javacOptions := Nil // no storing project level options
+
+      def moduleX(name: String, expectedJavacOptions: Seq[String]): module = new module(s"$projectName.$name") {
+        javacOptions := expectedJavacOptions
+      }
+
+      // TODO: currently IDEA doesn't support more finely-grained scopes,like `in (Compile, compile)
+      //  so option root_option_in_compile_compile is not included
+      //  IDEA-232043, SCL-11883, SCL-17020
+      val rootModules = Seq(
+        new module(projectName),
+        moduleX("main", Seq("root_option", "root_option_in_compile")),
+        moduleX("test", Seq("root_option", "root_option_in_compile", "root_option_in_test"))
+      )
+
+      val modules1 = Seq(
+        moduleX("module1", Seq()),
+        moduleX("module1.main", Seq("module_1_option", "module_1_option_in_compile")),
+        moduleX("module1.test", Seq("module_1_option", "module_1_option_in_compile", "module_1_option_in_test"))
+      )
+
+      val modules2 = Seq(
+        moduleX("module2", Seq()),
+        moduleX("module2.main", Seq("module_2_option", "module_2_option_in_compile")),
+        moduleX("module2.test", Seq("module_2_option", "module_2_option_in_compile", "module_2_option_in_test"))
+      )
+
+      val modules3 = Seq(
+        moduleX("module3", Seq()),
+        moduleX("module3.main", Seq()),
+        moduleX("module3.test", Seq("module_3_option_in_test"))
+      )
+
+      modules := rootModules ++ modules1 ++ modules2 ++ modules3
+    }
+    )
+  }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_ScalacOptionsPerModuleAndScope extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  // noinspection TypeAnnotation
+  def scalacOptionsPerModuleAndScope(): Unit = {
+    val projectName = "scalac-options-per-module"
+    runTest(new project(projectName) {
+      scalacOptions := Nil // no storing project level options
+
+      def moduleX(name: String, expectedJavacOptions: Seq[String]): module = new module(s"$projectName.$name") {
+        scalacOptions := expectedJavacOptions
+      }
+
+      // TODO: currently IDEA doesn't support more finely-grained scopes,like `in (Compile, compile)
+      //  so option root_option_in_compile_compile is not included
+      //  IDEA-232043, SCL-11883, SCL-17020
+      val rootModules = Seq(
+        new module(projectName),
+        moduleX("main", Seq("root_option", "root_option_in_compile")),
+        moduleX("test", Seq("root_option", "root_option_in_compile", "root_option_in_test"))
+      )
+
+      val modules1 = Seq(
+        moduleX("module1", Seq()),
+        moduleX("module1.main", Seq("module_1_option", "module_1_option_in_compile")),
+        moduleX("module1.test", Seq("module_1_option", "module_1_option_in_compile", "module_1_option_in_test"))
+      )
+
+      val modules2 = Seq(
+        moduleX("module2", Seq()),
+        moduleX("module2.main", Seq("module_2_option", "module_2_option_in_compile")),
+        moduleX("module2.test", Seq("module_2_option", "module_2_option_in_compile", "module_2_option_in_test"))
+      )
+
+      val modules3 = Seq(
+        moduleX("module3", Seq()),
+        moduleX("module3.main", Seq()),
+        moduleX("module3.test", Seq("module_3_option_in_test"))
+      )
+
+      modules := rootModules ++ modules1 ++ modules2 ++ modules3
+    }
+    )
+  }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_JavacSpecialOptionsForRootProject extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  def javacSpecialOptionsForRootProject(): Unit = {
+    runTest(
+      new project("javac-special-options-for-root-project") {
+        // no storing project level options
+        javacOptions := Nil
+        javaTargetBytecodeLevel := null
+        javaLanguageLevel := SbtProjectStructureImportingTestCase_JavacSpecialOptionsForRootProject.this.projectJdkLanguageLevel
+
+        val root: module = new module("javac-special-options-for-root-project")
+        val rootMain: module = new module("javac-special-options-for-root-project.main") {
+          javaLanguageLevel := LanguageLevel.JDK_1_9
+          javaTargetBytecodeLevel := "1.7"
+          javacOptions := Seq(
+            "-g:none",
+            "-nowarn",
+            "-deprecation",
+            "-Werror"
+          )
+        }
+        val rootTest: module = new module("javac-special-options-for-root-project.test") {
+          javaLanguageLevel := LanguageLevel.JDK_1_9
+          javaTargetBytecodeLevel := "1.7"
+          javacOptions := Seq(
+            "-g:none",
+            "-nowarn",
+            "-deprecation",
+            "-Werror"
+          )
+        }
+        modules:= Seq(root, rootMain, rootTest)
+      }
+    )
+
+    val compilerOptions = JavacConfiguration.getOptions(getMyProject, classOf[JavacConfiguration])
+    val defaultCompilerOptions = new JpsJavaCompilerOptions
+
+    assertEquals(defaultCompilerOptions.DEBUGGING_INFO, compilerOptions.DEBUGGING_INFO)
+    assertEquals(defaultCompilerOptions.GENERATE_NO_WARNINGS, compilerOptions.GENERATE_NO_WARNINGS)
+    assertEquals(defaultCompilerOptions.DEPRECATION, compilerOptions.DEPRECATION)
+    assertEquals(defaultCompilerOptions.ADDITIONAL_OPTIONS_STRING, compilerOptions.ADDITIONAL_OPTIONS_STRING)
+    assertEquals(defaultCompilerOptions.MAXIMUM_HEAP_SIZE, compilerOptions.MAXIMUM_HEAP_SIZE)
+    assertEquals(defaultCompilerOptions.PREFER_TARGET_JDK_COMPILER, compilerOptions.PREFER_TARGET_JDK_COMPILER)
+  }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_CompileOrder extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  def compileOrder(): Unit = {
+    runTest(new project("compile-order-unspecified") {
+      modules := Seq(
+        new module("compile-order-unspecified"),
+        new module("compile-order-unspecified.main") {
+          ProjectStructureDsl.compileOrder := CompileOrder.Mixed
+        },
+        new module("compile-order-unspecified.test") {
+          ProjectStructureDsl.compileOrder := CompileOrder.Mixed
+        },
+        new module("compile-order-unspecified.compile-order-mixed"),
+        new module("compile-order-unspecified.compile-order-mixed.main") {
+          ProjectStructureDsl.compileOrder := CompileOrder.Mixed
+        },
+        new module("compile-order-unspecified.compile-order-mixed.test") {
+          ProjectStructureDsl.compileOrder := CompileOrder.Mixed
+        },
+        new module("compile-order-unspecified.compile-order-scala-then-java"),
+        new module("compile-order-unspecified.compile-order-scala-then-java.main") {
+          ProjectStructureDsl.compileOrder := CompileOrder.ScalaThenJava
+        },
+        new module("compile-order-unspecified.compile-order-scala-then-java.test") {
+          ProjectStructureDsl.compileOrder := CompileOrder.ScalaThenJava
+        },
+        new module("compile-order-unspecified.compile-order-java-then-scala"),
+        new module("compile-order-unspecified.compile-order-java-then-scala.main") {
+          ProjectStructureDsl.compileOrder := CompileOrder.JavaThenScala
+        },
+        new module("compile-order-unspecified.compile-order-java-then-scala.test") {
+          ProjectStructureDsl.compileOrder := CompileOrder.JavaThenScala
+        }
+      )
+    })
+  }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_SimpleProjectWithGeneratedSources extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  def simpleProjectWithGeneratedSources(): Unit = runTest(
+    new project("SimpleProjectWithGeneratedSources") {
+      modules := Seq(
+        new module("SimpleProjectWithGeneratedSources") {
+          sources := Seq()
+          testSources := Seq()
+          resources := Seq()
+          testResources := Seq()
+          excluded := Seq("target")
+        },
+        new module("SimpleProjectWithGeneratedSources.main") {
+          sources := Seq("scala", "", "")
+          contentRoots := Seq(
+            s"$getProjectPath/src/main",
+            s"$getProjectPath/target/myGenerated/main",
+            s"$getProjectPath/target/scala-2.13/src_managed/main",
+            s"$getProjectPath/target/scala-2.13/resource_managed/main",
+          )
+          testSources := Seq()
+          resources := Seq("resources", "")
+          testResources := Seq()
+          excluded := Seq()
+        },
+        new module("SimpleProjectWithGeneratedSources.test") {
+          sources := Seq()
+          contentRoots := Seq(
+            s"$getProjectPath/src/test",
+            s"$getProjectPath/target/myGenerated/test",
+            s"$getProjectPath/target/scala-2.13/src_managed/test",
+            s"$getProjectPath/target/scala-2.13/resource_managed/test",
+          )
+          testSources := Seq("scala", "", "")
+          resources := Seq()
+          testResources := Seq("resources", "")
+          excluded := Seq()
+        },
+        new module("SimpleProjectWithGeneratedSources.SimpleProjectWithGeneratedSources-build"),
+      )
+    }
+  )
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_CustomConfigurationsWithNestedProjectDependencies extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  def customConfigurationsWithNestedProjectDependencies(): Unit = {
+    val projectName = "customConfigurationsWithNestedProjectDependencies"
+    runTest(
+      new project(projectName) {
+
+        lazy val root: module = new module(projectName) {
+          sbtProjectId := "root"
+          moduleDependencies ++= Seq(
+            new dependency(rootMain) {
+              isExported := false
+            },
+            new dependency(rootTest) {
+              isExported := false
+            }
+          )
+        }
+        lazy val rootMain: module = new module(s"$projectName.main") {
+          sbtProjectId := "root"
+          moduleDependencies := Seq()
+        }
+        lazy val rootTest: module = new module(s"$projectName.test") {
+          sbtProjectId := "root"
+          moduleDependencies := Seq(
+            new dependency(rootMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val foo: module = new module(s"$projectName.foo") {
+          sbtProjectId := "foo"
+          moduleDependencies ++= Seq(
+            new dependency(fooMain) {
+              isExported := false
+            },
+            new dependency(fooTest) {
+              isExported := false
+            }
+          )
+        }
+        lazy val fooMain: module = new module(s"$projectName.foo.main") {
+          sbtProjectId := "foo"
+          moduleDependencies := Seq()
+        }
+        lazy val fooTest: module = new module(s"$projectName.foo.test") {
+          sbtProjectId := "foo"
+          moduleDependencies := Seq(
+            new dependency(fooMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(rootMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+
+        lazy val utils: module = new module(s"$projectName.utils") {
+          sbtProjectId := "utils"
+          moduleDependencies ++= Seq(
+            new dependency(utilsMain) {
+              isExported := false
+            },
+            new dependency(utilsTest) {
+              isExported := false
+            }
+          )
+        }
+        lazy val utilsMain: module = new module(s"$projectName.utils.main") {
+          sbtProjectId := "utils"
+          moduleDependencies := Seq(
+            new dependency(fooMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        lazy val utilsTest: module = new module(s"$projectName.utils.test") {
+          sbtProjectId := "utils"
+          moduleDependencies := Seq(
+            new dependency(utilsMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(fooTest) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(fooMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            },
+            new dependency(rootMain) {
+              isExported := false
+              scope := DependencyScope.COMPILE
+            }
+          )
+        }
+        modules := Seq(
+          utils, utilsMain, utilsTest,
+          foo, fooMain, fooTest,
+          root, rootMain, rootTest
+        )
+      }
+    )
+  }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_ProjectWithModulesWithSameIdsAndNamesWithDifferentCase extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  def testProjectWithModulesWithSameIdsAndNamesWithDifferentCase(): Unit = runTest(
+    new project("sameIdsAndNamesWithDifferentCase") {
+      modules :=
+        createModuleWithSourceSet("sameIdsAndNamesWithDifferentCase") ++
+          createModuleWithSourceSet("U_MY_MODULE_ID", Array("sameIdsAndNamesWithDifferentCase", "same module name")) ++
+          createModuleWithSourceSet("U_My_Module_Id", Array("sameIdsAndNamesWithDifferentCase", "same module name")) ++
+          createModuleWithSourceSet("U_my_module_id", Array("sameIdsAndNamesWithDifferentCase", "same module name")) ++
+          createModuleWithSourceSet("sameIdsAndNamesWithDifferentCase.X_MY_MODULE_ID") ++
+          createModuleWithSourceSet("sameIdsAndNamesWithDifferentCase.X_my_module_id") ++
+          createModuleWithSourceSet("sameIdsAndNamesWithDifferentCase.X_My_Module_Id") ++
+          createModuleWithSourceSet("sameIdsAndNamesWithDifferentCase.Y_My_Module_Name") ++
+          createModuleWithSourceSet("sameIdsAndNamesWithDifferentCase.Y_my_module_name") ++
+          createModuleWithSourceSet("sameIdsAndNamesWithDifferentCase.Y_MY_MODULE_Name") ++
+          createModuleWithSourceSet("sameIdsAndNamesWithDifferentCase.Z_MY_MODULE_Name") ++
+          createModuleWithSourceSet("sameIdsAndNamesWithDifferentCase.Z_My_Module_Name") ++
+          createModuleWithSourceSet("sameIdsAndNamesWithDifferentCase.Z_my_module_name")
+    }
+  )
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_PackagePrefix extends SbtProjectStructureImportingTestCasesUtilities:
+  //SCL-22637
+  @Test
+  def testPackagePrefix(): Unit = runTest(
+    new project("packagePrefix") {
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+      libraries := scalaLibraries
+      packagePrefix := "com.example"
+      lazy val root: module = new module("packagePrefix") {
+        contentRoots := Seq(getProjectPath)
+        libraryDependencies := Seq()
+        moduleDependencies ++= Seq(
+          new dependency(rootMain) {
+            isExported := false
+          },
+          new dependency(rootTest) {
+            isExported := false
+          }
+        )
+      }
+      lazy val rootMain: module = new module("packagePrefix.main") {
+        contentRoots := Seq(s"$getProjectPath/src/main", s"$getProjectPath/target/scala-2.13/src_managed/main", s"$getProjectPath/target/scala-2.13/resource_managed/main")
+        libraryDependencies := scalaLibraries
+      }
+      lazy val rootTest: module = new module("packagePrefix.test") {
+        contentRoots := Seq(s"$getProjectPath/src/test", s"$getProjectPath/target/scala-2.13/src_managed/test", s"$getProjectPath/target/scala-2.13/resource_managed/test")
+        libraryDependencies := scalaLibraries
+        moduleDependencies += new dependency(rootMain) { isExported := false }
+      }
+
+      modules := Seq(root, rootMain, rootTest)
+    }
+  )
 
 @RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SimpleSbt013 extends SbtProjectStructureImportingTestCasesUtilities:
