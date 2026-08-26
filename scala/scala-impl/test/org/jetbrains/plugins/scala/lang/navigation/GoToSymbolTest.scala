@@ -160,7 +160,7 @@ class GoToSymbolTest_Scala3 extends GoToSymbolTestBase {
       GoToElementData("MyEnum", "org.example"),
       GoToElementData("MyObject", "org.example"),
       GoToElementData("MyTrait", "org.example"),
-      GoToElementData("myExtension", "org.example"),
+      GoToElementData("String.myExtension", "org.example"),
       GoToElementData("myFunction", "org.example"),
       GoToElementData("myGivenAlias", "org.example"),
       GoToElementData("myGivenDefinition", "org.example"),
