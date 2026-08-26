@@ -218,7 +218,7 @@ object PatternTypeInference {
                   maybeSubst.orElse {
                     /*(4)*/
                     val enclosingFun          = pattern.parentOfType[ScFunctionDefinition]
-                    val enclosingTypeParams   = enclosingFun.fold(Seq.empty[TypeParameter])(_.typeParameters.map(TypeParameter(_)))
+                    val enclosingTypeParams   = enclosingFun.fold(Seq.empty[TypeParameter])(refinableTypeParametersOf(_, noTopLevelTypeVariables))
                     val constraintsWithBounds = enclosingTypeParams.foldLeft(constraints)((acc, tp) => addTypeParamBounds(acc, tp, tp))
                     val undefScrutinee        = ScSubstitutor.undefineTypeParams(enclosingTypeParams)
 
@@ -238,6 +238,32 @@ object PatternTypeInference {
         }
     }
   }
+
+  /**
+   * Only a type parameter which actually occurs in the scrutinee type can be refined by a pattern,
+   * e.g. `T` in `def f[T](x: T) = x match { case _: String => ... }`.
+   *
+   * A type parameter which occurs solely in the pattern is rigid at this point and must be left alone.
+   * Otherwise it would be solved from its own declared bounds, e.g. `B` in
+   * {{{
+   *   class Test[A](val it: IterableOnce[A]) {
+   *     def toArray[B >: A : ClassTag]: Array[B] = it match {
+   *       case it: Iterable[B] => it.toArray[B]
+   *       ...
+   * }}}
+   * would be solved to its lower bound `A`, and that substitution would then leak into the whole
+   * case clause body.
+   */
+  private def refinableTypeParametersOf(
+    enclosingFun:  ScFunctionDefinition,
+    scrutineeType: ScType
+  ): Seq[TypeParameter] =
+    enclosingFun.typeParameters.map(TypeParameter(_)).filter { tp =>
+      scrutineeType.subtypeExists {
+        case tpt: TypeParameterType => tpt.typeParameter.typeParamId == tp.typeParamId
+        case _                      => false
+      }
+    }
 
   private def addTypeParamBounds(
     constraints: ConstraintSystem,
