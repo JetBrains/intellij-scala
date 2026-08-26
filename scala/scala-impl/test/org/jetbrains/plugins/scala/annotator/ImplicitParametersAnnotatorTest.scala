@@ -767,3 +767,44 @@ class ImplicitParametersHighlightingTest_Scala3 extends ScalaHighlightingTestBas
     Message.Error("mySummon", notFound("Int"))
   )
 }
+
+@Category(Array(classOf[TypecheckerTests]))
+class ImplicitParametersAnnotatorTagsTest extends ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_2_13
+
+  //A type test pattern loses its type argument, so the searched type ends up being `ClassTag[A]` instead of
+  //`ClassTag[B]`. The tag is materialized anyway, which is what keeps this code error free,
+  //see the NOTE in SyntheticImplicitInstances.areEligible
+  def testClassTagForTypeTestPatternTypeArgument(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.reflect.ClassTag
+      |class Test[A](val it: IterableOnce[A]) {
+      |  def toArray[B >: A : ClassTag]: Array[B] = it match {
+      |    case it: Iterable[B] => it.toArray[B]
+      |    case _ => it.iterator.toArray[B]
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testClassTagForTypeTestPatternTypeArgumentSeq(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.reflect.ClassTag
+      |class Test[A](val it: Seq[A]) {
+      |  def toArray[B >: A : ClassTag]: Array[B] = it match {
+      |    case it: Iterable[B] => it.toArray[B]
+      |    case _ => ???
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testClassTagFromContextBoundWithoutPattern(): Unit = checkTextHasNoErrors(
+    """
+      |import scala.reflect.ClassTag
+      |class Test[A](val it: Iterable[A]) {
+      |  def toArray[B >: A : ClassTag]: Array[B] = it.toArray[B]
+      |}
+      |""".stripMargin
+  )
+}

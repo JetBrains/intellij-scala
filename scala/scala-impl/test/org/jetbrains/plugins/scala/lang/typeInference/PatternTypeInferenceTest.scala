@@ -308,3 +308,51 @@ class PatternTypeInferenceTest extends ScalaLightCodeInsightFixtureTestCase {
 //  )
 //
 }
+
+/**
+ * A type test pattern must not solve a type parameter which occurs only in the pattern,
+ * see `PatternTypeInference.refinableTypeParametersOf`.
+ */
+class TypeTestPatternRigidTypeParametersTest extends TypeInferenceTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_13
+
+  def testPatternBoundVariableType(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |class Test[A](val it: IterableOnce[A]) {
+       |  def toArray[B >: A : ClassTag]: Array[B] = it match {
+       |    case it: Iterable[B] => ${START}it$END; ???
+       |    case _ => ???
+       |  }
+       |}
+       |//IterableOnce[A] with Iterable[B]
+       |""".stripMargin
+  )
+
+  def testCallInPatternBody(): Unit = doTest(
+    s"""
+       |import scala.reflect.ClassTag
+       |class Test[A](val it: IterableOnce[A]) {
+       |  def toArray[B >: A : ClassTag]: Array[B] = it match {
+       |    case it: Iterable[B] => ${START}it.toArray[B]$END
+       |    case _ => ???
+       |  }
+       |}
+       |//Array[B]
+       |""".stripMargin
+  )
+
+  //a type parameter which does occur in the scrutinee type is still refined
+  def testScrutineeTypeParameterIsStillRefined(): Unit = doTest(
+    s"""
+       |class Test {
+       |  def f[T](x: T): String = x match {
+       |    case y: String => ${START}y$END
+       |    case _ => ""
+       |  }
+       |}
+       |//T with String
+       |""".stripMargin
+  )
+}
