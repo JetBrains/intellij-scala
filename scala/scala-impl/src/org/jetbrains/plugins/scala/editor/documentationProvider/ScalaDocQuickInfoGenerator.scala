@@ -97,6 +97,11 @@ class ScalaDocQuickInfoGenerator(
     new ParametersRenderer(paramRenderer, shouldRenderImplicitModifier = false)
   }
 
+  private val extensionParametersRenderer: ParametersRenderer = {
+    val paramRenderer = new ParameterRenderer(typeRenderer, WithHtmlPsiLink.modifiersRenderer, typeAnnotationRendererSimple)
+    new ParametersRenderer(paramRenderer, shouldRenderImplicitModifier = true)
+  }
+
   @HintText
   def getQuickNavigateInfo(element: PsiElement): Option[String] = {
     val buffer = new StringBuilder
@@ -197,6 +202,12 @@ class ScalaDocQuickInfoGenerator(
   private def generateFunctionInfo(buffer: StringBuilder, function: ScFunction): Unit = {
     renderMemberHeader(buffer, function)
     modifiersRenderer.render(buffer, function)
+    function.extensionMethodOwner.foreach { extension =>
+      buffer.append("extension ")
+      buffer.append(typeParamsRenderer.renderParams(extension))
+      buffer.append(extensionParametersRenderer.renderClauses(extension))
+      buffer.append("\n  ")
+    }
     // NOTE: currently it duplicates org.jetbrains.plugins.scala.lang.psi.types.api.presentation.FunctionRenderer
     // but it am not unifying those yet just to leave function/class/alias/val quick info generation code structure similar
     buffer.append("def ")

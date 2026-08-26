@@ -7,6 +7,8 @@ import com.intellij.psi.util.{PsiFormatUtil, PsiFormatUtilBase}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.extensionMethodPresentableText
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
@@ -32,6 +34,8 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
   @NotNull
   override def getDescriptiveName(element: PsiElement): String = {
     val name = element match {
+      case function: ScFunction if function.isExtensionMethod =>
+        extensionMethodPresentableText(function)
       case x: PsiMethod =>
         var res = PsiFormatUtil.formatMethod(x, PsiSubstitutor.EMPTY,
         PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_PARAMETERS,
@@ -52,6 +56,8 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
   @NotNull
   override def getNodeText(element: PsiElement, useFullName: Boolean): String = {
     val name = element match {
+      case function: ScFunction if function.isExtensionMethod =>
+        extensionMethodPresentableText(function)
       case c: PsiMethod => PsiFormatUtil.formatMethod(c, PsiSubstitutor.EMPTY,
               PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_PARAMETERS,
               PsiFormatUtilBase.SHOW_TYPE)

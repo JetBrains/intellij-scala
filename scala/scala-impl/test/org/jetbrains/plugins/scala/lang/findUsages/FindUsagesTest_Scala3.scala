@@ -1,10 +1,52 @@
 package org.jetbrains.plugins.scala.lang.findUsages
 
+import com.intellij.find.findUsages.PsiElement2UsageTargetAdapter
+import com.intellij.lang.findUsages.LanguageFindUsages
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.usageView.UsageViewUtil
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.junit.Assert.{assertEquals, assertFalse}
 
 class FindUsagesTest_Scala3 extends FindUsagesTest_Scala2 {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  def testExtensionMethodUsagePresentation(): Unit = {
+    myFixture.configureByText(
+      "Extension.scala",
+      """package demo.extensions
+        |
+        |class User
+        |
+        |object Definitions:
+        |  extension (target: User)
+        |    def present(suffix: String): String = ???
+        |
+        |  def regular(suffix: String): String = ???
+        |""".stripMargin
+    )
+
+    val functions = PsiTreeUtil.findChildrenOfType(getFile, classOf[ScFunction]).toArray(new Array[ScFunction](0))
+    val extension = functions.find(_.isExtensionMethod).orNull
+    val regular = functions.find(!_.isExtensionMethod).orNull
+
+    assertEquals("User.present(suffix: String)", LanguageFindUsages.getDescriptiveName(extension))
+    assertEquals("User.present(suffix: String)", UsageViewUtil.getLongName(extension))
+    assertEquals("User.present", UsageViewUtil.getShortName(extension))
+    assertEquals("User.present(suffix: String)", new ScalaFindUsagesProvider().getNodeText(extension, useFullName = false))
+
+    val target = new PsiElement2UsageTargetAdapter(extension, true)
+    assertEquals("User.present(suffix: String)", target.getPresentation.getPresentableText)
+    assertEquals("demo.extensions.Definitions", target.getPresentation.getLocationString)
+
+    assertFalse(regular.isExtensionMethod)
+    assertEquals("regular", regular.getPresentation.getPresentableText)
+    assertEquals("(demo.extensions.Definitions)", regular.getPresentation.getLocationString)
+    assertEquals("regular(String) of demo.extensions.Definitions", LanguageFindUsages.getDescriptiveName(regular))
+    assertEquals("regular(String)", UsageViewUtil.getLongName(regular))
+    assertEquals("regular", UsageViewUtil.getShortName(regular))
+  }
 
   def testTypeParameterInEnumCaseUsedInScalaDoc(): Unit = doTest(
     s"""enum TestEnum [MyTypeParameter](myParameter: Int) {

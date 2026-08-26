@@ -495,7 +495,7 @@
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaRecursiveFunctionLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
-        <gotoTargetPresentationProvider implementation="org.jetbrains.plugins.scala.codeInsight.navigation.ScalaGotoTargetPresentationProvider"/>
+        <gotoTargetPresentationProvider order="first" implementation="org.jetbrains.plugins.scala.codeInsight.navigation.ScalaGotoTargetPresentationProvider"/>
         <lang.documentationProvider id="ScalaDocumentationProvider" language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider"/>
         <!-- Putting our provider first as a workaround for WEB-67867 -->
         <platform.backend.documentation.psiTargetProvider order="first" implementation="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaPsiDocumentationTargetProvider"/>
@@ -551,6 +551,7 @@
         <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
         <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>
+        <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScalaExtensionMethodElementDescriptionProvider" order="first"/>
         <runLineMarkerContributor id="ScalaRunLineMarkerContributor" implementationClass="org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributor" language="Scala"/>
 
         <projectSdkSetupValidator implementation="org.jetbrains.plugins.scala.project.notification.ScalaProjectSdkSetupValidator"/>
