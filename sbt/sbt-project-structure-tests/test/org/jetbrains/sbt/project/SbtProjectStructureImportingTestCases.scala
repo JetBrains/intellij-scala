@@ -2,10 +2,12 @@ package org.jetbrains.sbt.project
 
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.project.ProjectStructureDsl.*
+import org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier
 import org.jetbrains.sbt.project.runner.SbtProjectStructureImportingRunner
 import org.jetbrains.sbt.project.structure.SbtStructureDumper
 import org.jetbrains.sbt.settings.SbtSettings
@@ -755,6 +757,654 @@ class SbtProjectStructureImportingTestCase_SimpleSbt128 extends SbtProjectStruct
   @Test
   def simpleSbt128(): Unit =
     simpleSbtIvyBasedTest()
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_MultiBuildProjectWithTheSameProjectIdFromIDEAPerspective extends SbtProjectStructureImportingTestCasesUtilities:
+  // SBT guarantees us that project ids inside builds are unique. In IDEA in the internal module name all "/" are replaced with "_" and it could happen that in one build
+  // the name of one project would be e.g. ro/t and the other one would be ro_t and for SBT project ids uniqueness would be maintained but not for IDEA.
+  // In the case of such deduplication, IDEA will add a ~<number> suffix to each sbt source set module (main/test) or sbt nested module (the parent module for main/test).
+  // It's done by explicitly setting the ModuleNameDeduplicationStrategy.NUMBER_SUFFIX in these modules.
+  @Test
+  def multiBuildProjectWithTheSameProjectIdFromIDEAPerspective(): Unit = runTest(
+    new project("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+      libraries := scalaLibraries
+
+      val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
+
+      lazy val c1: module = new module("c1") {
+        contentRoots := Seq(getProjectPath + "/c1")
+        sbtProjectId := "c1"
+        sbtBuildURI := buildURI.resolve("c1/")
+        libraryDependencies := Seq()
+      }
+      lazy val c1Main: module = new module("c1.main") {
+        contentRoots := Seq(s"$getProjectPath/c1/src/main", s"$getProjectPath/c1/target/scala-2.13/src_managed/main", s"$getProjectPath/c1/target/scala-2.13/resource_managed/main")
+        sbtProjectId := "c1"
+        sbtBuildURI := buildURI.resolve("c1/")
+        libraryDependencies := scalaLibraries
+      }
+      lazy val c1Test: module = new module("c1.test") {
+        contentRoots := Seq(s"$getProjectPath/c1/src/test", s"$getProjectPath/c1/target/scala-2.13/src_managed/test", s"$getProjectPath/c1/target/scala-2.13/resource_managed/test")
+        sbtProjectId := "c1"
+        sbtBuildURI := buildURI.resolve("c1/")
+        libraryDependencies := scalaLibraries
+      }
+      val c1Root1: module = new module("ro_t", Array("c1")) {
+        libraryDependencies := Seq()
+        sbtProjectId := "mod1"
+        sbtBuildURI := buildURI.resolve("c1/")
+      }
+      val c1Root1Main: module = new module("ro_t.main", Array("c1")) {
+        libraryDependencies := scalaLibraries
+        sbtProjectId := "mod1"
+        sbtBuildURI := buildURI.resolve("c1/")
+      }
+      val c1Root1Test: module = new module("ro_t.test", Array("c1")) {
+        libraryDependencies := scalaLibraries
+        sbtProjectId := "mod1"
+        sbtBuildURI := buildURI.resolve("c1/")
+      }
+      val c1Root2: module = new module("ro_t~1", Array("c1")) {
+        libraryDependencies := Seq()
+        sbtProjectId := "mod2"
+        sbtBuildURI := buildURI.resolve("c1/")
+      }
+      val c1Root2Main: module = new module("ro_t~1.main", Array("c1")) {
+        libraryDependencies := scalaLibraries
+        sbtProjectId := "mod2"
+        sbtBuildURI := buildURI.resolve("c1/")
+      }
+
+      val c1Root2Test: module = new module("ro_t~1.test", Array("c1")) {
+        libraryDependencies := scalaLibraries
+        sbtProjectId := "mod2"
+        sbtBuildURI := buildURI.resolve("c1/")
+      }
+
+      lazy val root: module = new module("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
+        contentRoots := Seq(getProjectPath)
+        sbtProjectId := "multiBuildProjectWithTheSameProjectIdFromIDEAPerspective"
+        sbtBuildURI := buildURI
+        libraryDependencies := Seq()
+      }
+      lazy val rootMain: module = new module("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective.main") {
+        contentRoots := Seq(s"$getProjectPath/src/main", s"$getProjectPath/target/scala-2.13/src_managed/main", s"$getProjectPath/target/scala-2.13/resource_managed/main")
+        sbtProjectId := "multiBuildProjectWithTheSameProjectIdFromIDEAPerspective"
+        sbtBuildURI := buildURI
+        libraryDependencies := scalaLibraries
+        moduleDependencies += new dependency(c1Main) { isExported := false }
+      }
+      lazy val rootTest: module = new module("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective.test") {
+        contentRoots := Seq(s"$getProjectPath/src/test", s"$getProjectPath/target/scala-2.13/src_managed/test", s"$getProjectPath/target/scala-2.13/resource_managed/test")
+        sbtProjectId := "multiBuildProjectWithTheSameProjectIdFromIDEAPerspective"
+        sbtBuildURI := buildURI
+        libraryDependencies := scalaLibraries
+        moduleDependencies ++= Seq(
+          new dependency(rootMain) { isExported := false },
+          new dependency(c1Main) { isExported := false }
+        )
+      }
+
+      val c1Modules: Seq[module] = Seq(
+        c1, c1Main, c1Test,
+        c1Root1, c1Root1Main, c1Root1Test,
+        c1Root2, c1Root2Main, c1Root2Test,
+      )
+
+      modules := Seq(root, rootMain, rootTest) ++ c1Modules
+    }
+  )
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_SimpleTwoBuilds_sbt_1_12_1 extends SbtProjectStructureImportingTestCasesUtilities:
+  // Verifies the import process with `-addPluginSbtFile`.
+  // It has two builds because the sbt bug (https://github.com/sbt/sbt/issues/8570) fixed in 1.12.1 and 2.0.0-RC9 is related to multi-build setup.
+  @Test
+  def simpleTwoBuilds_sbt_1_12_1(): Unit = {
+    injectVariable(
+      getTestProjectPath / "project" / "build.properties",
+      "$SBT_VERSION$",
+      "1.12.1"
+    )
+
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+    runTest(
+      new project("simpleTwoBuilds") {
+        libraries := scalaLibraries
+
+        val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
+
+        modules := Seq(
+          new module("simpleTwoBuilds") {
+            contentRoots := Seq(getProjectPath)
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            excluded := Seq("target")
+          },
+          new module("simpleTwoBuilds.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/target/scala-2.13/resource_managed/main"
+            )
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("simpleTwoBuilds.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/target/scala-2.13/resource_managed/test"
+            )
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("c2") {
+            contentRoots := Seq(s"$getProjectPath/c2")
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            excluded := Seq("target")
+          },
+          new module("c2.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/c2/src/main",
+              s"$getProjectPath/c2/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/c2/target/scala-2.13/resource_managed/main"
+            )
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("c2.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/c2/src/test",
+              s"$getProjectPath/c2/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/c2/target/scala-2.13/resource_managed/test"
+            )
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("simpleTwoBuilds.simpleTwoBuilds-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+          new module("c2.c2-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          }
+        )
+      }
+    )
+  }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_SimpleTwoBuilds_sbt_2_0_0_RC9 extends SbtProjectStructureImportingTestCasesUtilities:
+  // Verifies the import process with `-addPluginSbtFile`
+  // It has two builds because the sbt bug (https://github.com/sbt/sbt/issues/8570) fixed in 1.12.1 and 2.0.0-RC9 is related to multi-build setup.
+  @Test
+  @RequiresJdk(LanguageLevel.JDK_17)
+  def simpleTwoBuilds_sbt_2_0_0_RC9(): Unit = {
+    injectVariable(
+      getTestProjectPath / "project" / "build.properties",
+      "$SBT_VERSION$",
+      "2.0.0-RC9"
+    )
+
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+    runTest(
+      new project("simpleTwoBuilds") {
+        libraries := scalaLibraries
+
+        val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
+
+        modules := Seq(
+          new module("simpleTwoBuilds") {
+            contentRoots := Seq(getProjectPath)
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            excluded := Seq("target")
+          },
+          new module("simpleTwoBuilds.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/simpletwobuilds/src_managed/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/simpletwobuilds/resource_managed/main"
+            )
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/simpletwobuilds/classes"
+            compileTestOutputPath := null
+          },
+          new module("simpleTwoBuilds.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/simpletwobuilds/src_managed/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/simpletwobuilds/resource_managed/test"
+            )
+            sbtProjectId := "simpleTwoBuilds"
+            sbtBuildURI := buildURI
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := null
+            compileTestOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/simpletwobuilds/test-classes"
+          },
+          new module("c2") {
+            contentRoots := Seq(s"$getProjectPath/c2")
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            excluded := Seq("target")
+          },
+          new module("c2.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/c2/src/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/c2/src_managed/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/c2/resource_managed/main"
+            )
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/c2/classes"
+            compileTestOutputPath := null
+          },
+          new module("c2.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/c2/src/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/c2/src_managed/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/c2/resource_managed/test"
+            )
+            sbtProjectId := "c2"
+            sbtBuildURI := buildURI.resolve("c2/")
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := null
+            compileTestOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/c2/test-classes"
+          },
+          new module("simpleTwoBuilds.simpleTwoBuilds-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+          new module("c2.c2-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          }
+        )
+      }
+    )
+  }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_BspDisabledProject extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  def bspDisabledProject(): Unit = {
+    injectVariable(
+      getTestProjectPath / "project" / "build.properties",
+      "$SBT_VERSION$",
+      "1.12.5"
+    )
+
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+    runTest(
+      new project("root") {
+        libraries := scalaLibraries
+        modules := Seq(
+          new module("root") {
+            contentRoots := Seq(getProjectPath)
+            excluded := Seq("target")
+          },
+          new module("root.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/target/scala-2.13/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/target/scala-2.13/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.root-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+          new module("root.foo") {
+            contentRoots := Seq(s"$getProjectPath/foo")
+            excluded := Seq("target")
+          },
+          new module("root.foo.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/foo/src/main",
+              s"$getProjectPath/foo/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/foo/target/scala-2.13/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.foo.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/foo/src/test",
+              s"$getProjectPath/foo/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/foo/target/scala-2.13/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          }
+        )
+      }
+    )
+  }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_BspDisabledProject_sbt_2_0_0_RC9 extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  @RequiresJdk(LanguageLevel.JDK_17)
+  def bspDisabledProject_sbt_2_0_0_RC9(): Unit = {
+    injectVariable(
+      getTestProjectPath / "project" / "build.properties",
+      "$SBT_VERSION$",
+      "2.0.0-RC9"
+    )
+
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+    runTest(
+      new project("root") {
+        libraries := scalaLibraries
+        modules := Seq(
+          new module("root") {
+            contentRoots := Seq(getProjectPath)
+            excluded := Seq("target")
+          },
+          new module("root.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/root/src_managed/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/root/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/root/classes"
+            compileTestOutputPath := null
+          },
+          new module("root.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/root/src_managed/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/root/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := null
+            compileTestOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/root/test-classes"
+          },
+          new module("root.root-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+          new module("root.foo") {
+            contentRoots := Seq(s"$getProjectPath/foo")
+            excluded := Seq("target")
+          },
+          new module("root.foo.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/foo/src/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/foo/src_managed/main",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/foo/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/foo/classes"
+            compileTestOutputPath := null
+          },
+          new module("root.foo.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/foo/src/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/foo/src_managed/test",
+              s"$getProjectPath/target/out/jvm/scala-2.13.14/foo/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+            compileOutputPath := null
+            compileTestOutputPath := "%PROJECT_ROOT%/target/out/jvm/scala-2.13.14/foo/test-classes"
+          }
+        )
+      }
+    )
+  }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_ScalafixConfigDisabled extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  def scalafixConfigDisabled(): Unit = {
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+    runTest(
+      new project("root") {
+        libraries := scalaLibraries
+        modules := Seq(
+          new module("root") {
+            contentRoots := Seq(getProjectPath)
+            excluded := Seq("target")
+          },
+          new module("root.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/target/scala-2.13/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/target/scala-2.13/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.root-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+        )
+      }
+    )
+  }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_BspDisabledConfigLevel extends SbtProjectStructureImportingTestCasesUtilities:
+  @Test
+  def bspDisabledConfigLevel(): Unit = {
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+    val scalaSdk = expectedScalaSdkLibraryFromCoursier(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14", SbtProjectSystem.Id, useScalaSdkExtraClasspath = true)
+    runTest(
+      new project("root") {
+        libraries := scalaLibraries
+        modules := Seq(
+          new module("root") {
+            contentRoots := Seq(getProjectPath)
+            excluded := Seq("target")
+          },
+          new module("root.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/main",
+              s"$getProjectPath/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/target/scala-2.13/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.test") {
+            contentRoots := Seq(
+              s"$getProjectPath/src/test",
+              s"$getProjectPath/target/scala-2.13/src_managed/test",
+              s"$getProjectPath/target/scala-2.13/resource_managed/test"
+            )
+            sources := Nil
+            resources := Nil
+            testSources := Seq("scala")
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.root-build") {
+            sources := Seq("")
+            excluded := Seq("project/target", "target")
+          },
+          new module("root.foo") {
+            contentRoots := Seq(s"$getProjectPath/foo")
+            excluded := Seq("target")
+          },
+          new module("root.foo.main") {
+            contentRoots := Nil
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies += scalaSdk
+          },
+          new module("root.foo.test") {
+            contentRoots := Nil
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies += scalaSdk
+          },
+          new module("root.bar") {
+            contentRoots := Seq(s"$getProjectPath/bar")
+            excluded := Seq("target")
+          },
+          new module("root.bar.main") {
+            contentRoots := Seq(
+              s"$getProjectPath/bar/src/main",
+              s"$getProjectPath/bar/target/scala-2.13/src_managed/main",
+              s"$getProjectPath/bar/target/scala-2.13/resource_managed/main"
+            )
+            sources := Seq("scala")
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies := scalaLibraries
+          },
+          new module("root.bar.test") {
+            contentRoots := Nil
+            sources := Nil
+            resources := Nil
+            testSources := Nil
+            testResources := Nil
+            libraryDependencies += scalaSdk
+          },
+        )
+      }
+    )
+  }
+
+@RunWith(classOf[SbtProjectStructureImportingRunner])
+class SbtProjectStructureImportingTestCase_ManagedScalaInstanceOff extends SbtProjectStructureImportingTestCasesUtilities:
+  // When managed scalaInstance is disabled (SCL-24321), sbt behaves differently depending on the version:
+  // - sbt < 1.12.0: throws "Missing Scala tool configuration", which sbt-structure silently ignores
+  //   (see https://github.com/JetBrains/sbt-structure/commit/92d78ea4b4fe7dbb48e586751f957d420136a809)
+  // - sbt >= 1.12.0: returns a scalaInstance with version 0.0.0 and no jars, which sbt-structure filters out
+  //   (see https://github.com/JetBrains/sbt-structure/commit/ff960b9e7c2ff801652881d4482dab197666e7b9)
+  // In both cases the project is still imported.
+  // See https://www.scala-sbt.org/1.x/docs/Configuring-Scala.html#Configuring+Scala+tool+dependencies
+  @Test
+  def managedScalaInstanceOff(): Unit = runTest(
+    new project("scalaInstance") {
+      val scalaSdk_2_13_14: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+
+      lazy val scalaInstance: module = new module("scalaInstance")
+      lazy val scalaInstanceMain: module = new module("scalaInstance.main") { libraryDependencies := scalaSdk_2_13_14 }
+      lazy val scalaInstanceTest: module = new module("scalaInstance.test") { libraryDependencies := scalaSdk_2_13_14 }
+
+      lazy val project1: module = new module("scalaInstance.project1") { libraryDependencies := Nil }
+      lazy val project1Main: module = new module("scalaInstance.project1.main") { libraryDependencies := Nil }
+      lazy val project1Test: module = new module("scalaInstance.project1.test") { libraryDependencies := Nil }
+
+      modules := Seq(
+        scalaInstance,
+        scalaInstanceMain,
+        scalaInstanceTest,
+        project1,
+        project1Main,
+        project1Test
+      )
+    }
+  )
 
 abstract class SbtProjectStructureImportingTestCasesUtilities extends SbtProjectStructureImportingTestCase:
   // Duplicated code from SbtProjectStructureImportingSuiteBase. Will be removed after all test cases have been migrated
