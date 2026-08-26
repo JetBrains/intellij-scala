@@ -392,6 +392,9 @@ lazy val semanticTests = newProject("semantic-tests", file("scala/semantic-tests
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
     libraryDependencies += Dependencies.tastyInspector,
+    intellijPlugins ++= Seq(
+      "intellij.vcs.plugin".toPlugin,
+    )
   )
 
 lazy val scalaImpl: sbt.Project =
