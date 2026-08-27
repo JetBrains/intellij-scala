@@ -10,6 +10,20 @@ import org.jetbrains.sbt.project.runner.SbtProjectStructureImportingRunner
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.runner.RunWith
 
+/**
+ * Runs the standard sbt project-structure importing suite with default import settings.
+ * The production and test sources are kept in separate modules.
+ *
+ * When extending this base class, the tests are executed for three importing modes:
+ *   1. Built-in (regular sbt import)
+ *   2. New sbt shell
+ *   3. Old sbt shell
+ *
+ * It is recommended to keep each test in its own test suite (class) in order for the tests to be
+ * parallelisable across test buckets and test shards.
+ *
+ * @see SbtProjectStructureImportingTestCases for concrete examples.
+ */
 @RunWith(classOf[SbtProjectStructureImportingRunner])
 abstract class SbtProjectStructureImportingTestCase
   extends SbtProjectStructureImportingTestBase
