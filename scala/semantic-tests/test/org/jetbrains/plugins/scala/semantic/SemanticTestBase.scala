@@ -4,14 +4,17 @@ import com.intellij.openapi.diff.impl.patch.{TextFilePatch, TextPatchBuilder, Un
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.SemanticTests
 import org.jetbrains.plugins.scala.corpus.{ProjectCorpusTestBase, ProjectCorpusTestDef}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 import java.io.StringWriter
 import java.nio.file.{Files, Path}
 
+@Category(Array(classOf[SemanticTests]))
 abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCorpusTestBase(config) {
   private val Print =
 //    true // Print actual cases and save contents to target/comparison/

@@ -66,3 +66,5 @@ trait CompilationTests_IDEA
 trait CompilerHighlightingTests
 
 trait BundleSortingTests
+
+trait SemanticTests
