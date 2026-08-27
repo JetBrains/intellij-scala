@@ -321,7 +321,10 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textOfReferenceTo(result: ScalaResolveResult, place: PsiElement, refName: String): String = {
     result.getActualElement match {
-      case e: ScSelfTypeElement => e.name
+      case e: ScSelfTypeElement => e.nameContext match {
+        case named: ScNamedElement => if (named.name == "<anonymous>") "this" else named.name + ".this"
+        case _ => e.name
+      }
       case e: ScNamedElement => e.nameContext match {
         case m: ScMember if !m.isLocal =>
           if (ScalaPsiUtil.hasStablePath(e)) m.qualifiedNameOpt.getOrElse(refName) else {
