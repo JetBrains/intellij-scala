@@ -46,24 +46,24 @@ object SbtShellTestsRunner {
     }
 
     def evaluateCommands: Future[Seq[Unit]] =
-      Future.sequence(testRunCommands.map(evaluateCommand))
+      if (useSbtUi && communication.isShuttingDownOrOff)
+        Future.successful(Seq.empty)
+      else
+        Future.sequence(testRunCommands.map(evaluateCommand))
 
-    def restoreSettingsFuture(oldSettings: Option[SettingMap]) =
-      oldSettings
-        .map(sbtSupport.resetSbtSettingsForUi(communication, _))
-        .getOrElse(Future.successful(true))
 
-    // Skip steps that send commands to the sbt shell if it is shutting down or already off.
-    // Session-scoped settings (set via `set` commands) are lost on shell termination,
-    // so evaluating commands or resetting settings on a dead shell is pointless and would trigger an unwanted shell restart.
-    def whenShellAlive[A](default: => A)(body: => Future[A]): Future[A] =
-      if (communication.isShuttingDownOrOff) Future.successful(default)
-      else body
+    def restoreSettings(oldSettings: Option[SettingMap]): Future[Boolean] =
+      oldSettings match {
+        case Some(settings) if !communication.isShuttingDownOrOff =>
+          sbtSupport.resetSbtSettingsForUi(communication, settings)
+        case _ =>
+          Future.successful(true)
+      }
 
     for {
       oldSettings <- modifySettings
-      _           <- whenShellAlive(Seq.empty[Unit])(evaluateCommands)
-      success     <- whenShellAlive(true)(restoreSettingsFuture(oldSettings))
+      _           <- evaluateCommands
+      success     <- restoreSettings(oldSettings)
     } yield success
   }
 }
