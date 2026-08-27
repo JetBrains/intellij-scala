@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.{createPresentation, hasItemText}
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture.lookupItemsDebugText
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
-import org.junit.Assert.assertEquals
+import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Test
 
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
@@ -156,4 +158,186 @@ class ScalaExtensionMethodCompletionTest extends ScalaCompletionTestBase {
        |(null: OriginalReceiver).chainedEx$CARET""".stripMargin,
     item = "chainedExtension"
   )
+
+  @Test
+  def testImportSelectorShowsReceiverForSingleExtensionMethod(): Unit = {
+    val (_, items) = activeLookupWithItems(
+      s"""class User
+         |
+         |object Definitions:
+         |  extension (target: User) def present(suffix: String): String = "user"
+         |
+         |object Usage:
+         |  import Definitions.pre$CARET
+         |""".stripMargin
+    )
+    val presentItems = items.filter(_.getLookupString == "present").toSeq
+
+    assertEquals(1, presentItems.size)
+    assertTrue(
+      s"""Unexpected completion presentation:
+         |${lookupItemsDebugText(presentItems)}""".stripMargin,
+      hasItemText(presentItems.head, "present")(
+        itemTextBold = true,
+        tailText = "(suffix: String) for User in Definitions",
+        typeText = "String"
+      )
+    )
+  }
+
+  @Test
+  def testImportSelectorShowsGenericReceiverForSingleExtensionMethod(): Unit = {
+    val (_, items) = activeLookupWithItems(
+      s"""class Box[T]
+         |
+         |object Definitions:
+         |  extension [T](target: Box[T]) def present[A](suffix: A): T = ???
+         |
+         |object Usage:
+         |  import Definitions.pre$CARET
+         |""".stripMargin
+    )
+    val presentItems = items.filter(_.getLookupString == "present").toSeq
+
+    assertEquals(1, presentItems.size)
+    assertEquals("[A](suffix: A) for Box[T] in Definitions", createPresentation(presentItems.head).getTailText)
+  }
+
+  @Test
+  def testImportSelectorShowsExtensionMethodOverloadsSeparately(): Unit = {
+    val fileText =
+      s"""class User
+         |class Project
+         |class Domain
+         |
+         |object Definitions:
+         |  extension (target: User) def present: String = "user"
+         |  extension (target: Project) def present: String = "project"
+         |  extension (target: Domain) def present: String = "domain"
+         |
+         |object Usage:
+         |  import Definitions.pre$CARET
+         |""".stripMargin
+
+    val (_, items) = activeLookupWithItems(fileText)
+    val presentItems = items.filter(_.getLookupString == "present").toSeq
+
+    assertEquals(
+      s"""Expected one import completion item per extension declaration.
+         |All lookup items:
+         |${lookupItemsDebugText(items)}""".stripMargin,
+      3,
+      presentItems.size
+    )
+    assertTrue(
+      s"""Missing User extension completion presentation:
+         |${lookupItemsDebugText(presentItems)}""".stripMargin,
+      presentItems.exists(hasItemText(_, "present")(
+        itemTextBold = true,
+        tailText = " for User in Definitions",
+        typeText = "String"
+      ))
+    )
+    assertTrue(presentItems.exists(hasItemText(_, "present")(
+      itemTextBold = true,
+      tailText = " for Project in Definitions",
+      typeText = "String"
+    )))
+    assertTrue(presentItems.exists(hasItemText(_, "present")(
+      itemTextBold = true,
+      tailText = " for Domain in Definitions",
+      typeText = "String"
+    )))
+
+    doCompletionTest(
+      fileText,
+      s"""class User
+         |class Project
+         |class Domain
+         |
+         |object Definitions:
+         |  extension (target: User) def present: String = "user"
+         |  extension (target: Project) def present: String = "project"
+         |  extension (target: Domain) def present: String = "domain"
+         |
+         |object Usage:
+         |  import Definitions.present
+         |""".stripMargin,
+      item = "present"
+    )
+  }
+
+  @Test
+  def testImportSelectorShowsDistinctReturnTypesForExtensionMethodOverloads(): Unit = {
+    val (_, items) = activeLookupWithItems(
+      s"""class User
+         |class Project
+         |
+         |object Definitions:
+         |  extension (target: User) def present: String = "user"
+         |  extension (target: Project) def present: Int = 42
+         |
+         |object Usage:
+         |  import Definitions.pre$CARET
+         |""".stripMargin
+    )
+    val presentItems = items.filter(_.getLookupString == "present").toSeq
+
+    assertEquals(2, presentItems.size)
+    assertTrue(
+      s"""Missing User extension completion presentation:
+         |${lookupItemsDebugText(presentItems)}""".stripMargin,
+      presentItems.exists(hasItemText(_, "present")(
+        itemTextBold = true,
+        tailText = " for User in Definitions",
+        typeText = "String"
+      ))
+    )
+    assertTrue(presentItems.exists(hasItemText(_, "present")(
+      itemTextBold = true,
+      tailText = " for Project in Definitions",
+      typeText = "Int"
+    )))
+  }
+
+  @Test
+  def testImportSelectorKeepsOrdinaryMethodsSeparateFromExtensionMethods(): Unit = {
+    val (_, items) = activeLookupWithItems(
+      s"""class User
+         |class Project
+         |
+         |object Definitions:
+         |  extension (target: User) def present: String = "user"
+         |  extension (target: Project) def present: String = "project"
+         |  def present: Boolean = true
+         |
+         |object Usage:
+         |  import Definitions.pre$CARET
+         |""".stripMargin
+    )
+    val presentItems = items.filter(_.getLookupString == "present").toSeq
+
+    assertEquals(
+      s"""Every extension declaration and the ordinary method must stay separate.
+         |All lookup items:
+         |${lookupItemsDebugText(items)}""".stripMargin,
+      3,
+      presentItems.size
+    )
+    assertTrue(
+      s"""Missing User extension completion presentation:
+         |${lookupItemsDebugText(presentItems)}""".stripMargin,
+      presentItems.exists(hasItemText(_, "present")(
+        itemTextBold = true,
+        tailText = " for User in Definitions",
+        typeText = "String"
+      ))
+    )
+    assertTrue(presentItems.exists(hasItemText(_, "present")(
+      itemTextBold = true,
+      tailText = " for Project in Definitions",
+      typeText = "String"
+    )))
+    assertTrue(presentItems.exists(item => createPresentation(item).getTypeText == "Boolean"))
+  }
 }

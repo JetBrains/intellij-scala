@@ -7,8 +7,9 @@ import com.intellij.usages.rules.{PsiElementUsage, SingleParentUsageGroupingRule
 import com.intellij.usages.{Usage, UsageGroup, UsageInfo2UsageAdapter, UsageTarget}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.findUsages.rules.ScalaDeclarationUsageGroupingRule.getPsiElementAndContainingScalaFile
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.extensionMethodShortText
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
@@ -45,6 +46,8 @@ private final class ScalaDeclarationUsageGroupingRule(forTypeDefinition: Boolean
     memberToShowInGroup match {
       case Some(td: ScTypeDefinition) =>
         new ScalaTypeDefinitionUsageGroup(td)
+      case Some(function: ScFunction) if function.isExtensionMethod =>
+        new ScalaNonTypeDefinitionUsageGroup(function, extensionMethodShortText(function))
       case Some(named: ScNamedElement) =>
         new ScalaNonTypeDefinitionUsageGroup(named, named.name)
       case Some(named: ScValueOrVariable) =>

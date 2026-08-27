@@ -11,10 +11,16 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.{
+  extensionMethodContainerText,
+  extensionMethodPresentableText,
+  sourceContainerText
+}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement.AnonymousPlaceholder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -131,6 +137,10 @@ trait ScNamedElement extends ScalaPsiElement
 
   override def getPresentation: ItemPresentation = {
     val _nameContext = nameContext
+    val extensionFunction = this match {
+      case function: ScFunction if function.isExtensionMethod => Some(function)
+      case _                                                  => None
+    }
     val classContainer: ScTemplateDefinition = if (_nameContext == null) null else {
       val parent = _nameContext.getParent
       if (parent.is[ScTemplateBody, ScEarlyDefinitions] || this.is[ScClassParameter])
@@ -140,23 +150,29 @@ trait ScNamedElement extends ScalaPsiElement
     }
     val parentMember = Option(PsiTreeUtil.getParentOfType(this, classOf[ScMember], false))
     new ItemPresentation {
-      override def getPresentableText: String = name
-      override def getLocationString: String = classContainer match {
-        case _: ScTypeDefinition => "(" + classContainer.qualifiedName + ")"
-        case _: ScNewTemplateDefinition => s"($AnonymousPlaceholder)"
-        case _ =>
-          //Note, the location of the parent member and name context member can be different.
-          //When we have a top-level definition, we use the top-level qualifier.
-          //When we have some local element, we just show the closest member text.
-          val maybeTopLevelQualifier = _nameContext match {
-            case member: ScMember => member.topLevelQualifier
-            case _ => None
+      override def getPresentableText: String =
+        extensionFunction.map(extensionMethodPresentableText).getOrElse(name)
+
+      override def getLocationString: String =
+        extensionFunction.flatMap(extensionMethodContainerText).getOrElse {
+          classContainer match {
+            case typeDefinition: ScTypeDefinition =>
+              sourceContainerText(typeDefinition).fold("")(container => s"($container)")
+            case _: ScNewTemplateDefinition => s"($AnonymousPlaceholder)"
+            case _ =>
+              //Note, the location of the parent member and name context member can be different.
+              //When we have a top-level definition, we use the top-level qualifier.
+              //When we have some local element, we just show the closest member text.
+              val maybeTopLevelQualifier = _nameContext match {
+                case member: ScMember => member.topLevelQualifier
+                case _ => None
+              }
+              maybeTopLevelQualifier.getOrElse {
+                val parentMemberTextShort = parentMember.map(m => StringUtil.first(m.getText, 30, true))
+                parentMemberTextShort.getOrElse("")
+              }
           }
-          maybeTopLevelQualifier.getOrElse {
-            val parentMemberTextShort = parentMember.map(m => StringUtil.first(m.getText, 30, true))
-            parentMemberTextShort.getOrElse("")
-          }
-      }
+        }
       override def getIcon(open: Boolean): Icon = parentMember.map(_.getIcon(0)).orNull
     }
   }

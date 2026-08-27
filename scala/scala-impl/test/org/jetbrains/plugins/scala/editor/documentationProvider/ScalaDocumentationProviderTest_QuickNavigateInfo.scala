@@ -335,6 +335,16 @@ class ScalaDocumentationProviderTest_QuickNavigateInfo_Scala2 extends ScalaDocum
 class ScalaDocumentationProviderTest_QuickNavigateInfo_Scala3 extends ScalaDocumentationProviderTest_QuickNavigateInfo {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_5
 
+  def testExtensionMethodWithTypeAndContextParameters(): Unit =
+    doGenerateQuickNavigateInfoBodyTest(
+      s"""class Box[T]
+         |trait Context[T]
+         |
+         |extension [T](target: Box[T])(using context: Context[T])
+         |  def ${|}present(suffix: String): String = ???
+         |""".stripMargin,
+      """extension [T](target: <a href="psi_element://Box">Box</a>[T])(using context: <a href="psi_element://Context">Context</a>[T])<br>  def present(suffix: <a href="psi_element://java.lang.String">String</a>): <a href="psi_element://java.lang.String">String</a>"""
+    )
 
   def testClassWithGenericParameter_WithRecursiveBounds_1(): Unit =
     doGenerateQuickNavigateInfoBodyTest(

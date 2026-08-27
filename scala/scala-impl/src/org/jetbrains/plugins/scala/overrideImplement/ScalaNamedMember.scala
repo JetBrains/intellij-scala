@@ -132,6 +132,9 @@ case class ScExtensionMethodMember(
 
 object ScExtensionMethodMember {
 
+  // This Override/Implement renderer has a different UI contract from
+  // ScalaPsiPresentationUtils' navigation and Usage View formatter. A future
+  // minor cleanup may share presentation primitives, but not the full renderers.
   /**
    * Created by analogy with  [[org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils.methodPresentableText]]<br>
    * This text is presented in the "override/implement" dialog

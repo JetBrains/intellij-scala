@@ -7,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.plugins.scala.autoImport.quickFix._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaImportingInsertHandler, ScalaInsertHandler}
 import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, ScalaKeyword}
@@ -73,6 +74,18 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
   var isInInterpolatedString: Boolean = false
   var isInStableElementPattern: Boolean = false
 
+  /**
+   * Import-selector completion discovers Scala 3 extension methods only after
+   * the generic resolver has created this lookup item. That post-processing
+   * pass sets this contextual tail for an extension with a usable receiver,
+   * avoiding a second, extension-specific lookup-item construction path.
+   *
+   * It is set only by `ScalaBasicCompletionProvider` for extension functions
+   * in an import selector; all other completion contexts keep the ordinary
+   * `tailText`.
+   */
+  private var extensionPresentationTail: Option[String] = None
+
   def isNamedParameterOrAssignment: Boolean = isNamedParameter || isAssignment
 
   override def equals(o: Any): Boolean = super.equals(o) &&
@@ -130,9 +143,55 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
       case _ => false
     }
 
-    val tail = if (isNamedParameter) AssignmentText else tailText
+    val tail = extensionPresentationTail.getOrElse(if (isNamedParameter) AssignmentText else tailText)
     presentation.setTailText(tail, grayed)
     presentation.setTypeText(typeText)
+  }
+
+  /**
+   * Sets the import-selector tail for a Scala 3 extension completion item.
+   *
+   * It is called by the import-specific post-processing pass after the
+   * generic resolver creates this item. Other completion contexts do not call
+   * it and retain the ordinary tail text.
+   */
+  private[completion] def presentExtension(
+    receiverType: String,
+    ownerName: Option[String]
+  ): Unit = {
+    val presentationTail = extensionPresentationTailText(receiverType, ownerName)
+    extensionPresentationTail = Some(presentationTail)
+  }
+
+  /**
+   * Builds the receiver- and owner-qualified tail for a Scala 3 extension
+   * import completion item.
+   *
+   * For example, completion for the import below uses
+   * `receiverType = "User"` and `ownerName = Some("Definitions")`:
+   * {{{
+   * object Definitions:
+   *   extension (target: User)
+   *     def present(suffix: String): String = ???
+   *
+   * import Definitions.pre
+   * // present(suffix: String) for User in Definitions
+   * }}}
+   */
+  private def extensionPresentationTailText(
+    receiverType: String,
+    ownerName: Option[String]
+  ): String = {
+    val signatureText = getPsiElement match {
+      case function: ScFunction =>
+        implicit val project: Project = getPsiElement.getProject
+        implicit val tpc: TypePresentationContext = TypePresentationContext(getPsiElement)
+        signatureClausesText(function)
+      case _ => ""
+    }
+    val receiverText = ScalaBundle.message("completion.extension.for", receiverType)
+    val ownerText = ownerName.fold("")(owner => s" ${ScalaBundle.message("completion.extension.in", owner)}")
+    s"$signatureText $receiverText$ownerText"
   }
 
   private[lookups] def wrapOptionIfNeeded(presentation: LookupElementPresentation): Unit =
@@ -367,7 +426,6 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
 }
 
 object ScalaLookupItem {
-
   @tailrec
   def delegate(element: LookupElement): LookupElement = element match {
     case decorator: LookupElementDecorator[_] => delegate(decorator.getDelegate)
