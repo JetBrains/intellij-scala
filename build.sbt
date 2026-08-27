@@ -1477,7 +1477,7 @@ def runRegularTestCategoryCommand(name: String, category: String): Command = run
   name = name,
   description = s"Run the $category test category",
   includeCategories = Seq(category),
-  excludeCategories = Seq(randomTypingTests, flakyTests),
+  excludeCategories = Seq(randomTypingTests, flakyTests, semanticTestsCategory),
   glob = ""
 )
 
@@ -1507,7 +1507,7 @@ lazy val runNightlyTests = runTestCategoryCommand(
   name = "runNightlyTests",
   description = "Run the NightlyTests test category",
   includeCategories = Seq(randomTypingTests),
-  excludeCategories = Seq(flakyTests),
+  excludeCategories = Seq(flakyTests, semanticTestsCategory),
   glob = ""
 )
 
@@ -1515,7 +1515,15 @@ lazy val runFlakyTests = runTestCategoryCommand(
   name = "runFlakyTests",
   description = "Run the FlakyTests test category",
   includeCategories = Seq(flakyTests),
-  excludeCategories = Seq(randomTypingTests),
+  excludeCategories = Seq(randomTypingTests, semanticTestsCategory),
+  glob = ""
+)
+
+lazy val runSemanticTests = runTestCategoryCommand(
+  name = "runSemanticTests",
+  description = "Run the SemanticTests test category",
+  includeCategories = Seq(semanticTestsCategory),
+  excludeCategories = Seq(flakyTests, randomTypingTests),
   glob = ""
 )
 
@@ -1538,8 +1546,9 @@ lazy val categoriesToExclude = List(
   textToTextTests,
   highlightingTests,
   worksheetEvaluationTests,
+  semanticTestsCategory,
   randomTypingTests,
-  flakyTests
+  flakyTests,
 )
 
 def runFastTestsCommand(name: String, glob: String): Command = runTestCategoryCommand(

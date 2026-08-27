@@ -384,6 +384,7 @@ object Common {
     val randomTypingTests: String = cat("RandomTypingTests")
     val flakyTests: String = cat("FlakyTests")
     val bundleSortingTests: String = cat("BundleSortingTests")
+    val semanticTestsCategory: String = cat("SemanticTests")
   }
 
   def pluginVersion: String =
