@@ -1527,7 +1527,7 @@ lazy val runSemanticTests = runTestCategoryCommand(
   glob = ""
 )
 
-Global / commands ++= Seq(runNightlyTests, runFlakyTests)
+Global / commands ++= Seq(runNightlyTests, runFlakyTests, runSemanticTests)
 
 lazy val categoriesToExclude = List(
   fileSetTests,
