@@ -3,7 +3,6 @@ package org.jetbrains.sbt.project
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
@@ -11,58 +10,33 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
-import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
+import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.{Sbt, SbtBundle, SbtVersion}
-import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
-import org.junit.experimental.categories.Category
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.net.URI
 
 /**
  * Runs project-structure importing coverage with the legacy single-module layout.
  *
- * @see [[SbtProjectStructureImportingTest]]
+ * @see SbtProjectStructureImportingTestCases.scala for tests running with the split production/test modules mode
  */
-@Category(Array(classOf[SlowTests2]))
-final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProjectStructureImportingTestBase {
-
-  import ProjectStructureDsl.*
-
-  override protected def getTestSbtProjectSettings =
+@RunWith(classOf[JUnit4])
+abstract class SbtProjectStructureImportingTestCase_LegacyModulesLayout extends SbtProjectStructureImportingTestBase:
+  override protected def getTestSbtProjectSettings: SbtExternalSystemImportingTestLike.TestSbtProjectSettings =
     super.getTestSbtProjectSettings.copy(separateProdAndTestSources = false)
 
-  def testSimple(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
-    runSimpleTest("simple", scalaLibraries)
+  override protected def runTest(expected: project): Unit =
+    runTest(expected, identity, mutedNotificationTitles = Seq(SbtBundle.message("sbt.legacy.modules.layout.notification.title")))
 
-    // Adding the assertion here not to create a separate heavy test for such a tiny check
-    // org.jetbrains.plugins.scala.project.ProjectExt#modulesWithScala
-    Assert.assertEquals(
-      "modulesWithScala should return list of non *-build modules",
-      Seq("simple"),
-      getMyProject.modulesWithScala.map(_.getName),
-    )
-
-    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
-    assertTrue(
-      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
-      SbtProjectResolver.getProcessOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
-    )
-  }
-
-  //noinspection RedundantDefaultArgument
-  def testSimple_Scala3(): Unit = {
-    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
-    runSimpleTest("simple-scala3", scalaLibraries, DefaultSbtContentRootsScala3)
-  }
-
-  private def runSimpleTest(
+  protected def runSimpleTest(
     projectName: String,
     expectedScalaLibraries: Seq[library],
     expectedSbtCompletionVariants: Seq[ExpectedDirectoryCompletionVariant] = DefaultSbtContentRootsScala213
@@ -95,11 +69,43 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
       expectedSbtCompletionVariants
     )
   }
+end SbtProjectStructureImportingTestCase_LegacyModulesLayout
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_Simple extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def simple(): Unit = {
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+    runSimpleTest("simple", scalaLibraries)
+
+    // Adding the assertion here not to create a separate heavy test for such a tiny check
+    // org.jetbrains.plugins.scala.project.ProjectExt#modulesWithScala
+    assertEquals(
+      "modulesWithScala should return list of non *-build modules",
+      Seq("simple"),
+      getMyProject.modulesWithScala.map(_.getName),
+    )
+
+    val expectedLineInProcessOutput = "[error] Some error message which shouldn't fail the whole build, see SCL-21478 and SCL-13038"
+    assertTrue(
+      s"Can't find this line in sbt process output during sbt structure extraction:\n$expectedLineInProcessOutput",
+      SbtProjectResolver.getProcessOutputOfLatestStructureDump.contains(expectedLineInProcessOutput)
+    )
+  }
+
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_Simple_Scala3 extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  //noinspection RedundantDefaultArgument
+  @Test
+  def simple_Scala3(): Unit = {
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
+    runSimpleTest("simple-scala3", scalaLibraries, DefaultSbtContentRootsScala3)
+  }
+
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_MainTestSbtModules extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
   /**
    * Test #SCL-23505
    */
-  def testMainTestSbtModules(): Unit = {
+  @Test
+  def mainTestSbtModules(): Unit = {
     runTest(
       new project("root") {
         modules := Seq(
@@ -120,9 +126,11 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     )
   }
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_TwoLinkedProjects extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
   // note: this test is for the case in which an additional project is linked to the project.
   // The linked project is project "simple". The ideProject is generated from "twoLinkedProjects" project
-  def testTwoLinkedProjects(): Unit = {
+  @Test
+  def twoLinkedProjects(): Unit = {
     val originalProjectName = "twoLinkedProjects"
     val linkedProjectName = "simple"
     val expectedScalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
@@ -134,7 +142,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
       jdkName = getJdkConfiguredForTestCase.getName
     )
     runTest(
-      new project("testTwoLinkedProjects") {
+      new project("twoLinkedProjects") {
         modules := Seq(
           new module(originalProjectName) {
             contentRoots += FileUtil.toSystemIndependentName(getProjectPath)
@@ -177,7 +185,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   }
 
-  def testProjectWithUppercaseName(): Unit = runTest {
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_ProjectWithUppercaseName extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def projectWithUppercaseName(): Unit = runTest {
     new project("MyProjectWithUppercaseName") {
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       libraries ++= scalaLibraries
@@ -192,12 +202,16 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   }
 
-  def testSimpleDoNotUseCoursier(): Unit = {
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_SimpleDoNotUseCoursier extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def simpleDoNotUseCoursier(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkFromIvy(useEnv = true)("2.12.10")
     runSimpleTest("simpleDoNotUseCoursier", scalaLibraries, DefaultSbtContentRootsScala212)
   }
 
-  def testMultiModule(): Unit = runTest(
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_MultiModule extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def multiModule(): Unit = runTest(
     new project("multiModule") {
       lazy val foo: module = new module("multiModule.foo") {
         moduleDependencies += new dependency(bar) {
@@ -212,10 +226,12 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_CrossCompiledIsScala2 extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
   /**
    * Open cross-compiled Scala 3 / Scala 2 projects as Scala 2, #SCL-19573
    */
-  def testCrossCompiledIsScala2(): Unit = runTest(
+  @Test
+  def crossCompiledIsScala2(): Unit = runTest(
     new project("root") {
       modules := Seq(
         new module("root"),
@@ -227,10 +243,12 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_CrossCompiledPart extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
   /**
    * "Open cross-compiled Scala 3 / Scala 2 projects as Scala 2" only applies if all modules are compiled both to Scala 3 and Scala 2, #SCL-22619
    */
-  def testCrossCompiledPart(): Unit = runTest(
+  @Test
+  def crossCompiledPart(): Unit = runTest(
     new project("root") {
       private val scala3libraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
 
@@ -244,7 +262,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
-  def testUnmanagedDependency(): Unit = runTest(
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_UnmanagedDependency extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def unmanagedDependency(): Unit = runTest(
     new project("unmanagedDependency") {
       val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       val managedLibrary: library = new library("sbt: org.apache.commons:commons-compress:1.21:jar")
@@ -262,7 +282,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
-  def testSharedSources(): Unit = runTest(
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_SharedSources extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def sharedSources(): Unit = runTest(
     new project("sharedSourcesProject") {
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       libraries := scalaLibraries
@@ -298,7 +320,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
-  def testSbtIdeSettingsRespectIdeExcludedDirectoriesSetting(): Unit = runTest(
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_SbtIdeSettingsRespectIdeExcludedDirectoriesSetting extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def sbtIdeSettingsRespectIdeExcludedDirectoriesSetting(): Unit = runTest(
     new project("root") {
       modules += new module("root") {
         excluded := Seq(
@@ -309,7 +333,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
-  def testSharedSourcesWithNestedProjectDependencies(): Unit = runTest(
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_SharedSourcesWithNestedProjectDependencies extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def sharedSourcesWithNestedProjectDependencies(): Unit = runTest(
     new project("sharedSourcesWithNestedProjectDependencies") {
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       libraries := scalaLibraries
@@ -375,8 +401,10 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_CrossProjectJvmOnly_LegacyCrossBuildPlugin extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
   /** SCL-12520: Generate a shared sources module even when it is used only from a single target module */
-  def testCrossProjectJvmOnly_LegacyCrossBuildPlugin(): Unit = runTest(
+  @Test
+  def crossProjectJvmOnly_LegacyCrossBuildPlugin(): Unit = runTest(
     new project("root") {
       val sharedModule: module = new module("root.p1-sources") {
         contentRoots := Seq("%PROJECT_ROOT%/p1/shared")
@@ -430,8 +458,10 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
 
   )
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_CrossProjectJvmOnly_CrossTypeFull extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
   /** SCL-12520: Generate a shared sources module even when it is used only from a single target module */
-  def testCrossProjectJvmOnly_CrossTypeFull(): Unit = runTest(
+  @Test
+  def crossProjectJvmOnly_CrossTypeFull(): Unit = runTest(
     new project("root") {
       val sharedModule: module = new module("root.p1-sources") {
         contentRoots := Seq("%PROJECT_ROOT%/p1/shared")
@@ -484,7 +514,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
-  def testCrossProjectJvmAndJs_CrossTypeFull(): Unit = runTest(
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_CrossProjectJvmAndJs_CrossTypeFull extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def crossProjectJvmAndJs_CrossTypeFull(): Unit = runTest(
     new project("root") {
       val sharedModule: module = new module("root.p1.p1-sources") {
         sources := Seq(
@@ -552,11 +584,13 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_SCL13600 extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
   /**
    * SCL-13600: generate all modules when there is a duplicate project id in the sbt build
    * due to references to different builds, or multiple sbt projects being imported independently from IDEA
    */
-  def testSCL13600(): Unit = runTest(
+  @Test
+  def SCL13600(): Unit = runTest(
     new project("root") {
       val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
@@ -653,7 +687,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
-  def testSCL14635(): Unit = runTest(
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_SCL14635 extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def SCL14635(): Unit = runTest(
     new project("SCL-14635") {
       private val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
@@ -699,7 +735,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
-  def testNonSourceConfigurationsWithNestedProjectDependencies():Unit = {
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_NonSourceConfigurationsWithNestedProjectDependencies extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def nonSourceConfigurationsWithNestedProjectDependencies():Unit = {
     val projectName = "nonSourceConfigurationsWithNestedProjectDependencies"
     runTest(
       new project(projectName) {
@@ -761,7 +799,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     )
   }
 
-  def testCrossPlatformWithNestedProjectDependencies(): Unit = {
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_CrossPlatformWithNestedProjectDependencies extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def crossPlatformWithNestedProjectDependencies(): Unit = {
     val projectName = "crossPlatformWithNestedProjectDependencies"
     runTest(
       new project(projectName) {
@@ -851,9 +891,11 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     )
   }
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_JavaLanguageLevelAndTargetByteCodeLevel extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
-  def testJavaLanguageLevelAndTargetByteCodeLevel(): Unit = {
+  def javaLanguageLevelAndTargetByteCodeLevel(): Unit = {
     //overriding project jdk (configured in base test class)
     val projectSdk9 = IdeaTestUtil.getMockJdk9
     inWriteAction {
@@ -937,10 +979,12 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   }
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_JavaLanguageLevelAndTargetByteCodeLevel_NoOptions extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
   //noinspection TypeAnnotation
   // SCL-16204, SCL-17597
-  def testJavaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
-    val projectLanguageLevel = SbtProjectStructureImportingTest_LegacyModulesLayout.this.projectJdkLanguageLevel
+  def javaLanguageLevelAndTargetByteCodeLevel_NoOptions(): Unit = {
+    val projectLanguageLevel = SbtProjectStructureImportingTestCase_LegacyModulesLayout_JavaLanguageLevelAndTargetByteCodeLevel_NoOptions.this.projectJdkLanguageLevel
     val projectName = "java-language-level-and-target-byte-code-level-no-options"
     importJavaLanguageLevelNoOptionsProject(projectLanguageLevel, projectName)
 
@@ -982,9 +1026,12 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
       modules := Seq(root, module1)
     }
   )
+end SbtProjectStructureImportingTestCase_LegacyModulesLayout_JavaLanguageLevelAndTargetByteCodeLevel_NoOptions
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_JavacOptionsPerModule extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
   //noinspection TypeAnnotation
-  def testJavacOptionsPerModule(): Unit = {
+  def javacOptionsPerModule(): Unit = {
     val projectName = "javac-options-per-module"
     runTest(
       new project(projectName) {
@@ -1010,7 +1057,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     )
   }
 
-  def testKotlincOptionsFromSbtKotlinPluginPerModule(): Unit = {
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_KotlincOptionsFromSbtKotlinPluginPerModule extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def kotlincOptionsFromSbtKotlinPluginPerModule(): Unit = {
     val projectName = "kotlincOptionsFromSbtKotlinPluginPerModule"
     val moduleWithEnabledPluginAndKotlincOptions = s"$projectName.module-with-enabled-plugin-and-kotlinc-options"
     val moduleWithEnabledPluginAndNoKotlincOptions = s"$projectName.module-with-enabled-plugin-and-no-kotlinc-options"
@@ -1041,20 +1090,15 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     )
   }
 
-  private def assertImportedAdditionalScalacOptions(moduleName: String, expectedOptions: Seq[String]): Unit = {
-    val module = getMyProject.modules.find(_.getName == moduleName).getOrElse {
-      Assert.fail(s"Module not found: $moduleName").asInstanceOf[Module]
-    }
-    assertEquals(s"Module additional scalacOptions ($moduleName)", expectedOptions, ScalaCompilerSettings.forModule(module).additionalCompilerOptions)
-  }
-
-  def testJavacSpecialOptionsForRootProject(): Unit = {
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_JavacSpecialOptionsForRootProject extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def javacSpecialOptionsForRootProject(): Unit = {
     runTest(
       new project("javac-special-options-for-root-project") {
         // no storing project level options
         javacOptions := Nil
         javaTargetBytecodeLevel := null
-        javaLanguageLevel := SbtProjectStructureImportingTest_LegacyModulesLayout.this.projectJdkLanguageLevel
+        javaLanguageLevel := SbtProjectStructureImportingTestCase_LegacyModulesLayout_JavacSpecialOptionsForRootProject.this.projectJdkLanguageLevel
 
         val root: module = new module("javac-special-options-for-root-project") {
           javaLanguageLevel := LanguageLevel.JDK_1_9
@@ -1081,28 +1125,32 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     assertEquals(defaultCompilerOptions.PREFER_TARGET_JDK_COMPILER, compilerOptions.PREFER_TARGET_JDK_COMPILER)
   }
 
-  def testCompileOrder(): Unit = {
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_CompileOrder extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def compileOrder(): Unit = {
     runTest(
       new project("compile-order-unspecified") {
         modules := Seq(
           new module("compile-order-unspecified") {
-            compileOrder := CompileOrder.Mixed
+            ProjectStructureDsl.compileOrder := CompileOrder.Mixed
           },
           new module("compile-order-unspecified.compile-order-mixed") {
-            compileOrder := CompileOrder.Mixed
+            ProjectStructureDsl.compileOrder := CompileOrder.Mixed
           },
           new module("compile-order-unspecified.compile-order-scala-then-java") {
-            compileOrder := CompileOrder.ScalaThenJava
+            ProjectStructureDsl.compileOrder := CompileOrder.ScalaThenJava
           },
           new module("compile-order-unspecified.compile-order-java-then-scala") {
-            compileOrder := CompileOrder.JavaThenScala
+            ProjectStructureDsl.compileOrder := CompileOrder.JavaThenScala
           }
         )
       }
     )
   }
 
-  def testSimpleProjectWithGeneratedSources(): Unit = runTest(
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_SimpleProjectWithGeneratedSources extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def simpleProjectWithGeneratedSources(): Unit = runTest(
     new project("SimpleProjectWithGeneratedSources") {
       modules := Seq(
         new module("SimpleProjectWithGeneratedSources") {
@@ -1131,7 +1179,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
-  def testCustomConfigurationsWithNestedProjectDependencies(): Unit = {
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_CustomConfigurationsWithNestedProjectDependencies extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def customConfigurationsWithNestedProjectDependencies(): Unit = {
     val projectName = "customConfigurationsWithNestedProjectDependencies"
     runTest(
       new project(projectName) {
@@ -1169,7 +1219,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     )
   }
 
-  def testProjectWithModulesWithSameIdsAndNamesWithDifferentCase(): Unit = runTest(
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_ProjectWithModulesWithSameIdsAndNamesWithDifferentCase extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def projectWithModulesWithSameIdsAndNamesWithDifferentCase(): Unit = runTest(
     new project("sameIdsAndNamesWithDifferentCase") {
       modules := Seq(
         new module ("sameIdsAndNamesWithDifferentCase"),
@@ -1189,7 +1241,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
-  def testMultiBuildProjectWithSpecialCharactersInRootProjectNames(): Unit = runTest(
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_MultiBuildProjectWithSpecialCharactersInRootProjectNames extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def multiBuildProjectWithSpecialCharactersInRootProjectNames(): Unit = runTest(
     new project("ro//o/t\\") {
       val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
 
@@ -1217,7 +1271,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
-  def testSharedSourcesInsideMultiBuildProject(): Unit = {
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_SharedSourcesInsideMultiBuildProject extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def sharedSourcesInsideMultiBuildProject(): Unit = {
     val projectName = "sharedSourcesInsideMultiBuildProject"
     runTest(
       new project(projectName) {
@@ -1266,11 +1322,13 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     )
   }
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_MultiBuildProjectWithTheSameProjectIdFromIDEAPerspective extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
   // SBT guarantees us that project ids inside builds are unique. In IDEA in the internal module name all "/" are replaced with "_" and it could happen that in one build
   // the name of one project would be e.g. ro/t and the other one would be ro_t and for SBT project ids uniqueness would be maintained but not for IDEA.
   // In the case of such deduplication, IDEA will add a ~<number> suffix to each sbt source set module (main/test) or sbt nested module (the parent module for main/test).
   // It's done by explicitly setting the ModuleNameDeduplicationStrategy.NUMBER_SUFFIX in these modules.
-  def testMultiBuildProjectWithTheSameProjectIdFromIDEAPerspective(): Unit = runTest(
+  @Test
+  def multiBuildProjectWithTheSameProjectIdFromIDEAPerspective(): Unit = runTest(
     new project("multiBuildProjectWithTheSameProjectIdFromIDEAPerspective") {
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
       libraries := scalaLibraries
@@ -1310,7 +1368,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
-  def testProjectWithJmhPlugin(): Unit = runTest(
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_ProjectWithJmhPlugin extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def projectWithJmhPlugin(): Unit = runTest(
     new project("projectWithJmhPlugin") {
       lazy val root: module = new module("projectWithJmhPlugin")
 
@@ -1332,11 +1392,13 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     }
   )
 
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_SimpleSbt2Latest extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
   /**
    * @see [[org.jetbrains.sbt.project.SbtProjectStructureImportingTest.testSimpleSbt2Latest]]
    */
+  @Test
   @RequiresJdk(LanguageLevel.JDK_17)
-  def testSimpleSbt2Latest(): Unit = {
+  def simpleSbt2Latest(): Unit = {
     val expectedScala_3_3 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.3.3", useScalaSdkExtraClasspath = false)
     val expectedScala_3_6 = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.6.2", useScalaSdkExtraClasspath = false)
 
@@ -1394,7 +1456,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
 
     // Adding the assertion here not to create a separate heavy test for such a tiny check
     // org.jetbrains.plugins.scala.project.ProjectExt#modulesWithScala
-    Assert.assertEquals(
+    assertEquals(
       "modulesWithScala should return list of non *-build modules",
       Seq("root", "root.subProject1", "root.subProject2"),
       getMyProject.modulesWithScala.map(_.getName),
@@ -1412,7 +1474,9 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     )
   }
 
-  def testTheSameGroupNameWithSlashes(): Unit =
+class SbtProjectStructureImportingTestCase_LegacyModulesLayout_TheSameGroupNameWithSlashes extends SbtProjectStructureImportingTestCase_LegacyModulesLayout:
+  @Test
+  def theSameGroupNameWithSlashes(): Unit =
     runTest(
       new project("root") {
 
@@ -1424,7 +1488,3 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
         modules := Seq(root, project1, project2)
       }
     )
-
-  override protected def runTest(expected: project): Unit =
-    runTest(expected, identity, mutedNotificationTitles = Seq(SbtBundle.message("sbt.legacy.modules.layout.notification.title")))
-}
