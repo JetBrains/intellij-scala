@@ -313,7 +313,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.actor.typed.pubsub.Topic
     //akka.actor.typed.receptionist.Receptionist
     akka.actor.typed.receptionist.ReceptionistSetup
-    //akka.actor.typed.receptionist.ServiceKey
+    akka.actor.typed.receptionist.ServiceKey
     //akka.actor.typed.scaladsl.AbstractBehavior
     akka.actor.typed.scaladsl.ActorContext
     //akka.actor.typed.scaladsl.AskPattern

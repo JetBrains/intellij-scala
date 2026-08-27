@@ -22,7 +22,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.ApplyArityFunctions
     //cats.ApplySemigroup
     //cats.ArrowApplicative
-    //cats.Bifoldable
+    cats.Bifoldable
     //cats.Bifunctor
     cats.Bimonad
     //cats.Bitraverse
@@ -32,35 +32,35 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.CommutativeFlatMap
     cats.CommutativeMonad
     cats.Comonad
-    //cats.ComposedAlternative
-    //cats.ComposedApplicative
+    cats.ComposedAlternative
+    cats.ComposedApplicative
     //cats.ComposedApplicativeContravariantMonoidal
     //cats.ComposedApply
     cats.ComposedBifoldable
     cats.ComposedBifunctor
     cats.ComposedBitraverse
-    //cats.ComposedContravariant
-    //cats.ComposedContravariantCovariant
-    //cats.ComposedCovariantContravariant
-    //cats.ComposedDistributive
+    cats.ComposedContravariant
+    cats.ComposedContravariantCovariant
+    cats.ComposedCovariantContravariant
+    cats.ComposedDistributive
     //cats.ComposedFoldable
-    //cats.ComposedFunctor
-    //cats.ComposedFunctorBifunctor
-    //cats.ComposedInvariant
+    cats.ComposedFunctor
+    cats.ComposedFunctorBifunctor
+    cats.ComposedInvariant
     //cats.ComposedInvariantApplySemigroupal
-    //cats.ComposedInvariantContravariant
-    //cats.ComposedInvariantCovariant
-    //cats.ComposedMonoidK
-    //cats.ComposedNonEmptyAlternative
+    cats.ComposedInvariantContravariant
+    cats.ComposedInvariantCovariant
+    cats.ComposedMonoidK
+    cats.ComposedNonEmptyAlternative
     cats.ComposedNonEmptyTraverse
     //cats.ComposedReducible
-    //cats.ComposedSemigroupK
+    cats.ComposedSemigroupK
     //cats.ComposedSemigroupal
     cats.ComposedTraverse
     //cats.Contravariant
     //cats.ContravariantMonoidal
     cats.ContravariantMonoidalMonoid
-    //cats.ContravariantSemigroupal
+    cats.ContravariantSemigroupal
     cats.ContravariantSemigroupalSemigroup
     //cats.Defer
     //cats.Distributive
@@ -88,14 +88,14 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.InvariantInstances2
     //cats.InvariantMonoidal
     //cats.InvariantMonoidalMonoid
-    //cats.InvariantSemigroupal
+    cats.InvariantSemigroupal
     //cats.InvariantSemigroupalSemigroup
     cats.Later
     //cats.LeftFunctor
     //cats.Monad
     //cats.MonadError
-    //cats.MonoidK
-    //cats.NonEmptyAlternative
+    cats.MonoidK
+    cats.NonEmptyAlternative
     //cats.NonEmptyParallel
     //cats.NonEmptyReducible
     //cats.NonEmptyTraverse
@@ -137,7 +137,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.implicits
     //cats.arrow.Arrow
     //cats.arrow.ArrowChoice
-    //cats.arrow.Category
+    cats.arrow.Category
     cats.arrow.Choice
     cats.arrow.CommutativeArrow
     //cats.arrow.Compose
@@ -228,7 +228,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.data.EitherTSemigroup
     //cats.data.EitherTSemigroupK
     cats.data.EitherTTraverse
-    //cats.data.Func
+    cats.data.Func
     //cats.data.FuncApplicative
     //cats.data.FuncApply
     //cats.data.FuncContravariant
@@ -1022,16 +1022,16 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.kernel.instances.BooleanBounded
     cats.kernel.instances.BooleanEnumerable
     cats.kernel.instances.BooleanInstances
-    //cats.kernel.instances.BooleanOrder
+    cats.kernel.instances.BooleanOrder
     cats.kernel.instances.ByteBounded
     cats.kernel.instances.ByteEnumerable
     cats.kernel.instances.ByteGroup
     cats.kernel.instances.ByteInstances
-    //cats.kernel.instances.ByteOrder
+    cats.kernel.instances.ByteOrder
     cats.kernel.instances.CharBounded
     cats.kernel.instances.CharEnumerable
     cats.kernel.instances.CharInstances
-    //cats.kernel.instances.CharOrder
+    cats.kernel.instances.CharOrder
     //cats.kernel.instances.CombineFunction0
     //cats.kernel.instances.CombineFunction1
     cats.kernel.instances.DeadlineBounded
@@ -1074,7 +1074,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.kernel.instances.IntEnumerable
     cats.kernel.instances.IntGroup
     cats.kernel.instances.IntInstances
-    //cats.kernel.instances.IntOrder
+    cats.kernel.instances.IntOrder
     //cats.kernel.instances.LazyListEq
     cats.kernel.instances.LazyListHash
     cats.kernel.instances.LazyListInstances
@@ -1095,7 +1095,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.kernel.instances.LongEnumerable
     cats.kernel.instances.LongGroup
     cats.kernel.instances.LongInstances
-    //cats.kernel.instances.LongOrder
+    cats.kernel.instances.LongOrder
     //cats.kernel.instances.MapEq
     //cats.kernel.instances.MapHash
     //cats.kernel.instances.MapInstances
@@ -1138,7 +1138,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.kernel.instances.ShortEnumerable
     cats.kernel.instances.ShortGroup
     cats.kernel.instances.ShortInstances
-    //cats.kernel.instances.ShortOrder
+    cats.kernel.instances.ShortOrder
     //cats.kernel.instances.SortedMapCommutativeMonoid
     //cats.kernel.instances.SortedMapCommutativeSemigroup
     //cats.kernel.instances.SortedMapEq
@@ -1168,10 +1168,10 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.kernel.instances.StringInstances
     cats.kernel.instances.StringLowerBounded
     //cats.kernel.instances.StringMonoid
-    //cats.kernel.instances.StringOrder
+    cats.kernel.instances.StringOrder
     cats.kernel.instances.SymbolInstances
     cats.kernel.instances.SymbolLowerBounded
-    //cats.kernel.instances.SymbolOrder
+    cats.kernel.instances.SymbolOrder
     //cats.kernel.instances.TupleBandInstances
     //cats.kernel.instances.TupleBoundedSemilatticeInstances
     //cats.kernel.instances.TupleCommutativeGroupInstances
@@ -1195,7 +1195,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.kernel.instances.UnitBounded
     cats.kernel.instances.UnitEnumerable
     cats.kernel.instances.UnitInstances
-    //cats.kernel.instances.UnitOrder
+    cats.kernel.instances.UnitOrder
     //cats.kernel.instances.VectorEq
     //cats.kernel.instances.VectorHash
     cats.kernel.instances.VectorInstances
