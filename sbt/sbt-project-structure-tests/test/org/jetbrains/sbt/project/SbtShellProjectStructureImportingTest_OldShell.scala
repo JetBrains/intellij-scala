@@ -1,3 +1,0 @@
-package org.jetbrains.sbt.project
-
-class SbtShellProjectStructureImportingTest_OldShell
