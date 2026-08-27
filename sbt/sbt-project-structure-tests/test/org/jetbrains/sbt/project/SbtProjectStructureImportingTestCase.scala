@@ -6,8 +6,11 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike.TestSbtProjectSettings
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.IdeaProjectFixtureOptions
+import org.jetbrains.sbt.project.runner.SbtProjectStructureImportingRunner
 import org.junit.Assert.{assertEquals, assertTrue}
+import org.junit.runner.RunWith
 
+@RunWith(classOf[SbtProjectStructureImportingRunner])
 abstract class SbtProjectStructureImportingTestCase
   extends SbtProjectStructureImportingTestBase
     with ImportingTestCase:

@@ -16,19 +16,16 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier
-import org.jetbrains.sbt.project.runner.SbtProjectStructureImportingRunner
 import org.jetbrains.sbt.project.structure.SbtStructureDumper
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.{Sbt, SbtVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Test
-import org.junit.runner.RunWith
 
 import java.net.URI
 import java.nio.file.Files
 import java.util.UUID
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_Simple extends SbtProjectStructureImportingTestCase:
   @Test
   def simple(): Unit =
@@ -42,14 +39,12 @@ class SbtProjectStructureImportingTestCase_Simple extends SbtProjectStructureImp
     assertErrorOutputHasNotFailedProjectImport()
   end simple
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_Simple_Scala3 extends SbtProjectStructureImportingTestCase:
   @Test
   def simple_Scala3(): Unit =
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
     runSimpleTest("simple-scala3", "3.0.2", scalaLibraries, DefaultSbtContentRootsScala3, DefaultMainSbtContentRootsScala3, DefaultTestSbtContentRootsScala3)
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_NoRootModule extends SbtProjectStructureImportingTestCase:
   @Test
   // Test case to check whether the build module is added when the root project is skipped with ideSkipProject := true
@@ -128,7 +123,6 @@ class SbtProjectStructureImportingTestCase_NoRootModule extends SbtProjectStruct
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_GlobalSbtFilesFromConcurrentImports extends SbtProjectStructureImportingTestCase:
   /*
   A stale `idea-structure*.sbt` file may hang in sbt's global plugins directory after upgrading from an older plugin
@@ -160,7 +154,6 @@ class SbtProjectStructureImportingTestCase_GlobalSbtFilesFromConcurrentImports e
     runSimpleTest("root", "2.13", scalaLibraries)
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_MainTestSbtModules extends SbtProjectStructureImportingTestCase:
   /**
    * Test #SCL-23505
@@ -205,7 +198,6 @@ class SbtProjectStructureImportingTestCase_MainTestSbtModules extends SbtProject
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_MultiModule extends SbtProjectStructureImportingTestCase:
   @Test
   def multiModule(): Unit = runTest(
@@ -246,7 +238,6 @@ class SbtProjectStructureImportingTestCase_MultiModule extends SbtProjectStructu
       )
     })
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_NumberSuffixDeduplicationStrategy extends SbtProjectStructureImportingTestCase:
   @Test
   def numberSuffixDeduplicationStrategy():Unit = runTest(
@@ -274,7 +265,6 @@ class SbtProjectStructureImportingTestCase_NumberSuffixDeduplicationStrategy ext
     }
   )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_LibraryDependenciesOrder extends SbtProjectStructureImportingTestCase:
   @Test
   def libraryDependenciesOrder(): Unit = {
@@ -423,7 +413,6 @@ class SbtProjectStructureImportingTestCase_LibraryDependenciesOrder extends SbtP
     runTest(expectedProject, _.copy(checkLibraryDependenciesOrder = true))
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_UnmanagedDependency extends SbtProjectStructureImportingTestCase:
   @Test
   def unmanagedDependency(): Unit = runTest(
@@ -452,7 +441,6 @@ class SbtProjectStructureImportingTestCase_UnmanagedDependency extends SbtProjec
     }
   )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SbtIdeSettingsRespectIdeExcludedDirectoriesSetting extends SbtProjectStructureImportingTestCase:
   @Test
   def sbtIdeSettingsRespectIdeExcludedDirectoriesSetting(): Unit = runTest(
@@ -473,7 +461,6 @@ class SbtProjectStructureImportingTestCase_SbtIdeSettingsRespectIdeExcludedDirec
     }
   )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SCL14635 extends SbtProjectStructureImportingTestCase:
   @Test
   def SCL14635(): Unit = runTest(
@@ -537,7 +524,6 @@ class SbtProjectStructureImportingTestCase_SCL14635 extends SbtProjectStructureI
     }
   )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_NonSourceConfigurationsWithNestedProjectDependencies extends SbtProjectStructureImportingTestCase:
   @Test
   def nonSourceConfigurationsWithNestedProjectDependencies():Unit = {
@@ -742,7 +728,6 @@ class SbtProjectStructureImportingTestCase_NonSourceConfigurationsWithNestedProj
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_JavaLanguageLevelAndTargetByteCodeLevel_NoOptions extends SbtProjectStructureImportingTestCase:
   @Test
   //noinspection TypeAnnotation
@@ -794,7 +779,6 @@ class SbtProjectStructureImportingTestCase_JavaLanguageLevelAndTargetByteCodeLev
   )
 end SbtProjectStructureImportingTestCase_JavaLanguageLevelAndTargetByteCodeLevel_NoOptions
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_JavacOptionsPerModuleAndScope extends SbtProjectStructureImportingTestCase:
   @Test
   // noinspection TypeAnnotation
@@ -841,7 +825,6 @@ class SbtProjectStructureImportingTestCase_JavacOptionsPerModuleAndScope extends
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_ScalacOptionsPerModuleAndScope extends SbtProjectStructureImportingTestCase:
   @Test
   // noinspection TypeAnnotation
@@ -886,7 +869,6 @@ class SbtProjectStructureImportingTestCase_ScalacOptionsPerModuleAndScope extend
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_JavacSpecialOptionsForRootProject extends SbtProjectStructureImportingTestCase:
   @Test
   def javacSpecialOptionsForRootProject(): Unit = {
@@ -933,7 +915,6 @@ class SbtProjectStructureImportingTestCase_JavacSpecialOptionsForRootProject ext
     assertEquals(defaultCompilerOptions.PREFER_TARGET_JDK_COMPILER, compilerOptions.PREFER_TARGET_JDK_COMPILER)
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_CompileOrder extends SbtProjectStructureImportingTestCase:
   @Test
   def compileOrder(): Unit = {
@@ -971,7 +952,6 @@ class SbtProjectStructureImportingTestCase_CompileOrder extends SbtProjectStruct
     })
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SimpleProjectWithGeneratedSources extends SbtProjectStructureImportingTestCase:
   @Test
   def simpleProjectWithGeneratedSources(): Unit = runTest(
@@ -1015,7 +995,6 @@ class SbtProjectStructureImportingTestCase_SimpleProjectWithGeneratedSources ext
     }
   )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_CustomConfigurationsWithNestedProjectDependencies extends SbtProjectStructureImportingTestCase:
   @Test
   def customConfigurationsWithNestedProjectDependencies(): Unit = {
@@ -1127,7 +1106,6 @@ class SbtProjectStructureImportingTestCase_CustomConfigurationsWithNestedProject
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_ProjectWithModulesWithSameIdsAndNamesWithDifferentCase extends SbtProjectStructureImportingTestCase:
   @Test
   def projectWithModulesWithSameIdsAndNamesWithDifferentCase(): Unit = runTest(
@@ -1149,7 +1127,6 @@ class SbtProjectStructureImportingTestCase_ProjectWithModulesWithSameIdsAndNames
     }
   )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_PackagePrefix extends SbtProjectStructureImportingTestCase:
   //SCL-22637
   @Test
@@ -1184,31 +1161,26 @@ class SbtProjectStructureImportingTestCase_PackagePrefix extends SbtProjectStruc
     }
   )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SimpleSbt013 extends SbtProjectStructureImportingTestCase:
   @Test
   def simpleSbt013(): Unit =
     simpleSbtIvyBasedTest(mutedNotificationTitles = Seq("Legacy sbt version 0.13.18 detected"))
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SimpleSbt104 extends SbtProjectStructureImportingTestCase:
   @Test
   def simpleSbt104(): Unit =
     simpleSbtIvyBasedTest()
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SimpleSbt116 extends SbtProjectStructureImportingTestCase:
   @Test
   def simpleSbt116(): Unit =
     simpleSbtIvyBasedTest()
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SimpleSbt128 extends SbtProjectStructureImportingTestCase:
   @Test
   def simpleSbt128(): Unit =
     simpleSbtIvyBasedTest()
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SimpleSbt1313 extends SbtProjectStructureImportingTestCase:
   @Test
   def simpleSbt1313(): Unit = {
@@ -1235,7 +1207,6 @@ class SbtProjectStructureImportingTestCase_SimpleSbt1313 extends SbtProjectStruc
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SimpleSbt149 extends SbtProjectStructureImportingTestCase:
   @Test
   def simpleSbt149(): Unit = {
@@ -1262,7 +1233,6 @@ class SbtProjectStructureImportingTestCase_SimpleSbt149 extends SbtProjectStruct
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SimpleSbt2Latest extends SbtProjectStructureImportingTestCase:
   @Test
   @RequiresJdk(LanguageLevel.JDK_17)
@@ -1450,7 +1420,6 @@ class SbtProjectStructureImportingTestCase_SimpleSbt2Latest extends SbtProjectSt
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_ProjectIntegrationTestSourcesOutsideContentRoot extends SbtProjectStructureImportingTestCase:
   // reduced version of the example project from SCL-23577
   @Test
@@ -1585,7 +1554,6 @@ class SbtProjectStructureImportingTestCase_ProjectIntegrationTestSourcesOutsideC
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_CustomSourceDirectories extends SbtProjectStructureImportingTestCase:
   // Test cases for scenarios where custom source directories are set in sbt. Covers cases like:
   //  1. The source directory is set to project base directory
@@ -1672,7 +1640,6 @@ class SbtProjectStructureImportingTestCase_CustomSourceDirectories extends SbtPr
     }
   )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_UnmanagedSourceDirIsProjectBase extends SbtProjectStructureImportingTestCase:
   @Test
   def unmanagedSourceDirIsProjectBase(): Unit =
@@ -1715,7 +1682,6 @@ class SbtProjectStructureImportingTestCase_UnmanagedSourceDirIsProjectBase exten
       }
     )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_TheSameSourceBaseDirsInProject extends SbtProjectStructureImportingTestCase:
   @Test
   def theSameSourceBaseDirsInProject(): Unit =
@@ -1757,7 +1723,6 @@ class SbtProjectStructureImportingTestCase_TheSameSourceBaseDirsInProject extend
       }
     )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_ContentRootWithEmptyPaths extends SbtProjectStructureImportingTestCase:
   @Test
   def contentRootWithEmptyPaths(): Unit = {
@@ -1789,7 +1754,6 @@ class SbtProjectStructureImportingTestCase_ContentRootWithEmptyPaths extends Sbt
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_OuterSourceDirectory extends SbtProjectStructureImportingTestCase:
   @Test
   def outerSourceDirectory(): Unit = {
@@ -1822,7 +1786,6 @@ class SbtProjectStructureImportingTestCase_OuterSourceDirectory extends SbtProje
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_TwoProjectsWithTheSameBases extends SbtProjectStructureImportingTestCase:
   @Test
   def twoProjectsWithTheSameBases(): Unit = {
@@ -1893,7 +1856,6 @@ class SbtProjectStructureImportingTestCase_TwoProjectsWithTheSameBases extends S
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_TheSameGroupNameWithSlashes extends SbtProjectStructureImportingTestCase:
   @Test
   def theSameGroupNameWithSlashes(): Unit =
@@ -1920,7 +1882,6 @@ class SbtProjectStructureImportingTestCase_TheSameGroupNameWithSlashes extends S
       }
     )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SCL13600 extends SbtProjectStructureImportingTestCase:
   /**
    * SCL-13600: generate all modules when there is a duplicate project id in the sbt build
@@ -2107,7 +2068,6 @@ class SbtProjectStructureImportingTestCase_SCL13600 extends SbtProjectStructureI
     }
   )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_JavaLanguageLevelAndTargetByteCodeLevel extends SbtProjectStructureImportingTestCase:
   @Test
   //noinspection TypeAnnotation
@@ -2204,7 +2164,6 @@ class SbtProjectStructureImportingTestCase_JavaLanguageLevelAndTargetByteCodeLev
     }
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_MultiBuildProjectWithSpecialCharactersInRootProjectNames extends SbtProjectStructureImportingTestCase:
   @Test
   def multiBuildProjectWithSpecialCharactersInRootProjectNames(): Unit = runTest(
@@ -2273,7 +2232,6 @@ class SbtProjectStructureImportingTestCase_MultiBuildProjectWithSpecialCharacter
     }
   )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_MultiBuildProjectWithTheSameProjectIdFromIDEAPerspective extends SbtProjectStructureImportingTestCase:
   // SBT guarantees us that project ids inside builds are unique. In IDEA in the internal module name all "/" are replaced with "_" and it could happen that in one build
   // the name of one project would be e.g. ro/t and the other one would be ro_t and for SBT project ids uniqueness would be maintained but not for IDEA.
@@ -2371,7 +2329,6 @@ class SbtProjectStructureImportingTestCase_MultiBuildProjectWithTheSameProjectId
     }
   )
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SimpleTwoBuilds_sbt_1_12_1 extends SbtProjectStructureImportingTestCase:
   // Verifies the import process with `-addPluginSbtFile`.
   // It has two builds because the sbt bug (https://github.com/sbt/sbt/issues/8570) fixed in 1.12.1 and 2.0.0-RC9 is related to multi-build setup.
@@ -2472,7 +2429,6 @@ class SbtProjectStructureImportingTestCase_SimpleTwoBuilds_sbt_1_12_1 extends Sb
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_SimpleTwoBuilds_sbt_2_0_0_RC9 extends SbtProjectStructureImportingTestCase:
   // Verifies the import process with `-addPluginSbtFile`
   // It has two builds because the sbt bug (https://github.com/sbt/sbt/issues/8570) fixed in 1.12.1 and 2.0.0-RC9 is related to multi-build setup.
@@ -2582,7 +2538,6 @@ class SbtProjectStructureImportingTestCase_SimpleTwoBuilds_sbt_2_0_0_RC9 extends
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_BspDisabledProject extends SbtProjectStructureImportingTestCase:
   @Test
   def bspDisabledProject(): Unit = {
@@ -2662,7 +2617,6 @@ class SbtProjectStructureImportingTestCase_BspDisabledProject extends SbtProject
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_BspDisabledProject_sbt_2_0_0_RC9 extends SbtProjectStructureImportingTestCase:
   @Test
   @RequiresJdk(LanguageLevel.JDK_17)
@@ -2751,7 +2705,6 @@ class SbtProjectStructureImportingTestCase_BspDisabledProject_sbt_2_0_0_RC9 exte
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_ScalafixConfigDisabled extends SbtProjectStructureImportingTestCase:
   @Test
   def scalafixConfigDisabled(): Unit = {
@@ -2797,7 +2750,6 @@ class SbtProjectStructureImportingTestCase_ScalafixConfigDisabled extends SbtPro
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_BspDisabledConfigLevel extends SbtProjectStructureImportingTestCase:
   @Test
   def bspDisabledConfigLevel(): Unit = {
@@ -2888,7 +2840,6 @@ class SbtProjectStructureImportingTestCase_BspDisabledConfigLevel extends SbtPro
     )
   }
 
-@RunWith(classOf[SbtProjectStructureImportingRunner])
 class SbtProjectStructureImportingTestCase_ManagedScalaInstanceOff extends SbtProjectStructureImportingTestCase:
   // When managed scalaInstance is disabled (SCL-24321), sbt behaves differently depending on the version:
   // - sbt < 1.12.0: throws "Missing Scala tool configuration", which sbt-structure silently ignores
