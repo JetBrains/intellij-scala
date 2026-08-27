@@ -2,18 +2,18 @@
 
 package org.jetbrains.plugins.scala.semantic
 
-import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod}
+import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScBindingPattern, ScCompositePattern, ScExtractorPattern, ScLiteralPattern, ScNamingPattern, ScPattern, ScReferencePattern, ScStableReferencePattern, ScTuplePattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScInterpolatedStringLiteral, ScLiteral, ScModifierList, ScPrimaryConstructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScInterpolatedStringLiteral, ScLiteral, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScSignatureClause.{TermClause, TypeClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScTypeParam, ScTypeParamClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtension, ScFunction, ScFunctionDefinition, ScSignatureClause, ScTypeAlias, ScTypeAliasDefinition, ScValue, ScValueOrVariable, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGiven, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
@@ -49,7 +49,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val annotations = cls.annotations.map(a => "\n" + indent + textOf(a)).mkString
 
     val modifiers = {
-      val s = textOfModifiers(cls.getModifierList, (if (cls.isObject) ScalaPsiUtil.superValsSignatures(cls) else ScalaPsiUtil.superTypeSignatures(cls)).nonEmpty)
+      val s = textOfModifiers(cls, (if (cls.isObject) ScalaPsiUtil.superValsSignatures(cls) else ScalaPsiUtil.superTypeSignatures(cls)).nonEmpty)
       if (normalize && cls.is[ScClass] && (cls.hasModifierPropertyScala("implicit") || isValueClass(cls))) s.replace("final ", "")
       else if (normalize && cls.is[ScObject] && cls.hasModifierPropertyScala("case")) s.replace("final ", "")
       else s
@@ -151,7 +151,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     e.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)
 
   private def textOf(pc: ScPrimaryConstructor, inCaseClass: Boolean): String = highlighted(pc) {
-    val modifiers = textOfModifiers(pc.getModifierList)
+    val modifiers = textOfModifiers(pc)
     val inPrivateConstructor = isPrivate(pc)
     val clauses = {
       val signatureClausesInParameterList = pc.signatureClauses.filter {
@@ -178,7 +178,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val isGiven = f.isInstanceOf[ScGiven]
     val isAnonymous = isGiven && f.name.startsWith("given_") // .isAnonymous?
     val annotations = f.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
-    val modifiers = textOfModifiers(f.getModifierList, f.superMethod.isDefined)
+    val modifiers = textOfModifiers(f, f.superMethod.isDefined)
     val keyword = if (isGiven) "given " else "def "
     val name = if (isAnonymous) "" else normalized(f.name)
     val signature = textOf(f.signatureClauses, inPrivateConstructor = false, inCaseClass = false)
@@ -442,7 +442,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textOf(v: ScValueOrVariable, symbol: ScTypedDefinition, indent: String): String = highlighted(v) {
     val annotations = v.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
-    val modifiers = textOfModifiers(v.getModifierList, ScalaPsiUtil.superValsSignatures(symbol).nonEmpty)
+    val modifiers = textOfModifiers(v, ScalaPsiUtil.superValsSignatures(symbol).nonEmpty)
     val keyword = if (v.is[ScValue]) "val " else "var "
     val symbolType = symbol.`type`()
     val isConstant = (v.hasModifierPropertyScala("final") || v.hasModifierPropertyScala("inline")) && !v.hasExplicitType && !v.isAbstract && symbolType.exists(canBeTypeOfConstant)
@@ -473,7 +473,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
 
   private def textOf(t: ScTypeAlias, indent: String): String = highlighted(t) {
       val annotations = t.annotations.map(a => "\n" + indent + "  " + textOf(a)).mkString
-      val modifiers = textOfModifiers(t.getModifierList, ScalaPsiUtil.superTypeSignatures(t).nonEmpty)
+      val modifiers = textOfModifiers(t, ScalaPsiUtil.superTypeSignatures(t).nonEmpty)
       val name = normalized(t.name)
       val tps = if (t.typeParameters.isEmpty) "" else t.typeParameters.map(textOf).mkString("[", ", ", "]")
       val bounds = textOfBoundsIn(t)
@@ -532,7 +532,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val modifiers = {
       lazy val hasSupers = p.is[ScClassParameter] && ScalaPsiUtil.superValsSignatures(p).nonEmpty
       val s = {
-        val s0 = textOfModifiers(p.getModifierList, hasSupers)
+        val s0 = textOfModifiers(p, hasSupers)
         p.owner match {
           case _: ScPrimaryConstructor if normalize && !(inCaseClass || p.isVal || p.isVar) && isField(p) => "private[this] " + (if (s0.isEmpty) "" else s0 + " ") + "val "
           case _ => if (inCaseClass && !p.isVal && hasSupers) s0 + "val " else s0
@@ -565,13 +565,18 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     "@" + textOfConstructorInvocation(annotation.constructorInvocation, "", emptyParens)
   }
 
-  private def textOfModifiers(ml: ScModifierList, hasSupers: => Boolean = false): String = {
+  private def textOfModifiers(owner: ScModifierListOwner, hasSupers: => Boolean = false): String = {
+    val ml = owner.getModifierList
     def scope = ml.getParent match {
       case Parent(p: ScPackaging) => p.packageName.split('.').lastOption.getOrElse("")
       case Parent(c: ScNamedElement) => c.name
       case _ => ""
     }
-    def qualifier = ml.accessModifier.flatMap(m => if (m.isThis) Some("this") else m.idText).filter(q => !normalize || q != scope).map("[" + _ + "]").getOrElse("")
+    def qualifier = ml.accessModifier
+      .flatMap(m => if (m.isThis || (normalize && m.isPrivate && m.getReference == null && isEffectivelyThis(owner))) Some("this") else m.idText)
+      .filter(q => !normalize || q != scope)
+      .map("[" + _ + "]")
+      .getOrElse("")
     (if (ml.isAbstract && ml.isOverride) "abstract " else "") +
       (if (ml.isOverride || hasSupers) "override " else "") +
       (if (ml.isPrivate) "private" + qualifier + " " else "") +
@@ -586,6 +591,33 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       (if (ml.isOpaque) "opaque " else "") +
       (if (ml.isInline) "inline " else "") +
       (if (ml.isCase) "case " else "")
+  }
+
+  private def isEffectivelyThis(owner: ScModifierListOwner): Boolean = owner match {
+    case _: ScClassParameter => false
+    case _: ScPrimaryConstructor => false
+    case m: ScMember if m.names.contains("this") => false
+    case m: ScMember => m.containingClass match {
+      case cls: ScTypeDefinition => cls.isEffectivelyFinal || cls.elements.forall {
+        case r @ ReferenceTarget(e: PsiNamedElement) if e.nameContext == m => r match {
+          case r: ScReference => r.qualifier.forall(isThisQualifier(_, cls))
+          case _ => true
+        }
+        case _ => true
+      }
+      case _: ScNewTemplateDefinition => true
+      case _ => false
+    }
+    case _ => false
+  }
+
+  private def isThisQualifier(qualifier: PsiElement, containingClass: ScTypeDefinition): Boolean = qualifier match {
+    case t: ScThisReference => t.refTemplate.contains(containingClass)
+    case r: ScReferenceExpression => Option(r.resolve()).exists {
+      case self: ScSelfTypeElement => self.contexts.contains(containingClass)
+      case _ => false
+    }
+    case _ => false
   }
 
   private def textOf(tpe: ScType, parens: Int = 0): String = (tpe match {
