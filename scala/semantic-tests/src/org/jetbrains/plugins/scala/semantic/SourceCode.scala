@@ -143,7 +143,7 @@ object SourceCode {
         this += "."
         printSelectors(selectors)
 
-      case cdef @ ClassDef(name, DefDef(_, paramss, _, _), parents, self, stats) =>
+      case cdef @ ClassDef(name, constr @ DefDef(_, paramss, _, _), parents, self, stats) =>
         val isAnonymous = name == "$anon"
 
         printDefAnnotations(cdef)
@@ -169,6 +169,10 @@ object SourceCode {
         else this += highlightKeyword("class ") += highlightTypeDef(name)
 
         if (!flags.is(Flags.Module)) {
+          if (constr.symbol.flags.is(Flags.Private) || constr.symbol.flags.is(Flags.Protected) || constr.symbol.privateWithin.isDefined || constr.symbol.protectedWithin.isDefined) {
+            this += " "
+            printProtectedOrPrivate(constr)
+          }
           val contextBounds: List[ValDef] = paramss.flatMap {
             case TermParamClause(params) => params.collect { case ContextBound(param) => param }
             case TypeParamClause(_) => Seq.empty
