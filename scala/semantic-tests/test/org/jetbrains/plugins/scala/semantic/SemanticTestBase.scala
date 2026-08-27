@@ -21,8 +21,6 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
     false // Test expected cases
 
   protected def doTest(classes: String): Unit = {
-    return // Don't run automatically yet
-
     val decompiler: Decompiler = {
       val classpath =
         ModuleRootManager.getInstance(getMyFixture.getModule)
