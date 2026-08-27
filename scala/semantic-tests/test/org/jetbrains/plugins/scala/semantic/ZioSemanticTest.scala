@@ -124,8 +124,8 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.ZOutputStream
     //zio.ZPool
     //zio.ZState
-    //zio.Zippable
-    //zio.ZippableLowPriority1
+    zio.Zippable
+    zio.ZippableLowPriority1
     zio.ZippableLowPriority2
     zio.ZippableLowPriority3
     zio.internal.Blocking
@@ -147,7 +147,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.internal.LoomSupport
     //zio.internal.MutableConcurrentQueue
     //zio.internal.MutableSetCompat
-    //zio.internal.NamedThreadFactory
+    zio.internal.NamedThreadFactory
     //zio.internal.OneElementConcurrentQueue
     //zio.internal.OneShot
     //zio.internal.PartitionedLinkedQueue
@@ -255,7 +255,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.stream.ZStreamPlatformSpecificConstructors
     //zio.stream.ZStreamProvideMacro
     //zio.stream.ZStreamVersionSpecific
-    //zio.stream.compression.CompressionException
+    zio.stream.compression.CompressionException
     zio.stream.compression.CompressionLevel
     zio.stream.compression.CompressionParameters
     zio.stream.compression.CompressionStrategy

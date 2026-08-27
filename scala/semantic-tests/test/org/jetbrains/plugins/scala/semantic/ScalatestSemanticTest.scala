@@ -37,7 +37,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.ConcurrentNotifier
     //org.scalatest.ConfigMap
     //org.scalatest.ConfigMapWrapperSuite
-    //org.scalatest.CountDownLatch
+    org.scalatest.CountDownLatch
     org.scalatest.DeferredAbortedSuite
     //org.scalatest.DispatchReporter
     org.scalatest.DistributedSuiteSorter
@@ -77,7 +77,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.Inspectors
     org.scalatest.InspectorsHelper
     //org.scalatest.JSuite
-    //org.scalatest.LinkedBlockingQueue
+    org.scalatest.LinkedBlockingQueue
     //org.scalatest.LoneElement
     //org.scalatest.MessageRecorder
     org.scalatest.MessageRecordingDocumenter
@@ -126,7 +126,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.StepwiseNestedSuiteExecution
     //org.scalatest.StopOnFailure
     org.scalatest.StopOnFailureReporter
-    //org.scalatest.Stopper
+    org.scalatest.Stopper
     //org.scalatest.StreamlinedXmlEquality
     //org.scalatest.StreamlinedXmlNormMethods
     org.scalatest.Succeeded
@@ -144,7 +144,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.TestSuite
     org.scalatest.TestSuiteMixin
     //org.scalatest.TestsBeforeNestedSuites
-    //org.scalatest.ThreadAwareness
+    org.scalatest.ThreadAwareness
     //org.scalatest.Timer
     //org.scalatest.TimerTask
     //org.scalatest.Tracker
@@ -164,13 +164,13 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.concurrent.Futures
     //org.scalatest.concurrent.IntegrationPatience
     //org.scalatest.concurrent.JavaFutures
-    //org.scalatest.concurrent.PatienceConfiguration
+    org.scalatest.concurrent.PatienceConfiguration
     //org.scalatest.concurrent.PimpedReadWriteLock
     //org.scalatest.concurrent.PimpedThreadGroup
     //org.scalatest.concurrent.ScalaFutures
     org.scalatest.concurrent.ScaledTimeSpans
     //org.scalatest.concurrent.SelectorSignaler
-    //org.scalatest.concurrent.SerialExecutionContext
+    org.scalatest.concurrent.SerialExecutionContext
     org.scalatest.concurrent.Signaler
     //org.scalatest.concurrent.SignalerTimeoutTask
     org.scalatest.concurrent.SleepHelper
@@ -522,7 +522,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.EventHolder
     org.scalatest.tools.EventHolderDefaultListModel
     org.scalatest.tools.EventHolderJList
-    //org.scalatest.tools.EventHolderListCellRenderer
+    org.scalatest.tools.EventHolderListCellRenderer
     org.scalatest.tools.EventToPresent
     org.scalatest.tools.FileReporter
     org.scalatest.tools.FileReporterConfiguration
@@ -547,15 +547,15 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.IconEmbellishedListCellRenderer
     //org.scalatest.tools.JUnitXmlReporter
     org.scalatest.tools.JunitXmlReporterConfiguration
-    //org.scalatest.tools.JvmArg
+    org.scalatest.tools.JvmArg
     //org.scalatest.tools.Memento
     //org.scalatest.tools.MemoryReporter
     org.scalatest.tools.MemoryReporterConfiguration
-    //org.scalatest.tools.NameValuePair
+    org.scalatest.tools.NameValuePair
     org.scalatest.tools.NarrowJOptionPane
     //org.scalatest.tools.NestedSuiteElement
     org.scalatest.tools.NestedSuiteParam
-    //org.scalatest.tools.PackageElement
+    org.scalatest.tools.PackageElement
     org.scalatest.tools.ParsedArgs
     org.scalatest.tools.PresentAlertProvided
     org.scalatest.tools.PresentAllDurations
@@ -598,7 +598,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.tools.ReporterConfigParam
     org.scalatest.tools.ReporterConfiguration
     //org.scalatest.tools.ReporterConfigurations
-    //org.scalatest.tools.ReporterElement
+    org.scalatest.tools.ReporterElement
     //org.scalatest.tools.ReporterFactory
     org.scalatest.tools.RerunningState
     org.scalatest.tools.RunDoneListener
@@ -607,7 +607,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     org.scalatest.tools.RunnerGUIState
     //org.scalatest.tools.RunnerJFrame
     org.scalatest.tools.RunningState
-    //org.scalatest.tools.RunpathUrl
+    org.scalatest.tools.RunpathUrl
     org.scalatest.tools.SbtDispatchReporter
     //org.scalatest.tools.ScalaTestAntTask
     org.scalatest.tools.SlowpokeConfig
@@ -620,21 +620,21 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.tools.StatusJPanel
     org.scalatest.tools.StoppingState
     //org.scalatest.tools.StringReporter
-    //org.scalatest.tools.StyleElement
+    org.scalatest.tools.StyleElement
     org.scalatest.tools.SuiteConfig
     //org.scalatest.tools.SuiteDiscoveryHelper
     //org.scalatest.tools.SuiteElement
-    //org.scalatest.tools.SuiteParam
+    org.scalatest.tools.SuiteParam
     org.scalatest.tools.SuiteResult
     //org.scalatest.tools.SuiteResultHolder
     //org.scalatest.tools.SuiteRunner
     //org.scalatest.tools.SuiteSortingReporter
-    //org.scalatest.tools.TestElement
+    org.scalatest.tools.TestElement
     //org.scalatest.tools.TestSortingReporter
     org.scalatest.tools.TestSpec
     org.scalatest.tools.TestSpecificReporter
-    //org.scalatest.tools.TestsfileElement
-    //org.scalatest.tools.TextElement
+    org.scalatest.tools.TestsfileElement
+    org.scalatest.tools.TextElement
     org.scalatest.tools.Utils
     //org.scalatest.tools.XmlReporter
     org.scalatest.tools.XmlReporterConfiguration
