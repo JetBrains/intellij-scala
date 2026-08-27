@@ -6,4 +6,4 @@ package org.jetbrains.sbt.project
  * The default setup uses regular structure extraction instead of sbt shell import and keeps
  * production and test sources in separate modules.
  */
-final class SbtProjectStructureImportingTest extends SbtProjectStructureImportingSuiteBase
+final class SbtProjectStructureImportingTest
