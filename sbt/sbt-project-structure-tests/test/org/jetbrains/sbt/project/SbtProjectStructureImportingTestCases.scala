@@ -2871,3 +2871,19 @@ class SbtProjectStructureImportingTestCase_ManagedScalaInstanceOff extends SbtPr
       )
     }
   )
+
+class SbtProjectStructureImportingTestCase_ShellCustomPrompt extends SbtProjectStructureImportingTestCase:
+  @Test
+  def shellCustomPrompt(): Unit = {
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+
+    runSimpleTest("root", "2.13", scalaLibraries)
+
+    // Adding the assertion here not to create a separate heavy test for such a tiny check
+    // org.jetbrains.plugins.scala.project.ProjectExt#modulesWithScala
+    assertEquals(
+      "modulesWithScala should return list of non *-build modules",
+      Seq("root.test", "root.main"),
+      getMyProject.modulesWithScala.map(_.getName),
+    )
+  }
