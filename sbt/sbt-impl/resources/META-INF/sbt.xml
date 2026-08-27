@@ -182,10 +182,10 @@
                      description="If enabled, new, terminal-like sbt shell implementation is used. It will apply only to new shell instances and only with sbt >= 1.4.0."/>
 
         <registryKey key="sbt.import.time.measurement" defaultValue="false" restartRequired="false"
-                     description="Internal. It doesn't work when import in the sbt shell is enabled.
-                     When enabled, the `-Dsbt.task.timings=true` option is passed to the sbt import process, causing sbt to output detailed timing information for each task execution.
-                     These timings are collected and aggregated into two files in the `.idea` directory: `sbt-import-history.txt` (raw timing data from each import) and `sbt-import-summary.txt` (aggregated statistics across all imports).
-                     When this registry is disabled `sbt-import-history.txt` and `sbt-import-summary.txt` files are deleted."/>
+                     description="Internal. It doesn't work when sync in the sbt shell is enabled. Requires sbt 1.9.0+.
+                     When enabled, the `sbt-task-timings` plugin (https://github.com/JetBrains/sbt-task-timings) is injected into the sbt during sync.
+                     After each command the plugin writes an aggregated JSON timing report and a Chrome Trace Event timeline and prints their paths into the output.
+                     The plugin is resolved from the build's resolvers, so an internet connection may be needed on the first sync."/>
 
         <registryKey key="sbt.shell.import.old" defaultValue="false" restartRequired="false"
                      description="Use old sbt shell import mechanism with `set` command instead of modifying system properties."/>
@@ -207,7 +207,6 @@
 
         <postStartupActivity implementation="org.jetbrains.sbt.project.SbtProjectManagerListener" />
         <postStartupActivity implementation="org.jetbrains.sbt.project.versionNotifications.LegacySbtVersionProjectNotification$MyProjectActivity"/>
-        <postStartupActivity implementation="org.jetbrains.sbt.project.SbtImportTimingFilesCleaner"/>
     </extensions>
 
     <actions>

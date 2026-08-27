@@ -66,8 +66,7 @@ object BloopPreImporter {
         sbtLauncherArgs = sbtLauncherArgs,
         sbtCommands = sbtCommands,
         reportMessage = BspBundle.message("bsp.resolver.creating.bloop.configuration.from.sbt"),
-        passParentEnvironment = true,
-        timingCollector = None
+        passParentEnvironment = true
       )
       new BloopPreImporter(runDump)
     } finally {

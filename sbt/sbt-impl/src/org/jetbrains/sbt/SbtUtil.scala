@@ -162,6 +162,22 @@ object SbtUtil {
     )
   }
 
+  /** The registry key which enables measuring the sbt import time. */
+  private[sbt] final val ImportTimeMeasurementRegistryKey = "sbt.import.time.measurement"
+
+  private val SbtTaskTimingsPluginVersion = "0.0.5"
+
+  /**
+   * Returns the sbt setting that adds the `sbt-task-timings` plugin, which measures the import time.
+   *
+   * Unlike `sbt-structure-extractor`, this plugin is not bundled in the Scala plugin.
+   * It has to be downloaded from the internet.
+   *
+   * @see [[https://github.com/JetBrains/sbt-task-timings]]
+   */
+  private[sbt] def sbtTaskTimingsPluginDeclaration: String =
+    s"""addSbtPlugin("org.jetbrains.scala" % "sbt-task-timings" % "$SbtTaskTimingsPluginVersion")"""
+
   def detectSbtVersion(project: Project): SbtVersion = {
     val workingDirPath = getWorkingDirPath(project)
     val workingDir = Path.of(workingDirPath)

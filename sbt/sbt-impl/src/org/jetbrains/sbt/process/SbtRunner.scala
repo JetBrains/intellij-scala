@@ -55,7 +55,6 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
     @NonNls sbtCommands: String,
     @Nls reportMessage: String,
     passParentEnvironment: Boolean,
-    timingCollector: Option[SbtImportTimingCollector.TimingCollector],
     project: Option[Project] = None,
   )(
     implicit reporter: BuildReporter
@@ -69,7 +68,6 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
       sbtCommands,
       reportMessage,
       passParentEnvironment,
-      timingCollector,
       sbtProcessOptions = SbtProcessOptionsResolver.resolveForSeparateProcess(
         directory,
         vmOptions,
@@ -119,7 +117,6 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
     @NonNls sbtCommands: String,
     @Nls reportMessage: String,
     passParentEnvironment: Boolean,
-    timingCollector: Option[SbtImportTimingCollector.TimingCollector],
     sbtProcessOptions: SbtProcessOptions,
     project: Option[Project],
   )(
@@ -207,7 +204,7 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
           // exit needs to be in a separate command, otherwise it will never execute when a previous command in the chain errors
           writer.println(ignoreInShellHistory("exit"))
           writer.flush()
-          handle(process, dumpTaskId, reporter, indicator, timingCollector)
+          handle(process, dumpTaskId, reporter, indicator)
         }
       }
       .recoverWith {
@@ -240,8 +237,7 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
   private def handle(process: Process,
                      dumpTaskId: EventId,
                      reporter: BuildReporter,
-                     indicator: ProgressIndicator,
-                     timingCollector: Option[SbtImportTimingCollector.TimingCollector]
+                     indicator: ProgressIndicator
                     ): Try[BuildMessages] = {
 
     var messages = BuildMessages.empty
@@ -255,8 +251,6 @@ final class SbtRunner(processOutputCollector: Option[SbtProcessOutputDiagnostics
     )
 
     def update(typ: OutputType, textRaw: String): Unit = {
-      timingCollector.foreach(_.processSbtOutputLine(textRaw))
-
       reporter match {
         case _: GenerateManagedSourcesReporter =>
           // The SbtGenerateManagedSourcesAction is sensitive to the exact output of the sbt process.

@@ -71,8 +71,7 @@ object SbtConfigSetup {
       sbtLauncherArgs,
       sbtCommands = "",
       BspBundle.message("bsp.resolver.creating.sbt.configuration"),
-      passParentEnvironment = true,
-      timingCollector = None
+      passParentEnvironment = true
     )(using reporter)
     new SbtConfigSetup(runInit)
   }

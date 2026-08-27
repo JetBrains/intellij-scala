@@ -148,9 +148,7 @@ object SbtStructureDumper:
 
       val dumpStructureToCommand = buildDumpStructureToCommand(structureFile, sbtVersion)
 
-      val sbtTaskTimingOption =
-        if (context.timingCollector.nonEmpty) Seq("-Dsbt.task.timings=true")
-        else Nil
+      val injectTaskTimings = context.isImportTimeMeasurementEnabled
 
       /*
        The new import logic:
@@ -175,7 +173,7 @@ object SbtStructureDumper:
 
       val sbtProcessOptions = SbtProcessOptionsResolver.resolveForSeparateProcess(
         directory,
-        vmOptions ++ additionalVmOptionsForNewImport ++ sbtTaskTimingOption,
+        vmOptions ++ additionalVmOptionsForNewImport,
         sbtOptions.options,
         EnvironmentVariablesData.create(environment.asJava, passParentEnvironment),
         additionalLauncherArgs = Nil,
@@ -195,6 +193,7 @@ object SbtStructureDumper:
           dumpStructureToCommand,
           sbtVersion,
           project,
+          injectTaskTimings,
         )
 
       val buildMessages = runner.runSbt(
@@ -206,7 +205,6 @@ object SbtStructureDumper:
         sbtCommandsString,
         SbtBundle.message("sbt.extracting.project.structure.from.sbt"),
         passParentEnvironment,
-        context.timingCollector,
         sbtProcessOptions.copy(sbtLauncherArgs = sbtProcessOptions.sbtLauncherArgs ++ launcherArgs),
         project = project,
       )
@@ -226,7 +224,8 @@ object SbtStructureDumper:
       maybePreferScala2Command: String,
       dumpStructureToCommand: String,
       sbtVersion: SbtVersion,
-      project: Option[Project]
+      project: Option[Project],
+      injectTaskTimings: Boolean
     ): StructureDumpConfig = {
       val commands = buildSbtCompositeCommand(maybePreferScala2Command, dumpStructureToCommand)
 
@@ -234,11 +233,16 @@ object SbtStructureDumper:
         if (sbtVersion.isSbt2) "given FileConverter = fileConverter.value"
         else ""
 
+      val taskTimingsPlugin =
+        if (injectTaskTimings) SbtUtil.sbtTaskTimingsPluginDeclaration
+        else ""
+
       val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(
         raw"""Compile / unmanagedJars ++= {
              |$fileConverter
              |Seq(file("${sbtStructureJar.normalizedLocalPath}")).classpath
              |}
+             |$taskTimingsPlugin
              |""".stripMargin,
         eelDescriptor,
         project
@@ -249,13 +253,14 @@ object SbtStructureDumper:
     }
 
     private def getDumpProcessArgsForLegacySbt(
-      @unused eelDescriptor: EelDescriptor,
+      eelDescriptor: EelDescriptor,
       optString: String,
       sbtStructureJar: Path,
       maybePreferScala2Command: String,
       dumpStructureToCommand: String,
       sbtVersion: SbtVersion,
-      @unused project: Option[Project]
+      project: Option[Project],
+      injectTaskTimings: Boolean
     ): StructureDumpConfig = {
       val SeqFqn = SbtVersionCapabilities.collectionsSeqClassFqn(sbtVersion)
       val setCommands = Seq(
@@ -272,7 +277,20 @@ object SbtStructureDumper:
         maybePreferScala2Command,
         dumpStructureToCommand
       )
-      (sbtCommands = commands, launcherArgs = Seq.empty[String])
+
+      // This path doesn't create an `.sbt` file for the sbt-structure plugin (it's applied as a state transformation
+      // instead), so a dedicated one is created when the task timings plugin has to be injected.
+      val launcherArgs =
+        if (injectTaskTimings) {
+          val tmpPluginsSbtFile = SbtUtil.createTemporarySbtFile(
+            SbtUtil.sbtTaskTimingsPluginDeclaration,
+            eelDescriptor,
+            project
+          )
+          Seq(s"-addPluginSbtFile=${tmpPluginsSbtFile.normalizedLocalPath}")
+        } else Seq.empty[String]
+
+      (sbtCommands = commands, launcherArgs = launcherArgs)
     }
   end FromProcess
 

@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.project.{ReplClasspath, Version}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.*
 import org.jetbrains.sbt.process.SbtProcessOutputDiagnosticsCollector.PrintProcessOutputOnFailurePropertyName
-import org.jetbrains.sbt.process.{SbtImportTimingCollector, SbtRunner}
+import org.jetbrains.sbt.process.SbtRunner
 import org.jetbrains.sbt.project.SbtProjectResolver.*
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.data.*
@@ -43,7 +43,7 @@ import org.jetbrains.sbt.project.structure.data.*
 import org.jetbrains.sbt.project.structure.data.XmlDeserializer.deserialize
 import org.jetbrains.sbt.project.structure.{Play2OldStructureAdapter, SbtStructureDumper, data as sbtStructure}
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
-import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, usingTempFile}
+import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, usingTempFile}
 
 import java.io.FileNotFoundException
 import java.net.URI
@@ -85,10 +85,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val useShellImport = settings.useShellForImport && ideaProject != null
 
     val eelDescriptor = EelProviderUtil.getEelDescriptor(projectRoot)
-    val timingCollector =
-      if (!useShellImport && Registry.is("sbt.import.time.measurement")) Some(new SbtImportTimingCollector.TimingCollector(projectRoot))
-      else None
-    implicit val context: ImportContext = ImportContext(settings, eelDescriptor, timingCollector)
+    implicit val context: ImportContext = ImportContext(settings, eelDescriptor, useShellImport)
 
     if (isPreview) dummyProject(projectRoot, settings).toDataNode
     else {
@@ -98,7 +95,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (indicator == null) {
         throw new IllegalStateException("The External System machinery did not provide a ProgressIndicator instance")
       }
-      importProject(taskId, settings, projectRoot, sbtLauncher, listener, indicator, ideaProject, useShellImport)
+      importProject(taskId, settings, projectRoot, sbtLauncher, listener, indicator, ideaProject)
     }
   }
 
@@ -109,8 +106,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     sbtLauncher: Path,
     notifications: ExternalSystemTaskNotificationListener,
     indicator: ProgressIndicator,
-    @Nullable ideaProject: Project,
-    useShellImport: Boolean
+    @Nullable ideaProject: Project
   )(implicit context: ImportContext): DataNode[esProjectData.ProjectData] = {
 
     @NonNls val importTaskId = s"import:${UUID.randomUUID()}"
@@ -124,7 +120,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     } else esReporter
 
     val startTime = System.currentTimeMillis()
-    val structureDump = dumpStructure(projectRoot, sbtLauncher, context.sbtVersion, settings, ideaProject, indicator, useShellImport)
+    val structureDump = dumpStructure(projectRoot, sbtLauncher, context.sbtVersion, settings, ideaProject, indicator)
 
     // side-effecty status reporting
     structureDump.foreach { _ =>
@@ -141,20 +137,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             identity
           )
 
-        val convertStart = System.currentTimeMillis()
-        val result = convert(normalizePath(projectRoot), data, settings.jdk, settings, Option(ideaProject), useShellImport).toDataNode
-        val convertTime = System.currentTimeMillis - convertStart
-
-        try {
-          context.timingCollector.foreach { timingCollector =>
-            timingCollector.addScalaPluginTimings("convert" -> convertTime)
-            timingCollector.writeTimingResults()
-          }
-        } catch {
-          case ex: Exception => log.warn("Failed to write timing summary with custom timings", ex)
-        }
-
-        result
+        convert(normalizePath(projectRoot), data, settings.jdk, settings, Option(ideaProject), context.useShellImport).toDataNode
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
@@ -197,8 +180,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     sbtVersion: SbtVersion,
     settings: SbtExecutionSettings,
     @Nullable project: Project,
-    indicator: ProgressIndicator,
-    useShellImport: Boolean
+    indicator: ProgressIndicator
   )(implicit reporter: BuildReporter, context: ImportContext): Try[(Elem, BuildMessages)] = {
     if (isUnitTestMode) {
       SbtProjectResolver.setProcessOutputOfLatestStructureDump("")
@@ -208,7 +190,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     def doDumpStructure(structureFile: Path): Try[(Elem, BuildMessages)] = {
       val dumper =
-        if useShellImport then SbtStructureDumper.FromShell()
+        if context.useShellImport then SbtStructureDumper.FromShell()
         else SbtStructureDumper.FromProcess()
 
       activeProcessDumper = Option(dumper)
@@ -323,7 +305,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         LegacyModulesLayoutNotifications.warnForBuildToolWindow(reporter)
       }
 
-      if (context.timingCollector.nonEmpty) {
+      if (context.isImportTimeMeasurementEnabled) {
         informAboutImportTimingEnabled(reporter)
       }
 
@@ -365,7 +347,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       override def getId: String = quickFixId
 
       override def runQuickFix(project: Project, dataContext: DataContext): CompletableFuture[?] = {
-        Registry.get("sbt.import.time.measurement").setValue(false)
+        Registry.get(ImportTimeMeasurementRegistryKey).setValue(false)
         CompletableFuture.completedFuture(null)
       }
     }
@@ -1642,7 +1624,7 @@ object SbtProjectResolver {
   private[project] case class ImportContext(
     executionSettings: SbtExecutionSettings,
     eelDescriptor: EelDescriptor,
-    timingCollector: Option[SbtImportTimingCollector.TimingCollector]
+    useShellImport: Boolean
   ) {
     /**
      * @see [[SbtUtil#getRepoDir]]
@@ -1659,6 +1641,20 @@ object SbtProjectResolver {
      * @see [[org.jetbrains.sbt.project.structure.SbtStructureDump#dumpFromShell]]
      */
     var sbtVersion: SbtVersion = executionSettings.sbtVersion
+
+    /**
+     * Whether the import time should be measured, i.e. whether the `sbt-task-timings` plugin should be injected into the sbt process.
+     *
+     * NOTE: at the moment, measuring the import time is not supported for the import in the sbt shell.
+     *
+     * @see [[SbtUtil.ImportTimeMeasurementRegistryKey]]
+     * @see [[SbtUtil.sbtTaskTimingsPluginDeclaration]]
+     */
+    val isImportTimeMeasurementEnabled: Boolean =
+      !useShellImport &&
+        Registry.is(ImportTimeMeasurementRegistryKey) &&
+        SbtVersionCapabilities.isTaskTimingsPluginSupported(sbtVersion)
+
     def useSeparateProdTestSources: Boolean = executionSettings.separateProdTestSources
     def useSeparateCompilerOutputPaths: Boolean = executionSettings.useSeparateCompilerOutputPaths
   }

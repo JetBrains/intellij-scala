@@ -45,8 +45,7 @@ class SbtOptionsIntegrationTest_SeparateProcess extends SbtOptionsIntegrationTes
       Nil,
       taskName,
       s"Running sbt task `$taskName` in a separate sbt process",
-      executionSettings.passParentEnvironment,
-      timingCollector = None
+      executionSettings.passParentEnvironment
     )
 
     result match {

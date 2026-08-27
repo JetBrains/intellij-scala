@@ -18,6 +18,15 @@ object SbtVersionCapabilities {
     sbtVersion >= SbtVersionCapabilities.MinVersionForAddPluginCommand_Sbt1 ||
       sbtVersion.isSbt0 && sbtVersion >= MinVersionForAddPluginCommand_Sbt0
 
+  /**
+   * The `sbt-task-timings` plugin is published only using the new Maven layout.
+   * Resolving artifacts published that way requires sbt 1.9.0+.
+   */
+  private val MinVersionForTaskTimingsPlugin: SbtVersion = SbtVersion("1.9.0")
+
+  def isTaskTimingsPluginSupported(sbtVersion: SbtVersion): Boolean =
+    sbtVersion >= MinVersionForTaskTimingsPlugin
+
   private val SinceSlashSyntax: SbtVersion = SbtVersion("1.1.0")
 
   def isSlashSyntaxSupported(version: SbtVersion): Boolean =
