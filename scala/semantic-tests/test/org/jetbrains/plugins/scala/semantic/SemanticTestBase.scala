@@ -67,19 +67,19 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
                   val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
                   sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
                 }
-                val directory = Path.of("scala", Seq("semantic-tests", "target", "comparison") ++ fqn.split('.').dropRight(1) *)
-                directory.toFile.mkdirs()
+                val directory = Path.of("scala", Seq("semantic-tests", "target", "comparison") ++ fqn.split('.').dropRight(1)*)
+                Files.createDirectories(directory)
                 Files.write(directory.resolve(cls.name + ".scala"), sourceText.getBytes)
                 Files.write(directory.resolve(cls.name + "1.scala"), decompiledText.getBytes)
-                val file2 = directory.resolve(cls.name + "2.scala").toFile
-                val diffFile = directory.resolve(cls.name + ".diff").toFile
+                val file2 = directory.resolve(cls.name + "2.scala")
+                val diffFile = directory.resolve(cls.name + ".diff")
                 if (psiText != decompiledText) {
-                  Files.write(file2.toPath, psiText.getBytes)
+                  Files.write(file2, psiText.getBytes)
                   val diff = formatDiff(cls.name + "1.scala", cls.name + "2.scala", decompiledText, psiText)
-                  Files.write(diffFile.toPath, diff.getBytes)
+                  Files.write(diffFile, diff.getBytes)
                 } else {
-                  file2.delete()
-                  diffFile.delete()
+                  Files.deleteIfExists(file2)
+                  Files.deleteIfExists(diffFile)
                 }
               } else {
                 println(fqn)
@@ -103,6 +103,7 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
     latch.await(timeout.length, timeout.unit)
   }
 
+  //noinspection ApiStatus
   private def formatDiff(name1: String, name2: String, text1: String, text2: String): String = {
     val patch = new TextFilePatch(null, "\n")
     patch.setBeforeName(name1)
