@@ -43,22 +43,15 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
   }
 
   protected def doTest(classes: String): Unit = {
-    val batchSize = 8
+    val numBatches = 8
 
-    val executor = AppExecutorUtil.createBoundedApplicationPoolExecutor(
-      "SemanticTest",
-      AppExecutorUtil.getAppExecutorService,
-      batchSize,
-      getTestRootDisposable
-    )
-
-    given ExecutionContext = ExecutionContext.fromExecutorService(executor)
+    given ExecutionContext = ExecutionContext.fromExecutorService(AppExecutorUtil.getAppExecutorService)
 
     val classNames =
       if (Print) allClasses(excludePackages = Set.empty).map(_.qualifiedName)
       else classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq
 
-    val futures = splitInto(batchSize, classNames).map { classes =>
+    val futures = splitInto(numBatches, classNames).map { classes =>
       Future {
         val decompiler: Decompiler = {
           val classpath =
