@@ -231,6 +231,7 @@ object TeamCityCommunityUtil {
       "com.intellij.",
       "scala.meta.",
       "CompilerPluginTest_", // don't question it!!!
+      "AfterUpdateDottyVersionScript",
     )
 
   def isExpectedTestName(testName: String): Boolean =
