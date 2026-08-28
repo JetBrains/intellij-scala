@@ -264,7 +264,7 @@ object SourceCode {
           indented {
             if (printSelf) {
               val Some(ValDef(name, tpt, _)) = self: @unchecked
-              indented {
+              if (tpt.symbol != cdef.symbol) indented {
                 val name1 = if (name == "_") "this" else name
                 this += " " += highlightValDef(name1) += ": "
                 printTypeTree(tpt)(using Some(cdef.symbol))

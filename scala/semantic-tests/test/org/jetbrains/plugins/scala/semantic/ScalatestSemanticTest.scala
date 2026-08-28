@@ -63,7 +63,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.FixtureAsyncTestSuite
     org.scalatest.FixtureContext
     org.scalatest.FixtureEngine
-    //org.scalatest.FixtureSuite
+    org.scalatest.FixtureSuite
     org.scalatest.FixtureTestRegistration
     //org.scalatest.FixtureTestSuite
     //org.scalatest.FutureAsyncOutcome

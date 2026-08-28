@@ -89,7 +89,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     zio.TaskPlatformSpecific
     //zio.ThreadLocalBridge
     //zio.Trace
-    //zio.Unsafe
+    zio.Unsafe
     //zio.UnsafeVersionSpecific
     zio.Unzippable
     zio.UnzippableLowPriority1
