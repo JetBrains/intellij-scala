@@ -189,7 +189,9 @@ package object extensions {
   }
 
   implicit class ViewProviderExt(private val viewProvider: FileViewProvider) extends AnyVal {
-    def hasScalaPsi: Boolean = viewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE) || viewProvider.getPsi(ScalaLanguage.INSTANCE) != null
+    def hasScalaPsi: Boolean = viewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE) || 
+      viewProvider.getPsi(ScalaLanguage.INSTANCE) != null ||
+      viewProvider.getPsi(viewProvider.getBaseLanguage).is[ScalaFile]
   }
 
   implicit class IterableOnceExt[CC[X] <: collection.IterableOnceOps[X, CC, CC[X]], A](private val value: CC[A]) extends AnyVal {
