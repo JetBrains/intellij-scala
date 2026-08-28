@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
 import org.jetbrains.plugins.scala.semantic.ClassPrinter.{Keywords, isIdentifier}
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.getInstance as ScalaApplicationSettings
 
 import scala.annotation.tailrec
 
@@ -670,18 +669,13 @@ private object ClassPrinter {
     }
   }
 
-  def textOf(cls: ScTypeDefinition): String = try {
-    ScalaApplicationSettings.PRECISE_TEXT = true
-    ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = true
+  def textOf(cls: ScTypeDefinition): String = {
     val annotator = new ScalaAnnotator()
     textOfCompilationUnit(cls, withPrivate = true, normalize = true) { element =>
       val holder = new AnnotatorHolderMock(cls.getContainingFile)
       annotator.annotate(element, typeAware = true, checkShouldInspect = false, treatAsSource = true)(holder)
       holder.errorAnnotations.map(_.message)
     }
-  } finally {
-    ScalaApplicationSettings.PRECISE_TEXT = false
-    ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = false
   }
 
   // Copy of org.jetbrains.plugins.scala.text.TextToTextTestBase.textOfCompilationUnit
