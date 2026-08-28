@@ -45,7 +45,12 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
   protected def doTest(classes: String): Unit = {
     val batchSize = 8
 
-    val executor = AppExecutorUtil.createBoundedApplicationPoolExecutor("SemanticTest", batchSize)
+    val executor = AppExecutorUtil.createBoundedApplicationPoolExecutor(
+      "SemanticTest",
+      AppExecutorUtil.getAppExecutorService,
+      batchSize,
+      getTestRootDisposable
+    )
 
     given ExecutionContext = ExecutionContext.fromExecutorService(executor)
 
