@@ -48,7 +48,7 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
     given ExecutionContext = ExecutionContext.fromExecutorService(AppExecutorUtil.getAppExecutorService)
 
     val classNames =
-      if (Print) allClasses(excludePackages = Set.empty).map(_.qualifiedName)
+      if (Print) inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName))
       else classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq
 
     val futures = splitInto(numBatches, classNames).map { classes =>
@@ -70,6 +70,8 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
           }.getOrElse(throw new IllegalArgumentException(fqn)).asInstanceOf[ScTypeDefinition]
 
           try {
+            if (!Print) println(fqn)
+
             val (decompiledText, psiText) = {
               def result: (String, String) = textOf(cls, decompiler) { (decompiledText, psiText) =>
                 if (!Print && isCommented && (decompiledText.length < psiText.length || CharSequence.compare(decompiledText.subSequence(0, psiText.length), psiText) != 0)) {
@@ -82,7 +84,7 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
             if (Print) {
               val comment = decompiledText != psiText
               println("    " + (if (comment) "//" else "") + fqn)
-              val sourceText = {
+              val sourceText = inReadAction {
                 val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
                 sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
               }
@@ -101,7 +103,6 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
                 Files.deleteIfExists(diffFile)
               }
             } else {
-              println(fqn)
               if (isCommented) {
                 Assert.assertNotEquals(s"Expected to contain differences: $fqn", decompiledText, psiText)
               } else {
