@@ -302,3 +302,7 @@ class CompilerDiagnosticsTest_3_7 extends CompilerDiagnosticsTest_3 {
 class CompilerDiagnosticsTest_3_8 extends CompilerDiagnosticsTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_8
 }
+
+class CompilerDiagnosticsTest_3_9 extends CompilerDiagnosticsTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
+}

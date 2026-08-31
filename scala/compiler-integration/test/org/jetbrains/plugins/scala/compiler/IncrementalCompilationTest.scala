@@ -261,6 +261,7 @@ class IncrementalIdeaOnServerCompilationTest_Scala_3_Post_LTS extends Incrementa
 @Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_8,
+  TestScalaVersion.Scala_3_9,
   TestScalaVersion.Scala_3_Next_RC
 ))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
@@ -314,6 +315,7 @@ class IncrementalIdeaCompilationTest_Scala_3_Post_LTS extends IncrementalIdeaCom
 @Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_8,
+  TestScalaVersion.Scala_3_9,
   TestScalaVersion.Scala_3_Next_RC
 ))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
@@ -410,6 +412,7 @@ class IncrementalSbtOnServerCompilationTest_Scala_3_Post_LTS extends Incremental
 @Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_8,
+  TestScalaVersion.Scala_3_9,
   TestScalaVersion.Scala_3_Next_RC
 ))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
@@ -462,6 +465,7 @@ class IncrementalSbtCompilationTest_Scala_3_Post_LTS extends IncrementalSbtCompi
 @Category(Array(classOf[CompilationTests_IDEA]))
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_8,
+  TestScalaVersion.Scala_3_9,
   TestScalaVersion.Scala_3_Next_RC
 ))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))

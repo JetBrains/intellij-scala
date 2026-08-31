@@ -119,7 +119,10 @@ class WorksheetReplIntegration_Scala_3_Latest_Test extends WorksheetReplIntegrat
   }
 }
 
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_9,
+  TestScalaVersion.Scala_3_Next_RC
+))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class WorksheetReplIntegration_Scala_3_Next_RC_Test extends WorksheetReplIntegration_Since_3_2_TestBase {
   @Test

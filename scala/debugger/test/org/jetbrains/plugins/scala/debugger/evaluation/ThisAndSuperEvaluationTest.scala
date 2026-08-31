@@ -18,6 +18,10 @@ class ThisAndSuperEvaluationTest_3 extends ThisAndSuperEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 }
 
+class ThisAndSuperEvaluationTest_3_9 extends ThisAndSuperEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
+}
+
 class ThisAndSuperEvaluationTest_3_RC extends ThisAndSuperEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
