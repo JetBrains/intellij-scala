@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.lang.completion
 
+import com.intellij.testFramework.HeavyPlatformTestCase
 import com.intellij.util.io.HttpRequests
-import junit.framework.TestCase
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -22,7 +22,7 @@ object UpdateScalacOptionsInfo {
    * Fetches latest versions of the compiler for each lang level starting from 2.11 and updates
    * scala/scala-impl/resources/org/jetbrains/sbt/language/completion/scalac-options.json
    */
-  final class ScriptTestCase extends TestCase {
+  final class ScriptTestCase extends HeavyPlatformTestCase {
     def test(): Unit = {
       val latestVersions = getLatestCompilerVersionsSorted
       println(s"Updating scalac-options.json with the latest compiler versions: ${latestVersions.map(_.minor).mkString(", ")}")
