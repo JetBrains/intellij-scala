@@ -115,7 +115,7 @@ object LatestScalaVersions {
   val Scala_3_6 = new ScalaVersion(ScalaLanguageLevel.Scala_3_6, "4")
   val Scala_3_7 = new ScalaVersion(ScalaLanguageLevel.Scala_3_7, "4")
   val Scala_3_8 = new ScalaVersion(ScalaLanguageLevel.Scala_3_8, "4")
-  val Scala_3_9 = new ScalaVersion(ScalaLanguageLevel.Scala_3_9, "0-RC6")
+  val Scala_3_9 = new ScalaVersion(ScalaLanguageLevel.Scala_3_9, "0")
 
   //
   // Aliases
