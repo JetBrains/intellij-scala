@@ -70,7 +70,14 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
           }.getOrElse(throw new IllegalArgumentException(fqn)).asInstanceOf[ScTypeDefinition]
 
           try {
-            val (decompiledText, psiText) = textOf(cls, decompiler)
+            val (decompiledText, psiText) = {
+              def result: (String, String) = textOf(cls, decompiler) { (decompiledText, psiText) =>
+                if (!Print && isCommented && (decompiledText.length < psiText.length || CharSequence.compare(decompiledText.subSequence(0, psiText.length), psiText) != 0)) {
+                  return (decompiledText.toString, psiText.toString) // Partial result (non-local return)
+                }
+              }
+              result
+            }
 
             if (Print) {
               val comment = decompiledText != psiText
@@ -126,20 +133,20 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
     writer.toString
   }
 
-  private def textOf(cls: ScTypeDefinition, decompiler: Decompiler): (String, String) = {
+  private def textOf(cls: ScTypeDefinition, decompiler: Decompiler)(listener: (CharSequence, CharSequence) => Unit): (String, String) = {
+    val tastyFile = cls.getContainingFile.getVirtualFile
+    Assert.assertTrue(tastyFile.getName, tastyFile.getExtension == "tasty")
+
+    val decompiledText = decompiler.decompile(tastyFile.getName, tastyFile.contentsToByteArray())
+
     val sourceCls = inReadAction(cls.getSourceMirrorClass).asInstanceOf[ScTypeDefinition]
     Assert.assertTrue(s"Must have a source: ${cls.qualifiedName}", sourceCls != cls)
     Assert.assertFalse(s"Must be in a source file: ${cls.qualifiedName}", sourceCls.isInCompiledFile)
 
     val psiText = inReadAction {
       sourceCls.getText // Necessary to load right-hand sides
-      ClassPrinter.textOf(sourceCls)
+      ClassPrinter.textOf(sourceCls, listener(decompiledText, _))
     }
-
-    val tastyFile = cls.getContainingFile.getVirtualFile
-    Assert.assertTrue(tastyFile.getName, tastyFile.getExtension == "tasty")
-
-    val decompiledText = decompiler.decompile(tastyFile.getName, tastyFile.contentsToByteArray())
 
     (decompiledText, psiText)
   }

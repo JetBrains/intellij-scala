@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScBindingPattern, ScCompositePattern, ScExtractorPattern, ScLiteralPattern, ScNamingPattern, ScPattern, ScReferencePattern, ScStableReferencePattern, ScTuplePattern, ScTypedPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScCompositePattern, ScExtractorPattern, ScLiteralPattern, ScNamingPattern, ScPattern, ScReferencePattern, ScStableReferencePattern, ScTuplePattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScInterpolatedStringLiteral, ScLiteral, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.*
@@ -32,19 +32,7 @@ import org.jetbrains.plugins.scala.semantic.ClassPrinter.{Keywords, isIdentifier
 import scala.annotation.tailrec
 
 class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivate: Boolean = true, normalize: Boolean = false)(highlight: PsiElement => Seq[String]) {
-  def textOf(e: PsiElement): String = e match {
-    case cls: ScTypeDefinition =>
-      val sb = new StringBuilder()
-      printTo(sb, cls)
-      sb.toString
-    case f: ScFunction => textOf(f, "")
-    case v: ScBindingPattern => textOf(v.nameContext.asInstanceOf[ScValueOrVariable], v, "")
-    case t: ScTypeAlias => textOf(t, "")
-  }
-
-  def printTo(sb: StringBuilder, cls: ScTypeDefinition): Unit = printTo(sb, cls, "")
-
-  private def printTo(sb: StringBuilder, cls: ScTypeDefinition, indent: String): Unit = {
+  private def printTo(sb: StringBuilder, cls: ScTypeDefinition, indent: String, listener: CharSequence => Unit): Unit = {
     val annotations = cls.annotations.map(a => "\n" + indent + textOf(a)).mkString
 
     val modifiers = {
@@ -97,16 +85,20 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
       case _ => ""
     }
 
-    sb ++= annotations + "\n" + indent + modifiers + keyword + " " + name + tps + ps + givenClauses + parents + derivations + (if (isGiven) " with" else "") + " {" + selfType
+    sb ++= annotations + "\n" + indent + modifiers + keyword + " " + name + tps + ps + givenClauses + parents + derivations + (if (isGiven) " with" else "")
+    listener(sb)
+
+    sb ++= " {" + selfType
 
     val previousLength = sb.length
 
-    printTo(sb, cls.extendsBlock, indent)
+    printTo(sb, cls.extendsBlock, indent, listener)
 
     cls match {
       case e: ScEnum =>
         e.cases.foreach { c =>
           sb ++= textOf(c, indent)
+          listener(sb)
         }
       case _ =>
     }
@@ -123,11 +115,12 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     }
 
     sb ++= highlighted(cls)("")
+    listener(sb)
 
     sb ++= "\n"
   }
 
-  private def printTo(sb: StringBuilder, extendsBlock: ScExtendsBlock, indent: String): Unit =
+  private def printTo(sb: StringBuilder, extendsBlock: ScExtendsBlock, indent: String, listener: CharSequence => Unit): Unit =
     extendsBlock.templateBody.map(_.children.toSeq).getOrElse(Seq.empty).foreach {
       case m: ScMember if withPrivate || !isPrivate(m) => m match {
         case f: ScFunction =>
@@ -139,10 +132,12 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
         case t: ScExtension =>
           sb ++= textOf(t, indent)
         case td: ScTypeDefinition =>
-          printTo(sb, td, indent + "  ")
+          printTo(sb, td, indent + "  ", listener)
       }
+      listener(sb)
       case e: ScExpression =>
         sb ++= "\n" + indent + "  " + textOfExpression(e, indent) + "\n"
+        listener(sb)
       case _ =>
     }
 
@@ -196,7 +191,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     val text = s match {
       case t: ScTypeDefinition =>
         val sb = new StringBuilder()
-        printTo(sb, t)
+        printTo(sb, t, "", _ => ())
         sb.toString.stripSuffix("\n")
       case f: ScFunction => textOf(f, indent).stripSuffix("\n")
       case v: ScValueOrVariable => v.declaredElements.headOption.map(textOf(v, _, indent).stripSuffix("\n")).getOrElse("")
@@ -296,7 +291,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
           .getOrElse("") + (if (!hasMembers) "" else
           " {" + {
             val sb = new StringBuilder()
-            printTo(sb, e.extendsBlock, indent + "  ")
+            printTo(sb, e.extendsBlock, indent + "  ", _ => ())
             if (sb.nonEmpty) sb ++= indent + "  "
             sb.toString
           } + "}")
@@ -672,9 +667,9 @@ private object ClassPrinter {
     }
   }
 
-  def textOf(cls: ScTypeDefinition): String = {
+  def textOf(cls: ScTypeDefinition, listener: CharSequence => Unit = _ => ()): String = {
     val annotator = new ScalaAnnotator()
-    textOfCompilationUnit(cls, withPrivate = true, normalize = true) { element =>
+    textOfCompilationUnit(cls, withPrivate = true, normalize = true, listener) { element =>
       val holder = new AnnotatorHolderMock(cls.getContainingFile)
       annotator.annotate(element, typeAware = true, checkShouldInspect = false, treatAsSource = true)(holder)
       holder.errorAnnotations.map(_.message)
@@ -682,7 +677,7 @@ private object ClassPrinter {
   }
 
   // Copy of org.jetbrains.plugins.scala.text.TextToTextTestBase.textOfCompilationUnit
-  private def textOfCompilationUnit(cls: ScTypeDefinition, withPrivate: Boolean, normalize: Boolean)(highlight: PsiElement => Seq[String]): String = {
+  private def textOfCompilationUnit(cls: ScTypeDefinition, withPrivate: Boolean, normalize: Boolean, listener: CharSequence => Unit)(highlight: PsiElement => Seq[String]): String = {
     val packageName = cls.qualifiedName.substring(0, cls.qualifiedName.lastIndexOf('.'))
 
     val companionTypeAlias = ScalaPsiManager.instance(cls.getProject).getTopLevelDefinitionsByPackage(packageName, cls.getResolveScope).collect {
@@ -695,7 +690,7 @@ private object ClassPrinter {
 
     val printer = new ClassPrinter(isScala3 = true, withPrivate = withPrivate, normalize = normalize)(highlight)
     ((companionTypeAlias.toSeq :+ cls) ++ cls.baseCompanionTypeDefinition.toSeq).sortBy(_.getTextOffset).foreach {
-      case td: ScTypeDefinition => printer.printTo(sb, td)
+      case td: ScTypeDefinition => printer.printTo(sb, td, "", listener)
       case ta: ScTypeAlias => printer.printTo(sb, ta)
     }
 
