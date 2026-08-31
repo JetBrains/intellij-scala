@@ -348,6 +348,31 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
 
     assertNothing(actualMessages)
   }
+
+  //The self invocation of a secondary constructor is typechecked in the scope of the class definition,
+  //so the implicit parameter of the primary constructor is not a candidate for the implicit clause of
+  //that very constructor, only what is in scope around the class is.
+  def testSelfInvocationImplicitClause(): Unit = assertNothing(messages(
+    """implicit val n: Int = 1
+      |class A(b: Boolean)(implicit i: Int) {
+      |  def this() = this(true)
+      |}""".stripMargin
+  ))
+
+  def testSelfInvocationImplicitClauseNotFound(): Unit = assertMatches(messages(
+    """class A(b: Boolean)(implicit i: Int) {
+      |  def this() = this(true)
+      |}""".stripMargin)) {
+    case Error("this(true)", m) :: Nil if m == notFound("Int") =>
+  }
+
+  def testSelfInvocationImplicitClauseOfDelegate(): Unit = assertMatches(messages(
+    """class A(b: Boolean)(implicit i: Int) {
+      |  def this(n: Int) = this(true)
+      |  def this() = this(1)
+      |}""".stripMargin)) {
+    case Error("this(true)", m) :: Nil if m == notFound("Int") =>
+  }
 }
 
 class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotatorTestBase {
@@ -421,6 +446,32 @@ class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotator
       case Error("fallible", m) :: Nil if m == ImplicitParametersAnnotator.notSpecificEnoughMessage(Seq("M")) =>
     }
   }
+
+  //see ImplicitParametersAnnotatorTest.testSelfInvocationImplicitClause
+  def testSelfInvocationUsingClause(): Unit = assertNothing(messages3(
+    """given Int = 1
+      |class A(b: Boolean)(using i: Int) {
+      |  def this() = this(true)
+      |}""".stripMargin
+  ))
+
+  def testSelfInvocationUsingClauseNotFound(): Unit = {
+    import Message._
+
+    assertMatches(messages3(
+      """class A(b: Boolean)(using i: Int) {
+        |  def this() = this(true)
+        |}""".stripMargin)) {
+      case Error("this(true)", m) :: Nil if m == notFound("Int") =>
+    }
+  }
+
+  def testSelfInvocationUsingClauseOfGenericClass(): Unit = assertNothing(messages3(
+    """given Int = 1
+      |class A[T](t: T)(using i: Int) {
+      |  def this(t: T, u: T) = this(t)
+      |}""".stripMargin
+  ))
 }
 
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example

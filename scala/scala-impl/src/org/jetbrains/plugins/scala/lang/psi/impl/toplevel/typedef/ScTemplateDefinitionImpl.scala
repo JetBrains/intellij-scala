@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -306,6 +306,15 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       case _ =>
     }
 
+    //A self constructor invocation is typechecked in the scope in effect at the point of the enclosing
+    //class definition, augmented by the type parameters of the class (SLS 5.3.1), so neither the members
+    //nor the constructor parameters of the class are in scope in it: `i` of
+    //`class A(i: Int) { def this() = this(i) }` does not resolve, and the using clause of
+    //`class A(i: Int)(using String) { def this() = this(1) }` is satisfied from outside the class, not
+    //by its own using parameter. The type parameters are processed by the subclasses around this
+    //method, so returning here leaves them in scope.
+    if (isInSelfInvocationOfThisDefinition(place)) return true
+
     // Process selftype reference
     selfTypeElement match {
       case Some(se) if se.name != "_" => if (!processor.execute(se, oldState))
@@ -410,6 +419,18 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
         true
     }
   }
+
+  /**
+   * Whether `place` is inside the self invocation of a secondary constructor of this very definition,
+   * `this(1)` of `def this() = this(1)`. The self invocation of a nested class is none of ours: the
+   * scope of our body is in effect at the point that class is defined.
+   */
+  private def isInSelfInvocationOfThisDefinition(@Nullable place: PsiElement): Boolean =
+    place != null && {
+      val invocation = PsiTreeUtil.getContextOfType(place, classOf[ScSelfInvocation], false)
+      invocation != null &&
+        PsiTreeUtil.getContextOfType(invocation, classOf[ScTemplateDefinition], true) == this
+    }
 
   override def selfTypeElement: Option[ScSelfTypeElement] = {
     val qual = qualifiedName

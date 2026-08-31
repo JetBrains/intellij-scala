@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.{PsiElement, PsiField, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{InvocationDetailsOwner, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 
-trait ScAssignment extends ScExpression {
+trait ScAssignment extends ScExpression with InvocationDetailsOwner {
   def leftExpression: ScExpression = findChild[ScExpression].get
 
   def rightExpression: Option[ScExpression] = findLastChild[ScExpression] match {

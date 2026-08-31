@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTemplateDefinition, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ConstructorInvocationLikeImpl
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
@@ -115,6 +116,24 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
   override def multiType(i: Int): Array[TypeResult] = {
     bindMultiInternal(shapeResolve = false).map(pe => workWithBindInternal(Some(pe), i))
   }
+
+  /**
+   * A self invocation applies the implicit clauses of the constructor it delegates to just as any
+   * other constructor invocation does, `this(1)` of `class A(i: Int)(using String)`, so the arguments
+   * the implicit search finds for them are recorded here, the way
+   * [[org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl]] records them for
+   * `new A(1)`.
+   */
+  override protected def updateImplicitArguments(): Unit =
+    for {
+      srr         <- multiResolve.headOption
+      constructor <- srr.element.asOptionOf[PsiMethod]
+    } {
+      val (_, _, implicitArguments) =
+        Compatibility.checkConstructorApplicability(this, constructor, srr)(this.projectContext)
+
+      setImplicitArguments(implicitArguments)
+    }
 
   override def toString: String = "SelfInvocation"
 

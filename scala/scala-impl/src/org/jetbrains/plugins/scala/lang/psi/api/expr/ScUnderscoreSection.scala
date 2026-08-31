@@ -8,14 +8,14 @@ import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{InvocationDetailsOwner, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscore
 
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-trait ScUnderscoreSection extends ScExpression {
+trait ScUnderscoreSection extends ScExpression with InvocationDetailsOwner {
   def bindingExpr: Option[ScExpression] =
     findChild[ScExpression]
 

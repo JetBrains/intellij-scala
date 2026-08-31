@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
+import org.jetbrains.plugins.scala.lang.psi.api.{InvocationDetailsOwner, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 /**
  * A common trait for  Method calls, Infix, Postfix and Prefix expressions to handle them uniformly
  */
-trait MethodInvocation extends ScExpression with ScalaPsiElement {
+trait MethodInvocation extends ScExpression with ScalaPsiElement with InvocationDetailsOwner {
   /**
    * @return expression that will be the this-ref of the call
    */
@@ -57,15 +58,31 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   def applicationProblems: Seq[ApplicabilityProblem] = Seq.empty
 
   /**
-    * @return map of expressions and parameters
-    */
-  override def matchedParameters: Seq[(ScExpression, Parameter)] = matchedParametersInner.collect {
-    case (parameter, expression, _) if expression != null => expression -> parameter // todo: catch when expression is null
-  }
+   * The source arguments matched to their parameters.
+   */
+  override def matchedParameters: Seq[(ScExpression, Parameter)] =
+    if (isAutoTupling) {
+      matchedParametersInner.flatMap {
+        case (parameter, expression, _) if expression != null => Seq(expression -> parameter)
+        case (parameter, _, _) =>
+          val sourceArguments = this match {
+            case call: ScMethodCall => argumentExpressions ++ call.updateExpression()
+            case _                  => argumentExpressions
+          }
+          sourceArguments.map(_ -> parameter)
+      }
+    } else {
+      matchedParametersInner.collect {
+        case (parameter, expression, _) if expression != null => expression -> parameter
+      }
+    }
 
   protected def matchedParametersInner: Seq[(Parameter, ScExpression, ScType)]
 
   def matchedTypeParameters: Seq[(ScType, TypeParameter)] = Seq.empty
+
+  /** Whether this argument list was adapted to a single tuple (or `Unit`) argument. */
+  def isAutoTupling: Boolean
 
   /**
     * In case if invoked expression converted implicitly to invoke apply or update method
@@ -87,6 +104,12 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   def isApplyOrUpdateCall: Boolean = applyOrUpdateElement.isDefined
 
   def applyOrUpdateElement: Option[ScalaResolveResult]
+
+  /**
+   * The prefix of [[findImplicitArguments]] applied to the receiver before its synthetic `apply` or `update`.
+   * Typing records these on this expression, but InvocationDetails assigns them to the receiver's invocation.
+   */
+  private[psi] def implicitArgumentsOfInvokedExpression: Seq[ImplicitArgumentsClause] = Seq.empty
 
   /**
     * It's arguments for method and infix call.

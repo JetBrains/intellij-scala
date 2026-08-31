@@ -728,7 +728,7 @@ object ScExpression {
   }
 
   private def shape(expression: ScExpression, ignoreAssign: Boolean = false): Option[ScType] = {
-    import expression.{projectContext, elementScope}
+    import expression.{elementScope, projectContext}
     implicit val context: Context = Context(expression)
 
     def shapeIgnoringAssign(maybeExpression: Option[ScExpression]) = maybeExpression.flatMap {

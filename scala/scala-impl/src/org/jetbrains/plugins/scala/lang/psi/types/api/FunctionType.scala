@@ -126,6 +126,8 @@ object TupleType {
     }
   }
 
+  def isTupleType(`type`: ScType)(implicit context: Context): Boolean = extractTupleTypes(`type`, scopeIfTailIsExpected = None).isDefined
+
   /**
    * Returns all initial types of a tuple and a tail if `type` is a Scala 3 tuple
    *

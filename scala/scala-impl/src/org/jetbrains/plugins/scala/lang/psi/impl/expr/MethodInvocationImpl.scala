@@ -41,7 +41,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
   override def applicationProblems: Seq[ApplicabilityProblem] = innerTypeExt match {
     case regularCase: RegularCase                              => regularCase.problems
-    case SyntheticCase(regularCase, _, _)                      => regularCase.problems
+    case SyntheticCase(regularCase, _, _, _)                   => regularCase.problems
     case FailureCase(_, problems) if problems.nonEmpty         => problems
     case FailureCase(Failure(`noSuitableMethodFoundError`), _) => Seq(DoesNotTakeParameters)
     case _                                                     => Seq.empty
@@ -49,18 +49,29 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
   override protected def matchedParametersInner: Seq[(Parameter, ScExpression, ScType)] = innerTypeExt match {
     case regularCase: RegularCase             => regularCase.matchedParameters
-    case SyntheticCase(regularCase, _, _)     => regularCase.matchedParameters
+    case SyntheticCase(regularCase, _, _, _)  => regularCase.matchedParameters
     case _                                    => Seq.empty
   }
 
   override def matchedTypeParameters: Seq[(ScType, TypeParameter)] = innerTypeExt match {
     case regularCase: RegularCase         => regularCase.matchedTypeParameters
-    case SyntheticCase(regularCase, _, _) => regularCase.matchedTypeParameters
+    case SyntheticCase(regularCase, _, _, _) => regularCase.matchedTypeParameters
     case _                                => Seq.empty
+  }
+
+  override def isAutoTupling: Boolean = innerTypeExt match {
+    case regularCase: RegularCase         => regularCase.isAutoTupling
+    case SyntheticCase(regularCase, _, _, _) => regularCase.isAutoTupling
+    case _                                => false
   }
 
   override final def getImplicitFunction: Option[ScalaResolveResult] =
     applyOrUpdateElement.flatMap(_.implicitConversion)
+
+  override private[psi] def implicitArgumentsOfInvokedExpression: Seq[ImplicitArgumentsClause] = innerTypeExt match {
+    case syntheticCase: SyntheticCase => syntheticCase.invokedExpressionImplicits
+    case _ => Seq.empty
+  }
 
   override final def getImportsUsed: Set[ImportUsed] = applyOrUpdateElement match {
     case Some(srr) => srr.importsUsed
@@ -286,7 +297,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
                 SyntheticCase(
                   withUpdatedType,
                   srr,
-                  maybeRegularCase.isDefined
+                  maybeRegularCase.isDefined,
+                  leadingImplicits
                 )
               case _ =>
                 val problems = applyOrUpdateCands.flatMap(_.problems)
@@ -351,6 +363,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       tupled(expressions, this)
         .map(asRegularCase)
         .flatMap(_.withSubstitutedType)
+        .map(_.copy(isAutoTupling = true))
 
     val nonTupled = asRegularCase(expressions)
     nonTupled.withSubstitutedType
@@ -602,7 +615,8 @@ object MethodInvocationImpl {
     override val target:   Option[ScalaResolveResult],
     problems:              Seq[ApplicabilityProblem]              = Seq.empty,
     matchedParameters:     Seq[(Parameter, ScExpression, ScType)] = Seq.empty,
-    matchedTypeParameters: Seq[(ScType, TypeParameter)]           = Seq.empty
+    matchedTypeParameters: Seq[(ScType, TypeParameter)]           = Seq.empty,
+    isAutoTupling:         Boolean                               = false
   ) extends InvocationData {
 
     override def typeResult: TypeResult = Right(inferredType)
@@ -612,12 +626,13 @@ object MethodInvocationImpl {
       case (Seq(), matchedParams) =>
         val paramSubstitutor = ScSubstitutor.paramToType(matchedParams.map(_._1), matchedParams.map(_._3))
         val `type`           = paramSubstitutor(inferredType)
-        Some(RegularCase(`type`, target, Seq.empty, matchedParameters, matchedTypeParameters))
+        Some(copy(inferredType = `type`))
       case _ => None
     }
   }
 
-  private case class SyntheticCase(full: RegularCase, resolveResult: ScalaResolveResult, isApplyOrUpdate: Boolean)
+  private case class SyntheticCase(full: RegularCase, resolveResult: ScalaResolveResult, isApplyOrUpdate: Boolean,
+                                   invokedExpressionImplicits: Seq[ImplicitArgumentsClause])
     extends InvocationData {
     override def target: Option[ScalaResolveResult] = Some(resolveResult)
     override def typeResult: TypeResult = full.typeResult
