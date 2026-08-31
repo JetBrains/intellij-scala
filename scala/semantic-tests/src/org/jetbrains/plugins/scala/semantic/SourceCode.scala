@@ -106,7 +106,7 @@ object SourceCode {
     private def lineBreak(): String = "\n" + ("  " * indent)
     private def doubleLineBreak(): String = "\n\n" + ("  " * indent)
 
-    def printTree(tree: Tree)(using elideThis: Option[Symbol] = None): this.type = tree match {
+    def printTree(tree: Tree, containingClass: Option[ClassDef] = None)(using elideThis: Option[Symbol] = None): this.type = tree match {
       case PackageObject(body)=>
         printTree(body) // Print package object
 
@@ -181,7 +181,7 @@ object SourceCode {
           for paramClause <- paramss do
             paramClause match
               case TermParamClause(params) =>
-                if (params.nonEmpty || flags.is(Flags.Case)) printMethdArgsDefs(params, n, contextBounds)
+                if (params.nonEmpty || flags.is(Flags.Case)) printMethdArgsDefs(params, n, contextBounds, Some(cdef))
                 n += params.length
               case TypeParamClause(params) =>
                 printTargsDefs(stats.collect { case targ: TypeDef => targ  }.filter(_.symbol.isTypeParam).zip(params), contextBounds)
@@ -272,7 +272,7 @@ object SourceCode {
               }
             }
             this += lineBreak()
-            printTrees(stats1, "\n" + lineBreak())
+            printTrees(stats1, "\n" + lineBreak(), Some(cdef))
           }
           this += lineBreak() += "}"
         }
@@ -365,7 +365,7 @@ object SourceCode {
         var n = 1
         for clause <-  paramss do
           clause match
-            case TermParamClause(params) => printMethdArgsDefs(params, n, contextBounds); n += params.length
+            case TermParamClause(params) => printMethdArgsDefs(params, n, contextBounds, containingClass); n += params.length
             case TypeParamClause(params) => if (!isConstructor) printTargsDefs(params.zip(params), contextBounds)
         if (!isConstructor) {
           this += ": "
@@ -763,8 +763,8 @@ object SourceCode {
       this
     }
 
-    private def printTrees(trees: List[Tree], sep: String)(using elideThis: Option[Symbol]): this.type =
-      printList(trees, sep, (t: Tree) => printTree(t))
+    private def printTrees(trees: List[Tree], sep: String, containingClass: Option[ClassDef] = None)(using elideThis: Option[Symbol]): this.type =
+      printList(trees, sep, (t: Tree) => printTree(t, containingClass))
 
     private def printTypeTrees(trees: List[TypeTree], sep: String)(using elideThis: Option[Symbol] = None): this.type =
       printList(trees, sep, (t: TypeTree) => printTypeTree(t))
@@ -942,16 +942,16 @@ object SourceCode {
     private val WildcardName: Regex = "_\\$\\d+".r
 
     @tailrec
-    private def printSeparatedParamDefs(list: List[ValDef], n: Int)(using elideThis: Option[Symbol]): Unit = list match {
+    private def printSeparatedParamDefs(list: List[ValDef], n: Int, containingClass: Option[ClassDef])(using elideThis: Option[Symbol]): Unit = list match {
       case Nil =>
-      case x :: Nil => printParamDef(x, n)
+      case x :: Nil => printParamDef(x, n, containingClass)
       case x :: xs =>
-        printParamDef(x, n)
+        printParamDef(x, n, containingClass)
         this += ", "
-        printSeparatedParamDefs(xs, n + 1)
+        printSeparatedParamDefs(xs, n + 1, containingClass)
     }
 
-    private def printMethdArgsDefs(args: List[ValDef], n: Int, contextBounds: List[ValDef])(using elideThis: Option[Symbol]): Unit = {
+    private def printMethdArgsDefs(args: List[ValDef], n: Int, contextBounds: List[ValDef], containingClass: Option[ClassDef])(using elideThis: Option[Symbol]): Unit = {
       val argFlags = args match {
         case Nil => Flags.EmptyFlags
         case arg :: _ => arg.symbol.flags
@@ -962,7 +962,7 @@ object SourceCode {
           if (argFlags.is(Flags.Implicit) && !argFlags.is(Flags.Given)) this += "implicit "
           if (argFlags.is(Flags.Given)) this += "using "
 
-          printSeparatedParamDefs(args2, n)
+          printSeparatedParamDefs(args2, n, containingClass)
         }
       }
     }
@@ -975,7 +975,7 @@ object SourceCode {
       inParens {
         if (argFlags.is(Flags.Implicit) && !argFlags.is(Flags.Given)) this += "implicit "
 
-        printSeparatedParamDefs(args, 1)
+        printSeparatedParamDefs(args, 1, containingClass = None)
       }
     }
 
@@ -995,7 +995,7 @@ object SourceCode {
       this
     }
 
-    private def printParamDef(arg: ValDef, n: Int)(using elideThis: Option[Symbol]): Unit = {
+    private def printParamDef(arg: ValDef, n: Int, containingClass: Option[ClassDef])(using elideThis: Option[Symbol]): Unit = {
       val name = splicedName(arg.symbol).getOrElse(arg.symbol.name)
       val sym = arg.symbol.owner
 
@@ -1019,12 +1019,16 @@ object SourceCode {
       this += highlightValDef(name) += ": "
       printTypeTree(arg.tpt)
 
-      sym.owner.declaredMethod(sym.name + "$default$" + n) match {
-        case List(fun) =>
-          val DefDef(_, _, _, Some(body)) = fun.tree: @unchecked
-          this += " = "
-          printTree(body)
-        case _ =>
+      if (arg.symbol.flags.is(Flags.HasDefault)) {
+        containingClass match {
+          case Some(classDef) =>
+            classDef.body.collectFirst {
+              case method@DefDef(name, _, _, Some(body)) if name == sym.name + "$default$" + n =>
+                this += " = "
+                printTree(body)
+            }
+          case None =>
+        }
       }
     }
 

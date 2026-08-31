@@ -22,7 +22,6 @@ import scala.quoted.runtime.impl.printers.SyntaxHighlight
 class Decompiler(classpath: Seq[String]) extends dotc.Driver {
   private val myInitCtx: Context = {
     val rootCtx = initCtx.fresh.addMode(Mode.Interactive | Mode.ReadPositions)
-    rootCtx.setSetting(rootCtx.settings.YretainTrees, true)
     rootCtx.setSetting(rootCtx.settings.fromTasty, true)
     rootCtx.setSetting(rootCtx.settings.classpath, classpath.mkString(File.pathSeparator))
     val ctx = setup(rootCtx)
