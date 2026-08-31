@@ -14,6 +14,10 @@ class PartialFunctionPatternEvaluationTest_3 extends PartialFunctionPatternEvalu
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 }
 
+class PartialFunctionPatternEvaluationTest_3_9 extends PartialFunctionPatternEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
+}
+
 class PartialFunctionPatternEvaluationTest_3_RC extends PartialFunctionPatternEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }

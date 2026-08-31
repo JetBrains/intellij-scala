@@ -49,7 +49,10 @@ class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_LTS_AllInO
   extends CompileOnServerRunOnServerTestBase
     with WorksheetPlainIntegrationTestBase_Scala_3_RC_AllInOne
 
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_9,
+  TestScalaVersion.Scala_3_Next_RC
+))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_Next_RC_AllInOne
   extends CompileOnServerRunOnServerTestBase
@@ -66,7 +69,10 @@ class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_BracelessS
   extends CompileOnServerRunOnServerTestBase
     with WorksheetPlainIntegrationTestBase_Scala_3_BracelessSyntax
 
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_9,
+  TestScalaVersion.Scala_3_Next_RC
+))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
 class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_BracelessSyntax_Next_RC
   extends WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_BracelessSyntax

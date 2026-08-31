@@ -67,6 +67,12 @@ class WorksheetPlain_Scala3_8 extends ScalaJdkCompatibilityWorksheetPlainBase {
   override protected def validateErrorInViewerText = true
 }
 
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_9))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
+class WorksheetPlain_Scala3_9 extends ScalaJdkCompatibilityWorksheetPlainBase {
+  override protected def validateErrorInViewerText = true
+}
+
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12_0, TestScalaVersion.Scala_2_12_6))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_21))
 class WorksheetRepl_Scala2_12 extends ScalaJdkCompatibilityWorksheetReplBase
@@ -78,3 +84,7 @@ class WorksheetRepl_Scala3_3_0 extends ScalaJdkCompatibilityWorksheetReplBase
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_8))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
 class WorksheetRepl_Scala3_8 extends ScalaJdkCompatibilityWorksheetReplBase
+
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_9))
+@RunWithJdkVersions(Array(TestJdkVersion.JDK_1_8, TestJdkVersion.JDK_11))
+class WorksheetRepl_Scala3_9 extends ScalaJdkCompatibilityWorksheetReplBase

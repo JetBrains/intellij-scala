@@ -251,6 +251,10 @@ class StepIntoTest_3 extends StepIntoTest_2_13 {
   }
 }
 
+class StepIntoTest_3_9 extends StepIntoTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
+}
+
 class StepIntoTest_3_RC extends StepIntoTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }

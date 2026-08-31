@@ -17,6 +17,8 @@ class ScalaRuntimeRefRendererTest_3_7 extends ScalaRuntimeRefRendererTestBase(Sc
 
 class ScalaRuntimeRefRendererTest_3_8 extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_3_8)
 
+class ScalaRuntimeRefRendererTest_3_9 extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_3_9)
+
 class ScalaRuntimeRefRendererTest_3_LTS_RC extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_3_LTS_RC)
 
 class ScalaRuntimeRefRendererTest_3_Next_RC extends ScalaRuntimeRefRendererTestBase(ScalaVersion.Latest.Scala_3_Next_RC)

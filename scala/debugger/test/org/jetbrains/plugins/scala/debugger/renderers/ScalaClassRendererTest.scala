@@ -23,6 +23,8 @@ class ScalaClassRendererTest_3_7 extends ScalaClassRendererTestBase(ScalaVersion
 
 class ScalaClassRendererTest_3_8 extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_3_8)
 
+class ScalaClassRendererTest_3_9 extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_3_9)
+
 class ScalaClassRendererTest_3_LTS_RC extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_3_LTS_RC)
 
 class ScalaClassRendererTest_3_Next_RC extends ScalaClassRendererTestBase(ScalaVersion.Latest.Scala_3_Next_RC)
