@@ -128,8 +128,9 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
 
   private def textOf(cls: ScTypeDefinition, decompiler: Decompiler): (String, String) = {
     val sourceCls = inReadAction(cls.getSourceMirrorClass).asInstanceOf[ScTypeDefinition]
-    Assert.assertTrue(s"Must have a source: ${cls.qualifiedName}", sourceCls != cls)
-    Assert.assertFalse(s"Must be in a source file: ${cls.qualifiedName}", sourceCls.isInCompiledFile)
+    val qualifiedName = inReadAction(cls.qualifiedName)
+    Assert.assertTrue(s"Must have a source: $qualifiedName", sourceCls != cls)
+    Assert.assertFalse(s"Must be in a source file: $qualifiedName", sourceCls.isInCompiledFile)
 
     val psiText = inReadAction {
       sourceCls.getText // Necessary to load right-hand sides
