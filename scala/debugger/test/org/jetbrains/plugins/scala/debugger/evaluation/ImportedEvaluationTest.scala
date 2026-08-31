@@ -18,6 +18,10 @@ class ImportedEvaluationTest_3 extends ImportedEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3
 }
 
+class ImportedEvaluationTest_3_9 extends ImportedEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
+}
+
 class ImportedEvaluationTest_3_RC extends ImportedEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }

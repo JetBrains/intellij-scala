@@ -64,14 +64,18 @@ class TryCatchInLazyValTest_3_8 extends TryCatchInLazyValTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_8
 }
 
+class TryCatchInLazyValTest_3_9 extends TryCatchInLazyValTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
+
+  override protected def reuseCompileServerProcessBetweenTests: Boolean = false
+}
+
 class TryCatchInLazyValTest_3_LTS_RC extends TryCatchInLazyValTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
-class TryCatchInLazyValTest_3_Next_RC extends TryCatchInLazyValTest_3 {
+class TryCatchInLazyValTest_3_Next_RC extends TryCatchInLazyValTest_3_9 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
-
-  override protected def reuseCompileServerProcessBetweenTests: Boolean = false
 }
 
 abstract class TryCatchInLazyValTestBase extends BreakpointsTestBase {

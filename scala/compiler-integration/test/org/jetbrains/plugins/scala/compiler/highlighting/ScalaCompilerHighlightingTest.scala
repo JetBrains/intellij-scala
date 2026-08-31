@@ -944,8 +944,8 @@ class ScalaCompilerHighlightingTest_3_RC extends ScalaCompilerHighlightingTest_3
 
 }
 
-class ScalaCompilerHighlightingTest_3_Next_RC extends ScalaCompilerHighlightingTest_3_8 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+class ScalaCompilerHighlightingTest_3_9 extends ScalaCompilerHighlightingTest_3_8 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
 
   // Scala 3.9.0-RC1 enriched the "object creation impossible" / "needs to be abstract" compiler messages (they now
   // spell out which members are missing). As a result the offered quickfixes changed compared to earlier versions:
@@ -1107,6 +1107,10 @@ class ScalaCompilerHighlightingTest_3_Next_RC extends ScalaCompilerHighlightingT
       )
     )
   }
+}
+
+class ScalaCompilerHighlightingTest_3_Next_RC extends ScalaCompilerHighlightingTest_3_9 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
 }
 
 abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
