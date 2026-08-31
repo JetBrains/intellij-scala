@@ -2386,7 +2386,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part23 extends ReferenceCompa
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_LTS_3_9_Part24 extends ReferenceComparisonTest_Scala3_LTS_3_9 {
-  def test_looping_givens(): Unit = doTest("looping-givens", true)
+  def test_looping_givens(): Unit = doTest("looping-givens", true) // #unionType
   def test_looping_jsig(): Unit = doTest("looping-jsig", true)
   def test_macro(): Unit = doTest("macro", true)
   def test_macro_deprecate_dont_touch_backquotedidents(): Unit = doTest("macro-deprecate-dont-touch-backquotedidents", true)
