@@ -22,7 +22,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 @Category(Array(classOf[SemanticTests]))
 abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCorpusTestBase(config) {
   private val Print =
-    //    true // Print actual cases and save contents to target/comparison/
+//    true // Print actual cases and save contents to target/comparison/
     false // Test expected cases
 
   override def runInDispatchThread(): Boolean = false
@@ -74,7 +74,7 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
 
             if (Print) {
               val comment = decompiledText != psiText
-              println((if (comment) "//" else "") + fqn)
+              println("    " + (if (comment) "//" else "") + fqn)
               val sourceText = {
                 val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
                 sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
@@ -96,9 +96,9 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
             } else {
               println(fqn)
               if (isCommented) {
-                Assert.assertNotEquals(fqn, decompiledText, psiText)
+                Assert.assertNotEquals(s"Expected to contain differences: $fqn", decompiledText, psiText)
               } else {
-                Assert.assertEquals(fqn, decompiledText, psiText)
+                Assert.assertEquals(s"$fqn [compiler | plugin]", decompiledText, psiText)
               }
             }
           } catch {
