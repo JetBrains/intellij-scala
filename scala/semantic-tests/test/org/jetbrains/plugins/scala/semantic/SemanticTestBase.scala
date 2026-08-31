@@ -22,7 +22,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 @Category(Array(classOf[SemanticTests]))
 abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCorpusTestBase(config) {
   private val Print =
-    //    true // Print actual cases and save contents to target/comparison/
+//    true // Print actual cases and save contents to target/comparison/
     false // Test expected cases
 
   override def runInDispatchThread(): Boolean = false
@@ -70,11 +70,18 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
           }.getOrElse(throw new IllegalArgumentException(fqn)).asInstanceOf[ScTypeDefinition]
 
           try {
-            val (decompiledText, psiText) = textOf(cls, decompiler)
+            val (decompiledText, psiText) = {
+              def result: (String, String) = textOf(cls, decompiler) { (decompiledText, psiText) =>
+                if (!Print && isCommented && (decompiledText.length < psiText.length || CharSequence.compare(decompiledText.subSequence(0, psiText.length), psiText) != 0)) {
+                  return (decompiledText.toString, psiText.toString) // Partial result (non-local return)
+                }
+              }
+              result
+            }
 
             if (Print) {
               val comment = decompiledText != psiText
-              println((if (comment) "//" else "") + fqn)
+              println("    " + (if (comment) "//" else "") + fqn)
               val sourceText = {
                 val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
                 sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
@@ -96,9 +103,9 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
             } else {
               println(fqn)
               if (isCommented) {
-                Assert.assertNotEquals(fqn, decompiledText, psiText)
+                Assert.assertNotEquals(s"Expected to contain differences: $fqn", decompiledText, psiText)
               } else {
-                Assert.assertEquals(fqn, decompiledText, psiText)
+                Assert.assertEquals(s"$fqn [compiler | plugin]", decompiledText, psiText)
               }
             }
           } catch {
@@ -126,7 +133,12 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
     writer.toString
   }
 
-  private def textOf(cls: ScTypeDefinition, decompiler: Decompiler): (String, String) = {
+  private def textOf(cls: ScTypeDefinition, decompiler: Decompiler)(listener: (CharSequence, CharSequence) => Unit): (String, String) = {
+    val tastyFile = cls.getContainingFile.getVirtualFile
+    Assert.assertTrue(tastyFile.getName, tastyFile.getExtension == "tasty")
+
+    val decompiledText = decompiler.decompile(tastyFile.getName, tastyFile.contentsToByteArray())
+
     val sourceCls = inReadAction(cls.getSourceMirrorClass).asInstanceOf[ScTypeDefinition]
     val qualifiedName = inReadAction(cls.qualifiedName)
     Assert.assertTrue(s"Must have a source: $qualifiedName", sourceCls != cls)
@@ -134,13 +146,8 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
 
     val psiText = inReadAction {
       sourceCls.getText // Necessary to load right-hand sides
-      ClassPrinter.textOf(sourceCls)
+      ClassPrinter.textOf(sourceCls, listener(decompiledText, _))
     }
-
-    val tastyFile = cls.getContainingFile.getVirtualFile
-    Assert.assertTrue(tastyFile.getName, tastyFile.getExtension == "tasty")
-
-    val decompiledText = decompiler.decompile(tastyFile.getName, tastyFile.contentsToByteArray())
 
     (decompiledText, psiText)
   }
