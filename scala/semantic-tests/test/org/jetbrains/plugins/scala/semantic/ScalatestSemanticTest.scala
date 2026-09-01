@@ -152,7 +152,6 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.TryValues
     org.scalatest.UnquotedString
     //org.scalatest.WrapperCatchReporter
-    //org.scalatest.run
     //org.scalatest.concurrent.AbstractPatienceConfiguration
     //org.scalatest.concurrent.AsyncCancelAfterFailure
     //org.scalatest.concurrent.AsyncTimeLimitedTests
@@ -334,12 +333,12 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.matchers.AMatcher
     //org.scalatest.matchers.AnMatcher
     //org.scalatest.matchers.BeMatcher
-    //org.scalatest.matchers.BePropertyMatchResult
+    org.scalatest.matchers.BePropertyMatchResult
     //org.scalatest.matchers.BePropertyMatcher
     //org.scalatest.matchers.EqualMatchResult
     //org.scalatest.matchers.EqualMatcher
     //org.scalatest.matchers.FailureMessage
-    //org.scalatest.matchers.HavePropertyMatchResult
+    org.scalatest.matchers.HavePropertyMatchResult
     //org.scalatest.matchers.HavePropertyMatcher
     //org.scalatest.matchers.LazyArg
     org.scalatest.matchers.LazyMessage
@@ -441,7 +440,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.matchers.should.Matchers
     //org.scalatest.matchers.should.TypeMatcherMacro
     //org.scalatest.prop.Configuration
-    //org.scalatest.prop.Seed
+    org.scalatest.prop.Seed
     org.scalatest.prop.TableDrivenPropertyChecks
     //org.scalatest.prop.TableFor1
     //org.scalatest.prop.TableFor10
@@ -473,6 +472,7 @@ class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
     //org.scalatest.propspec.FixtureAnyPropSpecLike
     //org.scalatest.refspec.RefSpec
     //org.scalatest.refspec.RefSpecLike
+    //org.scalatest.run
     org.scalatest.tagobjects.CPU
     org.scalatest.tagobjects.ChromeBrowser
     org.scalatest.tagobjects.Disk

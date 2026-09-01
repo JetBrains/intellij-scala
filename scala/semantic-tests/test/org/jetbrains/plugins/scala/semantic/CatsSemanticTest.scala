@@ -134,7 +134,6 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.UnorderedFoldable
     cats.UnorderedFoldableLowPriority
     //cats.UnorderedTraverse
-    cats.implicits
     //cats.arrow.Arrow
     //cats.arrow.ArrowChoice
     cats.arrow.Category
@@ -160,7 +159,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.AppFunc
     //cats.data.AppFuncApplicative
     //cats.data.AppFuncInstances
-    //cats.data.Binested
+    cats.data.Binested
     cats.data.BinestedBifoldable
     cats.data.BinestedBitraverse
     cats.data.BinestedInstances
@@ -247,7 +246,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.data.IRWSTSemigroupK
     //cats.data.IRWSTSemigroupK1
     //cats.data.IRWSTStrong
-    //cats.data.IdT
+    cats.data.IdT
     cats.data.IdTApplicative
     cats.data.IdTApply
     cats.data.IdTContravariantMonoidal
@@ -345,7 +344,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     cats.data.KleisliSemigroup
     cats.data.KleisliSemigroupK
     cats.data.KleisliStrong
-    //cats.data.Nested
+    cats.data.Nested
     //cats.data.NestedAlign
     cats.data.NestedAlternative
     cats.data.NestedApplicative
@@ -428,7 +427,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.data.OneAndLowPriority2
     cats.data.OneAndLowPriority3
     //cats.data.OneAndLowPriority4
-    //cats.data.Op
+    cats.data.Op
     cats.data.OpCategory
     cats.data.OpCompose
     cats.data.OpEq
@@ -800,6 +799,7 @@ class CatsSemanticTest extends SemanticTestBase(CatsTest) {
     //cats.free.InvariantCoyoneda
     cats.free.TrampolineFunctions
     //cats.free.Yoneda
+    cats.implicits
     cats.instances.AllCoreDurationInstances
     cats.instances.AllInstances
     cats.instances.AllInstancesBinCompat
