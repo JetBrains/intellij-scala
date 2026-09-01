@@ -72,7 +72,7 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel> {
     private final String myPattern;
 
     ScalaLanguageLevel(@NotNull String version) {
-        this(version, Pattern.quote(version) + ".*");
+        this(version, Pattern.quote(version) + "(?:[.-].*)?");
     }
 
     ScalaLanguageLevel(@NotNull String version, @NotNull String pattern) {
