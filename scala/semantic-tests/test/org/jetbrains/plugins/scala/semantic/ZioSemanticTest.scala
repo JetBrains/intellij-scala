@@ -37,7 +37,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.Executor
     //zio.ExecutorPlatformSpecific
     //zio.Exit
-    //zio.ExitCode
+    zio.ExitCode
     //zio.Experimental
     //zio.Fiber
     //zio.FiberFailure
@@ -59,7 +59,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.IsSubtypeOfError
     //zio.IsSubtypeOfOutput
     zio.LogAnnotation
-    //zio.LogLevel
+    zio.LogLevel
     //zio.LogSpan
     //zio.NonEmptyChunk
     zio.NonEmptyOps
@@ -172,7 +172,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.internal.WeakConcurrentBagGc
     //zio.internal.ZScheduler
     //zio.internal.ansi
-    //zio.internal.macros.DummyK
+    zio.internal.macros.DummyK
     //zio.internal.macros.Graph
     //zio.internal.macros.GraphError
     //zio.internal.macros.LayerBuilder
@@ -191,7 +191,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     //zio.internal.metrics.ConcurrentMetricHooksPlatformSpecific
     //zio.internal.metrics.ConcurrentMetricRegistry
     zio.internal.metrics.MetricEventType
-    //zio.internal.metrics.MetricHook
+    zio.internal.metrics.MetricHook
     //zio.internal.stacktracer.BuildInfo
     //zio.internal.stacktracer.Macros
     zio.internal.stacktracer.ParsedTrace
@@ -263,7 +263,7 @@ class ZioSemanticTest extends SemanticTestBase(ZioTest) {
     zio.stream.compression.FlushMode
     //zio.stream.compression.Gunzipper
     //zio.stream.compression.Gzipper
-    //zio.stream.encoding.EncodingException
+    zio.stream.encoding.EncodingException
     zio.stream.internal.AsyncInputConsumer
     zio.stream.internal.AsyncInputProducer
     //zio.stream.internal.ChannelExecutor
