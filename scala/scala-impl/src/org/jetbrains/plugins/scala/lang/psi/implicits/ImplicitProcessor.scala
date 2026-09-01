@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwne
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScMatchType, ScOrType, ScParameterizedType, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScMatchType, ScOrType, ScParameterizedType, ScType, api}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -341,6 +341,7 @@ object ImplicitProcessor {
       }
 
       tp match {
+        case lit: ScLiteralType                    => collectParts(lit.wideType)
         case ScDesignatorType(v: ScBindingPattern) => collectPartsTypeResult(v.`type`())
         case ScDesignatorType(v: ScFieldId)        => collectPartsTypeResult(v.`type`())
         case ScDesignatorType(p: ScParameter)      => collectPartsTypeResult(p.insideParamType)
