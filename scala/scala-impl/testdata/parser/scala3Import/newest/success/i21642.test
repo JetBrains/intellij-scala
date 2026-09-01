@@ -1,0 +1,145 @@
+import annotation.tailrec
+
+final class C {
+  @tailrec def minimal9_2[A](value: Option[Int]): A =
+    value match {
+      case Some(n) => minimal9_2(None)
+      case _ => ???
+      //case _ => (??? : A) // workaround eliminates or relocates the cast by patmat
+    }
+}
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: annotation.tailrec
+        CodeReferenceElement: annotation
+          PsiElement(identifier)('annotation')
+        PsiElement(.)('.')
+        PsiElement(identifier)('tailrec')
+  PsiWhiteSpace('\n\n')
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(final)('final')
+    PsiWhiteSpace(' ')
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: minimal9_2
+          AnnotationsList
+            Annotation
+              PsiElement(@)('@')
+              AnnotationExpression
+                ConstructorInvocation
+                  SimpleType: tailrec
+                    CodeReferenceElement: tailrec
+                      PsiElement(identifier)('tailrec')
+          Modifiers
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('minimal9_2')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: A
+              PsiElement(identifier)('A')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: value
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('value')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Option[Int]
+                    SimpleType: Option
+                      CodeReferenceElement: Option
+                        PsiElement(identifier)('Option')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: A
+            CodeReferenceElement: A
+              PsiElement(identifier)('A')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            ReferenceExpression: value
+              PsiElement(identifier)('value')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ConstructorPattern
+                  CodeReferenceElement: Some
+                    PsiElement(identifier)('Some')
+                  Pattern Argument List
+                    PsiElement(()('(')
+                    ReferencePattern: n
+                      PsiElement(identifier)('n')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: minimal9_2
+                      PsiElement(identifier)('minimal9_2')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: None
+                        PsiElement(identifier)('None')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+            PsiWhiteSpace('\n      ')
+            PsiComment(comment)('//case _ => (??? : A) // workaround eliminates or relocates the cast by patmat')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

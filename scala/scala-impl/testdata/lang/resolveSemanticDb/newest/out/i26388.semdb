@@ -1,0 +1,8 @@
+Document tests/pos/i26388.scala
+(3:22..3:23) _empty_/Foo#[A] -> 3:16
+(5:12..5:15) _empty_/Foo# -> 3:12
+(5:33..5:39) scala/Predef.String#
+(6:3..6:4) _empty_/i26388$package.bar().(x) -> 5:9
+(7:10..7:13) _empty_/Foo.
+(7:20..7:21) local5 -> 7:14
+

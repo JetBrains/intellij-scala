@@ -1,0 +1,16 @@
+Document tests/pos/inlined-value-class-source/Context.scala
+(1:38..1:41) scala/Any#
+(2:30..2:33) scala/Any#
+(2:36..2:40) scala/Unit#
+(2:43..2:47) _empty_/InlinedContext#`seen_=`().
+(2:50..2:57) _empty_/InlinedContext#handle().(details) -> 2:21
+
+Document tests/pos/inlined-value-class-source/TypeApplications.scala
+(1:47..1:50) scala/Any#
+(1:60..1:66) scala/AnyVal#
+(2:29..2:43) _empty_/InlinedContext# -> 1:13
+(2:46..2:49) scala/Any#
+(2:52..2:55) _empty_/InlinedTypeApplications#typeParams().(ctx) -> 2:24
+(2:56..2:62) _empty_/InlinedContext#handle(). -> 2:14
+(2:63..2:67) _empty_/InlinedTypeApplications#self. -> 1:41
+

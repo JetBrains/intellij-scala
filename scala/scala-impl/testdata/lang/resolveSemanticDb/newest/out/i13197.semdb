@@ -14,7 +14,7 @@ Document tests/pos/i13197.scala
 (9:30..9:36) scala/Predef.String#
 (12:16..12:19) _empty_/Bar# -> 6:7
 (12:23..12:26) _empty_/Foo# -> 9:7
-(12:27..12:28) _empty_/Foo#`<init>`().(b)
+(12:27..12:28) _empty_/Foo#`<init>`().(b) -> 9:27
 (12:31..12:34) _empty_/Foo.foo().(bar) -> 12:11
 (12:35..12:36) _empty_/Bar#b(). -> 7:7
 (12:37..12:48) _empty_/i13197$package.forceString(). -> 3:41

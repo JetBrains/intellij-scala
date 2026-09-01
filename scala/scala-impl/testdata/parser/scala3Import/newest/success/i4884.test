@@ -14,7 +14,7 @@ object Test {
   }
   trait TestConstructor4[D] {
     trait TestConstructor5[E] {
-      trait MSetLike[X <: D & E, This <: MSet[X] with MSetLike[X, This]]
+      trait MSetLike[X <: D & E, This <: MSet[X] & MSetLike[X, This]]
       trait MSet[X <: D & E] extends MSetLike[X, MSet[X]]
     }
   }
@@ -446,7 +446,7 @@ ScalaFile
                           PsiWhiteSpace(' ')
                           PsiElement(<:)('<:')
                           PsiWhiteSpace(' ')
-                          CompoundType: MSet[X] with MSetLike[X, This]
+                          InfixType: MSet[X] & MSetLike[X, This]
                             ParametrizedType: MSet[X]
                               SimpleType: MSet
                                 CodeReferenceElement: MSet
@@ -459,7 +459,8 @@ ScalaFile
                                       PsiElement(identifier)('X')
                                 PsiElement(])(']')
                             PsiWhiteSpace(' ')
-                            PsiElement(with)('with')
+                            CodeReferenceElement: &
+                              PsiElement(identifier)('&')
                             PsiWhiteSpace(' ')
                             ParametrizedType: MSetLike[X, This]
                               SimpleType: MSetLike

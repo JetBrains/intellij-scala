@@ -1,9 +1,9 @@
 object O {
   trait Base extends Any { type T }
   val a: Base { type T } = null;
-  val b: Any with Base { type T } = null;
+  val b: Any & Base { type T } = null;
 
-  val c: AnyRef with Base { type T } = null;
+  val c: AnyRef & Base { type T } = null;
 
   class A
   class B
@@ -110,30 +110,32 @@ ScalaFile
               PsiElement(identifier)('b')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: Any with Base { type T }
+          InfixType: Any & Base { type T }
             SimpleType: Any
               CodeReferenceElement: Any
                 PsiElement(identifier)('Any')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
-            SimpleType: Base
-              CodeReferenceElement: Base
-                PsiElement(identifier)('Base')
-            PsiWhiteSpace(' ')
-            Refinement
-              PsiElement({)('{')
+            CompoundType: Base { type T }
+              SimpleType: Base
+                CodeReferenceElement: Base
+                  PsiElement(identifier)('Base')
               PsiWhiteSpace(' ')
-              ScTypeAliasDeclaration: T
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(type)('type')
+              Refinement
+                PsiElement({)('{')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('T')
-              PsiWhiteSpace(' ')
-              PsiElement(})('}')
+                ScTypeAliasDeclaration: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -153,30 +155,32 @@ ScalaFile
               PsiElement(identifier)('c')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: AnyRef with Base { type T }
+          InfixType: AnyRef & Base { type T }
             SimpleType: AnyRef
               CodeReferenceElement: AnyRef
                 PsiElement(identifier)('AnyRef')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
-            SimpleType: Base
-              CodeReferenceElement: Base
-                PsiElement(identifier)('Base')
-            PsiWhiteSpace(' ')
-            Refinement
-              PsiElement({)('{')
+            CompoundType: Base { type T }
+              SimpleType: Base
+                CodeReferenceElement: Base
+                  PsiElement(identifier)('Base')
               PsiWhiteSpace(' ')
-              ScTypeAliasDeclaration: T
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(type)('type')
+              Refinement
+                PsiElement({)('{')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('T')
-              PsiWhiteSpace(' ')
-              PsiElement(})('}')
+                ScTypeAliasDeclaration: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')

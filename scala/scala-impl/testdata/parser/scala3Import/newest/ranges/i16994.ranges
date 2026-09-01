@@ -1,7 +1,7 @@
 [0,93]: PackageDef
 [0,0]: Ident
 [0,24]: TypeDef
-[10,24]: Function
+[10,24]: FunctionWithMods
 [10,16]: Ident
 [21,24]: Ident
 [25,93]: DefDef

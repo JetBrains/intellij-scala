@@ -23,9 +23,9 @@ object TestSubject extends MetaTestSubject
 
 object Main {
 
-  def oneToOneJoin[PType <: KeyedMapper[Long, PType] with IdPK,
-                   CType <: KeyedMapper[Long, CType] with IdPK,
-                   CMetaType <: CType with KeyedMetaMapper[Long, CType],
+  def oneToOneJoin[PType <: KeyedMapper[Long, PType] & IdPK,
+                   CType <: KeyedMapper[Long, CType] & IdPK,
+                   CMetaType <: CType & KeyedMetaMapper[Long, CType],
                    FKType <: MappedForeignKey[Long, PType, CType]]
   (parents: List[PType], metaMapper: CMetaType, keyGetter: (PType) => FKType ):
   Map[Long, CType] = Map.empty
@@ -527,7 +527,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(<:)('<:')
               PsiWhiteSpace(' ')
-              CompoundType: KeyedMapper[Long, PType] with IdPK
+              InfixType: KeyedMapper[Long, PType] & IdPK
                 ParametrizedType: KeyedMapper[Long, PType]
                   SimpleType: KeyedMapper
                     CodeReferenceElement: KeyedMapper
@@ -546,7 +546,8 @@ ScalaFile
                           PsiElement(identifier)('PType')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
-                PsiElement(with)('with')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
                 PsiWhiteSpace(' ')
                 SimpleType: IdPK
                   CodeReferenceElement: IdPK
@@ -558,7 +559,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(<:)('<:')
               PsiWhiteSpace(' ')
-              CompoundType: KeyedMapper[Long, CType] with IdPK
+              InfixType: KeyedMapper[Long, CType] & IdPK
                 ParametrizedType: KeyedMapper[Long, CType]
                   SimpleType: KeyedMapper
                     CodeReferenceElement: KeyedMapper
@@ -577,7 +578,8 @@ ScalaFile
                           PsiElement(identifier)('CType')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
-                PsiElement(with)('with')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
                 PsiWhiteSpace(' ')
                 SimpleType: IdPK
                   CodeReferenceElement: IdPK
@@ -589,12 +591,13 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(<:)('<:')
               PsiWhiteSpace(' ')
-              CompoundType: CType with KeyedMetaMapper[Long, CType]
+              InfixType: CType & KeyedMetaMapper[Long, CType]
                 SimpleType: CType
                   CodeReferenceElement: CType
                     PsiElement(identifier)('CType')
                 PsiWhiteSpace(' ')
-                PsiElement(with)('with')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
                 PsiWhiteSpace(' ')
                 ParametrizedType: KeyedMetaMapper[Long, CType]
                   SimpleType: KeyedMetaMapper

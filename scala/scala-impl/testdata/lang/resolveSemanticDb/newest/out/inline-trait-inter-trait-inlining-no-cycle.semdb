@@ -1,0 +1,10 @@
+Document tests/pos/inline-trait-inter-trait-inlining-no-cycle.scala
+(3:12..3:19) scala/Predef.println(+1).
+(7:11..7:12) _empty_/F# -> 2:14
+(11:11..11:12) _empty_/E# -> 5:14
+(15:11..15:12) _empty_/D# -> 9:14
+(17:23..17:24) _empty_/C# -> 13:14
+(17:26..17:27) _empty_/D# -> 9:14
+(17:29..17:30) _empty_/E# -> 5:14
+(17:32..17:33) _empty_/F# -> 2:14
+

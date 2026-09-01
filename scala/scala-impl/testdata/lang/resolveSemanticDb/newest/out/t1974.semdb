@@ -6,7 +6,7 @@ Document tests/pos/t1974.scala
 (4:34..4:40) scala/Predef.String#
 (4:44..4:47) _empty_/Broken.map(). -> 2:15
 (4:52..4:53) _empty_/Broken.addToMap().(c) -> 4:16
-(4:54..4:56) scala/Predef.ArrowAssoc#`->`().
+(4:54..4:56) scala/Predef.`->`().
 (4:57..4:58) _empty_/Broken.addToMap().(s) -> 4:30
 (5:17..5:22) scala/Predef.Class#
 (5:29..5:32) _empty_/Broken.map(). -> 2:15
@@ -30,7 +30,7 @@ Document tests/pos/t1974.scala
 (18:44..18:47) _empty_/Works2.map(). -> 16:15
 (18:53..18:54) _empty_/Works2.addToMap().(c) -> 18:16
 (18:57..18:62) scala/Predef.Class#
-(18:67..18:69) scala/Predef.ArrowAssoc#`->`().
+(18:67..18:69) scala/Predef.`->`().
 (18:70..18:71) _empty_/Works2.addToMap().(s) -> 18:30
 (19:17..19:22) scala/Predef.Class#
 (19:29..19:32) _empty_/Works2.map(). -> 16:15

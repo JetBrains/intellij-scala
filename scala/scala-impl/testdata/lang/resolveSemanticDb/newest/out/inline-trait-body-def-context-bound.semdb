@@ -1,0 +1,17 @@
+Document tests/pos/inline-trait-body-def-context-bound.scala
+(3:9..3:13) scala/package.List#
+(3:14..3:20) scala/Predef.String#
+(3:33..3:36) scala/package.Nil.
+(4:14..4:18) _empty_/A#foo().[T] -> 4:11
+(4:14..4:18) scala/package.List#
+(4:23..4:24) _empty_/A#foo().[T] -> 4:11
+(4:27..4:28) _empty_/A#foo().[T] -> 4:11
+(4:31..4:37) scala/Predef.summon().
+(4:38..4:42) scala/package.List#
+(4:43..4:44) _empty_/A#foo().[T] -> 4:11
+(4:47..4:57) scala/collection/LinearSeqOps#headOption().
+(4:58..4:67) scala/Option#getOrElse().
+(4:68..4:69) _empty_/A#foo().(x) -> 4:20
+(6:17..6:18) _empty_/A# -> 2:14
+(7:11..7:14) _empty_/A#foo(). -> 4:7
+

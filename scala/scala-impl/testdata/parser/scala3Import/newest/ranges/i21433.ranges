@@ -7,7 +7,7 @@
 [8,8]: TypeBoundsTree
 [9,9]: TypeTree
 [14,33]: TypeDef
-[23,33]: Function
+[23,33]: FunctionWithMods
 [23,24]: Ident
 [29,33]: Ident
 [36,49]: DefDef

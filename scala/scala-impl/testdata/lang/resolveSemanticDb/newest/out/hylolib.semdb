@@ -40,13 +40,13 @@ Document tests/pos/hylolib/AnyCollection.scala
 (32:9..32:22) hylo/AnyCollection# -> 8:13
 (32:23..32:27) hylo/AnyCollection.apply().(evidence$1) -> 18:29
 (32:28..32:35) hylo/Collection#Element# -> 9:8
-(33:7..33:13) hylo/AnyCollection#`<init>`().(_start)
+(33:7..33:13) hylo/AnyCollection#`<init>`().(_start) -> 9:9
 (33:16..33:21) local1 -> 9:13
-(34:7..34:11) hylo/AnyCollection#`<init>`().(_end)
+(34:7..34:11) hylo/AnyCollection#`<init>`().(_end) -> 10:9
 (34:14..34:17) local2 -> 12:13
-(35:7..35:13) hylo/AnyCollection#`<init>`().(_after)
+(35:7..35:13) hylo/AnyCollection#`<init>`().(_after) -> 11:9
 (35:16..35:21) local4 -> 38:11
-(36:7..36:10) hylo/AnyCollection#`<init>`().(_at)
+(36:7..36:10) hylo/AnyCollection#`<init>`().(_at) -> 12:9
 (36:13..36:15) local6 -> 60:43
 (41:11..41:16) hylo/AnyCollection$package.given_is_AnyCollection_Collection#[T] -> 41:8
 (41:11..41:16) hylo/AnyCollection$package.given_is_AnyCollection_Collection().[T] -> 41:8
@@ -395,7 +395,7 @@ Document tests/pos/hylolib/BitArray.scala
 (144:16..144:21) hylo/BitArray#count(). -> 16:7
 (144:22..144:23) scala/Int#`-`(+3).
 (144:27..144:29) scala/Int#`>>`().
-(146:18..146:23) scala/runtime/RichInt#until().
+(146:18..146:23) scala/Int.until().
 (146:24..146:25) local19 -> 49:38
 (147:9..147:15) local17 -> 140:11
 (147:16..147:21) hylo/BitArray#_bits(). -> 7:17
@@ -1192,9 +1192,8 @@ Document tests/pos/hylolib/CollectionTests.scala
 (35:9..35:13) scala/Some.
 (35:26..35:29) local9 -> 64:29
 (35:30..35:41) hylo/Collection$package.headAndTail(). -> 107:7
-(36:5..36:11) scala/Predef.assert(+1).
-(36:12..36:14) local10 -> 64:32
-(36:15..36:17) scala/Predef.eq().
+(36:5..36:17) _empty_/munit.FunSuite#assertEquals(). -> 8:13
+(36:18..36:20) local10 -> 64:32
 (37:5..37:11) scala/Predef.assert(+1).
 (37:12..37:14) local11 -> 72:11
 (37:15..37:22) hylo/Slice#isEmpty(). -> 10:7
@@ -1805,7 +1804,7 @@ Document tests/pos/hylolib/Slice.scala
 (4:25..4:35) hylo/Slice#[Base] -> 4:19
 (5:13..5:17) hylo/Slice#[Base] -> 4:19
 (6:15..6:20) hylo/Range# -> 4:13
-(6:21..6:25) hylo/Slice#`<init>`().(evidence$1)
+(6:21..6:25) hylo/Slice#`<init>`().(evidence$1) -> 4:35
 (6:26..6:34) hylo/Collection#Position# -> 12:8
 (10:16..10:23) scala/Boolean#
 (11:5..11:11) hylo/Slice#bounds. -> 6:7

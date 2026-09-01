@@ -25,14 +25,14 @@ Document tests/pos/complex-self-call.scala
 (22:28..22:35) scala/Boolean#
 (23:13..23:17) _empty_/Pool# -> 5:7
 (25:20..25:26) _empty_/Config# -> 13:7
-(27:7..27:20) _empty_/BroadcastPool#`<init>`().(nrOfInstances)
+(27:7..27:20) _empty_/BroadcastPool#`<init>`().(nrOfInstances) -> 18:5
 (27:23..27:29) _empty_/BroadcastPool#`<init>`(+1).(config) -> 25:12
 (27:30..27:36) _empty_/Config#getInt(). -> 14:7
-(28:7..28:14) _empty_/BroadcastPool#`<init>`().(resizer)
+(28:7..28:14) _empty_/BroadcastPool#`<init>`().(resizer) -> 19:9
 (28:17..28:24) _empty_/Resizer. -> 10:8
 (28:25..28:35) _empty_/Resizer.fromConfig(). -> 11:7
 (28:36..28:42) _empty_/BroadcastPool#`<init>`(+1).(config) -> 25:12
-(29:7..29:24) _empty_/BroadcastPool#`<init>`().(usePoolDispatcher)
+(29:7..29:24) _empty_/BroadcastPool#`<init>`().(usePoolDispatcher) -> 22:9
 (29:27..29:33) _empty_/BroadcastPool#`<init>`(+1).(config) -> 25:12
 (29:34..29:41) _empty_/Config#hasPath(). -> 15:7
 

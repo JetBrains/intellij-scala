@@ -1,0 +1,15 @@
+Document tests/pos/i7910.scala
+(4:22..4:31) scala/Function1#
+(4:32..4:35) scala/Int#
+(4:37..4:40) scala/Int#
+(4:57..4:60) scala/Int#
+(4:63..4:66) scala/Int#
+(4:69..4:70) local0 -> 4:54
+(4:71..4:72) scala/Int#`+`(+4).
+(5:12..5:15) scala/Int#
+(5:19..5:22) scala/Int#
+(5:25..5:26) local3
+(6:5..6:6) local5 -> 5:9
+(10:14..10:15) local6 -> 9:9
+(11:5..11:6) local7 -> 10:9
+

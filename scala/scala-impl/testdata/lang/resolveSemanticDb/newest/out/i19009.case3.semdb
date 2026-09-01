@@ -7,7 +7,8 @@ Document tests/pos/i19009.case3.scala
 (8:44..8:52) _empty_/SegmentT# -> 3:7
 (8:53..8:54) _empty_/SegmentSeqT#[E] -> 7:19
 (8:56..8:57) _empty_/SegmentSeqT#[S] -> 7:23
-(8:64..8:65) _empty_/SegmentSeqT#[S] -> 7:23
+(8:59..8:60) scala/`&`#
+(8:61..8:62) _empty_/SegmentSeqT#[S] -> 7:23
 (10:50..10:61) _empty_/SegmentSeqT# -> 7:7
 (10:62..10:63) _empty_/AbstractSegmentSeq#[E] -> 10:35
 (10:65..10:66) _empty_/AbstractSegmentSeq#[S] -> 10:39
@@ -20,9 +21,10 @@ Document tests/pos/i19009.case3.scala
 (17:42..17:59) _empty_/MappedSegmentBase# -> 12:7
 (17:60..17:61) _empty_/AbstractMappedSegmentSeq.MappedSegment#[E] -> 17:22
 (17:63..17:64) _empty_/AbstractMappedSegmentSeq.MappedSegment#[S] -> 17:25
-(17:72..17:89) _empty_/MappedSegmentBase# -> 12:7
-(17:90..17:91) _empty_/AbstractMappedSegmentSeq.MappedSegment#[E] -> 17:22
-(17:93..17:94) _empty_/AbstractMappedSegmentSeq.MappedSegment#[S] -> 17:25
+(17:67..17:68) scala/`&`#
+(17:69..17:86) _empty_/MappedSegmentBase# -> 12:7
+(17:87..17:88) _empty_/AbstractMappedSegmentSeq.MappedSegment#[E] -> 17:22
+(17:90..17:91) _empty_/AbstractMappedSegmentSeq.MappedSegment#[S] -> 17:25
 (20:13..20:31) _empty_/AbstractSegmentSeq# -> 10:16
 (20:32..20:33) _empty_/AbstractMappedSegmentSeq#[E] -> 19:41
 (20:35..20:52) _empty_/MappedSegmentBase# -> 12:7

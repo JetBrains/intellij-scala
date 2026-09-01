@@ -9,7 +9,7 @@
 [35,58]: PolyFunction
 [36,37]: TypeDef
 [36,36]: TypeBoundsTree
-[42,58]: Function
+[42,58]: FunctionWithMods
 [42,49]: AppliedTypeTree
 [42,46]: Ident
 [47,48]: Ident

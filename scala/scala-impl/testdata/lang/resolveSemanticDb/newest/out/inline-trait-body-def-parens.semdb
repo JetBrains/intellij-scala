@@ -1,0 +1,4 @@
+Document tests/pos/inline-trait-body-def-parens.scala
+(5:17..5:18) _empty_/A# -> 2:14
+(6:11..6:12) _empty_/A#x(). -> 3:7
+

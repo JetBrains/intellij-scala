@@ -1,0 +1,15 @@
+Document tests/pos/inline-trait-signature-generic-refinement-type.scala
+(2:8..2:15) scala/reflect/
+(2:16..2:26) scala/reflect/Selectable.
+(2:27..2:47) scala/reflect/Selectable.reflectiveSelectable().
+(4:15..4:16) _empty_/C#[T] -> 4:9
+(5:14..5:15) _empty_/C#[T] -> 4:9
+(5:18..5:19) _empty_/C#x. -> 4:12
+(7:28..7:29) _empty_/A#[U] -> 7:19
+(7:30..7:31) _empty_/A#[T] -> 7:16
+(7:45..7:46) _empty_/A#[T] -> 7:16
+(8:10..8:11) _empty_/A#[T] -> 7:16
+(8:14..8:15) _empty_/A#u. -> 7:25
+(8:16..8:19) local1
+(8:16..8:19) local3
+

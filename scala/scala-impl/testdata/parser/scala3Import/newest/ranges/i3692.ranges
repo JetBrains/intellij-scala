@@ -18,7 +18,7 @@
 [151,155]: Ident
 [158,388]: Block
 [164,207]: ValDef
-[176,195]: Function
+[176,195]: FunctionWithMods
 [177,181]: ValDef
 [180,181]: Ident
 [187,195]: AppliedTypeTree

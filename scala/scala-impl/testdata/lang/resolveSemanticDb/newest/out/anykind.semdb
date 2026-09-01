@@ -47,9 +47,9 @@ Document tests/pos/anykind.scala
 (36:15..36:18) scala/Predef.Map.
 (36:19..36:22) scala/Any#
 (36:24..36:27) scala/Any#
-(36:31..36:33) scala/Predef.ArrowAssoc#`->`().
-(36:44..36:46) scala/Predef.ArrowAssoc#`->`().
-(36:57..36:59) scala/Predef.ArrowAssoc#`->`().
+(36:31..36:33) scala/Predef.`->`().
+(36:44..36:46) scala/Predef.`->`().
+(36:57..36:59) scala/Predef.`->`().
 (40:21..40:28) scala/AnyKind#
 (40:44..40:51) scala/AnyKind#
 (42:19..42:26) scala/AnyKind#
@@ -227,8 +227,8 @@ Document tests/pos/anykind.scala
 (120:14..120:17) _empty_/Test.Bar.
 (120:36..120:40) scala/package.List.
 (120:54..120:57) scala/Predef.Map.
-(120:65..120:67) scala/Predef.ArrowAssoc#`->`().
-(120:79..120:81) scala/Predef.ArrowAssoc#`->`().
+(120:65..120:67) scala/Predef.`->`().
+(120:79..120:81) scala/Predef.`->`().
 (120:90..120:95) _empty_/Test.New.KPNil. -> 103:17
 (122:12..122:15) _empty_/Test.Bar# -> 3:14
 (122:16..122:19) scala/Int#
@@ -412,8 +412,8 @@ Document tests/pos/anykind.scala
 (202:13..202:19) _empty_/Test.Old.KPCons. -> 160:12
 (202:20..202:23) scala/Predef.Map#
 (203:15..203:18) scala/Predef.Map.
-(203:26..203:28) scala/Predef.ArrowAssoc#`->`().
-(203:40..203:42) scala/Predef.ArrowAssoc#`->`().
+(203:26..203:28) scala/Predef.`->`().
+(203:40..203:42) scala/Predef.`->`().
 (204:15..204:20) _empty_/Test.Old.KPNil. -> 150:17
 (210:12..210:15) _empty_/Test.Bar# -> 3:14
 (210:16..210:19) scala/Int#

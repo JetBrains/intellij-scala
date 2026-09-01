@@ -1,0 +1,345 @@
+trait Template[+T <: Template[T]]:
+   type Clone <: T { type Clone = Template.this.Clone }
+   val self :Clone
+
+type Food = Template[_]
+
+class Ham extends Template[Ham]:
+   type Clone = Ham
+   val self = this
+
+def eat[F <: Template[F]](food :F) :F = food.self.self
+
+val ham = new Ham
+val food :Food = ham
+
+def test =  // error
+  eat(ham)
+  eat(food.self)
+-----
+ScalaFile
+  ScTrait: Template
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Template')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Template[T]
+          SimpleType: Template
+            CodeReferenceElement: Template
+              PsiElement(identifier)('Template')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n   ')
+        ScTypeAliasDeclaration: Clone
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Clone')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          CompoundType: T { type Clone = Template.this.Clone }
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: Clone
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Clone')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: Template.this.Clone
+                  CodeReferenceElement: Template.this.Clone
+                    ThisReference
+                      CodeReferenceElement: Template
+                        PsiElement(identifier)('Template')
+                      PsiElement(.)('.')
+                      PsiElement(this)('this')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Clone')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n   ')
+        ScValueDeclaration: self
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: self
+              PsiElement(identifier)('self')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          SimpleType: Clone
+            CodeReferenceElement: Clone
+              PsiElement(identifier)('Clone')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: Food
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Food')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Template[_]
+      SimpleType: Template
+        CodeReferenceElement: Template
+          PsiElement(identifier)('Template')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          WildcardType: _
+            PsiElement(_)('_')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScClass: Ham
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ham')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: Template[Ham]
+            SimpleType: Template
+              CodeReferenceElement: Template
+                PsiElement(identifier)('Template')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Ham
+                  CodeReferenceElement: Ham
+                    PsiElement(identifier)('Ham')
+              PsiElement(])(']')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n   ')
+        ScTypeAliasDefinition: Clone
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Clone')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: Ham
+            CodeReferenceElement: Ham
+              PsiElement(identifier)('Ham')
+        PsiWhiteSpace('\n   ')
+        ScPatternDefinition: self
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: self
+              PsiElement(identifier)('self')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ThisReference
+            PsiElement(this)('this')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: eat
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('eat')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: F
+        PsiElement(identifier)('F')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: Template[F]
+          SimpleType: Template
+            CodeReferenceElement: Template
+              PsiElement(identifier)('Template')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: F
+                CodeReferenceElement: F
+                  PsiElement(identifier)('F')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: food
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('food')
+          PsiWhiteSpace(' ')
+          PsiElement(:)(':')
+          ParameterType
+            SimpleType: F
+              CodeReferenceElement: F
+                PsiElement(identifier)('F')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(:)(':')
+    SimpleType: F
+      CodeReferenceElement: F
+        PsiElement(identifier)('F')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: food.self.self
+      ReferenceExpression: food.self
+        ReferenceExpression: food
+          PsiElement(identifier)('food')
+        PsiElement(.)('.')
+        PsiElement(identifier)('self')
+      PsiElement(.)('.')
+      PsiElement(identifier)('self')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: ham
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: ham
+        PsiElement(identifier)('ham')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Ham
+              CodeReferenceElement: Ham
+                PsiElement(identifier)('Ham')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: food
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: food
+        PsiElement(identifier)('food')
+    PsiWhiteSpace(' ')
+    PsiElement(:)(':')
+    SimpleType: Food
+      CodeReferenceElement: Food
+        PsiElement(identifier)('Food')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ham
+      PsiElement(identifier)('ham')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('  ')
+      PsiComment(comment)('// error')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: eat
+          PsiElement(identifier)('eat')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: ham
+            PsiElement(identifier)('ham')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: eat
+          PsiElement(identifier)('eat')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: food.self
+            ReferenceExpression: food
+              PsiElement(identifier)('food')
+            PsiElement(.)('.')
+            PsiElement(identifier)('self')
+          PsiElement())(')')

@@ -1,0 +1,135 @@
+//> using options -Ycheck:all
+
+class ann(xs: Any) extends annotation.StaticAnnotation
+
+class Ops1(s: String) extends AnyVal:
+  def m: Int @ann(this) = 1
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Ycheck:all')
+  PsiWhiteSpace('\n\n')
+  ScClass: ann
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ann')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: xs
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('xs')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: annotation.StaticAnnotation
+            CodeReferenceElement: annotation.StaticAnnotation
+              CodeReferenceElement: annotation
+                PsiElement(identifier)('annotation')
+              PsiElement(.)('.')
+              PsiElement(identifier)('StaticAnnotation')
+  PsiWhiteSpace('\n\n')
+  ScClass: Ops1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Ops1')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: s
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('s')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AnyVal
+            CodeReferenceElement: AnyVal
+              PsiElement(identifier)('AnyVal')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('m')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          TypeWithAnnotation: Int @ann(this)
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+            PsiWhiteSpace(' ')
+            AnnotationsList
+              Annotation
+                PsiElement(@)('@')
+                AnnotationExpression
+                  ConstructorInvocation
+                    SimpleType: ann
+                      CodeReferenceElement: ann
+                        PsiElement(identifier)('ann')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ThisReference
+                        PsiElement(this)('this')
+                      PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('1')

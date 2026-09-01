@@ -4,7 +4,7 @@ trait LoadedOver[@specialized(Int) A] {
 }
 
 object Test {
-  def loaded: AnyRef with LoadedOver[Int] = sys.error("")
+  def loaded: AnyRef & LoadedOver[Int] = sys.error("")
   loaded.foo("")
 }
 -----
@@ -135,12 +135,13 @@ ScalaFile
             <empty list>
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: AnyRef with LoadedOver[Int]
+          InfixType: AnyRef & LoadedOver[Int]
             SimpleType: AnyRef
               CodeReferenceElement: AnyRef
                 PsiElement(identifier)('AnyRef')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             ParametrizedType: LoadedOver[Int]
               SimpleType: LoadedOver

@@ -1,0 +1,12 @@
+[201,270]: PackageDef
+[201,201]: Ident
+[201,232]: ValDef
+[215,226]: AppliedTypeTree
+[215,223]: Ident
+[224,225]: SingletonTypeTree
+[224,225]: Literal
+[229,232]: Ident
+[233,270]: ValDef
+[246,246]: TypeTree
+[249,270]: Select
+[249,257]: Ident

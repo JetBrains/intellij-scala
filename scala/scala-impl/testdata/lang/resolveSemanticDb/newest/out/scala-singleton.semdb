@@ -1,44 +1,54 @@
 Document tests/pos/scala-singleton.scala
 (4:13..4:19) scala/AnyRef#
-(4:25..4:34) scala/Singleton#
-(4:37..4:43) scala/AnyRef#
-(4:49..4:58) scala/Singleton#
-(4:61..4:62) _empty_/Test.f1().(x) -> 4:10
+(4:20..4:21) scala/`&`#
+(4:22..4:31) scala/Singleton#
+(4:34..4:40) scala/AnyRef#
+(4:41..4:42) scala/`&`#
+(4:43..4:52) scala/Singleton#
+(4:55..4:56) _empty_/Test.f1().(x) -> 4:10
 (5:15..5:21) scala/AnyRef#
-(5:27..5:36) scala/Singleton#
-(5:41..5:42) _empty_/Test.f2().[T] -> 5:10
-(5:45..5:46) _empty_/Test.f2().[T] -> 5:10
-(5:49..5:50) _empty_/Test.f2().(x) -> 5:38
+(5:22..5:23) scala/`&`#
+(5:24..5:33) scala/Singleton#
+(5:38..5:39) _empty_/Test.f2().[T] -> 5:10
+(5:42..5:43) _empty_/Test.f2().[T] -> 5:10
+(5:46..5:47) _empty_/Test.f2().(x) -> 5:35
 (7:11..7:17) scala/AnyRef#
-(7:23..7:32) scala/Singleton#
+(7:18..7:19) scala/`&`#
+(7:20..7:29) scala/Singleton#
 (10:11..10:17) scala/Predef.String#
 (13:18..13:24) scala/AnyRef#
 (13:27..13:33) scala/AnyRef#
-(13:39..13:48) scala/Singleton#
-(13:51..13:52) _empty_/Test.narrow1().(x) -> 13:15
+(13:34..13:35) scala/`&`#
+(13:36..13:45) scala/Singleton#
+(13:48..13:49) _empty_/Test.narrow1().(x) -> 13:15
 (16:18..16:24) scala/AnyRef#
 (16:27..16:33) scala/AnyRef#
-(16:39..16:48) scala/Singleton#
-(16:51..16:52) _empty_/Test.narrow2().(x) -> 16:15
-(16:53..16:65) scala/Any#asInstanceOf().
-(16:66..16:67) _empty_/Test.narrow2().(x) -> 16:15
+(16:34..16:35) scala/`&`#
+(16:36..16:45) scala/Singleton#
+(16:48..16:49) _empty_/Test.narrow2().(x) -> 16:15
+(16:50..16:62) scala/Any#asInstanceOf().
+(16:63..16:64) _empty_/Test.narrow2().(x) -> 16:15
 (19:18..19:24) scala/AnyRef#
 (19:27..19:33) scala/AnyRef#
-(19:39..19:48) scala/Singleton#
-(19:51..19:52) _empty_/Test.narrow3().(x) -> 19:15
-(19:53..19:65) scala/Any#asInstanceOf().
-(19:66..19:72) scala/AnyRef#
-(19:78..19:87) scala/Singleton#
+(19:34..19:35) scala/`&`#
+(19:36..19:45) scala/Singleton#
+(19:48..19:49) _empty_/Test.narrow3().(x) -> 19:15
+(19:50..19:62) scala/Any#asInstanceOf().
+(19:63..19:69) scala/AnyRef#
+(19:70..19:71) scala/`&`#
+(19:72..19:81) scala/Singleton#
 (22:20..22:26) scala/AnyRef#
 (22:31..22:32) _empty_/Test.narrow4().[T] -> 22:15
 (22:35..22:41) scala/AnyRef#
-(22:47..22:56) scala/Singleton#
-(22:59..22:60) _empty_/Test.narrow4().(x) -> 22:28
+(22:42..22:43) scala/`&`#
+(22:44..22:53) scala/Singleton#
+(22:56..22:57) _empty_/Test.narrow4().(x) -> 22:28
 (25:31..25:37) scala/AnyRef#
 (25:42..25:43) _empty_/Test.imp.narrow4().[T] -> 25:26
 (25:46..25:52) scala/AnyRef#
-(25:58..25:67) scala/Singleton#
-(25:70..25:71) _empty_/Test.imp.narrow4().(x) -> 25:39
+(25:53..25:54) scala/`&`#
+(25:55..25:64) scala/Singleton#
+(25:67..25:68) _empty_/Test.imp.narrow4().(x) -> 25:39
 (26:13..26:19) scala/Predef.String#
 (27:16..27:18) _empty_/Test.f1(). -> 4:7
 (27:19..27:21) _empty_/Test.imp.x5. -> 26:9

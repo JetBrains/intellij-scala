@@ -1,0 +1,41 @@
+Document tests/pos/i26153.scala
+(4:19..4:22) _empty_/Ctx# -> 1:7
+(4:23..4:24) _empty_/Mon#[F] -> 3:11
+(6:23..6:26) _empty_/Ctx# -> 1:7
+(6:27..6:28) _empty_/Wrap#[F] -> 6:12
+(7:48..7:49) _empty_/Wrap#[C] -> 6:18
+(7:54..7:55) _empty_/Wrap#apply().[T] -> 7:32
+(7:58..7:59) _empty_/Wrap#[F] -> 6:12
+(7:60..7:61) _empty_/Wrap#apply().[T] -> 7:32
+(8:5..8:11) _empty_/i26153$package.stage2(). -> 10:24
+(8:12..8:13) _empty_/Wrap#[F] -> 6:12
+(8:15..8:16) _empty_/Wrap#apply().[T] -> 7:32
+(8:18..8:19) _empty_/Wrap#[C] -> 6:18
+(8:21..8:25) _empty_/Wrap#apply().(expr) -> 7:42
+(10:45..10:48) _empty_/Ctx# -> 1:7
+(10:49..10:50) _empty_/i26153$package.stage2().[F] -> 10:31
+(11:18..11:19) _empty_/i26153$package.stage2().[C] -> 10:40
+(11:24..11:25) _empty_/i26153$package.stage2().[T] -> 10:37
+(12:4..12:5) _empty_/i26153$package.stage2().[F] -> 10:31
+(12:6..12:7) _empty_/i26153$package.stage2().[T] -> 10:37
+(12:11..12:14) scala/Predef.`???`().
+(14:46..14:49) _empty_/Mon# -> 3:7
+(14:50..14:51) _empty_/i26153$package.async().[F] -> 14:30
+(15:7..15:11) _empty_/Wrap# -> 6:7
+(15:12..15:13) _empty_/i26153$package.async().[F] -> 14:30
+(15:15..15:17) _empty_/i26153$package.async().(am) -> 14:42
+(15:18..15:25) _empty_/Mon#Context# -> 4:8
+(17:27..17:30) _empty_/Mon# -> 3:7
+(17:40..17:41) _empty_/TupleMon#[E] -> 17:16
+(18:18..18:21) _empty_/Ctx# -> 1:7
+(18:31..18:32) _empty_/TupleMon#[E] -> 17:16
+(18:34..18:35) _empty_/TupleMon#Context#[A] -> 18:23
+(20:14..20:17) _empty_/Mon# -> 3:7
+(20:27..20:28) _empty_/i26153$package.pm().[E] -> 20:10
+(20:30..20:31) _empty_/i26153$package.pm().[A] -> 20:19
+(20:40..20:48) _empty_/TupleMon# -> 17:7
+(20:49..20:50) _empty_/i26153$package.pm().[E] -> 20:10
+(23:11..23:16) _empty_/i26153$package.async(). -> 14:24
+(23:26..23:32) scala/Predef.String#
+(23:34..23:35) _empty_/Test.r.[A] -> 23:18
+

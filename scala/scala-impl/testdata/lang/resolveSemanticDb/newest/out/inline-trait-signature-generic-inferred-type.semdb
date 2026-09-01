@@ -1,0 +1,7 @@
+Document tests/pos/inline-trait-signature-generic-inferred-type.scala
+(2:26..2:27) _empty_/A#[T] -> 2:16
+(3:10..3:11) _empty_/A#[T] -> 2:16
+(3:14..3:15) _empty_/A#x. -> 2:23
+(6:10..6:13) scala/Int#
+(6:16..6:17) _empty_/A#f(). -> 3:7
+

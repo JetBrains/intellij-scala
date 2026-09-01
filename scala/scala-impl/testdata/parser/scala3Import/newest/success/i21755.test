@@ -5,7 +5,7 @@ trait GraphTraversal  {
     def root: NodeT
   }
 
-  abstract protected class TraverserMethods[A, +CC <: TraverserMethods[A, CC]]  { this: CC with Properties =>
+  abstract protected class TraverserMethods[A, +CC <: TraverserMethods[A, CC]]  { this: CC & Properties =>
     def root: NodeT
   }
 }
@@ -124,12 +124,13 @@ ScalaFile
                 PsiElement(this)('this')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                CompoundType: CC with Properties
+                InfixType: CC & Properties
                   SimpleType: CC
                     CodeReferenceElement: CC
                       PsiElement(identifier)('CC')
                   PsiWhiteSpace(' ')
-                  PsiElement(with)('with')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
                   PsiWhiteSpace(' ')
                   SimpleType: Properties
                     CodeReferenceElement: Properties

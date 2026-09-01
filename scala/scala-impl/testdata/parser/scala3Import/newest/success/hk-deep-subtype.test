@@ -6,7 +6,7 @@ trait GT[A] extends GTT[A, GT]
 trait HNB[B]
 trait GTT[+C, DD[X] <: GT[X]] extends HNB[DD[C] @uncheckedVariance] // Can be any annotation and still crash
 
-class GTF[EE[X] <: GT[X] with GTT[X, EE]]
+class GTF[EE[X] <: GT[X] & GTT[X, EE]]
 {
   def foo[F]: EE[F] = ???
   def bar[G](f: G): EE[G] = ???
@@ -202,7 +202,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(<:)('<:')
         PsiWhiteSpace(' ')
-        CompoundType: GT[X] with GTT[X, EE]
+        InfixType: GT[X] & GTT[X, EE]
           ParametrizedType: GT[X]
             SimpleType: GT
               CodeReferenceElement: GT
@@ -215,7 +215,8 @@ ScalaFile
                     PsiElement(identifier)('X')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
-          PsiElement(with)('with')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
           PsiWhiteSpace(' ')
           ParametrizedType: GTT[X, EE]
             SimpleType: GTT

@@ -69,9 +69,10 @@ Document tests/pos/Iterable.scala
 (30:41..30:42) dotty/collections/immutable/IterableImpls#flatMap().(f) -> 29:32
 (33:44..33:52) dotty/collections/immutable/Iterable# -> 10:7
 (33:53..33:54) dotty/collections/immutable/IterableCompanion#`<init>`().[CC][X] -> 33:38
-(33:61..33:71) dotty/collections/immutable/Collection# -> 6:7
-(33:72..33:74) dotty/collections/immutable/IterableCompanion#[CC] -> 33:35
-(33:76..33:77) dotty/collections/immutable/IterableCompanion#`<init>`().[CC][X] -> 33:38
+(33:56..33:57) scala/`&`#
+(33:58..33:68) dotty/collections/immutable/Collection# -> 6:7
+(33:69..33:71) dotty/collections/immutable/IterableCompanion#[CC] -> 33:35
+(33:73..33:74) dotty/collections/immutable/IterableCompanion#`<init>`().[CC][X] -> 33:38
 (34:9..34:28) dotty/collections/immutable/CollectionCompanion# -> 20:16
 (34:29..34:31) dotty/collections/immutable/IterableCompanion#[CC] -> 33:35
 (34:38..34:51) dotty/collections/immutable/IterableImpls# -> 22:7
@@ -94,12 +95,13 @@ Document tests/pos/Iterable.scala
 (36:109..36:111) dotty/collections/immutable/IterableCompanion#transformOps().(xs) -> 36:32
 (39:30..39:38) dotty/collections/immutable/Iterable# -> 10:7
 (39:39..39:40) dotty/collections/immutable/TransformOps#`<init>`().[CC][X] -> 39:24
-(39:47..39:57) dotty/collections/immutable/Collection# -> 6:7
-(39:58..39:60) dotty/collections/immutable/TransformOps#[CC] -> 39:21
-(39:62..39:63) dotty/collections/immutable/TransformOps#`<init>`().[CC][X] -> 39:24
-(39:78..39:80) dotty/collections/immutable/TransformOps#[CC] -> 39:21
-(39:81..39:82) dotty/collections/immutable/TransformOps#[T] -> 39:66
-(39:93..39:99) scala/AnyVal#
+(39:42..39:43) scala/`&`#
+(39:44..39:54) dotty/collections/immutable/Collection# -> 6:7
+(39:55..39:57) dotty/collections/immutable/TransformOps#[CC] -> 39:21
+(39:59..39:60) dotty/collections/immutable/TransformOps#`<init>`().[CC][X] -> 39:24
+(39:75..39:77) dotty/collections/immutable/TransformOps#[CC] -> 39:21
+(39:78..39:79) dotty/collections/immutable/TransformOps#[T] -> 39:63
+(39:90..39:96) scala/AnyVal#
 (40:24..40:26) dotty/collections/immutable/TransformOps#[CC] -> 39:21
 (40:27..40:28) dotty/collections/immutable/TransformOps#companion().[T] -> 40:17
 (40:31..40:48) scala/annotation/unchecked/uncheckedVariance#
@@ -108,33 +110,33 @@ Document tests/pos/Iterable.scala
 (40:75..40:77) dotty/collections/immutable/TransformOps#companion().(xs) -> 40:20
 (40:78..40:87) dotty/collections/immutable/Iterable#companion(). -> 12:16
 (40:88..40:100) scala/Any#asInstanceOf().
-(41:17..41:18) dotty/collections/immutable/TransformOps#[T] -> 39:66
+(41:17..41:18) dotty/collections/immutable/TransformOps#[T] -> 39:63
 (41:22..41:23) dotty/collections/immutable/TransformOps#map().[U] -> 41:11
 (41:26..41:28) dotty/collections/immutable/TransformOps#[CC] -> 39:21
 (41:29..41:30) dotty/collections/immutable/TransformOps#map().[U] -> 41:11
 (41:34..41:43) dotty/collections/immutable/TransformOps#companion(). -> 40:7
-(41:44..41:46) dotty/collections/immutable/TransformOps#xs. -> 39:74
+(41:44..41:46) dotty/collections/immutable/TransformOps#xs. -> 39:71
 (41:48..41:51) dotty/collections/immutable/IterableImpls#map(). -> 25:7
-(41:52..41:54) dotty/collections/immutable/TransformOps#xs. -> 39:74
+(41:52..41:54) dotty/collections/immutable/TransformOps#xs. -> 39:71
 (41:56..41:57) dotty/collections/immutable/TransformOps#map().(f) -> 41:14
-(42:17..42:18) dotty/collections/immutable/TransformOps#[T] -> 39:66
+(42:17..42:18) dotty/collections/immutable/TransformOps#[T] -> 39:63
 (42:22..42:29) scala/Boolean#
 (42:32..42:34) dotty/collections/immutable/TransformOps#[CC] -> 39:21
-(42:35..42:36) dotty/collections/immutable/TransformOps#[T] -> 39:66
+(42:35..42:36) dotty/collections/immutable/TransformOps#[T] -> 39:63
 (42:40..42:49) dotty/collections/immutable/TransformOps#companion(). -> 40:7
-(42:50..42:52) dotty/collections/immutable/TransformOps#xs. -> 39:74
+(42:50..42:52) dotty/collections/immutable/TransformOps#xs. -> 39:71
 (42:54..42:60) dotty/collections/immutable/IterableImpls#filter(). -> 27:7
-(42:61..42:63) dotty/collections/immutable/TransformOps#xs. -> 39:74
+(42:61..42:63) dotty/collections/immutable/TransformOps#xs. -> 39:71
 (42:65..42:66) dotty/collections/immutable/TransformOps#filter().(p) -> 42:14
-(43:21..43:22) dotty/collections/immutable/TransformOps#[T] -> 39:66
+(43:21..43:22) dotty/collections/immutable/TransformOps#[T] -> 39:63
 (43:26..43:41) scala/package.TraversableOnce#
 (43:42..43:43) dotty/collections/immutable/TransformOps#flatMap().[U] -> 43:15
 (43:47..43:49) dotty/collections/immutable/TransformOps#[CC] -> 39:21
 (43:50..43:51) dotty/collections/immutable/TransformOps#flatMap().[U] -> 43:15
 (43:55..43:64) dotty/collections/immutable/TransformOps#companion(). -> 40:7
-(43:65..43:67) dotty/collections/immutable/TransformOps#xs. -> 39:74
+(43:65..43:67) dotty/collections/immutable/TransformOps#xs. -> 39:71
 (43:69..43:76) dotty/collections/immutable/IterableImpls#flatMap(). -> 29:7
-(43:77..43:79) dotty/collections/immutable/TransformOps#xs. -> 39:74
+(43:77..43:79) dotty/collections/immutable/TransformOps#xs. -> 39:71
 (43:81..43:82) dotty/collections/immutable/TransformOps#flatMap().(f) -> 43:18
 (46:25..46:42) dotty/collections/immutable/IterableCompanion# -> 33:16
 (47:27..47:35) scala/package.Iterator#

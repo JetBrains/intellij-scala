@@ -33,5 +33,5 @@ Document tests/pos/i16486/defs_1.scala
 Document tests/pos/i16486/usage_2.scala
 (3:20..3:24) _empty_/Json. -> 14:8
 (3:25..3:28) _empty_/Json.obj(). -> 15:7
-(3:35..3:37) scala/Predef.ArrowAssoc#`->`().
+(3:35..3:37) scala/Predef.`->`().
 

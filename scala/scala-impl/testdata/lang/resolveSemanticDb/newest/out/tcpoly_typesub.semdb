@@ -18,11 +18,14 @@ Document tests/pos/tcpoly_typesub.scala
 (8:32..8:34) local2 -> 8:18
 (8:37..8:39) _empty_/TypeSub#castSuper().(fu) -> 6:24
 (10:25..10:26) _empty_/TypeSub#l# -> 3:8
-(10:32..10:33) _empty_/TypeSub#castValue().[t] -> 10:17
-(10:37..10:38) _empty_/TypeSub#u# -> 4:8
-(10:44..10:45) _empty_/TypeSub#castValue().[t] -> 10:17
+(10:27..10:28) scala/`&`#
+(10:29..10:30) _empty_/TypeSub#castValue().[t] -> 10:17
+(10:34..10:35) _empty_/TypeSub#u# -> 4:8
+(10:36..10:37) scala/`&`#
+(10:38..10:39) _empty_/TypeSub#castValue().[t] -> 10:17
 (11:18..11:19) local3 -> 11:13
-(11:25..11:26) _empty_/TypeSub#castValue().[t] -> 10:17
+(11:20..11:21) scala/`&`#
+(11:22..11:23) _empty_/TypeSub#castValue().[t] -> 10:17
 (12:5..12:12) _empty_/TypeSub#castSub(). -> 5:7
 (12:13..12:14) local4 -> 11:10
 (12:16..12:18) _empty_/TypeSub#castValue().(lt) -> 10:20

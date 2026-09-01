@@ -1,12 +1,12 @@
 // cf. pos/t8300-conversions-b.scala
 trait Universe {
-  type Symbol >: Null <: AnyRef with SymbolApi
+  type Symbol >: Null <: AnyRef & SymbolApi
   trait SymbolApi
 
-  type TypeSymbol >: Null <: Symbol with TypeSymbolApi
+  type TypeSymbol >: Null <: Symbol & TypeSymbolApi
   trait TypeSymbolApi extends SymbolApi
 
-  type FreeTypeSymbol >: Null <: TypeSymbol with FreeTypeSymbolApi
+  type FreeTypeSymbol >: Null <: TypeSymbol & FreeTypeSymbolApi
   trait FreeTypeSymbolApi extends TypeSymbolApi
 
   implicit class CompatibleSymbol(sym: Symbol) {
@@ -55,12 +55,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          CompoundType: AnyRef with SymbolApi
+          InfixType: AnyRef & SymbolApi
             SimpleType: AnyRef
               CodeReferenceElement: AnyRef
                 PsiElement(identifier)('AnyRef')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: SymbolApi
               CodeReferenceElement: SymbolApi
@@ -94,12 +95,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          CompoundType: Symbol with TypeSymbolApi
+          InfixType: Symbol & TypeSymbolApi
             SimpleType: Symbol
               CodeReferenceElement: Symbol
                 PsiElement(identifier)('Symbol')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: TypeSymbolApi
               CodeReferenceElement: TypeSymbolApi
@@ -140,12 +142,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          CompoundType: TypeSymbol with FreeTypeSymbolApi
+          InfixType: TypeSymbol & FreeTypeSymbolApi
             SimpleType: TypeSymbol
               CodeReferenceElement: TypeSymbol
                 PsiElement(identifier)('TypeSymbol')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: FreeTypeSymbolApi
               CodeReferenceElement: FreeTypeSymbolApi

@@ -1,0 +1,1547 @@
+// Test for issue #24588: Inline match with string interpolation
+// The compiler incorrectly marked matched values as erased when using string interpolation
+// because StringContext.s is a macro marked with the Erased flag.
+
+object Test:
+  // Basic inline match with union type
+  inline def dispatch(inline v: Long | String): Unit =
+    inline v match
+      case str: String => printString(str)
+      case long: Long  => printLong(long)
+
+  def printString(s: String) = println(s)
+  def printLong(l: Long) = println(l)
+
+  // Test with regular strings (always worked)
+  def testRegularStrings(): Unit =
+    dispatch("hello")
+    dispatch(System.nanoTime().toString)
+
+  // Test with string interpolation (was broken)
+  def testStringInterpolation(): Unit =
+    dispatch(s"hello")
+    dispatch(s"${System.nanoTime()}")
+    dispatch(s"${System.nanoTime().toString}")
+    dispatch(s"time: ${System.nanoTime()}")
+    dispatch(s"${"nested"}")
+
+  // Test with f-interpolator
+  def testFInterpolation(): Unit =
+    dispatch(f"${3.14}%.2f")
+    dispatch(f"${42}%d")
+
+  // Test with raw interpolator
+  def testRawInterpolation(): Unit =
+    dispatch(raw"hello\nworld")
+
+  // More complex inline match
+  inline def complexDispatch(inline v: Int | Long | String | Double): String =
+    inline v match
+      case i: Int    => s"int: $i"
+      case l: Long   => s"long: $l"
+      case s: String => s"string: $s"
+      case d: Double => s"double: $d"
+
+  def testComplexDispatch(): Unit =
+    val r1: String = complexDispatch(42)
+    val r2: String = complexDispatch(42L)
+    val r3: String = complexDispatch("hello")
+    val r4: String = complexDispatch(3.14)
+    val r5: String = complexDispatch(s"interpolated")
+    val r6: String = complexDispatch(s"${System.nanoTime()}")
+
+  // Inline match returning the matched value
+  inline def identity(inline v: Long | String): Long | String =
+    inline v match
+      case str: String => str
+      case long: Long  => long
+
+  def testIdentity(): Unit =
+    val s1: Long | String = identity("hello")
+    val s2: Long | String = identity(s"interpolated")
+    val s3: Long | String = identity(s"${System.nanoTime()}")
+    val l1: Long | String = identity(42L)
+
+  // Nested inline matches
+  inline def nestedDispatch(inline v: Long | String): String =
+    inline v match
+      case str: String =>
+        inline str.length match
+          case 0 => "empty"
+          case _ => s"non-empty: $str"
+      case long: Long => s"long: $long"
+
+  def testNestedDispatch(): Unit =
+    val r1 = nestedDispatch("")
+    val r2 = nestedDispatch("hello")
+    val r3 = nestedDispatch(s"interpolated")
+    val r4 = nestedDispatch(42L)
+
+  def main(args: Array[String]): Unit =
+    testRegularStrings()
+    testStringInterpolation()
+    testFInterpolation()
+    testRawInterpolation()
+    testComplexDispatch()
+    testIdentity()
+    testNestedDispatch()
+-----
+ScalaFile
+  PsiComment(comment)('// Test for issue #24588: Inline match with string interpolation')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// The compiler incorrectly marked matched values as erased when using string interpolation')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// because StringContext.s is a macro marked with the Erased flag.')
+  PsiWhiteSpace('\n\n')
+  ScObject: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: dispatch
+          PsiComment(comment)('// Basic inline match with union type')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('dispatch')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: v
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: Long | String
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: v
+              PsiElement(identifier)('v')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: str
+                    PsiElement(identifier)('str')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: printString
+                      PsiElement(identifier)('printString')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: str
+                        PsiElement(identifier)('str')
+                      PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: long
+                    PsiElement(identifier)('long')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                PsiWhiteSpace('  ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  MethodCall
+                    ReferenceExpression: printLong
+                      PsiElement(identifier)('printLong')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: long
+                        PsiElement(identifier)('long')
+                      PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: printString
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('printString')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: s
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: s
+                PsiElement(identifier)('s')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: printLong
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('printLong')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: l
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('l')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Long
+                    CodeReferenceElement: Long
+                      PsiElement(identifier)('Long')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: println
+              PsiElement(identifier)('println')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: l
+                PsiElement(identifier)('l')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: testRegularStrings
+          PsiComment(comment)('// Test with regular strings (always worked)')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testRegularStrings')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: dispatch
+                PsiElement(identifier)('dispatch')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"hello"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: dispatch
+                PsiElement(identifier)('dispatch')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: System.nanoTime().toString
+                  MethodCall
+                    ReferenceExpression: System.nanoTime
+                      ReferenceExpression: System
+                        PsiElement(identifier)('System')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('nanoTime')
+                    ArgumentList
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('toString')
+                PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: testStringInterpolation
+          PsiComment(comment)('// Test with string interpolation (was broken)')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testStringInterpolation')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: dispatch
+                PsiElement(identifier)('dispatch')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"hello')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: dispatch
+                PsiElement(identifier)('dispatch')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"')
+                  PsiElement(interpolated string injection)('$')
+                  BlockExpression
+                    PsiElement({)('{')
+                    MethodCall
+                      ReferenceExpression: System.nanoTime
+                        ReferenceExpression: System
+                          PsiElement(identifier)('System')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('nanoTime')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiElement(})('}')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: dispatch
+                PsiElement(identifier)('dispatch')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"')
+                  PsiElement(interpolated string injection)('$')
+                  BlockExpression
+                    PsiElement({)('{')
+                    ReferenceExpression: System.nanoTime().toString
+                      MethodCall
+                        ReferenceExpression: System.nanoTime
+                          ReferenceExpression: System
+                            PsiElement(identifier)('System')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('nanoTime')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('toString')
+                    PsiElement(})('}')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: dispatch
+                PsiElement(identifier)('dispatch')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"time: ')
+                  PsiElement(interpolated string injection)('$')
+                  BlockExpression
+                    PsiElement({)('{')
+                    MethodCall
+                      ReferenceExpression: System.nanoTime
+                        ReferenceExpression: System
+                          PsiElement(identifier)('System')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('nanoTime')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiElement(})('}')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: dispatch
+                PsiElement(identifier)('dispatch')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: s
+                    PsiElement(interpolated string id)('s')
+                  PsiElement(interpolated string)('"')
+                  PsiElement(interpolated string injection)('$')
+                  BlockExpression
+                    PsiElement({)('{')
+                    StringLiteral
+                      PsiElement(string content)('"nested"')
+                    PsiElement(})('}')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: testFInterpolation
+          PsiComment(comment)('// Test with f-interpolator')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testFInterpolation')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: dispatch
+                PsiElement(identifier)('dispatch')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: f
+                    PsiElement(interpolated string id)('f')
+                  PsiElement(interpolated string)('"')
+                  PsiElement(interpolated string injection)('$')
+                  BlockExpression
+                    PsiElement({)('{')
+                    DoubleLiteral
+                      PsiElement(double)('3.14')
+                    PsiElement(})('}')
+                  PsiElement(interpolated string)('%.2f')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: dispatch
+                PsiElement(identifier)('dispatch')
+              ArgumentList
+                PsiElement(()('(')
+                InterpolatedStringLiteral
+                  InterpolatedExpressionPrefix: f
+                    PsiElement(interpolated string id)('f')
+                  PsiElement(interpolated string)('"')
+                  PsiElement(interpolated string injection)('$')
+                  BlockExpression
+                    PsiElement({)('{')
+                    IntegerLiteral
+                      PsiElement(integer)('42')
+                    PsiElement(})('}')
+                  PsiElement(interpolated string)('%d')
+                  PsiElement(interpolated string end)('"')
+                PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: testRawInterpolation
+          PsiComment(comment)('// Test with raw interpolator')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testRawInterpolation')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: dispatch
+              PsiElement(identifier)('dispatch')
+            ArgumentList
+              PsiElement(()('(')
+              InterpolatedStringLiteral
+                InterpolatedExpressionPrefix: raw
+                  PsiElement(interpolated string id)('raw')
+                PsiElement(interpolated string)('"hello\nworld')
+                PsiElement(interpolated string end)('"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: complexDispatch
+          PsiComment(comment)('// More complex inline match')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('complexDispatch')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: v
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: Int | Long | String | Double
+                    InfixType: Int | Long | String
+                      InfixType: Int | Long
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: |
+                          PsiElement(identifier)('|')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Long
+                          CodeReferenceElement: Long
+                            PsiElement(identifier)('Long')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: |
+                        PsiElement(identifier)('|')
+                      PsiWhiteSpace(' ')
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: v
+              PsiElement(identifier)('v')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: i
+                    PsiElement(identifier)('i')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: Int
+                      CodeReferenceElement: Int
+                        PsiElement(identifier)('Int')
+                PsiWhiteSpace('    ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"int: ')
+                    PsiElement(interpolated string injection)('$')
+                    ReferenceExpression: i
+                      PsiElement(identifier)('i')
+                    PsiElement(interpolated string end)('"')
+              PsiWhiteSpace('\n      ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: l
+                    PsiElement(identifier)('l')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                PsiWhiteSpace('   ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"long: ')
+                    PsiElement(interpolated string injection)('$')
+                    ReferenceExpression: l
+                      PsiElement(identifier)('l')
+                    PsiElement(interpolated string end)('"')
+              PsiWhiteSpace('\n      ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: s
+                    PsiElement(identifier)('s')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"string: ')
+                    PsiElement(interpolated string injection)('$')
+                    ReferenceExpression: s
+                      PsiElement(identifier)('s')
+                    PsiElement(interpolated string end)('"')
+              PsiWhiteSpace('\n      ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: d
+                    PsiElement(identifier)('d')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: Double
+                      CodeReferenceElement: Double
+                        PsiElement(identifier)('Double')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"double: ')
+                    PsiElement(interpolated string injection)('$')
+                    ReferenceExpression: d
+                      PsiElement(identifier)('d')
+                    PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: testComplexDispatch
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testComplexDispatch')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: r1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: r1
+                  PsiElement(identifier)('r1')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: complexDispatch
+                  PsiElement(identifier)('complexDispatch')
+                ArgumentList
+                  PsiElement(()('(')
+                  IntegerLiteral
+                    PsiElement(integer)('42')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: r2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: r2
+                  PsiElement(identifier)('r2')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: complexDispatch
+                  PsiElement(identifier)('complexDispatch')
+                ArgumentList
+                  PsiElement(()('(')
+                  LongLiteral
+                    PsiElement(long)('42L')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: r3
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: r3
+                  PsiElement(identifier)('r3')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: complexDispatch
+                  PsiElement(identifier)('complexDispatch')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"hello"')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: r4
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: r4
+                  PsiElement(identifier)('r4')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: complexDispatch
+                  PsiElement(identifier)('complexDispatch')
+                ArgumentList
+                  PsiElement(()('(')
+                  DoubleLiteral
+                    PsiElement(double)('3.14')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: r5
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: r5
+                  PsiElement(identifier)('r5')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: complexDispatch
+                  PsiElement(identifier)('complexDispatch')
+                ArgumentList
+                  PsiElement(()('(')
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"interpolated')
+                    PsiElement(interpolated string end)('"')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: r6
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: r6
+                  PsiElement(identifier)('r6')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              SimpleType: String
+                CodeReferenceElement: String
+                  PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: complexDispatch
+                  PsiElement(identifier)('complexDispatch')
+                ArgumentList
+                  PsiElement(()('(')
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"')
+                    PsiElement(interpolated string injection)('$')
+                    BlockExpression
+                      PsiElement({)('{')
+                      MethodCall
+                        ReferenceExpression: System.nanoTime
+                          ReferenceExpression: System
+                            PsiElement(identifier)('System')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('nanoTime')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                      PsiElement(})('}')
+                    PsiElement(interpolated string end)('"')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: identity
+          PsiComment(comment)('// Inline match returning the matched value')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('identity')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: v
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: Long | String
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          InfixType: Long | String
+            SimpleType: Long
+              CodeReferenceElement: Long
+                PsiElement(identifier)('Long')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: v
+              PsiElement(identifier)('v')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: str
+                    PsiElement(identifier)('str')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: str
+                    PsiElement(identifier)('str')
+              PsiWhiteSpace('\n      ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: long
+                    PsiElement(identifier)('long')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                PsiWhiteSpace('  ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  ReferenceExpression: long
+                    PsiElement(identifier)('long')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: testIdentity
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testIdentity')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: s1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: s1
+                  PsiElement(identifier)('s1')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              InfixType: Long | String
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: identity
+                  PsiElement(identifier)('identity')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"hello"')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: s2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: s2
+                  PsiElement(identifier)('s2')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              InfixType: Long | String
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: identity
+                  PsiElement(identifier)('identity')
+                ArgumentList
+                  PsiElement(()('(')
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"interpolated')
+                    PsiElement(interpolated string end)('"')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: s3
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: s3
+                  PsiElement(identifier)('s3')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              InfixType: Long | String
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: identity
+                  PsiElement(identifier)('identity')
+                ArgumentList
+                  PsiElement(()('(')
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"')
+                    PsiElement(interpolated string injection)('$')
+                    BlockExpression
+                      PsiElement({)('{')
+                      MethodCall
+                        ReferenceExpression: System.nanoTime
+                          ReferenceExpression: System
+                            PsiElement(identifier)('System')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('nanoTime')
+                        ArgumentList
+                          PsiElement(()('(')
+                          PsiElement())(')')
+                      PsiElement(})('}')
+                    PsiElement(interpolated string end)('"')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: l1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: l1
+                  PsiElement(identifier)('l1')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              InfixType: Long | String
+                SimpleType: Long
+                  CodeReferenceElement: Long
+                    PsiElement(identifier)('Long')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: identity
+                  PsiElement(identifier)('identity')
+                ArgumentList
+                  PsiElement(()('(')
+                  LongLiteral
+                    PsiElement(long)('42L')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: nestedDispatch
+          PsiComment(comment)('// Nested inline matches')
+          PsiWhiteSpace('\n  ')
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('nestedDispatch')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: v
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(inline)('inline')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('v')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  InfixType: Long | String
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                    PsiWhiteSpace(' ')
+                    CodeReferenceElement: |
+                      PsiElement(identifier)('|')
+                    PsiWhiteSpace(' ')
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchStatement
+            PsiElement(inline)('inline')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: v
+              PsiElement(identifier)('v')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n      ')
+            CaseClauses
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: str
+                    PsiElement(identifier)('str')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: String
+                      CodeReferenceElement: String
+                        PsiElement(identifier)('String')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n        ')
+                BlockOfExpressions
+                  MatchStatement
+                    PsiElement(inline)('inline')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: str.length
+                      ReferenceExpression: str
+                        PsiElement(identifier)('str')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('length')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace('\n          ')
+                    CaseClauses
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        LiteralPattern
+                          IntegerLiteral
+                            PsiElement(integer)('0')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          StringLiteral
+                            PsiElement(string content)('"empty"')
+                      PsiWhiteSpace('\n          ')
+                      CaseClause
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        WildcardPattern
+                          PsiElement(_)('_')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        BlockOfExpressions
+                          InterpolatedStringLiteral
+                            InterpolatedExpressionPrefix: s
+                              PsiElement(interpolated string id)('s')
+                            PsiElement(interpolated string)('"non-empty: ')
+                            PsiElement(interpolated string injection)('$')
+                            ReferenceExpression: str
+                              PsiElement(identifier)('str')
+                            PsiElement(interpolated string end)('"')
+              PsiWhiteSpace('\n      ')
+              CaseClause
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: long
+                    PsiElement(identifier)('long')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    SimpleType: Long
+                      CodeReferenceElement: Long
+                        PsiElement(identifier)('Long')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                BlockOfExpressions
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"long: ')
+                    PsiElement(interpolated string injection)('$')
+                    ReferenceExpression: long
+                      PsiElement(identifier)('long')
+                    PsiElement(interpolated string end)('"')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: testNestedDispatch
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('testNestedDispatch')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: r1
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: r1
+                  PsiElement(identifier)('r1')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: nestedDispatch
+                  PsiElement(identifier)('nestedDispatch')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('""')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: r2
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: r2
+                  PsiElement(identifier)('r2')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: nestedDispatch
+                  PsiElement(identifier)('nestedDispatch')
+                ArgumentList
+                  PsiElement(()('(')
+                  StringLiteral
+                    PsiElement(string content)('"hello"')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: r3
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: r3
+                  PsiElement(identifier)('r3')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: nestedDispatch
+                  PsiElement(identifier)('nestedDispatch')
+                ArgumentList
+                  PsiElement(()('(')
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"interpolated')
+                    PsiElement(interpolated string end)('"')
+                  PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            ScPatternDefinition: r4
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(val)('val')
+              PsiWhiteSpace(' ')
+              ListOfPatterns
+                ReferencePattern: r4
+                  PsiElement(identifier)('r4')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              MethodCall
+                ReferenceExpression: nestedDispatch
+                  PsiElement(identifier)('nestedDispatch')
+                ArgumentList
+                  PsiElement(()('(')
+                  LongLiteral
+                    PsiElement(long)('42L')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: main
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('main')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: args
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('args')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[String]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          BlockExpression
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: testRegularStrings
+                PsiElement(identifier)('testRegularStrings')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: testStringInterpolation
+                PsiElement(identifier)('testStringInterpolation')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: testFInterpolation
+                PsiElement(identifier)('testFInterpolation')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: testRawInterpolation
+                PsiElement(identifier)('testRawInterpolation')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: testComplexDispatch
+                PsiElement(identifier)('testComplexDispatch')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: testIdentity
+                PsiElement(identifier)('testIdentity')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiWhiteSpace('\n    ')
+            MethodCall
+              ReferenceExpression: testNestedDispatch
+                PsiElement(identifier)('testNestedDispatch')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')

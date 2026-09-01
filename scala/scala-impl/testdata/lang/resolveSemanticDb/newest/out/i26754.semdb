@@ -1,0 +1,9 @@
+Document tests/pos/i26754/a.scala
+(6:19..6:20) p/X.x. -> 5:18
+
+Document tests/pos/i26754/b.scala
+(5:17..5:29) scala/Any#isInstanceOf().
+(5:30..5:31) p/ -> 2:9
+(5:32..5:33) p/X. -> 4:8
+(5:34..5:35) p/X.T# -> 6:15
+

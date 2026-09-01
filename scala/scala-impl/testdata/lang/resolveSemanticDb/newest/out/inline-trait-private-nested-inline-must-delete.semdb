@@ -1,0 +1,9 @@
+Document tests/pos/inline-trait-private-nested-inline-must-delete.scala
+(2:19..2:26) _empty_/A#[T] -> 2:16
+(2:19..2:26) scala/package.Numeric#
+(3:23..3:29) scala/Predef.summon().
+(3:30..3:37) scala/package.Numeric#
+(3:38..3:39) _empty_/A#[T] -> 2:16
+(6:17..6:18) _empty_/A# -> 2:14
+(6:19..6:24) scala/Float#
+

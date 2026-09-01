@@ -1,4 +1,4 @@
-trait X { x => type T >: Null; new X { type T = Any with x.T } }
+trait X { x => type T >: Null; new X { type T = Any & x.T } }
 -----
 ScalaFile
   ScTrait: X
@@ -59,12 +59,13 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(=)('=')
                 PsiWhiteSpace(' ')
-                CompoundType: Any with x.T
+                InfixType: Any & x.T
                   SimpleType: Any
                     CodeReferenceElement: Any
                       PsiElement(identifier)('Any')
                   PsiWhiteSpace(' ')
-                  PsiElement(with)('with')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
                   PsiWhiteSpace(' ')
                   SimpleType: x.T
                     CodeReferenceElement: x.T

@@ -54,7 +54,7 @@
 [272,306]: ValDef
 [275,306]: Function
 [275,278]: Ident
-[282,306]: Function
+[282,306]: FunctionWithMods
 [282,295]: AppliedTypeTree
 [282,287]: Ident
 [288,294]: Ident

@@ -907,10 +907,10 @@
 [3230,3236]: Ident
 [3237,3277]: AppliedTypeTree
 [3237,3251]: Ident
-[3252,3259]: Function
+[3252,3259]: FunctionWithMods
 [3252,3253]: Ident
 [3258,3259]: Ident
-[3261,3276]: Function
+[3261,3276]: FunctionWithMods
 [3261,3270]: AppliedTypeTree
 [3261,3267]: Ident
 [3268,3269]: Ident
@@ -919,11 +919,11 @@
 [3283,3289]: Ident
 [3290,3334]: AppliedTypeTree
 [3290,3304]: Ident
-[3305,3317]: Function
+[3305,3317]: FunctionWithMods
 [3306,3307]: Ident
 [3309,3310]: Ident
 [3316,3317]: Ident
-[3319,3333]: Function
+[3319,3333]: FunctionWithMods
 [3320,3326]: Tuple
 [3321,3322]: Ident
 [3324,3325]: Ident
@@ -932,12 +932,12 @@
 [3340,3346]: Ident
 [3347,3397]: AppliedTypeTree
 [3347,3361]: Ident
-[3362,3377]: Function
+[3362,3377]: FunctionWithMods
 [3363,3364]: Ident
 [3366,3367]: Ident
 [3369,3370]: Ident
 [3376,3377]: Ident
-[3379,3396]: Function
+[3379,3396]: FunctionWithMods
 [3380,3389]: Tuple
 [3381,3382]: Ident
 [3384,3385]: Ident
@@ -947,13 +947,13 @@
 [3403,3409]: Ident
 [3410,3466]: AppliedTypeTree
 [3410,3424]: Ident
-[3425,3443]: Function
+[3425,3443]: FunctionWithMods
 [3426,3427]: Ident
 [3429,3430]: Ident
 [3432,3433]: Ident
 [3435,3436]: Ident
 [3442,3443]: Ident
-[3445,3465]: Function
+[3445,3465]: FunctionWithMods
 [3446,3458]: Tuple
 [3447,3448]: Ident
 [3450,3451]: Ident
@@ -964,14 +964,14 @@
 [3472,3478]: Ident
 [3479,3541]: AppliedTypeTree
 [3479,3493]: Ident
-[3494,3515]: Function
+[3494,3515]: FunctionWithMods
 [3495,3496]: Ident
 [3498,3499]: Ident
 [3501,3502]: Ident
 [3504,3505]: Ident
 [3507,3508]: Ident
 [3514,3515]: Ident
-[3517,3540]: Function
+[3517,3540]: FunctionWithMods
 [3518,3533]: Tuple
 [3519,3520]: Ident
 [3522,3523]: Ident
@@ -983,7 +983,7 @@
 [3547,3553]: Ident
 [3554,3622]: AppliedTypeTree
 [3554,3568]: Ident
-[3569,3593]: Function
+[3569,3593]: FunctionWithMods
 [3570,3571]: Ident
 [3573,3574]: Ident
 [3576,3577]: Ident
@@ -991,7 +991,7 @@
 [3582,3583]: Ident
 [3585,3586]: Ident
 [3592,3593]: Ident
-[3595,3621]: Function
+[3595,3621]: FunctionWithMods
 [3596,3614]: Tuple
 [3597,3598]: Ident
 [3600,3601]: Ident
@@ -1004,7 +1004,7 @@
 [3628,3634]: Ident
 [3635,3709]: AppliedTypeTree
 [3635,3649]: Ident
-[3650,3677]: Function
+[3650,3677]: FunctionWithMods
 [3651,3652]: Ident
 [3654,3655]: Ident
 [3657,3658]: Ident
@@ -1013,7 +1013,7 @@
 [3666,3667]: Ident
 [3669,3670]: Ident
 [3676,3677]: Ident
-[3679,3708]: Function
+[3679,3708]: FunctionWithMods
 [3680,3701]: Tuple
 [3681,3682]: Ident
 [3684,3685]: Ident
@@ -1027,7 +1027,7 @@
 [3715,3721]: Ident
 [3722,3802]: AppliedTypeTree
 [3722,3736]: Ident
-[3737,3767]: Function
+[3737,3767]: FunctionWithMods
 [3738,3739]: Ident
 [3741,3742]: Ident
 [3744,3745]: Ident
@@ -1037,7 +1037,7 @@
 [3756,3757]: Ident
 [3759,3760]: Ident
 [3766,3767]: Ident
-[3769,3801]: Function
+[3769,3801]: FunctionWithMods
 [3770,3794]: Tuple
 [3771,3772]: Ident
 [3774,3775]: Ident
@@ -1052,7 +1052,7 @@
 [3808,3814]: Ident
 [3815,3901]: AppliedTypeTree
 [3815,3829]: Ident
-[3830,3863]: Function
+[3830,3863]: FunctionWithMods
 [3831,3832]: Ident
 [3834,3835]: Ident
 [3837,3838]: Ident
@@ -1063,7 +1063,7 @@
 [3852,3853]: Ident
 [3855,3856]: Ident
 [3862,3863]: Ident
-[3865,3900]: Function
+[3865,3900]: FunctionWithMods
 [3866,3893]: Tuple
 [3867,3868]: Ident
 [3870,3871]: Ident
@@ -1079,7 +1079,7 @@
 [3907,3913]: Ident
 [3914,4006]: AppliedTypeTree
 [3914,3928]: Ident
-[3929,3965]: Function
+[3929,3965]: FunctionWithMods
 [3930,3931]: Ident
 [3933,3934]: Ident
 [3936,3937]: Ident
@@ -1091,7 +1091,7 @@
 [3954,3955]: Ident
 [3957,3958]: Ident
 [3964,3965]: Ident
-[3967,4005]: Function
+[3967,4005]: FunctionWithMods
 [3968,3998]: Tuple
 [3969,3970]: Ident
 [3972,3973]: Ident
@@ -1108,7 +1108,7 @@
 [4012,4018]: Ident
 [4019,4117]: AppliedTypeTree
 [4019,4033]: Ident
-[4034,4073]: Function
+[4034,4073]: FunctionWithMods
 [4035,4036]: Ident
 [4038,4039]: Ident
 [4041,4042]: Ident
@@ -1121,7 +1121,7 @@
 [4062,4063]: Ident
 [4065,4066]: Ident
 [4072,4073]: Ident
-[4075,4116]: Function
+[4075,4116]: FunctionWithMods
 [4076,4109]: Tuple
 [4077,4078]: Ident
 [4080,4081]: Ident
@@ -1139,7 +1139,7 @@
 [4123,4129]: Ident
 [4130,4234]: AppliedTypeTree
 [4130,4144]: Ident
-[4145,4187]: Function
+[4145,4187]: FunctionWithMods
 [4146,4147]: Ident
 [4149,4150]: Ident
 [4152,4153]: Ident
@@ -1153,7 +1153,7 @@
 [4176,4177]: Ident
 [4179,4180]: Ident
 [4186,4187]: Ident
-[4189,4233]: Function
+[4189,4233]: FunctionWithMods
 [4190,4226]: Tuple
 [4191,4192]: Ident
 [4194,4195]: Ident
@@ -1172,7 +1172,7 @@
 [4240,4246]: Ident
 [4247,4357]: AppliedTypeTree
 [4247,4261]: Ident
-[4262,4307]: Function
+[4262,4307]: FunctionWithMods
 [4263,4264]: Ident
 [4266,4267]: Ident
 [4269,4270]: Ident
@@ -1187,7 +1187,7 @@
 [4296,4297]: Ident
 [4299,4300]: Ident
 [4306,4307]: Ident
-[4309,4356]: Function
+[4309,4356]: FunctionWithMods
 [4310,4349]: Tuple
 [4311,4312]: Ident
 [4314,4315]: Ident
@@ -1207,7 +1207,7 @@
 [4363,4369]: Ident
 [4370,4486]: AppliedTypeTree
 [4370,4384]: Ident
-[4385,4433]: Function
+[4385,4433]: FunctionWithMods
 [4386,4387]: Ident
 [4389,4390]: Ident
 [4392,4393]: Ident
@@ -1223,7 +1223,7 @@
 [4422,4423]: Ident
 [4425,4426]: Ident
 [4432,4433]: Ident
-[4435,4485]: Function
+[4435,4485]: FunctionWithMods
 [4436,4478]: Tuple
 [4437,4438]: Ident
 [4440,4441]: Ident
@@ -1244,7 +1244,7 @@
 [4492,4498]: Ident
 [4499,4621]: AppliedTypeTree
 [4499,4513]: Ident
-[4514,4565]: Function
+[4514,4565]: FunctionWithMods
 [4515,4516]: Ident
 [4518,4519]: Ident
 [4521,4522]: Ident
@@ -1261,7 +1261,7 @@
 [4554,4555]: Ident
 [4557,4558]: Ident
 [4564,4565]: Ident
-[4567,4620]: Function
+[4567,4620]: FunctionWithMods
 [4568,4613]: Tuple
 [4569,4570]: Ident
 [4572,4573]: Ident
@@ -1283,7 +1283,7 @@
 [4627,4633]: Ident
 [4634,4762]: AppliedTypeTree
 [4634,4648]: Ident
-[4649,4703]: Function
+[4649,4703]: FunctionWithMods
 [4650,4651]: Ident
 [4653,4654]: Ident
 [4656,4657]: Ident
@@ -1301,7 +1301,7 @@
 [4692,4693]: Ident
 [4695,4696]: Ident
 [4702,4703]: Ident
-[4705,4761]: Function
+[4705,4761]: FunctionWithMods
 [4706,4754]: Tuple
 [4707,4708]: Ident
 [4710,4711]: Ident
@@ -1324,7 +1324,7 @@
 [4768,4774]: Ident
 [4775,4909]: AppliedTypeTree
 [4775,4789]: Ident
-[4790,4847]: Function
+[4790,4847]: FunctionWithMods
 [4791,4792]: Ident
 [4794,4795]: Ident
 [4797,4798]: Ident
@@ -1343,7 +1343,7 @@
 [4836,4837]: Ident
 [4839,4840]: Ident
 [4846,4847]: Ident
-[4849,4908]: Function
+[4849,4908]: FunctionWithMods
 [4850,4901]: Tuple
 [4851,4852]: Ident
 [4854,4855]: Ident
@@ -1367,7 +1367,7 @@
 [4915,4921]: Ident
 [4922,5062]: AppliedTypeTree
 [4922,4936]: Ident
-[4937,4997]: Function
+[4937,4997]: FunctionWithMods
 [4938,4939]: Ident
 [4941,4942]: Ident
 [4944,4945]: Ident
@@ -1387,7 +1387,7 @@
 [4986,4987]: Ident
 [4989,4990]: Ident
 [4996,4997]: Ident
-[4999,5061]: Function
+[4999,5061]: FunctionWithMods
 [5000,5054]: Tuple
 [5001,5002]: Ident
 [5004,5005]: Ident
@@ -1412,7 +1412,7 @@
 [5068,5074]: Ident
 [5075,5221]: AppliedTypeTree
 [5075,5089]: Ident
-[5090,5153]: Function
+[5090,5153]: FunctionWithMods
 [5091,5092]: Ident
 [5094,5095]: Ident
 [5097,5098]: Ident
@@ -1433,7 +1433,7 @@
 [5142,5143]: Ident
 [5145,5146]: Ident
 [5152,5153]: Ident
-[5155,5220]: Function
+[5155,5220]: FunctionWithMods
 [5156,5213]: Tuple
 [5157,5158]: Ident
 [5160,5161]: Ident
@@ -1459,7 +1459,7 @@
 [5227,5233]: Ident
 [5234,5386]: AppliedTypeTree
 [5234,5248]: Ident
-[5249,5315]: Function
+[5249,5315]: FunctionWithMods
 [5250,5251]: Ident
 [5253,5254]: Ident
 [5256,5257]: Ident
@@ -1481,7 +1481,7 @@
 [5304,5305]: Ident
 [5307,5308]: Ident
 [5314,5315]: Ident
-[5317,5385]: Function
+[5317,5385]: FunctionWithMods
 [5318,5378]: Tuple
 [5319,5320]: Ident
 [5322,5323]: Ident
@@ -1508,7 +1508,7 @@
 [5392,5398]: Ident
 [5399,5557]: AppliedTypeTree
 [5399,5413]: Ident
-[5414,5483]: Function
+[5414,5483]: FunctionWithMods
 [5415,5416]: Ident
 [5418,5419]: Ident
 [5421,5422]: Ident
@@ -1531,7 +1531,7 @@
 [5472,5473]: Ident
 [5475,5476]: Ident
 [5482,5483]: Ident
-[5485,5556]: Function
+[5485,5556]: FunctionWithMods
 [5486,5549]: Tuple
 [5487,5488]: Ident
 [5490,5491]: Ident
@@ -1559,7 +1559,7 @@
 [5563,5569]: Ident
 [5570,5734]: AppliedTypeTree
 [5570,5584]: Ident
-[5585,5657]: Function
+[5585,5657]: FunctionWithMods
 [5586,5587]: Ident
 [5589,5590]: Ident
 [5592,5593]: Ident
@@ -1583,7 +1583,7 @@
 [5646,5647]: Ident
 [5649,5650]: Ident
 [5656,5657]: Ident
-[5659,5733]: Function
+[5659,5733]: FunctionWithMods
 [5660,5726]: Tuple
 [5661,5662]: Ident
 [5664,5665]: Ident
@@ -1612,7 +1612,7 @@
 [5740,5746]: Ident
 [5747,5917]: AppliedTypeTree
 [5747,5761]: Ident
-[5762,5837]: Function
+[5762,5837]: FunctionWithMods
 [5763,5764]: Ident
 [5766,5767]: Ident
 [5769,5770]: Ident
@@ -1637,7 +1637,7 @@
 [5826,5827]: Ident
 [5829,5830]: Ident
 [5836,5837]: Ident
-[5839,5916]: Function
+[5839,5916]: FunctionWithMods
 [5840,5909]: Tuple
 [5841,5842]: Ident
 [5844,5845]: Ident
@@ -1667,7 +1667,7 @@
 [5923,5929]: Ident
 [5930,6106]: AppliedTypeTree
 [5930,5944]: Ident
-[5945,6023]: Function
+[5945,6023]: FunctionWithMods
 [5946,5947]: Ident
 [5949,5950]: Ident
 [5952,5953]: Ident
@@ -1693,7 +1693,7 @@
 [6012,6013]: Ident
 [6015,6016]: Ident
 [6022,6023]: Ident
-[6025,6105]: Function
+[6025,6105]: FunctionWithMods
 [6026,6098]: Tuple
 [6027,6028]: Ident
 [6030,6031]: Ident
@@ -1724,7 +1724,7 @@
 [6112,6118]: Ident
 [6119,6301]: AppliedTypeTree
 [6119,6133]: Ident
-[6134,6215]: Function
+[6134,6215]: FunctionWithMods
 [6135,6136]: Ident
 [6138,6139]: Ident
 [6141,6142]: Ident
@@ -1751,7 +1751,7 @@
 [6204,6205]: Ident
 [6207,6208]: Ident
 [6214,6215]: Ident
-[6217,6300]: Function
+[6217,6300]: FunctionWithMods
 [6218,6293]: Tuple
 [6219,6220]: Ident
 [6222,6223]: Ident

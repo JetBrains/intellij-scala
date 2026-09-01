@@ -64,7 +64,7 @@
 [358,376]: LambdaTypeTree
 [358,359]: TypeDef
 [358,358]: TypeBoundsTree
-[363,376]: Function
+[363,376]: FunctionWithMods
 [363,370]: Ident
 [375,376]: Ident
 [380,418]: DefDef
@@ -293,7 +293,7 @@
 [1431,1735]: DefDef
 [1448,1449]: TypeDef
 [1448,1448]: TypeBoundsTree
-[1452,1475]: Function
+[1452,1475]: FunctionWithMods
 [1452,1458]: AppliedTypeTree
 [1452,1455]: Ident
 [1456,1457]: Ident
@@ -365,7 +365,7 @@
 [1754,1755]: Ident
 [1759,1782]: Function
 [1759,1760]: Ident
-[1764,1782]: Function
+[1764,1782]: FunctionWithMods
 [1764,1770]: AppliedTypeTree
 [1764,1767]: Ident
 [1768,1769]: Ident

@@ -549,7 +549,7 @@
 [2334,2340]: Ident
 [2340,2340]: TypeTree
 [2344,2390]: ValDef
-[2352,2370]: Function
+[2352,2370]: FunctionWithMods
 [2352,2359]: Ident
 [2364,2370]: Ident
 [2373,2390]: Function
@@ -558,7 +558,7 @@
 [2381,2390]: Select
 [2381,2384]: Ident
 [2393,2450]: ValDef
-[2401,2419]: Function
+[2401,2419]: FunctionWithMods
 [2401,2408]: Ident
 [2413,2419]: Ident
 [2422,2450]: Function
@@ -575,7 +575,7 @@
 [2464,2464]: DefDef
 [2464,2464]: TypeTree
 [2474,2524]: ValDef
-[2482,2502]: Function
+[2482,2502]: FunctionWithMods
 [2483,2487]: ValDef
 [2486,2487]: Ident
 [2489,2493]: ValDef
@@ -765,7 +765,7 @@
 [3574,3575]: Ident
 [3581,3680]: DefDef
 [3594,3633]: ValDef
-[3605,3633]: Function
+[3605,3633]: FunctionWithMods
 [3605,3621]: AppliedTypeTree
 [3605,3618]: Ident
 [3619,3620]: Ident

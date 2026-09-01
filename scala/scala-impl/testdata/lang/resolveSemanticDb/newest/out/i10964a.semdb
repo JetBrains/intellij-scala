@@ -137,7 +137,7 @@ Document tests/pos/i10964a.scala
 (65:9..65:11) _empty_/Ref.of(). -> 55:7
 (65:44..65:48) _empty_/ApplicativeIdOps#pure(). -> 12:7
 (65:49..65:50) _empty_/Resource#[F] -> 59:16
-(65:52..65:54) scala/Predef.ArrowAssoc#`->`().
+(65:52..65:54) scala/Predef.`->`().
 (65:58..65:62) _empty_/ApplicativeIdOps#pure(). -> 12:7
 (65:63..65:64) _empty_/Resource#[F] -> 59:16
 

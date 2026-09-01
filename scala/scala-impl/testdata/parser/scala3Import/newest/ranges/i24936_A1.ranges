@@ -1,0 +1,16 @@
+[48,154]: PackageDef
+[56,63]: Ident
+[65,154]: TypeDef
+[76,152]: Template
+[76,76]: DefDef
+[76,76]: TypeTree
+[76,92]: ValDef
+[82,89]: SingletonTypeTree
+[82,84]: Ident
+[95,112]: Import
+[102,104]: Ident
+[115,152]: DefDef
+[129,133]: Ident
+[136,152]: Apply
+[136,143]: Ident
+[144,151]: Ident

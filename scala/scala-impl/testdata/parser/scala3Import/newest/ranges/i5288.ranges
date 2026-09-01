@@ -38,7 +38,7 @@
 [224,227]: Ident
 [230,231]: Number
 [232,264]: ValDef
-[248,259]: Function
+[248,259]: FunctionWithMods
 [248,251]: Ident
 [256,259]: Ident
 [262,264]: Ident
@@ -100,7 +100,7 @@
 [724,727]: Ident
 [730,731]: Number
 [732,774]: ValDef
-[748,769]: Function
+[748,769]: FunctionWithMods
 [749,752]: Ident
 [754,760]: Ident
 [766,769]: Ident
@@ -185,7 +185,7 @@
 [1308,1350]: ValDef
 [1324,1345]: Function
 [1324,1327]: Ident
-[1331,1345]: Function
+[1331,1345]: FunctionWithMods
 [1331,1337]: Ident
 [1342,1345]: Ident
 [1348,1350]: Ident

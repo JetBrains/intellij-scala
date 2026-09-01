@@ -5,17 +5,17 @@ Document tests/pos/CoderTrait.scala
 (1:27..1:34) scala/collection/mutable/HashMap.
 (5:14..5:18) scala/package.List#
 (5:19..5:25) scala/Predef.String#
-(7:6..7:8) scala/Predef.ArrowAssoc#`->`().
+(7:6..7:8) scala/Predef.`->`().
 (7:37..7:39) scala/Predef.ArrowAssoc#`->`().
 (9:27..9:30) scala/Predef.Map.
-(10:11..10:13) scala/Predef.ArrowAssoc#`->`().
-(10:25..10:27) scala/Predef.ArrowAssoc#`->`().
-(10:39..10:41) scala/Predef.ArrowAssoc#`->`().
-(10:53..10:55) scala/Predef.ArrowAssoc#`->`().
-(11:11..11:13) scala/Predef.ArrowAssoc#`->`().
-(11:25..11:27) scala/Predef.ArrowAssoc#`->`().
-(11:40..11:42) scala/Predef.ArrowAssoc#`->`().
-(11:54..11:56) scala/Predef.ArrowAssoc#`->`().
+(10:11..10:13) scala/Predef.`->`().
+(10:25..10:27) scala/Predef.`->`().
+(10:39..10:41) scala/Predef.`->`().
+(10:53..10:55) scala/Predef.`->`().
+(11:11..11:13) scala/Predef.`->`().
+(11:25..11:27) scala/Predef.`->`().
+(11:40..11:42) scala/Predef.`->`().
+(11:54..11:56) scala/Predef.`->`().
 (20:26..20:29) scala/Predef.Map#
 (20:30..20:34) scala/Char#
 (20:36..20:40) scala/Char#
@@ -26,7 +26,7 @@ Document tests/pos/CoderTrait.scala
 (25:28..25:31) local7 -> 25:20
 (25:32..25:35) scala/collection/StringOps#map().
 (25:44..25:47) local8 -> 25:37
-(25:48..25:50) scala/Predef.ArrowAssoc#`->`().
+(25:48..25:50) scala/Predef.`->`().
 (25:51..25:56) local6 -> 25:13
 (29:25..29:28) scala/Predef.Map#
 (29:29..29:33) scala/Char#
@@ -34,7 +34,7 @@ Document tests/pos/CoderTrait.scala
 (30:26..30:35) _empty_/CoderTrait#mnemonics. -> 9:15
 (30:44..30:47) local11 -> 30:18
 (30:55..30:58) local12 -> 30:37
-(30:59..30:61) scala/Predef.ArrowAssoc#`->`().
+(30:59..30:61) scala/Predef.`->`().
 (30:62..30:67) local10 -> 30:11
 (33:30..33:36) scala/Predef.String#
 (33:39..33:45) scala/Predef.String#
@@ -58,7 +58,7 @@ Document tests/pos/CoderTrait.scala
 (41:16..41:23) java/lang/String#isEmpty().
 (41:25..41:28) scala/Predef.Set.
 (41:29..41:32) scala/package.Nil.
-(44:25..44:27) scala/runtime/RichInt#to().
+(44:25..44:27) scala/Int.to().
 (44:28..44:34) _empty_/CoderTrait#encode().(number) -> 40:14
 (44:35..44:41) java/lang/String#length().
 (45:17..45:28) _empty_/CoderTrait#wordsForNum. -> 36:15

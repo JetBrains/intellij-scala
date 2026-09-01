@@ -1,0 +1,18 @@
+Document tests/pos/i26656.scala
+(3:25..3:45) _empty_/ParsingIntra.ImmutLexerFlowModule# -> 4:11
+(3:52..3:58) scala/AnyRef#
+(3:64..3:84) _empty_/ParsingIntra.ImmutLexerFlowModule# -> 4:11
+(6:33..6:39) scala/Predef.String#
+(6:43..6:49) scala/Predef.String#
+(6:52..6:58) scala/Predef.String#
+(8:40..8:47) _empty_/ParsingIntra.ImmutLexerFlowModule#Parser1. -> 10:16
+(8:55..8:62) _empty_/ParsingIntra.ImmutLexerFlowModule#Parser1. -> 10:16
+(12:23..12:30) _empty_/ParsingIntra.ImmutLexerFlowModule#Parser1. -> 10:16
+(13:23..13:27) scala/Unit#
+(19:21..19:28) scala/Predef.locally().
+(19:29..19:33) scala/Unit#
+(20:9..20:21) _empty_/ParsingIntra. -> 2:8
+(20:22..20:36) _empty_/ParsingIntra.ImmutLexerFlow. -> 3:9
+(20:37..20:43) _empty_/ParsingIntra.ImmutLexerFlowModule#Parser(). -> 8:32
+(20:44..20:46) _empty_/ParsingIntra.ImmutLexerFlowModule#gc(). -> 13:17
+

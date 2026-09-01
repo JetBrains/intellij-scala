@@ -1,0 +1,791 @@
+//!> using scala "3.2.1"
+
+import scala.compiletime.ops.int._
+
+object TupleOps {
+  import Tuple._
+
+  type Reduce[T <: NonEmptyTuple, F[_, _]] =
+    Fold[Tuple.Tail[T], Tuple.Head[T], F]
+
+  type Maximum[T <: NonEmptyTuple] = Reduce[
+    T,
+    [A, B] =>> (A, B) match {
+      case (Int, Int) => A `Max` B
+    }
+  ]
+
+  type IndexOfRec[T <: Tuple, Elem, I <: Int] = Tuple.Elem[T, I] match {
+    case Elem => I
+    case _    => IndexOfRec[T, Elem, I + 1]
+  }
+
+  type IndexOf[T <: Tuple, Elem] = IndexOfRec[T, Elem, 0]
+
+  type DropLargest[T <: NonEmptyTuple] =
+    T `IndexOf` Maximum[T] match {
+      case Int =>
+        (
+          (T `Take` (T `IndexOf` Maximum[T])) `Concat`
+          (T `Drop` ((T `IndexOf` Maximum[T]) + 1))
+        ) *: EmptyTuple
+    }
+
+  type BubbleSort[T <: Tuple] = T match {
+    case EmptyTuple => EmptyTuple
+    case NonEmptyTuple =>
+      BubbleSort[DropLargest[T]] `Concat` (Maximum[T] *: EmptyTuple)
+  }
+}
+
+object demo extends App {
+  println(compiletime.constValue[TupleOps.BubbleSort[(1, 2)]]) // error: Recursion limit exceeded
+}
+-----
+ScalaFile
+  PsiComment(comment)('//!> using scala "3.2.1"')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.compiletime.ops.int
+        CodeReferenceElement: scala.compiletime.ops
+          CodeReferenceElement: scala.compiletime
+            CodeReferenceElement: scala
+              PsiElement(identifier)('scala')
+            PsiElement(.)('.')
+            PsiElement(identifier)('compiletime')
+          PsiElement(.)('.')
+          PsiElement(identifier)('ops')
+        PsiElement(.)('.')
+        PsiElement(identifier)('int')
+      PsiElement(.)('.')
+      PsiElement(_)('_')
+  PsiWhiteSpace('\n\n')
+  ScObject: TupleOps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TupleOps')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: Tuple
+              PsiElement(identifier)('Tuple')
+            PsiElement(.)('.')
+            PsiElement(_)('_')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Reduce
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Reduce')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: NonEmptyTuple
+                CodeReferenceElement: NonEmptyTuple
+                  PsiElement(identifier)('NonEmptyTuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: F
+              PsiElement(identifier)('F')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeParameter: _
+                  PsiElement(_)('_')
+                PsiElement(])(']')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ParametrizedType: Fold[Tuple.Tail[T], Tuple.Head[T], F]
+            SimpleType: Fold
+              CodeReferenceElement: Fold
+                PsiElement(identifier)('Fold')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Tuple.Tail[T]
+                  SimpleType: Tuple.Tail
+                    CodeReferenceElement: Tuple.Tail
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Tail')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                ParametrizedType: Tuple.Head[T]
+                  SimpleType: Tuple.Head
+                    CodeReferenceElement: Tuple.Head
+                      CodeReferenceElement: Tuple
+                        PsiElement(identifier)('Tuple')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Head')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: F
+                  CodeReferenceElement: F
+                    PsiElement(identifier)('F')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Maximum
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Maximum')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: NonEmptyTuple
+                CodeReferenceElement: NonEmptyTuple
+                  PsiElement(identifier)('NonEmptyTuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Reduce[
+    T,
+    [A, B] =>> (A, B) match {
+      case (Int, Int) => A `Max` B
+    }
+  ]
+            SimpleType: Reduce
+              CodeReferenceElement: Reduce
+                PsiElement(identifier)('Reduce')
+            TypeArgumentsList
+              PsiElement([)('[')
+              PsiWhiteSpace('\n    ')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace('\n    ')
+              TypeArgument
+                TypeLambda: [A, B] =>> (A, B) match {
+      case (Int, Int) => A `Max` B
+    }
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: A
+                      PsiElement(identifier)('A')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeParameter: B
+                      PsiElement(identifier)('B')
+                    PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>>)('=>>')
+                  PsiWhiteSpace(' ')
+                  MatchType: (A, B) match {
+      case (Int, Int) => A `Max` B
+    }
+                    TupleType: (A, B)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: B
+                          CodeReferenceElement: B
+                            PsiElement(identifier)('B')
+                      PsiElement())(')')
+                    PsiWhiteSpace(' ')
+                    PsiElement(match)('match')
+                    PsiWhiteSpace(' ')
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n      ')
+                    ScMatchTypeCasesImpl(match type cases)
+                      ScMatchTypeCaseImpl(match type case)
+                        PsiElement(case)('case')
+                        PsiWhiteSpace(' ')
+                        TupleType: (Int, Int)
+                          PsiElement(()('(')
+                          TypesList
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        InfixType: A `Max` B
+                          SimpleType: A
+                            CodeReferenceElement: A
+                              PsiElement(identifier)('A')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: `Max`
+                            PsiElement(identifier)('`Max`')
+                          PsiWhiteSpace(' ')
+                          SimpleType: B
+                            CodeReferenceElement: B
+                              PsiElement(identifier)('B')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n  ')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: IndexOfRec
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('IndexOfRec')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Elem
+              PsiElement(identifier)('Elem')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: I
+              PsiElement(identifier)('I')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Int
+                CodeReferenceElement: Int
+                  PsiElement(identifier)('Int')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: Tuple.Elem[T, I] match {
+    case Elem => I
+    case _    => IndexOfRec[T, Elem, I + 1]
+  }
+            ParametrizedType: Tuple.Elem[T, I]
+              SimpleType: Tuple.Elem
+                CodeReferenceElement: Tuple.Elem
+                  CodeReferenceElement: Tuple
+                    PsiElement(identifier)('Tuple')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Elem')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: I
+                    CodeReferenceElement: I
+                      PsiElement(identifier)('I')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Elem
+                  CodeReferenceElement: Elem
+                    PsiElement(identifier)('Elem')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: I
+                  CodeReferenceElement: I
+                    PsiElement(identifier)('I')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                TypeVariable: _
+                  PsiElement(_)('_')
+                PsiWhiteSpace('    ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                ParametrizedType: IndexOfRec[T, Elem, I + 1]
+                  SimpleType: IndexOfRec
+                    CodeReferenceElement: IndexOfRec
+                      PsiElement(identifier)('IndexOfRec')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      SimpleType: Elem
+                        CodeReferenceElement: Elem
+                          PsiElement(identifier)('Elem')
+                    PsiElement(,)(',')
+                    PsiWhiteSpace(' ')
+                    TypeArgument
+                      InfixType: I + 1
+                        SimpleType: I
+                          CodeReferenceElement: I
+                            PsiElement(identifier)('I')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: +
+                          PsiElement(identifier)('+')
+                        PsiWhiteSpace(' ')
+                        LiteralType: 1
+                          IntegerLiteral
+                            PsiElement(integer)('1')
+                    PsiElement(])(']')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: IndexOf
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('IndexOf')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            TypeParameter: Elem
+              PsiElement(identifier)('Elem')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ParametrizedType: IndexOfRec[T, Elem, 0]
+            SimpleType: IndexOfRec
+              CodeReferenceElement: IndexOfRec
+                PsiElement(identifier)('IndexOfRec')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                SimpleType: Elem
+                  CodeReferenceElement: Elem
+                    PsiElement(identifier)('Elem')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: DropLargest
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('DropLargest')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: NonEmptyTuple
+                CodeReferenceElement: NonEmptyTuple
+                  PsiElement(identifier)('NonEmptyTuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MatchType: T `IndexOf` Maximum[T] match {
+      case Int =>
+        (
+          (T `Take` (T `IndexOf` Maximum[T])) `Concat`
+          (T `Drop` ((T `IndexOf` Maximum[T]) + 1))
+        ) *: EmptyTuple
+    }
+            InfixType: T `IndexOf` Maximum[T]
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: `IndexOf`
+                PsiElement(identifier)('`IndexOf`')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Maximum[T]
+                SimpleType: Maximum
+                  CodeReferenceElement: Maximum
+                    PsiElement(identifier)('Maximum')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n      ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n        ')
+                InfixType: (
+          (T `Take` (T `IndexOf` Maximum[T])) `Concat`
+          (T `Drop` ((T `IndexOf` Maximum[T]) + 1))
+        ) *: EmptyTuple
+                  TypeInParenthesis: (
+          (T `Take` (T `IndexOf` Maximum[T])) `Concat`
+          (T `Drop` ((T `IndexOf` Maximum[T]) + 1))
+        )
+                    PsiElement(()('(')
+                    PsiWhiteSpace('\n          ')
+                    InfixType: (T `Take` (T `IndexOf` Maximum[T])) `Concat`
+          (T `Drop` ((T `IndexOf` Maximum[T]) + 1))
+                      TypeInParenthesis: (T `Take` (T `IndexOf` Maximum[T]))
+                        PsiElement(()('(')
+                        InfixType: T `Take` (T `IndexOf` Maximum[T])
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: `Take`
+                            PsiElement(identifier)('`Take`')
+                          PsiWhiteSpace(' ')
+                          TypeInParenthesis: (T `IndexOf` Maximum[T])
+                            PsiElement(()('(')
+                            InfixType: T `IndexOf` Maximum[T]
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: `IndexOf`
+                                PsiElement(identifier)('`IndexOf`')
+                              PsiWhiteSpace(' ')
+                              ParametrizedType: Maximum[T]
+                                SimpleType: Maximum
+                                  CodeReferenceElement: Maximum
+                                    PsiElement(identifier)('Maximum')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: T
+                                      CodeReferenceElement: T
+                                        PsiElement(identifier)('T')
+                                  PsiElement(])(']')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: `Concat`
+                        PsiElement(identifier)('`Concat`')
+                      PsiWhiteSpace('\n          ')
+                      TypeInParenthesis: (T `Drop` ((T `IndexOf` Maximum[T]) + 1))
+                        PsiElement(()('(')
+                        InfixType: T `Drop` ((T `IndexOf` Maximum[T]) + 1)
+                          SimpleType: T
+                            CodeReferenceElement: T
+                              PsiElement(identifier)('T')
+                          PsiWhiteSpace(' ')
+                          CodeReferenceElement: `Drop`
+                            PsiElement(identifier)('`Drop`')
+                          PsiWhiteSpace(' ')
+                          TypeInParenthesis: ((T `IndexOf` Maximum[T]) + 1)
+                            PsiElement(()('(')
+                            InfixType: (T `IndexOf` Maximum[T]) + 1
+                              TypeInParenthesis: (T `IndexOf` Maximum[T])
+                                PsiElement(()('(')
+                                InfixType: T `IndexOf` Maximum[T]
+                                  SimpleType: T
+                                    CodeReferenceElement: T
+                                      PsiElement(identifier)('T')
+                                  PsiWhiteSpace(' ')
+                                  CodeReferenceElement: `IndexOf`
+                                    PsiElement(identifier)('`IndexOf`')
+                                  PsiWhiteSpace(' ')
+                                  ParametrizedType: Maximum[T]
+                                    SimpleType: Maximum
+                                      CodeReferenceElement: Maximum
+                                        PsiElement(identifier)('Maximum')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      TypeArgument
+                                        SimpleType: T
+                                          CodeReferenceElement: T
+                                            PsiElement(identifier)('T')
+                                      PsiElement(])(']')
+                                PsiElement())(')')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: +
+                                PsiElement(identifier)('+')
+                              PsiWhiteSpace(' ')
+                              LiteralType: 1
+                                IntegerLiteral
+                                  PsiElement(integer)('1')
+                            PsiElement())(')')
+                        PsiElement())(')')
+                    PsiWhiteSpace('\n        ')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+            PsiWhiteSpace('\n    ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: BubbleSort
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('BubbleSort')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: Tuple
+                CodeReferenceElement: Tuple
+                  PsiElement(identifier)('Tuple')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: T match {
+    case EmptyTuple => EmptyTuple
+    case NonEmptyTuple =>
+      BubbleSort[DropLargest[T]] `Concat` (Maximum[T] *: EmptyTuple)
+  }
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace(' ')
+            PsiElement({)('{')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: EmptyTuple
+                  CodeReferenceElement: EmptyTuple
+                    PsiElement(identifier)('EmptyTuple')
+              PsiWhiteSpace('\n    ')
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                SimpleType: NonEmptyTuple
+                  CodeReferenceElement: NonEmptyTuple
+                    PsiElement(identifier)('NonEmptyTuple')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace('\n      ')
+                InfixType: BubbleSort[DropLargest[T]] `Concat` (Maximum[T] *: EmptyTuple)
+                  ParametrizedType: BubbleSort[DropLargest[T]]
+                    SimpleType: BubbleSort
+                      CodeReferenceElement: BubbleSort
+                        PsiElement(identifier)('BubbleSort')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: DropLargest[T]
+                          SimpleType: DropLargest
+                            CodeReferenceElement: DropLargest
+                              PsiElement(identifier)('DropLargest')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: T
+                                CodeReferenceElement: T
+                                  PsiElement(identifier)('T')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: `Concat`
+                    PsiElement(identifier)('`Concat`')
+                  PsiWhiteSpace(' ')
+                  TypeInParenthesis: (Maximum[T] *: EmptyTuple)
+                    PsiElement(()('(')
+                    InfixType: Maximum[T] *: EmptyTuple
+                      ParametrizedType: Maximum[T]
+                        SimpleType: Maximum
+                          CodeReferenceElement: Maximum
+                            PsiElement(identifier)('Maximum')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: T
+                              CodeReferenceElement: T
+                                PsiElement(identifier)('T')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      CodeReferenceElement: *:
+                        PsiElement(identifier)('*:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: EmptyTuple
+                        CodeReferenceElement: EmptyTuple
+                          PsiElement(identifier)('EmptyTuple')
+                    PsiElement())(')')
+            PsiWhiteSpace('\n  ')
+            PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: demo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('demo')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: App
+            CodeReferenceElement: App
+              PsiElement(identifier)('App')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          ReferenceExpression: println
+            PsiElement(identifier)('println')
+          ArgumentList
+            PsiElement(()('(')
+            GenericCall
+              ReferenceExpression: compiletime.constValue
+                ReferenceExpression: compiletime
+                  PsiElement(identifier)('compiletime')
+                PsiElement(.)('.')
+                PsiElement(identifier)('constValue')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: TupleOps.BubbleSort[(1, 2)]
+                    SimpleType: TupleOps.BubbleSort
+                      CodeReferenceElement: TupleOps.BubbleSort
+                        CodeReferenceElement: TupleOps
+                          PsiElement(identifier)('TupleOps')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('BubbleSort')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        TupleType: (1, 2)
+                          PsiElement(()('(')
+                          TypesList
+                            LiteralType: 1
+                              IntegerLiteral
+                                PsiElement(integer)('1')
+                            PsiElement(,)(',')
+                            PsiWhiteSpace(' ')
+                            LiteralType: 2
+                              IntegerLiteral
+                                PsiElement(integer)('2')
+                          PsiElement())(')')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// error: Recursion limit exceeded')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

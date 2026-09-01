@@ -1,0 +1,316 @@
+trait Thing[T]
+trait G
+
+object Outer:
+
+  def thing: Thing[Int] = ???
+
+  extension[T1](t: Thing[T1])(using g: G = new G { })
+    def map[T2](m: T1 => T2): Thing[T2] = ???
+    def flatMap[T2](m: T1 => Thing[T2]): Thing[T2] = ???
+
+  // `y` requires a `flatMap`, and that one requires getting the default value for the `g` argument,
+  // and getting that default value requires the `t` argument (since default values can depend on previous args),
+  // which means we end up with a block;
+  // and since the whole thing is generic, we must apply a generic type argument to that block
+  for
+    x <- thing
+    y <- thing
+  yield
+    1
+-----
+ScalaFile
+  ScTrait: Thing
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Thing')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScTrait: G
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('G')
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScObject: Outer
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Outer')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: thing
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('thing')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Thing[Int]
+            SimpleType: Thing
+              CodeReferenceElement: Thing
+                PsiElement(identifier)('Thing')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        Extension on Thing[T1]
+          PsiElement(extension)('extension')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T1
+              PsiElement(identifier)('T1')
+            PsiElement(])(']')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: t
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('t')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Thing[T1]
+                    SimpleType: Thing
+                      CodeReferenceElement: Thing
+                        PsiElement(identifier)('Thing')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: T1
+                          CodeReferenceElement: T1
+                            PsiElement(identifier)('T1')
+                      PsiElement(])(']')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: g
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('g')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: G
+                    CodeReferenceElement: G
+                      PsiElement(identifier)('G')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ScNewTemplateDefinition: <anonymous>
+                  PsiElement(new)('new')
+                  PsiWhiteSpace(' ')
+                  ExtendsBlock
+                    TemplateParents
+                      ConstructorInvocation
+                        SimpleType: G
+                          CodeReferenceElement: G
+                            PsiElement(identifier)('G')
+                    PsiWhiteSpace(' ')
+                    ScTemplateBody
+                      PsiElement({)('{')
+                      PsiWhiteSpace(' ')
+                      PsiElement(})('}')
+              PsiElement())(')')
+          PsiWhiteSpace('\n    ')
+          ScExtensionBody
+            ScFunctionDefinition: map
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('map')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: T2
+                  PsiElement(identifier)('T2')
+                PsiElement(])(']')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: m
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('m')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      FunctionalType: T1 => T2
+                        SimpleType: T1
+                          CodeReferenceElement: T1
+                            PsiElement(identifier)('T1')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        SimpleType: T2
+                          CodeReferenceElement: T2
+                            PsiElement(identifier)('T2')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Thing[T2]
+                SimpleType: Thing
+                  CodeReferenceElement: Thing
+                    PsiElement(identifier)('Thing')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T2
+                      CodeReferenceElement: T2
+                        PsiElement(identifier)('T2')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+            PsiWhiteSpace('\n    ')
+            ScFunctionDefinition: flatMap
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(def)('def')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('flatMap')
+              TypeParameterClause
+                PsiElement([)('[')
+                TypeParameter: T2
+                  PsiElement(identifier)('T2')
+                PsiElement(])(']')
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  Parameter: m
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(identifier)('m')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParameterType
+                      FunctionalType: T1 => Thing[T2]
+                        SimpleType: T1
+                          CodeReferenceElement: T1
+                            PsiElement(identifier)('T1')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                        PsiWhiteSpace(' ')
+                        ParametrizedType: Thing[T2]
+                          SimpleType: Thing
+                            CodeReferenceElement: Thing
+                              PsiElement(identifier)('Thing')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: T2
+                                CodeReferenceElement: T2
+                                  PsiElement(identifier)('T2')
+                            PsiElement(])(']')
+                  PsiElement())(')')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParametrizedType: Thing[T2]
+                SimpleType: Thing
+                  CodeReferenceElement: Thing
+                    PsiElement(identifier)('Thing')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T2
+                      CodeReferenceElement: T2
+                        PsiElement(identifier)('T2')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(=)('=')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: ???
+                PsiElement(identifier)('???')
+        PsiWhiteSpace('\n\n  ')
+        PsiComment(comment)('// `y` requires a `flatMap`, and that one requires getting the default value for the `g` argument,')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// and getting that default value requires the `t` argument (since default values can depend on previous args),')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// which means we end up with a block;')
+        PsiWhiteSpace('\n  ')
+        PsiComment(comment)('// and since the whole thing is generic, we must apply a generic type argument to that block')
+        PsiWhiteSpace('\n  ')
+        ForStatement
+          PsiElement(for)('for')
+          PsiWhiteSpace('\n    ')
+          Enumerators
+            Generator
+              ReferencePattern: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: thing
+                PsiElement(identifier)('thing')
+            PsiWhiteSpace('\n    ')
+            Generator
+              ReferencePattern: y
+                PsiElement(identifier)('y')
+              PsiWhiteSpace(' ')
+              PsiElement(<-)('<-')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: thing
+                PsiElement(identifier)('thing')
+          PsiWhiteSpace('\n  ')
+          PsiElement(yield)('yield')
+          PsiWhiteSpace('\n    ')
+          IntegerLiteral
+            PsiElement(integer)('1')

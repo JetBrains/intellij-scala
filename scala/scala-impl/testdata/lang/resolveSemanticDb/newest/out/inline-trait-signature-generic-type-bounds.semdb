@@ -1,0 +1,9 @@
+Document tests/pos/inline-trait-signature-generic-type-bounds.scala
+(2:21..2:24) scala/Int#
+(2:28..2:34) scala/AnyVal#
+(3:12..3:13) _empty_/A#[T] -> 2:16
+(3:16..3:17) _empty_/A#[T] -> 2:16
+(3:20..3:21) _empty_/A#f().(x) -> 3:9
+(5:17..5:18) _empty_/A# -> 2:14
+(5:19..5:22) scala/Int#
+

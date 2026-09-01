@@ -22,7 +22,7 @@ Document tests/pos/t5577.scala
 (22:21..22:29) scala/collection/mutable/Builder#sizeHint().
 (23:5..23:20) local1 -> 18:9
 (23:21..23:24) scala/collection/mutable/Growable#`++=`().
-(23:28..23:33) scala/runtime/RichInt#until().
+(23:28..23:33) scala/Int.until().
 (24:5..24:20) local1 -> 18:9
 (24:21..24:27) scala/collection/mutable/Builder#result().
 (24:30..24:37) scala/collection/IterableOnceOps#foreach().

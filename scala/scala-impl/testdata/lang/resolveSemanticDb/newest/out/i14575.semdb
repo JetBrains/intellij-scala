@@ -1,0 +1,9 @@
+Document tests/pos/i14575.scala
+(3:15..3:18) scala/Any#
+(3:28..3:38) scala/annotation/
+(3:39..3:55) scala/annotation/StaticAnnotation#
+(5:15..5:21) scala/Predef.String#
+(5:31..5:37) scala/AnyVal#
+(6:10..6:13) scala/Int#
+(6:15..6:18) _empty_/ann# -> 3:7
+

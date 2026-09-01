@@ -1,0 +1,9 @@
+Document tests/pos/inline-trait-inheritance-single-abstract-class-override.scala
+(3:10..3:13) scala/Int#
+(4:15..4:16) _empty_/IT#f().[T] -> 4:9
+(4:19..4:20) _empty_/IT#f().[T] -> 4:9
+(4:23..4:24) _empty_/IT#f().(x) -> 4:12
+(6:27..6:29) _empty_/IT# -> 2:14
+(7:19..7:22) scala/Int#
+(8:10..8:13) scala/Int#
+

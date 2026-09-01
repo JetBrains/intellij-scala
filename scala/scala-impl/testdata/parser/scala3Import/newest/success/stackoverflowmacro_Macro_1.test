@@ -1,0 +1,141 @@
+//> using options -Xmax-fuel:20
+// (because we store the errors caused by a recursive overflow, so if the fuel is too high,
+//  the error is too much text for a JVM string constant)
+
+import scala.quoted.*
+
+transparent inline def stackOverflowMacro: Int = ${ StackOverflowMacro.impl }
+
+object StackOverflowMacro:
+    def impl(using Quotes): Expr[Int] =  '{ ${impl} + ${impl} }
+
+-----
+ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-Xmax-fuel:20')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('// (because we store the errors caused by a recursive overflow, so if the fuel is too high,')
+  PsiWhiteSpace('\n')
+  PsiComment(comment)('//  the error is too much text for a JVM string constant)')
+  PsiWhiteSpace('\n\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.quoted
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('quoted')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: stackOverflowMacro
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('stackOverflowMacro')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    SplicedBlock
+      PsiElement($)('$')
+      PsiElement({)('{')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: StackOverflowMacro.impl
+        ReferenceExpression: StackOverflowMacro
+          PsiElement(identifier)('StackOverflowMacro')
+        PsiElement(.)('.')
+        PsiElement(identifier)('impl')
+      PsiWhiteSpace(' ')
+      PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: StackOverflowMacro
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('StackOverflowMacro')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n    ')
+        ScFunctionDefinition: impl
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('impl')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement(using)('using')
+              PsiWhiteSpace(' ')
+              Parameter: <anonymous>
+                ParameterType
+                  SimpleType: Quotes
+                    CodeReferenceElement: Quotes
+                      PsiElement(identifier)('Quotes')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Expr[Int]
+            SimpleType: Expr
+              CodeReferenceElement: Expr
+                PsiElement(identifier)('Expr')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('  ')
+          QuotedBlock
+            PsiElement(')(''')
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              SplicedBlock
+                PsiElement($)('$')
+                PsiElement({)('{')
+                ReferenceExpression: impl
+                  PsiElement(identifier)('impl')
+                PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              SplicedBlock
+                PsiElement($)('$')
+                PsiElement({)('{')
+                ReferenceExpression: impl
+                  PsiElement(identifier)('impl')
+                PsiElement(})('}')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')

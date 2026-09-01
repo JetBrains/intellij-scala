@@ -12,7 +12,7 @@
 [55,82]: LambdaTypeTree
 [55,56]: TypeDef
 [55,55]: TypeBoundsTree
-[60,82]: Function
+[60,82]: FunctionWithMods
 [61,75]: ValDef
 [64,75]: Ident
 [81,82]: Ident

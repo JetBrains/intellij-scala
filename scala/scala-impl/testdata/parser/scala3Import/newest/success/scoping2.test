@@ -8,7 +8,7 @@ object That {
         trait J {}
      }
      trait C extends A with B {
-         type T <: I with J;
+         type T <: I & J;
      }
 }
 
@@ -156,12 +156,13 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(<:)('<:')
                 PsiWhiteSpace(' ')
-                CompoundType: I with J
+                InfixType: I & J
                   SimpleType: I
                     CodeReferenceElement: I
                       PsiElement(identifier)('I')
                   PsiWhiteSpace(' ')
-                  PsiElement(with)('with')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
                   PsiWhiteSpace(' ')
                   SimpleType: J
                     CodeReferenceElement: J

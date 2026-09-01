@@ -1,0 +1,20 @@
+Document tests/pos/spec-strings.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:35) scala/language.experimental.magic.
+(4:21..4:25) _empty_/Date# -> 3:7
+(10:29..10:33) _empty_/Date. -> 4:8
+(12:5..12:8) scala/Predef.`???`().
+(17:11..17:15) _empty_/Date. -> 4:8
+(19:5..19:8) scala/Predef.`???`().
+(31:5..31:8) scala/Predef.`???`().
+(35:29..35:33) _empty_/Date. -> 4:8
+(36:14..36:15) scala/Int#`+`(+4).
+(36:18..36:20) scala/Int#`==`(+3).
+(39:7..39:14) scala/Predef.println(+1).
+(40:7..40:14) scala/Predef.println(+1).
+(43:5..43:8) scala/Predef.`???`().
+(49:5..49:8) scala/Predef.`???`().
+(53:16..53:20) scala/package.List#
+(53:21..53:24) scala/Int#
+

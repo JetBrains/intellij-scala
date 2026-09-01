@@ -139,9 +139,9 @@ Document tests/pos/kindPolySemiGroup.scala
 (71:13..71:16) scala/Predef.Map#
 (71:18..71:24) _empty_/Test.SemiGroup#append(). -> 30:9
 (71:25..71:28) scala/Predef.Map.
-(71:36..71:38) scala/Predef.ArrowAssoc#`->`().
+(71:36..71:38) scala/Predef.`->`().
 (71:44..71:47) scala/Predef.Map.
-(71:55..71:57) scala/Predef.ArrowAssoc#`->`().
+(71:55..71:57) scala/Predef.`->`().
 (74:23..74:30) scala/AnyKind#
 (74:42..74:44) _empty_/Test.append().[MA] -> 74:14
 (74:50..74:52) _empty_/Test.append().[MA] -> 74:14
@@ -181,7 +181,7 @@ Document tests/pos/kindPolySemiGroup.scala
 (85:31..85:37) _empty_/Test.append(). -> 74:7
 (85:42..85:45) scala/Predef.Map#
 (85:47..85:50) scala/Predef.Map.
-(85:58..85:60) scala/Predef.ArrowAssoc#`->`().
+(85:58..85:60) scala/Predef.`->`().
 (85:66..85:69) scala/Predef.Map.
-(85:77..85:79) scala/Predef.ArrowAssoc#`->`().
+(85:77..85:79) scala/Predef.`->`().
 

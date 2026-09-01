@@ -1,0 +1,14 @@
+[285,341]: PackageDef
+[285,285]: Ident
+[285,341]: ValDef
+[299,299]: TypeTree
+[302,341]: TypeApply
+[302,308]: Ident
+[309,340]: InfixOp
+[309,323]: SingletonTypeTree
+[309,318]: Ident
+[324,327]: Ident
+[328,340]: AppliedTypeTree
+[328,337]: Ident
+[338,339]: SingletonTypeTree
+[338,339]: Literal

@@ -1,0 +1,79 @@
+Document tests/pos/i24537.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
+(4:33..4:34) _empty_/iron.IronType#[A] -> 4:24
+(4:37..4:38) _empty_/iron.IronType#[A] -> 4:24
+(5:19..5:27) _empty_/iron.IronType# -> 4:15
+(5:28..5:29) _empty_/iron.`:|`#[A] -> 5:11
+(5:31..5:32) _empty_/iron.`:|`#[C] -> 5:14
+(8:22..8:33) _empty_/iron.Implication# -> 7:15
+(8:34..8:36) _empty_/iron.`==>`#[C1] -> 8:12
+(8:38..8:40) _empty_/iron.`==>`#[C2] -> 8:16
+(9:24..9:26) _empty_/iron.`given_==>_C1_C2`().[C1] -> 9:10
+(9:27..9:30) scala/`<:<`#
+(9:31..9:33) _empty_/iron.`given_==>_C1_C2`().[C2] -> 9:14
+(9:37..9:39) _empty_/iron.`given_==>_C1_C2`().[C1] -> 9:10
+(9:40..9:43) _empty_/iron.`==>`# -> 8:8
+(9:44..9:46) _empty_/iron.`given_==>_C1_C2`().[C2] -> 9:14
+(11:61..11:62) _empty_/iron.autoCastIron().[A] -> 11:36
+(11:63..11:65) _empty_/iron.`:|`# -> 5:8
+(11:66..11:68) _empty_/iron.autoCastIron().[C1] -> 11:39
+(11:76..11:78) _empty_/iron.autoCastIron().[C1] -> 11:39
+(11:79..11:82) _empty_/iron.`==>`# -> 8:8
+(11:83..11:85) _empty_/iron.autoCastIron().[C2] -> 11:43
+(11:88..11:89) _empty_/iron.autoCastIron().[A] -> 11:36
+(11:90..11:92) _empty_/iron.`:|`# -> 5:8
+(11:93..11:95) _empty_/iron.autoCastIron().[C2] -> 11:43
+(12:5..12:10) _empty_/iron.autoCastIron().(value) -> 11:54
+(12:11..12:23) scala/Any#asInstanceOf().
+(13:48..13:56) scala/package.Iterable#
+(13:86..13:87) _empty_/iron.autoFactorize().[I] -> 13:40
+(13:88..13:89) _empty_/iron.autoFactorize().[A] -> 13:37
+(13:90..13:92) _empty_/iron.`:|`# -> 5:8
+(13:93..13:95) _empty_/iron.autoFactorize().[C1] -> 13:61
+(13:104..13:106) _empty_/iron.autoFactorize().[C1] -> 13:61
+(13:107..13:110) _empty_/iron.`==>`# -> 8:8
+(13:111..13:113) _empty_/iron.autoFactorize().[C2] -> 13:65
+(13:116..13:117) _empty_/iron.autoFactorize().[I] -> 13:40
+(13:118..13:119) _empty_/iron.autoFactorize().[A] -> 13:37
+(13:121..13:123) _empty_/iron.`:|`# -> 5:8
+(13:124..13:126) _empty_/iron.autoFactorize().[C2] -> 13:65
+(14:5..14:13) _empty_/iron.autoFactorize().(iterable) -> 13:76
+(14:14..14:26) scala/Any#asInstanceOf().
+(15:8..15:12) _empty_/iron. -> 3:8
+(19:35..19:36) _empty_/Stream#[A] -> 18:20
+(19:40..19:42) _empty_/Stream#evalMapFilter().[F2] -> 19:21
+(19:43..19:45) _empty_/Stream#evalMapFilter().[O2] -> 19:28
+(19:49..19:55) _empty_/Stream# -> 18:7
+(19:56..19:58) _empty_/Stream#evalMapFilter().[F2] -> 19:21
+(19:60..19:62) _empty_/Stream#evalMapFilter().[O2] -> 19:28
+(23:11..23:12) _empty_/D# -> 22:13
+(23:13..23:14) scala/`&`#
+(23:15..23:16) _empty_/A# -> 21:13
+(25:15..25:19) _empty_/Path# -> 17:7
+(26:18..26:19) _empty_/i24537$package.asD().[F] -> 26:11
+(26:20..26:24) _empty_/Path# -> 17:7
+(26:25..26:27) _empty_/iron.`:|`# -> 5:8
+(26:28..26:29) _empty_/D# -> 22:13
+(26:33..26:36) scala/Predef.`???`().
+(28:15..28:19) _empty_/Path# -> 17:7
+(28:20..28:22) _empty_/iron.`:|`# -> 5:8
+(28:23..28:24) _empty_/D# -> 22:13
+(29:17..29:23) _empty_/Stream# -> 18:7
+(29:24..29:25) _empty_/i24537$package.ls().[F] -> 29:10
+(29:27..29:31) _empty_/Path# -> 17:7
+(29:35..29:38) scala/Predef.`???`().
+(31:15..31:19) _empty_/Path# -> 17:7
+(31:20..31:22) _empty_/iron.`:|`# -> 5:8
+(31:23..31:25) _empty_/i24537$package.AD# -> 23:6
+(32:19..32:25) _empty_/Stream# -> 18:7
+(32:26..32:27) _empty_/i24537$package.lsDA().[F] -> 32:12
+(32:29..32:33) _empty_/Path# -> 17:7
+(32:34..32:36) _empty_/iron.`:|`# -> 5:8
+(32:37..32:39) _empty_/i24537$package.AD# -> 23:6
+(32:43..32:44) _empty_/i24537$package.lsDA().(p) -> 31:12
+(32:45..32:47) _empty_/i24537$package.ls(). -> 29:7
+(32:48..32:61) _empty_/Stream#evalMapFilter(). -> 19:7
+(32:64..32:67) _empty_/i24537$package.asD(). -> 26:7
+

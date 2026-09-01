@@ -40,7 +40,7 @@
 [240,241]: TypeDef
 [240,240]: TypeBoundsTree
 [243,271]: ValDef
-[249,271]: Function
+[249,271]: FunctionWithMods
 [249,262]: AppliedTypeTree
 [249,259]: Ident
 [260,261]: Ident
@@ -216,7 +216,7 @@
 [1195,1196]: TypeDef
 [1195,1195]: TypeBoundsTree
 [1198,1226]: ValDef
-[1204,1226]: Function
+[1204,1226]: FunctionWithMods
 [1204,1217]: AppliedTypeTree
 [1204,1214]: Ident
 [1215,1216]: Ident

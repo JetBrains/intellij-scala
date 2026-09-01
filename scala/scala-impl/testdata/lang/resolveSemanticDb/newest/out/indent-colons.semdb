@@ -77,17 +77,17 @@ Document tests/pos/indent-colons.scala
 (77:25..77:31) scala/Predef.String#
 (80:5..80:12) scala/Predef.println().
 (81:7..81:10) _empty_/Coder#Foo# -> 79:9
-(85:6..85:8) scala/Predef.ArrowAssoc#`->`().
+(85:6..85:8) scala/Predef.`->`().
 (85:37..85:39) scala/Predef.ArrowAssoc#`->`().
 (87:27..87:30) scala/Predef.Map.
-(88:11..88:13) scala/Predef.ArrowAssoc#`->`().
-(88:25..88:27) scala/Predef.ArrowAssoc#`->`().
-(88:39..88:41) scala/Predef.ArrowAssoc#`->`().
-(88:53..88:55) scala/Predef.ArrowAssoc#`->`().
-(89:11..89:13) scala/Predef.ArrowAssoc#`->`().
-(89:25..89:27) scala/Predef.ArrowAssoc#`->`().
-(89:40..89:42) scala/Predef.ArrowAssoc#`->`().
-(89:54..89:56) scala/Predef.ArrowAssoc#`->`().
+(88:11..88:13) scala/Predef.`->`().
+(88:25..88:27) scala/Predef.`->`().
+(88:39..88:41) scala/Predef.`->`().
+(88:53..88:55) scala/Predef.`->`().
+(89:11..89:13) scala/Predef.`->`().
+(89:25..89:27) scala/Predef.`->`().
+(89:40..89:42) scala/Predef.`->`().
+(89:54..89:56) scala/Predef.`->`().
 (99:7..99:11) scala/package.List.
 (100:10..100:12) scala/package.`::`.
 (100:19..100:26) scala/Predef.println(+1).
@@ -110,7 +110,7 @@ Document tests/pos/indent-colons.scala
 (115:30..115:33) local30 -> 115:22
 (115:34..115:37) scala/collection/StringOps#map().
 (115:46..115:49) local31 -> 115:39
-(115:50..115:52) scala/Predef.ArrowAssoc#`->`().
+(115:50..115:52) scala/Predef.`->`().
 (115:53..115:58) local29 -> 115:15
 (116:5..116:10) _empty_/Coder# -> 77:7
 (119:12..119:15) scala/Int#
@@ -137,7 +137,7 @@ Document tests/pos/indent-colons.scala
 (150:5..150:6) _empty_/Test23.x. -> 146:7
 (152:13..152:16) scala/Int#`+`(+4).
 (153:5..153:6) _empty_/Test23.x. -> 146:7
-(155:13..155:15) scala/runtime/RichInt#to().
+(155:13..155:15) scala/Int.to().
 (158:21..158:25) scala/package.List.
 (159:13..159:24) _empty_/Test23.credentials. -> 158:7
 (159:25..159:27) scala/collection/IterableOps#`++`().

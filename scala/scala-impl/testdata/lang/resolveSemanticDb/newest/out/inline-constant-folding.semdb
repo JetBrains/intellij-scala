@@ -1,0 +1,17 @@
+Document tests/pos/inline-constant-folding.scala
+(4:15..4:16) scala/Int#`+`(+4).
+(4:19..4:21) scala/Int#`==`(+3).
+(7:16..7:17) scala/Int#`+`(+4).
+(7:20..7:22) scala/Int#`==`(+3).
+(10:16..10:17) scala/Int#`+`(+4).
+(10:22..10:25) scala/Int#
+(10:27..10:29) scala/Int#`==`(+3).
+(13:16..13:17) scala/Int#`+`(+1).
+(13:22..13:26) scala/Byte#
+(13:28..13:30) scala/Int#`==`(+3).
+(15:2..15:6) scala/main#
+(16:3..16:5) _empty_/`inline-constant-folding$package`.f1(). -> 3:12
+(17:3..17:5) _empty_/`inline-constant-folding$package`.f2(). -> 6:12
+(18:3..18:5) _empty_/`inline-constant-folding$package`.f3(). -> 9:12
+(19:3..19:5) _empty_/`inline-constant-folding$package`.f4(). -> 12:12
+

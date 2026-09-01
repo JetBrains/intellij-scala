@@ -8,11 +8,11 @@
 [24,25]: TypeDef
 [24,24]: TypeBoundsTree
 [27,39]: ValDef
-[30,39]: Function
+[30,39]: FunctionWithMods
 [30,31]: Ident
 [36,39]: Ident
 [42,53]: Parens
-[43,52]: Function
+[43,52]: FunctionWithMods
 [43,44]: Ident
 [49,52]: Ident
 [56,59]: Ident
@@ -20,7 +20,7 @@
 [79,82]: Ident
 [85,88]: Ident
 [92,116]: DefDef
-[99,110]: Function
+[99,110]: FunctionWithMods
 [99,102]: Ident
 [107,110]: Ident
 [113,116]: Ident

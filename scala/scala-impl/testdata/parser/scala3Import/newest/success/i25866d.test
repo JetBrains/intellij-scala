@@ -1,0 +1,205 @@
+type Decode[S <: String] = S match
+  case "S" => String
+
+type DecodeAlias[S <: String] = Decode[S]
+
+class C[S <: String, T <: DecodeAlias[S]](val ts: List[T]):
+  val foo: List[? <: DecodeAlias[? <: String]] = ts
+-----
+ScalaFile
+  ScTypeAliasDefinition: Decode
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Decode')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchType: S match
+  case "S" => String
+      SimpleType: S
+        CodeReferenceElement: S
+          PsiElement(identifier)('S')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      ScMatchTypeCasesImpl(match type cases)
+        ScMatchTypeCaseImpl(match type case)
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          LiteralType: "S"
+            StringLiteral
+              PsiElement(string content)('"S"')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+  PsiWhiteSpace('\n\n')
+  ScTypeAliasDefinition: DecodeAlias
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(type)('type')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('DecodeAlias')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Decode[S]
+      SimpleType: Decode
+        CodeReferenceElement: Decode
+          PsiElement(identifier)('Decode')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: S
+            CodeReferenceElement: S
+              PsiElement(identifier)('S')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: S
+        PsiElement(identifier)('S')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        ParametrizedType: DecodeAlias[S]
+          SimpleType: DecodeAlias
+            CodeReferenceElement: DecodeAlias
+              PsiElement(identifier)('DecodeAlias')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: S
+                CodeReferenceElement: S
+                  PsiElement(identifier)('S')
+            PsiElement(])(']')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: ts
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('ts')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: List[T]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: foo
+              PsiElement(identifier)('foo')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: List[? <: DecodeAlias[? <: String]]
+            SimpleType: List
+              CodeReferenceElement: List
+                PsiElement(identifier)('List')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                WildcardType: ? <: DecodeAlias[? <: String]
+                  PsiElement(?)('?')
+                  PsiWhiteSpace(' ')
+                  PsiElement(<:)('<:')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: DecodeAlias[? <: String]
+                    SimpleType: DecodeAlias
+                      CodeReferenceElement: DecodeAlias
+                        PsiElement(identifier)('DecodeAlias')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        WildcardType: ? <: String
+                          PsiElement(?)('?')
+                          PsiWhiteSpace(' ')
+                          PsiElement(<:)('<:')
+                          PsiWhiteSpace(' ')
+                          SimpleType: String
+                            CodeReferenceElement: String
+                              PsiElement(identifier)('String')
+                      PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ts
+            PsiElement(identifier)('ts')

@@ -24,7 +24,7 @@ Document tests/pos/spec-traits.scala
 (31:18..31:19) _empty_/Bug3301#t(). -> 26:7
 (31:20..31:21) local3 -> 31:13
 (37:16..37:20) scala/Unit#
-(38:17..38:19) scala/runtime/RichInt#to().
+(38:17..38:19) scala/Int.to().
 (39:11..39:16) scala/Array.
 (39:25..39:30) scala/Array.
 (49:21..49:25) scala/Unit#

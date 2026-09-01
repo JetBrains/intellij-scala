@@ -1,0 +1,9 @@
+Document tests/pos/i26026.scala
+(2:12..2:18) scala/Option#
+(2:19..2:25) scala/Predef.String#
+(2:29..2:33) scala/Some.
+(3:10..3:16) scala/Predef.String#
+(3:19..3:22) _empty_/Repro.opt. -> 2:7
+(3:23..3:29) scala/Option#orNull().
+(3:30..3:36) scala/Predef.String#
+

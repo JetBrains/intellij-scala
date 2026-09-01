@@ -2,8 +2,8 @@ Document tests/pos/t2500.scala
 (2:12..2:17) scala/
 (2:18..2:28) scala/collection/
 (3:7..3:10) scala/collection/Map.
-(3:13..3:15) scala/Predef.ArrowAssoc#`->`().
-(3:23..3:25) scala/Predef.ArrowAssoc#`->`().
+(3:13..3:15) scala/Predef.`->`().
+(3:23..3:25) scala/Predef.`->`().
 (3:32..3:42) scala/collection/
 (3:43..3:46) scala/collection/Map#
 (3:47..3:50) scala/Int#
@@ -18,8 +18,8 @@ Document tests/pos/t2500.scala
 (3:113..3:116) scala/Int#
 (3:117..3:123) scala/Predef.String#
 (4:7..4:16) scala/collection/SortedMap.
-(4:19..4:21) scala/Predef.ArrowAssoc#`->`().
-(4:29..4:31) scala/Predef.ArrowAssoc#`->`().
+(4:19..4:21) scala/Predef.`->`().
+(4:29..4:31) scala/Predef.`->`().
 (4:38..4:48) scala/collection/
 (4:49..4:58) scala/collection/SortedMap#
 (4:59..4:62) scala/Int#

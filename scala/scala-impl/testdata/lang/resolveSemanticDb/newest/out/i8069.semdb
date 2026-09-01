@@ -1,6 +1,6 @@
 Document tests/pos/i8069.scala
 (5:16..5:17) _empty_/A# -> 1:7
-(5:26..5:27) _empty_/C#`<init>`().(a)
+(5:26..5:27) _empty_/C#`<init>`().(a) -> 5:13
 (5:28..5:29) _empty_/A#B# -> 2:9
 (7:2..7:6) scala/main#
 (8:11..8:12) _empty_/A# -> 1:7

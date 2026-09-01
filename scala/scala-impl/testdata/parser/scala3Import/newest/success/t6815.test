@@ -3,7 +3,7 @@ trait U {
     def name: Any
   }
   type ValOrDefDef <: ValOrDefDefApi
-  type ValDef <: ValOrDefDef with ValDefApi
+  type ValDef <: ValOrDefDef & ValDefApi
   trait ValDefApi extends ValOrDefDefApi { this: ValDef => }
   val emptyValDef: ValDef // the result type is volatile
 }
@@ -87,12 +87,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          CompoundType: ValOrDefDef with ValDefApi
+          InfixType: ValOrDefDef & ValDefApi
             SimpleType: ValOrDefDef
               CodeReferenceElement: ValOrDefDef
                 PsiElement(identifier)('ValOrDefDef')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: ValDefApi
               CodeReferenceElement: ValDefApi

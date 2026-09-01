@@ -1,8 +1,9 @@
 Document tests/pos/12800.scala
 (2:28..2:29) _empty_/Test.FieldType2#[V] -> 2:23
-(2:35..2:42) _empty_/Test.KeyTag2# -> 3:9
-(2:43..2:44) _empty_/Test.FieldType2#[K] -> 2:19
-(2:46..2:47) _empty_/Test.FieldType2#[V] -> 2:23
+(2:30..2:31) scala/`&`#
+(2:32..2:39) _empty_/Test.KeyTag2# -> 3:9
+(2:40..2:41) _empty_/Test.FieldType2#[K] -> 2:19
+(2:43..2:44) _empty_/Test.FieldType2#[V] -> 2:23
 (3:32..3:35) scala/Any#
 (5:20..5:25) scala/Tuple#
 (6:18..6:24) scala/Tuple1#

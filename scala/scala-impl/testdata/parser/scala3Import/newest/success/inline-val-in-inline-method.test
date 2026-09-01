@@ -1,0 +1,99 @@
+// Example in docs/_docs/reference/metaprogramming/inline.md
+
+inline def double(inline x: Int): Int = x * 2
+inline def eight: Int =
+  inline val res = double(4)
+  res
+-----
+ScalaFile
+  PsiComment(comment)('// Example in docs/_docs/reference/metaprogramming/inline.md')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: double
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('double')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: x
+        PsiElement(identifier)('x')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: *
+        PsiElement(identifier)('*')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('2')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: eight
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('eight')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: res
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(inline)('inline')
+        PsiWhiteSpace(' ')
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: res
+            PsiElement(identifier)('res')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: double
+            PsiElement(identifier)('double')
+          ArgumentList
+            PsiElement(()('(')
+            IntegerLiteral
+              PsiElement(integer)('4')
+            PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      ReferenceExpression: res
+        PsiElement(identifier)('res')

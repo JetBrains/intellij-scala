@@ -95,7 +95,7 @@
 [476,477]: Ident
 [481,504]: Function
 [481,482]: Ident
-[486,504]: Function
+[486,504]: FunctionWithMods
 [486,492]: AppliedTypeTree
 [486,489]: Ident
 [490,491]: Ident

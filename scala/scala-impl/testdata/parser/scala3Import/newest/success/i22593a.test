@@ -7,7 +7,7 @@ package jam {
     class JamConfig(val brewRecRegex: String)
     inline def brew(implicit inline config: JamConfig): Unit = ???
   }
-  private object internal extends JamCoreDsl
+  object internal extends JamCoreDsl
   export internal._
 }
 
@@ -173,9 +173,7 @@ ScalaFile
       AnnotationsList
         <empty list>
       Modifiers
-        AccessModifier
-          PsiElement(private)('private')
-      PsiWhiteSpace(' ')
+        <empty list>
       PsiElement(object)('object')
       PsiWhiteSpace(' ')
       PsiElement(identifier)('internal')

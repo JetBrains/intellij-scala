@@ -7,7 +7,8 @@ Document tests/pos/i9780.scala
 (2:13..2:16) java/awt/
 (2:17..2:23) java/awt/Window#
 (5:13..5:22) java/awt/Window#
-(5:28..5:42) _empty_/Window#InterfaceMixin# -> 7:19
+(5:23..5:24) scala/`&`#
+(5:25..5:39) _empty_/Window#InterfaceMixin# -> 7:19
 (7:42..7:47) javax/
 (7:48..7:53) javax/swing/
 (7:54..7:71) javax/swing/RootPaneContainer#

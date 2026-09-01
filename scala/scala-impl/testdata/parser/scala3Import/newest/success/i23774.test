@@ -1,0 +1,798 @@
+trait Iterable[+A]
+
+enum Expr {
+  case Case[T, C <: Iterable[T]]()
+}
+object Expr {
+  val m = summon[scala.deriving.Mirror.SumOf[Expr]]
+  summon[m.MirroredElemTypes =:= Expr.Case[Any, Iterable[Any]] *: EmptyTuple]
+}
+
+enum Trait {
+  case Upcast[Base, Case <: Base]()
+}
+
+object Trait {
+  val m = summon[scala.deriving.Mirror.SumOf[Trait]]
+  summon[m.MirroredElemTypes =:= Trait.Upcast[Any, Any] *: EmptyTuple]
+}
+
+enum MoreDeps {
+  case Case[T, C <: Iterable[T], D <: Iterable[C]]()
+}
+object MoreDeps {
+  val m = summon[scala.deriving.Mirror.SumOf[MoreDeps]]
+  summon[m.MirroredElemTypes =:= MoreDeps.Case[Any, Iterable[Any], Iterable[Iterable[Any]]] *: EmptyTuple]
+}
+
+enum Circular {
+  case Case[C <: Iterable[D], D <: C]()
+}
+object Circular {
+  val m = summon[scala.deriving.Mirror.SumOf[Circular]]
+  summon[m.MirroredElemTypes =:= Circular.Case[Iterable[Nothing], Nothing] *: EmptyTuple]
+}
+
+-----
+ScalaFile
+  ScTrait: Iterable
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Iterable')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScEnum: Expr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Expr')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Case
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Case
+            PsiElement(identifier)('Case')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: C
+                PsiElement(identifier)('C')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Iterable[T]
+                  SimpleType: Iterable
+                    CodeReferenceElement: Iterable
+                      PsiElement(identifier)('Iterable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: Expr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Expr')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: m
+              PsiElement(identifier)('m')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: scala.deriving.Mirror.SumOf[Expr]
+                  SimpleType: scala.deriving.Mirror.SumOf
+                    CodeReferenceElement: scala.deriving.Mirror.SumOf
+                      CodeReferenceElement: scala.deriving.Mirror
+                        CodeReferenceElement: scala.deriving
+                          CodeReferenceElement: scala
+                            PsiElement(identifier)('scala')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('deriving')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Mirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('SumOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Expr
+                        CodeReferenceElement: Expr
+                          PsiElement(identifier)('Expr')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: m.MirroredElemTypes =:= Expr.Case[Any, Iterable[Any]] *: EmptyTuple
+                SimpleType: m.MirroredElemTypes
+                  CodeReferenceElement: m.MirroredElemTypes
+                    CodeReferenceElement: m
+                      PsiElement(identifier)('m')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('MirroredElemTypes')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                InfixType: Expr.Case[Any, Iterable[Any]] *: EmptyTuple
+                  ParametrizedType: Expr.Case[Any, Iterable[Any]]
+                    SimpleType: Expr.Case
+                      CodeReferenceElement: Expr.Case
+                        CodeReferenceElement: Expr
+                          PsiElement(identifier)('Expr')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Case')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: Iterable[Any]
+                          SimpleType: Iterable
+                            CodeReferenceElement: Iterable
+                              PsiElement(identifier)('Iterable')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Any
+                                CodeReferenceElement: Any
+                                  PsiElement(identifier)('Any')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScEnum: Trait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Trait')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Upcast
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Upcast
+            PsiElement(identifier)('Upcast')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: Base
+                PsiElement(identifier)('Base')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: Case
+                PsiElement(identifier)('Case')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: Base
+                  CodeReferenceElement: Base
+                    PsiElement(identifier)('Base')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: Trait
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Trait')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: m
+              PsiElement(identifier)('m')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: scala.deriving.Mirror.SumOf[Trait]
+                  SimpleType: scala.deriving.Mirror.SumOf
+                    CodeReferenceElement: scala.deriving.Mirror.SumOf
+                      CodeReferenceElement: scala.deriving.Mirror
+                        CodeReferenceElement: scala.deriving
+                          CodeReferenceElement: scala
+                            PsiElement(identifier)('scala')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('deriving')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Mirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('SumOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Trait
+                        CodeReferenceElement: Trait
+                          PsiElement(identifier)('Trait')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: m.MirroredElemTypes =:= Trait.Upcast[Any, Any] *: EmptyTuple
+                SimpleType: m.MirroredElemTypes
+                  CodeReferenceElement: m.MirroredElemTypes
+                    CodeReferenceElement: m
+                      PsiElement(identifier)('m')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('MirroredElemTypes')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                InfixType: Trait.Upcast[Any, Any] *: EmptyTuple
+                  ParametrizedType: Trait.Upcast[Any, Any]
+                    SimpleType: Trait.Upcast
+                      CodeReferenceElement: Trait.Upcast
+                        CodeReferenceElement: Trait
+                          PsiElement(identifier)('Trait')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Upcast')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScEnum: MoreDeps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MoreDeps')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Case
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Case
+            PsiElement(identifier)('Case')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: T
+                PsiElement(identifier)('T')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: C
+                PsiElement(identifier)('C')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Iterable[T]
+                  SimpleType: Iterable
+                    CodeReferenceElement: Iterable
+                      PsiElement(identifier)('Iterable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: T
+                        CodeReferenceElement: T
+                          PsiElement(identifier)('T')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: D
+                PsiElement(identifier)('D')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Iterable[C]
+                  SimpleType: Iterable
+                    CodeReferenceElement: Iterable
+                      PsiElement(identifier)('Iterable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: C
+                        CodeReferenceElement: C
+                          PsiElement(identifier)('C')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: MoreDeps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('MoreDeps')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: m
+              PsiElement(identifier)('m')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: scala.deriving.Mirror.SumOf[MoreDeps]
+                  SimpleType: scala.deriving.Mirror.SumOf
+                    CodeReferenceElement: scala.deriving.Mirror.SumOf
+                      CodeReferenceElement: scala.deriving.Mirror
+                        CodeReferenceElement: scala.deriving
+                          CodeReferenceElement: scala
+                            PsiElement(identifier)('scala')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('deriving')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Mirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('SumOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: MoreDeps
+                        CodeReferenceElement: MoreDeps
+                          PsiElement(identifier)('MoreDeps')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: m.MirroredElemTypes =:= MoreDeps.Case[Any, Iterable[Any], Iterable[Iterable[Any]]] *: EmptyTuple
+                SimpleType: m.MirroredElemTypes
+                  CodeReferenceElement: m.MirroredElemTypes
+                    CodeReferenceElement: m
+                      PsiElement(identifier)('m')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('MirroredElemTypes')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                InfixType: MoreDeps.Case[Any, Iterable[Any], Iterable[Iterable[Any]]] *: EmptyTuple
+                  ParametrizedType: MoreDeps.Case[Any, Iterable[Any], Iterable[Iterable[Any]]]
+                    SimpleType: MoreDeps.Case
+                      CodeReferenceElement: MoreDeps.Case
+                        CodeReferenceElement: MoreDeps
+                          PsiElement(identifier)('MoreDeps')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Case')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Any
+                          CodeReferenceElement: Any
+                            PsiElement(identifier)('Any')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: Iterable[Any]
+                          SimpleType: Iterable
+                            CodeReferenceElement: Iterable
+                              PsiElement(identifier)('Iterable')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Any
+                                CodeReferenceElement: Any
+                                  PsiElement(identifier)('Any')
+                            PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: Iterable[Iterable[Any]]
+                          SimpleType: Iterable
+                            CodeReferenceElement: Iterable
+                              PsiElement(identifier)('Iterable')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              ParametrizedType: Iterable[Any]
+                                SimpleType: Iterable
+                                  CodeReferenceElement: Iterable
+                                    PsiElement(identifier)('Iterable')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: Any
+                                      CodeReferenceElement: Any
+                                        PsiElement(identifier)('Any')
+                                  PsiElement(])(']')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScEnum: Circular
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(enum)('enum')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Circular')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScEnumCases: Case
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ScEnumClassCase: Case
+            PsiElement(identifier)('Case')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: C
+                PsiElement(identifier)('C')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Iterable[D]
+                  SimpleType: Iterable
+                    CodeReferenceElement: Iterable
+                      PsiElement(identifier)('Iterable')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: D
+                        CodeReferenceElement: D
+                          PsiElement(identifier)('D')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: D
+                PsiElement(identifier)('D')
+                PsiWhiteSpace(' ')
+                PsiElement(<:)('<:')
+                PsiWhiteSpace(' ')
+                SimpleType: C
+                  CodeReferenceElement: C
+                    PsiElement(identifier)('C')
+              PsiElement(])(']')
+            PrimaryConstructor
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              Parameters
+                ParametersClause
+                  PsiElement(()('(')
+                  PsiElement())(')')
+            ExtendsBlock
+              <empty list>
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
+  PsiWhiteSpace('\n')
+  ScObject: Circular
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Circular')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: m
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: m
+              PsiElement(identifier)('m')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          GenericCall
+            ReferenceExpression: summon
+              PsiElement(identifier)('summon')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: scala.deriving.Mirror.SumOf[Circular]
+                  SimpleType: scala.deriving.Mirror.SumOf
+                    CodeReferenceElement: scala.deriving.Mirror.SumOf
+                      CodeReferenceElement: scala.deriving.Mirror
+                        CodeReferenceElement: scala.deriving
+                          CodeReferenceElement: scala
+                            PsiElement(identifier)('scala')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('deriving')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Mirror')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('SumOf')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Circular
+                        CodeReferenceElement: Circular
+                          PsiElement(identifier)('Circular')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              InfixType: m.MirroredElemTypes =:= Circular.Case[Iterable[Nothing], Nothing] *: EmptyTuple
+                SimpleType: m.MirroredElemTypes
+                  CodeReferenceElement: m.MirroredElemTypes
+                    CodeReferenceElement: m
+                      PsiElement(identifier)('m')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('MirroredElemTypes')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: =:=
+                  PsiElement(identifier)('=:=')
+                PsiWhiteSpace(' ')
+                InfixType: Circular.Case[Iterable[Nothing], Nothing] *: EmptyTuple
+                  ParametrizedType: Circular.Case[Iterable[Nothing], Nothing]
+                    SimpleType: Circular.Case
+                      CodeReferenceElement: Circular.Case
+                        CodeReferenceElement: Circular
+                          PsiElement(identifier)('Circular')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('Case')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        ParametrizedType: Iterable[Nothing]
+                          SimpleType: Iterable
+                            CodeReferenceElement: Iterable
+                              PsiElement(identifier)('Iterable')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Nothing
+                                CodeReferenceElement: Nothing
+                                  PsiElement(identifier)('Nothing')
+                            PsiElement(])(']')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: Nothing
+                          CodeReferenceElement: Nothing
+                            PsiElement(identifier)('Nothing')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: *:
+                    PsiElement(identifier)('*:')
+                  PsiWhiteSpace(' ')
+                  SimpleType: EmptyTuple
+                    CodeReferenceElement: EmptyTuple
+                      PsiElement(identifier)('EmptyTuple')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

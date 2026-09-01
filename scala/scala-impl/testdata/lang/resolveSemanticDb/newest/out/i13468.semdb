@@ -1,0 +1,22 @@
+Document tests/pos/i13468/MyOpaque_1.scala
+(3:27..3:30) scala/Int#
+(3:34..3:37) scala/Int#
+(4:17..4:20) scala/Int#
+(4:32..4:40) _empty_/MyOpaque_1$package.MyOpaque# -> 3:13
+(4:41..4:42) _empty_/MyOpaque_1$package.getContainer().[W] -> 4:12
+(4:63..4:72) _empty_/Container# -> 2:7
+(4:73..4:74) _empty_/MyOpaque_1$package.getContainer().[W] -> 4:12
+(4:78..4:81) scala/Predef.`???`().
+
+Document tests/pos/i13468/Test_2.scala
+(4:15..4:23) _empty_/MyOpaque_1$package.MyOpaque# -> 3:13
+(4:29..4:32) scala/Predef.`???`().
+(5:17..5:25) _empty_/Test_2$package.myOpaque. -> 4:5
+(5:26..5:38) _empty_/MyOpaque_1$package.getContainer(). -> 4:49
+
+Document tests/pos/i13468/Test_3.scala
+(5:18..5:24) scala/Predef.summon().
+(5:25..5:34) _empty_/Test_2$package.container. -> 5:5
+(5:40..5:43) scala/`<:<`#
+(5:44..5:53) _empty_/Container# -> 2:7
+

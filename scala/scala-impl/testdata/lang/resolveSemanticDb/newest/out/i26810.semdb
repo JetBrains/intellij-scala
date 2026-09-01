@@ -1,0 +1,131 @@
+Document tests/pos/i26810/Macro_1.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(3:36..3:42) scala/package.Either#
+(3:43..3:46) scala/Any#
+(3:48..3:58) scala/package.IndexedSeq#
+(3:59..3:71) _empty_/TestCallTree# -> 3:13
+(6:45..6:49) scala/Unit#
+(6:52..6:64) _empty_/TestCallTree# -> 3:13
+(7:8..7:17) _empty_/Tests.inline$applyImpl().
+(9:31..9:35) scala/quoted/Expr#
+(9:36..9:40) scala/Unit#
+(9:49..9:55) scala/quoted/Quotes#
+(9:58..9:62) scala/quoted/Expr#
+(9:63..9:75) _empty_/TestCallTree# -> 3:13
+(10:12..10:18) scala/quoted/Quotes$package.quotes().
+(10:19..10:26) scala/quoted/Quotes#reflect.
+(12:38..12:42) scala/package.List#
+(12:43..12:52) scala/quoted/Quotes#reflectModule#Statement#
+(12:56..12:60) scala/quoted/Expr#
+(12:61..12:73) _empty_/TestCallTree# -> 3:13
+(14:9..14:14) scala/quoted/Quotes#reflectModule#Block.
+(15:11..15:21) local1 -> 12:26
+(15:22..15:31) scala/collection/StrictOptimizedIterableOps#dropRight().
+(16:14..16:18) scala/package.Left.
+(16:21..16:31) local1 -> 12:26
+(16:32..16:41) scala/collection/immutable/List#takeRight().
+(16:45..16:49) scala/collection/IterableOps#head().
+(16:50..16:62) scala/Any#asInstanceOf().
+(16:63..16:67) scala/quoted/Quotes#reflectModule#Term#
+(16:69..16:75) scala/quoted/Quotes#reflectModule#TreeMethods#asExpr().
+(16:80..16:86) scala/quoted/Quotes#reflectModule#asTerm().
+(18:10..18:22) _empty_/TestCallTree# -> 3:13
+(18:25..18:30) local3 -> 13:11
+(18:31..18:39) scala/quoted/Quotes#reflectModule#TreeMethods#asExprOf().
+(18:40..18:46) scala/package.Either#
+(18:47..18:50) scala/Any#
+(18:52..18:62) scala/package.IndexedSeq#
+(18:63..18:75) _empty_/TestCallTree# -> 3:13
+(21:25..21:29) scala/quoted/Quotes#reflectModule#Tree#
+(21:32..21:38) scala/Option#
+(21:39..21:43) scala/quoted/Quotes#reflectModule#Term#
+(22:9..22:15) scala/Option.
+(22:16..22:20) local6 -> 21:19
+(22:22..22:29) scala/Option#collect().
+(22:48..22:49) local8 -> 22:37
+(22:50..22:56) scala/quoted/Quotes#reflectModule#TreeMethods#asExpr().
+(22:59..22:66) scala/Option#collect().
+(23:27..23:33) scala/Predef.String#
+(23:35..23:36) _empty_/Macro_1$package.`-`(). -> 51:7
+(23:49..23:53) local11 -> 23:38
+(23:54..23:60) scala/quoted/Quotes#reflectModule#asTerm().
+(27:28..27:32) scala/package.List#
+(27:33..27:42) scala/quoted/Quotes#reflectModule#Statement#
+(27:47..27:51) scala/package.List#
+(27:52..27:57) scala/quoted/Quotes#reflectModule#Apply#
+(27:60..27:64) scala/package.List#
+(27:65..27:74) scala/quoted/Quotes#reflectModule#Statement#
+(28:9..28:14) local16 -> 27:21
+(28:15..28:27) scala/collection/StrictOptimizedIterableOps#partitionMap().
+(29:27..29:37) local14
+(29:38..29:45) local12 -> 21:11
+(29:46..29:47) local18 -> 29:16
+(29:49..29:58) scala/Option#isDefined().
+(29:62..29:66) scala/package.Left.
+(29:67..29:68) local18 -> 29:16
+(29:69..29:81) scala/Any#asInstanceOf().
+(29:82..29:87) scala/quoted/Quotes#reflectModule#Apply#
+(30:62..30:67) scala/package.Right.
+(30:68..30:72) local19 -> 30:16
+(32:25..32:29) scala/quoted/Quotes#reflectModule#Tree#
+(32:32..32:38) scala/Option#
+(32:40..32:44) scala/package.List#
+(32:45..32:50) scala/quoted/Quotes#reflectModule#Apply#
+(32:53..32:57) scala/package.List#
+(32:58..32:67) scala/quoted/Quotes#reflectModule#Statement#
+(33:9..33:13) local21 -> 32:19
+(34:16..34:23) scala/quoted/Quotes#reflectModule#Inlined.
+(34:40..34:45) local23
+(35:13..35:17) scala/Some.
+(35:19..35:24) local24 -> 34:46
+(35:26..35:37) local22 -> 34:27
+(35:38..35:40) scala/collection/IterableOps#`++`().
+(35:41..35:54) local25 -> 34:53
+(36:16..36:21) scala/quoted/Quotes#reflectModule#Block.
+(36:38..36:42) scala/Some.
+(36:43..36:52) local20 -> 27:11
+(36:53..36:58) local26 -> 36:22
+(36:59..36:61) scala/collection/SeqOps#`:+`().
+(36:62..36:66) local27 -> 36:29
+(37:38..37:42) scala/Some.
+(37:43..37:52) local20 -> 27:11
+(37:53..37:57) local28 -> 37:16
+(37:61..37:64) scala/package.Nil.
+(38:38..38:42) scala/None.
+(40:5..40:9) _empty_/Tests.applyImpl().(body) -> 9:25
+(40:10..40:16) scala/quoted/Quotes#reflectModule#asTerm().
+(41:12..41:17) local23
+(42:13..42:17) scala/Some.
+(42:30..42:40) local14
+(42:41..42:48) local12 -> 21:11
+(42:49..42:54) local32 -> 41:18
+(42:55..42:59) scala/collection/IterableOps#head().
+(43:9..43:17) local33 -> 42:18
+(44:16..44:21) local23
+(44:22..44:25) scala/package.Nil.
+(44:42..44:58) local5 -> 12:9
+(44:59..44:69) local34 -> 44:27
+(45:42..45:58) local5 -> 12:9
+(45:59..45:63) scala/package.List.
+(45:64..45:69) local35 -> 45:16
+(47:9..47:15) scala/quoted/Quotes#reflectModule#report.
+(47:16..47:29) scala/quoted/Quotes#reflectModule#reportModule#errorAndAbort().
+(47:49..47:50) java/lang/String#`+`().
+(47:51..47:56) local36 -> 46:12
+(47:57..47:61) scala/quoted/Quotes#reflectModule#TreeMethods#show().
+(49:18..49:24) scala/Predef.String#
+(50:4..50:14) scala/annotation/
+(50:15..50:30) scala/annotation/compileTimeOnly#
+(51:18..51:21) scala/Any#
+(51:24..51:28) scala/Unit#
+
+Document tests/pos/i26810/Test_2.scala
+(1:2..1:6) scala/main#
+(1:19..1:23) scala/Unit#
+(2:11..2:16) _empty_/Tests. -> 5:8
+(3:9..3:10) _empty_/Macro_1$package.`-`(). -> 51:7
+(4:7..4:13) scala/Predef.summon().
+(4:16..4:19) scala/`<:<`#
+(4:20..4:23) scala/Int#
+

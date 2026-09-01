@@ -1,0 +1,9 @@
+Document tests/pos/inline-val-in-inline-method.scala
+(3:29..3:32) scala/Int#
+(3:35..3:38) scala/Int#
+(3:41..3:42) _empty_/`inline-val-in-inline-method$package`.double().(x) -> 3:26
+(3:43..3:44) scala/Int#`*`(+3).
+(4:19..4:22) scala/Int#
+(5:20..5:26) _empty_/`inline-val-in-inline-method$package`.double(). -> 3:12
+(6:3..6:6) local0 -> 5:14
+

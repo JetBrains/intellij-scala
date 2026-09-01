@@ -21,7 +21,7 @@
 [101,102]: Ident
 [104,159]: DefDef
 [120,136]: ValDef
-[126,136]: Function
+[126,136]: FunctionWithMods
 [126,127]: Ident
 [132,136]: Ident
 [137,137]: TypeTree

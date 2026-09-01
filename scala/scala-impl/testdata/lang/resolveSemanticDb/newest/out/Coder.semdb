@@ -5,17 +5,17 @@ Document tests/pos/Coder.scala
 (1:27..1:34) scala/collection/mutable/HashMap.
 (3:20..3:24) scala/package.List#
 (3:25..3:31) scala/Predef.String#
-(5:6..5:8) scala/Predef.ArrowAssoc#`->`().
+(5:6..5:8) scala/Predef.`->`().
 (5:37..5:39) scala/Predef.ArrowAssoc#`->`().
 (7:27..7:30) scala/Predef.Map.
-(8:11..8:13) scala/Predef.ArrowAssoc#`->`().
-(8:25..8:27) scala/Predef.ArrowAssoc#`->`().
-(8:39..8:41) scala/Predef.ArrowAssoc#`->`().
-(8:53..8:55) scala/Predef.ArrowAssoc#`->`().
-(9:11..9:13) scala/Predef.ArrowAssoc#`->`().
-(9:25..9:27) scala/Predef.ArrowAssoc#`->`().
-(9:40..9:42) scala/Predef.ArrowAssoc#`->`().
-(9:54..9:56) scala/Predef.ArrowAssoc#`->`().
+(8:11..8:13) scala/Predef.`->`().
+(8:25..8:27) scala/Predef.`->`().
+(8:39..8:41) scala/Predef.`->`().
+(8:53..8:55) scala/Predef.`->`().
+(9:11..9:13) scala/Predef.`->`().
+(9:25..9:27) scala/Predef.`->`().
+(9:40..9:42) scala/Predef.`->`().
+(9:54..9:56) scala/Predef.`->`().
 (18:26..18:29) scala/Predef.Map#
 (18:30..18:34) scala/Char#
 (18:36..18:40) scala/Char#
@@ -26,7 +26,7 @@ Document tests/pos/Coder.scala
 (25:30..25:33) local7 -> 25:22
 (25:34..25:37) scala/collection/StringOps#map().
 (25:46..25:49) local8 -> 25:39
-(25:50..25:52) scala/Predef.ArrowAssoc#`->`().
+(25:50..25:52) scala/Predef.`->`().
 (25:53..25:58) local6 -> 25:15
 (29:25..29:28) scala/Predef.Map#
 (29:29..29:33) scala/Char#
@@ -34,7 +34,7 @@ Document tests/pos/Coder.scala
 (30:26..30:35) _empty_/Coder#mnemonics. -> 7:15
 (30:44..30:47) local11 -> 30:18
 (30:55..30:58) local12 -> 30:37
-(30:59..30:61) scala/Predef.ArrowAssoc#`->`().
+(30:59..30:61) scala/Predef.`->`().
 (30:62..30:67) local10 -> 30:11
 (33:30..33:36) scala/Predef.String#
 (33:39..33:45) scala/Predef.String#
@@ -58,7 +58,7 @@ Document tests/pos/Coder.scala
 (41:16..41:23) java/lang/String#isEmpty().
 (41:25..41:28) scala/Predef.Set.
 (41:29..41:32) scala/package.Nil.
-(44:25..44:27) scala/runtime/RichInt#to().
+(44:25..44:27) scala/Int.to().
 (44:28..44:34) _empty_/Coder#encode().(number) -> 40:14
 (44:35..44:41) java/lang/String#length().
 (45:17..45:28) _empty_/Coder#wordsForNum. -> 36:15

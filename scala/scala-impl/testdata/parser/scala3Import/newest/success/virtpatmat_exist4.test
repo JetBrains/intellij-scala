@@ -17,7 +17,7 @@ trait MemberHandlers {
 }
 
 object Test {
-  var intp: IMain with MemberHandlers = null
+  var intp: IMain & MemberHandlers = null
 
   val handlers = intp.handlers
   handlers.filterNot(_.importedSymbols.isEmpty).zipWithIndex foreach {
@@ -290,12 +290,13 @@ ScalaFile
               PsiElement(identifier)('intp')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: IMain with MemberHandlers
+          InfixType: IMain & MemberHandlers
             SimpleType: IMain
               CodeReferenceElement: IMain
                 PsiElement(identifier)('IMain')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: MemberHandlers
               CodeReferenceElement: MemberHandlers

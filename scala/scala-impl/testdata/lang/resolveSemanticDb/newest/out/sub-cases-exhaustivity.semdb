@@ -1,0 +1,198 @@
+Document tests/pos/sub-cases-exhaustivity.scala
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:35) scala/language.experimental.
+(2:36..2:44) scala/language.experimental.subCases.
+(4:25..4:31) scala/Predef.String#
+(6:24..6:30) scala/Predef.String#
+(9:14..9:22) _empty_/NotFound# -> 4:12
+(9:23..9:24) scala/`|`#
+(9:25..9:36) _empty_/AcceptError# -> 5:6
+(9:37..9:38) scala/`|`#
+(9:39..9:56) _empty_/CatastrophicError. -> 8:13
+(11:8..11:19) _empty_/AcceptError.
+(13:20..13:25) _empty_/`sub-cases-exhaustivity$package`.Error# -> 9:6
+(13:29..13:35) scala/Predef.String#
+(14:8..14:16) _empty_/NotFound.
+(14:24..14:25) scala/StringContext#s().
+(14:37..14:39) local1 -> 14:17
+(15:8..15:25) _empty_/CatastrophicError. -> 8:13
+(15:29..15:30) scala/StringContext#s().
+(16:14..16:16) local2 -> 16:8
+(17:10..17:16) _empty_/AcceptError.Denial. -> 7:8
+(17:20..17:21) scala/StringContext#s().
+(18:10..18:21) _empty_/AcceptError.IsCancelled.
+(18:29..18:30) scala/StringContext#s().
+(18:45..18:47) local3 -> 18:22
+(20:21..20:26) _empty_/`sub-cases-exhaustivity$package`.Error# -> 9:6
+(20:30..20:36) scala/Predef.String#
+(21:8..21:16) _empty_/NotFound.
+(21:24..21:25) scala/StringContext#s().
+(21:37..21:39) local5 -> 21:17
+(22:8..22:25) _empty_/CatastrophicError. -> 8:13
+(22:29..22:30) scala/StringContext#s().
+(23:14..23:16) local6 -> 23:8
+(24:10..24:16) _empty_/AcceptError.Denial. -> 7:8
+(24:20..24:21) scala/StringContext#s().
+(25:14..25:16) local7 -> 25:8
+(26:10..26:21) _empty_/AcceptError.IsCancelled.
+(26:29..26:30) scala/StringContext#s().
+(26:45..26:47) local8 -> 26:22
+(31:18..31:23) _empty_/Color# -> 28:6
+(31:26..31:32) scala/Predef.String#
+(31:35..31:36) _empty_/`sub-cases-exhaustivity$package`.colorName().(c) -> 31:15
+(32:14..32:16) local9 -> 32:8
+(33:10..33:15) _empty_/Color.
+(33:16..33:19) _empty_/Color.Red. -> 29:8
+(34:10..34:15) _empty_/Color.
+(34:16..34:21) _empty_/Color.Green. -> 29:13
+(35:10..35:15) _empty_/Color.
+(35:16..35:20) _empty_/Color.Blue. -> 29:20
+(37:23..37:28) _empty_/Color# -> 28:6
+(39:25..39:32) _empty_/Wrapper# -> 37:12
+(39:35..39:41) scala/Predef.String#
+(39:44..39:45) _empty_/`sub-cases-exhaustivity$package`.wrappedColorName().(w) -> 39:22
+(40:8..40:15) _empty_/Wrapper.
+(40:22..40:23) local10 -> 40:16
+(41:10..41:15) _empty_/Color.
+(41:16..41:19) _empty_/Color.Red. -> 29:8
+(42:10..42:15) _empty_/Color.
+(42:16..42:21) _empty_/Color.Green. -> 29:13
+(43:10..43:15) _empty_/Color.
+(43:16..43:20) _empty_/Color.Blue. -> 29:20
+(45:26..45:33) _empty_/Wrapper# -> 37:12
+(45:36..45:42) scala/Predef.String#
+(45:45..45:46) _empty_/`sub-cases-exhaustivity$package`.wrappedColorName2().(w) -> 45:23
+(46:8..46:15) _empty_/Wrapper.
+(46:22..46:23) local11 -> 46:16
+(47:10..47:15) _empty_/Color.
+(47:16..47:19) _empty_/Color.Red. -> 29:8
+(48:10..48:15) _empty_/Color.
+(48:16..48:21) _empty_/Color.Green. -> 29:13
+(49:8..49:15) _empty_/Wrapper.
+(49:22..49:23) local12 -> 49:16
+(50:10..50:15) _empty_/Color.
+(50:16..50:20) _empty_/Color.Blue. -> 29:20
+(52:21..52:26) _empty_/Color# -> 28:6
+(52:29..52:35) scala/Predef.String#
+(52:38..52:39) _empty_/`sub-cases-exhaustivity$package`.colorNameAlt().(c) -> 52:18
+(53:14..53:16) local13 -> 53:8
+(54:10..54:15) _empty_/Color.
+(54:16..54:19) _empty_/Color.Red. -> 29:8
+(54:22..54:27) _empty_/Color.
+(54:28..54:33) _empty_/Color.Green. -> 29:13
+(55:10..55:15) _empty_/Color.
+(55:16..55:20) _empty_/Color.Blue. -> 29:20
+(57:25..57:32) _empty_/Wrapper# -> 37:12
+(57:35..57:41) scala/Predef.String#
+(57:44..57:45) _empty_/`sub-cases-exhaustivity$package`.wrappedColorBind().(w) -> 57:22
+(58:12..58:19) _empty_/Wrapper.
+(58:26..58:27) local14 -> 58:20
+(59:10..59:15) _empty_/Color.
+(59:16..59:19) _empty_/Color.Red. -> 29:8
+(60:10..60:15) _empty_/Color.
+(60:16..60:21) _empty_/Color.Green. -> 29:13
+(61:10..61:15) _empty_/Color.
+(61:16..61:20) _empty_/Color.Blue. -> 29:20
+(63:23..63:28) _empty_/Color# -> 28:6
+(63:31..63:37) scala/Predef.String#
+(63:40..63:41) _empty_/`sub-cases-exhaustivity$package`.nestedSubcases().(c) -> 63:20
+(64:14..64:16) local16 -> 64:8
+(65:10..65:15) _empty_/Color.
+(65:16..65:19) _empty_/Color.Red. -> 29:8
+(66:16..66:18) local17 -> 66:10
+(67:12..67:17) _empty_/Color.
+(67:18..67:23) _empty_/Color.Green. -> 29:13
+(68:12..68:17) _empty_/Color.
+(68:18..68:22) _empty_/Color.Blue. -> 29:20
+(72:22..72:25) scala/Int#
+(72:34..72:37) scala/Int#
+(74:28..74:34) scala/Predef.String#
+(74:45..74:52) _empty_/Version# -> 70:6
+(76:19..76:25) scala/Option#
+(76:26..76:34) _empty_/Document# -> 74:12
+(76:38..76:44) scala/Predef.String#
+(76:47..76:48) _empty_/`sub-cases-exhaustivity$package`.getVersion().(d) -> 76:16
+(77:8..77:12) scala/Some.
+(77:19..77:20) local18 -> 77:13
+(77:21..77:28) _empty_/Document#version. -> 74:36
+(78:10..78:17) _empty_/Version.
+(78:18..78:24) _empty_/Version.Stable.
+(78:34..78:35) scala/StringContext#s().
+(78:37..78:38) local19 -> 78:25
+(78:40..78:41) local20 -> 78:28
+(79:10..79:17) _empty_/Version.
+(79:18..79:24) _empty_/Version.Legacy. -> 71:8
+(80:8..80:12) scala/None.
+(83:22..83:28) scala/Double#
+(83:38..83:43) _empty_/Shape# -> 82:14
+(84:25..84:31) scala/Double#
+(84:36..84:42) scala/Double#
+(84:52..84:57) _empty_/Shape# -> 82:14
+(86:33..86:38) _empty_/Color# -> 28:6
+(86:40..86:45) _empty_/Color# -> 28:6
+(86:49..86:55) scala/Predef.String#
+(86:58..86:62) _empty_/`sub-cases-exhaustivity$package`.tupleFirstExhaustive().(pair) -> 86:26
+(87:18..87:19) local21 -> 87:9
+(88:10..88:15) _empty_/Color.
+(88:16..88:19) _empty_/Color.Red. -> 29:8
+(89:10..89:15) _empty_/Color.
+(89:16..89:21) _empty_/Color.Green. -> 29:13
+(90:10..90:15) _empty_/Color.
+(90:16..90:20) _empty_/Color.Blue. -> 29:20
+(92:34..92:39) _empty_/Color# -> 28:6
+(92:41..92:46) _empty_/Color# -> 28:6
+(92:50..92:56) scala/Predef.String#
+(92:59..92:63) _empty_/`sub-cases-exhaustivity$package`.tupleSecondExhaustive().(pair) -> 92:27
+(93:18..93:19) local24 -> 93:12
+(94:10..94:15) _empty_/Color.
+(94:16..94:19) _empty_/Color.Red. -> 29:8
+(95:10..95:15) _empty_/Color.
+(95:16..95:21) _empty_/Color.Green. -> 29:13
+(96:10..96:15) _empty_/Color.
+(96:16..96:20) _empty_/Color.Blue. -> 29:20
+(98:29..98:34) _empty_/Shape# -> 82:14
+(98:37..98:43) scala/Predef.String#
+(98:46..98:47) _empty_/`sub-cases-exhaustivity$package`.typedBoundExhaustive().(s) -> 98:26
+(99:11..99:17) _empty_/Circle# -> 83:12
+(99:21..99:22) local25 -> 99:8
+(100:10..100:16) _empty_/Circle.
+(100:23..100:24) scala/StringContext#s().
+(100:35..100:36) local26 -> 100:17
+(101:11..101:20) _empty_/Rectangle# -> 84:12
+(103:29..103:34) _empty_/Shape# -> 82:14
+(103:37..103:43) scala/Predef.String#
+(103:46..103:47) _empty_/`sub-cases-exhaustivity$package`.typedGuardedFallback().(s) -> 103:26
+(104:11..104:17) _empty_/Circle# -> 83:12
+(104:21..104:22) local27 -> 104:8
+(105:10..105:16) _empty_/Circle.
+(105:23..105:24) local28 -> 105:17
+(105:25..105:26) scala/Double#`>`(+3).
+(106:11..106:17) _empty_/Circle# -> 83:12
+(107:11..107:20) _empty_/Rectangle# -> 84:12
+(109:30..109:38) _empty_/Document# -> 74:12
+(109:41..109:47) scala/Predef.String#
+(109:50..109:51) _empty_/`sub-cases-exhaustivity$package`.fieldAccessExhaustive().(d) -> 109:27
+(110:13..110:14) local29 -> 110:8
+(110:15..110:22) _empty_/Document#version. -> 74:36
+(111:10..111:17) _empty_/Version.
+(111:18..111:24) _empty_/Version.Stable.
+(111:34..111:35) scala/StringContext#s().
+(111:37..111:38) local30 -> 111:25
+(111:40..111:41) local31 -> 111:28
+(112:10..112:17) _empty_/Version.
+(112:18..112:24) _empty_/Version.Legacy. -> 71:8
+(114:30..114:38) _empty_/Document# -> 74:12
+(114:41..114:47) scala/Predef.String#
+(114:50..114:51) _empty_/`sub-cases-exhaustivity$package`.fieldAccessTypedBound().(d) -> 114:27
+(115:11..115:19) _empty_/Document# -> 74:12
+(115:23..115:24) local32 -> 115:8
+(115:25..115:32) _empty_/Document#version. -> 74:36
+(116:10..116:17) _empty_/Version.
+(116:18..116:24) _empty_/Version.Stable.
+(116:34..116:35) scala/StringContext#s().
+(116:37..116:38) local33 -> 116:25
+(116:40..116:41) local34 -> 116:28
+(117:10..117:17) _empty_/Version.
+(117:18..117:24) _empty_/Version.Legacy. -> 71:8
+

@@ -1,5 +1,5 @@
 abstract class Coll1[E] extends java.util.Collection[E] {
-  override def toArray[T](a: Array[T with Object]): Array[T with Object] = ???
+  override def toArray[T](a: Array[T & Object]): Array[T & Object] = ???
 }
 
 abstract class Coll2[E] extends java.util.Collection[E] {
@@ -81,19 +81,20 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  ParametrizedType: Array[T with Object]
+                  ParametrizedType: Array[T & Object]
                     SimpleType: Array
                       CodeReferenceElement: Array
                         PsiElement(identifier)('Array')
                     TypeArgumentsList
                       PsiElement([)('[')
                       TypeArgument
-                        CompoundType: T with Object
+                        InfixType: T & Object
                           SimpleType: T
                             CodeReferenceElement: T
                               PsiElement(identifier)('T')
                           PsiWhiteSpace(' ')
-                          PsiElement(with)('with')
+                          CodeReferenceElement: &
+                            PsiElement(identifier)('&')
                           PsiWhiteSpace(' ')
                           SimpleType: Object
                             CodeReferenceElement: Object
@@ -102,19 +103,20 @@ ScalaFile
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          ParametrizedType: Array[T with Object]
+          ParametrizedType: Array[T & Object]
             SimpleType: Array
               CodeReferenceElement: Array
                 PsiElement(identifier)('Array')
             TypeArgumentsList
               PsiElement([)('[')
               TypeArgument
-                CompoundType: T with Object
+                InfixType: T & Object
                   SimpleType: T
                     CodeReferenceElement: T
                       PsiElement(identifier)('T')
                   PsiWhiteSpace(' ')
-                  PsiElement(with)('with')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
                   PsiWhiteSpace(' ')
                   SimpleType: Object
                     CodeReferenceElement: Object

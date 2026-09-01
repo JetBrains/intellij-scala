@@ -14,7 +14,7 @@ Document tests/pos/MathSpec.scala
 (11:10..11:11) _empty_/MathSpec#sqrt().(x) -> 7:30
 (11:12..11:13) scala/Double#`-`(+6).
 (11:14..11:20) local0 -> 10:16
-(11:22..11:25) scala/runtime/RichDouble#abs().
+(11:22..11:25) scala/Double.abs().
 (11:26..11:27) scala/Double#`<`(+6).
 (11:28..11:35) _empty_/MathSpec#epsilon. -> 6:7
 (15:24..15:31) _empty_/MathSig# -> 1:7

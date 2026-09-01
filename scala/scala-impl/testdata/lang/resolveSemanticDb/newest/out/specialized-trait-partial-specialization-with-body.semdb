@@ -1,0 +1,19 @@
+Document tests/pos/specialized-trait-partial-specialization-with-body.scala
+(3:19..3:30) _empty_/A#[T] -> 3:16
+(3:19..3:30) scala/specialize/Specialized#
+(3:35..3:46) _empty_/A#[D] -> 3:32
+(3:35..3:46) scala/specialize/Specialized#
+(4:14..4:15) _empty_/A#[T] -> 3:16
+(4:18..4:19) _empty_/A#[T] -> 3:16
+(4:22..4:23) _empty_/A#foo().(x) -> 4:11
+(5:14..5:15) _empty_/A#[D] -> 3:32
+(5:18..5:19) _empty_/A#[D] -> 3:32
+(5:22..5:23) _empty_/A#bar().(x) -> 5:11
+(6:19..6:30) _empty_/B#[S] -> 6:16
+(6:19..6:30) scala/specialize/Specialized#
+(6:40..6:41) _empty_/A# -> 3:14
+(6:42..6:43) _empty_/B#[S] -> 6:16
+(6:45..6:48) scala/Int#
+(7:17..7:18) _empty_/B# -> 6:14
+(7:19..7:23) scala/Char#
+

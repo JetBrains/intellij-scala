@@ -1,0 +1,707 @@
+import scala.collection.*
+import scala.util.*
+
+val (ss: Seq[Success[Int] @unchecked], fs: Seq[Failure[Int] @unchecked]) =
+  Seq.empty[Try[Int]].partition(_.isSuccess).runtimeChecked
+
+val (ss2: Seq[Success[Int]], fs2: Seq[Failure[Int]]) = Seq.empty[Try[Int]].partition(_.isSuccess).runtimeChecked match
+  case (s: Seq[Success[Int] @unchecked], f: Seq[Failure[Int] @unchecked]) => (s, f)
+
+val (ss3: Seq[Success[Int]], fs3: Seq[Failure[Int]]) = Seq.empty[Try[Int]].partition(_.isSuccess).runtimeChecked match
+  case x @ (s: Seq[Success[Int] @unchecked], f: Seq[Failure[Int] @unchecked]) => x
+
+val (ss4, fs4: Seq[Failure[Int]]) = Seq.empty[Try[Int]].partition(_.isSuccess).runtimeChecked match
+  case x @ (_, f: Seq[Failure[Int] @unchecked]) => x
+
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.collection
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('collection')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.util
+        CodeReferenceElement: scala
+          PsiElement(identifier)('scala')
+        PsiElement(.)('.')
+        PsiElement(identifier)('util')
+      PsiElement(.)('.')
+      PsiElement(*)('*')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: ss, fs
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      TuplePattern
+        PsiElement(()('(')
+        ArgumentPatterns
+          Scala3 TypedPattern
+            ReferencePattern: ss
+              PsiElement(identifier)('ss')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Seq[Success[Int] @unchecked]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TypeWithAnnotation: Success[Int] @unchecked
+                      ParametrizedType: Success[Int]
+                        SimpleType: Success
+                          CodeReferenceElement: Success
+                            PsiElement(identifier)('Success')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      AnnotationsList
+                        Annotation
+                          PsiElement(@)('@')
+                          AnnotationExpression
+                            ConstructorInvocation
+                              SimpleType: unchecked
+                                CodeReferenceElement: unchecked
+                                  PsiElement(identifier)('unchecked')
+                  PsiElement(])(']')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: fs
+              PsiElement(identifier)('fs')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Seq[Failure[Int] @unchecked]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TypeWithAnnotation: Failure[Int] @unchecked
+                      ParametrizedType: Failure[Int]
+                        SimpleType: Failure
+                          CodeReferenceElement: Failure
+                            PsiElement(identifier)('Failure')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Int
+                              CodeReferenceElement: Int
+                                PsiElement(identifier)('Int')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      AnnotationsList
+                        Annotation
+                          PsiElement(@)('@')
+                          AnnotationExpression
+                            ConstructorInvocation
+                              SimpleType: unchecked
+                                CodeReferenceElement: unchecked
+                                  PsiElement(identifier)('unchecked')
+                  PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    ReferenceExpression: Seq.empty[Try[Int]].partition(_.isSuccess).runtimeChecked
+      MethodCall
+        ReferenceExpression: Seq.empty[Try[Int]].partition
+          GenericCall
+            ReferenceExpression: Seq.empty
+              ReferenceExpression: Seq
+                PsiElement(identifier)('Seq')
+              PsiElement(.)('.')
+              PsiElement(identifier)('empty')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: Try[Int]
+                  SimpleType: Try
+                    CodeReferenceElement: Try
+                      PsiElement(identifier)('Try')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+          PsiElement(.)('.')
+          PsiElement(identifier)('partition')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: _.isSuccess
+            UnderscoreSection
+              PsiElement(_)('_')
+            PsiElement(.)('.')
+            PsiElement(identifier)('isSuccess')
+          PsiElement())(')')
+      PsiElement(.)('.')
+      PsiElement(identifier)('runtimeChecked')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: ss2, fs2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      TuplePattern
+        PsiElement(()('(')
+        ArgumentPatterns
+          Scala3 TypedPattern
+            ReferencePattern: ss2
+              PsiElement(identifier)('ss2')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Seq[Success[Int]]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: Success[Int]
+                      SimpleType: Success
+                        CodeReferenceElement: Success
+                          PsiElement(identifier)('Success')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: fs2
+              PsiElement(identifier)('fs2')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Seq[Failure[Int]]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: Failure[Int]
+                      SimpleType: Failure
+                        CodeReferenceElement: Failure
+                          PsiElement(identifier)('Failure')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: Seq.empty[Try[Int]].partition(_.isSuccess).runtimeChecked
+        MethodCall
+          ReferenceExpression: Seq.empty[Try[Int]].partition
+            GenericCall
+              ReferenceExpression: Seq.empty
+                ReferenceExpression: Seq
+                  PsiElement(identifier)('Seq')
+                PsiElement(.)('.')
+                PsiElement(identifier)('empty')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Try[Int]
+                    SimpleType: Try
+                      CodeReferenceElement: Try
+                        PsiElement(identifier)('Try')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(.)('.')
+            PsiElement(identifier)('partition')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: _.isSuccess
+              UnderscoreSection
+                PsiElement(_)('_')
+              PsiElement(.)('.')
+              PsiElement(identifier)('isSuccess')
+            PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('runtimeChecked')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              Scala3 TypedPattern
+                ReferencePattern: s
+                  PsiElement(identifier)('s')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  ParametrizedType: Seq[Success[Int] @unchecked]
+                    SimpleType: Seq
+                      CodeReferenceElement: Seq
+                        PsiElement(identifier)('Seq')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        TypeWithAnnotation: Success[Int] @unchecked
+                          ParametrizedType: Success[Int]
+                            SimpleType: Success
+                              CodeReferenceElement: Success
+                                PsiElement(identifier)('Success')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          AnnotationsList
+                            Annotation
+                              PsiElement(@)('@')
+                              AnnotationExpression
+                                ConstructorInvocation
+                                  SimpleType: unchecked
+                                    CodeReferenceElement: unchecked
+                                      PsiElement(identifier)('unchecked')
+                      PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Scala3 TypedPattern
+                ReferencePattern: f
+                  PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                TypePattern
+                  ParametrizedType: Seq[Failure[Int] @unchecked]
+                    SimpleType: Seq
+                      CodeReferenceElement: Seq
+                        PsiElement(identifier)('Seq')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        TypeWithAnnotation: Failure[Int] @unchecked
+                          ParametrizedType: Failure[Int]
+                            SimpleType: Failure
+                              CodeReferenceElement: Failure
+                                PsiElement(identifier)('Failure')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Int
+                                  CodeReferenceElement: Int
+                                    PsiElement(identifier)('Int')
+                              PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          AnnotationsList
+                            Annotation
+                              PsiElement(@)('@')
+                              AnnotationExpression
+                                ConstructorInvocation
+                                  SimpleType: unchecked
+                                    CodeReferenceElement: unchecked
+                                      PsiElement(identifier)('unchecked')
+                      PsiElement(])(']')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            Tuple
+              PsiElement(()('(')
+              ReferenceExpression: s
+                PsiElement(identifier)('s')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: f
+                PsiElement(identifier)('f')
+              PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: ss3, fs3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      TuplePattern
+        PsiElement(()('(')
+        ArgumentPatterns
+          Scala3 TypedPattern
+            ReferencePattern: ss3
+              PsiElement(identifier)('ss3')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Seq[Success[Int]]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: Success[Int]
+                      SimpleType: Success
+                        CodeReferenceElement: Success
+                          PsiElement(identifier)('Success')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: fs3
+              PsiElement(identifier)('fs3')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Seq[Failure[Int]]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: Failure[Int]
+                      SimpleType: Failure
+                        CodeReferenceElement: Failure
+                          PsiElement(identifier)('Failure')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: Seq.empty[Try[Int]].partition(_.isSuccess).runtimeChecked
+        MethodCall
+          ReferenceExpression: Seq.empty[Try[Int]].partition
+            GenericCall
+              ReferenceExpression: Seq.empty
+                ReferenceExpression: Seq
+                  PsiElement(identifier)('Seq')
+                PsiElement(.)('.')
+                PsiElement(identifier)('empty')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Try[Int]
+                    SimpleType: Try
+                      CodeReferenceElement: Try
+                        PsiElement(identifier)('Try')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(.)('.')
+            PsiElement(identifier)('partition')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: _.isSuccess
+              UnderscoreSection
+                PsiElement(_)('_')
+              PsiElement(.)('.')
+              PsiElement(identifier)('isSuccess')
+            PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('runtimeChecked')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          NamingPattern: x
+            PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(@)('@')
+            PsiWhiteSpace(' ')
+            TuplePattern
+              PsiElement(()('(')
+              ArgumentPatterns
+                Scala3 TypedPattern
+                  ReferencePattern: s
+                    PsiElement(identifier)('s')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    ParametrizedType: Seq[Success[Int] @unchecked]
+                      SimpleType: Seq
+                        CodeReferenceElement: Seq
+                          PsiElement(identifier)('Seq')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          TypeWithAnnotation: Success[Int] @unchecked
+                            ParametrizedType: Success[Int]
+                              SimpleType: Success
+                                CodeReferenceElement: Success
+                                  PsiElement(identifier)('Success')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
+                                PsiElement(])(']')
+                            PsiWhiteSpace(' ')
+                            AnnotationsList
+                              Annotation
+                                PsiElement(@)('@')
+                                AnnotationExpression
+                                  ConstructorInvocation
+                                    SimpleType: unchecked
+                                      CodeReferenceElement: unchecked
+                                        PsiElement(identifier)('unchecked')
+                        PsiElement(])(']')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: f
+                    PsiElement(identifier)('f')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    ParametrizedType: Seq[Failure[Int] @unchecked]
+                      SimpleType: Seq
+                        CodeReferenceElement: Seq
+                          PsiElement(identifier)('Seq')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          TypeWithAnnotation: Failure[Int] @unchecked
+                            ParametrizedType: Failure[Int]
+                              SimpleType: Failure
+                                CodeReferenceElement: Failure
+                                  PsiElement(identifier)('Failure')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
+                                PsiElement(])(']')
+                            PsiWhiteSpace(' ')
+                            AnnotationsList
+                              Annotation
+                                PsiElement(@)('@')
+                                AnnotationExpression
+                                  ConstructorInvocation
+                                    SimpleType: unchecked
+                                      CodeReferenceElement: unchecked
+                                        PsiElement(identifier)('unchecked')
+                        PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: x
+              PsiElement(identifier)('x')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: ss4, fs4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      TuplePattern
+        PsiElement(()('(')
+        ArgumentPatterns
+          ReferencePattern: ss4
+            PsiElement(identifier)('ss4')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          Scala3 TypedPattern
+            ReferencePattern: fs4
+              PsiElement(identifier)('fs4')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            TypePattern
+              ParametrizedType: Seq[Failure[Int]]
+                SimpleType: Seq
+                  CodeReferenceElement: Seq
+                    PsiElement(identifier)('Seq')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    ParametrizedType: Failure[Int]
+                      SimpleType: Failure
+                        CodeReferenceElement: Failure
+                          PsiElement(identifier)('Failure')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Int
+                            CodeReferenceElement: Int
+                              PsiElement(identifier)('Int')
+                        PsiElement(])(']')
+                  PsiElement(])(']')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MatchStatement
+      ReferenceExpression: Seq.empty[Try[Int]].partition(_.isSuccess).runtimeChecked
+        MethodCall
+          ReferenceExpression: Seq.empty[Try[Int]].partition
+            GenericCall
+              ReferenceExpression: Seq.empty
+                ReferenceExpression: Seq
+                  PsiElement(identifier)('Seq')
+                PsiElement(.)('.')
+                PsiElement(identifier)('empty')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  ParametrizedType: Try[Int]
+                    SimpleType: Try
+                      CodeReferenceElement: Try
+                        PsiElement(identifier)('Try')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement(])(']')
+                PsiElement(])(']')
+            PsiElement(.)('.')
+            PsiElement(identifier)('partition')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: _.isSuccess
+              UnderscoreSection
+                PsiElement(_)('_')
+              PsiElement(.)('.')
+              PsiElement(identifier)('isSuccess')
+            PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('runtimeChecked')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n  ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          NamingPattern: x
+            PsiElement(identifier)('x')
+            PsiWhiteSpace(' ')
+            PsiElement(@)('@')
+            PsiWhiteSpace(' ')
+            TuplePattern
+              PsiElement(()('(')
+              ArgumentPatterns
+                WildcardPattern
+                  PsiElement(_)('_')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                Scala3 TypedPattern
+                  ReferencePattern: f
+                    PsiElement(identifier)('f')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  TypePattern
+                    ParametrizedType: Seq[Failure[Int] @unchecked]
+                      SimpleType: Seq
+                        CodeReferenceElement: Seq
+                          PsiElement(identifier)('Seq')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          TypeWithAnnotation: Failure[Int] @unchecked
+                            ParametrizedType: Failure[Int]
+                              SimpleType: Failure
+                                CodeReferenceElement: Failure
+                                  PsiElement(identifier)('Failure')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: Int
+                                    CodeReferenceElement: Int
+                                      PsiElement(identifier)('Int')
+                                PsiElement(])(']')
+                            PsiWhiteSpace(' ')
+                            AnnotationsList
+                              Annotation
+                                PsiElement(@)('@')
+                                AnnotationExpression
+                                  ConstructorInvocation
+                                    SimpleType: unchecked
+                                      CodeReferenceElement: unchecked
+                                        PsiElement(identifier)('unchecked')
+                        PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            ReferenceExpression: x
+              PsiElement(identifier)('x')

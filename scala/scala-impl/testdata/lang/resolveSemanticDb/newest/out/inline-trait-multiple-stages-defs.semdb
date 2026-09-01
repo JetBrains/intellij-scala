@@ -1,0 +1,18 @@
+Document tests/pos/inline-trait-multiple-stages-defs/A_1.scala
+(3:19..3:22) scala/Int#
+(4:10..4:13) scala/Int#
+(5:12..5:15) scala/Int#
+(5:18..5:21) scala/Int#
+(6:10..6:13) scala/Int#
+(7:10..7:13) scala/Int#
+(8:10..8:13) scala/Int#
+(9:10..9:13) scala/Int#
+(12:18..12:19) _empty_/A#a. -> 11:14
+(13:19..13:22) scala/Int#
+(13:25..13:28) scala/Int#
+
+Document tests/pos/inline-trait-multiple-stages-defs/B_2.scala
+(3:17..3:18) _empty_/A# -> 3:14
+(4:10..4:13) scala/Int#
+(5:10..5:13) scala/Int#
+

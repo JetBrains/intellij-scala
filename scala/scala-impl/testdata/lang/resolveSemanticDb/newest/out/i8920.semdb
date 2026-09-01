@@ -11,8 +11,8 @@ Document tests/pos/i8920/Qu_1.scala
 (5:10..5:20) scala/collection/mutable/ArrayDeque.
 (5:21..5:26) scala/collection/mutable/ArrayDeque.alloc().
 (5:27..5:38) scala/collection/mutable/Qu#`<init>`(+1).(initialSize) -> 4:12
-(5:41..5:46) scala/collection/mutable/Qu#`<init>`().(start)
-(5:52..5:55) scala/collection/mutable/Qu#`<init>`().(end)
+(5:41..5:46) scala/collection/mutable/Qu#`<init>`().(start) -> 3:46
+(5:52..5:55) scala/collection/mutable/Qu#`<init>`().(end) -> 3:58
 (8:19..8:24) scala/Array#
 (8:25..8:31) scala/AnyRef#
 (8:41..8:44) scala/Int#

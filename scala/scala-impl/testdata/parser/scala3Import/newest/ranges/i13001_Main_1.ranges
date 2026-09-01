@@ -135,7 +135,7 @@
 [768,1048]: DefDef
 [786,831]: ValDef
 [789,831]: ByNameTypeTree
-[792,831]: Function
+[792,831]: FunctionWithMods
 [793,821]: InfixOp
 [793,810]: AppliedTypeTree
 [793,807]: Ident
@@ -148,7 +148,7 @@
 [829,830]: Ident
 [833,880]: ValDef
 [836,880]: ByNameTypeTree
-[839,880]: Function
+[839,880]: FunctionWithMods
 [840,870]: InfixOp
 [840,859]: AppliedTypeTree
 [840,856]: Ident

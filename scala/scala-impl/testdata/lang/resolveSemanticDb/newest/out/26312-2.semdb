@@ -1,0 +1,11 @@
+Document tests/pos/26312-2/Use_2.scala
+(2:18..2:23) scala/Array#
+(2:24..2:30) scala/Predef.String#
+(2:34..2:38) scala/Unit#
+(3:17..3:24) _empty_/Outer_1#
+(3:25..3:28) scala/Int#
+(3:30..3:36) scala/Predef.String#
+(4:17..4:26) _empty_/Outer_1$1#
+(4:27..4:34) scala/Boolean#
+(4:36..4:37) local0 -> 3:9
+

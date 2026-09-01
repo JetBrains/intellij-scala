@@ -2,7 +2,7 @@ trait U {
 }
 
 trait T {
-  type TT = Any with T with U
+  type TT = Any & T & U
   private val priv = 0
   (??? : TT).priv
 }
@@ -47,18 +47,21 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          CompoundType: Any with T with U
-            SimpleType: Any
-              CodeReferenceElement: Any
-                PsiElement(identifier)('Any')
+          InfixType: Any & T & U
+            InfixType: Any & T
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: &
+                PsiElement(identifier)('&')
+              PsiWhiteSpace(' ')
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
-            PsiWhiteSpace(' ')
-            SimpleType: T
-              CodeReferenceElement: T
-                PsiElement(identifier)('T')
-            PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: U
               CodeReferenceElement: U

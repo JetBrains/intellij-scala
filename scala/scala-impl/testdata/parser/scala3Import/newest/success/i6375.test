@@ -2,7 +2,7 @@
  * The output of the program should instead look like this:
 
       package <empty> {
-        @scala.annotation.internal.SourceFile("i6375.scala") class Test() extends
+        class Test() extends
           Object
         () {
           final given def given_Int: Int = 0
@@ -39,7 +39,7 @@ class Test:
 -----
 ScalaFile
   ScClass: Test
-    PsiComment(BlockComment)('/* In the following we should never have two nested closures after phase betaReduce\n * The output of the program should instead look like this:\n\n      package <empty> {\n        @scala.annotation.internal.SourceFile("i6375.scala") class Test() extends\n          Object\n        () {\n          final given def given_Int: Int = 0\n          @scala.annotation.internal.ContextResultCount(1) def f(): (Int) ?=> Boolean\n            =\n          {\n            def $anonfun(using evidence$1: Int): Boolean = true\n            closure($anonfun)\n          }\n          @scala.annotation.internal.ContextResultCount(1) inline def g():\n            (Int) ?=> Boolean\n          =\n            {\n              def $anonfun(using evidence$3: Int): Boolean = true\n              closure($anonfun)\n            }\n          {\n            {\n              def $anonfun(using evidence$3: Int): Boolean = true\n              closure($anonfun)\n            }\n          }.apply(this.given_Int)\n        }\n      }\n */')
+    PsiComment(BlockComment)('/* In the following we should never have two nested closures after phase betaReduce\n * The output of the program should instead look like this:\n\n      package <empty> {\n        class Test() extends\n          Object\n        () {\n          final given def given_Int: Int = 0\n          @scala.annotation.internal.ContextResultCount(1) def f(): (Int) ?=> Boolean\n            =\n          {\n            def $anonfun(using evidence$1: Int): Boolean = true\n            closure($anonfun)\n          }\n          @scala.annotation.internal.ContextResultCount(1) inline def g():\n            (Int) ?=> Boolean\n          =\n            {\n              def $anonfun(using evidence$3: Int): Boolean = true\n              closure($anonfun)\n            }\n          {\n            {\n              def $anonfun(using evidence$3: Int): Boolean = true\n              closure($anonfun)\n            }\n          }.apply(this.given_Int)\n        }\n      }\n */')
     PsiWhiteSpace('\n')
     AnnotationsList
       <empty list>

@@ -5,7 +5,7 @@ trait MBrace[C[X] <: MBrace[C,X],A] {
 }
 
 // a monad that is a Seq
-trait MBraceSeq[C[X] <: MBrace[C,X] with Seq[X],A] extends MBrace[C,A]
+trait MBraceSeq[C[X] <: MBrace[C,X] & Seq[X],A] extends MBrace[C,A]
 
 // one of the simplest witnesses of monad i can find
 case class MSequitor[A]( a_ : A* ) extends Seq[A] with MBrace[MSequitor,A]
@@ -219,7 +219,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(<:)('<:')
         PsiWhiteSpace(' ')
-        CompoundType: MBrace[C,X] with Seq[X]
+        InfixType: MBrace[C,X] & Seq[X]
           ParametrizedType: MBrace[C,X]
             SimpleType: MBrace
               CodeReferenceElement: MBrace
@@ -237,7 +237,8 @@ ScalaFile
                     PsiElement(identifier)('X')
               PsiElement(])(']')
           PsiWhiteSpace(' ')
-          PsiElement(with)('with')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
           PsiWhiteSpace(' ')
           ParametrizedType: Seq[X]
             SimpleType: Seq

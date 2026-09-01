@@ -1,12 +1,12 @@
 Document tests/pos/i23119.scala
 (3:11..3:21) scala/package.IndexedSeq#
 (3:22..3:35) _empty_/FalsePositive# -> 27:7
-(5:12..5:14) scala/runtime/RichInt#to().
+(5:12..5:14) scala/Int.to().
 (6:17..6:18) local0 -> 5:5
 (7:10..7:23) _empty_/FalsePositive# -> 27:7
 (8:11..8:13) local2 -> 7:5
 (12:10..12:14) scala/package.List.
-(13:22..13:24) scala/Predef.ArrowAssoc#`->`().
+(13:22..13:24) scala/Predef.`->`().
 (15:5..15:6) scala/StringContext#s().
 (15:8..15:9) local4 -> 13:6
 (15:12..15:13) local5 -> 13:9
@@ -16,7 +16,7 @@ Document tests/pos/i23119.scala
 (17:21..17:34) _empty_/FalsePositive# -> 27:7
 (18:9..18:15) scala/Predef.String#
 (20:11..20:14) scala/Int#
-(20:20..20:22) scala/runtime/RichInt#to().
+(20:20..20:22) scala/Int.to().
 (21:8..21:11) scala/Int#
 (21:14..21:20) scala/Predef.summon().
 (21:21..21:24) scala/Int#

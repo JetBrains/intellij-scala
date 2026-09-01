@@ -85,7 +85,7 @@ Document tests/pos/opaque-propability.scala
 (39:46..39:47) _empty_/prob.Probability.ProbabilityOps#`&`(). -> 24:11
 (39:48..39:57) _empty_/prob.Probability.caughtCab. -> 38:9
 (41:5..41:12) scala/Predef.println(+1).
-(41:16..41:18) scala/runtime/RichInt#to().
+(41:16..41:18) scala/Int.to().
 (41:22..41:25) scala/collection/immutable/Range#map().
 (41:31..41:38) _empty_/prob.Probability.arrived. -> 39:9
 (41:49..41:55) scala/collection/IterableOnceOps#toList().

@@ -1,0 +1,15 @@
+Document tests/pos/stackoverflowmacro/Macro_1.scala
+(5:8..5:13) scala/
+(5:14..5:20) scala/quoted/
+(7:44..7:47) scala/Int#
+(7:53..7:71) _empty_/StackOverflowMacro. -> 9:8
+(7:72..7:76) _empty_/StackOverflowMacro.impl(). -> 10:9
+(10:20..10:26) scala/quoted/Quotes#
+(10:29..10:33) scala/quoted/Expr#
+(10:34..10:37) scala/Int#
+(10:47..10:51) _empty_/StackOverflowMacro.impl(). -> 10:9
+(10:53..10:54) scala/Int#`+`(+4).
+(10:57..10:61) _empty_/StackOverflowMacro.impl(). -> 10:9
+
+Document tests/pos/stackoverflowmacro/Use_2.scala
+

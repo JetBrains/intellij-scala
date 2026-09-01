@@ -1,10 +1,12 @@
 Document tests/pos/t8301.scala
 (2:18..2:22) scala/Null#
 (2:26..2:32) scala/AnyRef#
-(2:38..2:47) _empty_/Universe#SymbolApi# -> 3:9
+(2:33..2:34) scala/`&`#
+(2:35..2:44) _empty_/Universe#SymbolApi# -> 3:9
 (5:22..5:26) scala/Null#
 (5:30..5:43) _empty_/Universe#TypeSymbolApi# -> 6:9
-(5:49..5:55) _empty_/Universe#Symbol# -> 2:8
+(5:44..5:45) scala/`&`#
+(5:46..5:52) _empty_/Universe#Symbol# -> 2:8
 (8:40..8:46) _empty_/Universe#Symbol# -> 2:8
 (9:21..9:31) _empty_/Universe#TypeSymbol# -> 5:8
 (9:34..9:37) scala/Predef.`???`().

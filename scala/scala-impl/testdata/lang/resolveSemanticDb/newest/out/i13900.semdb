@@ -40,7 +40,7 @@ Document tests/pos/i13900.scala
 (14:21..14:22) _empty_/i13900$package.Inlined.max().[R] -> 13:13
 (14:25..14:28) _empty_/i13900$package.Inlined.max().(lhs) -> 12:24
 (14:29..14:34) _empty_/i13900$package.Inlined.value(). -> 5:42
-(14:35..14:38) scala/runtime/RichInt#max().
+(14:35..14:38) scala/Int.max().
 (14:39..14:42) _empty_/i13900$package.Inlined.max().(rhs) -> 13:23
 (14:43..14:48) _empty_/i13900$package.Inlined.value(). -> 5:42
 

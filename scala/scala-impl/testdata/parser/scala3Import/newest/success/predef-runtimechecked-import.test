@@ -1,0 +1,128 @@
+package example
+
+import scala.Predef.{assert => _, *}
+
+class PredefRuntimeCheckedImport:
+  def f: Any = {
+    for (_ <- 1 to 1) ()
+    Map(1.runtimeChecked -> "")
+  }
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: example
+      PsiElement(identifier)('example')
+    PsiWhiteSpace('\n\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: scala.Predef
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('Predef')
+        PsiElement(.)('.')
+        ImportSelectors
+          PsiElement({)('{')
+          ImportSelector
+            CodeReferenceElement: assert
+              PsiElement(identifier)('assert')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace(' ')
+            PsiElement(_)('_')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ImportSelector
+            PsiElement(*)('*')
+          PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScClass: PredefRuntimeCheckedImport
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('PredefRuntimeCheckedImport')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: f
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('f')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Any
+              CodeReferenceElement: Any
+                PsiElement(identifier)('Any')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            BlockExpression
+              PsiElement({)('{')
+              PsiWhiteSpace('\n    ')
+              ForStatement
+                PsiElement(for)('for')
+                PsiWhiteSpace(' ')
+                PsiElement(()('(')
+                Enumerators
+                  Generator
+                    WildcardPattern
+                      PsiElement(_)('_')
+                    PsiWhiteSpace(' ')
+                    PsiElement(<-)('<-')
+                    PsiWhiteSpace(' ')
+                    InfixExpression
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: to
+                        PsiElement(identifier)('to')
+                      PsiWhiteSpace(' ')
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                PsiElement())(')')
+                PsiWhiteSpace(' ')
+                UnitExpression
+                  PsiElement(()('(')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              MethodCall
+                ReferenceExpression: Map
+                  PsiElement(identifier)('Map')
+                ArgumentList
+                  PsiElement(()('(')
+                  InfixExpression
+                    ReferenceExpression: 1.runtimeChecked
+                      IntegerLiteral
+                        PsiElement(integer)('1')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('runtimeChecked')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: ->
+                      PsiElement(identifier)('->')
+                    PsiWhiteSpace(' ')
+                    StringLiteral
+                      PsiElement(string content)('""')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n  ')
+              PsiElement(})('}')

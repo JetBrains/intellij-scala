@@ -33,11 +33,11 @@ object Test {
     def f: Any = ""
   }
 
-  val bc: B with C = new C with B {}
+  val bc: B & C = new C with B {}
 
-  def fooAB = (??? : A with B).f
+  def fooAB = (??? : A & B).f
   def fooAB1: Int = fooAB
-  def fooBA = (??? : B with A).f
+  def fooBA = (??? : B & A).f
   def fooBA1: Int = fooBA
 }
 -----
@@ -575,12 +575,13 @@ ScalaFile
               PsiElement(identifier)('bc')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: B with C
+          InfixType: B & C
             SimpleType: B
               CodeReferenceElement: B
                 PsiElement(identifier)('B')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: C
               CodeReferenceElement: C
@@ -622,7 +623,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          ReferenceExpression: (??? : A with B).f
+          ReferenceExpression: (??? : A & B).f
             ExpressionInParenthesis
               PsiElement(()('(')
               TypedExpression
@@ -631,12 +632,13 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                CompoundType: A with B
+                InfixType: A & B
                   SimpleType: A
                     CodeReferenceElement: A
                       PsiElement(identifier)('A')
                   PsiWhiteSpace(' ')
-                  PsiElement(with)('with')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
                   PsiWhiteSpace(' ')
                   SimpleType: B
                     CodeReferenceElement: B
@@ -679,7 +681,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          ReferenceExpression: (??? : B with A).f
+          ReferenceExpression: (??? : B & A).f
             ExpressionInParenthesis
               PsiElement(()('(')
               TypedExpression
@@ -688,12 +690,13 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                CompoundType: B with A
+                InfixType: B & A
                   SimpleType: B
                     CodeReferenceElement: B
                       PsiElement(identifier)('B')
                   PsiWhiteSpace(' ')
-                  PsiElement(with)('with')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
                   PsiWhiteSpace(' ')
                   SimpleType: A
                     CodeReferenceElement: A

@@ -14,11 +14,12 @@ Document tests/pos/tcpoly_ticket2096.scala
 (8:25..8:31) _empty_/MBrace# -> 2:7
 (8:32..8:33) _empty_/MBraceSeq#[C] -> 8:17
 (8:34..8:35) _empty_/MBraceSeq#`<init>`().[C][X] -> 8:19
-(8:42..8:45) scala/package.Seq#
-(8:46..8:47) _empty_/MBraceSeq#`<init>`().[C][X] -> 8:19
-(8:60..8:66) _empty_/MBrace# -> 2:7
-(8:67..8:68) _empty_/MBraceSeq#[C] -> 8:17
-(8:69..8:70) _empty_/MBraceSeq#[A] -> 8:49
+(8:37..8:38) scala/`&`#
+(8:39..8:42) scala/package.Seq#
+(8:43..8:44) _empty_/MBraceSeq#`<init>`().[C][X] -> 8:19
+(8:57..8:63) _empty_/MBrace# -> 2:7
+(8:64..8:65) _empty_/MBraceSeq#[C] -> 8:17
+(8:66..8:67) _empty_/MBraceSeq#[A] -> 8:46
 (11:31..11:32) _empty_/MSequitor#[A] -> 11:22
 (11:44..11:47) scala/package.Seq#
 (11:48..11:49) _empty_/MSequitor#[A] -> 11:22

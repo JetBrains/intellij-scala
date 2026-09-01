@@ -36,7 +36,7 @@ Document tests/pos/parsercombinators-expanded.scala
 (32:33..32:34) _empty_/test.combine#[A] -> 31:17
 (33:22..33:32) _empty_/Combinator# -> 6:7
 (33:33..33:34) _empty_/test.combine#[B] -> 31:20
-(33:53..33:54) _empty_/test.combine#`<init>`().(f)
+(33:53..33:54) _empty_/test.combine#`<init>`().(f) -> 32:19
 (33:55..33:62) _empty_/Combinator#Context# -> 9:8
 (34:13..34:23) _empty_/Combinator# -> 6:7
 (34:24..34:31) _empty_/Combine# -> 19:18
@@ -79,7 +79,7 @@ Document tests/pos/parsercombinators-expanded.scala
 (49:41..49:47) scala/collection/mutable/ListBuffer#remove().
 (51:4..51:8) scala/main#
 (51:20..51:24) scala/Unit#
-(52:21..52:23) scala/runtime/RichInt#to().
+(52:21..52:23) scala/Int.to().
 (52:28..52:34) scala/collection/IterableOnceOps#toList().
 (53:18..53:24) local5 -> 52:9
 (53:25..53:27) scala/collection/IterableOnceOps#to().

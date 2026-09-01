@@ -91,7 +91,7 @@ Document tests/pos/opaque-propability-xm.scala
 (38:44..38:45) _empty_/prob.Probability.`&`(). -> 23:37
 (38:46..38:55) _empty_/prob.caughtCab. -> 37:7
 (40:3..40:10) scala/Predef.println(+1).
-(40:14..40:16) scala/runtime/RichInt#to().
+(40:14..40:16) scala/Int.to().
 (40:20..40:23) scala/collection/immutable/Range#map().
 (40:29..40:36) _empty_/prob.arrived. -> 38:7
 (40:37..40:43) _empty_/prob.Probability.sample(). -> 31:37

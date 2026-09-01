@@ -1,0 +1,12 @@
+Document tests/pos/i25979.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:37) scala/language.strictEquality.
+(5:22..5:25) _empty_/Foo# -> 3:14
+(5:26..5:29) scala/Int#
+(7:13..7:16) _empty_/Foo# -> 3:14
+(7:17..7:18) _empty_/i25979$package.a().[A] -> 7:7
+(8:3..8:4) _empty_/i25979$package.a().(a) -> 7:10
+(9:10..9:13) _empty_/Foo. -> 4:8
+(9:14..9:17) _empty_/Foo.Bar. -> 5:10
+

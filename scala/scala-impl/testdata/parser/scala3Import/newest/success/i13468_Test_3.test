@@ -1,0 +1,56 @@
+// https://github.com/scala/scala3/issues/13468
+// Second compilation round (the reporter's "uncomment the line and recompile"):
+// `container`'s type and `MyOpaque`'s opaque parameter must come back from TASTy
+// as `Container[8]`, not `Container[Int]`, for this `summon` to resolve.
+val shouldWork = summon[container.type <:< Container[8]]
+-----
+ScalaFile
+  ScPatternDefinition: shouldWork
+    PsiComment(comment)('// https://github.com/scala/scala3/issues/13468')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// Second compilation round (the reporter's "uncomment the line and recompile"):')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// `container`'s type and `MyOpaque`'s opaque parameter must come back from TASTy')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// as `Container[8]`, not `Container[Int]`, for this `summon` to resolve.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: shouldWork
+        PsiElement(identifier)('shouldWork')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: summon
+        PsiElement(identifier)('summon')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: container.type <:< Container[8]
+            SimpleType: container.type
+              CodeReferenceElement: container
+                PsiElement(identifier)('container')
+              PsiElement(.)('.')
+              PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: <:<
+              PsiElement(identifier)('<:<')
+            PsiWhiteSpace(' ')
+            ParametrizedType: Container[8]
+              SimpleType: Container
+                CodeReferenceElement: Container
+                  PsiElement(identifier)('Container')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  LiteralType: 8
+                    IntegerLiteral
+                      PsiElement(integer)('8')
+                PsiElement(])(']')
+        PsiElement(])(']')

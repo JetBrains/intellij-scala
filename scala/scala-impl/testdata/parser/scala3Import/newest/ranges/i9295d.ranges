@@ -11,9 +11,9 @@
 [62,141]: DefDef
 [79,91]: ValDef
 [85,91]: Ident
-[96,135]: Function
+[96,135]: FunctionWithMods
 [96,109]: Ident
-[114,135]: Function
+[114,135]: FunctionWithMods
 [114,127]: Ident
 [132,135]: Ident
 [138,141]: Ident

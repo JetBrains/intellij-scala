@@ -1,0 +1,10 @@
+Document tests/pos/inline-trait-body-rhs-type.scala
+(2:22..2:23) _empty_/A#[T] -> 2:16
+(3:10..3:11) _empty_/A#[T] -> 2:16
+(3:14..3:15) _empty_/A#x. -> 2:19
+(3:17..3:18) _empty_/A#[T] -> 2:16
+(4:10..4:11) _empty_/A#[T] -> 2:16
+(4:14..4:22) scala/Predef.identity().
+(4:23..4:24) _empty_/A#[T] -> 2:16
+(4:26..4:27) _empty_/A#x. -> 2:19
+

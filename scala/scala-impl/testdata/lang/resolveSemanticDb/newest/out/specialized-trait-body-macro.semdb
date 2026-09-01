@@ -1,0 +1,17 @@
+Document tests/pos/specialized-trait-body-macro/Macro_1.scala
+(2:8..2:13) scala/
+(2:14..2:20) scala/quoted/
+(4:19..4:22) scala/Int#
+(5:5..5:12) _empty_/Macro_1$package.fooImpl(). -> 7:5
+(7:19..7:25) scala/quoted/Quotes#
+(7:28..7:32) scala/quoted/Expr#
+(7:33..7:36) scala/Int#
+(10:19..10:30) _empty_/A#[T] -> 10:16
+(10:19..10:30) scala/specialize/Specialized#
+(11:10..11:13) scala/Int#
+(11:16..11:19) _empty_/Macro_1$package.foo(). -> 4:12
+
+Document tests/pos/specialized-trait-body-macro/Test_2.scala
+(2:17..2:18) _empty_/A# -> 10:14
+(2:19..2:22) scala/Int#
+

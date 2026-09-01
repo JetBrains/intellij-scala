@@ -1,0 +1,624 @@
+package dfhdl
+import DFVal.Ops.CarryOp
+import DFVal.Ops.BoolOnlyOp
+
+trait ExactOp2Aux[Op, C, O]
+
+trait Modifier
+type ModifierAny = Modifier
+object Modifier:
+  type CONST = Modifier
+
+class DFType
+
+class DFC(mutableDB: MutableDB)
+
+object DFBoolOrBit:
+  given bl[Op, O](using
+      ExactOp2Aux[Op, DFC, O]
+  ): ExactOp2Aux[BoolOnlyOp, DFC, O] = ???
+
+object DFDecimal:
+  object Ops:
+    export DFXInt.Ops.*
+
+object DFXInt:
+  object Ops:
+    type A = Int
+    type B = String
+    given arith1[Op <: A]: ExactOp2Aux[Op, DFC, DFValTP[DFType]] = ???
+    given arith2[Op <: B]: ExactOp2Aux[Op, DFC, DFValTP[DFType]] = ???
+    given c1: ExactOp2Aux[CarryOp, DFC, DFValTP[DFType]] = ???
+    given c2: ExactOp2Aux[CarryOp, DFC, DFValTP[DFType]] = ???
+
+type DFConstInt32 = DFConstOf[DFType]
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: dfhdl
+      PsiElement(identifier)('dfhdl')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: DFVal.Ops.CarryOp
+          CodeReferenceElement: DFVal.Ops
+            CodeReferenceElement: DFVal
+              PsiElement(identifier)('DFVal')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Ops')
+          PsiElement(.)('.')
+          PsiElement(identifier)('CarryOp')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: DFVal.Ops.BoolOnlyOp
+          CodeReferenceElement: DFVal.Ops
+            CodeReferenceElement: DFVal
+              PsiElement(identifier)('DFVal')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Ops')
+          PsiElement(.)('.')
+          PsiElement(identifier)('BoolOnlyOp')
+    PsiWhiteSpace('\n\n')
+    ScTrait: ExactOp2Aux
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ExactOp2Aux')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: Op
+          PsiElement(identifier)('Op')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: C
+          PsiElement(identifier)('C')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: O
+          PsiElement(identifier)('O')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScTrait: Modifier
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Modifier')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n')
+    ScTypeAliasDefinition: ModifierAny
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ModifierAny')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      SimpleType: Modifier
+        CodeReferenceElement: Modifier
+          PsiElement(identifier)('Modifier')
+    PsiWhiteSpace('\n')
+    ScObject: Modifier
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Modifier')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScTypeAliasDefinition: CONST
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('CONST')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            SimpleType: Modifier
+              CodeReferenceElement: Modifier
+                PsiElement(identifier)('Modifier')
+    PsiWhiteSpace('\n\n')
+    ScClass: DFType
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFType')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScClass: DFC
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFC')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: mutableDB
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('mutableDB')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: MutableDB
+                  CodeReferenceElement: MutableDB
+                    PsiElement(identifier)('MutableDB')
+            PsiElement())(')')
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScObject: DFBoolOrBit
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFBoolOrBit')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScGivenAliasDefinition: bl
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(given)('given')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('bl')
+            TypeParameterClause
+              PsiElement([)('[')
+              TypeParameter: Op
+                PsiElement(identifier)('Op')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeParameter: O
+                PsiElement(identifier)('O')
+              PsiElement(])(']')
+            Parameters
+              ParametersClause
+                PsiElement(()('(')
+                PsiElement(using)('using')
+                PsiWhiteSpace('\n      ')
+                Parameter: <anonymous>
+                  ParameterType
+                    ParametrizedType: ExactOp2Aux[Op, DFC, O]
+                      SimpleType: ExactOp2Aux
+                        CodeReferenceElement: ExactOp2Aux
+                          PsiElement(identifier)('ExactOp2Aux')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Op
+                            CodeReferenceElement: Op
+                              PsiElement(identifier)('Op')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: DFC
+                            CodeReferenceElement: DFC
+                              PsiElement(identifier)('DFC')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: O
+                            CodeReferenceElement: O
+                              PsiElement(identifier)('O')
+                        PsiElement(])(']')
+                PsiWhiteSpace('\n  ')
+                PsiElement())(')')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParametrizedType: ExactOp2Aux[BoolOnlyOp, DFC, O]
+              SimpleType: ExactOp2Aux
+                CodeReferenceElement: ExactOp2Aux
+                  PsiElement(identifier)('ExactOp2Aux')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: BoolOnlyOp
+                    CodeReferenceElement: BoolOnlyOp
+                      PsiElement(identifier)('BoolOnlyOp')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: DFC
+                    CodeReferenceElement: DFC
+                      PsiElement(identifier)('DFC')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                TypeArgument
+                  SimpleType: O
+                    CodeReferenceElement: O
+                      PsiElement(identifier)('O')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: ???
+              PsiElement(identifier)('???')
+    PsiWhiteSpace('\n\n')
+    ScObject: DFDecimal
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFDecimal')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScObject: Ops
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Ops')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                ScExportStatement
+                  PsiElement(export)('export')
+                  PsiWhiteSpace(' ')
+                  ImportExpression
+                    CodeReferenceElement: DFXInt.Ops
+                      CodeReferenceElement: DFXInt
+                        PsiElement(identifier)('DFXInt')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Ops')
+                    PsiElement(.)('.')
+                    PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScObject: DFXInt
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFXInt')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScObject: Ops
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Ops')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDefinition: A
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('A')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDefinition: B
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('B')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+                PsiWhiteSpace('\n    ')
+                ScGivenAliasDefinition: arith1
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(given)('given')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('arith1')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: Op
+                      PsiElement(identifier)('Op')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: A
+                        CodeReferenceElement: A
+                          PsiElement(identifier)('A')
+                    PsiElement(])(']')
+                  PsiElement(:)(':')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: ExactOp2Aux[Op, DFC, DFValTP[DFType]]
+                    SimpleType: ExactOp2Aux
+                      CodeReferenceElement: ExactOp2Aux
+                        PsiElement(identifier)('ExactOp2Aux')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Op
+                          CodeReferenceElement: Op
+                            PsiElement(identifier)('Op')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: DFC
+                          CodeReferenceElement: DFC
+                            PsiElement(identifier)('DFC')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: DFValTP[DFType]
+                          SimpleType: DFValTP
+                            CodeReferenceElement: DFValTP
+                              PsiElement(identifier)('DFValTP')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: DFType
+                                CodeReferenceElement: DFType
+                                  PsiElement(identifier)('DFType')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                PsiWhiteSpace('\n    ')
+                ScGivenAliasDefinition: arith2
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(given)('given')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('arith2')
+                  TypeParameterClause
+                    PsiElement([)('[')
+                    TypeParameter: Op
+                      PsiElement(identifier)('Op')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: B
+                        CodeReferenceElement: B
+                          PsiElement(identifier)('B')
+                    PsiElement(])(']')
+                  PsiElement(:)(':')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: ExactOp2Aux[Op, DFC, DFValTP[DFType]]
+                    SimpleType: ExactOp2Aux
+                      CodeReferenceElement: ExactOp2Aux
+                        PsiElement(identifier)('ExactOp2Aux')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Op
+                          CodeReferenceElement: Op
+                            PsiElement(identifier)('Op')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: DFC
+                          CodeReferenceElement: DFC
+                            PsiElement(identifier)('DFC')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: DFValTP[DFType]
+                          SimpleType: DFValTP
+                            CodeReferenceElement: DFValTP
+                              PsiElement(identifier)('DFValTP')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: DFType
+                                CodeReferenceElement: DFType
+                                  PsiElement(identifier)('DFType')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                PsiWhiteSpace('\n    ')
+                ScGivenAliasDefinition: c1
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(given)('given')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('c1')
+                  PsiElement(:)(':')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: ExactOp2Aux[CarryOp, DFC, DFValTP[DFType]]
+                    SimpleType: ExactOp2Aux
+                      CodeReferenceElement: ExactOp2Aux
+                        PsiElement(identifier)('ExactOp2Aux')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: CarryOp
+                          CodeReferenceElement: CarryOp
+                            PsiElement(identifier)('CarryOp')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: DFC
+                          CodeReferenceElement: DFC
+                            PsiElement(identifier)('DFC')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: DFValTP[DFType]
+                          SimpleType: DFValTP
+                            CodeReferenceElement: DFValTP
+                              PsiElement(identifier)('DFValTP')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: DFType
+                                CodeReferenceElement: DFType
+                                  PsiElement(identifier)('DFType')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+                PsiWhiteSpace('\n    ')
+                ScGivenAliasDefinition: c2
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(given)('given')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('c2')
+                  PsiElement(:)(':')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: ExactOp2Aux[CarryOp, DFC, DFValTP[DFType]]
+                    SimpleType: ExactOp2Aux
+                      CodeReferenceElement: ExactOp2Aux
+                        PsiElement(identifier)('ExactOp2Aux')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: CarryOp
+                          CodeReferenceElement: CarryOp
+                            PsiElement(identifier)('CarryOp')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        SimpleType: DFC
+                          CodeReferenceElement: DFC
+                            PsiElement(identifier)('DFC')
+                      PsiElement(,)(',')
+                      PsiWhiteSpace(' ')
+                      TypeArgument
+                        ParametrizedType: DFValTP[DFType]
+                          SimpleType: DFValTP
+                            CodeReferenceElement: DFValTP
+                              PsiElement(identifier)('DFValTP')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: DFType
+                                CodeReferenceElement: DFType
+                                  PsiElement(identifier)('DFType')
+                            PsiElement(])(']')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')
+    PsiWhiteSpace('\n\n')
+    ScTypeAliasDefinition: DFConstInt32
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFConstInt32')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ParametrizedType: DFConstOf[DFType]
+        SimpleType: DFConstOf
+          CodeReferenceElement: DFConstOf
+            PsiElement(identifier)('DFConstOf')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: DFType
+              CodeReferenceElement: DFType
+                PsiElement(identifier)('DFType')
+          PsiElement(])(']')

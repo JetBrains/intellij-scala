@@ -1,41 +1,36 @@
-import scala.annotation.{experimental,unroll}
+//> using options -preview
+import scala.annotation.unroll
 
-@experimental final class Foo {
+final class Foo {
   def bar(@unroll x: Int = 0) = x + 1
 }
 -----
 ScalaFile
+  PsiElement(SCALA_DIRECTIVE)
+    ScDirectiveToken(tDIRECTIVE_PREFIX)('//>')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_COMMAND)('using')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_KEY)('options')
+    PsiWhiteSpace(' ')
+    ScDirectiveToken(tDIRECTIVE_VALUE)('-preview')
+  PsiWhiteSpace('\n')
   ScImportStatement
     PsiElement(import)('import')
     PsiWhiteSpace(' ')
     ImportExpression
-      CodeReferenceElement: scala.annotation
-        CodeReferenceElement: scala
-          PsiElement(identifier)('scala')
+      CodeReferenceElement: scala.annotation.unroll
+        CodeReferenceElement: scala.annotation
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('annotation')
         PsiElement(.)('.')
-        PsiElement(identifier)('annotation')
-      PsiElement(.)('.')
-      ImportSelectors
-        PsiElement({)('{')
-        ImportSelector
-          CodeReferenceElement: experimental
-            PsiElement(identifier)('experimental')
-        PsiElement(,)(',')
-        ImportSelector
-          CodeReferenceElement: unroll
-            PsiElement(identifier)('unroll')
-        PsiElement(})('}')
+        PsiElement(identifier)('unroll')
   PsiWhiteSpace('\n\n')
   ScClass: Foo
     AnnotationsList
-      Annotation
-        PsiElement(@)('@')
-        AnnotationExpression
-          ConstructorInvocation
-            SimpleType: experimental
-              CodeReferenceElement: experimental
-                PsiElement(identifier)('experimental')
-    PsiWhiteSpace(' ')
+      <empty list>
     Modifiers
       PsiElement(final)('final')
     PsiWhiteSpace(' ')

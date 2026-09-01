@@ -2,7 +2,8 @@ Document tests/pos/selftails.scala
 (3:9..3:12) net/
 (3:13..3:20) net/liftweb/
 (8:33..8:46) net/liftweb/util/StringHelpers# -> 24:7
-(8:52..8:66) net/liftweb/util/ControlHelpers# -> 25:7
+(8:47..8:48) scala/`&`#
+(8:49..8:63) net/liftweb/util/ControlHelpers# -> 25:7
 (14:15..14:20) scala/Array#
 (14:21..14:25) scala/Byte#
 (14:31..14:36) scala/Array#

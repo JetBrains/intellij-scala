@@ -50,7 +50,7 @@
 [115,115]: TypeBoundsTree
 [116,116]: TypeBoundsTree
 [119,141]: TypeDef
-[128,141]: Function
+[128,141]: FunctionWithMods
 [128,132]: AppliedTypeTree
 [128,129]: Ident
 [130,131]: Ident

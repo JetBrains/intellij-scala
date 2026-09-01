@@ -1,0 +1,135 @@
+class Sub extends Outer:
+  val v = inner.make
+
+object Mk:
+  def mkOuter(): Outer = new Outer {}
+
+// impure prefix: an outer path is built through the nested module `inner`, whose
+// outer accessor must be reconstructed in this (separate) compilation unit.
+val w = Mk.mkOuter().inner.make
+-----
+ScalaFile
+  ScClass: Sub
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Sub')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Outer
+            CodeReferenceElement: Outer
+              PsiElement(identifier)('Outer')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: v
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: v
+              PsiElement(identifier)('v')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: inner.make
+            ReferenceExpression: inner
+              PsiElement(identifier)('inner')
+            PsiElement(.)('.')
+            PsiElement(identifier)('make')
+  PsiWhiteSpace('\n\n')
+  ScObject: Mk
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Mk')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: mkOuter
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('mkOuter')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Outer
+            CodeReferenceElement: Outer
+              PsiElement(identifier)('Outer')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Outer
+                    CodeReferenceElement: Outer
+                      PsiElement(identifier)('Outer')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: w
+    PsiComment(comment)('// impure prefix: an outer path is built through the nested module `inner`, whose')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// outer accessor must be reconstructed in this (separate) compilation unit.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: w
+        PsiElement(identifier)('w')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: Mk.mkOuter().inner.make
+      ReferenceExpression: Mk.mkOuter().inner
+        MethodCall
+          ReferenceExpression: Mk.mkOuter
+            ReferenceExpression: Mk
+              PsiElement(identifier)('Mk')
+            PsiElement(.)('.')
+            PsiElement(identifier)('mkOuter')
+          ArgumentList
+            PsiElement(()('(')
+            PsiElement())(')')
+        PsiElement(.)('.')
+        PsiElement(identifier)('inner')
+      PsiElement(.)('.')
+      PsiElement(identifier)('make')

@@ -1,0 +1,27 @@
+Document tests/pos/26238-min.scala
+(6:14..6:19) _empty_/Thing# -> 1:7
+(6:20..6:23) scala/Int#
+(6:27..6:30) scala/Predef.`???`().
+(8:20..8:25) _empty_/Thing# -> 1:7
+(8:26..8:28) _empty_/Outer.flatMap$default$2().[T1] -> 8:13
+(8:26..8:28) _empty_/Outer.flatMap().[T1] -> 8:13
+(8:26..8:28) _empty_/Outer.map$default$2().[T1] -> 8:13
+(8:26..8:28) _empty_/Outer.map().[T1] -> 8:13
+(8:40..8:41) _empty_/G# -> 2:7
+(8:48..8:49) _empty_/G# -> 2:7
+(9:20..9:22) _empty_/Outer.map().[T1] -> 8:13
+(9:26..9:28) _empty_/Outer.map().[T2] -> 9:13
+(9:31..9:36) _empty_/Thing# -> 1:7
+(9:37..9:39) _empty_/Outer.map().[T2] -> 9:13
+(9:43..9:46) scala/Predef.`???`().
+(10:24..10:26) _empty_/Outer.flatMap().[T1] -> 8:13
+(10:30..10:35) _empty_/Thing# -> 1:7
+(10:36..10:38) _empty_/Outer.flatMap().[T2] -> 10:17
+(10:42..10:47) _empty_/Thing# -> 1:7
+(10:48..10:50) _empty_/Outer.flatMap().[T2] -> 10:17
+(10:54..10:57) scala/Predef.`???`().
+(17:10..17:15) _empty_/Outer.flatMap(). -> 10:9
+(17:10..17:15) _empty_/Outer.thing(). -> 6:7
+(18:10..18:15) _empty_/Outer.map(). -> 9:9
+(18:10..18:15) _empty_/Outer.thing(). -> 6:7
+

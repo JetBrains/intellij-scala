@@ -4,7 +4,7 @@ Document tests/pos/t6948.scala
 (2:29..2:35) scala/util/Random#
 (3:12..3:16) _empty_/t6948.rand. -> 2:7
 (3:17..3:24) scala/util/Random#shuffle().
-(3:27..3:29) scala/runtime/RichInt#to().
+(3:27..3:29) scala/Int.to().
 (6:12..6:16) _empty_/t6948.rand. -> 2:7
 (6:17..6:24) scala/util/Random#shuffle().
 (6:25..6:31) scala/package.Vector.

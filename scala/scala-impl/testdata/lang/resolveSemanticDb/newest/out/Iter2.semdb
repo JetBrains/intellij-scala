@@ -183,9 +183,10 @@ Document tests/pos/Iter2.scala
 (127:57..127:58) dotty1/collections/immutable/Iter2.IterableTransforms#`<init>`().[C][X] -> 127:42
 (127:68..127:76) dotty1/collections/immutable/Iter2.Iterable# -> 61:9
 (127:77..127:78) dotty1/collections/immutable/Iter2.IterableTransforms#[A] -> 127:37
-(127:85..127:97) dotty1/collections/immutable/Iter2.FromIterator# -> 57:9
-(127:98..127:99) dotty1/collections/immutable/Iter2.IterableTransforms#[C] -> 127:40
-(127:110..127:116) scala/AnyVal#
+(127:80..127:81) scala/`&`#
+(127:82..127:94) dotty1/collections/immutable/Iter2.FromIterator# -> 57:9
+(127:95..127:96) dotty1/collections/immutable/Iter2.IterableTransforms#[C] -> 127:40
+(127:107..127:113) scala/AnyVal#
 (128:19..128:20) dotty1/collections/immutable/Iter2.IterableTransforms#[A] -> 127:37
 (128:24..128:25) dotty1/collections/immutable/Iter2.IterableTransforms#map().[B] -> 128:13
 (128:28..128:29) dotty1/collections/immutable/Iter2.IterableTransforms#[C] -> 127:40
@@ -249,9 +250,10 @@ Document tests/pos/Iter2.scala
 (136:48..136:49) dotty1/collections/immutable/Iter2.SeqTransforms#`<init>`().[C][X] -> 136:38
 (136:59..136:62) dotty1/collections/immutable/Iter2.Seq# -> 65:9
 (136:63..136:65) dotty1/collections/immutable/Iter2.SeqTransforms#[SA] -> 136:32
-(136:72..136:84) dotty1/collections/immutable/Iter2.FromIterator# -> 57:9
-(136:85..136:86) dotty1/collections/immutable/Iter2.SeqTransforms#[C] -> 136:36
-(136:97..136:103) scala/AnyVal#
+(136:67..136:68) scala/`&`#
+(136:69..136:81) dotty1/collections/immutable/Iter2.FromIterator# -> 57:9
+(136:82..136:83) dotty1/collections/immutable/Iter2.SeqTransforms#[C] -> 136:36
+(136:94..136:100) scala/AnyVal#
 (137:18..137:19) dotty1/collections/immutable/Iter2.SeqTransforms#[C] -> 136:36
 (137:20..137:22) dotty1/collections/immutable/Iter2.SeqTransforms#[SA] -> 136:32
 (138:23..138:28) scala/Array#
@@ -322,7 +324,7 @@ Document tests/pos/Iter2.scala
 (175:29..175:30) dotty1/collections/immutable/Iter2.ArrayIterator#[A] -> 165:29
 (175:34..175:38) scala/Unit#
 (175:41..175:45) scala/Unit#
-(176:19..176:24) scala/runtime/RichInt#until().
+(176:19..176:24) scala/Int.until().
 (176:25..176:28) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
 (176:30..176:31) dotty1/collections/immutable/Iter2.ArrayIterator#foreach().(f) -> 175:26
 (176:32..176:36) dotty1/collections/immutable/Iter2.ArrayIterator#elem(). -> 168:17
@@ -332,7 +334,7 @@ Document tests/pos/Iter2.scala
 (178:37..178:50) dotty1/collections/immutable/Iter2.ArrayIterator# -> 165:14
 (178:51..178:52) dotty1/collections/immutable/Iter2.ArrayIterator#map().[B] -> 178:22
 (179:20..179:25) dotty1/collections/immutable/Iter2.ArrayIterator#elems. -> 165:32
-(180:19..180:24) scala/runtime/RichInt#until().
+(180:19..180:24) scala/Int.until().
 (180:25..180:28) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
 (181:17..181:21) dotty1/collections/immutable/Iter2.ArrayIterator#elem(). -> 168:17
 (181:22..181:23) local10 -> 180:12

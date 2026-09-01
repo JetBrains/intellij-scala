@@ -1,0 +1,52 @@
+object Use {
+  def Test = scala.compiletime.testing.typeCheckErrors("stackOverflowMacro") // error
+}
+-----
+ScalaFile
+  ScObject: Use
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Use')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: Test
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Test')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: scala.compiletime.testing.typeCheckErrors
+              ReferenceExpression: scala.compiletime.testing
+                ReferenceExpression: scala.compiletime
+                  ReferenceExpression: scala
+                    PsiElement(identifier)('scala')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('compiletime')
+                PsiElement(.)('.')
+                PsiElement(identifier)('testing')
+              PsiElement(.)('.')
+              PsiElement(identifier)('typeCheckErrors')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"stackOverflowMacro"')
+              PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// error')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
