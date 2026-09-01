@@ -91,6 +91,7 @@ lazy val scalaCommunity: sbt.Project =
       conversion % "test->test;compile->compile",
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
+      scalaApi % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
       scalaMetaImpl % "test->test;compile->compile",
       structureView % "test->test;compile->compile",
