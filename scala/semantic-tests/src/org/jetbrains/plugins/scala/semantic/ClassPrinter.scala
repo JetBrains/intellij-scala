@@ -671,7 +671,7 @@ private object ClassPrinter {
     val annotator = new ScalaAnnotator()
     textOfCompilationUnit(cls, withPrivate = true, normalize = true, listener) { element =>
       val holder = new AnnotatorHolderMock(cls.getContainingFile)
-      annotator.annotate(element, typeAware = true, checkShouldInspect = false, treatAsSource = true)(holder)
+      annotator.annotate(element, typeAware = true, checkShouldInspect = false, treatAsSource = true)(using holder)
       holder.errorAnnotations.map(_.message)
     }
   }

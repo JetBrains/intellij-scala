@@ -122,7 +122,7 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
 
     // Update the test source file
     if (Print) {
-      val sourceFile = Path.of("scala", Seq("semantic-tests", "test") ++ getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala"): _*)
+      val sourceFile = Path.of("scala", Seq("semantic-tests", "test") ++ getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala")*)
       Assert.assertTrue(s"Test source not found: ${sourceFile.toString}", Files.exists(sourceFile))
       val contents = Files.readString(sourceFile)
       val ContentsPattern = "(?s)(.*?\"\"\"\n).*(\n\\s*\"\"\".*?)".r
