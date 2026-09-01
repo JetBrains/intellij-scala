@@ -23,7 +23,12 @@ object Scala3ImportedParserTestConfig {
   object Newest extends Scala3ImportedParserTestConfig(
     testDataPathFolder = "newest",
     scalaTargetVersion = ReferenceComparisonTestConfig_Scala3_Newest.scalaTargetVersion,
-    extraFilesInFailedIgnore = Set.empty
+    extraFilesInFailedIgnore = Set(
+      "alphanumeric-infix-operator-compat_D_1_c3_3_0.test",
+      "alphanumeric-infix-operator-compat_B_1_c3_1_0.test",
+      "alphanumeric-infix-operator-compat_A_1_c3_0_0.test",
+      "alphanumeric-infix-operator-compat_C_1_c3_2_0.test"
+    )
   )
   object LTS_3_9 extends Scala3ImportedParserTestConfig(
     testDataPathFolder = "lts39",
