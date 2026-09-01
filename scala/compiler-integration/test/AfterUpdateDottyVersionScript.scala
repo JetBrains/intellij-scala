@@ -5,9 +5,9 @@ import junitparams.JUnitParamsRunner
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTestConfig, Scala3ImportedParserTest_Move_Fixed_Tests_LTS, Scala3ImportedParserTest_Move_Fixed_Tests_LTS_3_9, Scala3ImportedParserTest_Move_Fixed_Tests_Newest}
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.*
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.disambiguatedStoreFileNameForUppercaseNames
-import org.jetbrains.plugins.scala.lang.resolveSemanticDb._
-import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations._
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.*
 import org.jetbrains.plugins.scala.util.{Annotations, TestUtils}
 import org.jetbrains.sbt.lang.completion.UpdateScalacOptionsInfo
 import org.junit.Assert.fail
@@ -36,7 +36,7 @@ import scala.util.Using
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class AfterUpdateDottyVersionScript {
 
-  import AfterUpdateDottyVersionScript._
+  import AfterUpdateDottyVersionScript.*
 
   /**
    * NOTE:
@@ -101,7 +101,7 @@ class AfterUpdateDottyVersionScript {
 
 object AfterUpdateDottyVersionScript {
   private val scala3_repo_lts_branch = "release-3.3.8"
-  private val scala3_repo_newest_branch = "release-3.8.4"
+  private val scala3_repo_newest_branch = "release-3.10.0"
   private val scala3_repo_lts_39_branch = "release-3.9.0"
 
   private val scala3_bootstrapped_module_name = "scala3-bootstrapped"
@@ -850,6 +850,61 @@ object AfterUpdateDottyVersionScript {
         |i25644.scala
         |i18234.scala
         |t8244d
+        |
+        |# release-3.10.0
+        |specialized-trait-anonymous-class-as-param.scala
+        |specialized-trait-inlining-causes-specialization.scala
+        |inline-trait-usage-return-type.scala
+        |specialized-trait-parameter-passing-as-named.scala
+        |specialized-trait-simplest.scala
+        |specialized-trait-very-specialized-list.scala
+        |specialized-trait-partial-complete-specialization-with-return-type.scala
+        |specialized-trait-object-extends-specialized-trait.scala
+        |specialized-trait-class-extends-specialized-trait.scala
+        |inline-trait-override-overload.scala
+        |inline-trait-usage-type-bound.scala
+        |inline-trait-signature-parameters-using.scala
+        |inline-trait-usage-type.scala
+        |inline-trait-4-no-inner-class.scala
+        |inline-trait-signature-generic-context-bound.scala
+        |ait-anonymous-class-as-param.scala
+        |specialized-trait-opaque-type.scala
+        |specialized-trait-exhaustivity-no-problem.scala
+        |inline-trait-generic-array.scala
+        |specialized-trait-inline-def-specialized.scala
+        |specialized-trait-exhaustivity-check-3.scala
+        |inline-trait-val-def-inner-class-inner-class-owners-init.scala
+        |erased-var.scala
+        |inline-trait-usage-anonymous-class.scala
+        |specialized-trait-self-as-param.scala
+        |specialized-trait-simplest-implicit-type-name.scala
+        |inline-trait-signature-parameters-implicit.scala
+        |specialized-trait-multiple-stages-specialized-numeric.scala
+        |specialized-trait-function-takes-specialized-trait.scala
+        |specialized-trait-self-type.scala
+        |specialized-trait-original-diamond.scala
+        |specialized-trait-var-parameter.scala
+        |specialized-trait-processing-order-matters.scala
+        |inline-trait-opaque-type.scala
+        |inline-trait-pair-example.scala
+        |inline-trait-private-evidence.scala
+        |inline-trait-class-type-generic.scala
+        |inline-trait-val-def-inner-class-inner-class-owners.scala
+        |specialized-trait-question-mark-non-specialized-allowed.scala
+        |inline-trait-y-equals-x-inlined-nowarn.scala
+        |inline-trait-parameter-passing.scala
+        |specialized-trait-specialized-context-bound.scala
+        |inline-trait-parent-ref.scala
+        |specialized-trait-inlining-causes-implementation-required-loop-bad.scala
+        |specialized-trait-with-param.scala
+        |specialized-trait-val-parameter.scala
+        |specialized-trait-partial-specialization-with-argument-passing.scala
+        |inline-trait-usage-param-type.scala
+        |specialized-trait-inlining-causes-implementation-required-loop-without-implementation-fine.scala
+        |specialized-trait-inline-anonymous-class-defn-nowarn.scala
+        |specialized-trait-inlining-causes-implementation-required.scala
+        |inline-trait-object-not-primitive.scala
+        |inline-trait-signature-parameters-using-nameless.scala
         |""".stripMargin.trim
     )
 
