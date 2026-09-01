@@ -220,7 +220,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.actor.typed.eventstream.EventStream
     //akka.actor.typed.internal.AbstractSupervisor
     //akka.actor.typed.internal.ActorContextImpl
-    //akka.actor.typed.internal.ActorFlightRecorder
+    akka.actor.typed.internal.ActorFlightRecorder
     akka.actor.typed.internal.ActorMdc
     //akka.actor.typed.internal.ActorRefImpl
     akka.actor.typed.internal.AdaptMessage
@@ -628,7 +628,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.impl.engine.http2.framing.FrameRenderer
     //akka.http.impl.engine.http2.framing.Http2FrameParsing
     //akka.http.impl.engine.http2.framing.RSTFrameLimit
-    //akka.http.impl.engine.http2.hpack.ByteStringInputStream
+    akka.http.impl.engine.http2.hpack.ByteStringInputStream
     //akka.http.impl.engine.http2.hpack.HandleOrPassOnStage
     //akka.http.impl.engine.http2.hpack.HeaderCompression
     //akka.http.impl.engine.http2.hpack.HeaderDecompression
@@ -966,7 +966,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.marshalling.ToResponseMarshallable
     //akka.http.scaladsl.marshalling.sse.EventStreamMarshalling
     akka.http.scaladsl.model.AttributeKey
-    //akka.http.scaladsl.model.AttributeKeys
+    akka.http.scaladsl.model.AttributeKeys
     akka.http.scaladsl.model.BodyPartEntity
     //akka.http.scaladsl.model.ByteContentRange
     //akka.http.scaladsl.model.ContentRange
@@ -1010,7 +1010,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.http.scaladsl.model.RequestResponseAssociation
     akka.http.scaladsl.model.RequestTimeoutException
     //akka.http.scaladsl.model.ResponseEntity
-    //akka.http.scaladsl.model.ResponsePromise
+    akka.http.scaladsl.model.ResponsePromise
     //akka.http.scaladsl.model.SensitiveHttpHeader
     //akka.http.scaladsl.model.SimpleRequestResponseAttribute
     //akka.http.scaladsl.model.SslSessionInfo
@@ -1712,7 +1712,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.artery.QuarantinedEvent
     akka.remote.artery.RemoteInstrument
     //akka.remote.artery.RemoteInstruments
-    //akka.remote.artery.RemotingFlightRecorder
+    akka.remote.artery.RemotingFlightRecorder
     akka.remote.artery.Reply
     //akka.remote.artery.RestartCounter
     akka.remote.artery.ReusableInboundEnvelope
@@ -1747,7 +1747,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.remote.artery.tcp.TcpFraming
     akka.remote.artery.tcp.ssl.NoopSessionVerifier
     //akka.remote.artery.tcp.ssl.PeerSubjectVerifier
-    //akka.remote.artery.tcp.ssl.PemManagersProvider
+    akka.remote.artery.tcp.ssl.PemManagersProvider
     //akka.remote.artery.tcp.ssl.RotatingKeysSSLEngineProvider
     akka.remote.artery.tcp.ssl.SSLEngineConfig
     akka.remote.artery.tcp.ssl.SessionVerifier
@@ -1861,7 +1861,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     akka.serialization.JSerializer
     //akka.serialization.JavaSerializer
     //akka.serialization.LongSerializer
-    //akka.serialization.NullSerializer
+    akka.serialization.NullSerializer
     //akka.serialization.Serialization
     akka.serialization.SerializationExtension
     //akka.serialization.SerializationSetup
@@ -2019,7 +2019,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.BatchingInputBuffer
     //akka.stream.impl.BoundedBuffer
     //akka.stream.impl.BoundedSourceQueueStage
-    //akka.stream.impl.Buffer
+    akka.stream.impl.Buffer
     //akka.stream.impl.BuilderKey
     akka.stream.impl.Cancel
     akka.stream.impl.CancelSink
@@ -2194,7 +2194,7 @@ class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
     //akka.stream.impl.fusing.StatefulMapConcat
     //akka.stream.impl.fusing.SubSink
     //akka.stream.impl.fusing.SubSource
-    //akka.stream.impl.fusing.SupervisedGraphStageLogic
+    akka.stream.impl.fusing.SupervisedGraphStageLogic
     //akka.stream.impl.fusing.Take
     //akka.stream.impl.fusing.TakeWhile
     //akka.stream.impl.fusing.TakeWithin

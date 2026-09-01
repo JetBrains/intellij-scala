@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScLi
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
-import org.jetbrains.plugins.scala.semantic.ClassPrinter.{Keywords, isIdentifier}
+import org.jetbrains.plugins.scala.semantic.ClassPrinter.{GeneratedClassTag, Keywords, isIdentifier}
 
 import scala.annotation.tailrec
 
@@ -400,7 +400,10 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
           case _ =>
             textOfReferenceTo(arg, place, arg.name)
         }
-        val inner = prefix + typeArgText + textOfImplicitArguments(arg.implicitArguments, place)
+        val inner = prefix + typeArgText + textOfImplicitArguments(arg.implicitArguments, place) match {
+          case GeneratedClassTag(tpe) => s"scala.reflect.ClassTag.apply[$tpe](classOf[$tpe])" // Workaround for SCL-14358
+          case s => s
+        }
         arg.implicitConversion.map(textOfImplicitConversion(_, inner, place)).getOrElse(inner)
       }.mkString(", ")
     }
@@ -653,6 +656,8 @@ private object ClassPrinter {
     "false", "final", "finally", "for", "forSome", "given", "if", "implicit", "import", "lazy", "macro", "match", "new", "null", "object", "override", "package",
     "private", "protected", "return", "sealed", "super", "then", "this", "throw", "trait", "true", "try", "type", "val", "var", "while", "with", "yield",
   )
+
+  private val GeneratedClassTag = raw"scala\.reflect\.ClassTag\[(.+)]".r
 
   private def isIdentifier(s: String): Boolean = s.nonEmpty && {
     if (ScalaNamesUtil.isIdentifierStart(s(0))) {
