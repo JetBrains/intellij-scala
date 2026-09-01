@@ -22,8 +22,8 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 @Category(Array(classOf[SemanticTests]))
 abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCorpusTestBase(config) {
   private val Print =
-//    true // Print actual cases and save contents to target/comparison/
-    false // Test expected cases
+//    true // Print found cases to target/comparison and update the test source file
+    false // Test provided cases
 
   override def runInDispatchThread(): Boolean = false
 
@@ -61,6 +61,8 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
           new Decompiler(classpath)
         }
 
+        var results = List.empty[String]
+
         classes.foreach { name =>
           val isCommented = name.startsWith("//")
           val fqn = if (isCommented) name.substring(2) else name
@@ -70,8 +72,6 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
           }.getOrElse(throw new IllegalArgumentException(fqn)).asInstanceOf[ScTypeDefinition]
 
           try {
-            if (!Print) println(fqn)
-
             val (decompiledText, psiText) = {
               def result: (String, String) = textOf(cls, decompiler) { (decompiledText, psiText) =>
                 if (!Print && isCommented && (decompiledText.length < psiText.length || CharSequence.compare(decompiledText.subSequence(0, psiText.length), psiText) != 0)) {
@@ -81,9 +81,9 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
               result
             }
 
+            // Print found cases to target/comparison
             if (Print) {
-              val comment = decompiledText != psiText
-              println("    " + (if (comment) "//" else "") + fqn)
+              results ::= (if (decompiledText != psiText) "//" else "") + fqn
               val sourceText = inReadAction {
                 val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
                 sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
@@ -113,11 +113,27 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
             case e: Throwable if Print => System.err.println(fqn + ": " + e.getMessage)
           }
         }
+
+        results
       }
     }
 
-    val join = Future.sequence(futures).map(_ => ())
-    Await.result(join, 10.minutes)
+    val results = Await.result(Future.sequence(futures), 10.minutes).flatten
+
+    // Update the test source file
+    if (Print) {
+      val sourceFile = Path.of("scala", Seq("semantic-tests", "test") ++ getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala"): _*)
+      Assert.assertTrue(s"Test source not found: ${sourceFile.toString}", Files.exists(sourceFile))
+      val contents = Files.readString(sourceFile)
+      val ContentsPattern = "(?s)(.*?\"\"\"\n).*(\n\\s*\"\"\".*?)".r
+      contents match {
+        case ContentsPattern(prefix, suffix) =>
+          val testCases = results.sortBy(_.stripPrefix("//")).map("    " + _).mkString("\n")
+          Files.write(sourceFile, (prefix + testCases + suffix).getBytes)
+        case _ =>
+          Assert.fail(s"Cannot find placeholder for test cases: ${sourceFile.toString}")
+      }
+    }
   }
 
   //noinspection ApiStatus
