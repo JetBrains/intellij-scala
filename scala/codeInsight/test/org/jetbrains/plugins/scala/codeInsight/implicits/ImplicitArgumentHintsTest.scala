@@ -556,4 +556,17 @@ class ImplicitArgumentHintsTestScala3 extends ImplicitArgumentHintsTest {
       tooltips.distinct
     )
   }
+
+  def testSCL25894(): Unit = {
+    doTest(
+      s"""
+         |object A {
+         |    given String = "text"
+         |    given Double = 0
+         |    def ba[A](x: A)[B](using B): B = summon[B]
+         |    def test = ba(0)[String]$S(given_String)$E
+         |}
+         |""".stripMargin
+    )
+  }
 }

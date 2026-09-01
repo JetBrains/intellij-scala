@@ -126,8 +126,9 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         }
 
       val context = methodInvocationContext(this)
+      val isChildOfGenericCall = tpe.asOptionOf[ScTypePolymorphicType].exists(_.typeParameters.nonEmpty)
 
-      val shouldUpdate = argKind match {
+      val shouldUpdate = !isChildOfGenericCall && (argKind match {
         case ImplicitClausePosition.Leading =>
           val isExplicit =
             Compatibility.isExplicitUsingArgClause(argumentExpressions) ||
@@ -148,7 +149,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           }
 
           !isExplicit
-      }
+      })
 
       if (shouldUpdate && !isUnaryAssignmentLhs) {
         val isLeadingClause = argKind == ImplicitClausePosition.Leading
