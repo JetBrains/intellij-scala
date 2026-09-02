@@ -5,12 +5,15 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.concurrency.AppExecutorUtil
-import org.jetbrains.plugins.scala.SemanticTests
+import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
+import org.jetbrains.plugins.scala.corpus.scala3.Scala3ProjectCorpusTestDef
 import org.jetbrains.plugins.scala.corpus.{ProjectCorpusTestBase, ProjectCorpusTestDef}
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.semantic.SemanticTestBase.definition
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SemanticTests}
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 
@@ -20,7 +23,7 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 @Category(Array(classOf[SemanticTests]))
-abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCorpusTestBase(config) {
+abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: String*) extends ProjectCorpusTestBase(definition(dependencies, packages)) {
   private val Print =
 //    true // Print found cases to target/comparison and update the test source file
     false // Test provided cases
@@ -182,5 +185,16 @@ abstract class SemanticTestBase(config: ProjectCorpusTestDef) extends ProjectCor
 
     // Combine and pad with empty Seqs in case collection.size < numBatches
     (largerBatches ++ smallerBatches).toSeq.padTo(numBatches, Seq.empty[A])
+  }
+}
+
+object SemanticTestBase {
+  given scalaVersion: ScalaVersion = LatestScalaVersions.Scala_3
+
+  private def definition(_dependencies: Seq[DependencyDescription], _packages: Seq[String]): ProjectCorpusTestDef = new Scala3ProjectCorpusTestDef() {
+    override val dependencies: Seq[DependencyDescription] = _dependencies
+    override val packages: Seq[String] = _packages
+    override val includeScalaReflect: Boolean = false
+    override val includeScalaCompiler: Boolean = false
   }
 }

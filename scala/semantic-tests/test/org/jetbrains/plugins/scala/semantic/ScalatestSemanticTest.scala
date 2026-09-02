@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.semantic
 
-import org.jetbrains.plugins.scala.corpus.scala3.ScalatestTest
+import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
+import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
-class ScalatestSemanticTest extends SemanticTestBase(ScalatestTest) {
+class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalatest" % "3.2.19")("org.scalatest") {
   @Test def test(): Unit = doTest("""
     org.scalatest.Alerter
     org.scalatest.Alerting

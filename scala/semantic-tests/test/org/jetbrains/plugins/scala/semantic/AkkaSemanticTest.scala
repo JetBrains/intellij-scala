@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.semantic
 
-import org.jetbrains.plugins.scala.corpus.scala3.AkkaTest
+import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
+import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
-class AkkaSemanticTest extends SemanticTestBase(AkkaTest) {
+class AkkaSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-actor" % "2.8.8", "com.typesafe.akka" %% "akka-actor-typed" % "2.8.8", "com.typesafe.akka" %% "akka-cluster" % "2.8.8", "com.typesafe.akka" %% "akka-http" % "10.5.3", "com.typesafe.akka" %% "akka-persistence" % "2.8.8", "com.typesafe.akka" %% "akka-stream" % "2.8.8")("akka") {
   @Test def test1(): Unit = doTest("""
     akka.AkkaException
     akka.AkkaVersion

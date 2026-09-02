@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.semantic
 
-import org.jetbrains.plugins.scala.corpus.scala3.CatsTest
+import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
-class CatsSemanticTest extends SemanticTestBase(CatsTest) {
+class CatsSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-core" % "2.13.0", "org.typelevel" %% "cats-effect" % "3.6.3", "org.typelevel" %% "cats-free" % "2.13.0", "org.typelevel" %% "cats-laws" % "2.13.0")("cats") {
   override protected def setUp(): Unit = {
     super.setUp()
     val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile

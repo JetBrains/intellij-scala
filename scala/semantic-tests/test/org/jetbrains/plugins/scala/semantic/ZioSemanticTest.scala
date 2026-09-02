@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.semantic
 
-import org.jetbrains.plugins.scala.corpus.scala3.ZioTest
+import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
+import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
-class ZioSemanticTest extends SemanticTestBase(ZioTest) {
+class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23", "dev.zio" %% "zio-streams" % "2.1.23")("zio") {
   @Test def test(): Unit = doTest("""
     //zio.=!=
     //zio.BuildFromCompat
