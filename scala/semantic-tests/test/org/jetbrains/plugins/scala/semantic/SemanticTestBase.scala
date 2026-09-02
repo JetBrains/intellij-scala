@@ -48,10 +48,6 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
     val settings = ScalaApplicationSettings.getInstance()
     settings.PRECISE_TEXT = false
     settings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = false
-    if (enableKindProjectorPlugin) {
-      val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-      profile.setSettings(profile.getSettings.copy(additionalCompilerOptions = Seq.empty))
-    }
   } finally {
     super.tearDown()
   }

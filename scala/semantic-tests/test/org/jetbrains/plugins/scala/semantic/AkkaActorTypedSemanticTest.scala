@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
-class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-actor-typed" % "2.8.8")("akka.actor.typed") {
+class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-actor-typed" % "2.8.8")("akka.actor.typed", "akka.event.slf4j") {
   @Test def test(): Unit = doTest("""
     //akka.actor.typed.AbstractExtensionSetup
     //akka.actor.typed.ActorRef

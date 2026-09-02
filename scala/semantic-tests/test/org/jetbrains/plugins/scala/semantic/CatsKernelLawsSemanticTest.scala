@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
-class CatsKernelLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-kernel-laws" % "2.13.0")("cats.kernel.laws") {
+class CatsKernelLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-kernel-laws" % "2.13.0")("cats.kernel.laws", "cats.platform") {
   override protected def enableKindProjectorPlugin = true
 
   @Test def test(): Unit = doTest("""
@@ -50,5 +50,6 @@ class CatsKernelLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "ca
     //cats.kernel.laws.discipline.SemilatticeTests
     //cats.kernel.laws.discipline.SerializableTests
     //cats.kernel.laws.discipline.UpperBoundedTests
+    //cats.platform.Platform
   """)
 }

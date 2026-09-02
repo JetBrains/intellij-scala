@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
-class AkkaStreamSemanticTest extends SemanticTestBase( "com.typesafe.akka" %% "akka-stream" % "2.8.8")("akka.stream") {
+class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-stream" % "2.8.8")("akka.stream") {
   @Test def test(): Unit = doTest("""
     akka.stream.AbruptIOTerminationException
     akka.stream.AbruptStageTerminationException

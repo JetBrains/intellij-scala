@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
-class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-remote" % "2.8.8")("akka.remote") {
+class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-remote" % "2.8.8")("akka.remote", "akka.pki") {
   @Test def test(): Unit = doTest("""
     akka.remote.AddressUidExtension
     //akka.remote.BoundAddressesExtension
