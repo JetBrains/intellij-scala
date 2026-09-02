@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
-class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23", "dev.zio" %% "zio-streams" % "2.1.23")("zio") {
+class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("zio") {
   @Test def test(): Unit = doTest("""
     //zio.=!=
     //zio.BuildFromCompat
@@ -239,38 +239,5 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23", "d
     //zio.stm.ZSTM
     //zio.stm.ZSTMLockSupport
     //zio.stm.ZSTMUtils
-    //zio.stream.BuildInfo
-    //zio.stream.Deflate
-    //zio.stream.Gunzip
-    //zio.stream.Gzip
-    //zio.stream.Inflate
-    //zio.stream.SubscriptionRef
-    //zio.stream.Take
-    //zio.stream.ZChannel
-    //zio.stream.ZPipeline
-    //zio.stream.ZPipelinePlatformSpecificConstructors
-    //zio.stream.ZSink
-    //zio.stream.ZSinkPlatformSpecificConstructors
-    //zio.stream.ZStream
-    //zio.stream.ZStreamAspect
-    //zio.stream.ZStreamPlatformSpecificConstructors
-    //zio.stream.ZStreamProvideMacro
-    //zio.stream.ZStreamVersionSpecific
-    zio.stream.compression.CompressionException
-    zio.stream.compression.CompressionLevel
-    zio.stream.compression.CompressionParameters
-    zio.stream.compression.CompressionStrategy
-    //zio.stream.compression.Deflate
-    zio.stream.compression.FlushMode
-    //zio.stream.compression.Gunzipper
-    //zio.stream.compression.Gzipper
-    zio.stream.encoding.EncodingException
-    zio.stream.internal.AsyncInputConsumer
-    zio.stream.internal.AsyncInputProducer
-    //zio.stream.internal.ChannelExecutor
-    zio.stream.internal.CharacterSet
-    //zio.stream.internal.SingleProducerAsyncInput
-    //zio.stream.internal.ZInputStream
-    //zio.stream.internal.ZReader
   """)
 }

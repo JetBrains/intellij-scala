@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.corpus.{ProjectCorpusTestBase, ProjectCorpusT
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.semantic.SemanticTestBase.definition
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SemanticTests}
@@ -30,17 +31,27 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
   override def runInDispatchThread(): Boolean = false
 
+  protected def enableKindProjectorPlugin: Boolean = false
+
   override protected def setUp(): Unit = {
     super.setUp()
     val settings = ScalaApplicationSettings.getInstance()
     settings.PRECISE_TEXT = true
     settings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = true
+    if (enableKindProjectorPlugin) {
+      val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+      profile.setSettings(profile.getSettings.copy(additionalCompilerOptions = Seq("-Ykind-projector")))
+    }
   }
 
   override def tearDown(): Unit = try {
     val settings = ScalaApplicationSettings.getInstance()
     settings.PRECISE_TEXT = false
     settings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = false
+    if (enableKindProjectorPlugin) {
+      val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+      profile.setSettings(profile.getSettings.copy(additionalCompilerOptions = Seq.empty))
+    }
   } finally {
     super.tearDown()
   }
