@@ -6,6 +6,9 @@ import org.junit.Test
 
 class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-remote" % "2.8.8")("akka.remote", "akka.pki") {
   @Test def test(): Unit = doTest("""
+    //akka.pki.pem.DERPrivateKeyLoader
+    //akka.pki.pem.PEMDecoder
+    akka.pki.pem.PEMLoadingException
     akka.remote.AddressUidExtension
     //akka.remote.BoundAddressesExtension
     //akka.remote.ByteStringUtils
