@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
 class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-http" % "10.5.3", "com.typesafe.akka" %% "akka-stream" % "2.7.0" /*% Provided*/)("akka.http") {
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     //akka.http.DefaultParsingErrorHandler
     akka.http.ParsingErrorHandler

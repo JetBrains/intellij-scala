@@ -7,6 +7,8 @@ import org.junit.Test
 class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-effect" % "3.6.3")("cats.effect") {
   override protected def enableKindProjectorPlugin = true
 
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     //cats.effect.ArrayStack
     //cats.effect.ByteStack

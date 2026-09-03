@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
 class AkkaCoordinationSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-coordination" % "2.8.8")("akka.coordination") {
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     akka.coordination.lease.LeaseException
     akka.coordination.lease.LeaseSettings

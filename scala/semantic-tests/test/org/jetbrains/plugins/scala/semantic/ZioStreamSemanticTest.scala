@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
 class ZioStreamSemanticTest extends SemanticTestBase("dev.zio" %% "zio-streams" % "2.1.23")("zio.stream") {
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     //zio.stream.BuildInfo
     //zio.stream.Deflate

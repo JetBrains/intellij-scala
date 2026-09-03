@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
 class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-actor" % "2.8.8")("akka") {
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     akka.AkkaException
     akka.AkkaVersion

@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
 class AkkaClusterSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-cluster" % "2.8.8")("akka.cluster") {
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     //akka.cluster.Cluster
     //akka.cluster.ClusterActorRefProvider

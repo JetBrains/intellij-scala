@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
 class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalatest" % "3.2.19")("org.scalatest") {
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     org.scalatest.Alerter
     org.scalatest.Alerting

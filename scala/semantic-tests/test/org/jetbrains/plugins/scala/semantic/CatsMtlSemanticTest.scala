@@ -7,6 +7,8 @@ import org.junit.Test
 class CatsMtlSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-mtl" % "1.3.1")("cats.mtl") {
   override protected def enableKindProjectorPlugin = true
 
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     //cats.mtl.Ask
     cats.mtl.AskForMonadPartialOrder

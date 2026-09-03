@@ -7,6 +7,8 @@ import org.junit.Test
 class CatsFreeSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-free" % "2.13.0")("cats.free") {
   override protected def enableKindProjectorPlugin = true
 
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     //cats.free.Cofree
     //cats.free.CofreeComonad

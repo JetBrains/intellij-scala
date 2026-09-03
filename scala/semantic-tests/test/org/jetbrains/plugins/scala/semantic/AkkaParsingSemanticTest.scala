@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
 class AkkaParsingSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-parsing" % "10.5.3", "com.typesafe.akka" %% "akka-actor" % "2.8.8" /*% Provided*/)("akka.macros", "akka.parboiled2") {
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     akka.macros.LogHelper
     //akka.macros.LogHelperMacro

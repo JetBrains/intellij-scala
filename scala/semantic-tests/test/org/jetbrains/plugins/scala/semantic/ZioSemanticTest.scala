@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
 import org.junit.Test
 
 class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("zio") {
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     //zio.=!=
     //zio.BuildFromCompat

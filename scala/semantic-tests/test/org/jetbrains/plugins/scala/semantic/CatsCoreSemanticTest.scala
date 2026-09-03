@@ -7,6 +7,8 @@ import org.junit.Test
 class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-core" % "2.13.0")("cats") {
   override protected def enableKindProjectorPlugin = true
 
+//  @Test def single(): Unit = doTest("")
+
   @Test def test(): Unit = doTest("""
     //cats.Align
     //cats.Alternative
