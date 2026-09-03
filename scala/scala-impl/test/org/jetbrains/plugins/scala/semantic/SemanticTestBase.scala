@@ -139,7 +139,8 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
       val ContentsPattern = "(?s)(.*?\"\"\"\n).*(\n\\s*\"\"\".*?)".r
       contents match {
         case ContentsPattern(prefix, suffix) =>
-          val testCases = results.sortBy(_.stripPrefix("//")).map("    " + _).mkString("\n")
+          val uncommented = results.filterNot(_.startsWith("//")).toSet
+          val testCases = results.filterNot(s => s.startsWith("//") && uncommented(s.substring(2))).sortBy(_.stripPrefix("//")).map("    " + _).mkString("\n")
           Files.write(sourceFile, (prefix + testCases + suffix).getBytes)
         case _ =>
           Assert.fail(s"Cannot find placeholder for test cases: ${sourceFile.toString}")
