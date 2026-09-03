@@ -159,5 +159,10 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     akka.actor.typed.scaladsl.StashOverflowException
     akka.actor.typed.scaladsl.TimerScheduler
     //akka.actor.typed.scaladsl.adapter.PropsAdapter
+    akka.event.slf4j.Logger
+    //akka.event.slf4j.SLF4JLogging
+    //akka.event.slf4j.Slf4jLogMarker
+    //akka.event.slf4j.Slf4jLogger
+    //akka.event.slf4j.Slf4jLoggingFilter
   """)
 }
