@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.semantic.SemanticTestBase.definition
+import org.jetbrains.plugins.scala.semantic.SemanticTestBase.{decompilerClassLoader, definition}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SemanticTests}
 import org.junit.Assert
@@ -68,7 +68,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     val futures = splitInto(numBatches, classNames).map { classes =>
       Future {
-        val decompiler = new Decompiler(classpath)
+        val decompiler = Decompiler(classpath, decompilerClassLoader)
 
         var results = List.empty[String]
 
@@ -97,7 +97,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
                 val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
                 sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
               }
-              val directory = Path.of("scala", Seq("semantic-tests", "target", "comparison") ++ fqn.split('.').dropRight(1): _*)
+              val directory = Path.of("scala", Seq("scala-impl", "target", "comparison") ++ fqn.split('.').dropRight(1): _*)
               Files.createDirectories(directory)
               Files.write(directory.resolve(cls.name + ".scala"), sourceText.getBytes)
               Files.write(directory.resolve(cls.name + "1.scala"), decompiledText.getBytes)
@@ -131,7 +131,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     // Update the test source file
     if (Print) {
-      val sourceFile = Path.of("scala", Seq("semantic-tests", "test") ++ getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala"): _*)
+      val sourceFile = Path.of("scala", Seq("scala-impl", "test") ++ getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala"): _*)
       Assert.assertTrue(s"Test source not found: ${sourceFile.toString}", Files.exists(sourceFile))
       val contents = Files.readString(sourceFile)
       val ContentsPattern = "(?s)(.*?\"\"\"\n).*(\n\\s*\"\"\".*?)".r
@@ -203,4 +203,6 @@ object SemanticTestBase {
     override val includeScalaReflect: Boolean = false
     override val includeScalaCompiler: Boolean = false
   }
+
+  private lazy val decompilerClassLoader = Decompiler.classLoader(getClass.getClassLoader)
 }

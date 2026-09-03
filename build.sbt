@@ -95,7 +95,6 @@ lazy val scalaCommunity: sbt.Project =
       scalaImpl % "test->test;compile->compile",
       scalaMetaImpl % "test->test;compile->compile",
       structureView % "test->test;compile->compile",
-      semanticTests % "test->test;compile->compile",
       sbtImpl % "test->test;compile->compile",
       sbtProjectStructureTests % "test->test",
       sbtProjectHighlightingTests % "test->test",
@@ -146,6 +145,7 @@ lazy val scalaCommunity: sbt.Project =
         featuresTrainerIntegration,
         junitIntegration,
         runtimeDependencies,
+        semanticDecompiler,
       ),
       // all sub-project tests need to be run within main project's classpath
       Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten,
@@ -387,16 +387,19 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   )
   .settings(compilationCacheSettings)
 
-lazy val semanticTests = newProject("semantic-tests", file("scala/semantic-tests"))
-  .dependsOn(scalaImpl % "test->test;compile->compile")
+lazy val semanticDecompiler = Project("semantic-decompiler", file("scala/semantic-decompiler"))
   .settings(
+    name := "semantic-decompiler",
+    organization := JetBrains,
+    intellijMainJars := Seq.empty,
+    intellijTestJars := Seq.empty,
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
-    libraryDependencies += Dependencies.tastyInspector,
-    intellijPlugins ++= Seq(
-      "intellij.vcs.plugin".toPlugin,
-    )
+    libraryDependencies += Dependencies.scala3Compiler,
+    packageMethod := PackagingMethod.Standalone("lib/semantic/decompiler.jar", static = true),
   )
+  .settings(projectDirectoriesSettings)
+  .settings(compilationCacheSettings)
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))

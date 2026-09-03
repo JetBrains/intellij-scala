@@ -7,6 +7,7 @@ import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle}
 
 class DesugarCodeAction extends AnAction(
@@ -28,7 +29,7 @@ class DesugarCodeAction extends AnAction(
           ModuleRootManager.getInstance(module)
             .orderEntries.productionOnly.librariesOnly.classes.getRoots.toSeq
             .map(virtualFile => VfsUtil.getLocalFile(virtualFile).getPath)
-        new Decompiler(classpath :+ outputDir.getPath)
+        Decompiler(classpath :+ outputDir.getPath, Decompiler.classLoader(getClass.getClassLoader))
       }
 
       val tastyFile = {
@@ -39,7 +40,14 @@ class DesugarCodeAction extends AnAction(
       decompiler.decompile(tastyFile.getName, tastyFile.contentsToByteArray())
     }
 
-    val pluginText = ClassPrinter.textOf(cls)
+    val pluginText = try {
+      ScalaApplicationSettings.PRECISE_TEXT = true
+      ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = true
+      ClassPrinter.textOf(cls)
+    } finally {
+      ScalaApplicationSettings.PRECISE_TEXT = false
+      ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = false
+    }
 
     val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3Language.INSTANCE.getAssociatedFileType)
     val right = DiffContentFactory.getInstance.create(project, pluginText, Scala3Language.INSTANCE.getAssociatedFileType)

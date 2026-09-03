@@ -31,8 +31,8 @@ import org.jetbrains.plugins.scala.semantic.ClassPrinter.{GeneratedClassTag, Key
 
 import scala.annotation.tailrec
 
-class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivate: Boolean = true, normalize: Boolean = false)(highlight: PsiElement => Seq[String]) {
-  private def printTo(sb: StringBuilder, cls: ScTypeDefinition, indent: String, listener: CharSequence => Unit): Unit = {
+private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivate: Boolean = true, normalize: Boolean = false)(highlight: PsiElement => Seq[String]) {
+  def printTo(sb: StringBuilder, cls: ScTypeDefinition, indent: String, listener: CharSequence => Unit): Unit = {
     val annotations = cls.annotations.map(a => "\n" + indent + textOf(a)).mkString
 
     val modifiers = {
@@ -466,7 +466,7 @@ class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", withPrivat
     case _ => false
   }
 
-  def printTo(sb: StringBuilder, alias: ScTypeAlias): Unit = {
+  private def printTo(sb: StringBuilder, alias: ScTypeAlias): Unit = {
     sb ++= textOf(alias, "").split("\n").map(_.stripPrefix("  ")).mkString("\n")
     sb ++= "\n"
   }

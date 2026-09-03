@@ -18,8 +18,10 @@ import scala.quoted.runtime.impl.printers.SyntaxHighlight
  * @see scala.tasty.inspector.TastyInspector
  * @see dotty.tools.dotc.decompiler.Main
  * @see dotty.tools.dotc.decompiler.IDEDecompilerDriver
+ *
+ * Implements org.jetbrains.plugins.scala.semantic.Decompiler
  */
-class Decompiler(classpath: Seq[String]) extends dotc.Driver {
+class DecompilerImpl(classpath: Array[String]) extends dotc.Driver {
   private val myInitCtx: Context = {
     val rootCtx = initCtx.fresh.addMode(Mode.Interactive | Mode.ReadPositions)
     rootCtx.setSetting(rootCtx.settings.fromTasty, true)
@@ -48,6 +50,7 @@ class Decompiler(classpath: Seq[String]) extends dotc.Driver {
 
   private val decompiler = new PartialTASTYDecompiler()
 
+  // Implements.jetbrains.plugins.scala.semantic.Decompiler.decompile
   def decompile(fileName: String, contents: Array[Byte]): String =
     run(new VirtualFile(fileName, contents))
 
