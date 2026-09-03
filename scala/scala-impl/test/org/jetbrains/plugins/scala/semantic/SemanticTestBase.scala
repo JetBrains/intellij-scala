@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.corpus.{ProjectCorpusTestBase, ProjectCorpusT
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.toJavaName
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.semantic.SemanticTestBase.{decompilerClassLoader, definition}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -99,13 +100,14 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
               }
               val directory = Path.of("scala", Seq("scala-impl", "target", "comparison") ++ fqn.split('.').dropRight(1): _*)
               Files.createDirectories(directory)
-              Files.write(directory.resolve(cls.name + ".scala"), sourceText.getBytes)
-              Files.write(directory.resolve(cls.name + "1.scala"), decompiledText.getBytes)
-              val file2 = directory.resolve(cls.name + "2.scala")
-              val diffFile = directory.resolve(cls.name + ".diff")
+              val fileName = toJavaName(cls.name)
+              Files.write(directory.resolve(fileName + ".scala"), sourceText.getBytes)
+              Files.write(directory.resolve(fileName + "1.scala"), decompiledText.getBytes)
+              val file2 = directory.resolve(fileName + "2.scala")
+              val diffFile = directory.resolve(fileName + ".diff")
               if (psiText != decompiledText) {
                 Files.write(file2, psiText.getBytes)
-                val diff = formatDiff(cls.name + "1.scala", cls.name + "2.scala", decompiledText, psiText)
+                val diff = formatDiff(fileName + "1.scala", fileName + "2.scala", decompiledText, psiText)
                 Files.write(diffFile, diff.getBytes)
               } else {
                 Files.deleteIfExists(file2)
