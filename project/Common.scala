@@ -385,6 +385,13 @@ object Common {
     val flakyTests: String = cat("FlakyTests")
     val bundleSortingTests: String = cat("BundleSortingTests")
     val semanticTestsCategory: String = cat("SemanticTests")
+
+    // Test categories that run as their own test jobs in the CI.
+    val specialCategories: Seq[String] = Seq(
+      randomTypingTests,
+      flakyTests,
+      semanticTestsCategory
+    )
   }
 
   def pluginVersion: String =
