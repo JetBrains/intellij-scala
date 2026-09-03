@@ -55,6 +55,11 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
   protected def doTest(classes: String): Unit = {
     val numBatches = 8
 
+    val classpath =
+      ModuleRootManager.getInstance(getMyFixture.getModule)
+        .orderEntries.productionOnly.librariesOnly.classes.getRoots.toSeq
+        .map(virtualFile => VfsUtil.getLocalFile(virtualFile).getPath)
+
     given ExecutionContext = ExecutionContext.fromExecutorService(AppExecutorUtil.getAppExecutorService)
 
     val classNames =
@@ -63,13 +68,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     val futures = splitInto(numBatches, classNames).map { classes =>
       Future {
-        val decompiler: Decompiler = {
-          val classpath =
-            ModuleRootManager.getInstance(getMyFixture.getModule)
-              .orderEntries.productionOnly.librariesOnly.classes.getRoots.toSeq
-              .map(virtualFile => VfsUtil.getLocalFile(virtualFile).getPath)
-          new Decompiler(classpath)
-        }
+        val decompiler = Decompiler(classpath)
 
         var results = List.empty[String]
 
