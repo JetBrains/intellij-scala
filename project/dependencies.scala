@@ -22,7 +22,7 @@ object Versions {
    * ATTENTION: check the comment in [[Common.newProjectWithKotlin]] when updating this version.
    *            update `since-build` in plugin.xml if there are binary incompatible changes after update
    */
-  val intellijVersion = "263.3889.65"
+  val intellijVersion = "263.4312"
 
   def isNightlyIntellijVersion: Boolean = intellijVersion.count(_ == '.') == 1
 
@@ -71,7 +71,7 @@ object Versions {
   /**
    * Potentially automate the updating of this version in the future.
    */
-  val HunspellDictionaryVersion = "0.2.359"
+  val HunspellDictionaryVersion = "0.9.5"
 
   val otelVersion = "1.63.0" 
 

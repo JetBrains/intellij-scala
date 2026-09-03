@@ -219,11 +219,10 @@ lazy val sbtKotlinIjPluginInterop =
       intellijPluginJars := intellijPluginJars.value.map {
         case PluginJars(descriptor, root, classpath) if root.getName == "Kotlin" =>
           val requiredJars = Set(
-            "kotlin-plugin.jar",
-            "kotlinc.kotlin-jps-common.jar",
-            "kotlinc.kotlin-compiler-common.jar",
             "intellij.kotlin.base.facet.jar", // KTIJ-39613
-            "intellij.libraries.kotlinc.kotlin.compiler.common.jar"
+            "intellij.libraries.kotlinc.kotlin.compiler.common.jar",
+            "intellij.libraries.kotlinc.kotlin.jps.common.jar",
+            "kotlin-plugin.jar"
           )
 
           PluginJars(descriptor, root, classpath.filter(file => requiredJars(file.getName)))
