@@ -207,9 +207,15 @@ package object project {
 
   implicit class ModuleExt(private val module: Module) extends AnyVal {
 
-    private def scalaModuleSettings: Option[ScalaModuleSettings] = cachedInUserData("scalaModuleSettings", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
-      ScalaModuleSettings(module)
-    }
+    // Since 263.4312 the platform throws AlreadyDisposedException when the roots of a disposed
+    // module are queried (ModuleBridgeUtils.findModuleEntitityLegacy), instead of returning its
+    // pinned stale entity, so the OrderEnumerator query in ScalaModuleSettings would fail here.
+    // Bailing out early also avoids the project-service lookups that `cachedInUserData` performs.
+    private def scalaModuleSettings: Option[ScalaModuleSettings] =
+      if (module.isDisposed) None
+      else cachedInUserData("scalaModuleSettings", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
+        ScalaModuleSettings(module)
+      }
 
     /**
      * @return true if module "looks like" a build module (if module name has `-build` suffux)
