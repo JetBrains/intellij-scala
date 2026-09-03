@@ -29,6 +29,7 @@ object ScalaPluginJars {
   val runnersJar: Path = libRoot / runnersJarName
   val replInterface: Path = libRoot / "repl-interface.jar"
   val worksheetReplInterfaceImplsJar: Path = libRoot.getParent / "worksheet-repl-interface" / "impls.jar"
+  val semanticDecompiler: Path = libRoot / "semantic" / "decompiler.jar"
   val utilsRt: Path = libRoot / "utils_rt.jar"
 
   val nailgunJar: Path = jpsRoot / "nailgun.jar"
