@@ -54,7 +54,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
   }
 
   protected def doTest(classes: String): Unit = {
-    val numBatches = 8
+    val numBatches = Runtime.getRuntime.availableProcessors
 
     val classpath =
       ModuleRootManager.getInstance(getMyFixture.getModule)
