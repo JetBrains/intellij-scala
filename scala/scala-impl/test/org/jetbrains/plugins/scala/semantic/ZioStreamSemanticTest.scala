@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.semantic
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
+import org.jetbrains.plugins.scala.semantic.SemanticTestBase.scalaVersion
 import org.junit.Test
 
 class ZioStreamSemanticTest extends SemanticTestBase("dev.zio" %% "zio-streams" % "2.1.23")("zio.stream") {

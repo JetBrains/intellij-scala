@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.semantic
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
+import org.jetbrains.plugins.scala.semantic.SemanticTestBase.scalaVersion
 import org.junit.Test
 
 class CatsMtlSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-mtl" % "1.3.1")("cats.mtl") {

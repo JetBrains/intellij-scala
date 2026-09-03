@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.semantic
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
+import org.jetbrains.plugins.scala.semantic.SemanticTestBase.scalaVersion
 import org.junit.Test
 
 class CatsKernelLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-kernel-laws" % "2.13.0")("cats.kernel.laws", "cats.platform") {

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.semantic
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
+import org.jetbrains.plugins.scala.semantic.SemanticTestBase.scalaVersion
 import org.junit.Test
 
 class AkkaParsingSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-parsing" % "10.5.3", "com.typesafe.akka" %% "akka-actor" % "2.8.8" /*% Provided*/)("akka.macros", "akka.parboiled2") {

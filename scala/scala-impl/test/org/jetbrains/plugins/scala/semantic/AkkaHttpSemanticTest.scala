@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.semantic
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.semantic.SemanticTestBase.given
+import org.jetbrains.plugins.scala.semantic.SemanticTestBase.scalaVersion
 import org.junit.Test
 
 class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka-http" % "10.5.3", "com.typesafe.akka" %% "akka-stream" % "2.7.0" /*% Provided*/)("akka.http") {

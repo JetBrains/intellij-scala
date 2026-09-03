@@ -60,7 +60,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
         .orderEntries.productionOnly.librariesOnly.classes.getRoots.toSeq
         .map(virtualFile => VfsUtil.getLocalFile(virtualFile).getPath)
 
-    given ExecutionContext = ExecutionContext.fromExecutorService(AppExecutorUtil.getAppExecutorService)
+    implicit val executionContext: ExecutionContext = ExecutionContext.fromExecutorService(AppExecutorUtil.getAppExecutorService)
 
     val classNames =
       if (Print) inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName))
@@ -68,7 +68,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     val futures = splitInto(numBatches, classNames).map { classes =>
       Future {
-        val decompiler = Decompiler(classpath)
+        val decompiler = new Decompiler(classpath)
 
         var results = List.empty[String]
 
@@ -97,7 +97,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
                 val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
                 sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
               }
-              val directory = Path.of("scala", Seq("semantic-tests", "target", "comparison") ++ fqn.split('.').dropRight(1)*)
+              val directory = Path.of("scala", Seq("semantic-tests", "target", "comparison") ++ fqn.split('.').dropRight(1): _*)
               Files.createDirectories(directory)
               Files.write(directory.resolve(cls.name + ".scala"), sourceText.getBytes)
               Files.write(directory.resolve(cls.name + "1.scala"), decompiledText.getBytes)
@@ -131,7 +131,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     // Update the test source file
     if (Print) {
-      val sourceFile = Path.of("scala", Seq("semantic-tests", "test") ++ getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala")*)
+      val sourceFile = Path.of("scala", Seq("semantic-tests", "test") ++ getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala"): _*)
       Assert.assertTrue(s"Test source not found: ${sourceFile.toString}", Files.exists(sourceFile))
       val contents = Files.readString(sourceFile)
       val ContentsPattern = "(?s)(.*?\"\"\"\n).*(\n\\s*\"\"\".*?)".r
@@ -195,7 +195,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 }
 
 object SemanticTestBase {
-  given scalaVersion: ScalaVersion = LatestScalaVersions.Scala_3
+  implicit val scalaVersion: ScalaVersion = LatestScalaVersions.Scala_3
 
   private def definition(_dependencies: Seq[DependencyDescription], _packages: Seq[String]): ProjectCorpusTestDef = new Scala3ProjectCorpusTestDef() {
     override val dependencies: Seq[DependencyDescription] = _dependencies
