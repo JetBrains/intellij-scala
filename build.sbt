@@ -1480,7 +1480,7 @@ def runRegularTestCategoryCommand(name: String, category: String): Command = run
   name = name,
   description = s"Run the $category test category",
   includeCategories = Seq(category),
-  excludeCategories = Seq(randomTypingTests, flakyTests, semanticTestsCategory),
+  excludeCategories = specialCategories,
   glob = ""
 )
 
@@ -1506,31 +1506,22 @@ Global / commands ++= Seq(
 
 // Special categories commands NightlyTests and FlakyTests
 
-lazy val runNightlyTests = runTestCategoryCommand(
-  name = "runNightlyTests",
-  description = "Run the NightlyTests test category",
-  includeCategories = Seq(randomTypingTests),
-  excludeCategories = Seq(flakyTests, semanticTestsCategory),
-  glob = ""
-)
+def runSpecialTestCategoryCommand(name: String, displayName: String, category: String): Command = {
+  val catSeq = Seq(category)
+  runTestCategoryCommand(
+    name = name,
+    description = s"Run the $displayName test category",
+    includeCategories = catSeq,
+    excludeCategories = specialCategories.diff(catSeq),
+    glob = ""
+  )
+}
 
-lazy val runFlakyTests = runTestCategoryCommand(
-  name = "runFlakyTests",
-  description = "Run the FlakyTests test category",
-  includeCategories = Seq(flakyTests),
-  excludeCategories = Seq(randomTypingTests, semanticTestsCategory),
-  glob = ""
-)
-
-lazy val runSemanticTests = runTestCategoryCommand(
-  name = "runSemanticTests",
-  description = "Run the SemanticTests test category",
-  includeCategories = Seq(semanticTestsCategory),
-  excludeCategories = Seq(flakyTests, randomTypingTests),
-  glob = ""
-)
-
-Global / commands ++= Seq(runNightlyTests, runFlakyTests, runSemanticTests)
+Global / commands ++= Seq(
+  ("runNightlyTests", "NightlyTests", randomTypingTests),
+  ("runFlakyTests", "FlakyTests", flakyTests),
+  ("runSemanticTests", "SemanticTests", semanticTestsCategory)
+).map((runSpecialTestCategoryCommand _).tupled)
 
 lazy val categoriesToExclude = List(
   fileSetTests,
