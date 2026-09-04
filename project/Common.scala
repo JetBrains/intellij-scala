@@ -262,7 +262,7 @@ object Common {
       .settings(
         // NOTE: check community/.idea/libraries/kotlin_stdlib.xml in intellij monorepo when updating intellijVersion
         // NOTE: keep versions in sync with ultimate/.idea/kotlinc.xml and community/.idea/kotlinc.xml
-        kotlinVersion := "2.4.20-RC2",
+        kotlinVersion := "2.4.20-RC3",
         kotlincJvmTarget := "25",
         kotlinRuntimeProvided := true,
         resolvers += DependencyResolvers.IntelliJDependencies,
