@@ -13,7 +13,7 @@ class AkkaCoordinationSemanticTest extends SemanticTestBase("com.typesafe.akka" 
     akka.coordination.lease.LeaseTimeoutException
     //akka.coordination.lease.LeaseUsageSettings
     //akka.coordination.lease.TimeoutSettings
-    //akka.coordination.lease.internal.LeaseAdapter
+    akka.coordination.lease.internal.LeaseAdapter
     //akka.coordination.lease.internal.LeaseAdapterToScala
     akka.coordination.lease.javadsl.Lease
     //akka.coordination.lease.javadsl.LeaseProvider

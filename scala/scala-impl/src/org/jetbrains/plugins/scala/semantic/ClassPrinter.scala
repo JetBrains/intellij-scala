@@ -4,7 +4,7 @@ package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
+import org.jetbrains.plugins.scala.extensions.{&, IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScCompositePattern, ScExtractorPattern, ScLiteralPattern, ScNamingPattern, ScPattern, ScReferencePattern, ScStableReferencePattern, ScTuplePattern, ScTypedPattern, ScWildcardPattern}
@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -204,7 +205,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     if (s.is[ScExpression]) text else highlighted(s)(text)
   }
 
-  private def textOfExpression(e: ScExpression, indent: String): String = highlighted(e) {
+  private def textOfExpression(e: ScExpression, indent: String, etaExpand: Boolean = true): String = highlighted(e) {
     val text = e match {
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
       case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") +
@@ -221,7 +222,11 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case l: ScInterpolatedStringLiteral => l.desugaredExpression.map(p => textOfExpression(p._2, indent)).getOrElse("")
       case f: ScFor => f.desugared(forDisplay = true).map(textOfExpression(_, indent)).getOrElse("")
       case l: ScLiteral => if (l.getValue == null) "null" else l.literalType.asInstanceOf[ScLiteralType].value.presentation
-      case e: ScUnderscoreSection => "_"
+      case u: ScUnderscoreSection => u.bindingExpr match {
+        case Some(b) => etaExpansionOf(b, indent).getOrElse("<expr>")
+        case None => "_"
+      }
+      case e @ NonValueType(_: ScMethodType) & ExpectedType(FunctionType(_, _)) if etaExpand => etaExpansionOf(e, indent).getOrElse("<expr>")
       case e: ScIf =>
         "if (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " + e.thenExpression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + (e.elseExpression match {
           case Some(e) => " else " + textOfExpression(normalized(e), indent)
@@ -282,7 +287,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
           ".apply"
         case _ => ""
       }) + inferredTypeArgumentsFor(r).map(_.map(t => textOf(t.removeAliasDefinitionsIn(r))).mkString("[", ", ", "]")).getOrElse("") +
-        (if (!r.getParent.is[ScMethodCall, ScGenericCall] && r.resolve().is[PsiMethod] && !r.resolve().is[ScMember]) "()" else "")
+        (if (!r.getParent.is[ScMethodCall, ScGenericCall] && r.resolve().is[PsiMethod] && !r.resolve().is[ScMember] && etaExpand) "()" else "")
       case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
         val hasMembers = e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))
@@ -423,6 +428,32 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         case _ => None
       }
     }
+  }
+
+  private def etaExpansionOf(e: ScExpression, indent: String) = referenceLevelIn(e).flatMap { case (reference, level) =>
+    reference.bind().flatMap { result =>
+      Some(result.element).collect {
+        case f: ScFunction =>
+          val omittedClauses = f.clauses.map(_.clauses).getOrElse(Seq.empty).drop(level)
+          val bindingLists = omittedClauses.map(_.parameters.map(p => p.name + ": " + textOf(p.`type`().map(result.substitutor(_).removeAliasDefinitionsIn(e)))).mkString("(", ", ", ")"))
+          val argumentLists = omittedClauses.map(_.parameters.map(_.name).mkString("(", ", ", ")"))
+          s"${bindingLists.mkString(" => ")} => ${textOfExpression(e, indent, etaExpand = false)}${argumentLists.mkString}"
+        case m: PsiMethod =>
+          val omittedParameters = m.getParameterList.getParameters
+          val bindingList = omittedParameters.map(p => p.getName + ": " + p.getType.getCanonicalText).mkString("(", ", ", ")")
+          val argumentList = omittedParameters.map(_.getName).mkString("(", ", ", ")")
+          s"$bindingList => ${textOfExpression(e, indent, etaExpand = false)}$argumentList"
+      }
+    }
+  }
+
+  @tailrec
+  private def referenceLevelIn(e: ScExpression, level: Int = 0): Option[(ScReferenceExpression, Int)] = e match {
+    case r: ScReferenceExpression => Some((r, level))
+    case c: ScMethodCall => referenceLevelIn(c.getEffectiveInvokedExpr, level + 1)
+    case g: ScGenericCall => referenceLevelIn(g.referencedExpr, level)
+    case ScParenthesisedExpr(inner) => referenceLevelIn(inner, level)
+    case _ => None
   }
 
   private def normalized(e: ScExpression): ScExpression = e match {

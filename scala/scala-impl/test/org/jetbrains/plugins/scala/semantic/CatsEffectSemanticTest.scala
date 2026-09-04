@@ -134,7 +134,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     //cats.effect.std.MapRefCompanionPlatform
     //cats.effect.std.Mutex
     //cats.effect.std.PQueue
-    //cats.effect.std.PQueueSink
+    cats.effect.std.PQueueSink
     //cats.effect.std.PQueueSource
     //cats.effect.std.Queue
     //cats.effect.std.QueueSink

@@ -43,6 +43,6 @@ class CatsFreeSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-fre
     //cats.free.FreeTraverse
     //cats.free.InvariantCoyoneda
     cats.free.TrampolineFunctions
-    //cats.free.Yoneda
+    cats.free.Yoneda
   """)
 }

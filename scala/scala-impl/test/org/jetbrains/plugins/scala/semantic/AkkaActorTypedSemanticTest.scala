@@ -133,7 +133,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     //akka.actor.typed.javadsl.AbstractOnMessageBehavior
     akka.actor.typed.javadsl.ActorContext
     //akka.actor.typed.javadsl.Adapter
-    //akka.actor.typed.javadsl.AskPattern
+    akka.actor.typed.javadsl.AskPattern
     //akka.actor.typed.javadsl.BehaviorBuilder
     //akka.actor.typed.javadsl.Behaviors
     //akka.actor.typed.javadsl.BuiltBehavior

@@ -12,7 +12,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.AbruptStageTerminationException
     akka.stream.AbruptTerminationException
     //akka.stream.AbstractShape
-    //akka.stream.ActorAttributes
+    akka.stream.ActorAttributes
     //akka.stream.ActorMaterializer
     //akka.stream.ActorMaterializerHelper
     //akka.stream.ActorMaterializerSettings

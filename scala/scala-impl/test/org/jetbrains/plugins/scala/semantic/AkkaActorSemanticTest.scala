@@ -205,7 +205,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.DispatcherPrerequisites
     //akka.dispatch.Dispatchers
     akka.dispatch.Envelope
-    //akka.dispatch.ExecutionContexts
+    akka.dispatch.ExecutionContexts
     //akka.dispatch.ExecutorServiceConfigurator
     //akka.dispatch.ExecutorServiceDelegate
     akka.dispatch.ExecutorServiceFactory

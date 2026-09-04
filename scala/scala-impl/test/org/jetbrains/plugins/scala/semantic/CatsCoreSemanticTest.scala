@@ -18,7 +18,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.ApplicativeMonoid
     //cats.Apply
     //cats.ApplyArityFunctions
-    //cats.ApplySemigroup
+    cats.ApplySemigroup
     //cats.ArrowApplicative
     cats.Bifoldable
     //cats.Bifunctor
@@ -87,7 +87,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.InvariantMonoidal
     //cats.InvariantMonoidalMonoid
     cats.InvariantSemigroupal
-    //cats.InvariantSemigroupalSemigroup
+    cats.InvariantSemigroupalSemigroup
     cats.Later
     //cats.LeftFunctor
     //cats.Monad
