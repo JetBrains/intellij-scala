@@ -3,7 +3,7 @@
 package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod, PsiNamedElement}
-import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, template}
 import org.jetbrains.plugins.scala.extensions.{&, IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
@@ -292,9 +292,10 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
         val hasMembers = e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))
+        val isAbstract = template.superRefs(e).headOption.exists { case (_, cls) => template.isAbstract(cls) }
         "new " + e.firstConstructorInvocation
-          .map(textOfConstructorInvocation(_, indent, emptyParens = !hasMembers))
-          .getOrElse("") + (if (!hasMembers) "" else
+          .map(textOfConstructorInvocation(_, indent, emptyParens = !(hasMembers || isAbstract)))
+          .getOrElse("") + (if (!hasMembers) (if (isAbstract) " {}" else "") else
           " {" + {
             val sb = new StringBuilder()
             printTo(sb, e.extendsBlock, indent + "  ", _ => ())
