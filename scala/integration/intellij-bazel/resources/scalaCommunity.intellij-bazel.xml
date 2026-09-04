@@ -2,8 +2,8 @@
 <idea-plugin>
     <dependencies>
         <plugin id="org.jetbrains.bazel"/>
-        <module name="intellij.bazel.importer"/>
-        <module name="intellij.bazel.java.common"/>
+        <module name="intellij.bazel.backend"/>
+        <module name="intellij.bazel.java.core"/>
         <module name="scalaCommunity.testing-support"/>
     </dependencies>
 
