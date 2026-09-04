@@ -38,7 +38,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.EagerPlanter
     io.getquill.Embedable
     io.getquill.Embedded
-    //io.getquill.EntityQuery
+    io.getquill.EntityQuery
     io.getquill.EntityQueryModel
     io.getquill.Escape
     io.getquill.FromString

@@ -50,7 +50,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.FiberRefs
     //zio.FunctionConstructor
     //zio.FutureTransformCompat
-    //zio.HasNoScope
+    zio.HasNoScope
     //zio.HasNoScopeCompanionVersionSpecific
     //zio.HasNoScopeMacro
     //zio.Hub
@@ -147,7 +147,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.internal.Hub
     //zio.internal.IsFatal
     //zio.internal.LinkedQueue
-    //zio.internal.LoomSupport
+    zio.internal.LoomSupport
     //zio.internal.MutableConcurrentQueue
     //zio.internal.MutableSetCompat
     zio.internal.NamedThreadFactory
@@ -223,7 +223,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.metrics.jvm.Thread
     //zio.metrics.jvm.VersionInfo
     zio.stacktracer.DisableAutoTrace
-    //zio.stacktracer.TracingImplicits
+    zio.stacktracer.TracingImplicits
     //zio.stm.STM
     //zio.stm.TArray
     //zio.stm.TDequeue

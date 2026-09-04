@@ -190,7 +190,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.data.ConstInstances0
     //cats.data.ConstInstances1
     cats.data.ConstInstances2
-    //cats.data.ConstInstances3
+    cats.data.ConstInstances3
     cats.data.ConstInstances4
     //cats.data.ContT
     //cats.data.EitherK
@@ -752,7 +752,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.kernel.UpperBounded
     //cats.kernel.UpperBoundedEnumerable
     //cats.kernel.UpperBoundedFunctions
-    //cats.kernel.compat.HashCompat
+    cats.kernel.compat.HashCompat
     //cats.kernel.compat.WrappedMutableMapBase
     cats.kernel.compat.scalaVersionMoreSpecific
     //cats.kernel.compat.scalaVersionSpecific

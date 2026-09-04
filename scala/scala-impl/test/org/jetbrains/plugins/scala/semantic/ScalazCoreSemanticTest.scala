@@ -119,7 +119,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.ConstEqual
     //scalaz.ConstInstances
     //scalaz.ConstInstances0
-    //scalaz.ConstInstances1
+    scalaz.ConstInstances1
     scalaz.ConstMonoid
     scalaz.ConstOrder
     scalaz.ConstSemigroup
@@ -180,14 +180,14 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.DayComonad
     scalaz.DayFunctor
     //scalaz.DayInstances
-    //scalaz.DayInstances1
+    scalaz.DayInstances1
     scalaz.DayInstances2
     scalaz.DayInstances3
-    //scalaz.DayInstances4
+    scalaz.DayInstances4
     //scalaz.Decidable
     //scalaz.Density
     scalaz.DensityComonad
-    //scalaz.DensityInstances
+    scalaz.DensityInstances
     //scalaz.DensityInstances0
     //scalaz.Dequeue
     scalaz.DequeueEqual
@@ -368,7 +368,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.IndexedStoreTFunctorRight
     scalaz.IndexedStoreTInstances
     scalaz.IndexedStoreTInstances0
-    //scalaz.IndexedStoreTInstances1
+    scalaz.IndexedStoreTInstances1
     scalaz.IndexedStoreTInstances2
     //scalaz.Inject
     //scalaz.InjectInstances
@@ -493,7 +493,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.LanApply
     //scalaz.LanFunctor
     scalaz.LanInstances
-    //scalaz.LanInstances0
+    scalaz.LanInstances0
     //scalaz.LazyEither
     //scalaz.LazyEitherInstances
     //scalaz.LazyEitherT
@@ -519,7 +519,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.LazyOptionTBindRec
     //scalaz.LazyOptionTFunctor
     scalaz.LazyOptionTHoist
-    //scalaz.LazyOptionTInstances
+    scalaz.LazyOptionTInstances
     //scalaz.LazyOptionTInstances0
     scalaz.LazyOptionTInstances1
     //scalaz.LazyOptionTMonad
@@ -540,7 +540,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.LazyTuple3Equal
     scalaz.LazyTuple3Functor
     scalaz.LazyTuple3Instances
-    //scalaz.LazyTuple3Instances0
+    scalaz.LazyTuple3Instances0
     scalaz.LazyTuple3Monad
     scalaz.LazyTuple3Monoid
     scalaz.LazyTuple3Order
@@ -550,7 +550,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.LazyTuple4Equal
     scalaz.LazyTuple4Functor
     scalaz.LazyTuple4Instances
-    //scalaz.LazyTuple4Instances0
+    scalaz.LazyTuple4Instances0
     scalaz.LazyTuple4Monad
     scalaz.LazyTuple4Monoid
     scalaz.LazyTuple4Order
@@ -600,7 +600,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.MaybeTFoldable
     //scalaz.MaybeTFunctor
     //scalaz.MaybeTHoist
-    //scalaz.MaybeTInstances
+    scalaz.MaybeTInstances
     scalaz.MaybeTInstances0
     scalaz.MaybeTInstances1
     scalaz.MaybeTInstances2
@@ -691,7 +691,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.OptionTFoldable
     //scalaz.OptionTFunctor
     //scalaz.OptionTHoist
-    //scalaz.OptionTInstances
+    scalaz.OptionTInstances
     scalaz.OptionTInstances0
     //scalaz.OptionTInstances1
     scalaz.OptionTInstances2

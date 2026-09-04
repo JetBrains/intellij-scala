@@ -16,7 +16,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     //cats.effect.ContState
     //cats.effect.CpuStarvationCheck
     //cats.effect.CpuStarvationCheckPlatform
-    //cats.effect.ExitCode
+    cats.effect.ExitCode
     //cats.effect.IO
     //cats.effect.IOApp
     //cats.effect.IOCompanionPlatform
