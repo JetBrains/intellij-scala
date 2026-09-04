@@ -21,6 +21,13 @@ import java.nio.file.Path
 (ThisBuild / autoRemoveOldCachedIntelliJSDK) := true
 (ThisBuild / autoRemoveOldCachedDownloads) := true
 
+// Set at build level so that every project gets it, including the ones defined with a bare
+// `project.in(...)` which don't go through the `newProject`/`newPlainScalaProject` helpers.
+// `CompilationCache` derives the compilation cache artifact coordinates from it, so a project which
+// falls back to sbt's default (the project id) would publish outside the `JetBrains` namespace.
+// The ultimate build loads this file as well, so this is the only definition needed.
+ThisBuild / organization := JetBrains
+
 ThisBuild / resolvers := {
 //  not exactly sure why "releases" and "staging" would ever need to be enabled
 //  Resolver.sonatypeOssRepos("releases") ++
@@ -304,7 +311,6 @@ lazy val worksheetReplInterface =
   Project("worksheet-repl-interface", file("scala/worksheet/repl-interface"))
     .settings(NoSourceDirectories)
     .settings(
-      organization := JetBrains,
       crossPaths := false,
       autoScalaLibrary := false,
       ideSkipProject := true,
@@ -326,7 +332,6 @@ lazy val worksheetReplInterfaceImpls =
   Project("worksheet-repl-interface-impls", file("scala/worksheet/repl-interface/impls"))
     .settings(NoSourceDirectories)
     .settings(
-      organization := JetBrains,
       crossPaths := false,
       autoScalaLibrary := false,
       ideSkipProject := true,
@@ -371,7 +376,6 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .settings(projectDirectoriesSettings)
   .settings(
     name := "tasty-reader",
-    organization := JetBrains,
     idePackagePrefix := Some("org.jetbrains.plugins.scala.tasty.reader"),
     intellijMainJars := Seq.empty,
     intellijTestJars := Seq.empty,
@@ -389,7 +393,6 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
 lazy val semanticDecompiler = Project("semantic-decompiler", file("scala/semantic-decompiler"))
   .settings(
     name := "semantic-decompiler",
-    organization := JetBrains,
     intellijMainJars := Seq.empty,
     intellijTestJars := Seq.empty,
     scalaVersion := Versions.scala3Version,
@@ -777,7 +780,6 @@ def compilerPluginProject(
     .disablePlugins(SbtIdeaPluginExtension)
     .settings(
       name := projectName,
-      organization := JetBrains,
       intellijPlugins := Seq.empty,
       scalaVersion := scalaCompilerVersion,
       libraryDependencies += {
@@ -981,7 +983,6 @@ lazy val scalatestFindersRootDir = file("scala/test-integration/scalatest-finder
 lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir)
   .settings(
     name := "scalatest-finders",
-    organization := JetBrains,
     scalaVersion := Versions.scalaVersion,
     // NOTE: we might continue NOT using Scala in scalatestFinders just in case
     // in some future we will decide again to extract the library, so as it can be used even without scala jar
@@ -1006,7 +1007,6 @@ lazy val scalatestFindersTests_2 = Project("scalatest-finders-tests-2", scalates
   .dependsOn(scalatestFinders)
   .settings(
     name := "scalatest-finders-tests-2",
-    organization := JetBrains,
     scalatestFindersTestSettings,
     scalaVersion := "2.11.12",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_2 % Test),
@@ -1019,7 +1019,6 @@ lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scal
   .dependsOn(scalatestFinders)
   .settings(
     name := "scalatest-finders-tests-3_0",
-    organization := JetBrains,
     scalatestFindersTestSettings,
     scalaVersion := "2.12.20",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test),
@@ -1032,7 +1031,6 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
   .dependsOn(scalatestFinders)
   .settings(
     name := "scalatest-finders-tests-3_2",
-    organization := JetBrains,
     scalatestFindersTestSettings,
     scalaVersion := Versions.scalaVersion,
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test),
@@ -1377,7 +1375,6 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
   .settings(NoSourceDirectories)
   .settings(
     name := "runtimeDependencies",
-    organization := JetBrains,
     crossPaths := false,
     autoScalaLibrary := false,
     resolvers += Classpaths.sbtPluginReleases,

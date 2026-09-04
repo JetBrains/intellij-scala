@@ -148,7 +148,6 @@ object Common {
     KotlinAnalysisApiIdeSourcesDependencies.map(_ % Provided)
 
   private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
-    organization := JetBrains,
     scalaVersion := Versions.scalaVersion,
     (Compile / javacOptions) := globalJavacOptions,
     (Compile / scalacOptions) := globalScalacOptions,
