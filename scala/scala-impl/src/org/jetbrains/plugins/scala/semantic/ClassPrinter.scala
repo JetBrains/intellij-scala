@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -227,7 +227,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         case Some(b) => etaExpansionOf(b, indent).getOrElse("<expr>")
         case None => "_"
       }
-      case e @ NonValueType(_: ScMethodType) & ExpectedType(FunctionType(_, _)) if etaExpand => etaExpansionOf(e, indent).getOrElse("<expr>")
+      case e @ NonValueType(_: ScMethodType | ScTypePolymorphicType(_: ScMethodType, _)) & ExpectedType(FunctionType(_, _)) if etaExpand => etaExpansionOf(e, indent).getOrElse("<expr>")
       case e: ScIf =>
         "if (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " + e.thenExpression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + (e.elseExpression match {
           case Some(e) => " else " + textOfExpression(normalized(e), indent)
