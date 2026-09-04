@@ -611,8 +611,13 @@ object SourceCode {
         }
 
       case Return(expr, from) =>
-        this += "return "
-        printTree(expr)
+        expr match {
+          case Literal(UnitConstant()) =>
+            this += "return"
+          case _ =>
+            this += "return "
+            printTree(expr)
+        }
 
       case Repeated(elems, _) =>
         printTrees(elems, ", ")
