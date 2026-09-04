@@ -212,6 +212,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         b.caseClauses.map("\n" + _.caseClauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n")).getOrElse("") +
         "\n" + indent + "  " + "}"
       case b: ScBlock => b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("")
+      case r: ScReturn => "return" + r.expr.map(" " + textOfExpression(_, indent)).getOrElse("")
       case t: ScTypedExpression =>
         val s = textOfExpression(t.expr, indent)
         if (t.isSequenceArg) s + ": _*"
