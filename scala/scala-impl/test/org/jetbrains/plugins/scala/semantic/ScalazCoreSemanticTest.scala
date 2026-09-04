@@ -606,7 +606,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.MaybeTInstances2
     scalaz.MaybeTInstances3
     //scalaz.MaybeTMonad
-    //scalaz.MaybeTMonadError
+    scalaz.MaybeTMonadError
     //scalaz.MaybeTMonadListen
     //scalaz.MaybeTMonadPlus
     scalaz.MaybeTMonadTell
