@@ -8,7 +8,7 @@ import java.net.http.{HttpClient, HttpRequest, HttpResponse}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardCopyOption}
 import java.util.Base64
-import java.util.concurrent.{ConcurrentHashMap, Executors, TimeUnit}
+import java.util.concurrent.{ConcurrentHashMap, Executors, Semaphore, TimeUnit}
 import scala.concurrent.duration.{DurationInt, DurationLong, FiniteDuration}
 import scala.concurrent.{Await, ExecutionContext, Future, TimeoutException}
 import scala.util.Try
@@ -124,9 +124,10 @@ object CompilationCache {
   // operation in sbt runs inside a global lock (`IvySbt.withDefaultLogger`). Fetching the artifacts concurrently
   // ourselves and letting the pull resolve them from a local mirror keeps sbt in charge of the delicate part, the
   // extraction and the Zinc analysis remapping.
-  // Bounded rather than maximal, and not configurable: `pullCompilationCacheAll` is part of the shared sbt step, so
-  // every test job runs this too, and they all start off the same package build. The number is therefore multiplied
-  // by however many jobs happen to be running at once, instead of applying to one build in isolation.
+  // Requests in flight at once, bounded rather than maximal and not configurable: `pullCompilationCacheAll` is part
+  // of the shared sbt step, so every test job runs this too, and they all start off the same package build. The
+  // number is therefore multiplied by however many jobs happen to be running at once, instead of applying to one
+  // build in isolation — which is also why it cannot be derived from anything the local process can observe.
   private val prefetchConcurrency = 16
   private val prefetchAttempts = 3
   private val prefetchTimeout = 3.minutes
@@ -161,12 +162,20 @@ object CompilationCache {
       log.debug("Compilation cache pre-fetch: no artifacts to fetch")
     } else {
       val startedAt = System.nanoTime()
-      val threadFactory = Thread.ofPlatform().daemon(true).name("compilation-cache-prefetch-", 0).factory()
-      val pool = Executors.newFixedThreadPool(prefetchConcurrency, threadFactory)
-      // A dedicated bounded pool rather than the global execution context: these fetches block on I/O, which the
-      // global context's fork-join pool is both too small for (one thread per core) and the wrong shape for.
+      // One virtual thread per artifact: they spend their whole life blocked on a socket, so they unmount instead of
+      // occupying a carrier thread, and there is no pool to size. The bound therefore has to be explicit — a virtual
+      // thread executor throttles nothing, and without the semaphore this would open one connection per artifact.
+      val threadFactory = Thread.ofVirtual().name("compilation-cache-prefetch-", 0).factory()
+      val pool = Executors.newThreadPerTaskExecutor(threadFactory)
       implicit val executionContext: ExecutionContext = ExecutionContext.fromExecutor(pool)
-      val fetches = artifacts.map(artifact => Future(fetchArtifact(mirror, artifact, allCredentials, log)))
+      val inFlight = new Semaphore(prefetchConcurrency)
+      val fetches = artifacts.map { artifact =>
+        Future {
+          inFlight.acquire()
+          try fetchArtifact(mirror, artifact, allCredentials, log)
+          finally inFlight.release()
+        }
+      }
       val results = try {
         Await.result(Future.sequence(fetches), prefetchTimeout)
       } catch {
