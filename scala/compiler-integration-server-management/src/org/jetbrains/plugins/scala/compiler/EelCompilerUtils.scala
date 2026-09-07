@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.platform.eel.EelDescriptor
+import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, LocalEelDescriptor}
 
 import java.nio.file.Path
-import com.intellij.platform.eel.provider.{EelNioBridgeServiceKt, LocalEelDescriptor}
 
 object EelCompilerUtils {
   /**
@@ -17,8 +17,8 @@ object EelCompilerUtils {
     eelDescriptor match {
       case LocalEelDescriptor.INSTANCE =>
         path.toString
-      case remote =>
-        val eelPath = EelNioBridgeServiceKt.asEelPath(path, remote)
+      case _ =>
+        val eelPath = EelNioBridgeServiceKt.asEelPath(path)
         eelPath.toString
     }
 }

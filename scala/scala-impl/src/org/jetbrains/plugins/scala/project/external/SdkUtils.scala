@@ -39,8 +39,8 @@ object SdkUtils {
             FileUtil.comparePaths(canonicalHomePath, sdk.getHomePath) == 0 ||
               FileUtil.pathsEqual(homeFile.toAbsolutePath.toString, sdk.getHomePath)
           } else {
-            val sdkPath = EelNioBridgeServiceKt.asEelPath(Path.of(sdk.getHomePath), eelDescriptor)
-            val homeFilePath = EelNioBridgeServiceKt.asEelPath(homeFile, eelDescriptor)
+            val sdkPath = EelNioBridgeServiceKt.asEelPath(Path.of(sdk.getHomePath))
+            val homeFilePath = EelNioBridgeServiceKt.asEelPath(homeFile)
             sdkPath == homeFilePath
           },
         eelDescriptor
