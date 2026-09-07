@@ -78,8 +78,10 @@ object RefinementApproximationTest {
       |trait Bar
       |
       |val x = new Foo with Bar { def baz: Int = 1 }
-      |val y: Foo with Bar = x
-      |val z: Foo with Bar { def baz: Int } = x // Error in [Scala3]
+      |val y: Foo with Bar = x                  [Scala2]
+      |val z: Foo with Bar { def baz: Int } = x [Scala2]
+      |val y: Foo & Bar = x                     [Scala3]
+      |val z: Foo & Bar { def baz: Int } = x    [Scala3] // Error
       |""".stripMargin,
     """
       |// RefinementWithExpectedType

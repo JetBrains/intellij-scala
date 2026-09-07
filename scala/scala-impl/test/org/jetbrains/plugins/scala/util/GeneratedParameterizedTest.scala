@@ -135,7 +135,9 @@ object GeneratedParameterizedTestFactory {
     testDataFromCode(
       code.linesIterator
         .map {
-          case line if line.contains(removeTag) => line.take(line.indexOf("//").max(0))
+          case line if line.contains(removeTag) =>
+            if (line.indexOf(removeTag) <= line.indexOf("//")) ""
+            else line.take(line.indexOf("//").max(0))
           case line                             => line
         }
         .map(_.replace("[Scala2]", "").replace("[Scala3]", ""))
