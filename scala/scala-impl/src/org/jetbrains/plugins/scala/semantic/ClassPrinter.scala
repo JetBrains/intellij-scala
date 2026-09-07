@@ -402,7 +402,8 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         owner.typeParameters.map(tp => function.substitutor(TypeParameterType(tp))).map(t => textOf(t.removeAliasDefinitionsIn(place))).mkString("[", ", ", "]")
       case _ => ""
     }
-    textOfReferenceTo(function, place) + typeArgText + "(" + expression + ")" + textOfImplicitArguments(function.implicitArguments, place)
+    textOfReferenceTo(function, place) + (if (function.element.is[ScFunction]) "" else ".apply") +
+      typeArgText + "(" + expression + ")" + textOfImplicitArguments(function.implicitArguments, place)
   }
 
   private def textOfImplicitArguments(args: Seq[ImplicitArgumentsClause], place: PsiElement): String = args
