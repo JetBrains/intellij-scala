@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.structuralSearch.search
 
+import com.intellij.structuralsearch.MalformedPatternException
 import org.jetbrains.plugins.scala.extensions.{PathExt, StringExt}
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTestConfig
 import org.jetbrains.plugins.scala.structuralSearch.ScalaStructuralSearchTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions.assertException
 
 import java.nio.file.Path
 import scala.collection.immutable.ArraySeq
@@ -11,14 +13,6 @@ import scala.collection.immutable.ArraySeq
 class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
   val path = TestUtils.getTestDataPath + "/" + Scala3ImportedParserTestConfig.Newest.successDataDirectory
   private val separatorRegex = raw"\n-{5,}".r
-  // files containing some $...$ inside of a string
-  private val skips = Set(
-    "reference_main-functions.test",
-    "i14626.test",
-    "t0774_deathname.test",
-    "test-typers.test",
-    "i16954.test"
-  )
 
   def eliminateBlockComments(oText: String): String = {
     var text = oText
@@ -82,10 +76,17 @@ class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
       }
 
       try {
-        if (text.length < 50000 && !skips.contains(file.getFileName.toString)) {
+        if (text.isEmpty) {
+          // Empty files cannot form a search pattern.
+          assertException[MalformedPatternException] {
+            matchAndAssert(s"Test all parsing tests. Testcase $i", "", "")
+          }
+          success += 1
+        } else if (text.length < 50000) {
           matchAndAssert(s"Test all parsing tests. Testcase $i",
             s"""<match="AA">$text</match="AA">""", "",
-            _.setSearchPattern(text),
+            // Search patterns use live-template syntax: escape literal dollar signs as $$.
+            _.setSearchPattern(text.replace("$", "$$")),
             true, true, false
           )
           success += 1
@@ -96,7 +97,7 @@ class ScSSMatchCompleteness extends ScalaStructuralSearchTestCase {
       } catch {
         case throwable: Throwable =>
           error += 1
-          println(s"Failed file $i - $file")
+          println(s"Failed file $i - $file: $throwable")
       } finally {
         counter += 1
       }
