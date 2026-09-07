@@ -17,43 +17,35 @@ import com.intellij.util.PathUtil
 import junit.framework.TestCase.{assertEquals, assertNotNull}
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
-import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
-import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.JdkVersionParameters
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.gradle.GradleTestUtil
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
-import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Test
-import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.runners.JUnit4
 
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-@RunWith(classOf[Parameterized])
-class GroovyMixedGradleCompilationTest(jdkVersion: TestJdkVersion) extends ExternalSystemImportingTestCase {
-
-  private var gradleSdk: Sdk = uninitialized
+@RunWith(classOf[JUnit4])
+//noinspection SSBasedInspection
+class GroovyMixedGradleCompilationTest extends ExternalSystemImportingTestCase {
 
   private var sdk: Sdk = uninitialized
 
-  private var compiler: CompilerTester = uninitialized
-
   private var mainModule: Module = uninitialized
 
-  override lazy val getCurrentExternalProjectSettings: GradleProjectSettings = {
+  override lazy val getCurrentExternalProjectSettings: GradleProjectSettings =
     val settings = new GradleProjectSettings().withQualifiedModuleNames()
-    settings.setGradleJvm(gradleSdk.getName)
+    settings.setGradleJvm(sdk.getName)
     settings.setDelegatedBuild(false)
     settings
-  }
 
   override def getExternalSystemId: ProjectSystemId = GradleConstants.SYSTEM_ID
 
@@ -66,10 +58,8 @@ class GroovyMixedGradleCompilationTest(jdkVersion: TestJdkVersion) extends Exter
 
     GradleTestUtil.setupGradleHome(getMyProject)
 
-    gradleSdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
-
     sdk = {
-      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
+      val res = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
       val settings = ScalaCompileServerSettings.getInstance()
       settings.COMPILE_SERVER_SDK = res.getName
       settings.USE_DEFAULT_SDK = false
@@ -171,10 +161,12 @@ class GroovyMixedGradleCompilationTest(jdkVersion: TestJdkVersion) extends Exter
       field.setAccessible(true)
       val originalClasspath = field.get(classpathManager).asInstanceOf[java.util.List[String]].asScala
 
+      //noinspection ApiStatus
       val groovyPlugin = PluginManagerCore.getPlugin(PluginId.getId("org.intellij.groovy"))
       assertNotNull("Could not find the Groovy plugin descriptor", groovyPlugin)
       val groovyLibDir = groovyPlugin.getPluginPath.resolve("lib")
       val groovyBuilders = Seq("groovy-jps.jar", "groovy-constants-rt.jar").map(groovyLibDir.resolve(_).toString)
+      //noinspection ApiStatus,UnstableApiUsage
       // GroovyRtJarPaths in the Groovy JPS builder loads ArchivedCompilationContextUtil (packaged in util-8.jar),
       // which since 263 references BazelRunfiles, located in a separate jar that is not on the compile server
       // classpath. Add it as well to avoid a NoClassDefFoundError in the build process.
@@ -182,18 +174,15 @@ class GroovyMixedGradleCompilationTest(jdkVersion: TestJdkVersion) extends Exter
       val newClasspath = originalClasspath ++ groovyBuilders :+ bazelRunfilesJar
       field.set(classpathManager, newClasspath.asJava)
     }
-
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   override def tearDown(): Unit = try {
-    compiler.tearDown()
     val settings = ScalaCompileServerSettings.getInstance()
     settings.USE_DEFAULT_SDK = true
     settings.COMPILE_SERVER_SDK = null
     inWriteAction {
       val jdkTable = ProjectJdkTable.getInstance()
-      Seq(sdk, gradleSdk).foreach(jdkTable.removeJdk)
+      jdkTable.removeJdk(sdk)
       val kotlinSdk = jdkTable.getAllJdks.find(_.getName.contains("Kotlin SDK"))
       kotlinSdk.foreach(jdkTable.removeJdk)
     }
@@ -202,19 +191,21 @@ class GroovyMixedGradleCompilationTest(jdkVersion: TestJdkVersion) extends Exter
   }
 
   @Test
-  def testMixedGroovyCompilation(): Unit = {
+  def mixedGroovyCompilation(): Unit = {
     assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType)
-    val messages = compiler.make().asScala.toSeq
-    assertNoErrorsOrWarnings(messages)
-    for (cls <- Seq("Greeter", "GroovyGreeter", "JavaGreeter", "KotlinGreeter", "ScalaGreeter", "main$package", "main$package$")) {
-      assertClassExists(cls, mainModule)
-    }
+    val modules = ModuleManager.getInstance(getMyProject).getModules
+    val compiler = CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
+    try
+      val messages = compiler.make().asScala.toSeq
+      assertNoErrorsOrWarnings(messages)
+      for (cls <- Seq("Greeter", "GroovyGreeter", "JavaGreeter", "KotlinGreeter", "ScalaGreeter", "main$package", "main$package$")) do
+        compiler.assertClassExists(cls, mainModule)
+    finally
+      compiler.tearDown()
   }
 
-  private def assertClassExists(name: String, module: Module): Unit = {
-    val file = compiler.findClassFile(name, module)
-    assertNotNull(s"Could not find class file for $name", file)
-  }
+  extension (compiler: CompilerTester)
+    private def assertClassExists(name: String, module: Module): Unit =
+      val file = compiler.findClassFile(name, module)
+      assertNotNull(s"Could not find class file for $name", file)
 }
-
-private object GroovyMixedGradleCompilationTest extends JdkVersionParameters

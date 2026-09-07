@@ -10,43 +10,34 @@ import com.intellij.testFramework.{CompilerTester, IndexingTestUtil}
 import junit.framework.TestCase.{assertEquals, assertNotNull}
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings
 import org.jetbrains.plugins.gradle.util.GradleConstants
-import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.compiler.JdkVersionParameters
 import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.gradle.GradleTestUtil
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
-import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Test
-import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.runners.JUnit4
 
 import scala.compiletime.uninitialized
 
-@Category(Array(classOf[CompilationTests_Zinc]))
-@RunWith(classOf[Parameterized])
-class PolyglotGradleCompilationTest(jdkVersion: TestJdkVersion) extends ExternalSystemImportingTestCase {
-
-  private var gradleSdk: Sdk = uninitialized
+@RunWith(classOf[JUnit4])
+//noinspection SSBasedInspection
+class PolyglotGradleCompilationTest extends ExternalSystemImportingTestCase {
 
   private var sdk: Sdk = uninitialized
-
-  private var compiler: CompilerTester = uninitialized
 
   private var module1: Module = uninitialized
 
   private var module2: Module = uninitialized
 
-  override lazy val getCurrentExternalProjectSettings: GradleProjectSettings = {
+  override lazy val getCurrentExternalProjectSettings: GradleProjectSettings =
     val settings = new GradleProjectSettings().withQualifiedModuleNames()
-    settings.setGradleJvm(gradleSdk.getName)
+    settings.setGradleJvm(sdk.getName)
     settings.setDelegatedBuild(false)
     settings
-  }
 
   override def getExternalSystemId: ProjectSystemId = GradleConstants.SYSTEM_ID
 
@@ -59,10 +50,8 @@ class PolyglotGradleCompilationTest(jdkVersion: TestJdkVersion) extends External
 
     GradleTestUtil.setupGradleHome(getMyProject)
 
-    gradleSdk = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
-
     sdk = {
-      val res = SmartJDKLoader.getOrCreateJDK(jdkVersion.toProductionVersion)
+      val res = SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_17)
       val settings = ScalaCompileServerSettings.getInstance()
       settings.COMPILE_SERVER_SDK = res.getName
       settings.USE_DEFAULT_SDK = false
@@ -86,11 +75,6 @@ class PolyglotGradleCompilationTest(jdkVersion: TestJdkVersion) extends External
         |
         |group = 'org.example'
         |version = '1.0-SNAPSHOT'
-        |
-        |java {
-        |  sourceCompatibility = JavaVersion.VERSION_1_8
-        |  targetCompatibility = JavaVersion.VERSION_1_8
-        |}
         |
         |${GradleTestUtil.repositoriesBlock}
         |""".stripMargin)
@@ -136,17 +120,15 @@ class PolyglotGradleCompilationTest(jdkVersion: TestJdkVersion) extends External
     assertNotNull("Could not find module with name 'polyglot-gradle.module1.main'", module1)
     module2 = modules.find(_.getName == "polyglot-gradle.module2.main").orNull
     assertNotNull("Could not find module with name 'polyglot-gradle.module2.main'", module2)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
   override def tearDown(): Unit = try {
-    compiler.tearDown()
     val settings = ScalaCompileServerSettings.getInstance()
     settings.USE_DEFAULT_SDK = true
     settings.COMPILE_SERVER_SDK = null
     inWriteAction {
       val jdkTable = ProjectJdkTable.getInstance()
-      Seq(sdk, gradleSdk).foreach(jdkTable.removeJdk)
+      jdkTable.removeJdk(sdk)
       val kotlinSdk = jdkTable.getAllJdks.find(_.getName.contains("Kotlin SDK"))
       kotlinSdk.foreach(jdkTable.removeJdk)
     }
@@ -155,18 +137,20 @@ class PolyglotGradleCompilationTest(jdkVersion: TestJdkVersion) extends External
   }
 
   @Test
-  def testPolyglotCompilation(): Unit = {
+  def polyglotCompilation(): Unit =
     assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType)
-    compiler.make()
-    assertClassExists("Greeter", module1)
-    assertClassExists("AbstractGreeter", module1)
-    assertClassExists("HelloWorldGreeter", module2)
-  }
+    val modules = ModuleManager.getInstance(getMyProject).getModules
+    val compiler = CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
+    try
+      compiler.make()
+      compiler.assertClassExists("Greeter", module1)
+      compiler.assertClassExists("AbstractGreeter", module1)
+      compiler.assertClassExists("HelloWorldGreeter", module2)
+    finally
+      compiler.tearDown()
 
-  private def assertClassExists(name: String, module: Module): Unit = {
-    val file = compiler.findClassFile(name, module)
-    assertNotNull(s"Could not find class file for $name", file)
-  }
+  extension (compiler: CompilerTester)
+    private def assertClassExists(name: String, module: Module): Unit =
+      val file = compiler.findClassFile(name, module)
+      assertNotNull(s"Could not find class file for $name", file)
 }
-
-private object PolyglotGradleCompilationTest extends JdkVersionParameters
