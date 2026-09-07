@@ -2,7 +2,7 @@
 
 package org.jetbrains.plugins.scala.semantic
 
-import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod, PsiNamedElement, PsiPackage}
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, template}
 import org.jetbrains.plugins.scala.extensions.{&, IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnu
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
@@ -256,13 +256,17 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
             case _ => false
           }
         }
-        val invokedExpr = mi.getEffectiveInvokedExpr
-        val s1 = mi.thisExpr.filter(!invokedExpr.elements.contains(_)).map(textOfExpression(_, indent)).map(_ + ".").getOrElse("")
-        val s2 = textOfExpression(invokedExpr, indent)
         val s3 = targs + "(" + (if (explicitImplicitArguments) "using " else "") + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
-        if (mi.is[ScInfixExpr] && s2.endsWith("=") && !mi.target.exists(_.name.endsWith("="))) s1.dropRight(1) + " = " + s1 + s2.dropRight(1) + s3
-        else if (mi.is[ScPrefixExpr]) s1 + "unary_" + s2 + targs
-        else s1 + s2 + s3
+        mi match {
+          case ScSugarCallExpr(baseExpr, operation, args) =>
+            val s1 = textOfExpression(baseExpr, indent) + "."
+            val s2 = operation.refName
+            if (mi.is[ScInfixExpr] && s2.endsWith("=") && !mi.target.exists(_.name.endsWith("="))) s1.dropRight(1) + " = " + s1 + s2.dropRight(1) + s3
+            else if (mi.is[ScPrefixExpr]) s1 + "unary_" + s2 + targs
+            else s1 + s2 + s3
+          case _ =>
+            textOfExpression(mi.getEffectiveInvokedExpr, indent) + s3
+        }
       case si: ScSelfInvocation =>
         "this" + si.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString
       case gc: ScGenericCall =>
@@ -319,28 +323,36 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
   }
 
   private def textOfReference(r: ScReference): String =
-    r.bind().map(textOfReferenceTo(_, r, r.refName)).getOrElse(r.refName)
+    r.bind().map(textOfReferenceTo(_, r)).getOrElse("<Cannot resolve reference>")
 
-  private def textOfReferenceTo(result: ScalaResolveResult, place: PsiElement, refName: String): String = {
+  private def textOfReferenceTo(result: ScalaResolveResult, place: PsiElement): String = {
     result.getActualElement match {
       case e: ScSelfTypeElement => e.nameContext match {
         case named: ScNamedElement => if (named.name == "<anonymous>") "this" else named.name + ".this"
         case _ => e.name
       }
-      case e: ScNamedElement => e.nameContext match {
-        case m: ScMember if !m.isLocal =>
-          if (ScalaPsiUtil.hasStablePath(e)) m.qualifiedNameOpt.getOrElse(refName) else {
-            val enclosingClasses = place.contexts.takeWhile(!_.is[PsiFile]).filterByType[ScTypeDefinition]
-            enclosingClasses.find(_.allSignatures.exists(_.namedElement.nameContext == m)) match {
-              case Some(enclosingClass) =>
-                if (enclosingClass.name == "<anonymous>") "this." + refName else enclosingClass.name + ".this." + refName
-              case None => m.qualifiedNameOpt.getOrElse(refName)
+      case e: PsiNamedElement => e.nameContext match {
+        case p: PsiPackage if p.getName == null => "_root_"
+        case p: ScClassParameter if p.containingClass.extendsBlock.templateParents.exists(place.contexts.takeWhile(!_.is[PsiFile]).contains) => p.name
+        case m: ScMember if m.isLocal => e.name
+        case m: PsiMember =>
+          if (ScalaPsiUtil.hasStablePath(e)) m.qualifiedNameOpt.getOrElse("<Cannot determine fully-qualified name>") else {
+            result.fromType match {
+              case Some(tpe) =>
+                val tpe2 = tpe match {
+                  case ScProjectionType(projected, element) if element == e => projected
+                  case t => t
+                }
+                val typeText = tpe2.canonicalText(TypePresentationContext(place))(using Context(place))
+                val qualifier = typeText.stripPrefix("_root_.").stripSuffix(".type")
+                qualifier + "." + e.name
+              case None =>
+                e.name
             }
           }
-        case _ => refName
+        case _ => e.name
       }
-      case m: PsiMember => m.qualifiedNameOpt.getOrElse(refName)
-      case _ => refName
+      case _ => result.name
     }
   }
 
@@ -390,7 +402,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         owner.typeParameters.map(tp => function.substitutor(TypeParameterType(tp))).map(t => textOf(t.removeAliasDefinitionsIn(place))).mkString("[", ", ", "]")
       case _ => ""
     }
-    textOfReferenceTo(function, place, function.name) + typeArgText + "(" + expression + ")" + textOfImplicitArguments(function.implicitArguments, place)
+    textOfReferenceTo(function, place) + typeArgText + "(" + expression + ")" + textOfImplicitArguments(function.implicitArguments, place)
   }
 
   private def textOfImplicitArguments(args: Seq[ImplicitArgumentsClause], place: PsiElement): String = args
@@ -401,12 +413,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
             owner.typeParameters.map(tp => arg.substitutor(TypeParameterType(tp))).map(t => textOf(t.removeAliasDefinitionsIn(place))).mkString("[", ", ", "]")
           case _ => ""
         }
-        val prefix = arg.fromType match {
-          case Some(tpe) =>
-            tpe.canonicalText(TypePresentationContext(place))(using Context(place)).stripPrefix("_root_.").stripSuffix(".type") + "." + arg.element.asInstanceOf[ScNamedElement].name
-          case _ =>
-            textOfReferenceTo(arg, place, arg.name)
-        }
+        val prefix = textOfReferenceTo(arg, place)
         val inner = prefix + typeArgText + textOfImplicitArguments(arg.implicitArguments, place) match {
           case GeneratedClassTag(tpe) => s"scala.reflect.ClassTag.apply[$tpe](classOf[$tpe])" // Workaround for SCL-14358
           case s => s

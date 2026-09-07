@@ -42,7 +42,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     akka.actor.typed.Signal
     //akka.actor.typed.SpawnProtocol
     //akka.actor.typed.SupervisorStrategy
-    //akka.actor.typed.Terminated
+    akka.actor.typed.Terminated
     akka.actor.typed.TypedActorContext
     //akka.actor.typed.delivery.ConsumerController
     //akka.actor.typed.delivery.DurableProducerQueue
@@ -72,7 +72,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     //akka.actor.typed.internal.ExtensionsImpl
     //akka.actor.typed.internal.InterceptorImpl
     akka.actor.typed.internal.InternalMessage
-    //akka.actor.typed.internal.InternalRecipientRef
+    akka.actor.typed.internal.InternalRecipientRef
     //akka.actor.typed.internal.LatestFirstSystemMessageList
     //akka.actor.typed.internal.LogMessagesInterceptor
     //akka.actor.typed.internal.LoggerClass

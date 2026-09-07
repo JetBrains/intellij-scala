@@ -48,8 +48,8 @@ class ScalacticSemanticTest extends SemanticTestBase("org.scalactic" %% "scalact
     //org.scalactic.NameUtil
     org.scalactic.NormMethods
     org.scalactic.Normalization
-    //org.scalactic.NormalizingEquality
-    //org.scalactic.NormalizingEquivalence
+    org.scalactic.NormalizingEquality
+    org.scalactic.NormalizingEquivalence
     org.scalactic.NotBool
     org.scalactic.NumericEqualityConstraints
     //org.scalactic.ObjectDiffer

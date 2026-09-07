@@ -30,7 +30,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.DefaultServices
     //zio.Dequeue
     //zio.Differ
-    //zio.Duration
+    zio.Duration
     zio.DurationModule
     //zio.DurationOps
     //zio.DurationSyntax
@@ -136,7 +136,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.internal.BoundedHubPow2
     //zio.internal.BoundedHubSingle
     //zio.internal.ConcurrentWeakHashSet
-    //zio.internal.DefaultExecutors
+    zio.internal.DefaultExecutors
     zio.internal.ExecutionMetrics
     //zio.internal.FastList
     zio.internal.FiberMessage
@@ -148,7 +148,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.internal.IsFatal
     //zio.internal.LinkedQueue
     zio.internal.LoomSupport
-    //zio.internal.MutableConcurrentQueue
+    zio.internal.MutableConcurrentQueue
     //zio.internal.MutableSetCompat
     zio.internal.NamedThreadFactory
     //zio.internal.OneElementConcurrentQueue
@@ -205,7 +205,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.metrics.Metric
     zio.metrics.MetricClient
     //zio.metrics.MetricKey
-    //zio.metrics.MetricKeyType
+    zio.metrics.MetricKeyType
     zio.metrics.MetricLabel
     zio.metrics.MetricListener
     //zio.metrics.MetricPair

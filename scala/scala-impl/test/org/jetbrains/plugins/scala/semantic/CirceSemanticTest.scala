@@ -30,7 +30,7 @@ class CirceSemanticTest extends SemanticTestBase("io.circe" %% "circe-core" % "0
     //io.circe.EnumerationDecoders
     io.circe.EnumerationEncoders
     //io.circe.Error
-    //io.circe.Errors
+    io.circe.Errors
     io.circe.FailedCursor
     //io.circe.HCursor
     //io.circe.Json
@@ -59,13 +59,13 @@ class CirceSemanticTest extends SemanticTestBase("io.circe" %% "circe-core" % "0
     io.circe.ProductCodecs
     io.circe.ProductDecoders
     io.circe.ProductEncoders
-    //io.circe.ProductTypedCodecs
-    //io.circe.ProductTypedEncoders
+    io.circe.ProductTypedCodecs
+    io.circe.ProductTypedEncoders
     //io.circe.SeqDecoder
     //io.circe.TupleDecoders
     //io.circe.TupleEncoders
     //io.circe.`export`.Exported
-    //io.circe.cursor.ArrayCursor
+    io.circe.cursor.ArrayCursor
     io.circe.cursor.ObjectCursor
     io.circe.cursor.TopCursor
     //io.circe.derivation.Configuration
@@ -92,7 +92,7 @@ class CirceSemanticTest extends SemanticTestBase("io.circe" %% "circe-core" % "0
     //io.circe.generic.semiauto
     //io.circe.jawn.CirceSupportParser
     //io.circe.jawn.JawnParser
-    //io.circe.jawn.JawnParserPlatform
+    io.circe.jawn.JawnParserPlatform
     //io.circe.numbers.BiggerDecimal
     //io.circe.numbers.SigAndExp
   """)

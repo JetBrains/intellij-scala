@@ -11,7 +11,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.AbruptIOTerminationException
     akka.stream.AbruptStageTerminationException
     akka.stream.AbruptTerminationException
-    //akka.stream.AbstractShape
+    akka.stream.AbstractShape
     akka.stream.ActorAttributes
     //akka.stream.ActorMaterializer
     //akka.stream.ActorMaterializerHelper
@@ -158,7 +158,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.BoundedBuffer
     //akka.stream.impl.BoundedSourceQueueStage
     akka.stream.impl.Buffer
-    //akka.stream.impl.BuilderKey
+    akka.stream.impl.BuilderKey
     akka.stream.impl.Cancel
     akka.stream.impl.CancelSink
     akka.stream.impl.CancelledSubscription
@@ -255,7 +255,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.SourceModule
     akka.stream.impl.SourceModuleIslandTag
     akka.stream.impl.SourceModulePhase
-    //akka.stream.impl.Stages
+    akka.stream.impl.Stages
     //akka.stream.impl.StreamLayout
     //akka.stream.impl.StreamSubscriptionTimeoutSupport
     //akka.stream.impl.StreamSupervisor
@@ -327,7 +327,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.fusing.Scan
     //akka.stream.impl.fusing.ScanAsync
     //akka.stream.impl.fusing.Sliding
-    //akka.stream.impl.fusing.Split
+    akka.stream.impl.fusing.Split
     //akka.stream.impl.fusing.StatefulMap
     //akka.stream.impl.fusing.StatefulMapConcat
     //akka.stream.impl.fusing.SubSink
@@ -386,7 +386,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.javadsl.Keep
     //akka.stream.javadsl.Merge
     //akka.stream.javadsl.MergeHub
-    //akka.stream.javadsl.MergeLatest
+    akka.stream.javadsl.MergeLatest
     //akka.stream.javadsl.MergePreferred
     //akka.stream.javadsl.MergePrioritized
     //akka.stream.javadsl.MergeSequence
@@ -460,7 +460,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.scaladsl.RestartWithBackoffSource
     //akka.stream.scaladsl.RetryFlow
     //akka.stream.scaladsl.RunnableGraph
-    //akka.stream.scaladsl.ScalaSessionAPI
+    akka.stream.scaladsl.ScalaSessionAPI
     //akka.stream.scaladsl.Sink
     akka.stream.scaladsl.SinkQueue
     //akka.stream.scaladsl.SinkQueueWithCancel
@@ -478,27 +478,27 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.scaladsl.TcpIdleTimeoutException
     akka.stream.scaladsl.Unzip
     akka.stream.scaladsl.UnzipWith
-    //akka.stream.scaladsl.UnzipWith10
-    //akka.stream.scaladsl.UnzipWith11
-    //akka.stream.scaladsl.UnzipWith12
-    //akka.stream.scaladsl.UnzipWith13
-    //akka.stream.scaladsl.UnzipWith14
-    //akka.stream.scaladsl.UnzipWith15
-    //akka.stream.scaladsl.UnzipWith16
-    //akka.stream.scaladsl.UnzipWith17
-    //akka.stream.scaladsl.UnzipWith18
-    //akka.stream.scaladsl.UnzipWith19
-    //akka.stream.scaladsl.UnzipWith2
-    //akka.stream.scaladsl.UnzipWith20
-    //akka.stream.scaladsl.UnzipWith21
-    //akka.stream.scaladsl.UnzipWith22
-    //akka.stream.scaladsl.UnzipWith3
-    //akka.stream.scaladsl.UnzipWith4
-    //akka.stream.scaladsl.UnzipWith5
-    //akka.stream.scaladsl.UnzipWith6
-    //akka.stream.scaladsl.UnzipWith7
-    //akka.stream.scaladsl.UnzipWith8
-    //akka.stream.scaladsl.UnzipWith9
+    akka.stream.scaladsl.UnzipWith10
+    akka.stream.scaladsl.UnzipWith11
+    akka.stream.scaladsl.UnzipWith12
+    akka.stream.scaladsl.UnzipWith13
+    akka.stream.scaladsl.UnzipWith14
+    akka.stream.scaladsl.UnzipWith15
+    akka.stream.scaladsl.UnzipWith16
+    akka.stream.scaladsl.UnzipWith17
+    akka.stream.scaladsl.UnzipWith18
+    akka.stream.scaladsl.UnzipWith19
+    akka.stream.scaladsl.UnzipWith2
+    akka.stream.scaladsl.UnzipWith20
+    akka.stream.scaladsl.UnzipWith21
+    akka.stream.scaladsl.UnzipWith22
+    akka.stream.scaladsl.UnzipWith3
+    akka.stream.scaladsl.UnzipWith4
+    akka.stream.scaladsl.UnzipWith5
+    akka.stream.scaladsl.UnzipWith6
+    akka.stream.scaladsl.UnzipWith7
+    akka.stream.scaladsl.UnzipWith8
+    akka.stream.scaladsl.UnzipWith9
     //akka.stream.scaladsl.UnzipWithApply
     //akka.stream.scaladsl.WireTap
     //akka.stream.scaladsl.Zip
@@ -528,27 +528,27 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.scaladsl.ZipLatestWithApply
     akka.stream.scaladsl.ZipN
     akka.stream.scaladsl.ZipWith
-    //akka.stream.scaladsl.ZipWith10
-    //akka.stream.scaladsl.ZipWith11
-    //akka.stream.scaladsl.ZipWith12
-    //akka.stream.scaladsl.ZipWith13
-    //akka.stream.scaladsl.ZipWith14
-    //akka.stream.scaladsl.ZipWith15
-    //akka.stream.scaladsl.ZipWith16
-    //akka.stream.scaladsl.ZipWith17
-    //akka.stream.scaladsl.ZipWith18
-    //akka.stream.scaladsl.ZipWith19
-    //akka.stream.scaladsl.ZipWith2
-    //akka.stream.scaladsl.ZipWith20
-    //akka.stream.scaladsl.ZipWith21
-    //akka.stream.scaladsl.ZipWith22
-    //akka.stream.scaladsl.ZipWith3
-    //akka.stream.scaladsl.ZipWith4
-    //akka.stream.scaladsl.ZipWith5
-    //akka.stream.scaladsl.ZipWith6
-    //akka.stream.scaladsl.ZipWith7
-    //akka.stream.scaladsl.ZipWith8
-    //akka.stream.scaladsl.ZipWith9
+    akka.stream.scaladsl.ZipWith10
+    akka.stream.scaladsl.ZipWith11
+    akka.stream.scaladsl.ZipWith12
+    akka.stream.scaladsl.ZipWith13
+    akka.stream.scaladsl.ZipWith14
+    akka.stream.scaladsl.ZipWith15
+    akka.stream.scaladsl.ZipWith16
+    akka.stream.scaladsl.ZipWith17
+    akka.stream.scaladsl.ZipWith18
+    akka.stream.scaladsl.ZipWith19
+    akka.stream.scaladsl.ZipWith2
+    akka.stream.scaladsl.ZipWith20
+    akka.stream.scaladsl.ZipWith21
+    akka.stream.scaladsl.ZipWith22
+    akka.stream.scaladsl.ZipWith3
+    akka.stream.scaladsl.ZipWith4
+    akka.stream.scaladsl.ZipWith5
+    akka.stream.scaladsl.ZipWith6
+    akka.stream.scaladsl.ZipWith7
+    akka.stream.scaladsl.ZipWith8
+    akka.stream.scaladsl.ZipWith9
     akka.stream.scaladsl.ZipWithApply
     //akka.stream.scaladsl.ZipWithN
     //akka.stream.serialization.StreamRefSerializer
@@ -565,7 +565,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.snapshot.StreamSnapshotImpl
     //akka.stream.snapshot.UninitializedInterpreter
     akka.stream.snapshot.UninitializedInterpreterImpl
-    //akka.stream.stage.AbstractGraphStageWithMaterializedValue
+    akka.stream.stage.AbstractGraphStageWithMaterializedValue
     akka.stream.stage.AbstractInHandler
     akka.stream.stage.AbstractInOutHandler
     akka.stream.stage.AbstractOutHandler

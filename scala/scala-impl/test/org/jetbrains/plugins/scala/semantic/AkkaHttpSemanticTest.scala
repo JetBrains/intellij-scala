@@ -50,7 +50,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.impl.engine.http2.Http2StreamHandling
     //akka.http.impl.engine.http2.Http2SubStream
     //akka.http.impl.engine.http2.HttpMessageRendering
-    //akka.http.impl.engine.http2.IncomingFlowController
+    akka.http.impl.engine.http2.IncomingFlowController
     //akka.http.impl.engine.http2.MessageRendering
     akka.http.impl.engine.http2.NoOpTelemetry
     //akka.http.impl.engine.http2.OutgoingConnectionBuilderImpl
@@ -61,7 +61,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.impl.engine.http2.RequestErrorFlow
     //akka.http.impl.engine.http2.RequestParsing
     //akka.http.impl.engine.http2.RequestRendering
-    //akka.http.impl.engine.http2.ResponseRendering
+    akka.http.impl.engine.http2.ResponseRendering
     //akka.http.impl.engine.http2.StreamPrioritizer
     akka.http.impl.engine.http2.TelemetryAttributes
     //akka.http.impl.engine.http2.TelemetrySpi
@@ -173,7 +173,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.impl.util.JavaAccessors
     //akka.http.impl.util.JavaMapping
     akka.http.impl.util.JavaVersion
-    //akka.http.impl.util.LazyValueBytesRenderable
+    akka.http.impl.util.LazyValueBytesRenderable
     //akka.http.impl.util.LogByteStringTools
     //akka.http.impl.util.LogMessages
     //akka.http.impl.util.ObjectRegistry
@@ -184,7 +184,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.impl.util.S2JMapping
     //akka.http.impl.util.SettingsCompanionImpl
     akka.http.impl.util.SingletonException
-    //akka.http.impl.util.SingletonValueRenderable
+    akka.http.impl.util.SingletonValueRenderable
     //akka.http.impl.util.SocketOptionSettings
     //akka.http.impl.util.StageLoggingWithOverride
     //akka.http.impl.util.StreamUtils
@@ -342,7 +342,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.javadsl.settings.ServerSentEventSettings
     //akka.http.javadsl.settings.ServerSettings
     akka.http.javadsl.settings.SettingsCompanion
-    //akka.http.javadsl.settings.WebSocketSettings
+    akka.http.javadsl.settings.WebSocketSettings
     akka.http.javadsl.unmarshalling.StringUnmarshaller
     akka.http.javadsl.unmarshalling.StringUnmarshallerPredef
     //akka.http.javadsl.unmarshalling.Unmarshaller
@@ -373,7 +373,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.coding.DeflateDecompressorBase
     //akka.http.scaladsl.coding.Encoder
     //akka.http.scaladsl.coding.Gzip
-    //akka.http.scaladsl.coding.GzipCompressor
+    akka.http.scaladsl.coding.GzipCompressor
     //akka.http.scaladsl.coding.GzipDecompressor
     //akka.http.scaladsl.coding.NoCoding
     akka.http.scaladsl.coding.NoCodingCompressor
@@ -453,10 +453,10 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.scaladsl.model.RequestTimeoutException
     //akka.http.scaladsl.model.ResponseEntity
     akka.http.scaladsl.model.ResponsePromise
-    //akka.http.scaladsl.model.SensitiveHttpHeader
+    akka.http.scaladsl.model.SensitiveHttpHeader
     //akka.http.scaladsl.model.SimpleRequestResponseAttribute
-    //akka.http.scaladsl.model.SslSessionInfo
-    //akka.http.scaladsl.model.StatusCode
+    akka.http.scaladsl.model.SslSessionInfo
+    akka.http.scaladsl.model.StatusCode
     //akka.http.scaladsl.model.StatusCodes
     //akka.http.scaladsl.model.Trailer
     akka.http.scaladsl.model.TransferEncoding
@@ -470,14 +470,14 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.model.headers.Allow
     //akka.http.scaladsl.model.headers.Authorization
     //akka.http.scaladsl.model.headers.BasicHttpCredentials
-    //akka.http.scaladsl.model.headers.ByteRange
+    akka.http.scaladsl.model.headers.ByteRange
     //akka.http.scaladsl.model.headers.CacheDirective
     //akka.http.scaladsl.model.headers.CacheDirectives
     //akka.http.scaladsl.model.headers.Connection
     akka.http.scaladsl.model.headers.ContentDispositionType
     //akka.http.scaladsl.model.headers.ContentDispositionTypes
     //akka.http.scaladsl.model.headers.Cookie
-    //akka.http.scaladsl.model.headers.CustomHeader
+    akka.http.scaladsl.model.headers.CustomHeader
     //akka.http.scaladsl.model.headers.Date
     //akka.http.scaladsl.model.headers.ETag
     //akka.http.scaladsl.model.headers.EmptyCompanion
@@ -489,7 +489,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.model.headers.GenericHttpCredentials
     //akka.http.scaladsl.model.headers.Host
     //akka.http.scaladsl.model.headers.HttpChallenge
-    //akka.http.scaladsl.model.headers.HttpChallenges
+    akka.http.scaladsl.model.headers.HttpChallenges
     //akka.http.scaladsl.model.headers.HttpCookie
     //akka.http.scaladsl.model.headers.HttpCookiePair
     akka.http.scaladsl.model.headers.HttpCredentials
@@ -512,13 +512,13 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.model.headers.ModeledCustomHeader
     //akka.http.scaladsl.model.headers.ModeledCustomHeaderCompanion
     //akka.http.scaladsl.model.headers.ModeledHeader
-    //akka.http.scaladsl.model.headers.OAuth2BearerToken
+    akka.http.scaladsl.model.headers.OAuth2BearerToken
     //akka.http.scaladsl.model.headers.Origin
     //akka.http.scaladsl.model.headers.ProductVersion
     //akka.http.scaladsl.model.headers.Range
     akka.http.scaladsl.model.headers.RangeUnit
-    //akka.http.scaladsl.model.headers.RangeUnits
-    //akka.http.scaladsl.model.headers.RawHeader
+    akka.http.scaladsl.model.headers.RangeUnits
+    akka.http.scaladsl.model.headers.RawHeader
     //akka.http.scaladsl.model.headers.Referer
     //akka.http.scaladsl.model.headers.RequestHeader
     //akka.http.scaladsl.model.headers.RequestResponseHeader
@@ -684,7 +684,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.server.directives.RangeDirectives
     //akka.http.scaladsl.server.directives.RespondWithDirectives
     //akka.http.scaladsl.server.directives.RouteDirectives
-    //akka.http.scaladsl.server.directives.SchemeDirectives
+    akka.http.scaladsl.server.directives.SchemeDirectives
     //akka.http.scaladsl.server.directives.SecurityDirectives
     //akka.http.scaladsl.server.directives.TimeoutDirectives
     //akka.http.scaladsl.server.directives.WebSocketDirectives
@@ -703,7 +703,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.settings.ClientConnectionSettings
     //akka.http.scaladsl.settings.ConnectionPoolSettings
     //akka.http.scaladsl.settings.Http2ClientSettings
-    //akka.http.scaladsl.settings.Http2CommonSettings
+    akka.http.scaladsl.settings.Http2CommonSettings
     akka.http.scaladsl.settings.Http2InternalClientSettings
     akka.http.scaladsl.settings.Http2InternalServerSettings
     //akka.http.scaladsl.settings.Http2ServerSettings
@@ -714,8 +714,8 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.settings.ServerSentEventSettings
     //akka.http.scaladsl.settings.ServerSettings
     //akka.http.scaladsl.settings.SettingsCompanion
-    //akka.http.scaladsl.settings.WebSocketSettings
-    //akka.http.scaladsl.unmarshalling.GenericUnmarshallers
+    akka.http.scaladsl.settings.WebSocketSettings
+    akka.http.scaladsl.unmarshalling.GenericUnmarshallers
     //akka.http.scaladsl.unmarshalling.LowerPriorityGenericUnmarshallers
     //akka.http.scaladsl.unmarshalling.MultipartUnmarshallers
     //akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers

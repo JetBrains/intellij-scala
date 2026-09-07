@@ -95,7 +95,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.RemoteInstruments
     akka.remote.artery.RemotingFlightRecorder
     akka.remote.artery.Reply
-    //akka.remote.artery.RestartCounter
+    akka.remote.artery.RestartCounter
     akka.remote.artery.ReusableInboundEnvelope
     akka.remote.artery.ReusableOutboundEnvelope
     //akka.remote.artery.SendQueue

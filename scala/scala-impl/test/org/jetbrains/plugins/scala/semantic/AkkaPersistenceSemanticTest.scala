@@ -52,7 +52,7 @@ class AkkaPersistenceSemanticTest extends SemanticTestBase("com.typesafe.akka" %
     akka.persistence.SnapshotOffer
     akka.persistence.SnapshotProtocol
     //akka.persistence.SnapshotSelectionCriteria
-    //akka.persistence.Snapshotter
+    akka.persistence.Snapshotter
     akka.persistence.StashOverflowStrategy
     akka.persistence.StashOverflowStrategyConfigurator
     akka.persistence.ThrowExceptionConfigurator
@@ -86,14 +86,14 @@ class AkkaPersistenceSemanticTest extends SemanticTestBase("com.typesafe.akka" %
     //akka.persistence.journal.ReplayFilter
     //akka.persistence.journal.ReplayMediator
     akka.persistence.journal.SingleEventSeq
-    //akka.persistence.journal.Tagged
+    akka.persistence.journal.Tagged
     akka.persistence.journal.WriteEventAdapter
     //akka.persistence.journal.WriteJournalBase
     //akka.persistence.journal.inmem.InmemJournal
     //akka.persistence.journal.inmem.InmemMessages
     //akka.persistence.journal.japi.AsyncRecovery
     //akka.persistence.journal.japi.AsyncWriteJournal
-    //akka.persistence.journal.leveldb.CompactionSegmentManagement
+    akka.persistence.journal.leveldb.CompactionSegmentManagement
     akka.persistence.journal.leveldb.Key
     //akka.persistence.journal.leveldb.LeveldbCompaction
     //akka.persistence.journal.leveldb.LeveldbJournal

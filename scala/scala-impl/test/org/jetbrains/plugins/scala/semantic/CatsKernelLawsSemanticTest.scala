@@ -10,29 +10,29 @@ class CatsKernelLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "ca
 //  @Test def single(): Unit = doTest("")
 
   @Test def test(): Unit = doTest("""
-    //cats.kernel.laws.BandLaws
+    cats.kernel.laws.BandLaws
     cats.kernel.laws.BoundedEnumerableLaws
     cats.kernel.laws.BoundedSemilatticeLaws
     cats.kernel.laws.CommutativeGroupLaws
     cats.kernel.laws.CommutativeMonoidLaws
-    //cats.kernel.laws.CommutativeSemigroupLaws
-    //cats.kernel.laws.EqLaws
-    //cats.kernel.laws.GroupLaws
-    //cats.kernel.laws.HashLaws
+    cats.kernel.laws.CommutativeSemigroupLaws
+    cats.kernel.laws.EqLaws
+    cats.kernel.laws.GroupLaws
+    cats.kernel.laws.HashLaws
     cats.kernel.laws.IsEq
-    //cats.kernel.laws.LowerBoundedLaws
+    cats.kernel.laws.LowerBoundedLaws
     //cats.kernel.laws.MonoidLaws
-    //cats.kernel.laws.OrderLaws
-    //cats.kernel.laws.PartialNextBoundedLaws
-    //cats.kernel.laws.PartialNextLaws
-    //cats.kernel.laws.PartialOrderLaws
-    //cats.kernel.laws.PartialPreviousBoundedLaws
+    cats.kernel.laws.OrderLaws
+    cats.kernel.laws.PartialNextBoundedLaws
+    cats.kernel.laws.PartialNextLaws
+    cats.kernel.laws.PartialOrderLaws
+    cats.kernel.laws.PartialPreviousBoundedLaws
     //cats.kernel.laws.PartialPreviousLaws
     //cats.kernel.laws.PartialPreviousNextLaws
     //cats.kernel.laws.SemigroupLaws
     cats.kernel.laws.SemilatticeLaws
     //cats.kernel.laws.SerializableLaws
-    //cats.kernel.laws.UpperBoundedLaws
+    cats.kernel.laws.UpperBoundedLaws
     //cats.kernel.laws.discipline.BandTests
     //cats.kernel.laws.discipline.BoundedEnumerableTests
     //cats.kernel.laws.discipline.BoundedSemilatticeTests
@@ -50,7 +50,7 @@ class CatsKernelLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "ca
     //cats.kernel.laws.discipline.PartialPreviousTests
     //cats.kernel.laws.discipline.SemigroupTests
     //cats.kernel.laws.discipline.SemilatticeTests
-    //cats.kernel.laws.discipline.SerializableTests
+    cats.kernel.laws.discipline.SerializableTests
     //cats.kernel.laws.discipline.UpperBoundedTests
     //cats.platform.Platform
   """)

@@ -95,7 +95,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.QuotationLot
     io.getquill.QuotationVase
     //io.getquill.Quoted
-    //io.getquill.ReplaceAssignmentAliases
+    io.getquill.ReplaceAssignmentAliases
     //io.getquill.ReplaceLiftings
     io.getquill.ReturnAction
     //io.getquill.SQLServerDialect
@@ -366,9 +366,9 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.context.cassandra.OrderByCriteria
     //io.getquill.context.jdbc.ArrayDecoders
     //io.getquill.context.jdbc.ArrayEncoders
-    //io.getquill.context.jdbc.BasicTimeDecoders
-    //io.getquill.context.jdbc.BasicTimeEncoders
-    //io.getquill.context.jdbc.BooleanIntEncoding
+    io.getquill.context.jdbc.BasicTimeDecoders
+    io.getquill.context.jdbc.BasicTimeEncoders
+    io.getquill.context.jdbc.BooleanIntEncoding
     //io.getquill.context.jdbc.BooleanObjectEncoding
     //io.getquill.context.jdbc.Decoders
     //io.getquill.context.jdbc.Encoders
@@ -382,7 +382,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.context.jdbc.MysqlJdbcContextBase
     io.getquill.context.jdbc.MysqlJdbcTypes
     //io.getquill.context.jdbc.ObjectGenericTimeDecoders
-    //io.getquill.context.jdbc.ObjectGenericTimeEncoders
+    io.getquill.context.jdbc.ObjectGenericTimeEncoders
     io.getquill.context.jdbc.OracleJdbcContextBase
     io.getquill.context.jdbc.OracleJdbcTypes
     io.getquill.context.jdbc.PostgresJdbcContextBase
@@ -394,10 +394,10 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.context.jdbc.SqliteExecuteOverride
     io.getquill.context.jdbc.SqliteJdbcContextBase
     io.getquill.context.jdbc.SqliteJdbcTypes
-    //io.getquill.context.jdbc.UUIDObjectEncoding
-    //io.getquill.context.jdbc.UUIDStringEncoding
+    io.getquill.context.jdbc.UUIDObjectEncoding
+    io.getquill.context.jdbc.UUIDStringEncoding
     //io.getquill.context.json.PostgresJsonExtensions
-    //io.getquill.context.mirror.ArrayMirrorEncoding
+    io.getquill.context.mirror.ArrayMirrorEncoding
     //io.getquill.context.mirror.MirrorDecoders
     //io.getquill.context.mirror.MirrorEncoders
     io.getquill.context.mirror.MirrorSession
@@ -638,7 +638,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.util.GetTraces
     //io.getquill.util.GroupByOps
     //io.getquill.util.IndentUtil
-    //io.getquill.util.Interleave
+    io.getquill.util.Interleave
     //io.getquill.util.Interpolator
     //io.getquill.util.Interpolator2
     //io.getquill.util.Load
@@ -651,7 +651,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.util.StringOps
     //io.getquill.util.StringUtil
     //io.getquill.util.SummonMac
-    //io.getquill.util.ThreadUtil
+    io.getquill.util.ThreadUtil
     //io.getquill.util.ThrowableOps
     //io.getquill.util.TraceConfig
     //io.getquill.util.TraceConfig

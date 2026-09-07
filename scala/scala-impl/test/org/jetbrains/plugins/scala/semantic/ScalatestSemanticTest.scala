@@ -53,7 +53,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.Documenting
     org.scalatest.DynaTags
     //org.scalatest.EitherValues
-    //org.scalatest.EncodedOrdering
+    org.scalatest.EncodedOrdering
     org.scalatest.Engine
     //org.scalatest.Entry
     org.scalatest.Exceptional
@@ -91,7 +91,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.Notifying
     //org.scalatest.OneInstancePerTest
     //org.scalatest.OptionValues
-    //org.scalatest.Outcome
+    org.scalatest.Outcome
     //org.scalatest.OutcomeOf
     //org.scalatest.ParallelTestExecution
     //org.scalatest.PartialFunctionValues
@@ -108,7 +108,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.PrivateMethodTester
     //org.scalatest.RandomTestOrder
     //org.scalatest.RecoverMethods
-    //org.scalatest.Reporter
+    org.scalatest.Reporter
     //org.scalatest.Rerunner
     org.scalatest.ResourcefulReporter
     //org.scalatest.Resources
@@ -168,7 +168,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.concurrent.JavaFutures
     org.scalatest.concurrent.PatienceConfiguration
     //org.scalatest.concurrent.PimpedReadWriteLock
-    //org.scalatest.concurrent.PimpedThreadGroup
+    org.scalatest.concurrent.PimpedThreadGroup
     //org.scalatest.concurrent.ScalaFutures
     org.scalatest.concurrent.ScaledTimeSpans
     //org.scalatest.concurrent.SelectorSignaler
@@ -404,7 +404,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.matchers.dsl.ResultOfBeWordForAType
     //org.scalatest.matchers.dsl.ResultOfBeWordForAnType
     org.scalatest.matchers.dsl.ResultOfBeWordForNoException
-    //org.scalatest.matchers.dsl.ResultOfContainWord
+    org.scalatest.matchers.dsl.ResultOfContainWord
     org.scalatest.matchers.dsl.ResultOfDefinedAt
     //org.scalatest.matchers.dsl.ResultOfGreaterThanComparison
     //org.scalatest.matchers.dsl.ResultOfGreaterThanOrEqualToComparison
@@ -505,7 +505,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.time.Span
     //org.scalatest.time.SpanSugar
     org.scalatest.time.Units
-    //org.scalatest.tools.AboutJDialog
+    org.scalatest.tools.AboutJDialog
     org.scalatest.tools.AnsiColor
     //org.scalatest.tools.AnsiCyan
     //org.scalatest.tools.AnsiGreen
@@ -600,7 +600,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.tools.ReadyState
     org.scalatest.tools.ReporterConfigParam
     org.scalatest.tools.ReporterConfiguration
-    //org.scalatest.tools.ReporterConfigurations
+    org.scalatest.tools.ReporterConfigurations
     org.scalatest.tools.ReporterElement
     //org.scalatest.tools.ReporterFactory
     org.scalatest.tools.RerunningState

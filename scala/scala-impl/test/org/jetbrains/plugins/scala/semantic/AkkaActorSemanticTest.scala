@@ -14,7 +14,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.Done
     //akka.Main
     akka.NotUsed
-    //akka.OnlyCauseStackTrace
+    akka.OnlyCauseStackTrace
     akka.UnsupportedAkkaVersion
     //akka.Version
     akka.actor.AbstractActor
@@ -73,7 +73,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.actor.CreatorConsumer
     //akka.actor.CreatorFunctionConsumer
     akka.actor.DeadLetter
-    //akka.actor.DeadLetterActorRef
+    akka.actor.DeadLetterActorRef
     akka.actor.DeadLetterSuppression
     //akka.actor.DeathPactException
     akka.actor.DefaultSupervisorStrategy
@@ -90,7 +90,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.actor.FSM
     //akka.actor.FunctionRef
     akka.actor.Identify
-    //akka.actor.IgnoreActorRef
+    akka.actor.IgnoreActorRef
     akka.actor.IllegalActorStateException
     //akka.actor.IndirectActorProducer
     akka.actor.InternalActorRef
@@ -126,7 +126,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.actor.RepointableRef
     //akka.actor.RootActorPath
     //akka.actor.ScalaActorRef
-    //akka.actor.ScalaActorSelection
+    akka.actor.ScalaActorSelection
     //akka.actor.Scheduler
     akka.actor.SchedulerException
     akka.actor.Scope
@@ -188,7 +188,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.BoundedDequeBasedMessageQueueSemantics
     //akka.dispatch.BoundedMailbox
     akka.dispatch.BoundedMessageQueueSemantics
-    //akka.dispatch.BoundedNodeMessageQueue
+    akka.dispatch.BoundedNodeMessageQueue
     //akka.dispatch.BoundedPriorityMailbox
     akka.dispatch.BoundedQueueBasedMessageQueue
     //akka.dispatch.BoundedStablePriorityMailbox
@@ -224,7 +224,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.MessageQueue
     //akka.dispatch.MonitorableThreadFactory
     akka.dispatch.MultipleConsumerSemantics
-    //akka.dispatch.NodeMessageQueue
+    akka.dispatch.NodeMessageQueue
     akka.dispatch.NonBlockingBoundedMailbox
     akka.dispatch.OnComplete
     akka.dispatch.OnFailure
@@ -562,7 +562,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.routing.RoutedActorCell
     //akka.routing.RoutedActorRef
     akka.routing.Routee
-    //akka.routing.Routees
+    akka.routing.Routees
     //akka.routing.Router
     //akka.routing.RouterActor
     //akka.routing.RouterConfig
@@ -574,7 +574,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.routing.ScatterGatherFirstCompletedPool
     //akka.routing.ScatterGatherFirstCompletedRoutees
     akka.routing.ScatterGatherFirstCompletedRoutingLogic
-    //akka.routing.SeveralRoutees
+    akka.routing.SeveralRoutees
     //akka.routing.SmallestMailboxPool
     //akka.routing.SmallestMailboxRoutingLogic
     //akka.routing.TailChoppingGroup
@@ -598,21 +598,21 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.serialization.NullSerializer
     //akka.serialization.Serialization
     akka.serialization.SerializationExtension
-    //akka.serialization.SerializationSetup
+    akka.serialization.SerializationSetup
     akka.serialization.Serializer
-    //akka.serialization.SerializerDetails
+    akka.serialization.SerializerDetails
     //akka.serialization.SerializerWithStringManifest
     //akka.serialization.Serializers
     //akka.serialization.StringSerializer
     //akka.util.AlwaysIncreasingClock
     //akka.util.Base62
     //akka.util.BoundedBlockingQueue
-    //akka.util.BoxedType
+    akka.util.BoxedType
     //akka.util.ByteIterator
     //akka.util.ByteString
     //akka.util.ByteStringBuilder
     akka.util.ClassLoaderObjectInputStream
-    //akka.util.Clock
+    akka.util.Clock
     //akka.util.Collections
     //akka.util.CompactByteString
     akka.util.ConcurrentMultiMap
@@ -641,7 +641,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.util.PrettyDuration
     //akka.util.PriorityQueueStabilizer
     //akka.util.RecencyList
-    //akka.util.ReentrantGuard
+    akka.util.ReentrantGuard
     //akka.util.Reflect
     //akka.util.ScheduledClock
     //akka.util.SegmentedRecencyList

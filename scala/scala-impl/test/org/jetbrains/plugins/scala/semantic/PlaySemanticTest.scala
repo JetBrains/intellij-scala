@@ -11,7 +11,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.Application
     //play.api.ApplicationLoader
     play.api.ApplicationStoppedReason
-    //play.api.BuiltInComponents
+    play.api.BuiltInComponents
     play.api.BuiltInComponentsFromContext
     //play.api.ConfigLoader
     //play.api.Configuration
@@ -76,7 +76,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.data.format.PlayDate
     //play.api.data.validation.Constraint
     //play.api.data.validation.Constraints
-    //play.api.data.validation.Invalid
+    play.api.data.validation.Invalid
     //play.api.data.validation.ParameterValidator
     play.api.data.validation.Valid
     play.api.data.validation.ValidationError
@@ -152,7 +152,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.i18n.I18nSupport
     //play.api.i18n.Lang
     play.api.i18n.LangImplicits
-    //play.api.i18n.Langs
+    play.api.i18n.Langs
     //play.api.i18n.Messages
     play.api.i18n.MessagesApi
     play.api.i18n.MessagesImpl
@@ -231,7 +231,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.libs.functional.InvariantFunctorOps
     //play.api.libs.functional.Monoid
     play.api.libs.functional.MonoidOps
-    //play.api.libs.functional.Reducer
+    play.api.libs.functional.Reducer
     play.api.libs.functional.Variant
     play.api.libs.functional.VariantExtractor
     play.api.libs.functional.~
@@ -290,7 +290,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.libs.json.JsonFacade
     //play.api.libs.json.JsonNaming
     play.api.libs.json.JsonParserSettings
-    //play.api.libs.json.JsonValidationError
+    play.api.libs.json.JsonValidationError
     //play.api.libs.json.KeyPathNode
     //play.api.libs.json.KeyReads
     play.api.libs.json.KeyWrites
@@ -316,12 +316,12 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.libs.json.jackson.DeserializerContext
     //play.api.libs.json.jackson.JacksonJson
     //play.api.libs.json.jackson.JsValueSerializer
-    //play.api.libs.json.jackson.KeyRead
+    play.api.libs.json.jackson.KeyRead
     //play.api.libs.json.jackson.PlayDeserializers
     play.api.libs.json.jackson.PlayJsonMapperModule
     play.api.libs.json.jackson.PlayJsonModule
     //play.api.libs.json.jackson.PlaySerializers
-    //play.api.libs.json.jackson.ReadingList
+    play.api.libs.json.jackson.ReadingList
     play.api.libs.json.jackson.ReadingMap
     play.api.libs.json.util.LazyHelper
     //play.api.libs.streams.Accumulator
@@ -366,7 +366,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.mvc.ControllerComponents
     //play.api.mvc.ControllerHelpers
     //play.api.mvc.Cookie
-    //play.api.mvc.CookieBaker
+    play.api.mvc.CookieBaker
     play.api.mvc.CookieDataCodec
     //play.api.mvc.CookieHeaderEncoding
     play.api.mvc.CookieHeaderMerging
@@ -572,11 +572,11 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.utils.InvalidUriEncodingException
     //play.utils.JacksonJsonNodeModule
     //play.utils.JsonNodeDeserializer
-    //play.utils.KeyRead
+    play.utils.KeyRead
     //play.utils.OrderPreserving
     //play.utils.PlayIO
     play.utils.ProxyDriver
-    //play.utils.ReadingList
+    play.utils.ReadingList
     play.utils.ReadingMap
     //play.utils.Reflect
     //play.utils.Resources

@@ -116,7 +116,7 @@ class DoobieSemanticTest extends SemanticTestBase("org.tpolecat" %% "doobie-core
     //doobie.util.meta.MetaInstances
     //doobie.util.meta.SqlMetaInstances
     //doobie.util.meta.TimeMetaInstances
-    //doobie.util.pos
+    doobie.util.pos
     //doobie.util.pretty
     //doobie.util.query
     doobie.util.shapeless.OrElse

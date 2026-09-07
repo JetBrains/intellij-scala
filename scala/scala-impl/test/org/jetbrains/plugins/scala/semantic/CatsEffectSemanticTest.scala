@@ -48,7 +48,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     cats.effect.kernel.Cont
     //cats.effect.kernel.Deferred
     cats.effect.kernel.DeferredSink
-    //cats.effect.kernel.DeferredSource
+    cats.effect.kernel.DeferredSource
     //cats.effect.kernel.Fiber
     //cats.effect.kernel.GenConcurrent
     //cats.effect.kernel.GenSpawn
@@ -61,7 +61,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     cats.effect.kernel.Poll
     //cats.effect.kernel.Ref
     cats.effect.kernel.RefSink
-    //cats.effect.kernel.RefSource
+    cats.effect.kernel.RefSource
     //cats.effect.kernel.Resource
     //cats.effect.kernel.ResourceAsync
     cats.effect.kernel.ResourceClock
@@ -123,7 +123,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     //cats.effect.std.CountDownLatch
     //cats.effect.std.CyclicBarrier
     //cats.effect.std.Dequeue
-    //cats.effect.std.DequeueSink
+    cats.effect.std.DequeueSink
     //cats.effect.std.DequeueSource
     //cats.effect.std.Dispatcher
     //cats.effect.std.DispatcherPlatform
@@ -131,13 +131,13 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     //cats.effect.std.EnvCompanionPlatform
     cats.effect.std.FailureSignal
     //cats.effect.std.Hotswap
-    //cats.effect.std.MapRefCompanionPlatform
+    cats.effect.std.MapRefCompanionPlatform
     //cats.effect.std.Mutex
     //cats.effect.std.PQueue
     cats.effect.std.PQueueSink
-    //cats.effect.std.PQueueSource
+    cats.effect.std.PQueueSource
     //cats.effect.std.Queue
-    //cats.effect.std.QueueSink
+    cats.effect.std.QueueSink
     //cats.effect.std.QueueSource
     //cats.effect.std.Random
     cats.effect.std.RandomCompanionPlatform
@@ -152,15 +152,15 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     //cats.effect.std.UnsafeUnbounded
     //cats.effect.std.internal.BankersQueue
     //cats.effect.std.internal.BinomialHeap
-    //cats.effect.std.internal.BinomialTree
+    cats.effect.std.internal.BinomialTree
     cats.effect.std.syntax.AllSyntax
     //cats.effect.std.syntax.BackpressureOps
     cats.effect.std.syntax.BackpressureSyntax
     //cats.effect.std.syntax.SupervisorOps
     cats.effect.std.syntax.SupervisorSyntax
-    //cats.effect.std.unsafe.BoundedQueue
+    cats.effect.std.unsafe.BoundedQueue
     cats.effect.std.unsafe.BoundedQueueSink
-    //cats.effect.std.unsafe.UnboundedQueue
+    cats.effect.std.unsafe.UnboundedQueue
     cats.effect.std.unsafe.UnboundedQueueSink
     cats.effect.syntax.AllSyntax
     cats.effect.syntax.DispatcherSyntax

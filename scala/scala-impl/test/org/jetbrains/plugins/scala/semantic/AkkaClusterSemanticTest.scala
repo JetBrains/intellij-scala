@@ -46,11 +46,11 @@ class AkkaClusterSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     //akka.cluster.HeartbeatNodeRing
     akka.cluster.InternalClusterAction
     akka.cluster.Invalid
-    //akka.cluster.JoinConfigCompatCheckCluster
+    akka.cluster.JoinConfigCompatCheckCluster
     //akka.cluster.JoinConfigCompatChecker
     //akka.cluster.JoinSeedNodeProcess
     //akka.cluster.Member
-    //akka.cluster.MemberStatus
+    akka.cluster.MemberStatus
     //akka.cluster.MembershipState
     akka.cluster.NoDowning
     //akka.cluster.OnMemberStatusChangedListener

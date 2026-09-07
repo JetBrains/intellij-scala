@@ -10,49 +10,49 @@ class CatsLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-law
 //  @Test def single(): Unit = doTest("")
 
   @Test def test(): Unit = doTest("""
-    //cats.laws.AlignLaws
-    //cats.laws.AlternativeLaws
+    cats.laws.AlignLaws
+    cats.laws.AlternativeLaws
     //cats.laws.ApplicativeErrorLaws
     //cats.laws.ApplicativeLaws
     //cats.laws.ApplyLaws
     //cats.laws.ArrowChoiceLaws
     //cats.laws.ArrowLaws
-    //cats.laws.BifoldableLaws
+    cats.laws.BifoldableLaws
     //cats.laws.BifunctorLaws
     //cats.laws.BimonadLaws
     //cats.laws.BitraverseLaws
-    //cats.laws.CategoryLaws
-    //cats.laws.ChoiceLaws
+    cats.laws.CategoryLaws
+    cats.laws.ChoiceLaws
     //cats.laws.CoflatMapLaws
     cats.laws.CommutativeApplicativeLaws
-    //cats.laws.CommutativeApplyLaws
-    //cats.laws.CommutativeArrowLaws
-    //cats.laws.CommutativeFlatMapLaws
+    cats.laws.CommutativeApplyLaws
+    cats.laws.CommutativeArrowLaws
+    cats.laws.CommutativeFlatMapLaws
     cats.laws.CommutativeMonadLaws
     //cats.laws.ComonadLaws
-    //cats.laws.ComposeLaws
-    //cats.laws.ContravariantLaws
-    //cats.laws.ContravariantMonoidalLaws
-    //cats.laws.ContravariantSemigroupalLaws
+    cats.laws.ComposeLaws
+    cats.laws.ContravariantLaws
+    cats.laws.ContravariantMonoidalLaws
+    cats.laws.ContravariantSemigroupalLaws
     //cats.laws.DeferLaws
     //cats.laws.DistributiveLaws
     //cats.laws.FlatMapLaws
     //cats.laws.FoldableLaws
     //cats.laws.FunctorFilterLaws
-    //cats.laws.FunctorLaws
-    //cats.laws.InjectKLaws
-    //cats.laws.InjectLaws
-    //cats.laws.InvariantLaws
-    //cats.laws.InvariantMonoidalLaws
+    cats.laws.FunctorLaws
+    cats.laws.InjectKLaws
+    cats.laws.InjectLaws
+    cats.laws.InvariantLaws
+    cats.laws.InvariantMonoidalLaws
     //cats.laws.InvariantSemigroupalLaws
     //cats.laws.MonadErrorLaws
     //cats.laws.MonadLaws
     //cats.laws.MonoidKLaws
-    //cats.laws.NonEmptyAlternativeLaws
+    cats.laws.NonEmptyAlternativeLaws
     //cats.laws.NonEmptyParallelLaws
     //cats.laws.NonEmptyTraverseLaws
     //cats.laws.ParallelLaws
-    //cats.laws.ProfunctorLaws
+    cats.laws.ProfunctorLaws
     //cats.laws.ReducibleLaws
     //cats.laws.RepresentableLaws
     //cats.laws.SemigroupKLaws

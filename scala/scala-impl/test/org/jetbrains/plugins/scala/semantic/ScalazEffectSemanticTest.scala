@@ -20,7 +20,7 @@ class ScalazEffectSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-
     //scalaz.effect.IOInstances0
     //scalaz.effect.IOInstances1
     scalaz.effect.IOLiftIO
-    //scalaz.effect.IOMonad
+    scalaz.effect.IOMonad
     scalaz.effect.IOMonadCatchIO
     //scalaz.effect.IORef
     scalaz.effect.IORefs
@@ -40,7 +40,7 @@ class ScalazEffectSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-
     //scalaz.effect.MonadIO
     //scalaz.effect.RefCountedFinalizer
     scalaz.effect.RefCountedFinalizers
-    //scalaz.effect.RegionT
+    scalaz.effect.RegionT
     scalaz.effect.RegionTInstances
     //scalaz.effect.RegionTInstances1
     //scalaz.effect.RegionTLiftIO
@@ -49,7 +49,7 @@ class ScalazEffectSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-
     //scalaz.effect.ST
     //scalaz.effect.STArray
     scalaz.effect.STInstance0
-    //scalaz.effect.STInstances
+    scalaz.effect.STInstances
     //scalaz.effect.STRef
     scalaz.effect.STRefInstances
     scalaz.effect.SafeApp
