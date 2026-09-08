@@ -404,7 +404,9 @@ final class SbtProcessManager(project: Project) extends Disposable {
         ConsoleViewsRegistry.set(project, pd.console)
         SbtShellRunner.openShellOnStartup(
           activateSbtShellToolWindowOnStartup,
-          focus = false,
+          // Mirrors `AbstractConsoleRunnerWithHistory.isAutoFocusContent`,
+          // which is used in `SbtShellRunner#showConsole` in the old shell and returns `true`.
+          focus = true,
           openShell = focus => SbtShellRunner.openShell(focus, project),
         )
         installTerminalWarningsHost(pd)
