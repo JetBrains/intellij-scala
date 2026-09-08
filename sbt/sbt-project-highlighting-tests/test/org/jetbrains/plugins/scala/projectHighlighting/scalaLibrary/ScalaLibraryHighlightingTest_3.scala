@@ -4,10 +4,7 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
 
-class ScalaLibraryHighlightingTest_3 extends ScalaLibraryHighlightingTest {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == ScalaVersion.Latest.Scala_3
+class ScalaLibraryHighlightingTest_3 extends ScalaLibraryHighlightingTest(ScalaVersion.Latest.Scala_3) {
 
   /**
    * Do not include Scala 2 library transitive dependency.

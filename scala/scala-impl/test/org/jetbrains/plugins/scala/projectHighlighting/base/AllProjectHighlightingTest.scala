@@ -19,11 +19,12 @@ import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.projectHighlighting.base.AllProjectHighlightingTest.relativePathOf
-import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
+import org.jetbrains.plugins.scala.projectHighlighting.reporter.{ErrorDescriptor, HighlightingProgressReporter}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.junit.Assert.assertTrue
 
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.Random
 import scala.util.control.NonFatal
@@ -177,21 +178,28 @@ object AllProjectHighlightingTest {
     file: PsiFile,
     reporter: HighlightingProgressReporter,
     fileRelativePath: String
-  ): Unit = {
-    val scalaFile = file.getViewProvider.getPsi(ScalaLanguage.INSTANCE) match {
-      case f: ScalaFile => f
-      case _ => return
+  ): Unit =
+    collectScalaFileErrors(file).foreach { error =>
+      reporter.reportError(fileRelativePath, error.range, error.message)
     }
-    annotateScalaFile(scalaFile, reporter, Some(fileRelativePath))
-  }
+
+  /**
+   * Annotates `file` and returns every error the annotator produced, instead of pushing them into a
+   * [[HighlightingProgressReporter]] as they appear.
+   *
+   * This is the overload to use when several files are annotated in parallel: the returned collection belongs to the
+   * caller, so no state is shared between threads and no locking is needed. Feed the results to a reporter once the
+   * parallel work has been joined - see `ScalaLibraryHighlightingTest`.
+   */
+  def collectScalaFileErrors(file: PsiFile): Seq[ErrorDescriptor] =
+    file.getViewProvider.getPsi(ScalaLanguage.INSTANCE) match {
+      case scalaFile: ScalaFile => collectScalaFileErrors(scalaFile)
+      case _ => Seq.empty
+    }
 
   //noinspection InstanceOf
-  private def annotateScalaFile(
-    scalaFile: ScalaFile,
-    reporter: HighlightingProgressReporter,
-    fileRelativePathParam: Option[String] = None
-  ): Unit = {
-    val fileRelativePath = fileRelativePathParam.getOrElse(relativePathOf(scalaFile))
+  private def collectScalaFileErrors(scalaFile: ScalaFile): Seq[ErrorDescriptor] = {
+    val errors = mutable.ArrayBuffer.empty[ErrorDescriptor]
     val annotatorHolder: AnnotatorHolderMock = new AnnotatorHolderMock(scalaFile) {
       override def createMockAnnotation(
         severity: HighlightSeverity,
@@ -201,7 +209,7 @@ object AllProjectHighlightingTest {
         fixes: Seq[CommonIntentionAction]
       ): Option[Message] = {
         if (severity == HighlightSeverity.ERROR) {
-          reporter.reportError(fileRelativePath, range, message)
+          errors += ErrorDescriptor(range, message)
         }
         super.createMockAnnotation(severity, range, message, enforcedAttributes, fixes)
       }
@@ -224,12 +232,14 @@ object AllProjectHighlightingTest {
       } catch {
         case ex: Throwable =>
           val message = s"Exception while highlighting element at index $elementIndex (${element.getText} - ${element.getNode.getTextRange}): $ex (random seed: $randomSeed)"
-          reporter.reportError(fileRelativePath, element.getTextRange, message)
+          errors += ErrorDescriptor(element.getTextRange, message)
           if (!NonFatal(ex)) {
             throw ex
           }
       }
     }
+
+    errors.toSeq
   }
 
   private def annotateJava(

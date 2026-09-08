@@ -3,10 +3,7 @@ package org.jetbrains.plugins.scala.projectHighlighting.scalaLibrary
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.ScalaVersion
 
-class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == ScalaVersion.Latest.Scala_2_13
+class ScalaLibraryHighlightingTest_2_13 extends ScalaLibraryHighlightingTest(ScalaVersion.Latest.Scala_2_13) {
 
   //
   // NOTE: we expect errors in Any.scala, AnyRef.scala, Singleton.scala
