@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.performance
 
-import com.intellij.ide.impl.OpenProjectTask
 import com.intellij.openapi.module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.project.TestProjectManager
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture
-import com.intellij.testFramework.{PlatformTestUtil, TestApplicationManager}
+import com.intellij.testFramework.{OpenProjectTaskBuilder, PlatformTestUtil, TestApplicationManager}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.junit.Assert.assertNotNull
 
@@ -33,7 +32,7 @@ final class FixtureDelegate(projectFile: Path) extends IdeaProjectTestFixture {
     TestApplicationManager.getInstance.setDataProvider(null)
 
     val projectManager = ProjectManagerEx.getInstanceEx.asInstanceOf[TestProjectManager]
-    actualProject = projectManager.openProject(projectFile, OpenProjectTask.build())
+    actualProject = projectManager.openProject(projectFile, new OpenProjectTaskBuilder().build())
     assertNotNull(s"Failed to open project $projectFile", actualProject)
 
     PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
