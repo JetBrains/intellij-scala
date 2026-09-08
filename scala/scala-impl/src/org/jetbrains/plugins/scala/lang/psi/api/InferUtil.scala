@@ -73,17 +73,37 @@ object InferUtil {
     coreElement:            Option[ScNamedElement],
     canThrowSCE:            Boolean,
     fullInfo:               Boolean,
-    throwOnAmbiguous:       Boolean = true,
-    implicitRecursionDepth: Int     = 0,
-    updateDeep:             Boolean = false,
-    isLeadingClause:        Boolean = false
+    throwOnAmbiguous:       Boolean           = true,
+    implicitRecursionDepth: Int               = 0,
+    updateDeep:             Boolean           = false,
+    isLeadingClause:        Boolean           = false,
+    capturedTypeParams:     Option[Seq[Long]] = None
   ): (ScType, Seq[ImplicitArgumentsClause]) = {
     implicit val elementScope: ElementScope = place.elementScope
     implicit val context: Context = Context(place)
 
-    var implicitParameters = Option.empty[Seq[ScalaResolveResult]]
-    var updatedType        = tpe
-    var constraints        = ConstraintSystem.empty
+    var implicitParameters             = Option.empty[Seq[ScalaResolveResult]]
+    var updatedType                    = tpe
+    var constraints                    = ConstraintSystem.empty
+    var tparamsCapturedOnThisIteration = Seq.empty[Long]
+
+    //We want to avoid accidentally solving implicit parameters that "belong"
+    //to a different (than the one we started with) expression, e.g.
+    //foo: [A] A => (using A) => [B] (using B);
+    //foo(123)[String]; we want to solve first using Int clause, but not the second using String clause,
+    //because it belongs to a different owner (ScGenericCall instead of MethodInvocation)
+    //To do that, just save captured type paramaters on the first iteration and make sure
+    //any recursive invocations does not capture any new ones.
+    def doesNotCaptureNewTypeParams(newTps: Seq[TypeParameter]): Boolean = {
+      val newIds = newTps.map(_.typeParamId)
+      tparamsCapturedOnThisIteration = newIds
+
+      val res = capturedTypeParams.forall { captured =>
+        newIds.forall(captured.contains)
+      }
+
+      res
+    }
 
     tpe.widen match {
       case t @ ScTypePolymorphicType(mt @ ScMethodType(retType, _, isImplicit), _)
@@ -95,8 +115,9 @@ object InferUtil {
             place,
             coreElement,
             canThrowSCE,
-            fullInfo = fullInfo,
-            updateDeep = updateDeep
+            fullInfo           = fullInfo,
+            updateDeep         = updateDeep,
+            capturedTypeParams = capturedTypeParams
           )
 
         updatedType = updatedReturnType match {
@@ -115,7 +136,8 @@ object InferUtil {
             )
         }
         return (updatedType, appliedInner)
-      case ScTypePolymorphicType(internal @ ImplicitMethodOrFunctionType(retType, params), typeParams) =>
+      case ScTypePolymorphicType(internal @ ImplicitMethodOrFunctionType(retType, params), typeParams)
+      if doesNotCaptureNewTypeParams(typeParams) =>
         val splitMethodType = internal match {
           case cft @ ContextFunctionType(_, _) => cft
           case mt: ScMethodType =>
@@ -197,8 +219,9 @@ object InferUtil {
             place,
             coreElement,
             canThrowSCE,
-            fullInfo = fullInfo,
-            updateDeep = updateDeep
+            fullInfo           = fullInfo,
+            updateDeep         = updateDeep,
+            capturedTypeParams = capturedTypeParams
           )
 
         return (mt.copy(result = updatedReturnType), appliedClauses)
@@ -230,8 +253,9 @@ object InferUtil {
           throwOnAmbiguous,
           fullInfo,
           implicitRecursionDepth,
-          isLeadingClause = isLeadingClause,
-          updateDeep      = updateDeep
+          isLeadingClause    = isLeadingClause,
+          updateDeep         = updateDeep,
+          capturedTypeParams = Option(tparamsCapturedOnThisIteration)
         )
 
         val clauseKind =

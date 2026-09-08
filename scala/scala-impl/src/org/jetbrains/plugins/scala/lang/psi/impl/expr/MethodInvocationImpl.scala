@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
@@ -126,9 +127,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         }
 
       val context = methodInvocationContext(this)
-      val isChildOfGenericCall = tpe.asOptionOf[ScTypePolymorphicType].exists(_.typeParameters.nonEmpty)
 
-      val shouldUpdate = !isChildOfGenericCall && (argKind match {
+      val shouldUpdate = argKind match {
         case ImplicitClausePosition.Leading =>
           val isExplicit =
             Compatibility.isExplicitUsingArgClause(argumentExpressions) ||
@@ -149,7 +149,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           }
 
           !isExplicit
-      })
+      }
 
       if (shouldUpdate && !isUnaryAssignmentLhs) {
         val isLeadingClause = argKind == ImplicitClausePosition.Leading
@@ -182,6 +182,11 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
     getEffectiveInvokedExpr.getNonValueType() match {
       case Right(scType) =>
+        val capturedTypeParams = scType match {
+          case ScTypePolymorphicType(_, tparams) => tparams.map(_.typeParamId)
+          case _                                 => Seq.empty
+        }
+
         val nonValueType = updateType(scType, canThrowSCE = true)
 
         val invokedResolveResult = getEffectiveInvokedExpr match {
@@ -202,11 +207,28 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           useExpectedType
         ) match {
           case Some(regularCase) =>
-            val (updatedType, trailingImplicits) = updateTypeWithImplicitArgs(
-              regularCase.inferredType,
-              invokedResolveResult,
-              ImplicitClausePosition.Trailing
-            )
+            val inferredType = regularCase.inferredType
+
+            val nextImplicitClauseBelongsToOtherExpr = inferredType match {
+              case ScTypePolymorphicType(_, tparams) =>
+                //If current type is polymorhic, there's two cases:
+                //1. Some type parameters (belonging to the original invocation)
+                //have not been inferred yet => implicit clause belongs to this invocation
+                //2. There is an interleaved type argument clause => implicit clause belongs to
+                //ScGenericCall
+                val ids = tparams.map(_.typeParamId)
+                ids.exists(id => !capturedTypeParams.contains(id))
+              case _ => false
+            }
+
+            val (updatedType, trailingImplicits) =
+              if (!nextImplicitClauseBelongsToOtherExpr) {
+                updateTypeWithImplicitArgs(
+                  inferredType,
+                  invokedResolveResult,
+                  ImplicitClausePosition.Trailing
+                )
+              } else (inferredType, Seq.empty)
 
             this.setImplicitArguments(leadingImplicits ++ trailingImplicits)
             regularCase.copy(inferredType = updatedType)
