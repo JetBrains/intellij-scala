@@ -216,7 +216,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.metrics.jvm.ClassLoading
     //zio.metrics.jvm.DefaultJvmMetrics
     //zio.metrics.jvm.GarbageCollector
-    //zio.metrics.jvm.JvmMetricsSchedule
+    zio.metrics.jvm.JvmMetricsSchedule
     //zio.metrics.jvm.MemoryAllocation
     //zio.metrics.jvm.MemoryPools
     //zio.metrics.jvm.Standard

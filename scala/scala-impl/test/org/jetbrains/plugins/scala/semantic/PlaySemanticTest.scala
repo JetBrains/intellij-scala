@@ -103,7 +103,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.http.FlashConfiguration
     play.api.http.HeaderNames
     //play.api.http.HtmlOrJsonHttpErrorHandler
-    //play.api.http.HttpChunk
+    play.api.http.HttpChunk
     //play.api.http.HttpConfiguration
     //play.api.http.HttpEntity
     //play.api.http.HttpErrorConfig
@@ -516,7 +516,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.core.routing.StaticPart
     //play.core.system.RequestIdProvider
     play.core.utils.AsciiBitSet
-    //play.core.utils.AsciiChar
+    play.core.utils.AsciiChar
     //play.core.utils.AsciiRange
     //play.core.utils.AsciiSet
     play.core.utils.AsciiUnion
