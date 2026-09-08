@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.projectHighlighting.scalaLibrary
 
-import com.intellij.ide.impl.OpenProjectTask
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.module.Module
@@ -13,9 +12,9 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.testFramework.IndexingTestUtil
 import com.intellij.testFramework.junit5.TestApplication
 import com.intellij.testFramework.junit5.fixture.{FixturesKt, TestFixture}
+import com.intellij.testFramework.{IndexingTestUtil, OpenProjectTaskBuilder}
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.plugins.scala.annotator.HighlightingAdvisor
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
@@ -76,7 +75,7 @@ abstract class ScalaLibraryHighlightingTest(scalaVersion: ScalaVersion) {
    * the Scala synthetic classes are never registered and standard types do not resolve.
    */
   private val projectFixture: TestFixture[Project] =
-    FixturesKt.projectFixture(FixturesKt.tempPathFixture(), OpenProjectTask.build(), true)
+    FixturesKt.projectFixture(FixturesKt.tempPathFixture(), OpenProjectTaskBuilder().build(), true)
   private val moduleFixture: TestFixture[Module] =
     FixturesKt.moduleFixture(projectFixture, "main", null)
   private val disposableFixture: TestFixture[Disposable] =

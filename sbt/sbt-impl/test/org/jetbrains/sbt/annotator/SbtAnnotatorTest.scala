@@ -1,7 +1,6 @@
 package org.jetbrains.sbt
 package annotator
 
-import com.intellij.ide.impl.OpenProjectTask
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
@@ -11,7 +10,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.junit5.TestApplication
 import com.intellij.testFramework.junit5.fixture.{FixturesKt, TestFixture}
-import com.intellij.testFramework.{IndexingTestUtil, UsefulTestCase}
+import com.intellij.testFramework.{IndexingTestUtil, OpenProjectTaskBuilder, UsefulTestCase}
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message}
@@ -56,7 +55,7 @@ abstract class SbtAnnotatorTestBase(
    * (the result type of `scala.Predef.???`) do not resolve.
    */
   private val projectFixture: TestFixture[Project] =
-    FixturesKt.projectFixture(FixturesKt.tempPathFixture(), OpenProjectTask.build(), true)
+    FixturesKt.projectFixture(FixturesKt.tempPathFixture(), OpenProjectTaskBuilder().build(), true)
   private val mainModuleFixture: TestFixture[Module] =
     FixturesKt.moduleFixture(projectFixture, MainModuleName, null)
   //example "testModule-build"; in tests, SbtBuildModuleSupport finds the build module by this naming convention
