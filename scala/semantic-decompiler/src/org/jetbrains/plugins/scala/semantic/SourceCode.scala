@@ -571,7 +571,8 @@ object SourceCode {
       }
 
       case Inlined(_, bindings, expansion) =>
-        printFlatBlock(bindings, expansion)
+//        printFlatBlock(bindings, expansion)
+        this += "???"
 
       case If(cond, thenp, elsep) =>
         this += highlightKeyword("if ")
@@ -664,11 +665,11 @@ object SourceCode {
           while (it.hasNext)
             extractFlatStats(it.next())
           extractFlatStats(expr1)
-        case Inlined(_, bindings, expansion) =>
-          val it = bindings.iterator
-          while (it.hasNext)
-            extractFlatStats(it.next())
-          extractFlatStats(expansion)
+//        case Inlined(_, bindings, expansion) =>
+//          val it = bindings.iterator
+//          while (it.hasNext)
+//            extractFlatStats(it.next())
+//          extractFlatStats(expansion)
         case Literal(UnitConstant()) => // ignore
         case stat => flatStats += stat
       }
@@ -681,11 +682,11 @@ object SourceCode {
           while (it.hasNext)
             extractFlatStats(it.next())
           extractFlatExpr(expr1)
-        case Inlined(_, bindings, expansion) =>
-          val it = bindings.iterator
-          while (it.hasNext)
-            extractFlatStats(it.next())
-          extractFlatExpr(expansion)
+//        case Inlined(_, bindings, expansion) =>
+//          val it = bindings.iterator
+//          while (it.hasNext)
+//            extractFlatStats(it.next())
+//          extractFlatExpr(expansion)
         case term => term
       }
       val it = stats.iterator
@@ -724,7 +725,7 @@ object SourceCode {
         def rec(next: Tree): Unit = next match {
           case Lambda(_, _) => this += lineBreak()
           case Block(stats, _) if stats.nonEmpty => this += doubleLineBreak()
-          case Inlined(_, bindings, _) if bindings.nonEmpty => this += doubleLineBreak()
+//          case Inlined(_, bindings, _) if bindings.nonEmpty => this += doubleLineBreak()
           case Select(qual, _) => rec(qual)
           case Apply(fn, _) => rec(fn)
           case TypeApply(fn, _) => rec(fn)
