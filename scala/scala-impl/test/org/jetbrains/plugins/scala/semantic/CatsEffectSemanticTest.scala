@@ -188,7 +188,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     //cats.effect.unsafe.SchedulerCompanionPlatform
     //cats.effect.unsafe.SelectorSystem
     //cats.effect.unsafe.SleepSystem
-    //cats.effect.unsafe.StripedHashtable
+    cats.effect.unsafe.StripedHashtable
     //cats.effect.unsafe.ThreadSafeHashtable
     //cats.effect.unsafe.TimerHeap
     cats.effect.unsafe.UnsafeNonFatal

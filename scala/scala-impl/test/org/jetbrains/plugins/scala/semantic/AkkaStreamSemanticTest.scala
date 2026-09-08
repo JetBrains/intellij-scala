@@ -458,7 +458,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.scaladsl.RestartWithBackoffLogic
     //akka.stream.scaladsl.RestartWithBackoffSink
     //akka.stream.scaladsl.RestartWithBackoffSource
-    //akka.stream.scaladsl.RetryFlow
+    akka.stream.scaladsl.RetryFlow
     //akka.stream.scaladsl.RunnableGraph
     akka.stream.scaladsl.ScalaSessionAPI
     //akka.stream.scaladsl.Sink

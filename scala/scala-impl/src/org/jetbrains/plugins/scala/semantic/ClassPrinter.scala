@@ -272,17 +272,15 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case gc: ScGenericCall =>
         textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
       case sc: ScAssignment =>
-        def text = textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
+        def syntaxText = textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
+        def desugaredText = sc.mirrorMethodCall.map(textOfExpression(_, indent)).getOrElse(syntaxText)
         sc.leftExpression match {
           case expr: ScReferenceExpression => expr.bind() match {
             case Some(result) if result.isNamedParameter => result.name + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
-            case Some(result) if result.isAssignment => sc.mirrorMethodCall match {
-              case Some(call) => textOfExpression(call, indent)
-              case _ => text
-            }
-            case _ => text
+            case Some(result) if !result.element.nameContext.is[ScFunction] => syntaxText
+            case _ => desugaredText
           }
-          case _ => text
+          case _ => desugaredText
         }
       case r: ScReferenceExpression => (r.qualifier match {
         case Some(q) => textOfExpression(q, indent) + "." + r.refName
@@ -292,7 +290,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
           ".apply"
         case _ => ""
       }) + inferredTypeArgumentsFor(r).map(_.map(t => textOf(t.removeAliasDefinitionsIn(r))).mkString("[", ", ", "]")).getOrElse("") +
-        (if (!r.getParent.is[ScMethodCall, ScGenericCall] && r.resolve().is[PsiMethod] && !r.resolve().is[ScMember] && etaExpand) "()" else "")
+        (if (!(r.getParent.is[ScMethodCall, ScGenericCall] || r.getParent.asOptionOf[ScAssignment].exists(_.leftExpression == r)) && r.resolve().is[PsiMethod] && !r.resolve().is[ScMember] && etaExpand) "()" else "")
       case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
         val hasMembers = e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))
