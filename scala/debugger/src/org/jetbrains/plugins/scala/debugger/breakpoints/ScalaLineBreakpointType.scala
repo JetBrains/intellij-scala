@@ -18,13 +18,13 @@ import com.intellij.xdebugger.{XDebuggerUtil, XSourcePosition}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaLambdaSourcePosition, ScalaPositionManager, ScalaSourcePositionWithWholeLineHighlighted, typeAware}
+import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaConditionalReturnSourcePosition, ScalaLambdaSourcePosition, ScalaPositionManager, ScalaSourcePositionWithWholeLineHighlighted, typeAware}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScExtractorPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScTry}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
@@ -79,8 +79,9 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
     val positionsOnLine = ScalaPositionManager.positionsOnLine(file, line)
     val lambdas = ScalaPositionManager.filterLambdasOnLine(file, line, positionsOnLine)
+    val conditionalReturn = findConditionalReturn(file, line)
 
-    if (lambdas.isEmpty) return Collections.emptyList()
+    if (lambdas.isEmpty && conditionalReturn.isEmpty) return Collections.emptyList()
 
     val res = new java.util.LinkedList[JavaBPVariant]()
 
@@ -96,9 +97,55 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
       res.addLast(new LambdaScalaBreakpointVariant(XSourcePositionImpl.createByElement(element), element, ordinal, extraPriorityForLambdas))
     }
     res.addFirst(new LineScalaBreakpointVariant(position, method.orNull))
-    res.addFirst(new JavaBreakpointVariant(position, lambdas.size)) //adding all variants
+    if (lambdas.nonEmpty) {
+      res.addFirst(new JavaBreakpointVariant(position, lambdas.size)) //adding all variants
+    }
+    // Must stay last: on a plain gutter click the platform picks `variants.maxBy(_.priority)`, which
+    // returns the first maximum, and this variant ties with the line variant. The line variant must win.
+    conditionalReturn.foreach { returnKeyword =>
+      res.addLast(new ConditionalReturnJavaBreakpointVariant(position, returnKeyword, JavaLineBreakpointProperties.NO_LAMBDA))
+    }
     res
   }
+
+  /**
+   * The `return` keyword of a single conditional (early) return on this line, if any (SCL-21626).
+   *
+   * Only early returns from real methods are supported: scalac lowers a `return` from inside a lambda into
+   * `throw new NonLocalReturnControl(...)`, so no return instruction is emitted for it. The only return opcode
+   * on such a line belongs to the closure's normal exit, i.e. the breakpoint would suspend exactly when the
+   * early return does '''not''' happen.
+   */
+  private def findConditionalReturn(file: ScalaFile, line: Int): Option[PsiElement] =
+    Option(JavaLineBreakpointType.findSingleConditionalReturn(file, line))
+      // The platform matches any leaf whose text is "return", to cover many languages at once.
+      .filter(_.elementType == ScalaTokenTypes.kRETURN)
+      // Cheaper than the platform's order: this only walks facets for lines that do have such a return.
+      .filter(_ => JavaLineBreakpointType.canStopOnConditionalReturn(file))
+      .filter(isReturnFromMethod)
+
+  /**
+   * Whether the `return` returns from a method, rather than non-locally from an enclosing lambda, and whether
+   * a return instruction is actually emitted on its own line.
+   *
+   * Note that [[findContainingDefinition]] cannot be reused here: it deliberately skips the lambdas that are
+   * on the line, so it would report the enclosing method for the very case we need to reject.
+   */
+  private def isReturnFromMethod(returnKeyword: PsiElement): Boolean =
+    returnKeyword.withParentsInFile.collectFirst {
+      // `typeAware = true` on purpose: recognizing a by-name argument (`opt.getOrElse { return 1 }`) needs
+      // resolution, and treating one as a plain block would plant the breakpoint on the closure's own return.
+      case e if ScalaPositionManager.isLambda(e, typeAware = true) => false
+      // An early return out of a `try` with a `finally` only stores the result and jumps to the finally
+      // block; every return instruction is emitted there, attributed to the finally body's lines. There is
+      // nothing on this line to suspend on, so offering the variant would create a breakpoint that never hits.
+      // A `try` with only a `catch` is fine: the return instruction stays on this line.
+      case t: ScTry if t.finallyBlock.isDefined                    => false
+      // `<init>` is the one method whose line numbers LocationLineManager remaps to a different line.
+      case f: ScFunctionDefinition                                 => !f.isConstructor
+      // Stop at the class boundary, so that a `return` in a nested initializer is not taken for a method one.
+      case _: ScTemplateBody | _: ScEarlyDefinitions               => false
+    }.getOrElse(false) // no enclosing method at all
 
   private def findContainingDefinition(elem: PsiElement, lambdas: Seq[PsiElement]): Option[PsiElement] = {
     val project = elem.getProject
@@ -127,7 +174,10 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
         ScalaPositionManager.isLambda(element) && element.getTextRange == method.getTextRange
     } else {
       val element = position.getElementAt
-      position.isInstanceOf[ScalaSourcePositionWithWholeLineHighlighted] &&
+      //a conditional return position is a line position too: the position manager only remaps it onto the
+      //`return` keyword so that just the keyword is highlighted on suspend. Rejecting it here would leave
+      //a line whose very first instruction is a return without any request at all.
+      position.is[ScalaSourcePositionWithWholeLineHighlighted, ScalaConditionalReturnSourcePosition] &&
         element != null && position.getLine == element.getLineNumber
     }
   }
@@ -148,6 +198,9 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
 
   //noinspection ApiStatus,UnstableApiUsage
   override def getHighlightRange(breakpoint: XLineBreakpoint[JavaLineBreakpointProperties]): TextRange = {
+    // The platform highlights the `return` keyword itself, see JavaLineBreakpointType.findSingleConditionalReturn.
+    if (isConditionalReturn(breakpoint)) return super.getHighlightRange(breakpoint)
+
     BreakpointManager.getJavaBreakpoint(breakpoint) match {
       case lineBp: LineBreakpoint[_] if isLambda(lineBp) =>
         if (DumbService.getInstance(lineBp.getProject).isDumb) {
@@ -185,6 +238,12 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
   }
 
   private def isMatchAll(breakpoint: LineBreakpoint[_]): Boolean = lambdaOrdinal(breakpoint) == null
+
+  private def isConditionalReturn(breakpoint: XLineBreakpoint[JavaLineBreakpointProperties]): Boolean =
+    breakpoint.getProperties match {
+      case props: JavaLineBreakpointProperties => props.isConditionalReturn
+      case _ => false //the properties are nullable in practice
+    }
 
   override def getPriority: Int = super.getPriority + 1
 

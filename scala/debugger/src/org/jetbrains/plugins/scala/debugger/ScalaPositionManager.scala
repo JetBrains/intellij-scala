@@ -81,13 +81,29 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         lineNumber = exactLineNumber(location)
       } yield {
         val normalizedLineNumber = if (lineNumber < -1) -1 else lineNumber
-        calcPosition(psiFile, location, normalizedLineNumber).getOrElse {
+        val calculated = calcPosition(psiFile, location, normalizedLineNumber)
+        //a lambda position must survive: its own highlighting and matching depend on the exact type
+        val conditionalReturn =
+          if (calculated.exists(_.is[ScalaLambdaSourcePosition])) None
+          else conditionalReturnPosition(location, psiFile, normalizedLineNumber)
+
+        conditionalReturn.orElse(calculated).getOrElse {
           val position = SourcePosition.createFromLine(psiFile, normalizedLineNumber)
           new ScalaSourcePositionWithWholeLineHighlighted(position)
         }
       }
     position.getOrThrow(NoDataException.INSTANCE)
   }
+
+  /**
+   * A position on the `return` keyword itself, when this location is the return instruction of a conditional
+   * (early) return (SCL-21626). Reuses the platform's check, which inspects the actual opcode at the location
+   * and ignores a method's implicit trailing return.
+   */
+  //noinspection ApiStatus
+  private def conditionalReturnPosition(location: Location, psiFile: PsiFile, lineNumber: Int): Option[SourcePosition] =
+    Option(PositionManagerImpl.adjustPositionForConditionalReturn(location, psiFile, lineNumber))
+      .map(new ScalaConditionalReturnSourcePosition(_))
 
   @NotNull
   override def getAllClasses(@NotNull position: SourcePosition): ju.List[ReferenceType] = {

@@ -10,6 +10,8 @@ class ScalaSourcePositionHighlighter extends SourcePositionHighlighter {
     case _ if !isScalaLanguage(sourcePosition) => null
     case _: ScalaSourcePositionWithWholeLineHighlighted => null
     case l: ScalaLambdaSourcePosition => l.getElementAt.getTextRange
+    //highlight only the `return` keyword, like the Java debugger does
+    case r: ScalaConditionalReturnSourcePosition => r.getElementAt.getTextRange
     case _ => null
   }
 

@@ -788,4 +788,196 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
     checkVariants()(24, "Line and Lambda", "line in containing block", "x % 2 == 0")
     checkVariants()(27, "Line and Lambda", "line in containing block", "_ % 2 == 0")
   }
+
+  //SCL-21626: conditional (early) return variants
+
+  addSourceFile("MethodEarlyReturn.scala",
+    s"""object MethodEarlyReturn {
+       |  def check(x: Int): Int = {
+       |    if (x < 0) return -1
+       |    x * 2
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testMethodEarlyReturn(): Unit = {
+    checkVariants()(2, "line in function check", "return")
+  }
+
+  addSourceFile("SingleLineMethod.scala",
+    s"""object SingleLineMethod {
+       |  def check(x: Int): Int = { if (x < 0) return -1; x * 2 }
+       |}
+       |""".stripMargin)
+
+  def testSingleLineMethod(): Unit = {
+    //offered even though the method's implicit trailing return is on the same line
+    checkVariants()(1, "line in function check", "return")
+  }
+
+  addSourceFile("ReturnFirstOnLine.scala",
+    s"""object ReturnFirstOnLine {
+       |  def check(x: Int): Int = {
+       |    if (x < 0)
+       |      return -1
+       |    val y = x * 2
+       |    return y
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testReturnFirstOnLine(): Unit = {
+    //a plain line breakpoint already suspends exactly at a return that starts its line
+    checkVariants()(3)
+    checkVariants()(5)
+  }
+
+  addSourceFile("TwoReturnsOnLine.scala",
+    s"""object TwoReturnsOnLine {
+       |  def check(x: Int): Int = {
+       |    if (x < 0) return -1 else return 1
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testTwoReturnsOnLine(): Unit = {
+    //several source returns cannot be mapped onto several bytecode returns
+    checkVariants()(2)
+  }
+
+  addSourceFile("ReturnInsideLambda.scala",
+    s"""object ReturnInsideLambda {
+       |  def check(xs: List[Int]): Int = {
+       |    xs.foreach { x => if (x < 0) return -1 }
+       |    0
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testReturnInsideLambda(): Unit = {
+    //scalac lowers a non-local return into a throw, so there is no return opcode to suspend on
+    checkVariants()(2, "Line and Lambda", "line in function check", "if (x < 0) return -1")
+  }
+
+  addSourceFile("ReturnInByNameArgument.scala",
+    s"""object ReturnInByNameArgument {
+       |  def check(opt: Option[Int]): Int = {
+       |    val x = opt.getOrElse { return 1 }
+       |    x * 2
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testReturnInByNameArgument(): Unit = {
+    //a by-name argument is a lambda too, so the same non-local return reasoning applies
+    checkVariants()(2, "Line and Lambda", "line in function check", "return 1")
+  }
+
+  addSourceFile("ReturnInTryFinally.scala",
+    s"""object ReturnInTryFinally {
+       |  def check(x: Int): Int = {
+       |    try {
+       |      if (x < 0) return -1
+       |      x * 2
+       |    } finally {
+       |      println("done")
+       |    }
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testReturnInTryFinally(): Unit = {
+    //every return instruction is emitted in the finally block, so there is nothing to suspend on here
+    checkVariants()(3)
+  }
+
+  addSourceFile("ReturnInTryCatch.scala",
+    s"""object ReturnInTryCatch {
+       |  def check(x: Int): Int = {
+       |    try {
+       |      if (x < 0) return -1
+       |      x * 2
+       |    } catch {
+       |      case _: Throwable => 0
+       |    }
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testReturnInTryCatch(): Unit = {
+    //without a finally the return instruction stays on this line
+    checkVariants()(3, "line in function check", "return")
+  }
+
+  addSourceFile("ConditionalReturnHighlighting.scala",
+    s"""object ConditionalReturnHighlighting {
+       |  def main(args: Array[String]): Unit = {
+       |    println(check(-5))
+       |    println(check(7))
+       |  }
+       |
+       |  def check(x: Int): Int = {
+       |    if (x < 0) return -1 $breakpoint $conditionalReturn
+       |    x * 2
+       |  }
+       |}""".stripMargin.trim)
+
+  def testConditionalReturnHighlighting(): Unit = {
+    //only the `return` keyword is highlighted on suspend, not the whole line, like in Java
+    exactBreakpointTest()("return")
+  }
+
+  addSourceFile("LineHighlightingOnConditionalReturnLine.scala",
+    s"""object LineHighlightingOnConditionalReturnLine {
+       |  def main(args: Array[String]): Unit = {
+       |    println(check(-5))
+       |  }
+       |
+       |  def check(x: Int): Int = {
+       |    if (x < 0) return -1 $breakpoint
+       |    x * 2
+       |  }
+       |}""".stripMargin.trim)
+
+  def testLineHighlightingOnConditionalReturnLine(): Unit = {
+    //a plain line breakpoint suspends at the start of the line, so the whole line stays highlighted even
+    //though the line does hold a conditional return
+    exactBreakpointTest()("if (x < 0) return -1")
+  }
+
+  addSourceFile("LambdaHighlightingOnConditionalReturnLine.scala",
+    s"""object LambdaHighlightingOnConditionalReturnLine {
+       |  def main(args: Array[String]): Unit = {
+       |    println(check(List(1)))
+       |  }
+       |
+       |  def check(xs: List[Int]): Int = {
+       |    xs.foreach { x => if (x < 0) return -1 } $breakpoint ${lambdaOrdinal(0)}
+       |    0
+       |  }
+       |}""".stripMargin.trim)
+
+  def testLambdaHighlightingOnConditionalReturnLine(): Unit = {
+    //the lambda body stays highlighted: the position manager must not remap a lambda position onto the
+    //`return`, or lambda highlighting and matching break on any line holding a conditional return
+    exactBreakpointTest()("if (x < 0) return -1")
+  }
+
+  addSourceFile("ReturnInCaseClause.scala",
+    s"""object ReturnInCaseClause {
+       |  def check(x: Int): Int = {
+       |    x match {
+       |      case 0 => return -1
+       |      case _ =>
+       |    }
+       |    x * 2
+       |  }
+       |}
+       |""".stripMargin)
+
+  def testReturnInCaseClause(): Unit = {
+    //a match is compiled inline into the enclosing method, so the variant is offered. Note that on Scala 3
+    //no line breakpoint suspends on such a line at all, see ConditionalReturnBreakpointsTest_3.
+    checkVariants()(3, "line in function check", "return")
+  }
 }

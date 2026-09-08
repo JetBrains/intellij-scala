@@ -179,6 +179,10 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
   private val lambdaOrdinalString: String = "LambdaOrdinal"
 
   protected def lambdaOrdinal(n: Int): String = s"$lambdaOrdinalString($n)"
+
+  /** Marks a breakpoint as the conditional (early) return variant, rather than a plain line breakpoint. */
+  protected def conditionalReturn: String =
+    lambdaOrdinal(JavaLineBreakpointProperties.encodeInlinePosition(JavaLineBreakpointProperties.NO_LAMBDA, true))
 }
 
 private object ScalaDebuggerTestCase {
