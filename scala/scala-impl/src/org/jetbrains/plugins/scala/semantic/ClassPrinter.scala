@@ -264,13 +264,15 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
             if (mi.is[ScInfixExpr] && s2.endsWith("=") && !mi.target.exists(_.name.endsWith("="))) s1.dropRight(1) + " = " + s1 + s2.dropRight(1) + s3
             else if (mi.is[ScPrefixExpr]) s1 + "unary_" + s2 + targs
             else s1 + s2 + s3
-          case _ =>
+          case _ => inlining(mi.target) {
             textOfExpression(mi.getEffectiveInvokedExpr, indent) + s3
+          }
         }
       case si: ScSelfInvocation =>
         "this" + si.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString
-      case gc: ScGenericCall =>
+      case gc: ScGenericCall => inlining(gc.bindInvokedExpr) {
         textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
+      }
       case sc: ScAssignment =>
         def syntaxText = textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
         def desugaredText = sc.mirrorMethodCall.map(textOfExpression(_, indent)).getOrElse(syntaxText)
@@ -394,7 +396,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       textOfImplicitArguments(ci.findImplicitArguments, ci)
   }
 
-  private def textOfImplicitConversion(function: ScalaResolveResult, expression: String, place: PsiElement): String = {
+  private def textOfImplicitConversion(function: ScalaResolveResult, expression: String, place: PsiElement): String = inlining(Some(function)) {
     val typeArgText = function.element match {
       case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
         owner.typeParameters.map(tp => function.substitutor(TypeParameterType(tp))).map(t => textOf(t.removeAliasDefinitionsIn(place))).mkString("[", ", ", "]")
@@ -407,17 +409,19 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
   private def textOfImplicitArguments(args: Seq[ImplicitArgumentsClause], place: PsiElement): String = args
     .map { clause =>
       clause.args.map { arg =>
-        val typeArgText = arg.element match {
-          case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
-            owner.typeParameters.map(tp => arg.substitutor(TypeParameterType(tp))).map(t => textOf(t.removeAliasDefinitionsIn(place))).mkString("[", ", ", "]")
-          case _ => ""
+        inlining(Some(arg)) {
+          val typeArgText = arg.element match {
+            case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
+              owner.typeParameters.map(tp => arg.substitutor(TypeParameterType(tp))).map(t => textOf(t.removeAliasDefinitionsIn(place))).mkString("[", ", ", "]")
+            case _ => ""
+          }
+          val prefix = textOfReferenceTo(arg, place)
+          val inner = prefix + typeArgText + textOfImplicitArguments(arg.implicitArguments, place) match {
+            case GeneratedClassTag(tpe) => s"scala.reflect.ClassTag.apply[$tpe](classOf[$tpe])" // Workaround for SCL-14358
+            case s => s
+          }
+          arg.implicitConversion.map(textOfImplicitConversion(_, inner, place)).getOrElse(inner)
         }
-        val prefix = textOfReferenceTo(arg, place)
-        val inner = prefix + typeArgText + textOfImplicitArguments(arg.implicitArguments, place) match {
-          case GeneratedClassTag(tpe) => s"scala.reflect.ClassTag.apply[$tpe](classOf[$tpe])" // Workaround for SCL-14358
-          case s => s
-        }
-        arg.implicitConversion.map(textOfImplicitConversion(_, inner, place)).getOrElse(inner)
       }.mkString(", ")
     }
     .map("(using " + _ + ")").mkString
@@ -471,6 +475,14 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case _ => b
     }
     case e => e
+  }
+
+  private def inlining(result: Option[ScalaResolveResult])(f: => String): String = result match {
+    case Some(r) => r.element match {
+      case m: ScMember if !m.isLocal && m.hasModifierProperty("transparent") && m.hasModifierProperty("inline") => "???"
+      case _ => f
+    }
+    case _ => f
   }
 
   private def textOf(e: ScExtension, indent: String): String = {
