@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScF
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility._
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{PsiElementExt => _, _}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameter, TypeParameterType}
@@ -209,17 +209,18 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           case Some(regularCase) =>
             val inferredType = regularCase.inferredType
 
-            val nextImplicitClauseBelongsToOtherExpr = inferredType match {
-              case ScTypePolymorphicType(_, tparams) =>
-                //If current type is polymorhic, there's two cases:
-                //1. Some type parameters (belonging to the original invocation)
-                //have not been inferred yet => implicit clause belongs to this invocation
-                //2. There is an interleaved type argument clause => implicit clause belongs to
-                //ScGenericCall
-                val ids = tparams.map(_.typeParamId)
-                ids.exists(id => !capturedTypeParams.contains(id))
-              case _ => false
-            }
+            val nextImplicitClauseBelongsToOtherExpr = this.isInScala3File &&
+              (inferredType match {
+                case ScTypePolymorphicType(_, tparams) =>
+                  //If current type is polymorhic, there's two cases:
+                  //1. Some type parameters (belonging to the original invocation)
+                  //have not been inferred yet => implicit clause belongs to this invocation
+                  //2. There is an interleaved type argument clause => implicit clause belongs to
+                  //ScGenericCall
+                  val ids = tparams.map(_.typeParamId)
+                  ids.exists(id => !capturedTypeParams.contains(id))
+                case _ => false
+              })
 
             val (updatedType, trailingImplicits) =
               if (!nextImplicitClauseBelongsToOtherExpr) {

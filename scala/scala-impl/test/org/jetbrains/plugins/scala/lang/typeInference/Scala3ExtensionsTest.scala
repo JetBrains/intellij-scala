@@ -41,7 +41,6 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |""".stripMargin
   )
 
-  //@TODO: right-associative?
   def testOperators(): Unit = checkTextHasNoErrors(
     """
       |object A {
@@ -51,6 +50,34 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |  "123" < "4235"
       |}
       |""".stripMargin
+  )
+
+  // SCL-25889
+  def testRightAssociativeExtensionMethodInvocations(): Unit = checkTextHasNoErrors(
+    """
+      |trait A { val x: Int = 3 }
+      |val a: A = new A {}
+      |
+      |extension (a: A)
+      |  def +:(foo: Int): Int = foo + a.x
+      |
+      |a +: 2
+      |+:(4)(a)
+      |6.+:(a)
+      |""".stripMargin
+  )
+
+  // SCL-25889
+  def testRightAssociativeExtensionMethodCannotBeCalledOnExtensionParameter(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |trait A { val x: Int = 3 }
+       |val a: A = new A {}
+       |
+       |extension (a: A)
+       |  def +:(foo: Int): Int = foo + a.x
+       |
+       |a.${CARET}+:(8)
+       |""".stripMargin
   )
 
   def testGenericExtension(): Unit = checkTextHasNoErrors(

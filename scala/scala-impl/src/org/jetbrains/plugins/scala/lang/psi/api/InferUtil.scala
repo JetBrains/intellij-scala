@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project._
 
@@ -960,10 +961,24 @@ object InferUtil {
     //2. extension (using Bar)(x: Foo)(using Baz) { def foo(x: Int)(using Qux): String = ??? }
     //   drop implicit/using clauses from the extension itself, leave target method untouched
     //   result: Foo => Int => using Qux => String
+    //NOTE: right-associative extensions
+    //https://nightly.scala-lang.org/docs/reference/contextual/right-associative-extension-methods.html
     val clauses = owner match {
       case Some(ext) =>
-        ext.effectiveParameterClauses.filterNot(_.isImplicit) ++
-          function.effectiveParameterClauses
+        val (extensionClauses, functionClauses) =
+          function.effectiveSignatureClausesWithExtension(Option(ext))
+
+        val extensionClausesWithoutImplicits =
+          extensionClauses.collect {
+            case ScSignatureClause.TermClause(clause) if !clause.isImplicit => clause
+          }
+
+        val functionTermClauses =
+          functionClauses.collect {
+            case ScSignatureClause.TermClause(clause) => clause
+          }
+
+        extensionClausesWithoutImplicits ++ functionTermClauses
       case None => function.effectiveParameterClauses.filterNot(_.isImplicit)
     }
 

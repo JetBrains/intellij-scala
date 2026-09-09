@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -33,15 +34,66 @@ package object statements {
       }
     }
 
-    def parameterClausesWithExtension(owner: Option[ScExtension] = None): Seq[ScParameterClause] =
-      owner
-        .orElse(function.extensionMethodOwner)
-        .fold(Seq.empty[ScParameterClause])(_.effectiveParameterClauses) ++ function.effectiveParameterClauses
+    def parameterClausesWithExtension(owner: Option[ScExtension] = None): Seq[ScParameterClause] = {
+      val (extensionClauses, functionClauses) = effectiveSignatureClausesWithExtension(owner)
+
+      val extensionTermClauses = extensionClauses.collect {
+        case ScSignatureClause.TermClause(clause) => clause
+      }
+
+      val functionTermClauses = functionClauses.collect {
+        case ScSignatureClause.TermClause(clause) => clause
+      }
+
+      extensionTermClauses ++ functionTermClauses
+    }
 
     def typeParametersWithExtension(owner: Option[ScExtension] = None): Seq[ScTypeParam] =
       owner
         .orElse(function.extensionMethodOwner)
         .fold(Seq.empty[ScTypeParam])(_.typeParameters) ++ function.typeParameters
+
+    def isRightAssoc: Boolean = ScalaNamesUtil.clean(function.name).endsWith(":")
+
+    def effectiveSignatureClausesWithExtension(
+      owner: Option[ScExtension] = None
+    ): (Seq[ScSignatureClause], Seq[ScSignatureClause]) = {
+      val extensionClauses =
+        owner.orElse(function.extensionMethodOwner) match {
+          case Some(ext) => ext.signatureClauses
+          case None      => Seq.empty
+        }
+
+      val functionClauses = function.effectiveSignatureClauses
+
+      if (!isRightAssoc || extensionClauses.isEmpty) extensionClauses -> functionClauses
+      else {
+        //https://nightly.scala-lang.org/docs/reference/contextual/right-associative-extension-methods.html
+        val firstTypeParamClause  = functionClauses.headOption.filter(_.is[ScSignatureClause.TypeClause]).toSeq
+        val firstValueParamClause = functionClauses.find(_.is[ScSignatureClause.TermClause]).toSeq
+        val restOfFunctionClauses = functionClauses.drop(firstTypeParamClause.size + firstValueParamClause.size)
+
+        val receiverClauseIndex = extensionClauses.indexWhere {
+          case ScSignatureClause.TermClause(clause) => !clause.isImplicit
+          case ScSignatureClause.TypeClause(_)      => false
+        }
+
+        val (extensionClausesUpToReceiverTermClause, restOfExtensionClauses) =
+          if (receiverClauseIndex == -1)
+            extensionClauses -> Seq.empty
+          else
+            extensionClauses.splitAt(receiverClauseIndex)
+
+        val newExtensionClauses =
+          extensionClausesUpToReceiverTermClause ++
+            firstTypeParamClause ++
+            firstValueParamClause
+
+        val newFunctionClauses = restOfExtensionClauses ++ restOfFunctionClauses
+
+        newExtensionClauses -> newFunctionClauses
+      }
+    }
   }
 
   implicit class ScFunctionDefinitionExt(private val function: ScFunctionDefinition) extends AnyVal {

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{NonNullObjectExt, ObjectExt, PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionExt, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
@@ -87,14 +87,26 @@ object ExtensionMethodData {
   def apply(function: ScFunction, substitutor: ScSubstitutor): Option[ExtensionMethodData] = {
     ProgressManager.checkCanceled()
 
-    val rawCheck: Option[ExtensionMethodData] = cachedInUserData("apply.rawExtensionMethodCheck", function, ModTracker.libraryAware(function), Tuple1(function)) {
-      for {
-        retType <- function.returnType.toOption
-        ext <- function.extensionMethodOwner
-        targetTypeElem <- ext.targetTypeElement
-        targetType <- targetTypeElem.`type`().toOption
-      } yield new ExtensionMethodData(function, targetType, retType, ScSubstitutor.empty)
-    }
+    val rawCheck: Option[ExtensionMethodData] =
+      cachedInUserData(
+        "apply.rawExtensionMethodCheck",
+        function,
+        ModTracker.libraryAware(function),
+        Tuple1(function)
+      ) {
+
+        for {
+          retType               <- function.returnType.toOption
+          ext                   <- function.extensionMethodOwner
+          (extensionClauses, _) = function.effectiveSignatureClausesWithExtension(Option(ext))
+          receiverClause        <- extensionClauses.collectFirst {
+            case ScSignatureClause.TermClause(clause) if !clause.hasUsingKeyword => clause
+          }
+          receiverParam         <- receiverClause.parameters.headOption
+          targetTypeElem        <- receiverParam.typeElement
+          targetType            <- targetTypeElem.`type`().toOption
+        } yield new ExtensionMethodData(function, targetType, retType, ScSubstitutor.empty)
+      }
 
     rawCheck.map(_.withSubstitutor(substitutor))
   }
