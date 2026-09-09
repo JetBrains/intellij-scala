@@ -10,10 +10,19 @@ import com.intellij.util.SmartList
 abstract class StructuralSRTestCase extends LightPlatformCodeInsightTestCase {
   protected var options: MatchOptions = null
 
+  /**
+   * Tests that match several sources in parallel need one instance per worker: the options are mutated while a
+   * pattern is compiled and matched against them, see `ScalaStructuralSearchTestCase.matchAndAssert`.
+   */
+  protected def newMatchOptions(): MatchOptions = {
+    val options = new MatchOptions
+    options.setRecursiveSearch(true)
+    options
+  }
+
   override protected def setUp(): Unit = {
     super.setUp()
-    options = new MatchOptions
-    options.setRecursiveSearch(true)
+    options = newMatchOptions()
   }
 
   override protected def tearDown(): Unit = {

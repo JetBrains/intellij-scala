@@ -22,9 +22,27 @@ abstract class ScalaStructuralSearchTestCase extends StructuralSRTestCase {
     inScala3: Boolean = true,
     patternScala3: Boolean = true,
     stripMargin: Boolean = true
+  ): Unit =
+    matchAndAssert(options, name, code, pattern, modifyOptions, inScala3, patternScala3, stripMargin)
+
+  /**
+   * The overload to use when several sources are matched in parallel: `matchOptions` belongs to the caller, so
+   * nothing is shared between the threads. Its own instance is required rather than merely convenient - both
+   * [[findMatches]] and `PatternCompiler`, which registers the pattern's variable constraints while compiling it,
+   * write to the options.
+   */
+  protected def matchAndAssert(
+    matchOptions: MatchOptions,
+    name: String,
+    @lang.annotations.Language("Scala 3") code: String,
+    @lang.annotations.Language("Scala 3") pattern: String,
+    modifyOptions: MatchOptions => Unit,
+    inScala3: Boolean,
+    patternScala3: Boolean,
+    stripMargin: Boolean
   ): Unit = {
     val (plainCode, marker) = extractMarker((if stripMargin then code.stripMargin else code).trim)
-    val results = findMatches(plainCode,
+    val results = findMatches(matchOptions, plainCode,
       (if stripMargin then pattern.stripMargin else pattern).trim,
       if inScala3 then Scala3FileType else ScalaFileType.INSTANCE,
       if inScala3 then Scala3Language.INSTANCE else ScalaLanguage.INSTANCE,
@@ -121,15 +139,27 @@ abstract class ScalaStructuralSearchTestCase extends StructuralSRTestCase {
                             sourceFileType: LanguageFileType,
                             physicalSourceFile: Boolean,
                             modifyOptions: MatchOptions => Unit,
+                           ): Seq[MatchResult] =
+    findMatches(options, in, pattern, patternFileType, patternLanguage, sourceFileType, physicalSourceFile, modifyOptions)
+
+  /** The overload to use when several sources are matched in parallel, see [[matchAndAssert]]. */
+  protected def findMatches(matchOptions: MatchOptions,
+                            in: String,
+                            pattern: String,
+                            patternFileType: LanguageFileType,
+                            patternLanguage: Language,
+                            sourceFileType: LanguageFileType,
+                            physicalSourceFile: Boolean,
+                            modifyOptions: MatchOptions => Unit,
                            ): Seq[MatchResult] = {
-    options.fillSearchCriteria(pattern)
-    options.setFileType(patternFileType)
-    options.setDialect(patternLanguage)
-    modifyOptions(options)
-    val compiledPattern: CompiledPattern = PatternCompiler.compilePattern(getProject, options, true, false)
-    val message: String = StructuralSRTestCase.checkApplicableConstraints(options, compiledPattern)
+    matchOptions.fillSearchCriteria(pattern)
+    matchOptions.setFileType(patternFileType)
+    matchOptions.setDialect(patternLanguage)
+    modifyOptions(matchOptions)
+    val compiledPattern: CompiledPattern = PatternCompiler.compilePattern(getProject, matchOptions, true, false)
+    val message: String = StructuralSRTestCase.checkApplicableConstraints(matchOptions, compiledPattern)
     assert(message == null)
-    val matcher: Matcher = new Matcher(getProject, options, compiledPattern)
+    val matcher: Matcher = new Matcher(getProject, matchOptions, compiledPattern)
     matcher.testFindMatches(in, true, sourceFileType, physicalSourceFile).asScala.toSeq
   }
 }
