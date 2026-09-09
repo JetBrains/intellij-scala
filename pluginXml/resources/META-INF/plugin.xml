@@ -46,7 +46,6 @@
     <dependencies>
         <plugin id="com.intellij.java"/>
         <plugin id="intellij.testRunner.plugin"/>
-        <plugin id="intellij.libraries.misc.plugin"/>
         <plugin id="org.intellij.intelliLang"/>
         <module name="intellij.java.backend"/>
         <module name="intellij.java.execution.impl"/>
