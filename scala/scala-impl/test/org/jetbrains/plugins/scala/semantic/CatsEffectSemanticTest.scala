@@ -30,7 +30,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     //cats.effect.LiftIO
     //cats.effect.NonDaemonThreadLogger
     //cats.effect.Platform
-    //cats.effect.PlatformStatics
+    cats.effect.PlatformStatics
     //cats.effect.ResourceApp
     //cats.effect.Selector
     //cats.effect.SyncIO

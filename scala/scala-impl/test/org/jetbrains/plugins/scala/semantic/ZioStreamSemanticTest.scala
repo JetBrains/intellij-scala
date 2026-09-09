@@ -8,7 +8,7 @@ class ZioStreamSemanticTest extends SemanticTestBase("dev.zio" %% "zio-streams" 
 //  @Test def single(): Unit = doTest("")
 
   @Test def test(): Unit = doTest("""
-    //zio.stream.BuildInfo
+    zio.stream.BuildInfo
     //zio.stream.Deflate
     //zio.stream.Gunzip
     //zio.stream.Gzip

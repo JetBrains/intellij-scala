@@ -16,7 +16,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.NotUsed
     akka.OnlyCauseStackTrace
     akka.UnsupportedAkkaVersion
-    //akka.Version
+    akka.Version
     akka.actor.AbstractActor
     akka.actor.AbstractActorWithStash
     akka.actor.AbstractActorWithTimers

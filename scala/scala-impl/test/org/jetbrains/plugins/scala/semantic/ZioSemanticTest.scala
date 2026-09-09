@@ -10,7 +10,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
   @Test def test(): Unit = doTest("""
     //zio.=!=
     //zio.BuildFromCompat
-    //zio.BuildInfo
+    zio.BuildInfo
     //zio.Cached
     //zio.CanFail
     //zio.CanFailLowPriority
@@ -195,7 +195,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.internal.metrics.ConcurrentMetricRegistry
     zio.internal.metrics.MetricEventType
     zio.internal.metrics.MetricHook
-    //zio.internal.stacktracer.BuildInfo
+    zio.internal.stacktracer.BuildInfo
     //zio.internal.stacktracer.Macros
     zio.internal.stacktracer.ParsedTrace
     //zio.internal.stacktracer.SourceLocation

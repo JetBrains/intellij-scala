@@ -22,7 +22,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     //akka.actor.typed.ChildFailed
     akka.actor.typed.DeathPactException
     akka.actor.typed.DispatcherSelector
-    //akka.actor.typed.Dispatchers
+    akka.actor.typed.Dispatchers
     akka.actor.typed.ExtensibleBehavior
     akka.actor.typed.Extension
     akka.actor.typed.ExtensionId
@@ -62,7 +62,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     akka.actor.typed.internal.AdaptMessage
     akka.actor.typed.internal.AdaptWithRegisteredMessageAdapter
     //akka.actor.typed.internal.BehaviorImpl
-    //akka.actor.typed.internal.BehaviorTags
+    akka.actor.typed.internal.BehaviorTags
     akka.actor.typed.internal.CachedProps
     akka.actor.typed.internal.Create
     akka.actor.typed.internal.DeathWatchNotification

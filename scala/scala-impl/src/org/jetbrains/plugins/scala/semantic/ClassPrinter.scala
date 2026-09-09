@@ -496,17 +496,20 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     val modifiers = textOfModifiers(v, ScalaPsiUtil.superValsSignatures(symbol).nonEmpty)
     val keyword = if (v.is[ScValue]) "val " else "var "
     val symbolType = symbol.`type`()
-    val isConstant = (v.hasModifierPropertyScala("final") || v.hasModifierPropertyScala("inline")) && !v.hasExplicitType && !v.isAbstract && symbolType.exists(canBeTypeOfConstant)
     val name = normalized(symbol.name)
-    val tpe = if (isConstant) "" else (spaceAfter(name) + ": " +
-      textOf(if (v.typeElement.isDefined) symbolType else symbolType.map(_.removeAliasDefinitionsIn(v))))
-    val rhs = if (isConstant) (" = " + v.asInstanceOf[ScValueOrVariableDefinition].expr.map(_.getText).getOrElse("")) else v match {
+    val tpe = spaceAfter(name) + ": " + textOf(if (v.typeElement.isDefined) symbolType else symbolType.map(_.removeAliasDefinitionsIn(v)))
+    val rhs = v match {
       case ScValueOrVariableDefinition.withExpr(expr) =>
         val rhs = textOfStatement(normalized(expr), indent + "  ")
         if (rhs.startsWith("{")) " = " + rhs else if (!v.isLocal) " = " + rhs else " = " + rhs.trim
       case _ => ""
     }
     annotations + "\n" + indent + "  " + modifiers + keyword + name + tpe + rhs + "\n"
+  }
+
+  private def isConstant(v: ScValueOrVariable, symbol: ScTypedDefinition): Boolean = {
+    val symbolType = symbol.`type`()
+    (v.hasModifierPropertyScala("final") || v.hasModifierPropertyScala("inline")) && !v.hasExplicitType && !v.isAbstract && symbolType.exists(canBeTypeOfConstant)
   }
 
   private def canBeTypeOfConstant(tpe: ScType): Boolean = tpe match {

@@ -256,7 +256,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.SourceModuleIslandTag
     akka.stream.impl.SourceModulePhase
     akka.stream.impl.Stages
-    //akka.stream.impl.StreamLayout
+    akka.stream.impl.StreamLayout
     //akka.stream.impl.StreamSubscriptionTimeoutSupport
     //akka.stream.impl.StreamSupervisor
     akka.stream.impl.SubFlowImpl
@@ -423,7 +423,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.scaladsl.BidiFlow
     //akka.stream.scaladsl.Broadcast
     //akka.stream.scaladsl.BroadcastHub
-    //akka.stream.scaladsl.Compression
+    akka.stream.scaladsl.Compression
     //akka.stream.scaladsl.Concat
     //akka.stream.scaladsl.DelayStrategy
     //akka.stream.scaladsl.FileIO

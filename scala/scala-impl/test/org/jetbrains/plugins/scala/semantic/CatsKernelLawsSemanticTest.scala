@@ -52,6 +52,6 @@ class CatsKernelLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "ca
     //cats.kernel.laws.discipline.SemilatticeTests
     cats.kernel.laws.discipline.SerializableTests
     //cats.kernel.laws.discipline.UpperBoundedTests
-    //cats.platform.Platform
+    cats.platform.Platform
   """)
 }
