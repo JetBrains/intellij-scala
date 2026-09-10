@@ -85,7 +85,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.actor.EmptyLocalActorRef
     akka.actor.ExtendedActorSystem
     akka.actor.Extension
-    //akka.actor.ExtensionId
+    akka.actor.ExtensionId
     akka.actor.ExtensionIdProvider
     //akka.actor.FSM
     //akka.actor.FunctionRef
@@ -290,7 +290,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.event.BusLogging
     //akka.event.DeadLetterListener
     //akka.event.DefaultLoggingFilter
-    //akka.event.DiagnosticLoggingAdapter
+    akka.event.DiagnosticLoggingAdapter
     akka.event.DiagnosticMarkerBusLoggingAdapter
     akka.event.DummyClassForStringSources
     akka.event.EventBus
@@ -395,7 +395,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.japi.Function
     akka.japi.Function2
     akka.japi.JavaPartialFunction
-    //akka.japi.Option
+    akka.japi.Option
     akka.japi.Pair
     akka.japi.Predicate
     akka.japi.Procedure

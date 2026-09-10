@@ -76,9 +76,9 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.Functor
     //cats.FunctorFilter
     cats.FunctorFilterInstances0
-    //cats.Inject
+    cats.Inject
     //cats.InjectInstances
-    //cats.InjectK
+    cats.InjectK
     //cats.InjectKInstances
     //cats.Invariant
     cats.InvariantInstances0
@@ -88,7 +88,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.InvariantMonoidalMonoid
     cats.InvariantSemigroupal
     cats.InvariantSemigroupalSemigroup
-    //cats.Later
+    cats.Later
     //cats.LeftFunctor
     //cats.Monad
     //cats.MonadError
@@ -167,7 +167,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.data.ChainCompat
     //cats.data.ChainInstances
     cats.data.ChainInstances1
-    //cats.data.ChainInstances2
+    cats.data.ChainInstances2
     cats.data.ChainInstances3
     cats.data.ChainPartialOrder
     //cats.data.Cokleisli
@@ -225,7 +225,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.EitherTSemigroup
     //cats.data.EitherTSemigroupK
     cats.data.EitherTTraverse
-    //cats.data.Func
+    cats.data.Func
     //cats.data.FuncApplicative
     //cats.data.FuncApply
     //cats.data.FuncContravariant
@@ -284,8 +284,8 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.IndexedStateTSemigroupK
     //cats.data.IndexedStateTStrong
     //cats.data.Ior
-    //cats.data.IorFunctions
-    //cats.data.IorFunctions2
+    cats.data.IorFunctions
+    cats.data.IorFunctions2
     //cats.data.IorInstances
     //cats.data.IorInstances0
     //cats.data.IorT
@@ -498,7 +498,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.data.Validated
     //cats.data.ValidatedApplicative
     //cats.data.ValidatedFunctions
-    //cats.data.ValidatedFunctionsBinCompat0
+    cats.data.ValidatedFunctionsBinCompat0
     //cats.data.ValidatedInstances
     //cats.data.ValidatedInstances1
     //cats.data.ValidatedInstances2
@@ -753,7 +753,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.kernel.UpperBoundedEnumerable
     //cats.kernel.UpperBoundedFunctions
     cats.kernel.compat.HashCompat
-    //cats.kernel.compat.WrappedMutableMapBase
+    cats.kernel.compat.WrappedMutableMapBase
     cats.kernel.compat.scalaVersionMoreSpecific
     //cats.kernel.compat.scalaVersionSpecific
     cats.kernel.instances.AllInstances
@@ -798,7 +798,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.instances.DurationOrder
     cats.kernel.instances.EitherEq
     //cats.kernel.instances.EitherHash
-    //cats.kernel.instances.EitherInstances
+    cats.kernel.instances.EitherInstances
     //cats.kernel.instances.EitherInstances0
     cats.kernel.instances.EitherInstances1
     cats.kernel.instances.EqInstances
@@ -1018,7 +1018,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.syntax.EitherOpsBinCompat0
     //cats.syntax.EitherSyntax
     cats.syntax.EitherSyntaxBinCompat0
-    //cats.syntax.EitherUtil
+    cats.syntax.EitherUtil
     //cats.syntax.EqOps
     cats.syntax.EqSyntax
     //cats.syntax.FlatMapIdOps

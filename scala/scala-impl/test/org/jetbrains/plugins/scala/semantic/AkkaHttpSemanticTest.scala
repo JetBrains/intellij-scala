@@ -195,8 +195,8 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.impl.util.ToStringRenderable
     akka.http.impl.util.ValueRenderable
     //akka.http.javadsl.ClientTransport
-    //akka.http.javadsl.ConnectHttp
-    //akka.http.javadsl.ConnectHttpImpl
+    akka.http.javadsl.ConnectHttp
+    akka.http.javadsl.ConnectHttpImpl
     //akka.http.javadsl.ConnectHttpsImpl
     akka.http.javadsl.ConnectWithHttps
     //akka.http.javadsl.ConnectionContext
@@ -451,7 +451,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.scaladsl.model.RequestEntityAcceptance
     //akka.http.scaladsl.model.RequestResponseAssociation
     akka.http.scaladsl.model.RequestTimeoutException
-    //akka.http.scaladsl.model.ResponseEntity
+    akka.http.scaladsl.model.ResponseEntity
     akka.http.scaladsl.model.ResponsePromise
     akka.http.scaladsl.model.SensitiveHttpHeader
     //akka.http.scaladsl.model.SimpleRequestResponseAttribute
@@ -650,7 +650,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.server.ValidationRejection
     //akka.http.scaladsl.server.directives.AttributeDirectives
     //akka.http.scaladsl.server.directives.AuthenticationDirective
-    //akka.http.scaladsl.server.directives.AuthenticationResult
+    akka.http.scaladsl.server.directives.AuthenticationResult
     //akka.http.scaladsl.server.directives.BasicDirectives
     //akka.http.scaladsl.server.directives.CacheConditionDirectives
     //akka.http.scaladsl.server.directives.CodingDirectives

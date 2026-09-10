@@ -265,7 +265,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.libs.json.JsError
     play.api.libs.json.JsFalse
     //play.api.libs.json.JsLookup
-    //play.api.libs.json.JsLookupResult
+    play.api.libs.json.JsLookupResult
     //play.api.libs.json.JsMacroImpl
     //play.api.libs.json.JsMacros
     //play.api.libs.json.JsMacrosWithOptions
@@ -496,7 +496,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.core.j.JavaModeConverter
     //play.core.j.JavaParsers
     //play.core.j.JavaRangeResult
-    //play.core.j.JavaResultExtractor
+    play.core.j.JavaResultExtractor
     //play.core.j.JavaRouterAdapter
     //play.core.j.RequestHeaderImpl
     //play.core.j.RequestImpl
@@ -510,7 +510,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.core.routing.Param
     play.core.routing.PathPart
     //play.core.routing.PathPattern
-    //play.core.routing.ReverseRouteContext
+    play.core.routing.ReverseRouteContext
     //play.core.routing.Route
     //play.core.routing.RouteParams
     play.core.routing.StaticPart
@@ -570,7 +570,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.utils.ExecCtxUtils
     //play.utils.InlineCache
     play.utils.InvalidUriEncodingException
-    //play.utils.JacksonJsonNodeModule
+    play.utils.JacksonJsonNodeModule
     //play.utils.JsonNodeDeserializer
     play.utils.KeyRead
     //play.utils.OrderPreserving

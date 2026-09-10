@@ -51,7 +51,7 @@ class CirceSemanticTest extends SemanticTestBase("io.circe" %% "circe-core" % "0
     //io.circe.LowPriorityEncoders
     //io.circe.MapDecoder
     //io.circe.MidPriorityEncoders
-    //io.circe.NonEmptySeqDecoder
+    io.circe.NonEmptySeqDecoder
     //io.circe.Parser
     //io.circe.ParsingFailure
     //io.circe.PathToRoot
@@ -91,7 +91,7 @@ class CirceSemanticTest extends SemanticTestBase("io.circe" %% "circe-core" % "0
     io.circe.generic.auto
     //io.circe.generic.semiauto
     //io.circe.jawn.CirceSupportParser
-    //io.circe.jawn.JawnParser
+    io.circe.jawn.JawnParser
     io.circe.jawn.JawnParserPlatform
     //io.circe.numbers.BiggerDecimal
     //io.circe.numbers.SigAndExp

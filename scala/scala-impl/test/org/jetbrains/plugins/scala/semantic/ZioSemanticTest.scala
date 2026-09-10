@@ -166,7 +166,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.internal.SpecializationHelpers
     //zio.internal.Stack
     //zio.internal.StackTraceBuilder
-    //zio.internal.Sync
+    zio.internal.Sync
     //zio.internal.TerminalRendering
     //zio.internal.UnboundedHub
     zio.internal.UniqueKey
@@ -227,7 +227,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.stm.STM
     //zio.stm.TArray
     //zio.stm.TDequeue
-    //zio.stm.TEnqueue
+    zio.stm.TEnqueue
     //zio.stm.THub
     //zio.stm.TMap
     //zio.stm.TPriorityQueue

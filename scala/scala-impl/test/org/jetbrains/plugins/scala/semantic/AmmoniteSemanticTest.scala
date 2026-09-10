@@ -38,7 +38,7 @@ class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.
     //ammonite.interp.DependencyLoader
     //ammonite.interp.Interpreter
     //ammonite.interp.PredefInitialization
-    //ammonite.interp.Watchable
+    ammonite.interp.Watchable
     ammonite.interp.api.APIHolder
     ammonite.interp.api.AmmoniteExit
     ammonite.interp.api.InterpAPI
@@ -96,7 +96,7 @@ class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.
     ammonite.runtime.ForkClassLoader
     //ammonite.runtime.Frame
     //ammonite.runtime.ImportHook
-    //ammonite.runtime.SessionChanged
+    ammonite.runtime.SessionChanged
     //ammonite.runtime.SpecialClassLoader
     //ammonite.runtime.Storage
     //ammonite.runtime.tools.GrepResult
@@ -150,7 +150,7 @@ class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.
     //ammonite.util.PositionOffsetConversion
     ammonite.util.PredefInfo
     ammonite.util.Printer
-    //ammonite.util.Ref
+    ammonite.util.Ref
     ammonite.util.ReplClassLoader
     //ammonite.util.Res
     ammonite.util.ScriptOutput

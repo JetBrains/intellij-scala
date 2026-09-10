@@ -105,7 +105,7 @@ class AkkaPersistenceSemanticTest extends SemanticTestBase("com.typesafe.akka" %
     //akka.persistence.serialization.MessageSerializer
     akka.persistence.serialization.Snapshot
     //akka.persistence.serialization.SnapshotSerializer
-    //akka.persistence.snapshot.NoSnapshotStore
+    akka.persistence.snapshot.NoSnapshotStore
     //akka.persistence.snapshot.SnapshotStore
     //akka.persistence.snapshot.japi.SnapshotStore
     //akka.persistence.snapshot.local.LocalSnapshotStore

@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiMember, PsiMethod, PsiNamedElem
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, template}
 import org.jetbrains.plugins.scala.extensions.{&, IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
+import org.jetbrains.plugins.scala.lang.psi.api.{InvocationDetails, InvocationDetailsOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScCompositePattern, ScExtractorPattern, ScLiteralPattern, ScNamingPattern, ScPattern, ScReferencePattern, ScStableReferencePattern, ScTuplePattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScInterpolatedStringLiteral, ScLiteral, ScPrimaryConstructor, ScReference}
@@ -21,10 +21,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameter, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaFeatures.forPsiOrDefault
@@ -240,38 +240,17 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case e: ScWhile =>
         "while (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " +
           e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("")
-      case mi: MethodInvocation =>
-        val explicitTypeArguments = mi.getEffectiveInvokedExpr.is[ScGenericCall]
-        val targs = mi match {
-          case TypeArgumentOwner.CallWithInferredTypeArguments(hints) => hints match {
-            case Seq(TypeArgumentOwner.TypeArgumentHint.Bracketed(anchor, typeArguments)) =>
-              "[" + typeArguments.map(t => textOf(if (explicitTypeArguments) t else t.removeAliasDefinitionsIn(mi))).mkString(", ") + "]"
-            case _ => ""
-          }
-          case _ => ""
+      //an invocation writes its arguments where the callee takes them, so the expression the call
+      //belongs to writes all of its clauses, in the order of the signature of the callee
+      case owner@Call(call) => inlining(call.target) {
+        val callee  = textOfCallee(owner, call, indent)
+        val clauses = textOfClauses(call, indent)
+        owner match {
+          //`a += b` assigns the result of `a.+(b)` to `a`, which the source writes as one operator
+          case infix: ScInfixExpr if isCompoundAssignment(infix, call) =>
+            call.thisExpr.map(textOfExpression(_, indent)).getOrElse("") + " = " + callee.stripSuffix("=") + clauses
+          case _ => callee + clauses
         }
-        val explicitImplicitArguments = mi.matchedParameters.headOption.exists {
-          case (_, param) => param.psiParam.exists {
-            case p: ScParameter => p.isInClauseWithImplicit || p.isInClauseWithUsing
-            case _ => false
-          }
-        }
-        val s3 = targs + "(" + (if (explicitImplicitArguments) "using " else "") + mi.argumentExpressions.map(textOfExpression(_, indent)).mkString(", ") + ")"
-        mi match {
-          case ScSugarCallExpr(baseExpr, operation, args) =>
-            val s1 = textOfExpression(baseExpr, indent) + "."
-            val s2 = operation.refName
-            if (mi.is[ScInfixExpr] && s2.endsWith("=") && !mi.target.exists(_.name.endsWith("="))) s1.dropRight(1) + " = " + s1 + s2.dropRight(1) + s3
-            else if (mi.is[ScPrefixExpr]) s1 + "unary_" + s2 + targs
-            else s1 + s2 + s3
-          case _ => inlining(mi.target) {
-            textOfExpression(mi.getEffectiveInvokedExpr, indent) + s3
-          }
-        }
-      case si: ScSelfInvocation =>
-        "this" + si.arguments.map(args => "(" + args.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString
-      case gc: ScGenericCall => inlining(gc.bindInvokedExpr) {
-        textOfExpression(gc.referencedExpr, indent) + "[" + gc.typeArguments.map(ta => textOf(ta.`type`())).mkString(", ") + "]"
       }
       case sc: ScAssignment =>
         def syntaxText = textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
@@ -284,15 +263,12 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
           }
           case _ => desugaredText
         }
-      case r: ScReferenceExpression => (r.qualifier match {
+      //a reference that is no call of its own, the qualifier of one or a reference to a value, since
+      //the call a reference names is written out by textOfCallee
+      case r: ScReferenceExpression => r.qualifier match {
         case Some(q) => textOfExpression(q, indent) + "." + r.refName
         case None => textOfReference(r)
-      }) + (r.bind() match {
-        case Some(r) if r.element != r.getActualElement && r.element.name == "apply" =>
-          ".apply"
-        case _ => ""
-      }) + inferredTypeArgumentsFor(r).map(_.map(t => textOf(t.removeAliasDefinitionsIn(r))).mkString("[", ", ", "]")).getOrElse("") +
-        (if (!(r.getParent.is[ScMethodCall, ScGenericCall] || r.getParent.asOptionOf[ScAssignment].exists(_.leftExpression == r)) && r.resolve().is[PsiMethod] && !r.resolve().is[ScMember] && etaExpand) "()" else "")
+      }
       case t: ScThrow => "throw " + textOfExpression(t.expression.get, indent)
       case e: ScNewTemplateDefinition =>
         val hasMembers = e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))
@@ -309,7 +285,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case e: ScFunctionExpr =>
         "(" + e.parameters.map(p => p.name + ": " + textOf(if (p.typeElement.isDefined) p.`type`().get else p.`type`().get.removeAliasDefinitionsIn(e))).mkString(", ") + ") => " + e.result.map(textOfExpression(_, indent)).getOrElse("")
       case e: ScTuple =>
-        "scala.Tuple" + e.exprs.length + ".apply[" + e.exprs.map(e => e.`type`().map(t => textOf(t.removeAliasDefinitionsIn(e))).getOrElse("NotInferred")).mkString(", ") + "](" + e.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")"
+        textOfTuple(e.exprs, indent)
       case m: ScMatch =>
         m.expression.map(textOfExpression(_, indent + "  ")).getOrElse("") + " match {\n" +
           m.clauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n") +
@@ -317,13 +293,14 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case e => "<expr>"
     }
 
-    val expression = text + textOfImplicitArguments(e.findImplicitArguments, e)
-
-    e.implicitConversion().map(textOfImplicitConversion(_, expression, e)).getOrElse(expression)
+    //a call writes the clauses the implicit search filled in where the callee takes them, in the
+    //order of the signature rather than after everything the source writes, see textOfClauses
+    e.implicitConversion().map(textOfImplicitConversion(_, text, e)).getOrElse(text)
   }
 
   private def textOfReference(r: ScReference): String =
-    r.bind().map(textOfReferenceTo(_, r)).getOrElse("<Cannot resolve reference>")
+    //A synthetic apply resolves from the function's type; its inner result retains the named receiver's qualifier.
+    r.bind().map(result => textOfReferenceTo(result.mostInnerResolveResult, r)).getOrElse("<Cannot resolve reference>")
 
   private def textOfReferenceTo(result: ScalaResolveResult, place: PsiElement): String = {
     result.getActualElement match {
@@ -388,12 +365,21 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         case t => t
       }
     }
+    val autoTupledLists = InvocationDetails.of(ci).argumentClauses.collect {
+      case clause: InvocationDetails.ValueClause if clause.isAutoTupling => clause.argsElement
+    }.toSet
+
     tpe.map(textOf(_, parens = 1)).getOrElse("NotInferred") + (ci.arguments match {
       case Seq() => if (emptyParens) "()" else ""
-      case Seq(list) if list.exprs.isEmpty => if (emptyParens) "()" else ""
-      case lists => lists.map("(" + _.exprs.map(textOfExpression(_, indent)).mkString(", ") + ")").mkString
+      case Seq(list) if list.exprs.isEmpty && !autoTupledLists(list) => if (emptyParens) "()" else ""
+      case lists => lists.map { list =>
+        val arguments =
+          if (autoTupledLists(list)) textOfTuple(list.exprs, indent)
+          else list.exprs.map(textOfExpression(_, indent)).mkString(", ")
+        "(" + arguments + ")"
+      }.mkString
     }) +
-      textOfImplicitArguments(ci.findImplicitArguments, ci)
+      textOfImplicitArguments(implicitArgumentsOf(ci), ci)
   }
 
   private def textOfImplicitConversion(function: ScalaResolveResult, expression: String, place: PsiElement): String = inlining(Some(function)) {
@@ -403,12 +389,12 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case _ => ""
     }
     textOfReferenceTo(function, place) + (if (function.element.is[ScFunction]) "" else ".apply") +
-      typeArgText + "(" + expression + ")" + textOfImplicitArguments(function.implicitArguments, place)
+      typeArgText + "(" + expression + ")" + textOfImplicitArguments(function.implicitArguments.map(_.args), place)
   }
 
-  private def textOfImplicitArguments(args: Seq[ImplicitArgumentsClause], place: PsiElement): String = args
+  private def textOfImplicitArguments(args: Seq[Seq[ScalaResolveResult]], place: PsiElement): String = args
     .map { clause =>
-      clause.args.map { arg =>
+      clause.map { arg =>
         inlining(Some(arg)) {
           val typeArgText = arg.element match {
             case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
@@ -416,7 +402,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
             case _ => ""
           }
           val prefix = textOfReferenceTo(arg, place)
-          val inner = prefix + typeArgText + textOfImplicitArguments(arg.implicitArguments, place) match {
+          val inner = prefix + typeArgText + textOfImplicitArguments(arg.implicitArguments.map(_.args), place) match {
             case GeneratedClassTag(tpe) => s"scala.reflect.ClassTag.apply[$tpe](classOf[$tpe])" // Workaround for SCL-14358
             case s => s
           }
@@ -426,21 +412,143 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     }
     .map("(using " + _ + ")").mkString
 
-  // SCL-25529, SCL-25541
-  private def inferredTypeArgumentsFor(r: ScReferenceExpression): Option[Seq[ScType]] = r.getParent match {
-    case _: MethodInvocation | _: ScGenericCall => None
-    case _ => r.bind().flatMap { result =>
-      result.element match {
-        case function: ScFunction if !function.isConstructor && function.typeParameters.nonEmpty =>
-          val constraints = result.applicabilityConstraints
-          constraints.substitutionBounds(canThrowSCE = false)(using r, Context(r)).map { bounds =>
-            def typeParamSubst(tp: ScTypeParam) = bounds.substitutor(ScAbstractType(TypeParameter(tp), tp.lowerBound.getOrNothing, tp.upperBound.getOrAny))
-            function.typeParameters.map(tp => typeParamSubst(tp).removeAbstracts)
-          }
-        case _ => None
+  /** An expression that is a call, with the details of it. Only that one expression reports them. */
+  private object Call {
+    def unapply(owner: InvocationDetailsOwner): Option[InvocationDetails] = InvocationDetails.of(owner)
+  }
+
+  /**
+   * The syntax of a call without its arguments: the expression it is applied to where the callee does
+   * not name one, `a` of `a + b`, and the callee as the source names it, which is the element the
+   * first clause of the call anchors at.
+   */
+  private def textOfCallee(owner: InvocationDetailsOwner, call: InvocationDetails, indent: String): String = {
+    //the callee is the element the first clause of the call anchors at, and the operator or the
+    //expression itself where the call has no clause to anchor one at, `f` of `def f: Int`
+    val callee = call.argumentClauses.headOption.map(_.anchor).filterNot(_ == owner).getOrElse {
+      owner match {
+        case invocation: MethodInvocation => invocation.getInvokedExpr
+        case expression                   => expression
       }
     }
+
+    val calleeText = callee match {
+      //the source does not name the callee of an assignment at all, `a(i) = b` calling `update`
+      case _ if call.isUpdate || call.isAssignmentCall     => "." + call.target.fold("")(_.name)
+      //The operator can belong to an inner clause, as in `(receiver op first)(second)`.
+      case reference: ScReferenceExpression
+        if reference.getParent.asOptionOf[ScSugarCallExpr].exists(_.operation == reference) => reference.refName
+      case reference: ScReferenceExpression                => textOfCalleeReference(reference, call, indent)
+      case expression: ScExpression if expression != owner => textOfExpression(expression, indent)
+      //the `this` of a self invocation is no expression to write out
+      case element                                         => element.getText
+    }
+
+    //the receiver is written out only where the callee does not name it already, `O.f` naming `O`
+    //an update or setter prints only the synthetic method name above, so its receiver is still needed
+    val receiver = call.thisExpr
+      .filter(receiver => call.isUpdate || call.isAssignmentCall || !callee.elements.contains(receiver))
+      .map(textOfExpression(_, indent))
+      .getOrElse("")
+
+    val separator = if (receiver.isEmpty || calleeText.startsWith(".")) "" else "."
+
+    //a prefix expression names the operator without the `unary_` the callee is declared with
+    val unary = if (owner.is[ScPrefixExpr]) "unary_" else ""
+
+    receiver + separator + unary + calleeText
   }
+
+  /**
+   * Whether the source writes one operator where the compiler assigns the result of a call, `a += b`
+   * assigning `a.+(b)` to `a` since no `+=` is defined.
+   */
+  private def isCompoundAssignment(infix: ScInfixExpr, call: InvocationDetails): Boolean =
+    infix.operation.refName.endsWith("=") && !call.target.exists(_.name.endsWith("="))
+
+  /** The callee of a call as the source names it, with an `apply` it does not name written out. */
+  private def textOfCalleeReference(reference: ScReferenceExpression, call: InvocationDetails, indent: String): String =
+    (reference.qualifier match {
+      case Some(qualifier) => textOfExpression(qualifier, indent) + "." + reference.refName
+      case None            => textOfReference(reference)
+    }) + (if (call.isApply) ".apply" else "")
+
+  /** The clauses of a call, in the order of the signature of the callee. */
+  private def textOfClauses(call: InvocationDetails, indent: String): String =
+    call.argumentClauses.map {
+      case clause: InvocationDetails.TypeClause =>
+        clause.arguments.map(argument => textOf(typeOfArgument(argument, call))).mkString("[", ", ", "]")
+      case clause: InvocationDetails.ValueClause =>
+        val using = if (isImplicitClause(clause.target)) "using " else ""
+        val arguments = clause.arguments.filterNot(isDefaultArgument).map(_._1)
+        val text =
+          if (clause.isAutoTupling) textOfTuple(arguments, indent)
+          else arguments.map(textOfArgument(_, indent)).mkString(", ")
+        "(" + using + text + ")"
+      case clause: InvocationDetails.ImplicitValueClause =>
+        textOfImplicitArguments(Seq(clause.arguments), call.origin)
+      //a clause the call leaves unapplied writes nothing, the function it evaluates to takes it
+      case _: InvocationDetails.EtaExpandedClause => ""
+      case _: InvocationDetails.AutoAppliedClause => "()"
+    }.mkString
+
+  /** Auto-tupling writes the same tuple construction as an explicit tuple, or `()` for no arguments. */
+  private def textOfTuple(arguments: Seq[ScExpression], indent: String): String =
+    if (arguments.isEmpty) "()"
+    else {
+      val types = arguments.map(e => e.`type`().map(t => textOf(t.removeAliasDefinitionsIn(e))).getOrElse("NotInferred"))
+      "scala.Tuple" + arguments.size + ".apply" + types.mkString("[", ", ", "]") +
+        arguments.map(textOfExpression(_, indent)).mkString("(", ", ", ")")
+    }
+
+  /**
+   * Whether a call applies a parameter with the default of it, in which case the argument is the
+   * expression at the declaration of the parameter and the source of the call writes nothing.
+   */
+  private def isDefaultArgument(argument: (ScExpression, Parameter)): Boolean = argument match {
+    case (expression, parameter) =>
+      parameter.isDefault && parameter.paramInCode.flatMap(_.getDefaultExpression).contains(expression)
+  }
+
+  /** An argument of a value clause, with the name of the parameter where the source writes one. */
+  private def textOfArgument(argument: ScExpression, indent: String): String =
+    argument.getContext match {
+      //a named argument is an assignment of which the call matches the right side with the
+      //parameter, the `true` of `f(discardOld = true)`, so the name is in the context of it
+      case assignment: ScAssignment if isNamedArgument(assignment, argument) =>
+        textOfExpression(assignment, indent)
+      case _ => textOfExpression(argument, indent)
+    }
+
+  /**
+   * Whether an argument is the right side of an assignment the source writes to name the parameter
+   * it applies, rather than the value an update or a setter call assigns, the `b` of `a(i) = b`,
+   * which is an argument of that assignment itself.
+   */
+  private def isNamedArgument(assignment: ScAssignment, argument: ScExpression): Boolean =
+    assignment.rightExpression.contains(argument) && InvocationDetails.of(assignment).isEmpty
+
+  /** A type argument written out, with the aliases of it removed where the source leaves it out. */
+  private def typeOfArgument(argument: InvocationDetails.TypeArgument, call: InvocationDetails): ScType =
+    if (argument.isExplicit) argument.tpe
+    else                     argument.tpe.removeAliasDefinitionsIn(call.origin)
+
+  /** Whether a clause of the callee takes its arguments implicitly, with `using` or with `implicit`. */
+  private def isImplicitClause(target: InvocationDetails.ArgumentClauseTarget.Value): Boolean = target match {
+    case InvocationDetails.ArgumentClauseTarget.ScalaParameters(parameters) => parameters.isImplicit
+    case _                                                                  => false
+  }
+
+  /**
+   * The clauses of implicit arguments the search filled in for the call `element` reports, which the
+   * source leaves out and the printer writes out.
+   */
+  private def implicitArgumentsOf(element: PsiElement): Seq[Seq[ScalaResolveResult]] =
+    element.asOptionOf[InvocationDetailsOwner]
+      .flatMap(owner => InvocationDetails.of(owner))
+      .toSeq
+      .flatMap(_.argumentClauses)
+      .collect { case clause: InvocationDetails.ImplicitValueClause => clause.arguments }
 
   private def etaExpansionOf(e: ScExpression, indent: String) = referenceLevelIn(e).flatMap { case (reference, level) =>
     reference.bind().flatMap { result =>

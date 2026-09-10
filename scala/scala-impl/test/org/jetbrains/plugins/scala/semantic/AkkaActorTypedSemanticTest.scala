@@ -14,7 +14,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     //akka.actor.typed.ActorRefResolverImpl
     akka.actor.typed.ActorRefResolverSetup
     //akka.actor.typed.ActorSystem
-    //akka.actor.typed.ActorTags
+    akka.actor.typed.ActorTags
     akka.actor.typed.BackoffSupervisorStrategy
     //akka.actor.typed.Behavior
     //akka.actor.typed.BehaviorInterceptor

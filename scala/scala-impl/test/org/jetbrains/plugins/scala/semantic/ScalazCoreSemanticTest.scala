@@ -99,11 +99,11 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.CompositionBifunctorFunctors
     scalaz.CompositionBitraverse
     scalaz.CompositionBitraverseTraverses
-    //scalaz.CompositionDistributive
+    scalaz.CompositionDistributive
     //scalaz.CompositionFoldable
     //scalaz.CompositionFoldable1
     //scalaz.CompositionFoldableBifoldable
-    //scalaz.CompositionFunctor
+    scalaz.CompositionFunctor
     scalaz.CompositionFunctorBifunctor
     scalaz.CompositionPlus
     scalaz.CompositionPlusEmpty
@@ -562,7 +562,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.LeftTraverse
     //scalaz.Leibniz
     //scalaz.LeibnizF
-    //scalaz.LeibnizInstances
+    scalaz.LeibnizInstances
     //scalaz.Lens
     //scalaz.LensCategory
     //scalaz.LensFamily
@@ -608,7 +608,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.MaybeTMonad
     scalaz.MaybeTMonadError
     //scalaz.MaybeTMonadListen
-    //scalaz.MaybeTMonadPlus
+    scalaz.MaybeTMonadPlus
     scalaz.MaybeTMonadTell
     scalaz.MaybeTTraverse
     //scalaz.Memo
@@ -656,7 +656,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.OneAndInstances0
     scalaz.OneAndInstances1
     //scalaz.OneAndInstances2
-    //scalaz.OneAndInstances3
+    scalaz.OneAndInstances3
     //scalaz.OneAndInstances4
     scalaz.OneAndInstances5
     scalaz.OneAndMonad
@@ -680,7 +680,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.OneOrInstances5
     scalaz.OneOrInstances6
     scalaz.OneOrOrder
-    //scalaz.OneOrShow
+    scalaz.OneOrShow
     scalaz.OneOrTraverse
     scalaz.OneOrTraverse1
     //scalaz.OptionT

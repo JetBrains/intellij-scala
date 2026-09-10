@@ -380,7 +380,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.context.jdbc.JdbcContextVerbPrepare
     io.getquill.context.jdbc.MysqlJdbcContextBase
     io.getquill.context.jdbc.MysqlJdbcTypes
-    //io.getquill.context.jdbc.ObjectGenericTimeDecoders
+    io.getquill.context.jdbc.ObjectGenericTimeDecoders
     io.getquill.context.jdbc.ObjectGenericTimeEncoders
     io.getquill.context.jdbc.OracleJdbcContextBase
     io.getquill.context.jdbc.OracleJdbcTypes
@@ -565,7 +565,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.parser.AstPicklers
     //io.getquill.parser.BatchActionParser
     //io.getquill.parser.BlockParser
-    //io.getquill.parser.BooSerializer
+    io.getquill.parser.BooSerializer
     //io.getquill.parser.CasePatMatchParser
     //io.getquill.parser.ComplexValueParser
     io.getquill.parser.DoSerialize
