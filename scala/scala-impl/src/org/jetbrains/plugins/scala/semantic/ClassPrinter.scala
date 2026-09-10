@@ -713,9 +713,9 @@ private object ClassPrinter {
     }
   }
 
-  def textOf(cls: ScTypeDefinition, listener: CharSequence => Unit = _ => ()): String = {
+  def textOf(cls: ScTypeDefinition, isScala3: Boolean, listener: CharSequence => Unit = _ => ()): String = {
     val annotator = new ScalaAnnotator()
-    textOfCompilationUnit(cls, withPrivate = true, normalize = true, listener) { element =>
+    textOfCompilationUnit(cls, isScala3 = isScala3, withPrivate = true, normalize = true, listener) { element =>
       val holder = new AnnotatorHolderMock(cls.getContainingFile)
       annotator.annotate(element, typeAware = true, checkShouldInspect = false, treatAsSource = true)(using holder)
       holder.errorAnnotations.map(_.message)
@@ -723,7 +723,7 @@ private object ClassPrinter {
   }
 
   // Copy of org.jetbrains.plugins.scala.text.TextToTextTestBase.textOfCompilationUnit
-  private def textOfCompilationUnit(cls: ScTypeDefinition, withPrivate: Boolean, normalize: Boolean, listener: CharSequence => Unit)(highlight: PsiElement => Seq[String]): String = {
+  private def textOfCompilationUnit(cls: ScTypeDefinition, isScala3: Boolean, withPrivate: Boolean, normalize: Boolean, listener: CharSequence => Unit)(highlight: PsiElement => Seq[String]): String = {
     val packageName = {
       val fqn = cls.qualifiedName
       if (fqn.contains('.')) fqn.substring(0, fqn.lastIndexOf('.')) else ""
@@ -737,7 +737,7 @@ private object ClassPrinter {
 
     if (packageName.nonEmpty) sb ++= "package " + packageName + "\n"
 
-    val printer = new ClassPrinter(isScala3 = true, withPrivate = withPrivate, normalize = normalize)(highlight)
+    val printer = new ClassPrinter(isScala3 = isScala3, withPrivate = withPrivate, normalize = normalize)(highlight)
     ((companionTypeAlias.toSeq :+ cls) ++ cls.baseCompanionTypeDefinition.toSeq).sortBy(_.getTextOffset).foreach {
       case td: ScTypeDefinition => printer.printTo(sb, td, "", listener)
       case ta: ScTypeAlias => printer.printTo(sb, ta)

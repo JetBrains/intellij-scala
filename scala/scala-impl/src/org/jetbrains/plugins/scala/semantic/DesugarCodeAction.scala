@@ -4,11 +4,13 @@ import com.intellij.diff.requests.SimpleDiffRequest
 import com.intellij.diff.{DiffContentFactory, DiffManager}
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.{CompilerModuleExtension, LibraryOrderEntry, ModuleRootManager, ProjectFileIndex}
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiClass
 import com.intellij.refactoring.util.CommonRefactoringUtil
+import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction, withProgressSynchronously}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -39,9 +41,11 @@ object DesugarCodeAction {
       return
     }
 
+    val isScala3 = cls.isInScala3File
+
     val fileIndex = ProjectFileIndex.getInstance(project)
 
-    val (tastyFileName, tastyFileContents, upToDate, classpath) = if (fileIndex.isInSourceContent(virtualFile)) {
+    val (tastyFileName, tastyFileContents, upToDate, classpath) = if (!isScala3) ("", Array.emptyByteArray, true, Seq.empty[String]) else if (fileIndex.isInSourceContent(virtualFile)) {
       val module = psiFile.module.getOrElse(throw new RuntimeException(s"No module for $psiFile"))
       val outputDir =
         if (fileIndex.isInTestSourceContent(virtualFile)) CompilerModuleExtension.getInstance(module).getCompilerOutputPathForTests.toNioPath
@@ -67,15 +71,15 @@ object DesugarCodeAction {
     }
 
     val (compilerText, pluginText) = withProgressSynchronously(s"Desugaring ${cls.name}...") {
-      val compilerText = {
+      val compilerText = if (!isScala3) "" else {
         val decompiler = Decompiler(classpath, Decompiler.classLoader(getClass.getClassLoader))
         decompiler.decompile(tastyFileName, tastyFileContents)
       }
       val pluginText = inReadAction {
         try {
           ScalaApplicationSettings.PRECISE_TEXT = true
-          ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = true
-          ClassPrinter.textOf(cls)
+          ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = isScala3
+          ClassPrinter.textOf(cls, isScala3 = isScala3)
         } finally {
           ScalaApplicationSettings.PRECISE_TEXT = false
           ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = false
@@ -84,9 +88,14 @@ object DesugarCodeAction {
       (compilerText, pluginText)
     }
 
-    val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3FileType)
-    val right = DiffContentFactory.getInstance.create(project, pluginText, Scala3FileType)
-    DiffManager.getInstance.showDiff(project, new SimpleDiffRequest("Desugaring of " + cls.qualifiedName, left, right, "Compiler" + (if (upToDate) "" else " (outdated, please recompile):"), "Plugin:"))
+    if (!isScala3) {
+      val file = new LightVirtualFile(s"${cls.name} (desugared)", psiFile.getFileType, pluginText)
+      FileEditorManager.getInstance(project).openFile(file, true)
+    } else {
+      val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3FileType)
+      val right = DiffContentFactory.getInstance.create(project, pluginText, Scala3FileType)
+      DiffManager.getInstance.showDiff(project, new SimpleDiffRequest("Desugaring of " + cls.qualifiedName, left, right, "Compiler" + (if (upToDate) "" else " (outdated, please recompile):"), "Plugin:"))
+    }
   }
 
   private def classpathOf(module: Module): Seq[String] =

@@ -175,7 +175,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     val psiText = inReadAction {
       sourceCls.getText // Necessary to load right-hand sides
-      ClassPrinter.textOf(sourceCls, listener(decompiledText, _))
+      ClassPrinter.textOf(sourceCls, isScala3 = true, listener(decompiledText, _))
     }
 
     (decompiledText, psiText)
