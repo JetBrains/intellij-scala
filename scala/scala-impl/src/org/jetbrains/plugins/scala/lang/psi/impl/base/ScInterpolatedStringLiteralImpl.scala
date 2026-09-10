@@ -57,7 +57,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   override protected def endQuote: String = super.startQuote
 
-  override def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)] = cachedInUserData("desugaredExpression", this, BlockModificationTracker(this)) {
+  override def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)] = cachedInUserData("desugaredExpression", this, BlockModificationTracker(this), Tuple1(ScalaApplicationSettings.PRECISE_TEXT)) {
     (referenceText, getContext) match {
       case (methodName, context) if context != null &&
         hasValidClosingQuotes &&
