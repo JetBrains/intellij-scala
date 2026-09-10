@@ -246,6 +246,9 @@ object InferUtil {
 
     implicitParameters match {
       case Some(srrs) =>
+        //the clauses that follow a type clause come after the type arguments applied to it, and are no longer leading
+        val followingClausesAreLeading = isLeadingClause && !updatedType.is[ScTypePolymorphicType]
+
         val (resultType, appliedClauses) = updateTypeWithImplicitParameters(
           updatedType,
           place,
@@ -254,7 +257,7 @@ object InferUtil {
           throwOnAmbiguous,
           fullInfo,
           implicitRecursionDepth,
-          isLeadingClause    = isLeadingClause,
+          isLeadingClause    = followingClausesAreLeading,
           updateDeep         = updateDeep,
           capturedTypeParams = Option(tparamsCapturedOnThisIteration)
         )

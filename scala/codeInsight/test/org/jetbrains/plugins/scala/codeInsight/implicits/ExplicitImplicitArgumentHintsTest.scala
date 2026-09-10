@@ -30,4 +30,20 @@ class ExplcitImplcitArgumentHintsTest_Scala3 extends ImplicitHintsTestBase {
        |  1
      """.stripMargin
   )
+
+  def testExplicitImplicitClauseAfterInterleavedTypeClauses(): Unit = doTest(
+    s"""
+       |def fun[A](a: A)[B](b: B)(implicit c: String): Unit = ()
+       |
+       |fun(1)(true)(${S}using${E}"context")
+       |""".stripMargin
+  )
+
+  def testConstructorExplicitImplicitClause(): Unit = doTest(
+    s"""
+       |class Example(a: Int)(implicit b: String)
+       |
+       |new Example(1)(${S}using${E}"context")
+       |""".stripMargin
+  )
 }

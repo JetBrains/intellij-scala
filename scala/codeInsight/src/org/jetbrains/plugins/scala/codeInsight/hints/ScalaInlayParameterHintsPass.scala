@@ -19,11 +19,12 @@ import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCod
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInfoGenerator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.{InvocationDetails, InvocationDetailsOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails.ValueClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 import scala.annotation.tailrec
@@ -46,24 +47,23 @@ trait ScalaInlayParameterHintsPass {
 
     if (!(showParameterHints || showArgumentHints)) return Seq.empty
 
-    val matchedParameters = (element match {
-      case e if hintInfoFor(e).exists(!filter.showHint(_)) => Seq.empty
-      case call: ScMethodCall => call.matchedParameters
-      case invocation: ScConstructorInvocation => invocation.matchedParameters
+    val clauses = element match {
+      case owner: InvocationDetailsOwner => owner.invocationDetails.toSeq
+        .filterNot(invocation => hintInfoFor(invocation).exists(!filter.showHint(_)))
+        .flatMap(_.argumentClauses.collect { case clause: ValueClause => clause })
       case _ => Seq.empty
-    }).filter {
-      case (argument, _) => element.isAncestorOf(argument)
     }
 
-    (if (showParameterHints) parameterHints(matchedParameters) else Seq.empty) ++
-      (if (showArgumentHints) argumentHints(matchedParameters) ++ referenceHints(element) else Seq.empty)
+    clauses.flatMap { clause =>
+      // InvocationDetails also supplies default arguments, whose PSI belongs to the declaration.
+      val matchedParameters = clause.arguments.filter { case (argument, _) => element.isAncestorOf(argument) }
+      (if (showParameterHints) parameterHints(matchedParameters) else Seq.empty) ++
+        (if (showArgumentHints) argumentHints(matchedParameters) else Seq.empty)
+    } ++ (if (showArgumentHints) referenceHints(element) else Seq.empty)
   }
 
-  private def hintInfoFor(element: PsiElement): Option[HintInfo] = element match {
-    case ResolveMethodCall(methodInfo(info)) => Some(info)
-    case ResolveConstructorCall(methodInfo(info)) => Some(info)
-    case _ => None
-  }
+  private def hintInfoFor(invocation: InvocationDetails): Option[HintInfo] =
+    invocation.target.map(_.element).collect { case methodInfo(info) => info }
 }
 
 object ScalaInlayParameterHintsPass {
@@ -149,27 +149,6 @@ object ScalaInlayParameterHintsPass {
 
       Some(new MethodInfo(classFqn + method.name, names.asJava))
     }
-  }
-
-  private object ResolveMethodCall {
-
-    def unapply(call: ScMethodCall): Option[PsiMethod] =
-      call.applyOrUpdateElement.collect {
-        case ScalaResolveResult(method: PsiMethod, _) => method
-      }.orElse {
-        call.deepestInvokedExpr match {
-          case ResolvesTo(method: PsiMethod) => Some(method)
-          case _ => None
-        }
-      }
-  }
-
-  private object ResolveConstructorCall {
-
-    def unapply(constrInvocation: ScConstructorInvocation): Option[PsiMethod] =
-      constrInvocation.reference.collect {
-        case ResolvesTo(method: PsiMethod) => method
-      }
   }
 
   private[this] def isNameable(argument: ScExpression) =

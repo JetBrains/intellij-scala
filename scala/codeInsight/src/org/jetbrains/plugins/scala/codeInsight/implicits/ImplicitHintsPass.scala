@@ -26,13 +26,14 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInf
 import org.jetbrains.plugins.scala.extensions.{&, _}
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, ImplicitClausePosition}
+import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails.{ArgumentClause, ArgumentClauseTarget, ImplicitValueClause, ValueClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, ScalaFile, SyntheticImplicitInstances}
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, InferUtil, InvocationDetails, InvocationDetailsOwner, ScalaFile, SyntheticImplicitInstances}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
@@ -76,17 +77,15 @@ class ImplicitHintsPass(
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
       rootElement.elements.foreach(e => AnnotatorHints.in(e).foreach(hints ++= _.hints))
       // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
-      hints ++= collectApplyMethodHints(editor, rootElement)
-      hints ++= collectTypeArgumentHints(editor, rootElement)
       hints ++= collectTypeHints(editor, rootElement)
       hints ++= collectParameterHints(editor, rootElement)
-      collectConversionsAndArguments()
+      collectInvocationAndConversionHints()
       collectMethodChainHints(editor, rootElement)
       collectRangeHints(editor, rootElement)
     }
   }
 
-  private def collectConversionsAndArguments(): Unit = {
+  private def collectInvocationAndConversionHints(): Unit = {
     val settings = ScalaProjectSettings.getInstance(rootElement.getProject)
     val showImplicitErrorsForFile = HighlightingAdvisor.isTypeAwareHighlightingEnabled(rootElement) &&
       (settings.isShowNotFoundImplicitArguments || settings.isShowAmbiguousImplicitArguments)
@@ -95,7 +94,7 @@ class ImplicitHintsPass(
       (settings.isShowNotFoundImplicitArguments || settings.isShowAmbiguousImplicitArguments) &&
         HighlightingAdvisor.isTypeAwareHighlightingEnabled(element)
 
-    if (!ImplicitHints.enabled && !showImplicitErrorsForFile)
+    if (!ImplicitHints.enabled && !showImplicitErrorsForFile && !showTypeArgumentHints && !showApplyMethodHints)
       return
 
     def shouldShowImplicitArgumentsOrErrors(enabledForElement: Boolean, arguments: Seq[ScalaResolveResult]): Boolean =
@@ -111,24 +110,34 @@ class ImplicitHintsPass(
       ImplicitHints.enabled || (!compilerErrorsEnabled && enabledForElement)
     }
 
-    def implicitArgumentsOrErrorHints(owner: ImplicitArgumentsOwner): Seq[Hint] = {
-      val enabledForElement = showImplicitErrors(owner)
-
-      if (shouldSearchForImplicits(enabledForElement)) {
-        owner.findImplicitArguments.flatMap {
-          case implicitArgsClause if shouldShowImplicitArgumentsOrErrors(enabledForElement, implicitArgsClause.args) =>
-            implicitArgumentsHint(owner, implicitArgsClause)(editor.getColorsScheme, owner)
-          case _ => Seq.empty
-        }
+    def invocationHints(invocation: InvocationDetails, includeTypeAndApply: Boolean = true): Seq[Hint] = {
+      val owner = invocation.origin.asOptionOfUnsafe[ImplicitArgumentsOwner]
+      val enabledForElement = showImplicitErrors(invocation.origin)
+      // A trait's parent constructor is invoked by the concrete class that mixes it in.
+      val isDeferredTraitParent = invocation.origin match {
+        case constructor: ScConstructorInvocation => constructor.templateDefinitionContext.exists(_.is[ScTrait])
+        case _ => false
       }
-      else Seq.empty
-    }
+      val typeParamIds = invocation.argumentClauses.collect {
+        case clause: ArgumentClause.Type => clause.arguments.map(_.parameter.typeParamId)
+      }.flatten.toSet
 
-    def explicitArgumentHint(e: ImplicitArgumentsOwner): Seq[Hint] = {
-      if (!ImplicitHints.enabled) return Seq.empty
-
-      e.explicitImplicitArgList.toSeq
-        .flatMap(explicitImplicitArgumentsHint)
+      val clauses = invocation.argumentClauses.flatMap {
+        case clause: ArgumentClause.Type if includeTypeAndApply =>
+          typeArgumentHints(clause, typeParamIds, editor)
+        case clause: ImplicitValueClause
+          if !isDeferredTraitParent && shouldSearchForImplicits(enabledForElement) &&
+            shouldShowImplicitArgumentsOrErrors(enabledForElement, clause.arguments) =>
+          Seq(implicitArgumentsHint(clause, owner)(editor.getColorsScheme))
+        case clause: ValueClause if ImplicitHints.enabled =>
+          clause.target match {
+            case ArgumentClauseTarget.ScalaParameters(parameters) if parameters.isImplicit =>
+              clause.argsElement.asOptionOf[ScArgumentExprList].toSeq.flatMap(explicitImplicitArgumentsHint)
+            case _ => Seq.empty
+          }
+        case _ => Seq.empty
+      }
+      (if (includeTypeAndApply) applyMethodHints(invocation) else Seq.empty) ++ clauses
     }
 
     def implicitConversionHints(expression: ScExpression): Seq[Hint] = {
@@ -185,16 +194,18 @@ class ImplicitHintsPass(
       }
     }
 
-    rootElement.elements(_.isVisible(myProject, myFile)).foreach {
-      case (_: ScTemplateParents) & ChildOf(ChildOf(tdef: ScTemplateDefinition)) if !tdef.is[ScTrait] =>
-        val parents =
-          tdef
-            .extendsBlock
-            .templateParents
-            .fold(Seq.empty[ScConstructorInvocation])(_.parentClauses)
+    val elements = rootElement.elements(_.isVisible(myProject, myFile)).toVector
 
-        hints ++= parents.flatMap(explicitArgumentHint)
-        hints ++= parents.flatMap(implicitArgumentsOrErrorHints)
+    // Inner invocations come first: in `factory()(arg)`, the factory's omitted clauses precede `.apply`.
+    elements.reverseIterator.foreach {
+      case owner: InvocationDetailsOwner
+        if shouldSearchForImplicits(showImplicitErrors(owner)) || showTypeArgumentHints || showApplyMethodHints =>
+        hints ++= owner.invocationDetails.toSeq.flatMap(invocationHints(_))
+      case _ =>
+    }
+
+    elements.foreach {
+      case (_: ScTemplateParents) & ChildOf(ChildOf(tdef: ScTemplateDefinition)) if !tdef.is[ScTrait] =>
         hints ++= injectedConstructorHintsFor(tdef)
       case enumerator@ScEnumerator.withDesugaredAndEnumeratorToken(desugaredEnum, token) =>
         val analogCall = desugaredEnum.analogMethodCall
@@ -204,11 +215,12 @@ class ImplicitHintsPass(
             hints ++= implicitConversionHints(analogCall).map(mapBackTo(enumerator))
           case _ =>
         }
-        hints ++= implicitArgumentsOrErrorHints(analogCall).map(mapBackTo(token))
+        if (shouldSearchForImplicits(showImplicitErrors(enumerator))) {
+          hints ++= analogCall.invocationDetails.toSeq
+            .flatMap(invocationHints(_, includeTypeAndApply = false)).map(mapBackTo(token))
+        }
       case e: ScExpression =>
         hints ++= implicitConversionHints(e)
-        hints ++= explicitArgumentHint(e)
-        hints ++= implicitArgumentsOrErrorHints(e)
       case _ =>
     }
 
@@ -295,23 +307,15 @@ private object ImplicitHintsPass {
     hintPrefix +: (leadingHints ++ trailingHints)
   }
 
-  private def implicitArgumentsHint(e: ImplicitArgumentsOwner, argClause: ImplicitArgumentsClause)
-                                   (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] = {
-    val arguments = argClause.args
-    val position = argClause.position match {
-      case ImplicitClausePosition.Leading  => HintPosition.BeforeArgClause
-      case ImplicitClausePosition.Trailing => HintPosition.AfterElement
-    }
-
-    val hint = Hint(
-      presentationOf(arguments, Option(owner)),
-      e,
-      position = position,
-      menu     = menu.ImplicitArguments
+  private def implicitArgumentsHint(clause: ImplicitValueClause, owner: Option[ImplicitArgumentsOwner])
+                                   (implicit scheme: EditorColorsScheme): Hint =
+    Hint(
+      presentationOf(clause.arguments, owner),
+      clause.anchor,
+      position = HintPosition.AfterElement,
+      menu = menu.ImplicitArguments,
+      relatesToPrecedingElement = true
     )
-
-    Seq(hint)
-  }
 
   private def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] = {
     if (args.isUsing) {
@@ -660,4 +664,3 @@ private object ImplicitHintsPass {
     notFoundErrorTooltip(message, Seq(parameter), owner)
   }
 }
-

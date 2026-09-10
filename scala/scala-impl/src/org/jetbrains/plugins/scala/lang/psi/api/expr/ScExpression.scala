@@ -638,10 +638,26 @@ object ScExpression {
         case _                                                      => true
       }
 
+    /**
+     * Whether the implicit arguments of `expr` have already been applied to the expression the type
+     * arguments are applied to, in [[org.jetbrains.plugins.scala.lang.psi.impl.expr.ScGenericCallImpl]],
+     * which is where a leading using clause is handled (`def foo(using A)[B]: Int` called as `foo[Int]`).
+     * They are already recorded then, and updating them again would only forget them.
+     */
+    private def implicitParamsAppliedToReferencedExpr(expr: ScExpression): Boolean = expr match {
+      case gen: ScGenericCall if !scType.is[ScTypePolymorphicType, ScMethodType] =>
+        gen.referencedExpr.getNonValueType().exists {
+          case mt: ScMethodType => mt.isImplicit
+          case _                => false
+        }
+      case _ => false
+    }
+
     def updateWithExpected(expr: ScExpression, expectedType: Option[ScType], fromUnderscore: Boolean): ScType = {
       implicit val context: Context = Context(expr)
 
-      if (shouldUpdateImplicitParams(expr) && expectedType.forall(shouldApplyContextParameters)) {
+      if (shouldUpdateImplicitParams(expr) && !implicitParamsAppliedToReferencedExpr(expr) &&
+        expectedType.forall(shouldApplyContextParameters)) {
         try {
           val updatedWithExpected =
             InferUtil.updateAccordingToExpectedType(
