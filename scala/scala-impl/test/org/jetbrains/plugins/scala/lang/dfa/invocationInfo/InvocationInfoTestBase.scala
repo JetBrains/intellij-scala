@@ -17,16 +17,20 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestCa
   protected def markerEnd: String = MarkersUtils.end()
 
   protected def generateInvocationInfoFor(code: String, assertSingleInvocation: Boolean = true): InvocationInfo = {
+    val invocationsInfo = generateInvocationsInfoFor(code)
+    if (assertSingleInvocation) invocationsInfo.size shouldBe 1
+    invocationsInfo.head
+  }
+
+  protected def generateInvocationsInfoFor(code: String): Seq[InvocationInfo] = {
     val (codeWithoutMarkers, ranges) = MarkersUtils.extractNumberedMarkers(code.strip.withNormalizedSeparator)
     val actualFile = configureFromFileText(codeWithoutMarkers)
 
     extractInvocationUnderMarker(actualFile, ranges) match {
-      case methodCall: ScMethodCall => val invocationsInfo = InvocationInfo.fromMethodCall(methodCall)
-        if (assertSingleInvocation) invocationsInfo.size shouldBe 1
-        invocationsInfo.head
-      case methodInvocation: MethodInvocation => InvocationInfo.fromMethodInvocation(methodInvocation)
-      case referenceExpression: ScReferenceExpression => InvocationInfo.fromReferenceExpression(referenceExpression)
-      case newTemplateDefinition: ScNewTemplateDefinition => InvocationInfo.fromConstructorInvocation(newTemplateDefinition)
+      case methodCall: ScMethodCall => InvocationInfo.fromMethodCall(methodCall)
+      case methodInvocation: MethodInvocation => Seq(InvocationInfo.fromMethodInvocation(methodInvocation))
+      case referenceExpression: ScReferenceExpression => Seq(InvocationInfo.fromReferenceExpression(referenceExpression))
+      case newTemplateDefinition: ScNewTemplateDefinition => Seq(InvocationInfo.fromConstructorInvocation(newTemplateDefinition))
     }
   }
 

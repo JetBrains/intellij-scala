@@ -5,6 +5,45 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{P
 
 class MultipleParameterListsInfoTest extends InvocationInfoTestBase {
 
+  def testApplyingTheResultOfACurriedCall(): Unit = {
+    val invocations = generateInvocationsInfoFor {
+      s"""
+         |class Callable { def apply(value: Int): Int = value }
+         |object Test {
+         |  def factory(first: Int)(second: Int): Callable = new Callable
+         |  val result = ${markerStart}factory(1)(2)(3)${markerEnd}
+         |}
+         |""".stripMargin
+    }
+
+    invocations.size shouldBe 2
+    verifyInvokedElement(invocations.head, "Test#factory")
+    verifyArgumentsWithMultipleArgLists(
+      invocations.head,
+      expectedArgCount = List(2, 1),
+      expectedProperArgsInText = List(List("1"), List("2")),
+      expectedMappedParamNames = List(List("first"), List("second")),
+      expectedPassingMechanisms = List(List(PassByValue, PassByValue), List(PassByValue)),
+      expectedParamToArgMapping = List(0, 1)
+    )
+    verifyInvokedElement(invocations(1), "Callable#apply")
+    verifyThisExpression(invocations(1), "factory(1)(2)")
+    verifyArgumentsWithSingleArgList(invocations(1), 2, List("3"), List("value"),
+      List(PassByValue, PassByValue), List(0))
+  }
+
+  def testInvalidArgumentInSecondClause(): Unit = {
+    val invocationInfo = generateInvocationInfoFor {
+      s"""
+         |def f(first: Int)(second: Int): Int = first + second
+         |val result = ${markerStart}f(1)(true)${markerEnd}
+         |""".stripMargin
+    }
+
+    invocationInfo.invokedElement shouldBe None
+    invocationInfo.properArguments.map(_.flatMap(_.content).map(_.getText)) shouldBe List(List("1"), List("true"))
+  }
+
   def testBasicCallsWithMultipleArgumentLists(): Unit = {
     val sugaredSyntax = "manyParamLists(4, 99)(15)(4, 9, true) { \"Hi\" }"
     val desugaredSyntax = "manyParamLists(4, 99)(15)(4, 9, true)(\"Hi\")"

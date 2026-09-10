@@ -2,15 +2,18 @@ package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
-import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationChainExtractor.{innerInvocationChain, splitInvocationChain}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassByValue, ProperArgument, ThisArgument}
-import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.{ArgumentCountLimit, buildAllArguments, insertThisArgToArgList}
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.{buildArguments, buildUnmatchedArguments, insertThisArgToArgList}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ParamToArgMapping.generateParamToArgMapping
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails
+import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails.ValueClause
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+
+import scala.annotation.tailrec
 
 /**
  * An abstraction to represent all possible Scala invocations in a standardized, convenient, syntax-agnostic way.
@@ -65,51 +68,54 @@ case class InvocationInfo(invokedElement: Option[InvokedElement],
 
 object InvocationInfo {
   def fromMethodCall(methodCall: ScMethodCall): Seq[InvocationInfo] = {
-    val innerChain = innerInvocationChain(methodCall)
-    splitInvocationChain(innerChain)
-  }
-
-  def fromMethodInvocation(invocation: MethodInvocation): InvocationInfo = {
-    if (invocation.matchedParameters.size > ArgumentCountLimit) InvocationInfo(None, Nil, invocation)
-    else {
-      val target = invocation.target
-      val isTupled = target.exists(_.tuplingUsed)
-
-      val thisArgument = Argument.thisArg(invocation.thisExpr)
-      val properArguments = buildAllArguments(List(invocation.matchedParameters),
-        List(invocation.argumentExpressions), invocation, isTupled).headOption.getOrElse(Nil)
-      val allArguments = insertThisArgToArgList(invocation, properArguments, thisArgument)
-
-      InvocationInfo(InvokedElement.fromTarget(target, invocation.applicationProblems), List(allArguments), invocation)
+    @tailrec
+    def collect(expression: ScExpression, calls: List[InvocationInfo]): List[InvocationInfo] = expression match {
+      case invocation: MethodInvocation =>
+        val next = detailsOf(invocation).fold(calls)(details => fromDetails(details, invocation) :: calls)
+        invocation match {
+          case call: ScMethodCall => collect(call.getEffectiveInvokedExpr, next)
+          case _ => next
+        }
+      case _ => calls
     }
+
+    collect(methodCall, Nil)
   }
 
-  def fromReferenceExpression(referenceExpression: ScReferenceExpression): InvocationInfo = {
-    val target = referenceExpression.bind()
+  def fromMethodInvocation(invocation: MethodInvocation): InvocationInfo =
+    detailsOf(invocation).fold(InvocationInfo(None, Nil, invocation))(fromDetails(_, invocation))
 
-    val thisArgument = Argument.thisArg(referenceExpression.qualifier)
-    val properArguments = buildAllArguments(List(referenceExpression.matchedParameters), List(),
-      referenceExpression, isTupled = false).headOption.getOrElse(Nil)
-
-    InvocationInfo(InvokedElement.fromTarget(target, Nil), List(thisArgument :: properArguments), referenceExpression)
+  private def detailsOf(invocation: MethodInvocation): Option[InvocationDetails] = invocation.getContext match {
+    case assignment: ScAssignment if assignment.leftExpression == invocation => assignment.invocationDetails
+    case _ => invocation.invocationDetails
   }
 
-  def fromConstructorInvocation(newTemplateDefinition: ScNewTemplateDefinition): InvocationInfo = {
-    val invocationInfo = newTemplateDefinition.firstConstructorInvocation
-      .filter(_.matchedParameters.size <= ArgumentCountLimit)
-      .map { constructorInvocation =>
-        val target = constructorInvocation.reference.flatMap(_.bind())
-        val isTupled = target.exists(_.tuplingUsed)
+  def fromReferenceExpression(referenceExpression: ScReferenceExpression): InvocationInfo =
+    referenceExpression.invocationDetails.fold(
+      InvocationInfo(None, List(List(Argument.thisArg(referenceExpression.qualifier))), referenceExpression)
+    )(fromDetails(_, referenceExpression))
 
-        val thisArgument = Argument.thisArg(expression = None)
-        val properArguments = buildAllArguments(List(constructorInvocation.matchedParameters),
-          constructorInvocation.arguments.map(_.exprs), newTemplateDefinition, isTupled)
-        val allArguments = (thisArgument :: properArguments.headOption.getOrElse(Nil)) :: properArguments.drop(1)
+  def fromConstructorInvocation(newTemplateDefinition: ScNewTemplateDefinition): InvocationInfo =
+    newTemplateDefinition.firstConstructorInvocation
+      .map(invocation => fromDetails(InvocationDetails.of(invocation), newTemplateDefinition))
+      .getOrElse(InvocationInfo(None, Nil, newTemplateDefinition))
 
-        InvocationInfo(InvokedElement.fromTarget(target, Nil), allArguments, newTemplateDefinition)
-      }
+  private def fromDetails(details: InvocationDetails, fallbackPlace: ScExpression): InvocationInfo = {
+    val clauses = details.argumentClauses.collect { case clause: ValueClause => clause }
+    val invocations = clauses.flatMap(_.argsElement.getContext.asOptionOf[MethodInvocation])
+    // Keep the anchor at the first application, including an infix call inside a curried call.
+    val place = invocations.headOption.getOrElse(fallbackPlace)
+    val properArguments = if (clauses.nonEmpty) clauses.map(buildArguments).toList else fallbackPlace match {
+      // Unresolved calls have no signature clauses, but their arguments still need evaluating.
+      case invocation: MethodInvocation => List(buildUnmatchedArguments(invocation.argumentExpressions)(invocation.projectContext))
+      case _ => Nil
+    }
+    val thisArgument = Argument.thisArg(details.thisExpr)
+    val firstArguments = insertThisArgToArgList(place, properArguments.headOption.getOrElse(Nil), thisArgument)
+    val allArguments = firstArguments :: properArguments.drop(1)
+    val problems = invocations.flatMap(_.applicationProblems) ++ details.target.toSeq.flatMap(_.problems)
 
-    invocationInfo.getOrElse(InvocationInfo(None, Nil, newTemplateDefinition))
+    InvocationInfo(InvokedElement.fromTarget(details.target, problems), allArguments, place)
   }
 
   def tryFromImplicitConversion(fun: ScFunction, expr: ScExpression): Option[InvocationInfo] = {

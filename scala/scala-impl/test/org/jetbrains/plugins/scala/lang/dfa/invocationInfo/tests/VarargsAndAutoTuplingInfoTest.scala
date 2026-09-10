@@ -5,6 +5,27 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.Pa
 
 class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
 
+  def testAutoTuplingInSecondClause(): Unit = {
+    for (arguments <- List("(2, 3)", "((2, 3))")) {
+      val invocationInfo = generateInvocationInfoFor {
+        s"""
+           |object Test {
+           |  def someMethod(first: Int)(pair: (Int, Int)): Int = first + pair._1 + pair._2
+           |  val result = ${markerStart}someMethod(1)$arguments${markerEnd}
+           |}
+           |""".stripMargin
+      }
+
+      verifyInvokedElement(invocationInfo, "Test#someMethod")
+      verifyArgumentsWithMultipleArgLists(invocationInfo,
+        expectedArgCount = List(2, 1),
+        expectedProperArgsInText = List(List("1"), List("(2, 3)")),
+        expectedMappedParamNames = List(List("first"), List("pair")),
+        expectedPassingMechanisms = List(List(PassByValue, PassByValue), List(PassByValue)),
+        expectedParamToArgMapping = List(0, 1))
+    }
+  }
+
   def testVarargsStandardCall(): Unit = {
     val invocationInfo = generateInvocationInfoFor {
       s"""
