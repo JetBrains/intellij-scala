@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScFloatingPointLiteral.FloatingPointParseResult
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScDoubleLiteral, ScIntegerLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScCharLiteral, ScDoubleLiteral, ScIntegerLiteral}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, StdTypes, ValType}
@@ -51,6 +51,7 @@ package object expr {
 
     sealed abstract class NumLit
     final case class IntLit(value: Int) extends NumLit
+    final case class CharLit(value: Char) extends NumLit
     final case class DoubleLit(lit: ScDoubleLiteral) extends NumLit
 
     def isByte(v: Long) = v >= scala.Byte.MinValue && v <= scala.Byte.MaxValue
@@ -60,6 +61,7 @@ package object expr {
     def findLit(expr: ScExpression): Option[NumLit] =
       expr match {
         case ScIntegerLiteral(value) => Some(IntLit(value))
+        case ScCharLiteral(ch) => Some(CharLit(ch))
         case lit: ScDoubleLiteral => Some(DoubleLit(lit))
         case ScPrefixExpr(op, operand) if Set("+", "-").contains(op.refName) =>
           findLit(operand).map {
@@ -88,7 +90,10 @@ package object expr {
         case _ =>
           // If the type is not a literal type (for example, in Scala 2.12),
           // we also search for an explicit integer literal
-          findLit(expr).collect { case IntLit(int) => int }
+          findLit(expr).collect {
+            case IntLit(int) => int
+            case CharLit(ch) => ch.toLong
+          }
       }
 
     val stdTypes = StdTypes.instance
@@ -106,8 +111,7 @@ package object expr {
       case _     => false
     }
 
-    if (fits) Some(unaliasedExpected)
-    else None
+    Option.when(fits)(unaliasedExpected)
   }
 
   private def getStdType(

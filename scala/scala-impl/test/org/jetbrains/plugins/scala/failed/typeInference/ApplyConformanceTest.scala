@@ -6,13 +6,6 @@ class ApplyConformanceTest extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def shouldPass: Boolean = false
 
-  def testSCL12764(): Unit = checkTextHasNoErrors(
-    """
-      |val head: Array[Byte] = Array.apply(0x0a, ')')
-      |/* True */
-    """.stripMargin)
-
-
   def testSCL13046(): Unit = {
     checkTextHasNoErrors(
       s"""

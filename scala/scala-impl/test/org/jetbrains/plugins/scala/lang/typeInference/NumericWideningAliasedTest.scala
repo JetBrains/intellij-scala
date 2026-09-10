@@ -26,4 +26,20 @@ class NumericWideningAliasedTest extends ScalaLightCodeInsightFixtureTestCase {
       |val id: Id = 42
       |""".stripMargin
   )
+
+  def testCharNarrowing(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  val b: Byte = 'z' // Type mismatch
+      |}
+      |""".stripMargin
+  )
+
+  def testCharNarrowingNeg(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |object A {
+       |  val b: Byte = $CARET'木' // Type mismatch
+       |}
+       |""".stripMargin
+  )
 }
