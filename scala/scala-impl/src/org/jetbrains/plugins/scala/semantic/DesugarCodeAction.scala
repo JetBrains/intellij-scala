@@ -27,6 +27,10 @@ class DesugarCodeAction extends AnAction(
     val project = e.getProject
     val editor = CommonDataKeys.EDITOR.getData(e.getDataContext)
     val psiFile = CommonDataKeys.PSI_FILE.getData(e.getDataContext).asInstanceOf[ScalaFile]
+    if (psiFile.isCompiled) {
+      CommonRefactoringUtil.showErrorHint(project, editor, "File must have source", getTemplateText, null)
+      return
+    }
     val cls = classAtCaret(editor, psiFile).orElse(psiFile.typeDefinitions.headOption).getOrElse {
       CommonRefactoringUtil.showErrorHint(project, editor, "No class to desugar", getTemplateText, null)
       return
