@@ -44,7 +44,9 @@ class DesugarCodeAction extends AnAction(
 
     val (tastyFileName, tastyFileContents, upToDate, classpath) = if (fileIndex.isInSourceContent(virtualFile)) {
       val module = psiFile.module.getOrElse(throw new RuntimeException(s"No module for $psiFile"))
-      val outputDir = CompilerModuleExtension.getInstance(module).getCompilerOutputPath.toNioPath
+      val outputDir =
+        if (fileIndex.isInTestSourceContent(virtualFile)) CompilerModuleExtension.getInstance(module).getCompilerOutputPathForTests.toNioPath
+        else CompilerModuleExtension.getInstance(module).getCompilerOutputPath.toNioPath
       val tastyFile = {
         val elements = (cls: PsiClass).getQualifiedName.split('.').toSeq.dropRight(1) :+ (cls: PsiClass).getName.stripSuffix("$") + ".tasty"
         elements.foldLeft(outputDir)((acc, x) => acc.resolve(x))
