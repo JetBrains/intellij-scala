@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project._
 
@@ -73,17 +74,37 @@ object InferUtil {
     coreElement:            Option[ScNamedElement],
     canThrowSCE:            Boolean,
     fullInfo:               Boolean,
-    throwOnAmbiguous:       Boolean = true,
-    implicitRecursionDepth: Int     = 0,
-    updateDeep:             Boolean = false,
-    isLeadingClause:        Boolean = false
+    throwOnAmbiguous:       Boolean           = true,
+    implicitRecursionDepth: Int               = 0,
+    updateDeep:             Boolean           = false,
+    isLeadingClause:        Boolean           = false,
+    capturedTypeParams:     Option[Seq[Long]] = None
   ): (ScType, Seq[ImplicitArgumentsClause]) = {
     implicit val elementScope: ElementScope = place.elementScope
     implicit val context: Context = Context(place)
 
-    var implicitParameters = Option.empty[Seq[ScalaResolveResult]]
-    var updatedType        = tpe
-    var constraints        = ConstraintSystem.empty
+    var implicitParameters             = Option.empty[Seq[ScalaResolveResult]]
+    var updatedType                    = tpe
+    var constraints                    = ConstraintSystem.empty
+    var tparamsCapturedOnThisIteration = Seq.empty[Long]
+
+    //We want to avoid accidentally solving implicit parameters that "belong"
+    //to a different (than the one we started with) expression, e.g.
+    //foo: [A] A => (using A) => [B] (using B);
+    //foo(123)[String]; we want to solve first using Int clause, but not the second using String clause,
+    //because it belongs to a different owner (ScGenericCall instead of MethodInvocation)
+    //To do that, just save captured type paramaters on the first iteration and make sure
+    //any recursive invocations does not capture any new ones.
+    def doesNotCaptureNewTypeParams(newTps: Seq[TypeParameter]): Boolean = {
+      val newIds = newTps.map(_.typeParamId)
+      tparamsCapturedOnThisIteration = newIds
+
+      val res = capturedTypeParams.forall { captured =>
+        newIds.forall(captured.contains)
+      }
+
+      res
+    }
 
     tpe.widen match {
       case t @ ScTypePolymorphicType(mt @ ScMethodType(retType, _, isImplicit), _)
@@ -95,8 +116,9 @@ object InferUtil {
             place,
             coreElement,
             canThrowSCE,
-            fullInfo = fullInfo,
-            updateDeep = updateDeep
+            fullInfo           = fullInfo,
+            updateDeep         = updateDeep,
+            capturedTypeParams = capturedTypeParams
           )
 
         updatedType = updatedReturnType match {
@@ -115,7 +137,8 @@ object InferUtil {
             )
         }
         return (updatedType, appliedInner)
-      case ScTypePolymorphicType(internal @ ImplicitMethodOrFunctionType(retType, params), typeParams) =>
+      case ScTypePolymorphicType(internal @ ImplicitMethodOrFunctionType(retType, params), typeParams)
+      if doesNotCaptureNewTypeParams(typeParams) =>
         val splitMethodType = internal match {
           case cft @ ContextFunctionType(_, _) => cft
           case mt: ScMethodType =>
@@ -197,8 +220,9 @@ object InferUtil {
             place,
             coreElement,
             canThrowSCE,
-            fullInfo = fullInfo,
-            updateDeep = updateDeep
+            fullInfo           = fullInfo,
+            updateDeep         = updateDeep,
+            capturedTypeParams = capturedTypeParams
           )
 
         return (mt.copy(result = updatedReturnType), appliedClauses)
@@ -230,8 +254,9 @@ object InferUtil {
           throwOnAmbiguous,
           fullInfo,
           implicitRecursionDepth,
-          isLeadingClause = isLeadingClause,
-          updateDeep      = updateDeep
+          isLeadingClause    = isLeadingClause,
+          updateDeep         = updateDeep,
+          capturedTypeParams = Option(tparamsCapturedOnThisIteration)
         )
 
         val clauseKind =
@@ -936,10 +961,24 @@ object InferUtil {
     //2. extension (using Bar)(x: Foo)(using Baz) { def foo(x: Int)(using Qux): String = ??? }
     //   drop implicit/using clauses from the extension itself, leave target method untouched
     //   result: Foo => Int => using Qux => String
+    //NOTE: right-associative extensions
+    //https://nightly.scala-lang.org/docs/reference/contextual/right-associative-extension-methods.html
     val clauses = owner match {
       case Some(ext) =>
-        ext.effectiveParameterClauses.filterNot(_.isImplicit) ++
-          function.effectiveParameterClauses
+        val (extensionClauses, functionClauses) =
+          function.effectiveSignatureClausesWithExtension(Option(ext))
+
+        val extensionClausesWithoutImplicits =
+          extensionClauses.collect {
+            case ScSignatureClause.TermClause(clause) if !clause.isImplicit => clause
+          }
+
+        val functionTermClauses =
+          functionClauses.collect {
+            case ScSignatureClause.TermClause(clause) => clause
+          }
+
+        extensionClausesWithoutImplicits ++ functionTermClauses
       case None => function.effectiveParameterClauses.filterNot(_.isImplicit)
     }
 

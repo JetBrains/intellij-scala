@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMethodExt, PsiParam
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScSignatureClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionExt, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -158,23 +158,15 @@ object MethodTypeProvider {
       dropExtensionClauses: Boolean,
       extensionOwner:       Option[ScExtension]
     ): ScType = {
-      val (extensionClauses, extensionTypeParams) =
-        extensionOwner
-          .orElse(element.extensionMethodOwner)
-          .map(ext =>
-            ext.effectiveParameterClauses -> ext.typeParameters
-          ).getOrElse(Seq.empty, Seq.empty)
+      val (extensionClauses, functionClauses) =
+        element.effectiveSignatureClausesWithExtension(extensionOwner)
 
-      def interleavedPolymorphicType(signatureClauses: Seq[ScSignatureClause]): ScType = {
-        val clausesTypeParameters =
-          signatureClauses.collect {
-            case ScSignatureClause.TypeClause(typeParamClause) => typeParamClause.typeParameters
-          }.flatten
-
-        val rtpe = returnType.getOrElse(element.returnType.getOrAny)
-
+      def interleavedPolymorphicType(
+        signatureClauses: Seq[ScSignatureClause],
+        retTpe:           ScType
+      ): ScType = {
         val result =
-          signatureClauses.foldRight[ScType](rtpe) { (clause: ScSignatureClause, tp: ScType) =>
+          signatureClauses.foldRight[ScType](retTpe) { (clause: ScSignatureClause, tp: ScType) =>
             clause match {
               case ScSignatureClause.TypeClause(typeParamClause) =>
                 ScTypePolymorphicType(
@@ -191,23 +183,16 @@ object MethodTypeProvider {
             }
           }
 
-        val nonLocalTypeParameters = typeParameters.filterNot(clausesTypeParameters.contains)
-
-        val tpe =
-          if (nonLocalTypeParameters.nonEmpty)
-            ScTypePolymorphicType(result, nonLocalTypeParameters.map(TypeParameter(_)))
-          else
-            result
-
-        s(tpe)
+        s(result)
       }
 
-      val regularMethodResult = {
-        val allClauses = element.effectiveSignatureClauses
-
-        if (allClauses.nonEmpty) interleavedPolymorphicType(allClauses)
-        else                     super.polymorphicType(s, returnType)
-      }
+      val regularMethodResult =
+        if (functionClauses.nonEmpty)
+          interleavedPolymorphicType(
+            functionClauses,
+            returnType.getOrElse(element.returnType.getOrAny)
+          )
+        else super.polymorphicType(s, returnType)
 
       if (dropExtensionClauses || extensionClauses.isEmpty) regularMethodResult
       else {
@@ -217,12 +202,11 @@ object MethodTypeProvider {
          * where extension type and value parameter sections are prepended to the
          * actual method type.
          */
-        val newMethodType = s(constructMethodType(regularMethodResult, extensionClauses))
+        val methodTypeWithExtensionClauses = s(
+          interleavedPolymorphicType(extensionClauses, regularMethodResult)
+        )
 
-        if (extensionTypeParams.nonEmpty)
-          ScTypePolymorphicType(newMethodType, extensionTypeParams.map(TypeParameter(_)))
-        else
-          newMethodType
+        methodTypeWithExtensionClauses
       }
     }
   }

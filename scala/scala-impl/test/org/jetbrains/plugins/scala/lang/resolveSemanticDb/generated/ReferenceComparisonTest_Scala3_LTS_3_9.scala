@@ -2324,7 +2324,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part23 extends ReferenceCompa
   def test_inlined_the(): Unit = doTest("inlined-the", false)
   def test_innerclass(): Unit = doTest("innerclass", true)
   def test_interfaceObject(): Unit = doTest("interfaceObject", true)
-  def test_interleaving_ba(): Unit = doTest("interleaving-ba", false)
+  def test_interleaving_ba(): Unit = doTest("interleaving-ba", true)
   def test_interleaving_chainedParams(): Unit = doTest("interleaving-chainedParams", true)
   def test_interleaving_classless(): Unit = doTest("interleaving-classless", true)
   def test_interleaving_functor(): Unit = doTest("interleaving-functor", true)
