@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
+import com.intellij.pom.java.LanguageLevel
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
@@ -8,21 +10,20 @@ import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.{FoldingDataForTests, ViewerEditorState}
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinterFactory, WorksheetEditorPrinterPlain}
 import org.junit.Assert.{assertEquals, assertTrue, fail}
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import org.junit.{ComparisonFailure, Test}
 
 import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 
-class WorksheetPlainCompileOnServerRunLocallyAutoFlushTest extends WorksheetPlainAutoFlushTestBase {
-  override def useCompileServer = true
-  override def runInCompileServerProcess = false
-}
+//noinspection Junit4RunWithInspection
+@RunWith(classOf[JUnit4])
+class WorksheetPlainCompileOnServerRunLocallyAutoFlushTest extends CompileOnServerRunLocallyTestBase {
 
-class WorksheetPlainCompileLocallyRunLocallyAutoFlushTest extends WorksheetPlainAutoFlushTestBase {
-  override def useCompileServer = false
-  override def runInCompileServerProcess = false
-}
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
-abstract class WorksheetPlainAutoFlushTestBase extends PlainWorksheetTestBase {
+  override def testProjectJdkVersion: LanguageLevel = LanguageLevel.JDK_17
+
   @Test
   def testAutoFlushOnLongEvaluation_DefaultAutoFlushTimeout(): Unit =
     doTestAutoFlushOnLongEvaluationNTimes(
