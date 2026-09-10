@@ -84,9 +84,8 @@ object DesugarCodeAction {
       (compilerText, pluginText)
     }
 
-    val scala3FileType: LanguageFileTypeBase = new LanguageFileTypeBase(Scala3Language.INSTANCE) { override def getIcon: Icon = Icons.SCALA_FILE }
-    val left = DiffContentFactory.getInstance.create(project, compilerText, scala3FileType)
-    val right = DiffContentFactory.getInstance.create(project, pluginText, scala3FileType)
+    val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3FileType)
+    val right = DiffContentFactory.getInstance.create(project, pluginText, Scala3FileType)
     DiffManager.getInstance.showDiff(project, new SimpleDiffRequest("Desugaring of " + cls.qualifiedName, left, right, "Compiler" + (if (upToDate) "" else " (outdated, please recompile):"), "Plugin:"))
   }
 
@@ -100,5 +99,9 @@ object DesugarCodeAction {
     val elementAtCaret = Option(file.findElementAt(offset))
     val classAtCaret = elementAtCaret.flatMap(_.contexts.collectFirst { case td: ScTypeDefinition if td.isTopLevel => td })
     classAtCaret
+  }
+
+  private object Scala3FileType extends LanguageFileTypeBase(Scala3Language.INSTANCE) {
+    override def getIcon: Icon = Icons.SCALA_FILE
   }
 }
