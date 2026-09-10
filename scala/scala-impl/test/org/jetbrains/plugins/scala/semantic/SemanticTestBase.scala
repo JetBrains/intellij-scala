@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.semantic
 import com.intellij.openapi.diff.impl.patch.{TextFilePatch, TextPatchBuilder, UnifiedDiffWriter}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
@@ -11,7 +12,6 @@ import org.jetbrains.plugins.scala.corpus.{ProjectCorpusTestBase, ProjectCorpusT
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.toJavaName
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.semantic.SemanticTestBase.{decompilerClassLoader, definition}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -100,7 +100,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
               }
               val directory = Path.of("scala", Seq("scala-impl", "target", "comparison") ++ fqn.split('.').dropRight(1): _*)
               Files.createDirectories(directory)
-              val fileName = toJavaName(cls.name)
+              val fileName = (cls: PsiClass).getName
               Files.write(directory.resolve(fileName + ".scala"), sourceText.getBytes)
               Files.write(directory.resolve(fileName + "1.scala"), decompiledText.getBytes)
               val file2 = directory.resolve(fileName + "2.scala")

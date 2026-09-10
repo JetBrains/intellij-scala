@@ -2,7 +2,7 @@
 
 package org.jetbrains.plugins.scala.semantic
 
-import com.intellij.psi.{PsiClass, PsiElement, PsiFile, PsiMember, PsiMethod, PsiNamedElement, PsiPackage}
+import com.intellij.psi.{PsiElement, PsiFile, PsiMember, PsiMethod, PsiNamedElement, PsiPackage}
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, template}
 import org.jetbrains.plugins.scala.extensions.{&, IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -333,7 +333,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       }
       case e: PsiNamedElement => e.nameContext match {
         case p: PsiPackage if p.getName == null => "_root_"
-        case p: ScClassParameter if p.containingClass.extendsBlock.templateParents.exists(place.contexts.takeWhile(!_.is[PsiFile]).contains) => p.name
+        case p: ScClassParameter if p.containingClass.extendsBlock.templateParents.exists(place.contexts.contains) => p.name
         case m: ScMember if m.isLocal => e.name
         case m: PsiMember =>
           if (ScalaPsiUtil.hasStablePath(e)) m.qualifiedNameOpt.getOrElse("<Cannot determine fully-qualified name>") else {
@@ -505,19 +505,6 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case _ => ""
     }
     annotations + "\n" + indent + "  " + modifiers + keyword + name + tpe + rhs + "\n"
-  }
-
-  private def isConstant(v: ScValueOrVariable, symbol: ScTypedDefinition): Boolean = {
-    val symbolType = symbol.`type`()
-    (v.hasModifierPropertyScala("final") || v.hasModifierPropertyScala("inline")) && !v.hasExplicitType && !v.isAbstract && symbolType.exists(canBeTypeOfConstant)
-  }
-
-  private def canBeTypeOfConstant(tpe: ScType): Boolean = tpe match {
-    case _: ScLiteralType => true
-    case t if t.isPrimitive => true
-    case t if t.isNull => true
-    case ScDesignatorType(cls: PsiClass) if cls.qualifiedName == "java.lang.String" => true
-    case _ => false
   }
 
   private def printTo(sb: StringBuilder, alias: ScTypeAlias): Unit = {
