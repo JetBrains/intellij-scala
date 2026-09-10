@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWith(classOf[JUnit4])
-class InterleavedCompilationTest extends SbtProjectCompilationTestBase {
+class InterleavedCompilationTest extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
 
   override protected def jdkVersionForTest: TestJdkVersion = TestJdkVersion.JDK_17
 
