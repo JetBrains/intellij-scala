@@ -2,30 +2,29 @@ package org.jetbrains.plugins.scala.semantic
 
 import com.intellij.diff.requests.SimpleDiffRequest
 import com.intellij.diff.{DiffContentFactory, DiffManager}
-import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.{CompilerModuleExtension, LibraryOrderEntry, ModuleRootManager, ProjectFileIndex}
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiClass
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction, withProgressSynchronously}
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle}
+import org.jetbrains.plugins.scala.{LanguageFileTypeBase, Scala3Language}
 
 import java.nio.file.Files
+import javax.swing.Icon
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class DesugarCodeAction extends AnAction(
-  ScalaBundle.message("desugar.scala.code.action.text"),
-  ScalaBundle.message("desugar.scala.code.action.description"),
-  /* icon = */null) {
+object DesugarCodeAction {
+  private def getTemplateText: String = "Desugar Scala Code"
 
-  override def actionPerformed(e: AnActionEvent): Unit = {
+  def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject
     val editor = CommonDataKeys.EDITOR.getData(e.getDataContext)
     val document = editor.getDocument
@@ -85,8 +84,9 @@ class DesugarCodeAction extends AnAction(
       (compilerText, pluginText)
     }
 
-    val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3Language.INSTANCE.getAssociatedFileType)
-    val right = DiffContentFactory.getInstance.create(project, pluginText, Scala3Language.INSTANCE.getAssociatedFileType)
+    val scala3FileType: LanguageFileTypeBase = new LanguageFileTypeBase(Scala3Language.INSTANCE) { override def getIcon: Icon = Icons.SCALA_FILE }
+    val left = DiffContentFactory.getInstance.create(project, compilerText, scala3FileType)
+    val right = DiffContentFactory.getInstance.create(project, pluginText, scala3FileType)
     DiffManager.getInstance.showDiff(project, new SimpleDiffRequest("Desugaring of " + cls.qualifiedName, left, right, "Compiler" + (if (upToDate) "" else " (outdated, please recompile):"), "Plugin:"))
   }
 
@@ -100,11 +100,5 @@ class DesugarCodeAction extends AnAction(
     val elementAtCaret = Option(file.findElementAt(offset))
     val classAtCaret = elementAtCaret.flatMap(_.contexts.collectFirst { case td: ScTypeDefinition if td.isTopLevel => td })
     classAtCaret
-  }
-
-  override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
-
-  override def update(e: AnActionEvent): Unit = {
-    ScalaActionUtil.enableAndShowIfInScalaFile(e)
   }
 }

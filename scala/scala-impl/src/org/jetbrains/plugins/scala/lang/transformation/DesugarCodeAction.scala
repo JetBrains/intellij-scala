@@ -22,6 +22,10 @@ class DesugarCodeAction extends AnAction(
 
     val file = CommonDataKeys.PSI_FILE.getData(event.getDataContext).asInstanceOf[ScalaFile]
     if (file == null) return
+    if (file.isInScala3File) {
+      org.jetbrains.plugins.scala.semantic.DesugarCodeAction.actionPerformed(event)
+      return
+    }
 
     val editor = CommonDataKeys.EDITOR.getData(event.getDataContext)
     if (editor == null) return
