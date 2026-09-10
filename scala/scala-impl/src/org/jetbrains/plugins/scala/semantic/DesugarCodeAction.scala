@@ -47,12 +47,12 @@ class DesugarCodeAction extends AnAction(
     }
 
     val classpath = ModuleRootManager.getInstance(module)
-      .orderEntries.productionOnly.librariesOnly.classes.getRoots.toSeq
-      .map(virtualFile => VfsUtil.getLocalFile(virtualFile).getPath)
+      .orderEntries.withoutSdk.classes.getRoots.toSeq
+      .map(VfsUtil.getLocalFile(_).getPath)
 
     val (compilerText, pluginText) = withProgressSynchronously(s"Desugaring ${cls.name}...") {
       val compilerText = {
-        val decompiler = Decompiler(classpath :+ outputDir.toString, Decompiler.classLoader(getClass.getClassLoader))
+        val decompiler = Decompiler(classpath, Decompiler.classLoader(getClass.getClassLoader))
         decompiler.decompile(tastyFile.getFileName.toString, Files.readAllBytes(tastyFile))
       }
       val pluginText = inReadAction {
