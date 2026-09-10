@@ -724,7 +724,10 @@ private object ClassPrinter {
 
   // Copy of org.jetbrains.plugins.scala.text.TextToTextTestBase.textOfCompilationUnit
   private def textOfCompilationUnit(cls: ScTypeDefinition, withPrivate: Boolean, normalize: Boolean, listener: CharSequence => Unit)(highlight: PsiElement => Seq[String]): String = {
-    val packageName = cls.qualifiedName.substring(0, cls.qualifiedName.lastIndexOf('.'))
+    val packageName = {
+      val fqn = cls.qualifiedName
+      if (fqn.contains('.')) fqn.substring(0, fqn.lastIndexOf('.')) else ""
+    }
 
     val companionTypeAlias = ScalaPsiManager.instance(cls.getProject).getTopLevelDefinitionsByPackage(packageName, cls.getResolveScope).collect {
       case a: ScTypeAlias if a.name == cls.name => a
@@ -732,7 +735,7 @@ private object ClassPrinter {
 
     val sb = new StringBuilder()
 
-    sb ++= "package " + packageName + "\n"
+    if (packageName.nonEmpty) sb ++= "package " + packageName + "\n"
 
     val printer = new ClassPrinter(isScala3 = true, withPrivate = withPrivate, normalize = normalize)(highlight)
     ((companionTypeAlias.toSeq :+ cls) ++ cls.baseCompanionTypeDefinition.toSeq).sortBy(_.getTextOffset).foreach {
@@ -740,6 +743,7 @@ private object ClassPrinter {
       case ta: ScTypeAlias => printer.printTo(sb, ta)
     }
 
+    if (packageName.isEmpty) sb.delete(0, 1)
     sb.setLength(sb.length - 1)
 
     sb.toString
