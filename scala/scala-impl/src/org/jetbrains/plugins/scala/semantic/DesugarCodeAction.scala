@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.psi.PsiClass
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -14,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle}
+
+import java.nio.file.Files
 
 class DesugarCodeAction extends AnAction(
   ScalaBundle.message("desugar.scala.code.action.text"),
@@ -31,7 +34,17 @@ class DesugarCodeAction extends AnAction(
 
     val module = file.module.orNull
 
-    val outputDir = CompilerModuleExtension.getInstance(module).getCompilerOutputPath
+    val outputDir = CompilerModuleExtension.getInstance(module).getCompilerOutputPath.toNioPath
+
+    val tastyFile = {
+      val elements = (cls: PsiClass).getQualifiedName.split('.').toSeq.dropRight(1) :+ (cls: PsiClass).getName.stripSuffix("$") + ".tasty"
+      elements.foldLeft(outputDir)((acc, x) => acc.resolve(x))
+    }
+
+    if (!Files.exists(tastyFile)) {
+      CommonRefactoringUtil.showErrorHint(project, editor, s"${outputDir.relativize(tastyFile)} not found; please compile the class", getTemplateText, null)
+      return
+    }
 
     val compilerText = {
       val decompiler = {
@@ -39,15 +52,10 @@ class DesugarCodeAction extends AnAction(
           ModuleRootManager.getInstance(module)
             .orderEntries.productionOnly.librariesOnly.classes.getRoots.toSeq
             .map(virtualFile => VfsUtil.getLocalFile(virtualFile).getPath)
-        Decompiler(classpath :+ outputDir.getPath, Decompiler.classLoader(getClass.getClassLoader))
+        Decompiler(classpath :+ outputDir.toString, Decompiler.classLoader(getClass.getClassLoader))
       }
 
-      val tastyFile = {
-        val tastyFilePath = cls.qualifiedName.replace('.', '/') + ".tasty"
-        outputDir.findFileByRelativePath(tastyFilePath)
-      }
-
-      decompiler.decompile(tastyFile.getName, tastyFile.contentsToByteArray())
+      decompiler.decompile(tastyFile.getFileName.toString, Files.readAllBytes(tastyFile))
     }
 
     val pluginText = try {
