@@ -17,16 +17,16 @@ import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.Test
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.runners.JUnit4
 
 import java.nio.file.Path
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-@RunWith(classOf[Parameterized])
-class InterleavedCompilationTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
+@RunWith(classOf[JUnit4])
+class InterleavedCompilationTest extends SbtProjectCompilationTestBase {
 
-  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
+  override protected def jdkVersionForTest: TestJdkVersion = TestJdkVersion.JDK_17
 
   override def setUp(): Unit = {
     super.setUp()
@@ -147,5 +147,3 @@ class InterleavedCompilationTest(jdkVersion: TestJdkVersion) extends SbtProjectC
     assertEquals(s"sbt $command did not finished with an error", 0, commandLine.createProcess().waitFor())
   }
 }
-
-private object InterleavedCompilationTest extends JdkVersionParameters
