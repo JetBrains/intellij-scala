@@ -26,13 +26,13 @@ class DesugarCodeAction extends AnAction(
   override def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject
     val editor = CommonDataKeys.EDITOR.getData(e.getDataContext)
-    val file = CommonDataKeys.PSI_FILE.getData(e.getDataContext).asInstanceOf[ScalaFile]
-    val cls = classAtCaret(editor, file).orElse(file.typeDefinitions.headOption).getOrElse {
+    val psiFile = CommonDataKeys.PSI_FILE.getData(e.getDataContext).asInstanceOf[ScalaFile]
+    val cls = classAtCaret(editor, psiFile).orElse(psiFile.typeDefinitions.headOption).getOrElse {
       CommonRefactoringUtil.showErrorHint(project, editor, "No class to desugar", getTemplateText, null)
       return
     }
 
-    val module = file.module.orNull
+    val module = psiFile.module.getOrElse(throw new RuntimeException(s"No module for $psiFile"))
 
     val outputDir = CompilerModuleExtension.getInstance(module).getCompilerOutputPath.toNioPath
 
@@ -70,7 +70,11 @@ class DesugarCodeAction extends AnAction(
 
     val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3Language.INSTANCE.getAssociatedFileType)
     val right = DiffContentFactory.getInstance.create(project, pluginText, Scala3Language.INSTANCE.getAssociatedFileType)
-    DiffManager.getInstance.showDiff(project, new SimpleDiffRequest("Desugaring of " + cls.qualifiedName, left, right, "Compiler", "Plugin"))
+    val upToDate = editor.getDocument.getModificationStamp <= editor.getVirtualFile.getModificationStamp &&
+      psiFile.getVirtualFile.getTimeStamp <= Files.getLastModifiedTime(tastyFile).toMillis
+    DiffManager.getInstance.showDiff(project, new SimpleDiffRequest(
+      "Desugaring of " + cls.qualifiedName, left, right,
+      "Compiler" + (if (upToDate) "" else " (outdated, please recompile):"), "Plugin:"))
   }
 
   private def classAtCaret(editor: Editor, file: ScalaFile): Option[ScTypeDefinition] = {
