@@ -4,7 +4,8 @@ import com.intellij.diff.requests.SimpleDiffRequest
 import com.intellij.diff.{DiffContentFactory, DiffManager}
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.roots.{CompilerModuleExtension, LibraryOrderEntry, ModuleRootManager, ProjectFileIndex}
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiClass
 import com.intellij.refactoring.util.CommonRefactoringUtil
@@ -17,6 +18,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstanc
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle}
 
 import java.nio.file.Files
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class DesugarCodeAction extends AnAction(
   ScalaBundle.message("desugar.scala.code.action.text"),
@@ -26,6 +28,8 @@ class DesugarCodeAction extends AnAction(
   override def actionPerformed(e: AnActionEvent): Unit = {
     val project = e.getProject
     val editor = CommonDataKeys.EDITOR.getData(e.getDataContext)
+    val document = editor.getDocument
+    val virtualFile = editor.getVirtualFile
     val psiFile = CommonDataKeys.PSI_FILE.getData(e.getDataContext).asInstanceOf[ScalaFile]
     if (psiFile.isCompiled) {
       CommonRefactoringUtil.showErrorHint(project, editor, "File must have source", getTemplateText, null)
@@ -36,28 +40,35 @@ class DesugarCodeAction extends AnAction(
       return
     }
 
-    val module = psiFile.module.getOrElse(throw new RuntimeException(s"No module for $psiFile"))
+    val fileIndex = ProjectFileIndex.getInstance(project)
 
-    val outputDir = CompilerModuleExtension.getInstance(module).getCompilerOutputPath.toNioPath
-
-    val tastyFile = {
-      val elements = (cls: PsiClass).getQualifiedName.split('.').toSeq.dropRight(1) :+ (cls: PsiClass).getName.stripSuffix("$") + ".tasty"
-      elements.foldLeft(outputDir)((acc, x) => acc.resolve(x))
+    val (tastyFileName, tastyFileContents, upToDate, classpath) = if (fileIndex.isInSourceContent(virtualFile)) {
+      val module = psiFile.module.getOrElse(throw new RuntimeException(s"No module for $psiFile"))
+      val outputDir = CompilerModuleExtension.getInstance(module).getCompilerOutputPath.toNioPath
+      val tastyFile = {
+        val elements = (cls: PsiClass).getQualifiedName.split('.').toSeq.dropRight(1) :+ (cls: PsiClass).getName.stripSuffix("$") + ".tasty"
+        elements.foldLeft(outputDir)((acc, x) => acc.resolve(x))
+      }
+      if (!Files.exists(tastyFile)) {
+        CommonRefactoringUtil.showErrorHint(project, editor, s"${outputDir.relativize(tastyFile)} not found; please compile the class", getTemplateText, null)
+        return
+      }
+      val upToDate = document.getModificationStamp <= virtualFile.getModificationStamp && virtualFile.getTimeStamp <= Files.getLastModifiedTime(tastyFile).toMillis
+      (tastyFile.getFileName.toString, Files.readAllBytes(tastyFile), upToDate, classpathOf(module))
+    } else {
+      val compiledPsiFile = cls.getOriginalElement.getContainingFile
+      val compiledVirtualFile = compiledPsiFile.getOriginalFile.getVirtualFile
+      val module = fileIndex.getOrderEntriesForFile(compiledVirtualFile).asScala.collectFirst { case entry: LibraryOrderEntry => entry.getOwnerModule }.getOrElse {
+        CommonRefactoringUtil.showErrorHint(project, editor, "Project must have a module that depends on this library", getTemplateText, null)
+        return
+      }
+      (compiledVirtualFile.getName, compiledVirtualFile.contentsToByteArray(), true, classpathOf(module))
     }
-
-    if (!Files.exists(tastyFile)) {
-      CommonRefactoringUtil.showErrorHint(project, editor, s"${outputDir.relativize(tastyFile)} not found; please compile the class", getTemplateText, null)
-      return
-    }
-
-    val classpath = ModuleRootManager.getInstance(module)
-      .orderEntries.withoutSdk.classes.getRoots.toSeq
-      .map(VfsUtil.getLocalFile(_).getPath)
 
     val (compilerText, pluginText) = withProgressSynchronously(s"Desugaring ${cls.name}...") {
       val compilerText = {
         val decompiler = Decompiler(classpath, Decompiler.classLoader(getClass.getClassLoader))
-        decompiler.decompile(tastyFile.getFileName.toString, Files.readAllBytes(tastyFile))
+        decompiler.decompile(tastyFileName, tastyFileContents)
       }
       val pluginText = inReadAction {
         try {
@@ -74,12 +85,13 @@ class DesugarCodeAction extends AnAction(
 
     val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3Language.INSTANCE.getAssociatedFileType)
     val right = DiffContentFactory.getInstance.create(project, pluginText, Scala3Language.INSTANCE.getAssociatedFileType)
-    val upToDate = editor.getDocument.getModificationStamp <= editor.getVirtualFile.getModificationStamp &&
-      psiFile.getVirtualFile.getTimeStamp <= Files.getLastModifiedTime(tastyFile).toMillis
-    DiffManager.getInstance.showDiff(project, new SimpleDiffRequest(
-      "Desugaring of " + cls.qualifiedName, left, right,
-      "Compiler" + (if (upToDate) "" else " (outdated, please recompile):"), "Plugin:"))
+    DiffManager.getInstance.showDiff(project, new SimpleDiffRequest("Desugaring of " + cls.qualifiedName, left, right, "Compiler" + (if (upToDate) "" else " (outdated, please recompile):"), "Plugin:"))
   }
+
+  private def classpathOf(module: Module): Seq[String] =
+    ModuleRootManager.getInstance(module)
+      .orderEntries.withoutSdk.classes.getRoots.toSeq
+      .map(VfsUtil.getLocalFile(_).getPath)
 
   private def classAtCaret(editor: Editor, file: ScalaFile): Option[ScTypeDefinition] = {
     val offset = editor.getCaretModel.getOffset
