@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiClass
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction, withProgressSynchronously}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
@@ -46,25 +46,26 @@ class DesugarCodeAction extends AnAction(
       return
     }
 
-    val compilerText = {
-      val decompiler = {
-        val classpath =
-          ModuleRootManager.getInstance(module)
-            .orderEntries.productionOnly.librariesOnly.classes.getRoots.toSeq
-            .map(virtualFile => VfsUtil.getLocalFile(virtualFile).getPath)
-        Decompiler(classpath :+ outputDir.toString, Decompiler.classLoader(getClass.getClassLoader))
+    val classpath = ModuleRootManager.getInstance(module)
+      .orderEntries.productionOnly.librariesOnly.classes.getRoots.toSeq
+      .map(virtualFile => VfsUtil.getLocalFile(virtualFile).getPath)
+
+    val (compilerText, pluginText) = withProgressSynchronously(s"Desugaring ${cls.name}...") {
+      val compilerText = {
+        val decompiler = Decompiler(classpath :+ outputDir.toString, Decompiler.classLoader(getClass.getClassLoader))
+        decompiler.decompile(tastyFile.getFileName.toString, Files.readAllBytes(tastyFile))
       }
-
-      decompiler.decompile(tastyFile.getFileName.toString, Files.readAllBytes(tastyFile))
-    }
-
-    val pluginText = try {
-      ScalaApplicationSettings.PRECISE_TEXT = true
-      ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = true
-      ClassPrinter.textOf(cls)
-    } finally {
-      ScalaApplicationSettings.PRECISE_TEXT = false
-      ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = false
+      val pluginText = inReadAction {
+        try {
+          ScalaApplicationSettings.PRECISE_TEXT = true
+          ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = true
+          ClassPrinter.textOf(cls)
+        } finally {
+          ScalaApplicationSettings.PRECISE_TEXT = false
+          ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS = false
+        }
+      }
+      (compilerText, pluginText)
     }
 
     val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3Language.INSTANCE.getAssociatedFileType)
