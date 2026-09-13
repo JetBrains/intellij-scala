@@ -152,7 +152,6 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       //todo: collect proper information about language features
       importUsed.isAlwaysUsed ||
         usedImports.contains(importUsed) && !isRedundant(importUsed) ||
-        ScalaImportOptimizerHelper.extensions.exists(_.isImportUsed(importUsed)) ||
         isPotentiallyUsedUnresolvedImport(importUsed, unresolvedReferences.asScala.toSet) ||
         isOnTheFly && !mayOptimizeOnTheFly(importUsed)
     }
@@ -823,9 +822,7 @@ object ScalaImportOptimizer {
         importInfos.update(i, info.withRootPrefix)
       }
 
-      if (!ScalaImportOptimizerHelper.extensions.exists(_.cannotShadowName(info))) {
-        importedNames ++= info.allNames
-      }
+      importedNames ++= info.allNames
     }
   }
 
@@ -1195,14 +1192,8 @@ object ScalaImportOptimizer {
   }
 
   private def mergeImportInfosInPlace(infos: mutable.Buffer[ImportInfo]): Unit = {
-    def canBeMergedAt(i: Int): Boolean =
-      i > -1 && i < infos.length && {
-        val el = infos(i)
-        !ScalaImportOptimizerHelper.extensions.exists(_.preventMerging(el))
-      }
-
     def samePrefixAfter(i: Int): Int = {
-      if (!canBeMergedAt(i)) return -1
+      if (i < 0 || i >= infos.length) return -1
 
       var j = i + 1
       while (j < infos.length) {

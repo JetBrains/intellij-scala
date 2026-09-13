@@ -18,7 +18,6 @@
 
         <!-- EP extracted during extraction of worksheet module -->
         <extensionPoint qualifiedName="org.intellij.scala.importUsedProvider" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.importOptimizerHelper" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizerHelper" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.referenceExtraResolver" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceExtraResolver" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
 
