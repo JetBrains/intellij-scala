@@ -9,8 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 /**
- * This helper class was primarily created to support resolving of ammonite specific references (like import from $file or $ivy).
- * The interface was created to extract ammonite classes to a separate module.
+ * This extension point lets optional modules provide resolution for references with non-standard semantics.
  *
  * Used in [[ScStableCodeReferenceImpl]].
  */

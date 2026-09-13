@@ -81,8 +81,6 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean TREAT_SCRATCH_AS_WORKSHEET = true;
   private boolean IS_WORKSHEET_FOLD_COLLAPSED_BY_DEFAULT = true;
   private int AUTORUN_DELAY = 1400;
-  public enum ScFileMode {Worksheet, Ammonite, Auto}
-  private ScFileMode SC_FILE_MODE = ScFileMode.Worksheet;
 
   //BREADCRUMBS
   private boolean BREADCRUMBS_CLASS_ENABLED = true;
@@ -560,14 +558,6 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   public void setTreatScratchFilesAsWorksheet(boolean b) {
     TREAT_SCRATCH_AS_WORKSHEET = b;
-  }
-
-  public ScFileMode getScFileMode() {
-    return SC_FILE_MODE;
-  }
-  
-  public void setScFileMode(ScFileMode mode) {
-    SC_FILE_MODE = mode;
   }
 
   public void setBreadcrumbsClassEnabled(boolean enabled) {

@@ -4,15 +4,12 @@ import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.text.Strings
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.concurrency.annotations.RequiresEdt
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.incremental.scala.utils.ScalaJDKIncompatibilityDetector
-import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -29,8 +26,7 @@ object WorksheetUtils {
   @TestOnly def showReplErrorsInEditorInInteractiveMode: Boolean = Registry.is(ShowReplErrorsInEditorInInteractiveMode)
 
   def isWorksheetFile(project: Project, file: VirtualFile): Boolean = {
-    val isExplicitWorksheet = WorksheetFileType.isMyFileType(file) && !isAmmoniteEnabled(project, file)
-    isExplicitWorksheet ||
+    WorksheetFileType.isMyFileType(file) ||
       isScratchWorksheet(project, file)
   }
 
@@ -43,19 +39,6 @@ object WorksheetUtils {
 
   private def treatScratchFileAsWorksheet(project: Project): Boolean =
     settings(project).isTreatScratchFilesAsWorksheet
-
-  def isAmmoniteEnabled(project: Project, file: VirtualFile): Boolean = {
-    import ScalaProjectSettings.ScFileMode._
-    settings(project).getScFileMode match {
-      case Worksheet => false
-      case Ammonite  => true
-      case _         =>
-        ProjectRootManager.getInstance(project).getFileIndex.isUnderSourceRootOfType(
-          file,
-          ContainerUtil.newHashSet(JavaSourceRootType.TEST_SOURCE)
-        )
-    }
-  }
 
   private def settings(project: Project) =
     ScalaProjectSettings.getInstance(project)

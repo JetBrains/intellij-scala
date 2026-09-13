@@ -10,7 +10,7 @@ It enables multiple features such as:
  - Navigation, search, information about types and implicits
  - Integration with build tools: SBT, Maven, Gradle, BSP
  - Testing frameworks support (ScalaTest, MUnit, Specs2, uTest)
- - Scala debugger, worksheets and Ammonite scripts 
+ - Scala debugger and worksheets
  - And many more!
 
 (note that HOCON support was moved to a [separate plugin](https://plugins.jetbrains.com/plugin/10481-hocon))

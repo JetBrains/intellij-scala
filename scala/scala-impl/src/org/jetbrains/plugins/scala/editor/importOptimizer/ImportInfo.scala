@@ -391,8 +391,7 @@ object ImportInfo {
 
   private def isScriptRef(ref: ScStableCodeReference): Boolean = {
     // TODO: maybe we should create a separate extension point with a dedicated purpose?
-    //  Currently ImportInfoProvider is reused just because it's only implementation (for ammonite) was equal to
-    //  internal implementation isScriptRef
+    // ImportInfoProvider is reused because custom import semantics need the same check.
     val importExpr = new ContextsIterator(ref).findByType[ScImportExpr]
     importExpr.exists(imp => ImportInfoProvider.providers.exists(_.isImportUsedWithFileCheck(imp)))
   }
