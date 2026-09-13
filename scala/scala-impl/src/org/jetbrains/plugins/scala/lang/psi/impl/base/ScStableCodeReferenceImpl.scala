@@ -625,12 +625,6 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       }
     }
 
-    ScStableCodeReferenceExtraResolver.resolveWithFileCheck(this) match {
-      case Some(element) =>
-        return Array(new ScalaResolveResult(element))
-      case None =>
-    }
-
     val enclosingImportOrExport = getEnclosingImportStatement
     val isExport = enclosingImportOrExport.is[ScExportStmt]
 
