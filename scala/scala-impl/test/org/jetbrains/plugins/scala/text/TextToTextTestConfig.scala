@@ -54,21 +54,6 @@ private object TextToTextTestConfig {
       )
     ),
 
-    // Ammonite
-    CorpusProjects.Ammonite.scala2 -> TextToTextTestConfig(
-      minClassCount = 156,
-      classExceptions = Set(
-        "ammonite.compiler.Parsers", // extra space in [_ : ...]
-        "ammonite.util.WhiteListClassLoader", // [x0] forSome {type x0 <: _root_.java.lang.Object}
-      ),
-    ),
-    CorpusProjects.Ammonite.scala3 -> TextToTextTestConfig(
-      minClassCount = 161,
-      classExceptions = Set(
-        "ammonite.repl.Repl", // Unknown vs Any
-      )
-    ),
-
     // Cats
     CorpusProjects.Cats.scala2 -> TextToTextTestConfig(
       minClassCount = 1694,
