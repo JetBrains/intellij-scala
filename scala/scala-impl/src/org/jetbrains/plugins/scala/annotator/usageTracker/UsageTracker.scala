@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.annotator.usageTracker
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
@@ -96,9 +95,7 @@ object UsageTracker {
       }
     }
 
-    val result0 = redundantBuilder.result()
-    val result1 = ImportInfoProvider.filterOutUsedImports(file, result0)
-    result1
+    redundantBuilder.result()
   }
 
   private def collectAllNamedElementTargets(resolveResult: ScalaResolveResult): Seq[PsiNamedElement] = {
