@@ -31,6 +31,16 @@ object SbtDependencyUtils {
   val SBT_MODULE_ID_TYPE = "sbt.ModuleID"
   val SBT_LIB_CONFIGURATION = "_root_.sbt.librarymanagement.Configuration"
 
+  /**
+   * Artifacts whose `%%` coordinates are published with the full Scala version
+   * suffix (for example, `_2.13.18`) rather than the usual binary version
+   * suffix (for example, `_2.13` or `_3`).
+   *
+   * This classification lets SBT dependency-version completion, the outdated
+   * dependency inspection, and Package Search construct coordinates that exist
+   * in the repository. Update it only when an upstream artifact changes its
+   * Scala cross-version publishing scheme.
+   */
   val SCALA_DEPENDENCIES_WITH_MINOR_SCALA_VERSION_LIST = List(
     "ch.epfl.scala:scalafix-cli",
     "ch.epfl.scala:scalafix-reflect",
