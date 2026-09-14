@@ -19,8 +19,10 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SemanticT
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 
-import java.io.StringWriter
+import java.io.{BufferedInputStream, BufferedOutputStream, StringWriter}
+import java.nio.file.StandardOpenOption.{CREATE, WRITE}
 import java.nio.file.{Files, Path}
+import java.util.jar.{JarEntry, JarInputStream, JarOutputStream}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
 
@@ -30,6 +32,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
   private object Mode {
     case object Test extends Mode // Test listed classes
     case object Print extends Mode // Find and print classes to ./scala/scala-impl/target/comparison/; update the test source file
+    case object Diffs extends Mode // Save diffs of commented classes to ./scala/scala-impl/target/after.jar; compare with previous diffs if exist
   }
 
   private val mode: Mode = Mode.Test
@@ -68,8 +71,15 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
     implicit val executionContext: ExecutionContext = ExecutionContext.fromExecutorService(AppExecutorUtil.getAppExecutorService)
 
     val classNames = mode match {
-      case Mode.Test => classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq // Listed
+      case Mode.Test | Mode.Diffs => classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq // Listed
       case Mode.Print => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName)) // Find
+    }
+
+    val afterJarPath = Path.of("scala", "scala-impl", "target", "after.jar")
+
+    val afterJar = mode match {
+      case Mode.Test | Mode.Print=> null
+      case Mode.Diffs => new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(afterJarPath, CREATE, WRITE)))
     }
 
     val futures = splitInto(numBatches, classNames).map { classes =>
@@ -127,6 +137,16 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
               } catch {
                 case e: Throwable => System.err.println(fqn + ": " + e.getMessage) // Ignore classes with errors
               }
+            case Mode.Diffs => // Save diffs of commented classes to ./scala/scala-impl/target/after.jar
+              if (isCommented) {
+                val (compilerText, pluginText) = textOf(cls, decompiler)((_, _) => ()) // Full result
+                if (pluginText != compilerText) {
+                  val javaClassName = (cls: PsiClass).getName
+                  val diff = formatDiff(javaClassName + "-compiler.scala", javaClassName + "-plugin.scala", compilerText, pluginText)
+                  val directory = fqn.split('.').dropRight(1).mkString("/")
+                  afterJar.synchronized { afterJar.putNextEntry(new JarEntry(s"$directory/$javaClassName.diff")); afterJar.write(diff.getBytes); afterJar.closeEntry() }
+                }
+              }
           }
         }
 
@@ -151,6 +171,16 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
           case _ =>
             Assert.fail(s"Cannot find placeholder for test cases: ${sourceFile.toString}")
         }
+      case Mode.Diffs => // Compare with previous diffs if exist
+        afterJar.close()
+        val beforeJarPath = Path.of("scala", "scala-impl", "target", "before.jar")
+        if (Files.exists(beforeJarPath)) {
+          val diffsBefore = textOf(beforeJarPath)
+          val diffsAfter = textOf(afterJarPath)
+//          Assert.assertEquals("Diffs of commented classes differ", diffsBefore, diffsAfter) // Locally
+          val diffOfDiffs = formatDiff("before.jar", "after.jar", diffsBefore, diffsAfter)
+          if (diffOfDiffs.lines.skip(2).findAny().isPresent) Assert.fail("Diffs differ: \n\n" + diffOfDiffs) // TeamCity
+        }
     }
   }
 
@@ -166,6 +196,19 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
     writer.append("+++ ").append(name2).append('\n')
     UnifiedDiffWriter.writeHunk(writer, patch, "\n", "\n")
     writer.toString
+  }
+
+  private def textOf(jarFile: Path): String = {
+    var contents = List[(String, String)]()
+    val jar = new JarInputStream(new BufferedInputStream(Files.newInputStream(jarFile)))
+    var entry = jar.getNextJarEntry
+    while (entry != null) {
+      if (!entry.isDirectory) contents ::= (entry.getName, new String(jar.readAllBytes()))
+      entry = jar.getNextJarEntry
+    }
+    val sb = new StringBuilder()
+    contents.sortBy(_._1).foreach(p => sb.append(p._2))
+    sb.toString
   }
 
   private def textOf(cls: ScTypeDefinition, decompiler: Decompiler)(listener: (CharSequence, CharSequence) => Unit): (String, String) = {
