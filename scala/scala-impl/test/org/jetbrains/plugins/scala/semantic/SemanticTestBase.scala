@@ -26,9 +26,13 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 @Category(Array(classOf[SemanticTests]))
 abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: String*) extends ProjectCorpusTestBase(definition(dependencies, packages)) {
-  private val Print =
-//    true // Print found cases to target/comparison and update the test source file
-    false // Test provided cases
+  private abstract sealed class Mode extends Product with Serializable
+  private object Mode {
+    case object Test extends Mode // Test listed classes
+    case object Print extends Mode // Find and print classes to ./scala/scala-impl/target/comparison/; update the test source file
+  }
+
+  private val mode: Mode = Mode.Test
 
   override def runInDispatchThread(): Boolean = false
 
@@ -63,15 +67,16 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     implicit val executionContext: ExecutionContext = ExecutionContext.fromExecutorService(AppExecutorUtil.getAppExecutorService)
 
-    val classNames =
-      if (Print) inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName))
-      else classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq
+    val classNames = mode match {
+      case Mode.Test => classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq // Listed
+      case Mode.Print => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName)) // Find
+    }
 
     val futures = splitInto(numBatches, classNames).map { classes =>
       Future {
         val decompiler = Decompiler(classpath, decompilerClassLoader)
 
-        var results = List.empty[String]
+        var foundClasses = List.empty[String]
 
         classes.foreach { name =>
           val isCommented = name.startsWith("//")
@@ -79,72 +84,73 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
           val cls = inReadAction {
             ScalaPsiManager.instance(getProject).getCachedClass(GlobalSearchScope.allScope(getProject), fqn)
-          }.getOrElse(throw new IllegalArgumentException(fqn)).asInstanceOf[ScTypeDefinition]
+          }.getOrElse(throw new IllegalArgumentException("Cannot find class: " + fqn)).asInstanceOf[ScTypeDefinition]
 
-          try {
-            val (compilerText, pluginText) = {
-              def result: (String, String) = textOf(cls, decompiler) { (compilerText, pluginText) =>
-                if (!Print && isCommented && (compilerText.length < pluginText.length || CharSequence.compare(compilerText.subSequence(0, pluginText.length), pluginText) != 0)) {
-                  return (compilerText.toString, pluginText.toString) // Partial result (non-local return)
+          mode match {
+            case Mode.Test => // Test listed clases
+              val (compilerText, pluginText) = {
+                def result: (String, String) = textOf(cls, decompiler) { (compilerText, pluginText) =>
+                  if (isCommented && (compilerText.length < pluginText.length || CharSequence.compare(compilerText.subSequence(0, pluginText.length), pluginText) != 0)) {
+                    return (compilerText.toString, pluginText.toString) // Partial result (non-local return)
+                  }
                 }
+                result
               }
-              result
-            }
-
-            // Print found cases to target/comparison
-            if (Print) {
-              results ::= (if (compilerText != pluginText) "//" else "") + fqn
-              val sourceText = inReadAction {
-                val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
-                sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
-              }
-              val directory = Path.of("scala", Seq("scala-impl", "target", "comparison") ++ fqn.split('.').dropRight(1): _*)
-              Files.createDirectories(directory)
-              val className = (cls: PsiClass).getName
-              Files.write(directory.resolve(className + ".scala"), sourceText.getBytes)
-              Files.write(directory.resolve(className + "-compiler.scala"), compilerText.getBytes)
-              val file2 = directory.resolve(className + "-plugin.scala")
-              val diffFile = directory.resolve(className + ".diff")
-              if (pluginText != compilerText) {
-                Files.write(file2, pluginText.getBytes)
-                val diff = formatDiff(className + "-compiler.scala", className + "-plugin.scala", compilerText, pluginText)
-                Files.write(diffFile, diff.getBytes)
-              } else {
-                Files.deleteIfExists(file2)
-                Files.deleteIfExists(diffFile)
-              }
-            } else {
               if (isCommented) {
                 Assert.assertNotEquals(s"Expected to contain differences: $fqn", compilerText, pluginText)
               } else {
                 Assert.assertEquals(s"$fqn [compiler | plugin]", compilerText, pluginText)
               }
-            }
-          } catch {
-            case e: Throwable if Print => System.err.println(fqn + ": " + e.getMessage)
+            case Mode.Print => // Print found classes to ./scala/scala-impl/target/comparison/
+              try {
+                val (compilerText, pluginText) = textOf(cls, decompiler)((_, _) => ()) // Full result
+                foundClasses ::= (if (compilerText != pluginText) "//" else "") + fqn
+                val sourceText = inReadAction {
+                  val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
+                  sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
+                }
+                val directory = Path.of("scala", Seq("scala-impl", "target", "comparison") ++ fqn.split('.').dropRight(1): _*)
+                Files.createDirectories(directory)
+                val javaClassName = (cls: PsiClass).getName
+                Files.write(directory.resolve(s"$javaClassName.scala"), sourceText.getBytes)
+                Files.write(directory.resolve(s"$javaClassName-compiler.scala"), compilerText.getBytes)
+                val file2 = directory.resolve(s"$javaClassName-plugin.scala")
+                val diffFile = directory.resolve(s"$javaClassName.diff")
+                if (pluginText != compilerText) {
+                  Files.write(file2, pluginText.getBytes)
+                  val diff = formatDiff(s"$javaClassName-compiler.scala", s"$javaClassName-plugin.scala", compilerText, pluginText)
+                  Files.write(diffFile, diff.getBytes)
+                } else {
+                  Files.deleteIfExists(file2)
+                  Files.deleteIfExists(diffFile)
+                }
+              } catch {
+                case e: Throwable => System.err.println(fqn + ": " + e.getMessage) // Ignore classes with errors
+              }
           }
         }
 
-        results
+        foundClasses
       }
     }
 
-    val results = Await.result(Future.sequence(futures), 10.minutes).flatten
+    val foundClasses = Await.result(Future.sequence(futures), 10.minutes).flatten
 
-    // Update the test source file
-    if (Print) {
-      val sourceFile = Path.of("scala", Seq("scala-impl", "test") ++ getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala"): _*)
-      Assert.assertTrue(s"Test source not found: ${sourceFile.toString}", Files.exists(sourceFile))
-      val contents = Files.readString(sourceFile)
-      val ContentsPattern = "(?s)(.*?\"\"\"\n).*(\n\\s*\"\"\".*?)".r
-      contents match {
-        case ContentsPattern(prefix, suffix) =>
-          val uncommented = results.filterNot(_.startsWith("//")).toSet
-          val testCases = results.filterNot(s => s.startsWith("//") && uncommented(s.substring(2))).sortBy(_.stripPrefix("//")).map("    " + _).mkString("\n")
-          Files.write(sourceFile, (prefix + testCases + suffix).getBytes)
-        case _ =>
-          Assert.fail(s"Cannot find placeholder for test cases: ${sourceFile.toString}")
-      }
+    mode match {
+      case Mode.Test =>
+      case Mode.Print => // Update the test source file
+        val sourceFile = Path.of("scala", Seq("scala-impl", "test") ++ getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala"): _*)
+        Assert.assertTrue(s"Test source not found: ${sourceFile.toString}", Files.exists(sourceFile))
+        val contents = Files.readString(sourceFile)
+        val ContentsPattern = "(?s)(.*?\"\"\"\n).*(\n\\s*\"\"\".*?)".r
+        contents match {
+          case ContentsPattern(prefix, suffix) =>
+            val uncommented = foundClasses.filterNot(_.startsWith("//")).toSet
+            val testCases = foundClasses.filterNot(s => s.startsWith("//") && uncommented(s.substring(2))).sortBy(_.stripPrefix("//")).map("    " + _).mkString("\n")
+            Files.write(sourceFile, (prefix + testCases + suffix).getBytes)
+          case _ =>
+            Assert.fail(s"Cannot find placeholder for test cases: ${sourceFile.toString}")
+        }
     }
   }
 
