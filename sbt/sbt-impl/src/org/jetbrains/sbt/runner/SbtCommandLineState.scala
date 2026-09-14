@@ -145,8 +145,7 @@ private final class SbtCommandLineState(
       vmExecutablePath <- sbtExecutionSettings.getCustomVMExecutableOrWarn(project)
       // The java installation directory is two levels up.
       // See org.jetbrains.sbt.project.SbtExternalSystemManager.getVmExecutable
-      javaHome = vmExecutablePath << 2
-      if javaHome != null
+      javaHome <- vmExecutablePath << 2
       jdk <- Option(ExternalSystemJdkUtil.findJdkInSdkTableByPath(javaHome.toCanonicalPath.toString))
     } yield jdk
 
