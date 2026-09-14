@@ -35,7 +35,9 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
     case object Diffs extends Mode // Save diffs of commented classes to ./scala/scala-impl/target/after.jar; compare with previous diffs if exist
   }
 
-  private val mode: Mode = Mode.Test
+  private val mode: Mode =
+    if (System.getenv("SEMANTIC_TEST_MODE") == "Diffs") Mode.Diffs
+    else Mode.Test
 
   private val TargetDirectory = Path.of("scala", "scala-impl", "target")
 
