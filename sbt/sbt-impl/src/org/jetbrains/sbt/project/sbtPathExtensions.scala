@@ -14,10 +14,12 @@ extension (path: Path)
 
   def isOutsideOf(root: Path): Boolean = !path.isUnder(root, strict = false)
 
-  def <<(level: Int): Path =
+  /** Walks `level` parent directories up; `None` when the walk goes past the filesystem root. */
+  def <<(level: Int): Option[Path] =
     @tailrec
-    def loop(f: Path, l: Int): Path =
-      if f == null || l <= 0 then f
+    def loop(f: Path, l: Int): Option[Path] =
+      if f == null then None
+      else if l <= 0 then Some(f)
       else loop(f.getParent, l - 1)
 
     loop(path, level)
