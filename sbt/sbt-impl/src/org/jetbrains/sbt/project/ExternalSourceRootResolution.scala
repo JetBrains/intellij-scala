@@ -937,8 +937,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     private var counter = 1
 
     def nameFor(base: Option[Path]): String = {
-      val namedDirectory = if (base.exists(_.getFileName.toString == "shared")) base.flatMap(_.parent) else base
-      val prefix = namedDirectory.map(_.getFileName.toString + "-sources").getOrElse("shared-sources")
+      val namedDirectory = if (base.exists(_.fileName.contains("shared"))) base.flatMap(_.parent) else base
+      val prefix = namedDirectory.flatMap(_.fileName).map(_ + "-sources").getOrElse("shared-sources")
       val withoutSlashes = replaceSlashesWithUnderscores(prefix)
 
       val result = if (usedNames.contains(withoutSlashes)) {
@@ -1010,10 +1010,7 @@ object ExternalSourceRootResolution {
       (1 to 3).flatMap { parentLevel =>
         (rootDirectory << parentLevel)
           .filter(_.isUnder(projectRootFile))
-          .filter { parent =>
-            val name = parent.getFileName.toString
-            !standardDirNames.exists(name.contains)
-          }
+          .filter(_.fileName.exists(name => !standardDirNames.exists(name.contains)))
       }
 
     val parentDirectories = rootDirectories.map(findNonStandardParentDirectories)
