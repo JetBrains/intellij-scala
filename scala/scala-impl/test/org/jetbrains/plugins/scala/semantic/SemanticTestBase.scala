@@ -82,10 +82,10 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
           }.getOrElse(throw new IllegalArgumentException(fqn)).asInstanceOf[ScTypeDefinition]
 
           try {
-            val (decompiledText, psiText) = {
-              def result: (String, String) = textOf(cls, decompiler) { (decompiledText, psiText) =>
-                if (!Print && isCommented && (decompiledText.length < psiText.length || CharSequence.compare(decompiledText.subSequence(0, psiText.length), psiText) != 0)) {
-                  return (decompiledText.toString, psiText.toString) // Partial result (non-local return)
+            val (compilerText, pluginText) = {
+              def result: (String, String) = textOf(cls, decompiler) { (compilerText, pluginText) =>
+                if (!Print && isCommented && (compilerText.length < pluginText.length || CharSequence.compare(compilerText.subSequence(0, pluginText.length), pluginText) != 0)) {
+                  return (compilerText.toString, pluginText.toString) // Partial result (non-local return)
                 }
               }
               result
@@ -93,21 +93,21 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
             // Print found cases to target/comparison
             if (Print) {
-              results ::= (if (decompiledText != psiText) "//" else "") + fqn
+              results ::= (if (compilerText != pluginText) "//" else "") + fqn
               val sourceText = inReadAction {
                 val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
                 sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
               }
               val directory = Path.of("scala", Seq("scala-impl", "target", "comparison") ++ fqn.split('.').dropRight(1): _*)
               Files.createDirectories(directory)
-              val fileName = (cls: PsiClass).getName
-              Files.write(directory.resolve(fileName + ".scala"), sourceText.getBytes)
-              Files.write(directory.resolve(fileName + "1.scala"), decompiledText.getBytes)
-              val file2 = directory.resolve(fileName + "2.scala")
-              val diffFile = directory.resolve(fileName + ".diff")
-              if (psiText != decompiledText) {
-                Files.write(file2, psiText.getBytes)
-                val diff = formatDiff(fileName + "1.scala", fileName + "2.scala", decompiledText, psiText)
+              val className = (cls: PsiClass).getName
+              Files.write(directory.resolve(className + ".scala"), sourceText.getBytes)
+              Files.write(directory.resolve(className + "-compiler.scala"), compilerText.getBytes)
+              val file2 = directory.resolve(className + "-plugin.scala")
+              val diffFile = directory.resolve(className + ".diff")
+              if (pluginText != compilerText) {
+                Files.write(file2, pluginText.getBytes)
+                val diff = formatDiff(className + "-compiler.scala", className + "-plugin.scala", compilerText, pluginText)
                 Files.write(diffFile, diff.getBytes)
               } else {
                 Files.deleteIfExists(file2)
@@ -115,9 +115,9 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
               }
             } else {
               if (isCommented) {
-                Assert.assertNotEquals(s"Expected to contain differences: $fqn", decompiledText, psiText)
+                Assert.assertNotEquals(s"Expected to contain differences: $fqn", compilerText, pluginText)
               } else {
-                Assert.assertEquals(s"$fqn [compiler | plugin]", decompiledText, psiText)
+                Assert.assertEquals(s"$fqn [compiler | plugin]", compilerText, pluginText)
               }
             }
           } catch {
