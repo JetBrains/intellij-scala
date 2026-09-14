@@ -26,9 +26,12 @@ extension (path: Path)
 
   def parent: Option[Path] = Option(path.getParent)
 
+  /** The last segment of the path; `None` if the path has 0 elements. */
+  def fileName: Option[String] = Option(path.getFileName).map(_.toString)
+
   def endsWith(parts: String*): Boolean =
     def endsWith0(file: Path, parts: Seq[String]): Boolean = if (parts.isEmpty) true else
-      parts.head == file.getFileName.toString && Option(file.getParent).exists(endsWith0(_, parts.tail))
+      file.fileName.contains(parts.head) && Option(file.getParent).exists(endsWith0(_, parts.tail))
 
     endsWith0(path, parts.reverse)
 
