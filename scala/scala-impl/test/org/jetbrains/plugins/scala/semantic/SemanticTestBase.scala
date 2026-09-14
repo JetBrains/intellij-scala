@@ -31,8 +31,8 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
   private abstract sealed class Mode extends Product with Serializable
   private object Mode {
     case object Test extends Mode // Test listed classes
-    case object Print extends Mode // Find and print classes to ./scala/scala-impl/target/comparison/; update the test source file
-    case object Diffs extends Mode // Save diffs of commented classes to ./scala/scala-impl/target/after.jar; compare with previous diffs if exist
+    case object Print extends Mode // Find and print classes to scala/scala-impl/target/comparison/; update the test source file
+    case object Diffs extends Mode // Save diffs of commented classes to scala/scala-impl/target/diffs-after.jar; compare with diffs-before.jar if present
   }
 
   private val mode: Mode =
@@ -121,7 +121,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
               } else {
                 Assert.assertEquals(s"$fqn [compiler | plugin]", compilerText, pluginText)
               }
-            case Mode.Print => // Print found classes to ./scala/scala-impl/target/comparison/
+            case Mode.Print => // Print found classes to scala/scala-impl/target/comparison/
               try {
                 val (compilerText, pluginText) = textOf(cls, decompiler)((_, _) => ()) // Full result
                 foundClasses ::= (if (compilerText != pluginText) "//" else "") + fqn
@@ -147,7 +147,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
               } catch {
                 case e: Throwable => System.err.println(fqn + ": " + e.getMessage) // Ignore classes with errors
               }
-            case Mode.Diffs => // Save diffs of commented classes to ./scala/scala-impl/target/after.jar
+            case Mode.Diffs => // Save diffs of commented classes to scala/scala-impl/target/diffs-after.jar
               if (isCommented) {
                 val (compilerText, pluginText) = textOf(cls, decompiler)((_, _) => ()) // Full result
                 if (pluginText != compilerText) {
