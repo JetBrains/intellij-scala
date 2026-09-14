@@ -725,33 +725,6 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     }
   }
 
-  /**
-   * Attempts to identify a common parent directory for roots where the base path cannot be inferred from standard paths
-   * (see [[ExternalSourceRootResolution.SourceRoot#standardBasePathGuessed()]]).
-   * The parent directory must not be a standard directory like `src/main/scala`, as it is used to generate a proper name for a shared sources group.
-   * Only specific directory names, such as `root/dummy` (and not `root/dummy/src`), can produce meaningful shared source names.
-   * If no suitable parent directory is found, the shared sources group will have a generic module name (see [[SharedSourceRootNameProvider#nameFor]]).
-   */
-  private def findCommonParentDirectoryForRoots(roots: Seq[SharedSourceRoot], projectRootFile: Path): Option[Path] = {
-    /**
-     * Using a simple heuristic, it attempts to locate non-standard directories up to three levels above.
-     */
-    def findNonStandardParentDirectories(sharedSourcesRoot: SharedSourceRoot): Seq[Path] =
-      (1 to 3).flatMap { parentLevel =>
-        val parent = sharedSourcesRoot.sourceRoot.directory << parentLevel
-        val standardDirNames = Seq("src", "main", "test", "scala", "java", "resources")
-        val isNonStandardDir = !standardDirNames.exists(parent.getFileName.toString.contains)
-        if (parent.isUnder(projectRootFile) && isNonStandardDir) Some(parent)
-        else None
-      }
-
-    val parentDirectories = roots.map(findNonStandardParentDirectories)
-    val commonParentsForAllRoots = parentDirectories.map(_.toSet).reduce(_ intersect _).toSeq
-    // If there are multiple common parents for roots, sort them by their paths and select the longest one,
-    // as it is the most "specific" to the underlying roots.
-    commonParentsForAllRoots.sortBy(_.toCanonicalPath.toString).lastOption
-  }
-
   private def groupDanglingSharedSourcesRoots(
     sharedSourcesRoots: Seq[SharedSourceRoot],
     projectRootFile: Path
@@ -772,7 +745,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     // indicating that some modules were removed, even though the project structure hasn't changed.
     val sortedGroups = groupedByProjects.sortBy { case (_, roots) => roots.map(_.sourceRoot.directory.hashCode()).sum }
     sortedGroups.map { case (_, roots) =>
-      val commonParentDirectory = findCommonParentDirectoryForRoots(roots, projectRootFile)
+      val commonParentDirectory =
+        ExternalSourceRootResolution.findCommonParentDirectoryForRoots(roots.map(_.sourceRoot.directory), projectRootFile)
       (commonParentDirectory, roots)
     }
   }
@@ -936,7 +910,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     lazy val standardBasePathGuessed: Option[Path] = SourceRoot.DefaultPaths.collectFirst {
       //Example directory: /c/example-project/downstream/src/test/java (check if it parent ends with `src/test`)
       case paths if directory.parent.exists(_.endsWith(paths*)) => directory << (paths.length + 1)
-    }
+    }.flatten
   }
 
   protected object SourceRoot {
@@ -1014,5 +988,38 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     } else {
       new ModuleNode(typeId, projectId, moduleName, moduleFileDirectoryPath, externalConfigPath)
     }
+  }
+}
+
+object ExternalSourceRootResolution {
+
+  /**
+   * Attempts to identify a common parent directory for roots where the base path cannot be inferred from standard paths
+   * (see [[ExternalSourceRootResolution.SourceRoot#standardBasePathGuessed()]]).
+   * The parent directory must not be a standard directory like `src/main/scala`, as it is used to generate a proper name for a shared sources group.
+   * Only specific directory names, such as `root/dummy` (and not `root/dummy/src`), can produce meaningful shared source names.
+   * If no suitable parent directory is found, the shared sources group will have a generic module name (see [[SharedSourceRootNameProvider#nameFor]]).
+   */
+  private[project] def findCommonParentDirectoryForRoots(rootDirectories: Seq[Path], projectRootFile: Path): Option[Path] = {
+    val standardDirNames = Seq("src", "main", "test", "scala", "java", "resources")
+
+    /**
+     * Using a simple heuristic, it attempts to locate non-standard directories up to three levels above.
+     */
+    def findNonStandardParentDirectories(rootDirectory: Path): Seq[Path] =
+      (1 to 3).flatMap { parentLevel =>
+        (rootDirectory << parentLevel)
+          .filter(_.isUnder(projectRootFile))
+          .filter { parent =>
+            val name = parent.getFileName.toString
+            !standardDirNames.exists(name.contains)
+          }
+      }
+
+    val parentDirectories = rootDirectories.map(findNonStandardParentDirectories)
+    val commonParentsForAllRoots = parentDirectories.map(_.toSet).reduceOption(_ intersect _).getOrElse(Set.empty)
+    // If there are multiple common parents for roots, sort them by their paths and select the longest one,
+    // as it is the most "specific" to the underlying roots.
+    commonParentsForAllRoots.toSeq.sortBy(_.toCanonicalPath.toString).lastOption
   }
 }
