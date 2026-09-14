@@ -37,6 +37,16 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
   private val mode: Mode = Mode.Test
 
+  private val TargetDirectory = Path.of("scala", "scala-impl", "target")
+
+  private val ComparisonDirectory = TargetDirectory.resolve("comparison")
+  private val CompilerSuffix = "-compiler"
+  private val PluginSuffix = "-plugin"
+  private val TestDirectory = Path.of("scala", "scala-impl", "test")
+
+  private val DiffsBeforeJarName = "diffs-before.jar"
+  private val DiffsAfterJarName = "diffs-after.jar"
+
   override def runInDispatchThread(): Boolean = false
 
   protected def enableKindProjectorPlugin: Boolean = false
@@ -75,11 +85,9 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
       case Mode.Print => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName)) // Find
     }
 
-    val afterJarPath = Path.of("scala", "scala-impl", "target", "after.jar")
-
     val afterJar = mode match {
       case Mode.Test | Mode.Print=> null
-      case Mode.Diffs => new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(afterJarPath, CREATE, WRITE)))
+      case Mode.Diffs => new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(TargetDirectory.resolve(DiffsAfterJarName), CREATE, WRITE)))
     }
 
     val futures = splitInto(numBatches, classNames).map { classes =>
@@ -119,19 +127,19 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
                   val sourceClass = cls.getSourceMirrorClass.asInstanceOf[ScTypeDefinition]
                   sourceClass.getText + sourceClass.baseCompanionTypeDefinition.map("\n\n" + _.getText).getOrElse("")
                 }
-                val directory = Path.of("scala", Seq("scala-impl", "target", "comparison") ++ fqn.split('.').dropRight(1): _*)
-                Files.createDirectories(directory)
+                val packageDirectory = fqn.split('.').dropRight(1).foldLeft(ComparisonDirectory)(_.resolve(_))
+                Files.createDirectories(packageDirectory)
                 val javaClassName = (cls: PsiClass).getName
-                Files.write(directory.resolve(s"$javaClassName.scala"), sourceText.getBytes)
-                Files.write(directory.resolve(s"$javaClassName-compiler.scala"), compilerText.getBytes)
-                val file2 = directory.resolve(s"$javaClassName-plugin.scala")
-                val diffFile = directory.resolve(s"$javaClassName.diff")
+                Files.write(packageDirectory.resolve(s"$javaClassName.scala"), sourceText.getBytes)
+                Files.write(packageDirectory.resolve(s"$javaClassName$CompilerSuffix.scala"), compilerText.getBytes)
+                val pluginFile = packageDirectory.resolve(s"$javaClassName$PluginSuffix.scala")
+                val diffFile = packageDirectory.resolve(s"$javaClassName.diff")
                 if (pluginText != compilerText) {
-                  Files.write(file2, pluginText.getBytes)
-                  val diff = formatDiff(s"$javaClassName-compiler.scala", s"$javaClassName-plugin.scala", compilerText, pluginText)
+                  Files.write(pluginFile, pluginText.getBytes)
+                  val diff = formatDiff(s"$javaClassName$CompilerSuffix.scala", s"$javaClassName$PluginSuffix.scala", compilerText, pluginText)
                   Files.write(diffFile, diff.getBytes)
                 } else {
-                  Files.deleteIfExists(file2)
+                  Files.deleteIfExists(pluginFile)
                   Files.deleteIfExists(diffFile)
                 }
               } catch {
@@ -142,7 +150,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
                 val (compilerText, pluginText) = textOf(cls, decompiler)((_, _) => ()) // Full result
                 if (pluginText != compilerText) {
                   val javaClassName = (cls: PsiClass).getName
-                  val diff = formatDiff(javaClassName + "-compiler.scala", javaClassName + "-plugin.scala", compilerText, pluginText)
+                  val diff = formatDiff(s"$javaClassName$CompilerSuffix.scala", s"$javaClassName$PluginSuffix.scala", compilerText, pluginText)
                   val directory = fqn.split('.').dropRight(1).mkString("/")
                   afterJar.synchronized { afterJar.putNextEntry(new JarEntry(s"$directory/$javaClassName.diff")); afterJar.write(diff.getBytes); afterJar.closeEntry() }
                 }
@@ -159,7 +167,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
     mode match {
       case Mode.Test =>
       case Mode.Print => // Update the test source file
-        val sourceFile = Path.of("scala", Seq("scala-impl", "test") ++ getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala"): _*)
+        val sourceFile = (getClass.getPackageName.split('.').toSeq :+ (getClass.getSimpleName + ".scala")).foldLeft(TestDirectory)(_.resolve(_))
         Assert.assertTrue(s"Test source not found: ${sourceFile.toString}", Files.exists(sourceFile))
         val contents = Files.readString(sourceFile)
         val ContentsPattern = "(?s)(.*?\"\"\"\n).*(\n\\s*\"\"\".*?)".r
@@ -173,12 +181,12 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
         }
       case Mode.Diffs => // Compare with previous diffs if exist
         afterJar.close()
-        val beforeJarPath = Path.of("scala", "scala-impl", "target", "before.jar")
+        val beforeJarPath = TargetDirectory.resolve(DiffsBeforeJarName)
         if (Files.exists(beforeJarPath)) {
           val diffsBefore = textOf(beforeJarPath)
-          val diffsAfter = textOf(afterJarPath)
+          val diffsAfter = textOf(TargetDirectory.resolve(DiffsAfterJarName))
 //          Assert.assertEquals("Diffs of commented classes differ", diffsBefore, diffsAfter) // Locally
-          val diffOfDiffs = formatDiff("before.jar", "after.jar", diffsBefore, diffsAfter)
+          val diffOfDiffs = formatDiff(DiffsBeforeJarName, DiffsAfterJarName, diffsBefore, diffsAfter)
           if (diffOfDiffs.lines.skip(2).findAny().isPresent) Assert.fail("Diffs differ: \n\n" + diffOfDiffs) // TeamCity
         }
     }
