@@ -50,7 +50,6 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     cats.effect.kernel.DeferredSink
     cats.effect.kernel.DeferredSource
     //cats.effect.kernel.Fiber
-    //cats.effect.kernel.GenConcurrent
     //cats.effect.kernel.GenSpawn
     //cats.effect.kernel.GenTemporal
     //cats.effect.kernel.LowPriorityImplicits
