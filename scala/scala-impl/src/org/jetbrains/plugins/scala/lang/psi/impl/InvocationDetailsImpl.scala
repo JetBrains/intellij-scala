@@ -144,6 +144,14 @@ private[psi] object InvocationDetailsImpl {
         prepared.continueWhen(c => c.nextValue.isDefined || operator, invocation.implicitArgumentsOfInvokedExpression) {
             val target = invocation.target
               .orElse(invocation.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression].flatMap(_.bind()))
+              .orElse(prepared.current.flatMap(_.resultType).flatMap { tpe =>
+                invocation.getInvokedExpr.resolveApplyOrUpdateMethod(
+                  invocation.getInvokedExpr, tpe, shapesOnly = false, withImplicits = true
+                ) match {
+                  case Array(target) => Some(target.mostInnerResolveResult)
+                  case _ => None
+                }
+              })
             val sugared = invocation.isApplyOrUpdateCall || prepared.current.isDefined ||
               !invocation.getEffectiveInvokedExpr.is[ScReferenceExpression, ScGenericCall]
             val receiver = if (sugared) Some(invocation.getInvokedExpr) else invocation.thisExpr
@@ -151,8 +159,16 @@ private[psi] object InvocationDetailsImpl {
               apply = sugared && !invocation.isUpdateCall, update = invocation.isUpdateCall)
           }
           .mapCurrent { call =>
-            val applied = call.omittedBefore(isType = false, isUsing = using)
-              .valueArguments(invocation.argsElement, invocation.matchedParameters, invocation.isAutoTupling, invocation.getInvokedExpr)
+            val ready = call.omittedBefore(isType = false, isUsing = using)
+            val matched = if (invocation.target.isDefined) invocation.matchedParameters else
+              ready.nextValue.toSeq.flatMap { signature =>
+                Compatibility.checkMethodApplicability(
+                  signature.parameters.map(substituteParameter(_, ready.substitution(ready.inferred))),
+                  invocation.argumentExpressions, withImplicits = true, shapesOnly = false
+                ).matched.map(m => m.argument -> m.parameter)
+              }
+            val applied = ready
+              .valueArguments(invocation.argsElement, matched, invocation.isAutoTupling, invocation.getInvokedExpr)
               .at(invocation)
             val receiver = if (invocation.is[ScMethodCall]) applied.details.thisExpr else invocation.thisExpr
             applied.copy(
@@ -361,6 +377,22 @@ private[psi] object InvocationDetailsImpl {
     def substitution(inferred: LongMap[ScType]): ScSubstitutor =
       details.target.fold(ScSubstitutor.empty)(_.substitutor).followed(ScSubstitutor(inferred ++ explicit))
 
+    def resultType: Option[ScType] = {
+      val completed = result()
+      val typeArguments = completed.argumentClauses.collect {
+        case clause: TypeClause => clause.arguments.map(a => a.parameter.typeParamId -> a.tpe)
+      }.flatten
+      @tailrec
+      def stripClauses(tpe: ScType): ScType = tpe match {
+        case poly: ScTypePolymorphicType => stripClauses(poly.internalType)
+        case method: ScMethodType => stripClauses(method.result)
+        case tpe => tpe
+      }
+      if (completed.isPartiallyApplied) None
+      else expressionsReversed.headOption.flatMap(_.getNonValueType().toOption)
+        .map(tpe => substitution(LongMap.from(typeArguments))(stripClauses(tpe)))
+    }
+
     private def argumentTypeInference: LongMap[ScType] = inferred.filterNot {
       // A missing constraint leaves the callee's own type parameter in the mapping. That is
       // only an actual type argument when its declaration encloses this call (e.g. recursion).
@@ -431,6 +463,14 @@ private[psi] object InvocationDetailsImpl {
       subst: ScSubstitutor
     ): List[ArgumentClause] = {
       val expectsFunction = expectedType.exists(FunctionType.isFunctionType)
+      val omittedImplicitClauses = applications.count {
+        case (signature: ValueSignature, _: EtaExpandedClause) => signature.isImplicit
+        case _ => false
+      }
+      // Interleaved type clauses can leave gaps in the typing cache, and typing a generic
+      // call's trailing clauses can overwrite its leading ones. An incomplete sequence
+      // therefore cannot be aligned by position; resolve those clauses from their signatures.
+      val recordedImplicits = if (implicits.size < omittedImplicitClauses) Nil else implicits.toList
 
       @tailrec
       def loop(
@@ -447,10 +487,18 @@ private[psi] object InvocationDetailsImpl {
           val resolved = TypeClause(clause.origin, arguments)(clause.target, clause.anchor)
           loop(tail, implicits, expected, resolved :: resolvedReversed)
         case (signature: ValueSignature, clause: EtaExpandedClause) :: tail =>
-          if (signature.isImplicit && implicits.nonEmpty && !expected.exists(ContextFunctionType.isContextFunctionType)) {
-            val implicitClause = implicits.head
+          if (signature.isImplicit && !expected.exists(ContextFunctionType.isContextFunctionType)) {
+            val implicitClause = implicits.headOption.getOrElse {
+              val method = ScMethodType(
+                api.Unit, signature.parameters.map(substituteParameter(_, subst)),
+                hasImplicitKW = !signature.hasUsing, hasUsingKW = signature.hasUsing
+              )(details.origin.elementScope)
+              InferUtil.updateTypeWithImplicitParameters(
+                method, details.origin, None, canThrowSCE = false, fullInfo = false
+              )._2.head
+            }
             val resolved = ImplicitValueClause(implicitClause.args)(clause.target, clause.anchor, implicitClause.constraints)
-            loop(tail, implicits.tail, expected, resolved :: resolvedReversed)
+            loop(tail, implicits.drop(1), expected, resolved :: resolvedReversed)
           } else if (signature.parameters.isEmpty && (details.isConstructorInvocation ||
             clause.target.is[ArgumentClauseTarget.JavaParameters] && !expectsFunction)) {
             val resolved = AutoAppliedClause()(clause.target, clause.anchor)
@@ -468,7 +516,7 @@ private[psi] object InvocationDetailsImpl {
           loop(tail, implicits, expected, clause :: resolvedReversed)
       }
 
-      loop(applications, implicits.toList, expectedType, Nil)
+      loop(applications, recordedImplicits, expectedType, Nil)
     }
 
     def result(
@@ -484,6 +532,9 @@ private[psi] object InvocationDetailsImpl {
         // A synthetic apply/update records the receiver's clauses on the same PSI node.
         // They are passed to the preceding invocation when that call is finished.
         val ownArguments = expression match {
+          // A recovered apply has no typing result of its own. Any cached arguments belong
+          // to the unsuccessful receiver application, not to the recovered target.
+          case invocation: MethodInvocation if details.isApply && invocation.target.isEmpty => Seq.empty
           case invocation: MethodInvocation => arguments.drop(invocation.implicitArgumentsOfInvokedExpression.size)
           case _ => arguments
         }

@@ -220,7 +220,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           case Some(regularCase) =>
             val inferredType = regularCase.inferredType
 
-            val nextImplicitClauseBelongsToOtherExpr = this.isInScala3File &&
+            val nextImplicitClauseBelongsToOtherExpr = this.isInScala3File && hasExplicitTypeArgumentsFollowing(this) &&
               (inferredType match {
                 case ScTypePolymorphicType(_, tparams) =>
                   //If current type is polymorhic, there's two cases:

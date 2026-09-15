@@ -56,6 +56,37 @@ class MultipleAndInterleavedUsingClausesTest extends SimpleResolveTestBase {
       |""".stripMargin
   )
 
+  def testInferredTypeClauseAfterUsingClause(): Unit = checkTextHasNoErrors(
+    """
+      |trait Evidence[A]
+      |given Evidence[Int] = ???
+      |def get[A](using Evidence[A])[B <: A](using Evidence[B]): B = ???
+      |
+      |val result: Int = get[Int]
+      |""".stripMargin
+  )
+
+  def testInferredTypeClauseAfterTermClause(): Unit = checkTextHasNoErrors(
+    """
+      |trait Evidence[A]
+      |given Evidence[Int] = ???
+      |def get[A](a: A)[B <: A](using Evidence[B]): B = ???
+      |
+      |val result: Int = get(1)
+      |""".stripMargin
+  )
+
+  def testExplicitTypeClauseBetweenUsingClauses(): Unit = checkTextHasNoErrors(
+    """
+      |trait Evidence[A]
+      |given Evidence[Int] = ???
+      |given Evidence[String] = ???
+      |def get[A](a: A)(using Evidence[A])[B](using Evidence[B]): B = ???
+      |
+      |val result: String = get(1)[String]
+      |""".stripMargin
+  )
+
   def testNamedContextBoundInLaterTermClause(): Unit = checkTextHasNoErrors(
     """
       |object A {

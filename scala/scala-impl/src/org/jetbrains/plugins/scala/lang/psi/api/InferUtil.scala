@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScPostfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScParenthesisedExpr, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -93,8 +93,8 @@ object InferUtil {
     //foo: [A] A => (using A) => [B] (using B);
     //foo(123)[String]; we want to solve first using Int clause, but not the second using String clause,
     //because it belongs to a different owner (ScGenericCall instead of MethodInvocation)
-    //To do that, just save captured type paramaters on the first iteration and make sure
-    //any recursive invocations does not capture any new ones.
+    //When an explicit type argument clause follows, save the captured type parameters and
+    //stop recursion at new ones. Otherwise later type clauses must also be inferred here.
     def doesNotCaptureNewTypeParams(newTps: Seq[TypeParameter]): Boolean = {
       val newIds = newTps.map(_.typeParamId)
       tparamsCapturedOnThisIteration = newIds
@@ -259,7 +259,10 @@ object InferUtil {
           implicitRecursionDepth,
           isLeadingClause    = followingClausesAreLeading,
           updateDeep         = updateDeep,
-          capturedTypeParams = Option(tparamsCapturedOnThisIteration)
+          capturedTypeParams =
+            if ((isLeadingClause && place.is[ScGenericCall]) || hasExplicitTypeArgumentsFollowing(place))
+              Some(tparamsCapturedOnThisIteration)
+            else None
         )
 
         val clauseKind =
@@ -271,6 +274,13 @@ object InferUtil {
       case None =>
         (updatedType, Seq.empty)
     }
+  }
+
+  @tailrec
+  private[psi] def hasExplicitTypeArgumentsFollowing(place: PsiElement): Boolean = place.getContext match {
+    case generic: ScGenericCall => generic.referencedExpr == place
+    case parens: ScParenthesisedExpr => hasExplicitTypeArgumentsFollowing(parens)
+    case _ => false
   }
 
   /**
