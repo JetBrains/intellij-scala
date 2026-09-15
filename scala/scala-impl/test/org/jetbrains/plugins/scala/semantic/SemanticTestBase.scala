@@ -105,9 +105,8 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
           val isCommented = name.startsWith("//")
           val fqn = if (isCommented) name.substring(2) else name
 
-          val cls = inReadAction {
-            ScalaPsiManager.instance(getProject).getCachedClass(GlobalSearchScope.allScope(getProject), fqn)
-          }.getOrElse(throw new IllegalArgumentException("Cannot find class: " + fqn)).asInstanceOf[ScTypeDefinition]
+          val cls = inReadAction(ScalaPsiManager.instance(getProject).getCachedClass(GlobalSearchScope.allScope(getProject), fqn))
+            .getOrElse(throw new IllegalArgumentException("Cannot find class: " + fqn)).asInstanceOf[ScTypeDefinition]
 
           mode match {
             case Mode.Test => // Test listed clases
@@ -134,7 +133,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
                 }
                 val packageDirectory = fqn.split('.').dropRight(1).foldLeft(ComparisonDirectory)(_.resolve(_))
                 Files.createDirectories(packageDirectory)
-                val javaClassName = (cls: PsiClass).getName
+                val javaClassName = inReadAction((cls: PsiClass).getName)
                 Files.write(packageDirectory.resolve(s"$javaClassName.scala"), sourceText.getBytes)
                 Files.write(packageDirectory.resolve(s"$javaClassName$CompilerSuffix.scala"), compilerText.getBytes)
                 val pluginFile = packageDirectory.resolve(s"$javaClassName$PluginSuffix.scala")
@@ -154,7 +153,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
               if (isCommented) {
                 val (compilerText, pluginText) = textOf(cls, decompiler)((_, _) => ()) // Full result
                 if (pluginText != compilerText) {
-                  val javaClassName = (cls: PsiClass).getName
+                  val javaClassName = inReadAction((cls: PsiClass).getName)
                   val diff = formatDiff(s"$javaClassName$CompilerSuffix.scala", s"$javaClassName$PluginSuffix.scala", compilerText, pluginText)
                   val directory = fqn.split('.').dropRight(1).mkString("/")
                   diffsJar.synchronized { diffsJar.putNextEntry(new JarEntry(s"$directory/$javaClassName.diff")); diffsJar.write(diff.getBytes); diffsJar.closeEntry() }
