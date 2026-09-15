@@ -32,7 +32,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
   private object Mode {
     case object Test extends Mode // Test listed classes
     case object Print extends Mode // Find and print classes to scala/scala-impl/target/comparison/; update the test source file
-    case object Diffs extends Mode // Save diffs of commented classes to scala/scala-impl/target/diffs-after.jar; compare with diffs-before.jar if present
+    case object Diffs extends Mode // Save diffs of commented classes to scala/scala-impl/target/diffs/$Test.jar; compare with .../previous-diffs/$Test.jar if present
   }
 
   private val mode: Mode =
@@ -46,8 +46,11 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
   private val PluginSuffix = "-plugin"
   private val TestDirectory = Path.of("scala", "scala-impl", "test")
 
-  private val DiffsBeforeJarName = "diffs-before.jar"
-  private val DiffsAfterJarName = "diffs-after.jar"
+  private val TestClassName = getClass.getSimpleName.stripSuffix("SemanticTest")
+  private val DiffsDirectory = TargetDirectory.resolve("diffs")
+  private val DiffsJar = DiffsDirectory.resolve(s"$TestClassName.jar")
+  private val PreviousDiffsDirectory = TargetDirectory.resolve("previous-diffs")
+  private val PreviousDiffsJar = PreviousDiffsDirectory.resolve(s"$TestClassName.jar")
 
   override def runInDispatchThread(): Boolean = false
 
@@ -87,9 +90,9 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
       case Mode.Print => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName)) // Find
     }
 
-    val afterJar = mode match {
-      case Mode.Test | Mode.Print=> null
-      case Mode.Diffs => new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(TargetDirectory.resolve(DiffsAfterJarName), CREATE, WRITE)))
+    lazy val diffsJar = {
+      Files.createDirectories(DiffsDirectory)
+      new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(DiffsJar, CREATE, WRITE)))
     }
 
     val futures = splitInto(numBatches, classNames).map { classes =>
@@ -147,14 +150,14 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
               } catch {
                 case e: Throwable => System.err.println(fqn + ": " + e.getMessage) // Ignore classes with errors
               }
-            case Mode.Diffs => // Save diffs of commented classes to scala/scala-impl/target/diffs-after.jar
+            case Mode.Diffs => // Save diffs of commented classes to scala/scala-impl/target/diffs/$Test.jar
               if (isCommented) {
                 val (compilerText, pluginText) = textOf(cls, decompiler)((_, _) => ()) // Full result
                 if (pluginText != compilerText) {
                   val javaClassName = (cls: PsiClass).getName
                   val diff = formatDiff(s"$javaClassName$CompilerSuffix.scala", s"$javaClassName$PluginSuffix.scala", compilerText, pluginText)
                   val directory = fqn.split('.').dropRight(1).mkString("/")
-                  afterJar.synchronized { afterJar.putNextEntry(new JarEntry(s"$directory/$javaClassName.diff")); afterJar.write(diff.getBytes); afterJar.closeEntry() }
+                  diffsJar.synchronized { diffsJar.putNextEntry(new JarEntry(s"$directory/$javaClassName.diff")); diffsJar.write(diff.getBytes); diffsJar.closeEntry() }
                 }
               }
           }
@@ -181,15 +184,14 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
           case _ =>
             Assert.fail(s"Cannot find placeholder for test cases: ${sourceFile.toString}")
         }
-      case Mode.Diffs => // Compare with previous diffs if exist
-        afterJar.close()
-        val beforeJarPath = TargetDirectory.resolve(DiffsBeforeJarName)
-        if (Files.exists(beforeJarPath)) {
-          val diffsBefore = textOf(beforeJarPath)
-          val diffsAfter = textOf(TargetDirectory.resolve(DiffsAfterJarName))
-//          Assert.assertEquals("Diffs of commented classes differ", diffsBefore, diffsAfter) // Locally
-          val diffOfDiffs = formatDiff(DiffsBeforeJarName, DiffsAfterJarName, diffsBefore, diffsAfter)
-          if (diffOfDiffs.lines.skip(2).findAny().isPresent) Assert.fail("Diffs differ: \n\n" + diffOfDiffs) // TeamCity
+      case Mode.Diffs => // Compare with scala/scala-impl/target/previous-diffs/$Test.jar if present
+        diffsJar.close()
+        if (Files.exists(PreviousDiffsJar)) {
+          val previousDiffs = textOf(PreviousDiffsJar)
+          val diffs = textOf(DiffsJar)
+//          Assert.assertEquals("Diffs of commented classes differ", previousDiffs, diffs) // Locally
+          val diffOfDiffs = formatDiff(s"$TestClassName-before", s"$TestClassName-after", previousDiffs, diffs)
+          if (diffOfDiffs.lines.skip(2).findAny().isPresent) Assert.fail("Diffs between compiler & plugin differ from previous ones: \n\n" + diffOfDiffs) // TeamCity
         }
     }
   }
