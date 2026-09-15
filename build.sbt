@@ -458,6 +458,7 @@ lazy val scalaImpl: sbt.Project =
       intellijPlugins ++= Seq(
         "JUnit".toPlugin,
         "intellij.vcs.plugin".toPlugin,
+        "intellij.xml.plugin".toPlugin,
       ),
       intellijPluginJars := intellijPluginJars.value.map { case PluginJars(descriptor, root, cp) =>
         PluginJars(descriptor, root, cp.filterNot(_.getName.contains("junit-jupiter-api")))
