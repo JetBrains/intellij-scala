@@ -327,7 +327,6 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.context.ProtoContext
     //io.getquill.context.ProtoContextSecundus
     //io.getquill.context.ProtoStreamContext
-    //io.getquill.context.ProtoStreamContext
     //io.getquill.context.QueryExecution
     //io.getquill.context.QueryExecutionBatch
     //io.getquill.context.QueryExecutionBatchDynamic
@@ -653,7 +652,6 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.util.SummonMac
     io.getquill.util.ThreadUtil
     //io.getquill.util.ThrowableOps
-    //io.getquill.util.TraceConfig
     //io.getquill.util.TraceConfig
     //io.getquill.util.UseSummonMac
     //io.getquill.util.Using

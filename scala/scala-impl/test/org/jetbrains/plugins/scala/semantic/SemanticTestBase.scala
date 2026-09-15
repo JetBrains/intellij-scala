@@ -87,7 +87,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
 
     val classNames = mode match {
       case Mode.Test | Mode.Diffs => classes.split('\n').map(_.trim).filterNot(_.isEmpty).toSeq // Listed
-      case Mode.Print => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName)) // Find
+      case Mode.Print => inReadAction(allClasses(excludePackages = Set.empty).map(_.qualifiedName).distinct) // Find
     }
 
     lazy val diffsJar = {
