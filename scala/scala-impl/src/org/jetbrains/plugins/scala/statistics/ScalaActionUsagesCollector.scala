@@ -5,7 +5,6 @@ import com.intellij.internal.statistic.eventLog.events.LongEventField
 import com.intellij.internal.statistic.service.fus.collectors.CounterUsagesCollector
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScFileMode
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector.Group
 
 //noinspection UnstableApiUsage
@@ -29,10 +28,6 @@ object ScalaActionUsagesCollector {
   private val ConvertFromJavaEvent = Group.registerEvent("convert.javatext") // TODO: SCL-24479
   private val RunWorksheetEvent = Group.registerEvent("worksheet") // TODO: SCL-24479
 
-  private val ScFileModeSetWorksheetEvent = Group.registerEvent("sc.file.set.worksheet") // TODO: SCL-24479
-  private val ScFileModeSetAmmoniteEvent = Group.registerEvent("sc.file.set.ammonite") // TODO: SCL-24479
-  private val ScFileModeSetAutoEvent = Group.registerEvent("sc.file.set.auto") // TODO: SCL-24479
-
   private val IncrementalityTypeSetSbtEvent = Group.registerEvent("compiler.inc.type.set.sbt") // TODO: SCL-24479
   private val IncrementalityTypeSetIdeaEvent = Group.registerEvent("compiler.inc.type.set.idea") // TODO: SCL-24479
 
@@ -48,12 +43,6 @@ object ScalaActionUsagesCollector {
   def logRearrange(project: Project): Unit = RearrangeEvent.log(project)
   def logConvertFromJava(project: Project): Unit = ConvertFromJavaEvent.log(project)
   def logRunWorksheet(project: Project): Unit = RunWorksheetEvent.log(project)
-
-  def logScFileModeSet(mode: ScFileMode, project: Project): Unit = mode match {
-    case ScFileMode.Worksheet => ScFileModeSetWorksheetEvent.log(project)
-    case ScFileMode.Ammonite => ScFileModeSetAmmoniteEvent.log(project)
-    case ScFileMode.Auto => ScFileModeSetAutoEvent.log(project)
-  }
 
   def logIncrementalityTypeSet(incrementalityType: IncrementalityType, project: Project): Unit = incrementalityType match {
     case IncrementalityType.SBT => IncrementalityTypeSetSbtEvent.log(project)

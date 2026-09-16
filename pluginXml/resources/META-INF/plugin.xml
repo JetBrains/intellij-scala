@@ -27,7 +27,7 @@
           <li>Navigation, search, information about types and implicits</li>
           <li>Integration with sbt and other build tools</li>
           <li>Testing frameworks support (ScalaTest, Specs2, uTest)</li>
-          <li>Scala debugger, worksheets and Ammonite scripts</li>
+          <li>Scala debugger and worksheets</li>
         </ul>
         <br>
         Support for Play Framework, Akka and Scala.js is enabled in the Ultimate subscription.

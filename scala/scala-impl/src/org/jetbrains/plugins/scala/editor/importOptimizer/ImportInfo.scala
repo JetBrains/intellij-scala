@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._root_prefix
-import org.jetbrains.plugins.scala.extensions.implementation.iterator.ContextsIterator
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiMemberExt, PsiModifierListOwnerExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -197,9 +196,6 @@ object ImportInfo {
       }
     }
 
-    if (ImportInfoProvider.providers.exists(_.isImportUsedWithFileCheck(imp)))
-      importsUsed += new ImportExprUsed(imp)
-
     if (isUnqualifiedScala3StyleAlias) {
       allNames --= hiddenNames
 
@@ -382,19 +378,8 @@ object ImportInfo {
         }
         clazzFqn + withDot(refName)
       case _ =>
-        if (isScriptRef(ref))
-          refName
-        else
-          throw new IllegalStateException() //do not process invalid import
+        throw new IllegalStateException() //do not process invalid import
     }
-  }
-
-  private def isScriptRef(ref: ScStableCodeReference): Boolean = {
-    // TODO: maybe we should create a separate extension point with a dedicated purpose?
-    //  Currently ImportInfoProvider is reused just because it's only implementation (for ammonite) was equal to
-    //  internal implementation isScriptRef
-    val importExpr = new ContextsIterator(ref).findByType[ScImportExpr]
-    importExpr.exists(imp => ImportInfoProvider.providers.exists(_.isImportUsedWithFileCheck(imp)))
   }
 
   private def collectAllNamesAndImplicitsFromWildcard(qualifier: String, place: PsiElement): (Set[String], Set[String]) = {

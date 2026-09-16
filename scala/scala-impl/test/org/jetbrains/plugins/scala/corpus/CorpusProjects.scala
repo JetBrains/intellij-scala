@@ -9,7 +9,6 @@ object CorpusProjects {
   case class Scala2Scala3Project(scala2: Scala2ProjectCorpusTestDef, scala3: Scala3ProjectCorpusTestDef)
 
   val Akka = Scala2Scala3Project(scala2.AkkaTest, scala3.AkkaTest)
-  val Ammonite = Scala2Scala3Project(scala2.AmmoniteTest, scala3.AmmoniteTest)
   val Cats = Scala2Scala3Project(scala2.CatsTest, scala3.CatsTest)
   val Circe = Scala2Scala3Project(scala2.CirceTest, scala3.CirceTest)
   val Doobie = Scala2Scala3Project(scala2.DoobieTest, scala3.DoobieTest)
@@ -34,7 +33,6 @@ object CorpusProjects {
     Seq(
       // Projects with both Scala 2 and Scala 3
       Akka,
-      Ammonite,
       Cats,
       Circe,
       Doobie,
