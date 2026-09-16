@@ -309,7 +309,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         case _ => e.name
       }
       case e: PsiNamedElement => e.nameContext match {
-        case p: PsiPackage if p.getName == null => "_root_"
+        case p: PsiPackage => if (p.getName == null) "_root_" else p.getQualifiedName
         case p: ScClassParameter if p.containingClass.extendsBlock.templateParents.exists(place.contexts.contains) => p.name
         case m: ScMember if m.isLocal => e.name
         case m: PsiMember =>

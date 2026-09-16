@@ -284,7 +284,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.libs.json.JsValue
     //play.api.libs.json.JsValueMacros
     //play.api.libs.json.Json
-    //play.api.libs.json.JsonConfig
+    play.api.libs.json.JsonConfig
     play.api.libs.json.JsonConfigImpl
     //play.api.libs.json.JsonConfiguration
     play.api.libs.json.JsonFacade
@@ -360,7 +360,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.mvc.BodyParser
     //play.api.mvc.BodyParserUtils
     //play.api.mvc.BodyParsers
-    //play.api.mvc.ByteRange
+    play.api.mvc.ByteRange
     //play.api.mvc.Call
     play.api.mvc.Codec
     play.api.mvc.ControllerComponents

@@ -643,7 +643,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.util.Load
     //io.getquill.util.LoadConfig
     //io.getquill.util.Messages
-    //io.getquill.util.ProtoMessages
+    io.getquill.util.ProtoMessages
     //io.getquill.util.ScalafmtFormat
     //io.getquill.util.Show
     io.getquill.util.SingleGenie

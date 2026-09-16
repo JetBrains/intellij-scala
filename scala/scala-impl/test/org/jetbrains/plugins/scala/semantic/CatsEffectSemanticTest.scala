@@ -127,7 +127,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     //cats.effect.std.Dispatcher
     //cats.effect.std.DispatcherPlatform
     //cats.effect.std.Env
-    //cats.effect.std.EnvCompanionPlatform
+    cats.effect.std.EnvCompanionPlatform
     cats.effect.std.FailureSignal
     //cats.effect.std.Hotswap
     cats.effect.std.MapRefCompanionPlatform
@@ -163,7 +163,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     cats.effect.std.unsafe.UnboundedQueueSink
     cats.effect.syntax.AllSyntax
     cats.effect.syntax.DispatcherSyntax
-    //cats.effect.tracing.RingBuffer
+    cats.effect.tracing.RingBuffer
     //cats.effect.tracing.Tracing
     cats.effect.tracing.TracingEvent
     //cats.effect.tracing.TracingPlatform

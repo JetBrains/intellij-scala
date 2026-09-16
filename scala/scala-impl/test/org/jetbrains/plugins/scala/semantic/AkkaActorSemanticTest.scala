@@ -175,7 +175,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.actor.dungeon.SerializationCheckFailedException
     //akka.actor.setup.ActorSystemSetup
     akka.actor.setup.Setup
-    //akka.compat.Future
+    akka.compat.Future
     akka.compat.PartialFunction
     //akka.dispatch.BalancingDispatcher
     //akka.dispatch.BalancingDispatcherConfigurator
@@ -324,7 +324,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.event.jul.JavaLogger
     //akka.event.jul.JavaLogging
     //akka.event.jul.JavaLoggingFilter
-    //akka.event.jul.Logger
+    akka.event.jul.Logger
     akka.io.BufferPool
     akka.io.ChannelRegistration
     akka.io.ChannelRegistry

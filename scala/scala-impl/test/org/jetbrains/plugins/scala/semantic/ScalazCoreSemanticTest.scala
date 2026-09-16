@@ -631,7 +631,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.NonEmptyListInstances
     //scalaz.NonEmptyListInstances0
     //scalaz.Nondeterminism
-    //scalaz.NotNothing
+    scalaz.NotNothing
     //scalaz.NullArgument
     //scalaz.NullArgumentInstances
     scalaz.NullArgumentInstances0

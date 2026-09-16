@@ -13,7 +13,7 @@ class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.
     //ammonite.Main
     //ammonite.MainRunner
     //ammonite.compiler.AmmonitePhase
-    //ammonite.compiler.AsmPositionUpdater
+    ammonite.compiler.AsmPositionUpdater
     //ammonite.compiler.CodeClassWrapper
     //ammonite.compiler.CompatibilityParser
     //ammonite.compiler.Compiler

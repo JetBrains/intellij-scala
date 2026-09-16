@@ -373,13 +373,13 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.javadsl.BidiFlow
     //akka.stream.javadsl.Broadcast
     //akka.stream.javadsl.BroadcastHub
-    //akka.stream.javadsl.Compression
+    akka.stream.javadsl.Compression
     //akka.stream.javadsl.Concat
     //akka.stream.javadsl.DelayStrategy
-    //akka.stream.javadsl.FileIO
+    akka.stream.javadsl.FileIO
     //akka.stream.javadsl.Flow
     //akka.stream.javadsl.FlowWithContext
-    //akka.stream.javadsl.Framing
+    akka.stream.javadsl.Framing
     //akka.stream.javadsl.GraphCreate
     //akka.stream.javadsl.GraphDSL
     akka.stream.javadsl.JsonFraming
@@ -396,7 +396,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.javadsl.RestartSink
     //akka.stream.javadsl.RestartSource
     //akka.stream.javadsl.RetryFlow
-    //akka.stream.javadsl.RunnableGraph
+    akka.stream.javadsl.RunnableGraph
     //akka.stream.javadsl.Sink
     akka.stream.javadsl.SinkQueue
     //akka.stream.javadsl.SinkQueueWithCancel
@@ -404,21 +404,21 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.javadsl.SourceQueue
     //akka.stream.javadsl.SourceQueueWithComplete
     //akka.stream.javadsl.SourceWithContext
-    //akka.stream.javadsl.StreamConverters
-    //akka.stream.javadsl.StreamRefs
+    akka.stream.javadsl.StreamConverters
+    akka.stream.javadsl.StreamRefs
     //akka.stream.javadsl.SubFlow
     //akka.stream.javadsl.SubSource
-    //akka.stream.javadsl.TLS
-    //akka.stream.javadsl.TLSPlacebo
+    akka.stream.javadsl.TLS
+    akka.stream.javadsl.TLSPlacebo
     //akka.stream.javadsl.Tcp
     //akka.stream.javadsl.Unzip
-    //akka.stream.javadsl.UnzipWith
+    akka.stream.javadsl.UnzipWith
     akka.stream.javadsl.Zip
     akka.stream.javadsl.ZipLatest
-    //akka.stream.javadsl.ZipLatestWith
+    akka.stream.javadsl.ZipLatestWith
     akka.stream.javadsl.ZipN
-    //akka.stream.javadsl.ZipWith
-    //akka.stream.javadsl.ZipWithN
+    akka.stream.javadsl.ZipWith
+    akka.stream.javadsl.ZipWithN
     //akka.stream.scaladsl.Balance
     //akka.stream.scaladsl.BidiFlow
     //akka.stream.scaladsl.Broadcast
@@ -459,7 +459,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.scaladsl.RestartWithBackoffSink
     //akka.stream.scaladsl.RestartWithBackoffSource
     akka.stream.scaladsl.RetryFlow
-    //akka.stream.scaladsl.RunnableGraph
+    akka.stream.scaladsl.RunnableGraph
     akka.stream.scaladsl.ScalaSessionAPI
     //akka.stream.scaladsl.Sink
     akka.stream.scaladsl.SinkQueue

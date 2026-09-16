@@ -615,7 +615,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.instances.InvariantMonoidalInstances
     //cats.instances.LazyListInstances
     //cats.instances.ListInstances
-    //cats.instances.ListInstancesBinCompat0
+    cats.instances.ListInstancesBinCompat0
     cats.instances.LongInstances
     //cats.instances.LowPrioritySortedSetInstancesBinCompat1
     //cats.instances.MapInstances

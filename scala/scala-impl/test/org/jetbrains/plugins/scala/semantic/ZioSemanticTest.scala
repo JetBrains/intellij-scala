@@ -240,6 +240,6 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.stm.TSet
     //zio.stm.ZSTM
     //zio.stm.ZSTMLockSupport
-    //zio.stm.ZSTMUtils
+    zio.stm.ZSTMUtils
   """)
 }
