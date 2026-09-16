@@ -28,12 +28,24 @@ package object codeInspection {
   } yield textEditor.getEditor
 
   def expressionResultIsNotUsed(expression: ScExpression): Boolean =
+    expressionResultIsNotUsed(expression, _ => true)
+
+  /**
+   * @param isInScope limits propagation from enclosing expressions and functions, e.g. at a template language boundary
+   */
+  def expressionResultIsNotUsed(
+    expression: ScExpression,
+    isInScope: PsiElement => Boolean
+  ): Boolean =
     parentCannotUseExprAsResult(expression) ||
-      parents(expression).exists {
+      parents(expression).takeWhile {
+        case e: ScExpression => isInScope(e)
+        case _ => true
+      }.exists {
         case e: ScExpression => parentCannotUseExprAsResult(e)
         case _ => false
       } ||
-      isInUnitFunctionReturnPosition(expression)
+      isInUnitFunctionReturnPosition(expression, isInScope)
 
   private[this] def parentCannotUseExprAsResult(expression: ScExpression): Boolean = expression.getParent match {
     case block: ScBlock => !block.resultExpression.contains(expression)
@@ -62,9 +74,9 @@ package object codeInspection {
     }
   }
 
-  private[this] def isInUnitFunctionReturnPosition(expression: ScExpression) = {
+  private[this] def isInUnitFunctionReturnPosition(expression: ScExpression, isInScope: PsiElement => Boolean) = {
     findDefiningFunction(expression).exists { definition =>
-      isUnitFunction(definition) && definition.returnUsages(expression)
+      isInScope(definition) && isUnitFunction(definition) && definition.returnUsages(expression)
     }
   }
 

@@ -19,7 +19,7 @@ import scala.collection.mutable
 final class ScalaUnusedExpressionInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case expression: ScExpression if IntentionAvailabilityChecker.checkInspection(this, expression.getParent) &&
-      expressionResultIsNotUsed(expression) =>
+      expressionResultIsNotUsed(expression, e => IntentionAvailabilityChecker.checkInspection(this, e.getParent)) =>
 
       for {
         case (range, effect) <- collectRanges(expression)
