@@ -443,7 +443,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
    * To prevent these problems, the terminal size is adjusted so that the number of rows is always greater than JLine’s `MIN_ROWS`.
    */
   private def createTerminalConsole(handler: OSProcessHandler): TerminalExecutionConsole = {
-    val console = TerminalExecutionConsoleBuilder(project).build()
+    val console = TerminalExecutionConsoleBuilder(project).keepLastLineOnClear(true).build()
     val ttyConnector = new ProcessHandlerTtyConnector(handler, EncodingProjectManager.getInstance(project).getDefaultCharset) {
       override def resize(termSize: TermSize): Unit = {
         val minRows = 3 // from org.jline.reader.impl.LineReaderImpl.MIN_ROWS
