@@ -13,7 +13,7 @@ class ScalaActionUsagesCollector extends CounterUsagesCollector {
 }
 
 object ScalaActionUsagesCollector {
-  private val Group = new EventLogGroup("scala.actions", 2) // TODO: SCL-24479
+  private val Group = new EventLogGroup("scala.actions", 3) // TODO: SCL-24479
 
   private val TypeInfoEvent = Group.registerEvent("type.info") // TODO: SCL-24479
   private val XRayModeEvent = Group.registerEvent("x-ray.mode", new LongEventField("duration")) // TODO: SCL-24479
