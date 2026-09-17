@@ -2,23 +2,50 @@ package org.jetbrains.plugins.scala.runner
 
 import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerInfo.LineMarkerGutterIconRenderer
-import com.intellij.execution.RunManager
+import com.intellij.execution.{Executor, RunManager}
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.application.ApplicationConfiguration
+import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters, ParametersList}
+import com.intellij.execution.executors.{DefaultDebugExecutor, DefaultRunExecutor}
 import com.intellij.execution.impl.{RunConfigurationLevel, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
+import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.testFramework.PlatformTestUtil
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.annotator.gutter.LineMarkerInfoPresentationUtils
 import org.jetbrains.plugins.scala.configurations.RunConfigCreationLocation.{CaretLocation2, PsiElementLocation}
 import org.jetbrains.plugins.scala.configurations.{RunConfigurationCreationOps, RunConfigCreationLocation}
+import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers._
-import org.junit.Assert.{assertNotNull, assertNull, fail}
+import org.junit.Assert.{assertEquals, assertFalse, assertNotNull, assertNull, assertTrue, fail}
 import org.junit.ComparisonFailure
 
 import scala.jdk.CollectionConverters.ListHasAsScala
+import scala.util.control.NonFatal
 
-abstract class ScalaApplicationConfigurationProducerTestBase
+/**
+ * Tests Scala 2 and Scala 3 application configuration features:
+ *  - Configuration creation, validation and reuse from different source locations.
+ *  - Main methods in objects and companions, including nested packages.
+ *  - Scala 3 `@main` functions with default, custom and vararg parameters.
+ *  - Run and Debug Java-parameter preparation on a background thread without existing read access.
+ *
+ * == Entities tested directly or indirectly ==
+ *  - [[ScalaApplicationConfigurationProducer]] and [[ScalaApplicationConfigurationProducerMainMethodUtils]]:
+ *    configuration creation, reuse and entry-point discovery.
+ *  - [[ApplicationConfiguration]]: main-class validation and command-line state creation.
+ *  - [[com.intellij.psi.util.PsiMethodUtil]], [[ScalaMainMethodProvider]] and [[Scala3MainMethodProvider]]:
+ *    main-method validation.
+ *  - [[Scala3MainMethodSyntheticClassFinder]] and [[Scala3MainMethodSyntheticClass]]:
+ *    Scala 3 main-class resolution and parameter metadata.
+ *  - [[JavaCommandLineState]] and [[com.intellij.execution.application.ApplicationCommandLineState]]:
+ *    main-class and program-argument preparation.
+ *  - [[com.intellij.execution.JavaRunConfigurationExtensionManager]] and [[ScalaApplicationConfigurationExtension]]:
+ *    extension dispatch for both executors, read access during class lookup and custom-argument validation.
+ */
+abstract class ScalaApplicationConfigurationTestBase
   extends ScalaFixtureTestCaseWithSourceFolder
     with RunConfigurationCreationOps {
 
@@ -49,10 +76,96 @@ abstract class ScalaApplicationConfigurationProducerTestBase
   protected def configurationContext(psiElement: PsiElement): ConfigurationContext =
     new ConfigurationContext(psiElement)
 
-  protected def doTest(location: RunConfigCreationLocation, configName: String, mainClassName: String): ApplicationConfiguration = {
+  protected def doTest(
+    location: RunConfigCreationLocation,
+    configName: String,
+    mainClassName: String,
+    programArguments: Seq[String] = Seq.empty
+  ): ApplicationConfiguration = {
     val configuration = createConfiguration(location)
     assertConfiguration(configuration, configName, mainClassName)
+
+    // Test Run and Debug parameter preparation: configuration validation alone misses launch-time argument and read-access errors.
+    val parameters = new ParametersList()
+    parameters.addAll(programArguments: _*)
+    configuration.setProgramParameters(parameters.getParametersString)
+    Seq(DefaultRunExecutor.getRunExecutorInstance, DefaultDebugExecutor.getDebugExecutorInstance).foreach { executor =>
+      assertJavaParameters(configuration, executor, mainClassName, programArguments)
+    }
+
     configuration
+  }
+
+  private def assertJavaParameters(
+    configuration: ApplicationConfiguration,
+    executor: Executor,
+    mainClassName: String,
+    programArguments: Seq[String]
+  ): Unit = {
+    val context = s"${getName}: ${configuration.getName} (${executor.getId})"
+
+    // Each executor needs a fresh state because JavaCommandLineState caches its parameters.
+    val state = createJavaCommandLineState(configuration, executor, context)
+    val parameters = prepareJavaParametersOnPooledThread(state, context)
+
+    assertEquals(s"$context: main class", mainClassName, parameters.getMainClass)
+    assertEquals(s"$context: program arguments", programArguments, parameters.getProgramParametersList.getParameters.asScala.toSeq)
+  }
+
+  private def createJavaCommandLineState(
+    configuration: ApplicationConfiguration,
+    executor: Executor,
+    context: String
+  ): JavaCommandLineState = {
+    // Follow the launch path through the registered runner and the configuration's own state factory.
+    val runner = ProgramRunner.getRunner(executor.getId, configuration)
+    assertNotNull(s"$context: no registered runner", runner)
+    val settings = new RunnerAndConfigurationSettingsImpl(RunManagerImpl.getInstanceImpl(getProject), configuration)
+    val environment = new ExecutionEnvironment(executor, runner, settings, getProject)
+    val state = configuration.getState(executor, environment)
+    assertTrue(s"$context: expected a Java command-line state", state.isInstanceOf[JavaCommandLineState])
+    state.asInstanceOf[JavaCommandLineState]
+  }
+
+  private def prepareJavaParametersOnPooledThread(state: JavaCommandLineState, context: String): JavaParameters = {
+    // Match the unlocked background-thread context used by Run and Debug launch preparation.
+    val future = executeOnPooledThread {
+      assertFalse(s"$context: parameter preparation must start without read access",
+        ApplicationManager.getApplication.isReadAccessAllowed)
+      state.getJavaParameters
+    }
+
+    // Keep EDT events flowing while waiting for background preparation to finish.
+    try PlatformTestUtil.waitForFuture(future, 30000)
+    catch {
+      case NonFatal(e) => throw new AssertionError(s"$context: parameter preparation failed", e)
+    }
+  }
+
+  def testPrepareJavaParametersWithoutReadAccess_Run(): Unit =
+    doTestPrepareJavaParametersWithoutReadAccess(DefaultRunExecutor.getRunExecutorInstance)
+
+  def testPrepareJavaParametersWithoutReadAccess_Debug(): Unit =
+    doTestPrepareJavaParametersWithoutReadAccess(DefaultDebugExecutor.getDebugExecutorInstance)
+
+  private def doTestPrepareJavaParametersWithoutReadAccess(executor: Executor): Unit = {
+    addFileToProjectSources("Main.java",
+      """public class Main {
+        |  public static void main(String[] args) {}
+        |}
+        |""".stripMargin)
+    val configuration = new ApplicationConfiguration("Main", getProject) {
+      override def getMainClass: PsiClass = {
+        // Subclasses such as Spring Boot perform PSI work here even when class lookup is cached.
+        assertTrue("Main-class lookup requires read access", ApplicationManager.getApplication.isReadAccessAllowed)
+        val mainClass = super.getMainClass
+        assertNotNull("The Java main class should resolve", mainClass)
+        mainClass
+      }
+    }
+    configuration.setModule(myModule)
+    configuration.setMainClassName("Main")
+    assertJavaParameters(configuration, executor, "Main", Seq.empty)
   }
 
   protected def assertConfiguration(configuration: ApplicationConfiguration, configName: String, mainClassName: String): Unit = {
@@ -104,7 +217,7 @@ abstract class ScalaApplicationConfigurationProducerTestBase
   }
 }
 
-class ScalaApplicationConfigurationProducerTest_Scala2 extends ScalaApplicationConfigurationProducerTestBase {
+class ScalaApplicationConfigurationTest_Scala2 extends ScalaApplicationConfigurationTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version < ScalaVersion.Latest.Scala_3_0
@@ -336,7 +449,7 @@ class ScalaApplicationConfigurationProducerTest_Scala2 extends ScalaApplicationC
   }
 }
 
-class ScalaApplicationConfigurationProducerTest_Scala3 extends ScalaApplicationConfigurationProducerTest_Scala2 {
+class ScalaApplicationConfigurationTest_Scala3 extends ScalaApplicationConfigurationTest_Scala2 {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_3_0
@@ -364,7 +477,7 @@ class ScalaApplicationConfigurationProducerTest_Scala3 extends ScalaApplicationC
          |}
          |
          |@main
-         |def mainFooWithCustomParamsWithVararg(param1: Int, param2: String, other: String): Unit = {
+         |def mainFooWithCustomParamsWithVararg(param1: Int, param2: String, other: String*): Unit = {
          |}
          |
          |@main
@@ -373,9 +486,9 @@ class ScalaApplicationConfigurationProducerTest_Scala3 extends ScalaApplicationC
          |""".stripMargin
     )
 
-    doTest(CaretLocation2(vFile, 3, 10), "mainFoo", packagePrefix + "mainFoo")
-    doTest(CaretLocation2(vFile, 7, 10), "mainFooWithCustomParams", packagePrefix + "mainFooWithCustomParams")
-    doTest(CaretLocation2(vFile, 11, 10), "mainFooWithCustomParamsWithVararg", packagePrefix + "mainFooWithCustomParamsWithVararg")
+    doTest(CaretLocation2(vFile, 3, 10), "mainFoo", packagePrefix + "mainFoo", Seq("hello world", "other"))
+    doTest(CaretLocation2(vFile, 7, 10), "mainFooWithCustomParams", packagePrefix + "mainFooWithCustomParams", Seq("42", "hello world", "other"))
+    doTest(CaretLocation2(vFile, 11, 10), "mainFooWithCustomParamsWithVararg", packagePrefix + "mainFooWithCustomParamsWithVararg", Seq("42", "hello world"))
     doTest(CaretLocation2(vFile, 15, 10), "mainFooWithoutParams", packagePrefix + "mainFooWithoutParams")
   }
 

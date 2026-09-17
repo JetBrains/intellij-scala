@@ -6,7 +6,7 @@ import com.intellij.execution.{CantRunException, ExecutionException, RunConfigur
 import com.intellij.openapi.project.Project
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClass.MainMethodParameters
 import org.jetbrains.plugins.scala.runner.view.ScalaProvideMainMethodParametersDialog
 
@@ -42,7 +42,8 @@ final class ScalaApplicationConfigurationExtension extends RunConfigurationExten
   ): Unit = {
     val configuration = configurationBase.asOptionOfUnsafe[ApplicationConfiguration].getOrElse(return)
 
-    configuration.getMainClass match {
+    val mainClass = inReadAction(configuration.getMainClass)
+    mainClass match {
       case clazz: Scala3MainMethodSyntheticClass =>
         clazz.parameters match {
           case MainMethodParameters.Custom(expectedParams) if expectedParams.nonEmpty =>
