@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
     <dependencies>
-        <plugin id="org.jetbrains.kotlin"/>
+        <module name="intellij.kotlin.base.facet"/>
+        <module name="intellij.libraries.kotlinc.kotlin.jps.common"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.externalSystem"/>
+        <module name="intellij.platform.lang.core"/>
     </dependencies>
 
     <extensions defaultExtensionNs="com.intellij">
