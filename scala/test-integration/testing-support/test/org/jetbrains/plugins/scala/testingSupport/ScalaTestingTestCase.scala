@@ -191,6 +191,9 @@ abstract class ScalaTestingTestCase
     })
 
     val exitCode = waitForTestEnd(handler, exitCodeListener, duration)
+    // The process listener reports termination independently from the SM test-event processor.
+    // Do not expose the test tree until the processor has consumed its final service messages.
+    testStatusListener.awaitTestingFinished(duration)
 
     val result = TestRunResult(
       runConfig,
