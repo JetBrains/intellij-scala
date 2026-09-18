@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import com.intellij.codeInsight.documentation.render.InlineDocumentationImplKt
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.editor.documentationProvider.util.ScalaDocumentationsBodySectionTesting
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
+import org.junit.Assert.{assertNotNull, assertTrue}
 
 class Scala3DocumentationProviderTest_Markdown
   extends ScalaDocumentationProviderTestBase
@@ -9,6 +12,33 @@ class Scala3DocumentationProviderTest_Markdown
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_3
+
+  // SCL-25937
+  def testNote(): Unit = {
+    val (editor, file) = createEditorAndFile(
+      s"""/**
+         | * This is Main
+         | *
+         | * @note The note should be visible
+         | */
+         |
+         |object ${|}Main {
+         |  def main(args: Array[String]): Unit = {}
+         |}
+         |""".stripMargin
+    )
+
+    val (referredElement, _) = extractReferredAndOriginalElements(editor, file)
+    val comment = referredElement.asInstanceOf[ScDocCommentOwner].getDocComment
+    // Exercise the editor's lookup: calling ScalaDocumentationProvider directly misses SCL-25937.
+    val documentation = InlineDocumentationImplKt.findInlineDocumentation(file, comment.getTextRange)
+    assertNotNull("No inline documentation found", documentation)
+
+    val rendered = documentation.renderText()
+    assertNotNull("No rendered documentation", rendered)
+    assertTrue(s"Missing note text in rendered documentation: $rendered", rendered.contains("The note should be visible"))
+    assertTrue(s"Missing note heading in rendered documentation: $rendered", rendered.contains("Note:"))
+  }
 
 
   def testAllFeaturesCombined(): Unit = {
