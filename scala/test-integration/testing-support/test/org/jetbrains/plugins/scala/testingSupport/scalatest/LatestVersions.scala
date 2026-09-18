@@ -4,7 +4,8 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestApiSymbols
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.util.dependencymanager.TestDependencyManagers
+import org.jetbrains.plugins.scala.{DependencyManagerBase, LatestScalaVersions, ScalaVersion}
 
 /**
  * @see [[https://github.com/scalatest/scalatest/releases]]
@@ -13,7 +14,7 @@ object ScalaTestLatestVersions {
   val Scalatest_2_2 = "2.2.6"
   val Scalatest_3_0 = "3.0.9"
   val Scalatest_3_1 = "3.1.4"
-  val Scalatest_3_2 = "3.2.16"
+  val Scalatest_3_2 = "3.2.20"
 }
 
 //extra intermediate trait to group all scala-test related inheritors of ScalaSdkOwner in type hierarchy view
@@ -37,9 +38,15 @@ trait WithScalaTest_3_1 extends WithScalaTest_X {
   )
 }
 
+private object ScalaTestDependencyManager extends DependencyManagerBase {
+  // Both standard libraries must come from the selected SDK, not ScalaTest's transitive dependencies.
+  override val artifactBlackList: Set[String] =
+    TestDependencyManagers.IgnoringAllScalaArtifacts.artifactBlackList + "scala3-library_3"
+}
+
 trait WithScalaTest_3_2 extends WithScalaTest_X with ScalaTestApiSymbols.SinceScalatest_3_2 {
   abstract override protected def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders ++ Seq(
-    IvyManagedLoader(("org.scalatest" %% "scalatest" % ScalaTestLatestVersions.Scalatest_3_2).transitive())
+    IvyManagedLoader(ScalaTestDependencyManager, ("org.scalatest" %% "scalatest" % ScalaTestLatestVersions.Scalatest_3_2).transitive())
   )
 }
 

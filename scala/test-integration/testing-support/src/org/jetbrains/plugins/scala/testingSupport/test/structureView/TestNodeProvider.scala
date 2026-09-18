@@ -151,7 +151,9 @@ object TestNodeProvider {
   private def extractTestViewElement(expr: ScMethodCall, clazz: ScTypeDefinition, project: Project): Option[Test] = {
     import ScalaTestUtil._
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
-    if (funSuiteBases.exists(isInheritor(clazz, _)))
+    if (flatSpecBases.exists(isInheritor(clazz, _)))
+      extractFlatSpecBehavior(expr)
+    else if (funSuiteBases.exists(isInheritor(clazz, _)))
       extractFunSuite(expr) //this should be a funSuite-like test
     else if (featureSpecBases.exists(isInheritor(clazz, _)))
       extractFeatureSpec(expr, project)
@@ -395,9 +397,34 @@ object TestNodeProvider {
   }
 
   private def extractFlatSpec(expr: ScInfixExpr): Option[Test] = {
-    extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void"))).
-      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object"))))
+    extractFlatSpecBehavior(expr)
+      .orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void"))))
+      .orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object"))))
   }
+
+  private def extractFlatSpecBehavior(expr: MethodInvocation): Option[Test] = {
+    val invokedExpr = expr.getEffectiveInvokedExpr
+    invokedExpr match {
+      case ref: ScReferenceExpression if ref.refName == "of" =>
+        val resolvedElement = ref.resolve()
+        resolvedElement match {
+          case fun: ScFunctionDefinition if isDefinedInFlatSpecBehaviorWord(fun) =>
+            Some(new FlatSpecBehavior(expr))
+          case _ =>
+            None
+        }
+      case _ =>
+        None
+    }
+  }
+
+  private def isDefinedInFlatSpecBehaviorWord(fun: ScFunctionDefinition): Boolean =
+    Option(fun.containingClass).exists { owner =>
+      ScalaTestUtil.flatSpecBases.exists(base => owner.qualifiedName == s"$base.BehaviorWord")
+    }
+
+  // A subject declaration is visible in the structure, but is not a runnable test leaf.
+  private class FlatSpecBehavior(expr: ScExpression) extends Test(expr, expr.getText)
 
   private def extractWordSpec(expr: ScInfixExpr, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerInfixExprs(expr), extractWordSpec, project)
@@ -606,8 +633,12 @@ object TestNodeProvider {
       if (elements.isEmpty) res else {
         val head = elements.head
         (head, head.getChildren) match {
-          case (testHead: Test, e) if e.isEmpty => getTestLeaves(elements.tail, testHead :: res)
-          case (_, children) => getTestLeaves(children ++ elements.tail, res)
+          case (_: FlatSpecBehavior, _) =>
+            getTestLeaves(elements.tail, res)
+          case (testHead: Test, e) if e.isEmpty =>
+            getTestLeaves(elements.tail, testHead :: res)
+          case (_, children) =>
+            getTestLeaves(children ++ elements.tail, res)
         }
       }
     }
