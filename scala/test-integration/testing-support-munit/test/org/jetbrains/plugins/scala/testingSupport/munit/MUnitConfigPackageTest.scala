@@ -1,8 +1,23 @@
 package org.jetbrains.plugins.scala.testingSupport.munit
 
+import com.intellij.execution.RunnerAndConfigurationSettings
+import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters}
+import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.psi.PsiPackage
+import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitConfiguration
+import org.jetbrains.plugins.scala.testingSupport.test.testdata.AllInPackageTestData
 import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions.ObjectOps
+import org.junit.Assert.{assertFalse, assertTrue}
 
+import java.nio.file.{Files, Path}
+import scala.jdk.CollectionConverters._
+
+/** Covers package configurations, background command-line preparation, and MUnit result trees. */
 abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
 
   private val packageName0 = "org"
@@ -54,6 +69,11 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
       config => {
         assertRunConfigTestPackage(config, packageName0)
         assertRunConfigName(config, "MUnit in 'org'")
+        assertPackageCommandLineWithoutReadAccess(config, packageName0, Set(
+          s"$packageName0.$className01", s"$packageName0.$className02",
+          s"$packageName1.$className11", s"$packageName1.$className12",
+          s"$packageName2.$className21", s"$packageName2.$className22",
+        ))
       },
       root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest01 / MyTest01.test error 01")),
@@ -77,6 +97,9 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
       config => {
         assertRunConfigTestPackage(config, packageName1)
         assertRunConfigName(config, "MUnit in 'example1'")
+        assertPackageCommandLineWithoutReadAccess(config, packageName1, Set(
+          s"$packageName1.$className11", s"$packageName1.$className12",
+        ))
       },
       root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest11 / MyTest11.test error 11")),
@@ -92,6 +115,9 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
       config => {
         assertRunConfigTestPackage(config, packageName2)
         assertRunConfigName(config, "MUnit in 'example2'")
+        assertPackageCommandLineWithoutReadAccess(config, packageName2, Set(
+          s"$packageName2.$className21", s"$packageName2.$className22",
+        ))
       },
       root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest21 / MyTest21.test error 21")),
@@ -100,6 +126,79 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
         TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest22 / MyTest22.test success 22")),
       ))
     )(optionsWithErrorCode)
+
+  private def assertPackageCommandLineWithoutReadAccess(
+    settings: RunnerAndConfigurationSettings,
+    packageName: String,
+    expectedSuites: Set[String],
+  ): Unit = {
+    val configuration = settings.getConfiguration.assertInstanceOf[MUnitConfiguration]
+    withReadAccessCheckingPackageData(configuration, packageName) {
+      val state = createFreshCommandLineState(configuration)
+      val parameters = prepareJavaParametersOffEdtWithoutReadAccess(state)
+      assertPackageSuiteSelection(parameters, packageName, expectedSuites)
+    }
+  }
+
+  private final class ReadAccessCheckingPackageData(configuration: MUnitConfiguration)
+    extends AllInPackageTestData(configuration) {
+
+    override def getPackage(path: String): PsiPackage = {
+      // Cached package lookups do not reliably assert read access on every platform version.
+      assertTrue("Package lookup must hold read access", ApplicationManager.getApplication.isReadAccessAllowed)
+      super.getPackage(path)
+    }
+  }
+
+  private def withReadAccessCheckingPackageData(
+    configuration: MUnitConfiguration,
+    packageName: String,
+  )(body: => Unit): Unit = {
+    val originalData = configuration.testConfigurationData
+    val checkedData = new ReadAccessCheckingPackageData(configuration)
+    checkedData.copyCommonFieldsFrom(originalData)
+    checkedData.testPackagePath = packageName
+    configuration.testConfigurationData = checkedData
+    try {
+      body
+    } finally {
+      configuration.testConfigurationData = originalData
+    }
+  }
+
+  private def createFreshCommandLineState(configuration: MUnitConfiguration): JavaCommandLineState =
+    inReadAction {
+      // The execution test helper otherwise prepares and caches parameters on the EDT before launching the runner.
+      new ExecutionEnvironmentBuilder(getProject, DefaultRunExecutor.getRunExecutorInstance)
+        .runProfile(configuration)
+        .build()
+        .getState
+        .assertInstanceOf[JavaCommandLineState]
+    }
+
+  private def prepareJavaParametersOffEdtWithoutReadAccess(state: JavaCommandLineState): JavaParameters = {
+    // SCL-25929: discovery must acquire read access when command-line preparation starts without it.
+    val application = ApplicationManager.getApplication
+    assertFalse("Regression setup: parameter preparation must run off the EDT", application.isDispatchThread)
+    assertFalse("Regression setup: parameter preparation must start without read access", application.isReadAccessAllowed)
+    state.getJavaParameters
+  }
+
+  private def assertPackageSuiteSelection(
+    parameters: JavaParameters,
+    packageName: String,
+    expectedSuites: Set[String],
+  ): Unit = {
+    // Complement the read-access regression check by verifying the suites passed to the JUnit runner.
+    val arguments = parameters.getProgramParametersList.getList.asScala.toSeq
+    assertTrue("MUnit must use the JUnit 4 runner", arguments.contains("-junit4"))
+    val suitesFileArgument = arguments.filter(a => a.startsWith("@") && !a.startsWith("@w@"))
+    assertEquals("Expected one suite-list file", 1, suitesFileArgument.size)
+    val lines = Files.readAllLines(Path.of(suitesFileArgument.head.stripPrefix("@"))).asScala.toSeq
+    assertEquals("Suite-list package", packageName, lines.head)
+    // JUnitStarter writes package, category, and filters before the fully qualified suite names.
+    assertEquals(s"Suites selected in $packageName", expectedSuites, lines.drop(3).toSet)
+  }
 
   def testPackage_EnsureAssertionFails(): Unit = ExceptionAssertions.assertException[java.lang.AssertionError] {
     runTestByLocation2(

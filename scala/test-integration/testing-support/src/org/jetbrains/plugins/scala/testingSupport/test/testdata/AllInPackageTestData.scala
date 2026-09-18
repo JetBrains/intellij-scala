@@ -5,6 +5,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiPackage}
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
@@ -50,12 +51,17 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
       if (classBuf.isEmpty) throw executionException(TestingSupportBundle.message("test.config.can.not.run.while.indexing.no.class.names.memorized.from.previous.iterations"))
       classBuf.asScala
     } else {
-      findTestSuites(getScope)
+      // MUnit prepares its command line on a background thread without an enclosing read action.
+      inReadAction {
+        findTestSuites(getScope)
+      }
     }
     classBuf = classFqns.asJava
     classFqns.map(_ -> Set[String]()).toMap
   }
 
+  // Package lookup, traversal, and suite filtering access PSI and require the caller to hold read access.
+  @RequiresReadLock
   private def findTestSuites(scope: GlobalSearchScope): Seq[String] = {
     val pack = ScPackageImpl(getPackage(testPackagePath))
 
@@ -68,7 +74,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
       acc
     }
 
-    val classesAll = inReadAction(collectClasses(pack))
+    val classesAll = collectClasses(pack)
     val classesUnique = classesAll.iterator.distinct.toSeq
     val classes = classesUnique.filter(c => config.isValidSuite(c) && config.canBeDiscovered(c))
     if (classes.isEmpty)
