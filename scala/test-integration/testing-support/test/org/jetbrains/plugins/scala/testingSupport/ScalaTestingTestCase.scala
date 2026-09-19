@@ -191,9 +191,13 @@ abstract class ScalaTestingTestCase
     })
 
     val exitCode = waitForTestEnd(handler, exitCodeListener, duration)
-    // The process listener reports termination independently from the SM test-event processor.
-    // Do not expose the test tree until the processor has consumed its final service messages.
-    testStatusListener.awaitTestingFinished(duration)
+    testTreeRoot.foreach { _ =>
+      // The process listener reports termination independently from the SM test-event processor.
+      // Do not expose the test tree until the processor has consumed its final service messages.
+      // SBT-shell runs with their UI disabled deliberately use a plain console, so they have no
+      // SM model and cannot publish `onTestingFinished`; their raw output is ready at process exit.
+      testStatusListener.awaitTestingFinished(duration)
+    }
 
     val result = TestRunResult(
       runConfig,
