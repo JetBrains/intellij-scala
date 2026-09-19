@@ -52,7 +52,8 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
       problems += ScalaBundle.message("parameter.could.not.be.repeated.and.by.name")
     }
 
-    parameter.scType = ScalaPsiElementFactory.createTypeElementFromText(trimmed, typeCodeFragment, typeCodeFragment) match {
+    val element = ScalaPsiElementFactory.createTypeElementFromText(trimmed, typeCodeFragment, typeCodeFragment)
+    parameter.scType = element match {
       case Typeable(scType) => scType
       case _ => null
     }
