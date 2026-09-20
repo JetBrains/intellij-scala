@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <idea-plugin>
     <dependencies>
+        <module name="scalaCommunity.bsp"/>
         <module name="scalaCommunity.compiler-integration"/>
+        <module name="scalaCommunity.compiler-integration-server-management"/>
         <module name="intellij.libraries.opentelemetry"/>
     </dependencies>
 
