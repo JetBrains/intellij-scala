@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers.AssertMatchersExt
 
 import java.awt.datatransfer.{DataFlavor, Transferable}
-import java.util.concurrent.atomic.AtomicReference
 
 class CopyTypeActionTest extends ScalaLightCodeInsightFixtureTestCase {
 
@@ -163,17 +162,88 @@ class CopyTypeActionTest extends ScalaLightCodeInsightFixtureTestCase {
     "Bar" // and not a.type
   )
 
-  //  TODO: make this work and not give Nothing => Blub[Nothing].
-  //        It's unfortunately not that easy to do and probably not tooo important :)
-  //  def testGenericCall(): Unit = doTest(
-  //    s"""
-  //       |class Blub[T]
-  //       |def foo[T](i: T): Blub[T] = ???
-  //       |
-  //       |fo${CARET}o(1)
-  //       |""".stripMargin,
-  //    "Int => Blub[Int]"
-  //  )
+  def testGenericCall(): Unit = doTest(
+    s"""
+       |class Blub[T]
+       |def foo[T](i: T): Blub[T] = ???
+       |
+       |fo${CARET}o(1)
+       |""".stripMargin,
+    "Int => Blub[Int]"
+  )
+
+  def testGenericCallWithByNameParameter(): Unit = doTest(
+    s"""def foo[A](f: => A): List[A] = List()
+       |
+       |fo${CARET}o(1)
+       |""".stripMargin,
+    "Int => List[Int]"
+  )
+
+  def testSelectedGenericMethodReference(): Unit = doTest(
+    s"""def foo[A](a: A): List[A] = List(a)
+       |${START}foo$END(1)
+       |""".stripMargin,
+    "Int => List[Int]"
+  )
+
+  def testGenericCallWithMultipleTypeParameters(): Unit = doTest(
+    s"""def foo[A, B](a: A, b: B): (A, B) = (a, b)
+       |fo${CARET}o(1, "text")
+       |""".stripMargin,
+    "(Int, String) => (Int, String)"
+  )
+
+  def testGenericCallWithUnconstrainedTypeParameterAndExpectedType(): Unit = doTest(
+    s"""def foo[A](): List[A] = List()
+       |val result: List[String] = fo${CARET}o()
+       |""".stripMargin,
+    "() => List[Nothing]"
+  )
+
+  def testGenericParameterlessMethodWithExpectedType(): Unit = doTest(
+    s"""def foo[A]: A = ???
+       |val result: String = fo${CARET}o
+       |""".stripMargin,
+    "String"
+  )
+
+  def testGenericCallWithUnconstrainedTypeParameter(): Unit = doTest(
+    s"""def foo[A](i: Int): List[A] = List()
+       |fo${CARET}o(1)
+       |""".stripMargin,
+    "Int => List[Nothing]"
+  )
+
+  def testGenericInfixCall(): Unit = doTest(
+    s"""class Foo {
+       |  def foo[A](a: A): List[A] = List(a)
+       |}
+       |new Foo fo${CARET}o 1
+       |""".stripMargin,
+    "Int => List[Int]"
+  )
+
+  def testGenericCallWithExplicitTypeArguments(): Unit = doTest(
+    s"""def foo[A](a: A): List[A] = List(a)
+       |fo${CARET}o[String]("text")
+       |""".stripMargin,
+    "String => List[String]"
+  )
+
+  def testGenericCurriedCall(): Unit = doTest(
+    s"""def foo[A, B](a: A)(b: B): (A, B) = (a, b)
+       |fo${CARET}o(1)("text")
+       |""".stripMargin,
+    "Int => String => (Int, String)"
+  )
+
+  def testGenericEtaExpansion(): Unit = doTest(
+    s"""def foo[A](a: A): List[A] = List(a)
+       |val f: Int => List[Int] = fo${CARET}o _
+       |""".stripMargin,
+    "Int => List[Int]"
+  )
 
   def testInner(): Unit = doTest(
     s"""
