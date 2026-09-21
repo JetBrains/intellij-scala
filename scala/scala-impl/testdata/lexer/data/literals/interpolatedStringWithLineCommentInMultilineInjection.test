@@ -1,0 +1,47 @@
+class Fisk {
+    val thing = "Hest"
+    val fisk = s"${
+       // comment
+       thing
+    }"
+}
+-----
+class {class}
+white space in line { }
+identifier {Fisk}
+white space in line { }
+{ {{}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {thing}
+white space in line { }
+= {=}
+white space in line { }
+string content {"Hest"}
+white space in line {
+    }
+val {val}
+white space in line { }
+identifier {fisk}
+white space in line { }
+= {=}
+white space in line { }
+interpolated string id {s}
+interpolated string {"}
+interpolated string injection {$}
+{ {{}
+white space in line {
+       }
+comment {// comment}
+white space in line {
+       }
+identifier {thing}
+white space in line {
+    }
+} {}}
+interpolated string end {"}
+white space in line {
+}
+} {}}

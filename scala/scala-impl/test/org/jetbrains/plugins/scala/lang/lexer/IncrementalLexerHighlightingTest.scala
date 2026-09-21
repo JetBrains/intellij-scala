@@ -78,6 +78,17 @@ class IncrementalLexerHighlightingTest extends EditorActionTestBase {
     doTest(text, '$', '$')
   }
 
+  def testCommentMarkerInInterpolatedStringInjection(): Unit = {
+    val text =
+      s"""object Test {
+         |  val value = s"$${"classpath:env/$CARET_MARKER"}"
+         |  /* comment after the interpolation */
+         |}
+         |""".stripMargin
+
+    doTest(text, '*', '\r', '*')
+  }
+
   def testDiffNestedString(): Unit = {
     val text =
       s"""

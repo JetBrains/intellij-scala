@@ -1,0 +1,67 @@
+s"outer ${
+  // outer }"
+  s"""middle /* ${
+    /* middle } " */
+    s"inner // ${
+      // inner }"
+      s"""leaf ${ /* leaf } " */ "https://host/*" } //"""
+    } end"
+  } end"""
+} end" // after
+-----
+interpolated string id {s}
+interpolated string {"outer }
+interpolated string injection {$}
+{ {{}
+white space in line {
+  }
+comment {// outer }"}
+white space in line {
+  }
+interpolated string id {s}
+interpolated multiline string {"""middle /* }
+interpolated string injection {$}
+{ {{}
+white space in line {
+    }
+BlockComment {/* middle } " */}
+white space in line {
+    }
+interpolated string id {s}
+interpolated string {"inner // }
+interpolated string injection {$}
+{ {{}
+white space in line {
+      }
+comment {// inner }"}
+white space in line {
+      }
+interpolated string id {s}
+interpolated multiline string {"""leaf }
+interpolated string injection {$}
+{ {{}
+white space in line { }
+BlockComment {/* leaf } " */}
+white space in line { }
+string content {"https://host/*"}
+white space in line { }
+} {}}
+interpolated multiline string { //}
+interpolated string end {"""}
+white space in line {
+    }
+} {}}
+interpolated string { end}
+interpolated string end {"}
+white space in line {
+  }
+} {}}
+interpolated multiline string { end}
+interpolated string end {"""}
+white space in line {
+}
+} {}}
+interpolated string { end}
+interpolated string end {"}
+white space in line { }
+comment {// after}
