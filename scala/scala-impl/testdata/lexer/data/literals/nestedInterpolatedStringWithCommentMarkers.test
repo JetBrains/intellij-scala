@@ -1,0 +1,19 @@
+s"aaa /* ${s"ccc s${s"/*"} ddd"} bbb"
+-----
+interpolated string id {s}
+interpolated string {"aaa /* }
+interpolated string injection {$}
+{ {{}
+interpolated string id {s}
+interpolated string {"ccc s}
+interpolated string injection {$}
+{ {{}
+interpolated string id {s}
+interpolated string {"/*}
+interpolated string end {"}
+} {}}
+interpolated string { ddd}
+interpolated string end {"}
+} {}}
+interpolated string { bbb}
+interpolated string end {"}

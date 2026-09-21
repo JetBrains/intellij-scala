@@ -1,0 +1,17 @@
+s"Available env files: ${getResources("classpath:env/*").mkString(", ")}"
+-----
+interpolated string id {s}
+interpolated string {"Available env files: }
+interpolated string injection {$}
+{ {{}
+identifier {getResources}
+( {(}
+string content {"classpath:env/*"}
+) {)}
+. {.}
+identifier {mkString}
+( {(}
+string content {", "}
+) {)}
+} {}}
+interpolated string end {"}

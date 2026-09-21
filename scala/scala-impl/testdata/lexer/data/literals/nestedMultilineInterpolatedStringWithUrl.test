@@ -1,0 +1,30 @@
+s"""text
+    |${
+    s"""text:
+       |https://url/Foo
+      """.stripMargin
+}
+""".stripMargin
+-----
+interpolated string id {s}
+interpolated multiline string {"""text
+    |}
+interpolated string injection {$}
+{ {{}
+white space in line {
+    }
+interpolated string id {s}
+interpolated multiline string {"""text:
+       |https://url/Foo
+      }
+interpolated string end {"""}
+. {.}
+identifier {stripMargin}
+white space in line {
+}
+} {}}
+interpolated multiline string {
+}
+interpolated string end {"""}
+. {.}
+identifier {stripMargin}
