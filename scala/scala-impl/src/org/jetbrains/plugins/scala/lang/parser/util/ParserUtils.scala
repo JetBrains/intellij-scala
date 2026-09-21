@@ -52,7 +52,14 @@ object ParserUtils {
     if (assignments && isAssignmentOperator(id)) {
       return 10
     }
-    id.charAt(0) match {
+
+    val firstCharRaw = id.charAt(0)
+
+    val firstChar =
+      if (firstCharRaw == '`' && id.length > 1) id.charAt(1)
+      else                                      firstCharRaw
+
+    firstChar match {
       case '*' | '/' | '%'           => 1
       case '+' | '-'                 => 2
       case ':'                       => 3
