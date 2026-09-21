@@ -221,8 +221,9 @@ object Widening {
       case orType: ScOrType =>
         val res = orType.join
 
-        if (bound.forall(res.conforms)) res
-        else                         orType
+        if (res.isTransparent)               orType
+        else if (bound.forall(res.conforms)) res
+        else                                 orType
       case other => other
     }
 
