@@ -426,8 +426,8 @@ object InferUtil {
   }
 
   /**
-   * Widens the singleton types in `tpe` that hide one of `typeParams` behind a term, so that an
-   * expected type checked against `tpe` can constrain that type parameter.
+   * Widens singleton types of implicit parameters in `tpe` that hide one of `typeParams`, so that
+   * an expected type checked against `tpe` can constrain that type parameter before implicit search.
    *
    * `scala.Predef.summon[T](using x: T): x.type` returns `T` under the singleton type of its own
    * parameter, where no substitutor reaches it: `x.type` mentions `x`, not `T`. Checking it against
@@ -435,8 +435,9 @@ object InferUtil {
    * leaves `T` uninstantiated, while the compiler solves `T <: RecordLike[Int]` here. Widening the
    * singleton to its underlying `T` restores that.
    *
-   * Only singletons that do expose a type parameter are widened, so that a `val y: x.type = x` is
-   * still checked against the singleton type itself.
+   * Explicit parameters are inferred from their arguments. Widening their singleton result types
+   * can unnecessarily constrain a type parameter to the expected singleton type (SCL-25897).
+   * Only implicit parameters that expose a type parameter are widened.
    */
   private def exposeTypeParametersBehindSingletons(tpe: ScType, typeParams: Seq[TypeParameter]): ScType =
     if (typeParams.isEmpty) tpe
@@ -448,8 +449,13 @@ object InferUtil {
         case _                                => false
       }
 
+      def isImplicitParameter(designator: DesignatorOwner): Boolean = designator.element match {
+        case parameter: ScParameter => parameter.isImplicit
+        case _                      => false
+      }
+
       tpe.recursiveUpdate {
-        case designator: DesignatorOwner if designator.isSingleton =>
+        case designator: DesignatorOwner if designator.isSingleton && isImplicitParameter(designator) =>
           val widened = Widening.widenSingleton(designator)
 
           if ((widened ne designator) && mentionsTypeParameter(widened)) {
