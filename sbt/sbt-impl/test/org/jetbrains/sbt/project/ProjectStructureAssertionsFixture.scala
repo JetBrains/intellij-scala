@@ -15,10 +15,9 @@ final class ProjectStructureAssertionsFixture(
     ProjectStructureComparisonContext.Implicit.default(using project)
 
   def assertProjectsEqual(
-    expected: project,
-    singleContentRootModules: Boolean = true
+    expected: project
   )(using compareContext: ProjectStructureComparisonContext = defaultCompareContext): Unit =
-    matcher.assertProjectsEqual(expected, project, singleContentRootModules)
+    matcher.assertProjectsEqual(expected, project)
 
   def assertNoNotificationsShown(
     notifications: Seq[Notification] = Nil,

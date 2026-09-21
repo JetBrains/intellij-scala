@@ -102,7 +102,7 @@ abstract class SbtProjectStructureImportingTestBase extends SbtExternalSystemImp
 
     // Always check the project dependencies order in the main/test modules mode
     val compareContext = defaultCompareContext.withOptions(optionsModifier).withOptions(_.copy(checkProjectDependenciesOrder = true))
-    projectStructureAssertions.assertProjectsEqual(expected, singleContentRootModules = false)(using compareContext)
+    projectStructureAssertions.assertProjectsEqual(expected)(using compareContext)
     projectStructureAssertions.assertNoNotificationsShown(notificationsCollector.getNotifications, mutedNotificationTitles)
   }
 

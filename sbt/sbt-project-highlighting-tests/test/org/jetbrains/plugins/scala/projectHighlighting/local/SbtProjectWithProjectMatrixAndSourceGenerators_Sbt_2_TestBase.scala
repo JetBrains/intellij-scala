@@ -160,7 +160,7 @@ abstract class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2_TestBase
       .withOptions(_.copy(strictCheckForBuildModules = true))
       .copy(assertionFailStrategy = new CollectErrors())
 
-    matcher.assertProjectsEqual(expectedProject, getProject, singleContentRootModules = false)(using compareContext)
+    matcher.assertProjectsEqual(expectedProject, getProject)(using compareContext)
     matcher.assertNoNotificationsShown(getProject, notificationsCollector.getNotifications)
   }
 }

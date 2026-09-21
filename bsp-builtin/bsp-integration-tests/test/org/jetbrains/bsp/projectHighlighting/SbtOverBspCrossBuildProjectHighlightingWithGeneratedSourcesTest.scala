@@ -237,6 +237,6 @@ class SbtOverBspCrossBuildProjectHighlightingWithGeneratedSourcesTest extends Sb
     }
     val compareContext = ProjectStructureComparisonContext.Implicit.default(using getProject)
       .withOptions(_.copy(strictCheckForBuildModules = true))
-    matcher.assertProjectsEqual(expectedProject, getProject, singleContentRootModules = false)(using compareContext)
+    matcher.assertProjectsEqual(expectedProject, getProject)(using compareContext)
   }
 }

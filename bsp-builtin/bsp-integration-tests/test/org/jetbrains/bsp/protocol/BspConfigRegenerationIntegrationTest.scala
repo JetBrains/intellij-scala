@@ -261,6 +261,7 @@ class BspConfigRegenerationIntegrationTest extends SbtOverBspExternalSystemImpor
 
       modules := Seq(
         new module("simple") {
+          contentRoots := Seq(getProjectPath)
           libraryDependencies := BspProjectStructureImportingTestUtils.expectedLibraryDependencies(scalaLibraries, "simple")
           sources := Seq("src/main/scala", "src/main/java")
           testSources := Seq("src/test/scala", "src/test/java")
@@ -269,6 +270,7 @@ class BspConfigRegenerationIntegrationTest extends SbtOverBspExternalSystemImpor
           excluded := Seq("target", ".bloop", ".bsp")
         },
         new module("simple-build") {
+          contentRoots := Seq(s"$getProjectPath/project")
           sources := Nil
           testSources := Nil
           resources := Nil

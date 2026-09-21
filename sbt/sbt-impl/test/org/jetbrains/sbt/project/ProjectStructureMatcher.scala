@@ -62,8 +62,7 @@ trait ProjectStructureMatcher {
 
   def assertProjectsEqual(
     expected: project,
-    actual: Project,
-    singleContentRootModules: Boolean = true
+    actual: Project
   )(implicit compareContext: ProjectStructureComparisonContext): Unit = {
     assertEquals("Project name", expected.name, actual.getName)
     expected.foreach0(sdk)(assertProjectSdkEqual(actual))
@@ -72,8 +71,8 @@ trait ProjectStructureMatcher {
     expected.foreach0(javaTargetBytecodeLevel)(assertProjectJavaTargetBytecodeLevel(actual))
     expected.foreach0(javacOptions)(assertProjectJavacOptions(actual))
 
-    expected.foreach(modules)(assertProjectModulesEqual(actual, singleContentRootModules)(_))
-    expected.foreach(packagePrefix)(assertPackagePrefixEqual(actual, singleContentRootModules)(_))
+    expected.foreach(modules)(assertProjectModulesEqual(actual)(_))
+    expected.foreach(packagePrefix)(assertPackagePrefixEqual(actual)(_))
 
     compareContext.assertionFailStrategy match {
       case collect: AssertionFailStrategy.CollectErrors => 
@@ -132,7 +131,7 @@ trait ProjectStructureMatcher {
     assertEquals(s"Module SDK (${module.getName})", expectedSdk, actualSdk)
   }
 
-  private def assertProjectModulesEqual(project: Project, singleContentRootModules: Boolean)
+  private def assertProjectModulesEqual(project: Project)
                                        (expectedModules: Seq[module])(mt: Option[MatchType])
                                        (implicit compareContext: ProjectStructureComparisonContext): Unit = {
     val actualModulesAll = ModuleManager.getInstance(project).getModules.toSeq
@@ -141,22 +140,21 @@ trait ProjectStructureMatcher {
       else actualModulesAll.filterNot(_.isBuildModule)
     assertNamesEqualIgnoreOrder("Project module", expectedModules, actualModules)(mt)
     val pairs = pairModules(expectedModules, actualModules)
-    pairs.foreach { case(exp, actual) => assertModulesEqual(exp, actual, singleContentRootModules) }
+    pairs.foreach { case (exp, actual) => assertModulesEqual(exp, actual) }
   }
 
   private def assertModulesEqual(
     expected: module,
-    actual: Module,
-    singleContentRootModules: Boolean
+    actual: Module
   )(implicit compareContext: ProjectStructureComparisonContext): Unit = {
     import ProjectStructureDsl.*
 
     expected.foreach(contentRoots)(assertModuleContentRootsEqual(actual))
-    expected.foreach(sources)(assertModuleContentFoldersEqual(actual, JavaSourceRootType.SOURCE, "Sources", singleContentRootModules))
-    expected.foreach(testSources)(assertModuleContentFoldersEqual(actual, JavaSourceRootType.TEST_SOURCE, "Test sources", singleContentRootModules))
-    expected.foreach(resources)(assertModuleContentFoldersEqual(actual, JavaResourceRootType.RESOURCE, "Resources", singleContentRootModules))
-    expected.foreach(testResources)(assertModuleContentFoldersEqual(actual, JavaResourceRootType.TEST_RESOURCE, "Test resources", singleContentRootModules))
-    expected.foreach(excluded)(assertModuleExcludedFoldersEqual(actual, singleContentRootModules))
+    expected.foreach(sources)(assertModuleContentFoldersEqual(actual, JavaSourceRootType.SOURCE, "Sources"))
+    expected.foreach(testSources)(assertModuleContentFoldersEqual(actual, JavaSourceRootType.TEST_SOURCE, "Test sources"))
+    expected.foreach(resources)(assertModuleContentFoldersEqual(actual, JavaResourceRootType.RESOURCE, "Resources"))
+    expected.foreach(testResources)(assertModuleContentFoldersEqual(actual, JavaResourceRootType.TEST_RESOURCE, "Test resources"))
+    expected.foreach(excluded)(assertModuleExcludedFoldersEqual(actual))
     expected.foreach(moduleDependencies)(assertModuleDependenciesEqual(actual))
     expected.foreach(libraryDependencies)(assertLibraryDependenciesEqual(actual))
     expected.foreach(libraries)(assertModuleLibrariesEqual(actual))
@@ -269,9 +267,7 @@ trait ProjectStructureMatcher {
   private def assertModuleContentFoldersEqual(
     module: Module,
     folderType: JpsModuleSourceRootType[?],
-    folderTypeDisplayName: String,
-    //TODO: drop this parameter and patch test data, it seems it's not needed since we introduced code inside getActualSourceRoots
-    singleContentRootModules: Boolean
+    folderTypeDisplayName: String
   )(expected: Seq[String])(mt: Option[MatchType])(
     implicit compareContext: ProjectStructureComparisonContext
   ): Unit = {
@@ -281,9 +277,6 @@ trait ProjectStructureMatcher {
     }
     else {
       val contentRoots = getContentRoots(module)
-      if (singleContentRootModules) {
-        assertSingleContentRoot(contentRoots, module.getName)
-      }
       val contentRootToSourceFolders = contentRoots.map { contentRoot =>
         contentRoot -> contentRoot.getSourceFolders(folderType).asScala.toSeq
       }.toMap
@@ -332,27 +325,14 @@ trait ProjectStructureMatcher {
      JavaResourceRootType.TEST_RESOURCE -> "TEST_RESOURCE",
   )
 
-  private def assertSingleContentRoot(contentRoots: Seq[ContentEntry], moduleName: String)
-                                     (implicit compareContext: ProjectStructureComparisonContext): Unit =
-    assertEquals(s"Expected single content root in module $moduleName, Got: $contentRoots", 1, contentRoots.length)
-
-  private def assertModuleExcludedFoldersEqual(module: Module, singleContentRootModules: Boolean)
+  private def assertModuleExcludedFoldersEqual(module: Module)
                                               (expected: Seq[String])(mt: Option[MatchType])
                                               (implicit compareContext: ProjectStructureComparisonContext): Unit = {
     val contentRoots = getContentRoots(module)
-    // note: when singleContentRootModules is false, then there is a test with modules separated to main and test, and in such a case
-    // checking for excluded folder files when expected Seq is empty is not correct.
-    // For main and test modules expected will always be empty, but #getExcludeFolderFiles will return the module output.
-    if (singleContentRootModules && expected.isEmpty) {
-      val excludedFolderFiles = contentRoots.flatMap(_.getExcludeFolderFiles).map(_.getUrl)
-      assertMatchWithIgnoredOrder(s"Excluded folders of module '${module.getName}'", Nil, excludedFolderFiles)(mt)
-    } else {
-      if (singleContentRootModules) assertSingleContentRoot(contentRoots, module.getName)
-      val contentRootToExcludeFolders = contentRoots.map { contentRoot =>
-        contentRoot -> contentRoot.getExcludeFolders.toSeq
-      }.toMap
-      assertContentRootFoldersEqual(s"Excluded folders", module, contentRootToExcludeFolders, expected)(mt)
-    }
+    val contentRootToExcludeFolders = contentRoots.map { contentRoot =>
+      contentRoot -> contentRoot.getExcludeFolders.toSeq
+    }.toMap
+    assertContentRootFoldersEqual("Excluded folders", module, contentRootToExcludeFolders, expected)(mt)
   }
 
   private def assertContentRootFoldersEqual(
@@ -393,13 +373,12 @@ trait ProjectStructureMatcher {
   private def getContentRoots(module: Module): Seq[ContentEntry] =
     roots.ModuleRootManager.getInstance(module).getContentEntries.toSeq
 
-  private def assertPackagePrefixEqual(project: Project, singleContentRootModules: Boolean)
+  private def assertPackagePrefixEqual(project: Project)
                                       (expectedPrefix: String)
                                       (mt: Option[MatchType])
                                       (implicit compareContext: ProjectStructureComparisonContext): Unit = {
     project.modules.filterNot(_.isBuildModule).foreach { module =>
       val contentRoots = getContentRoots(module)
-      if (singleContentRootModules) assertSingleContentRoot(contentRoots, module.getName)
       contentRoots.flatMap(_.getSourceFolders.toSeq).foreach { source =>
         assertEquals(s"package prefix for source folder $source of module `${module.getName}`", expectedPrefix, source.getPackagePrefix)
       }
