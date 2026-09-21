@@ -34,7 +34,6 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
-    settings.separateProdAndTestSources = false
     settings.jdk = sdk.getName
     settings
   }
@@ -137,9 +136,9 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
       errorsAndWarnings1.isEmpty
     )
 
-    val module1 = findModule("root.module1", modules)
-    val module2 = findModule("root.module2", modules)
-    val module3 = findModule("root.module3", modules)
+    val module1 = findModule("root.module1.main", modules)
+    val module2 = findModule("root.module2.main", modules)
+    val module3 = findModule("root.module3.main", modules)
 
     val firstClassFiles = List(
       findClassFile("Greeter", module1),

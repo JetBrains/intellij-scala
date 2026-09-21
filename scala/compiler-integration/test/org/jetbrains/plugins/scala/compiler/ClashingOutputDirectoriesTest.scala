@@ -21,7 +21,7 @@ import scala.util.Using
 
 @Category(Array(classOf[SlowTests2]))
 @RunWith(classOf[JUnit4])
-class ClashingOutputDirectoriesTest extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+class ClashingOutputDirectoriesTest extends SbtProjectCompilationTestBase {
 
   override protected def jdkVersionForTest: TestJdkVersion = TestJdkVersion.JDK_17
 

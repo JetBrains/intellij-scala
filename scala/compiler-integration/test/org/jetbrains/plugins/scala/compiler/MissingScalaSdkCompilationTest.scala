@@ -20,8 +20,7 @@ import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @RunWith(classOf[Parameterized])
-class MissingScalaSdkCompilationTest(jdkVersion: TestJdkVersion)
-  extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+class MissingScalaSdkCompilationTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 

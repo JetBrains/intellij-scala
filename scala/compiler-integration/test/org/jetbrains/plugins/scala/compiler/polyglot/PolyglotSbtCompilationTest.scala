@@ -20,8 +20,7 @@ import scala.compiletime.uninitialized
 
 @Category(Array(classOf[CompilationTests_Zinc]))
 @RunWith(classOf[Parameterized])
-abstract class PolyglotSbtCompilationTestBase(jdkVersion: TestJdkVersion, separateModules: Boolean)
-  extends SbtProjectCompilationTestBase(separateProdAndTestSources = separateModules) {
+class PolyglotSbtCompilationTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
@@ -78,8 +77,8 @@ abstract class PolyglotSbtCompilationTestBase(jdkVersion: TestJdkVersion, separa
 
     IndexingTestUtil.waitUntilIndexesAreReady(getMyProject)
 
-    val module1Name = if (separateModules) "polyglot-sbt.module1.main" else "polyglot-sbt.module1"
-    val module2Name = if (separateModules) "polyglot-sbt.module2.main" else "polyglot-sbt.module2"
+    val module1Name = "polyglot-sbt.module1.main"
+    val module2Name = "polyglot-sbt.module2.main"
 
     module1 = modules.find(_.getName == module1Name).orNull
     assertNotNull(s"Could not find module with name '$module1Name'", module1)
@@ -113,12 +112,4 @@ abstract class PolyglotSbtCompilationTestBase(jdkVersion: TestJdkVersion, separa
   }
 }
 
-class PolyglotSbtCompilationTest(jdkVersion: TestJdkVersion)
-  extends PolyglotSbtCompilationTestBase(jdkVersion, separateModules = false)
-
 private object PolyglotSbtCompilationTest extends JdkVersionParameters
-
-class PolyglotSbtCompilationWithSeparateModulesTest(jdkVersion: TestJdkVersion)
-  extends PolyglotSbtCompilationTestBase(jdkVersion, separateModules = true)
-
-private object PolyglotSbtCompilationWithSeparateModulesTest extends JdkVersionParameters

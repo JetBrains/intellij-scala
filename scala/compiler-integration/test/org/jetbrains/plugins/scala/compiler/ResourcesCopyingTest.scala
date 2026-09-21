@@ -20,10 +20,7 @@ import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
 @RunWith(classOf[Parameterized])
-abstract class ResourcesCopyingTestBase(
-  jdkVersion: TestJdkVersion,
-  separateMainTest: Boolean
-) extends SbtProjectCompilationTestBase(separateProdAndTestSources = separateMainTest) {
+class ResourcesCopyingTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
@@ -129,14 +126,14 @@ abstract class ResourcesCopyingTestBase(
   }
 
   private def findMainModule(modules: Array[Module], name: String): Module = {
-    val moduleName = if (separateMainTest) s"root.$name.main" else s"root.$name"
+    val moduleName = s"root.$name.main"
     val m = modules.find(_.getName == moduleName).orNull
     assertNotNull(s"Could not find module with name '$moduleName'", m)
     m
   }
 
   private def findTestModule(modules: Array[Module], name: String): Module = {
-    val moduleName = if (separateMainTest) s"root.$name.test" else s"root.$name"
+    val moduleName = s"root.$name.test"
     val m = modules.find(_.getName == moduleName).orNull
     assertNotNull(s"Could not find module with name '$moduleName'", m)
     m
@@ -203,12 +200,4 @@ abstract class ResourcesCopyingTestBase(
   }
 }
 
-class ResourcesCopyingTest(jdkVersion: TestJdkVersion)
-  extends ResourcesCopyingTestBase(jdkVersion, separateMainTest = false)
-
 private object ResourcesCopyingTest extends JdkVersionParameters
-
-class ResourcesCopyingTest_Split(jdkVersion: TestJdkVersion)
-  extends ResourcesCopyingTestBase(jdkVersion, separateMainTest = true)
-
-private object ResourcesCopyingTest_Split extends JdkVersionParameters

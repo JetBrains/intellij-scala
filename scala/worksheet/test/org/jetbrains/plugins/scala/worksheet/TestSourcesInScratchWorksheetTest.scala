@@ -25,7 +25,7 @@ import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[WorksheetEvaluationTests]))
 @RunWith(classOf[Parameterized])
-class TestSourcesInScratchWorksheetTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+class TestSourcesInScratchWorksheetTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 

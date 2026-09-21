@@ -22,11 +22,14 @@ class SharedSourcesUnmanagedDirectoriesTest(jdkVersion: TestJdkVersion) extends 
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
-  private var module1: Module = uninitialized
+  private var module1Main: Module = uninitialized
+  private var module1Test: Module = uninitialized
 
-  private var module2: Module = uninitialized
+  private var module2Main: Module = uninitialized
+  private var module2Test: Module = uninitialized
 
-  private var module3: Module = uninitialized
+  private var module3Main: Module = uninitialized
+  private var module3Test: Module = uninitialized
 
   override def setUp(): Unit = {
     super.setUp()
@@ -34,8 +37,11 @@ class SharedSourcesUnmanagedDirectoriesTest(jdkVersion: TestJdkVersion) extends 
     createProjectSubDirs("project", "module1/src/main/scala", "module2/src/main/scala", "module3/src/main/scala", "shared/src/main/scala")
     createProjectSubFile("project/build.properties", "sbt.version=1.9.7")
     createProjectSubFile("module1/src/main/scala/Foo.scala", "class Foo")
+    createProjectSubFile("module1/src/test/scala/FooTest.scala", "class FooTest")
     createProjectSubFile("module2/src/main/scala/Bar.scala", "class Bar extends Foo")
+    createProjectSubFile("module2/src/test/scala/BarTest.scala", "class BarTest")
     createProjectSubFile("module3/src/main/scala/Dummy.scala", "class Dummy")
+    createProjectSubFile("module3/src/test/scala/DummyTest.scala", "class DummyTest")
     createProjectSubFile("shared/src/main/scala/Shared.scala", "class Shared")
     createProjectConfig(
       """lazy val root = project.in(file("."))
@@ -57,12 +63,18 @@ class SharedSourcesUnmanagedDirectoriesTest(jdkVersion: TestJdkVersion) extends 
     ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = IncrementalityType.SBT
 
     val modules = ModuleManager.getInstance(getMyProject).getModules
-    module1 = modules.find(_.getName == "root.module1").orNull
-    assertNotNull("Could not find module with name 'root.module1'", module1)
-    module2 = modules.find(_.getName == "root.module2").orNull
-    assertNotNull("Could not find module with name 'root.module2'", module2)
-    module3 = modules.find(_.getName == "root.module3").orNull
-    assertNotNull("Could not find module with name 'root.module3'", module3)
+    module1Main = modules.find(_.getName == "root.module1.main").orNull
+    assertNotNull("Could not find module with name 'root.module1.main'", module1Main)
+    module1Test = modules.find(_.getName == "root.module1.test").orNull
+    assertNotNull("Could not find module with name 'root.module1.test'", module1Test)
+    module2Main = modules.find(_.getName == "root.module2.main").orNull
+    assertNotNull("Could not find module with name 'root.module2.main'", module2Main)
+    module2Test = modules.find(_.getName == "root.module2.test").orNull
+    assertNotNull("Could not find module with name 'root.module2.test'", module2Test)
+    module3Main = modules.find(_.getName == "root.module3.main").orNull
+    assertNotNull("Could not find module with name 'root.module3.main'", module3Main)
+    module3Test = modules.find(_.getName == "root.module3.test").orNull
+    assertNotNull("Could not find module with name 'root.module3.test'", module3Test)
     compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 
@@ -71,13 +83,18 @@ class SharedSourcesUnmanagedDirectoriesTest(jdkVersion: TestJdkVersion) extends 
     val messages1 = compiler.make().asScala.toSeq
     assertNoErrorsOrWarnings(messages1)
 
-    val module1SharedClass = compiler.findClassFile("Shared", module1)
-    val module2SharedClass = compiler.findClassFile("Shared", module2)
-    val module3SharedClass = compiler.findClassFile("Shared", module3)
+    Seq(module1Main, module2Main).foreach { module =>
+      val sharedClass = compiler.findClassFile("Shared", module)
+      assertNotNull(s"Shared class file not found in ${module.getName}", sharedClass)
+    }
 
-    assertNotNull("Shared class file not found in module1", module1SharedClass)
-    assertNotNull("Shared class file not found in module2", module2SharedClass)
-    assertNull("Shared class file found in module3, but it shouldn't", module3SharedClass)
+    val sharedClass = compiler.findClassFile("Shared", module3Main)
+    assertNull(s"Shared class file found in ${module3Main.getName}, but it shouldn't", sharedClass)
+
+    Seq(module1Test, module2Test, module3Test).foreach { module =>
+      val sharedClass = findClassFile("Shared", module, isTest = true)
+      assertNull(s"Shared class file found in ${module.getName}, but it shouldn't", sharedClass)
+    }
   }
 }
 

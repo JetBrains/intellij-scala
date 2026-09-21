@@ -76,12 +76,12 @@ class UsePipeliningCompilationTest extends SbtProjectCompilationTestBase with Sc
     val modules = ModuleManager.getInstance(getMyProject).getModules
     rootModule = modules.find(_.getName == "root").orNull
     assertNotNull("Could not find module with name 'root'", rootModule)
-    module1 = modules.find(_.getName == "root.module1").orNull
-    assertNotNull("Could not find module with name 'root.module1'", module1)
-    module2 = modules.find(_.getName == "root.module2").orNull
-    assertNotNull("Could not find module with name 'root.module2'", module2)
-    module3 = modules.find(_.getName == "root.module3").orNull
-    assertNotNull("Could not find module with name 'root.module3'", module3)
+    module1 = modules.find(_.getName == "root.module1.main").orNull
+    assertNotNull("Could not find module with name 'root.module1.main'", module1)
+    module2 = modules.find(_.getName == "root.module2.main").orNull
+    assertNotNull("Could not find module with name 'root.module2.main'", module2)
+    module3 = modules.find(_.getName == "root.module3.main").orNull
+    assertNotNull("Could not find module with name 'root.module3.main'", module3)
     compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
 
     val messages = compiler.make().asScala.toSeq

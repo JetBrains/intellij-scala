@@ -17,8 +17,7 @@ import scala.jdk.CollectionConverters._
 
 @RunWith(classOf[JUnit4])
 @Category(Array(classOf[SlowTests2]))
-abstract class GenerateManagedSourcesDuringProjectSyncTestBase(separateProdAndTestSources: Boolean)
-  extends SbtProjectCompilationTestBase(separateProdAndTestSources) {
+class GenerateManagedSourcesDuringProjectSyncTest extends SbtProjectCompilationTestBase {
 
   override protected def jdkVersionForTest: TestJdkVersion = TestJdkVersion.JDK_17
 
@@ -89,17 +88,9 @@ abstract class GenerateManagedSourcesDuringProjectSyncTestBase(separateProdAndTe
     importProject(false)
 
     val modules = ModuleManager.getInstance(getMyProject).getModules
-    val moduleName =
-      if (separateProdAndTestSources) "generateManagedSourcesDuringProjectSyncTest.main"
-      else "generateManagedSourcesDuringProjectSyncTest"
+    val moduleName = "generateManagedSourcesDuringProjectSyncTest.main"
     rootModule = modules.find(_.getName == moduleName).orNull
     assertNotNull(s"Could not find module with name '$moduleName'", rootModule)
     compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
   }
 }
-
-class GenerateManagedSourcesDuringProjectSyncTest
-  extends GenerateManagedSourcesDuringProjectSyncTestBase(separateProdAndTestSources = false)
-
-class GenerateManagedSourcesDuringProjectSyncTest_SeparateMainTestModules
-  extends GenerateManagedSourcesDuringProjectSyncTestBase(separateProdAndTestSources = true)
