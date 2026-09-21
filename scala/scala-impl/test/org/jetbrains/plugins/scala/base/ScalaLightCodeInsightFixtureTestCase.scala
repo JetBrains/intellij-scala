@@ -229,7 +229,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
     }
   }
 
-  protected def checkHasErrorAroundCaret(text: String): Unit = {
+  protected def checkHasErrorAroundCaret(@Language("Scala") text: String): Unit = {
     val normalizedText = text.withNormalizedSeparator
     myFixture.configureByText("dummy.scala", normalizedText)
     val caretIndex = normalizedText.indexOf(CARET)

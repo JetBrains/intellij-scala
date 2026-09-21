@@ -12,4 +12,30 @@ class TypeConformanceInfixTest extends TypeConformanceTestBase {
   def testInfixLeft(): Unit = {doTest()}
 
   def testSimpleInfix(): Unit = {doTest()}
+
+  def testSCL25941(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  case class Foo(v: String) {
+      |    def eq(o: Foo): Boolean = v == o.v
+      |    def >(n: String): Foo = Foo(n)
+      |  }
+      |
+      |  Foo("bar") > "quz" `eq` Foo("quz") // IDEA: Type mismatch; scalac: = true
+      |}
+      """.stripMargin
+  )
+
+  def testSCL25941Neg(): Unit = checkHasErrorAroundCaret(
+    """
+      |object A {
+      |case class Foo(v: String) {
+      |  def ===(o: Foo): Boolean = v == o.v
+      |  def op(n: String): Foo = Foo(n)
+      |}
+      |
+      |Foo("bar") `op` "quz" ==${CARET}= Foo("quz")
+      |}
+      |""".stripMargin
+  )
 }

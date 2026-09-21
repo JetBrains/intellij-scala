@@ -511,7 +511,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.model.headers.ModeledCompanion
     //akka.http.scaladsl.model.headers.ModeledCustomHeader
     //akka.http.scaladsl.model.headers.ModeledCustomHeaderCompanion
-    //akka.http.scaladsl.model.headers.ModeledHeader
+    akka.http.scaladsl.model.headers.ModeledHeader
     akka.http.scaladsl.model.headers.OAuth2BearerToken
     //akka.http.scaladsl.model.headers.Origin
     //akka.http.scaladsl.model.headers.ProductVersion
