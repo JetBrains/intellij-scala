@@ -58,6 +58,21 @@ class MethodInvocationMatchedTypeParametersTest extends ScalaFixtureTestCase {
     Seq("A" -> "Base")
   )
 
+  // SCL-25897: a dependent result already preserves the argument's singleton type.
+  def testNestedDependentResultTypes(): Unit = doTest(
+    """trait Rendering
+      |trait Companion[T] {
+      |  def render[R <: Rendering](r: R): r.type
+      |}
+      |trait Header {
+      |  def companion: Companion[_]
+      |  def renderValue[R <: Rendering](r: R): r.type
+      |  def render[R <: Rendering](r: R): r.type = renderValue(companion.render(r))
+      |}
+      |""".stripMargin,
+    Seq("R" -> "R", "R" -> "R")
+  )
+
   def testInterleavedClauses(): Unit = doTest(
     """class A {
       |  def foo[A](a: A)[B](b: B): Unit = ()
