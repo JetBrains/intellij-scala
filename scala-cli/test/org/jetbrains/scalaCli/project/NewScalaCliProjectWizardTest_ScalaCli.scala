@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.project.utils.ScalaInstallationTestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizardData.scalaBuildSystemData
 import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaNewProjectWizardData.scalaData
-import org.jetbrains.sbt.project.utils.ProjectComparisonOptions
+import org.jetbrains.sbt.project.utils.{MacroSubstitutor, ProjectComparisonOptions}
 import org.jetbrains.sbt.project.{NewScalaProjectWizardTestBase, ProjectStructureAssertionsFixture, ProjectStructureTestUtils}
 import org.junit.{Assume, Test}
 import org.junit.runner.RunWith
@@ -95,6 +95,7 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
       libraries := projectLibraries
       modules := Seq(
         new module(projectName) {
+          contentRoots := Seq(MacroSubstitutor.Keys.ProjectRoot)
           libraryDependencies := BspProjectStructureImportingTestUtils.expectedLibraryDependencies(projectLibraries, projectName)
           sources := Seq("project.scala")
           testSources := Seq()

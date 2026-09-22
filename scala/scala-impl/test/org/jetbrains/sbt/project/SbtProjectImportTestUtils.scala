@@ -49,12 +49,10 @@ object SbtProjectImportTestUtils {
   def linkSbtProjectWithNewSettingsToProject(
     project: Project,
     externalProjectPath: String,
-    prodTestSourcesSeparated: Boolean,
     jdkName: String
   ): Unit = {
     val settings = createSbtProjectSettingsForLinkedProject(
       externalProjectPath = externalProjectPath,
-      prodTestSourcesSeparated = prodTestSourcesSeparated,
       jdkName = jdkName
     )
 
@@ -63,13 +61,11 @@ object SbtProjectImportTestUtils {
 
   private def createSbtProjectSettingsForLinkedProject(
     externalProjectPath: String,
-    prodTestSourcesSeparated: Boolean,
     jdkName: String
   ): SbtProjectSettings = {
     val settings = new SbtProjectSettings
     settings.jdk = jdkName
     settings.setExternalProjectPath(externalProjectPath)
-    settings.setSeparateProdAndTestSources(prodTestSourcesSeparated)
     settings
   }
 }

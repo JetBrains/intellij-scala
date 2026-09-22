@@ -126,7 +126,10 @@ class ProblemHighlightFilterInSbtProjectIntegrationTest_SbtOverBsp
     val expectedProject: project = new project(projectName) {
       modules := Seq(
         new module("root") {
-          contentRoots := Seq()
+          //NOTE: the matcher uses inexact match by default, but content roots have to be compared exactly,
+          //otherwise unexpected extra content roots in a module would go unnoticed
+          contentRoots := Seq(testProjectDirVFile.getPath)
+          contentRoots.exactMatch()
           sources := Seq("src/main/scala")
           testSources := Seq("src/test/scala")
           resources := Seq()
@@ -134,15 +137,20 @@ class ProblemHighlightFilterInSbtProjectIntegrationTest_SbtOverBsp
         },
         new module(s"root-build") {
           contentRoots := Seq(relativeProjectPath("project"))
+          contentRoots.exactMatch()
           sources := Seq("Dependencies.scala", "MyClass.scala")
         },
         new module("subProject") {
+          contentRoots := Seq(relativeProjectPath("sub-project"))
+          contentRoots.exactMatch()
           sources := Seq("src/main/scala")
           testSources := Seq("src/test/scala")
           resources := Seq()
           testResources := Seq()
         },
         new module("subProjectSeparateRoot") {
+          contentRoots := Seq(relativeProjectPath("sub-project-separate"))
+          contentRoots.exactMatch()
           sources := Seq("src/main/scala")
           testSources := Seq("src/test/scala")
           resources := Seq()
@@ -150,6 +158,7 @@ class ProblemHighlightFilterInSbtProjectIntegrationTest_SbtOverBsp
         },
         new module(s"subProjectSeparateRoot-build") {
           contentRoots := Seq(relativeProjectPath("sub-project-separate/project"))
+          contentRoots.exactMatch()
           sources := Seq("MyClass.scala")
         },
       )

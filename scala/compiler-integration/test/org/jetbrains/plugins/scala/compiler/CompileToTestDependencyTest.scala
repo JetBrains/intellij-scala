@@ -16,8 +16,7 @@ import org.junit.runners.Parameterized
 import scala.jdk.CollectionConverters._
 
 @RunWith(classOf[Parameterized])
-class CompileToTestDependencyTest(jdkVersion: TestJdkVersion)
-  extends SbtProjectCompilationTestBase(separateProdAndTestSources = true) {
+class CompileToTestDependencyTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 

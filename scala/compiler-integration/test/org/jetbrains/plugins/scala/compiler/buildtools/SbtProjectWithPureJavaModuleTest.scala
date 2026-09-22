@@ -17,8 +17,7 @@ import org.junit.runners.Parameterized
 import scala.jdk.CollectionConverters._
 
 @RunWith(classOf[Parameterized])
-abstract class SbtProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersion, separateModulesForProdTest: Boolean)
-  extends SbtProjectCompilationTestBase(separateProdAndTestSources = separateModulesForProdTest) {
+class SbtProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 
@@ -94,30 +93,10 @@ abstract class SbtProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersion, 
       errorsAndWarnings.isEmpty
     )
 
-    if (separateModulesForProdTest) {
-      findClassFilesAssertions_separateModulesForProdTest(modules)
-    } else {
-      findClassFilesAssertions(modules)
-    }
+    findClassFilesAssertions(modules)
   }
 
   private def findClassFilesAssertions(modules: Array[Module]): Unit = {
-    val module1 = modules.find(_.getName == "root.module1").orNull
-    assertNotNull("Could not find module with name 'root.module1'", module1)
-    val module2 = modules.find(_.getName == "root.module2").orNull
-    assertNotNull("Could not find module with name 'root.module2'", module2)
-
-    val greeter = compiler.findClassFile("Greeter", module1)
-    assertNotNull("Could not find compiled class file Greeter", greeter)
-
-    val helloWorldGreeter = compiler.findClassFile("HelloWorldGreeter", module2)
-    assertNotNull("Could not find compiled class file HelloWorldGreeter", helloWorldGreeter)
-
-    val helloWorldGreeterModule = compiler.findClassFile("HelloWorldGreeter$", module2)
-    assertNotNull("Could not find compiled class file HelloWorldGreeter$", helloWorldGreeterModule)
-  }
-
-  private def findClassFilesAssertions_separateModulesForProdTest(modules: Array[Module]): Unit = {
     val module1Main = modules.find(_.getName == "root.module1.main").orNull
     assertNotNull("Could not find module with name 'root.module1.main'", module1Main)
     val module2Main = modules.find(_.getName == "root.module2.main").orNull
@@ -134,12 +113,4 @@ abstract class SbtProjectWithPureJavaModuleTestBase(jdkVersion: TestJdkVersion, 
   }
 }
 
-class SbtProjectWithPureJavaModuleTest(jdkVersion: TestJdkVersion)
-  extends SbtProjectWithPureJavaModuleTestBase(jdkVersion, separateModulesForProdTest = false)
-
 private object SbtProjectWithPureJavaModuleTest extends JdkVersionParameters
-
-class SbtProjectWithPureJavaModuleTest_SeparateModulesForProdTest(jdkVersion: TestJdkVersion)
-  extends SbtProjectWithPureJavaModuleTestBase(jdkVersion, separateModulesForProdTest = true)
-
-private object SbtProjectWithPureJavaModuleTest_SeparateModulesForProdTest extends JdkVersionParameters

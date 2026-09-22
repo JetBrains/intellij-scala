@@ -1,7 +1,7 @@
 package org.jetbrains.bsp
 
 import org.jetbrains.plugins.scala.SlowTests2
-import org.jetbrains.sbt.project.ProjectStructureDsl.{excluded, libraries, libraryDependencies, module, modules, project, resources, sources, testResources, testSources}
+import org.jetbrains.sbt.project.ProjectStructureDsl.{contentRoots, excluded, libraries, libraryDependencies, module, modules, project, resources, sources, testResources, testSources}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests2]))
@@ -18,6 +18,7 @@ class SbtOverBspProjectStructureImportingTest extends SbtOverBspProjectStructure
 
       modules := Seq(
         new module("simple") {
+          contentRoots := Seq(getProjectPath)
           libraryDependencies := BspProjectStructureImportingTestUtils.expectedLibraryDependencies(scalaLibraries, "simple")
           sources := Seq("src/main/scala", "src/main/java")
           testSources := Seq("src/test/scala", "src/test/java")
@@ -26,6 +27,7 @@ class SbtOverBspProjectStructureImportingTest extends SbtOverBspProjectStructure
           excluded := Seq("target", ".bloop", ".bsp")
         },
         new module("simple-build") {
+          contentRoots := Seq(s"$getProjectPath/project")
           sources := Nil
           testSources := Nil
           resources := Nil

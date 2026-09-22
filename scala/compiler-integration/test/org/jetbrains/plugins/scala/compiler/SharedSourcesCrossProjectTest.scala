@@ -6,89 +6,84 @@ import org.jetbrains.plugins.scala.CompilationTests_Zinc
 import org.jetbrains.plugins.scala.compiler.CompilerMessagesUtil.assertNoErrorsOrWarnings
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
-import org.junit.Assert.{assertNotNull, assertNull}
-import org.junit.Test
+import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
+import org.junit.Assert.{assertNotNull, assertNull, fail}
 import org.junit.experimental.categories.Category
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
-import scala.compiletime.uninitialized
+import java.nio.file.Path
 import scala.jdk.CollectionConverters.*
 
 @Category(Array(classOf[CompilationTests_Zinc]))
-@RunWith(classOf[Parameterized])
-class SharedSourcesCrossProjectTest(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
+class SharedSourcesCrossProjectTest extends SbtExternalSystemImportingTestLike {
 
-  override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
+  override protected def getTestDataProjectPath: String = s"${TestUtils.getTestDataPath}/../../compiler-integration/testData/sharedSourcesCrossProject"
 
-  private var middleJS: Module = uninitialized
-  private var middleJVM: Module = uninitialized
-  private var middleShared: Module = uninitialized
-
-  private var baseJS: Module = uninitialized
-  private var baseJVM: Module = uninitialized
-  private var baseShared: Module = uninitialized
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
 
   override def setUp(): Unit = {
     super.setUp()
 
-    createProjectSubDirs(
-      "project",
-      "base/js/src/main/scala", "base/jvm/src/main/scala", "base/shared/src/main/scala",
-      "middle/js/src/main/scala", "middle/jvm/src/main/scala", "middle/shared/src/main/scala"
-    )
-    createProjectSubFile("project/build.properties", "sbt.version=1.9.7")
-    createProjectSubFile("project/plugins.sbt",
-    """addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.13.2")
-      |addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
-      |""".stripMargin)
-    createProjectSubFile("base/jvm/src/main/scala/Foo.scala", "class FooJVM")
-    createProjectSubFile("base/js/src/main/scala/Foo.scala", "class FooJS")
-    createProjectSubFile("middle/shared/src/main/scala/Shared.scala", "class Shared")
-    createProjectConfig(
-      """lazy val root = project.in(file("."))
-        |
-        |lazy val middle = crossProject(JVMPlatform, JSPlatform).in(file("middle"))
-        |
-        |lazy val base = crossProject(JVMPlatform, JSPlatform).in(file("base"))
-        |  .dependsOn(middle)
-        |""".stripMargin)
-
     importProject(false)
-    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = IncrementalityType.SBT
 
-    val modules = ModuleManager.getInstance(getMyProject).getModules
-    middleJS = modules.find(_.getName == "root.middle.middleJS").orNull
-    assertNotNull("Could not find module with name 'root.middle.middleJS'", middleJS)
-    middleJVM = modules.find(_.getName == "root.middle.middleJVM").orNull
-    assertNotNull("Could not find module with name 'root.middle.middleJVM'", middleJVM)
-    middleShared = modules.find(_.getName == "root.middle.middle-sources").orNull
-    assertNotNull("Could not find module with name 'root.middle.middle-sources'", middleShared)
-    baseJS = modules.find(_.getName == "root.base.baseJS").orNull
-    assertNotNull("Could not find module with name 'root.base.baseJS'", baseJS)
-    baseJVM = modules.find(_.getName == "root.base.baseJVM").orNull
-    assertNotNull("Could not find module with name 'root.base.baseJVM'", baseJVM)
-    baseShared = modules.find(_.getName == "root.base.base-sources").orNull
-    assertNotNull("Could not find module with name 'root.base.base-sources'", baseShared)
-    compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
+    ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = IncrementalityType.SBT
   }
 
-  @Test
-  def testSharedSourcesOnlyCompiledToOwnerModules(): Unit = {
-    val messages1 = compiler.make().asScala.toSeq
-    assertNoErrorsOrWarnings(messages1)
+  override def tearDown(): Unit = {
+    CompileServerLauncher.stopServerAndWait()
 
-    Seq(middleJS, middleJVM).foreach { module =>
-      val sharedClass = compiler.findClassFile("Shared", module)
+    super.tearDown()
+  }
+
+  def testSharedSourcesOnlyCompiledToOwnerModules(): Unit = {
+    val modules = ModuleManager.getInstance(getMyProject).getModules
+
+    def findModule(name: String): Module = modules.find(_.getName == name).getOrElse {
+      fail(s"Could not find module with name '$name").asInstanceOf[Nothing]
+    }
+
+    val middleJSMain = findModule("root.middle.middleJS.main")
+    val middleJSTest = findModule("root.middle.middleJS.test")
+    val middleJVMMain = findModule("root.middle.middleJVM.main")
+    val middleJVMTest = findModule("root.middle.middleJVM.test")
+    findModule("root.middle.middle-sources.main")
+
+    val baseJSMain = findModule("root.base.baseJS.main")
+    val baseJSTest = findModule("root.base.baseJS.test")
+    val baseJVMMain = findModule("root.base.baseJVM.main")
+    val baseJVMTest = findModule("root.base.baseJVM.test")
+    findModule("root.base.base-sources.main")
+    findModule("root.base.base-sources.test")
+
+    val compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
+
+    val messages = try {
+      compiler.make().asScala.toSeq
+    } finally {
+      compiler.tearDown()
+    }
+    assertNoErrorsOrWarnings(messages)
+
+    import SbtProjectCompilationTestBase.findClassFile
+
+    Seq(middleJSMain, middleJVMMain).foreach { module =>
+      val sharedClass = findClassFile("Shared", module, isTest = false)
       assertNotNull(s"Shared class file not found in ${module.getName}", sharedClass)
     }
 
-    Seq(baseJS, baseJVM).foreach { module =>
-      val sharedClass = compiler.findClassFile("Shared", module)
-      assertNull(s"Shared class file found in ${module.getName}, but it shouldn't", sharedClass)
+    def fileIsNullAssertion(sharedClass: Path, moduleName: String): Unit =
+      assertNull(s"Shared class file found in $moduleName, but it shouldn't", sharedClass)
+
+    Seq(baseJSMain, baseJVMMain).foreach { module =>
+      val sharedClass = findClassFile("Shared", module, isTest = false)
+      fileIsNullAssertion(sharedClass, module.getName)
+    }
+
+    Seq(baseJSTest, middleJSTest, middleJVMTest, baseJVMTest).foreach { module =>
+      val sharedClass = findClassFile("Shared", module, isTest = true)
+      fileIsNullAssertion(sharedClass, module.getName)
     }
   }
 }
-
-private object SharedSourcesCrossProjectTest extends JdkVersionParameters

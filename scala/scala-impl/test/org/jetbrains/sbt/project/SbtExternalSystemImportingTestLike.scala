@@ -67,7 +67,6 @@ trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTes
     settings.jdk = getJdkConfiguredForTestCase.getName
 
     val testSbtSettings = getTestSbtProjectSettings
-    settings.separateProdAndTestSources = testSbtSettings.separateProdAndTestSources
     settings.useSbtShellForImport = testSbtSettings.useSbtShellForImport
   }
 
@@ -77,7 +76,6 @@ trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTes
 
 object SbtExternalSystemImportingTestLike {
   final case class TestSbtProjectSettings(
-    separateProdAndTestSources: Boolean,
     useSbtShellForImport: Boolean
   )
 
@@ -85,7 +83,6 @@ object SbtExternalSystemImportingTestLike {
     val Default: TestSbtProjectSettings = {
       val settings = new SbtProjectSettings
       TestSbtProjectSettings(
-        separateProdAndTestSources = settings.separateProdAndTestSources,
         useSbtShellForImport = settings.useSbtShellForImport
       )
     }

@@ -238,6 +238,176 @@ class SbtProjectStructureImportingTestCase_MultiModule extends SbtProjectStructu
       )
     })
 
+class SbtProjectStructureImportingTestCase_ProjectWithUppercaseName extends SbtProjectStructureImportingTestCase:
+  @Test
+  def projectWithUppercaseName(): Unit = runTest {
+    new project("MyProjectWithUppercaseName") {
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+      libraries ++= scalaLibraries
+
+      modules := Seq(
+        new module("MyProjectWithUppercaseName"),
+        new module("MyProjectWithUppercaseName.main") {
+          libraryDependencies ++= scalaLibraries
+        },
+        new module("MyProjectWithUppercaseName.test") {
+          libraryDependencies ++= scalaLibraries
+        },
+        new module("MyProjectWithUppercaseName.MyProjectWithUppercaseName-build")
+      )
+    }
+  }
+
+class SbtProjectStructureImportingTestCase_SimpleDoNotUseCoursier extends SbtProjectStructureImportingTestCase:
+  @Test
+  def simpleDoNotUseCoursier(): Unit = {
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkFromIvy(useEnv = true)("2.12.10")
+    runSimpleTest("simpleDoNotUseCoursier", "2.12", scalaLibraries,
+      expectedSbtCompletionVariantsForParentModule = DefaultSbtContentRootsScala212,
+      expectedSbtCompletionVariantsForMainModule = DefaultMainSbtContentRootsScala212,
+      expectedSbtCompletionVariantsForTestModule = DefaultTestSbtContentRootsScala212
+    )
+  }
+
+class SbtProjectStructureImportingTestCase_CrossCompiledIsScala2 extends SbtProjectStructureImportingTestCase:
+  /**
+   * Open cross-compiled Scala 3 / Scala 2 projects as Scala 2, #SCL-19573
+   */
+  @Test
+  def crossCompiledIsScala2(): Unit = runTest(
+    new project("root") {
+      private val scala2libraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+
+      private def subprojectModules(name: String): Seq[module] = Seq(
+        new module(s"root.$name"),
+        new module(s"root.$name.main") {
+          libraryDependencies := scala2libraries
+        },
+        new module(s"root.$name.test") {
+          libraryDependencies := scala2libraries
+        }
+      )
+
+      modules := Seq(
+        new module("root"),
+        new module("root.main"),
+        new module("root.test")
+      ) ++ subprojectModules("subproject1") ++ subprojectModules("subproject2")
+    }
+  )
+
+class SbtProjectStructureImportingTestCase_CrossCompiledPart extends SbtProjectStructureImportingTestCase:
+  /**
+   * "Open cross-compiled Scala 3 / Scala 2 projects as Scala 2" only applies if all modules are compiled both to Scala 3 and Scala 2, #SCL-22619
+   */
+  @Test
+  def crossCompiledPart(): Unit = runTest(
+    new project("root") {
+      private val scala3libraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
+
+      private def subprojectModules(name: String): Seq[module] = Seq(
+        new module(s"root.$name"),
+        new module(s"root.$name.main") {
+          libraryDependencies := scala3libraries
+        },
+        new module(s"root.$name.test") {
+          libraryDependencies := scala3libraries
+        }
+      )
+
+      modules := Seq(
+        new module("root"),
+        new module("root.main"),
+        new module("root.test")
+      ) ++ subprojectModules("subproject1") ++ subprojectModules("subproject2")
+    }
+  )
+
+class SbtProjectStructureImportingTestCase_KotlincOptionsFromSbtKotlinPluginPerModule extends SbtProjectStructureImportingTestCase:
+  @Test
+  def kotlincOptionsFromSbtKotlinPluginPerModule(): Unit = {
+    val projectName = "kotlincOptionsFromSbtKotlinPluginPerModule"
+    val moduleWithEnabledPluginAndKotlincOptions = s"$projectName.module-with-enabled-plugin-and-kotlinc-options"
+    val moduleWithEnabledPluginAndNoKotlincOptions = s"$projectName.module-with-enabled-plugin-and-no-kotlinc-options"
+    val moduleWithDisabledPlugin = s"$projectName.module-with-disabled-plugin"
+
+    val expectedKotlincOptions = Seq(
+      "-Xjsr305=strict",
+      "-progressive",
+      "-opt-in=kotlin.RequiresOptIn",
+      "-nowarn"
+    )
+
+    def modulesWithoutKotlincOptions(moduleName: String): Seq[module] = Seq(
+      new module(moduleName) {
+        kotlincOptions := Nil
+      },
+      new module(s"$moduleName.main") {
+        kotlincOptions := Nil
+      },
+      new module(s"$moduleName.test") {
+        kotlincOptions := Nil
+      }
+    )
+
+    runTest(
+      new project(projectName) {
+        modules := modulesWithoutKotlincOptions(projectName) ++ Seq(
+          //the parent module doesn't hold any compiler options, they are attached to the source set modules
+          new module(moduleWithEnabledPluginAndKotlincOptions) {
+            kotlincOptions := Nil
+          },
+          new module(s"$moduleWithEnabledPluginAndKotlincOptions.main") {
+            kotlincOptions := expectedKotlincOptions
+          },
+          new module(s"$moduleWithEnabledPluginAndKotlincOptions.test") {
+            kotlincOptions := expectedKotlincOptions
+          }
+        ) ++
+          modulesWithoutKotlincOptions(moduleWithEnabledPluginAndNoKotlincOptions) ++
+          modulesWithoutKotlincOptions(moduleWithDisabledPlugin)
+      }
+    )
+  }
+
+class SbtProjectStructureImportingTestCase_ProjectWithJmhPlugin extends SbtProjectStructureImportingTestCase:
+  @Test
+  def projectWithJmhPlugin(): Unit = runTest(
+    new project("projectWithJmhPlugin") {
+      private def subprojectModules(subprojectId: String): Seq[module] = Seq(
+        new module(s"projectWithJmhPlugin.$subprojectId") {
+          sbtProjectId := subprojectId
+          contentRoots := Seq(s"$getProjectPath/$subprojectId")
+          compileOutputPath := null
+          compileTestOutputPath := null
+        },
+        new module(s"projectWithJmhPlugin.$subprojectId.main") {
+          compileOutputPath := s"%PROJECT_ROOT%/$subprojectId/target/scala-2.13/classes"
+          compileTestOutputPath := null
+        },
+        new module(s"projectWithJmhPlugin.$subprojectId.test") {
+          compileOutputPath := null
+          compileTestOutputPath := s"%PROJECT_ROOT%/$subprojectId/target/scala-2.13/test-classes"
+        }
+      )
+
+      modules := Seq(
+        new module("projectWithJmhPlugin") {
+          compileOutputPath := null
+          compileTestOutputPath := null
+        },
+        new module("projectWithJmhPlugin.main") {
+          compileOutputPath := "%PROJECT_ROOT%/target/scala-2.13/classes"
+          compileTestOutputPath := null
+        },
+        new module("projectWithJmhPlugin.test") {
+          compileOutputPath := null
+          compileTestOutputPath := "%PROJECT_ROOT%/target/scala-2.13/test-classes"
+        }
+      ) ++ subprojectModules("project1") ++ subprojectModules("project2")
+    }
+  )
+
 class SbtProjectStructureImportingTestCase_NumberSuffixDeduplicationStrategy extends SbtProjectStructureImportingTestCase:
   @Test
   def numberSuffixDeduplicationStrategy():Unit = runTest(

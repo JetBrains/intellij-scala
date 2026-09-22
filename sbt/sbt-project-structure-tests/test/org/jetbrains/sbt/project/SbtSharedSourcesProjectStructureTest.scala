@@ -11,9 +11,6 @@ import java.net.URI
 import java.nio.file.{Files, Path}
 
 // TODO: ensure there is test for SCL-19673 for BSO external system as well
-/**
- * @see [[SbtProjectStructureImportingTest_LegacyModulesLayout]]
- */
 @Category(Array(classOf[SlowTests2]))
 final class SbtSharedSourcesProjectStructureTest extends SbtProjectStructureImportingTestBase {
 
@@ -112,6 +109,167 @@ final class SbtSharedSourcesProjectStructureTest extends SbtProjectStructureImpo
         root, rootMain, rootTest,
         foo, fooMain, fooTest,
         bar, barMain, barTest,
+        sharedSourcesModule, sharedSourcesModuleMain
+      )
+    }
+  )
+
+  def testSharedSourcesWithNestedProjectDependencies(): Unit = runTest(
+    new project("sharedSourcesWithNestedProjectDependencies") {
+      private val projectName = "sharedSourcesWithNestedProjectDependencies"
+
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+      libraries := scalaLibraries
+
+      lazy val root: module = new module(projectName) {
+        contentRoots := Seq(getProjectPath)
+        moduleDependencies ++= Seq(
+          new dependency(rootMain) {
+            isExported := false
+          },
+          new dependency(rootTest) {
+            isExported := false
+          }
+        )
+      }
+      lazy val rootMain: module = new module(s"$projectName.main") {
+        contentRoots := Seq(s"$getProjectPath/src/main", s"$getProjectPath/target/scala-2.13/src_managed/main", s"$getProjectPath/target/scala-2.13/resource_managed/main")
+        sources := Seq("scala")
+        libraryDependencies := scalaLibraries
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModuleMain) {
+            isExported := true
+            scope := DependencyScope.COMPILE
+          },
+          new dependency(dummyMain) {
+            isExported := false
+            scope := DependencyScope.COMPILE
+          },
+          new dependency(barMain) {
+            isExported := false
+            scope := DependencyScope.COMPILE
+          }
+        )
+      }
+      lazy val rootTest: module = new module(s"$projectName.test") {
+        libraryDependencies := scalaLibraries
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModuleMain) {
+            isExported := true
+            scope := DependencyScope.COMPILE
+          },
+          new dependency(rootMain) {
+            isExported := false
+          },
+          new dependency(dummyMain) {
+            isExported := false
+            scope := DependencyScope.COMPILE
+          },
+          new dependency(barMain) {
+            isExported := false
+            scope := DependencyScope.COMPILE
+          }
+        )
+      }
+
+      lazy val sharedSourcesModule: module = new module(s"$projectName.$projectName-sources") {
+        contentRoots := Seq(getProjectPath + "/shared")
+        moduleDependencies ++= Seq(
+          new dependency(sharedSourcesModuleMain) {
+            isExported := false
+          }
+        )
+      }
+      lazy val sharedSourcesModuleMain: module = new module(s"$projectName.$projectName-sources.main") {
+        contentRoots := Seq(s"$getProjectPath/shared/src/main")
+        libraryDependencies := scalaLibraries
+      }
+
+      lazy val foo: module = new module(s"$projectName.foo") {
+        moduleDependencies ++= Seq(
+          new dependency(fooMain) {
+            isExported := false
+          },
+          new dependency(fooTest) {
+            isExported := false
+          }
+        )
+      }
+      lazy val fooMain: module = new module(s"$projectName.foo.main") {
+        libraryDependencies := scalaLibraries
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModuleMain) { isExported := true }
+        )
+      }
+      lazy val fooTest: module = new module(s"$projectName.foo.test") {
+        libraryDependencies := scalaLibraries
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModuleMain) { isExported := true },
+          new dependency(fooMain) { isExported := false }
+        )
+      }
+
+      lazy val bar: module = new module(s"$projectName.bar") {
+        moduleDependencies ++= Seq(
+          new dependency(barMain) {
+            isExported := false
+          },
+          new dependency(barTest) {
+            isExported := false
+          }
+        )
+      }
+      lazy val barMain: module = new module(s"$projectName.bar.main") {
+        libraryDependencies := scalaLibraries
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModuleMain) { isExported := true }
+        )
+      }
+      lazy val barTest: module = new module(s"$projectName.bar.test") {
+        libraryDependencies := scalaLibraries
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModuleMain) { isExported := true },
+          new dependency(barMain) { isExported := false }
+        )
+      }
+
+      lazy val dummy: module = new module(s"$projectName.dummy") {
+        moduleDependencies ++= Seq(
+          new dependency(dummyMain) {
+            isExported := false
+          },
+          new dependency(dummyTest) {
+            isExported := false
+          }
+        )
+      }
+      lazy val dummyMain: module = new module(s"$projectName.dummy.main") {
+        libraryDependencies := scalaLibraries
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModuleMain) { isExported := true },
+          new dependency(barMain) {
+            isExported := false
+            scope := DependencyScope.COMPILE
+          }
+        )
+      }
+      lazy val dummyTest: module = new module(s"$projectName.dummy.test") {
+        libraryDependencies := scalaLibraries
+        moduleDependencies := Seq(
+          new dependency(sharedSourcesModuleMain) { isExported := true },
+          new dependency(dummyMain) { isExported := false },
+          new dependency(barMain) {
+            isExported := false
+            scope := DependencyScope.COMPILE
+          }
+        )
+      }
+
+      modules := Seq(
+        root, rootMain, rootTest,
+        foo, fooMain, fooTest,
+        bar, barMain, barTest,
+        dummy, dummyMain, dummyTest,
         sharedSourcesModule, sharedSourcesModuleMain
       )
     }

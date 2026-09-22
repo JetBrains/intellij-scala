@@ -39,7 +39,7 @@ import scala.compiletime.uninitialized
  *      a project programmatically, or look at other test classes which extend [[SbtProjectCompilationTestBase]]
  *      for examples.
  */
-abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean = false) extends ExternalSystemImportingTestCase {
+abstract class SbtProjectCompilationTestBase extends ExternalSystemImportingTestCase {
 
   override def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -53,7 +53,6 @@ abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
-    settings.separateProdAndTestSources = separateProdAndTestSources
     settings.jdk = sdk.getName
     settings
   }

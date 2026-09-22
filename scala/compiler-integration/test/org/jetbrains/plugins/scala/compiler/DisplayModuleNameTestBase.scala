@@ -6,8 +6,7 @@ import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.junit.Assert.assertEquals
 
-abstract class DisplayModuleNameTestBase(jdkVersion: TestJdkVersion, separateProdAndTestSources: Boolean = false)
-  extends SbtProjectCompilationTestBase(separateProdAndTestSources) {
+abstract class DisplayModuleNameTestBase(jdkVersion: TestJdkVersion) extends SbtProjectCompilationTestBase {
 
   override protected def jdkVersionForTest: TestJdkVersion = jdkVersion
 

@@ -58,8 +58,8 @@ class ClasspathOrderingCompilationTest(jdkVersion: TestJdkVersion) extends SbtPr
     ScalaCompilerConfiguration.instanceIn(getMyProject).incrementalityType = incrementality
 
     val modules = ModuleManager.getInstance(getMyProject).getModules
-    rootModule = modules.find(_.getName == "root").orNull
-    assertNotNull("Could not find module with name 'root'", rootModule)
+    rootModule = modules.find(_.getName == "root.main").orNull
+    assertNotNull("Could not find module with name 'root.main'", rootModule)
     compiler = new CompilerTester(getMyProject, java.util.Arrays.asList(modules*), null, false)
 
     val messages = compiler.make().asScala.toSeq

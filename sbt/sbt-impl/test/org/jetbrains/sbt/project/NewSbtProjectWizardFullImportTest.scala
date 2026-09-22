@@ -101,7 +101,7 @@ class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase {
       useScalaSdkExtraClasspath
     )
     runImportEnabledTest(config) { project =>
-      new ProjectStructureAssertionsFixture(project).assertProjectsEqual(expectedProjectStructure, singleContentRootModules = false)
+      new ProjectStructureAssertionsFixture(project).assertProjectsEqual(expectedProjectStructure)
     }
   }
 

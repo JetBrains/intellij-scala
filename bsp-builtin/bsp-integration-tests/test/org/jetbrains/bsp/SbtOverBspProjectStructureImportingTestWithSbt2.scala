@@ -77,6 +77,6 @@ class SbtOverBspProjectStructureImportingTestWithSbt2 extends SbtOverBspProjectS
       )
     }
 
-    assertProjectsEqual(expectedProject, getMyProject, singleContentRootModules = false)
+    assertProjectsEqual(expectedProject, getMyProject)
   }
 }
