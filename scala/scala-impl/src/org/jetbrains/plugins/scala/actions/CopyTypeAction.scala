@@ -11,11 +11,13 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.utils.TaskRunnerWithLoadingProgress
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScParenthesisedExpr, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.api.{InvocationDetails, InvocationDetailsOwner, ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
 
 import java.awt.datatransfer.StringSelection
@@ -77,7 +79,7 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
   private def getElementTypePresentation(element: ScalaPsiElement with Typeable): Option[String] = {
     val typeResult = element match {
       case expr: ScExpression =>
-        expr.getTypeWithoutImplicits(ignoreBaseType = true)
+        getExpressionType(expr)
       case _ =>
         element.`type`()
     }
@@ -88,6 +90,36 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
       val typeProcessed = typ.removeAliasDefinitions().tryExtractDesignatorSingleton
 
       typeProcessed.presentableText
+    }
+  }
+
+  private def getExpressionType(expr: ScExpression): TypeResult = {
+    val inferredType = for {
+      poly <- expr.getNonValueType(ignoreBaseType = true).toOption.collect {
+        case poly: ScTypePolymorphicType => poly
+      }
+      invocation <- findInvocation(expr)
+    } yield {
+      val arguments = invocation.argumentClauses.collect {
+        case clause: InvocationDetails.TypeClause => clause.arguments
+      }.flatten
+      val substitutor = ScSubstitutor.bind(arguments.map(_.parameter), arguments.map(_.tpe))
+      // Substitute before converting to a value type, which would otherwise erase the type parameters.
+      substitutor(poly.internalType).inferValueType
+    }
+    inferredType.fold(expr.getTypeWithoutImplicits(ignoreBaseType = true))(Right(_))
+  }
+
+  @tailrec
+  private def findInvocation(expr: ScExpression): Option[InvocationDetails] = {
+    val details = expr.asOptionOf[ScExpression with InvocationDetailsOwner].flatMap(_.invocationDetails)
+    if (details.isDefined) details
+    else expr.getContext match {
+      case call: MethodInvocation if call.getInvokedExpr == expr => findInvocation(call)
+      case call: ScGenericCall if call.referencedExpr == expr => findInvocation(call)
+      case parens: ScParenthesisedExpr => findInvocation(parens)
+      case section: ScUnderscoreSection if section.bindingExpr.contains(expr) => findInvocation(section)
+      case _ => None
     }
   }
 
