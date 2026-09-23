@@ -1,0 +1,9 @@
+Document tests/pos/i25600.scala
+(2:4..2:14) scala/annotation/
+(2:15..2:22) scala/annotation/varargs#
+(3:12..3:18) scala/Predef.String#
+(3:23..3:26) scala/Any#
+(3:30..3:36) scala/Predef.String#
+(5:8..5:9) _empty_/T# -> 1:7
+(5:22..5:23) local0 -> 5:13
+

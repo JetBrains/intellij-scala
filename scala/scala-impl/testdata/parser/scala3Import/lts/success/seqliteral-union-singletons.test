@@ -1,0 +1,67 @@
+// Regression test for a crash in tpd.wrapArray when the SeqLiteral
+// element type is a union of singleton primitive types (e.g. `1 | 2 | 3`).
+def test: List[1 | 2 | 3] = List(1, 2, 3)
+-----
+ScalaFile
+  ScFunctionDefinition: test
+    PsiComment(comment)('// Regression test for a crash in tpd.wrapArray when the SeqLiteral')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// element type is a union of singleton primitive types (e.g. `1 | 2 | 3`).')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('test')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: List[1 | 2 | 3]
+      SimpleType: List
+        CodeReferenceElement: List
+          PsiElement(identifier)('List')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          InfixType: 1 | 2 | 3
+            InfixType: 1 | 2
+              LiteralType: 1
+                IntegerLiteral
+                  PsiElement(integer)('1')
+              PsiWhiteSpace(' ')
+              CodeReferenceElement: |
+                PsiElement(identifier)('|')
+              PsiWhiteSpace(' ')
+              LiteralType: 2
+                IntegerLiteral
+                  PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            LiteralType: 3
+              IntegerLiteral
+                PsiElement(integer)('3')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: List
+        PsiElement(identifier)('List')
+      ArgumentList
+        PsiElement(()('(')
+        IntegerLiteral
+          PsiElement(integer)('1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('2')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('3')
+        PsiElement())(')')

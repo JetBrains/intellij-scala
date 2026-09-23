@@ -1,0 +1,179 @@
+// https://github.com/scala/scala3/issues/25947
+import scala.language.reflectiveCalls
+
+object Repro {
+  private type WithNextBytes =
+    AnyRef { def nextBytes(bytes: Array[Byte]): Unit }
+
+  def call(value: AnyRef, bytes: Array[Byte]): Unit =
+    value.asInstanceOf[WithNextBytes].nextBytes(bytes)
+}
+-----
+ScalaFile
+  PsiComment(comment)('// https://github.com/scala/scala3/issues/25947')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.language.reflectiveCalls
+        CodeReferenceElement: scala.language
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('language')
+        PsiElement(.)('.')
+        PsiElement(identifier)('reflectiveCalls')
+  PsiWhiteSpace('\n\n')
+  ScObject: Repro
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Repro')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: WithNextBytes
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('WithNextBytes')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          CompoundType: AnyRef { def nextBytes(bytes: Array[Byte]): Unit }
+            SimpleType: AnyRef
+              CodeReferenceElement: AnyRef
+                PsiElement(identifier)('AnyRef')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScFunctionDeclaration: nextBytes
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('nextBytes')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: bytes
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('bytes')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Array[Byte]
+                          SimpleType: Array
+                            CodeReferenceElement: Array
+                              PsiElement(identifier)('Array')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: Byte
+                                CodeReferenceElement: Byte
+                                  PsiElement(identifier)('Byte')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Unit
+                  CodeReferenceElement: Unit
+                    PsiElement(identifier)('Unit')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n  ')
+        ScFunctionDefinition: call
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('call')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: value
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('value')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: AnyRef
+                    CodeReferenceElement: AnyRef
+                      PsiElement(identifier)('AnyRef')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: bytes
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('bytes')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: Array[Byte]
+                    SimpleType: Array
+                      CodeReferenceElement: Array
+                        PsiElement(identifier)('Array')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: Byte
+                          CodeReferenceElement: Byte
+                            PsiElement(identifier)('Byte')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Unit
+            CodeReferenceElement: Unit
+              PsiElement(identifier)('Unit')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          MethodCall
+            ReferenceExpression: value.asInstanceOf[WithNextBytes].nextBytes
+              GenericCall
+                ReferenceExpression: value.asInstanceOf
+                  ReferenceExpression: value
+                    PsiElement(identifier)('value')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('asInstanceOf')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: WithNextBytes
+                      CodeReferenceElement: WithNextBytes
+                        PsiElement(identifier)('WithNextBytes')
+                  PsiElement(])(']')
+              PsiElement(.)('.')
+              PsiElement(identifier)('nextBytes')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: bytes
+                PsiElement(identifier)('bytes')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

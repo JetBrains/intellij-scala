@@ -1,0 +1,7 @@
+Document tests/pos/i26646-b-joint/Test.scala
+(2:10..2:25) _empty_/CyclicSignature#
+(2:26..2:33) scala/Nothing#
+(2:37..2:40) scala/Predef.`???`().
+(3:13..3:14) _empty_/Test.a. -> 2:7
+(3:15..3:19) _empty_/CyclicSignature#test().
+

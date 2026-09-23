@@ -1,0 +1,259 @@
+package dfhdl
+
+final class DFVal[+T <: DFType, +M]
+
+type DFValAny = DFVal[DFType, ModifierAny]
+type DFConstOf[+T <: DFType] = DFVal[T, Modifier.CONST]
+type DFValTP[+T <: DFType] = DFVal[T, Modifier]
+
+inline def x = ${ ??? }
+
+object DFVal:
+  export DFXInt.Ops.{c1, c2}
+  object Ops:
+    type BoolOnlyOp
+    type CarryOp
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: dfhdl
+      PsiElement(identifier)('dfhdl')
+    PsiWhiteSpace('\n\n')
+    ScClass: DFVal
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(final)('final')
+      PsiWhiteSpace(' ')
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFVal')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: DFType
+            CodeReferenceElement: DFType
+              PsiElement(identifier)('DFType')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeParameter: M
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('M')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScTypeAliasDefinition: DFValAny
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFValAny')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ParametrizedType: DFVal[DFType, ModifierAny]
+        SimpleType: DFVal
+          CodeReferenceElement: DFVal
+            PsiElement(identifier)('DFVal')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: DFType
+              CodeReferenceElement: DFType
+                PsiElement(identifier)('DFType')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          TypeArgument
+            SimpleType: ModifierAny
+              CodeReferenceElement: ModifierAny
+                PsiElement(identifier)('ModifierAny')
+          PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScTypeAliasDefinition: DFConstOf
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFConstOf')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: DFType
+            CodeReferenceElement: DFType
+              PsiElement(identifier)('DFType')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ParametrizedType: DFVal[T, Modifier.CONST]
+        SimpleType: DFVal
+          CodeReferenceElement: DFVal
+            PsiElement(identifier)('DFVal')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          TypeArgument
+            SimpleType: Modifier.CONST
+              CodeReferenceElement: Modifier.CONST
+                CodeReferenceElement: Modifier
+                  PsiElement(identifier)('Modifier')
+                PsiElement(.)('.')
+                PsiElement(identifier)('CONST')
+          PsiElement(])(']')
+    PsiWhiteSpace('\n')
+    ScTypeAliasDefinition: DFValTP
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(type)('type')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFValTP')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: T
+          PsiElement(identifier)('+')
+          PsiElement(identifier)('T')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: DFType
+            CodeReferenceElement: DFType
+              PsiElement(identifier)('DFType')
+        PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ParametrizedType: DFVal[T, Modifier]
+        SimpleType: DFVal
+          CodeReferenceElement: DFVal
+            PsiElement(identifier)('DFVal')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: T
+              CodeReferenceElement: T
+                PsiElement(identifier)('T')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          TypeArgument
+            SimpleType: Modifier
+              CodeReferenceElement: Modifier
+                PsiElement(identifier)('Modifier')
+          PsiElement(])(']')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: x
+      AnnotationsList
+        <empty list>
+      Modifiers
+        PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('x')
+      Parameters
+        <empty list>
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      SplicedBlock
+        PsiElement($)('$')
+        PsiElement({)('{')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ???
+          PsiElement(identifier)('???')
+        PsiWhiteSpace(' ')
+        PsiElement(})('}')
+    PsiWhiteSpace('\n\n')
+    ScObject: DFVal
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFVal')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScExportStatement
+            PsiElement(export)('export')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: DFXInt.Ops
+                CodeReferenceElement: DFXInt
+                  PsiElement(identifier)('DFXInt')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Ops')
+              PsiElement(.)('.')
+              ImportSelectors
+                PsiElement({)('{')
+                ImportSelector
+                  CodeReferenceElement: c1
+                    PsiElement(identifier)('c1')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ImportSelector
+                  CodeReferenceElement: c2
+                    PsiElement(identifier)('c2')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n  ')
+          ScObject: Ops
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Ops')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: BoolOnlyOp
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('BoolOnlyOp')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: CarryOp
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('CarryOp')

@@ -100,7 +100,7 @@ class AfterUpdateDottyVersionScript {
 }
 
 object AfterUpdateDottyVersionScript {
-  private val scala3_repo_lts_branch = "release-3.3.8"
+  private val scala3_repo_lts_branch = "release-3.3.9"
   private val scala3_repo_newest_branch = "release-3.10.0"
   private val scala3_repo_lts_39_branch = "release-3.9.0"
 
@@ -905,6 +905,9 @@ object AfterUpdateDottyVersionScript {
         |specialized-trait-inlining-causes-implementation-required.scala
         |inline-trait-object-not-primitive.scala
         |inline-trait-signature-parameters-using-nameless.scala
+        |
+        |# release-3.3.9
+        |i25866b.scala
         |""".stripMargin.trim
     )
 
