@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 import org.jetbrains.sbt.project.{AbstractBuildToolOpenProjectProvider, SbtProjectImportProvider}
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
 import java.util
 import java.util.Collections
 import javax.swing.*
@@ -50,7 +50,6 @@ class BspProjectImportBuilder
     ProjectDataManager.getInstance(),
     BspImportControlFactory,
     BSP.ProjectSystemId) {
-  private[importing] var externalBspWorkspace: Option[Path] = None
   private[importing] var preImportConfig: PreImportConfig = AutoPreImport
   private[importing] var serverConfig: BspServerConfig = AutoConfig
   /** Whether the Scala plugin generated the BSP connection file during initial import */
@@ -73,18 +72,10 @@ class BspProjectImportBuilder
 
   private def applyBspSetupSettings(project: Project): Unit = {
     val bspSettings = BspUtil.bspSettings(project)
-    val projectSettings = bspSettings.getLinkedProjectSettings(getBspWorkspace.toString)
+    val projectSettings = bspSettings.getLinkedProjectSettings(getFileToImport)
     projectSettings.preImportConfig = preImportConfig
     projectSettings.serverConfig = serverConfig
     projectSettings.bspConfigGenerated = bspConfigGenerated
-  }
-
-  def setExternalBspWorkspace(str: Path): Unit = {
-    this.externalBspWorkspace = Some(str)
-  }
-
-  def getBspWorkspace: Path = {
-    externalBspWorkspace.getOrElse(Paths.get(getFileToImport))
   }
 
   def setPreImportConfig(preImportConfig: PreImportConfig): Unit =
@@ -104,16 +95,12 @@ class BspProjectImportBuilder
   override def getIcon: Icon = BSP.Icon
 
   override def setFileToImport(path: String): Unit = {
-    if(externalBspWorkspace.isDefined) {
-      super.setFileToImport(externalBspWorkspace.get.toString)
-    } else {
-      val localForImport = LocalFileSystem.getInstance()
-      val file = localForImport.refreshAndFindFileByPath(path)
+    val localForImport = LocalFileSystem.getInstance()
+    val file = localForImport.refreshAndFindFileByPath(path)
 
-      Option(file).foreach { f =>
-        val path = ProjectImportProvider.getDefaultPath(f)
-        super.setFileToImport(path)
-      }
+    Option(file).foreach { f =>
+      val path = ProjectImportProvider.getDefaultPath(f)
+      super.setFileToImport(path)
     }
   }
 
@@ -123,7 +110,7 @@ class BspProjectImportBuilder
                       artifactModel: ModifiableArtifactModel): util.List[Module] = {
     project.putUserData(ExternalSystemDataKeys.NEWLY_IMPORTED_PROJECT, java.lang.Boolean.TRUE)
 
-    linkAndRefreshProject(getBspWorkspace.toString, project)
+    linkAndRefreshProject(getFileToImport, project)
     applyBspSetupSettings(project)
     Collections.emptyList()
   }
@@ -220,7 +207,6 @@ class BspOpenProjectProvider extends AbstractBuildToolOpenProjectProvider {
 
       params.preImportConfig.foreach(settings.preImportConfig = _)
       params.serverConfig.foreach(settings.serverConfig = _)
-      params.externalBspWorkspace.foreach(path => settings.setExternalProjectPath(path.toString))
 
       if (params.bspConfigSetup != NoConfigSetup) {
         val task = new BspConfigSetupTask(params.bspConfigSetup)
@@ -314,8 +300,7 @@ class BspProjectImportProvider(builder: BspProjectImportBuilder)
 
   override def canImport(fileOrDirectory: VirtualFile, project: Project): Boolean =
     BspProjectOpenProcessor.canOpenProject(fileOrDirectory) ||
-      SbtProjectImportProvider.canImport(fileOrDirectory) ||
-      FastpassProjectImportProvider.canImport(fileOrDirectory)
+      SbtProjectImportProvider.canImport(fileOrDirectory)
 
   override def createSteps(context: WizardContext): Array[ModuleWizardStep] = {
     builder.reset()

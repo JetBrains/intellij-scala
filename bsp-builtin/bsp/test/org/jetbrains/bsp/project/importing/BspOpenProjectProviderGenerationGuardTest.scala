@@ -78,4 +78,21 @@ class BspOpenProjectProviderGenerationGuardTest extends JavaModuleTestCase {
       shouldGenerateBspConfig(settings)
     )
   }
+
+  def testPantsProjectWithFastpassIsNotOfferedForBspImport(): Unit = {
+    VfsTestUtil.createFile(getProjectDir, "pants")
+    val fastpassBin = VfsTestUtil.createDir(getProjectDir, "fastpass/bin")
+    VfsTestUtil.createFile(fastpassBin, "fastpass")
+
+    val provider = new BspProjectImportProvider(new BspProjectImportBuilder)
+
+    assertTrue(
+      "Fastpass markers must not create a BSP setup choice",
+      bspConfigSteps.workspaceSetupChoices(getProjectDir.toNioPath).isEmpty
+    )
+    assertFalse(
+      "Fastpass markers must not make a Pants project importable as BSP",
+      provider.canImport(getProjectDir, getProject)
+    )
+  }
 }

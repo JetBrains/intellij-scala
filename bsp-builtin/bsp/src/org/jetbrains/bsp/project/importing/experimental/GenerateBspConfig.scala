@@ -41,7 +41,7 @@ private[bsp] final class GenerateBspConfig(project: Project, workspace: Path) {
   def runSynchronously(): Unit = {
     val configSetups: Seq[ConfigSetup] = workspaceSetupChoices(workspace)
     if (configSetups.isEmpty) {
-      val possibleSetups = Seq(SbtSetup, MillSetup, ScalaCliSetup, FastpassSetup)
+      val possibleSetups = Seq(SbtSetup, MillSetup, ScalaCliSetup)
       val possibleSetupsText = possibleSetups.map(configChoiceName).mkString(", ")
       val message = BspBundle.message("cannot.determine.project.setup", possibleSetupsText)
       Messages.showErrorDialog(project, message, BspBundle.message("cannot.determine.project.setup.title"))
