@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
     <dependencies>
+        <module name="intellij.java"/>
+        <module name="intellij.java.compiler"/>
+        <module name="intellij.java.compiler.impl"/>
+        <module name="intellij.java.syntax"/>
+        <module name="intellij.java.ui"/>
+        <module name="intellij.libraries.commons.lang3"/>
+        <module name="intellij.libraries.kotlinx.coroutines.core"/>
+        <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.ui"/>
+        <module name="intellij.platform.editor.ui"/>
+        <module name="intellij.platform.eel.provider"/>
+        <module name="intellij.platform.execution"/>
+        <module name="intellij.platform.ide"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.ide.impl"/>
+        <module name="intellij.platform.jps.build"/>
+        <module name="intellij.platform.lang.impl"/>
+        <module name="intellij.platform.projectModel"/>
+        <module name="intellij.platform.projectModel.impl"/>
+        <module name="intellij.platform.util.ui"/>
         <module name="scalaCommunity.bsp"/>
     </dependencies>
 
