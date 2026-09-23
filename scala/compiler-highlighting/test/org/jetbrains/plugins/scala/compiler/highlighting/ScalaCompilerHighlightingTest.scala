@@ -982,18 +982,26 @@ class ScalaCompilerHighlightingTest_3_8 extends ScalaCompilerHighlightingTest_3_
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_8
 }
 
-class ScalaCompilerHighlightingTest_3_RC extends ScalaCompilerHighlightingTest_3_3 {
+class ScalaCompilerHighlightingTest_3_RC extends ScalaCompilerHighlightingTest_3_3 with ScalaCompilerHighlightingAddMissingMethodsTest {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
-
 }
 
-class ScalaCompilerHighlightingTest_3_9 extends ScalaCompilerHighlightingTest_3_8 {
+class ScalaCompilerHighlightingTest_3_9 extends ScalaCompilerHighlightingTest_3_8 with ScalaCompilerHighlightingAddMissingMethodsTest {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
+}
 
-  // Scala 3.9.0-RC1 enriched the "object creation impossible" / "needs to be abstract" compiler messages (they now
-  // spell out which members are missing). As a result the offered quickfixes changed compared to earlier versions:
-  // "Implement members" became "Add missing methods", and "Make '<name>' abstract" now quotes the name with backticks.
-  // The highlighted ranges and the message prefixes are unchanged.
+class ScalaCompilerHighlightingTest_3_Next_RC extends ScalaCompilerHighlightingTest_3_9 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
+}
+
+// Scala 3.9.0-RC1 enriched the "object creation impossible" / "needs to be abstract" compiler messages (they now
+// spell out which members are missing), and the change was backported to Scala 3.3.9-RC1. As a result the offered
+// quickfixes changed compared to earlier versions: "Implement members" became "Add missing methods", and
+// "Make '<name>' abstract" now quotes the name with backticks. The highlighted ranges and the message prefixes are
+// unchanged.
+trait ScalaCompilerHighlightingAddMissingMethodsTest extends ScalaCompilerHighlightingCommonScala2Scala3Test {
+  self: ScalaCompilerHighlightingTestBase =>
+
   override protected def runTestAbstractMethodInClass(): Unit = runTestCase(
     fileName = "AbstractMethodInClassError.scala",
     content =
@@ -1152,10 +1160,6 @@ class ScalaCompilerHighlightingTest_3_9 extends ScalaCompilerHighlightingTest_3_
       )
     )
   }
-}
-
-class ScalaCompilerHighlightingTest_3_Next_RC extends ScalaCompilerHighlightingTest_3_9 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
 }
 
 @RunWith(classOf[JUnit4])
