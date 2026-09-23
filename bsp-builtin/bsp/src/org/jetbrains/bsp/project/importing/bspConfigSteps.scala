@@ -18,7 +18,7 @@ import com.intellij.util.ui.{JBUI, UI}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.project.importing.BspSetupConfigStep.BspConfigSetupTask
 import org.jetbrains.bsp.project.importing.bspConfigSteps.*
-import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, BspSetupProvider, FastpassConfigSetup, NoConfigSetup, SbtConfigSetup}
+import org.jetbrains.bsp.project.importing.setup.{BspConfigSetup, BspSetupProvider, NoConfigSetup, SbtConfigSetup}
 import org.jetbrains.bsp.protocol.BspConnectionConfig
 import org.jetbrains.bsp.settings.BspProjectSettings.*
 import org.jetbrains.bsp.settings.PreImportConfig
@@ -44,7 +44,6 @@ object bspConfigSteps {
   case object BloopSbtSetup extends ConfigSetup
   case object MillSetup extends ConfigSetup
   case object ScalaCliSetup extends ConfigSetup
-  case object FastpassSetup extends ConfigSetup
 
   private[importing] def configChoiceName(configs: ConfigSetup) = configs match {
     case NoSetup => BspBundle.message("bsp.config.steps.choice.no.setup")
@@ -53,7 +52,6 @@ object bspConfigSteps {
     case BloopSbtSetup => BspBundle.message("bsp.config.steps.choice.sbt.with.bloop")
     case MillSetup => BspBundle.message("bsp.config.steps.choice.mill")
     case ScalaCliSetup => BspBundle.message("bsp.config.steps.choice.scalaCli")
-    case FastpassSetup => BspBundle.message("bsp.config.steps.choice.fastpass")
   }
 
   private[importing] def configName(config: BspConnectionDetails) =
@@ -104,13 +102,11 @@ object bspConfigSteps {
     val BuilderConfigurationParameters(
       setup: BspConfigSetup,
       preImportConfig: Option[PreImportConfig],
-      serverConfig: Option[BspServerConfig],
-      externalBspWorkspace: Option[Path]
+      serverConfig: Option[BspServerConfig]
     ) = getBuilderConfigurationParameters(jdk, workspace, configSetup)
 
     preImportConfig.foreach(builder.setPreImportConfig)
     serverConfig.foreach(builder.setServerConfig)
-    externalBspWorkspace.foreach(builder.setExternalBspWorkspace)
 
     setup
   }
@@ -118,8 +114,7 @@ object bspConfigSteps {
   case class BuilderConfigurationParameters(
     bspConfigSetup: BspConfigSetup,
     preImportConfig: Option[PreImportConfig],
-    serverConfig: Option[BspServerConfig],
-    externalBspWorkspace: Option[Path]
+    serverConfig: Option[BspServerConfig]
   )
 
   /**
@@ -136,39 +131,35 @@ object bspConfigSteps {
   ): BuilderConfigurationParameters = {
     val workspaceBspConfigs = BspConnectionConfig.workspaceBspConfigs(workspace)
 
-    val (setup, preImport, server, extWorkspace) =
+    val (setup, preImport, server) =
       if workspaceBspConfigs.size == 1 then
-        (NoConfigSetup, Some(NoPreImport), Some(BspConfigFile(workspaceBspConfigs.head._1)), None)
+        (NoConfigSetup, Some(NoPreImport), Some(BspConfigFile(workspaceBspConfigs.head._1)))
       else
         computeConfigurationTuple(jdk, workspace, configSetup)
 
-    BuilderConfigurationParameters(setup, preImport, server, extWorkspace)
+    BuilderConfigurationParameters(setup, preImport, server)
   }
 
   private def computeConfigurationTuple(
     jdk: Sdk,
     workspace: Path,
     configSetup: ConfigSetup
-  ): (BspConfigSetup, Option[PreImportConfig], Option[BspServerConfig], Option[Path]) =
+  ): (BspConfigSetup, Option[PreImportConfig], Option[BspServerConfig]) =
     configSetup match {
       case bspConfigSteps.NoSetup =>
-        (NoConfigSetup, Some(AutoPreImport), Some(AutoConfig), None)
+        (NoConfigSetup, Some(AutoPreImport), Some(AutoConfig))
       case bspConfigSteps.BloopSetup =>
-        (NoConfigSetup, Some(NoPreImport), Some(BloopConfig), None)
+        (NoConfigSetup, Some(NoPreImport), Some(BloopConfig))
       case bspConfigSteps.BloopSbtSetup =>
-        (NoConfigSetup, Some(BloopSbtPreImport), Some(BloopConfig), None)
+        (NoConfigSetup, Some(BloopSbtPreImport), Some(BloopConfig))
       case bspConfigSteps.SbtSetup =>
-        (SbtConfigSetup(workspace, jdk), Some(NoPreImport), None, None) // server config to be set in next step
+        (SbtConfigSetup(workspace, jdk), Some(NoPreImport), None) // server config to be set in next step
       case bspConfigSteps.MillSetup =>
         val configSetup = BspSetupProvider.getBspConfigSetup(workspace, MillSetup).getOrElse(NoConfigSetup)
-        (configSetup, Some(NoPreImport), Some(AutoConfig), None)
+        (configSetup, Some(NoPreImport), Some(AutoConfig))
       case bspConfigSteps.ScalaCliSetup =>
         val configSetup = BspSetupProvider.getBspConfigSetup(workspace, ScalaCliSetup).getOrElse(NoConfigSetup)
-        (configSetup, Some(NoPreImport), Some(AutoConfig), None)
-      case bspConfigSteps.FastpassSetup =>
-        val bspWorkspace = FastpassConfigSetup.computeBspWorkspace(workspace)
-        val configSetup: BspConfigSetup = FastpassConfigSetup.create(workspace).fold(throw _, identity)
-        (configSetup, Some(NoPreImport), None, Some(bspWorkspace))
+        (configSetup, Some(NoPreImport), Some(AutoConfig))
     }
 
   /**
@@ -209,11 +200,7 @@ object bspConfigSteps {
       if (BspUtil.bloopConfigDir(workspace).isDefined) List(BloopSetup)
       else Nil
 
-    val fastpassChoice =
-      if (FastpassProjectImportProvider.canImport(vfile)) List(FastpassSetup)
-      else Nil
-
-    (sbtChoice ++ millChoice ++ scalaCliChoice ++ bloopChoice ++ fastpassChoice).distinct
+    (sbtChoice ++ millChoice ++ scalaCliChoice ++ bloopChoice).distinct
   }
 }
 
