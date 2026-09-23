@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.project._
 trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner =>
   import TypeVariableUnification._
 
+
+
   /**
     * Performs subtyping check of the form:
     * {{{
@@ -30,7 +32,9 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     boundKind:    Bound,
     visited:      Set[PsiClass],
     checkWeak:    Boolean
-  ): ConstraintsResult = {
+  )(implicit
+    context: Context
+  ): UnificationResult = {
     val (tvDes, tvArgs) = typeVariable match {
       case ParameterizedType(UndefinedType(tp, _), typeArgs) => (tp, typeArgs)
       case _ =>
@@ -52,16 +56,16 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     val abstractedTypeParams = tpeTypeParameters.drop(captureLength)
     val tvTypeParameters     = tvDes.typeParameters
 
-    val (lhsArgs, rhsArgs, lhsTypeParams) = boundKind match {
-      case Bound.Upper => (args, tvArgs, tpeTypeParameters)
-      case _           => (tvArgs, args, tvTypeParameters)
+    val (lhsArgs, rhsArgs, lhsTypeParams, rhsTypeParams) = boundKind match {
+      case Bound.Upper => (args, tvArgs, tpeTypeParameters, tvTypeParameters)
+      case _           => (tvArgs, args, tvTypeParameters, tpeTypeParameters)
     }
 
     if (!unifiableKinds(abstractedTypeParams, tvTypeParameters))
-      ConstraintsResult.Left
+      UnificationResult.Failure
     else if (captureLength == 0) {
        /** Higher-kinded type var with the same arity as `tpe` */
-      checkParameterizedType(
+      val unifiedConstraints = checkParameterizedType(
         lhsTypeParams,
         lhsArgs,
         rhsArgs,
@@ -70,9 +74,19 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
         checkWeak,
         boundKind == Bound.Equivalence
       )
+
+      UnificationResult.Success(unifiedConstraints)
     } else if (captureLength > 0 && projectContext.project.isPartialUnificationEnabled) {
       /** Partial unification */
       val (captured, abstracted) = rhsArgs.splitAt(captureLength)
+
+      val boundsFit = checkTypeConstructorParameterBounds(lhsTypeParams, rhsTypeParams.drop(captureLength))
+
+      if (!boundsFit) {
+        if (context.isScala3) return UnificationResult.Failure //this is a normal failure under scala 3, retry with super types
+        else                  return UnificationResult.TypeParameterBoundViolated
+      }
+
       val conformance =
         checkParameterizedType(
           tvTypeParameters,
@@ -83,10 +97,12 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
           checkWeak,
           boundKind == Bound.Equivalence
         )
+
       if (conformance.isRight) {
-        val abstractedTypeParams = abstracted.indices.map(
-          idx => TypeParameter.light("p" + idx + "$$", tvTypeParameters(idx).typeParameters, Nothing, Any)
-        )
+        val abstractedTypeParams = abstracted.indices.map { idx =>
+          val tvTp = tvTypeParameters(idx)
+          TypeParameter.light("p" + idx + "$$", tvTp.typeParameters, tvTp.lowerType, tvTp.upperType)
+        }
 
         val typeConstructor =
           ScTypePolymorphicType(
@@ -97,9 +113,21 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
             abstractedTypeParams
           )
 
-        addBound(conformance.constraints, typeConstructor)
-      } else conformance
-    } else ConstraintsResult.Left
+        val constraintsWithBound = addBound(conformance.constraints, typeConstructor)
+
+        UnificationResult.Success(constraintsWithBound)
+      } else UnificationResult.Success(conformance)
+    } else UnificationResult.Failure
+  }
+
+  private[this] def checkTypeConstructorParameterBounds(
+    lhsTypeParams:        Seq[TypeParameter],
+    abstractedTypeParams: Seq[TypeParameter]
+  ): Boolean = {
+    lhsTypeParams.zip(abstractedTypeParams).forall { case (lhsTparam, abstractedTypeParam) =>
+      lhsTparam.upperType.conforms(abstractedTypeParam.upperType) &&
+        abstractedTypeParam.lowerType.conforms(lhsTparam.lowerType)
+    }
   }
 
   /**
@@ -115,6 +143,8 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     boundKind:   Bound,
     visited:     Set[PsiClass],
     checkWeak:   Boolean
+  )(implicit
+    context: Context
   ): ConstraintsResult = {
     import SmartSuperTypeUtil.TraverseSupers._
 
@@ -127,8 +157,10 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
               case ptpe: ParameterizedType =>
                 val tryUnify = unifyTypeVariable(hkTv, ptpe, constraints, boundKind, visited, checkWeak)
                 tryUnify match {
-                  case ConstraintsResult.Left => ProcessParents
-                  case unified                => unificationConstraints = unified; Stop
+                  case UnificationResult.TypeParameterBoundViolated =>
+                    unificationConstraints = ConstraintsResult.Left; Stop
+                  case UnificationResult.Failure => ProcessParents
+                  case UnificationResult.Success(unified) => unificationConstraints = unified; Stop
                 }
               case _ => ProcessParents
             }
@@ -151,14 +183,18 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     boundKind:   Bound,
     visited:     Set[PsiClass],
     checkWeak:   Boolean
+  )(implicit
+    context: Context
   ): ConstraintsResult =
     unifyTypeVariable(hkTv, tpe, constraints, boundKind, visited, checkWeak) match {
-      case ConstraintsResult.Left => tpe match {
-        case AliasType(_, Right(lower: ParameterizedType), _, _) =>
-          unifyHK(hkTv, lower, constraints, boundKind, visited, checkWeak)
-        case _ => tryUnifyParent(hkTv, tpe, constraints, boundKind, visited, checkWeak)
-      }
-      case unified => unified
+      case UnificationResult.TypeParameterBoundViolated => ConstraintsResult.Left
+      case UnificationResult.Failure =>
+        tpe match {
+          case AliasType(_, Right(lower: ParameterizedType), _, _) =>
+            unifyHK(hkTv, lower, constraints, boundKind, visited, checkWeak)
+          case _ => tryUnifyParent(hkTv, tpe, constraints, boundKind, visited, checkWeak)
+        }
+      case UnificationResult.Success(constraints) => constraints
     }
 }
 
@@ -186,4 +222,13 @@ object TypeVariableUnification {
       case (l, r) => unifiableKinds(l.typeParameters, r.typeParameters)
     }
   }
+
+  private sealed trait UnificationResult
+
+  private object UnificationResult {
+    case object TypeParameterBoundViolated              extends UnificationResult
+    case object Failure                                 extends UnificationResult
+    case class  Success(constraints: ConstraintsResult) extends UnificationResult
+  }
+
 }
