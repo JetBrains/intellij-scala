@@ -85,8 +85,7 @@ class SbtSettingsCollector extends ProjectUsagesCollector {
 
 //noinspection UnstableApiUsage
 private object SbtSettingsCollector {
-  // The group name was chosen to be unified with GradleSettingsCollector.GROUP
-  private val Group = new EventLogGroup("build.sbt.state", 1) // TODO: SCL-24479
+  private val Group = new EventLogGroup("scala.sbt.state", 1) // TODO: SCL-24479
 
   locally {
     //initialize the fields eagerly in order scheme generation works
