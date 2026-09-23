@@ -1,0 +1,39 @@
+Document tests/pos/i24414/CloudEventKey_2.scala
+(1:30..1:41) _empty_/RefinedType# -> 12:7
+(1:42..1:48) scala/Predef.String#
+(1:50..1:60) _empty_/MessageKey# -> 3:13
+
+Document tests/pos/i24414/Lib_1.scala
+(3:20..3:27) scala/Boolean#
+(5:44..5:51) scala/Boolean#
+(7:46..7:56) _empty_/Constraint# -> 2:7
+(7:57..7:58) _empty_/RuntimeConstraint.fromConstraint().[A] -> 7:31
+(7:60..7:61) _empty_/RuntimeConstraint.fromConstraint().[C] -> 7:34
+(7:65..7:82) _empty_/RuntimeConstraint# -> 5:13
+(7:83..7:84) _empty_/RuntimeConstraint.fromConstraint().[A] -> 7:31
+(7:86..7:87) _empty_/RuntimeConstraint.fromConstraint().[C] -> 7:34
+(8:9..8:26) _empty_/RuntimeConstraint# -> 5:13
+(8:27..8:28) _empty_/RuntimeConstraint.fromConstraint().[A] -> 7:31
+(8:30..8:31) _empty_/RuntimeConstraint.fromConstraint().[C] -> 7:34
+(8:33..8:34) _empty_/RuntimeConstraint.fromConstraint().(c) -> 7:43
+(8:35..8:39) _empty_/Constraint#test(). -> 3:14
+(10:40..10:57) _empty_/RuntimeConstraint# -> 5:13
+(10:58..10:59) _empty_/Refined#[A] -> 10:22
+(10:61..10:62) _empty_/Refined#[C] -> 10:25
+(12:33..12:40) _empty_/Refined# -> 10:14
+(12:41..12:42) _empty_/RefinedType#[A] -> 12:19
+(12:44..12:45) _empty_/RefinedType#[C] -> 12:22
+
+Document tests/pos/i24414/MessageKey_2.scala
+(1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
+(6:16..6:26) _empty_/Constraint# -> 2:7
+(6:27..6:33) scala/Predef.String#
+(6:35..6:45) _empty_/MessageKey# -> 3:13
+(7:31..7:38) scala/Boolean#
+(7:44..7:49) _empty_/MessageKey.check(). -> 9:7
+(9:21..9:27) scala/quoted/Quotes#
+(9:30..9:34) scala/quoted/Expr#
+(9:35..9:42) scala/Boolean#
+(9:46..9:50) scala/quoted/Expr.
+

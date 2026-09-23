@@ -1,0 +1,18 @@
+Document tests/pos/i25947.scala
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:38) scala/language.reflectiveCalls.
+(6:5..6:11) scala/AnyRef#
+(6:35..6:40) scala/Array#
+(6:41..6:45) scala/Byte#
+(6:49..6:53) scala/Unit#
+(8:19..8:25) scala/AnyRef#
+(8:34..8:39) scala/Array#
+(8:40..8:44) scala/Byte#
+(8:48..8:52) scala/Unit#
+(9:5..9:10) _empty_/Repro.call().(value) -> 8:12
+(9:11..9:23) scala/Any#asInstanceOf().
+(9:24..9:37) _empty_/Repro.WithNextBytes# -> 5:16
+(9:39..9:48) scala/reflect/Selectable#applyDynamic().
+(9:49..9:54) _empty_/Repro.call().(bytes) -> 8:27
+
