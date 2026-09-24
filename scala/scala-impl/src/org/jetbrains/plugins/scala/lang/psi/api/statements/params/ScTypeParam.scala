@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPoly
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 
 trait ScTypeParam extends ScNamedElement with ScPolymorphicElement with PsiTypeParameterAdapter with ScAnnotationsHolder {
-  val typeParamId: Long
+  def typeParamId: Long
 
   def isCovariant: Boolean
 

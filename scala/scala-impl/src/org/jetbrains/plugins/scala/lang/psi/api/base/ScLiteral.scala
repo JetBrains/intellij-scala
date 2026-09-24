@@ -70,7 +70,7 @@ object ScLiteral {
 
   private[psi] abstract class NumericCompanion[L <: Numeric] {
 
-    final def unapply(literal: L): Option[L#T] = literal.getValue match {
+    final def unapply(literal: L): Option[literal.T] = literal.getValue match {
       case null => None
       case value => Some(literal.unwrappedValue(value))
     }

@@ -87,9 +87,12 @@ class DerevoInjector extends SyntheticMembersInjector {
 
         implicit val ctx: ProjectContext = c.projectContext
 
+        def withComponents(components: Seq[ScType]): ScType =
+          ScCompoundType(components, c.signatureMap, c.typesMap, c.forceRefinement)
+
         c.components.size match {
-          case 0 | 1 => fc + " " + c.copy(components = Nil).canonicalText
-          case _ => fc + " with " + c.copy(components = c.components.drop(1)).canonicalText
+          case 0 | 1 => fc + " " + withComponents(Nil).canonicalText
+          case _ => fc + " with " + withComponents(c.components.drop(1)).canonicalText
         }
       }
 

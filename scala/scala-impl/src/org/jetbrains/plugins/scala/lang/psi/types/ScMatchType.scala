@@ -24,7 +24,7 @@ import scala.collection.immutable.{ArraySeq, SeqMap}
 import scala.util.control.NoStackTrace
 
 
-case class ScMatchType private (
+case class ScMatchType(
   scrutinee:  ScType,
   cases:      Seq[MatchTypeCase],
   upperBound: Option[ScType]

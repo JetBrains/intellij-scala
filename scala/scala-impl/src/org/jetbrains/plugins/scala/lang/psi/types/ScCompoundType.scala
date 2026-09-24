@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
  */
 final case class ScCompoundType private (
   components:      Seq[ScType],
-  signatureMap:    Map[TermSignature, ScType]      = Map.empty,
-  typesMap:        Map[String, TypeAliasSignature] = Map.empty,
-  forceRefinement: Boolean                         = false
+  signatureMap:    Map[TermSignature, ScType],
+  typesMap:        Map[String, TypeAliasSignature],
+  forceRefinement: Boolean,
 )(implicit
   override val projectContext: ProjectContext
 ) extends ScalaType with api.ValueType {

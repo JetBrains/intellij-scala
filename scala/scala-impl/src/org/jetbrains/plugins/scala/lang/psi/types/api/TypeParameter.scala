@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
   * lowerType and upperType sometimes should be lazy, see SCL-7216
   */
 sealed trait TypeParameter {
-  val psiTypeParameter: PsiTypeParameter
+  def psiTypeParameter: PsiTypeParameter
   val typeParameters: Seq[TypeParameter]
 
   def lowerType: ScType
@@ -88,7 +88,7 @@ object TypeParameter {
                               override val upperType: ScType) extends TypeParameter
 
   private case class ScalaTypeParameter(override val psiTypeParameter: ScTypeParam) extends TypeParameter {
-    override val typeParameters: Seq[TypeParameter] = psiTypeParameter.typeParameters.map(ScalaTypeParameter)
+    override val typeParameters: Seq[TypeParameter] = psiTypeParameter.typeParameters.map(ScalaTypeParameter.apply)
 
     override def lowerType: ScType = psiTypeParameter.lowerBound.getOrNothing
 

@@ -50,7 +50,7 @@ object Common {
     "-Ytasty-reader",
     "-Wunused:nowarn",
     "-Xsource:3",
-    "-Xsource-features:eta-expand-always",
+    "-Xsource-features:eta-expand-always,case-apply-copy-access",
     "-Wconf:cat=scala3-migration:w",
     // NOTE: we agreed to disable "fatal warnings" in Scala Plugin repo after an exhaustive discussion in the team.
     // They are useful as code-quality signal, but treating them as compilation errors is not convenient in practice.

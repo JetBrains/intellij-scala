@@ -28,7 +28,7 @@ package object implicits {
   }
 
   class ShortcutManager {
-    case class ManagedShortcut private(shortCut: Shortcut)
+    case class ManagedShortcut private[ShortcutManager](shortCut: Shortcut)
 
     private val allShortCuts = mutable.Buffer.empty[Shortcut]
 

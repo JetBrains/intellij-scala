@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 
-final case class ScTypePolymorphicType private (
+final case class ScTypePolymorphicType(
   internalType: ScType,
   typeParameters: Seq[TypeParameter],
   // TODO: a dirty hack parameter, created in order ScalaTypePresentation.typeText generates proper text
