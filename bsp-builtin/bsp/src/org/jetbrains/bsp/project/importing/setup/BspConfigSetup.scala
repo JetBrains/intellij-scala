@@ -12,7 +12,6 @@ import java.util.UUID
 import scala.util.Try
 
 abstract class BspConfigSetup {
-  def cancel(): Unit
   /**
    * Since `BspConfigSetup` can be run as part of the import and build process, it’s necessary to keep in mind:
    *  - Proper indicator handling to allow the `BspConfigSetup` task to be canceled
@@ -31,9 +30,6 @@ abstract class BspConfigSetup {
  * Provides common logic for running BSP installation commands.
  */
 abstract class CommandBasedBspConfigSetup(workspace: Path) extends BspConfigSetup {
-
-  private var currentIndicator: Option[ProgressIndicator] = None
-
   /** The name of the build server (e.g., "Mill", "Scala CLI"). Used in progress messages. */
   protected def serverName: String
 
@@ -60,22 +56,9 @@ abstract class CommandBasedBspConfigSetup(workspace: Path) extends BspConfigSetu
   /** Returns the command to run for BSP installation. */
   protected def installCommand(workspace: Path, indicator: ProgressIndicator, target: Option[ConnectionTarget]): Try[Seq[String]]
 
-  override def cancel(): Unit = {
-    currentIndicator.foreach { indicator =>
-      if (!indicator.isCanceled)
-        indicator.cancel()
-    }
-    currentIndicator = None
-  }
-
   override def run(indicator: ProgressIndicator, targetConnectionFileName: Option[String])(implicit reporter: BuildReporter): Try[BuildMessages] =
-    try {
-      currentIndicator = Some(indicator)
-      val target = targetConnectionFileName.flatMap(resolveConnectionTarget)
-      bspInstall(workspace, indicator, target)
-    } finally {
-      currentIndicator = None
-    }
+    val target = targetConnectionFileName.flatMap(resolveConnectionTarget)
+    bspInstall(workspace, indicator, target)
 
   override def run(indicator: ProgressIndicator)(implicit reporter: BuildReporter): Try[BuildMessages] =
     run(indicator, targetConnectionFileName = None)

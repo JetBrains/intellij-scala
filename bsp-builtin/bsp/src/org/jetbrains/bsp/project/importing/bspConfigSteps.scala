@@ -290,9 +290,6 @@ object BspSetupConfigStep {
       val reporter = new IndicatorReporter(indicator)
       setup.run(indicator)(using reporter)
     }
-
-    override def onCancel(): Unit =
-      setup.cancel()
   }
 }
 

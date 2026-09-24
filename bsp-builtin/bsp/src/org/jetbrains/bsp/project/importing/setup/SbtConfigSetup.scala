@@ -20,7 +20,6 @@ class SbtConfigSetup(runInit: (SbtRunner, ProgressIndicator, BuildReporter) => T
   extends BspConfigSetup {
   private val runner = new SbtRunner()
 
-  override def cancel(): Unit = runner.cancel()
   override def run(indicator: ProgressIndicator)(implicit reporter: BuildReporter): Try[BuildMessages] =
     runInit(runner, indicator, reporter)
 }
