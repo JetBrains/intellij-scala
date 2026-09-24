@@ -905,7 +905,14 @@ object AfterUpdateDottyVersionScript {
         |specialized-trait-inlining-causes-implementation-required.scala
         |inline-trait-object-not-primitive.scala
         |inline-trait-signature-parameters-using-nameless.scala
-        |
+        |specialized-trait-partial-specialization-with-body.scala
+        |26887.scala
+        |specialized-trait-supercall-non-overridden.scala
+        |specialized-trait-partial-specialization.scala
+        |inline-trait-private-nested-inline-must-delete.scala
+        |inline-trait-body-def-context-bound.scala
+        |tailrec-synchronized.scala
+        |        |
         |# release-3.3.9
         |i25866b.scala
         |""".stripMargin.trim
