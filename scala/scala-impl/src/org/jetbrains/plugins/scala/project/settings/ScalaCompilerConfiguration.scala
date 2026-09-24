@@ -35,10 +35,7 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
    * ATTENTION!
    *
    * This setting is scoped to the IDEA project level, which causes incorrect behavior
-   * when multiple sbt projects are linked within a single IDEA project. Each linked
-   * project has its own `SbtProjectSettings#separateProdAndTestSources`,
-   * meaning one project may be imported with main/test separation while another is not.
-   * However, this field is shared across the entire IDEA project. As a result, the last
+   * when multiple sbt projects are linked within a single IDEA project. The last
    * imported sbt project overwrites the value in this field (it happens in
    * `SbtProjectDataService#updateSeparateProdTestSources`).
    * This leads to a problem where, for example, a project imported with main/test

@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.conversion.copy.plainText
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.SlowTests2
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.{ExternalSystemImportRootOptions, TestProjectCopyOptions}
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -106,7 +108,7 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
 
   private def autoCreatePluginSbtFile(isMainTestEnabled: Boolean): Unit = {
     TestProjectName = "autoCreatePluginSbtFile"
-    getCurrentExternalProjectSettings.separateProdAndTestSources = isMainTestEnabled
+    Registry.get(SbtProjectSettings.SeparateMainTestModulesRegistryKey).setValue(isMainTestEnabled, getTestRootDisposable)
     importProject(false)
 
     doPasteToDirectoryTest("project", PastedComplexCodeWithAddSbtPlugin, "plugins.sbt")

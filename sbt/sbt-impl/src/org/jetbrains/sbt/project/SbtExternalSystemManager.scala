@@ -11,6 +11,7 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, JdkUtil, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.{Pair, SystemInfo}
 import com.intellij.util.Function
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
@@ -107,7 +108,8 @@ object SbtExternalSystemManager {
     val projectJdkName = bootstrapJdk(project, projectSettings)
     val vmExecutable = getVmExecutable(project, projectJdkName, settingsState, sbtVersion)
     val jreHome = Option(vmExecutable.getParent).flatMap(p => Option(p.getParent))
-    val vmOptions = getVmOptions(settingsState, jreHome, projectSettings.separateProdAndTestSources)
+    val separateProdTestSources = Registry.is(SbtProjectSettings.SeparateMainTestModulesRegistryKey)
+    val vmOptions = getVmOptions(settingsState, jreHome, separateProdTestSources)
     val parsedSbtOptions = SbtProcessOptionsResolver.parseSbtOptionsFromSettings(settings.sbtOptions)
 
     new SbtExecutionSettings(
@@ -127,7 +129,7 @@ object SbtExternalSystemManager {
       userSetEnvironment = settingsState.sbtEnvironment.asScala.toMap,
       passParentEnvironment = settingsState.sbtPassParentEnvironment,
       useSeparateCompilerOutputPaths = projectSettings.useSeparateCompilerOutputPaths,
-      separateProdTestSources = projectSettings.separateProdAndTestSources,
+      separateProdTestSources = separateProdTestSources,
       generateManagedSourcesDuringProjectSync = projectSettings.generateManagedSourcesDuringProjectSync,
       sbtVersion = sbtVersion
     )

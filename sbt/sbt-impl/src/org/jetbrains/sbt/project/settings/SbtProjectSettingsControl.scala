@@ -17,7 +17,6 @@ import com.intellij.util.ui.{GridBag, JBUI}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.project.external.SdkUtils
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.survey.SeparateMainTestModulesDisabledFeedback
 
 import java.awt.{FlowLayout, GridBagConstraints}
 import javax.swing.*
@@ -40,8 +39,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   }
 
   private val extraControls = new SbtExtraControls()
-
-  private var separateMainTestSourcesShowFeedbackNotification = false
 
   override def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int): Unit = {
     val labelConstraints = getLabelConstraints(indentLevel)
@@ -82,7 +79,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
       extraControls.scalaVersionPreferenceCheckBox.isSelected != settings.preferScala2 ||
       extraControls.useSeparateCompilerOutputPaths.isSelected != settings.useSeparateCompilerOutputPaths ||
-      extraControls.separateProdTestModules.isSelected != settings.separateProdAndTestSources ||
       extraControls.generateManagedSourcesDuringProjectSync.isSelected != settings.generateManagedSourcesDuringProjectSync
   }
 
@@ -104,7 +100,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.remoteDebugSbtShellCheckBox.setSelected(settings.enableDebugSbtShell)
     extraControls.scalaVersionPreferenceCheckBox.setSelected(settings.preferScala2)
     extraControls.useSeparateCompilerOutputPaths.setSelected(settings.useSeparateCompilerOutputPaths)
-    extraControls.separateProdTestModules.setSelected(settings.separateProdAndTestSources)
     extraControls.generateManagedSourcesDuringProjectSync.setSelected(settings.generateManagedSourcesDuringProjectSync)
     extraControls.refreshCheckboxesConstraints()
   }
@@ -116,15 +111,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     reloadProjectIfNeeded(shouldReload, getProject)
   }
 
-  override def disposeUIResources(): Unit = {
-    super.disposeUIResources()
-
-    val project = getProject
-    if (separateMainTestSourcesShowFeedbackNotification && project != null) {
-      SeparateMainTestModulesDisabledFeedback.showNotification(project)
-    }
-  }
-
   override protected def applyExtraSettings(settings: SbtProjectSettings): Unit = {
     settings.converterVersion = extraControls.converterVersion
     settings.jdk = selectedJdkName.orNull
@@ -133,21 +119,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.useSbtShellForImport = extraControls.useSbtShellForImportCheckBox.isSelected
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
     settings.preferScala2 = extraControls.scalaVersionPreferenceCheckBox.isSelected
-
-    // The #getInitialSettings is used for 'separateProdAndTestSourcesChanged' because whenever the user clicks Apply/OK in the UI settings,
-    // the #applyExtraSettings method is called with a brand new `SbtProjectSettings` instance, which is then overridden with values from the control.
-    // If we compared the default value of `SbtProjectSettings.separateProdAndTestSources` with the value from the control,
-    // then, if the user upgraded the settings, 'separateProdAndTestSourcesChanged' would be 'false',
-    // as the value from the control ('true') would match the default value of 'SbtProjectSettings.separateProdAndTestSources' ('true').
-    val separateProdAndTestSourcesChanged = getInitialSettings.separateProdAndTestSources != extraControls.separateProdTestModules.isSelected
-    if (separateProdAndTestSourcesChanged) {
-      if (context == Context.Configuration) {
-        separateMainTestSourcesShowFeedbackNotification = !extraControls.separateProdTestModules.isSelected
-      }
-      settings.separateProdAndTestSourcesIsExplicit = separateProdAndTestSourcesChanged
-    }
-
-    settings.separateProdAndTestSources = extraControls.separateProdTestModules.isSelected
     settings.useSeparateCompilerOutputPaths = extraControls.useSeparateCompilerOutputPaths.isSelected
     settings.generateManagedSourcesDuringProjectSync = extraControls.generateManagedSourcesDuringProjectSync.isSelected
 
@@ -174,8 +145,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)
 
   private def shouldReloadProject(settings: SbtProjectSettings): Boolean =
-    settings.useSeparateCompilerOutputPaths != extraControls.useSeparateCompilerOutputPaths.isSelected ||
-      settings.separateProdAndTestSources != extraControls.separateProdTestModules.isSelected
+    settings.useSeparateCompilerOutputPaths != extraControls.useSeparateCompilerOutputPaths.isSelected
 
   private def fillLineAndColumnConstraints(indentLevel: Int): GridBag = {
     val insets = JBUI.insets(INSETS, INSETS + INSETS * indentLevel, 0, INSETS)

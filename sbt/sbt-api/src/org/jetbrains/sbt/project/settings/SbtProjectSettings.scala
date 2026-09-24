@@ -8,7 +8,6 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings.canonical
 import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
  * Represents multiple kinds of SBT settings: (per single imported sbt project)
@@ -70,21 +69,6 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var generateManagedSourcesDuringProjectSync: Boolean = true
 
-  /**
-   * Represents whether [[SbtProjectSettings.separateProdAndTestSources]] setting was explicitly configured either through
-   * user interaction or system configuration (e.g., during New Project Wizard initialization)
-   */
-  @BeanProperty
-  var separateProdAndTestSourcesIsExplicit: Boolean = false
-
-  /**
-   * IMPORTANT: Don't change the default value directly. If there is a need to manipulate its value to modify:
-   *  - [[SbtProjectSettings.DefaultSeparateProdAndTestSources]]
-   *  - [[org.jetbrains.sbt.project.SbtProjectManagerListener.execute]]
-   * */
-  @BeanProperty
-  var separateProdAndTestSources: Boolean = true
-
   //SBT shell settings
   @BeanProperty var useSbtShellForImport: Boolean = false
   @BeanProperty var useSbtShellForBuild: Boolean = false
@@ -119,43 +103,25 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.enableDebugSbtShell = enableDebugSbtShell
     result.preferScala2 = preferScala2
     result.useSeparateCompilerOutputPaths = useSeparateCompilerOutputPaths
-    result.separateProdAndTestSources = separateProdAndTestSources
-    result.separateProdAndTestSourcesIsExplicit = separateProdAndTestSourcesIsExplicit
     result
   }
 }
 
 object SbtProjectSettings {
   /**
-   * The default value for separate main and test modules setting.
-   * This constant allows the default value of [[SbtProjectSettings.separateProdAndTestSources]] to be adjusted programmatically in a more controlled manner.
+   * The registry key which enables creating separate modules for main and test sources.
    *
-   * This value is effectively used for:
-   *  - projects where [[SbtProjectSettings.separateProdAndTestSources]] was not explicit
-   * (see [[org.jetbrains.sbt.project.SbtProjectManagerListener.execute]])
-   *  - new projects, except those created via New Project Wizards where the setting is always enabled
+   * The mode is enabled by default. The key is a last-resort switch to the legacy modules layout,
+   * which is not supported anymore and will be removed.
    */
-  val DefaultSeparateProdAndTestSources = true
+  final val SeparateMainTestModulesRegistryKey = "sbt.separate.main.test.modules"
+
   // Increment if the converter algorithm is updated to trigger a reloading of previously opened projects.
   val ConverterVersion = 2
 
   def default: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
-    settings.separateProdAndTestSources = DefaultSeparateProdAndTestSources
     settings.converterVersion = ConverterVersion
-    settings
-  }
-
-  /**
-   * Create a [[SbtProjectSettings]] used in the NPWs
-   */
-  def defaultForNewProjectWizard: SbtProjectSettings = {
-    val settings = new SbtProjectSettings()
-    settings.converterVersion = ConverterVersion
-    // Prevent the algorithm in org.jetbrains.sbt.project.SbtProjectManagerListener.execute
-    // from overriding the explicitly set value
-    settings.separateProdAndTestSourcesIsExplicit = true
-    settings.separateProdAndTestSources = true
     settings
   }
 
@@ -168,11 +134,6 @@ object SbtProjectSettings {
   def `for`(project: Project, externalRootPath: String): Option[SbtProjectSettings] = {
     val settings = SbtSettings.getInstance(project)
     Option(settings.getLinkedProjectSettings(externalRootPath))
-  }
-
-  def allForProject(project: Project): Seq[SbtProjectSettings] = {
-    val settings = SbtSettings.getInstance(project)
-    settings.getLinkedProjectsSettings.asScala.toSeq
   }
 
   private def canonical(path: String) =

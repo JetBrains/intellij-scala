@@ -1,8 +1,5 @@
 <idea-plugin>
     <extensionPoints>
-        <extensionPoint qualifiedName="com.intellij.sbt.configurationDetailsExtractor"
-                        interface="org.jetbrains.sbt.project.extensionPoints.ModuleBasedConfigurationDetailsExtractor"
-                        dynamic="true"/>
         <extensionPoint qualifiedName="com.intellij.newProjectWizard.scala.buildSystem" interface="org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.autolink.SbtUnlinkedProjectAwareHelper" dynamic="true"/>
         <extensionPoint qualifiedName="org.jetbrains.sbt.buildToolModuleHandler" interface="org.jetbrains.sbt.project.BuildToolModuleHandler" dynamic="true"/>
@@ -15,13 +12,7 @@
 
     <!--suppress PluginXmlValidity -->
     <projectListeners>
-        <listener class="org.jetbrains.sbt.project.UpdateConfigurationImportListener"
-                  topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
-        <listener class="org.jetbrains.sbt.project.SeparateMainTestModulesNotificationListener"
-                  topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
         <listener class="org.jetbrains.sbt.project.GeneratedManagedSourcesImportListener"
-                  topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
-        <listener class="org.jetbrains.sbt.project.LegacyModulesLayoutNotifications$LegacyModulesLayoutNotificationListener"
                   topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"/>
 
         <listener topic="com.intellij.openapi.roots.ModuleRootListener"
@@ -102,10 +93,7 @@
                     doNotActivateOnStart="true"/>
         <externalSystemSettingsListener implementation="org.jetbrains.sbt.project.ShowSbtShellAfterCreatingNewProject"/>
 
-        <notificationGroup id="sbt.configuration.migration" displayType="STICKY_BALLOON" bundle="messages.SbtBundle" key="sbt.configuration.upgrade.id"/>
         <notificationGroup id="sbt.legacy.version.detected" displayType="STICKY_BALLOON" bundle="messages.SbtBundle" key="sbt.notification.group.id.legacy.version.detected"/>
-        <notificationGroup id="sbt.legacy.modules.layout" displayType="STICKY_BALLOON" bundle="messages.SbtBundle" key="sbt.notification.group.id.legacy.modules.layout"/>
-        <notificationGroup id="sbt.main.test.modules.enabled" displayType="BALLOON" bundle="messages.SbtBundle" key="sbt.main.test.modules.enabled.id"/>
 
         <psi.referenceContributor language="sbt" implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 
@@ -175,9 +163,6 @@
         <registryKey key="SBT.system.in.process" defaultValue="true" restartRequired="true"
                      description="Internal, do not change"/>
 
-        <registryKey key="sbt.configuration.update.suggestion" defaultValue="true" restartRequired="false"
-                     description="If enabled, the information to update configurations is displayed as a suggestion and remains in the tool window until all configurations have been migrated."/>
-
         <registryKey key="sbt.new.shell" defaultValue="false" restartRequired="false"
                      description="If enabled, new, terminal-like sbt shell implementation is used. It will apply only to new shell instances and only with sbt >= 1.4.0."/>
 
@@ -186,6 +171,10 @@
                      When enabled, the `sbt-task-timings` plugin (https://github.com/JetBrains/sbt-task-timings) is injected into the sbt during sync.
                      After each command the plugin writes an aggregated JSON timing report and a Chrome Trace Event timeline and prints their paths into the output.
                      The plugin is resolved from the build's resolvers, so an internet connection may be needed on the first sync."/>
+
+        <registryKey key="sbt.separate.main.test.modules" defaultValue="true" restartRequired="false"
+                     description="When disabled, sbt projects are imported with the legacy modules layout, i.e. without separate modules for main and test sources.
+                     Takes effect on the next project reload. The legacy modules layout is not supported anymore and will be removed."/>
 
         <registryKey key="sbt.shell.import.old" defaultValue="false" restartRequired="false"
                      description="Use old sbt shell import mechanism with `set` command instead of modifying system properties."/>
@@ -210,14 +199,6 @@
     </extensions>
 
     <actions>
-        <group id="ScalaGroup" popup="true" class="org.jetbrains.sbt.actions.ScalaActionsGroup" text="Scala">
-            <add-to-group group-id="ToolsMenu" anchor="before" relative-to-action="ExternalToolsGroup"/>
-        </group>
-
-        <action id="Scala.Sbt.MigrateConfigurations" class="org.jetbrains.sbt.project.SbtMigrateConfigurationsAction">
-                <add-to-group group-id="ScalaGroup"/>
-        </action>
-
         <action id="Scala.Sbt.RunTask" class="org.jetbrains.sbt.shell.action.RunTaskAction"/>
         <action id="Scala.Sbt.ShowTask" class="org.jetbrains.sbt.shell.action.ShowTaskAction"/>
         <action id="Scala.Sbt.InspectTask" class="org.jetbrains.sbt.shell.action.InspectTaskAction"/>

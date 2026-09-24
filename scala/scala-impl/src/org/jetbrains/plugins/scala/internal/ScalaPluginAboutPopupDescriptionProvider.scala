@@ -97,7 +97,6 @@ class ScalaPluginAboutPopupDescriptionProvider extends AboutPopupDescriptionProv
         SettingLabels.ResolveClassifiers -> (_.resolveClassifiers),
         SettingLabels.ResolveSbtClassifiers -> (_.resolveSbtClassifiers),
 
-        SettingLabels.SeparateProdAndTestSources -> (_.separateProdAndTestSources),
         SettingLabels.UseSeparateCompilerOutputPaths -> (_.useSeparateCompilerOutputPaths),
         SettingLabels.OpenCrossCompiledScala3AsScala2 -> (_.preferScala2),
 
@@ -258,7 +257,6 @@ object ScalaPluginAboutPopupDescriptionProvider {
 
     //sbt project settings (Settings | Build, Execution, Deployment | Build Tools | sbt)
     val OpenCrossCompiledScala3AsScala2 = "open.cross.compiled.scala3.as.scala2"
-    val SeparateProdAndTestSources = "separate.prod.and.test.sources"
     val UseSeparateCompilerOutputPaths = "use.separate.compiler.output.paths"
     val ResolveClassifiers = "resolve.classifiers"
     val ResolveSbtClassifiers = "resolve.sbt.classifiers"

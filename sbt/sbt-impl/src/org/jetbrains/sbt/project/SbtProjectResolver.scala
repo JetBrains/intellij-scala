@@ -301,10 +301,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     } else {
       LegacySbtVersionBuildToolWindowWarning.warnForBuildToolWindowIfNeeded(project, projectRoot, sbtVersion, reporter)
 
-      if (!settings.separateProdTestSources) {
-        LegacyModulesLayoutNotifications.warnForBuildToolWindow(reporter)
-      }
-
       if (context.isImportTimeMeasurementEnabled) {
         informAboutImportTimingEnabled(reporter)
       }
