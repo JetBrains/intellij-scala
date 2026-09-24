@@ -80,7 +80,7 @@ object TypeConstructorDiff {
     val subjectLowerType = subjectParam.lowerType
     val lowerBoundLeaf: String => List[Tree[TypeConstructorDiff]] = {
       val otherLowerType = otherParam.lowerType
-      val list = listIf[Tree[TypeConstructorDiff]](!subjectLowerType.isNothing || !otherLowerType.isNothing) _
+      val list = listIf[Tree[TypeConstructorDiff]](!subjectLowerType.isNothing || !otherLowerType.isNothing)
       if (subjectLowerType.isNothing) _ => list(aMatch(""))
       else if (!conformance(substitute(subjectLowerType), substitute(otherLowerType))) str => list(aMismatch(str))
       else str => list(aMatch(str))
@@ -89,7 +89,7 @@ object TypeConstructorDiff {
     val subjectUpperType = subjectParam.upperType
     val upperBoundLeaf: String => List[Tree[TypeConstructorDiff]] = {
       val otherUpperType = otherParam.upperType
-      val list = listIf[Tree[TypeConstructorDiff]](!subjectUpperType.isAny || !otherUpperType.isAny) _
+      val list = listIf[Tree[TypeConstructorDiff]](!subjectUpperType.isAny || !otherUpperType.isAny)
       if (subjectUpperType.isAny) _ => list(aMatch(""))
       else if (!conformance(substitute(otherUpperType), substitute(subjectUpperType))) str => list(aMismatch(str))
       else str => list(aMatch(str))

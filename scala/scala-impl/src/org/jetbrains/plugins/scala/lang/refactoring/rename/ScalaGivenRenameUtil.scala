@@ -75,7 +75,7 @@ object ScalaGivenRenameUtil {
       if (!ScalaRenameUtil.isAliased(reference) && reference.isReferenceTo(renamedElement)) newNameOfRenamedElement
       else reference.refName
 
-    ScalaPsiUtil.generateGivenName(ScalaPsiUtil.givenNameTypeElements(anonymousGiven), nameOf _)
+    ScalaPsiUtil.generateGivenName(ScalaPsiUtil.givenNameTypeElements(anonymousGiven), nameOf)
   }
 
   /**

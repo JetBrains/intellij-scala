@@ -47,7 +47,7 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
       }
     } else {
       val node = parent.getNode
-      val remove = node.removeChild _
+      val remove = node.removeChild
       val next = getNextSibling
       if (next != null) {
         def removeWhitespaceAfterComma(comma: ASTNode): Unit = {

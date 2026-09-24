@@ -28,7 +28,7 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
 
   private val alignmentLines: Seq[AlignmentLine] = {
     val lineToHintMapping = hints.groupBy(_.line(document)).view.mapValues(_.head)
-    val lineHasHint = lineToHintMapping.contains _
+    val lineHasHint = lineToHintMapping.contains
 
     val firstLine = hints.head.line(document)
     val lastLine = hints.last.line(document)

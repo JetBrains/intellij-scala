@@ -117,10 +117,10 @@ class ScalaSigPrinter(builder: StringBuilder) {
           }
         case c: ClassSymbol if !refinementClass(c) && !c.isModule =>
           printSymbolAttributes(c, onNewLine = true, indent())
-          printClass(level, c, indent _)
+          printClass(level, c, (() => indent()))
         case m: MethodSymbol =>
           printSymbolAttributes(m, onNewLine = true, indent())
-          printMethod(level, m, indent _)
+          printMethod(level, m, (() => indent()))
         case a: AliasSymbol =>
           printSymbolAttributes(a, onNewLine = true, indent())
           indent()

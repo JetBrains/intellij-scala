@@ -32,7 +32,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedDeclarationInspectio
        |  test$argsPlaceholder
        |}
     """.stripMargin
-  ) _
+  )
 
   private val doConstructorParameterTest = doParamTest(
     s"""
@@ -50,7 +50,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedDeclarationInspectio
        |  new Test$argsPlaceholder
        |}
     """.stripMargin
-  ) _
+  )
 
   private def doTest(beforeClause: String, afterClause: String, argsBefore: String, argsAfter: String): Unit = {
     doFunctionParameterTest(beforeClause, afterClause, argsBefore, argsAfter)

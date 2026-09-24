@@ -197,8 +197,8 @@ private object SpecialSyntheticMethodsTransformation {
   private type TransformF = ScalaDfaControlFlowBuilder => (ScSyntheticFunction, InvocationInfo) => StackValue
   private def sig(args: Int)(classes: IterableOnce[String], functionNames: IterableOnce[String], target: TransformF): Iterator[((Int, String, String), TransformF)] =
     classes.iterator.flatMap(clazz => functionNames.iterator.map(f => ((args, clazz, f), target)))
-  private val binary = sig(2) _
-  private val unary = sig(1) _
+  private val binary = sig(2)
+  private val unary = sig(1)
 
   private val syntheticTransformations: Map[(Int, String, String), TransformF] = Map.from(
     binary(NumericPrimitives, NumericBinary.keys, _.transformBinaryNumericOperator) ++

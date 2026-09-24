@@ -107,8 +107,8 @@ abstract class OperationOnCollectionInspectionBase extends LocalInspectionTool {
 
   private val setPatternLists = {
     Map(
-      likeCollectionKey -> setLikeCollectionClasses _,
-      likeOptionKey -> setLikeOptionClasses _
+      likeCollectionKey -> setLikeCollectionClasses,
+      likeOptionKey -> setLikeOptionClasses
     )
   }
 

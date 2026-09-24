@@ -36,12 +36,12 @@ class ScalaTestSingleTestLocationFinderOld(
 
     //noinspection ConvertibleToMethodValue
     val suitsWithFinders: Seq[(Seq[String], String => Option[String])] = Seq(
-      (funSuiteBases, checkFunSuite _),
-      (featureSpecBases, checkFeatureSpec _),
-      (freeSpecBases, checkFreeSpec _),
-      (JUnit3SuiteBases, checkJUnit3Suite _),
-      (JUnitSuiteBases, checkJUnitSuite _),
-      (propSpecBases, checkPropSpec _),
+      (funSuiteBases, checkFunSuite),
+      (featureSpecBases, checkFeatureSpec),
+      (freeSpecBases, checkFreeSpec),
+      (JUnit3SuiteBases, checkJUnit3Suite),
+      (JUnitSuiteBases, checkJUnitSuite),
+      (propSpecBases, checkPropSpec),
       /**
        * //TODO: actually implement checkSpec for scalatest 2.0 Spec
        * checkSpec("org.scalatest.Spec") ++
@@ -50,13 +50,13 @@ class ScalaTestSingleTestLocationFinderOld(
        * checkSpec("org.scalatest.fixture.SpecLike") ++
        */
       //this is intended for scalatest versions < 2.0
-      (funSpecBasesPre2_0, checkFunSpec _),
+      (funSpecBasesPre2_0, checkFunSpec),
       //this is intended for scalatest version 2.0
-      (funSpecBasesPost2_0, checkFunSpec _),
+      (funSpecBasesPost2_0, checkFunSpec),
       //---
-      (testNGSuiteBases, checkTestNGSuite _),
-      (flatSpecBases, checkFlatSpec _),
-      (wordSpecBases, checkWordSpec _),
+      (testNGSuiteBases, checkTestNGSuite),
+      (flatSpecBases, checkFlatSpec),
+      (wordSpecBases, checkWordSpec),
     )
 
     findTestName(suitsWithFinders)
@@ -90,9 +90,9 @@ class ScalaTestSingleTestLocationFinderOld(
 
     //noinspection ConvertibleToMethodValue
     val suitsWithFinders: Seq[(Seq[String], String => Option[String])] = Seq(
-      (MUnitUtils.FunSuiteFqnList, checkFunSuite _),
-      (List(MUnitUtils.FunFixtureFqn), checkFunFixture _),
-      (MUnitUtils.ScalaCheckSuiteFqnList, checkScalaCheckSuite _),
+      (MUnitUtils.FunSuiteFqnList, checkFunSuite),
+      (List(MUnitUtils.FunFixtureFqn), checkFunFixture),
+      (MUnitUtils.ScalaCheckSuiteFqnList, checkScalaCheckSuite),
     )
 
     findTestName(suitsWithFinders)

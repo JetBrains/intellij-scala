@@ -45,7 +45,7 @@ object ScalaDocStubGenerator {
     def processProbablyJavaDocCommentWithOwner(owner: PsiDocCommentOwner): Unit = {
       owner.getDocComment match {
         case scalaComment: ScDocComment =>
-          for (docTag <- scalaComment.findTagsByName(TagNames.ParamOrTParamSet.contains _))
+          for (docTag <- scalaComment.findTagsByName(TagNames.ParamOrTParamSet.contains))
             docTag.name match {
               case TagNames.Param => registerInheritedParam(inheritedParams, docTag)
               case TagNames.TypeParam => registerInheritedParam(inheritedTParams, docTag)

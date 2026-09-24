@@ -95,7 +95,7 @@ class JavaHighlightingScalaTest_since_2_12 extends JavaHighlightingTestBase {
   }
 
   def testUseDeclarationsDefinedInScalaPackageObject(): Unit = {
-    addScalaPackageObjectDefinitions(myFixture.addFileToProject _)
+    addScalaPackageObjectDefinitions(myFixture.addFileToProject)
 
     assertNothing(errorsFromJavaCode(
       """public class JavaMain {
@@ -121,7 +121,7 @@ class JavaHighlightingScalaTest_since_2_12 extends JavaHighlightingTestBase {
   }
 
   def testUseDeclarationsDefinedInScalaPackageObject_FromScalaCode(): Unit = {
-    addScalaPackageObjectDefinitions(myFixture.addFileToProject _)
+    addScalaPackageObjectDefinitions(myFixture.addFileToProject)
 
     assertNoErrors(
       """//noinspection ScalaUnusedExpression

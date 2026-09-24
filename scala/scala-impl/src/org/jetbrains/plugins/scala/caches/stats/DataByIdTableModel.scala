@@ -38,7 +38,7 @@ class DataById[Data](id: Data => String) {
 
       override def valueOf(id: String): T = value(getData(id))
 
-      override def getComparator: Comparator[String] = Comparator.comparing[String, T](valueOf _, comparator)
+      override def getComparator: Comparator[String] = Comparator.comparing[String, T](valueOf, comparator)
     }
 
   def stringColumn(@Nls name: String, value: Data => String): ColumnInfo[String, String] =

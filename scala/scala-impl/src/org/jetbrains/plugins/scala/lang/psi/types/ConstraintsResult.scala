@@ -299,7 +299,7 @@ private final case class ConstraintSystemImpl(
       tvMap.contains(id) || {
         val needTvMap = {
           val newVisited = visited + id
-          recursion(!solve(newVisited)(_) && canThrowSCE) _
+          recursion(!solve(newVisited)(_) && canThrowSCE)
         }
 
         val instantiatedFromBelow =

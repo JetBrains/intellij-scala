@@ -165,8 +165,8 @@ object Parser {
       ExternalSymbol(name, owner, isObject)
     }
 
-    def readTypes(end: Int): List[Ref[Type]] = until(end, readTypeRef _)
-    def readSymbols(end: Int): List[Ref[Symbol]] = until(end, readSymbolRef _)
+    def readTypes(end: Int): List[Ref[Type]] = until(end, () => readTypeRef())
+    def readSymbols(end: Int): List[Ref[Symbol]] = until(end, () => readSymbolRef())
 
     def readName(): Name = Name(readUtf8(readNat()))
 
@@ -232,7 +232,7 @@ object Parser {
 
     def readAnnotArgArray(): AnnotArgArray = {
       val end = readEnd()
-      val args = until(end, readConstantAnnotArgRef _)
+      val args = until(end, () => readConstantAnnotArgRef())
       AnnotArgArray(args)
     }
 

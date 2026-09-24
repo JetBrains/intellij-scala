@@ -18,7 +18,7 @@ final class DfaEngine[E](cfg: Seq[Instruction],
       val v = workList.iterator.next
       workList.remove(v)
 
-      val fv = dfa.fun(v) _
+      val fv = dfa.fun(v)
       val newAfter = fv(l.join((if (forward) v.pred else v.succ).map(after(_))))
       if (!l.eq(newAfter, after(v))) {
         after(v) = newAfter

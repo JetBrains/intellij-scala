@@ -49,12 +49,12 @@ final class MoveScalaClassHandler extends MoveClassHandler {
       val createNewClass = directory.findFile(file.getName) match {
         case fileWithOldFileName: PsiFile if directory != file.getContainingDirectory && classCanBeAdded(file, clazz) =>
           // moving second of two classes which were in the same file to a different directory (IDEADEV-3089)
-          fileWithOldFileName.add _
+          fileWithOldFileName.add
         case _ =>
           //moving class to the existing file with the same name
           directory.findFile(fileName(definition)) match {
             case fileWithClassName: PsiFile if classCanBeAdded(fileWithClassName, clazz) =>
-              fileWithClassName.add _
+              fileWithClassName.add
             case _ =>
               //create new file with template
               import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil._
@@ -74,7 +74,7 @@ final class MoveScalaClassHandler extends MoveClassHandler {
                 }
               }
 
-              created.replace _
+              created.replace
           }
       }
 

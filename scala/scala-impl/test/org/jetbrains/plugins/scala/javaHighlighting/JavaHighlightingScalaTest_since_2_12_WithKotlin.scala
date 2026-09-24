@@ -16,7 +16,7 @@ class JavaHighlightingScalaTest_since_2_12_WithKotlin extends JavaHighlightingTe
   }
 
   def testUseDeclarationsDefinedInScalaPackageObject_FromKotlinCode(): Unit = {
-    addScalaPackageObjectDefinitions(myFixture.addFileToProject _)
+    addScalaPackageObjectDefinitions(myFixture.addFileToProject)
 
     assertNoErrorsInKotlin(
       """object KotlinMain {

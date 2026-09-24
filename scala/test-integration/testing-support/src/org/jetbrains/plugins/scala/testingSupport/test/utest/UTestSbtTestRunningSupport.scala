@@ -27,7 +27,7 @@ object UTestSbtTestRunningSupport {
   final class UTestSbtCommandsBuilder extends SbtCommandsBuilder {
 
     override def buildTestOnly(classToTests: Map[String, Set[String]]): Seq[String] = {
-      val testLocations = classToTests.flatMap((toUTestTestLocations _).tupled).toSeq
+      val testLocations = classToTests.flatMap((toUTestTestLocations).tupled).toSeq
       val testLocationsEscaped = testLocations.map(_.withQuotedSpaces)
       testLocationsEscaped.map("-- " + _)
     }

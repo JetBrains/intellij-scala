@@ -117,7 +117,7 @@ object ScalaDocUnknownParameterInspection {
   }
 
   private def findParamAndTypeParamTags(docComment: ScDocComment): (Seq[ScDocTag], Seq[ScDocTag]) = {
-    val tagsAll = docComment.findTagsByName(MyScaladocParsing.TagNames.ParamOrTParamSet.contains _).toSeq.filterByType[ScDocTag]
+    val tagsAll = docComment.findTagsByName(MyScaladocParsing.TagNames.ParamOrTParamSet.contains).toSeq.filterByType[ScDocTag]
     tagsAll.partition(_.name == MyScaladocParsing.TagNames.Param)
   }
 
