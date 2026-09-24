@@ -176,6 +176,8 @@ lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
 
 lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
   .settings(
+  scalaVersion := Versions.scalaVersion,
+  Compile / scalacOptions := globalScalacOptions,
   idePackagePrefix := Some("org.jetbrains.plugins.scala")
 )
 
@@ -482,7 +484,6 @@ lazy val scalaMetaImpl: sbt.Project =
   newProject("scala-meta-impl", file("scala/scala-meta-impl"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      scalaVersion := Versions.scalaVersion,
       libraryDependencies ++= Seq(
         Dependencies.scalaMetaCore,
         Dependencies.scalapbRuntime
@@ -569,6 +570,10 @@ lazy val compilerTestUtils: sbt.Project =
 
 lazy val compilerSettingsDefinition: sbt.Project =
   newProject("compiler-settings-definition", file("scala/compiler-settings-definition"))
+    .settings(
+      scalaVersion := Versions.scalaVersion,
+      Compile / scalacOptions := globalScalacOptions,
+    )
 
 lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
@@ -854,6 +859,8 @@ lazy val repackagedZinc =
   newProject("repackagedZinc", file("target/tools/zinc"))
     .settings(NoSourceDirectories)
     .settings(
+      scalaVersion := Versions.scalaVersion,
+      Compile / scalacOptions := outOfIDEAProcessScalacOptions,
       packageOutputDir := baseDirectory.value / "plugin",
       packageAssembleLibraries := true,
       shadePatterns += ShadePattern("com.google.protobuf.**", "zinc.protobuf.@1"),
@@ -905,6 +912,7 @@ lazy val jps =
 lazy val runners: Project =
   newProject("runners", file("scala/runners"))
     .settings(
+      scalaVersion := Versions.scalaVersion,
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone(static = true),
@@ -937,6 +945,8 @@ lazy val testingSupport =
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
+      // Scala 3 resolves the Specs2 types in TestRunnerUtil's Java method signatures.
+      libraryDependencies += provided.specs2_4x,
       intellijPlugins += "intellij.structureView.plugin".toPlugin,
       // TODO: ideally it should be added only in Test (IJPL-244879)
       intellijPlugins += "intellij.execution.serviceView.plugin".toPlugin,
@@ -964,6 +974,7 @@ lazy val testingSupportMunit = newProject("testing-support-munit", file("scala/t
 lazy val testRunners: Project =
   newProject("test-runners", file("scala/test-integration/test-runners"))
     .settings(
+      scalaVersion := Versions.scalaVersion,
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.MergeIntoOther(runners),
@@ -974,6 +985,7 @@ lazy val testRunners_spec2_2x: Project =
   newProject("test-runners-spec2_2x", file("scala/test-integration/test-runners-spec2_2x"))
     .dependsOn(testRunners)
     .settings(
+      scalaVersion := Versions.scalaVersion,
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.MergeIntoOther(runners),
@@ -1044,6 +1056,7 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
     .settings(
+      scalaVersion := Versions.scalaVersion,
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       libraryDependencies += Dependencies.nailgun,

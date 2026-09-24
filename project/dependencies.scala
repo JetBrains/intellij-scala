@@ -121,7 +121,7 @@ object Dependencies {
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
   val scala3Compiler: ModuleID = "org.scala-lang" % "scala3-compiler_3" % scala3Version
-  val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "2.4.0"
+  val scalaXml: ModuleID = "org.scala-lang.modules" % "scala-xml_2.13" % "2.4.0"
   val tastyCore: ModuleID = "org.scala-lang" % "tasty-core_3" % Versions.scala3Version
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
@@ -154,18 +154,18 @@ object Dependencies {
 
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.6.0"
 
-  // Transitive dependencies of scalastyle. The versions are deliberately outdated, to keep compatibility with scalastyle.
-  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
-  val scalaCollectionCompat: ModuleID = "org.scala-lang.modules" %% "scala-collection-compat" % "2.5.0"
-  val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.5.1"
+  // Transitive dependencies of scalastyle. Keep their Scala 2.13 artifacts and versions for compatibility.
+  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" % "scala-parser-combinators_2.13" % "1.1.2"
+  val scalaCollectionCompat: ModuleID = "org.scala-lang.modules" % "scala-collection-compat_2.13" % "2.5.0"
+  val scalastyle: ModuleID = "com.beautiful-scala" % "scalastyle_2.13" % "1.5.1"
 
   // We exclude "coursier interface" because we depend on an up-to-date version below.
-  val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % "3.7.17" exclude("io.get-coursier", "interface")
-  val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % "4.5.13" excludeAll(
+  val scalafmtDynamic = "org.scalameta" % "scalafmt-dynamic_2.13" % "3.7.17" exclude("io.get-coursier", "interface")
+  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.13" % "4.5.13" excludeAll(
     ExclusionRule(organization = "com.thesamet.scalapb"),
     ExclusionRule(organization = "org.scala-lang")
   )
-  val scalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % "0.11.11" % Test exclude("com.google.protobuf", "protobuf-java") // A dependency of scalameta, only used in tests.
+  val scalapbRuntime: ModuleID = "com.thesamet.scalapb" % "scalapb-runtime_2.13" % "0.11.11" % Test exclude("com.google.protobuf", "protobuf-java") // A dependency of scalameta, only used in tests.
 
   val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.19"
 
@@ -177,7 +177,7 @@ object Dependencies {
   // which currently have a different Scala version and the build definition fails.
   // cross CrossVersion.for3use2_13 also cannot be used because it is not compatible with packageLibraryMappings.
   val sprayJson: ModuleID = "io.spray" % "spray-json_2.13" % Versions.sprayJsonVersion
-  val compilerIndicesProtocol: ModuleID = "org.jetbrains.scala" %% "scala-compiler-indices-protocol" % compilerIndicesVersion
+  val compilerIndicesProtocol: ModuleID = "org.jetbrains.scala" % "scala-compiler-indices-protocol_2.13" % compilerIndicesVersion
 
   val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % nailgunVersion
 
@@ -191,7 +191,7 @@ object Dependencies {
     val scalaTest = scalaTestNotSpecified % Provided
     val utest = "com.lihaoyi" %% "utest" % "0.9.5" % Provided
     val specs2_2x = "org.specs2" % "specs2-core_2.12" % "2.5" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
-    val specs2_4x = "org.specs2" %% "specs2-core" % "4.18.0" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
+    val specs2_4x = "org.specs2" % "specs2-core_2.13" % "4.18.0" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
   }
 
   /** The filtering function returns true for jars to be removed.
