@@ -85,6 +85,21 @@ object ScalaPlainLexer {
 
     override def getFlex: ScalaCoreLexer = super.getFlex.asInstanceOf[ScalaCoreLexer]
 
+    // Match Java, JS/TS, and Python: a shebang is special only at absolute file start.
+    // Scala has no # line-comment syntax, so indented or later #! retains ordinary Scala tokenization.
+    override def start(buffer: CharSequence, startOffset: Int, endOffset: Int, initialState: Int): Unit = {
+      // FILE_START is valid only for a fresh whole-file start: offset zero makes #! a
+      // first-line shebang, while YYINITIAL preserves a caller-provided or incremental
+      // non-initial lexer context instead of replacing it with the shebang prelude.
+      val state =
+        if (startOffset == 0 && initialState == ScalaCoreLexer.YYINITIAL)
+          ScalaCoreLexer.FILE_START
+        else
+          initialState
+
+      super.start(buffer, startOffset, endOffset, state)
+    }
+
     override def getState: Int =
       super.getState << 1 | (if (getFlex.isInterpolatedStringState) 1 else 0)
   }
