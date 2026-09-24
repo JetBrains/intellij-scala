@@ -1,5 +1,23 @@
-<!--suppress PluginXmlValidity -->
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
+    <dependencies>
+        <module name="intellij.java.execution"/>
+        <module name="intellij.java.execution.impl"/>
+        <module name="intellij.java.ui"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.core.ui"/>
+        <module name="intellij.platform.editor.ui"/>
+        <module name="intellij.platform.execution"/>
+        <module name="intellij.platform.execution.impl"/>
+        <module name="intellij.platform.ide"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.ide.impl"/>
+        <module name="intellij.platform.lang.core"/>
+        <module name="intellij.platform.lang.impl"/>
+        <module name="intellij.platform.projectModel"/>
+        <module name="intellij.platform.util.ui"/>
+    </dependencies>
 
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="org.jetbrains.plugins.scala.console.configuration.ScalaConsoleConfigurationType"/>
