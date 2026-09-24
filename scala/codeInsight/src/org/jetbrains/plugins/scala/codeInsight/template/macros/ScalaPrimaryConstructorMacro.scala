@@ -117,7 +117,7 @@ object ScalaPrimaryConstructorMacro {
 
     override protected def parametersText(parameters: ScParameters): Option[String] = {
       val firstParamClause = parameters.clauses.headOption.map(_.parameters)
-      firstParamClause.map { params: Seq[ScParameter] =>
+      firstParamClause.map { (params: Seq[ScParameter]) =>
         val types: Seq[String] = params.map(_.paramType.map(_.getText).getOrElse(""))
         types.commaSeparated().parenthesize(types.size > 1)
       }

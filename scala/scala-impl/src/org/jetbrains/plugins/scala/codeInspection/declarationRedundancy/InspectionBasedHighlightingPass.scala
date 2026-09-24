@@ -112,7 +112,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
         progress.checkCanceled()
         inspection.invoke(_, isOnTheFly = true)
       }
-      highlightInfos ++= infos.flatMap { info: ProblemInfo =>
+      highlightInfos ++= infos.flatMap { (info: ProblemInfo) =>
         progress.checkCanceled()
         val range = info.element.getTextRange
         val severity: HighlightSeverity = getSeverity

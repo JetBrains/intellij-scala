@@ -128,7 +128,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
 
     val newExpressionText = usedNames.foldLeft(expr.getText) { (text, un) =>
       val regex = raw"\(\s*${un}\s*\:\s*\S+\s*\)" // looks for `(un: ...)`
-      Pattern.compile(regex).matcher(text).replaceFirst { mr: MatchResult =>
+      Pattern.compile(regex).matcher(text).replaceFirst { (mr: MatchResult) =>
         val start = mr.start()
         if (start > 0 && text(start - 1).isLetterOrDigit) s"($un)" else un
       }

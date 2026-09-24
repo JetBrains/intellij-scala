@@ -142,7 +142,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestCase
    * Without extra "commit" some tests might fail after fixes in the formatter related to SCL-25190
    */
   protected def performTypingActionAndCommitEachChar(text: String): Unit =
-    text.foreach { char: Char =>
+    text.foreach { (char: Char) =>
       performTypingAction(char)
 
       getEditor.getDocument.commit(getProject)

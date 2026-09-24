@@ -15,7 +15,7 @@ final class ScalaSdkProvider(
   def discoverSDKs(callback: Consumer[SdkChoice], onFinish: => Unit): Unit = {
     // TODO: coursier SDKs are shown with a big delay because coursier needs to scan more folders
     //  we could show the progress "Searching for SDKs in coursier" in the dialog itself
-    scalaJarDetectors.foreach { detector: ScalaSdkDetector =>
+    scalaJarDetectors.foreach { (detector: ScalaSdkDetector) =>
       indicator.checkCanceled()
       indicator.setText(message("sdk.scan.title", detector.friendlyName))
       indicator.setIndeterminate(true)

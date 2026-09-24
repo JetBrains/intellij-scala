@@ -103,7 +103,7 @@ class ScalaBlankLinesTest_MembersExhaustive(tuple: (String, String, String))
 
     allSetters.foreach(_.apply(0))
 
-    allProd.foreach { applySettings: Seq[() => Unit] =>
+    allProd.foreach { (applySettings: Seq[() => Unit]) =>
       applySettings.foreach(_.apply())
       body()
     }

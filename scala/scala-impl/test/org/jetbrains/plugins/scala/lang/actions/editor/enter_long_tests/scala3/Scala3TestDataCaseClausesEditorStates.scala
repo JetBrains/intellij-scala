@@ -464,7 +464,7 @@ private object Scala3TestDataCaseClausesEditorStates {
     MatchCaseClausesAll_Braceless
 
   val MatchCaseClausesAll_WithBraces: Seq[EditorStates] =
-    MatchCaseClausesAll_Braceless.map { editorStates: EditorStates =>
+    MatchCaseClausesAll_Braceless.map { (editorStates: EditorStates) =>
       val statesNew = editorStates.states.map(_.withTransformedText(text => {
         text.replace(MatchStart, MatchWithBracesStart) + MatchWithBracesEnd
       }))

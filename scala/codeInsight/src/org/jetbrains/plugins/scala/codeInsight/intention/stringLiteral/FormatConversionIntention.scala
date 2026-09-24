@@ -213,7 +213,7 @@ object FormatConversionIntention {
       val inspection = wrapper.getTool.asInstanceOf[ScalaUnnecessaryParenthesesInspection]
 
       val result = mutable.ArrayBuffer.empty[Int]
-      concatParts.foreach { el: ScParenthesisedExpr =>
+      concatParts.foreach { (el: ScParenthesisedExpr) =>
         if (inspection.isParenthesesRedundant(el)) {
           result += el.startOffset - commonOffset
           result += el.endOffset - 1 - commonOffset
