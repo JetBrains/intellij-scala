@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueOrVariable, S
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, ScTypeExt}
 
 import java.{util => ju}
 import scala.jdk.CollectionConverters._

@@ -5,6 +5,7 @@ import java.util
 import com.intellij.psi.util.PsiTypesUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiType}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUElement, ScUMultiResolvable}

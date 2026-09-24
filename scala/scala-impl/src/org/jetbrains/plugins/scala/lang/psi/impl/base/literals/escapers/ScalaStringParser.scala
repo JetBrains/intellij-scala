@@ -4,6 +4,7 @@ import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.ScalaStringParser.Log
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import java.lang.{StringBuilder => JStringBuilder}
 import java.util

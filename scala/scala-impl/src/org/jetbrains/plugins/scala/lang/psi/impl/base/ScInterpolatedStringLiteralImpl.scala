@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScInterpolatedStringLiteralImpl.Log
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.scalaMeta.QuasiquoteInferUtil.{getMetaQQExprType, isMetaQQ}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.StringContextCanonical

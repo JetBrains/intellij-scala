@@ -4,7 +4,7 @@ import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.light.DummyLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType.isMaskedExtensionTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, LeafType, NamedType, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, LeafType, NamedType, ScType, ScTypeExt, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 

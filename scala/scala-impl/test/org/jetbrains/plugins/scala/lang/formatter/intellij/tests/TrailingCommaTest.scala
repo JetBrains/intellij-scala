@@ -4,6 +4,9 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.TrailingCommaMode
 import org.jetbrains.plugins.scala.lang.formatting.settings.TrailingCommaPanel
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
 

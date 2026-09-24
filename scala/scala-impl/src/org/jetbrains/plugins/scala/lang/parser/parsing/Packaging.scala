@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaPsiBuilderExt}
 
 /*
  * Packaging := 'package' QualId [nl] '{' TopStatSeq '}'

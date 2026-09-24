@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 

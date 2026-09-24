@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScParameterizedType, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScParameterizedType, ScType, ScTypeExt, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object codeInspection {

@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 object ScValueOrVariableAnnotator extends ElementAnnotator[ScValueOrVariable] {
 

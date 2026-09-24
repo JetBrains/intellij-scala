@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{IndentationRegion, ScalaPsiBuilder}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 import org.jetbrains.plugins.scala.lang.parser.parsing.{Associativity, CommonUtils}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 

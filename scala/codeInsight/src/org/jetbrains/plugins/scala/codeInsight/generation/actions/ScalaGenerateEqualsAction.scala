@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTem
 import org.jetbrains.plugins.scala.lang.psi.impl.OptionalBracesCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodWithContext
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature, ScType, TermSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature, ScType, ScTypeExt, TermSignature}
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
 

@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedSetting
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 class ScalaColorSchemeEditorHighlightingTest extends ScalaLightCodeInsightFixtureTestCase {
 

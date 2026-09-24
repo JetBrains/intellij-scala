@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScCharLiteral, Sc
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, StdTypes, ValType}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 package object expr {

@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import scala.collection.mutable
 import scala.util.matching.Regex
 

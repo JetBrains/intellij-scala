@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStringLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionTypeFactory.{extractMember, extractParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScLiteralType, ScParameterizedType, ScType, ScalaType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, Context, ScLiteralType, ScParameterizedType, ScType, ScTypeExt, ScalaType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 

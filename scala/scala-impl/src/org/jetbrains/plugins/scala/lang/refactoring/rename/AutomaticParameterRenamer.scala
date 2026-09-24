@@ -10,7 +10,7 @@ import com.intellij.refactoring.rename.naming.{AutomaticRenamer, AutomaticRename
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionExt}
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 

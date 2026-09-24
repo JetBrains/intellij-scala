@@ -4,6 +4,9 @@ import com.intellij.codeInsight.CodeInsightSettings
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.DoEditorStateTestOps
 import org.jetbrains.plugins.scala.util.RevertableChange
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 abstract class FormatEmptyTemplateBodyEnterHandlerTest extends DoEditorStateTestOps {
   def testEmptyOneLineBodyNoSpaces(): Unit = doEnterTest(

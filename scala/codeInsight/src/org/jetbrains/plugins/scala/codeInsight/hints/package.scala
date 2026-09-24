@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInf
 import org.jetbrains.plugins.scala.extensions.{NullSafe, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.reflect.ClassTag

@@ -8,6 +8,9 @@ import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.ExpectedHighlight
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaInspectionTestBase {
 

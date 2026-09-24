@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaProcessImportsRefactoringHelper._
 
-import java.util
+import java.util as ju
 import scala.collection.mutable
 
 /**

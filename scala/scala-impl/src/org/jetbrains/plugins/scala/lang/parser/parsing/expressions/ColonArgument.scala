@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClausesWithoutBraces
 import org.jetbrains.plugins.scala.lang.parser.util.InBracelessScala3
-import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScCodeBlockElementType, ScalaElementType, ScalaPsiBuilderExt}
 
 import scala.util.chaining.scalaUtilChainingOps
 

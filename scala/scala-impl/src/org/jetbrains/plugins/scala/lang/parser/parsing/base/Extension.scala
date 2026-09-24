@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{Param, ParamClause, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{FunDcl, FunDef}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaTokenBinders}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaPsiBuilderExt, ScalaTokenBinders}
 
 /*
  * Extension  ::=  ‘extension’ [DefTypeParamClause] ‘(’ DefParam ‘)’

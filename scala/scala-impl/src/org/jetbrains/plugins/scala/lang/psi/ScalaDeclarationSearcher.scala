@@ -4,7 +4,7 @@ import com.intellij.lang.jvm.JvmElement
 import com.intellij.lang.jvm.source.JvmDeclarationSearcher
 import com.intellij.psi.PsiElement
 
-import java.util
+import java.util.Collection
 import java.util.Collections.{emptyList, singletonList}
 
 class ScalaDeclarationSearcher extends JvmDeclarationSearcher {

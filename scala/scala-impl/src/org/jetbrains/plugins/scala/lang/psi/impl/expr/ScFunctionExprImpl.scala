@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Widening, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, Widening, api}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
 class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFunctionExpr {

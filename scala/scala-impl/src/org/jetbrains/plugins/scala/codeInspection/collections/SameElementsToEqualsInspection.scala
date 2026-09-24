@@ -42,4 +42,3 @@ object CorrespondsToEquals extends SimplificationType {
   }
 }
 
-

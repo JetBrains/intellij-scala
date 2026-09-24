@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.tasty.reader.CompilerOptions
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TopLevelDefinitionsClassNameSuffix
 import org.jetbrains.plugins.scala.{JavaArrayFactoryUtil, ScalaFileType}

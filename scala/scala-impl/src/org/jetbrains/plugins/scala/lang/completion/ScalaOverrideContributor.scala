@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.addTarget
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiFileExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{InvocationDetails, InvocationDe
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, TypePresentationContext}
 
 import java.awt.datatransfer.StringSelection
 import scala.annotation.tailrec

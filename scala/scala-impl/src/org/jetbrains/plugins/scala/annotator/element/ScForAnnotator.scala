@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationBuilder, ScalaAnnot
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.RemoveValFromGeneratorIntentionAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScFor, ScForBinding, ScGenerator, ScGuard, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle}
 
 import scala.annotation.nowarn

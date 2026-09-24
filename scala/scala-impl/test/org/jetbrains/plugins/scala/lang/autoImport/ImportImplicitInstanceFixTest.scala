@@ -4,6 +4,9 @@ import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import scala.annotation.tailrec
 

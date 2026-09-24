@@ -10,6 +10,9 @@ import org.jetbrains.plugins.scala.lang.actions.editor.copy.CopyPasteTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.DefaultInvocationCount
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestFixture
 import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   //region Completion auto popups after paste test configuration

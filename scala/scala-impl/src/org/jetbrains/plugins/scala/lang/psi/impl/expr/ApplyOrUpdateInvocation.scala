@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.getDynamicNameForMethodInvocation
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveResultUtils, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 //data collected to resolve update/apply/dynamic calls

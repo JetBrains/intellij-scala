@@ -25,4 +25,3 @@ abstract class PrivateShadowInspectionTestBase extends ScalaInspectionTestBase {
 
 
 
-

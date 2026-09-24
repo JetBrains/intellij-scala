@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursiveReferences, ScExpressionExt, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursiveReferences, ScExpressionExt, ScFunctionDefinition, ScFunctionDefinitionExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.junit.Assert._
 

@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.DependencyManager
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
+import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import scala.language.reflectiveCalls
 

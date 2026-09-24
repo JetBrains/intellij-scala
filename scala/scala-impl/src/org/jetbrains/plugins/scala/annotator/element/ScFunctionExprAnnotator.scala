@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQui
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFunctionExpr, ScParenthesisedExpr, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType.isFunctionType
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt

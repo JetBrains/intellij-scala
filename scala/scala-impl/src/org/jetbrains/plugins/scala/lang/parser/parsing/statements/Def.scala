@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaTokenBinders}
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaPsiBuilderExt, ScalaTokenBinders}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{End, Modifier}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder

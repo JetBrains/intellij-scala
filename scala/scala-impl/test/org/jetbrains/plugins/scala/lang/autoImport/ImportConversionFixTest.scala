@@ -3,6 +3,9 @@ package org.jetbrains.plugins.scala.lang.autoImport
 import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFixes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpression] {
   //conversions from standard library may be different in older versions

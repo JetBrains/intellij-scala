@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.lang.autoImport
 
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportGlobalMemberFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpression] {
   override def createFix(element: ScReferenceExpression) =

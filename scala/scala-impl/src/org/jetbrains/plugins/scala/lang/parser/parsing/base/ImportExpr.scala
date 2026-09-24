@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{InfixType, StableIdForImport}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaPsiBuilderExt}
 
 /*
  *  ImportExpr ::= StableId  '.'  (id | '_'  | ImportSelectors)

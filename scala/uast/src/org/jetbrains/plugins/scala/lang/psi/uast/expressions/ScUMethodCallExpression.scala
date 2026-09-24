@@ -3,8 +3,9 @@ package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScUExpression, ScUMultiResolvable}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement

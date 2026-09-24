@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.{PsiComment, PsiManager, PsiNamedElement}
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGeneratorWikidoc.UnresolvedMacroInfo
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaLibraryQuickDocGenerationHealthCheckTest.relativeFilePath
 import org.jetbrains.plugins.scala.extensions.{ArrayExt, PsiElementExt, PsiNamedElementExt}

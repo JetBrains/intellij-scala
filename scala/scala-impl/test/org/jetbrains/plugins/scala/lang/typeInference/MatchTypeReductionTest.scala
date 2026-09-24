@@ -4,7 +4,7 @@ import com.intellij.openapi.util.registry.Registry
 import junit.framework.TestCase.assertEquals
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScMatchType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScMatchType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.typeInference.shims.TupleIntrinsicsTest
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 

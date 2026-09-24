@@ -15,7 +15,7 @@ import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestCreator._
 
-import java.util
+import java.util as ju
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**

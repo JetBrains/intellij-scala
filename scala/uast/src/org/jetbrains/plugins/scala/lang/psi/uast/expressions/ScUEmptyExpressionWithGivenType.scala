@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 import com.intellij.psi.PsiType
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUAnnotated
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.UastEmptyExpression

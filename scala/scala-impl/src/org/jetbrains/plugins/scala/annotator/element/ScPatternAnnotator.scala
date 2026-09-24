@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ExtractorMatch
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScExtractorPattern.ExtractorTarget
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScInfixTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScInfixTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariableDefinition, ScVariable}
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil.{isNeverSubClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal, NamedTupleType, Nothing, Null, TupleType, TypeParameterType, arrayType}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScParameterizedType, ScType, ScalaType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScParameterizedType, ScType, ScTypeExt, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 import scala.annotation.tailrec

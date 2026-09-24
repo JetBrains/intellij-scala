@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScNullLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
 
 trait SpecialSyntheticMethodsTransformation { this: ScalaDfaControlFlowBuilder =>
   final def tryTransformSyntheticFunctionSpecially(function: ScSyntheticFunction,

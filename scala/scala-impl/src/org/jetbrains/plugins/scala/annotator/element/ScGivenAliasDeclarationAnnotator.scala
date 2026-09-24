@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPsiElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
-import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeatures}
 
 object ScGivenAliasDeclarationAnnotator extends ElementAnnotator[ScGivenAliasDeclaration] with DumbAware {
   override def annotate(decl: ScGivenAliasDeclaration, typeAware: Boolean)

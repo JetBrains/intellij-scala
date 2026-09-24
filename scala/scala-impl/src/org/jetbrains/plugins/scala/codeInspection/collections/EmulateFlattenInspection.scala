@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScParameterizedType, ScTypeExt}
 
 import scala.collection.immutable.ArraySeq
 

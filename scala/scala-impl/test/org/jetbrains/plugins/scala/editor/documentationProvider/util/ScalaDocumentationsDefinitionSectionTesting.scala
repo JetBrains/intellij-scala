@@ -183,4 +183,3 @@ trait ScalaDocumentationsScalaDocContentTesting extends ScalaDocumentationsSecti
   }
 }
 
-

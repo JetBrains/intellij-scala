@@ -30,6 +30,7 @@ private class ScalaModuleSettings private(
   isBuildModule: Boolean,
   val scalaVersionProvider: ScalaVersionProvider
 ) {
+  import ScalaModuleSettings._
 
   val scalaSdk: Option[LibraryEx] = scalaVersionProvider match {
     case ScalaVersionProvider.FromScalaSdk(library) => Some(library)

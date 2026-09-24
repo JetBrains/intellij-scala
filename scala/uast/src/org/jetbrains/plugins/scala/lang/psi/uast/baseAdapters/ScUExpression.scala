@@ -7,6 +7,7 @@ package baseAdapters
 import com.intellij.psi.{PsiElement, PsiType}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.uast.UExpression
 
 /**

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.K
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 class KindProjectorUseCorrectLambdaKeywordInspection extends LocalInspectionTool {
 

@@ -9,6 +9,9 @@ import com.intellij.refactoring.BaseRefactoringProcessor
 import com.intellij.ui.{ChooserInterceptor, UiInterceptors}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import scala.jdk.CollectionConverters._
 

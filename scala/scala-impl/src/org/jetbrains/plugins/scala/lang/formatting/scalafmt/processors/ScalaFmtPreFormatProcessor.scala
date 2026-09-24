@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import org.jetbrains.plugins.scala.project.{ScalaFeatures, UserDataHolderExt}
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeatures, UserDataHolderExt}
 import org.jetbrains.plugins.scala.scalaMeta.ScalaMetaParseException
 import org.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
 import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig, ScalafmtVersion}

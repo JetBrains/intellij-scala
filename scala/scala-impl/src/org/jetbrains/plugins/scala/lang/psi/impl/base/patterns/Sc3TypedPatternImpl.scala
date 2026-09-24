@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScPattern, ScTypePattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 final class Sc3TypedPatternImpl(node: ASTNode)

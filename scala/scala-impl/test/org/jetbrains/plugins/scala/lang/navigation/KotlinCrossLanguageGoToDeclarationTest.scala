@@ -14,6 +14,9 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaVersion, TypecheckerTests}
 import org.junit.Assert.{assertEquals, assertNotNull, assertTrue, fail}
 import org.junit.experimental.categories.Category
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.nio.file.Path
 

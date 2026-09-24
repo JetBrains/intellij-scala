@@ -38,7 +38,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.*
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.*
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveResultUtils}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.AnonymousFunction.*
 import org.jetbrains.plugins.scala.util.SAMUtil.SAMToFunctionType
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants

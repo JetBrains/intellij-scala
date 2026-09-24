@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.editor.folding
 
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert.{assertFalse, fail}
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import scala.util.{Failure, Try}
 

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.Tracing
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker, Tracer}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Conformance._
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ContextDependent, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ContextDependent, ScType, ScTypeExt}
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier

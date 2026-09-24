@@ -9,6 +9,9 @@ import com.intellij.xdebugger.XDebuggerTestUtil
 import junit.framework.TestCase.assertNotNull
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, inReadAction}
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import kotlin.coroutines.Continuation
 import kotlinx.coroutines.{BuildersKt, CoroutineScope, Dispatchers}

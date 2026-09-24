@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.compiler.CompileContext
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.module.Module
 import com.intellij.util.concurrency.annotations.RequiresReadLock
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings

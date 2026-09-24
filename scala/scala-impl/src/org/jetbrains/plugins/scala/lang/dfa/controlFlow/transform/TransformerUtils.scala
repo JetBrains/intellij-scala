@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnc
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.InstructionBuilder.StackValue
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 trait TransformerUtils { this: ScalaDfaControlFlowBuilder =>
   def assignVariableValue(descriptor: ScalaDfaVariableDescriptor,

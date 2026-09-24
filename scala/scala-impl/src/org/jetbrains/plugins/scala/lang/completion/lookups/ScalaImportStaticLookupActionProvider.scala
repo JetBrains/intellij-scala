@@ -5,6 +5,7 @@ import com.intellij.psi.{PsiClass, PsiNamedElement}
 import com.intellij.util.ui.EmptyIcon
 import com.intellij.util.{Consumer, PlatformIcons}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.format
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 object ScStringLiteralParser {
 

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.uast.converter
 
 import com.intellij.psi.{PsiElement, PsiType}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
 import org.jetbrains.uast._

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
 
 import scala.collection.mutable

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
+import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import scala.annotation.tailrec
 
 object BlockModificationTracker {

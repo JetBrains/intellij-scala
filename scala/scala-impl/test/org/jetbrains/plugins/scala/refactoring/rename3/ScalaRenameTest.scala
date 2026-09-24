@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala
 package refactoring.rename3
 
 import org.jetbrains.plugins.scala.util.assertions.assertFails
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 class ScalaRenameTest extends ScalaRenameTestBase {
 

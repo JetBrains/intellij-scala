@@ -4,6 +4,7 @@ import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.{AnnotatorPart, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 object TraitHasImplicitBound extends AnnotatorPart[ScTrait] with DumbAware {
 

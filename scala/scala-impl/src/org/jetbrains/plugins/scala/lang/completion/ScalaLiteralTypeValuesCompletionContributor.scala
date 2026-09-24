@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaLiteralTypeValuesCompletionContributor.ScalaLiteralTypeValuesCompletionProvider
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScOrType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScOrType, ScType, ScTypeExt}
 
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.IterableHasAsJava

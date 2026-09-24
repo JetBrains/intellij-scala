@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ValueType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, MissedParametersClause, MissedValueParameter, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, MissedParametersClause, MissedValueParameter, ScType, ScTypeExt, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec

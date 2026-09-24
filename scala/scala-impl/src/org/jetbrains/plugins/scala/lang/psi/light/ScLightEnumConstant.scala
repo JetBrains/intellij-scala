@@ -6,6 +6,7 @@ import com.intellij.psi.{JavaElementVisitor, JavaResolveResult, PsiElement, PsiE
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumSingletonCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
 import java.util

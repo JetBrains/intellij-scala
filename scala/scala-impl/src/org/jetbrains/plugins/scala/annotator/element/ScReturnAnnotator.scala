@@ -4,7 +4,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeMismatchError}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReturn}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, TypePresentationContext, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ScReturnAnnotator extends ElementAnnotator[ScReturn] {

@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScPacka
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 final class ScPackagingImpl private(stub: ScPackagingStub,
                                     node: ASTNode)

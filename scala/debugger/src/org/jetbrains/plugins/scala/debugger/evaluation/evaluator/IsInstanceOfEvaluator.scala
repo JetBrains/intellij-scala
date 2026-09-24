@@ -5,7 +5,7 @@ import com.intellij.debugger.engine.evaluation.expression.{Evaluator, TypeEvalua
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScLiteralType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.extensions.inReadAction
 

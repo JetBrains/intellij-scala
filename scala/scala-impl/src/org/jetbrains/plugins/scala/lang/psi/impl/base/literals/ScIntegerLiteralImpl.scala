@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 final class ScIntegerLiteralImpl(node: ASTNode,
                                  override val toString: String)

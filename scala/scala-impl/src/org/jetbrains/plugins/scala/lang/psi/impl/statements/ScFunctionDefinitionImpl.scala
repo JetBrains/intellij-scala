@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.{ImplicitValueClass, ImplicitValueClassDumbMode}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, Widening, api}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S],

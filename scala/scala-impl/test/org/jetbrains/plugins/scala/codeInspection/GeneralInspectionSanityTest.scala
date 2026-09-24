@@ -5,6 +5,9 @@ import com.intellij.codeInspection.{InspectionEngine, InspectionManager, LocalIn
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert.assertFalse
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestCase {
 

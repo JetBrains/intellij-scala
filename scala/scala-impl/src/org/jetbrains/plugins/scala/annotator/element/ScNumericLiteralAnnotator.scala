@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScFloatingPointLiteral.FloatingPointParseResult
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScDoubleLiteral, ScFloatLiteral, ScFloatingPointLiteral, ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPrefixExpr}
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle, project}
 
 sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag](isLong: Boolean)

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes
 import org.jetbrains.plugins.scala.ExtensionPointDeclaration
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
 
 trait GenericTypeNamesProvider {
 

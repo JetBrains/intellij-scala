@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionB
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ScAbstractType, ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ScAbstractType, ScType, ScTypeExt, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec

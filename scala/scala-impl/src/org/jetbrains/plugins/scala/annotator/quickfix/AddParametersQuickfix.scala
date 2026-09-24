@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScArgume
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
-import org.jetbrains.plugins.scala.lang.psi.types.{TypePresentationContext, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, TypePresentationContext, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec

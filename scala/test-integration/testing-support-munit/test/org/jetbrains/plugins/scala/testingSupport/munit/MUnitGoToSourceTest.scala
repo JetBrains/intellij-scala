@@ -4,6 +4,9 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.client.ClientSystemInfo
 import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 abstract class MUnitGoToSourceTestBase extends MUnitTestCase {
 

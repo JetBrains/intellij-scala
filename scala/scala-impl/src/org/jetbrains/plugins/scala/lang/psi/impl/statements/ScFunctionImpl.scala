@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Parameteriz
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature, ScType, TermSignature, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, PhysicalMethodSignature, ScType, ScTypeExt, TermSignature, TypePresentationContext}
 
 import javax.swing.Icon
 import scala.annotation.tailrec

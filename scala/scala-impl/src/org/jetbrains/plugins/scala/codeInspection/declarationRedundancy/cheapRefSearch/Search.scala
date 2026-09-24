@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 
 import java.util

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator.element
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 object ScTraitAnnotator extends ElementAnnotator[ScTrait] {
   override def annotate(element: ScTrait, typeAware: Boolean)

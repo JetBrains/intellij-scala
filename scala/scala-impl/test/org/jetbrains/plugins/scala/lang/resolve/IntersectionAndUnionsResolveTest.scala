@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =

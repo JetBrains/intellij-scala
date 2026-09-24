@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.externalLibraries
 import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScPattern, ScPatternArgumentList, ScTypedPattern}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 package object bm4 {
   object Implicit0Pattern {

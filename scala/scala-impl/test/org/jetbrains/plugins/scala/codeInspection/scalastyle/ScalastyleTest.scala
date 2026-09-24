@@ -4,6 +4,9 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 class ScalastyleTest extends ScalaInspectionTestBase {
 

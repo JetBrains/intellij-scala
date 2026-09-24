@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType, ScTypeExt}
 
 import java.util.concurrent.locks.ReentrantLock
 import scala.collection.mutable

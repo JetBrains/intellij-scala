@@ -5,7 +5,7 @@ import com.intellij.psi.{PsiClassType, PsiReferenceList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 
 private class ScLightTypeParam(scTypeParam: ScTypeParam, subst: ScSubstitutor)
   extends LightTypeParameter(scTypeParam) {

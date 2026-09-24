@@ -6,9 +6,9 @@ import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeDiff}
 import org.jetbrains.plugins.scala.annotator.TypeDiff.{Mismatch, asString}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 
 object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
 

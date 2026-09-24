@@ -8,7 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, api}
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaExpressionSurrounder
 
 import java.{util => ju}

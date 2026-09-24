@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.editor.ScalaIndentationSyntaxUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInfixElement
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 
 object ScInfixElementAnnotator extends ElementAnnotator[ScInfixElement] {

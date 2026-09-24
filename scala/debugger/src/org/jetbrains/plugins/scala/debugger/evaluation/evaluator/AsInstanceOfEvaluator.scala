@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 
 class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extends Evaluator {
   override def evaluate(context: EvaluationContextImpl): Value = {

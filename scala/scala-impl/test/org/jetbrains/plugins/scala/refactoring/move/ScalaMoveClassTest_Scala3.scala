@@ -3,6 +3,9 @@ package org.jetbrains.plugins.scala.refactoring.move
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.nio.file.Path
 

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper.containingClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TermSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TermSignature}
 
 class PsiTypedDefinitionWrapper(
   override val delegate: ScTypedDefinition,

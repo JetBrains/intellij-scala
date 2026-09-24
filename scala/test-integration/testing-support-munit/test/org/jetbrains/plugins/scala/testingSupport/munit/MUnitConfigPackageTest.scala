@@ -13,6 +13,9 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.AllInPackageTest
 import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions.ObjectOps
 import org.junit.Assert.{assertFalse, assertTrue}
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters._

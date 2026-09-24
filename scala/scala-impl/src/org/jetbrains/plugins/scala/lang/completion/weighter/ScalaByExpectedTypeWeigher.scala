@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 final class ScalaByExpectedTypeWeigher(maybeDefinition: Option[ScExpression])

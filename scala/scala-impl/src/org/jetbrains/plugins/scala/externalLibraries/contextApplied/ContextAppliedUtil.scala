@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 /**
  * @see [[ContextApplied.SyntheticElementsOwner]]

@@ -5,6 +5,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 
 trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {

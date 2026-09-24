@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ExprInIndentationRegion
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClause, ParamClauses, TypeParamClause, TypesAsParams}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{AnnotType, InfixType}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
 
 import scala.annotation.tailrec
 

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext, extractTypeParameters}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, TypePresentationContext, extractTypeParameters}
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
 

@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementationClassSuffix_211
 

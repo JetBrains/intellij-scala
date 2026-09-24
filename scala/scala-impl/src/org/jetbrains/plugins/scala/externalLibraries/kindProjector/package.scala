@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjector
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 package object kindProjector {
   object TypeLambda {

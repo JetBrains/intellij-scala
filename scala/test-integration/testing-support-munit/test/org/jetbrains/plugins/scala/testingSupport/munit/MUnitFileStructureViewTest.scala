@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.munit
 
 import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 abstract class MUnitFileStructureViewTestBase extends MUnitTestCase {
 

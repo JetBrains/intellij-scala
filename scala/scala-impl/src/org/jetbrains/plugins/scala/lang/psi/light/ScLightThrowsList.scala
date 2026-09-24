@@ -4,7 +4,7 @@ import com.intellij.psi.impl.light.LightReferenceListBuilder
 import com.intellij.psi.{PsiClassType, PsiManager, PsiNamedElement, PsiReferenceList}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ParameterizedType}
 
 private object ScLightThrowsList {

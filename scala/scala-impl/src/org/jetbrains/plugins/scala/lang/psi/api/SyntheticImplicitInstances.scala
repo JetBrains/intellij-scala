@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.SmartSuperTypeUtil.TraverseSupers
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ParameterizedType, StdTypes, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScCompoundType, ScLiteralType, ScType, SmartSuperTypeUtil}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScCompoundType, ScLiteralType, ScType, ScTypeExt, SmartSuperTypeUtil}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt

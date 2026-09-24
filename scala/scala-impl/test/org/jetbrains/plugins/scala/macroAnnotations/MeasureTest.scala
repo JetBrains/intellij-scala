@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.macroAnnotations
 
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.caches.measure
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 class MeasureTest extends ScalaFixtureTestCase {
 

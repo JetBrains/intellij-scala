@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala.editor.documentationProvider.util
 
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.util.assertions.assertFails
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 class HtmlAssertionsHealthTest extends TestCase with HtmlAssertions {
 

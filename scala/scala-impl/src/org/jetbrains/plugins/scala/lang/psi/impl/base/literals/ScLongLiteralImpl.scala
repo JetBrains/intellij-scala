@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScLongLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import java.lang
 import java.lang.{Long => JLong}

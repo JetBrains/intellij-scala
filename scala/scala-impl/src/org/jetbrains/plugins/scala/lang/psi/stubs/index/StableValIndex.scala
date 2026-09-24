@@ -6,6 +6,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexStringKeyExt
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 
 object StableValIndex {
   def forClassFqn(qualifiedName: String, scope: GlobalSearchScope)

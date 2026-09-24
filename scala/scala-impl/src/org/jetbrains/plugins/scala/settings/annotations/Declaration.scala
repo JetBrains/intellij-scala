@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScCompoundType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScCompoundType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec

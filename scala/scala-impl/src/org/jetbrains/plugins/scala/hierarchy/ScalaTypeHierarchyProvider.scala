@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.Constructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 
 final class ScalaTypeHierarchyProvider extends JavaTypeHierarchyProvider {
   override def getTarget(dataContext: DataContext): PsiClass = {

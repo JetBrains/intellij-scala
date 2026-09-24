@@ -11,6 +11,9 @@ import junit.framework.TestCase.assertEquals
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{executeWriteActionCommand, inWriteAction, startCommand}
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 

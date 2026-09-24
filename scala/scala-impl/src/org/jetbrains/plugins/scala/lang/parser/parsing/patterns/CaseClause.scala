@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, BlockInIndentationRegion, ExprInIndentationRegion}
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClause.RightCommentBinder
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
 
 import java.{util => ju}
 import scala.jdk.CollectionConverters.ListHasAsScala

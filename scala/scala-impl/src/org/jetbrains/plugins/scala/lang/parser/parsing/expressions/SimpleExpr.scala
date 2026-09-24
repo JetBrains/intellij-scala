@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.NewTemplateBlock
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Path, TypeArgs}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.XmlExpr
 import org.jetbrains.plugins.scala.lang.parser.util.{InBracelessScala3, ParserUtils}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
 
 import scala.annotation.tailrec
 

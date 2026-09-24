@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{NameRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, FunctionType, NamedTupleType, ParameterizedType, StdType, TupleType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScMatchType, ScOrType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScAbstractType, ScAndType, ScCompoundType, ScExistentialArgument, ScExistentialType, ScLiteralType, ScMatchType, ScOrType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.ProjectContext
 

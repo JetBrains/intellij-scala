@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Scal
 import org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ScalaMoveToPackageQuickFix._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 final class ScalaMoveToPackageQuickFix(_file: ScalaFile, packageName: String)
       extends AbstractFixOnPsiElement(ScalaMoveToPackageQuickFix.hint(packageName), _file) {

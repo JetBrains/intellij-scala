@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.factories
 import com.intellij.psi.impl.java.stubs.index.JavaStubIndexKeys
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.{PsiAnnotation, PsiClass, PsiElement}
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation

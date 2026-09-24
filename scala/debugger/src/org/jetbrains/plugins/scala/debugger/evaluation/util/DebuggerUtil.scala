@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElemen
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ValueClassType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ValueClassType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}

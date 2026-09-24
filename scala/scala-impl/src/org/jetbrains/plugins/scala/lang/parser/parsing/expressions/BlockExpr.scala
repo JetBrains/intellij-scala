@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
-import org.jetbrains.plugins.scala.lang.parser.ScCodeBlockElementType
+import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses

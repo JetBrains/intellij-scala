@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-import java.util
+import java.util as ju
 import scala.annotation.nowarn
 import scala.collection.mutable.ListBuffer
 

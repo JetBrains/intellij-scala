@@ -8,7 +8,7 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
-import java.util
+import java.util as ju
 
 final class ScalaPrioritizeImportsUsageRefactoringHelper extends RefactoringHelper[Unit] {
 

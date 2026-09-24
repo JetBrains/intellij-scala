@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScExistentialType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScExistentialType, ScType, ScTypeExt}
 
 import scala.annotation.{switch, tailrec}
 

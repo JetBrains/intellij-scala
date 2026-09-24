@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.annotator.template.PrivateBeanProperty
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, isDumbMode}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
-import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
 
 object ScAnnotationAnnotator extends ElementAnnotator[ScAnnotation] with DumbAware {
 

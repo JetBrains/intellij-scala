@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.parser.util
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.ErrMsg
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr1
 import org.jetbrains.plugins.scala.lang.parser.parsing.{Associativity, ParsingRule}

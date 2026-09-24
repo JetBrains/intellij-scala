@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScFunctionDefinitionExt}
 import org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.inline.method.ScalaInlineMethodHandler.hasNoCallUsages
 

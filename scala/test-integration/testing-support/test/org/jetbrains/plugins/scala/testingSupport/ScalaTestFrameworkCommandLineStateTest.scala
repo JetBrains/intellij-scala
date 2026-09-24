@@ -22,7 +22,7 @@ import org.junit.experimental.categories.Category
 
 import java.net.URI
 import java.nio.file.{Files, Path}
-import java.util
+import java.{util => ju}
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, MapHasAsJava}
 
 @Category(Array(classOf[TestingSupportTests]))

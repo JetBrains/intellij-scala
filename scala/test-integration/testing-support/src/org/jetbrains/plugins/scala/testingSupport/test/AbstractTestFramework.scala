@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 
 import javax.swing.Icon
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import scala.annotation.nowarn
 
 abstract class AbstractTestFramework extends JavaTestFrameworkBridge {

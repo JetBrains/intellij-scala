@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import scala.annotation.tailrec
 
 class ScParameterImpl protected(

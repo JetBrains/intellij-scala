@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.{ScLiteralEscaper, ScalaStringParser}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 // todo: move to "literals" subpackage, but check usages
 

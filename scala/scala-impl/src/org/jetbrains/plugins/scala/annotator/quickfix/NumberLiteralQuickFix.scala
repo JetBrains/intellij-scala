@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral.Numeric
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral, ScLongLiteral}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, api}
 
 sealed abstract class NumberLiteralQuickFix[L <: Numeric](private val literal: L)
   extends IntentionAction

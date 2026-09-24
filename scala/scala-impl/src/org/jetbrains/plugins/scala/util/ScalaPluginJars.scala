@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.util.io.{FileUtil, FileUtilRt}
-import com.intellij.util.PathUtil
+import com.intellij.util.PathUtil.getJarPathForClass
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.org.objectweb.asm.ClassReader

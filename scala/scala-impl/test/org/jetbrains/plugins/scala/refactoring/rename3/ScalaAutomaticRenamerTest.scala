@@ -3,6 +3,9 @@ package org.jetbrains.plugins.scala.refactoring.rename3
 import com.intellij.refactoring.JavaRefactoringSettings
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.util.RevertableChange
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 final class ScalaAutomaticRenamerTest extends ScalaRenameTestBase {
   override def supportedIn(version: ScalaVersion): Boolean = version.isScala3

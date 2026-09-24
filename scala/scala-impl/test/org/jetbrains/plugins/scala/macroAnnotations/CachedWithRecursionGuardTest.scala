@@ -3,6 +3,9 @@ package org.jetbrains.plugins.scala.macroAnnotations
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.cachedWithRecursionGuard
 import org.junit.Assert._
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.util.concurrent.atomic.AtomicInteger
 

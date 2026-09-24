@@ -7,6 +7,9 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 abstract class ScalaPackageNameInspectionTestBase extends ScalaInspectionTestBase with AssertionMatchers {
   override protected val classOfInspection: Class[? <: LocalInspectionTool] =

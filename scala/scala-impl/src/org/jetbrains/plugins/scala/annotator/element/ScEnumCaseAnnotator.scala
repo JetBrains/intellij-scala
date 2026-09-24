@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumSingletonCase}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
 
 object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
   override def annotate(

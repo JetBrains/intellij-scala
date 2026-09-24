@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.conversion.copy.{ScalaPasteFromJavaDialog, Si
 import org.jetbrains.plugins.scala.conversion.{ConverterUtil, JavaToScala}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ProjectPsiFileExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 

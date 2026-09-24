@@ -5,7 +5,7 @@ import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi.tree.IElementType
-import org.intellij.markdown
+import org.intellij.markdown.{IElementType => MarkdownIElementType}
 import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.flavours.gfm.{GFMElementTypes, GFMTokenTypes}
 import org.intellij.markdown.parser.MarkdownParser
