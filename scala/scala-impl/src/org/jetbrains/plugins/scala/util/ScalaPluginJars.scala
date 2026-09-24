@@ -21,6 +21,8 @@ object ScalaPluginJars {
 
   val scalaLibraryJar: Path = libRoot / "scala-library.jar"
   val scala3LibraryJar: Path = libRoot / "scala3-library_3.jar"
+  val compileServerScalaLibraryJar: Path = jpsRoot / "scala-library.jar"
+  val compileServerScala3LibraryJar: Path = jpsRoot / "scala3-library_3.jar"
   val scalaReflectJar: Path = libRoot / "scala-reflect.jar"
   val scalaNailgunRunnerJar: Path = libRoot / "scala-nailgun-runner.jar"
   val compilerSharedJar: Path = libRoot / "compiler-shared.jar"

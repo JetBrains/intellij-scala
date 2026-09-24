@@ -8,8 +8,8 @@ import sbt.*
 object Versions {
   val scalaVersion: String = "2.13.18"
   val scala3Version: String = "3.8.4"
-  // Keep external-process modules on their existing compiler during the IDE migration.
-  val scala3CompilerRuntimeVersion: String = "3.7.4"
+  // Code shared with the compile server must run on Java 8; use the Scala 3.3 LTS line.
+  val scala3CompilerRuntimeVersion: String = "3.3.8"
 
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
   // NOTE: sbt-launch won't be fetched on refresh.
@@ -121,6 +121,8 @@ object Dependencies {
   // Since Scala 3.8 the unified standard library uses the Scala 3 version.
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scala3Version
   val scala3Library: ModuleID = "org.scala-lang" % "scala3-library_3" % scala3Version
+  val compilerRuntimeScalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
+  val compilerRuntimeScala3Library: ModuleID = "org.scala-lang" % "scala3-library_3" % scala3CompilerRuntimeVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
   val scala3Compiler: ModuleID = "org.scala-lang" % "scala3-compiler_3" % scala3Version

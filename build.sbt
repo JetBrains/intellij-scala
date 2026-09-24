@@ -144,6 +144,7 @@ lazy val scalaCommunity: sbt.Project =
         repackagedZinc,
         worksheetReplInterfaceImpls,
         compileServer,
+        compileServerRuntime,
         scalaCompilerPlugin_2_12,
         scalaCompilerPlugin_2_13,
         scalaCompilerPlugin_3_3,
@@ -773,6 +774,20 @@ lazy val compileServer =
       packageMethod := PackagingMethod.Standalone("lib/jps/compile-server.jar", static = true),
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar")
+    )
+
+// Package a Java 8-compatible standard library separately from the IDE's Scala 3.8 runtime.
+lazy val compileServerRuntime =
+  newPlainScalaProject("compile-server-runtime", file("scala/compile-server/runtime"))
+    .settings(NoSourceDirectories)
+    .settings(
+      autoScalaLibrary := false,
+      libraryDependencies ++= Seq(Dependencies.compilerRuntimeScalaLibrary, Dependencies.compilerRuntimeScala3Library),
+      packageMethod := PackagingMethod.DepsOnly(),
+      packageLibraryMappings := Seq(
+        Dependencies.compilerRuntimeScalaLibrary -> Some("lib/jps/scala-library.jar"),
+        Dependencies.compilerRuntimeScala3Library -> Some("lib/jps/scala3-library_3.jar"),
+      ),
     )
 
 // Compiler plugins
