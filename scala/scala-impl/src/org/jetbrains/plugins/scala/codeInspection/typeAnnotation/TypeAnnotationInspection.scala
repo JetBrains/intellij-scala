@@ -49,7 +49,7 @@ object TypeAnnotationInspection {
     val location = Location(element)
 
     ScalaTypeAnnotationSettings(element.getProject).reasonForTypeAnnotationOn(
-      declaration, location, implementation.map(Expression)
+      declaration, location, implementation.map(Expression.apply)
     )
   }
 

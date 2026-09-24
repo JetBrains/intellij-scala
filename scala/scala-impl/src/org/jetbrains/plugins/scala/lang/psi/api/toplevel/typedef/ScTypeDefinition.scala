@@ -71,7 +71,7 @@ trait ScTypeDefinition extends ScTemplateDefinition
 
   def allInnerTypeDefinitions: Seq[ScTypeDefinition] = this.membersWithSynthetic.filterByType[ScTypeDefinition]
 
-  def typeParameters: Seq[ScTypeParam]
+  override def typeParameters: Seq[ScTypeParam] = super.typeParameters
 
   //TODO: add ScalaDoc: what is it, how it's different from baseCompanion?
   def fakeCompanionModule: Option[ScObject]

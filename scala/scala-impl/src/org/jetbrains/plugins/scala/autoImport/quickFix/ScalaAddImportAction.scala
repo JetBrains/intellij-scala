@@ -93,7 +93,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
   private def showChooser(validVariants: Seq[Elem]): Unit = {
     val title = chooserTitle(validVariants)
     val firstPopupStep: BaseListPopupStep[PresentablePopupElement] =
-      new BaseListPopupStep[PresentablePopupElement](title, validVariants.map(PresentablePopupElement)*) {
+      new BaseListPopupStep[PresentablePopupElement](title, validVariants.map(PresentablePopupElement.apply)*) {
         override def getIconFor(aValue: PresentablePopupElement): Icon =
           aValue.icon
 

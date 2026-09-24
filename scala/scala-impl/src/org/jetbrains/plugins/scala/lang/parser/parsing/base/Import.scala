@@ -55,7 +55,7 @@ object Import extends Import {
 
   override protected def keywordType = ScalaTokenTypes.kIMPORT
 
-  override protected def elementType = ScalaElementType.ImportStatement
+  override protected def elementType: org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScImportStmtElementType = ScalaElementType.ImportStatement
 }
 
 /**
@@ -66,9 +66,9 @@ object Export extends Import {
 
   import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
 
-  override protected def keywordType = ExportKeyword
+  override protected def keywordType: org.jetbrains.plugins.scala.lang.lexer.ScalaKeywordTokenType = ExportKeyword
 
-  override protected def elementType = ScalaElementType.ExportStatement
+  override protected def elementType: org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScExportStmtElementType = ScalaElementType.ExportStatement
 
   override protected def parseKeyword(keywordType: IElementType,
                                       isObligatory: Boolean)

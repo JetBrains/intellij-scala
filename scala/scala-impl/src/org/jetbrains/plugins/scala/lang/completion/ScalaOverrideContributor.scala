@@ -220,7 +220,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         case -1 => text
         case part => text.substring(part + 1)
       }
-    else if (classMember.is[ScMethodMember, ScExtensionMethodMember])
+    else if (classMember.isInstanceOf[ScMethodMember] || classMember.isInstanceOf[ScExtensionMethodMember])
       text
     else
       "override " + text
@@ -313,7 +313,7 @@ object ScalaOverrideContributor {
                                (implicit tpc: TypePresentationContext, context: Context): LookupElementRenderer[LookupElement] = { (element, presentation) =>
     def typeText: String = {
       val maybeType = member match {
-        case member: ScalaTypedMember if !member.is[JavaFieldMember] => Some(member.scType)
+        case member: ScalaTypedMember if !member.isInstanceOf[JavaFieldMember] => Some(member.scType)
         case ScAliasMember(definition: ScTypeAliasDefinition, _, _) => definition.aliasedTypeElement.map(_.calcType)
         case _ => None
       }

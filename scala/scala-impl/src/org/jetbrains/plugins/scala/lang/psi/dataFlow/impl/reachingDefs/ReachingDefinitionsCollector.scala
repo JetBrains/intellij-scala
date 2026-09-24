@@ -91,7 +91,7 @@ object ReachingDefinitionsCollector {
 
   private def computeOutputVariables(innerInstructions: Seq[Instruction],
                                      dfaResult: mutable.Map[Instruction, RDSet]): Seq[VariableInfo] = {
-    val result = mutable.SortedSet.empty[PsiNamedElement](Ordering.by(_.getTextRange.getStartOffset))
+    val result = mutable.SortedSet.empty[PsiNamedElement](using Ordering.by(_.getTextRange.getStartOffset))
     for {
       case (read@ReadWriteVariableInstruction(_, Some(definitionToRead), false), rdset) <- dfaResult
       if !innerInstructions.contains(read)
@@ -101,7 +101,7 @@ object ReachingDefinitionsCollector {
     } {
       result += named
     }
-    result.iterator.map(VariableInfo).toSeq
+    result.iterator.map(VariableInfo.apply).toSeq
   }
 
   private def computeInputVariables(innerInstructions: Seq[Instruction]): Seq[VariableInfo] = {
@@ -121,7 +121,7 @@ object ReachingDefinitionsCollector {
       .filter(_.isPhysical)
       .sortBy(_.getTextRange.getStartOffset)
       .distinct
-      .map(VariableInfo)
+      .map(VariableInfo.apply)
   }
 }
 

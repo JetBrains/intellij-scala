@@ -8,8 +8,6 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsSettingsModel
 import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.{ExclusiveRangeHintSettingsModel, RangeHintsForToAndUntilSettingsModel}
 
-import scala.collection.immutable.ArraySeq
-
 class ScalaInlayHintsSettingsProvider extends InlaySettingsProvider {
   override def createModels(project: Project, language: Language): ju.List[InlayProviderSettingsModel] =
     if (language == ScalaLanguage.INSTANCE) {
@@ -22,8 +20,6 @@ class ScalaInlayHintsSettingsProvider extends InlaySettingsProvider {
       )
     }
     else ju.Collections.emptyList()
-
-  ArraySeq.newBuilder
 
   override def getSupportedLanguages(project: Project): ju.Collection[Language] =
     ju.Collections.singletonList(ScalaLanguage.INSTANCE)

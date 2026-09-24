@@ -142,5 +142,5 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
     }
   }
 
-  override def clone = new ScalaRefCountVisitor(project)
+  override def clone: org.jetbrains.plugins.scala.codeInsight.daemon.ScalaRefCountVisitor = new ScalaRefCountVisitor(project)
 }

@@ -61,7 +61,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
         .filter(canEvaluate(_, elem))
     }
     val candidates = initialCandidates.filter(canEvaluateLong(_, elem, evaluationContext))
-    val sorted = mutable.SortedSet()(Ordering.by[ScalaResolveResult, Int](_.getElement.getTextRange.getStartOffset))
+    val sorted = mutable.SortedSet.empty[ScalaResolveResult](using Ordering.by(_.getElement.getTextRange.getStartOffset))
     inReadAction {
       candidates.foreach(sorted += _)
       sorted.map(_.name)

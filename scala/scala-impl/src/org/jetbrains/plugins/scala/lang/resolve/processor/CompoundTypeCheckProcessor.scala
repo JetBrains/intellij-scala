@@ -240,7 +240,7 @@ class CompoundTypeCheckTypeAliasProcessor(
       sign.typeAlias match {
         case tdef: ScTypeAliasDefinition if !tdef.isEffectivelyOpaque =>
           val enclosingClass = tp.parentOfType(classOf[ScTemplateDefinition])
-          val thisType       = enclosingClass.map(ScThisType).getOrElse(tdef.projectContext.stdTypes.Any)
+          val thisType       = enclosingClass.map(ScThisType.apply).getOrElse(tdef.projectContext.stdTypes.Any)
           val asSeenFrom     = subst(ScProjectionType(thisType, tp))
           val aliased        = subst(sign.upperBound)
           val conforms       = aliased.equiv(asSeenFrom, constraints)

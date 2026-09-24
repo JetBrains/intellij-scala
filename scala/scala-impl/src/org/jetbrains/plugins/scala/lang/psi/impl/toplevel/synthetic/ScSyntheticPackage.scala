@@ -38,8 +38,8 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
   override def hasModifierProperty(s: String) = false
   override def getAnnotationList: PsiModifierList = null
   override def getName: String = name
-  override def setName(newName: String) = throw new IncorrectOperationException("cannot set name: nonphysical element")
-  override def copy = throw new IncorrectOperationException("cannot copy: nonphysical element")
+  override def setName(newName: String): Nothing = throw new IncorrectOperationException("cannot set name: nonphysical element")
+  override def copy: Nothing = throw new IncorrectOperationException("cannot copy: nonphysical element")
   override def getContainingFile: PsiFile = SyntheticClasses.get(manager.getProject).file
   override def occursInPackagePrefixes: Array[VirtualFile] = VirtualFile.EMPTY_ARRAY
 

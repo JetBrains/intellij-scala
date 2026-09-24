@@ -48,6 +48,10 @@ class MethodResolveProcessor(
   val nameArgForDynamic:      Option[String]            = None
 ) extends ResolveProcessor(kinds, ref, refName) {
 
+  private def checkAccessibility: Boolean = accessibility
+
+  private def place: PsiElement = getPlace
+
   private def typeArgsForArgClause(argClauseIdx: Int): Seq[ScTypeArgument] =
     invocationClauses.lift(argClauseIdx).map(
       _.targs.getOrElse(Seq.empty)
@@ -451,11 +455,11 @@ object MethodResolveProcessor {
       if (!isAliasedConstructor && typeArgCount > 0 && typeArgCount != typeParamCount) {
         if (typeParamCount == 0) problems += DoesNotTakeTypeParameters
         else if (typeParamCount < typeArgCount)
-          problems ++= currentTypeArgsClause.drop(typeParamCount).map(ExcessTypeArgument)
+          problems ++= currentTypeArgsClause.drop(typeParamCount).map(ExcessTypeArgument.apply)
         else
           problems ++= typeParametersForIdx
             .drop(typeArgCount)
-            .map(MissedTypeParameter)
+            .map(MissedTypeParameter.apply)
 
         addExpectedTypeProblems()
       } else {
@@ -1083,7 +1087,7 @@ object MethodResolveProcessor {
         )
 
       applyCandidates.collect {
-        case applyRR if !accessibility || isAccessible(applyRR.element, ref) =>
+        case applyRR if !proc.checkAccessibility || isAccessible(applyRR.element, ref) =>
           val topLevelApply = applyRR.mostInnerResolveResult
 
           cand.copy(
@@ -1146,7 +1150,7 @@ object MethodResolveProcessor {
         noExpansion
       else
         applyCandidates.view.collect {
-          case rr if !accessibility || isAccessible(rr.element, ref) =>
+          case rr if !proc.checkAccessibility || isAccessible(rr.element, ref) =>
             val unresolvedTypeParameters =
               if (curriedTypeParams.nonEmpty)
                 Option(rr.unresolvedTypeParameters.fold(curriedTypeParams)(_ ++ curriedTypeParams))
@@ -1229,7 +1233,7 @@ object MethodResolveProcessor {
           argClauseIdx == Math.max(invocationClauses.size - 1, 0)
 
       val checkedCandidate = updateCandidateWithApplicabilityProblems(
-        getPlace,
+        proc.place,
         applicabilityCandidate,
         checkWithImplicits,
         args,

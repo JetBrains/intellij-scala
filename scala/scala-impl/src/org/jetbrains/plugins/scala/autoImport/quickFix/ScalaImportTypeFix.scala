@@ -153,7 +153,7 @@ object ScalaImportTypeFix {
 
     val aliasesToImport: Iterable[MemberToImport] = for {
       alias  <- manager.getTypeAliasesByName(referenceName, ref.resolveScope)
-      global <- GlobalMember.findGlobalMembers(alias, ref.resolveScope)(GlobalTypeAlias)
+      global <- GlobalMember.findGlobalMembers(alias, ref.resolveScope)(GlobalTypeAlias.apply)
 
       if kindMatchesAndIsAccessible(alias)
 

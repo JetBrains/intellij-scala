@@ -107,7 +107,7 @@ object ScalaVariableOfTypeMacro {
 
     override protected def typeText(expressions: Array[Expression], `type`: ScType)
                                    (implicit context: ExpressionContext): Boolean =
-      super.typeText(this.expressions.map(new TextExpression(_)), `type`)
+      super.typeText(this.expressions.map[Expression](new TextExpression(_)), `type`)
   }
 
   final class IterableVariable extends ScalaVariableOfTypeMacro {
@@ -121,7 +121,7 @@ object ScalaVariableOfTypeMacro {
 
     override protected def typeText(expressions: Array[Expression], `type`: ScType)
                                    (implicit context: ExpressionContext): Boolean =
-      super.typeText(this.expressions.map(new TextExpression(_)), `type`)
+      super.typeText(this.expressions.map[Expression](new TextExpression(_)), `type`)
   }
 
   private[macros] def isIterable(`type`: ScType) = `type`.extractClass.exists {

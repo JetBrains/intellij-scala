@@ -114,7 +114,7 @@ trait ScFunction
 
   override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(PsiTypeParameter.ARRAY_FACTORY)
 
-  override def getTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
+  override def getTypeParameterList: org.jetbrains.plugins.scala.lang.psi.fake.FakePsiTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
 
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 

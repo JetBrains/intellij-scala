@@ -172,7 +172,7 @@ package object parser {
       repr.findPrecedingIndentation
         .filter(repr => !region.isIndent(repr) && !region.isOutdent(repr))
         .map(IndentationRegion.Indented(_)(Some(repr.currentIndentationRegion)))
-        .map(IndentationRegion.BracelessCaseClause)
+        .map(IndentationRegion.BracelessCaseClause.apply)
     }
 
     def newBracelessIndentationRegionHere: Option[IndentationRegion] =

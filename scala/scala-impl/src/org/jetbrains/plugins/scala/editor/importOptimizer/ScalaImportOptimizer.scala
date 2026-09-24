@@ -402,7 +402,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       Set.empty
     )
 
-  def collectImportRanges(
+  private def collectImportRanges(
     holder: ScImportsHolder,
     allUsedImportedNames: Set[UsedName]
   ): Set[ImportRangeInfo] =
@@ -412,7 +412,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       allUsedImportedNames
     )
 
-  def collectImportRanges(
+  private def collectImportRanges(
     holder: ScImportsHolder,
     createInfo: ScImportStmt => Seq[ImportInfo],
     allUsedImportedNames: Set[UsedName]

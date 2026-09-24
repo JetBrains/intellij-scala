@@ -79,7 +79,7 @@ object ScalaLibraryType {
 
   object Description extends libraries.CustomLibraryDescription {
 
-    override def getSuitableLibraryKinds = ju.Collections.singleton(Kind)
+    override def getSuitableLibraryKinds: java.util.Set[org.jetbrains.plugins.scala.project.ScalaLibraryType.Kind.type] = ju.Collections.singleton(Kind)
 
     override def createNewLibrary(parent: JComponent,
                                   contextDirectory: VirtualFile): NewLibraryConfiguration = {

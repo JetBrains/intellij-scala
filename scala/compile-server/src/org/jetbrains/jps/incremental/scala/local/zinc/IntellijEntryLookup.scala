@@ -37,7 +37,7 @@ case class IntellijEntryLookup(compilationData: CompilationData, fileToStore: Pa
   }
 
   override def definesClass(classpathEntry: VirtualFile): DefinesClass = {
-    val analysisBasedDefine = loadAnalysis(classpathEntry).map(AnalysisBaseDefinesClass)
+    val analysisBasedDefine = loadAnalysis(classpathEntry).map(AnalysisBaseDefinesClass.apply)
     analysisBasedDefine.getOrElse(DefinesClassCache.definesClassFor(classpathEntry))
   }
 }

@@ -130,7 +130,7 @@ object ExtensionMethodData {
 
             if ImplicitProcessor.isAccessible(extensionMethodCandidate, expr)
 
-            method <- findGlobalMembers(extensionMethodCandidate, scope)(GlobalExtensionMethod)
+            method <- findGlobalMembers(extensionMethodCandidate, scope)(GlobalExtensionMethod.apply)
             data <- ExtensionMethodData(method)
             application <- data.application(originalType, expr)
           } yield method -> application)

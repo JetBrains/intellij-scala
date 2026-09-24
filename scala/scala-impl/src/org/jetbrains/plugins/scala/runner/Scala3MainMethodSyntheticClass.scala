@@ -36,7 +36,7 @@ private final class Scala3MainMethodSyntheticClass(
   override def toString = s"synthetic class for scala @main method: $qualifiedName"
 
   override def setName(newName: String): PsiElement = throw new IncorrectOperationException("nonphysical element")
-  override def copy = throw new IncorrectOperationException("nonphysical element")
+  override def copy: Nothing = throw new IncorrectOperationException("nonphysical element")
   override def accept(v: PsiElementVisitor): Unit = throw new IncorrectOperationException("should not call")
 
   override def processDeclarations(

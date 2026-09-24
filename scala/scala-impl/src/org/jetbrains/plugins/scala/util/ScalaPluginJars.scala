@@ -13,7 +13,7 @@ import scala.util.parsing.combinator.RegexParsers
 object ScalaPluginJars {
 
   val libRoot: Path = {
-    val jarPath = Path.of(PathUtil.getJarPathForClass(this.getClass)) // scalaCommunity.jar
+    val jarPath = Path.of(getJarPathForClass(this.getClass)) // scalaCommunity.jar
     jarPath.getParent
   }
 
@@ -63,11 +63,11 @@ object CompilerBridgeSourcesJars {
 
 object IntellijPlatformJars {
 
-  val jpsBuildersJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[BuilderService]))
-  val utilJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[FileUtil]))
-  val utilRtJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[FileUtilRt]))
-  val fastUtilJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[Int2ObjectMap[?]]))
-  val asmJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[ClassReader]))
+  val jpsBuildersJar: Path = Path.of(getJarPathForClass(classOf[BuilderService]))
+  val utilJar: Path = Path.of(getJarPathForClass(classOf[FileUtil]))
+  val utilRtJar: Path = Path.of(getJarPathForClass(classOf[FileUtilRt]))
+  val fastUtilJar: Path = Path.of(getJarPathForClass(classOf[Int2ObjectMap[?]]))
+  val asmJar: Path = Path.of(getJarPathForClass(classOf[ClassReader]))
 
   /**
    * NOTE:<br>
@@ -85,7 +85,7 @@ object IntellijPlatformJars {
    * @see [[org.jetbrains.jps.cmdline.ClasspathBootstrap.getBuildProcessApplicationClasspath]]
    */
   val protobufJava: Path = {
-    val result = Path.of(PathUtil.getJarPathForClass(classOf[com.google.protobuf.Message]))
+    val result = Path.of(getJarPathForClass(classOf[com.google.protobuf.Message]))
     // example in 2021.2: <idea system dir>/lib/protobuf-java-3.15.8.jar
     val Regex = raw"""^.*?/lib/intellij.libraries.protobuf.jar$$""".r
     result.systemIndependentPathString.toLowerCase match {
@@ -101,5 +101,5 @@ object IntellijPlatformJars {
 }
 
 object LibraryJars {
-  val scalaParserCombinators: Path = Path.of(PathUtil.getJarPathForClass(classOf[RegexParsers]))
+  val scalaParserCombinators: Path = Path.of(getJarPathForClass(classOf[RegexParsers]))
 }

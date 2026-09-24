@@ -8,6 +8,6 @@ import com.intellij.psi.{FileViewProviderFactory, PsiManager}
 final class ScFileViewProviderFactory extends FileViewProviderFactory {
 
   override def createFileViewProvider(file: VirtualFile, language: Language,
-                                      manager: PsiManager, eventSystemEnabled: Boolean) =
+                                      manager: PsiManager, eventSystemEnabled: Boolean): org.jetbrains.plugins.scala.lang.psi.ScFileViewProvider =
     new ScFileViewProvider(manager, file, eventSystemEnabled, language)
 }

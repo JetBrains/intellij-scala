@@ -122,11 +122,11 @@ class ScalaFindUsagesHandler(
                                                        options: ScalaTypeDefinitionFindUsagesOptions): Boolean = {
     element match {
       case definition: ScTypeDefinition if options.isImplementingTypeDefinitions =>
-        ClassInheritorsSearch.search(definition, true).forEach((cls: PsiClass) => cls match {
+        ClassInheritorsSearch.search(definition, true).forEach {
           case _: PsiClassWrapper => true
           case aClass: PsiClass => processor.process(new UsageInfo(aClass))
           case _ => true
-        })
+        }
       case _ => true
     }
   }

@@ -16,8 +16,8 @@ object SimulatedFilterOption extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     case ex@IfStmt(`.isDefined`(optDef) `&&` ScMethodCall(pred, Seq(`.get`(optGet))), optThen, scalaNone()) =>
       replaceIfEqual(ex, pred, optDef, Seq(optDef, optGet, optThen))
-    case ex@optExpr ScMatch Seq(CaseClause(scalaSomePattern(optRef: ScReferencePattern), Guard(ScMethodCall(pred, Seq(optCall))), scalaSome(optRes)),
-                                CaseClause(_: ScWildcardPattern, None, scalaNone())) if optCall.textMatches(optRef.name) =>
+    case ex@ScMatch(optExpr, Seq(CaseClause(scalaSomePattern(optRef: ScReferencePattern), Guard(ScMethodCall(pred, Seq(optCall))), scalaSome(optRes)),
+                                CaseClause(_: ScWildcardPattern, None, scalaNone()))) if optCall.textMatches(optRef.name) =>
       replaceIfEqual(ex, pred, optExpr, Seq(optCall, optRes))
     case _ => None
   }

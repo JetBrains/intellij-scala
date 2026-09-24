@@ -574,19 +574,18 @@ package object extensions {
   }
 
   implicit class StringsExt(private val strings: Iterable[String]) extends AnyVal {
-    def commaSeparated(model: Model.Val = Model.None): String =
+    def commaSeparated(model: Model.Delimiters = Model.None): String =
       strings.mkString(model.start, ", ", model.end)
   }
 
   object Model extends Enumeration {
 
-    @nowarn("msg=shadowing a nested class of a parent is deprecated")
-    class Val(val start: String, val end: String) extends super.Val()
+    class Delimiters(val start: String, val end: String) extends Val()
 
-    val None = new Val("", "")
-    val Parentheses = new Val("(", ")")
-    val Braces = new Val("{", "}")
-    val SquareBrackets = new Val("[", "]")
+    val None = new Delimiters("", "")
+    val Parentheses = new Delimiters("(", ")")
+    val Braces = new Delimiters("{", "}")
+    val SquareBrackets = new Delimiters("[", "]")
   }
 
   implicit class TextRangeExt(private val target: TextRange) extends AnyVal {
@@ -1837,7 +1836,7 @@ package object extensions {
     def results =
       getResults.asScala.toSet
 
-    override def getResults =
+    override def getResults: java.util.Set[T] =
       super.getResults.asInstanceOf[JSet[T]]
   }
 

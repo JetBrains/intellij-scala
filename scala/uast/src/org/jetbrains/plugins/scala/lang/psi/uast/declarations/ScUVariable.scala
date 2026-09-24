@@ -248,8 +248,8 @@ object ScUVariable {
       annotations.find(_.getQualifiedName == qualifiedName).orNull
   }
 
-  private trait ScAnnotatedLightVariable {
-    self: LightVariableBuilder[_] =>
+  private trait ScAnnotatedLightVariable[T <: LightVariableBuilder[T]] extends LightVariableBuilder[T] {
+    self: T =>
     @volatile protected var myModifierList: LightModifierList = _
 
     protected def annotations: Array[PsiAnnotation]
@@ -280,14 +280,14 @@ object ScUVariable {
                                       override protected val annotations: Array[PsiAnnotation],
                                       override protected val modifiers: Seq[String])
     extends LightFieldBuilder(name, UastErrorType.INSTANCE, containingClass)
-      with ScAnnotatedLightVariable {
+      with ScAnnotatedLightVariable[LightFieldBuilder] {
 
     def this(name: String,
              containingClass: ScTypeDefinition,
              typeable: TypeableScPsiElement,
              modifierList: Option[ScModifierList],
              isFinal: Boolean) =
-      this(name, containingClass, typeable, modifierList.map(_.getAnnotations).getOrElse(Array.empty),
+      this(name, containingClass, typeable, modifierList.map(_.getAnnotations).getOrElse(Array.empty[PsiAnnotation]),
         getJavaModifiers(modifierList, isVal = isFinal, isField = true))
 
     override lazy val getType: PsiType =
@@ -304,7 +304,7 @@ object ScUVariable {
                                               override protected val modifiers: Seq[String])
     extends LightVariableBuilder[ScAnnotatedLightLocalVariable](containingFile.getManager, name, UastErrorType.INSTANCE, containingFile.getLanguage)
       with PsiLocalVariable
-      with ScAnnotatedLightVariable {
+      with ScAnnotatedLightVariable[ScAnnotatedLightLocalVariable] {
 
     def this(name: String,
              containingFile: PsiFile,
@@ -312,7 +312,7 @@ object ScUVariable {
              modifierList: Option[ScModifierList],
              isFinal: Boolean,
              isField: Boolean) =
-      this(name, containingFile, typeable, modifierList.map(_.getAnnotations).getOrElse(Array.empty),
+      this(name, containingFile, typeable, modifierList.map(_.getAnnotations).getOrElse(Array.empty[PsiAnnotation]),
         getJavaModifiers(modifierList, isVal = isFinal, isField = isField))
 
     override lazy val getType: PsiType =

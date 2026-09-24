@@ -33,7 +33,7 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
         case _ => None
       }
 
-      override protected def createInsertHandler(strategy: PatternGenerationStrategy) =
+      override protected def createInsertHandler(strategy: PatternGenerationStrategy): org.jetbrains.plugins.scala.lang.completion.clauses.ExhaustiveMatchCompletionContributor.ExhaustiveClauseInsertHandler[org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch] =
         new ExhaustiveClauseInsertHandler[ScMatch](strategy, None, None)
     }
   }
@@ -45,7 +45,7 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
                                        (implicit place: PsiElement): Option[ScType] =
         expectedMatchType(`match`)
 
-      override protected def createInsertHandler(strategy: PatternGenerationStrategy) =
+      override protected def createInsertHandler(strategy: PatternGenerationStrategy): org.jetbrains.plugins.scala.lang.completion.clauses.ExhaustiveMatchCompletionContributor.ExhaustiveClauseInsertHandler[org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatch] =
         new ExhaustiveClauseInsertHandler[ScMatch](strategy)
     }
   }
@@ -61,7 +61,7 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
                                        (implicit place: PsiElement): Option[ScType] =
         expectedFunctionalType(block)
 
-      override protected def createInsertHandler(strategy: PatternGenerationStrategy) =
+      override protected def createInsertHandler(strategy: PatternGenerationStrategy): org.jetbrains.plugins.scala.lang.completion.clauses.ExhaustiveMatchCompletionContributor.ExhaustiveClauseInsertHandler[org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr] =
         new ExhaustiveClauseInsertHandler[ScBlockExpr](strategy)
     }
   }

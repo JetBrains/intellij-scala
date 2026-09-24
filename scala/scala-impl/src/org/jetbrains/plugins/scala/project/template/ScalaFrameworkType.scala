@@ -19,11 +19,11 @@ final class ScalaFrameworkType extends FrameworkTypeEx(ScalaLanguage.INSTANCE.ge
 
   override def getIcon = Icons.SCALA_FILE
 
-  override def getPresentableName = NlsString.force(getId)
+  override def getPresentableName: String = NlsString.force(getId)
 
-  override def createProvider = new FrameworkSupportInModuleProvider {
+  override def createProvider: FrameworkSupportInModuleProvider = new FrameworkSupportInModuleProvider {
 
-    override def getFrameworkType = ScalaFrameworkType.this
+    override def getFrameworkType: ScalaFrameworkType = ScalaFrameworkType.this
 
     override def getIcon = getFrameworkType.getIcon
 
@@ -37,11 +37,11 @@ final class ScalaFrameworkType extends FrameworkTypeEx(ScalaLanguage.INSTANCE.ge
     override def isSupportAlreadyAdded(module: Module,
                                        facetsProvider: FacetsProvider): Boolean = module.hasScala
 
-    override def createConfigurable(model: FrameworkSupportModel) = new FrameworkSupportInModuleConfigurable {
+    override def createConfigurable(model: FrameworkSupportModel): FrameworkSupportInModuleConfigurable = new FrameworkSupportInModuleConfigurable {
 
-      override def createComponent = null
+      override def createComponent: Null = null
 
-      override def createLibraryDescription = ScalaLibraryType.Description
+      override def createLibraryDescription: ScalaLibraryType.Description.type = ScalaLibraryType.Description
 
       override def isOnlyLibraryAdded = true
 

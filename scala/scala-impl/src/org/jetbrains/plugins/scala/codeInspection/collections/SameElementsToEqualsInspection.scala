@@ -36,7 +36,7 @@ object CorrespondsToEquals extends SimplificationType {
   override def hint: String = ScalaInspectionBundle.message("replace.corresponds.with.equals")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
-    case left`.corresponds`(right, binaryOperation("==")) if isSeq(left) && isSeq(right) =>
+    case `.corresponds`(left, right, binaryOperation("==")) if isSeq(left) && isSeq(right) =>
       Some(replace(expr).withText(s"${left.getText} == ${right.getText}").highlightRef)
     case _ => None
   }

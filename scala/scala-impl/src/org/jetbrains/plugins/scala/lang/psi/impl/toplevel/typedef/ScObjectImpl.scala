@@ -164,7 +164,7 @@ class ScObjectImpl(
   override def getConstructors: Array[PsiMethod] = _getConstructors()
 
   private val _getConstructors: () => Array[PsiMethod] = cached("getConstructors", BlockModificationTracker(this), () => {
-    Array(new EmptyPrivateConstructor(this))
+    Array[PsiMethod](new EmptyPrivateConstructor(this))
   })
 
   override def isPhysical: Boolean = {

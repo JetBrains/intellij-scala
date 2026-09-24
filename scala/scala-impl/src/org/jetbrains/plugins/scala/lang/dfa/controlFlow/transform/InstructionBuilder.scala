@@ -354,11 +354,11 @@ object InstructionBuilder {
 
   final class DeferredLabel extends Label {
     private[InstructionBuilder] var stacksOrIndex: Either[mutable.ArrayBuffer[VStack], Int] = Left(mutable.ArrayBuffer.empty)
-    private[InstructionBuilder] override val offset = new DeferredOffset
+    private[InstructionBuilder] override val offset: DeferredOffset = new DeferredOffset
   }
 
   final class FixedLabel(index: Int) extends Label {
-    private[InstructionBuilder] override val offset = new FixedOffset(index)
+    private[InstructionBuilder] override val offset: com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.FixedOffset = new FixedOffset(index)
   }
 
   /*private def mergeStack(oldS: VStack, newS: VStack, mergeIndex: Int): VStack = {

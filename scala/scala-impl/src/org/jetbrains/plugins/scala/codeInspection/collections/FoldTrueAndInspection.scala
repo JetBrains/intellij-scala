@@ -18,7 +18,7 @@ object FoldTrueAnd extends SimplificationType(){
     expr match {
       case `.foldLeft`(_, literal("true"), andCondition(cond)) if hasSideEffects(cond) =>
         None
-      case qual`.fold`(literal("true"), andCondition(cond)) =>
+      case `.fold`(qual, literal("true"), andCondition(cond)) =>
         Some(replace(expr).withText(invocationText(qual, "forall", cond)).highlightFrom(qual))
       case _ => None
     }

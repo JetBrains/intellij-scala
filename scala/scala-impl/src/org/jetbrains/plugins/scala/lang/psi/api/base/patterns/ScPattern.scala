@@ -45,7 +45,9 @@ trait ScPattern extends ScalaPsiElement with Typeable {
 
 object ScPattern {
   implicit class Ext(private val pattern: ScPattern) extends AnyVal {
-    import pattern.{elementScope, projectContext, thisContext}
+    import pattern.{elementScope, projectContext}
+
+    private implicit def context: Context = Context(pattern)
 
     def expectedType: Option[ScType] = {
       // Only a known expected type is cached (`null` is what the cache uses to mark an absent value):

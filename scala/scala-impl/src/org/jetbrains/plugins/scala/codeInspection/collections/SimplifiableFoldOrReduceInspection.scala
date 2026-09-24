@@ -46,7 +46,7 @@ abstract class FoldSimplificationType(inspection: OperationOnCollectionInspectio
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.fold`(literal(`startElem`), binaryOperation(`opName`)) if implicitParameterExistsFor(methodName, qual) =>
+      case `.fold`(qual, literal(`startElem`), binaryOperation(`opName`)) if implicitParameterExistsFor(methodName, qual) =>
         val simpl = replace(expr).withText(invocationText(qual, methodName)).highlightFrom(qual)
         Some(simpl)
       case _ => None

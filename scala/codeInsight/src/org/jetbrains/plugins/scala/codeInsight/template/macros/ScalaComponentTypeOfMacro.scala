@@ -21,7 +21,7 @@ final class ScalaComponentTypeOfMacro extends ScalaMacro {
       }
 
       maybeType.flatMap(arrayComponent)
-        .map(ScalaTypeResult)
+        .map(ScalaTypeResult.apply)
         .orNull
     case _ => null
   }

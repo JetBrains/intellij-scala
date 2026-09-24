@@ -7,7 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt => Ext, _}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValueExtractor
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
@@ -379,7 +379,7 @@ object Compatibility {
   private def usingKw(arg: Expression): Option[PsiElement] =
     for {
       argPsi   <- arg.scExpressionOrNull.toOption
-      usingKW  <- argPsi.prevSiblingNotWhitespaceComment
+      usingKW  <- new org.jetbrains.plugins.scala.extensions.PsiElementExt(argPsi).prevSiblingNotWhitespaceComment
       if usingKW.getNode.getElementType == ScalaTokenType.UsingKeyword
     } yield usingKW
 
@@ -443,7 +443,7 @@ object Compatibility {
     val clashedAssignments    = clashedAssignmentsIn(args)
 
     if (clashedAssignments.nonEmpty) {
-      val problems = clashedAssignments.map(ParameterSpecifiedMultipleTimes)
+      val problems = clashedAssignments.map(ParameterSpecifiedMultipleTimes.apply)
       return ApplicabilityCheckResult(problems, constraintAccumulator)
     }
 
@@ -455,7 +455,7 @@ object Compatibility {
 
     if (excess > 0) {
       val excessArguments = args.takeRight(excess).map(_.scExpressionOrNull)
-      return ApplicabilityCheckResult(excessArguments.map(ExcessArgument), constraintAccumulator)
+      return ApplicabilityCheckResult(excessArguments.map(ExcessArgument.apply), constraintAccumulator)
     }
 
     val minParams = parameters.count(p => !p.isDefault && !p.isRepeated)
@@ -629,7 +629,7 @@ object Compatibility {
         val excessiveArgs = args.drop(parameters.length).map(_.scExpressionOrNull)
 
         return ApplicabilityCheckResult(
-          excessiveArgs.map(ExcessArgument),
+          excessiveArgs.map(ExcessArgument.apply),
           constraintAccumulator,
           defaultParameterUsed,
           matched.result()

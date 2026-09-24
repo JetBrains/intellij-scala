@@ -1549,7 +1549,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         PsiTypeConstants.Byte,
         PsiTypeConstants.Short
       ).contains(tp)
-    case _ => false
   }
 }
 
@@ -1665,7 +1664,7 @@ object ScalaEvaluatorBuilderUtil {
       case (_: ScExpression) childOf (f: ScFor) =>
         f.enumerators.fold(1)(e => e.generators.length)
       case (e: ScEnumerator) childOf (enums: ScEnumerators) =>
-        enums.children.takeWhile(_ != e).count(_.isInstanceOf[ScGenerator])
+        enums.children.takeWhile(_ != e).count(_.is[ScGenerator])
       case _ => 1
     }
   }

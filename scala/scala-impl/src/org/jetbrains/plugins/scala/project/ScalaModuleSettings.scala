@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.caches.cached
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
-import org.jetbrains.plugins.scala.project.ScalaModuleSettings._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.plugins.scala.util.JarManifestUtils
@@ -28,7 +27,7 @@ import scala.util.control.NonFatal
 private class ScalaModuleSettings private(
   module: Module,
   isBuildModule: Boolean,
-  val scalaVersionProvider: ScalaVersionProvider
+  val scalaVersionProvider: ScalaModuleSettings.ScalaVersionProvider
 ) {
   import ScalaModuleSettings._
 
@@ -247,7 +246,7 @@ object ScalaModuleSettings {
         .forEachLibrary(processor)
       val scalaSdk = processor.getFoundValue.asInstanceOf[LibraryEx]
 
-      val scalaVersionProviderFromScalaSdk = Option(scalaSdk).map(ScalaVersionProvider.FromScalaSdk)
+      val scalaVersionProviderFromScalaSdk = Option(scalaSdk).map(ScalaVersionProvider.FromScalaSdk.apply)
       val scalaVersionProvider: Option[ScalaVersionProvider] = scalaVersionProviderFromScalaSdk.orElse {
         val lightTestsScalaVersion = Option(module.getUserData(TestUtils.LightTestScalaVersion))
         lightTestsScalaVersion.map(v => ScalaVersionProvider.Explicit(v.languageLevel, Some(v.minor)))

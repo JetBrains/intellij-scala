@@ -57,7 +57,7 @@ object SyntheticImplicitInstances {
       case _           => elements.mkString("(", ", ", ")")
     }
 
-  def mirrorType(
+  private def mirrorType(
     targetType: ScType,
     descriptor: MirrorDescriptor,
     mirrorFqn:  String,

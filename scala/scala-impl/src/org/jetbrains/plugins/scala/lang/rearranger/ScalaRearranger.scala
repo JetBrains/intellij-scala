@@ -128,7 +128,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
               commonModifiers.contains(token)
             })
 
-  override def buildMatcher(condition: ArrangementMatchCondition) = throw new IllegalArgumentException("Can't build a matcher for condition " + condition)
+  override def buildMatcher(condition: ArrangementMatchCondition): Nothing = throw new IllegalArgumentException("Can't build a matcher for condition " + condition)
 
   override def getMutexes: util.List[util.Set[ArrangementSettingsToken]] =
     List(scalaAccessModifiers.asJava, scalaTypesValues.asJava).asJava

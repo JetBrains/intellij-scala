@@ -104,7 +104,7 @@ object ScClassFileDecompiler {
                             file: VirtualFile,
                             fileType: FileType): Null = null
 
-    override def getContents = ""
+    override def getContents: String = ""
 
     override def createCopy(file: VirtualFile) =
       new NonScalaClassFileViewProvider(getManager, file, eventSystemEnabled = false, getBaseLanguage)

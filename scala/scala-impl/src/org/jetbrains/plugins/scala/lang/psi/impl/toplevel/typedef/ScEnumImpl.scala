@@ -35,7 +35,7 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScClass],
         val singletons = cases.collect {
           case singletonCase: ScEnumSingletonCase => new ScLightEnumConstant(singletonCase, this)
         }
-        singletons.toArray
+        singletons.toArray[PsiField]
       } else {
         PsiField.EMPTY_ARRAY
       }
@@ -59,7 +59,7 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScClass],
     name == "sealed" || name == "abstract" || super.hasModifierPropertyScala(name)
 
   //noinspection TypeAnnotation
-  override protected def targetTokenType = EnumKeyword
+  override protected def targetTokenType: org.jetbrains.plugins.scala.lang.lexer.ScalaKeywordTokenType = EnumKeyword
 
   //noinspection TypeAnnotation
   override protected def baseIcon = Icons.ENUM

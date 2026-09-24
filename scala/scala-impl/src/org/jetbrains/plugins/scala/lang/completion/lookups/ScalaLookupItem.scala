@@ -122,7 +122,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     }
   }
 
-  override def getExpensiveRenderer: LookupElementRenderer[_ <: LookupElement] = (element: LookupElement, presentation) => {
+  override def getExpensiveRenderer: LookupElementRenderer[LookupElement] = (element: LookupElement, presentation) => {
     element.renderElement(presentation)
 
     val nonObjComp = getPsiElement.asOptionOf[ScTypeDefinition]

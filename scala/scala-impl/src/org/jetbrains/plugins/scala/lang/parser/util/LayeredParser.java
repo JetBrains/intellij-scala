@@ -845,7 +845,7 @@ public abstract class LayeredParser implements PsiParser {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    private abstract class FakeMarker implements PsiBuilder.Marker {
+    abstract class FakeMarker implements PsiBuilder.Marker {
       private FakeMarker prevMarker;
       private FakeMarker nextMarker;
       private boolean isValid = true;
@@ -1106,7 +1106,7 @@ public abstract class LayeredParser implements PsiParser {
       }
     }
 
-    private class FakeErrorMarker extends FakeMarker {
+    class FakeErrorMarker extends FakeMarker {
       private final String message;
 
       private FakeErrorMarker(String message) {

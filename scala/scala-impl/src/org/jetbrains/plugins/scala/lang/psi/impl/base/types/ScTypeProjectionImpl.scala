@@ -35,7 +35,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScT
     doResolve(new ResolveProcessor(getKinds(incomplete), ScTypeProjectionImpl.this, refName))
   }
 
-  override def bindToElement(p1: PsiElement) = throw new IncorrectOperationException("NYI")
+  override def bindToElement(p1: PsiElement): Nothing = throw new IncorrectOperationException("NYI")
   override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
   override def qualifier: Option[ScalaPsiElement] = None
 

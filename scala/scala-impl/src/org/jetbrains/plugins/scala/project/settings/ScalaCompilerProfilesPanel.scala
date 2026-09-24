@@ -240,7 +240,7 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
     private def allProfiles: Seq[ScalaCompilerSettingsProfile] = Seq(myDefaultProfile) ++ myModuleProfiles
 
     private def onProfileSelected(moduleNode: MyModuleNode, nodeProfile: ScalaCompilerSettingsProfile, selectedProfile: ScalaCompilerSettingsProfile): Unit = {
-      val selectedNodes = Option(myTree.getSelectionPaths).getOrElse(Array())
+      val selectedNodes = Option(myTree.getSelectionPaths).getOrElse(Array.empty[TreePath])
       val selectedModules = selectedNodes.map(_.getLastPathComponent).collect { case n: MyModuleNode => n.module }
       selectedModules
         .foreach { module =>

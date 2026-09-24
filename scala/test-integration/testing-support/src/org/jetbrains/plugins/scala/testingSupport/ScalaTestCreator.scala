@@ -83,7 +83,7 @@ object ScalaTestCreator {
       mock.getOrElse(super.getSelectedTestFrameworkDescriptor)
     }
 
-    override def getSelectedMethods: util.Collection[MemberInfo] = {
+    override def getSelectedMethods: ju.Collection[MemberInfo] = {
       getMockTestData(project)(_.selectedTestedMethodsNames).flatten match {
         case Some(methodNames) =>
           val psiMethods = methodNames.flatMap { name =>

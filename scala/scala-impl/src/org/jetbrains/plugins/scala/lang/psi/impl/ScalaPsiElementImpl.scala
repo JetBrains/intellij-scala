@@ -141,7 +141,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
   override def copyCopyableDataTo(clone: UserDataHolderBase): Unit = {
     super.copyCopyableDataTo(clone)
 
-    val stubbed = clone.asInstanceOf[ScalaStubBasedElementImpl[?, ?]]
+    val stubbed: ScalaPsiElement = clone.asInstanceOf[ScalaStubBasedElementImpl[?, ?]]
     stubbed.context = this.context
     stubbed.child = this.child
   }

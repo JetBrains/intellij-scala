@@ -207,7 +207,7 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     case _                           => typesText(params, Model.Parentheses)
   }
 
-  private def typesText(types: Iterable[ScType], model: Model.Val = Model.None): String =
+  private def typesText(types: Iterable[ScType], model: Model.Delimiters = Model.None): String =
     types
       .map(render)
       .commaSeparated(model)

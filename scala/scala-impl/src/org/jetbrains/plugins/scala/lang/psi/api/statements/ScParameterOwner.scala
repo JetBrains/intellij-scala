@@ -41,7 +41,7 @@ trait ScInterleavedClausesOwner extends ScParameterOwner with ScTypeParametersOw
       clausesInLexicalOrder
     }
 
-    leadingTypeParametersClause.toSeq.map(TypeClause) ++ clausesFromParameters
+    leadingTypeParametersClause.toSeq.map(TypeClause.apply) ++ clausesFromParameters
   })
 
   def typeParametersInScopeFor(place: PsiElement): Seq[ScTypeParam] = {
@@ -220,7 +220,7 @@ object ScParameterOwner {
 
     val orphanClauses = effectiveClauses.filterNot(clausesInSignature.contains)
     val resultClauses = scala.collection.mutable.ArrayBuffer.empty[ScSignatureClause]
-    resultClauses ++= orphanClauses.map(TermClause)
+    resultClauses ++= orphanClauses.map(TermClause.apply)
 
     def flushPendingTypeParameters(): Unit = {
       if (pendingTypeParameters.nonEmpty) {

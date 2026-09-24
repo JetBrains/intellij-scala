@@ -318,7 +318,7 @@ object TypeCheckCanBeMatchInspection {
       name = suggestedNames.head
     } {
       val primary = mutable.ArrayBuffer.empty[ScNamedElement]
-      val dependents = mutable.SortedSet.empty[ScalaPsiElement](Ordering.by(_.getTextOffset))
+      val dependents = mutable.SortedSet.empty[ScalaPsiElement](using Ordering.by(_.getTextOffset))
 
       val patternVisitor = new ScalaRecursiveElementVisitor() {
         override def visitPattern(pat: ScPattern): Unit = {

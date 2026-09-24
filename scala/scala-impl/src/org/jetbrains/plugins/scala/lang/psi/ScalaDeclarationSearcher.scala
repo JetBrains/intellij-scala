@@ -8,7 +8,7 @@ import java.util.Collection
 import java.util.Collections.{emptyList, singletonList}
 
 class ScalaDeclarationSearcher extends JvmDeclarationSearcher {
-  override def findDeclarations(declaringElement: PsiElement): util.Collection[JvmElement] =
+  override def findDeclarations(declaringElement: PsiElement): Collection[JvmElement] =
     declaringElement match {
       case element: JvmElement => singletonList(element)
       case _ => emptyList

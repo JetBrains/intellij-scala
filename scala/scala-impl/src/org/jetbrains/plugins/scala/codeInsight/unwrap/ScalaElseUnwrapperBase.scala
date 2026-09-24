@@ -17,7 +17,7 @@ abstract class ScalaElseUnwrapperBase extends ScalaUnwrapper {
   }
 
   protected def elseBranch(e: PsiElement): Option[(ScIf, ScExpression)] = {
-    if (e.isInstanceOf[ScIf]) return None
+    if (e.is[ScIf]) return None
 
     e.getParent match {
       case ifSt @ ScIf(_, Some(expr), _) childOf (parentIf @ ScIf(_, _, Some(elseIf))) if ifSt == elseIf && e == expr =>

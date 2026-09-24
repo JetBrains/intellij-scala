@@ -13,6 +13,8 @@ class ScBlockExprImpl(elementType: ILazyParseableElementType, buffer: CharSequen
 
   override def toString: String = "BlockExpression"
 
+  override def clone(): LazyParseablePsiElement = super.clone()
+
   override def hasCaseClauses: Boolean = caseClauses.isDefined
 
   override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): Array[T] = {

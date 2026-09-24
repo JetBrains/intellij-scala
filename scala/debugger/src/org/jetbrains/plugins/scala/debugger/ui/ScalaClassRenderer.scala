@@ -27,6 +27,8 @@ class ScalaClassRenderer extends ClassRenderer {
 
   override def getName: String = DebuggerBundle.message("scala.class.renderer")
 
+  override def clone(): ClassRenderer = super.clone()
+
   def isApplicableFor(tpe: Type): Boolean = tpe match {
     case ct: ClassType => isScalaSource(ct) && !isStringBuilder(ct)
     case _ => false

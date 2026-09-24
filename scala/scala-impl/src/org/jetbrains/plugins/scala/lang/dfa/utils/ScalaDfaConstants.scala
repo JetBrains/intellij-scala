@@ -74,7 +74,7 @@ object ScalaDfaConstants {
       ">=" -> RelationType.GE,
       "==" -> RelationType.EQ,
       "!=" -> RelationType.NE
-    ).view.mapValues(ScalaRelationType.Java).iterator ++ Iterator(
+    ).view.mapValues(ScalaRelationType.Java.apply).iterator ++ Iterator(
       "eq" -> ScalaRelationType.InstEq,
       "ne" -> ScalaRelationType.InstNe,
     )).toMap

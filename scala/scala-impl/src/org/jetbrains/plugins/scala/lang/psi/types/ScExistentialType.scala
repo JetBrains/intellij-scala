@@ -78,7 +78,7 @@ final class ScExistentialType private (
             case (arg: ScExistentialArgument, rParam: ScTypeParam)
               if rParam.isContravariant && wildcards.contains(arg) => (arg.name, arg.lower)
           }.unzip
-        val subst = ScSubstitutor.bind(names, existArgsBounds)(TypeParamId.nameBased)
+        val subst = ScSubstitutor.bind(names, existArgsBounds)(using TypeParamId.nameBased)
         return subst(quantified).equiv(r, constraints, falseUndef)
       case _ =>
     }

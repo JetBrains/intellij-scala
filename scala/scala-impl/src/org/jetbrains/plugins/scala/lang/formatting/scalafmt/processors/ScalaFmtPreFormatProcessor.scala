@@ -231,7 +231,7 @@ object ScalaFmtPreFormatProcessor {
       }
 
     val scalaFmt: ScalafmtReflect = context.config.fmtReflect
-    scalaFmt.tryFormat(wrappedCode.text) match {
+    scalaFmt.tryFormatWithContext(wrappedCode.text) match {
       case Left(value) =>
         if (ApplicationManager.getApplication.isUnitTestMode)
           throw value.cause
@@ -396,7 +396,7 @@ object ScalaFmtPreFormatProcessor {
                                  (implicit context: ConfigContext): Either[FormattingError, Unit] = {
     val scalaFmt: ScalafmtReflect = context.config.fmtReflect
     for {
-      formattedText <- scalaFmt.tryFormat(document.getText)
+      formattedText <- scalaFmt.tryFormatWithContext(document.getText)
     } yield inWriteAction {
       document.setText(formattedText)
     }
@@ -1085,7 +1085,7 @@ object ScalaFmtPreFormatProcessor {
 
   private implicit class ScalafmtReflectExt(private val scalafmt: ScalafmtReflect) extends AnyVal {
 
-    def tryFormat(code: String)(implicit context: ConfigContext): Either[ScalafmtFormatError, String] =
+    def tryFormatWithContext(code: String)(implicit context: ConfigContext): Either[ScalafmtFormatError, String] =
       scalafmt.tryFormat(code, context.config, context.filePath)
         .toEither.left.map(x => ScalafmtFormatError(ReflectionException.flatten(x)))
   }

@@ -19,7 +19,7 @@ final class Scala3ParserDefinition extends ScalaParserDefinitionBase {
 
   override def createParser(project: Project): ScalaParser = new ScalaParser(isScala3 = true)
 
-  override def createFile(viewProvider: FileViewProvider) = new ScalaFileImpl(viewProvider)
+  override def createFile(viewProvider: FileViewProvider): org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl = new ScalaFileImpl(viewProvider)
 }
 
 object Scala3ParserDefinition {

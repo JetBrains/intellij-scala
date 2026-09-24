@@ -12,6 +12,8 @@ trait ScTypedExpression extends ScExpression {
 
   def isSequenceArg: Boolean = getLastChild.is[ScSequenceArg]
 
+  private def sequenceArg: Option[ScSequenceArg] = findLastChild[ScSequenceArg]
+
   def hasAnnotation: Boolean = annotations.isDefined
 
   def annotations: Option[ScAnnotations] = findChild[ScAnnotations]
@@ -27,6 +29,6 @@ object ScTypedExpression {
 
   object sequenceArg {
     def unapply(typed: ScTypedExpression): Option[ScSequenceArg] =
-      typed.findLastChild[ScSequenceArg]
+      typed.sequenceArg
   }
 }

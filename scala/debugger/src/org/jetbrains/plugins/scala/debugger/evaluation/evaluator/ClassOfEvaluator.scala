@@ -38,7 +38,7 @@ class ClassOfEvaluator(tpe: ScType) extends Evaluator {
       case Short => primitiveClassEvaluator("java.lang.Short".toJVMName)
       case lt: ScLiteralType =>
         val v = lt.value.value
-        val vs = if (v.is[String]) s""""$v"""" else v
+        val vs = if (v.isInstanceOf[String]) s""""$v"""" else v
         val t = inReadAction(lt.removeAliasDefinitions().widenIfLiteral)
         throw EvaluationException(DebuggerBundle.message("error.literal.type.is.not.class.type", vs, t))
       case _ =>

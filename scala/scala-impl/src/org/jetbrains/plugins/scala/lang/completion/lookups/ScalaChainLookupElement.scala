@@ -31,7 +31,7 @@ final class ScalaChainLookupElement(delegate: ScalaLookupItem, prefix: ScalaLook
     element.wrapOptionIfNeeded(prefixPresentation)
   }
 
-  override def getExpensiveRenderer: LookupElementRenderer[_ <: LookupElement] = {
+  override def getExpensiveRenderer: LookupElementRenderer[LookupElementDecorator[?]] = {
     (_: LookupElementDecorator[?], presentation) => {
       val prefixPresentation = new LookupElementPresentation()
       prefix.renderElement(prefixPresentation)

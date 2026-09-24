@@ -313,7 +313,7 @@ object ScalaGenerationInfo {
     anchor: PsiElement,
     needsOverrideModifier: Boolean
   ): ScMember = {
-    val isVal = classMember.is[ScValueMember]
+    val isVal = classMember.isInstanceOf[ScValueMember]
 
     val value = classMember match {
       case x: ScValueMember => x.element

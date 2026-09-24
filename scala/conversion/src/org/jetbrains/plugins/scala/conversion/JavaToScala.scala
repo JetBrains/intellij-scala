@@ -84,7 +84,7 @@ object JavaToScala {
     }
   }
 
-  private trait ExternalProperties {}
+  private[conversion] trait ExternalProperties {}
 
   private case class WithReferenceExpression(yep: Boolean) extends ExternalProperties
 
@@ -115,7 +115,7 @@ object JavaToScala {
     }
   }
 
-  def convertPsiToIntermediatePublic(
+  private[conversion] def convertPsiToIntermediatePublic(
     element: PsiElement,
     externalProperties: ExternalProperties
   )(implicit
@@ -1130,7 +1130,7 @@ object JavaToScala {
         case (psiType, _) => owner.hasModifierProperty(psiType)
       }.values
 
-      modifiersBuilder ++= simpleList.map(SimpleModifier)
+      modifiersBuilder ++= simpleList.map(SimpleModifier.apply)
 
       owner match {
         case method: PsiMethod =>

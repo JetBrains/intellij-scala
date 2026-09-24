@@ -873,7 +873,7 @@ package object project {
 
     def literalTypesEnabled: Boolean = {
       val file = element.getContainingFile
-      file != null && (file.getLanguage == Scala3Language.INSTANCE || file.isDefinedInModuleOrProject(_.literalTypesEnabled))
+      file != null && (file.getLanguage == Scala3Language.INSTANCE || new ProjectPsiElementExt(file).isDefinedInModuleOrProject(_.literalTypesEnabled))
     }
 
     def partialUnificationEnabled: Boolean = isDefinedInModuleOrProject(_.isPartialUnificationEnabled)

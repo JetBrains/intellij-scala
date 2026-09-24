@@ -40,7 +40,7 @@ import scala.jdk.CollectionConverters.ListHasAsScala
  *       Note that _ScalaDocMarkdownLexer makes sure that quotes can only eat their preceding whitespaces
  *       and not their following. Also, they will not eat the whitespaces at the beginning of the line.
  */
-private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) extends ScalaDocElementTypes {
+private class ScaladocMarkdownParsing private (builder: MkBuilder, content: String) extends ScalaDocElementTypes {
   import builder.ensureBuilderInPosition
 
   private val elementsHandlingInnerWs = Set(
@@ -68,7 +68,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
     ty == ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS || ty == ScalaDocTokenType.DOC_BLOCKQUOTE
   }
 
-  def visitNode(treeIt: MkTreeIt): Unit = {
+  private def visitNode(treeIt: MkTreeIt): Unit = {
     assert(!treeIt.ended)
     ProgressManager.checkCanceled()
     val tpe = treeIt.currentNodeType
@@ -421,7 +421,7 @@ private class ScaladocMarkdownParsing(builder: MkBuilder, content: String) exten
     marker.done(elementTy)
   }
 
-  private def mapType(treeIt: MkTreeIt, tpe: markdown.IElementType): Option[IElementType] = Some(
+  private def mapType(treeIt: MkTreeIt, tpe: MarkdownIElementType): Option[IElementType] = Some(
     tpe match {
       // ScalaDoc stuff
       case ScalaDocTagMarkerBlock.TAG_BLOCK => ScalaDocElementTypes.DOC_TAG

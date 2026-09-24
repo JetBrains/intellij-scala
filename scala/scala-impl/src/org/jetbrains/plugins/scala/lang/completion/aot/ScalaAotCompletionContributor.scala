@@ -32,7 +32,7 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
     new ParameterCompletionProvider {
 
       //noinspection TypeAnnotation
-      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement) = new TypedConsumer(resultSet) {
+      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): aot.TypedConsumer = new TypedConsumer(resultSet) {
 
         override protected def createInsertHandler(itemText: String): aot.InsertHandler = new aot.InsertHandler(itemText) {
 
@@ -79,7 +79,7 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
   registerParameterProvider[ScPrimaryConstructor](
     new ParameterCompletionProvider {
 
-      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement) = new TypedConsumer(resultSet)
+      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): org.jetbrains.plugins.scala.lang.completion.aot.TypedConsumer = new TypedConsumer(resultSet)
 
       override protected def createElement(text: String,
                                            context: PsiElement,
@@ -183,7 +183,7 @@ object ScalaAotCompletionContributor {
     override protected final def createElement(text: String, context: PsiElement, child: PsiElement): D =
       createDeclarationFromText(keyword + " " + text, context, child).asInstanceOf[D]
 
-    override protected final def createConsumer(resultSet: CompletionResultSet, position: PsiElement) = new UntypedConsumer(resultSet)
+    override protected final def createConsumer(resultSet: CompletionResultSet, position: PsiElement): org.jetbrains.plugins.scala.lang.completion.aot.UntypedConsumer = new UntypedConsumer(resultSet)
   }
 
   private abstract class DefinitionCompletionProvider[D <: ScMember & ScDefinitionWithAssignment](keyword: String,

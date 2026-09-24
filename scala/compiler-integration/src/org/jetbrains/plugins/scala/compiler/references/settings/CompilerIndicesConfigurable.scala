@@ -27,7 +27,7 @@ class CompilerIndicesConfigurable(project: Project) extends Configurable {
     val requiresRestart = panel.applyTo(CompilerIndicesSettings(project))
 
     if (requiresRestart) {
-      shutdownCallback = Option(() => invokeLater { shutdownOrRestartApp() })
+      shutdownCallback = Some[Runnable](() => invokeLater { shutdownOrRestartApp() })
     }
   }
 

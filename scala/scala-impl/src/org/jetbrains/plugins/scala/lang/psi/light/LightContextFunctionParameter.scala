@@ -59,7 +59,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
     null
 
   override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
-    Array.empty(ClassTag(clazz))
+    Array.empty[T](using ClassTag[T](clazz))
 
   /**
    * If we encounter type parameter in an invariant position

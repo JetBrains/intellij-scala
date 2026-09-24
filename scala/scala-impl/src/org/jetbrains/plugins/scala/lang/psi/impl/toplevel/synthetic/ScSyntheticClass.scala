@@ -52,7 +52,7 @@ abstract sealed class SyntheticNamedElement(name: String)
   override def getName: String = name
   override def getText = ""
   override def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
-  override def copy = throw new IncorrectOperationException("nonphysical element")
+  override def copy: Nothing = throw new IncorrectOperationException("nonphysical element")
   override def accept(v: PsiElementVisitor): Unit = {
     throw new IncorrectOperationException("should not call")
   }

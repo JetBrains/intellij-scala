@@ -44,7 +44,7 @@ object ElementRenderer {
     val annotator = new ScalaColorSchemeAnnotator()
     val elements = file.elements.toSeq
 
-    val rangeToKey: Seq[(TextRange, TextAttributesKey)] = AnnotationSessionImpl.computeWithSession(file, false, annotator, {
+    val rangeToKey: Seq[(TextRange, TextAttributesKey)] = AnnotationSessionImpl.computeWithSession(file, false, annotator, annotationHolder => annotationHolder match {
       case holder: AnnotationHolderImpl =>
         elements.flatMap { e =>
           holder.runAnnotatorWithContext(e)

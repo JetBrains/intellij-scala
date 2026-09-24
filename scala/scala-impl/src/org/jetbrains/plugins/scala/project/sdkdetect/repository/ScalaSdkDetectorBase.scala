@@ -71,7 +71,7 @@ abstract class ScalaSdkDetectorBase extends ScalaSdkDetector
     val missingBinaryArtifacts = requiredBinaryArtifacts -- binaryComponents.map(_.artifact)
 
     if (missingBinaryArtifacts.nonEmpty)
-      Left(missingBinaryArtifacts.toSeq.map(_.prefix).sorted.map(CompilerClasspathResolveFailure.UnresolvedArtifact))
+      Left(missingBinaryArtifacts.toSeq.map(_.prefix).sorted.map(CompilerClasspathResolveFailure.UnresolvedArtifact.apply))
     else {
       val compilerVersion = binaryComponents.collectFirst {
         case ScalaSdkComponent(Scala3Compiler | ScalaCompiler, _, Some(version), _) => version

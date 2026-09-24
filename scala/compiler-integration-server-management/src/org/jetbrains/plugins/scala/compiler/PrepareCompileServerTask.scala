@@ -52,7 +52,7 @@ private final class PrepareCompileServerTask extends ScalaCompileTask {
   private def hasRelevantScalaModulesInCompileScopeImpl(context: CompileContext) = {
     val affectedModules = Option(context.getCompileScope)
       .map(_.getAffectedModules)
-      .getOrElse(Array.empty)
+      .getOrElse(Array.empty[Module])
 
     affectedModules.exists { module =>
       module != null &&

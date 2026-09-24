@@ -7,7 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import com.intellij.util.text.EditDistance.optimalAlignment
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, ToNullSafe}
+import org.jetbrains.plugins.scala.extensions.{&, PsiNamedElementExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.completion.{insideTypePattern, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScNewTemplateDefinition}
@@ -60,13 +60,12 @@ final class ScalaByNameWeigher extends CompletionWeigher {
     }
 
     element.getPsiElement match {
-      case namedElement@(_: ScTypeAlias |
+      case (namedElement: PsiNamedElement) & (_: ScTypeAlias |
                          _: ScTypeDefinition |
                          _: PsiClass |
                          _: ScParameter)
         if insideTypePattern.accepts(position, location.getProcessingContext) =>
-        namedElement.asOptionOf[PsiNamedElement]
-          .flatMap(_.name.toOption)
+        Option(namedElement.name)
           .flatMap(handleByText)
           .orNull
       case _ => null

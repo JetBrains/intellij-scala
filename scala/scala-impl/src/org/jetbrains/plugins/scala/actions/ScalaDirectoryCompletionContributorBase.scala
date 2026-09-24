@@ -77,7 +77,7 @@ object ScalaDirectoryCompletionContributorBase {
         Nil
     }
 
-  private def findModuleData(module: Module, projectSystemId: ProjectSystemId): Option[DataNode[_<:ModuleData]] = {
+  private def findModuleData(module: Module, projectSystemId: ProjectSystemId): Option[DataNode[? <: ModuleData]] = {
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
     if (moduleId == null) None
     else {

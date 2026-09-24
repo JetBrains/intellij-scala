@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
-import scala.language.reflectiveCalls
 
 trait Decompiler {
   def decompile(fileName: String, contents: Array[Byte]): String
@@ -18,20 +17,25 @@ object Decompiler {
   def apply(classpath: Seq[String], classLoader: ClassLoader): Decompiler = {
     val decompilerClass = classLoader.loadClass("org.jetbrains.plugins.scala.semantic.DecompilerImpl")
     val constructor = decompilerClass.getConstructor(classOf[Array[String]])
-    //noinspection TypeAnnotation
-    val decompiler = constructor.newInstance(classpath.toArray).asInstanceOf[ { def decompile(fileName: String, contents: Array[Byte]): String } ]
+    // The compiler needs its own standard library's internal annotations, even when reading older TASTy.
+    val decompilerClasspath = ScalaPluginJars.scalaLibraryJar.toString +: classpath
+    val decompiler = constructor.newInstance(decompilerClasspath.toArray)
+    // Scala 3.8.4 crashes when pickling a structural call with an Array[Byte] parameter.
+    val decompileMethod = decompilerClass.getMethod("decompile", classOf[String], classOf[Array[Byte]])
 
-    (fileName: String, contents: Array[Byte]) => decompiler.decompile(fileName, contents)
+    (fileName: String, contents: Array[Byte]) =>
+      try decompileMethod.invoke(decompiler, fileName, contents).asInstanceOf[String]
+      catch {
+        case e: InvocationTargetException => throw e.getCause
+      }
   }
 
   /**
    * @param parent With scala-library.jar & scala3-library.jar
    */
   def classLoader(parent: ClassLoader): ClassLoader = {
-    val compilerArtifacts = Seq(
-      "org.scala-lang" % "scala3-compiler_3" % CompilerVersion,
-      "org.scala-lang" % "scala3-interfaces" % CompilerVersion)
-    val compilerJars = DependencyManager.resolve(compilerArtifacts: _*).map(_.file)
+    val compiler = ("org.scala-lang" % "scala3-compiler_3" % CompilerVersion).transitive()
+    val compilerJars = DependencyManager.resolve(compiler).map(_.file)
     val jars = compilerJars :+ ScalaPluginJars.semanticDecompiler
     new URLClassLoader(jars.map(_.toUri.toURL).toArray, parent)
   }

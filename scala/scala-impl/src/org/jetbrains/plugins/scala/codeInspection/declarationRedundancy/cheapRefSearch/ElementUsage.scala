@@ -112,7 +112,7 @@ private final class ElementUsageWithKnownReference private(
   }
 
   private def referenceIsInCompanionScope: Boolean = {
-    val targetElement = target.underlying.get()
+    val targetElement: PsiElement = target.underlying.get()
 
     val targetContainer = targetElement.parentOfType[ScTypeDefinition].orElse(targetElement.asOptionOf[ScTypeDefinition])
 

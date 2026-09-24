@@ -18,7 +18,7 @@ private final class LocallyImportableMembersFinder(place: ScReferenceExpression,
   extends ByPlaceGlobalMembersFinder(place, accessAll) {
 
   override protected[global] def allCandidates: Iterable[GlobalMemberResult] =
-    importableCandidates(LocallyImportableMemberResult) ++
+    importableCandidates(LocallyImportableMemberResult.apply) ++
       companionObjectCandidates
 
   private def importableCandidates(constructor: (PsiNamedElement, PsiClass) => GlobalMemberResult): Iterable[GlobalMemberResult] = for {
@@ -45,7 +45,7 @@ private final class LocallyImportableMembersFinder(place: ScReferenceExpression,
     case value: ScValueOrVariable => value.declaredElements
     case function: ScFunction if !(function.isConstructor || function.isSpecial) => Seq(function)
     case _ => Seq.empty
-  }(LocallyImportableMemberResult)
+  }(LocallyImportableMemberResult.apply)
 
   @nowarn("msg=The outer reference in this type test cannot be checked at run time")
   private final case class LocallyImportableMemberResult(elementToImport: PsiNamedElement,

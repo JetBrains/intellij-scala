@@ -24,6 +24,8 @@ abstract class ScalaTargetAwareRunConfiguration[M <: RunConfigurationModule, S](
 ) extends ModuleBasedConfiguration[M, S](name, module, factory)
   with TargetEnvironmentAwareRunProfile {
 
+  override def clone(): ModuleBasedConfiguration[?, ?] = super.clone()
+
   /**
    * An alternative JRE path to check when determining whether the run configuration
    * runs under a remote JDK. Subclasses that support alternative JRE settings

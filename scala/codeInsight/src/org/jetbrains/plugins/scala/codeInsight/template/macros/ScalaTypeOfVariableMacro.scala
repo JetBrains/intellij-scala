@@ -12,7 +12,7 @@ final class ScalaTypeOfVariableMacro extends ScalaMacro {
     params.headOption
       .map(_.calculateResult(context))
       .flatMap(resultToScExpr(_)(context))
-      .map(ScalaTypeResult)
+      .map(ScalaTypeResult.apply)
       .orNull
 
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result =

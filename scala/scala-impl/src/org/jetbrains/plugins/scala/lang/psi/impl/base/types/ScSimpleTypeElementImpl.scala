@@ -152,8 +152,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
       case None => pathElement match {
         case ref: ScStableCodeReference => calculateReferenceType(ref)
-        case thisRef: ScThisReference   => fromThisReference(thisRef, ScThisType)()
-        case superRef: ScSuperReference => fromSuperReference(superRef, ScThisType)()
+        case thisRef: ScThisReference   => fromThisReference(thisRef, ScThisType.apply)()
+        case superRef: ScSuperReference => fromSuperReference(superRef, ScThisType.apply)()
       }
     }
   }

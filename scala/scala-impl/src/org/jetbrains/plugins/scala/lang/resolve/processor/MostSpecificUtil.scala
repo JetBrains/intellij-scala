@@ -453,7 +453,7 @@ class MostSpecificUtil(
       Option(foundMax)
     }
 
-  def getType(cand: InnerScalaResolveResult): ScType = {
+  private def getType(cand: InnerScalaResolveResult): ScType = {
     import cand.{element, isImplicitCandidate}
 
     val isExtensionCall = cand.repr.isExtensionCall

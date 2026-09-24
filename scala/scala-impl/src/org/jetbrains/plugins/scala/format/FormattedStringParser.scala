@@ -169,7 +169,7 @@ object FormattedStringParser extends StringParser {
     }
     val prefix = withoutEmpty
 
-    val unusedArguments = remainingArguments.filterNot(referredArguments.contains).map(UnboundExpression).toList
+    val unusedArguments = remainingArguments.filterNot(referredArguments.contains).map(UnboundExpression.apply).toList
 
     prefix ++ unusedArguments
   }

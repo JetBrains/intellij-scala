@@ -19,7 +19,7 @@ final class ScalaMethodReturnTypeMacro extends ScalaMacro {
         case FunctionType(rt, _) => rt
         case t => t
       })
-      .map(ScalaTypeResult)
+      .map(ScalaTypeResult.apply)
       .orNull
   }
 }

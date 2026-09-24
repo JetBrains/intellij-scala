@@ -41,7 +41,7 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
 
     val signatureClauses: Seq[ScSignatureClause] = getContext match {
       case owner: ScInterleavedClausesOwner => owner.signatureClauses
-      case _                                => clauses.map(TermClause)
+      case _                                => clauses.map(TermClause.apply)
     }
 
     val clausesIterator = signatureClauses.iterator

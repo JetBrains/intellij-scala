@@ -36,7 +36,7 @@ final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
                               @Nullable parent: UElement,
                               @Nullable requiredType: Class[? <: UElement]): UElement =
     convertTo(element, parent)(
-      toClassTag(requiredType),
+      using toClassTag(requiredType),
       implicitly[NotNothing[UElement]]
     ).orNull
 
@@ -44,7 +44,7 @@ final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
   override def convertElementWithParent(element: PsiElement,
                                         @Nullable requiredType: Class[? <: UElement]): UElement =
     convertWithParentTo(element)(
-      toClassTag(requiredType),
+      using toClassTag(requiredType),
       implicitly[NotNothing[UElement]]
     ).orNull
 

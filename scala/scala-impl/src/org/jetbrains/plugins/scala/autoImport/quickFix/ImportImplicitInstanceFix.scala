@@ -78,7 +78,7 @@ object ImportImplicitInstanceFix {
         case FoundImplicit(instance, path, scType) =>
           (path.size, typesToSearch.indexWhere(_.scType == scType), instance.qualifiedName)
       }
-      .map(ImplicitToImport)
+      .map(ImplicitToImport.apply)
   }
 
   private def withProbableArguments(

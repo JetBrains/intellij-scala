@@ -203,7 +203,7 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
       version <- readVersion(hoconConfig.config, configFile).map(_.getOrElse(defaultVersion))
       fmtReflect <- ScalafmtDynamicService.instance
         .resolve(version, project, downloadIfMissing = false, verbosity, projectResolvers(project), resolveFast)
-        .left.map(ConfigResolveError.ConfigScalafmtResolveError)
+        .left.map(ConfigResolveError.ConfigScalafmtResolveError.apply)
       config <- parseConfig(hoconConfig.config, configFile, fmtReflect)
     } yield (config, hoconConfig.includedFiles)
   }

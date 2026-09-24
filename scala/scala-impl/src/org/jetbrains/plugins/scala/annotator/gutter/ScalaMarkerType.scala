@@ -44,7 +44,7 @@ object ScalaMarkerType {
   }
 
   private def superMethodsOf(method: PsiMethod, includeSelf: Boolean): Array[NavigatablePsiElement] = {
-    val superMethods = (if (includeSelf) Array(method) else NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY) ++ (method match {
+    val superMethods = (if (includeSelf) Array[NavigatablePsiElement](method) else NavigatablePsiElement.EMPTY_NAVIGATABLE_ELEMENT_ARRAY) ++ (method match {
       case fn: ScFunction =>
         val sigs = fn.superSignaturesIncludingSelfType
         sigs.flatMap(sigToNavigatableElement).toArray[NavigatablePsiElement]

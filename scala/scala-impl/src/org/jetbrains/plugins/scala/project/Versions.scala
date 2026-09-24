@@ -25,7 +25,7 @@ object Versions {
 
   private val Log: Logger = Logger.getInstance(this.getClass)
 
-  sealed abstract class Kind(private[Versions] val entities: List[Entity]) {
+  sealed abstract class Kind private[Versions](private[Versions] val entities: List[Entity]) {
 
     @throws[InterruptedException]
     final def loadVersionsWithProgressDialog(): Seq[Version] = {

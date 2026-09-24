@@ -15,7 +15,7 @@ object Update {
   }
 }
 
-trait SimpleUpdate extends (ScType => AfterUpdate) with Update {
+abstract class SimpleUpdate extends (ScType => AfterUpdate) with Update {
   override def apply(v1: ScType, v2: Variance): AfterUpdate = apply(v1)
 }
 

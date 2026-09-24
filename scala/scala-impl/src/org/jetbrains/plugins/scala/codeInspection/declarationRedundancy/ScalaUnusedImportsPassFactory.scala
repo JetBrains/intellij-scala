@@ -32,6 +32,6 @@ final class ScalaUnusedImportsPassFactory
   }
 
   override def createMainHighlightingPass(file: PsiFile, document: Document,
-                                          highlightInfoProcessor: HighlightInfoProcessor) =
+                                          highlightInfoProcessor: HighlightInfoProcessor): org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedImportPass =
     new ScalaUnusedImportPass(file, null, document, highlightInfoProcessor)
 }

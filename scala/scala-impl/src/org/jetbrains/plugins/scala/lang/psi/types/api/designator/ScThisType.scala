@@ -13,7 +13,7 @@ final case class ScThisType(override val element: ScTemplateDefinition) extends 
 
   override val isSingleton = true
 
-  override private[types] def designatorSingletonType = None
+  override private[types] def designatorSingletonType: None.type = None
 
   override def equivInner(`type`: ScType, constraints: ConstraintSystem, falseUndef: Boolean)(implicit context: Context): ConstraintsResult = {
     (this, `type`) match {
