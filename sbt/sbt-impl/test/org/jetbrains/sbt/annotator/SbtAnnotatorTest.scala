@@ -145,7 +145,7 @@ abstract class SbtAnnotatorTestBase(
     assertNotNull(projectBasePath)
     val projectSettings = SbtSettings.getInstance(getProject).getLinkedProjectSettings(projectBasePath)
     assertNotNull(projectSettings)
-    projectSettings.setSbtVersion(sbtVersion.minor)
+    projectSettings.sbtVersion = sbtVersion.minor
 end SbtAnnotatorTestBase
 
 class SbtAnnotatorTest_1 extends SbtAnnotatorTestBase(

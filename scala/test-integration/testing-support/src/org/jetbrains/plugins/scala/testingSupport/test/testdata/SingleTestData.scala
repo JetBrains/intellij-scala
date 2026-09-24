@@ -61,8 +61,8 @@ object SingleTestData {
 
   def apply(config: AbstractTestRunConfiguration, className: String, testName: String): SingleTestData = {
     val res = new SingleTestData(config)
-    res.setTestClassPath(className)
-    res.setTestName(testName)
+    res.testClassPath = className
+    res.testName = testName
     res
   }
 }

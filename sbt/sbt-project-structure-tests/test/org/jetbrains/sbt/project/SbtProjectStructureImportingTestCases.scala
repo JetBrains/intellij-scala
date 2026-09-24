@@ -135,8 +135,8 @@ class SbtProjectStructureImportingTestCase_GlobalSbtFilesFromConcurrentImports e
     val settings = SbtSettings.getInstance(getMyProject)
 
     val tempGlobalPluginsDir = FileUtil.createTempDirectory("sbt-global-plugins-test", null)
-    val updatedVmParams = settings.getVmParameters() + s" -Dsbt.global.plugins=${tempGlobalPluginsDir.toPath.toAbsolutePath}"
-    settings.setVmParameters(updatedVmParams)
+    val updatedVmParams = settings.vmParameters + s" -Dsbt.global.plugins=${tempGlobalPluginsDir.toPath.toAbsolutePath}"
+    settings.vmParameters = updatedVmParams
 
     val sbtFileFromOtherImport = FileUtil.createTempFile(tempGlobalPluginsDir, "idea-structure.sbt", null)
     val fileContent =

@@ -269,7 +269,7 @@ object ReferenceComparisonTestBase {
     def hasComparableSymbol: Boolean = !isInRefinement(element)
 
     /** The members of the parents that this target overrides, see [[overriddenMembers]]. */
-    lazy val overridden: Seq[RefTarget] = overriddenMembers(element).map(PhysicalRefTarget)
+    lazy val overridden: Seq[RefTarget] = overriddenMembers(element).map(PhysicalRefTarget(_))
 
     def isDynamic: Boolean = element match {
       case fn: ScFunction =>
@@ -397,7 +397,7 @@ object ReferenceComparisonTestBase {
     private def opaqueTarget(resolved: PsiNamedElement)(implicit context: Context): Option[PhysicalRefTarget] = resolved match {
       case typeDef: ScTypeAliasDefinition if !typeDef.isEffectivelyOpaque =>
         val aliased = typeDef.aliasedType.toOption.flatMap(_.extractClass)
-        aliased.map(PhysicalRefTarget)
+        aliased.map(PhysicalRefTarget(_))
       case _ => None
     }
 

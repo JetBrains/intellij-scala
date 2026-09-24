@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter
 
-import junit.framework.Test
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.RevertableChange.withModifiedSetting
 
-trait Scala2AndScala3EnterActionCommonTests extends Test {
-  self: EditorActionTestBase =>
+trait Scala2AndScala3EnterActionCommonTests extends EditorActionTestBase {
 
   def testNoIndentAfterReturn_UnitType(): Unit = {
     checkGeneratedTextAfterEnter(

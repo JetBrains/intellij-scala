@@ -8,6 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class ScalastyleTest extends ScalaInspectionTestBase {
 
   val config =
@@ -31,6 +32,7 @@ class ScalastyleTest extends ScalaInspectionTestBase {
     myFixture.addFileToProject("scalastyle-config.xml", configString)
   }
 
+  @Test
   def test_ok(): Unit = {
     setup()
 
@@ -41,6 +43,7 @@ class ScalastyleTest extends ScalaInspectionTestBase {
     )
   }
 
+  @Test
   def test(): Unit = {
     setup()
 
@@ -51,6 +54,7 @@ class ScalastyleTest extends ScalaInspectionTestBase {
     )
   }
 
+  @Test
   def testFallback(): Unit = {
     def getOrCreateFile(dir: VirtualFile, file: String): VirtualFile =
       Option(dir.findChild(file)).getOrElse(dir.createChildData(this, file))

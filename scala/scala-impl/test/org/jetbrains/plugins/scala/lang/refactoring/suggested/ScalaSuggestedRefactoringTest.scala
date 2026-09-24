@@ -17,6 +17,7 @@ import org.junit.runners.JUnit4
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 
+@RunWith(classOf[JUnit4])
 class ScalaSuggestedRefactoringTest extends ScalaLightCodeInsightFixtureTestCase {
   private def suggestedRefactoringIntention(actionName: String): IntentionAction = {
     val intentions = myFixture.getAvailableIntentions.asScala
@@ -100,6 +101,7 @@ class ScalaSuggestedRefactoringTest extends ScalaLightCodeInsightFixtureTestCase
     manager.commitAllDocuments()
   }
 
+  @Test
   def testRenameClass(): Unit = checkRename(
     fileText =
       s"""
@@ -123,6 +125,7 @@ class ScalaSuggestedRefactoringTest extends ScalaLightCodeInsightFixtureTestCase
     textToType = "New",
   )
 
+  @Test
   def testRenameClass_endOfLine(): Unit = checkRename(
     fileText =
       s"""
@@ -146,6 +149,7 @@ class ScalaSuggestedRefactoringTest extends ScalaLightCodeInsightFixtureTestCase
     textToType = "New",
   )
 
+  @Test
   def testRenameClass_deleteChars(): Unit = checkRename(
     fileText =
       s"""
@@ -164,6 +168,7 @@ class ScalaSuggestedRefactoringTest extends ScalaLightCodeInsightFixtureTestCase
     editingActions = Seq.fill(2)(() => myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE))
   )
 
+  @Test
   def testRenameClass_selectAndType(): Unit = checkRename(
     fileText =
       s"""
@@ -187,6 +192,7 @@ class ScalaSuggestedRefactoringTest extends ScalaLightCodeInsightFixtureTestCase
     )
   )
 
+  @Test
   def testRenameMethod(): Unit = checkRename(
     fileText =
       s"""
@@ -216,6 +222,7 @@ class ScalaSuggestedRefactoringTest extends ScalaLightCodeInsightFixtureTestCase
     textToType = "Bar",
   )
 
+  @Test
   def testRenameLocalVariableInPattern(): Unit = checkRename(
     fileText =
       s"""
@@ -239,6 +246,7 @@ class ScalaSuggestedRefactoringTest extends ScalaLightCodeInsightFixtureTestCase
     textToType = "tr",
   )
 
+  @Test
   def testRenameConstructorParam(): Unit = checkRename(
     fileText =
       s"""

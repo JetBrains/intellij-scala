@@ -8,6 +8,6 @@ abstract class Scala3UnusedDeclarationInspectionTestBase extends ScalaUnusedDecl
 
   protected override def setUp(): Unit = {
     super.setUp()
-    getInspectionTool.setEnableInScala3(true)
+    getInspectionTool.enableInScala3 = true
   }
 }

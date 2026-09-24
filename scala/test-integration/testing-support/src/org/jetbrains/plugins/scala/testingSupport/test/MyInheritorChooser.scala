@@ -95,7 +95,7 @@ private class MyInheritorChooser(
     context: ConfigurationContext,
     performRunnable: Runnable
   ): Unit = {
-    testData.setTestClassPath(aClass.qualifiedName)
+    testData.testClassPath = aClass.qualifiedName
     config.setName(StringUtil.getShortName(aClass.qualifiedName) + (testData match {
       case single: SingleTestData => "." + single.testName
       case _ => ""

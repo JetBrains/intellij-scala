@@ -51,30 +51,30 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
     getKind == TestKind.ALL_IN_PACKAGE && searchTest == SearchForTest.IN_WHOLE_PROJECT
 
   def copyFieldsFromForm(form: TestRunConfigurationForm): Unit = {
-    setSearchTest(form.getSearchForTest)
-    setJavaOptions(form.getJavaOptions)
-    setTestArgs(form.getTestArgs)
-    setJrePath(form.getJrePath)
-    setShowProgressMessages(form.getShowProgressMessages)
-    setUseSbt(form.getUseSbt)
-    setUseUiWithSbt(form.getUseUiWithSbt)
+    searchTest = form.getSearchForTest
+    javaOptions = form.getJavaOptions
+    testArgs = form.getTestArgs
+    jrePath = form.getJrePath
+    showProgressMessages = form.getShowProgressMessages
+    useSbt = form.getUseSbt
+    useUiWithSbt = form.getUseUiWithSbt
     setWorkingDirectory(form.getWorkingDirectory)
-    setShortenClasspath(form.getShortenCommandLine)
+    shortenClasspath = form.getShortenCommandLine
     envs = form.getEnvironmentVariables
     envFilePaths = form.getEnvironmentVariableFiles
     setPassParentEnvs(form.isPassParentEnvs)
   }
 
   final def copyCommonFieldsFrom(other: TestConfigurationData): Unit = {
-    setSearchTest(other.searchTest)
-    setJavaOptions(other.javaOptions)
-    setTestArgs(other.testArgs)
-    setJrePath(other.jrePath)
-    setShowProgressMessages(other.showProgressMessages)
-    setUseSbt(other.useSbt)
-    setUseUiWithSbt(other.useUiWithSbt)
+    searchTest = other.searchTest
+    javaOptions = other.javaOptions
+    testArgs = other.testArgs
+    jrePath = other.jrePath
+    showProgressMessages = other.showProgressMessages
+    useSbt = other.useSbt
+    useUiWithSbt = other.useUiWithSbt
     setWorkingDirectory(other.getWorkingDirectory)
-    setShortenClasspath(other.shortenClasspath)
+    shortenClasspath = other.shortenClasspath
     envs = new java.util.HashMap(other.envs)
     envFilePaths = new java.util.ArrayList(other.envFilePaths)
     setPassParentEnvs(other.passParentEnvs)

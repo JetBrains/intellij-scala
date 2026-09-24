@@ -58,25 +58,30 @@ abstract class ChangeAccessModifierIntentionTestBase extends intentions.ScalaInt
   }
 }
 
+@RunWith(classOf[JUnit4])
 class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTestBase {
   override def familyName = ChangeAccessModifierIntention.familyName
 
   def normalIntentionText: String = "Change access modifier"
   def specificIntentionText(name: String, newModifier: String): String = s"Make '$name' $newModifier"
 
+  @Test
   def test_intention_is_not_named_as_the_java_version_of_the_intention(): Unit = {
     assert(familyName != "Change access modifier")
   }
 
+  @Test
   def test_make_top_level_private(): Unit = {
     doTest(s"c${CARET}lass Example", "private class Example", Some(specificIntentionText("Example", "private")))
   }
 
+  @Test
   def test_make_top_level_public(): Unit = {
     doTest(s"private$CARET class Example", "class Example", Some(specificIntentionText("Example", "public")))
   }
 
 
+  @Test
   def test_change_modifier(): Unit = {
     val modifier = Seq("", "protected", "private")
     for {
@@ -91,6 +96,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     }
   }
 
+  @Test
   def test_local(): Unit = {
     checkIntentionIsNotAvailable(
       s"""
@@ -103,6 +109,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_multi_definition(): Unit = {
     doTest(
       s"""
@@ -119,6 +126,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_pattern(): Unit = {
     doTest(
       s"""
@@ -135,6 +143,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_anonymous_pattern(): Unit = {
     doTest(
       s"""
@@ -151,6 +160,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_conflict_function(): Unit = {
     assertExceptionMessage[BaseRefactoringProcessor.ConflictsInTestsException](
       "method <b><code>func()</code></b> with private visibility is not accessible from class <b><code>Usage</code></b>"
@@ -171,6 +181,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     }
   }
 
+  @Test
   def test_conflict_multi_property(): Unit = {
     assertExceptionMessage[BaseRefactoringProcessor.ConflictsInTestsException](
       """
@@ -195,6 +206,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     }
   }
 
+  @Test
   def test_available_on_access_modifier(): Unit = {
     checkIntentionIsAvailable(
       s"""
@@ -205,6 +217,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_available_on_type_params(): Unit = {
     checkIntentionIsAvailable(
       s"""
@@ -213,6 +226,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_available_on_constructor(): Unit = {
     checkIntentionIsAvailable(
       s"""
@@ -221,6 +235,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_available_on_params(): Unit = {
     checkIntentionIsAvailable(
       s"""
@@ -231,6 +246,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_available_on_return_type(): Unit = {
     checkIntentionIsAvailable(
       s"""
@@ -241,6 +257,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_available_on_type_alias(): Unit = {
     checkIntentionIsAvailable(
       s"""
@@ -251,6 +268,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_not_available_in_funcdef(): Unit = {
     checkIntentionIsNotAvailable(
       s"""
@@ -261,6 +279,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_not_available_in_funcdef_2(): Unit = {
     checkIntentionIsNotAvailable(
       s"""
@@ -271,6 +290,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_not_available_in_class_body(): Unit = {
     checkIntentionIsNotAvailable(
       s"""
@@ -281,6 +301,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_not_available_in_type_alias_def(): Unit = {
     checkIntentionIsNotAvailable(
       s"""
@@ -291,6 +312,7 @@ class ChangeAccessModifierIntentionTest extends ChangeAccessModifierIntentionTes
     )
   }
 
+  @Test
   def test_not_available_in_comment(): Unit = {
     checkIntentionIsNotAvailable(
       s"""

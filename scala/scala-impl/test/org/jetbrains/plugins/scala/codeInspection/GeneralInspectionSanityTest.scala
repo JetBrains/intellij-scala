@@ -9,6 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def acquireAllInspectionEPs(): Seq[LocalInspectionEP] =
@@ -25,12 +26,14 @@ class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestCase {
     description
   }
 
+  @Test
   def test_no_lowercase_language_used(): Unit = {
     assert(!acquireAllInspectionEPs()
       .flatMap(insp => Option(insp.language))
       .exists(lang => lang != "Scala" && lang.toLowerCase == "scala"))
   }
 
+  @Test
   def test_all_inspections_have_descriptions(): Unit = {
     val inspectionsWithoutProperDescription =
       acquireAllScalaInspectionEPs().filter { inspectionEP =>
@@ -44,6 +47,7 @@ class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestCase {
       s"The following inspection do not have a description file:\n  ${inspectionsWithoutProperDescription.mkString(",\n  ")}")
   }
 
+  @Test
   def test_all_shortNames_are_unique(): Unit = {
     val allShortNames = acquireAllInspectionEPs().map(_.getShortName).groupBy(identity).view.mapValues(_.length)
     val scalaShortNames = acquireAllScalaInspectionEPs().map(_.getShortName)
@@ -53,6 +57,7 @@ class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestCase {
     }
   }
 
+  @Test
   def test_all_inspection_descriptions_have_tooltip_end(): Unit = {
     val inspectionsWithoutProperDescription =
       acquireAllScalaInspectionEPs().filterNot { inspectionEP =>
@@ -64,6 +69,7 @@ class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestCase {
       s"The following inspection's description files don't have <!-- tooltip end -->:\n  ${inspectionsWithoutProperDescription.mkString(",\n  ")}")
   }
 
+  @Test
   def test_all_inspection_code_blocks_are_indented_by_at_least_two_space(): Unit = {
     val regex = raw"""<pre><code>((.|\n)*)</pre></code>""".r
     val inspectionsWithoutProperDescription =
@@ -79,6 +85,7 @@ class GeneralInspectionSanityTest extends ScalaLightCodeInsightFixtureTestCase {
       s"The following inspection's description files have code blocks with wrong indentation:\n  ${inspectionsWithoutProperDescription.mkString(",\n  ")}")
   }
 
+  @Test
   def test_run_all_inspections(): Unit = {
     myFixture.configureByText("foo.scala", "class A")
     val inspectionManager = InspectionManager.getInstance(getProject)

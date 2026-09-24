@@ -175,8 +175,7 @@ class ImplicitConversionsScala213ResolveTest extends ScalaLightCodeInsightFixtur
 }
 
 
-trait ImplicitConversionsScala3SCL19475Tests {
-  self: ScalaLightCodeInsightFixtureTestCase =>
+trait ImplicitConversionsScala3SCL19475Tests extends ScalaLightCodeInsightFixtureTestCase {
 
   // SCL-19475: the ticket reproduction, kept verbatim.
   def testSCL19475TicketReproduction(): Unit = checkTextHasNoErrors(

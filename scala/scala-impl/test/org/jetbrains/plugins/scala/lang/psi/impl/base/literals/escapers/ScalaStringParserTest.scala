@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers
 import junit.framework.TestCase
 import org.junit.Assert._
 
-import scala.annotation.nowarn
-
 //noinspection RedundantDefaultArgument
 class ScalaStringParserTest extends TestCase {
 
@@ -42,9 +40,8 @@ class ScalaStringParserTest extends TestCase {
     assertEquals("X \\ X \\j X", parse(content, isRaw = true, exitOnEscapingWrongSymbol = false))
   }
 
-  @
-  nowarn("cat=deprecation")
-  private val CommonInnerStringContent_AllEscapesInOne = """aaa \b bbb \f ccc \n ddd \r eee \t fff \' ggg \\ hhh \\u0024 eee \u005cu0024 fff"""
+  // Keep backslashes literal so Unicode escape handling is tested by ScalaStringParser.
+  private val CommonInnerStringContent_AllEscapesInOne = "aaa \\b bbb \\f ccc \\n ddd \\r eee \\t fff \\' ggg \\\\ hhh \\\\u0024 eee \\u0024 fff"
 
   //TODO: once SCL-25152 is fixed add it as well
   def testEscapeSequencesAllInOne_Plain(): Unit = {

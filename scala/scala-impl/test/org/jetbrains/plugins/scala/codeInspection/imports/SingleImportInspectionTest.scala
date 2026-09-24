@@ -25,7 +25,7 @@ abstract class SingleImportInspectionTestBase extends ScalaInspectionTestBase {
       val ranges =
         if (range.getLength >= 4) Seq(left, range.shrink(2), right)
         else Seq(left, right)
-      ranges.map(ExpectedHighlight)
+      ranges.map(ExpectedHighlight(_))
     }
     assertTextHasError(expectedBraceHighlights, actualHighlights, allowAdditionalHighlights = false)
   }

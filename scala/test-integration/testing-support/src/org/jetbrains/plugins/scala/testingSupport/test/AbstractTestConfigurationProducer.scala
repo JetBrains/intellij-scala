@@ -117,7 +117,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   protected def configurationName(contextInfo: CreateFromContextInfo): String
 
   private def getContextInfo(location: PsiElementLocation): Option[CreateFromContextInfo] = {
-    val psiElement = location.getPsiElement
+    val psiElement: PsiElement = location.getPsiElement
     if (psiElement.is[PsiPackage, PsiDirectory])
       getTestPackageWithPackageName(location)
     else

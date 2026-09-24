@@ -6,32 +6,46 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class ScalaRenameTest extends ScalaRenameTestBase {
 
+  @Test
   def testObjectAndTraitToOpChars(): Unit = doTest("+++")
 
+  @Test
   def testObjectAndTrait(): Unit = doTest()
 
+  @Test
   def testObjectAndClass(): Unit = doTest()
 
+  @Test
   def testObjectAndClassToOpChars(): Unit = doTest("+++")
 
+  @Test
   def testObjectAndClassToBackticked(): Unit = doTest("`a`")
 
+  @Test
   def testObjectAndAbstractTypeInScala2(): Unit = doTest()
 
+  @Test
   def testPrivateObjectAndClass(): Unit = doTest()
 
+  @Test
   def testPrivateObjectAndPrivateClass(): Unit = doTest()
 
+  @Test
   def testObjectAndPrivateClass(): Unit = doTest()
 
+  @Test
   def testValInClass(): Unit = doTest()
 
+  @Test
   def testValInTrait(): Unit = doTest()
 
+  @Test
   def testVarAndSetters(): Unit = doTest()
 
+  @Test
   def testSettersWithoutVar(): Unit = {
       try {doTest()}
       catch {
@@ -39,6 +53,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       }
     }
 
+  @Test
   def testSettersWithoutVar2(): Unit = {
     try {doTest("NameAfterRename_=")}
     catch {
@@ -46,48 +61,67 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     }
   }
 
+  @Test
   def testOverriddenVal(): Unit = doTest()
 
+  @Test
   def testOverriddenClassParameter(): Unit = doTest()
 
+  @Test
   def testOverrideDef(): Unit = doTest()
 
+  @Test
   def testMethodArgument(): Unit = doTest()
 
+  @Test
   def testMultipleBaseMembers(): Unit = doTest()
 
+  @Test
   def testMultipleBaseMembersWithJava(): Unit = doTest()
 
+  @Test
   def testSuperMethodsChain(): Unit = doTest()
 
+  @Test
   def testSuperMethodsChainWithJava(): Unit = doTest()
 
+  @Test
   def testSuperMethodsChainWithJava2(): Unit = doTest()
 
+  @Test
   def testTypeAlias(): Unit = doTest()
 
+  @Test
   def testOverriddenFromJava(): Unit = doTest()
 
   //FIXME when SCL-25260 is fixed  (or related causing ticket)
+  @Test
   def testOverriddenFromBaseJavaClassInScalaTraitDirect(): Unit = assertFails {
     doTest()
   }
 
   //FIXME when SCL-25260 is fixed  (or related causing ticket)
+  @Test
   def testOverriddenFromBaseJavaClassInScalaTraitIndirect(): Unit = assertFails {
     doTest()
   }
 
+  @Test
   def testMethodSameAsJavaKeyword(): Unit = doTest()
 
+  @Test
   def testParamSameAsJavaKeyword(): Unit = doTest()
 
+  @Test
   def testObjectImport(): Unit = doTest()
 
+  @Test
   def testPrivatePackageClassInheritor(): Unit = doTest()
 
+  @Test
   def testPrivateSamePackage(): Unit = doTest()
 
+  @Test
   def testPrivateMemberSamePackage(): Unit = doTest()
 }
 

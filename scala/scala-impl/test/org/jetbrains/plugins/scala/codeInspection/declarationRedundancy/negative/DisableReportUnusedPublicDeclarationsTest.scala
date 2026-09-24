@@ -9,7 +9,7 @@ class DisableReportUnusedPublicDeclarationsTest extends ScalaUnusedDeclarationIn
     val inspectionProfile = InspectionProjectProfileManager.getInstance(getProject).getCurrentProfile
     val inspectionToolWrapper = inspectionProfile.getInspectionTool("ScalaUnusedSymbol", getProject)
     val inspection = inspectionToolWrapper.getTool.asInstanceOf[ScalaUnusedDeclarationInspection]
-    inspection.setReportPublicDeclarations(false)
+    inspection.reportPublicDeclarations = false
   }
 
   def test_public_declarations_are_not_inspected_when_disabled(): Unit = {

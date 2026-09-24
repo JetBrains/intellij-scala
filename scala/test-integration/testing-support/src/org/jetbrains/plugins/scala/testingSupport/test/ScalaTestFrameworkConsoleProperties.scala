@@ -24,7 +24,7 @@ class ScalaTestFrameworkConsoleProperties(
   override def getConfiguration: AbstractTestRunConfiguration =
     super.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
 
-  override def getTestLocator =
+  override def getTestLocator: ScalaTestLocationProvider =
     new ScalaTestLocationProvider
 
   override def createRerunFailedTestsAction(consoleView: ConsoleView): ScalaRerunFailedTestsAction =

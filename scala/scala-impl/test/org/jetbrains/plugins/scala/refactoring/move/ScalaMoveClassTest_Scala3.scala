@@ -9,6 +9,7 @@ import org.junit.runners.JUnit4
 
 import java.nio.file.Path
 
+@RunWith(classOf[JUnit4])
 class ScalaMoveClassTest_Scala3 extends ScalaMoveClassTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
@@ -16,16 +17,19 @@ class ScalaMoveClassTest_Scala3 extends ScalaMoveClassTestBase {
 
   override protected def getTestDataRoot: Path = super.getTestDataRoot / "scala3"
 
+  @Test
   def testKeepImportsWhenCBHIsEnabled(): Unit = {
     runWithErrorsFromCompiler(getProject) {
       doTest(Seq("com.A"), "org")
     }
   }
 
+  @Test
   def testDontKeepImportsWhenCBHIsDisabled(): Unit = {
     doTest(Seq("com.A"), "org")
   }
 
+  @Test
   def testWithTopLevelDefsInFile_MoveClass(): Unit = {
     doTest(Seq("MyClass"), "")
   }

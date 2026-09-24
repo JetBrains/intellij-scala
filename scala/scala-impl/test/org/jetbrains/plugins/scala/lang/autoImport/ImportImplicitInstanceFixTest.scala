@@ -23,7 +23,7 @@ abstract class ImportImplicitInstanceFixTestBase extends ImportElementFixTestBas
     } else implicitArgsClauses
   }
 
-  override def createFix(element: ImplicitArgumentsOwner) = {
+  override def createFix(element: ImplicitArgumentsOwner): Option[ImportImplicitInstanceFix] = {
     val notFound =
       for {
         argClause <- findImplicitArgs(element)
@@ -38,8 +38,10 @@ abstract class ImportImplicitInstanceFixTestBase extends ImportElementFixTestBas
 
 }
 
+@RunWith(classOf[JUnit4])
 final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestBase {
 
+  @Test
   def testExecutionContext(): Unit = checkElementsToImport(
     s"""
        |import scala.concurrent.Future
@@ -52,6 +54,7 @@ final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestB
     "scala.concurrent.ExecutionContext.Implicits.global"
   )
 
+  @Test
   def testExcludedExecutionContext(): Unit =
     withExcluded("scala.concurrent.ExecutionContext.Implicits.global") {
       checkNoImportFix(
@@ -65,6 +68,7 @@ final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestB
       )
     }
 
+  @Test
   def testSeqDerivedOrdering(): Unit = checkElementsToImport(
     s"""
        |object Test {
@@ -75,6 +79,7 @@ final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestB
     "scala.math.Ordering.Implicits.seqDerivedOrdering"
   )
 
+  @Test
   def testNoOrderingForCustomClass(): Unit = checkNoImportFix(
     s"""
        |class MyClass
@@ -84,6 +89,7 @@ final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestB
        |""".stripMargin
   )
 
+  @Test
   def testDerivation(): Unit = checkElementsToImport(
     s"""
        |class MyClass
@@ -100,6 +106,7 @@ final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestB
     "implicits.myClassComparator"
   )
 
+  @Test
   def testNotSuggestVisible(): Unit = checkElementsToImport(
     s"""
        |import scala.math.Ordering.Implicits.seqDerivedOrdering
@@ -119,6 +126,7 @@ final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestB
   )
 
 
+  @Test
   def testTwoArguments(): Unit = checkElementsToImport(
     s"""
        |class A; class B
@@ -136,6 +144,7 @@ final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestB
     "implicits.myB"
   )
 
+  @Test
   def testGenericImplicit(): Unit = checkElementsToImport(
     s"""
        |trait Foo[T]
@@ -158,6 +167,7 @@ final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestB
     "implicits.optionFoo"
   )
 
+  @Test
   def testNoCompatible(): Unit = checkNoImportFix(
     s"""
        |trait Foo[T]
@@ -174,6 +184,7 @@ final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestB
        |}
        |""".stripMargin)
 
+  @Test
   def testImportFromVal(): Unit = checkElementsToImport(
     s"""
        |trait A

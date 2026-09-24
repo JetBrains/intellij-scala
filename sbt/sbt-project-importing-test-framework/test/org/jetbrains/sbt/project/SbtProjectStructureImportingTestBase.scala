@@ -139,7 +139,7 @@ abstract class SbtProjectStructureImportingTestBase extends SbtExternalSystemImp
 
   protected def setSbtSettingsCustomSdk(sdk: Sdk): Unit = {
     val settings = SbtSettings.getInstance(getMyProject)
-    settings.setCustomVMPath(sdk.getHomePath.ensuring(_ != null))
+    settings.customVMPath = sdk.getHomePath.ensuring(_ != null)
   }
 
   protected def setOptions(project: Project, source: LanguageLevel, target: String, other: Seq[String]): Unit =

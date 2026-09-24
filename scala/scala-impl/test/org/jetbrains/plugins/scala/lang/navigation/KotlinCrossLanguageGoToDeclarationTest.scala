@@ -31,6 +31,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
 
   protected def prepareStartupActivityFixture(): Unit
 
+  @Test
   def testScalaCode_DirectBaseClass_CallSiteNavigation(): Unit =
     doCallSiteTest(
       fileName = "Caller.scala",
@@ -59,6 +60,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
            |""".stripMargin
     )
 
+  @Test
   def testScalaCode_OuterBaseClass_CallSiteNavigation(): Unit =
     doCallSiteTest(
       fileName = "Caller.scala",
@@ -73,6 +75,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
            |""".stripMargin
     )
 
+  @Test
   def testJavaCode_DirectBaseClass_CallSiteNavigation(): Unit =
     doCallSiteTest(
       fileName = "Caller.java",
@@ -87,6 +90,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
            |""".stripMargin
     )
 
+  @Test
   def testJavaCode_NestedBaseClass_CallSiteNavigation(): Unit =
     doCallSiteTest(
       fileName = "Caller.java",
@@ -101,6 +105,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
            |""".stripMargin
     )
 
+  @Test
   def testKotlinCode_DirectBaseClass_CallSiteNavigation(): Unit =
     doCallSiteTest(
       fileName = "Caller.kt",
@@ -115,6 +120,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
            |""".stripMargin
     )
 
+  @Test
   def testKotlinCode_NestedBaseClass_CallSiteNavigation(): Unit =
     doCallSiteTest(
       fileName = "Caller.kt",
@@ -129,6 +135,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
            |""".stripMargin
     )
 
+  @Test
   def testScalaCode_DirectBaseClass_OverrideGutterNavigation(): Unit =
     doOverrideGutterNavigationTest(
       fileName = "Caller.scala",
@@ -153,6 +160,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
            |""".stripMargin
     )
 
+  @Test
   def testScalaCode_OuterBaseClass_OverrideGutterNavigation(): Unit =
     doOverrideGutterNavigationTest(
       fileName = "Caller.scala",
@@ -165,6 +173,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
            |""".stripMargin
     )
 
+  @Test
   def testJavaCode_DirectBaseClass_OverrideGutterNavigation(): Unit =
     doOverrideGutterNavigationTest(
       fileName = "Caller.java",
@@ -178,6 +187,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
            |""".stripMargin
     )
 
+  @Test
   def testJavaCode_NestedBaseClass_OverrideGutterNavigation(): Unit =
     doOverrideGutterNavigationTest(
       fileName = "Caller.java",
@@ -191,6 +201,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
            |""".stripMargin
     )
 
+  @Test
   def testKotlinCode_DirectBaseClass_OverrideGutterNavigation(): Unit =
     doOverrideGutterNavigationTest(
       fileName = "Caller.kt",
@@ -203,6 +214,7 @@ abstract class KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 extends Sca
            |""".stripMargin
     )
 
+  @Test
   def testKotlinCode_NestedBaseClass_OverrideGutterNavigation(): Unit =
     doOverrideGutterNavigationTest(
       fileName = "Caller.kt",
@@ -323,6 +335,7 @@ class KotlinCrossLanguageGoToDeclarationTest_KTIJ_38455 extends KotlinCrossLangu
 /**
  * Main scenario for KTIJ-38455: common Kotlin class comes from a compiled library with attached sources.
  */
+@RunWith(classOf[JUnit4])
 class KotlinCrossLanguageGoToDeclaration_WithCompiledLibraryDependencyTest_KTIJ_38455 extends KotlinCrossLanguageGoToDeclarationTestBase_KTIJ_38455 {
 
   private val librariesRoot = Path.of(TestUtils.getTestDataPath, "lang", "navigation", "kotlinCompiledLibrary-KTIJ-38455")
@@ -374,11 +387,13 @@ class KotlinCrossLanguageGoToDeclaration_WithCompiledLibraryDependencyTest_KTIJ_
   }
 
   // TODO: patch when KTIJ-38455 is fixed
+  @Test
   override def testScalaCode_NestedBaseClass_CallSiteNavigation(): Unit = runWithExpectedOutcomeUntilKTIJ38455Fixed {
     super.testScalaCode_NestedBaseClass_CallSiteNavigation()
   }
 
   // TODO: patch when KTIJ-38455 is fixed
+  @Test
   override def testScalaCode_NestedBaseClass_OverrideGutterNavigation(): Unit = runWithExpectedOutcomeUntilKTIJ38455Fixed {
     super.testScalaCode_NestedBaseClass_OverrideGutterNavigation()
   }

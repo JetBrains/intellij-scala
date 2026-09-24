@@ -8,8 +8,7 @@ import org.jetbrains.plugins.scala.editor.documentationProvider.base.Documentati
 import org.jetbrains.plugins.scala.editor.documentationProvider.util.ScalaDocumentationsSectionsTestingBase.skipAllNestedDivs
 import org.junit.Assert._
 
-trait ScalaDocumentationsSectionsTestingBase {
-  self: DocumentationProviderTestBase =>
+trait ScalaDocumentationsSectionsTestingBase extends DocumentationProviderTestBase {
 
   protected def DocHtmlHead(file: PsiFile): String =
     s"""<head>
@@ -87,7 +86,6 @@ object ScalaDocumentationsSectionsTestingBase {
 }
 
 trait ScalaDocumentationsDefinitionSectionTesting extends ScalaDocumentationsSectionsTestingBase {
-  self: DocumentationProviderTestBase =>
 
   protected def doGenerateDocDefinitionTest(fileContent: String, expectedDefinition: String): Unit = {
     val actualDoc = configureFileAndGenerateDoc(fileContent)
@@ -102,7 +100,6 @@ trait ScalaDocumentationsDefinitionSectionTesting extends ScalaDocumentationsSec
 }
 
 trait ScalaDocumentationsContainerInfoSectionTesting extends ScalaDocumentationsSectionsTestingBase {
-  self: DocumentationProviderTestBase =>
 
   protected def doGenerateDocContainerInfoTest(fileContent: String, expectedDefinition: String): Unit = {
     val actualDoc = configureFileAndGenerateDoc(fileContent)
@@ -117,7 +114,6 @@ trait ScalaDocumentationsContainerInfoSectionTesting extends ScalaDocumentations
 }
 
 trait ScalaDocumentationsBodySectionTesting extends ScalaDocumentationsSectionsTestingBase {
-  self: DocumentationProviderTestBase =>
 
   protected def doGenerateDocBodyTestWithoutContainerInfo(
     fileContent: String,
@@ -146,7 +142,6 @@ trait ScalaDocumentationsBodySectionTesting extends ScalaDocumentationsSectionsT
 }
 
 trait ScalaDocumentationsScalaDocContentTesting extends ScalaDocumentationsSectionsTestingBase {
-  self: DocumentationProviderTestBase =>
 
   /** NOTE: doesn't support inner <div> tags, see [[extractSectionInner]] */
   protected def doGenerateDocContentTest(

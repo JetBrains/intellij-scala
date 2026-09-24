@@ -9,6 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBaseTest {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
@@ -21,6 +22,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
     getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
   }
 
+  @Test
   def testMethodBody_Simple_TailPosition(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       """def f1 =
@@ -29,6 +31,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |""".stripMargin
     )
 
+  @Test
   def testMethodBody_MultipleExpressions_TailPosition(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       """def f1 =
@@ -39,6 +42,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |""".stripMargin
     )
 
+  @Test
   def testMethodBody_MultipleExpressions_BlankLinesWithSpacesBeforeCaret(): Unit =
     doSequentialBackspaceTest_InContexts(WrapperContextsWithJumpToPreviousLine)(
       s"""def f1 =
@@ -52,6 +56,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testNestedMethodBody_1_Simple_TailPosition(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       """def f1 =
@@ -63,6 +68,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |  "f1" + f2""".stripMargin
     )
 
+  @Test
   def testNestedMethodBody_1_MultipleExpressions_TailPosition(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       """def f1 =
@@ -76,6 +82,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |  "f1" + f2""".stripMargin
     )
 
+  @Test
   def testNestedMethodBody_2_Simple_TailPosition(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       """def f1 =
@@ -87,6 +94,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |  "f1" + f2""".stripMargin
     )
 
+  @Test
   def testNestedMethodBody_2_MultipleExpressions_TailPosition(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       """def f1 =
@@ -99,6 +107,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |""".stripMargin
     )
 
+  @Test
   def testNestedMethod_BlankLineBeforeCaret_1_F1WithEndMarker_ClassWithEndMarker(): Unit =
     doSequentialBackspaceTest(
       s"""class A:
@@ -112,6 +121,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |end A""".stripMargin
     )
 
+  @Test
   def testNestedMethod_BlankLineBeforeCaret_2_F2WithoutEndMarker_ClassWithEndMarker(): Unit =
     doSequentialBackspaceTest(
       s"""class A:
@@ -124,6 +134,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |end A""".stripMargin
     )
 
+  @Test
   def testNestedMethod_BlankLineBeforeCaret_3_F2WithoutEndMarker_ClassWithoutEndMarker(): Unit =
     doSequentialBackspaceTest(
       s"""class A:
@@ -136,6 +147,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testShouldRespectBackspaceModeSetting(): Unit = {
     val settings = CodeInsightSettings.getInstance
     val backspaceModeBefore = settings.getBackspaceMode
@@ -156,6 +168,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
     }
   }
 
+  @Test
   def testExample1_NestedMethod_TailPosition(): Unit =
     doSequentialBackspaceTest(
       """class A {
@@ -175,6 +188,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |""".stripMargin
     )
 
+  @Test
   def testExample1_NestedMethod_TailPosition_CaretUnindented(): Unit =
     doSequentialBackspaceTest(
       """class A {
@@ -194,6 +208,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |""".stripMargin
     )
 
+  @Test
   def testExample1_NestedMethod_BlankLineBeforeCaret(): Unit =
     doSequentialBackspaceTest(
       """class A {
@@ -214,6 +229,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |""".stripMargin
     )
 
+  @Test
   def testExample2_NestedMethod_TailPosition(): Unit =
     doSequentialBackspaceTest(
       """class A {
@@ -234,6 +250,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |""".stripMargin
     )
 
+  @Test
   def testExample2_NestedMethod_BlankLineBeforeCaret(): Unit =
     doSequentialBackspaceTest(
       """class A {
@@ -255,6 +272,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |""".stripMargin
     )
 
+  @Test
   def testExample2_NestedMethod_TailPosition_CaretUnindented(): Unit =
     doSequentialBackspaceTest(
       """class A {
@@ -276,6 +294,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |""".stripMargin
     )
 
+  @Test
   def testExample3_NestedMethod_TailPosition_WithRedundantSpacesAfterCaretOnBlankLine(): Unit =
     doTest(
       s"""class Example1:
@@ -305,6 +324,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testCodeAfterCaret(): Unit =
     doTest(
       s"""class A:
@@ -323,6 +343,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testCodeAfterCaret_WithLeadingSpaces(): Unit =
     doTest(
       s"""class A:
@@ -341,6 +362,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testMethod_InsideBody(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       """def f1 =
@@ -352,6 +374,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |""".stripMargin
     )
 
+  @Test
   def testNestedMethod_1_InsideBody(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       """def f1 =
@@ -364,6 +387,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |""".stripMargin
     )
 
+  @Test
   def testNestedMethod_2_InsideBody(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       """def f1 = {
@@ -379,6 +403,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
         |}""".stripMargin
     )
 
+  @Test
   def testAfterLastCaseClause_TailPosition(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       s"""Option(42) match
@@ -388,6 +413,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterLastCaseClause_BlankLinesBeforeCaret_1(): Unit =
     doSequentialBackspaceTest_InContexts(WrapperContextsWithJumpToPreviousLine)(
       s"""class Dummy
@@ -400,6 +426,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterLastCaseClause_BlankLinesBeforeCaret_2(): Unit =
     doSequentialBackspaceTest_InContexts(WrapperContextsWithJumpToPreviousLine)(
       s"""Option(42) match
@@ -412,6 +439,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterLastCaseClause_InNestedScope_BlankLinesBeforeCaret(): Unit =
     doSequentialBackspaceTest_InContexts(WrapperContextsWithJumpToPreviousLine)(
       s"""def foo =
@@ -424,6 +452,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterLastCaseClause_InNestedScope_TailPosition_CaretUnindented_1(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       s"""def foo =
@@ -435,6 +464,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterLastCaseClause_InNestedScope_TailPosition_CaretUnindented_2(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       s"""def foo =
@@ -446,6 +476,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterLastCaseClause_InNestedScope_TailPosition_CaretUnindented_3(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       s"""def foo =
@@ -458,6 +489,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
     )
 
 
+  @Test
   def testAfterMiddleCaseClause_InNestedScope_1(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       s"""Option(42) match
@@ -469,6 +501,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterMiddleCaseClause_InNestedScope_2_UnindentedCaret(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       s"""Option(42) match
@@ -480,6 +513,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterMiddleCaseClause_WithCodeAfterCaret_1(): Unit =
     doTest(
       s"""def foo = {
@@ -497,6 +531,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterMiddleCaseClause_WithCodeAfterCaret_2(): Unit =
     doTest(
       s"""def foo = {
@@ -514,6 +549,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterMiddleCaseClause_WithCodeAfterCaret_3(): Unit =
     doTest(
       s"""def foo = {
@@ -533,6 +569,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterMiddleCaseClause_WithIndentedCodeAfterCaret_1(): Unit =
     doTest(
       s"""def foo = {
@@ -551,6 +588,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterMiddleCaseClause_WithIndentedCodeAfterCaret_2(): Unit =
     doTest(
       s"""def foo = {
@@ -570,6 +608,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
     )
 
 
+  @Test
   def testBetweenCaseClauses_WithCodeAfterCaseClauseArrow(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       s"""42 match
@@ -581,6 +620,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterCaseClauses_WithCodeAfterCaseClauseArrow(): Unit =
     doSequentialBackspaceTest_InAllWrapperContexts(
       s"""42 match
@@ -590,6 +630,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterCaseClauses_WithCodeAfterCaseClauseArrow_BlankLineBefore(): Unit =
     doSequentialBackspaceTest_InContexts(WrapperContextsWithJumpToPreviousLine)(
       s"""42 match
@@ -600,6 +641,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterCaseClauses_WithCodeAfterCaseClauseArrow_BlankLineBefore_1(): Unit =
     doSequentialBackspaceTest(
       s"""class A:
@@ -612,6 +654,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testAfterIncompleteMatch(): Unit =
     doSequentialBackspaceTest_InContexts(WrapperCodeContexts.AllContexts.filterNot(_ == WrapperCodeContexts.InsideCaseClausesNonLast))(
       s"""Option(42) match#
@@ -619,6 +662,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def testUnnamed1(): Unit =
     doTest(
       s"""def foo1 =
@@ -646,6 +690,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |""".stripMargin
     )
 
+  @Test
   def test_backspace_at_end(): Unit =
     performTest(
       s"""class A {
@@ -660,6 +705,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
     }
 
 
+  @Test
   def testBackspaceHandlerShouldWorkEvenWhenCodeStyleSettingIsDisabled(): Unit = {
     val before = getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX
     getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
@@ -688,6 +734,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
     }
   }
 
+  @Test
   def testBackspaceInOpenPackaging(): Unit = doSequentialBackspaceTest(
     """
       |packaging A:
@@ -697,6 +744,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
       |""".stripMargin
   )
 
+  @Test
   def testBackspaceInClosedPackaging(): Unit = doSequentialBackspaceTest(
     """
       |package A:
@@ -707,6 +755,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
       |""".stripMargin
   )
 
+  @Test
   def testBackspaceInTwoOpenPackagings(): Unit = doSequentialBackspaceTest(
     """
       |package A:
@@ -718,6 +767,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
       |""".stripMargin
   )
 
+  @Test
   def testBackspaceNextLineInTwoOpenPackagings(): Unit = doSequentialBackspaceTest(
     """
       |package A:
@@ -727,6 +777,7 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
       |""".stripMargin
   )
 
+  @Test
   def testBackspaceInOpenPackagingInClosedPackaging(): Unit = doSequentialBackspaceTest(
     """
       |package A:

@@ -100,13 +100,13 @@ class DecompilerTest2 extends TestCase {
     val sigFile = Path.of(scalaFile.toString.replaceFirst("\\.scala$", ".sig"))
     assertTrue(s"File $sigFile doest not exist", Files.exists(sigFile))
 
-    val Some((sourceFile, actual)) = try {
+    val Some((sourceFile, actual)) = (try {
       Decompiler.sourceNameAndText(sigFile.getFileName.toString, readBytes(sigFile))
     } catch {
       case NonFatal(e) =>
         Console.err.println(scalaFile)
         throw e
-    }
+    }): @unchecked
 
     assertEquals("Scala file name", scalaFile.getFileName.toString, sourceFile)
 

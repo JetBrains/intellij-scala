@@ -71,7 +71,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     val envFileContent = "EnvKey2=EnvValue2"
     val envFile = Files.createTempFile("intellij-scala", ".env")
     Files.write(envFile, envFileContent.getBytes)
-    val envFilePaths = util.Collections.singletonList(envFile.toString)
+    val envFilePaths = ju.Collections.singletonList(envFile.toString)
 
     val (actualCommandLine, actualWorkingDir) =
       getConfigurationCommandLineAndWorkingDirectory(
@@ -119,7 +119,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     val myCustomModule = setupTestProjectAndModule(getProject)
     val workingDirectory = "$MODULE_WORKING_DIR$"
     val (_, actualWorkingDir) =
-      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap(), new util.ArrayList())
+      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new ju.HashMap(), new ju.ArrayList())
     assertWorkingDirectory(getProject.getBasePath + "/myModuleName1", actualWorkingDir)
   }
 
@@ -127,7 +127,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     val myCustomModule = setupTestProjectAndModule(getProject)
     val workingDirectory = "$PROJECT_DIR$/some/relative/path"
     val (_, actualWorkingDir) =
-      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap(), new util.ArrayList())
+      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new ju.HashMap(), new ju.ArrayList())
     assertWorkingDirectory(getProject.getBasePath + "/some/relative/path", actualWorkingDir)
   }
 
@@ -138,7 +138,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     val workingDirectory = ""
 
     val (_, actualWorkingDir) =
-      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap(), new util.ArrayList())
+      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new ju.HashMap(), new ju.ArrayList())
     assertWorkingDirectory(getProject.getBasePath, actualWorkingDir)
   }
 
@@ -149,7 +149,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     val workingDirectory = "some/relative/path"
 
     val (_, actualWorkingDir) =
-      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap(), new util.ArrayList())
+      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new ju.HashMap(), new ju.ArrayList())
     assertWorkingDirectory(getProject.getBasePath + "/some/relative/path", actualWorkingDir)
   }
 
@@ -160,7 +160,7 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     val workingDirectory = "./some/relative/path"
 
     val (_, actualWorkingDir) =
-      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new util.HashMap(), new util.ArrayList())
+      getConfigurationCommandLineAndWorkingDirectory(myCustomModule, "", "", workingDirectory, new ju.HashMap(), new ju.ArrayList())
     assertWorkingDirectory(getProject.getBasePath + "/./some/relative/path", actualWorkingDir)
   }
 
@@ -169,17 +169,17 @@ class ScalaTestFrameworkCommandLineStateTest extends HeavyPlatformTestCase {
     javaOptions: String,
     programArguments: String,
     workingDirectory: String,
-    envs: util.Map[String, String],
-    envFilePaths: util.List[String]
+    envs: ju.Map[String, String],
+    envFilePaths: ju.List[String]
   ): (String, String) = {
     val project = module.getProject
     val configuration = new ScalaTestRunConfiguration(project, ScalaTestConfigurationType().confFactory, "test-conf-name")
     configuration.setModule(module)
-    configuration.testConfigurationData.setJavaOptions(javaOptions)
+    configuration.testConfigurationData.javaOptions = javaOptions
     configuration.testConfigurationData.setProgramParameters(programArguments)
     configuration.testConfigurationData.setWorkingDirectory(workingDirectory)
-    configuration.testConfigurationData.setEnvs(envs)
-    configuration.testConfigurationData.setEnvFilePaths(envFilePaths)
+    configuration.testConfigurationData.envs = envs
+    configuration.testConfigurationData.envFilePaths = envFilePaths
 
     val state = buildCommandLineState(project, configuration)
     val javaParameters = state.getJavaParameters

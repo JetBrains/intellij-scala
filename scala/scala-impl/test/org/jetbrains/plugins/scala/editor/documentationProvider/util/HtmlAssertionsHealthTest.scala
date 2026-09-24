@@ -6,8 +6,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class HtmlAssertionsHealthTest extends TestCase with HtmlAssertions {
 
+  @Test
   def `test assertDocHtml HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces`(): Unit = {
     assertDocHtml(
       "<body> some text </body>",
@@ -22,6 +24,7 @@ class HtmlAssertionsHealthTest extends TestCase with HtmlAssertions {
     )
   }
 
+  @Test
   def `test assertDocHtml HtmlSpacesComparisonMode.IgnoreNewLinesAndCollapseSpaces Failing`(): Unit = {
     assertFails {
       assertDocHtml(
@@ -50,6 +53,7 @@ class HtmlAssertionsHealthTest extends TestCase with HtmlAssertions {
     }
   }
 
+  @Test
   def `test assertDocHtml HtmlSpacesComparisonMode.DontIgnore`(): Unit = {
     assertDocHtml(
       "<body>some text</body>",
@@ -58,6 +62,7 @@ class HtmlAssertionsHealthTest extends TestCase with HtmlAssertions {
     )
   }
 
+  @Test
   def `test assertDocHtml HtmlSpacesComparisonMode.DontIgnore Failing`(): Unit = {
     assertFails {
       assertDocHtml(
@@ -68,6 +73,7 @@ class HtmlAssertionsHealthTest extends TestCase with HtmlAssertions {
     }
   }
 
+  @Test
   def `test assertDocHtml HtmlSpacesComparisonMode.DontIgnoreNewLinesCollapseSpaces`(): Unit = {
     assertDocHtml(
       """<body>some
@@ -78,6 +84,7 @@ class HtmlAssertionsHealthTest extends TestCase with HtmlAssertions {
     )
   }
 
+  @Test
   def `test assertDocHtml HtmlSpacesComparisonMode.DontIgnoreNewLinesCollapseSpaces Failing`(): Unit = {
     assertFails {
       assertDocHtml(

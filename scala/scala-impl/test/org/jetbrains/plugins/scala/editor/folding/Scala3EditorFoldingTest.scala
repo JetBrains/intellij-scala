@@ -8,6 +8,7 @@ import org.junit.runners.JUnit4
 
 import scala.util.{Failure, Try}
 
+@RunWith(classOf[JUnit4])
 class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
@@ -34,6 +35,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
       () => super.genericCheckRegions(fileTextRaw, sortFoldings)
     }
 
+  @Test
   def testTemplateBody_IndentationRegion(): Unit = {
     val Start = INDENT_REGION_WITH_COLON
     genericCheckRegions(
@@ -60,6 +62,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testTemplateBody_SingleExpression_IndentationRegion(): Unit = {
     val Start = INDENT_REGION_WITH_COLON
     genericCheckRegions(
@@ -81,6 +84,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testTemplateBody_IndentationRegion_WithEndMarker(): Unit = {
     val Start = INDENT_REGION_WITH_COLON
     genericCheckRegions(
@@ -112,6 +116,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testExtension_IndentationRegion(): Unit = genericCheckRegions(
     s"""extension (x: String)$INDENT_REGION
        |  def f1: String = x.toString + "_1"
@@ -120,17 +125,20 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testExtension_SingleMethod_IndentationRegion(): Unit = genericCheckRegions(
     s"""extension (x: String)$INDENT_REGION
        |  def f1: String = x.toString + "_1"$END
        |""".stripMargin
   )
 
+  @Test
   def testExtension_OneLine_IndentationRegion(): Unit = checkNoFoldingRegions(
     s"""extension (x: String) def f1: String = x.toString + "_1"
        |""".stripMargin
   )
 
+  @Test
   def testExtension_IndentationRegion_WithEndMarker(): Unit = genericCheckRegions(
     s"""extension (x: String)$INDENT_REGION
        |  def f1: String = x.toString + "_1"
@@ -140,6 +148,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testDefWithAssignmentBody_IndentationRegion(): Unit = runWithModifiedScalaFoldingSettings { settings =>
     def doTest(startMarker: String): Unit = {
       genericCheckRegions(
@@ -187,6 +196,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     }
   }
 
+  @Test
   def testDefWithAssignmentBody_WithBraces(): Unit = {
     val Start = BLOCK_ST
     genericCheckRegions(
@@ -226,6 +236,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
   }
 
   //SCL-4465
+  @Test
   def testDefWithAssignmentBody_SingleMultilineExpression_1(): Unit = {
     val Start = DOTS_ST
     genericCheckRegions(
@@ -258,6 +269,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testDefWithAssignmentBody_SingleMultilineExpression_2(): Unit = {
     val Start = DOTS_ST
     genericCheckRegions(
@@ -284,6 +296,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testDefWithAssignmentBody_SingleMultilineExpression_3(): Unit = {
     val Start = DOTS_ST
     genericCheckRegions(
@@ -318,6 +331,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testDefWithAssignmentBody_SingleMultilineExpression_4_WithEndMarker(): Unit = {
     val Start = DOTS_ST
     genericCheckRegions(
@@ -349,6 +363,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testIndentationRegion_DefWithAssignmentBody_WithEndMarker(): Unit = {
     val Start = INDENT_EXPR_ST
     genericCheckRegions(
@@ -392,6 +407,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testIndentationRegion_DefWithAssignmentBody_SingleExpressionOnNewLine(): Unit = {
     val Start = INDENT_REGION
     genericCheckRegions(
@@ -421,6 +437,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testIndentationRegion_DefWithAssignmentBody_SingleExpressionOnNewLine_WithEndMarker(): Unit = {
     val Start = INDENT_REGION
     genericCheckRegions(
@@ -457,6 +474,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testMatch_IndentationRegion(): Unit = genericCheckRegions(
     s"""1 match$INDENT_EXPR_ST
        |  case 1 =>
@@ -466,6 +484,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testMatch_WithBraces(): Unit = genericCheckRegions(
     s"""1 match $BLOCK_ST{
        |  case 1 =>
@@ -476,6 +495,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testMatchType_IndentationRegion(): Unit = genericCheckRegions(
     s"""type Widen[Tup <: Tuple] <: Tuple =$INDENT_REGION
        |  Tup match$INDENT_EXPR_ST
@@ -485,6 +505,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testMatchType_WithBraces(): Unit = genericCheckRegions(
     s"""type Widen[Tup <: Tuple] <: Tuple =$INDENT_REGION
        |  Tup match $BLOCK_ST{
@@ -495,6 +516,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testIfThenElse_IndentationRegion(): Unit = genericCheckRegions(
     s"""if true then$INDENT_EXPR_ST
        |  println("test")
@@ -504,6 +526,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |  println("test")$END""".stripMargin
   )
 
+  @Test
   def testIfThenElse_IndentationRegion_WithEndMarker(): Unit = genericCheckRegions(
     s"""if true then$INDENT_EXPR_ST
        |  println("test")
@@ -519,6 +542,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |end if$END""".stripMargin
   )
 
+  @Test
   def testIfThenElse_WithBraces_ElseOnSameLineWithIfBlock(): Unit = genericCheckRegions(
     s"""if (true) then $BLOCK_ST{
        |  println("test")
@@ -538,6 +562,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testIfThenElse_WithBraces_ElseOnNewLine(): Unit = genericCheckRegions(
     s"""if (true) then $BLOCK_ST{
        |  println("test")
@@ -559,6 +584,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testPackage_IndentationRegion(): Unit = genericCheckRegions(
     s"""package a.b.c$INDENT_REGION_WITH_COLON:
        |  class A
@@ -566,6 +592,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testPackage_IndentationRegion_WithEndMarker(): Unit = genericCheckRegions(
     s"""package a.b.c$INDENT_REGION_WITH_COLON:
        |  class A
@@ -574,6 +601,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testPackage_WithBraces(): Unit = genericCheckRegions(
     s"""package a.b.c $BLOCK_ST{
        |  class A
@@ -582,6 +610,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testPackage_NestedPackages(): Unit = genericCheckRegions(
     s"""package a.b.c$INDENT_REGION_WITH_COLON:
        |  class A
@@ -597,6 +626,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testPackage_NestedPackages_WithBraces(): Unit = genericCheckRegions(
     s"""package a.b.c $BLOCK_ST{
        |  class A
@@ -615,6 +645,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testPackage_MultipleTopLevelPackagesInFile(): Unit = genericCheckRegions(
     s"""package aaa$INDENT_REGION_WITH_COLON:
        |  class A
@@ -630,6 +661,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testPackage_MultipleTopLevelPackagesInFile_WithBraces(): Unit = genericCheckRegions(
     s"""package aaa $BLOCK_ST{
        |  class A
@@ -648,6 +680,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testPackage_MultipleTopLevelPackagesInFile_WithBracesAndIndentationRegion(): Unit = genericCheckRegions(
     s"""package aaa $INDENT_REGION_WITH_COLON:
        |  class A
@@ -664,6 +697,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testCallArgument_Parentheses(): Unit = {
     val Start = PAR_ST
     genericCheckRegions(
@@ -682,6 +716,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testCallArgument_Braces(): Unit = {
     val Start = BLOCK_ST
     genericCheckRegions(
@@ -700,6 +735,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testCallArgument_FewerBraces(): Unit = {
     val Start = INDENT_REGION_WITH_COLON
     genericCheckRegions(
@@ -716,6 +752,7 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  @Test
   def testTopLevelFunctionAsFirstFileElement(): Unit = runWithModifiedScalaFoldingSettings { settings =>
     def codeExample(startMarker: String): String = {
       s"""@main

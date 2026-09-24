@@ -64,12 +64,13 @@ abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaInspec
       } else {
         Seq(left, right)
       }
-      ranges.map(ExpectedHighlight)
+      ranges.map(ExpectedHighlight(_))
     }
     super.assertTextHasError(expectedParenthesesHighlights, actualHighlights, allowAdditionalHighlights = true)
   }
 }
 
+@RunWith(classOf[JUnit4])
 class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryParenthesesInspectionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version < ScalaVersion.Latest.Scala_3_0
 
@@ -77,6 +78,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
 
   // see https://github.com/JetBrains/intellij-scala/pull/434 for more test case
 
+  @Test
   def test_1(): Unit = {
     val selected = s"$START(1 + 1)$END"
     checkTextHasErrors(selected)
@@ -87,11 +89,13 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def test_2(): Unit = {
     val text = "1 + (1 * 2)"
     checkTextHasNoErrors(text)
   }
 
+  @Test
   def test_3(): Unit = {
     val selected =
       s"""
@@ -120,6 +124,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def test_4(): Unit = {
     val selected =
       s"""
@@ -148,11 +153,13 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def test_5(): Unit = {
     val text = "1 :: (2 :: Nil)"
     checkTextHasNoErrors(text)
   }
 
+  @Test
   def test_6(): Unit = {
     val selected = s"val a = $START(((1)))$END"
     checkTextHasErrors(selected)
@@ -163,6 +170,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def test_7(): Unit = {
     val text =
       """def a(x: Any): Boolean = true
@@ -170,6 +178,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     checkTextHasNoErrors(text)
   }
 
+  @Test
   def test_8(): Unit = {
     val selected = s"1 to $START((1, 2))$END"
     checkTextHasErrors(selected)
@@ -180,6 +189,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def test_9(): Unit = {
     val text =
       """(List("a")
@@ -189,6 +199,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     checkTextHasNoErrors(text)
   }
 
+  @Test
   def test_10(): Unit = {
     val selected = s"$START(/*b*/ 1 + /*a*/ 1 /*comment*/)$END"
     checkTextHasErrors(selected)
@@ -199,6 +210,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def test_11(): Unit = {
     val selected = s"$START(/*1*/ 6 /*2*/ /*3*/)$END"
     checkTextHasErrors(selected)
@@ -210,6 +222,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
   }
 
 
+  @Test
   def test_simpleType(): Unit = {
     val selected = s"val i: $START(Int)$END = 3"
     checkTextHasErrors(selected)
@@ -221,6 +234,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
   }
 
 
+  @Test
   def test_simpleTypeMultipleParen(): Unit = {
     val selected = s"val i: $START(((Int)))$END = 3"
     checkTextHasErrors(selected)
@@ -231,6 +245,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def test_nestedFunctionType(): Unit = {
     val selected = s"val i: Int => $START(Int => String)$END = _"
     checkTextHasErrors(selected)
@@ -246,6 +261,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def test_functionType(): Unit = {
     val selected = s"val i: $START(Int => String)$END = _"
     checkTextHasErrors(selected)
@@ -261,6 +277,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def test_functionTypeSingleParam(): Unit = {
     val selected = s"val i: $START(Int)$END => String = _"
     checkTextHasErrors(selected)
@@ -275,15 +292,18 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def test_functionSeveralParams(): Unit = {
     checkTextHasNoErrors("val i: (Int, Int) => String = _)")
   }
 
+  @Test
   def test_functionPlusInfix(): Unit = {
     val selected = s"val i: Int => $START(A op B)$END = _"
     checkTextHasNoErrors(selected)
   }
 
+  @Test
   def test_infixType_rightAssoc(): Unit = {
     val selected = s"val f: Int <<: $START(Unit <<: Unit)$END = _"
     checkTextHasErrors(selected)
@@ -298,6 +318,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
   }
 
 
+  @Test
   def test_infixType_leftAssoc(): Unit = {
     val selected = s"val f: $START(Int op Unit)$END op Unit = _"
     checkTextHasErrors(selected)
@@ -315,6 +336,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     checkTextHasNoErrors(correct)
   }
 
+  @Test
   def test_infixTypeClarifying(): Unit = {
     val prefix =
       """
@@ -338,12 +360,14 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
   }
 
 
+  @Test
   def test_InfixType_MixedAssoc(): Unit = {
     val correct = "val f: Double <<: (Int Map String)"
     checkTextHasNoErrors(correct)
   }
 
 
+  @Test
   def test_tupleType(): Unit = {
     val selected = s"val f: $START((Int, String))$END = _"
     checkTextHasErrors(selected)
@@ -355,6 +379,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
   }
 
 
+  @Test
   def test_infixPatternPrecedence(): Unit = {
     val selected = s"val a +: $START(b +: c)$END = _ "
     checkTextHasErrors(selected)
@@ -366,6 +391,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
   }
 
 
+  @Test
   def test_lambdaParam(): Unit = {
     val r1 = s"Seq(1) map { $START(i)$END => i + 1 }"
     val r2 = s"Seq(1) map { $START(i: Int)$END => i + 1 }"
@@ -390,6 +416,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def test_infixPatternClarifying(): Unit = {
     withSettings(considerClarifying) {
       val selected = s"val a +: $START(b *: c)$END = _ "
@@ -402,6 +429,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     }
   }
 
+  @Test
   def testFunctionInClassParents(): Unit = {
     val text = "class MyFun extends (String => Int)"
     val text2 = "class MyFun2 extends A with (String => Int)"
@@ -409,6 +437,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     checkTextHasNoErrors(text2)
   }
 
+  @Test
   def testPrecedenceNoErrors(): Unit = {
     checkTextHasNoErrors(
       """
@@ -420,6 +449,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
       """.stripMargin)
   }
 
+  @Test
   def testTypeProjection(): Unit = {
     checkTextHasNoErrors(
       """
@@ -433,6 +463,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     )
   }
 
+  @Test
   def testListPattern(): Unit = {
     checkTextHasNoErrors(
       """
@@ -443,22 +474,27 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
       """.stripMargin)
   }
 
+  @Test
   def testFunctionTupleParameter(): Unit = {
     checkTextHasNoErrors("val f: ((Int, Int)) => Int = ???")
   }
 
+  @Test
   def testTraitParents(): Unit = {
     checkTextHasNoErrors("trait Foo extends (Int => String)")
   }
 
+  @Test
   def testEmptyParentheses(): Unit = {
     checkTextHasNoErrors("type Null_Unit = () => Unit")
   }
 
+  @Test
   def testSCL14395(): Unit = {
     checkTextHasNoErrors("val f: (Int => Int) => Int = ???")
   }
 
+  @Test
   def testDoubleParenthesesQuickFix(): Unit = {
     val text = s"1 + ((${CARET_MARKER}1 + 1))"
     val result = "1 + (1 + 1)"
@@ -466,6 +502,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def testRepeatedParameterType(): Unit = {
     checkTextHasNoErrors("class A; def apply(pairs: (A => (A, A))*): A = new A")
 
@@ -475,6 +512,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     testQuickFix(text, result, hint)
   }
 
+  @Test
   def testLiteralType(): Unit = {
     val code =
       s"""
@@ -506,6 +544,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
   }
 
   // SCL-17859
+  @Test
   def testInfixType(): Unit = checkTextHasNoErrors(
     """
       |class Plus[Lhs, Rhs]
@@ -516,6 +555,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
   )
 
   // SCL-18524
+  @Test
   def testTypeAroundFunctionTypeInParenlessParamClause(): Unit = checkTextHasNoErrors(
     """
       |def test[T](x: T): Unit = ()
@@ -525,48 +565,63 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
       |""".stripMargin
   )
 
+  @Test
   def test_nested_if_with_outer_else(): Unit =
     checkTextHasNoErrors("object A { if (true) (if (true) println(1)) else println(2) }")
 
+  @Test
   def test_nested_if_else_if_with_outer_else(): Unit =
     checkTextHasNoErrors("object A { if (true) (if (true) println(1) else if (true) println(2)) else println(3) }")
 
+  @Test
   def test_nested_if_else_if_else_if_with_outer_else(): Unit =
     checkTextHasNoErrors("object A { if (true) (if (true) println(1) else if (true) println(2) else if (true) println(3)) else println(4) }")
 
+  @Test
   def test_nested_if_else_with_outer_else(): Unit =
     checkTextHasErrors(s"object A { if (true) $START(if (true) println(1) else println(2))$END else println(3) }")
 
+  @Test
   def test_nested_if_else_if_else_with_outer_else(): Unit =
     checkTextHasErrors(s"object A { if (true) $START(if (true) println(1) else if (true) println(2) else println(3))$END else println(4) }")
 
+  @Test
   def test_nested_if_else_if_else_if_else_with_outer_else(): Unit =
     checkTextHasErrors(s"object A { if (true) $START(if (true) println(1) else if (true) println(2) else if (true) println(3) else println(4))$END else println(5) }")
 
+  @Test
   def test_nested_if_without_outer_else(): Unit =
     checkTextHasErrors(s"object A { if (true) $START(if (true) println(1))$END }")
 
+  @Test
   def test_nested_if_else_if_without_outer_else(): Unit =
     checkTextHasErrors(s"object A { if (true) $START(if (true) println(1) else if (true) println(2))$END }")
 
+  @Test
   def test_nested_if_else_if_else_if_without_outer_else(): Unit =
     checkTextHasErrors(s"object A { if (true) $START(if (true) println(1) else if (true) println(2) else if (true) println(3))$END }")
 
+  @Test
   def test_nested_curly_braced_if_with_outer_else(): Unit =
     checkTextHasErrors(s"object A { if (false) { $START(if (true) println(1))$END } else println(2) }")
 
+  @Test
   def test_case_clause_with_destructuring(): Unit =
     checkTextHasNoErrors(s"object A { 1 match { case (_: _) *: _ => } }")
 
+  @Test
   def test_parenthesized_non_tuple_match_scrutinee(): Unit =
     checkTextHasErrors(s"$START(1)$END match { case _ => }")
 
+  @Test
   def test_tuple_match_scrutinee(): Unit =
     checkTextHasNoErrors(s"(1, 2) match { case _ => }")
 
+  @Test
   def test_parenthesized_tuple_match_scrutinee(): Unit =
     checkTextHasErrors(s"$START((1, 2))$END match { case _ => }")
 
+  @Test
   def test_annotated_expression(): Unit = checkTextHasErrors(
     s"""import scala.annotation.nowarn
        |
@@ -575,6 +630,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
        |}
        |""".stripMargin)
 
+  @Test
   def test_annotated_match_expression(): Unit = checkTextHasNoErrors(
     s"""import scala.annotation.nowarn
        |object Scope {
@@ -582,15 +638,19 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
        |}
        |""".stripMargin)
 
+  @Test
   def test_underscore_function(): Unit =
     checkTextHasNoErrors("object A { val x = (_.length): String => Int }")
 
+  @Test
   def test_sequence_argument(): Unit =
     checkTextHasErrors(s"""object A { def f(s: String*): Unit = (); f($START(Seq(""))$END: _*) }""")
 
+  @Test
   def test_literal_typed_expression(): Unit =
     checkTextHasErrors(s"""object A { $START("foo")$END: "foo"; $START(1)$END: 1 }""")
 
+  @Test
   def test_typed_argument(): Unit =
     checkTextHasErrors(s"""object A { val l = Seq($START("")$END: Any) }""")
 }

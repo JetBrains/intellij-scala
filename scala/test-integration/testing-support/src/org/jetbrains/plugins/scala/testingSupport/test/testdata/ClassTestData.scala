@@ -81,7 +81,7 @@ object ClassTestData {
 
   def apply(config: AbstractTestRunConfiguration, className: String): ClassTestData = {
     val res = new ClassTestData(config)
-    res.setTestClassPath(className)
+    res.testClassPath = className
     res
   }
 }

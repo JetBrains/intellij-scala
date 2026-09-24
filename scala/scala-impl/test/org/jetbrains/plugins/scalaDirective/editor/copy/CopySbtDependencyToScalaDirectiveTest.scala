@@ -14,6 +14,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   //region Completion auto popups after paste test configuration
   private var completionAutoPopupTester: CompletionAutoPopupTester = _
@@ -40,6 +41,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
 
   //region Tests
   //region Different keys
+  @Test
   def testSimpleSbtDependency_depKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -50,6 +52,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_depsKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -60,6 +63,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_dependenciesKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -70,6 +74,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_testDepKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -80,6 +85,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_testDepsKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -90,6 +96,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_testDependenciesKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -100,6 +107,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_compileOnlyDepKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -110,6 +118,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_compileOnlyDepsKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -120,6 +129,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_compileOnlyDependenciesKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -130,6 +140,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_nonDependencyKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -142,6 +153,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   //endregion
 
   //region No modifications
+  @Test
   def testSimpleSbtDependency_doNotModifyPastedText_inDirectiveWithUnknownCommand(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -152,6 +164,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_doNotModifyPastedText_inTheMiddleOfTheDirective(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -162,6 +175,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_doNotModifyPastedText_InTheMiddleOfTheDependencyList(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -172,6 +186,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_doNotModifyPastedText_InCommonComment(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -182,6 +197,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_doNotModifyPastedText_InScalaCode(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -192,6 +208,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testNotDependency_doNotModifyPastedText(): Unit = doPasteTest(
     "val foo = 10",
     s"""
@@ -203,6 +220,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   )
 
   // TODO(SCL-23704): support this case?
+  @Test
   def testDependencyWithParentheses_doNotModifyPastedText(): Unit = doPasteTest(
     """((("org.scalatest") %% "scalatest") % "3.2.10")""",
     s"""
@@ -215,6 +233,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   //endregion
 
   //region Dependencies with `libraryDependencies` prefix
+  @Test
   def testSimpleSbtDependency_withLibraryDependencies(): Unit = doPasteTest(
     """libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -225,6 +244,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_withLibraryDependencies_inEmptyDirective(): Unit = doPasteTest(
     """libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -235,6 +255,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSeqOfSbtDependencies_withLibraryDependencies(): Unit = doPasteTest(
     """libraryDependencies ++= Seq(
       |  "org.scalatest" %% "scalatest" % "3.2.10",
@@ -247,6 +268,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSeqOfSbtDependencies_withLibraryDependenciesAssignment(): Unit = doPasteTest(
     """libraryDependencies := Seq(
       |  "org.scalatest" %% "scalatest" % "3.2.10",
@@ -259,6 +281,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSeqOfMultipleSbtDependencies_withLibraryDependencies(): Unit = doPasteTest(
     """libraryDependencies ++= Seq(
       |  "org.scalatest" %% "scalatest" % "3.2.10",
@@ -274,6 +297,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   //endregion
 
   //region Dependencies with a version as a reference
+  @Test
   def testSimpleSbtDependency_withVersionRef_invokeAutoCompletion(): Unit = {
     //noinspection ApiStatus
     DependencyUtil.updateMockVersionCompletionCache(("org.apache.maven", "maven-artifact") -> Seq("3.9.8"))
@@ -305,6 +329,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
     )
   }
 
+  @Test
   def testSeqOfMultipleSbtDependencies_withVersionRef(): Unit = doPasteTest(
     """libraryDependencies ++= Seq(
       |  "org.apache.maven" % "maven-artifact" % latestVersion,
@@ -318,6 +343,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSeqOfMultipleSbtDependencies_withVersionRefAtTheEnd(): Unit = doPasteTest(
     """libraryDependencies ++= Seq(
       |  "org.scalatest" %% "scalatest" % "3.2.10",
@@ -331,6 +357,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSeqOfMultipleSbtDependencies_withVersionRefAtTheStart(): Unit = doPasteTest(
     """libraryDependencies ++= Seq(
       |  "org.apache.maven" % "maven-artifact" % latestVersion,
@@ -346,6 +373,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   //endregion
 
   //region Selection
+  @Test
   def testSimpleSbtDependency_selection_wholeDirectiveValue(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -356,6 +384,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_startBeforeCommand(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -366,6 +395,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_doNotModifyPastedText_startInsideCommand(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -376,6 +406,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_startAfterCommand(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -386,6 +417,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_startBeforeKey(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -396,6 +428,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_doNotModifyPastedText_startInsideKey(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -406,6 +439,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_startAfterKey(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -416,6 +450,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_doNotModifyPastedText_startInsidePrefix(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -426,6 +461,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_doNotModifyPastedText_startOutsideOfTheDirective(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -437,6 +473,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_startBeforeValue_endOutsideOfTheDirective(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -448,6 +485,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_doNotModifyPastedText_startInsideValue(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -459,6 +497,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_startAfterCommaAtTheEnd(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -470,6 +509,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_startBeforeCommaAtTheEnd(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -481,6 +521,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_startAfterPrefix_endOutsideOfTheDirective(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -492,6 +533,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_selection_startBeforeNonDepKey(): Unit = doPasteTest(
     """"org.apache.maven" % "maven-artifact" % "3.9.8"""",
     s"""
@@ -505,6 +547,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   //endregion
 
   //region Dependency with configuration
+  @Test
   def testDependencyWithConfiguration_afterDepKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10" % Test""",
     s"""
@@ -515,6 +558,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testDependencyWithConfiguration_inEmptyDirective(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10" % Test""",
     s"""
@@ -526,6 +570,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   )
   //endregion
 
+  @Test
   def testSimpleSbtDependency_withoutSpaces(): Unit = doPasteTest(
     """"org.scalatest"%%"scalatest"%"3.2.10"""",
     s"""
@@ -536,6 +581,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_withTrailingSpacesAfterCaret(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -546,6 +592,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_inDirectiveWithoutKey(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -556,6 +603,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_inEmptyDirective(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -566,6 +614,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_atTheEndOfExistingList(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -576,6 +625,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSimpleSbtDependency_evenIfThereAreWhiteSpacesAtTheEnd(): Unit = doPasteTest(
     """"org.scalatest" %% "scalatest" % "3.2.10"""",
     s"""
@@ -586,6 +636,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSeqOfSbtDependencies(): Unit = doPasteTest(
     """Seq(
       |  "org.scalatest" %% "scalatest" % "3.2.10",
@@ -598,6 +649,7 @@ final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
        |""".stripMargin,
   )
 
+  @Test
   def testSeqOfMultipleSbtDependencies(): Unit = doPasteTest(
     """Seq(
       |  "org.scalatest" %% "scalatest" % "3.2.10",

@@ -14,20 +14,24 @@ import org.junit.runners.JUnit4
 import scala.annotation.nowarn
 
 
+@RunWith(classOf[JUnit4])
 class NeedsToBeAbstractBugsTest extends AnnotatorTestBase[ScTemplateDefinition] {
 
+  @Test
   def testSCL2981(): Unit = {
     assertMatches(messages("trait A { type T; def t(p: T)}; class B extends A { type T = Int; override def t(p: T) = ()}")) {
       case Nil =>
     }
   }
 
+  @Test
   def testSCL3515(): Unit = {
     assertMatches(messages("trait A { type T}; class B extends A")) {
       case Nil =>
     }
   }
 
+  @Test
   def testSCL3514(): Unit = {
     val code = """
 trait M[X]
@@ -46,6 +50,7 @@ class B extends A {
     }
   }
 
+  @Test
   def testSCL4258(): Unit = {
     val code =
       """
@@ -61,6 +66,7 @@ class B extends A {
     }
   }
 
+  @Test
   def testSCL9446(): Unit = {
     doInjectorTest(new SCL9446Injector) {
       val code =
@@ -80,6 +86,7 @@ class B extends A {
     }
   }
 
+  @Test
   def testSCL9446NoOverride(): Unit = {
     doInjectorTest(new SCL9446InjectorNoOverride) {
       val code =

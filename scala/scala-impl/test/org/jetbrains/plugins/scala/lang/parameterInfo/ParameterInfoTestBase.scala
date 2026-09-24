@@ -69,7 +69,7 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
   private def handleUI(handler: ParameterInfoHandler[Owner, Any],
                        context: CreateParameterInfoContext): Seq[String] = {
     val parameterOwner = handler.findElementForParameterInfo(context)
-    val items = Option(context.getItemsToShow).getOrElse(Array.empty).toIndexedSeq
+    val items = Option(context.getItemsToShow).getOrElse(Array.empty[AnyRef]).toIndexedSeq
     uiStrings(items, handler, parameterOwner)
   }
 

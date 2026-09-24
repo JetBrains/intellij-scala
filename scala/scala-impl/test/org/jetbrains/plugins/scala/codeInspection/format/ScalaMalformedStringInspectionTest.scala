@@ -18,8 +18,7 @@ import scala.util.Try
 class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
 
   override protected val description = null // not used... better to throw a NPE
-  override protected val classOfInspection: Class[ScalaMalformedFormatStringInspection] =
-    classOf[ScalaMalformedFormatStringInspection]
+  override protected val classOfInspection = classOf[ScalaMalformedFormatStringInspection]
 
   val formatSpecifiers = Seq(
     "%b",

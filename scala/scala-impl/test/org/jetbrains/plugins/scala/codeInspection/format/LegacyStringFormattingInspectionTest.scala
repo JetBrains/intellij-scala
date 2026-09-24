@@ -6,8 +6,7 @@ class LegacyStringFormattingInspectionTest extends ScalaInspectionTestBase {
 
   override protected val description = "Legacy string formatting, an interpolated string can be used instead"
 
-  override protected val classOfInspection: Class[LegacyStringFormattingInspection] =
-    classOf[LegacyStringFormattingInspection]
+  override protected val classOfInspection = classOf[LegacyStringFormattingInspection]
 
   val hint = "Convert to interpolated string"
 

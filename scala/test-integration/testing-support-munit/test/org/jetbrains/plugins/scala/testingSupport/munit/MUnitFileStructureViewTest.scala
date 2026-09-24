@@ -5,6 +5,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 abstract class MUnitFileStructureViewTestBase extends MUnitTestCase {
 
   private val ClassNameFunSuite = "MUnitFileStructureView_Test_FunSuite"
@@ -45,6 +46,7 @@ abstract class MUnitFileStructureViewTestBase extends MUnitTestCase {
        |""".stripMargin
   )
 
+  @Test
   def testFunSuite(): Unit =
     runFileStructureViewTest0(
       ClassNameFunSuite,
@@ -55,6 +57,7 @@ abstract class MUnitFileStructureViewTestBase extends MUnitTestCase {
       ))
     )
 
+  @Test
   def testClassNameScalaCheckSuite(): Unit =
     runFileStructureViewTest0(
       ClassNameScalaCheckSuite,
@@ -64,6 +67,7 @@ abstract class MUnitFileStructureViewTestBase extends MUnitTestCase {
       ))
     )
 
+  @Test
   def testFunSuite_testPackage_EnsureAssertionFails(): Unit = ExceptionAssertions.assertException[java.lang.AssertionError] {
     runFileStructureViewTest0(
       ClassNameFunSuite,

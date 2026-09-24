@@ -17,9 +17,8 @@ class SbtTerminalPropsProjectImportingTest extends SbtExternalSystemImportingTes
     TestUtils.findCommunityRootPath.resolve("scala/scala-impl/testdata/sbt/projects/simple").toString
 
   def testSeparateProcessImportWithSbtTerminalProps(): Unit = {
-    SbtSettings.getInstance(getMyProject).setSbtEnvironment(
+    SbtSettings.getInstance(getMyProject).sbtEnvironment =
       Map("SBT_TERMINAL_PROPS" -> "0,0,false,false,false").asJava
-    )
 
     importProject(false)
 

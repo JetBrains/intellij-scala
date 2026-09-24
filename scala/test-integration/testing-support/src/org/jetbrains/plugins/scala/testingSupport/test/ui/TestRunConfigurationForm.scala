@@ -127,7 +127,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
   }
 
   def applyTo(configuration: AbstractTestRunConfiguration): Unit = {
-    configuration.setTestKind(this.getTestKind)
+    configuration.testKind = this.getTestKind
     configuration.setModule(this.getModule)
     configuration.testConfigurationData = TestConfigurationData.createFromForm(this, configuration)
     configuration.testConfigurationData.initWorkingDirIfEmpty()

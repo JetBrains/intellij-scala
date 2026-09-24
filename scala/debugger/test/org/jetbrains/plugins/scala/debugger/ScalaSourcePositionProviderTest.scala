@@ -17,6 +17,7 @@ import kotlin.coroutines.Continuation
 import kotlinx.coroutines.{BuildersKt, CoroutineScope, Dispatchers}
 import scala.jdk.CollectionConverters._
 
+@RunWith(classOf[JUnit4])
 abstract class ScalaSourcePositionProviderTestBase extends ScalaDebuggerTestCase {
 
   addSourceFile("ClassParameters.scala",
@@ -56,6 +57,7 @@ abstract class ScalaSourcePositionProviderTestBase extends ScalaDebuggerTestCase
        |}
        |""".stripMargin)
 
+  @Test
   def testClassParameters(): Unit = {
     createLocalProcess("ClassParameters")
 
@@ -140,6 +142,7 @@ class ScalaSourcePositionProviderTest_3 extends ScalaSourcePositionProviderTestB
        |    println(i)
        |""".stripMargin)
 
+  @Test
   def testLambdaInToplevelMain(): Unit = {
     createLocalProcess("lambdaInToplevelMain")
 

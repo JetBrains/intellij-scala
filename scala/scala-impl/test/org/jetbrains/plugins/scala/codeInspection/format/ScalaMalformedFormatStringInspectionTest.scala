@@ -26,8 +26,7 @@ abstract class ScalaMalformedFormatStringInspectionTestBase extends ScalaInspect
   private val testDataFolder = Path.of(TestUtils.getTestDataPath, "inspections", "ScalaMalformedFormatStringInspection")
   assert(testDataFolder.exists)
 
-  override protected val classOfInspection: Class[ScalaMalformedFormatStringInspection] =
-    classOf[ScalaMalformedFormatStringInspection]
+  override protected val classOfInspection = classOf[ScalaMalformedFormatStringInspection]
 
   private val inspectionToolId = classOfInspection.getDeclaredConstructor().newInstance().getID
 

@@ -19,7 +19,7 @@ abstract class PrivateShadowInspectionTestBase extends ScalaInspectionTestBase {
     val inspectionProfile = InspectionProjectProfileManager.getInstance(getProject).getCurrentProfile
     val inspectionToolWrapper = inspectionProfile.getInspectionTool("PrivateShadow", getProject)
     val inspection = inspectionToolWrapper.getTool.asInstanceOf[PrivateShadowInspection]
-    inspection.setPrivateShadowCompilerOption(false)
+    inspection.privateShadowCompilerOption = false
   }
 }
 

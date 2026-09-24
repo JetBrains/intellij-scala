@@ -13,6 +13,6 @@ abstract class NonLocalReturnInspectionTestBase extends ScalaInspectionTestBase 
     val inspectionProfile = InspectionProjectProfileManager.getInstance(getProject).getCurrentProfile
     val inspectionToolWrapper = inspectionProfile.getInspectionTool("NonLocalReturn", getProject)
     val inspection = inspectionToolWrapper.getTool.asInstanceOf[NonLocalReturnInspection]
-    inspection.setCheckCompilerOption(false)
+    inspection.checkCompilerOption = false
   }
 }

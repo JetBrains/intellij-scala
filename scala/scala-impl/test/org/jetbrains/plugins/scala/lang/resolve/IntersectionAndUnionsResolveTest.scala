@@ -4,10 +4,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
+  @Test
   def testUnionPos(): Unit = checkTextHasNoErrors(
     s"""
        |object A {
@@ -20,6 +22,7 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testUnionNeg(): Unit = checkHasErrorAroundCaret(
     s"""
        |object A {
@@ -32,6 +35,7 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testIntersectionSimple(): Unit = checkTextHasNoErrors(
     """
       |object A {
@@ -48,6 +52,7 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
       |""".stripMargin
   )
 
+  @Test
   def testSignatureIntersection(): Unit = checkTextHasNoErrors(
     s"""
        |object A {
@@ -67,6 +72,7 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
   )
 
   //@TODO: fix when bounds are merged
+  @Test
   def testSignatureIntersectionSameDesignator(): Unit = checkTextHasNoErrors(
     s"""
        |object A {
@@ -77,6 +83,7 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testSignatureIntersectionSubst(): Unit = checkTextHasNoErrors(
     s"""
        |object A {
@@ -87,6 +94,7 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testDeepIntersection(): Unit = checkTextHasNoErrors(
     s"""
        |object A {
@@ -100,6 +108,7 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testIntersectionOfUpperBoundedTypeParametersWithUnboundedTypeParameters(): Unit = {
     val code =
       """trait Foo {
@@ -111,6 +120,7 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
     assertNoThrowable(() => myFixture.doHighlighting())
   }
 
+  @Test
   def testSCL21142(): Unit = checkTextHasNoErrors(
     s"""
        |trait IndividualType:
@@ -128,6 +138,7 @@ class IntersectionAndUnionsResolveTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
+  @Test
   def testIntersectionWithRefinement(): Unit = checkTextHasNoErrors(
     """
       |trait A { def f: Any }

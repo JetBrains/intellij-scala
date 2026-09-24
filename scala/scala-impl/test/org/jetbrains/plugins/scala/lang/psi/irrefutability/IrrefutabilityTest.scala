@@ -50,7 +50,7 @@ abstract class IrrefutabilityTestBase extends ScalaLightCodeInsightFixtureTestCa
     val foundPatterns = if (byMatch.nonEmpty) byMatch else byVal
     assert(foundPatterns.size == 1, s"found not exactly one pattern, patterns: $foundPatterns")
 
-    val List((pattern, expr)) = foundPatterns
+    val (pattern, expr) = foundPatterns.head
 
     val exprType = expr.`type`().get
     pattern.isIrrefutableFor(exprType, deep)

@@ -23,5 +23,5 @@ class PrevSiblingsIteratorTest extends IteratorTestCase {
    assertIterates("", parse("0 (1.1 (2.1))").getLastChild)
  }
 
-  override def createIterator(element: PsiElement) = new PrevSiblignsIterator(element)
+  override def createIterator(element: PsiElement): PrevSiblignsIterator = new PrevSiblignsIterator(element)
 }

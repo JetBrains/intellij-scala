@@ -7,12 +7,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpression] {
   //conversions from standard library may be different in older versions
   override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_2_13
 
   override def createFix(ref: ScReferenceExpression) = ImportImplicitConversionFixes(ref).find(_.elements.nonEmpty)
 
+  @Test
   def testAsJavaCollection(): Unit = checkElementsToImport(
     s"""object Test {
        |  Seq("").${CARET}asJavaCollection
@@ -22,6 +24,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "scala.collection.JavaConverters.asJavaCollectionConverter",
   )
 
+  @Test
   def testAsJavaCollectionOldExcluded(): Unit =
     withExcluded("scala.collection.JavaConverters") {
       checkElementsToImport(
@@ -34,6 +37,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     }
 
 
+  @Test
   def testAsJava(): Unit = checkElementsToImport(
     s"""object Test {
        |  Seq("").${CARET}asJava
@@ -48,6 +52,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "scala.collection.JavaConverters.seqAsJavaListConverter"
   )
 
+  @Test
   def testAsScala(): Unit = checkElementsToImport(
     s"""class Test {
        |  val list: java.util.ArrayList[String] = ???
@@ -62,6 +67,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "scala.collection.JavaConverters.iterableAsScalaIterableConverter",
   )
 
+  @Test
   def testSecondsPostfix(): Unit = checkElementsToImport(
     s"""class Test {
        |  100 ${CARET}seconds
@@ -70,6 +76,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "scala.concurrent.duration.DurationInt",
   )
 
+  @Test
   def testDoubleSecondsInfix(): Unit = checkElementsToImport(
     s"""class Test {
        |  1.5 ${CARET}seconds fromNow
@@ -78,6 +85,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "scala.concurrent.duration.DurationDouble",
   )
 
+  @Test
   def testGenericImplicitClass(): Unit = doTest(
     fileText =
       s"""
@@ -106,6 +114,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "conversions.ObjectExt"
   )
 
+  @Test
   def testGenericImplicitClassWithBound(): Unit = checkElementsToImport(
     s"""trait Element
        |object MyElement extends Element
@@ -124,6 +133,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "conversions.ElementExt"
   )
 
+  @Test
   def testStringInterpolation(): Unit = checkElementsToImport(
     s"""
        |object StringInterpol {
@@ -140,6 +150,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "StringInterpol.Xy"
   )
 
+  @Test
   def testParamWithTypeConstructor(): Unit = checkElementsToImport(
     s"""
        |object conversions {
@@ -156,6 +167,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "conversions.SeqExt"
   )
 
+  @Test
   def testImplicitParameterOfImplicitConversion1(): Unit = checkElementsToImport(
     s"""
       |object show {
@@ -178,6 +190,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "implicits.toShow"
   )
 
+  @Test
   def testImplicitParameterOfImplicitConversion2(): Unit = checkElementsToImport(
     s"""
        |import implicits.toShow
@@ -203,6 +216,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "implicits.stringShow"
   )
 
+  @Test
   def testImportFromVal(): Unit = checkElementsToImport(
     s"""
       |trait Owner {
@@ -226,6 +240,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "OwnerImpl.api.a2b"
   )
 
+  @Test
   def testImplicitConversionOnGenericType(): Unit = doTest(
     fileText =
       s"""
@@ -258,6 +273,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "conversions.ObjectExt"
   )
 
+  @Test
   def testImplicitConversionOnGenericType1(): Unit = checkElementsToImport(
     s"""
        |object show {
@@ -282,6 +298,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "implicits.toShow"
   )
 
+  @Test
   def testImplicitConversionOnGenericType2(): Unit = checkElementsToImport(
     s"""
       |import scala.language.implicitConversions
@@ -307,6 +324,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
       |}""".stripMargin,
   "mySyntax.syntaxDoubleParam")
 
+  @Test
   def testImplicitConversionOnObject(): Unit = doTest(
     fileText =
       s"""
@@ -339,6 +357,7 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "conversions.ObjectExt"
   )
 
+  @Test
   def testTopLevelConversion(): Unit = checkElementsToImport(
     s"""package tests
        |

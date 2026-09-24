@@ -107,7 +107,7 @@ class TypeParameterInfoNamedTypeArgsTest extends ScalaLightCodeInsightFixtureTes
     handler.updateUI(
       (typeParametersOwner, ScSubstitutor.empty),
       new ParameterInfoUIContext {
-        override def getParameterOwner = typeArgs
+        override def getParameterOwner: ScTypeArgs = typeArgs
 
         override def setupUIComponentPresentation(
           text: String,

@@ -8,6 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 abstract class MUnitGoToSourceTestBase extends MUnitTestCase {
 
   private val qqq = "\"\"\""
@@ -47,6 +48,7 @@ abstract class MUnitGoToSourceTestBase extends MUnitTestCase {
        |""".stripMargin
   )
 
+  @Test
   def testGoTo_FunSuite(): Unit = {
     val runConfig = createTestFromLocation(loc(FileNameFunSuite, 2, 10))
     val runResult = runTestFromConfig(runConfig)
@@ -57,6 +59,7 @@ abstract class MUnitGoToSourceTestBase extends MUnitTestCase {
     assertGoToSourceTest(testTreeRoot, TestNodePath("[root]", s"$ClassNameFunSuite.test 2"), GoToLocation(FileNameFunSuite, 6))
   }
 
+  @Test
   def testGoTo_ScalaCheckSuite(): Unit = {
     val runConfig = createTestFromLocation(loc(FileNameScalaCheckSuite, 4, 10))
     val runResult = runTestFromConfig(runConfig)
@@ -67,6 +70,7 @@ abstract class MUnitGoToSourceTestBase extends MUnitTestCase {
     assertGoToSourceTest(testTreeRoot, TestNodePath("[root]", s"$ClassNameScalaCheckSuite.property test"), GoToLocation(FileNameScalaCheckSuite, 8))
   }
 
+  @Test
   def testGoTo_EnsureAssertionFails(): Unit = ExceptionAssertions.assertException[java.lang.AssertionError] {
     val runConfig = createTestFromLocation(loc(FileNameFunSuite, 2, 10))
     val runResult = runTestFromConfig(runConfig)

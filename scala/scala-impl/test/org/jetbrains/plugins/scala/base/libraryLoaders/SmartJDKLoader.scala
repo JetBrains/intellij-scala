@@ -148,7 +148,7 @@ object SmartJDKLoader {
     priorityPaths.headOption
       .orElse {
         val fullSearchPaths = paths.flatMap { p => versionStrings.map((p, _)) }
-        val validPaths = fullSearchPaths.flatMap((inJvm _).tupled)
+        val validPaths = fullSearchPaths.flatMap(inJvm.tupled)
         validPaths.headOption
       }
   }

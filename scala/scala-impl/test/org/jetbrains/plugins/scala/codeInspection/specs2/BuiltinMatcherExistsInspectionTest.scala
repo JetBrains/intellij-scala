@@ -6,7 +6,7 @@ class BuiltinMatcherExistsInspectionTest extends ScalaInspectionTestBase {
 
   protected val annotation: String = ScalaInspectionBundle.message("specs2.use.builtin.matcher")
   private val hint = ScalaInspectionBundle.message("specs2.builtin.matcher.alternative.exists")
-  override protected val classOfInspection: Class[BuiltinMatcherExistsInspection] = classOf[BuiltinMatcherExistsInspection]
+  override protected val classOfInspection = classOf[BuiltinMatcherExistsInspection]
 
   //OperationOnCollectionInspectionBase
   def testMustBeSomeSimplification(): Unit = {

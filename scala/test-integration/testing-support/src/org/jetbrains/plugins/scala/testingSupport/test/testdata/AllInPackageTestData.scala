@@ -135,7 +135,7 @@ object AllInPackageTestData {
 
   def apply(config: AbstractTestRunConfiguration, pack: String): AllInPackageTestData = {
     val res = new AllInPackageTestData(config)
-    res.setTestPackagePath(pack)
+    res.testPackagePath = pack
     res
   }
 }

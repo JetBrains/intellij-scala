@@ -21,6 +21,7 @@ import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters._
 
 /** Covers package configurations, background command-line preparation, and MUnit result trees. */
+@RunWith(classOf[JUnit4])
 abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
 
   private val packageName0 = "org"
@@ -66,6 +67,7 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
 
   private val optionsWithErrorCode = defaultTestOptions.withErrorCode(-1)
 
+  @Test
   def testPackage0(): Unit =
     runTestByLocation2(
       packageLoc(packageName0),
@@ -94,6 +96,7 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
       ))
     )(optionsWithErrorCode)
 
+  @Test
   def testPackage1(): Unit =
     runTestByLocation2(
       packageLoc(packageName1),
@@ -112,6 +115,7 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
       ))
     )(optionsWithErrorCode)
 
+  @Test
   def testPackage2(): Unit =
     runTestByLocation2(
       packageLoc(packageName2),
@@ -203,6 +207,7 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
     assertEquals(s"Suites selected in $packageName", expectedSuites, lines.drop(3).toSet)
   }
 
+  @Test
   def testPackage_EnsureAssertionFails(): Unit = ExceptionAssertions.assertException[java.lang.AssertionError] {
     runTestByLocation2(
       packageLoc(packageName2),

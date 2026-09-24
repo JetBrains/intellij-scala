@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import org.junit.Assert.fail
 
-trait DoTestInCompanionObject {
-  self: ScalaLiveTemplateTestBase =>
+trait DoTestInCompanionObject extends ScalaLiveTemplateTestBase {
 
   protected def doTestInCompanionObject(classText: String, expectedMethodText: String): Unit = {
     val regex = """.*?class\s+([\w\d]+).*""".r

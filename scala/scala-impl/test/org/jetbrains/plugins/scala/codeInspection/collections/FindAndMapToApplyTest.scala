@@ -8,7 +8,7 @@ package collections
   */
 class FindAndMapToApplyTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[FindAndMapToGetInspection] =
+  override protected val classOfInspection =
     classOf[FindAndMapToGetInspection]
 
   override protected val hint: String =

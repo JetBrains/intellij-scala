@@ -47,8 +47,8 @@ abstract class ScalaTestWithSbtShellAndUiTestBase extends ScalaTestSbtShellTestB
    */
   private def runTestWithSbtUi(config: RunnerAndConfigurationSettings, expectedPaths: TestNodePathWithStatus*): Unit = {
     val runConfiguration = config.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
-    runConfiguration.testConfigurationData.setUseSbt(true)
-    runConfiguration.testConfigurationData.setUseUiWithSbt(true)
+    runConfiguration.testConfigurationData.useSbt = true
+    runConfiguration.testConfigurationData.useUiWithSbt = true
 
     runTestByLocation3(config, { result =>
       val root = result.requireTestTreeRoot

@@ -8,6 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
 
   override protected def setUp(): Unit = {
@@ -21,6 +22,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     scalaSettings.TRAILING_COMMA_IMPORT_SELECTOR_ENABLED = true
   }
 
+  @Test
   def testTrailingCommaPanelIsInstantiatedNormally(): Unit = {
     assertNoThrowable(() => {
       val panel = new TrailingCommaPanel(getSettings)
@@ -32,6 +34,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     })
   }
 
+  @Test
   def testKeep(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_KEEP
     val before =
@@ -88,6 +91,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
   //
   // ADD / REMOVE
   //
+  @Test
   def testAddRemove_ArgumentsList(): Unit = testAddRemove(
     withoutComma =
       """foo(1, 2, 3
@@ -97,6 +101,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
         |)""".stripMargin
   )
 
+  @Test
   def testAddRemove_MultipleArgumentsList(): Unit = testAddRemove(
     withoutComma =
       """foo(1, 2, 3
@@ -108,6 +113,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
         |)""".stripMargin
   )
 
+  @Test
   def testAddRemove_ArgumentsListWithComment(): Unit = testAddRemove(
     withoutComma =
       """List(
@@ -123,6 +129,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
         |)""".stripMargin
   )
 
+  @Test
   def testAddRemove_ConstructorCallMultipleArguments(): Unit = testAddRemove(
     withoutComma =
       """val a = new A(1, 2
@@ -134,6 +141,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
         |)""".stripMargin
   )
 
+  @Test
   def testAddRemove_MultipleParametersClauses(): Unit = testAddRemove(
     withoutComma =
       """def foo(
@@ -153,6 +161,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
         |       ) = ???""".stripMargin
   )
 
+  @Test
   def testAddRemove_Tuple(): Unit = testAddRemove(
     withoutComma =
       """val tuple = (1, 2, 3
@@ -162,6 +171,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
         |)""".stripMargin
   )
 
+  @Test
   def testAddRemove_TupleType(): Unit = testAddRemove(
     withoutComma =
       """val tuple: (Int, Int
@@ -171,6 +181,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
         |  )""".stripMargin
   )
 
+  @Test
   def testAddRemove_ImportStatementWithSelectors(): Unit = testAddRemove(
     withoutComma =
       """import org.example.{
@@ -184,6 +195,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
         |}""".stripMargin
   )
 
+  @Test
   def testAddRemove_PatterArgumentList(): Unit = testAddRemove(
     withoutComma =
       """List(1, 2, 3) match {
@@ -197,6 +209,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
         |}""".stripMargin
   )
 
+  @Test
   def testAddRemove_PatternTuple(): Unit = testAddRemove(
     withoutComma =
       """(Seq(): Any) match {
@@ -215,6 +228,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
   //
   // NOT ADD / NOT REMOVE
   //
+  @Test
   def testNotAdd_ParametersListWithVararg(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before =
@@ -224,6 +238,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  @Test
   def testNotAdd_ClassParametersListWithVararg(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before =
@@ -233,6 +248,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  @Test
   def testNotAdd_PatternArgumentListWithSequencePattern(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before =
@@ -244,6 +260,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  @Test
   def testNotAdd_PatternArgumentListWithNamedSequencePattern(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before =
@@ -255,6 +272,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  @Test
   def testNotAdd_ArgumentListWithSequenceArgumentType(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before =
@@ -263,6 +281,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  @Test
   def testNotAdd_ImportStatement(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before =
@@ -272,6 +291,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  @Test
   def testNotAdd_IfCommaAlreadyExists(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before =
@@ -280,6 +300,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  @Test
   def testNotAdd_IfCommaAlreadyExistsWithComment(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before =
@@ -288,18 +309,21 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  @Test
   def testNotAdd_NotMultiline(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before ="""List(1, 2, 3)"""
     doTextTest(before)
   }
 
+  @Test
   def testNotAdd_NotMultilineWithComment(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before ="""List(1, 2, 3 /*comment*/)"""
     doTextTest(before)
   }
 
+  @Test
   def testNotAdd_ParameterBlockWithoutParenthesis(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before =
@@ -308,6 +332,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  @Test
   def testNotAdd_ParameterBlockWithoutParenthesis_1(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE
     val before =
@@ -323,24 +348,28 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     doTextTest(after, after)
   }
 
+  @Test
   def testNotRemove_NotMultilineWithErrorComma(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_REMOVE_WHEN_MULTILINE
     val before ="""List(1, 2, 3,)"""
     doTextTest(before)
   }
 
+  @Test
   def testNotRemove_NotMultilineWithErrorCommaAndComment(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_REMOVE_WHEN_MULTILINE
     val before ="""List(1, 2, 3, /*comment*/)"""
     doTextTest(before)
   }
 
+  @Test
   def testNotRemove_NotMultilineWithMultipleTrailingCommasAndComment(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_REMOVE_WHEN_MULTILINE
     val before ="""List(1, 2, 3, /*comment*/ ,)""".stripMargin
     doTextTest(before)
   }
 
+  @Test
   def testNotRemove_WithMultipleTrailingCommasAndComment(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_REMOVE_WHEN_MULTILINE
     val before =
@@ -349,6 +378,7 @@ abstract class TrailingCommaTestBase extends AbstractScalaFormatterTestBase {
     doTextTest(before)
   }
 
+  @Test
   def testNotRemove_ImportStatementWithErrorComma(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_REMOVE_WHEN_MULTILINE
     val before =
@@ -370,6 +400,7 @@ class TrailingCommaTest_Scala3 extends TrailingCommaTestBase {
   override def version: ScalaVersion = LatestScalaVersions.Scala_3_5
 
 
+  @Test
   def testKeep_NamedTuple(): Unit = {
     getScalaSettings.TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_KEEP
     val before =
@@ -397,6 +428,7 @@ class TrailingCommaTest_Scala3 extends TrailingCommaTestBase {
     doTextTest(before)
   }
 
+  @Test
   def testAddRemove_NamedTuple(): Unit = testAddRemove(
     withoutComma =
       """val tuple: (x: Int, y: Int) = (x = 1, y = 2
@@ -406,6 +438,7 @@ class TrailingCommaTest_Scala3 extends TrailingCommaTestBase {
         |)""".stripMargin
   )
 
+  @Test
   def testAddRemove_NamedTupleType(): Unit = testAddRemove(
     withoutComma =
       """def foo(f: (x: Int, y: String
@@ -415,6 +448,7 @@ class TrailingCommaTest_Scala3 extends TrailingCommaTestBase {
         |)) = ???""".stripMargin
   )
 
+  @Test
   def testAddRemove_NamedTuplePattern(): Unit = testAddRemove(
     withoutComma =
       """val (x = x, y = _

@@ -241,7 +241,7 @@ final class ScalaQuickFixTestFixture(
     }
 
     val (_, expectedRanges) = MarkersUtils.extractMarker(fileTextNormalized, START, END, caretMarker = Some(CARET))
-    val expectedHighlights = expectedRanges.map(ExpectedHighlight)
+    val expectedHighlights = expectedRanges.map(ExpectedHighlight(_))
 
     onFileCreated(baseFixture.getFile)
     expectedHighlights

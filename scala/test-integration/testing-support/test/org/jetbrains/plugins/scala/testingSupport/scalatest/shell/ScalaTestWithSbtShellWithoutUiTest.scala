@@ -59,8 +59,8 @@ abstract class ScalaTestWithSbtShellWithoutUiTestBase extends ScalaTestSbtShellT
    */
   private def runTestWithoutSbtUi(config: RunnerAndConfigurationSettings, expectedOutputFragments: String*): Unit = {
     val runConfiguration = config.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
-    runConfiguration.testConfigurationData.setUseSbt(true)
-    runConfiguration.testConfigurationData.setUseUiWithSbt(false)
+    runConfiguration.testConfigurationData.useSbt = true
+    runConfiguration.testConfigurationData.useUiWithSbt = false
 
     runTestByLocation3(config, { result =>
       assertExitCode(0, result)

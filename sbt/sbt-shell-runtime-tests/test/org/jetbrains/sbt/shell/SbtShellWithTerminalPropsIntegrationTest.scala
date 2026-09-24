@@ -14,9 +14,8 @@ class SbtShellWithTerminalPropsIntegrationTest extends SbtRuntimeTest_WithSbtShe
   override protected def getRelativeTestProjectPath: String = "sbt-shell-runtime-tests/testdata/sbt/shell/testShellState"
 
   def testShellStartsWithSbtTerminalProps(): Unit = {
-    SbtSettings.getInstance(getMyProject).setSbtEnvironment(
+    SbtSettings.getInstance(getMyProject).sbtEnvironment =
       Map("SBT_TERMINAL_PROPS" -> "0,0,false,false,false").asJava
-    )
 
     SbtProcessManager.forProject(getMyProject).destroyProcess()
     SbtShellTestUtil.waitUntilSbtShellIsReady(

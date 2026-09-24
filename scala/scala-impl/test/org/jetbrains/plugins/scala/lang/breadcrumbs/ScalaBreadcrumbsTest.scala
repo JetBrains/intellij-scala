@@ -61,7 +61,7 @@ abstract class ScalaBreadcrumbsTestBase extends ScalaLightCodeInsightFixtureTest
     val params = for {
       lang <- breadcrumbsDefaultVisibilityTestLanguages
       showMembersInNavBar <- Seq(true, false)
-    } yield Array(lang, showMembersInNavBar)
+    } yield Array[Any](lang, showMembersInNavBar)
     params.toArray
   }
 }

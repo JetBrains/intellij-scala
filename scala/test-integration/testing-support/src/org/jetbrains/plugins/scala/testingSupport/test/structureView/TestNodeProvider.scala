@@ -191,7 +191,7 @@ object TestNodeProvider {
     (expr match {
       case _: ScInfixExpr => expr.getLastChild.getChildren
       case methodCall: ScMethodCall => methodCall.args.getLastChild.getChildren
-      case _ => Array[ScExpression]()
+      case _ => Array.empty[PsiElement]
     }).filter(_.is[ScExpression]).map(_.asInstanceOf[ScExpression])
   }
 
@@ -517,10 +517,10 @@ object TestNodeProvider {
     def extractUTestInner(expr: PsiElement, project: Project): Option[TreeElement] = {
       if (isUTestInfixExpr(expr)) {
         Some(new Test(expr, getInfixExprTestName(expr.asInstanceOf[ScInfixExpr]),
-          processChildren(getInnerExprs(expr), extractUTestInner, project)))
+          processChildren(getInnerExprs(expr), extractUTestInner, project), Test.NormalStatusId))
       } else if (isUTestApplyCall(expr)) {
         Some(new Test(expr, getMethodCallTestName(expr.asInstanceOf[ScMethodCall]),
-          processChildren(getInnerExprs(expr), extractUTestInner, project)))
+          processChildren(getInnerExprs(expr), extractUTestInner, project), Test.NormalStatusId))
       } else None
     }
     if (isUTestSuiteApplyCall(expr) || isUTestTestsCall(expr)) {

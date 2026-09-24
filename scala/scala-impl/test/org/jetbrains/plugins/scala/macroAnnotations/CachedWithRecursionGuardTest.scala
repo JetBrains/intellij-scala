@@ -9,7 +9,9 @@ import org.junit.runners.JUnit4
 
 import java.util.concurrent.atomic.AtomicInteger
 
+@RunWith(classOf[JUnit4])
 class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase {
+  @Test
   def testWithoutParameters(): Unit = {
     class Elem extends CachedMockPsiElement {
       var depth = 0
@@ -36,6 +38,7 @@ class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase {
     assertEquals(secondRes, elem.recursiveFunction)
   }
 
+  @Test
   def testMultipleKeys(): Unit = {
     val element = new CachedMockPsiElement()
 
@@ -45,6 +48,7 @@ class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase {
     assertNotEquals(value1, value2)
   }
 
+  @Test
   def testWithParameters(): Unit = {
     object Elem extends CachedMockPsiElement {
       val counter = new AtomicInteger(0)
@@ -70,6 +74,7 @@ class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase {
     assertEquals("2", Elem.recursiveFunction(Some(1)))
   }
 
+  @Test
   def testTracer(): Unit = {
     class Elem extends CachedMockPsiElement {
       def rec(isRecursive: Boolean): Either[Long, String] = cachedWithRecursionGuard("rec", this, Right("Failure"): Either[Long, String], PsiModificationTracker.MODIFICATION_COUNT, Tuple1(isRecursive)) {

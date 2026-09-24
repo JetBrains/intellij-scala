@@ -6,10 +6,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@RunWith(classOf[JUnit4])
 class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpression] {
   override def createFix(element: ScReferenceExpression) =
     ScalaImportGlobalMemberFix.fixWithoutPrefix(element)
 
+  @Test
   def testNextInt(): Unit = checkElementsToImport(
     s"""
        |object Test {
@@ -20,6 +22,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     "scala.util.Random.nextInt"
   )
 
+  @Test
   def testEmptyList(): Unit = checkElementsToImport(
     s"""
        |class Foo {
@@ -30,6 +33,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     "java.util.Collections.emptyList"
   )
 
+  @Test
   def testConstant(): Unit = checkElementsToImport(
     s"""
        |class Test {
@@ -41,6 +45,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     "scala.Float.PositiveInfinity",
   )
 
+  @Test
   def testConstantAsPattern(): Unit = doTest(
     fileText =
       s"""
@@ -64,6 +69,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     selected = "scala.Double.PositiveInfinity"
   )
 
+  @Test
   def testNoPrivateMethod(): Unit = checkNoImportFix(
     s"""
        |object A {
@@ -75,6 +81,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
        |}
        |""".stripMargin)
 
+  @Test
   def testNoInstanceMethod(): Unit = checkNoImportFix(
     s"""
        |class A {
@@ -85,6 +92,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
        |}
        |""".stripMargin)
 
+  @Test
   def testTooManyCandidates(): Unit = checkNoImportFix(
     s"""
        |class Test {
@@ -93,6 +101,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
        |""".stripMargin
   )
 
+  @Test
   def testViaInheritors(): Unit = checkElementsToImport(
     s"""trait Base[T] {
        |  def foo(t: T): Int = 1
@@ -110,6 +119,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     "B.foo", "C.foo"
   )
 
+  @Test
   def testSingleOptionIfNonParameterizedInheritance(): Unit = checkElementsToImport(
     s"""
        |trait Base {
@@ -128,6 +138,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     "B.foo"
   )
 
+  @Test
   def testCompanionObjectValue(): Unit = doTest(
     fileText =
       s"""
@@ -153,6 +164,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     selected = "Foo.foo"
   )
 
+  @Test
   def testCompanionObjectMethod(): Unit = doTest(
     fileText =
       s"""
@@ -178,6 +190,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     selected = "Foo.foo"
   )
 
+  @Test
   def testPrivateThisCompanionObjectMethod(): Unit = checkNoImportFix(
     s"""
        |class Foo {
@@ -189,6 +202,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
        |}""".stripMargin
   )
 
+  @Test
   def testPrivateCompanionObjectMethod(): Unit = checkElementsToImport(
     s"""
        |class Foo {
@@ -202,6 +216,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     "Foo.foo"
   )
 
+  @Test
   def testMethodFromVal(): Unit = checkElementsToImport(
     s"""
        |trait MyMethods {
@@ -227,6 +242,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     "AbcImpl.api.myMethod"
   )
 
+  @Test
   def testExcludedClass(): Unit = {
     withExcluded("scala.util.Random") {
       checkNoImportFix(
@@ -242,6 +258,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     }
   }
 
+  @Test
   def testExcludedMethod(): Unit = {
     withExcluded("scala.util.Random.nextInt") {
       checkNoImportFix(
@@ -252,6 +269,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     }
   }
 
+  @Test
   def testInheritedMethodFromTrait(): Unit = checkElementsToImport(
     s"""trait MyHelperTrait {
        |  def defInTrait: String = ???
@@ -266,6 +284,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     "MyObject.defInTrait"
   )
 
+  @Test
   def testInheritedMethodFromClass(): Unit = checkElementsToImport(
     s"""class MyHelperClass {
        |  def defInClass: String = ???
@@ -280,6 +299,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     "MyObject.defInClass"
   )
 
+  @Test
   def testInheritedValFromTrait(): Unit = checkElementsToImport(
     s"""trait MyHelperTrait {
        |  val valInTrait: String = ???
@@ -294,6 +314,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     "MyObject.valInTrait"
   )
 
+  @Test
   def testInheritedValFromClass(): Unit = checkElementsToImport(
     s"""class MyHelperClass {
        |  val valInClass: String = ???
@@ -308,6 +329,7 @@ class ImportStableMemberFixTest extends ImportElementFixTestBase[ScReferenceExpr
     "MyObject.valInClass"
   )
 
+  @Test
   def testJavaEnumConstant(): Unit = {
     myFixture.addFileToProject(
       "org/example/MyJavaEnum1.java",

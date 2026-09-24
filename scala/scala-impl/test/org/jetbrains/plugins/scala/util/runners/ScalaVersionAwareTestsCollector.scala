@@ -115,7 +115,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[? <: TestCase],
           annotation.value.toSeq
         }
         val extraVersions = (annotation.extra: @nowarn("cat=deprecation")).toSeq
-        (baseVersions ++ extraVersions).sorted.distinct
+        (baseVersions ++ extraVersions).sortBy(_.ordinal()).distinct
     }
 
   private def methodEffectiveJdkVersions(method: Method, classVersions: Seq[TestJdkVersion]): Seq[TestJdkVersion] =
@@ -129,7 +129,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[? <: TestCase],
           annotation.value.toSeq
         }
         val extraVersions = (annotation.extra: @nowarn("cat=deprecation")).toSeq
-        (baseVersions ++ extraVersions).sorted.distinct
+        (baseVersions ++ extraVersions).sortBy(_.ordinal()).distinct
     }
 
   private def isPublicMethod(m: Method): Boolean = Modifier.isPublic(m.getModifiers)

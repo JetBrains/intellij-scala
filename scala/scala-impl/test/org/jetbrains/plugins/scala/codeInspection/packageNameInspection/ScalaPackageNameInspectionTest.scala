@@ -50,7 +50,9 @@ abstract class ScalaPackageNameInspectionTestBase extends ScalaInspectionTestBas
 
 }
 
+@RunWith(classOf[JUnit4])
 class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTestBase {
+  @Test
   def test_simple(): Unit = inDirectory("subdir") {
     checkTextHasNoErrors(
       """package subdir
@@ -62,6 +64,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_misspelled_package_decl(): Unit = inDirectory("subdir") {
     checkTextHasError(
       s"""package ${START}wrongName$END
@@ -92,6 +95,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_missing_package_decl(): Unit = inDirectory("subdir") {
     checkTextHasError(
       s"""object ${START}Test$END {
@@ -124,6 +128,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_in_parent_package_decl(): Unit = inDirectory("subdir") {
     checkTextHasError(
       s"""package ${START}subdir.wrong$END
@@ -154,6 +159,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_package_object(): Unit = inDirectory("subdir/subsubdir") {
     checkTextHasNoErrors(
       s"""package subdir
@@ -165,6 +171,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_package_object_on_root(): Unit = inDirectory("subdir") {
     checkTextHasNoErrors(
       s"""package object subdir {
@@ -174,6 +181,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_misspelled_package_object(): Unit = inDirectory("subdir/subsubdir") {
     checkTextHasError(
       s"""package ${START}subdir$END
@@ -212,6 +220,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_package_object_in_wrong_parent_dir(): Unit = inDirectory("subdir/subsubdir") {
     checkTextHasError(
       s"""package ${START}wrongParent$END
@@ -251,6 +260,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_package_object_missing_parent_package(): Unit = inDirectory("subdir/subsubdir") {
     checkTextHasError(
       s"""package object ${START}subsubdir$END {
@@ -283,6 +293,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_package_object_missing_parent_dir(): Unit = inDirectory("subdir") {
     checkTextHasError(
       s"""package ${START}subdir$END
@@ -319,6 +330,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_package_object_missing_parent_root(): Unit = {
     checkTextHasError(
       s"""package object ${START}subsubdir$END {
@@ -336,6 +348,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_package_block(): Unit = inDirectory("subdir/subsubdir") {
     checkTextHasNoErrors(
       s"""package subdir
@@ -347,6 +360,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_package_object_and_package(): Unit = inDirectory("subdir/subsubdir") {
     checkTextHasNoErrors(
       s"""package subdir
@@ -362,6 +376,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_should_be_in_multiple_packages(): Unit = inDirectory("subdir/subsubdir") {
     checkTextHasNoErrors(
       s"""package subdir
@@ -375,6 +390,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_package_with_backticks(): Unit = inDirectory("subdir/sub.subdir") {
     checkTextHasNoErrors(
       s"""package subdir.`sub.subdir`
@@ -384,6 +400,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_package_object_with_backticks(): Unit = inDirectory("subdir/sub.subdir") {
     checkTextHasNoErrors(
       s"""package subdir
@@ -395,6 +412,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_move_package_with_backticks(): Unit = inDirectory("subdir/sub.subdir") {
     checkTextHasError(
       s"""package ${START}subdir.`something.wrong`$END
@@ -426,6 +444,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_legacy_package_object_no_warnings(): Unit = inDirectory("org/example") {
     checkTextHasNoErrors(
       """package org.example
@@ -437,6 +456,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
     )
   }
 
+  @Test
   def test_legacy_package_object_set_correct_name(): Unit = inDirectory("org/example") {
     checkTextHasError(
       s"""package ${START}org.example.inner$END
@@ -459,6 +479,7 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
   }
 }
 
+@RunWith(classOf[JUnit4])
 class ScalaPackageNameInspectionTest_Scala3 extends ScalaPackageNameInspectionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >=  ScalaVersion.Latest.Scala_3_0
 
@@ -468,6 +489,7 @@ class ScalaPackageNameInspectionTest_Scala3 extends ScalaPackageNameInspectionTe
     "type Typ = Int"
   )
 
+  @Test
   def test_single_val(): Unit = inDirectory("subdir") {
     for (toplevel <- toplevels)
       checkTextHasNoErrors(
@@ -478,6 +500,7 @@ class ScalaPackageNameInspectionTest_Scala3 extends ScalaPackageNameInspectionTe
       )
   }
 
+  @Test
   def test_single_toplevel_in_wrong_dir(): Unit = {
     for (toplevel <- toplevels)
       inDirectory("subdir") {
@@ -502,6 +525,7 @@ class ScalaPackageNameInspectionTest_Scala3 extends ScalaPackageNameInspectionTe
       }
   }
 
+  @Test
   def test_move_single_def(): Unit =
     testMoveQuickfix(
       s"""package ${CARET}wrong
@@ -512,6 +536,7 @@ class ScalaPackageNameInspectionTest_Scala3 extends ScalaPackageNameInspectionTe
       hint      = "Move to package 'wrong'",
     )
 
+  @Test
   def test_move_single_val(): Unit =
     testMoveQuickfix(
       s"""package ${CARET}wrong
@@ -522,6 +547,7 @@ class ScalaPackageNameInspectionTest_Scala3 extends ScalaPackageNameInspectionTe
       hint      = "Move to package 'wrong'",
     )
 
+  @Test
   def test_move_single_type(): Unit =
     testMoveQuickfix(
       s"""package ${CARET}wrong
