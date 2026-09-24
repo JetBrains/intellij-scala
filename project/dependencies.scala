@@ -282,6 +282,5 @@ object DependencyGroups {
 
 object DependencyResolvers {
   val IntelliJDependencies = "IntelliJ Dependencies" at "https://cache-redirector.jetbrains.com/intellij-dependencies"
-  val PackageSearch = "Package Search" at "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/kpm/public"
   val Grazie = "Grazie" at "https://cache-redirector.jetbrains.com/packages.jetbrains.team/maven/p/grazi/grazie-platform-public"
 }

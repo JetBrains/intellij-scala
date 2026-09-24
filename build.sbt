@@ -1345,19 +1345,6 @@ lazy val featuresTrainerIntegration =
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.featuresTrainer")
     )
 
-// SCL-20376 - The package search plugin will be replaced by a new one, requiring a rewrite of the integration code.
-//lazy val packageSearchIntegration =
-//  newProject("packagesearch", file("scala/integration/packagesearch"))
-//    .dependsOn(scalaImpl, sbtImpl)
-//    .settings(
-//      // The packageSearch plugin is no longer distributed with IDEA. It will soon be available on the plugin
-//      // marketplace once more and this workaround will be unnecessary.
-//      // TODO: use `intellijVersion_ForManagedIntellijDependencies` as version once the plugin is published properly
-//      libraryDependencies += "com.jetbrains.intellij.packageSearch" % "package-search" % "232.6095-EAP-CANDIDATE-SNAPSHOT" % Provided notTransitive(),
-//      resolvers += MavenRepository("intellij-repository-snapshots", "https://www.jetbrains.com/intellij-repository/snapshots"),
-//      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
-//    )
-
 // Utility projects
 
 lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencies"))

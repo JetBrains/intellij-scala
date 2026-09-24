@@ -122,10 +122,6 @@ object ScalaBundleSorting {
       rootPath = integrationDir / "java-decompiler",
       bundleMessagesRelativePath = "ScalaJavaDecompilerBundle.properties",
     ),
-//    ModuleWithBundleInfo(
-//      rootPath = integrationDir /"packagesearch/",
-//      bundleMessagesRelativePath = "PackageSearchSbtBundle.properties",
-//    ),
     ModuleWithBundleInfo(
       rootPath = integrationDir / "i18n",
       bundleMessagesRelativePath = "ScalaI18nBundle.properties",
