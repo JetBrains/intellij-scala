@@ -49,6 +49,8 @@ object Common {
     "-language:existentials",
     "-Ytasty-reader",
     "-Wunused:nowarn",
+    "-Xsource:3",
+    "-Wconf:cat=scala3-migration:w",
     // NOTE: we agreed to disable "fatal warnings" in Scala Plugin repo after an exhaustive discussion in the team.
     // They are useful as code-quality signal, but treating them as compilation errors is not convenient in practice.
     // It hurts iterative local development and can block TeamCity from running tests.
