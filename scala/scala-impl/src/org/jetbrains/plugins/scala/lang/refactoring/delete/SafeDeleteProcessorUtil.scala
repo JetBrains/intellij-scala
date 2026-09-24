@@ -177,7 +177,7 @@ object SafeDeleteProcessorUtil {
     newConstructors.add(constructor)
     constructorsToRefs.put(constructor, originalReferences)
     val passConstructors: util.HashSet[PsiMethod] = new util.HashSet[PsiMethod]
-    do {
+    while ({
       passConstructors.clear()
       newConstructors.forEach { method =>
         val references: util.Collection[PsiReference] = constructorsToRefs.get(method)
@@ -192,7 +192,8 @@ object SafeDeleteProcessorUtil {
       }
       newConstructors.clear()
       newConstructors.addAll(passConstructors)
-    } while (!newConstructors.isEmpty)
+      !newConstructors.isEmpty
+    }) ()
     val validOverriding: util.Set[PsiMethod] = validateOverridingMethods(constructor, originalReferences, constructorsToRefs.keySet, constructorsToRefs, usages, allElementsToDelete)
     new Condition[PsiElement] {
       override def value(usage: PsiElement): Boolean = {
@@ -215,7 +216,7 @@ object SafeDeleteProcessorUtil {
     val validOverriding: util.Set[PsiMethod] = new util.LinkedHashSet[PsiMethod](overridingMethods)
     val multipleInterfaceImplementations: util.Set[PsiMethod] = new util.HashSet[PsiMethod]
     var anyNewBadRefs: Boolean = false
-    do {
+    while ({
       anyNewBadRefs = false
       overridingMethods.forEach { overridingMethod =>
         if (validOverriding.contains(overridingMethod)) {
@@ -248,7 +249,8 @@ object SafeDeleteProcessorUtil {
           }
         }
       }
-    } while (anyNewBadRefs && !validOverriding.isEmpty)
+      anyNewBadRefs && !validOverriding.isEmpty
+    }) ()
     validOverriding.forEach ( method =>
       if (method != originalMethod)
         usages.add(new SafeDeleteOverridingMethodUsageInfo(method, originalMethod))

@@ -107,7 +107,7 @@ object MultilineStringUtil {
     var prevParent: PsiElement = findParentMLString(stringElement).getOrElse(return Seq.empty)
     var parent = prevParent.getParent
 
-    do {
+    while ({
       parent match {
         case s: ScStringLiteral if s.isMultiLineString => //OK
         case _: ScLiteral =>
@@ -141,7 +141,8 @@ object MultilineStringUtil {
 
       prevParent = parent
       parent = parent.getParent
-    } while (parent != null)
+      parent != null
+    }) ()
 
     calls.result()
   }

@@ -8,7 +8,7 @@ private class MyConcurrentMap[K, V >: Null] {
   private val ref: AtomicReference[java.util.Map[K, V]] = new AtomicReference(emptyMap)
 
   def computeIfAbsent(k: K, v: K => V): V = {
-    do {
+    while (true) {
       val prev = ref.get()
       prev.get(k) match {
         case null =>
@@ -19,7 +19,7 @@ private class MyConcurrentMap[K, V >: Null] {
         case v =>
           return v
       }
-    } while (true)
+    }
     //will be never reached
     null
   }

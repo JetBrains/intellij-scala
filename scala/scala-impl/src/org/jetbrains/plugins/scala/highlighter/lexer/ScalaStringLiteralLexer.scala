@@ -41,8 +41,10 @@ class ScalaStringLiteralLexer(
   // here wo stick to the latest version and don't handle all scala versions
   override protected def locateUnicodeEscapeSequence(start: Int, i0: Int): Int = {
     var i = i0
-    do i += 1
-    while (i < myBufferEnd && myBuffer.charAt(i) == 'u')
+    while ({
+      i += 1
+      i < myBufferEnd && myBuffer.charAt(i) == 'u'
+    }) ()
     parseUnicodeDigits(i)
   }
 

@@ -345,14 +345,14 @@ object ScalaCompilerProfilesPanel {
 
   private def expand(tree: JTree): Unit = {
     var oldRowCount = 0
-    do {
+    while (true) {
       val rowCount = tree.getRowCount
       if (rowCount == oldRowCount) return
       oldRowCount = rowCount
       for (i <- 0 until rowCount) {
         tree.expandRow(i)
       }
-    } while (true)
+    }
   }
 
   private trait DataSynchronizable {

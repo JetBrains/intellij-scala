@@ -132,8 +132,10 @@ final class ScalaStringParser private(
     val len = s.length
 
     // uuuuu1234 is valid too
-    do index += 1
-    while (index < len && s.charAt(index) == 'u')
+    while ({
+      index += 1
+      index < len && s.charAt(index) == 'u'
+    }) ()
 
     if (index + 4 > len)
       return -1

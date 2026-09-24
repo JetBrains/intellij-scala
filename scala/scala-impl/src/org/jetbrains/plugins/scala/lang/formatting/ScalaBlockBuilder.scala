@@ -690,7 +690,7 @@ final class ScalaBlockBuilder(
     }
 
     var child: ASTNode = node
-    do {
+    while ({
       if (isNotEmptyNode(child)) {
         if (child.getPsi.is[ScTemplateParents]) {
           subBlocks.addAll(getTemplateParentsBlocks(child))
@@ -698,10 +698,11 @@ final class ScalaBlockBuilder(
           subBlocks.add(getChildBlock(child))
         }
       }
-    } while (child != lastNode && {
-      child = child.getTreeNext
-      child != null
-    })
+      child != lastNode && {
+        child = child.getTreeNext
+        child != null
+      }
+    }) ()
 
     //it is not used right now, but could come in handy later
     for {

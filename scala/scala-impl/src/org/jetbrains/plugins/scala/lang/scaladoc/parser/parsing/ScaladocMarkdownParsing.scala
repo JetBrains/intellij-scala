@@ -658,10 +658,11 @@ object ScaladocMarkdownParsing {
 
       var onlyWs = true
       val marker = mark()
-      do {
+      while ({
         onlyWs &&= getTokenType == ScalaDocTokenType.DOC_WHITESPACE
         advanceLexer()
-      } while (getCurrentOffset < target)
+        getCurrentOffset < target
+      }) ()
 
       marker.collapse(
         if (iType != null) iType
@@ -677,9 +678,10 @@ object ScaladocMarkdownParsing {
       if (isAtPosition) return
 
       val marker = mark()
-      do {
+      while ({
         advanceLexer()
-      } while (!isAtPosition)
+        !isAtPosition
+      }) ()
 
       marker.collapse(iType)
     }

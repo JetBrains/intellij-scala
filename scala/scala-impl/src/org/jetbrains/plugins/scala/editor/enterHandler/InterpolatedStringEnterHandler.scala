@@ -86,13 +86,14 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
       val lexer = new StringLiteralLexer(StringLiteralLexer.NO_QUOTE_CHAR, element.getNode.getElementType)
       lexer.start(element.getText, 0, element.getTextLength)
 
-      do {
+      while ({
         if (lexer.getTokenStart + element.getTextOffset < caretOffset.get && caretOffset.get() < lexer.getTokenEnd + element.getTextOffset) {
           if (StringEscapesTokenTypes.STRING_LITERAL_ESCAPES.contains(lexer.getTokenType)) {
             modifyOffset(lexer.getTokenEnd + element.getTextOffset - caretOffset.get())
           }
         }
-      } while (caretOffset.get() > lexer.getTokenEnd + element.getTextOffset && (lexer.advance(), lexer.getTokenType != null)._2)
+        caretOffset.get() > lexer.getTokenEnd + element.getTextOffset && (lexer.advance(), lexer.getTokenType != null)._2
+      }) ()
 
       inWriteAction {
         // Complete the current string literal with the closing quote and with the ` + ` symbol

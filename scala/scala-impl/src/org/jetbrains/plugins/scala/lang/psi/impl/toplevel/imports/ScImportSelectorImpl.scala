@@ -90,14 +90,15 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
       var node = this.getNode
       var prev = if (forward) node.getTreeNext else node.getTreePrev
       var t: IElementType = null
-      do {
+      while ({
         node.getTreeParent.removeChild(node)
         node = prev
         if (node != null) {
           prev = if (forward) node.getTreeNext else node.getTreePrev
           t = node.getElementType
         }
-      } while (node != null && !(t == IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER || t == ScalaTokenType.WildcardStar))
+        node != null && !(t == IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER || t == ScalaTokenType.WildcardStar)
+      }) ()
     }
 
     if (removeRedundantBraces) {

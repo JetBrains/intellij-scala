@@ -48,12 +48,13 @@ final class ScPackagingStubFactory(elementType: ScPackagingElementType)
       ScalaNamesUtil.cleanFqn(if (prefix.nonEmpty) prefix + "." + postfix else postfix)
 
     var i = 0
-    do {
+    while ({
       sink.occurrence[ScPackaging, CharSequence](PACKAGE_FQN_KEY, append(ownNamePart))
       i = ownNamePart.lastIndexOf(".")
       if (i > 0) {
         ownNamePart = ownNamePart.substring(0, i)
       }
-    } while (i > 0)
+      i > 0
+    }) ()
   }
 }

@@ -71,7 +71,7 @@ final class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
     }
 
     var hasAsterisk = false
-    do {
+    while ({
       if (nextElement == null) return PsiElement.EMPTY_ARRAY
 
       if ((!Set(DOC_COMMENT_DATA, DOC_COMMENT_LEADING_ASTERISKS, DOC_WHITESPACE).contains(nextElement.getNode.getElementType) &&
@@ -87,7 +87,11 @@ final class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
       }
 
       elementsToSurround += nextElement
-    } while (nextElement != lastBoundElement && (nextElement = nextElement.getNextSibling, true)._2)
+      nextElement != lastBoundElement && {
+        nextElement = nextElement.getNextSibling
+        true
+      }
+    }) ()
 
     elementsToSurround.toArray
   }

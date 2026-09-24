@@ -243,12 +243,13 @@ private class ScalaDocBlockBuilder(
 
   private def flattenChildrenBetweenNodes(firstNode: ASTNode, lastNode: ASTNode, buffer: ArrayBuffer[ASTNode]): Unit = {
     var currNode = firstNode
-    do {
+    while ({
       flattenIfNeeded(currNode, buffer)
-    } while (currNode != lastNode && {
-      currNode = currNode.getTreeNext
-      true
-    })
+      currNode != lastNode && {
+        currNode = currNode.getTreeNext
+        true
+      }
+    }) ()
   }
 
   private def flattenChildren(node: ASTNode, buffer: ArrayBuffer[ASTNode]): Unit = {
