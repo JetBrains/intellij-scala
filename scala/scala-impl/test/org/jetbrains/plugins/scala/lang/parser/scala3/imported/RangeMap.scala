@@ -23,7 +23,7 @@ case class RangeMap[+T] private(private val sortedRanges: SortedMap[Int, (TextRa
    * Two ranges are interlaced if they intersect but neither is a sub-range of the other.
    */
   def interlaced(range: TextRange): Iterator[(TextRange, T)] =
-    intersections(range).filter(_._1 interlaces range)
+    intersections(range).filter(_._1.interlaces(range))
 }
 
 object RangeMap {

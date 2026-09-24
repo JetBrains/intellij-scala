@@ -86,8 +86,8 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
           case _: IllegalFormatConversionException => Some(Inapplicable)
           case _: IllegalFormatException => Some(Malformed)
         }
-        case _ => Some(Malformed)
-      }
+      case _ => Some(Malformed)
+    }
   }
 }
 

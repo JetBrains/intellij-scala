@@ -28,11 +28,11 @@ object Attribute extends ParsingRule {
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_EQ => builder.advanceLexer()
       case _ => 
-        builder error ErrMsg("xml.eq.expected")
+        builder.error(ErrMsg("xml.eq.expected"))
         attributeMarker.done(ScalaElementType.XML_ATTRIBUTE)
         return true
     }
-    if (!AttrValue()) builder error ErrMsg("xml.attribute.value.expected")
+    if (!AttrValue()) builder.error(ErrMsg("xml.attribute.value.expected"))
     attributeMarker.done(ScalaElementType.XML_ATTRIBUTE)
     true
   }

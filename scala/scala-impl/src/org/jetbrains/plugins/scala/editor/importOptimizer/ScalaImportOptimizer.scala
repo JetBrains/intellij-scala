@@ -656,7 +656,7 @@ object ScalaImportOptimizer {
     val i = optimizers.iterator()
     while (i.hasNext) {
       val opt = i.next()
-      if (opt supports topLevelFile) {
+      if (opt.supports(topLevelFile)) {
         return Some(opt)
       }
     }

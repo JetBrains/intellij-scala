@@ -73,7 +73,7 @@ object RevertableChange {
   }
 
   def withModifiedRegistryValue(key: String, newValue: Boolean): RevertableChange =
-    withModifiedRegistryValueInternal[Boolean](key, newValue, _.asBoolean, _ setValue _)
+    withModifiedRegistryValueInternal[Boolean](key, newValue, _.asBoolean, _ `setValue` _)
 
   def withModifiedSystemProperty(key: String, newValue: String): RevertableChange =
     withModifiedSetting[String](
@@ -88,10 +88,10 @@ object RevertableChange {
     )
 
   def withModifiedRegistryValue(key: String, newValue: Int): RevertableChange =
-    withModifiedRegistryValueInternal[Int](key, newValue, _.asInteger(), _ setValue _)
+    withModifiedRegistryValueInternal[Int](key, newValue, _.asInteger(), _ `setValue` _)
 
   def withModifiedRegistryValue(key: String, newValue: String): RevertableChange =
-    withModifiedRegistryValueInternal[String](key, newValue, _.asString(), _ setValue _)
+    withModifiedRegistryValueInternal[String](key, newValue, _.asString(), _ `setValue` _)
 
   private def withModifiedRegistryValueInternal[A](
     key: String,

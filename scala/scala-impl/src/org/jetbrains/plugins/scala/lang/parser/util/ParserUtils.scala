@@ -87,7 +87,7 @@ object ParserUtils {
           return
         case ScalaTokenTypes.tLBRACE => //to avoid missing '{'
           if (!br) {
-            builder error ErrMsg("rbrace.expected")
+            builder.error(ErrMsg("rbrace.expected"))
             br = true
           }
           var balance = 1
@@ -104,7 +104,7 @@ object ParserUtils {
             return
         case _ =>
           if (!br) {
-            builder error ErrMsg("rbrace.expected")
+            builder.error(ErrMsg("rbrace.expected"))
             br = true
           }
           builder.advanceLexer()

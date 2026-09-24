@@ -29,7 +29,7 @@ class InterpolatedStringMacroTypeProviderTest extends TypeInferenceTestBase {
          |println(${START}r${END})
          |//Long
        """.stripMargin
-      doTypeProviderTest(text, new SCL12987Injector)
+    doTypeProviderTest(text, new SCL12987Injector)
   }
 
   //test that other functions on StringContexts do not trigger extension

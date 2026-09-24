@@ -109,7 +109,7 @@ object ScExtractorPattern {
       def extractorMatches: Option[LazyList[ExtractorMatch]]
 
       final override def isIrrefutable: Boolean =
-        scrutineeType.zip(matchedType).forall { case (s, m) => s conforms m } &&
+        scrutineeType.zip(matchedType).forall { case (s, m) => s `conforms` m } &&
           extractorMatch.exists(_.isIrrefutable(pattern.argPatternShape))
     }
 

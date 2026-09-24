@@ -32,7 +32,7 @@ abstract class TypesAsParams(val paramType: IElementType) extends ParsingRule {
       builder.advanceLexer() // ate ,
 
       if (!tryParseTypeAsParam(rollback = false)) {
-        builder error ErrMsg("expected.more.types")
+        builder.error(ErrMsg("expected.more.types"))
         return false
       }
     }

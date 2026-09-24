@@ -23,7 +23,7 @@ object STag extends ParsingRule {
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_NAME =>
         builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.name.expected")
+      case _ => builder.error(ErrMsg("xml.name.expected"))
     }
     while (Attribute()) {}
     builder.getTokenType match {
@@ -34,7 +34,7 @@ object STag extends ParsingRule {
       case ScalaXmlTokenTypes.XML_TAG_END =>
         builder.advanceLexer()
       case _ =>
-        builder error ErrMsg("xml.tag.end.expected")
+        builder.error(ErrMsg("xml.tag.end.expected"))
     }
     tagMarker.done(ScalaElementType.XML_START_TAG)
     true

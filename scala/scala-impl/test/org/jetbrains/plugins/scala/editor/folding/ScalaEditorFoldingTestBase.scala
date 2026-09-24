@@ -109,7 +109,7 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
     myFixture.configureByText("dummy.scala", textWithoutMarkers.result())
 
     val myBuilder = new ScalaFoldingBuilder
-    val regions = myBuilder.buildFoldRegions(myFixture.getFile.getNode, myFixture getDocument myFixture.getFile)
+    val regions = myBuilder.buildFoldRegions(myFixture.getFile.getNode, myFixture.getDocument(myFixture.getFile))
 
     val actualFoldingInfos = regions.map(region => FoldingInfo(
       region.getRange,

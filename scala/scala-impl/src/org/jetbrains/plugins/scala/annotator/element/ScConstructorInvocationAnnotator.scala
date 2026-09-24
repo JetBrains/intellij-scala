@@ -149,7 +149,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
         // new Trait() {} is allowed!
         // but not   new Trait()() {}
         // or        new Trait(i: Int) {}
-        holder.createErrorAnnotation(tail.foldLeft(head.getTextRange)(_ union _.getTextRange),
+        holder.createErrorAnnotation(tail.foldLeft(head.getTextRange)(_ `union` _.getTextRange),
           ScalaBundle.message("annotator.error.trait.has.no.constructor", tr.name))
       case _ =>
     }
@@ -226,7 +226,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
     r.problems.exists { case MalformedDefinition(_) => true; case _ => false }
 
   private def argsElementsTextRange(constrInvocation: ConstructorInvocationLike): TextRange = constrInvocation.arguments match {
-    case head +: tail => tail.foldLeft(head.getTextRange)(_ union _.getTextRange)
+    case head +: tail => tail.foldLeft(head.getTextRange)(_ `union` _.getTextRange)
     case _ => constrInvocation.getTextRange
   }
 

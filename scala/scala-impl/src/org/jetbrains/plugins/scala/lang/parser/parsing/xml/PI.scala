@@ -20,7 +20,7 @@ object PI extends ParsingRule {
     }
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_NAME => builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.name.expected")
+      case _ => builder.error(ErrMsg("xml.name.expected"))
     }
     while (Attribute()) {}
     builder.getTokenType match {
@@ -29,7 +29,7 @@ object PI extends ParsingRule {
     }
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_PI_END => builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.PI.end.expected")
+      case _ => builder.error(ErrMsg("xml.PI.end.expected"))
     }
     PIMarker.done(ScalaElementType.XML_PI)
     true

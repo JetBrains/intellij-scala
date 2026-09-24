@@ -26,7 +26,7 @@ object AttrValue extends ParsingRule {
         }
         builder.getTokenType match {
           case ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER => builder.advanceLexer()
-          case _ => builder error ErrMsg("xml.attribute.end.expected")
+          case _ => builder.error(ErrMsg("xml.attribute.end.expected"))
         }
       case _ =>
         if (ScalaExpr() || builder.skipExternalToken()) {

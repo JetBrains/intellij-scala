@@ -38,7 +38,7 @@ object ImportSelector extends ParsingRule {
           importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
           true
         case _ =>
-          builder error ErrMsg("identifier.or.wild.sign.expected")
+          builder.error(ErrMsg("identifier.or.wild.sign.expected"))
           importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
           true
       }

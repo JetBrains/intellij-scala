@@ -20,6 +20,6 @@ class JavaHighlightingLiteralTypesTest extends JavaHighlightingTestBase {
         |  }
         |}
         |""".stripMargin
-      assertNothing(errorsFromJavaCode(scala, java, "JavaTest"))
+    assertNothing(errorsFromJavaCode(scala, java, "JavaTest"))
   }
 }

@@ -24,7 +24,7 @@ abstract class NewTypeDefinitionBase[T <: ScTemplateDefinition](@Nls txt: String
   def createFromTemplate(directory: PsiDirectory, name: String, fileName: String, templateName: String,
                          parameters: String*): PsiFile = {
     val templateManager = FileTemplateManager.getDefaultInstance
-    val template = templateManager getInternalTemplate templateName
+    val template = templateManager.getInternalTemplate(templateName)
     val project = directory.getProject
     val properties = new Properties(templateManager.getDefaultProperties)
 
@@ -38,7 +38,7 @@ abstract class NewTypeDefinitionBase[T <: ScTemplateDefinition](@Nls txt: String
 
     var text: String = null
 
-    try text = template getText properties catch {
+    try text = template.getText(properties) catch {
       case c: ControlFlowException => throw c
       case e: Exception =>
         throw new RuntimeException("Unable to load template for " + templateManager.internalTemplateToSubject(templateName), e)

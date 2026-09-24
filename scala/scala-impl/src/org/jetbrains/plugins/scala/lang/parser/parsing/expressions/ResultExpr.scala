@@ -53,7 +53,7 @@ object ResultExpr {
           completeParamClauses(paramMarker)(paramsMarker)
           return parseFunctionEnd()
         case _ =>
-          builder error ErrMsg("fun.sign.expected")
+          builder.error(ErrMsg("fun.sign.expected"))
       }
       parseFunctionEnd()
     }

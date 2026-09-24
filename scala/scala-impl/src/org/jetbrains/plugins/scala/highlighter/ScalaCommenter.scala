@@ -90,17 +90,17 @@ class ScalaCommenter extends SelfManagingCommenter[ScalaCommenterDataHolder] wit
   }
 
   override def getCommentPrefix(line: Int, document: Document, data: ScalaCommenterDataHolder): String =
-    getLineCommentPrefix()
+    getLineCommentPrefix
 
   override def getBlockCommentRange(selectionStart: Int, selectionEnd: Int, document: Document, data: ScalaCommenterDataHolder): TextRange = {
     null
   }
 
   override def getBlockCommentPrefix(selectionStart: Int, document: Document, data: ScalaCommenterDataHolder): String =
-    getBlockCommentPrefix()
+    getBlockCommentPrefix
 
   override def getBlockCommentSuffix(selectionEnd: Int, document: Document, data: ScalaCommenterDataHolder): String =
-    getBlockCommentSuffix()
+    getBlockCommentSuffix
 
   override def uncommentBlockComment(startOffset: Int, endOffset: Int, document: Document, data: ScalaCommenterDataHolder): Unit = {
     val text = document.getCharsSequence

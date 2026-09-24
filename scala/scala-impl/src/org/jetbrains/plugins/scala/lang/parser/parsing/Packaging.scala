@@ -43,16 +43,16 @@ object Packaging extends ParsingRule {
               case Some(region) => region
               case None =>
                 if (builder.hasPrecedingIndentation) {
-                  builder error ErrMsg("indented.definitions.expected")
+                  builder.error(ErrMsg("indented.definitions.expected"))
                 } else {
-                  builder error ErrMsg("expected.new.line.after.colon")
+                  builder.error(ErrMsg("expected.new.line.after.colon"))
                 }
                 End()
                 packMarker.done(ScalaElementType.PACKAGING)
                 return true
             }
           case _ =>
-            builder error ScalaBundle.message("lbrace.expected")
+            builder.error(ScalaBundle.message("lbrace.expected"))
             packMarker.done(ScalaElementType.PACKAGING)
             return true
         }
@@ -71,7 +71,7 @@ object Packaging extends ParsingRule {
         true
       case _ =>
         //this code shouldn't be reachable, if it is, this is unexpected error
-        builder error ScalaBundle.message("unreachable.error")
+        builder.error(ScalaBundle.message("unreachable.error"))
         packMarker.drop()
         false
     }

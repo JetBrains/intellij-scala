@@ -1139,7 +1139,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
               } else result = ConstraintsResult.Left
             case (UndefinedType(_, _), _) => result = unifyHK(p, p2, constraints, Bound.Lower, visited, checkWeak)
             case (_, UndefinedType(_, _)) => result = unifyHK(p2, p, constraints, Bound.Upper, visited, checkWeak)
-            case _ if des1 equiv des2 =>
+            case _ if des1.equiv(des2) =>
               result =
                 if (args1.length != args2.length) ConstraintsResult.Left
                 else {

@@ -55,7 +55,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     if (isMultiline(node) || isMultilineImport(node) || isNonEmptyExtensionBodyOnNewLine(node)) {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT |  ScalaDocElementTypes.SCALA_DOC_COMMENT =>
-          descriptors add new FoldingDescriptor(node, nodeTextRange)
+          descriptors.add(new FoldingDescriptor(node, nodeTextRange))
         case EXTENSION_BODY =>
           // extensions template body do not support `:` in the beginning,
           // we should capture new line before
@@ -64,12 +64,14 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
           descriptors.add(new FoldingDescriptor(node, range))
         case TEMPLATE_BODY => descriptors.add(new FoldingDescriptor(node, nodeTextRange))
         case ImportStatement if isGoodImport(node) =>
-          descriptors add new FoldingDescriptor(node,
-            new TextRange(nodeTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node)))
+          descriptors.add(new FoldingDescriptor(
+            node,
+            new TextRange(nodeTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node))
+          ))
         case MatchExprOrMatchType() =>
           val infoOpt = multilineBodyInMatch(node)
           infoOpt.foreach { info =>
-            descriptors add new FoldingDescriptor(node, info.range)
+            descriptors.add(new FoldingDescriptor(node, info.range))
           }
         case _ =>
       }
@@ -85,9 +87,9 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
             case _ =>
           }
         case p: ScStringLiteral if p.isMultiLineString =>
-          descriptors add new FoldingDescriptor(node, nodeTextRange)
+          descriptors.add(new FoldingDescriptor(node, nodeTextRange))
         case args: ScArgumentExprList if args.isArgsInParens =>
-          descriptors add new FoldingDescriptor(node, nodeTextRange)
+          descriptors.add(new FoldingDescriptor(node, nodeTextRange))
         case definition: ScDefinitionWithAssignment =>
           val bodyOpt = definitionBody(definition)
           bodyOpt.foreach { body =>
@@ -144,7 +146,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
           val d2 = new FoldingDescriptor(aliasedType.getNode, range2, group) {
             override def getPlaceholderText = ""
           }
-          descriptors addAll Seq(d1, d2).asJavaCollection
+          descriptors.addAll(Seq(d1, d2).asJavaCollection)
         case _ =>
       }
     } else if (node.getElementType == ScalaTokenTypes.tLINE_COMMENT) {
@@ -166,8 +168,10 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
               val endElement =
                 if (a2.getNextSibling.is[PsiWhiteSpace]) a2.getNextSibling
                 else a2
-              descriptors add new FoldingDescriptor(node,
-                new TextRange(startElement.getTextRange.getStartOffset, endElement.getTextRange.getEndOffset))
+              descriptors.add(new FoldingDescriptor(
+                node,
+                new TextRange(startElement.getTextRange.getStartOffset, endElement.getTextRange.getEndOffset)
+              ))
               return
             case _ =>
           }
@@ -434,8 +438,10 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     }
 
     if (end != null) {
-      descriptors add new FoldingDescriptor(comment,
-        new TextRange(comment.getTextRange.getStartOffset, end.getTextRange.getEndOffset))
+      descriptors.add(new FoldingDescriptor(
+        comment,
+        new TextRange(comment.getTextRange.getStartOffset, end.getTextRange.getEndOffset)
+      ))
     }
   }
 }

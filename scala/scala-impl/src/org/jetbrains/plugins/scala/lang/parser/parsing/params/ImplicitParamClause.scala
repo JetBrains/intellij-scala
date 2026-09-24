@@ -33,13 +33,13 @@ object ImplicitParamClause extends ParsingRule {
         return false
     }
     if (!Params()) {
-      builder error ScalaBundle.message("implicit.params.excepted")
+      builder.error(ScalaBundle.message("implicit.params.excepted"))
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )
       case _ =>
-        builder error ScalaBundle.message("rparenthesis.expected")
+        builder.error(ScalaBundle.message("rparenthesis.expected"))
     }
     builder.restoreNewlinesState()
     paramMarker.done(ScalaElementType.PARAM_CLAUSE)

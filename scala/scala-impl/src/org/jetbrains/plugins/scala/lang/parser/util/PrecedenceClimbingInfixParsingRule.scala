@@ -173,7 +173,7 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
       if (operatorAssociativity(id1) == Associativity.Right) true
       else false
     else {
-      builder error ErrMsg("wrong.type.associativity")
+      builder.error(ErrMsg("wrong.type.associativity"))
       false
     }
   }

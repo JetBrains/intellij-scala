@@ -470,7 +470,7 @@ object TypeAdjuster {
           .filter(!_.isAliasType)
 
       // Let's not search for type aliases if one of the incoming types is obviously something else
-      if (incomingTypes.exists(_ equiv clazzTy)) {
+      if (incomingTypes.exists(_ `equiv` clazzTy)) {
         return None
       }
 

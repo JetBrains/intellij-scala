@@ -81,7 +81,7 @@ object SimplePattern extends ParsingRule {
               simplePatternMarker.done(ScalaElementType.TUPLE_PATTERN)
               return true
             case _ =>
-              builder error ScalaBundle.message("rparenthesis.expected")
+              builder.error(ScalaBundle.message("rparenthesis.expected"))
               builder.restoreNewlinesState()
               simplePatternMarker.done(ScalaElementType.TUPLE_PATTERN)
               return true
@@ -92,7 +92,7 @@ object SimplePattern extends ParsingRule {
             case ScalaTokenTypes.tRPARENTHESIS =>
               builder.advanceLexer() //Ate )
             case _ =>
-              builder error ScalaBundle.message("rparenthesis.expected")
+              builder.error(ScalaBundle.message("rparenthesis.expected"))
           }
           builder.restoreNewlinesState()
           simplePatternMarker.done(ScalaElementType.PATTERN_IN_PARENTHESIS)
@@ -266,7 +266,7 @@ object SimplePattern extends ParsingRule {
             case ScalaTokenTypes.tRPARENTHESIS =>
               builder.advanceLexer() //Ate )
             case _ =>
-              builder error ErrMsg("rparenthesis.expected")
+              builder.error(ErrMsg("rparenthesis.expected"))
           }
           builder.restoreNewlinesState()
           args.done(ScalaElementType.PATTERN_ARGS)

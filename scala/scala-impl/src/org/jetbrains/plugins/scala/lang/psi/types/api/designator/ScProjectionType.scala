@@ -245,7 +245,7 @@ final class ScProjectionType private(val projected: ScType,
 
   override def equals(other: Any): Boolean = other match {
     case that: ScProjectionType =>
-      (that canEqual this) &&
+      (that `canEqual` this) &&
         projected == that.projected &&
         element == that.element
     case _ => false

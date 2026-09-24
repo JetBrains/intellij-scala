@@ -72,7 +72,7 @@ object ScalaExtractMethodUtils {
     val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map {
       case ExtractMethodParameter(oldName, _, fromElement, tp, _) =>
         val nameAndType = typedName(oldName, tp.canonicalCodeText(fromElement))(fromElement.getProject)
-      s"val $nameAndType = ???\n"
+        s"val $nameAndType = ???\n"
     }
     val notPassedParamsText = notPassedParams.mkString
 

@@ -17,7 +17,7 @@ object Params extends ParsingRule {
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
       builder.advanceLexer() //Ate ,
       if (!Param()) {
-        builder error ScalaBundle.message("wrong.parameter")
+        builder.error(ScalaBundle.message("wrong.parameter"))
       }
     }
     true

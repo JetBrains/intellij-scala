@@ -24,7 +24,7 @@ object TypePattern extends ParsingRule {
               case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
                 builder.advanceLexer() //Ate => or ?=>
                 if (!Type(isPattern = true)) {
-                  builder error ScalaBundle.message("wrong.type")
+                  builder.error(ScalaBundle.message("wrong.type"))
                 }
               case _ =>
             }
@@ -32,17 +32,17 @@ object TypePattern extends ParsingRule {
               case ScalaTokenTypes.tRPARENTHESIS =>
                 builder.advanceLexer() //Ate )
               case _ =>
-                builder error ScalaBundle.message("rparenthesis.expected")
+                builder.error(ScalaBundle.message("rparenthesis.expected"))
             }
             builder.restoreNewlinesState()
             builder.getTokenType match {
               case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
                 builder.advanceLexer() //Ate => or ?=>
               case _ =>
-                builder error ScalaBundle.message("fun.sign.expected")
+                builder.error(ScalaBundle.message("fun.sign.expected"))
             }
             if (!Type(isPattern = true)) {
-              builder error ScalaBundle.message("wrong.type")
+              builder.error(ScalaBundle.message("wrong.type"))
             }
             typeMarker.done(ScalaElementType.TYPE_PATTERN)
             parMarker.drop()

@@ -25,7 +25,7 @@ class SelfInvocationSearcher extends QueryExecutor[PsiReference, ReferencesSearc
   }
 
   private def doExecute(ml: ScMethodLike, containingClass: Option[ScTemplateDefinition])
-                 (queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[? >: PsiReference]): Boolean = {
+                       (queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[? >: PsiReference]): Boolean = {
     val localScope = inReadAction {
       containingClass.map {
         new LocalSearchScope(_)

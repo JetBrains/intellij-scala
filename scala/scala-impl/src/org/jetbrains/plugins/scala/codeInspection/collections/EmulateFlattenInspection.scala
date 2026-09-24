@@ -50,7 +50,7 @@ object FlattenSimplification extends SimplificationType {
 
     def unapplySeq(expr: ScExpression): Option[Seq[ScExpression]] = expr match {
       // TODO infix notation?
-      case _ qualIdentity(arg) => Some(Seq(arg))
+      case _ qualIdentity arg => Some(Seq(arg))
       case qualIdentity(_) => Some(Nil)
       case unqualIdentity(arg) => Some(Seq(arg))
       case unqualIdentity() => Some(Nil)

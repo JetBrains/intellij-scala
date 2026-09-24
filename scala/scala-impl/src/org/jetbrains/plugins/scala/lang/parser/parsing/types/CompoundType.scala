@@ -36,7 +36,7 @@ object CompoundType extends Type {
             isCompound = true
             builder.advanceLexer() //Ate with or & (only in -Xsource:3)
             if (!AnnotType(isPattern)) {
-              builder error ScalaBundle.message("wrong.type")
+              builder.error(ScalaBundle.message("wrong.type"))
             }
           }
           val hasRefinement = Refinement()

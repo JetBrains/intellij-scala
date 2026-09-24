@@ -142,7 +142,7 @@ object SimpleExpr extends ParsingRule {
             }
 
             if (!exprOrNamedTupleComponent()) {
-              builder error ErrMsg("rparenthesis.expected")
+              builder.error(ErrMsg("rparenthesis.expected"))
               builder.restoreNewlinesState()
               newMarker = simpleMarker.precede
               simpleMarker.done(ScalaElementType.UNIT_EXPR)
@@ -161,7 +161,7 @@ object SimpleExpr extends ParsingRule {
                 isTuple = true
               }
               if (builder.getTokenType != tRPARENTHESIS) {
-                builder error ErrMsg("rparenthesis.expected")
+                builder.error(ErrMsg("rparenthesis.expected"))
               } else {
                 builder.advanceLexer()
               }
@@ -224,7 +224,7 @@ object SimpleExpr extends ParsingRule {
               Expr1.parseMatch(marker)
               subparse(tMarker)
             case _ =>
-              builder error ScalaBundle.message("identifier.expected")
+              builder.error(ScalaBundle.message("identifier.expected"))
               marker.drop()
           }
         case `tLPARENTHESIS` | `tLBRACE` if ArgumentExprs.canContinueWithArgumentExprs =>

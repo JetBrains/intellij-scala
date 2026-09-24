@@ -287,7 +287,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
                 processTypeImpl(s(upper), place, state.withSubstitutor(ScSubstitutor.empty))(recState.add(alias))
               case elem =>
                 val subst =
-                  if (updateWithProjectionSubst) ScSubstitutor(proj) followed s
+                  if (updateWithProjectionSubst) ScSubstitutor(proj).followed(s)
                   else                           s
 
                 processElement(elem, subst, place, state)(recState.add(elem))

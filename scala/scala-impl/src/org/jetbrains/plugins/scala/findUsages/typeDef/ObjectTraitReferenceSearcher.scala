@@ -42,7 +42,7 @@ class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, Reference
       }
       catch {
         case _: IndexNotReadyException =>
-        case ignore: AssertionError if ignore.getMessage endsWith "has null range" =>
+        case ignore: AssertionError if ignore.getMessage.endsWith("has null range") =>
       }
     }
     true

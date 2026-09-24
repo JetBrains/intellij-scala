@@ -289,8 +289,8 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
     myLabelPanel.add(myLabel)
     myLabelPanel.add(Box.createHorizontalGlue())
 
-    if (!nameIsValid) myBalloonPanel add myLabelPanel
-    else myBalloonPanel add myChbPanel
+    if (!nameIsValid) myBalloonPanel.add(myLabelPanel)
+    else myBalloonPanel.add(myChbPanel)
   }
 
   private def resetBalloonPanel(nameIsValid: Boolean): Unit = {
@@ -301,12 +301,12 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
 
     if (myBalloon == null || myBalloon.isDisposed || isBulkUpdate) return
     if (!nameIsValid) {
-      myBalloonPanel add myLabelPanel
-      myBalloonPanel remove myChbPanel
+      myBalloonPanel.add(myLabelPanel)
+      myBalloonPanel.remove(myChbPanel)
     }
     else {
-      myBalloonPanel add myChbPanel
-      myBalloonPanel remove myLabelPanel
+      myBalloonPanel.add(myChbPanel)
+      myBalloonPanel.remove(myLabelPanel)
     }
     Seq(myVarCheckbox, mySpecifyTypeChb).filter(_ != null).foreach(_.setEnabled(nameIsValid))
     myBalloon.revalidate()

@@ -98,7 +98,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
   def contextFunctionParameterType: TypeResult = lock.withLock {
     val result =
       if (constraints.isEmpty) `type`().map(_.inferValueType)
-      else                     Right(constraints.reduceLeft(_ glb _))
+      else                     Right(constraints.reduceLeft(_ `glb` _))
 
     result
 //    result.map(_.recursiveVarianceUpdate() {

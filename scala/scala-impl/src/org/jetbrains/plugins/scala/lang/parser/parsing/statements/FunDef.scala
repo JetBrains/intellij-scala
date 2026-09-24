@@ -87,20 +87,20 @@ object FunDef extends ParsingRule {
           val wrongTypeMarker = builder.mark()
           builder.advanceLexer() // Ate :
           Type()
-          wrongTypeMarker error ScalaBundle.message("auxiliary.constructor.may.not.have.a.type.annotation")
+          wrongTypeMarker.error(ScalaBundle.message("auxiliary.constructor.may.not.have.a.type.annotation"))
         }
 
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
             if (!ConstrExprInIndentationRegion()) {
-              builder error ScalaBundle.message("wrong.constr.expression")
+              builder.error(ScalaBundle.message("wrong.constr.expression"))
             }
             faultMarker.drop()
             true
           case _ =>
             if (builder.twoNewlinesBeforeCurrentToken || !ConstrBlock()) {
-              builder error ScalaBundle.message("auxiliary.constructor.definition.expected")
+              builder.error(ScalaBundle.message("auxiliary.constructor.definition.expected"))
             }
             faultMarker.drop()
             true

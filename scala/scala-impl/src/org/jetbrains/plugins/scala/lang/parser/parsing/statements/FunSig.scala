@@ -16,7 +16,7 @@ object FunSig extends ParsingRule {
       ParamClauses(allowInterleavingTypeParamClauses = builder.isScala3)
       true
     } else {
-      builder error ScalaBundle.message("identifier.expected")
+      builder.error(ScalaBundle.message("identifier.expected"))
       false
     }
 

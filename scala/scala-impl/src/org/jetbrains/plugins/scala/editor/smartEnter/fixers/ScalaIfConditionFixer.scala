@@ -19,7 +19,7 @@ class ScalaIfConditionFixer extends ScalaFixer {
     ifStatement.condition match {
       case None if leftParenthesis == null && rightParenthesis == null =>
         val ifStartOffset = ifStatement.getTextRange.getStartOffset
-        var stopOffset = doc.getLineEndOffset(doc getLineNumber ifStartOffset)
+        var stopOffset = doc.getLineEndOffset(doc.getLineNumber(ifStartOffset))
 
         ifStatement.thenExpression.foreach(
           thenBranch => stopOffset = Math.min(stopOffset, thenBranch.getTextRange.getStartOffset)

@@ -56,7 +56,7 @@ object Pattern3 extends ParsingRule {
       backupMarker.drop()
       backupMarker = builder.mark()
       if (!SimplePattern()) {
-        builder error ScalaBundle.message("simple.pattern.expected")
+        builder.error(ScalaBundle.message("simple.pattern.expected"))
       }
     }
     backupMarker.drop()
@@ -85,7 +85,7 @@ object Pattern3 extends ParsingRule {
       if (associate(id1) == -1) true
       else false
     else {
-      builder error ErrMsg("wrong.type.associativity")
+      builder.error(ErrMsg("wrong.type.associativity"))
       false
     }
   }

@@ -28,7 +28,7 @@ class ScExprTypePredicate(val ty: String, baseName: String, val withinHierarchy:
 
   override def `match`(matchedNode: PsiElement, start: Int, end: Int, context: MatchContext): Boolean = {
     matchedNode match {
-      case func: ScFunction => matchName(func.`type`.getOrAny.toString, true)
+      case func: ScFunction => matchName(func.`type`().getOrAny.toString, true)
       case expr: Typeable =>
         val typ = expr.`type`().getOrAny.widen.removeAliasDefinitions()(using Context(matchedNode))
         typ.extractClass match {
@@ -38,7 +38,7 @@ class ScExprTypePredicate(val ty: String, baseName: String, val withinHierarchy:
       case _: LeafPsiElement => matchedNode.getParent match {
         case td: ScTypeDefinition => matchClassOrSuper(td)
         case scr: Typeable if scr.getParent.is[MethodInvocation] => matchName(scr.`type`().getOrAny.toString)
-        case func: ScFunction => matchName(func.`type`.getOrAny.toString, true)
+        case func: ScFunction => matchName(func.`type`().getOrAny.toString, true)
         case expr: Typeable =>
           val typ = expr.`type`().getOrAny.widen
           typ.extractClass match {

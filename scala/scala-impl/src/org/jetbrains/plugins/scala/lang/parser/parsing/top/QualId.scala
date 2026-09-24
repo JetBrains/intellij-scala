@@ -39,7 +39,7 @@ object QualId extends ParsingRule {
             true
         }
       case _ =>
-        builder error ScalaBundle.message("wrong.qual.identifier")
+        builder.error(ScalaBundle.message("wrong.qual.identifier"))
         qualMarker.drop()
         hadOneRef
     }

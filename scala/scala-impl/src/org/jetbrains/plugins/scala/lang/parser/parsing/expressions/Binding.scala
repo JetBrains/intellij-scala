@@ -33,7 +33,7 @@ object Binding extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
-        if (!ParamType()) builder error ErrMsg("wrong.type")
+        if (!ParamType()) builder.error(ErrMsg("wrong.type"))
       case _ =>
     }
 

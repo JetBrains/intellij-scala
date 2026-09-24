@@ -32,7 +32,7 @@ object ExistentialDclSeq extends ParsingRule {
             EmptyDcl(isMod = false)
           }
         case _ =>
-          builder error ScalaBundle.message("wrong.existential.declaration")
+          builder.error(ScalaBundle.message("wrong.existential.declaration"))
           builder.advanceLexer()
       }
     }

@@ -49,7 +49,7 @@ object ParamClause {
       case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )
       case _ =>
-        builder error ScalaBundle.message("rparenthesis.expected")
+        builder.error(ScalaBundle.message("rparenthesis.expected"))
     }
     builder.restoreNewlinesState()
     paramMarker.done(ScalaElementType.PARAM_CLAUSE)

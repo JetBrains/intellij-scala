@@ -364,7 +364,7 @@ object ScalaSmartCompletionContributor {
             val tp = _subst(_tp)
             var elementAdded = false
             val scType = scalaLookupItem.substitutor(tp)
-            if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {
+            if (!scType.equiv(Nothing) && typez.exists(scType `conforms` _)) {
               elementAdded = true
               if (etaExpanded) scalaLookupItem.etaExpanded = true
               result.addElement(PrioritizedLookupElement.withPriority(elemToAdd, 1))
@@ -575,7 +575,7 @@ object ScalaSmartCompletionContributor {
                     case Right(scType) =>
                       val lookupString = (if (foundClazz) t.name + "." else "") + "this"
                       val el = new ScalaLookupItem(t, lookupString)
-                      if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {
+                      if (!scType.equiv(Nothing) && typez.exists(scType `conforms` _)) {
                         if (!foundClazz) el.bold = true
                         result.addElement(el)
                       } else {

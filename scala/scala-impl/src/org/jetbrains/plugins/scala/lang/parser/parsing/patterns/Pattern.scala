@@ -20,7 +20,7 @@ object Pattern extends ParsingRule {
       isComposite = true
       builder.advanceLexer() //Ate |
       if (!Pattern1()) {
-        builder error ScalaBundle.message("wrong.pattern")
+        builder.error(ScalaBundle.message("wrong.pattern"))
       }
     }
     if (isComposite) patternMarker.done(ScalaElementType.PATTERN)

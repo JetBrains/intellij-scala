@@ -49,15 +49,15 @@ object Param extends ParsingRule {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
       case _ =>
-        builder error ErrMsg("colon.expected")
+        builder.error(ErrMsg("colon.expected"))
     }
 
-    if (!ParamType()) builder error ErrMsg("parameter.type.expected")
+    if (!ParamType()) builder.error(ErrMsg("parameter.type.expected"))
 
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate =
-        if (!ExprInIndentationRegion()) builder error ErrMsg("expression.expected")
+        if (!ExprInIndentationRegion()) builder.error(ErrMsg("expression.expected"))
       case _ =>
     }
     paramMarker.done(ScalaElementType.PARAM)

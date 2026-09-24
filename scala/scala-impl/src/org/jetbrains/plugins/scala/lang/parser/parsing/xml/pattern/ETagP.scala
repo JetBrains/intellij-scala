@@ -23,7 +23,7 @@ object ETagP extends ParsingRule {
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_NAME =>
         builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.name.expected")
+      case _ => builder.error(ErrMsg("xml.name.expected"))
     }
     builder.getTokenType match {
       case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
@@ -35,7 +35,7 @@ object ETagP extends ParsingRule {
         tagMarker.done(ScalaElementType.XML_END_TAG)
         true
       case _ =>
-        builder error ErrMsg("xml.tag.end.expected")
+        builder.error(ErrMsg("xml.tag.end.expected"))
         tagMarker.done(ScalaElementType.XML_END_TAG)
         true
     }

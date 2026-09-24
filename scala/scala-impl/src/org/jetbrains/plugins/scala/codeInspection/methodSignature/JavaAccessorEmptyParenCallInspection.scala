@@ -56,8 +56,7 @@ object JavaAccessorEmptyParenCallInspection {
       }
     }
 
-  private def processType(`type`: ScType,
-                                place: ScReferenceExpression): Set[ScalaResolveResult] = {
+  private def processType(`type`: ScType, place: ScReferenceExpression): Set[ScalaResolveResult] = {
     val processor = new CollectMethodsProcessor(place, place.refName)
     processor.processType(`type`, place)
     processor.candidatesS

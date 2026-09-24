@@ -26,7 +26,7 @@ object ExistentialClause extends ParsingRule {
         builder.advanceLexer() //Ate {
         builder.enableNewlines()
       case _ =>
-        builder error ScalaBundle.message("existential.block.expected")
+        builder.error(ScalaBundle.message("existential.block.expected"))
         existMarker.done(ScalaElementType.EXISTENTIAL_CLAUSE)
         return true
     }

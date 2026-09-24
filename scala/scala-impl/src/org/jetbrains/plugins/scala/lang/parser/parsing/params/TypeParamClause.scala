@@ -43,7 +43,7 @@ object TypeParamClause {
       case ScalaTokenTypes.tRSQBRACKET =>
         builder.advanceLexer() //Ate ]
       case _ =>
-        builder error ScalaBundle.message("rsqbracket.expected")
+        builder.error(ScalaBundle.message("rsqbracket.expected"))
     }
     builder.restoreNewlinesState()
     typeMarker.done(ScalaElementType.TYPE_PARAM_CLAUSE)

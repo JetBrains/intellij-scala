@@ -23,7 +23,7 @@ object Guard {
         guardMarker.drop()
         return false
       }
-      builder error ErrMsg("wrong.postfix.expression")
+      builder.error(ErrMsg("wrong.postfix.expression"))
     }
     guardMarker.done(ScalaElementType.GUARD)
     true

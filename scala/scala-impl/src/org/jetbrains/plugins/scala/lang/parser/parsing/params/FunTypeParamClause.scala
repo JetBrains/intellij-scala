@@ -21,18 +21,18 @@ object FunTypeParamClause extends ParsingRule {
         return false
     }
     if (!TypeParam(mayHaveVariance = false)) {
-      builder error ErrMsg("wrong.parameter")
+      builder.error(ErrMsg("wrong.parameter"))
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
       builder.advanceLexer() //Ate
       if (!TypeParam(mayHaveVariance = false)) {
-        builder error ErrMsg("wrong.parameter")
+        builder.error(ErrMsg("wrong.parameter"))
       }
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tRSQBRACKET =>
         builder.advanceLexer() //Ate ]
-      case _ => builder error ErrMsg("wrong.parameter")
+      case _ => builder.error(ErrMsg("wrong.parameter"))
     }
     builder.restoreNewlinesState()
     funMarker.done(ScalaElementType.TYPE_PARAM_CLAUSE)

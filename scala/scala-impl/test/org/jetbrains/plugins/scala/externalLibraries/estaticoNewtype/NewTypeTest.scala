@@ -47,7 +47,7 @@ class NewTypeTest extends ScalaLightCodeInsightFixtureTestCase {
         `implicit`("cannotUnwrapArrayAmbiguous2", "_root_.io.estatico.newtype.Coercible[_root_.scala.Array[types.WidgetId], _root_.scala.Array[Int]]")
       )
 
-    widgetIdObject mustBeLike syntheticStructure
+    widgetIdObject `mustBeLike` syntheticStructure
   }
 
   def testHKT1(): Unit = {
@@ -78,7 +78,7 @@ class NewTypeTest extends ScalaLightCodeInsightFixtureTestCase {
         `implicit`("cannotUnwrapArrayAmbiguous2", "[A] Coercible[Array[types.Maybe[A]], Array[Option[A]]]")
       )
 
-    maybeObject mustBeLike syntheticStructure
+    maybeObject `mustBeLike` syntheticStructure
   }
 
   def testHKT2(): Unit = {
@@ -109,7 +109,7 @@ class NewTypeTest extends ScalaLightCodeInsightFixtureTestCase {
         `implicit`("cannotUnwrapArrayAmbiguous2", "[A, B] Coercible[Array[types.Branch[A, B]], Array[Either[A, B]]]")
       )
 
-    branchObject mustBeLike syntheticStructure
+    branchObject `mustBeLike` syntheticStructure
   }
 
   def testHKTWithHKTParam(): Unit = {
@@ -141,7 +141,7 @@ class NewTypeTest extends ScalaLightCodeInsightFixtureTestCase {
         `implicit`("cannotUnwrapArrayAmbiguous2", "[F] Coercible[Array[types.HKTWrapper[F]], Array[types.Functor[F]]]")
       )
 
-    branchObject mustBeLike syntheticStructure
+    branchObject `mustBeLike` syntheticStructure
   }
 
   def testHKTWithHKTParamAndOthers(): Unit = {
@@ -173,7 +173,7 @@ class NewTypeTest extends ScalaLightCodeInsightFixtureTestCase {
         `implicit`("cannotUnwrapArrayAmbiguous2", "[F, A] Coercible[Array[types.HKTPlusWrapper[F, A]], Array[types.ConstK[F, A]]]")
       )
 
-    branchObject mustBeLike syntheticStructure
+    branchObject `mustBeLike` syntheticStructure
   }
 
   def testDifferentShapedHKT(): Unit = {
@@ -202,6 +202,6 @@ class NewTypeTest extends ScalaLightCodeInsightFixtureTestCase {
         `implicit`("cannotUnwrapArrayAmbiguous2", "[F, L, R] Coercible[Array[types.EitherT[F, L, R]], Array[F[Either[L, R]]]]")
       )
 
-    eitherTObject mustBeLike syntheticStructure
+    eitherTObject `mustBeLike` syntheticStructure
   }
 }

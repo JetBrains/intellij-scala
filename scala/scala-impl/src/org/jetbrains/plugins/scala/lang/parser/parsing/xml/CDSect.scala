@@ -21,7 +21,7 @@ object CDSect extends ParsingRule {
     }
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_CDATA_END => builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.cdata.end.expected")
+      case _ => builder.error(ErrMsg("xml.cdata.end.expected"))
     }
     cDataMarker.done(ScalaElementType.XML_CD_SECT)
     true

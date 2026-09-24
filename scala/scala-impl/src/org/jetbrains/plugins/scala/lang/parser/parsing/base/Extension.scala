@@ -67,14 +67,14 @@ object ExtMethods extends ParsingRule {
             if (builder.isIndent(indent)) {
               builder.newBracelessIndentationRegionHere.ensuring(_.nonEmpty)
             } else {
-              builder error ErrMsg("expected.at.least.one.extension.method")
+              builder.error(ErrMsg("expected.at.least.one.extension.method"))
               End()
               extDefinitionsMarker.done(ScalaElementType.EXTENSION_BODY)
               return true
             }
           case None =>
             if (hasColon) {
-              builder error ScalaBundle.message("expected.new.line.after.colon")
+              builder.error(ScalaBundle.message("expected.new.line.after.colon"))
               End()
               extDefinitionsMarker.done(ScalaElementType.EXTENSION_BODY)
               return true
@@ -108,7 +108,7 @@ object ExtMethods extends ParsingRule {
     }
 
     if (!extMethodsParsed) {
-      builder error ErrMsg("expected.at.least.one.extension.method")
+      builder.error(ErrMsg("expected.at.least.one.extension.method"))
     }
 
     End()

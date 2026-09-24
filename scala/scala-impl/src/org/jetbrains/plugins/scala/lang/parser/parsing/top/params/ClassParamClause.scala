@@ -36,7 +36,7 @@ object ClassParamClause extends ParsingRule {
             while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
               builder.advanceLexer() //Ate ,
               if (!(ClassParam())) {
-                builder error ErrMsg("wrong.parameter")
+                builder.error(ErrMsg("wrong.parameter"))
               }
             }
           }
@@ -62,7 +62,7 @@ object ClassParamClause extends ParsingRule {
         true
       case _ =>
         classParamMarker.done(ScalaElementType.PARAM_CLAUSE)
-        builder error ErrMsg("rparenthesis.expected")
+        builder.error(ErrMsg("rparenthesis.expected"))
         builder.restoreNewlinesState()
         true
     }

@@ -27,7 +27,7 @@ object Annotation {
     builder.advanceLexer() //Ate @
 
     if (!AnnotationExpr(forConstructor)) {
-      builder error ScalaBundle.message("wrong.annotation.expression")
+      builder.error(ScalaBundle.message("wrong.annotation.expression"))
       annotMarker.drop()
     } else {
       annotMarker.done(ScalaElementType.ANNOTATION)
@@ -46,7 +46,7 @@ object Annotation {
 
     val parsedOneAnnotation = parseAtLeastOneAnnotation()
     if (parsedOneAnnotation) {
-      builder error missingTargetMessage
+      builder.error(missingTargetMessage)
     }
     parsedOneAnnotation
   }

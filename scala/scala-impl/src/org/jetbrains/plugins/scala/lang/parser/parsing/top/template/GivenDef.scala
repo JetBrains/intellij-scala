@@ -209,7 +209,7 @@ object NewGivenSig {
       case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )
       case _ =>
-        builder error ScalaBundle.message("rparenthesis.expected")
+        builder.error(ScalaBundle.message("rparenthesis.expected"))
     }
 
     parameterClause.done(ScalaElementType.PARAM_CLAUSE)

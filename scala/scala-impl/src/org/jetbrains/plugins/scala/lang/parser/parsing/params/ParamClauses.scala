@@ -15,7 +15,7 @@ object ParamClauses {
     if (expectAtLeastOneClause) {
       val hasClause = ParamClause()
       if (!hasClause) {
-        builder error ErrMsg("param.clause.expected")
+        builder.error(ErrMsg("param.clause.expected"))
       } else {
         hasValueClauseAfterLastType = true
       }
@@ -28,14 +28,14 @@ object ParamClauses {
       } else if (allowInterleavingTypeParamClauses && hasValueClauseAfterLastType && FunTypeParamClause()) {
         hasValueClauseAfterLastType = false
       } else if (!allowInterleavingTypeParamClauses && hasValueClauseAfterLastType && builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
-        builder error ErrMsg("param.clause.expected")
+        builder.error(ErrMsg("param.clause.expected"))
         if (FunTypeParamClause()) {
           hasValueClauseAfterLastType = false
         } else {
           continue = false
         }
       } else if (allowInterleavingTypeParamClauses && !hasValueClauseAfterLastType && builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
-        builder error ErrMsg("param.clause.expected")
+        builder.error(ErrMsg("param.clause.expected"))
         if (FunTypeParamClause()) {
           hasValueClauseAfterLastType = false
         } else {

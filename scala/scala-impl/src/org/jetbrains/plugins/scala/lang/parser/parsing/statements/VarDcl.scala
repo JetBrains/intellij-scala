@@ -32,11 +32,11 @@ object VarDcl extends ParsingRule {
               returnMarker.drop()
             }
             else {
-              builder error ScalaBundle.message("wrong.type")
+              builder.error(ScalaBundle.message("wrong.type"))
               returnMarker.drop()
             }
           case _ =>
-            builder error ScalaBundle.message("wrong.var.declaration")
+            builder.error(ScalaBundle.message("wrong.var.declaration"))
             returnMarker.drop()
         }
 
@@ -48,7 +48,7 @@ object VarDcl extends ParsingRule {
         }
         true
       case _ =>
-        builder error ScalaBundle.message("identifier.expected")
+        builder.error(ScalaBundle.message("identifier.expected"))
         returnMarker.drop()
         false
     }

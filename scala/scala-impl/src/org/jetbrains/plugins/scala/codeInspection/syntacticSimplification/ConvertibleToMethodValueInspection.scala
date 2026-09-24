@@ -129,10 +129,10 @@ class ConvertibleToMethodValueInspection extends LocalInspectionTool {
     val newExpr = createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
     oldExpr.expectedType(fromUnderscore = false) match {
       case Some(expectedType) if FunctionType.isFunctionType(expectedType) =>
-        def conformsExpected(expr: ScExpression): Boolean = expr.`type`().getOrAny conforms expectedType
+        def conformsExpected(expr: ScExpression): Boolean = expr.`type`().getOrAny `conforms` expectedType
 
         conformsExpected(oldExpr) && conformsExpected(newExpr) && oldExpr.`type`().getOrAny.conforms(newExpr.`type`().getOrNothing)
-      case None if newExprText endsWith "_" =>
+      case None if newExprText.endsWith("_") =>
         (oldExpr.`type`(), newExpr.`type`()) match {
           case (Right(oldType), Right(newType)) => oldType.equiv(newType)
           case _ => false
@@ -144,7 +144,7 @@ class ConvertibleToMethodValueInspection extends LocalInspectionTool {
   private def possibleReplacements(expr: ScExpression): Seq[String] = {
     val withoutArguments = methodWithoutArgumentsText(expr)
     val withUnderscore =
-      if (expr.getText endsWith "_") Nil
+      if (expr.getText.endsWith("_")) Nil
       else withoutArguments.map(_ + " _")
 
     withoutArguments ++ withUnderscore

@@ -300,7 +300,7 @@ object ImportInfo {
     }
   }
 
-  def merge(infos: IterableOnce[ImportInfo]): Option[ImportInfo] = infos.iterator.reduceOption(_ merge _)
+  def merge(infos: IterableOnce[ImportInfo]): Option[ImportInfo] = infos.iterator.reduceOption(_ `merge` _)
 
   private def withDot(s: String): String = {
     if (s.isEmpty) "" else "." + s

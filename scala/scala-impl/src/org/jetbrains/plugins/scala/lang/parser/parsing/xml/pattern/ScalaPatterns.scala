@@ -16,11 +16,11 @@ object ScalaPatterns extends ParsingRule {
         builder.enableNewlines()
       case _ => return false
     }
-    if (!parseXml()) builder error ErrMsg("xml.scala.patterns.expected")
+    if (!parseXml()) builder.error(ErrMsg("xml.scala.patterns.expected"))
     builder.getTokenType match {
       case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END =>
         builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.scala.injection.end.expected")
+      case _ => builder.error(ErrMsg("xml.scala.injection.end.expected"))
     }
     builder.restoreNewlinesState()
     true

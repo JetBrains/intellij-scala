@@ -153,8 +153,8 @@ object ScalaDfaTypeUtils {
   def isPrimitiveType(scType: ScType): Boolean = scTypeToDfType(scType).is[DfPrimitiveType]
 
   private def balanceTypeForEqualityByContent(leftType: ScType, rightType: ScType): Option[ScType] = {
-    if (leftType conforms rightType) Some(rightType)
-    else if (rightType conforms leftType) Some(leftType)
+    if (leftType.conforms(rightType)) Some(rightType)
+    else if (rightType.conforms(leftType)) Some(leftType)
     else None
   }
 

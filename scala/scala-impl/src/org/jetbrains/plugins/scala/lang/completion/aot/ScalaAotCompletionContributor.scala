@@ -170,7 +170,7 @@ object ScalaAotCompletionContributor {
   }
 
   private abstract class DeclarationCompletionProvider[D <: ScMember & ScDeclaration](keyword: String,
-                                                                                         classes: Class[? <: ScMember]*) extends aot.CompletionProvider[D] {
+                                                                                      classes: Class[? <: ScMember]*) extends aot.CompletionProvider[D] {
 
     override protected def addCompletions(resultSet: CompletionResultSet, prefix: String)
                                          (implicit parameters: CompletionParameters, context: ProcessingContext): Unit =
@@ -187,7 +187,7 @@ object ScalaAotCompletionContributor {
   }
 
   private abstract class DefinitionCompletionProvider[D <: ScMember & ScDefinitionWithAssignment](keyword: String,
-                                                                                                     classes: Class[? <: ScMember]*) extends aot.CompletionProvider[D] {
+                                                                                                  classes: Class[? <: ScMember]*) extends aot.CompletionProvider[D] {
     override protected def addCompletions(resultSet: CompletionResultSet, prefix: String)
                                          (implicit parameters: CompletionParameters, context: ProcessingContext): Unit =
       PsiTreeUtil.getParentOfType(positionFromParameters, classes*) match {

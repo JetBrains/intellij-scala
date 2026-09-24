@@ -25,7 +25,7 @@ object XmlPattern extends ParsingRule {
     }
     ContentP()
     if (!ETagP()) {
-      builder error ErrMsg("xml.end.tag.expected")
+      builder.error(ErrMsg("xml.end.tag.expected"))
     }
     builder.restoreNewlinesState()
     patternMarker.done(ScalaElementType.XML_PATTERN)

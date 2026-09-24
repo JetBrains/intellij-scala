@@ -184,7 +184,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
       }
 
       typeEx match {
-        case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
+        case Some((tp: ScType, _)) if tp `equiv` api.Unit => //do nothing
         case Some((tp: ScType, typeElement)) =>
           val expectedType = Right(tp)
           implicitFunction match {

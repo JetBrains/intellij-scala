@@ -36,7 +36,7 @@ abstract class StableId(val forImport: Boolean = false) {
             case ScalaTokenTypes.kTHIS => parseThisReference(nm, element)
             case ScalaTokenTypes.kSUPER => parseSuperReference(nm, element)
             case _ =>
-              builder error ErrMsg("identifier.expected")
+              builder.error(ErrMsg("identifier.expected"))
               nm.done(element)
               true
           }

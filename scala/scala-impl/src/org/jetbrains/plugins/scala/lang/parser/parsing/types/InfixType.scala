@@ -83,14 +83,14 @@ trait InfixType {
         case ':' =>
           assoc match {
             case Associativity.NoAssociativity  => assoc = Associativity.Right
-            case Associativity.Left  => builder error ScalaBundle.message("wrong.type.associativity")
+            case Associativity.Left  => builder.error(ScalaBundle.message("wrong.type.associativity"))
             case Associativity.Right =>
           }
         case _ =>
           assoc match {
             case Associativity.NoAssociativity  => assoc = Associativity.Left
             case Associativity.Left  =>
-            case Associativity.Right => builder error ScalaBundle.message("wrong.type.associativity")
+            case Associativity.Right => builder.error(ScalaBundle.message("wrong.type.associativity"))
           }
       }
       parseId()

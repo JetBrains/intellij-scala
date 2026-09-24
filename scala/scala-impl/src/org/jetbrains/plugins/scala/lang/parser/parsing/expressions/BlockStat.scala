@@ -33,10 +33,10 @@ object BlockStat extends ParsingRule {
       case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR | ScalaTokenTypes.kTYPE =>
         if (!Def()) {
           if (Dcl()) {
-            builder error ErrMsg("wrong.declaration.in.block")
+            builder.error(ErrMsg("wrong.declaration.in.block"))
           } else {
             EmptyDcl()
-            builder error ErrMsg("wrong.declaration.in.block")
+            builder.error(ErrMsg("wrong.declaration.in.block"))
           }
         }
         true
@@ -46,10 +46,10 @@ object BlockStat extends ParsingRule {
       case _ =>
         if (!Def() && !TmplDef()) {
           if (Dcl()) {
-            builder error ErrMsg("wrong.declaration.in.block")
+            builder.error(ErrMsg("wrong.declaration.in.block"))
             true
           } else if (EmptyDcl()) {
-            builder error ErrMsg("wrong.declaration.in.block")
+            builder.error(ErrMsg("wrong.declaration.in.block"))
             true
           } else {
             // expression has to be parsed after trying def/decl because

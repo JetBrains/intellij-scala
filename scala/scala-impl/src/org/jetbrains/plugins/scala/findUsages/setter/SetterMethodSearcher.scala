@@ -34,7 +34,7 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
       }
     }
     data match {
-      case Some((fun: ScFunction, name)) if name endsWith suffixScala =>
+      case Some((fun: ScFunction, name)) if name `endsWith` suffixScala =>
         processAssignments(fun, name, project)
         processSimpleUsages(fun, name, project)
       case Some((pattern: ScReferencePattern, name)) =>

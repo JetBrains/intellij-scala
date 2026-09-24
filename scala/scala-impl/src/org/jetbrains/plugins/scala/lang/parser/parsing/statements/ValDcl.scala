@@ -33,11 +33,11 @@ object ValDcl extends ParsingRule {
               returnMarker.drop()
             }
             else {
-              builder error ErrMsg("wrong.type")
+              builder.error(ErrMsg("wrong.type"))
               returnMarker.drop()
             }
           case _ =>
-            builder error ErrMsg("wrong.val.declaration")
+            builder.error(ErrMsg("wrong.val.declaration"))
             returnMarker.drop()
         }
 
@@ -49,7 +49,7 @@ object ValDcl extends ParsingRule {
         }
         true
       case _ =>
-        builder error ErrMsg("identifier.expected")
+        builder.error(ErrMsg("identifier.expected"))
         returnMarker.drop()
         false
     }

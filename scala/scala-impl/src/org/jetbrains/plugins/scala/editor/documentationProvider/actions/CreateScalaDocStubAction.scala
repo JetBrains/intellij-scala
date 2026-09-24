@@ -34,7 +34,7 @@ class CreateScalaDocStubAction extends AnAction(
   /* icon = */ null
 ) {
   override def update(e: AnActionEvent): Unit =
-    ScalaActionUtil enableAndShowIfInScalaFile e
+    ScalaActionUtil.enableAndShowIfInScalaFile(e)
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT
 
@@ -72,7 +72,7 @@ class CreateScalaDocStubAction extends AnAction(
 
   private def recreateStub(docLocation: ScDocCommentOwner, docOwner: ScDocCommentOwner, psiDocument: Document): Unit = {
     val oldComment = docLocation.getDocComment.asInstanceOf[ScDocComment]
-    val oldTags = oldComment findTagsByName (_ => true)
+    val oldTags = oldComment.findTagsByName(_ => true)
 
     def filterTags[T](groupName: String, newTags: mutable.HashMap[String, T]): Unit = {
       oldTags foreach {
@@ -130,9 +130,9 @@ class CreateScalaDocStubAction extends AnAction(
             case _ =>
           }
 
-          PsiDocumentManager getInstance project commitDocument psiDocument
+          PsiDocumentManager.getInstance(project).commitDocument(psiDocument)
           val range = docOwner.getDocComment.getTextRange
-          CodeStyleManager getInstance project reformatText(docOwner.getContainingFile, range.getStartOffset, range.getEndOffset)
+          CodeStyleManager.getInstance(project).reformatText(docOwner.getContainingFile, range.getStartOffset, range.getEndOffset)
         }
       }
     }, ScalaEditorBundle.message("action.create.scaladoc.stub"), null, psiDocument)

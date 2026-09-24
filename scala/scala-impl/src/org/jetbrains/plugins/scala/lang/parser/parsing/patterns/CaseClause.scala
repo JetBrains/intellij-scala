@@ -74,7 +74,7 @@ abstract class CaseClause extends ParsingRule {
         builder.restoreNewlinesState()
       case _ =>
         builder.restoreNewlinesState()
-        builder error ErrMsg("fun.sign.expected")
+        builder.error(ErrMsg("fun.sign.expected"))
         caseClauseMarker.done(ScalaElementType.CASE_CLAUSE)
         return true
     }
@@ -174,7 +174,7 @@ object CaseClauseInBracelessCaseClauses extends CaseClause {
 object ExprCaseClause extends CaseClause {
   override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit = {
     if (!ExprInIndentationRegion()) {
-      builder error ErrMsg("expression.expected")
+      builder.error(ErrMsg("expression.expected"))
     }
   }
 }

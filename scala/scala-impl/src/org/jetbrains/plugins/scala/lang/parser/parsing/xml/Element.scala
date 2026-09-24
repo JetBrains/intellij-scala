@@ -20,7 +20,7 @@ object Element extends ParsingRule {
     }
     Content()
     if (!ETag()) {
-      builder error ErrMsg("xml.end.tag.expected")
+      builder.error(ErrMsg("xml.end.tag.expected"))
     }
     elemMarker.done(ScalaElementType.XML_ELEMENT)
     true

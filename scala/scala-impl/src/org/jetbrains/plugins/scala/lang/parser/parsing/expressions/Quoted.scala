@@ -22,10 +22,10 @@ object Quoted extends ParsingRule {
       case ScalaTokenTypes.tLSQBRACKET =>
         builder.advanceLexer()
         if (!Type()) {
-          builder error ErrMsg("type.expected")
+          builder.error(ErrMsg("type.expected"))
           marker.drop()
         } else if (builder.getTokenType != ScalaTokenTypes.tRSQBRACKET) {
-          builder error ErrMsg("rsqbracket.expected")
+          builder.error(ErrMsg("rsqbracket.expected"))
           marker.drop()
         } else {
           builder.advanceLexer()

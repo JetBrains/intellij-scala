@@ -136,7 +136,7 @@ sealed trait ImportedParserTestUtil {
     // adjust ranges
     val newScala3Range = scala3Range.shiftEnd(-text.reverseIterator.count(c => c.isWhitespace || c == ';'))
 
-    !newScala3Range.isEmpty && (scala3Range interlaces intellijRange)
+    !newScala3Range.isEmpty && (scala3Range `interlaces` intellijRange)
   }
 }
 

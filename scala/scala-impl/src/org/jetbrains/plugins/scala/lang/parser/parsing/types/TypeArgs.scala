@@ -67,7 +67,7 @@ trait TypeArgs {
               builder.advanceLexer() // Ate id
               namedRefMarker.done(ScalaElementType.REFERENCE)
               builder.advanceLexer() // Ate =
-              if (!parseTypeArg()) builder error ScalaBundle.message("wrong.type")
+              if (!parseTypeArg()) builder.error(ScalaBundle.message("wrong.type"))
               typeArgMarker.done(ScalaElementType.TYPE_ARG)
               true
             } else {
@@ -79,7 +79,7 @@ trait TypeArgs {
               } else {
                 mixedArgMarker.drop()
                 val token = builder.getTokenType
-                builder error ErrMsg("identifier.expected")
+                builder.error(ErrMsg("identifier.expected"))
                 if (token == ScalaTokenTypes.tASSIGN) {
                   builder.advanceLexer() // Ate =
                 }
@@ -93,7 +93,7 @@ trait TypeArgs {
             if (parseNamedArgs) parseNamedTypeArg()
             else parsePositionalTypeArg()
 
-          if (!parsedType) builder error ScalaBundle.message("wrong.type")
+          if (!parsedType) builder.error(ScalaBundle.message("wrong.type"))
 
           while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType &&
             !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
@@ -109,13 +109,13 @@ trait TypeArgs {
                 parsedNamedTypeArg
               } else parsePositionalTypeArg()
 
-            if (!parsedType) builder error ScalaBundle.message("wrong.type")
+            if (!parsedType) builder.error(ScalaBundle.message("wrong.type"))
           }
 
           builder.getTokenType match {
             case ScalaTokenTypes.tRSQBRACKET =>
               builder.advanceLexer() //Ate ]
-            case _ => builder error ScalaBundle.message("rsqbracket.expected")
+            case _ => builder.error(ScalaBundle.message("rsqbracket.expected"))
           }
           builder.restoreNewlinesState()
           true

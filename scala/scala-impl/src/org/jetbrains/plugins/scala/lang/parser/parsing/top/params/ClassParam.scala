@@ -42,7 +42,7 @@ object ClassParam extends ParsingRule {
         builder.advanceLexer() //Let's ate this!
       case _ =>
         if (isModifier) {
-          builder error ScalaBundle.message("val.var.expected")
+          builder.error(ScalaBundle.message("val.var.expected"))
         }
     }
     //Look for identifier

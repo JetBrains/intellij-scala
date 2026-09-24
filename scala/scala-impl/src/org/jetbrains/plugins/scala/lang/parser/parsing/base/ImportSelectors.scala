@@ -41,7 +41,7 @@ object ImportSelectors extends ParsingRule {
         builder.advanceLexer() //Ate {
         builder.enableNewlines()
       case _ =>
-        builder error ErrMsg("lbrace.expected")
+        builder.error(ErrMsg("lbrace.expected"))
         importSelectorMarkers.drop()
         return false
     }
@@ -72,7 +72,7 @@ object ImportSelectors extends ParsingRule {
               importSelectorMarkers.done(ScalaElementType.IMPORT_SELECTORS)
               return true
             case _ =>
-              builder error ErrMsg("rbrace.expected")
+              builder.error(ErrMsg("rbrace.expected"))
               builder.advanceLexer()
           }
         }
@@ -80,7 +80,7 @@ object ImportSelectors extends ParsingRule {
 
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE =>
-          builder error ErrMsg("import.selector.expected")
+          builder.error(ErrMsg("import.selector.expected"))
           doneImportSelectors()
           true
         case ScalaTokenTypes.tUNDER if !builder.isScala3 =>
@@ -116,7 +116,7 @@ object ImportSelectors extends ParsingRule {
           importSelectorMarkers.done(ScalaElementType.IMPORT_SELECTORS)
           true
         case _ =>
-          builder error ErrMsg("rbrace.expected")
+          builder.error(ErrMsg("rbrace.expected"))
           builder.advanceLexer()
           parseNext(expectComma = false)
       }

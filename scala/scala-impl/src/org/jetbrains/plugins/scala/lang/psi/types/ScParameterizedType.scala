@@ -176,7 +176,7 @@ final class ScParameterizedType private (override val designator: ScType, overri
 
   override def equals(other: Any): Boolean = other match {
     case that: ScParameterizedType =>
-      (that canEqual this) &&
+      (that `canEqual` this) &&
         designator == that.designator &&
         typeArguments == that.typeArguments
     case _ => false

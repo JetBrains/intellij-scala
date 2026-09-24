@@ -35,7 +35,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |    }
         |}
       """.stripMargin
-      addDummyJavaFile(java)
+    addDummyJavaFile(java)
     assertNoErrors(scala)
   }
 
@@ -563,7 +563,7 @@ class JavaHighlightingTest extends JavaHighlightingTestBase {
         |    }
         |}
       """.stripMargin
-      addDummyJavaFile(javaCode)
+    addDummyJavaFile(javaCode)
     assertNothing(errorsFromScalaCode(scalaCode))
   }
 

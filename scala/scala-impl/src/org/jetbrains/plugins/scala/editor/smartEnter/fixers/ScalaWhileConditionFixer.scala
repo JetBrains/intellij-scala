@@ -24,7 +24,7 @@ class ScalaWhileConditionFixer extends ScalaFixer {
         WithEnter(3)
       case None if leftParenthesis == null || rightParenthesis == null =>
         val whileStartOffset = whileStatement.getTextRange.getStartOffset
-        var stopOffset = doc.getLineEndOffset(doc getLineNumber whileStartOffset)
+        var stopOffset = doc.getLineEndOffset(doc.getLineNumber(whileStartOffset))
         val whLength = "while (".length
 
         whileStatement.expression.foreach(bl => stopOffset = Math.min(stopOffset, bl.getTextRange.getStartOffset))

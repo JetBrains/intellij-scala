@@ -865,7 +865,7 @@ object InferUtil {
               val substedBound = unSubst(bound)
               val boundsMap    = if (isLower) lowerMap else upperMap
 
-              val combine: (ScType, ScType) => ScType = if (isLower) _ lub _ else _ glb _
+              val combine: (ScType, ScType) => ScType = if (isLower) _ `lub` _ else _ `glb` _
 
               boundsMap.get(tp.typeParamId) match {
                 case Some(fromMap) =>

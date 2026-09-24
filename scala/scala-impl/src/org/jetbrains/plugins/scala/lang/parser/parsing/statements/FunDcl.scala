@@ -32,7 +32,7 @@ object FunDcl extends ParsingRule {
           true
         }
         else {
-          builder error ScalaBundle.message("wrong.type")
+          builder.error(ScalaBundle.message("wrong.type"))
           //returnMarker.drop
           true
         }

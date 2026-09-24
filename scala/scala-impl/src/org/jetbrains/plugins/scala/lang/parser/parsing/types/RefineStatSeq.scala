@@ -20,14 +20,14 @@ object RefineStatSeq extends ParsingRule {
         //otherwise parse TopStat
         case _ =>
           if (!RefineStat()) {
-            builder error ScalaBundle.message("wrong.top.statement.declaration")
+            builder.error(ScalaBundle.message("wrong.top.statement.declaration"))
             return
           }
           else {
             builder.getTokenType match {
               case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer() //it is good
               case null | ScalaTokenTypes.tRBRACE => return
-              case _ if !builder.newlineBeforeCurrentToken => builder error ScalaBundle.message("semi.expected")
+              case _ if !builder.newlineBeforeCurrentToken => builder.error(ScalaBundle.message("semi.expected"))
               case _ =>
             }
           }

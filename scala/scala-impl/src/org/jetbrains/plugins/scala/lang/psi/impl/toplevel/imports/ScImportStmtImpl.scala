@@ -496,7 +496,7 @@ object ScImportOrExportImpl {
       def conformingGivenSelector(ty: TypeResult)(implicit context: Context): Option[ScImportSelector] = ty match {
         case Right(ty) =>
           val conformingSelectors = {
-            val selectors = filterSelectors.filter { case (fTy, _) => ty conforms fTy }.values
+            val selectors = filterSelectors.filter { case (fTy, _) => ty `conforms` fTy }.values
 
             //todo: should we use another ordering/precedence?
             selectors.toSeq.sortBy(_.startOffset) ++ wildcardSelector

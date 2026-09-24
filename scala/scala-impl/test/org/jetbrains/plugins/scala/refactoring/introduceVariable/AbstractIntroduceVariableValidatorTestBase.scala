@@ -79,13 +79,13 @@ object AbstractIntroduceVariableValidatorTestBase {
   }
 
   private def getVariableValidator(expression: ScExpression, file: PsiFile)
-                                        (implicit selectionModel: SelectionModel): ScalaVariableValidator = {
+                                  (implicit selectionModel: SelectionModel): ScalaVariableValidator = {
     val occurrences = ScalaRefactoringUtil.getOccurrenceRanges(expression, ScalaRefactoringUtil.fileEncloser(file, selectionModel.getSelectionStart).orNull)
     ScalaVariableValidator(file, expression, occurrences)
   }
 
   private def getTypeValidator(typeElement: ScTypeElement, file: PsiFile)
-                                    (implicit selectionModel: SelectionModel): ScalaTypeValidator = {
+                              (implicit selectionModel: SelectionModel): ScalaTypeValidator = {
     val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, ScalaRefactoringUtil.fileEncloser(file, selectionModel.getSelectionStart).orNull)
     val containerOne = getContainerOne(file, occurrences.length)
 

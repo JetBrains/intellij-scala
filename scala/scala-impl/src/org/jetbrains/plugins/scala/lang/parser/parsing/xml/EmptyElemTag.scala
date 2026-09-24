@@ -23,7 +23,7 @@ object EmptyElemTag extends ParsingRule {
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_NAME =>
         builder.advanceLexer()
-      case _ => builder error ErrMsg("xml.name.expected")
+      case _ => builder.error(ErrMsg("xml.name.expected"))
     }
     while (Attribute()) {}
     builder.getTokenType match { //looks like this code became obsolete long ago

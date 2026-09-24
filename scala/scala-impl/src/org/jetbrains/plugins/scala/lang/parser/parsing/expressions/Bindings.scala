@@ -28,7 +28,7 @@ object Bindings extends ParsingRule {
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
       builder.advanceLexer() //Ate ,
       if (!Binding()) {
-        builder error ErrMsg("wrong.binding")
+        builder.error(ErrMsg("wrong.binding"))
       }
     }
     builder.getTokenType match {

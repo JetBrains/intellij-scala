@@ -44,7 +44,7 @@ object Block {
             // we were able to parse another statement, but there should have been an error before that
             // so we rollback, insert the error, and parse the same statement again
             rollbackMarker.rollbackTo()
-            builder error ErrMsg("semi.expected")
+            builder.error(ErrMsg("semi.expected"))
             parseStmt()
             parseNextStmt()
           } else {

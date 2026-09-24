@@ -25,7 +25,7 @@ object TypeDcl extends ParsingRule {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer() //Ate identifier
       case _ =>
-        builder error ScalaBundle.message("identifier.expected")
+        builder.error(ScalaBundle.message("identifier.expected"))
         returnMarker.drop()
         return false
     }
@@ -38,7 +38,7 @@ object TypeDcl extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer()
-        builder error ScalaBundle.message("wrong.type")
+        builder.error(ScalaBundle.message("wrong.type"))
         true
       case _ => true
     }

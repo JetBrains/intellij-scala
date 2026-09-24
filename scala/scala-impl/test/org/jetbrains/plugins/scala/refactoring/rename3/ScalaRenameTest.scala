@@ -32,14 +32,14 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testSettersWithoutVar(): Unit = {
       try {doTest()}
       catch {
-        case e: RuntimeException if e.getMessage endsWith "is not an identifier." =>
+        case e: RuntimeException if e.getMessage.endsWith("is not an identifier.") =>
       }
     }
 
   def testSettersWithoutVar2(): Unit = {
     try {doTest("NameAfterRename_=")}
     catch {
-      case e: RuntimeException if e.getMessage endsWith "is not an identifier." =>
+      case e: RuntimeException if e.getMessage.endsWith("is not an identifier.") =>
     }
   }
 

@@ -36,7 +36,7 @@ object Generator extends ParsingRule {
         }
         true
       case _ =>
-        builder error ErrMsg("choose.expected")
+        builder.error(ErrMsg("choose.expected"))
         genMarker.drop()
         false
     }
