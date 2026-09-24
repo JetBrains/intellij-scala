@@ -30,7 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaExportedMemberUtil
-import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.util.SAMUtil._
 
 import java.awt.event.MouseEvent

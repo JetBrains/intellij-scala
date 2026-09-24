@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.base.libraryLoaders
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.openapi.roots.libraries.{Library, LibraryTable, LibraryTablesRegistrar}
+import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.ScalaVersion

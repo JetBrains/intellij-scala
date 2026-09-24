@@ -5,7 +5,6 @@ package superMember
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiFile, PsiMember}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 

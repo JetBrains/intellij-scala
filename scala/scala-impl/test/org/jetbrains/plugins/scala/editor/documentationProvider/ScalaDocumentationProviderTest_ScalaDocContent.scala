@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.lang.documentation.QuickDocHighlightingHelper.{CODE_BLOCK_PREFIX, CODE_BLOCK_SUFFIX}
 import org.jetbrains.plugins.scala.editor.documentationProvider.util.{ScalaDocumentationsBodySectionTesting, ScalaDocumentationsScalaDocContentTesting}
-import org.jetbrains.plugins.scala.util.AliasExports._
 
 final class ScalaDocumentationProviderTest_ScalaDocContent extends ScalaDocumentationProviderTestBase
   with ScalaDocumentationsBodySectionTesting

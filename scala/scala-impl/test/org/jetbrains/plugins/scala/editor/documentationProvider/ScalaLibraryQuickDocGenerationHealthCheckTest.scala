@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.extensions.{ArrayExt, PsiElementExt, PsiNamed
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion, base}
-import org.junit.{Assert, Ignore, Test}
+import org.junit.{Assert, Test}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

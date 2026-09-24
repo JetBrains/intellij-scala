@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.{isOpera
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
 import scala.annotation.tailrec

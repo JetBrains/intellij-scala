@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 
-import scala.language.implicitConversions
 
 private abstract class DepMethodParamSubstitution extends SimpleUpdate {
 

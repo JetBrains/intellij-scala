@@ -4,7 +4,6 @@ package actions
 package editor
 package enter
 
-import org.jetbrains.plugins.scala.base.NoSdkFileSetTestBase
 
 import java.nio.file.Path
 

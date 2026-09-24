@@ -7,7 +7,6 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.TokenSets.{ID_SET, IMPORT_WILDCARDS}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tIDENTIFIER
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.IMPORT_SELECTOR
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil

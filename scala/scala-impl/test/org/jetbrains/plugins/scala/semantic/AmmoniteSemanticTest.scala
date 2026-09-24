@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.semantic
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-import org.jetbrains.plugins.scala.semantic.SemanticTestBase.scalaVersion
 import org.junit.Test
 
 class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.3.7" % "3.0.6")("ammonite") {

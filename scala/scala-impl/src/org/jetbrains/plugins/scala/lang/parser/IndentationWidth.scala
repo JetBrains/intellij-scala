@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser
 
-import org.jetbrains.plugins.scala.lang.parser.IndentationWidth._
 
 final class IndentationWidth(private val width: String) extends Ordered[IndentationWidth] {
   private val widthNum = width.count(_ == ' ') + width.count(_ == '\t') * 2

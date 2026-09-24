@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
   ScUExpression
 }
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.uast.{UExpression, UExpressionAdapter}
+import org.jetbrains.uast.UExpressionAdapter
 
 /**
   * [[ScUnderscoreSection]] adapter for the [[UExpression]]

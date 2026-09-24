@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType, ScalaTokenBinders}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Extension
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{IndentationRegion, ScalaPsiBuilder}
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{ConstrBlock, Def}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 

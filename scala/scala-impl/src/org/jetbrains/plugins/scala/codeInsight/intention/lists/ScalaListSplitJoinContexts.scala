@@ -8,10 +8,10 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import com.intellij.psi.util.PsiTreeUtil
 import kotlin.Pair
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{&, Parent}
+import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeArgs, ScTypes}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeArgs}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlock, ScMethodCall, ScTuple}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock

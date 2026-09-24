@@ -51,7 +51,6 @@ import java.nio.file.Path
 import kotlin.Unit.{INSTANCE => KUnit}
 import scala.annotation.unused
 import scala.jdk.CollectionConverters._
-import scala.language.implicitConversions
 import scala.ref.Reference
 import scala.util.Try
 

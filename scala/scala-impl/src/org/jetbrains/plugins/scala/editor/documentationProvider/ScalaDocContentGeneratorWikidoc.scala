@@ -9,7 +9,7 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import com.intellij.psi.{PsiClass, PsiElement, PsiErrorElement}
+import com.intellij.psi.{PsiElement, PsiErrorElement}
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import org.jetbrains.annotations.TestOnly
@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGeneratorWikidoc._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableStableCodeReference
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.format
 
-import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions.{BooleanExt, Parent}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScCharLiteral, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScPostfixExpr, ScReferenceExpression}

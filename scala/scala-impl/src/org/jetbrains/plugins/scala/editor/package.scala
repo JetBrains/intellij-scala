@@ -13,7 +13,7 @@ import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeAndWait}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
 

@@ -8,7 +8,7 @@ import com.intellij.debugger.impl.PrioritizedTask.Priority
 import com.intellij.debugger.impl.{DebuggerSession, PrioritizedTask}
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.util.{Computable, TextRange}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Range

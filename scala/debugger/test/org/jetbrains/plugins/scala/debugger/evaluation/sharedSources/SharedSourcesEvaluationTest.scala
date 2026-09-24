@@ -6,7 +6,7 @@ import com.intellij.debugger.impl.OutputChecker
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
-import com.intellij.openapi.util.io.{FileUtil, NioFiles}
+import com.intellij.openapi.util.io.NioFiles
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiManager
 import com.sun.jdi.IntegerValue

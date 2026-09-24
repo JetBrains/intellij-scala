@@ -10,7 +10,6 @@ import com.intellij.openapi.roots.{ModuleRootModificationUtil, OrderRootType}
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.util.SystemProperties
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.junit.Assert

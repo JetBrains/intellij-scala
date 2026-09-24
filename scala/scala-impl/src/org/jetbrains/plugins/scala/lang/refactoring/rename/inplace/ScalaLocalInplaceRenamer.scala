@@ -10,15 +10,12 @@ import com.intellij.refactoring.RefactoringActionHandler
 import com.intellij.refactoring.rename.inplace.VariableInplaceRenamer
 import com.intellij.refactoring.util.TextOccurrencesUtil.processUsagesInStringsAndComments
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import java.util
-import scala.jdk.CollectionConverters.SeqHasAsJava
-import scala.util.chaining._
 
 class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor, project: Project, initialName: String, oldName: String)
         extends VariableInplaceRenamer(elementToRename, editor, project, initialName, oldName) {

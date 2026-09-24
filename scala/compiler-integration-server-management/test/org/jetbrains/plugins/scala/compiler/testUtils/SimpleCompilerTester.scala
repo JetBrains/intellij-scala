@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.compiler.testUtils
 
-import com.intellij.compiler.server.BuildManager
-import com.intellij.java.testFramework.backend.CompilerTestUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.CompilerProjectExtension
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.testFramework.{EdtTestUtil, PlatformTestUtil, PsiTestUtil}
+import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert.assertNotNull
 

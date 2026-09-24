@@ -3,7 +3,6 @@ package lang
 package transformation
 package implicits
 
-import scala.language.implicitConversions
 
 class ExpandImplicitConversionTest extends TransformerTest(new ExpandImplicitConversion()) {
 

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.lang.psi.types.api.ValueType
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
 /**
  * Scala 3 union type, e.g. `Foo | Bar`

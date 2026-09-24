@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt}
 import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, ScalaVersion}
 
 import java.nio.file.Path
-import java.{util => ju}
 
 /**
  * The loader loads and registers only a scala library (with sources) without transitive dependencies

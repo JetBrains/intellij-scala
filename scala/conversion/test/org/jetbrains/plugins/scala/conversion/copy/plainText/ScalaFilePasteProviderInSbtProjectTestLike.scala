@@ -15,7 +15,6 @@ import com.intellij.util.ui.TextTransferable
 import org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProviderInSbtProjectTestLike.ExpectedPasteTestOutcome
 import org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProviderInSbtProjectTestLike.ExpectedPasteTestOutcome.AddToExistingFile
 import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteAction}
-import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.{assertCollectionEquals, assertCollectionIsEmpty}
 import org.junit.Assert.{assertEquals, assertNotNull, assertTrue}

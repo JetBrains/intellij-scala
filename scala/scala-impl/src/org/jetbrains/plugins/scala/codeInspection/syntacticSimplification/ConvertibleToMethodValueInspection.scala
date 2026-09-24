@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls

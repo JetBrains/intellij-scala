@@ -7,7 +7,6 @@ import com.intellij.openapi.project.{Project, ProjectManager}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider
 
-import java.util.Collections
 
 /**
  * see [[com.intellij.ide.actions.ShowSettingsUtilImpl]]

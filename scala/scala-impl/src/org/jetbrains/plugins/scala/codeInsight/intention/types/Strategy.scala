@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScTypedPatternLike, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScTypedPatternLike}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter

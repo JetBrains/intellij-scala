@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
-import scala.language.implicitConversions
 
 class SimplifyBooleanMatchInspection extends LocalInspectionTool {
 

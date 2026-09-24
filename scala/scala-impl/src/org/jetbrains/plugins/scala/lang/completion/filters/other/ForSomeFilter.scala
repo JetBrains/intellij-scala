@@ -4,7 +4,6 @@ import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.{NonNls, Nullable}
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
 
 class ForSomeFilter extends ElementFilter {

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations.ScUErrorClass
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.uast.ReferenceExt
-import org.jetbrains.uast.{UAnonymousClass, UClass, UExpression, UObjectLiteralExpression, UObjectLiteralExpressionAdapter, UReferenceExpression}
+import org.jetbrains.uast.{UAnonymousClass, UClass, UExpression, UObjectLiteralExpressionAdapter, UReferenceExpression}
 
 /**
  * [[ScNewTemplateDefinition]] adapter for the [[UObjectLiteralExpression]]

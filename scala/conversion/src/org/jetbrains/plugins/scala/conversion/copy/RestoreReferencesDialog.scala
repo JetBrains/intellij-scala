@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.CommonBundle
-import com.intellij.codeInspection.ex.ApplicationInspectionProfileManager
 import com.intellij.java.JavaBundle
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.EditorColorsScheme

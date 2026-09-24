@@ -7,7 +7,6 @@ import java.lang.Float.intBitsToFloat
 import org.jetbrains.plugins.scala.decompiler.scalasig.TagGroups._
 
 import scala.annotation.switch
-import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import scala.reflect.internal.pickling.PickleFormat._
 

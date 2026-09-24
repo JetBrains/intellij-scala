@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.project.ScalaFeatures
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.junit.Assert._
 
 abstract class ScalaTypePresentationTestBase extends ScalaLightCodeInsightFixtureTestCase {

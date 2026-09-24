@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 

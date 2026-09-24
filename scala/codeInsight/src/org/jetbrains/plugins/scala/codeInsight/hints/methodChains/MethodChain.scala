@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 import scala.annotation.tailrec

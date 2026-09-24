@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.settings.annotations.ScalaTypeAnnotationSetti
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util._
 
-import scala.annotation.nowarn
 
 class TypeAnnotationInspection extends LocalInspectionTool {
   import TypeAnnotationInspection._

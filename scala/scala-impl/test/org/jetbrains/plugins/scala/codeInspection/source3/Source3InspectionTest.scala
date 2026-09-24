@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.source3
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.fileTypes.LanguageFileType
-import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.SbtHighlightingUtil

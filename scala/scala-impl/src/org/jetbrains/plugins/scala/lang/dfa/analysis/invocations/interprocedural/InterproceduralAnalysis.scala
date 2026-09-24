@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural
 
-import com.intellij.codeInspection.dataFlow.interpreter.{DataFlowInterpreter, RunnerResult, StandardDataFlowInterpreter}
+import com.intellij.codeInspection.dataFlow.interpreter.{DataFlowInterpreter, StandardDataFlowInterpreter}
 import com.intellij.codeInspection.dataFlow.jvm.JvmDfaMemoryStateImpl
-import com.intellij.codeInspection.dataFlow.jvm.transfer.EnterFinallyTrap
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir.{DfaInstructionState, SimpleAssignmentInstruction}
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
@@ -14,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.unknownDfaValue
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}

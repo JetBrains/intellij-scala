@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.util.ui.distribution
 
 import com.intellij.openapi.roots.ui.distribution.AbstractDistributionInfo
 import com.intellij.openapi.ui.UiUtils
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.annotations.NonNls
 

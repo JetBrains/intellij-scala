@@ -8,8 +8,7 @@ import com.intellij.openapi.editor.impl.DocumentImpl
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.impl.file.PsiDirectoryFactory
-import com.intellij.psi.{PsiDirectory, PsiDocumentManager, PsiElement, PsiFile, PsiFileFactory}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiFileFactory}
 import com.intellij.testFramework.LightIdeaTestCase
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.Nullable

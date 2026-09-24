@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.actions
 import _root_.com.intellij.codeInsight.TargetElementUtil
 import _root_.com.intellij.psi._
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
-import com.intellij.openapi.application.{NonBlockingReadAction, ReadAction}
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
@@ -24,8 +23,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.ge
 import org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
-import java.util.concurrent.Callable
-import java.util.function.Consumer
 
 /**
  * @todo ideally we should not create our custom action

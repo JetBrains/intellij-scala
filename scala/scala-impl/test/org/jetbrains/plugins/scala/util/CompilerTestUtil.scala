@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.util.registry.Registry
-import com.intellij.util.xmlb.XmlSerializerUtil
 import org.jetbrains.plugins.scala.compiler.testUtils.CompilerTestUtil2
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode, ScalaProjectSettings}
 
-import scala.util.Try
 
 object CompilerTestUtil {
 

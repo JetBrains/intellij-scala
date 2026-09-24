@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.editor.todo
 
 import com.intellij.psi.impl.cache.impl.todo.LexerBasedTodoIndexer
-import com.intellij.psi.impl.cache.impl.{BaseFilterLexer, OccurrenceConsumer, idCache}
+import com.intellij.psi.impl.cache.impl.{BaseFilterLexer, OccurrenceConsumer}
 import com.intellij.psi.search.UsageSearchContext.IN_COMMENTS
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 

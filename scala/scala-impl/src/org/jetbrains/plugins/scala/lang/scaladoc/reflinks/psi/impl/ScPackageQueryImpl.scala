@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.impl
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, ResolveResult}
-import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult

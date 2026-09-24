@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
 import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
-import com.intellij.codeInsight.hints.settings.{InlayProviderSettingsModel, InlaySettingsConfigurable, InlaySettingsConfigurableKt}
-import com.intellij.ide.DataManager
+import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.options.ex.Settings
 import com.intellij.openapi.progress.DumbProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -14,7 +12,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings}
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintsSettingsModel.Case
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, ImplicitHintsPass}
-import org.jetbrains.plugins.scala.extensions.{NullSafe, ObjectExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import java.util

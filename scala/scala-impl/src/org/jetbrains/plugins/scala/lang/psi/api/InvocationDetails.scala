@@ -4,7 +4,7 @@ import com.intellij.psi.{PsiElement, PsiParameterList, PsiTypeParameterList}
 import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails.ArgumentClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.impl.InvocationDetailsImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction

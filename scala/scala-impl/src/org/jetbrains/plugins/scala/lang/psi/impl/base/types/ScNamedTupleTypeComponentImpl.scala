@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScNamedTupleTypeComponent
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 class ScNamedTupleTypeComponentImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScNamedTupleTypeComponent {
   override def nameElement: Option[PsiElement] = findFirstChildByType(ScalaTokenTypes.tIDENTIFIER)

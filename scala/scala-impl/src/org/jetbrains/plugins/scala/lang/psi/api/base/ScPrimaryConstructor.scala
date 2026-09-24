@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached, cachedInUserData}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScParameterOwner, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{kWITH, tCOMMA}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule

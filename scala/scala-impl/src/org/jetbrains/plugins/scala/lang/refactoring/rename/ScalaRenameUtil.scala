@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScGivenDefinition, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod

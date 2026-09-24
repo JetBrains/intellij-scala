@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.{
   UExpression,
-  UNamedExpression,
   UNamedExpressionAdapter
 }
 

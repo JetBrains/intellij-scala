@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import java.nio.file.{Files, Path}
-import scala.collection.mutable
 
 
 case class SDbRef(symbol: String, position: TextPos, endPosition: TextPos, targetPosition: Option[TextPos]) {

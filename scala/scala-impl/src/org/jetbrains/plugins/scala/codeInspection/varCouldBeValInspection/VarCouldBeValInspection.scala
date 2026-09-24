@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection
 
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
-import com.intellij.codeInspection.{LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType}
+import com.intellij.codeInspection.LocalQuickFixAndIntentionActionOnPsiElement
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.searches.ReferencesSearch

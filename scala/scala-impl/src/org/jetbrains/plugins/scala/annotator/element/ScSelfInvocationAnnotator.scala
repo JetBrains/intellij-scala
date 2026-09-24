@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeParametersExt
 
 object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
   // TODO unify using ConstructorInvocationLike

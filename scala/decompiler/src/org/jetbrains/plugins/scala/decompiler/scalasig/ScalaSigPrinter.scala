@@ -10,7 +10,7 @@ package org.jetbrains.plugins.scala.decompiler.scalasig
 
 import java.lang.StringBuilder
 import java.util.regex.Pattern
-import org.apache.commons.lang3.{StringUtils, Strings}
+import org.apache.commons.lang3.Strings
 import org.apache.commons.text.StringEscapeUtils
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 

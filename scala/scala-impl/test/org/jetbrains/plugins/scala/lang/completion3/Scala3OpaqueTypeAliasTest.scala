@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.hasItemText
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}

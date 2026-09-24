@@ -4,7 +4,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api._

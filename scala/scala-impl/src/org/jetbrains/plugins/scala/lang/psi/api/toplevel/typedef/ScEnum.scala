@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel
 package typedef
 
 import com.intellij.psi.CommonClassNames
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -21,7 +21,6 @@ object ScEnum {
    * @return `true` if the enum definition is Java-compatible, `false` otherwise
    */
   def isJavaCompatible(enumDefinition: ScEnum): Boolean = {
-    import enumDefinition.projectContext
 
     def isJavaEnumSelfType(parentType: ScType): Boolean = parentType match {
       case ParameterizedType(designator, Seq(argument)) =>

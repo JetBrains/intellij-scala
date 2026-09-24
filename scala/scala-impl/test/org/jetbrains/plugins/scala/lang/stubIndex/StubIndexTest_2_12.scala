@@ -16,7 +16,6 @@ import org.junit.Assert._
 
 import scala.collection.immutable.Iterable
 import scala.jdk.CollectionConverters.CollectionHasAsScala
-import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {

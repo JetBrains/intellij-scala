@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.completion.filters.expression
 
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
-import org.jetbrains
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes

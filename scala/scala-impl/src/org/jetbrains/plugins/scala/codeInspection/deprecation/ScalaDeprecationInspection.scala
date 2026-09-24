@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.deprecation
 
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi._
-import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.incremental.Highlighting._
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection._

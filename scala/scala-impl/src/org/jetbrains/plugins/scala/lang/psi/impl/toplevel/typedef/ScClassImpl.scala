@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextApplied, ContextAppliedUtil}
@@ -27,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 import javax.swing.Icon
 

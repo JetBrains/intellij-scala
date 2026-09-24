@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.InstructionBuilder.StackValue
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq.Required.Result
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq.{BuilderContext, None}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform.ResultReq.BuilderContext
 
 sealed abstract class ResultReq {
   type Result

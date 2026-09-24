@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScReferencePattern, ScTypedPatternLike, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScReferencePattern, ScTypedPatternLike, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._

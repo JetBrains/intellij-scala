@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils
 
 abstract class ScalaMemberInfoBase[Member <: PsiElement](member: Member) extends MemberInfoBase[Member](member: Member) {
 

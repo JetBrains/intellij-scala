@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatter.intellij.tests
 
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
-import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
-import org.junit.Ignore
 
 
 // Reminder about settings combinations:

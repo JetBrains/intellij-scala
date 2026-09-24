@@ -10,17 +10,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.methodName
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScSignatureClause, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, ScPrimaryConstructorWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.Signature.ExportedSigInfo
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, PsiTypeParameterListOwnerExt, PsiTypeParametersExt, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, PsiTypeParameterListOwnerExt, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubtypeUpdater._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScExportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._

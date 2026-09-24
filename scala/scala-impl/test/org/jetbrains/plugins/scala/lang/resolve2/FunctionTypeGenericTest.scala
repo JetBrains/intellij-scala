@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve2
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 

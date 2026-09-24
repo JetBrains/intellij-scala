@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScInfixElement, ScParenthesizedElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf, ScParenthesisedExpr, ScSugarCallExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 

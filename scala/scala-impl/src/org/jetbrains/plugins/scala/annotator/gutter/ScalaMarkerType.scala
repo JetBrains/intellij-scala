@@ -4,8 +4,7 @@ import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.impl.GutterTooltipHelper
 import com.intellij.ide.util.PsiElementListCellRenderer
 import com.intellij.openapi.actionSystem.IdeActions
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.presentation.java.ClassPresentationUtil
 import com.intellij.psi.search.searches.ClassInheritorsSearch
@@ -23,9 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.util.SAMUtil
 
 import java.awt.event.MouseEvent
-import java.util
 import java.util.Collections.emptyList
-import javax.swing.{Icon, JComponent}
+import javax.swing.Icon
 import scala.jdk.CollectionConverters._
 
 object ScalaMarkerType {

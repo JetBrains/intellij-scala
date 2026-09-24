@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.text
 
-import com.intellij.psi.PsiPackage
 import com.intellij.testFramework.TestLoggerKt
 import com.intellij.util.AstLoadingFilter
 import org.jetbrains.plugins.scala.corpus.ProjectCorpusTestBase
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 import org.jetbrains.plugins.scala.text.TextToTextTestBase._

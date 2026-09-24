@@ -10,7 +10,6 @@ import com.intellij.refactoring.rename.RenameJavaMemberProcessor
 import com.intellij.refactoring.util.RefactoringUtil
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}

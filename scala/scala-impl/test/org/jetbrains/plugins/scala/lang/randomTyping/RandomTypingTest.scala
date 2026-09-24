@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.randomTyping
 
-import com.intellij.testFramework.TestLoggerKt
-import com.intellij.util.lang.CompoundRuntimeException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTestConfig
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -13,7 +11,6 @@ import org.junit.runners.JUnit4
 
 import java.nio.file.Path
 import scala.collection.immutable.ArraySeq
-import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.util.Random
 import scala.util.chaining.scalaUtilChainingOps
 

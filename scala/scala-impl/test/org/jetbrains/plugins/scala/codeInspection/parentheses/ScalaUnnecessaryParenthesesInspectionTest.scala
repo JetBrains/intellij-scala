@@ -6,7 +6,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.util.TextRange
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.{ExpectedHighlight, TestPrepareResult}
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.ExpectedHighlight
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
 
 abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaInspectionTestBase {

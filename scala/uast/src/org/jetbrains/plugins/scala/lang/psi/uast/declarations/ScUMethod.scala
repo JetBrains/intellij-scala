@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScU
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions.ScUImplicitBlockExpression
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.uast.{UAnchorOwner, UExpression, UIdentifier, UMethod, UMethodAdapter, UParameter}
+import org.jetbrains.uast.{UAnchorOwner, UExpression, UIdentifier, UMethodAdapter, UParameter}
 
 import java.util
 import scala.jdk.CollectionConverters._

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInspection.util.InspectionMessage
-import com.intellij.lang.annotation.{AnnotationBuilder, AnnotationSession, HighlightSeverity}
+import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 
 /**
  * This is a clone of public API of [[com.intellij.lang.annotation.AnnotationHolder]]

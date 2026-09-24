@@ -9,7 +9,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.FileTypeUtils
 import com.intellij.psi.{JavaDirectoryService, PsiClass, PsiClassOwner, PsiDirectory, PsiDocumentManager, PsiElement, PsiFile, PsiNameIdentifierOwner, PsiNamedElement, PsiPackage, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
-import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassHandler, MoveClassesOrPackagesUtil}
+import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassHandler
 import com.intellij.refactoring.move.moveFilesOrDirectories.MoveFilesOrDirectoriesUtil
 import com.intellij.refactoring.util.{MoveRenameUsageInfo, TextOccurrencesUtil}
 import com.intellij.usageView.UsageInfo

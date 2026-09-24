@@ -2,11 +2,9 @@ package org.jetbrains.plugins.scala.lang.completion.filters.modifiers
 
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiComment, PsiElement, PsiIdentifier, PsiWhiteSpace}
-import org.jetbrains
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.UsingFilter._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference

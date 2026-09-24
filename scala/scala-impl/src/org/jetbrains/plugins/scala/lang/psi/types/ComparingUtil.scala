@@ -1,15 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import com.intellij.psi.search.LocalSearchScope
-import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.{PsiClass, PsiTypeParameter}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, ParameterizedType, Variance}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
-import scala.jdk.CollectionConverters._
 
 object ComparingUtil {
   //this relation is actually symmetric

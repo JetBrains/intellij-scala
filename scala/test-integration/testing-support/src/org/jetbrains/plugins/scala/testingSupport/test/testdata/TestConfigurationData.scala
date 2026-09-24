@@ -5,7 +5,6 @@ import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.execution.{CommonProgramRunConfigurationParameters, EnvFilesOptions, ExternalizablePath, ShortenCommandLine}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.util.xmlb.annotations.XCollection
 import com.intellij.util.xmlb.{Accessor, XmlSerializer}
 import org.apache.commons.lang3.StringUtils
 import org.jdom.Element

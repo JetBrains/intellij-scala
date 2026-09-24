@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.moveLeftRight
 
 import com.intellij.openapi.actionSystem.IdeActions
-import com.intellij.testFramework.{EditorTestUtil, LightPlatformCodeInsightTestCase}
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 

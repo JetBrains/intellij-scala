@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressIndicator}
+import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetectorBase._
 import org.jetbrains.plugins.scala.project.template.Artifact.{Scala3Compiler, ScalaCompiler, ScalaLibraryAndModulesArtifacts}

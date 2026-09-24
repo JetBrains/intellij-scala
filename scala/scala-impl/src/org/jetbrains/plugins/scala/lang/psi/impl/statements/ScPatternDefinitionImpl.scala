@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.Widening
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-import scala.annotation.nowarn
 
 final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternDefinition],
                                                  nodeType: ScPropertyElementType[ScPatternDefinition],

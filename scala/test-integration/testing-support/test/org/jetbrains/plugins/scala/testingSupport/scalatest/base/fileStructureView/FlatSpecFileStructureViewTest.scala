@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.structureView.element.Test._
 import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
-import org.junit.Assert.assertEquals
 
 import scala.jdk.CollectionConverters._
 

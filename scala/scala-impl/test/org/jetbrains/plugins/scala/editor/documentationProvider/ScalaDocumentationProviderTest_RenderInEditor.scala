@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.editor.documentationProvider.util.ScalaDocumentationsBodySectionTesting
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
-import org.jetbrains.plugins.scala.util.AliasExports._
 
 // TODO: in-editor doc: code example in the end of the doc produces new line
 class ScalaDocumentationProviderTest_RenderInEditor extends ScalaDocumentationProviderTestBase

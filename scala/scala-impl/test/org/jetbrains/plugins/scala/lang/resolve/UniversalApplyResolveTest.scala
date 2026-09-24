@@ -4,7 +4,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.ScalaVersion
 
 class UniversalApplyResolveTest extends SimpleResolveTestBase {
   override protected def supportedIn(version: ScalaVersion) = version.isScala3

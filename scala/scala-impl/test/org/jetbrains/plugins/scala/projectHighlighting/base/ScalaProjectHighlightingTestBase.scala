@@ -17,7 +17,7 @@ import org.jetbrains.sbt.project.{SbtCachesSetupUtil, ScalaExternalSystemImporti
 import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Category(Array(classOf[HighlightingTests]))

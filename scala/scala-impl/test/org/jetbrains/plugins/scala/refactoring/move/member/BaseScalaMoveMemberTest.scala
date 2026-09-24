@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMembersDialog
 import org.junit.Assert
 
-import scala.annotation.nowarn
 
 abstract class BaseScalaMoveMemberTest extends ScalaLightCodeInsightFixtureTestCase {
 

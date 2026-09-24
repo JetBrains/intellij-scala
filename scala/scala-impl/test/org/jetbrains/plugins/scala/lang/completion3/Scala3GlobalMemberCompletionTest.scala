@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Test

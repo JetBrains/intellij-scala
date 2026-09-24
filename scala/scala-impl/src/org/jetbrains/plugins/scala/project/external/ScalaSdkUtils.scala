@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.project.{LibraryBase, LibraryEntityExt, Libra
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters.IteratorHasAsScala
-import scala.language.implicitConversions
 
 //noinspection ApiStatus,UnstableApiUsage
 object ScalaSdkUtils {

@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.immutable.ArraySeq
 

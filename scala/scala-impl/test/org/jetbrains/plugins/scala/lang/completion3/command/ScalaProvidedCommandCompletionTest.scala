@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion3.command
 
 import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.icons.AllIcons
 import org.junit.Test
 
 /**

@@ -84,7 +84,6 @@ sealed trait ScImportsOrExportsHolder extends ScalaPsiElement {
 trait ScImportsHolder extends ScImportsOrExportsHolder {
 
   def getImportStatements: Seq[ScImportStmt] = {
-    import scala.language.existentials
 
     val stub =  this match {
       case s: ScalaStubBasedElementImpl[_, _] => s.getGreenStub
@@ -726,7 +725,6 @@ object ScImportsHolder {
 trait ScExportsHolder extends ScImportsOrExportsHolder {
 
   def getExportStatements: Seq[ScExportStmt] = {
-    import scala.language.existentials
 
     val stub = this match {
       case s: ScalaStubBasedElementImpl[_, _] => s.getGreenStub

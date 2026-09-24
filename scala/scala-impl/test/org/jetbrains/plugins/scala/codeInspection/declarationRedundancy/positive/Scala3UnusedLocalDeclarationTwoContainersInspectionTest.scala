@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.positive
 
-import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.{Scala3UnusedDeclarationInspectionTestBase, ScalaUnusedDeclarationInspectionTestBase}
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.Scala3UnusedDeclarationInspectionTestBase
 
 class Scala3UnusedLocalDeclarationTwoContainersInspectionTest extends Scala3UnusedDeclarationInspectionTestBase {
 

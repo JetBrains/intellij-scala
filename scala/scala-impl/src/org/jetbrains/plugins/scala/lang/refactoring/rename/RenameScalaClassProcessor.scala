@@ -9,7 +9,6 @@ import com.intellij.refactoring.rename.{RenameDialog, RenameJavaClassProcessor}
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper

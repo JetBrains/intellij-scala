@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.{InvocationDetailsOwner, ScalaElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeArgument, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeArgument}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 

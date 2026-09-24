@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters
 
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
-import org.jetbrains.uast.java.internal.JavaUElementWithComments
 import org.jetbrains.uast.{UComment, UElement, UExpression}
 
 import scala.annotation.tailrec

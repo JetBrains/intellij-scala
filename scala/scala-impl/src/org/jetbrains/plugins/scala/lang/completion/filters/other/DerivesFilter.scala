@@ -5,7 +5,6 @@ import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.filters.other.DerivesFilter._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition

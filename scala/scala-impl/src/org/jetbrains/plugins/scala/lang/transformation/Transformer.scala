@@ -5,7 +5,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.transformation.annotations._
 import org.jetbrains.plugins.scala.lang.transformation.calls._
 import org.jetbrains.plugins.scala.lang.transformation.general._

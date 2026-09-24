@@ -5,7 +5,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.{PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 

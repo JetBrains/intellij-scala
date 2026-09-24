@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScPattern, ScSeqWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] with DumbAware {
 

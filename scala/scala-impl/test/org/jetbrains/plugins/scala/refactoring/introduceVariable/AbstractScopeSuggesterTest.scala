@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{PathExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgument, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.{ScopeItem, ScopeSuggester}

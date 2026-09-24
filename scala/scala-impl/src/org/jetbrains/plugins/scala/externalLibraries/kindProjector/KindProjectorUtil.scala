@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.externalLibraries.kindProjector
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.PsiElement
 import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam

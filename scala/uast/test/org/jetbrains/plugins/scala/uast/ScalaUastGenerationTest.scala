@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.uast
 
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiType}
+import com.intellij.psi.PsiElement
 import junit.framework.TestCase
 import junit.framework.TestCase.{assertEquals, assertNotNull, assertNull, assertTrue}
 import org.jetbrains.annotations.Nullable

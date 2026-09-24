@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.codeInspection.collections.{OperationOnCollec
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgument
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement.calcType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.types.Context
 import org.jetbrains.plugins.scala.project.ProjectExt

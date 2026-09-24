@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryC
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScParameterOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub

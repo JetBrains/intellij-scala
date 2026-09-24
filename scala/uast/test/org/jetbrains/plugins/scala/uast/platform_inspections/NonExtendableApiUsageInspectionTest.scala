@@ -7,7 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.testFramework.PsiTestUtil
 import com.intellij.util.PathUtil
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionTestBase, ScalaQuickFixTestFixture}
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.uast.platform_inspections.NonExtendableApiUsageInspectionTest.HighlightMessage
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 

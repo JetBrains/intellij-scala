@@ -3,9 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 trait ScLiteral extends ScExpression
   with PsiLiteral {

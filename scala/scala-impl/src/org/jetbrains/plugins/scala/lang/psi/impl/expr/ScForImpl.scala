@@ -8,7 +8,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.extensions.{BooleanExt, IterableOnceExt, Model, ObjectExt, PsiElementExt, StringsExt}
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

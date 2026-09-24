@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions.{ScUNamedExpression, ScUUnnamedExpression}
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.uast.ReferenceExt
-import org.jetbrains.uast.{UAnchorOwner, UAnnotation, UAnnotationAdapter, UAnnotationEx, UCallExpression, UExpression, UIdentifier, UNamedExpression}
+import org.jetbrains.uast.{UAnchorOwner, UAnnotationAdapter, UAnnotationEx, UCallExpression, UExpression, UIdentifier, UNamedExpression}
 
 import java.util
 import scala.jdk.CollectionConverters._

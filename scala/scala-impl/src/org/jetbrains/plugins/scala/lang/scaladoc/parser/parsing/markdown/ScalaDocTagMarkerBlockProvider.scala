@@ -5,7 +5,6 @@ import org.intellij.markdown.parser.{LookaheadText, MarkerProcessor, ProductionH
 import org.intellij.markdown.parser.constraints.MarkdownConstraints
 import org.intellij.markdown.parser.markerblocks.{MarkerBlock, MarkerBlockProvider}
 import org.intellij.markdown.parser.sequentialparsers.SequentialParser
-import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 import java.util
 import kotlin.ranges.IntRange

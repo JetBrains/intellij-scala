@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ThrowableRunnable
 import junit.framework.TestCase
-import org.jetbrains.plugins.scala.extensions.{PathExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.Result
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations._
 

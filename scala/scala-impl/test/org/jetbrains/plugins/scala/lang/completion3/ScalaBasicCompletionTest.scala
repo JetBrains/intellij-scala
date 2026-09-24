@@ -4,7 +4,6 @@ import com.intellij.codeInsight.lookup.Lookup
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{CommonClassNames, JavaPsiFacade}
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG, SELECTION_START_TAG}
 import junit.framework.AssertionFailedError
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, inWriteAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase

@@ -4,8 +4,8 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi.PsiErrorElement
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScEnumerator, ScEnumerators, ScFor}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScEnumerators, ScFor}
 import org.jetbrains.plugins.scala.util.IndentUtil
 
 // TODO(SCL-23041): indentation-based syntax support

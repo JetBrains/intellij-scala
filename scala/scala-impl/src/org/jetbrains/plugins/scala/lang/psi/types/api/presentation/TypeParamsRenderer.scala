@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.types.api.presentation
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, Variance}
+import org.jetbrains.plugins.scala.lang.psi.types.api.Variance
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 
 class TypeParamsRenderer(

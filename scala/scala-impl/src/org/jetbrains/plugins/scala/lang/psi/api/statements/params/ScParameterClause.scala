@@ -3,7 +3,7 @@ package params
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{NullSafe, ObjectExt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScGivenDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter

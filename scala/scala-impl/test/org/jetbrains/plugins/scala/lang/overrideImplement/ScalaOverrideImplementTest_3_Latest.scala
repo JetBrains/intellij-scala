@@ -5,7 +5,7 @@ import com.intellij.testFramework.EditorTestUtil.{CARET_TAG, SELECTION_END_TAG, 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScExtensionMethodMember
-import org.jetbrains.plugins.scala.util.{RevertableChange, CommonScalaRevertableChanges, TypeAnnotationSettings}
+import org.jetbrains.plugins.scala.util.{CommonScalaRevertableChanges, TypeAnnotationSettings}
 
 class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase {
 

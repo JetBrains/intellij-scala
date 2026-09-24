@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.typeChecking
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
-import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor}

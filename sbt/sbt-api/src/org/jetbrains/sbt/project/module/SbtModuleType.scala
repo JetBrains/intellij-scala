@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package project.module
 
-import com.intellij.openapi.module.{Module, ModuleType}
+import com.intellij.openapi.module.ModuleType
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt.project.DummyModuleBuilder
 import org.jetbrains.sbt.project.module.SbtModuleType.Id

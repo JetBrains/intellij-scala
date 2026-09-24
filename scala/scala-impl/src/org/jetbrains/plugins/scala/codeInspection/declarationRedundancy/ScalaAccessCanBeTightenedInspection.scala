@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.SymbolEs
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.Search.Pipeline
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.cheapRefSearch.{ElementUsage, Search, SearchMethodsWithProjectBoundCache}
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt, PsiModifierListOwnerExt}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLocalClass
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.isBeanProperty
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList

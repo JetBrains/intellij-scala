@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import junit.framework.TestCase
-import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.junit.Assert._
 
 /**

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
 }
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
-import org.jetbrains.uast.{UIdentifier, UThisExpression, UThisExpressionAdapter}
+import org.jetbrains.uast.{UIdentifier, UThisExpressionAdapter}
 
 /**
   * [[ScThisReference]] adapter for the [[UThisExpression]]

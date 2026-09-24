@@ -5,7 +5,7 @@ import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.util.EnvFilesUtilKt.configureEnvsFromFiles
-import com.intellij.execution.{ExecutionResult, Executor, JavaRunConfigurationExtensionManager, ShortenCommandLine}
+import com.intellij.execution.{ExecutionResult, Executor, JavaRunConfigurationExtensionManager}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.Disposer

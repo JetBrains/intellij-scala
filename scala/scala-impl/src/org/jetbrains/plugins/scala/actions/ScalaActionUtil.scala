@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.actions
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
-import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, Presentation}
-import com.intellij.openapi.diagnostic.ControlFlowException
+import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import com.intellij.ui.LightweightHint

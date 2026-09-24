@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.ProcessingContext
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ToNullSafe}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaNamedTupleCompletionContributor.ScalaNamedTupleCompletionProvider
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNamedTuple, ScNamedTupleExprComponent, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType

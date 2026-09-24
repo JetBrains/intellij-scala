@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.execution.testframework.SearchForTestsTask
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
 import com.intellij.openapi.util.{Disposer, Key}
@@ -9,7 +8,6 @@ import com.intellij.openapi.util.registry.{Registry, RegistryValue}
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
 import org.jetbrains.plugins.scala.util.RevertableChange.CompositeRevertableChange
 
-import java.lang
 
 /**
  * For the common scala-related settings see `CommonScalaRevertableChanges` in different module

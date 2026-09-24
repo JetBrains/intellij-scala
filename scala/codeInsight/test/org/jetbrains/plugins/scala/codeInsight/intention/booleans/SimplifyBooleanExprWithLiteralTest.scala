@@ -3,11 +3,9 @@ package codeInsight
 package intention
 package booleans
 
-import com.intellij.testFramework.EditorTestUtil
 
 class SimplifyBooleanExprWithLiteralTest extends intentions.ScalaIntentionTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   override def familyName: String = ScalaCodeInsightBundle.message("family.name.simplify.boolean.expression.with.a.literal")
 

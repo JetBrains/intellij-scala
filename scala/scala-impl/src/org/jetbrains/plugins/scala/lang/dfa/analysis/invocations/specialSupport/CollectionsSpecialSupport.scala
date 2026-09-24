@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport
 
-import com.intellij.codeInspection.dataFlow.MutationSignature
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}

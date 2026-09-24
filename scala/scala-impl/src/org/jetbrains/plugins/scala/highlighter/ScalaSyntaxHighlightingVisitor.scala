@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.highlighter
 
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, HighlightVisitor}
-import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.TextRange

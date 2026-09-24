@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgument, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgument
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter

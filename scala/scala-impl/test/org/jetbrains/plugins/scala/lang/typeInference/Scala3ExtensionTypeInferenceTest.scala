@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 
 class Scala3ExtensionTypeInferenceTest extends TypeInferenceTestBase {

@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.project.external
 import com.intellij.serialization.PropertyMapping
 
 import java.nio.file.Path
-import scala.language.implicitConversions
 
 sealed abstract class SdkReference
 

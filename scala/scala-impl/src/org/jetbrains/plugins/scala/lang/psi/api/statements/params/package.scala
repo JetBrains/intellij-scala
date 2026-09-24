@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.TypeParameterDebugRendering
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
-import scala.language.implicitConversions
 
 package object params {
   private val typeParameterCounter = new AtomicLong(0)

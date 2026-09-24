@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations.ScULambdaParameter
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.util.SAMUtil
-import org.jetbrains.uast.{UBlockExpression, UExpression, ULambdaExpression, ULambdaExpressionAdapter, UParameter}
+import org.jetbrains.uast.{UBlockExpression, UExpression, ULambdaExpressionAdapter, UParameter}
 
 import java.{util => ju}
 import scala.jdk.CollectionConverters._

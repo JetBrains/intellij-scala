@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonName
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType, NamedTupleType, ParameterizedType, TupleType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, Context, ScType, ScalaSeqExt, api}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult

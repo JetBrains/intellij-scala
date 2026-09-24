@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
 import org.jetbrains.uast._
 import org.jetbrains.uast.util.{ClassSet, ClassSetsWrapper}
 
-import scala.language.postfixOps
 
 /**
  * [[UastLanguagePlugin]] implementation for the Scala plugin.

@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, api}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.immutable.ArraySeq
 

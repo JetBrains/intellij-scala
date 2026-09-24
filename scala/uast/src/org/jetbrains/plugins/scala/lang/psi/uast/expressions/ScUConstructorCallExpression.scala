@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnnotated, ScU
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.uast.ReferenceExt
-import org.jetbrains.uast.{UCallExpression, UCallExpressionAdapter, UExpression, UIdentifier, UReferenceExpression, UastCallKind}
+import org.jetbrains.uast.{UCallExpressionAdapter, UExpression, UIdentifier, UReferenceExpression, UastCallKind}
 
 import scala.jdk.CollectionConverters._
 

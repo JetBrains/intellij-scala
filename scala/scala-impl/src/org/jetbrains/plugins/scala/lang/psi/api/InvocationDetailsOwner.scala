@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import org.jetbrains.plugins.scala.lang.psi.impl.InvocationDetailsImpl
 
 /**
  * A syntax element that might represent an invocation.

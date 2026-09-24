@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaResult.ProblemOccurrence
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 
 import scala.annotation.tailrec
 

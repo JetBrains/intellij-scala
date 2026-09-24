@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.codeInsight.intentions
-import org.jetbrains.plugins.scala.extensions.{StringExt, executeWriteActionCommand}
+import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala

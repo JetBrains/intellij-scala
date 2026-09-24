@@ -7,7 +7,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 import java.util
-import java.util.ArrayList
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class ScalaColorsAndFontsPageTest {

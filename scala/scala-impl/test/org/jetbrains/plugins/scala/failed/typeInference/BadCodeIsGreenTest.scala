@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{ScalaAnnotatorQuickFixTestBase, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
 
 abstract class BadCodeIsGreenTest extends ScalaAnnotatorQuickFixTestBase {
   override protected def shouldPass: Boolean = false

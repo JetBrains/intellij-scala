@@ -6,7 +6,7 @@ import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.psi.PsiFile
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.{ExpectedHighlight, TestPrepareResult}
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.ExpectedHighlight
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, StringExt}
 import org.jetbrains.plugins.scala.{EditorTests, ScalaFileType}
 import org.junit.Assert.assertTrue

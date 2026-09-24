@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.OVERRIDE
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase

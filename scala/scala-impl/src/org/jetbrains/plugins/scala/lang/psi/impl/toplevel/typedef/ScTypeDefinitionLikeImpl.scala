@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionLikeFact
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITION_LIKES
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinitionLike, ScEnum, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.format
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.extensions.{&, ContainingClass, ObjectExt, PsiClassExt, PsiReferenceEx}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction

@@ -5,7 +5,6 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.Tracing
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker, Tracer}
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Conformance._
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ContextDependent, ScType}
 

@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.uast.{
   UExpression,
-  UParenthesizedExpression,
   UParenthesizedExpressionAdapter
 }
 

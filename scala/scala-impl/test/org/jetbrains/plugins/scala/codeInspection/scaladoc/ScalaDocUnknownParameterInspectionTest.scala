@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.codeInspection.scaladoc
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.lang.annotation.HighlightSeverity
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestFixture.TestPrepareResult
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 

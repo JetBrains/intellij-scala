@@ -7,8 +7,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir.{DfaInstructionState, Expres
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValue, DfaValueFactory, DfaVariableValue}
-import com.intellij.codeInspection.dataFlow.{ContractValue, DfaCallArguments, DfaCallState, DfaNullability, MethodContract, MutationSignature}
-import com.intellij.psi.PsiMethod
+import com.intellij.codeInspection.dataFlow.{ContractValue, DfaCallArguments, DfaCallState, DfaNullability, MethodContract}
 import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaNullAccessProblem
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
@@ -23,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.unknownDfaVa
 
 import java.{util => ju}
 import scala.jdk.CollectionConverters._
-import scala.language.postfixOps
 
 /**
  * Intermediate Representation instruction for Scala invocations.

@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgument}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -39,7 +38,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
-import scala.language.implicitConversions
 
 class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   private def argumentsOf(ref: PsiElement): Seq[Expression] = {

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.scalaMeta
 
-import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction

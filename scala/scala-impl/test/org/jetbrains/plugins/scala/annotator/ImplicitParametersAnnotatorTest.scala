@@ -477,7 +477,6 @@ class ImplicitParametersAnnotatorTest_Scala3 extends ImplicitParametersAnnotator
 //annotator tests doesn't have scala library, so it's not possible to use FunctionType, for example
 @Category(Array(classOf[TypecheckerTests]))
 class ImplicitParametersAnnotatorHeavyTest extends ScalaLightCodeInsightFixtureTestCase {
-  import Message._
 
   def testSCL16246(): Unit = checkTextHasNoErrors(
     """

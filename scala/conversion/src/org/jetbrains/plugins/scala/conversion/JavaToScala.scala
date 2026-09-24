@@ -25,7 +25,6 @@ import java.util.regex.Pattern
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
-import scala.language.postfixOps
 
 //noinspection InstanceOf,ScalaWrongPlatformMethodsUsage
 object JavaToScala {

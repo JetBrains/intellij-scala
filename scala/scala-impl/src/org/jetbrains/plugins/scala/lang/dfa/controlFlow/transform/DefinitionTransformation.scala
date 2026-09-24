@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transform
 
-import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}

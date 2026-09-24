@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.configurations
 
-import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 

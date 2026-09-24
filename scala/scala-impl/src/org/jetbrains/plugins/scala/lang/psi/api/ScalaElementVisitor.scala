@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScGivenAlias, ScGivenAliasDeclaration, ScGivenAliasDefinition, ScGivenDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScCaptureTypeElementImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor with PsiRecursiveVisitor {

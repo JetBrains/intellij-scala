@@ -6,7 +6,6 @@ import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedTestsAction
 

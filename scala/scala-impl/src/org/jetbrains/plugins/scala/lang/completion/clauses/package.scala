@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.completion
 
-import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementRenderer}
 import com.intellij.patterns.{ElementPattern, PlatformPatterns, PsiElementPattern}
 import com.intellij.psi.impl.source.tree.LeafPsiElement

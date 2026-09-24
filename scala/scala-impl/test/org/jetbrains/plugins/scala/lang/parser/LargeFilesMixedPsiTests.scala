@@ -4,12 +4,12 @@ import com.intellij.openapi.fileTypes.PlainTextLanguage
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.{PsiClassHolderFileStub, StubElement}
+import com.intellij.psi.stubs.PsiClassHolderFileStub
 import com.intellij.psi.{JavaPsiFacade, PsiFile, PsiFileFactory, PsiManager}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.{ArrayExt, IterableOnceExt, PsiClassExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ArrayExt, PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.parser.LargeFilesMixedPsiTests.generateLargeScalaFileWithLargeCommentText
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClsFileViewProvider.ScClsFileImpl
 import org.jetbrains.plugins.scala.util.TestUtils

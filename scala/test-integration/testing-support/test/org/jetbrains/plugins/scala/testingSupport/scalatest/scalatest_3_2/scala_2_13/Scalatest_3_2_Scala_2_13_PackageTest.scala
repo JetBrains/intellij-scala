@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestPackag
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestConfigurationType, ScalaTestRunConfiguration}
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, RegexpTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestKind}
-import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
+import org.junit.Assert.{assertFalse, assertTrue}
 
 import java.{util => ju}
 

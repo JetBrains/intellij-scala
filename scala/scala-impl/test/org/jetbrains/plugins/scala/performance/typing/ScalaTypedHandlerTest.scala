@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.performance.typing
 
-import scala.language.postfixOps
 
 /**
  * !!! Also see tests in [[org.jetbrains.plugins.scala.lang.actions.editor]] package

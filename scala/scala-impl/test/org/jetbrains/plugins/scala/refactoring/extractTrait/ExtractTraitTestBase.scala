@@ -7,7 +7,6 @@ import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitHandler
 
-import scala.annotation.nowarn
 
 abstract class ExtractTraitTestBase extends ScalaLightCodeInsightFixtureTestCase {
 

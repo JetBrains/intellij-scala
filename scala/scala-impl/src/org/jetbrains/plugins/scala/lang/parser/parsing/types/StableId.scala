@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ErrMsg
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.{InBracelessScala3, ParserUtils}
+import org.jetbrains.plugins.scala.lang.parser.util.InBracelessScala3
 
 import scala.annotation.tailrec
 

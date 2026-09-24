@@ -8,16 +8,12 @@ import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiMethod}
-import org.intellij.markdown.ast.ASTNode
-import org.intellij.markdown.html.{HtmlGenerator, HtmlGeneratorKt}
 import org.jetbrains.plugins.scala.extensions.{&, PsiClassExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition.DesugaredTypeDefinition
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.ScaladocMarkdownParsing
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.ScalaDocMarkdownFlavour
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import java.net.URL

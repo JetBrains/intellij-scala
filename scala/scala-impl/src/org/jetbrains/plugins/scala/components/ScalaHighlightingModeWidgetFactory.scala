@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.components
 
 import com.intellij.openapi.project.DumbService.DumbModeListener
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.impl.status.widget.StatusBarWidgetsManager
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, StatusBarWidgetFactory}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt

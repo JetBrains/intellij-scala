@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
 
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.{Dispatchers, MainCoroutineDispatcher}
-import scala.annotation.nowarn
 
 object TokenSets {
 

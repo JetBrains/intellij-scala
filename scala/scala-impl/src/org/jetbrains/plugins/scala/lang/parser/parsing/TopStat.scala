@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.parser.parsing
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Export, Extension, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateStat
 
 import scala.annotation.tailrec

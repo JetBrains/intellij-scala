@@ -13,7 +13,7 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopes}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.xmlb.XmlSerializer
 import com.intellij.util.xmlb.annotations.Transient
 import org.jdom.Element

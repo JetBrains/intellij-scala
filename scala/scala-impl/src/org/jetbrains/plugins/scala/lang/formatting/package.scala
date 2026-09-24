@@ -2,10 +2,8 @@ package org.jetbrains.plugins.scala.lang
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.COMMENTS_TOKEN_SET
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr}
 
 package object formatting {
 

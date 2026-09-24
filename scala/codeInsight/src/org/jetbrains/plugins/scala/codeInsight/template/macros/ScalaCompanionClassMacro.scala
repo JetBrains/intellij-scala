@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 import com.intellij.codeInsight.template.{Expression, ExpressionContext, PsiElementResult, Result}
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.extensions.OptionExt

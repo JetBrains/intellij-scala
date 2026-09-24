@@ -1,12 +1,9 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3
 
-import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import junitparams.naming.TestCaseName
 import junitparams.{JUnitParamsRunner, Parameters}
 import org.jetbrains.plugins.scala.FileSetTests
-import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.DoEditorStateTestOps
 import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3BracelessSyntaxEnterHandlerTest_ExhaustiveGenerator.TestData
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings

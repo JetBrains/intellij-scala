@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala.local
 
 import org.jetbrains.jps.incremental.scala.local.zinc.{AnalysisStoreFactory, StampReader}
-import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, DelegateClient, ExitCode, Server}
+import org.jetbrains.jps.incremental.scala.{Client, CompileServerBundle, ExitCode, Server}
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompilerData, DocumentCompilationArguments, SbtData}
 import sbt.internal.inc.{Analysis, PlainVirtualFileConverter}
 import xsbti.compile.AnalysisContents

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.typeInference.testInjectors
 
-import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
