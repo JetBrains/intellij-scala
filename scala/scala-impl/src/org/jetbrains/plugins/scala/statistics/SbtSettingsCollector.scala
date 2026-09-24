@@ -72,7 +72,6 @@ class SbtSettingsCollector extends ProjectUsagesCollector {
         new EventPair(Fields.ResolveSbtClassifiers, projectSettings.resolveSbtClassifiers: java.lang.Boolean),
         new EventPair(Fields.PreferScala2, projectSettings.preferScala2: java.lang.Boolean),
         new EventPair(Fields.UseSeparateCompilerOutputPaths, projectSettings.useSeparateCompilerOutputPaths: java.lang.Boolean),
-        new EventPair(Fields.SeparateProdAndTestSources, projectSettings.separateProdAndTestSources: java.lang.Boolean),
         new EventPair(Fields.UseSbtShellForImport, projectSettings.useSbtShellForImport: java.lang.Boolean),
         new EventPair(Fields.UseSbtShellForBuild, projectSettings.useSbtShellForBuild: java.lang.Boolean),
         new EventPair(Fields.EnableDebugSbtShell, projectSettings.enableDebugSbtShell: java.lang.Boolean),
@@ -85,7 +84,7 @@ class SbtSettingsCollector extends ProjectUsagesCollector {
 
 //noinspection UnstableApiUsage
 private object SbtSettingsCollector {
-  private val Group = new EventLogGroup("scala.sbt.state", 1) // TODO: SCL-24479
+  private val Group = new EventLogGroup("scala.sbt.state", 2) // TODO: SCL-24479
 
   locally {
     //initialize the fields eagerly in order scheme generation works
@@ -103,7 +102,6 @@ private object SbtSettingsCollector {
         Fields.ResolveSbtClassifiers,
         Fields.PreferScala2,
         Fields.UseSeparateCompilerOutputPaths,
-        Fields.SeparateProdAndTestSources,
         Fields.UseSbtShellForImport,
         Fields.UseSbtShellForBuild,
         Fields.EnableDebugSbtShell,
@@ -118,7 +116,6 @@ private object SbtSettingsCollector {
     val ResolveSbtClassifiers: BooleanEventField =  EventFields.Boolean("resolve_sbt_classifiers")
     val PreferScala2: BooleanEventField =  EventFields.Boolean("prefer_scala2")
     val UseSeparateCompilerOutputPaths: BooleanEventField =  EventFields.Boolean("use_separate_compiler_output_paths")
-    val SeparateProdAndTestSources: BooleanEventField =  EventFields.Boolean("separate_prod_and_test_sources")
     val UseSbtShellForImport: BooleanEventField =  EventFields.Boolean("use_sbt_shell_for_import")
     val UseSbtShellForBuild: BooleanEventField =  EventFields.Boolean("use_sbt_shell_for_build")
     val EnableDebugSbtShell: BooleanEventField =  EventFields.Boolean("enable_debug_sbt_shell")
