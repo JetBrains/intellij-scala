@@ -28,7 +28,7 @@ abstract class InvocationTemplate(nameCondition: String => Boolean) {
 }
 
 class Qualified(nameCondition: String => Boolean) extends InvocationTemplate(nameCondition) {
-  def unapplySeq(expr: ScExpression): Option[(ScExpression, Seq[ScExpression])] = {
+  infix def unapplySeq(expr: ScExpression): Option[(ScExpression, Seq[ScExpression])] = {
     stripped(expr) match {
       case (_: ScMethodCall) childOf (parentCall: ScMethodCall) if !parentCall.isApplyOrUpdateCall =>
         None

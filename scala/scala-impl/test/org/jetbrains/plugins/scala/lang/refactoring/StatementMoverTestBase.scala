@@ -69,12 +69,12 @@ abstract class StatementMoverTestBase extends ScalaLightCodeInsightFixtureTestCa
       )
     }
 
-    def movedUpIs(expected: String): Unit = {
+    infix def movedUpIs(expected: String): Unit = {
       doMoveAction(code, Direction.Up)
       myFixture.checkResult(expected)
     }
 
-    def movedDownIs(expected: String): Unit = {
+    infix def movedDownIs(expected: String): Unit = {
       doMoveAction(code, Direction.Down)
       myFixture.checkResult(expected)
     }

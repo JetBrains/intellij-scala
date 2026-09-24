@@ -90,11 +90,11 @@ package object types {
       typeSystem.conformsInner(`type`, scType, constraints = constraints, checkWeak = checkWeak)
     }
 
-    def glb(`type`: ScType, checkWeak: Boolean = false)(implicit context: Context): ScType = {
+    infix def glb(`type`: ScType, checkWeak: Boolean = false)(implicit context: Context): ScType = {
       typeSystem.glb(scType, `type`, checkWeak)
     }
 
-    def lub(`type`: ScType, checkWeak: Boolean = true)(implicit context: Context): ScType = {
+    infix def lub(`type`: ScType, checkWeak: Boolean = true)(implicit context: Context): ScType = {
       typeSystem.lub(scType, `type`, checkWeak)
     }
 

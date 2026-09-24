@@ -98,8 +98,8 @@ object SynteticInjectorsTestUtils {
     SyntheticMethod(name, tpe, isImplicit = true)
 
   implicit class SyntheticChecker(private val target: ScalaPsiElement) extends AnyVal {
-    def mustBeLike(synthetic:    SyntheticElement): Unit = synthetic.validate(target, strict = false)
-    def mustBeExactly(synthetic: SyntheticElement): Unit = synthetic.validate(target, strict = true)
+    infix def mustBeLike(synthetic:    SyntheticElement): Unit = synthetic.validate(target, strict = false)
+    infix def mustBeExactly(synthetic: SyntheticElement): Unit = synthetic.validate(target, strict = true)
   }
 
   implicit class ScTypeDefSig(private val tdef: ScTypeDefinition) extends AnyVal {
