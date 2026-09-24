@@ -366,7 +366,7 @@ lazy val repl = newProject("repl", file("scala/repl"))
   .settings(
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
-    packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.repl"),
   )
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
