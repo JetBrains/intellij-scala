@@ -1,9 +1,34 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
     <dependencies>
+        <module name="intellij.java.compiler"/>
+        <module name="intellij.java.compiler.impl"/>
+        <module name="intellij.java.execution"/>
+        <module name="intellij.java.frontback.psi"/>
+        <module name="intellij.java.psi"/>
+        <module name="intellij.libraries.commons.lang3"/>
+        <module name="intellij.libraries.miglayout.swing"/>
+        <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.analysis.impl"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.core.ui"/>
+        <module name="intellij.platform.diff.impl"/>
+        <module name="intellij.platform.editor.ui"/>
+        <module name="intellij.platform.eel.provider"/>
+        <module name="intellij.platform.execution"/>
+        <module name="intellij.platform.externalSystem"/>
+        <module name="intellij.platform.ide"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.ide.impl"/>
+        <module name="intellij.platform.lang"/>
+        <module name="intellij.platform.lang.core"/>
+        <module name="intellij.platform.lang.impl"/>
+        <module name="intellij.platform.projectModel"/>
+        <module name="intellij.platform.util.ui"/>
         <module name="scalaCommunity.bsp"/>
-        <module name="scalaCommunity.compiler-integration"/>
         <module name="scalaCommunity.compiler-highlighting"/>
+        <module name="scalaCommunity.compiler-integration-server-management"/>
     </dependencies>
 
     <extensions defaultExtensionNs="com.intellij">
