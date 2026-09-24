@@ -69,7 +69,7 @@ object ScUBlockExpression {
       for {
         expr <- Option(arg)
         if !expr.isInstanceOf[ScReturn]
-        block @ (_x: ScBlock) <- Option(expr.getParent)
+        case block @ (_x: ScBlock) <- Option(expr.getParent)
         lastStmt <- block.lastStatement
         if expr == lastStmt
         scFun <- Option(block.getParent)

@@ -38,7 +38,7 @@ object ReplaceTypeCheckWithMatchIntention {
 
   private def instanceOfCall(element: PsiElement): Option[(ScGenericCall, ScIf)] =
     for {
-      IsInstanceOfCall(iioCall) <- element.parentOfType(classOf[ScGenericCall], strict = false)
+      case IsInstanceOfCall(iioCall) <- element.parentOfType(classOf[ScGenericCall], strict = false)
       ifStmt <- iioCall.parentOfType(classOf[ScIf])
       condition <- ifStmt.condition
       if findIsInstanceOfCalls(condition).contains(iioCall)

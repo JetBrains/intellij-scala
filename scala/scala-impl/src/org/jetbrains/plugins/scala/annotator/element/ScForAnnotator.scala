@@ -75,7 +75,7 @@ object ScForAnnotator extends ElementAnnotator[ScFor] {
 
     for {
       forExpression <- generator.forStatement
-      ScEnumerator.withDesugaredAndEnumeratorToken(desugaredGenerator, generatorToken) <- Some(generator)
+      case ScEnumerator.withDesugaredAndEnumeratorToken(desugaredGenerator, generatorToken) <- Some(generator)
       session = new AnnotationSession(desugaredGenerator.analogMethodCall.getContainingFile): @nowarn("cat=deprecation")
     } {
       val followingEnumerators = generator.nextSiblings

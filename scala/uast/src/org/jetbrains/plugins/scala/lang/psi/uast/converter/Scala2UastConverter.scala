@@ -124,7 +124,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         case eb: ScExtendsBlock if eb.isAnonymousClass =>
           //noinspection ScalaUnusedSymbol
           (for {
-            nt @ (td: ScNewTemplateDefinition) <- Option(eb.getParent)
+            case nt @ (td: ScNewTemplateDefinition) <- Option(eb.getParent)
           } yield new ScUAnonymousClass(nt, eb, _: LazyUElement)).orNull
 
         case e: ScNewTemplateDefinition if e.extendsBlock.isAnonymousClass =>
@@ -560,8 +560,8 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
     //noinspection ScalaUnusedSymbol
     def isInsideCatchBlock(c: ScCaseClause): Boolean =
       (for {
-        cc @ (_x: ScCaseClauses) <- Option(c.getParent)
-        bl @ (_x: ScBlock) <- Option(cc.getParent)
+        case cc @ (_x: ScCaseClauses) <- Option(c.getParent)
+        case bl @ (_x: ScBlock) <- Option(cc.getParent)
         if bl.isInCatchBlock
       } yield 42).isDefined
   }

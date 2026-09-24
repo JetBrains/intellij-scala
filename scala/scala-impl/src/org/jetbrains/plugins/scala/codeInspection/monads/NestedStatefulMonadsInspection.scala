@@ -20,7 +20,7 @@ final class NestedStatefulMonadsInspection extends LocalInspectionTool {
       implicit val context: Context = Context(call)
 
       for {
-        Typeable(genericType@ParameterizedType(_, arguments)) <- Some(call)
+        case Typeable(genericType@ParameterizedType(_, arguments)) <- Some(call)
         if isStatefulMonadType(genericType) && arguments.exists(isStatefulMonadType)
       } holder.registerProblem(call, Description)
     case _ =>

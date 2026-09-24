@@ -283,7 +283,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
   private def haveReturnStmts(elems: Iterable[PsiElement]): Boolean = {
     for {
       elem <- elems
-      ret@(r: ScReturn) <- elem.depthFirst()
+      case ret@(r: ScReturn) <- elem.depthFirst()
     } {
       if (ret.method.isEmpty || !elem.isAncestorOf(ret.method.get))
         return true

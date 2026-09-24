@@ -19,7 +19,7 @@ final class FieldFromDelayedInitInspection extends LocalInspectionTool {
       implicit val context: Context = Context(ref)
 
       for {
-        FieldInDelayedInit(delayedInitClass) <- ref.bind()
+        case FieldInDelayedInit(delayedInitClass) <- ref.bind()
         parents = parentDefinitions(ref)
         if !parents.exists(_.sameOrInheritor(delayedInitClass))
       } holder.registerProblem(ref.nameId, ScalaInspectionBundle.message("field.defined.in.delayedinit.is.likely.to.be.null"))

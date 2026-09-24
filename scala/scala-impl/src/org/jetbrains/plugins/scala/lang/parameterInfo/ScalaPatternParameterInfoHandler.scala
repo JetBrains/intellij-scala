@@ -188,7 +188,7 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
                         val undefSubst = ScSubstitutor.bind(typeParameters)(UndefinedType(_))
 
                         val maybeSubstitutor = for {
-                          Typeable(parameterType) <- fun.parameters.headOption
+                          case Typeable(parameterType) <- fun.parameters.headOption
                           substituted = undefSubst(parameterType)
                           expectedType <- constr.expectedType
 

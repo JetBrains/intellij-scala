@@ -159,7 +159,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
 
       // Seq("blub").contains(3)
       for {
-        ParameterizedType(_, Seq(elemType)) <- receiverType(baseExpr, ref).map(_.tryExtractDesignatorSingleton)
+        case ParameterizedType(_, Seq(elemType)) <- receiverType(baseExpr, ref).map(_.tryExtractDesignatorSingleton)
         argType <- arg.`type`().toOption
         comparability = checkComparability(elemType, argType, isBuiltinOperation = !hasNonDefaultEquals(elemType))
         if comparability.shouldNotBeCompared

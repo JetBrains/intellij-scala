@@ -150,7 +150,7 @@ object ScalaAfterNewCompletionContributor {
 
     def createLookupElement(renamesMap: RenamesMap): LookupElement = {
       val isRenamed = for {
-        (`class`, name) <- renamesMap.get(`class`.name)
+        case (`class`, name) <- renamesMap.get(`class`.name)
       } yield name
       createLookupElement(isRenamed)
     }

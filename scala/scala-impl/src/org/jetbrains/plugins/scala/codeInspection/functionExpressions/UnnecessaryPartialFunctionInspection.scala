@@ -35,7 +35,7 @@ class UnnecessaryPartialFunctionInspection extends LocalInspectionTool {
       for {
         expectedExpressionType <- expression.expectedType()
         if isNotPartialFunction(expectedExpressionType)
-        Seq(singleCaseClause) <- expression.caseClauses.map(_.caseClauses)
+        case Seq(singleCaseClause) <- expression.caseClauses.map(_.caseClauses)
         if canBeConvertedToFunction(singleCaseClause, conformsTo(expectedExpressionType))
         caseKeyword <- singleCaseClause.firstChild
         fix = LocalQuickFix.from(new UnnecessaryPartialFunctionQuickFix(expression))

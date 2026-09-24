@@ -88,7 +88,7 @@ object SameSignatureCallParametersProvider {
                                                 argumentToStart: ArgumentToStart,
                                                 hasSuperQualifier: Boolean,
                                                 invocationCount: Int) = for {
-      ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.completionVariants() ++ reference.multiResolveScala(incomplete = true)
+      case ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.completionVariants() ++ reference.multiResolveScala(incomplete = true)
       if method.name == CommonNames.Apply || method.name == reference.refName ||
         method.isConstructor // Scala 3 universal apply secondary constructor
 
@@ -100,7 +100,7 @@ object SameSignatureCallParametersProvider {
      * and run an interactive [[com.intellij.codeInsight.template.Template]] */
     private def createAssignmentElements(reference: ScReferenceExpression,
                                          argumentToStart: ArgumentToStart) = for {
-      ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.multiResolveScala(incomplete = true).toSeq
+      case ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.multiResolveScala(incomplete = true).toSeq
       function <- applicableFunctions(method)
       lookupElement <- createAssignmentLookupElement(function, argumentToStart, substitutor)
     } yield lookupElement

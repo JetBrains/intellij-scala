@@ -58,7 +58,7 @@ private[codeInsight] trait ScalaMethodChainInlayHintsPass {
 
       val isAlreadyOccupied = occupiedLines
       for {
-        MethodChain(methodChain) <- Some(elem)
+        case MethodChain(methodChain) <- Some(elem)
         if methodChain.length >= settings.uniqueTypesToShowMethodChains
 
         methodsAtLineEnd = methodChain.filter(isFollowedByLineEnd(_, alsoAfterLambdaArg = settings.alignMethodChainInlayHints))

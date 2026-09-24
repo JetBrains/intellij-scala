@@ -181,7 +181,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
             extBl.templateBody match {
               case Some(tb) =>
                 for {
-                  fun @ (_f: ScFunctionDefinition) <- tb.functions
+                  case fun @ (_f: ScFunctionDefinition) <- tb.functions
                   body <- fun.body
                 } {
                   result += new MethodSmartStepTarget(fun, label, body, true, noStopAtLines)

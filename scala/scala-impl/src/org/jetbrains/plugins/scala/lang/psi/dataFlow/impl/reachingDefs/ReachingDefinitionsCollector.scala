@@ -93,9 +93,9 @@ object ReachingDefinitionsCollector {
                                      dfaResult: mutable.Map[Instruction, RDSet]): Seq[VariableInfo] = {
     val result = mutable.SortedSet.empty[PsiNamedElement](Ordering.by(_.getTextRange.getStartOffset))
     for {
-      (read@ReadWriteVariableInstruction(_, Some(definitionToRead), false), rdset) <- dfaResult
+      case (read@ReadWriteVariableInstruction(_, Some(definitionToRead), false), rdset) <- dfaResult
       if !innerInstructions.contains(read)
-      reaching@DefinitionInstruction(named, _) <- rdset
+      case reaching@DefinitionInstruction(named, _) <- rdset
       if named == definitionToRead
       if innerInstructions.contains(reaching)
     } {

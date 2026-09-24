@@ -164,7 +164,7 @@ object PhysicalExtractorPatternComponents {
     parameters: ClauseCompletionParameters
   ): Option[PhysicalExtractorPatternComponents] =
     for {
-      Extractor(method) <- `class`.baseCompanion
+      case Extractor(method) <- `class`.baseCompanion
       returnType        <- method.returnType.toOption
       types =
         ExtractorMatch.extractorMatches(returnType, parameters.place, method)

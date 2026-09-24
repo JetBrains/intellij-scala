@@ -39,7 +39,7 @@ final class ApparentResultTypeRefinementInspection extends AbstractMethodSignatu
 object ApparentResultTypeRefinementInspection {
 
   private def typeComponents(function: ScFunction) = for {
-    ScCompoundTypeElement(types, Some(refinement)) <- function.returnTypeElement
+    case ScCompoundTypeElement(types, Some(refinement)) <- function.returnTypeElement
     lastType <- types.lastOption
   } yield (lastType, refinement)
 }

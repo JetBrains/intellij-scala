@@ -135,10 +135,10 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
       def numberOfParamsToAdd(idx: Int) = cumulSize(cumulSize.indexWhere(_ > idx) - 1)
 
       for {
-        jc @ (_u: JavaCallUsageInfo) <- usages
-        call @ (_c: PsiMethodCallExpression) <- jc.getElement.toOption.map(_.getParent)
+        case jc @ (_u: JavaCallUsageInfo) <- usages
+        case call @ (_c: PsiMethodCallExpression) <- jc.getElement.toOption.map(_.getParent)
         exprs = call.getArgumentList.getExpressions
-        (defaultArg @ (_d: PsiMethodCallExpression), idx) <- exprs.zipWithIndex
+        case (defaultArg @ (_d: PsiMethodCallExpression), idx) <- exprs.zipWithIndex
         if defaultArg.getText.contains("$default$")
       } {
         val exprsToAdd = exprs.take(numberOfParamsToAdd(idx))

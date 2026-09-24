@@ -35,7 +35,7 @@ object JvmMemorySize {
   @NonNls private val sizeWithUnit: Regex = raw"(\d+)([a-zA-Z]*)".r
 
   def parse(sizeString: String): Option[JvmMemorySize] = for {
-    sizeWithUnit(sizeStr, unitStr) <- Some(sizeString)
+    case sizeWithUnit(sizeStr, unitStr) <- Some(sizeString)
     unitMultiplier <- unitMultiplierMapping.get(unitStr.toUpperCase)
     size = sizeStr.toLong
     sizeInBytes = size * unitMultiplier

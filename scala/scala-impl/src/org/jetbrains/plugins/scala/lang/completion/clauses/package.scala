@@ -80,7 +80,7 @@ package object clauses {
     )
 
     for {
-      (element, components: ClassPatternComponents) <- pairs
+      case (element, components: ClassPatternComponents) <- pairs
       (pattern, typeElement) <- findTypeElement(element)
       codeReference <- getCodeReference(typeElement)
 

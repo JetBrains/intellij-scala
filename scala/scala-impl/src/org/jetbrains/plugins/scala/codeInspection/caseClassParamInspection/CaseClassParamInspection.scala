@@ -16,7 +16,7 @@ final class CaseClassParamInspection extends LocalInspectionTool with DumbAware 
     case c: ScClass if c.isCase =>
       for {
         paramClause <- c.allClauses.take(1)
-        classParam@(__ : ScClassParameter) <- paramClause.parameters
+        case classParam@(__ : ScClassParameter) <- paramClause.parameters
         if classParam.isVal && classParam.isCaseClassPrimaryParameter && !hasExplicitModifier(classParam)
       } {
         val valToken = classParam.findFirstChildByType(ScalaTokenTypes.kVAL)

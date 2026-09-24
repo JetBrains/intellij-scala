@@ -59,7 +59,7 @@ package object global {
     new ScalaImportingInsertHandler(containingClass) {
 
       override protected def qualifyAndImport(reference: ScReferenceExpression): Unit = for {
-        ContainingClass(ClassQualifiedName(_)) <- Option(elementToImport.nameContext)
+        case ContainingClass(ClassQualifiedName(_)) <- Option(elementToImport.nameContext)
         holder = ScImportsHolder(reference)
       } holder.addImportForPsiNamedElement(
         elementToImport,

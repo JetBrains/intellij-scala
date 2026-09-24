@@ -55,7 +55,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
     val ref = call.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression]
 
-    val missed = for (MissedValueParameter(p) <- problems) yield p.name + ": " + p.paramType.presentableText
+    val missed = for (case MissedValueParameter(p) <- problems) yield p.name + ": " + p.paramType.presentableText
 
     if (missed.nonEmpty) {
       val message = ScalaBundle.message("annotator.error.unspecified.value.parameters", missed.mkString(", "))

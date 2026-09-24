@@ -183,7 +183,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
             case underscoreIndices =>
               val copyOfExpr = expr.copy().asInstanceOf[ScExpression]
               for {
-                (underscore, Some(index)) <- allUnderscores(copyOfExpr) zip underscoreIndices
+                case (underscore, Some(index)) <- allUnderscores(copyOfExpr) zip underscoreIndices
                 name = underscoreName(index)
                 referenceExpression = ScalaPsiElementFactory.createReferenceExpressionFromText(name)
               } {

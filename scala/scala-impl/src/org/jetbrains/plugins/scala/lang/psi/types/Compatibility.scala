@@ -317,7 +317,7 @@ object Compatibility {
 
   private def clashedAssignmentsIn(args: Seq[Expression]): Seq[ScAssignment] = {
     val assignments =
-      for (Expression(assignment@ScAssignment.Named(name)) <- args)
+      for (case Expression(assignment@ScAssignment.Named(name)) <- args)
         yield (name, assignment)
 
     val names = assignments.map(_._1)
