@@ -11,7 +11,7 @@ private class ScLightTypeParam(scTypeParam: ScTypeParam, subst: ScSubstitutor)
   extends LightTypeParameter(scTypeParam) {
 
   @volatile
-  private var extendsList: PsiReferenceList = _
+  private var extendsList: PsiReferenceList = scala.compiletime.uninitialized
 
   override def getExtendsList: PsiReferenceList = {
     if (extendsList == null) {

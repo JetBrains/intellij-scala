@@ -33,7 +33,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 @Category(Array(classOf[SlowTests]))
 class SharedSourcesEvaluationTest extends DebuggerTestCase {
 
-  private var mainModule: Module = _
+  private var mainModule: Module = scala.compiletime.uninitialized
 
   override def initOutputChecker(): OutputChecker = new OutputChecker(() => getTestAppPath, () => getTestAppPath) {
     override def checkValid(jdk: Sdk, sortClassPath: Boolean): Unit = {}

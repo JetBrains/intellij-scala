@@ -23,7 +23,7 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 @Category(Array(classOf[HighlightingTests]))
 abstract class ScalaProjectHighlightingTestBase extends ScalaExternalSystemImportingTestBase {
 
-  protected var codeInsightFixture: CodeInsightTestFixture = _
+  protected var codeInsightFixture: CodeInsightTestFixture = scala.compiletime.uninitialized
 
   protected val projectFileName = "testHighlighting"
 

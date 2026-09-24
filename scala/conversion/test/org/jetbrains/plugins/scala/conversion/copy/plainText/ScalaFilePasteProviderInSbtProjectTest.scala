@@ -59,7 +59,7 @@ class ScalaFilePasteProviderInSbtProjectTest
       |  "org.scalatest" %% "scalatest" % "3.2.16" % Test
       |)""".stripMargin
 
-  private var buildModuleSourceRoot: VirtualFile = _
+  private var buildModuleSourceRoot: VirtualFile = scala.compiletime.uninitialized
 
   override protected def setUp(): Unit = {
     super.setUp()

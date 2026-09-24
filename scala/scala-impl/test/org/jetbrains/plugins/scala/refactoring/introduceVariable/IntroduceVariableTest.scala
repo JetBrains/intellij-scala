@@ -32,7 +32,7 @@ class IntroduceVariableScala3BracelessTest extends IntroduceVariableScala3Test {
 }
 
 abstract class IntroduceVariableTestBase extends SdkFileSetTestBase with ActionTestBase {
-  private var fixture: ScalaIntroduceVariableTestFixture = _
+  private var fixture: ScalaIntroduceVariableTestFixture = scala.compiletime.uninitialized
 
   override protected def setUp(): Unit = {
     super.setUp()

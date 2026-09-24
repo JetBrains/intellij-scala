@@ -27,7 +27,7 @@ trait ScType extends ProjectContextOwner {
 
   final def isAliasType(implicit context: Context): Boolean = aliasType.isDefined
 
-  private var unpacked: ScType = _
+  private var unpacked: ScType = scala.compiletime.uninitialized
 
   final def unpackedType: ScType = {
     if (unpacked == null) {

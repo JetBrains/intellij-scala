@@ -9,7 +9,7 @@ abstract class ScLiteralEscaperBase[T <: ScStringLiteral](literal: T)
 
   final val OutOfHostRange: Int = -1
 
-  protected var outSourceOffsets: Array[Int] = _
+  protected var outSourceOffsets: Array[Int] = scala.compiletime.uninitialized
 
   override final def getOffsetInHost(offsetInDecoded: Int, rangeInsideHost: TextRange): Int = {
     val offset =

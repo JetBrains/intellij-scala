@@ -20,7 +20,7 @@ final class ScTemplateParentsStubImpl(
     with ScTemplateParentsStub
     with PsiOwner[ScTemplateParents] {
 
-  private var constructorAndParentTypeElementsReference: SofterReference[Seq[ScConstructorInvocation]] = _
+  private var constructorAndParentTypeElementsReference: SofterReference[Seq[ScConstructorInvocation]] = scala.compiletime.uninitialized
 
   override def parentClauses: Seq[ScConstructorInvocation] =
     getFromReference(constructorAndParentTypeElementsReference) { case (context, child) =>

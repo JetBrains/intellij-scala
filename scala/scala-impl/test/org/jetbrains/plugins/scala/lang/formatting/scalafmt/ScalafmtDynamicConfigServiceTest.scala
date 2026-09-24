@@ -17,7 +17,7 @@ class ScalafmtDynamicConfigServiceTest extends ScalaFmtTestBase {
   private val originalScalafmtConfigurationsDir: Path =
     Path.of(TestUtils.getTestDataPath, "formatter", "scalafmt", "config_service_test_data")
 
-  private var tempConfigurationsDir: Path = _
+  private var tempConfigurationsDir: Path = scala.compiletime.uninitialized
 
   override protected def scalafmtConfigsBasePath: Path =
     tempConfigurationsDir

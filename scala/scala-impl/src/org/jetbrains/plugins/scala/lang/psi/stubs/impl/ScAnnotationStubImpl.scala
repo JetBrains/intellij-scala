@@ -15,7 +15,7 @@ class ScAnnotationStubImpl(parent: StubElement[? <: PsiElement],
                            override val name: Option[String])
   extends StubBase[ScAnnotation](parent, elementType) with ScAnnotationStub with PsiOwner[ScAnnotation] {
 
-  private[impl] var annotationExprRef: SofterReference[Option[ScAnnotationExpr]] = _
+  private[impl] var annotationExprRef: SofterReference[Option[ScAnnotationExpr]] = scala.compiletime.uninitialized
 
   override def annotationExpr: Option[ScAnnotationExpr] = {
     getFromOptionalReference(annotationExprRef) {

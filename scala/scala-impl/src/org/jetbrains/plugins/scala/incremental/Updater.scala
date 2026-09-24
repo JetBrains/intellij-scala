@@ -23,7 +23,7 @@ private class Updater(editor: Editor) extends Disposable {
     timer
   }
 
-  private var previousVisibleRange: TextRange = _
+  private var previousVisibleRange: TextRange = scala.compiletime.uninitialized
 
   def scheduleUpdate(delta: Boolean): Unit = {
     if (!delta) {

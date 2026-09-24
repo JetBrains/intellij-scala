@@ -68,8 +68,8 @@ object ScExistentialArgument {
         throw new IllegalStateException("Access to existential argument methods before initialization")
     }
 
-    private var _lower: ScType = _
-    private var _upper: ScType = _
+    private var _lower: ScType = scala.compiletime.uninitialized
+    private var _upper: ScType = scala.compiletime.uninitialized
 
     override def initialize(): Unit = if (!isInitialized) {
       _lower = lowerBound()

@@ -55,8 +55,8 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
 
   import ScalaInplaceVariableIntroducer._
 
-  private var myVarCheckbox: JCheckBox = _
-  private var mySpecifyTypeChb: JCheckBox = _
+  private var myVarCheckbox: JCheckBox = scala.compiletime.uninitialized
+  private var mySpecifyTypeChb: JCheckBox = scala.compiletime.uninitialized
   private var myDeclarationStartOffset: Int = 0
   private val newDeclaration = findDeclaration(namedElement)
   private var myCheckIdentifierListener: Option[DocumentListener] = None

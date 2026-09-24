@@ -21,8 +21,8 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   def fromLangExtension: String = "scala"
 
-  private var oldSettings: ScalaCodeStyleSettings = _
-  private var oldBlankLineSetting: Int = _
+  private var oldSettings: ScalaCodeStyleSettings = scala.compiletime.uninitialized
+  private var oldBlankLineSetting: Int = scala.compiletime.uninitialized
 
   override protected def setUp(): Unit = {
     super.setUp()

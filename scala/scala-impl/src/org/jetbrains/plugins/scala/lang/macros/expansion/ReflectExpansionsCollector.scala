@@ -19,7 +19,7 @@ class ReflectExpansionsCollector(project: Project) {
   import ReflectExpansionsCollector._
 
   private val collectedExpansions: mutable.HashMap[Place, MacroExpansion] = mutable.HashMap.empty
-  private var parser: ScalaReflectMacroExpansionParser = _
+  private var parser: ScalaReflectMacroExpansionParser = scala.compiletime.uninitialized
   private val LOG = Logger.getInstance(classOf[ReflectExpansionsCollector])
 
 

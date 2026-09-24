@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 
 abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertionsExt with ScalaCodeParsing {
 
-  var fixture: CodeInsightTestFixture = _
+  var fixture: CodeInsightTestFixture = scala.compiletime.uninitialized
 
   implicit def ctx: ProjectContext = fixture.getProject
 

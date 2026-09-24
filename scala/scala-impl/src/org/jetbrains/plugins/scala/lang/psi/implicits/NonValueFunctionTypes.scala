@@ -22,9 +22,9 @@ private case class NonValueFunctionTypes(
 ) {
 
   @volatile
-  private var _undefinedData: Option[UndefinedReturnTypeData] = _
+  private var _undefinedData: Option[UndefinedReturnTypeData] = scala.compiletime.uninitialized
   @volatile
-  private var _methodTypeData: Option[MethodTypeData] = _
+  private var _methodTypeData: Option[MethodTypeData] = scala.compiletime.uninitialized
 
   //lazy vals may lead to deadlock, see SCL-17722
   private def lazyUndefinedData: Option[UndefinedReturnTypeData] = {

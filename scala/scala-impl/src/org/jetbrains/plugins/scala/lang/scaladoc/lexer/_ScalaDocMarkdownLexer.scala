@@ -7,9 +7,9 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.markdown.ScalaDocMarkdownFlavour
 
 class _ScalaDocMarkdownLexer extends LexerBase {
-  private var originalBuffer: CharSequence = _
-  private var originalStartOffset: Int = _
-  private var originalEndOffset: Int = _
+  private var originalBuffer: CharSequence = scala.compiletime.uninitialized
+  private var originalStartOffset: Int = scala.compiletime.uninitialized
+  private var originalEndOffset: Int = scala.compiletime.uninitialized
 
   private val delegate = (new ScalaDocMarkdownFlavour).createInlinesLexer()
   private var delegateState = 0

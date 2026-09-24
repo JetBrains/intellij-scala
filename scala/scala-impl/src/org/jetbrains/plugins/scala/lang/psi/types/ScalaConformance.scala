@@ -581,7 +581,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       override def visitProjectionType(p: ScProjectionType): Unit = visitDesignatorOwner(p)
     }
 
-    private var result: ConstraintsResult = _
+    private var result: ConstraintsResult = scala.compiletime.uninitialized
     private var constraints: ConstraintSystem = ConstraintSystem.empty
 
     def getResult: ConstraintsResult = result

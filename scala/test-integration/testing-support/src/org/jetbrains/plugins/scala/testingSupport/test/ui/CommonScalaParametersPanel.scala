@@ -16,7 +16,7 @@ import java.util
 /** based on [[com.intellij.execution.ui.CommonJavaParametersPanel]] */
 class CommonScalaParametersPanel(project: Project) extends CommonProgramParametersPanel(project) {
 
-  private var myVMParametersComponent: LabeledComponent[RawCommandLineEditor] = _
+  private var myVMParametersComponent: LabeledComponent[RawCommandLineEditor] = scala.compiletime.uninitialized
 
   override protected def addComponents(): Unit = {
     myVMParametersComponent = LabeledComponent.create(new RawCommandLineEditor, ExecutionBundle.message("run.configuration.java.vm.parameters.label"))

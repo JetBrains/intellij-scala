@@ -9,7 +9,7 @@ import org.junit.Test
 
 //noinspection ApiStatus,UnstableApiUsage
 final class ScalaParameterInfoCommandCompletionTest extends ScalaCommandCompletionTestBase {
-  private var editorHintFixture: EditorHintFixtureEx = _
+  private var editorHintFixture: EditorHintFixtureEx = scala.compiletime.uninitialized
   private val ParamInfoPredicate: LookupElement => Boolean = lookupStringStartsWith(_, "Parameter info")
 
   protected override def setUp(): Unit = {

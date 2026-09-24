@@ -17,12 +17,12 @@ final class TrailingCommaPanel(settings: CodeStyleSettings) extends ScalaCodeSty
   import ScalaCodeStyleSettings.TrailingCommaMode
   import TrailingCommaPanel.ComboBoxItem
 
-  private var innerPanel: JPanel = _
+  private var innerPanel: JPanel = scala.compiletime.uninitialized
 
-  private var trailingCommaModeSelector: ComboBox[ComboBoxItem[TrailingCommaMode]] = _
-  private var trailingCommaModeSelectorModel: DefaultComboBoxModel[ComboBoxItem[TrailingCommaMode]] = _
-  private var trailingCommaScopePanel: JPanel = _
-  private var scopeCheckboxes: Seq[(JCheckBox, Field)] = _
+  private var trailingCommaModeSelector: ComboBox[ComboBoxItem[TrailingCommaMode]] = scala.compiletime.uninitialized
+  private var trailingCommaModeSelectorModel: DefaultComboBoxModel[ComboBoxItem[TrailingCommaMode]] = scala.compiletime.uninitialized
+  private var trailingCommaScopePanel: JPanel = scala.compiletime.uninitialized
+  private var scopeCheckboxes: Seq[(JCheckBox, Field)] = scala.compiletime.uninitialized
 
   private val scopeFields: ListMap[String, String] = ListMap(
     ("TRAILING_COMMA_ARG_LIST_ENABLED", ScalaBundle.message("trailing.comma.panel.scope.arguments.list")),

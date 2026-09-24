@@ -18,13 +18,13 @@ class ScalaTypeDefinitionUsagesDialog(element: ScTypeDefinition, project: Projec
                                       handler: FindUsagesHandler)
   extends JavaFindUsagesDialog[ScalaTypeDefinitionFindUsagesOptions](element, project, findUsagesOptions, toShowInNewTab,
     mustOpenInNewTab, isSingleFile, handler) {
-  private var myCbUsages: StateRestoringCheckBox = _
+  private var myCbUsages: StateRestoringCheckBox = scala.compiletime.uninitialized
 
-  private var myCbOnlyNewInstances: StateRestoringCheckBox = _
+  private var myCbOnlyNewInstances: StateRestoringCheckBox = scala.compiletime.uninitialized
 
-  private var myCbMembersUsages: StateRestoringCheckBox = _
-  private var myCbImplementingTypeDefinitions: StateRestoringCheckBox = _
-  private var myCbCompanionModule: StateRestoringCheckBox = _
+  private var myCbMembersUsages: StateRestoringCheckBox = scala.compiletime.uninitialized
+  private var myCbImplementingTypeDefinitions: StateRestoringCheckBox = scala.compiletime.uninitialized
+  private var myCbCompanionModule: StateRestoringCheckBox = scala.compiletime.uninitialized
 
   override def getPreferredFocusedControl: JComponent = {
     myCbUsages

@@ -14,8 +14,8 @@ import javax.swing.{JCheckBox, JComponent, JPanel}
 
 class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTreeWithPreviewPanel(settings) {
 
-  private var myEnableCheckBox: JCheckBox = _
-  private var myAsteriskStyleCheckBox: JCheckBox = _
+  private var myEnableCheckBox: JCheckBox = scala.compiletime.uninitialized
+  private var myAsteriskStyleCheckBox: JCheckBox = scala.compiletime.uninitialized
   private val myScaladocPanel: JPanel = new JPanel(new BorderLayout)
 
   init()

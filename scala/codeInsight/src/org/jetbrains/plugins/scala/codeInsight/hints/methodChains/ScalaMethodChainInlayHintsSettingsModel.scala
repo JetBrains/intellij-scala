@@ -28,8 +28,8 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
-    var alignMethodChainInlayHints: Boolean = _
-    var uniqueTypesToShowMethodChains: Int = _
+    var alignMethodChainInlayHints: Boolean = scala.compiletime.uninitialized
+    var uniqueTypesToShowMethodChains: Int = scala.compiletime.uninitialized
 
     reset()
 

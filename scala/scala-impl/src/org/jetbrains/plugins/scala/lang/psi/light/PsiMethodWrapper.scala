@@ -29,13 +29,13 @@ abstract class PsiMethodWrapper[T <: ScalaPsiElement & PsiNamedElement & Navigat
 
   @volatile private var _returnType: PsiType = NullPsiType
 
-  @volatile private var _typeParameterList: PsiTypeParameterList = _
+  @volatile private var _typeParameterList: PsiTypeParameterList = scala.compiletime.uninitialized
 
-  @volatile private var _modifierList: PsiModifierList = _
+  @volatile private var _modifierList: PsiModifierList = scala.compiletime.uninitialized
 
-  @volatile private var _parameterList: PsiParameterList = _
+  @volatile private var _parameterList: PsiParameterList = scala.compiletime.uninitialized
 
-  @volatile private var _throwsList: PsiReferenceList = _
+  @volatile private var _throwsList: PsiReferenceList = scala.compiletime.uninitialized
 
   protected def returnScType: ScType
 

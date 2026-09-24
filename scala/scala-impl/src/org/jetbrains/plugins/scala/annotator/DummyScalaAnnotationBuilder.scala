@@ -18,8 +18,8 @@ abstract class DummyScalaAnnotationBuilder(severity: HighlightSeverity, @Nullabl
   extends ScalaAnnotationBuilder {
 
   private var rangeTransformer: TextRange => TextRange = identity
-  private var range: TextRange = _
-  private var enforcedAttributes: TextAttributesKey = _
+  private var range: TextRange = scala.compiletime.uninitialized
+  private var enforcedAttributes: TextAttributesKey = scala.compiletime.uninitialized
   private val fixes = Seq.newBuilder[CommonIntentionAction]
 
   override def setRangeTransformer(transformer: TextRange => TextRange): this.type = {

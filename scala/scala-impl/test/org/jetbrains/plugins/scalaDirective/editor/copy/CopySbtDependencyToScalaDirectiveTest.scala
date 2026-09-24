@@ -17,8 +17,8 @@ import org.junit.runners.JUnit4
 @RunWith(classOf[JUnit4])
 final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   //region Completion auto popups after paste test configuration
-  private var completionAutoPopupTester: CompletionAutoPopupTester = _
-  private var scalaCompletionTestFixture: ScalaCompletionTestFixture = _
+  private var completionAutoPopupTester: CompletionAutoPopupTester = scala.compiletime.uninitialized
+  private var scalaCompletionTestFixture: ScalaCompletionTestFixture = scala.compiletime.uninitialized
 
   override def setUp(): Unit = {
     super.setUp()

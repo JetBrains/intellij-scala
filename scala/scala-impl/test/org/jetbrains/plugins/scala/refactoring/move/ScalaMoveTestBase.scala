@@ -29,8 +29,8 @@ abstract class ScalaMoveTestBase extends ScalaLightCodeInsightFixtureTestCase {
     vFile
   }
 
-  private var rootDirBefore: VirtualFile = _
-  private var rootDirAfter: VirtualFile = _
+  private var rootDirBefore: VirtualFile = scala.compiletime.uninitialized
+  private var rootDirAfter: VirtualFile = scala.compiletime.uninitialized
 
   protected def getRootBefore: VirtualFile = rootDirBefore
 

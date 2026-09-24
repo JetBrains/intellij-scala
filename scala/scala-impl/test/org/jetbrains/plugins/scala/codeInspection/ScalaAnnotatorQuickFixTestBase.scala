@@ -20,7 +20,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[EditorTests]))
 abstract class ScalaAnnotatorQuickFixTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
-  private var scalaQuickFixFixture: ScalaQuickFixTestFixture = _
+  private var scalaQuickFixFixture: ScalaQuickFixTestFixture = scala.compiletime.uninitialized
 
   override protected def setUp(): Unit = {
     super.setUp()

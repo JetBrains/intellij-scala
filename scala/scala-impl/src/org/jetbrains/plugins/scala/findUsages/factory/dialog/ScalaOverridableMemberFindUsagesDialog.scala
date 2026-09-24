@@ -35,7 +35,7 @@ class ScalaOverridableMemberFindUsagesDialog(
   isSingleFile,
   handler
 ) {
-  private var myCbSearchForBase: StateRestoringCheckBox = _
+  private var myCbSearchForBase: StateRestoringCheckBox = scala.compiletime.uninitialized
 
   override def calcFindUsagesOptions(options: FindUsagesOptions): Unit = {
     super.calcFindUsagesOptions(options)

@@ -20,7 +20,7 @@ class ScImportSelectorStubImpl(parent: StubElement[? <: PsiElement],
                                override val typeText: Option[String])
   extends StubBase[ScImportSelector](parent, elementType) with ScImportSelectorStub with PsiOwner[ScImportSelector] {
 
-  private var referenceReference: SofterReference[Option[ScStableCodeReference]] = _
+  private var referenceReference: SofterReference[Option[ScStableCodeReference]] = scala.compiletime.uninitialized
 
   override def reference: Option[ScStableCodeReference] = {
     getFromOptionalReference(referenceReference) {

@@ -20,12 +20,12 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
   val myFlex: _ScalaDocLexer
 ) extends LexerBase {
 
-  private var myBuffer         : CharSequence = _
+  private var myBuffer         : CharSequence = scala.compiletime.uninitialized
   private var myBufferIndex    : Int          = 0
   private var myBufferEndOffset: Int          = 0
   private var myTokenEndOffset : Int          = 0
   private var myState          : Int          = 0
-  private var myTokenType      : IElementType = _
+  private var myTokenType      : IElementType = scala.compiletime.uninitialized
 
   private var isAfterLineBreak: Boolean = false
   private var isInLeadingSpace: Boolean = false

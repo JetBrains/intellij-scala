@@ -160,7 +160,7 @@ final class NewPackageObjectActionTest_Scala3 extends NewPackageObjectActionTest
 
 private final class TestIdeView(@Nullable private val dir: PsiDirectory) extends IdeView {
   @Nullable
-  private var selectedElement: PsiElement = _
+  private var selectedElement: PsiElement = scala.compiletime.uninitialized
 
   override def getDirectories: Array[PsiDirectory] = Array(dir)
 

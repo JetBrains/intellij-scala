@@ -12,7 +12,7 @@ trait Decompiler {
 }
 
 object Decompiler {
-  private val CompilerVersion = "3.7.4"
+  private val CompilerVersion = "3.8.4"
 
   def apply(classpath: Seq[String], classLoader: ClassLoader): Decompiler = {
     val decompilerClass = classLoader.loadClass("org.jetbrains.plugins.scala.semantic.DecompilerImpl")

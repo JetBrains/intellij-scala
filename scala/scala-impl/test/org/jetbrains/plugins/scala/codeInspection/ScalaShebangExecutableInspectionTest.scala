@@ -29,7 +29,7 @@ class ScalaShebangExecutableInspectionTest extends ScalaLightCodeInsightFixtureT
   private val securityExceptionText =
     "Could not make script executable because permission to change file permissions was denied."
 
-  private var editorHintFixture: EditorHintFixtureEx = _
+  private var editorHintFixture: EditorHintFixtureEx = scala.compiletime.uninitialized
 
   override protected def setUp(): Unit = {
     super.setUp()

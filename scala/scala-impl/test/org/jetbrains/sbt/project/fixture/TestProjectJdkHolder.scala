@@ -13,7 +13,7 @@ import org.jetbrains.sbt.project.fixture.TestProjectJdkHolder.ensureJdkRegistere
 
 final class TestProjectJdkHolder(languageLevel: LanguageLevel) {
 
-  private var jdk: Sdk = _
+  private var jdk: Sdk = scala.compiletime.uninitialized
 
   def configuredJdk: Sdk = {
     if (jdk == null)

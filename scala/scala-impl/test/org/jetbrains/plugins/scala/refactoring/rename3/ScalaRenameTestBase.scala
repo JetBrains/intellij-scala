@@ -25,9 +25,9 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
 
   protected val caretMarker = "/*caret*/"
 
-  private var myEditors: Map[VirtualFile, Editor] = _
-  private var myDirectory: VirtualFile = _
-  private var filesBefore: Seq[VirtualFile] = _
+  private var myEditors: Map[VirtualFile, Editor] = scala.compiletime.uninitialized
+  private var myDirectory: VirtualFile = scala.compiletime.uninitialized
+  private var filesBefore: Seq[VirtualFile] = scala.compiletime.uninitialized
 
   protected val folderPath: Path = refactoringCommonTestDataRoot / "rename3"
 

@@ -13,7 +13,7 @@ abstract class MultiScalaModulesInsightFixtureTestCase(thisModuleVersion: ScalaV
 
   val otherModuleName = "otherModule"
   val otherModuleSourceDir = s"$otherModuleName/src"
-  var otherModule: Module = _
+  var otherModule: Module = scala.compiletime.uninitialized
 
   override def setUp(): Unit = {
     super.setUp()

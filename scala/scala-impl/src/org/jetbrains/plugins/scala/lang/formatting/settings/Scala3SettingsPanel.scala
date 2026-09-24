@@ -11,8 +11,8 @@ import javax.swing.JPanel
 
 class Scala3SettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStyleSubPanelBase(settings) {
 
-  private var innerPanel: JPanel = _
-  private var checkbox: JBCheckBox = _
+  private var innerPanel: JPanel = scala.compiletime.uninitialized
+  private var checkbox: JBCheckBox = scala.compiletime.uninitialized
 
   private def buildInnerPanel(): JPanel = {
     val panel = new JBPanel

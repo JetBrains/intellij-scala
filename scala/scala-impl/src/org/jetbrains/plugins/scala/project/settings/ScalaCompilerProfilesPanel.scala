@@ -43,7 +43,7 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
   private val myTree          = new Tree(new MyTreeModel)
   private val mySettingsPanel = new ScalaCompilerSettingsPanel // right panel
 
-  private var mySelectedProfile: ScalaCompilerSettingsProfile = _
+  private var mySelectedProfile: ScalaCompilerSettingsProfile = scala.compiletime.uninitialized
 
   initPanel()
 

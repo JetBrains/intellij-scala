@@ -299,7 +299,7 @@ object MixinNodes {
    * @param sourceKind how the signature was collected ([[SourceKind]])
    */
   class Node[T](val info: T, val sourceKind: SourceKind) {
-    private var _concreteSuper: Node[T] = _
+    private var _concreteSuper: Node[T] = scala.compiletime.uninitialized
     private var _supers: Seq[Node[T]] = Vector.empty
 
     private[MixinNodes] def addSuper(node: Node[T]): Unit = _supers :+= node

@@ -1895,7 +1895,7 @@ final class ReferenceComparisonTest_Scala3_LTS_Part19 extends ReferenceCompariso
   def test_i23217(): Unit = doTest("i23217", true)
   def test_i23237a(): Unit = doTest("i23237a", true)
   def test_i23237b(): Unit = doTest("i23237b", true) // #opaque
-  def test_i23261(): Unit = doTest("i23261", false) // #matchType
+  def test_i23261(): Unit = doTest("i23261", true) // #matchType
   def test_i23310(): Unit = doTest("i23310", false)
   def test_i23530(): Unit = doTest("i23530", true) // #extension
   def test_i23611(): Unit = doTest("i23611", true) // #extension

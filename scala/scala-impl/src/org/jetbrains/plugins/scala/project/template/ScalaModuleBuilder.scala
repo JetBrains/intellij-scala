@@ -12,7 +12,7 @@ import java.{util => ju}
 
 class ScalaModuleBuilder extends JavaModuleBuilder {
 
-  var libraryCompositionSettings: LibraryCompositionSettings = _
+  var libraryCompositionSettings: LibraryCompositionSettings = scala.compiletime.uninitialized
   var packagePrefix = Option.empty[String]
   var openFileEditorAfterProjectOpened: Seq[VirtualFile] = Nil
 

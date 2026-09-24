@@ -45,7 +45,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected val END = EditorTestUtil.SELECTION_END_TAG
 
   // var is needed to pick up updated java fixture in setUp
-  private var _scalaFixture: ScalaCodeInsightTestFixture = _
+  private var _scalaFixture: ScalaCodeInsightTestFixture = scala.compiletime.uninitialized
   protected def scalaFixture: ScalaCodeInsightTestFixture = _scalaFixture
 
   override def getTestDataPath: String = TestUtils.getTestDataPath + "/"

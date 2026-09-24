@@ -24,7 +24,7 @@ private final class CompileServerWidget(project: Project) extends StatusBarWidge
   with CompileServerWidgetFactory.UpdateWidgetListener {
 
   private val connection: MessageBusConnection = ApplicationManager.getApplication.getMessageBus.connect(this)
-  private var statusBar: StatusBar = _
+  private var statusBar: StatusBar = scala.compiletime.uninitialized
 
   override def ID(): String = CompileServerWidgetFactory.ID
 

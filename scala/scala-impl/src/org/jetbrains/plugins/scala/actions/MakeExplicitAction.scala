@@ -57,7 +57,7 @@ object MakeExplicitAction {
   private val MakeExplicit = ScalaBundle.message("make.explicit")
   private val MakeExplicitStatically = ScalaBundle.message("make.explicit.and.import.method")
 
-  private var popup: JBPopup = _
+  private var popup: JBPopup = scala.compiletime.uninitialized
 
   def createPopup(list: JList[Parameters]): JBPopup = {
     GoToImplicitConversionAction.setList(list)

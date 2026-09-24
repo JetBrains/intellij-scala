@@ -170,7 +170,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
   private class ExtractInfo(val clazz: ScTemplateDefinition, val memberInfos: Seq[ScalaExtractMemberInfo]) {
     private val classesForSelfType = mutable.Buffer[PsiClass]()
     private val selected = memberInfos.map(_.getMember)
-    private var currentMemberName: String = _
+    private var currentMemberName: String = scala.compiletime.uninitialized
     private val typeParams = mutable.Set[ScTypeParam]()
     val conflicts: MultiMap[PsiElement, String] = new MultiMap[PsiElement, String]
 

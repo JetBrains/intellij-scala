@@ -17,10 +17,10 @@ import org.jetbrains.plugins.scala.settings.CompilerIndicesSettings
 
 @Service(Array(Service.Level.PROJECT))
 final class ScalaFindUsagesConfiguration(project: Project) {
-  private var typeDefinitionOptions: ScalaTypeDefinitionFindUsagesOptions = _
-  private var memberOptions: ScalaMemberFindUsagesOptions = _
-  private var localOptions: ScalaLocalFindUsagesOptions = _
-  private var compilerIndicesOptions: CompilerIndicesSettings = _
+  private var typeDefinitionOptions: ScalaTypeDefinitionFindUsagesOptions = scala.compiletime.uninitialized
+  private var memberOptions: ScalaMemberFindUsagesOptions = scala.compiletime.uninitialized
+  private var localOptions: ScalaLocalFindUsagesOptions = scala.compiletime.uninitialized
+  private var compilerIndicesOptions: CompilerIndicesSettings = scala.compiletime.uninitialized
 
   reset()
 

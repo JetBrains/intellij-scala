@@ -5,9 +5,9 @@ import com.intellij.psi.PsiElement
 import scala.util.parsing.combinator._
 
 class PsiElementMock(val name: String, children: PsiElementMock*) extends AbstractPsiElementMock {
-  private var parent: PsiElement = _
-  private var prevSibling: PsiElement = _
-  private var nextSibling: PsiElement = _
+  private var parent: PsiElement = scala.compiletime.uninitialized
+  private var prevSibling: PsiElement = scala.compiletime.uninitialized
+  private var nextSibling: PsiElement = scala.compiletime.uninitialized
   private val firstChild: PsiElement = children.headOption.orNull
   private val lastChild: PsiElement = children.lastOption.orNull
   

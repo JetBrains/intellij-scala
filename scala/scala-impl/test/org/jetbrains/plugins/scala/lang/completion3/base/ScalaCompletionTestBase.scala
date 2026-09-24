@@ -24,7 +24,7 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTestC
   import Lookup.REPLACE_SELECT_CHAR
   import ScalaCompletionTestBase._
 
-  private var _scalaCompletionTestFixture: ScalaCompletionTestFixture = _
+  private var _scalaCompletionTestFixture: ScalaCompletionTestFixture = scala.compiletime.uninitialized
   protected def scalaCompletionTestFixture: ScalaCompletionTestFixture = _scalaCompletionTestFixture
 
   protected override def setUp(): Unit = {

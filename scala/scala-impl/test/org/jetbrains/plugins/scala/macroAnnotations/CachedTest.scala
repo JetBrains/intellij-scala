@@ -70,7 +70,7 @@ class CachedTest extends CachedTestBase {
 
     Tracer.clearAll()
 
-    checkTracer(lambdaRegex("CachedTest$Foo$6$", "currentTime"), totalCount = 3, actualCount = 2) {
+    checkTracer(lambdaRegex("CachedTest$Foo$7$", "currentTime"), totalCount = 3, actualCount = 2) {
       Foo.currentTime()
       Foo.currentTime()
       Foo.dropCaches()

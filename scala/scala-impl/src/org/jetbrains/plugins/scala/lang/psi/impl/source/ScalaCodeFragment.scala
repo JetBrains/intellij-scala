@@ -31,11 +31,11 @@ final class ScalaCodeFragment private(private var viewProvider: SingleRootFileVi
 
   getViewProvider.forceCachedPsi(this)
 
-  private var thisType: PsiType = _
-  private var superType: PsiType = _
-  private var exceptionHandler: ExceptionHandler = _
-  private var resolveScope: GlobalSearchScope = _
-  private var filter: IntentionActionsFilter = _
+  private var thisType: PsiType = scala.compiletime.uninitialized
+  private var superType: PsiType = scala.compiletime.uninitialized
+  private var exceptionHandler: ExceptionHandler = scala.compiletime.uninitialized
+  private var resolveScope: GlobalSearchScope = scala.compiletime.uninitialized
+  private var filter: IntentionActionsFilter = scala.compiletime.uninitialized
   private var imports = mutable.HashSet.empty[String]
 
   override def getThisType: PsiType = thisType

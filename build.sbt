@@ -47,7 +47,7 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 
 (Global / javacOptions) := globalJavacOptions
 
-(Global / scalacOptions) := globalScalacOptions
+(Global / scalacOptions) := globalScala3ScalacOptions
 
 Global / intellijAttachSources := true
 
@@ -424,6 +424,7 @@ lazy val scalaImpl: sbt.Project =
       compilerTestUtils % "test->test",
     )
     .settings(
+      Compile / scalacOptions += "-no-indent",
       ideExcludedDirectories := Seq(
         baseDirectory.value / "target",
         baseDirectory.value / "testdata" / "projectsForHighlightingTests" / ".ivy_cache",
@@ -519,7 +520,7 @@ lazy val scalaLanguageUtils: sbt.Project =
 lazy val scalaLanguageUtilsRt: sbt.Project =
   newPlainScalaProject("scala-utils-language-rt", file("scala/scala-utils-language-rt"))
     .settings(
-      scalaVersion := Versions.scala3Version,
+      scalaVersion := Versions.scala3CompilerRuntimeVersion,
       Compile / scalacOptions := outOfIDEAProcessScala3ScalacOptions,
       Compile / javacOptions := outOfIDEAProcessJavacOptions,
       packageMethod := PackagingMethod.Standalone("lib/utils_rt.jar", static = true),
@@ -881,7 +882,7 @@ lazy val compilerShared =
     .enablePlugins(BuildInfoPlugin)
     .withJpsSharedClasspath
     .settings(
-      scalaVersion := Versions.scala3Version,
+      scalaVersion := Versions.scala3CompilerRuntimeVersion,
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScala3ScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true),

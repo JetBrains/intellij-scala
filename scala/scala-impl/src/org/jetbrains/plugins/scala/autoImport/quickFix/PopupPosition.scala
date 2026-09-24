@@ -12,7 +12,7 @@ trait PopupPosition {
 
 object PopupPosition {
   private class CustomPosition extends PopupPosition {
-    var point: Point = _
+    var point: Point = scala.compiletime.uninitialized
 
     override def showPopup(popup: JBPopup, editor: Editor): Unit = {
       if (point == null) {

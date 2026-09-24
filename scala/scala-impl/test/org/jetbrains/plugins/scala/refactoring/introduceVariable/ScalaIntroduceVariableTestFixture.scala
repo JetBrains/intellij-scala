@@ -27,10 +27,10 @@ class ScalaIntroduceVariableTestFixture(
   codeStyleSettings: Option[ScalaCodeStyleSettings] = None,
   language: Language = ScalaLanguage.INSTANCE
 ) extends IdeaTestFixture {
-  var psiFile: PsiFile = _
-  var editor: Editor = _
+  var psiFile: PsiFile = scala.compiletime.uninitialized
+  var editor: Editor = scala.compiletime.uninitialized
 
-  private var oldCodeStyleSettings: ScalaCodeStyleSettings = _
+  private var oldCodeStyleSettings: ScalaCodeStyleSettings = scala.compiletime.uninitialized
 
   override def setUp(): Unit = {
     codeStyleSettings.foreach { newSettings =>

@@ -80,7 +80,7 @@ private final class MouseHandler extends ProjectActivity {
     }
   }
 
-  private var mouseMotionEvent: EditorMouseEvent = _
+  private var mouseMotionEvent: EditorMouseEvent = scala.compiletime.uninitialized
 
   private val mouseMotionTimer = {
     val timer = new Timer(20, _ => {

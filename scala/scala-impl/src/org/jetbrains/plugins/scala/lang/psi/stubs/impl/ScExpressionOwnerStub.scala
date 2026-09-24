@@ -10,7 +10,7 @@ trait ScExpressionOwnerStub[E <: PsiElement] extends ScStubElement[E] with PsiOw
 
   def bodyText: Option[String]
 
-  private[impl] var expressionElementReference: SofterReference[Option[ScExpression]] = _
+  private[impl] var expressionElementReference: SofterReference[Option[ScExpression]] = scala.compiletime.uninitialized
 
   def bodyExpression: Option[ScExpression] = {
     getFromOptionalReference(expressionElementReference) {

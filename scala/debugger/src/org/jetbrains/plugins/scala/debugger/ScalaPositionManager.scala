@@ -1015,7 +1015,7 @@ object ScalaPositionManager {
         case _ => None
       }
     }
-    private var classJVMNameParts: Seq[String] = _
+    private var classJVMNameParts: Seq[String] = scala.compiletime.uninitialized
 
     private def computeClassJVMNameParts(elem: PsiElement): Seq[String] = {
       if (exactName.isDefined) Seq.empty

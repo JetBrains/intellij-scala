@@ -10,7 +10,7 @@ trait ScTypeElementOwnerStub[E <: PsiElement] extends PsiOwner[E] {
 
   def typeText: Option[String]
 
-  private[impl] var typeElementReference: SofterReference[Option[ScTypeElement]] = _
+  private[impl] var typeElementReference: SofterReference[Option[ScTypeElement]] = scala.compiletime.uninitialized
 
   def typeElement: Option[ScTypeElement] = {
     getFromOptionalReference(typeElementReference) {

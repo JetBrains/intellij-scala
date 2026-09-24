@@ -18,7 +18,7 @@ import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
 
 class ScaladocAction extends BaseAnalysisAction(ScalaBundle.message("generate.scaladoc"), ScalaBundle.message("scaladoc.noon")) {
-  private var configurationDialog: ScaladocConsoleRunConfigurationForm = _
+  private var configurationDialog: ScaladocConsoleRunConfigurationForm = scala.compiletime.uninitialized
 
   locally {
     val presentation = getTemplatePresentation

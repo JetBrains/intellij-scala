@@ -39,7 +39,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   @volatile
-  private var resolveScope: GlobalSearchScope = _
+  private var resolveScope: GlobalSearchScope = scala.compiletime.uninitialized
 
   def getResolveScope: GlobalSearchScope = {
     if (resolveScope == null) {

@@ -57,9 +57,9 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   // Must not be initialized with any value!
   // Will be set in createNorthPanel, which is called by super's constructor.
-  // Any initializer other than _ will override the values set by that method.
-  private var defaultValuesUsagePanel: DefaultValuesUsagePanel = _
-  private var mySpecifyTypeChb: JCheckBox = _
+  // scala.compiletime.uninitialized preserves the values set by that method.
+  private var defaultValuesUsagePanel: DefaultValuesUsagePanel = scala.compiletime.uninitialized
+  private var mySpecifyTypeChb: JCheckBox = scala.compiletime.uninitialized
 
   override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 

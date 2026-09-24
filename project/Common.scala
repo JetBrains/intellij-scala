@@ -233,6 +233,9 @@ object Common {
       NewProjectBaseSettings
     ).settings(
       name := projectName,
+      // IDE modules migrate together: Scala 2 cannot read Scala 3.8 standard-library TASTy.
+      scalaVersion := Versions.scala3Version,
+      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijMainJars ~= { _.filterNot(Dependencies.excludeJarsFromPlatformDependencies).filter(_.exists()) },
       intellijTestJars ~= { _.filter(_.exists()) },
       intellijPlugins ++= Seq(

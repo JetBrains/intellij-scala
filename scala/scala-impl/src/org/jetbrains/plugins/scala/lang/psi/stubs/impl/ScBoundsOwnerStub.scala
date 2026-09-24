@@ -21,8 +21,8 @@ trait ScBoundsOwnerStub[E <: PsiNamedElement] extends NamedStub[E] with ScStubEl
   def lowerBoundTypeElement: Option[ScTypeElement] = lowerBoundStub.typeElement
   def upperBoundTypeElement: Option[ScTypeElement] = upperBoundStub.typeElement
 
-  private var viewElementsReferences: SofterReference[Seq[ScTypeElement]] = _
-  private var contextElementsReferences: SofterReference[Seq[ScContextBound]] = _
+  private var viewElementsReferences: SofterReference[Seq[ScTypeElement]] = scala.compiletime.uninitialized
+  private var contextElementsReferences: SofterReference[Seq[ScContextBound]] = scala.compiletime.uninitialized
 
   def viewBounds: Seq[ScTypeElement] = {
     getFromReference(viewElementsReferences) {

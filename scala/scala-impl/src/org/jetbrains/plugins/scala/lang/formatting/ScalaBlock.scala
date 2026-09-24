@@ -49,7 +49,7 @@ class ScalaBlock(
     this(None, node, lastNode, alignment, indent, wrap, settings, subBlocksContext)
   }
 
-  protected var subBlocks: util.List[Block] = _
+  protected var subBlocks: util.List[Block] = scala.compiletime.uninitialized
 
   def commonSettings: CommonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
 
@@ -99,7 +99,7 @@ class ScalaBlock(
     lastNode == null && node.getFirstChildNode == null
   }
 
-  private var _suggestedWrap: Wrap = _
+  private var _suggestedWrap: Wrap = scala.compiletime.uninitialized
 
   def suggestedWrap: Wrap = {
     if (_suggestedWrap == null) {

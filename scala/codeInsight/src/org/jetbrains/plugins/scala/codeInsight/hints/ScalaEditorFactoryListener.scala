@@ -78,7 +78,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
     }
   }
 
-  private var keyPressEvent: KeyEvent = _
+  private var keyPressEvent: KeyEvent = scala.compiletime.uninitialized
 
   private var mouseHasMoved = false
 
@@ -171,7 +171,7 @@ class ScalaEditorFactoryListener extends EditorFactoryListener {
 }
 
 private object ScalaEditorFactoryListener {
-  private var onTime: Long = _
+  private var onTime: Long = scala.compiletime.uninitialized
 
   def setXRayModeEnabled(enabled: Boolean, editor: Editor): Unit = {
     ScalaHintsSettings.xRayMode = enabled
@@ -218,9 +218,9 @@ private object ScalaEditorFactoryListener {
     ActionToolbarImpl.updateAllToolbarsImmediately(true)
   }
 
-  private var indentGuidesShownSetting: Boolean = _
+  private var indentGuidesShownSetting: Boolean = scala.compiletime.uninitialized
 
-  private var showImplicitHintsSetting: Boolean = _
+  private var showImplicitHintsSetting: Boolean = scala.compiletime.uninitialized
 
-  private var showMethodSeparatorsSetting: Boolean = _
+  private var showMethodSeparatorsSetting: Boolean = scala.compiletime.uninitialized
 }

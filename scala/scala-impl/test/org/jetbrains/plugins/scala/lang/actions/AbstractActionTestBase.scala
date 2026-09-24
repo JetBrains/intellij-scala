@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.base.NoSdkFileSetTestBase
 import org.junit.Assert.assertNotNull
 
 abstract class AbstractActionTestBase extends NoSdkFileSetTestBase with ActionTestBase {
-  private var editor: Editor = _
+  private var editor: Editor = scala.compiletime.uninitialized
 
   protected def createHandler: EditorActionHandler
 

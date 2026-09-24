@@ -591,7 +591,7 @@ object ScalaRefactoringUtil {
       private val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
       private val scheme: EditorColorsScheme = editor.getColorsScheme
       private val textAttributes = new TextAttributes
-      private var selectionHighlighter: RangeHighlighter = _
+      private var selectionHighlighter: RangeHighlighter = scala.compiletime.uninitialized
       private val markupModel: MarkupModel = editor.getMarkupModel
 
       locally {

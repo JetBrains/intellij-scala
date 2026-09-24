@@ -12,7 +12,7 @@ import org.junit.Assert.assertEquals
  */
 abstract class ShowTypeInfoActionTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
-  private var editorHintFixture: EditorHintFixtureEx = _
+  private var editorHintFixture: EditorHintFixtureEx = scala.compiletime.uninitialized
 
   override def runInDispatchThread(): Boolean = false
 

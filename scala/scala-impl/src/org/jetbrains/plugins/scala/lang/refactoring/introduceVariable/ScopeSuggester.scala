@@ -330,7 +330,7 @@ case class PackageScopeItem(override val name: String,
                             needDirectoryCreating: Boolean,
                             override val availableNames: ju.Set[String]) extends ScopeItem(name, availableNames) {
   var occurrences: Array[ScTypeElement] = Array[ScTypeElement]()
-  var validator: ScalaCompositeTypeValidator = _
+  var validator: ScalaCompositeTypeValidator = scala.compiletime.uninitialized
 
   override def toString: String = "package " + name
 }

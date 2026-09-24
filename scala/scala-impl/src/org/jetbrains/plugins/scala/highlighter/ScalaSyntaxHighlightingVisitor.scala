@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScPsiDocToken
 
 // HighlightVisitor is faster than Annotator in complex code (see SCL-23603)
 class ScalaSyntaxHighlightingVisitor extends HighlightVisitor with DumbAware {
-  private var holder: HighlightInfoHolder = _
+  private var holder: HighlightInfoHolder = scala.compiletime.uninitialized
 
   override def suitableForFile(file: PsiFile): Boolean =
     file.is[ScFile]

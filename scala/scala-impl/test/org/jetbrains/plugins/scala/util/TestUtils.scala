@@ -26,7 +26,7 @@ object TestUtils {
   val BEGIN_MARKER = "<begin>"
   val END_MARKER = "<end>"
 
-  private var TEST_DATA_PATH: String = _
+  private var TEST_DATA_PATH: String = scala.compiletime.uninitialized
 
   def getTestDataDir: Path =
     Path.of(getTestDataPath).toCanonicalPath

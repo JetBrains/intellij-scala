@@ -20,7 +20,7 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String) extends 
 
   import AbstractIntroduceVariableValidatorTestBase._
 
-  protected var fixture: ScalaIntroduceVariableTestFixture = _
+  protected var fixture: ScalaIntroduceVariableTestFixture = scala.compiletime.uninitialized
 
   override protected def setUp(): Unit = {
     super.setUp()

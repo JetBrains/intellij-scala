@@ -20,7 +20,7 @@ abstract class ScalaInspectionTestBase extends ScalaAnnotatorQuickFixTestBase {
 
 abstract class InspectionSeverityForcingScalaInspectionTestBase extends ScalaInspectionTestBase {
 
-  private var oldLevel: HighlightDisplayLevel = _
+  private var oldLevel: HighlightDisplayLevel = scala.compiletime.uninitialized
 
   protected override def setUp(): Unit = {
     super.setUp()

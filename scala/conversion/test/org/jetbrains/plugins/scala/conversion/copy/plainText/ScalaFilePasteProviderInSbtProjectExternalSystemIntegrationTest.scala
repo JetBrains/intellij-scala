@@ -21,7 +21,7 @@ class ScalaFilePasteProviderInSbtProjectExternalSystemIntegrationTest
   extends SbtExternalSystemImportingTestLike
   with ScalaFilePasteProviderInSbtProjectTestLike {
 
-  private var TestProjectName: String = _
+  private var TestProjectName: String = scala.compiletime.uninitialized
 
   // To avoid java.lang.IllegalAccessError
   override def getProject: Project = super.getMyProject

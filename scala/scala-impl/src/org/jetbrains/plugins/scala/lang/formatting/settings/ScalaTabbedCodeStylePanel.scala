@@ -23,12 +23,12 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 
   import ScalaTabbedCodeStylePanel._
 
-  private var formatterSelectorComboBox: JComboBox[String] = _
-  private var outerPanel: JPanel = _
-  private var shortenedPanel: ScalafmtTabbedLanguageCodeStylePanel = _
+  private var formatterSelectorComboBox: JComboBox[String] = scala.compiletime.uninitialized
+  private var outerPanel: JPanel = scala.compiletime.uninitialized
+  private var shortenedPanel: ScalafmtTabbedLanguageCodeStylePanel = scala.compiletime.uninitialized
   // TODO: rework this whole project juggling mess, there should be a straightforward way of depending on a project
   //  from code style settings panels
-  private var typeAnnotationsPanel: TypeAnnotationsPanel = _
+  private var typeAnnotationsPanel: TypeAnnotationsPanel = scala.compiletime.uninitialized
 
   override def dispose(): Unit = {
     super.dispose()
@@ -169,7 +169,7 @@ object ScalaTabbedCodeStylePanel {
   private class ScalafmtTabbedLanguageCodeStylePanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings)
     extends TabbedLanguageCodeStylePanel(ScalaLanguage.INSTANCE, currentSettings, settings) {
 
-    private var scalaFmtSettingsPanel: ScalaFmtSettingsPanel = _
+    private var scalaFmtSettingsPanel: ScalaFmtSettingsPanel = scala.compiletime.uninitialized
 
     override protected def initTabs(settings: CodeStyleSettings): Unit = {
       scalaFmtSettingsPanel = new ScalaFmtSettingsPanel(settings)

@@ -34,7 +34,7 @@ class RestoreReferencesDialog(
   @TestOnly
   def getBindings: Seq[Associations.Binding] = bindings
 
-  private var myList: JList[Associations.Binding] = _
+  private var myList: JList[Associations.Binding] = scala.compiletime.uninitialized
   private var mySelectedElements: java.util.List[Associations.Binding] = Collections.emptyList
   def getSelectedElements: Seq[Associations.Binding] = mySelectedElements.asScala.toSeq
 

@@ -21,7 +21,7 @@ object CompilerTestUtil2 {
     )
 
   def withModifiedCompileServerSettings(body: ScalaCompileServerSettings => Unit): RevertableChange = new RevertableChange {
-    private var settingsBefore: ScalaCompileServerSettings = _
+    private var settingsBefore: ScalaCompileServerSettings = scala.compiletime.uninitialized
     private lazy val settings: ScalaCompileServerSettings = compileServerSettings
 
     import com.intellij.java.testFramework.backend.{CompilerTestUtil => BackendCompilerTestUtil}

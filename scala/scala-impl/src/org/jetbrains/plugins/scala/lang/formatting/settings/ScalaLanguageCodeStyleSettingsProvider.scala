@@ -400,7 +400,7 @@ object ScalaLanguageCodeStyleSettingsProvider {
       panel.onModelSet(model)
     }
 
-    private var panel: ScalaTabbedCodeStylePanel = _
+    private var panel: ScalaTabbedCodeStylePanel = scala.compiletime.uninitialized
   }
 
   private val BRACE_OPTION_AND_VALUES: (Array[(String, Int)]) =

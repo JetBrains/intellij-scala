@@ -27,7 +27,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
   private val localMethod = localMethodIndex > 0
   private val localMethodName = methodName + "$" + localMethodIndex
 
-  private var prevProcess: DebugProcess = _
+  private var prevProcess: DebugProcess = scala.compiletime.uninitialized
   private val jdiMethodsCache = mutable.HashMap[ReferenceType, Option[Method]]()
 
   private def initCache(process: DebugProcess): Unit = {

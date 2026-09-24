@@ -127,7 +127,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   @BeanProperty var showProgressMessages: Boolean                       = true // TODO: there already exists a parameter in Logs tab, do we need this parameter?
   @BeanProperty var useSbt              : Boolean                       = false
   @BeanProperty var useUiWithSbt        : Boolean                       = false
-  @BeanProperty var jrePath             : String                        = _
+  @BeanProperty var jrePath             : String                        = scala.compiletime.uninitialized
   @BeanProperty var testArgs            : String                        = ""
   @BeanProperty var javaOptions         : String                        = ""
   @BeanProperty var envs                : java.util.Map[String, String] = new java.util.HashMap[String, String]()

@@ -39,7 +39,7 @@ class ScalaUnusedImportPass(override val file: PsiFile, editor: Editor, override
 
   override protected def getFixes: List[IntentionAction] = List(new ScalaOptimizeImportsFix, new ScalaEnableOptimizeImportsOnTheFlyFix)
 
-  private var myHighlights: ju.List[HighlightInfo] = _
+  private var myHighlights: ju.List[HighlightInfo] = scala.compiletime.uninitialized
   private var myOptimizeImportsRunnable: Option[Runnable] = None
 
   override def collectInformationWithProgress(progress: ProgressIndicator): Unit = file match {

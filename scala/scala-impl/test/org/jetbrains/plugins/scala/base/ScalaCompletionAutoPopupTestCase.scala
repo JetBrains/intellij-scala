@@ -11,7 +11,7 @@ import org.junit.experimental.categories.Category
 /** @see [[com.intellij.codeInsight.completion.JavaCompletionAutoPopupTestCase]] */
 @Category(Array(classOf[CompletionTests]))
 abstract class ScalaCompletionAutoPopupTestCase extends ScalaLightCodeInsightFixtureTestCase {
-  private var myTester: CompletionAutoPopupTester = _
+  private var myTester: CompletionAutoPopupTester = scala.compiletime.uninitialized
 
   override protected def setUp(): Unit = {
     super.setUp()

@@ -9,7 +9,7 @@ abstract class ScalaHighlightUsagesTestBase
   protected val start = MarkersUtils.startMarker
   protected val end = MarkersUtils.endMarker
 
-  protected var scalaHighlightUsagesTestFixture: ScalaHighlightUsagesTestFixture = _
+  protected var scalaHighlightUsagesTestFixture: ScalaHighlightUsagesTestFixture = scala.compiletime.uninitialized
 
   override protected def setUp(): Unit = {
     super.setUp()

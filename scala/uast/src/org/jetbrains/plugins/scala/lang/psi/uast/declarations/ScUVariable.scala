@@ -250,7 +250,7 @@ object ScUVariable {
 
   private trait ScAnnotatedLightVariable[T <: LightVariableBuilder[T]] extends LightVariableBuilder[T] {
     self: T =>
-    @volatile protected var myModifierList: LightModifierList = _
+    @volatile protected var myModifierList: LightModifierList = scala.compiletime.uninitialized
 
     protected def annotations: Array[PsiAnnotation]
 

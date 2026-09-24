@@ -338,7 +338,7 @@ final class SyntheticClasses(project: Project) {
 
   def isClassesRegistered: Boolean = classesInitialized
 
-  var stringPlusMethod: ScType => ScSyntheticFunction = _
+  var stringPlusMethod: ScType => ScSyntheticFunction = scala.compiletime.uninitialized
 
   private val sharedClasses: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
   private val scala3Classes: mutable.Map[String, PsiClass] = mutable.HashMap.empty[String, PsiClass]
@@ -348,7 +348,7 @@ final class SyntheticClasses(project: Project) {
   private val anyValCompanionObjects: mutable.Map[String, ScObject] = mutable.HashMap.empty
 
   private[synthetic]
-  var file : PsiFile = _
+  var file : PsiFile = scala.compiletime.uninitialized
 
 
   /**

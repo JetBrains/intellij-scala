@@ -143,7 +143,7 @@ object RevertableChange {
     }
 
   def withApplicationSettingsSaving: RevertableChange = new RevertableChange {
-    private var saveAllowedBefore: Boolean = _
+    private var saveAllowedBefore: Boolean = scala.compiletime.uninitialized
     private lazy val application: ApplicationEx = ApplicationManagerEx.getApplicationEx
 
     override def applyChange(): Unit = {

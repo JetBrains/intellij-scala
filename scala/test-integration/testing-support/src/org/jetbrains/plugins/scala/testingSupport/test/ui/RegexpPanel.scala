@@ -11,8 +11,8 @@ import javax.swing.table.DefaultTableModel
 
 final class RegexpPanel extends JPanel {
 
-  private var myRegexpTable: JBTable = _
-  private var myPanel: JPanel  = _
+  private var myRegexpTable: JBTable = scala.compiletime.uninitialized
+  private var myPanel: JPanel  = scala.compiletime.uninitialized
 
   init()
 

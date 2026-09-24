@@ -16,7 +16,7 @@ object Highlighting {
   @volatile
   private[incremental] var editors = Seq.empty[Editor]
 
-  private[incremental] var editor: Editor = _
+  private[incremental] var editor: Editor = scala.compiletime.uninitialized
 
   private[incremental] var suppress: Boolean = false
 

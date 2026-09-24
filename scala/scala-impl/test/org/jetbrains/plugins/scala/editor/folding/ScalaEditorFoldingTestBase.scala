@@ -130,7 +130,7 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
 
 
   protected class WithModifiedSettings[BeanType](beanInstanceGetter: () => BeanType) extends RevertableChange {
-    private var settingsBefore: BeanType = _
+    private var settingsBefore: BeanType = scala.compiletime.uninitialized
     private lazy val settings : BeanType = beanInstanceGetter().ensuring(_ != null)
 
     override def applyChange(): Unit = {

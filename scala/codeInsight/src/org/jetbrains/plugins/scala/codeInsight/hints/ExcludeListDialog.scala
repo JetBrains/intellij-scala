@@ -26,7 +26,7 @@ import scala.language.implicitConversions
 
 /** A copy of [[com.intellij.codeInsight.hints.ExcludeListDialog]] that takes [[provider]] as a parameter instead of looking it up statically. */
 private class ExcludeListDialog(language: Language, provider: InlayParameterHintsProvider, patternToAdd: String = null) extends DialogWrapper(null: Project) {
-  private var myEditor: EditorTextField = _
+  private var myEditor: EditorTextField = scala.compiletime.uninitialized
   private var myPatternsAreValid = true
 
   locally {

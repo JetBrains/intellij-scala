@@ -36,7 +36,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
   private var outputDir: String = ""
   private var showInBrowser: Boolean = false
   private var additionalScaladocFlags: String = ""
-  private var scope: AnalysisScope = _
+  private var scope: AnalysisScope = scala.compiletime.uninitialized
   private var verbose: Boolean = false
   private var docTitle: String = ""
   private var maxHeapSize: String = ""

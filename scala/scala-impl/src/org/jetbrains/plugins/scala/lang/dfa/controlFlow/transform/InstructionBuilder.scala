@@ -325,7 +325,7 @@ object InstructionBuilder {
 
   final class StackValue(private[InstructionBuilder] var instructionIndex: Int,
                          private[InstructionBuilder] val posOnStack: Int) {
-    private var joinedInto: StackValue = _
+    private var joinedInto: StackValue = scala.compiletime.uninitialized
 
     private[InstructionBuilder] def hasBeenJoined: Boolean = joinedInto != null
 

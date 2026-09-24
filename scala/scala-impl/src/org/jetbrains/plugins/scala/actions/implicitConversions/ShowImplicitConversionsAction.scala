@@ -39,7 +39,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
 
   import MakeExplicitAction._
 
-  private var hint: LightBulbHint = _
+  private var hint: LightBulbHint = scala.compiletime.uninitialized
   private val hintAlarm: Alarm = new Alarm(cs, Alarm.ThreadToUse.SWING_THREAD)
 
   override def update(e: AnActionEvent): Unit =

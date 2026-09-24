@@ -303,7 +303,7 @@ class ScalaContextFeatureProviderTest extends MLCompletionTest {
 
       private val original = new ScalaContextFeatureProvider
 
-      var features: util.Map[String, MLFeatureValue] = _
+      var features: util.Map[String, MLFeatureValue] = scala.compiletime.uninitialized
 
       override def getName: String = original.getName
 

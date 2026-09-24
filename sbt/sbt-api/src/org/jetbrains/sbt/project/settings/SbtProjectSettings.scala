@@ -80,7 +80,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
    * (see [[org.jetbrains.sbt.project.module.SbtModuleSettingsEditor]]))
    */
   @Nullable
-  @BeanProperty var sbtVersion: String = _
+  @BeanProperty var sbtVersion: String = scala.compiletime.uninitialized
 
   //////////////////////////////////////////
   // SETTINGS SECTION END

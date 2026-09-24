@@ -51,7 +51,7 @@ object DebuggerUtil {
 
     def toName: JVMName = {
       new JVMName {
-        private var myName: String = _
+        private var myName: String = scala.compiletime.uninitialized
         override def getName(process: DebugProcessImpl): String = {
           if (myName == null) {
             var name: String = ""
@@ -63,7 +63,7 @@ object DebuggerUtil {
           myName
         }
 
-        private var myDisplayName: String = _
+        private var myDisplayName: String = scala.compiletime.uninitialized
         override def getDisplayName(debugProcess: DebugProcessImpl): String = {
           if (myDisplayName == null) {
             var displayName: String = ""

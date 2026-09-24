@@ -25,12 +25,12 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
                                    (implicit project: Project)
   extends ScalaChangeSignatureDialog(method, false) {
 
-  private var paramNameField: EditorTextField = _
-  private var typeCombobox: ComboBox[String] = _
-  private var typeMap: util.LinkedHashMap[String, ScType] = _
-  private var replaceOccurrencesChb: JCheckBox = _
-  private var defaultValuesUsagePanel: DefaultValuesUsagePanel = _
-  private var defaultForIntroducedTextField: EditorTextField = _
+  private var paramNameField: EditorTextField = scala.compiletime.uninitialized
+  private var typeCombobox: ComboBox[String] = scala.compiletime.uninitialized
+  private var typeMap: util.LinkedHashMap[String, ScType] = scala.compiletime.uninitialized
+  private var replaceOccurrencesChb: JCheckBox = scala.compiletime.uninitialized
+  private var defaultValuesUsagePanel: DefaultValuesUsagePanel = scala.compiletime.uninitialized
+  private var defaultForIntroducedTextField: EditorTextField = scala.compiletime.uninitialized
 
   override def init(): Unit = {
     super.init()

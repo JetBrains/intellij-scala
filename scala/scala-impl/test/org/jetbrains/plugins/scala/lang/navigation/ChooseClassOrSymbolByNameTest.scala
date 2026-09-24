@@ -27,7 +27,7 @@ import scala.jdk.CollectionConverters._
  * If you want to test "Go To Symbol" functionality available in "Search Everywhere" please consider using [[GoToSymbolTestBase]]
  */
 abstract class ChooseClassOrSymbolByNameTestBase extends GoToTestBase {
-  private var myPopup: ChooseByNamePopup = _
+  private var myPopup: ChooseByNamePopup = scala.compiletime.uninitialized
 
   private def createPopup(model: ChooseByNameModel): ChooseByNamePopup = {
     if (myPopup == null) {

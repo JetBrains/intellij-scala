@@ -49,7 +49,7 @@ abstract class ScalaResolveTestCase extends ScalaLightCodeInsightFixtureTestCase
     }
   }
 
-  protected var testFilePath: String = _ //for debugging
+  protected var testFilePath: String = scala.compiletime.uninitialized //for debugging
 
   override def setUp(): Unit = {
     super.setUp()
