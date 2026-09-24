@@ -35,7 +35,7 @@ class SbtExternalSystemConfigurable(project: Project)
       // In that way createProjectSettingsControl is called and the full UI created and indexed.
       val sbtSettings = getSbtSettingsForDefaultProject(project)
       if (sbtSettings.getLinkedProjectSettings("") == null) {
-        val settings = SbtProjectSettings.defaultForNewProjectWizard
+        val settings = SbtProjectSettings.default
         settings.setExternalProjectPath("")
         sbtSettings.linkProject(settings)
       }

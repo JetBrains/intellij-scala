@@ -76,7 +76,6 @@
         <module name="scalaCommunity.i18n"/>
         <module name="scalaCommunity.intellij-bazel"/>
         <module name="scalaCommunity.javaDecompiler"/>
-        <module name="scalaCommunity.junit"/>
         <module name="scalaCommunity.markdown"/>
         <module name="scalaCommunity.maven"/>
         <module name="scalaCommunity.properties"/>

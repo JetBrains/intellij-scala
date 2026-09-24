@@ -138,7 +138,6 @@ lazy val scalaCommunity: sbt.Project =
         nailgunRunners,
         devKitIntegration,
         featuresTrainerIntegration,
-        junitIntegration,
         runtimeDependencies,
       ),
       // all sub-project tests need to be run within main project's classpath
@@ -1211,16 +1210,6 @@ lazy val mavenIntegration =
       ),
       resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.maven")
-    )
-
-lazy val junitIntegration =
-  newProject("junit", file("scala/integration/junit"))
-    .dependsOn(sbtImpl)
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += "JUnit".toPlugin,
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.junit")
     )
 
 lazy val i18nIntegration =

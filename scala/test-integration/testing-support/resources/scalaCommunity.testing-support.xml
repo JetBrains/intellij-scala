@@ -40,8 +40,4 @@
         <!--suppress PluginXmlValidity -->
         <structureViewModelProvider implementation="org.jetbrains.plugins.scala.testingSupport.TestStructureViewModelProvider"/>
     </extensions>
-
-    <extensions defaultExtensionNs="com.intellij.sbt">
-        <configurationDetailsExtractor implementation="org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationDetailsExtractor"/>
-    </extensions>
 </idea-plugin>

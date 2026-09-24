@@ -1,7 +1,6 @@
 package org.jetbrains.sbt
 
 import com.intellij.execution.configurations.ParametersList
-import com.intellij.ide.browsers.BrowserLauncher
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.ModuleData
@@ -369,12 +368,6 @@ object SbtUtil {
       s"Global / $command"
     else
       s"*/*:$command"
-
-  def openSeparateMainTestModulesBlogPost(): Unit =
-    BrowserLauncher.getInstance().open(SeparateMainTestModulesBlogPostLink)
-
-  val SeparateMainTestModulesBlogPostLink =
-    "https://blog.jetbrains.com/scala/new-module-layout-for-sbt/"
 
   /**
    * Creates a temporary `.sbt` file with EEL awareness and the given content.
