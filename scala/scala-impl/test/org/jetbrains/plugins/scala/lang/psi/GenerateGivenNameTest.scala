@@ -18,7 +18,7 @@ class GenerateGivenNameTest extends GeneratedSimpleParameterizedTest(ScalaVersio
     tree.hasParseError shouldBe false
 
     val givens: Seq[ScNamedElement] = tree.elements.collect {
-      case given: ScGiven => given
+      case givenElement: ScGiven => givenElement
       case pattern: ScGivenPattern => pattern
     }.toSeq
 

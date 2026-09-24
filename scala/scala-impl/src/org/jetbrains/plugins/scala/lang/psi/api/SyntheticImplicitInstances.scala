@@ -264,14 +264,14 @@ object SyntheticImplicitInstances {
         Option.when(obj.isCase)(
           MirrorDescriptor(MirrorKind.Singleton, obj.name, Seq.empty, Seq.empty)
         )
-      case enum: ScEnum =>
-        val cases     = enum.cases
+      case enumDefinition: ScEnum =>
+        val cases     = enumDefinition.cases
         val caseNames = cases.map(_.name)
         val caseTypes = cases.map(cse => subst(cse.`type`().getOrAny))
 
         MirrorDescriptor(
           MirrorKind.Sum,
-          enum.name,
+          enumDefinition.name,
           caseNames,
           caseTypes
         ).toOption

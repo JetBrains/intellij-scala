@@ -100,8 +100,8 @@ object UsageTracker {
 
   private def collectAllNamedElementTargets(resolveResult: ScalaResolveResult): Seq[PsiNamedElement] = {
     val originalsFromSynthetics = resolveResult.element match {
-      case ScEnum.FromObject(enum) => Seq(enum)
-      case ScEnum.FromSyntheticMethod(enum) => enum.cases
+      case ScEnum.FromObject(enumDefinition) => Seq(enumDefinition)
+      case ScEnum.FromSyntheticMethod(enumDefinition) => enumDefinition.cases
       case o: ScObject if o.isSyntheticObject => Seq(o.syntheticNavigationElement).collect {
         case n: ScNamedElement => n
       }
@@ -155,7 +155,7 @@ object UsageTracker {
           functionDefinition.context match {
             case cls: ScClass if cls.syntheticNavigationElement != null =>
               cls.syntheticNavigationElement match {
-                case enum: ScEnum => Some(enum)
+                case enumDefinition: ScEnum => Some(enumDefinition)
                 case _ => None
               }
             case _ => None

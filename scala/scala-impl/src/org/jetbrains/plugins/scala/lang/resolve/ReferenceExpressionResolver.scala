@@ -336,8 +336,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
         place match {
           case _: ScTemplateBody | _: ScExtendsBlock => //template body and inherited members are at the same level
-          case enum: ScEnum                          =>
-            if (!enum.fakeCompanionModule.forall(_.processDeclarations(proc, state, lastParent, place))) return
+          case enumDefinition: ScEnum                          =>
+            if (!enumDefinition.fakeCompanionModule.forall(_.processDeclarations(proc, state, lastParent, place))) return
           case _                                     => if (!proc.changedLevel) return
         }
 

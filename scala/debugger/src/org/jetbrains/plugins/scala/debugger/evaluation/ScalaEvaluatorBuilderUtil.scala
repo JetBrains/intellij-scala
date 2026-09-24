@@ -1745,8 +1745,8 @@ object ScalaEvaluatorBuilderUtil {
 
   def isNotUsedEnumerator(named: PsiNamedElement, place: PsiElement): Boolean = {
     named match {
-      case ScalaPsiUtil.inNameContext(enum @ (_: ScForBinding | _: ScGenerator)) =>
-        enum.getParent.getParent match {
+      case ScalaPsiUtil.inNameContext(enumerator @ (_: ScForBinding | _: ScGenerator)) =>
+        enumerator.getParent.getParent match {
           case ScFor(enums, body) =>
             enums.namings.map(_.pattern) match {
               case Seq(_: ScReferencePattern) => return false //can always evaluate from single simple generator

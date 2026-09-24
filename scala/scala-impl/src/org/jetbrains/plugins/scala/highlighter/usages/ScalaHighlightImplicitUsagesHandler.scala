@@ -101,10 +101,10 @@ object ScalaHighlightImplicitUsagesHandler {
       case c: ScClass                                      => c.getSyntheticImplicitMethod
       case member: ScMember =>
         member.syntheticNavigationElement match {
-          case given: ScGivenDefinition =>
-            Some(given)
-          case given: ScGiven =>
-            Some(given)
+          case givenElement: ScGivenDefinition =>
+            Some(givenElement)
+          case givenElement: ScGiven =>
+            Some(givenElement)
           case _ if ScalaPsiUtil.isImplicit(member) =>
             Some(member)
           case _ => None

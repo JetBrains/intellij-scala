@@ -346,7 +346,7 @@ private[annotator] object ModifierChecker {
                       reportNotAllowedError = false
                       false
                     } else true
-                  case given: ScGiven if given.parameters.isEmpty         => true
+                  case givenElement: ScGiven if givenElement.parameters.isEmpty         => true
                   case _: ScVariableDeclaration | _: ScVariableDefinition => false
                   case _: ScObject                                        => false
                   case _                                                  => false

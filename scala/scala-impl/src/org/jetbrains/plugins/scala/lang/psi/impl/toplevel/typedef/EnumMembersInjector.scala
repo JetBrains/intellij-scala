@@ -11,15 +11,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInj
 class EnumMembersInjector extends SyntheticMembersInjector {
   private def companionEnum(obj: ScObject): Option[ScEnum] =
     obj.fakeCompanionClassOrCompanionClass match {
-      case enum: ScEnum          => Some(enum)
+      case enumDefinition: ScEnum          => Some(enumDefinition)
       case _                     => None
     }
 
   override def injectFunctions(source: ScTypeDefinition): Seq[String] = source match {
     case obj: ScObject =>
-      companionEnum(obj).fold(Seq.empty[String]) { enum =>
-        val singletonCases = enum.cases.filterByType[ScEnumSingletonCase]
-        methodsForCompanionObject(enum, singletonCases)
+      companionEnum(obj).fold(Seq.empty[String]) { enumDefinition =>
+        val singletonCases = enumDefinition.cases.filterByType[ScEnumSingletonCase]
+        methodsForCompanionObject(enumDefinition, singletonCases)
       }
     case _ => Seq.empty
   }

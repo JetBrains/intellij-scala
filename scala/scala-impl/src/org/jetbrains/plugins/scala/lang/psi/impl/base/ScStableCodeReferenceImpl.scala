@@ -385,8 +385,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             case p: ScAnnotationsHolder
               if processor.kinds.contains(ResolveTargets.ANNOTATION) && PsiTreeUtil.isContextAncestor(p, this, true) =>
                 treeWalkUp(place.getContext, place, state)
-            case export: ScExportStmt =>
-              val clsContext = PsiTreeUtil.getContextOfType(export, classOf[PsiClass])
+            case exportStmt: ScExportStmt =>
+              val clsContext = PsiTreeUtil.getContextOfType(exportStmt, classOf[PsiClass])
               val nodes      = MixinNodes.currentlyProcessedSigs.value.get(clsContext)
 
               if (nodes ne null) {

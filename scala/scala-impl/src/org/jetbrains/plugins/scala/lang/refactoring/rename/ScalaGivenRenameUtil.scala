@@ -50,7 +50,7 @@ object ScalaGivenRenameUtil {
 
   private def enclosingAnonymousGivens(reference: PsiReference): Iterator[ScNamedElement] =
     reference.getElement.withParentsInFile.collect {
-      case given: ScGiven if given.nameElement.isEmpty => given
+      case givenElement: ScGiven if givenElement.nameElement.isEmpty => givenElement
       case pattern: ScGivenPattern                     => pattern
     }
 

@@ -49,13 +49,13 @@ private[cheapRefSearch] final class ForeignEnumSearch(override val shouldProcess
       case _ => None
     }
 
-    scEnum.foreach { enum =>
+    scEnum.foreach { enumDefinition =>
       PsiSearchHelper.getInstance(ctx.element.getProject)
-        .processElementsWithWord(processor, scope, enum.name, PsiSearchContext, CaseSensitive)
+        .processElementsWithWord(processor, scope, enumDefinition.name, PsiSearchContext, CaseSensitive)
 
       if (!didExitBeforeExhaustion) {
         PsiSearchHelper.getInstance(ctx.element.getProject)
-          .processElementsWithWord(processor, scope, s"${enum.name}$$.MODULE$$", PsiSearchContext, CaseSensitive)
+          .processElementsWithWord(processor, scope, s"${enumDefinition.name}$$.MODULE$$", PsiSearchContext, CaseSensitive)
       }
     }
 

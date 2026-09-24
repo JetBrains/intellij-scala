@@ -220,9 +220,9 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     holder: ScalaAnnotationHolder
   ): Unit = {
     superRefs(tdef).collect {
-      case (range, enum: ScEnum) =>
+      case (range, enumDefinition: ScEnum) =>
         tdef match {
-          case cse: ScEnumCase if cse.enumParent eq enum => ()
+          case cse: ScEnumCase if cse.enumParent eq enumDefinition => ()
           case _ =>
             holder.createErrorAnnotation(range, ScalaBundle.message("illegal.inheritance.extends.enum"))
         }

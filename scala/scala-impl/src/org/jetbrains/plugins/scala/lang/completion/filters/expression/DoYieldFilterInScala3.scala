@@ -28,8 +28,8 @@ class DoYieldFilterInScala3 extends ElementFilter {
 
     val parent = leaf.getParent
     val forElement = parent match {
-      case (_: ScReferencePattern) & Parent((_: ScForBinding) & Parent(enum: ScEnumerators)) =>
-        Some(enum.getParent)
+      case (_: ScReferencePattern) & Parent((_: ScForBinding) & Parent(enumerators: ScEnumerators)) =>
+        Some(enumerators.getParent)
       case (_: ScExpression) & Parent(`for`: ScFor) =>
         Some(`for`)
       case _ =>
