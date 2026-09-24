@@ -6,10 +6,10 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
-import com.intellij.openapi.module._
+import com.intellij.openapi.module.*
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
-import com.intellij.openapi.roots._
+import com.intellij.openapi.roots.*
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
@@ -18,7 +18,7 @@ import com.intellij.platform.eel.EelDescriptor
 import com.intellij.platform.eel.path.EelPath
 import com.intellij.platform.eel.provider.EelProviderUtil
 import com.intellij.platform.eel.provider.utils.EelPathUtils
-import com.intellij.platform.workspace.jps.entities.{DependencyScope, _}
+import com.intellij.platform.workspace.jps.entities.{DependencyScope, *}
 import com.intellij.platform.workspace.storage.{EntitySource, MutableEntityStorage}
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.{ApiStatus, TestOnly}
 import org.jetbrains.jps.model.serialization.library.JpsLibraryTableSerializer
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -50,7 +50,7 @@ import java.net.{URI, URL}
 import java.nio.file.Path
 import kotlin.Unit.{INSTANCE => KUnit}
 import scala.annotation.unused
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.ref.Reference
 import scala.util.Try
 
@@ -70,7 +70,7 @@ package object project {
 
   implicit class LibraryExt(private val library: Library) extends AnyVal with LibraryBase {
 
-    import LibraryExt._
+    import LibraryExt.*
 
     override def isScalaSdk: Boolean = library match {
       case libraryEx: LibraryEx => libraryEx.isScalaSdk
@@ -697,7 +697,7 @@ package object project {
         isEnabledIn(_.isMetaEnabled)
 
     def isTrailingCommasEnabled: Boolean = {
-      import ScalaProjectSettings.TrailingCommasMode._
+      import ScalaProjectSettings.TrailingCommasMode.*
       ScalaProjectSettings.getInstance(file.getProject).getTrailingCommasMode match {
         case Enabled => true
         case Disabled => false

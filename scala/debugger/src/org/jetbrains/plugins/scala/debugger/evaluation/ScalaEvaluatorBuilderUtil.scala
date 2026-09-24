@@ -4,42 +4,42 @@ package evaluation
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.CodeFragmentFactoryContextWrapper
-import com.intellij.debugger.engine.evaluation.expression._
+import com.intellij.debugger.engine.evaluation.expression.*
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.util.Condition
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.*
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil.isAtLeast212
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.*
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.*
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.*
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement, ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScPackage, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.*
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.*
+import org.jetbrains.plugins.scala.lang.psi.types.api.*
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.result.*
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.util.AnonymousFunction._
+import org.jetbrains.plugins.scala.util.AnonymousFunction.*
 import org.jetbrains.plugins.scala.util.SAMUtil.SAMToFunctionType
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants
 import org.jetbrains.plugins.scala.util.TopLevelMembers.topLevelMemberClassName
@@ -50,9 +50,9 @@ import scala.reflect.NameTransformer
 private[evaluation] trait ScalaEvaluatorBuilderUtil {
   this: ScalaEvaluatorBuilder =>
 
-  import ScalaEvaluatorBuilderUtil._
+  import ScalaEvaluatorBuilderUtil.*
   private val stdTypes = projectContext.stdTypes
-  import stdTypes._
+  import stdTypes.*
 
   def fileName: String = contextClass.toOption.flatMap(_.getContainingFile.toOption).map(_.name).orNull
 
