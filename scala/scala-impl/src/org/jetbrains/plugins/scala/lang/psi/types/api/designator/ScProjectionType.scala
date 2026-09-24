@@ -298,7 +298,7 @@ object ScProjectionType {
   }
 
   object withActual {
-    private[this] val extractor = new withActual(true)
+    private val extractor = new withActual(true)
 
     def unapply(proj: ScProjectionType): Some[(PsiNamedElement, ScSubstitutor)] = extractor.unapply(proj)
   }

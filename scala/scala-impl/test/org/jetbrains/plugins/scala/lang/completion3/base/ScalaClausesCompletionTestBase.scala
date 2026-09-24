@@ -43,7 +43,7 @@ abstract class ScalaClausesCompletionTestBase extends ScalaCompletionTestBase {
   protected def isExhaustiveCase(lookup: LookupElement) =
     isExhaustive(lookup, CASE)
 
-  private[this] def isExhaustive(lookup: LookupElement, lookupString: String) =
+  private def isExhaustive(lookup: LookupElement, lookupString: String) =
     hasItemText(lookup, lookupString)(
       itemTextBold = true,
       tailText = " " + completion.clauses.ExhaustiveMatchCompletionContributor.rendererTailText,

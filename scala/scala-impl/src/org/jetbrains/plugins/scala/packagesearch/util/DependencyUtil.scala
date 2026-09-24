@@ -20,7 +20,7 @@ import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
 object DependencyUtil {
-  private[this] val versionCompletion = VersionCompletion.instance()
+  private val versionCompletion = VersionCompletion.instance()
 
   @ApiStatus.Internal
   @VisibleForTesting
@@ -47,7 +47,7 @@ object DependencyUtil {
 
       private val Log: Logger = Logger.getInstance(classOf[CoursierVersionCompletion.type])
 
-      private[this] val completeApiFuture: CompletableFuture[Complete] = {
+      private val completeApiFuture: CompletableFuture[Complete] = {
         Log.info("Asynchronously instantiating the coursier completion API in a background thread")
         CompletableFuture.supplyAsync(
           () => {

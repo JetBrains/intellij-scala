@@ -73,7 +73,7 @@ object KindProjectorSimplifyTypeProjectionInspection {
   }
 
 
-  private[this] def boundsDefined(param: ScTypeParam): Boolean =
+  private def boundsDefined(param: ScTypeParam): Boolean =
     param.lowerTypeElement.isDefined || param.upperTypeElement.isDefined
 
   /**
@@ -86,14 +86,14 @@ object KindProjectorSimplifyTypeProjectionInspection {
       case _                                                                          => false
     })
 
-  private[this] def hasNoBounds(p: ScTypeParam): Boolean = {
+  private def hasNoBounds(p: ScTypeParam): Boolean = {
     (p.lowerTypeElement, p.upperTypeElement) match {
       case (None, None) => true
       case _            => false
     }
   }
 
-  private[this] def tryConvertToInlineSyntax(alias: ScTypeAliasDefinition): Option[String] = {
+  private def tryConvertToInlineSyntax(alias: ScTypeAliasDefinition): Option[String] = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(alias)
     implicit val context: Context = Context(alias)
 
@@ -153,7 +153,7 @@ object KindProjectorSimplifyTypeProjectionInspection {
     }
   }
 
-  private[this] def convertToFunctionSyntax(alias: ScTypeAliasDefinition): String = {
+  private def convertToFunctionSyntax(alias: ScTypeAliasDefinition): String = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(alias)
     implicit val context: Context = Context(alias)
 

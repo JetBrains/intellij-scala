@@ -131,7 +131,7 @@ object ScalaAfterNewCompletionContributor {
         }.toMap
     }
 
-  private[this] def appropriateType(clazz: PsiClass, types: Seq[ScType])(implicit context: Context): (ScType, Boolean) = {
+  private def appropriateType(clazz: PsiClass, types: Seq[ScType])(implicit context: Context): (ScType, Boolean) = {
     val (designatorType, parameters) = classComponents(clazz)
     val maybeParameter = parameters match {
       case Seq(head) => Some(head)
@@ -232,7 +232,7 @@ object ScalaAfterNewCompletionContributor {
     } yield LookupElementProps(actualType, hasSubstitutionProblem, extractedClass, extractedSubstitutor)
   }
 
-  private[this] def findInheritors(clazz: PsiClass)
+  private def findInheritors(clazz: PsiClass)
                                   (implicit project: Project) = {
     // this change is important for Scala Worksheet/Script classes. Will not find inheritors, due to file copy.
     val searchScope = clazz.getUseScope match {
@@ -243,7 +243,7 @@ object ScalaAfterNewCompletionContributor {
     ClassInheritorsSearch.search(clazz, searchScope, true).asScala
   }
 
-  private[this] def extractValidClass(`type`: ScType): Option[(PsiClass, ScSubstitutor)] = {
+  private def extractValidClass(`type`: ScType): Option[(PsiClass, ScSubstitutor)] = {
     val names = Set("scala.Boolean",
       "scala.Byte", "scala.Short", "scala.Int", "scala.Long",
       "scala.Float", "scala.Double",
@@ -263,10 +263,10 @@ object ScalaAfterNewCompletionContributor {
     }
   }
 
-  private[this] def classComponents(clazz: PsiClass): (ScDesignatorType, Seq[PsiTypeParameter]) =
+  private def classComponents(clazz: PsiClass): (ScDesignatorType, Seq[PsiTypeParameter]) =
     (ScDesignatorType(clazz), clazz.getTypeParameters.toSeq)
 
-  private[this] def findAppropriateType(types: Seq[ScType],
+  private def findAppropriateType(types: Seq[ScType],
                                         designatorType: ScDesignatorType,
                                         parameters: Iterable[PsiTypeParameter])(implicit context: Context): Option[(ScType, Boolean)] = {
     if (types.isEmpty) return None
@@ -286,9 +286,9 @@ object ScalaAfterNewCompletionContributor {
     None
   }
 
-  private[this] def fromParameters(designatorType: ScDesignatorType, parameters: Iterable[PsiTypeParameter]): ScType =
+  private def fromParameters(designatorType: ScDesignatorType, parameters: Iterable[PsiTypeParameter]): ScType =
     fromParametersTypes(designatorType, parameters.map(TypeParameterType(_)))
 
-  private[this] def fromParametersTypes(designatorType: ScDesignatorType, types: Iterable[ScType]): ScType =
+  private def fromParametersTypes(designatorType: ScDesignatorType, types: Iterable[ScType]): ScType =
     if (types.isEmpty) designatorType else ScParameterizedType(designatorType, types.toSeq)
 }

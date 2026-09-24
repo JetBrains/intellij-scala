@@ -131,8 +131,8 @@ trait ScalaPsiElement extends PsiElement
 
 object ScalaPsiElement {
 
-  private[this] val ContextKey = Key.create[PsiElement]("context.key")
-  private[this] val ChildKey = Key.create[PsiElement]("child.key")
+  private val ContextKey = Key.create[PsiElement]("context.key")
+  private val ChildKey = Key.create[PsiElement]("child.key")
 
   implicit class ScalaPsiElementExt(private val element: ScalaPsiElement) extends AnyVal {
 

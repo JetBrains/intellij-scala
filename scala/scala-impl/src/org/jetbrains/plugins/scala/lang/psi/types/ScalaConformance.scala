@@ -1759,7 +1759,7 @@ private object ScalaConformance {
     exs:             Seq[ScExistentialArgument],
     typeParamToType: TypeParameter => T
   ) {
-    private[this] lazy val remapExistentials: Map[ScExistentialArgument, T] =
+    private lazy val remapExistentials: Map[ScExistentialArgument, T] =
       exs.map(
         ex =>
           ex -> typeParamToType(

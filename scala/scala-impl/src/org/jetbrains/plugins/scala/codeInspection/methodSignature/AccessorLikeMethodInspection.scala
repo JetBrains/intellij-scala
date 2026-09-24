@@ -16,7 +16,7 @@ sealed abstract class AccessorLikeMethodInspection extends AbstractMethodSignatu
 
 object AccessorLikeMethodInspection {
 
-  private[this] val JsAnyFqn = "scala.scalajs.js.Any"
+  private val JsAnyFqn = "scala.scalajs.js.Any"
 
   final class EmptyParentheses extends AccessorLikeMethodInspection {
 

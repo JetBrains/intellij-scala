@@ -151,7 +151,7 @@ object ImportImplicitInstanceFix {
     } yield global
   }
 
-  private[this] def isRootClass(qualifiedName: String) = qualifiedName match {
+  private def isRootClass(qualifiedName: String) = qualifiedName match {
     case AnyRefFqn | AnyFqn | JavaLangObjectFqn => true
     case _ => false
   }

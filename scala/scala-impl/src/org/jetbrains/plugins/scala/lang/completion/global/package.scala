@@ -73,7 +73,7 @@ package object global {
       }
     }
 
-  private[this] def triggerGlobalMemberCompletionFeature(): Unit =
+  private def triggerGlobalMemberCompletionFeature(): Unit =
     FeatureUsageTracker
       .getInstance
       .triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)

@@ -805,7 +805,7 @@ object ScalaRefactoringUtil {
     expressions.map(e => (e, cannotBeIntroducedReason(e)))
   }
 
-  private[this] def getExpressions(selectedElement: PsiElement): Seq[ScExpression] =
+  private def getExpressions(selectedElement: PsiElement): Seq[ScExpression] =
     selectedElement.withParentsInFile
       .takeWhile(e => !isBlockLike(e))
       .filterByType[ScExpression]

@@ -225,7 +225,7 @@ object ExtractorMatch {
     }
   }
 
-  private[this] case class ApplyBasedExtractor(place: PsiElement) {
+  private case class ApplyBasedExtractor(place: PsiElement) {
     private implicit def context: Context = Context(place)
 
     def unapply(tpe: ScType): Option[ScType] =
@@ -239,10 +239,10 @@ object ExtractorMatch {
       } yield resTpe
   }
 
-  private[this] case class SeqLikeType(place: PsiElement) {
+  private case class SeqLikeType(place: PsiElement) {
     private implicit def context: Context = Context(place)
 
-    private[this] val seqFqn = place.scalaSeqFqn
+    private val seqFqn = place.scalaSeqFqn
 
     def unapply(tpe: ScType): Option[ScType] = {
       val baseTpes = Iterator(tpe) ++ BaseTypes.iterator(tpe)
@@ -253,7 +253,7 @@ object ExtractorMatch {
     }
   }
 
-  private[this] def extractedType(returnTpe: ScType, place: PsiElement, fun: ScFunction): Option[(ScType, Boolean)] = {
+  private def extractedType(returnTpe: ScType, place: PsiElement, fun: ScFunction): Option[(ScType, Boolean)] = {
     implicit val context: Context = Context(place)
 
     returnTpe match {
@@ -280,7 +280,7 @@ object ExtractorMatch {
    *   def toSeq: scala.Seq[_]
    * }
    */
-  private[this] def extractSequenceMatchType(tpe: ScType, place: PsiElement): Option[ScType] = {
+  private def extractSequenceMatchType(tpe: ScType, place: PsiElement): Option[ScType] = {
     val applyReturnTpe = ApplyBasedExtractor(place)
     for {
       _  <- findMember("lengthCompare", tpe, place, parameterless = false).orElse(findMember("length", tpe, place))
@@ -290,7 +290,7 @@ object ExtractorMatch {
     } yield t1
   }
 
-  private[this] def extractSeqElementType(seqTpe: ScType, place: PsiElement): Option[ScType] = {
+  private def extractSeqElementType(seqTpe: ScType, place: PsiElement): Option[ScType] = {
     lazy val applyBasedExtractor = ApplyBasedExtractor(place)
     lazy val seqLikeExtractor    = SeqLikeType(place)
 
@@ -316,7 +316,7 @@ object ExtractorMatch {
    * Returns the types of subpatterns for all applicable matching methods in scala 3 in the order of precedence.
    * See https://docs.scala-lang.org/scala3/reference/changed-features/pattern-matching.html#
    */
-  private[this] def scala3UnapplyExtractorMatches(tpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.Unapply] = {
+  private def scala3UnapplyExtractorMatches(tpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.Unapply] = {
     implicit val projectContext: ProjectContext = place
     implicit val context: Context = Context(place)
 
@@ -467,7 +467,7 @@ object ExtractorMatch {
    * Returns the types of subpatterns for all applicable matching methods in scala 3 in the order of precedence.
    * See https://docs.scala-lang.org/scala3/reference/changed-features/pattern-matching.html#
    */
-  private[this] def scala3UnapplySeqMatches(tpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.UnapplySeq] = {
+  private def scala3UnapplySeqMatches(tpe: ScType, place: PsiElement, fun: ScFunction): LazyList[ExtractorMatch.UnapplySeq] = {
     implicit val context: Context = Context(place)
 
     // v is the V from https://docs.scala-lang.org/scala3/reference/changed-features/pattern-matching.html#

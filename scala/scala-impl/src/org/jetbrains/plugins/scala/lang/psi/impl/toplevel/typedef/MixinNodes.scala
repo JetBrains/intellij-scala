@@ -302,8 +302,8 @@ object MixinNodes {
    * @param sourceKind how the signature was collected ([[SourceKind]])
    */
   class Node[T](val info: T, val sourceKind: SourceKind) {
-    private[this] var _concreteSuper: Node[T] = _
-    private[this] var _supers: Seq[Node[T]] = Vector.empty
+    private var _concreteSuper: Node[T] = _
+    private var _supers: Seq[Node[T]] = Vector.empty
 
     private[MixinNodes] def addSuper(node: Node[T]): Unit = _supers :+= node
 

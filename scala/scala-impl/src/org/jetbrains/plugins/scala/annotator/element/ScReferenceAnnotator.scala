@@ -536,7 +536,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
       case _ => Nil
     }
 
-  private[this] def createFixesByUsages(reference: ScReferenceExpression): List[CreateFromUsageQuickFixBase] =
+  private def createFixesByUsages(reference: ScReferenceExpression): List[CreateFromUsageQuickFixBase] =
     reference.getParent match {
       case _: ScMethodCall =>
         val isUpperCased = reference.refName.headOption.exists(_.isUpper)
@@ -559,7 +559,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
           Nil
     }
 
-  private[this] def createFixesByUsages(reference: ScStableCodeReference): List[CreateTypeDefinitionQuickFix] =
+  private def createFixesByUsages(reference: ScStableCodeReference): List[CreateTypeDefinitionQuickFix] =
     reference.getParent match {
       case st: ScSimpleTypeElement if st.isSingleton => Nil
       case st: ScSimpleTypeElement if st.annotation =>

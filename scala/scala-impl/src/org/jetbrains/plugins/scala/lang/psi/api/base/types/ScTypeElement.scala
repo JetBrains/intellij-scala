@@ -65,7 +65,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
       .foreach(_.effectiveParameterClauses)
 
   @volatile
-  private[this] var _analog: Option[ScTypeElement] = None
+  private var _analog: Option[ScTypeElement] = None
 
   def isRepeated: Boolean = {
     val nextNode = Option(getNextSibling).map(_.getNode)

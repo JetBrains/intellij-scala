@@ -20,7 +20,7 @@ package object quickfix {
   import ScalaPsiElementFactory.{createBlockFromExpr, createDeclaration}
   import ScalaTokenTypes.{tASSIGN, tCOLON}
 
-  private[this] val MutatorNamePattern = Pattern.compile(
+  private val MutatorNamePattern = Pattern.compile(
     """(?-i)(?:do|set|add|remove|insert|delete|aquire|release|update)(?:\p{Lu}.*)"""
   )
 
@@ -63,7 +63,7 @@ package object quickfix {
     isNotScala(method) && method.isAccessor
 
   @tailrec
-  private[this] def isNotScala(method: PsiElement): Boolean = method match {
+  private def isNotScala(method: PsiElement): Boolean = method match {
     case _: ScalaPsiElement => false
     case FakePsiMethod(original) if original ne method =>
       // this is important for @BeanProperty
@@ -72,7 +72,7 @@ package object quickfix {
     case _ => true
   }
 
-  private[this] def findChild(element: PsiElement,
+  private def findChild(element: PsiElement,
                               elementType: IElementType = tCOLON): Option[PsiElement] =
     element.children.find(_.getNode.getElementType == elementType)
 }

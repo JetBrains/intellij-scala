@@ -625,7 +625,7 @@ object ScalaPsiElementFactory {
   ): ScValueOrVariable =
     createMember(name, typeName, body, features, isVariable = isVariable).asInstanceOf[ScValueOrVariable]
 
-  private[this] def createMember(
+  private def createMember(
     @NonNls name:     String,
     @NonNls typeName: String,
     @Nullable body:   ScExpression,
@@ -686,7 +686,7 @@ object ScalaPsiElementFactory {
   def createVarFromValDeclaration(value: ScValue): ScVariable =
     createValueOrVariable(value, kVAL, kVAR).asInstanceOf[ScVariable]
 
-  private[this] def createValueOrVariable(
+  private def createValueOrVariable(
     valOrVar:  ScValueOrVariable,
     fromToken: IElementType,
     toToken:   IElementType
@@ -698,7 +698,7 @@ object ScalaPsiElementFactory {
       ScalaFeatures.forPsiOrDefault(valOrVar)
     )
 
-  private[this] def replaceKeywordTokenIn(member: ScMember,
+  private def replaceKeywordTokenIn(member: ScMember,
                                           fromToken: IElementType = kVAR,
                                           toToken: IElementType = kVAL) = {
     val offset = member.findFirstChildByType(fromToken).get.getStartOffsetInParent
@@ -768,7 +768,7 @@ object ScalaPsiElementFactory {
   ): ScPatternDefinition =
     createMember(name, typeName, body, features, modifiers, isVariable).asInstanceOf[ScPatternDefinition]
 
-  private[this] def getExprFromFirstDef(
+  private def getExprFromFirstDef(
     @NonNls text: String,
     features:     ScalaFeatures
   )(implicit
@@ -1523,7 +1523,7 @@ object ScalaPsiElementFactory {
   }
 
   @tailrec
-  private[this] def advanceLexer(psiBuilder: PsiBuilder)
+  private def advanceLexer(psiBuilder: PsiBuilder)
                                 (marker: PsiBuilder.Marker,
                                  fileNodeType: IFileElementType): Unit =
     if (psiBuilder.eof()) {
@@ -1773,7 +1773,7 @@ object ScalaPsiElementFactory {
     expr
   }
 
-  private[this] def createClassWithBody(
+  private def createClassWithBody(
     @NonNls body:  String,
     scalaFeatures: ScalaFeatures,
     forceBraces: Boolean = false,
@@ -1792,7 +1792,7 @@ object ScalaPsiElementFactory {
       .asInstanceOf[ScClass]
   }
 
-  private[this] def createGivenDefWithBody(
+  private def createGivenDefWithBody(
     @NonNls body: String,
     scalaFeatures: ScalaFeatures,
   )(implicit ctx: ProjectContext
@@ -1805,7 +1805,7 @@ object ScalaPsiElementFactory {
       .asInstanceOf[ScGivenDefinition]
   }
 
-  private[this] def createMemberFromText(
+  private def createMemberFromText(
     @NonNls text: String,
     features:     ScalaFeatures
   )(implicit

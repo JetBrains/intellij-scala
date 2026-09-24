@@ -106,7 +106,7 @@ object FlipComparisonInMethodCallExprIntention {
       }
   }
 
-  private[this] def stripUnnecessaryParentheses(expr: ScExpression): Unit = expr match {
+  private def stripUnnecessaryParentheses(expr: ScExpression): Unit = expr match {
     case e: ScParenthesisedExpr if e.isParenthesisRedundant =>
       // if there already were parentheses in the expression before refactoring,
       // then keep one pair when stripping unnecessary parentheses

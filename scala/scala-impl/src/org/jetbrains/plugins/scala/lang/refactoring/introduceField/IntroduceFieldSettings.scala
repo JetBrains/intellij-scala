@@ -6,13 +6,13 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
   private val scalaSettings = ScalaApplicationSettings.getInstance()
-  private[this] var isVar = scalaSettings.INTRODUCE_FIELD_IS_VAR
-  private[this] var replAll = scalaSettings.INTRODUCE_FIELD_REPLACE_ALL
-  private[this] var visLevel = scalaSettings.INTRODUCE_FIELD_VISIBILITY
-  private[this] var explType = scalaSettings.INTRODUCE_FIELD_EXPLICIT_TYPE
-  private[this] var initInDecl = scalaSettings.INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION
-  private[this] var initInDeclEn: Boolean = true
-  private[this] var initLocEn: Boolean = true
+  private var isVar = scalaSettings.INTRODUCE_FIELD_IS_VAR
+  private var replAll = scalaSettings.INTRODUCE_FIELD_REPLACE_ALL
+  private var visLevel = scalaSettings.INTRODUCE_FIELD_VISIBILITY
+  private var explType = scalaSettings.INTRODUCE_FIELD_EXPLICIT_TYPE
+  private var initInDecl = scalaSettings.INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION
+  private var initInDeclEn: Boolean = true
+  private var initLocEn: Boolean = true
 
   var replaceAllChbEnabled: Boolean = ifc.occurrences.length > 1
   var defineVarChbEnabled: Boolean = true

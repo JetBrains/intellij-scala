@@ -104,7 +104,7 @@ object ScNumericLiteralAnnotator {
   }
 
   @annotation.tailrec
-  private[this] def stringToNumber(number: String,
+  private def stringToNumber(number: String,
                                    kind: IntegerKind,
                                    isNegative: Boolean)
                                   (index: Int = 0,

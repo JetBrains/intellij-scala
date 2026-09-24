@@ -13,7 +13,7 @@ private final class DecompilerClassVisitor extends ClassVisitor(Opcodes.ASM9) {
    */
   private val rawSignature: java.lang.StringBuilder = new java.lang.StringBuilder()
 
-  private[this] var _source: Option[String] = None
+  private var _source: Option[String] = None
 
   def signature: Option[Array[Byte]] =
     Option(rawSignature.toString)

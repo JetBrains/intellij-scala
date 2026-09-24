@@ -59,7 +59,7 @@ class ScalaCompletionTestFixture(
     checkResultByText(resultText)
   }
 
-  private[this] def selectLookupItem(lookup: LookupImpl, items: Iterable[LookupElement], completionChar: Char)
+  private def selectLookupItem(lookup: LookupImpl, items: Iterable[LookupElement], completionChar: Char)
                                     (predicate: LookupElement => Boolean): Unit = {
     items.find(predicate) match {
       case Some(item) =>
@@ -182,7 +182,7 @@ class ScalaCompletionTestFixture(
     case _ => throw new AssertionError("Lookup not found")
   }
 
-  private[this] def getActiveLookupWithItems(itemsExtractor: LookupImpl => Iterable[LookupElement] = allItems): (LookupImpl, Iterable[LookupElement]) = {
+  private def getActiveLookupWithItems(itemsExtractor: LookupImpl => Iterable[LookupElement] = allItems): (LookupImpl, Iterable[LookupElement]) = {
     val activeLookup = LookupManager.getActiveLookup(getEditor)
     activeLookup match {
       case impl: LookupImpl =>

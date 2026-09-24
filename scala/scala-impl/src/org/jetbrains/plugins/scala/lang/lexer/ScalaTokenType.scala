@@ -63,7 +63,7 @@ object ScalaTokenType {
 
   object IsTemplateDefinition {
 
-    private[this] val tokenSet = TokenSet.create(
+    private val tokenSet = TokenSet.create(
       ClassKeyword,
       TraitKeyword,
       EnumKeyword,

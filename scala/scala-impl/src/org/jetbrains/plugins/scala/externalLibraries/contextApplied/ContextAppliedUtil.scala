@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
  * @see <a href="https://github.com/augustjune/context-applied">context-applied</a>
  */
 object ContextAppliedUtil {
-  private[this] def createSyntheticContextAppliedDef(
+  private def createSyntheticContextAppliedDef(
     name:              String,
     boundTypeElements: Seq[ScTypeElement],
     context:           ScalaPsiElement

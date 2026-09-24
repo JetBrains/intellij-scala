@@ -255,7 +255,7 @@ object ScalaOverrideContributor {
       .withExpensiveRenderer(expensiveRenderer(member, icon))
   }
 
-  private[this] class MyInsertHandler(hasOverride: Boolean) extends InsertHandler[LookupElement] {
+  private class MyInsertHandler(hasOverride: Boolean) extends InsertHandler[LookupElement] {
 
     override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
       val project = context.getProject

@@ -13,7 +13,7 @@ class ScalaFindUsagesHandlerBase(
   element: PsiElement,
   config: ScalaFindUsagesConfiguration
 ) extends FindUsagesHandler(element) {
-  private[this] def applyFactoryMethods(cls: ScClass): Seq[PsiMethod] = {
+  private def applyFactoryMethods(cls: ScClass): Seq[PsiMethod] = {
     val companion    = ScalaPsiUtil.getCompanionModule(cls)
     val applyMethods = companion.toSeq.flatMap(_.allFunctionsByName("apply"))
 

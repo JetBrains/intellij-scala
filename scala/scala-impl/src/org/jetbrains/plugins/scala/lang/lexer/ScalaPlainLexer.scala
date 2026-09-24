@@ -80,7 +80,7 @@ object ScalaPlainLexer {
     )
   }
 
-  private[this] final class ScalaFlexLexer(isScala3: Boolean)
+  private final class ScalaFlexLexer(isScala3: Boolean)
     extends FlexAdapter(new ScalaCoreLexer(isScala3)) {
 
     override def getFlex: ScalaCoreLexer = super.getFlex.asInstanceOf[ScalaCoreLexer]
@@ -104,7 +104,7 @@ object ScalaPlainLexer {
       super.getState << 1 | (if (getFlex.isInterpolatedStringState) 1 else 0)
   }
 
-  private[this] final class ScalaSplittingFlexLexer(treatDocCommentAsBlockComment: Boolean)
+  private final class ScalaSplittingFlexLexer(treatDocCommentAsBlockComment: Boolean)
     extends FlexAdapter(new ScalaSplittingLexer(null: java.io.Reader)) {
 
     override def getTokenType: IElementType = super.getTokenType match {

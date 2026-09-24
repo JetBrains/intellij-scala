@@ -9,10 +9,10 @@ class YimportsResolveTest extends SimpleResolveTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_2_13
 
-  private[this] def setUpDefaultImports(imports: String*): Unit =
+  private def setUpDefaultImports(imports: String*): Unit =
     setCompilerOptions(s"-Yimports:${imports.mkString(",")}")
 
-  private[this] def setCompilerOptions(options: String*): Unit = {
+  private def setCompilerOptions(options: String*): Unit = {
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val newSettings    = defaultProfile.getSettings.copy(
       additionalCompilerOptions = options

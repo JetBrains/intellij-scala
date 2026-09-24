@@ -613,7 +613,7 @@ object ScalaSmartCompletionContributor {
    * @param context parent class for the `element`
    * @param isInner is `element` inside of `context`
    */
-  private[this] def createLookupElement(element: PsiClass, context: PsiClass, isInner: Boolean = true): ScalaLookupItem = {
+  private def createLookupElement(element: PsiClass, context: PsiClass, isInner: Boolean = true): ScalaLookupItem = {
     val resolveResult = new ScalaResolveResult(element)
 
     val lookupElement = resolveResult.createLookupElement(
@@ -638,19 +638,19 @@ object ScalaSmartCompletionContributor {
     lookupElement
   }
 
-  private[this] def isAccessibleWithoutExtraImports(element: PsiNamedElement)(implicit place: PsiElement): Boolean = {
+  private def isAccessibleWithoutExtraImports(element: PsiNamedElement)(implicit place: PsiElement): Boolean = {
     val ref = ScalaPsiElementFactory.createReferenceExpressionFromText(element.name)
     ref.context = place.getContext
     ref.resolve() == element
   }
 
-  private[this] def isAccessible(item: ScalaLookupItem)
+  private def isAccessible(item: ScalaLookupItem)
                                 (implicit place: PsiElement): Boolean = item.getPsiElement.nameContext match {
     case member: ScMember => isAccessible(member)
     case _ => true
   }
 
-  private[this] def isAccessible(member: PsiMember)
+  private def isAccessible(member: PsiMember)
                                 (implicit place: PsiElement): Boolean =
     ResolveUtils.isAccessible(member, place, forCompletion = true)
 
@@ -671,7 +671,7 @@ object ScalaSmartCompletionContributor {
     }.asJava
   }
 
-  private[this] def createLookupElement(params: Iterable[ScType],
+  private def createLookupElement(params: Iterable[ScType],
                                         builder: AnonymousFunctionTextBuilder)
                                        (implicit project: Project, tpc: TypePresentationContext, context: Context) =
     LookupElementBuilder.create("").withRenderer {
@@ -820,7 +820,7 @@ object ScalaSmartCompletionContributor {
     }
   }
 
-  private[this] class AnonymousFunctionTextBuilder(braceArgs: Boolean) {
+  private class AnonymousFunctionTextBuilder(braceArgs: Boolean) {
 
     type Parameter = (ScType, String)
 

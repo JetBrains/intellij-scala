@@ -279,7 +279,7 @@ trait ScalaTypePresentation extends TypePresentation {
     }
 
     object InfixDesignator {
-      private[this] val showAsInfixAnnotation: String = "scala.annotation.showAsInfix"
+      private val showAsInfixAnnotation: String = "scala.annotation.showAsInfix"
 
       private def mayUseSimpleName(named: PsiNamedElement): Boolean = {
         val simpleName = named.name

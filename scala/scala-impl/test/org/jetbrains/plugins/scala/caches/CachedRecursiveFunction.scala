@@ -37,13 +37,13 @@ import org.jetbrains.plugins.scala.util.PsiSelectionUtil
 case class CachedRecursiveFunction(name: String)(implicit projectContext: ProjectContext) {
   assert(Seq("#", "@", "+").forall(!name.contains(_)))
 
-  private[this] val psi =
+  private val psi =
     PsiSelectionUtil.selectElement[PsiElement](
       ScalaPsiElementFactory.createScalaFileFromText("class Test", ScalaFeatures.default)(projectContext),
       PsiSelectionUtil.path("Test")
     )
-  private[this] var innerCalls = Seq.empty[CachedRecursiveFunction]
-  private[this] var calcCounter = 0
+  private var innerCalls = Seq.empty[CachedRecursiveFunction]
+  private var calcCounter = 0
 
   def ~>(innerCall: CachedRecursiveFunction): innerCall.type = {
     innerCalls :+= innerCall

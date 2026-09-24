@@ -172,7 +172,7 @@ object Implementation {
 
   object EmptyCollectionFactoryCall {
 
-    private[this] val TraversableClassNames =
+    private val TraversableClassNames =
       Set("Seq", "Array", "List", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
 
     def unapply(genericCall: ScGenericCall): Option[ScReferenceExpression] = genericCall match {

@@ -85,11 +85,11 @@ object ScalaExhaustiveMatchPostfixTemplate {
   }
 
 
-  private[this] def removeRange(range: TextRange)
+  private def removeRange(range: TextRange)
                                (implicit editor: Editor): Unit =
     editor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
 
-  private[this] def startTemplate(expressionText: String, clausesText: String)
+  private def startTemplate(expressionText: String, clausesText: String)
                                  (implicit project: Project, editor: Editor): Unit = {
     val templateString = s"$expressionText $clausesText"
 
@@ -99,7 +99,7 @@ object ScalaExhaustiveMatchPostfixTemplate {
     manager.startTemplate(editor, template)
   }
 
-  private[this] def findMatchStatementAtCaret(file: PsiFile)
+  private def findMatchStatementAtCaret(file: PsiFile)
                                              (implicit editor: Editor) =
     file.findElementAt(editor.getCaretModel.getOffset - 1) match {
       case null => None

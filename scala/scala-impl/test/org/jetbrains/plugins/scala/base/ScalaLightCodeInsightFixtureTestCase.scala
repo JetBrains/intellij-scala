@@ -45,7 +45,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected val END = EditorTestUtil.SELECTION_END_TAG
 
   // var is needed to pick up updated java fixture in setUp
-  private[this] var _scalaFixture: ScalaCodeInsightTestFixture = _
+  private var _scalaFixture: ScalaCodeInsightTestFixture = _
   protected def scalaFixture: ScalaCodeInsightTestFixture = _scalaFixture
 
   override def getTestDataPath: String = TestUtils.getTestDataPath + "/"
@@ -53,7 +53,7 @@ abstract class ScalaLightCodeInsightFixtureTestCase
   protected def sourceRootPath: Path = null
 
   //start section: indexing mode setup
-  private[this] var indexingMode: IndexingMode = IndexingMode.SMART
+  private var indexingMode: IndexingMode = IndexingMode.SMART
 
   // SCL-21849
   override def getIndexingMode: IndexingMode = indexingMode

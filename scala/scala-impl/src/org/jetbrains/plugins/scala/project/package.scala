@@ -104,9 +104,9 @@ package object project {
      */
     private val LibraryVersion = """(?<=[:_\-])\d+\.\d+\.\d+[^:\s]*""".r
 
-    private[this] val RuntimeLibrary = "((?:scala|dotty|scala3)-library).+".r
+    private val RuntimeLibrary = "((?:scala|dotty|scala3)-library).+".r
 
-    private[this] val JarVersion = "(?<=-)\\d+\\.\\d+\\.\\d+\\S*(?=\\.jar$)".r
+    private val JarVersion = "(?<=-)\\d+\\.\\d+\\.\\d+\\S*(?=\\.jar$)".r
 
     def isRuntimeLibrary(name: String): Boolean = RuntimeLibrary.findFirstIn(name).isDefined
 

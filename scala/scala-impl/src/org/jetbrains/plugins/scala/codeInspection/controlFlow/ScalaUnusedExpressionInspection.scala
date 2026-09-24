@@ -110,7 +110,7 @@ object ScalaUnusedExpressionInspection {
     case quickFix => List(quickFix, new AddReturnQuickFix(expression))
   }
 
-  private[this] class AddReturnQuickFix(expression: ScExpression) extends PsiUpdateModCommandAction[ScExpression](expression) {
+  private class AddReturnQuickFix(expression: ScExpression) extends PsiUpdateModCommandAction[ScExpression](expression) {
     override def getFamilyName: String = ScalaInspectionBundle.message("add.return.keyword")
 
     override def invoke(context: ActionContext, element: ScExpression, updater: ModPsiUpdater): Unit = {

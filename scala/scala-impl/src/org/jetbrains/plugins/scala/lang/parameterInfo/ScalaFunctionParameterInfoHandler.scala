@@ -918,7 +918,7 @@ object ScalaFunctionParameterInfoHandler {
         case _ => None
       }
 
-    private[this] def findConstructorWithSubstitutor(ref: ScReferenceExpression): Option[UniversalApplyCallContext] =
+    private def findConstructorWithSubstitutor(ref: ScReferenceExpression): Option[UniversalApplyCallContext] =
       ref.multiResolveScala(incomplete = false)
         .headOption
         .collect {
@@ -926,7 +926,7 @@ object ScalaFunctionParameterInfoHandler {
             UniversalApplyCallContext(method, subst)
         }
 
-    private[this] def getArgumentLists(call: ScMethodCall): Seq[ScArgumentExprList] = {
+    private def getArgumentLists(call: ScMethodCall): Seq[ScArgumentExprList] = {
       @tailrec def doGetArgs(call: ScMethodCall, acc: Vector[ScArgumentExprList]): Seq[ScArgumentExprList] =
         call.getEffectiveInvokedExpr match {
           case inner: ScMethodCall => doGetArgs(inner, inner.args +: acc)

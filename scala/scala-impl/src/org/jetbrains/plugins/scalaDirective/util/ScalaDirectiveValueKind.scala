@@ -31,7 +31,7 @@ object ScalaDirectiveValueKind {
       case _                           => (text, Plain)
     }
 
-  private[this] def unwrap(text: String): String =
+  private def unwrap(text: String): String =
     text.substring(1, text.length - 1)
 
   case object Plain          extends ScalaDirectiveValueKind

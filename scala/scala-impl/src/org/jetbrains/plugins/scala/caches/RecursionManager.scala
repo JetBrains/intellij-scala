@@ -131,11 +131,11 @@ object RecursionManager {
     // the call that has an equal value can be cached because it is
     // the call that started the recursion
     var minStackDepthInRecursion: Int = Int.MaxValue
-    private[this] var depth: Int = 0
-    private[this] var enters: Int = 0
-    private[this] var exits: Int = 0
+    private var depth: Int = 0
+    private var enters: Int = 0
+    private var exits: Int = 0
 
-    private[this] var _isDirty: Boolean = false
+    private var _isDirty: Boolean = false
 
     // The local cache is an optimization and just prevents unnecessary recalculation.
     // It contains cached values that were created inside a recursion.

@@ -58,7 +58,7 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
     ScMethodInvocationAnnotator.annotateMethodInvocation(call, inDesugaring = true)(delegateHolder)
   }
 
-  private[this] def createSyntheticToRealRangeMap(injections: Seq[ScExpression],
+  private def createSyntheticToRealRangeMap(injections: Seq[ScExpression],
                                                   syntheticArgs: Seq[ScExpression]): Map[TextRange, TextRange] =
     syntheticArgs.map(_.getTextRange).zip(injections.map(_.getTextRange)).toMap
 }

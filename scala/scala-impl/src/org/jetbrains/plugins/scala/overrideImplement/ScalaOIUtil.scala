@@ -208,7 +208,7 @@ object ScalaOIUtil {
   def getMembersToOverride(clazz: ScTemplateDefinition): Seq[ClassMember] =
     classMembersWithFilter(clazz, withSelfType = true)(needOverride(_, clazz), needOverride(_, clazz))
 
-  private[this] def classMembersWithFilter(
+  private def classMembersWithFilter(
     definition: ScTemplateDefinition,
     withSelfType: Boolean,
     isOverride: Boolean = true

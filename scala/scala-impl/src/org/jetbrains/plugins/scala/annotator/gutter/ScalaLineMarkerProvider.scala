@@ -70,7 +70,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
       info
     } else lineMarkerInfo
 
-  private[this] def createMarkerInfo(element: PsiElement): LineMarkerInfo[PsiElement] = {
+  private def createMarkerInfo(element: PsiElement): LineMarkerInfo[PsiElement] = {
     val leaf = PsiTreeUtil.firstChild(element).toOption.getOrElse(element)
     new LineMarkerInfo[PsiElement](
       leaf,
@@ -78,13 +78,13 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
     )
   }
 
-  private[this] def addSeparatorInfo(info: LineMarkerInfo[? <: PsiElement]): Unit = {
+  private def addSeparatorInfo(info: LineMarkerInfo[? <: PsiElement]): Unit = {
     val colorScheme = EditorColorsManager.getInstance.getGlobalScheme
     info.separatorColor = colorScheme.getColor(CodeInsightColors.METHOD_SEPARATORS_COLOR)
     info.separatorPlacement = SeparatorPlacement.TOP
   }
 
-  private[this] def arrowUpLineMarker(
+  private def arrowUpLineMarker(
     element: PsiElement,
     icon: Icon,
     markerType: ScalaMarkerType,
@@ -95,7 +95,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
   }
 
   /* Validates that this psi element can be the first one in a lambda */
-  private[this] def canBeFunctionalExpressionAnchor(e: PsiElement): Boolean = {
+  private def canBeFunctionalExpressionAnchor(e: PsiElement): Boolean = {
     val elementType = e.getNode.getElementType
     elementType match {
       case ScalaTokenTypes.tLBRACE =>
@@ -107,16 +107,16 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
     }
   }
 
-  private[this] def funExprParent(element: PsiElement): Option[(ScExpression, PsiClass)] =
+  private def funExprParent(element: PsiElement): Option[(ScExpression, PsiClass)] =
     element.parentsInFile.collectFirst {
       case _: ScMember                    => None
       case e @ SAMTypeImplementation(sam) => Option(e -> sam)
     }.flatten
 
-  private[this] val trivialSAMs: Set[String] = Set("scala.Function", "scala.PartialFunction", "java.util.function", "scala.ContextFunction")
-  private[this] def isInterestingSAM(sam: PsiClass): Boolean = !trivialSAMs.exists(sam.qualifiedName.startsWith)
+  private val trivialSAMs: Set[String] = Set("scala.Function", "scala.PartialFunction", "java.util.function", "scala.ContextFunction")
+  private def isInterestingSAM(sam: PsiClass): Boolean = !trivialSAMs.exists(sam.qualifiedName.startsWith)
 
-  private[this] def getImplementsSAMTypeMarker(element: PsiElement): Option[LineMarkerInfo[? <: PsiElement]] = {
+  private def getImplementsSAMTypeMarker(element: PsiElement): Option[LineMarkerInfo[? <: PsiElement]] = {
     if (!SamOption.isEnabled) {
       return None
     }
@@ -131,7 +131,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
     else None
   }
 
-  private[this] def getOverridesImplementsMarkers(element: PsiElement): Option[LineMarkerInfo[? <: PsiElement]] = {
+  private def getOverridesImplementsMarkers(element: PsiElement): Option[LineMarkerInfo[? <: PsiElement]] = {
     val isEnabled = OverridingOption.isEnabled || ImplementingOption.isEnabled
     if (!isEnabled)
       return None
@@ -475,7 +475,7 @@ private object GutterUtil {
     }
   }
 
-  private[this] def nameOf(definition: ScTypeDefinitionLike) = definition match {
+  private def nameOf(definition: ScTypeDefinitionLike) = definition match {
     case _: ScEnum => ScalaBundle.message("companion.enum")
     case _: ScClass => ScalaBundle.message("companion.class")
     case _: ScTrait => ScalaBundle.message("companion.trait")
@@ -484,7 +484,7 @@ private object GutterUtil {
     case _ => "" // Just "Has a companion" is OK.
   }
 
-  private[this] def iconFor(definition: ScTypeDefinitionLike, swapped: Boolean): Icon = definition match {
+  private def iconFor(definition: ScTypeDefinitionLike, swapped: Boolean): Icon = definition match {
     case _: ScEnum => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
     case _: ScClass => if (swapped) Icons.CLASS_COMPANION_SWAPPED else Icons.CLASS_COMPANION
     case _: ScTrait => if (swapped) Icons.TRAIT_COMPANION_SWAPPED else Icons.TRAIT_COMPANION

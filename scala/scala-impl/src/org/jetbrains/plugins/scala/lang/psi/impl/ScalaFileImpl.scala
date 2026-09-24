@@ -444,7 +444,7 @@ object ScalaFileImpl {
 
   def toVector(name: String): List[String] = if (name.isEmpty) Nil else name.split('.').toList
 
-  private[this] var duringMoveRefactoring: Boolean = false
+  private var duringMoveRefactoring: Boolean = false
 
   private def isDuringMoveRefactoring: Boolean = duringMoveRefactoring
 

@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.packagesearch.util.DependencyUtil
 
 final class CopySbtDependencyToScalaDirectiveTest extends CopyPasteTestBase {
   //region Completion auto popups after paste test configuration
-  private[this] var completionAutoPopupTester: CompletionAutoPopupTester = _
-  private[this] var scalaCompletionTestFixture: ScalaCompletionTestFixture = _
+  private var completionAutoPopupTester: CompletionAutoPopupTester = _
+  private var scalaCompletionTestFixture: ScalaCompletionTestFixture = _
 
   override def setUp(): Unit = {
     super.setUp()

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScIntegerLiteral,
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, api}
 
-sealed abstract class NumberLiteralQuickFix[L <: Numeric](private[this] val literal: L)
+sealed abstract class NumberLiteralQuickFix[L <: Numeric](private val literal: L)
   extends IntentionAction
     with DumbAware {
   protected def transformText(text: String): String

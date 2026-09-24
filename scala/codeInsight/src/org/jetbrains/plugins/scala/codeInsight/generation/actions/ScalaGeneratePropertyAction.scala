@@ -43,7 +43,7 @@ object ScalaGeneratePropertyAction {
     private def findValidVariableDefinition(implicit editor: Editor, file: PsiFile) =
       elementOfTypeAtCaret(classOf[ScVariableDefinition]).find(isVariableDefinitionValid)
 
-    private[this] def isVariableDefinitionValid(definition: ScVariableDefinition): Boolean =
+    private def isVariableDefinitionValid(definition: ScVariableDefinition): Boolean =
       definition.isSimple && definition.containingClass != null
 
     private def addPropertyMembers(definition: ScVariableDefinition): Unit = {

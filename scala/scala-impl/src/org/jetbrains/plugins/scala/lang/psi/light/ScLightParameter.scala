@@ -16,7 +16,7 @@ class ScLightParameter(name: String, tpe: () => PsiType, scope: PsiElement, isVa
   extends LightParameter(name, NullPsiType, scope, scope.getLanguage, isVarargs) {
 
   @volatile
-  private[this] var computedType: PsiType = NullPsiType
+  private var computedType: PsiType = NullPsiType
 
   override def getType: PsiType = {
     if (computedType == NullPsiType) {

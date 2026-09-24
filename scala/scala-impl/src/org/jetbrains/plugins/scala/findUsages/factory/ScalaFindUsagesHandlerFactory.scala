@@ -78,7 +78,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     }
   }
 
-  private[this] def doBeforeIndicesSearchAction(target: PsiNamedElement, usageType: UsageType): Boolean =
+  private def doBeforeIndicesSearchAction(target: PsiNamedElement, usageType: UsageType): Boolean =
     ExternalSearchScopeChecker.checkSearchScopeIsSufficientExternally(target, usageType)
 
   private def maybeChooseSuper(element: PsiElement, config: ScalaFindUsagesConfiguration) = element match {

@@ -90,7 +90,7 @@ package object expression {
         element
       }
 
-    private[this] def convertToBraceless[E <: ScalaPsiElement](element: E)(leftParenOrBrace: E => Option[PsiElement],
+    private def convertToBraceless[E <: ScalaPsiElement](element: E)(leftParenOrBrace: E => Option[PsiElement],
                                                                            rightParenOrBrace: E => Option[PsiElement],
                                                                            keyword: E => Option[PsiElement],
                                                                            templateWithKeyword: String)

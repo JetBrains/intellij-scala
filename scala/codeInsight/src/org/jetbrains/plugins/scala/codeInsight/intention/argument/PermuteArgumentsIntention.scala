@@ -58,7 +58,7 @@ object PermuteArgumentsIntention {
   }
 
   @tailrec
-  private[this] def argOrNamedArg(expr: ScExpression): Option[ScExpression] = expr.getContext match {
+  private def argOrNamedArg(expr: ScExpression): Option[ScExpression] = expr.getContext match {
     case argList: ScArgumentExprList => Some(expr)
     case context: ScExpression => argOrNamedArg(context)
     case _ => None

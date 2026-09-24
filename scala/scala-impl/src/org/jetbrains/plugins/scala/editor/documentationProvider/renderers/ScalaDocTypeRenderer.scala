@@ -268,7 +268,7 @@ private [documentationProvider] object ScalaDocTypeRenderer {
   }
 
   object InfixDesignator {
-    private[this] val showAsInfixAnnotation: String = "scala.annotation.showAsInfix"
+    private val showAsInfixAnnotation: String = "scala.annotation.showAsInfix"
 
     private def mayUseSimpleName(named: PsiNamedElement)
                                 (implicit context: TypePresentationContext, projectContext: ProjectContext): Boolean = {

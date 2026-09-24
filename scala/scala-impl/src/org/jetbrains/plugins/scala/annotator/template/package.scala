@@ -40,7 +40,7 @@ package object template {
     if (toLowerCase) result.toLowerCase else result
   }
 
-  private[this] def isInterface(clazz: PsiClass)
+  private def isInterface(clazz: PsiClass)
                                (defaultValue: => Boolean = false) = clazz match {
     case _: ScTrait => true
     case _ if clazz.isInterface => !clazz.annotationType

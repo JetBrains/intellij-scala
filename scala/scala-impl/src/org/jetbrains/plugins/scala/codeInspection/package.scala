@@ -47,7 +47,7 @@ package object codeInspection {
       } ||
       isInUnitFunctionReturnPosition(expression, isInScope)
 
-  private[this] def parentCannotUseExprAsResult(expression: ScExpression): Boolean = expression.getParent match {
+  private def parentCannotUseExprAsResult(expression: ScExpression): Boolean = expression.getParent match {
     case block: ScBlock => !block.resultExpression.contains(expression)
     case f: ScFor if f.body.contains(expression) => !f.isYield
     case w: ScWhile if w.expression.contains(expression) => true
@@ -57,7 +57,7 @@ package object codeInspection {
     case _ => false
   }
 
-  private[this] def parents(expression: ScExpression): Iterator[PsiElement] = {
+  private def parents(expression: ScExpression): Iterator[PsiElement] = {
     def isNotAncestor(maybeExpression: Option[ScExpression]) =
       maybeExpression.forall(!PsiTreeUtil.isAncestor(_, expression, false))
 
@@ -74,7 +74,7 @@ package object codeInspection {
     }
   }
 
-  private[this] def isInUnitFunctionReturnPosition(expression: ScExpression, isInScope: PsiElement => Boolean) = {
+  private def isInUnitFunctionReturnPosition(expression: ScExpression, isInScope: PsiElement => Boolean) = {
     findDefiningFunction(expression).exists { definition =>
       isInScope(definition) && isUnitFunction(definition) && definition.returnUsages(expression)
     }
@@ -95,7 +95,7 @@ package object codeInspection {
         .exists(scType.conforms)
     }
 
-  private[this] def createParameterizedType(clazz: PsiClass)(implicit context: Context) = {
+  private def createParameterizedType(clazz: PsiClass)(implicit context: Context) = {
     val designatorType = ScDesignatorType(clazz)
     clazz.getTypeParameters match {
       case Array() => designatorType

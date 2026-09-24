@@ -29,7 +29,7 @@ object ImplicitConversionResolveResult {
 
     ProgressManager.checkCanceled()
 
-    private[this] var innerState: ResolveState = ScalaResolveState.withImplicitConversion(result.resolveResult)
+    private var innerState: ResolveState = ScalaResolveState.withImplicitConversion(result.resolveResult)
 
     def state: ResolveState = innerState
 
@@ -130,7 +130,7 @@ object ImplicitConversionResolveResult {
   }
 
 
-  private[this] def findImplicitConversionOrExtension(
+  private def findImplicitConversionOrExtension(
     expressionType:     ScType,
     refName:            Option[String],
     ref:                PsiElement,
@@ -183,12 +183,12 @@ object ImplicitConversionResolveResult {
     found
   }
 
-  private[this] def expressionType(implicit place: ScExpression) =
+  private def expressionType(implicit place: ScExpression) =
     place.getTypeWithoutImplicits()
       .map(_.tryExtractDesignatorSingleton)
       .toOption
 
-  private[this] def arguments(processor: BaseProcessor, noImplicitsForArgs: Boolean) =
+  private def arguments(processor: BaseProcessor, noImplicitsForArgs: Boolean) =
     processor match {
       case methodProcessor: MethodResolveProcessor if noImplicitsForArgs =>
         for {

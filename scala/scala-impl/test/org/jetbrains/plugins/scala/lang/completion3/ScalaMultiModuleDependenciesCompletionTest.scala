@@ -39,7 +39,7 @@ final class ScalaMultiModuleDependenciesCompletionTest
 
   import ScalaMultiModuleDependenciesCompletionTest._
 
-  private[this] val myLoaders = mutable.Set.empty[LibraryLoader]
+  private val myLoaders = mutable.Set.empty[LibraryLoader]
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(ScalaSDKLoader())
 
@@ -137,9 +137,9 @@ final class ScalaMultiModuleDependenciesCompletionTest
 private object ScalaMultiModuleDependenciesCompletionTest {
   final case class TestData(specClassName: String, allMethods: Set[String], unavailableMethods: Set[String])
 
-  private[this] val COMMON_ZIO_METHODS = Set("check", "checkAll", "checkN")
-  private[this] val ZIO1_SPECIFIC_METHODS = Set("checkAllM", "checkAllMPar", "checkM", "checkNM")
-  private[this] val ZIO2_SPECIFIC_METHODS = Set("checkAllPar")
+  private val COMMON_ZIO_METHODS = Set("check", "checkAll", "checkN")
+  private val ZIO1_SPECIFIC_METHODS = Set("checkAllM", "checkAllMPar", "checkM", "checkNM")
+  private val ZIO2_SPECIFIC_METHODS = Set("checkAllPar")
 
   val ZIO1_MODULE_NAME = "zio1"
   val ZIO2_MODULE_NAME = "zio2"

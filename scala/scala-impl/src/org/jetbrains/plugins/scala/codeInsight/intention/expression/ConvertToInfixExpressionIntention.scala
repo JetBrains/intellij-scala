@@ -115,7 +115,7 @@ object ConvertToInfixExpressionIntention {
     }
   }
 
-  private[this] def stripUnnecessaryParentheses(expr: ScExpression): Unit = expr match {
+  private def stripUnnecessaryParentheses(expr: ScExpression): Unit = expr match {
     case e: ScParenthesisedExpr if e.isParenthesisRedundant =>
       // Even if isParenthesisRedundant is true, it can be false on the innermost
       // element in case parentheses are nested.

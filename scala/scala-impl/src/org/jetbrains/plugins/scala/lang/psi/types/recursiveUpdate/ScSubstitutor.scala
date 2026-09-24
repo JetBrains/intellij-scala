@@ -40,7 +40,7 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
 
   private[recursiveUpdate] lazy val hasNonLeafSubstitutions: Boolean = hasNonLeafSubstitutionsImpl
 
-  private[this] def hasNonLeafSubstitutionsImpl: Boolean = {
+  private def hasNonLeafSubstitutionsImpl: Boolean = {
     var idx = fromIndex
     while (idx < substitutions.length) {
       if (!substitutions(idx).isInstanceOf[LeafSubstitution])

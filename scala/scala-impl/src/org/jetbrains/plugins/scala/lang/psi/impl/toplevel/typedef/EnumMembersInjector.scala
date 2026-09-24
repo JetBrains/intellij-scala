@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInj
  * Injects synthetic methods into companion objects of enums: `values`, `valueOf`, `fromOrdinal`.
  */
 class EnumMembersInjector extends SyntheticMembersInjector {
-  private[this] def companionEnum(obj: ScObject): Option[ScEnum] =
+  private def companionEnum(obj: ScObject): Option[ScEnum] =
     obj.fakeCompanionClassOrCompanionClass match {
       case enum: ScEnum          => Some(enum)
       case _                     => None

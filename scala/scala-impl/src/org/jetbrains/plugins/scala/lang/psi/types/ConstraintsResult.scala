@@ -174,12 +174,12 @@ private final case class ConstraintSystemImpl(
   import ConstraintSystem._
   import ConstraintSystemImpl._
 
-  private[this] val cachedBounds = new Array[Option[SubstitutionBounds]](1 << 3)
+  private val cachedBounds = new Array[Option[SubstitutionBounds]](1 << 3)
 
-  private[this] def cacheIndex(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean): Int =
+  private def cacheIndex(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean): Int =
     (if (canThrowSCE) 4 else 0) | (if (checkWeak) 2 else 0) | (if (widenInferredTypeArguments) 1 else 0)
 
-  private[this] def cachedBoundsFor(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean)
+  private def cachedBoundsFor(canThrowSCE: Boolean, checkWeak: Boolean, widenInferredTypeArguments: Boolean)
                                    (compute: => Option[SubstitutionBounds]): Option[SubstitutionBounds] = {
     val index = cacheIndex(canThrowSCE, checkWeak, widenInferredTypeArguments)
 
@@ -452,7 +452,7 @@ private object ConstraintSystemImpl {
     `type`.equiv(Nothing)
   }
 
-  private[this] def updateUpper(variance: Variance, rawUpper: ScType)
+  private def updateUpper(variance: Variance, rawUpper: ScType)
                                (implicit freshExArg: FreshExistentialArg): ScType =
     rawUpper match {
       case UndefinedType(tp, _)                                 => TypeParameterType(tp)
@@ -467,7 +467,7 @@ private object ConstraintSystemImpl {
         )
     }
 
-  private[this] def updateLower(variance: Variance, rawLower: ScType)
+  private def updateLower(variance: Variance, rawLower: ScType)
                                (implicit freshExArg: FreshExistentialArg): ScType =
     rawLower match {
       case UndefinedType(tp, _)        => TypeParameterType(tp)
@@ -480,7 +480,7 @@ private object ConstraintSystemImpl {
         )
     }
 
-  private[this] def recursiveVarianceUpdate(`type`: ScType, variance: Variance)
+  private def recursiveVarianceUpdate(`type`: ScType, variance: Variance)
                                            (invariantAbstract: ScAbstractType => ScType,
                                             invariantExistentialArg: ScExistentialArgument => ScType) =
     `type`.recursiveVarianceUpdate(variance) {
@@ -490,7 +490,7 @@ private object ConstraintSystemImpl {
         case _                                        => ProcessSubtypes
     }
 
-  private[this] def replaceAbstractType(variance: Variance, a: ScAbstractType)
+  private def replaceAbstractType(variance: Variance, a: ScAbstractType)
                                        (invariantCase: ScAbstractType => ScType) = ReplaceWith {
     variance match {
       case Contravariant => a.lower
@@ -499,7 +499,7 @@ private object ConstraintSystemImpl {
     }
   }
 
-  private[this] def replaceExistentialArg(variance: Variance, ex: ScExistentialArgument)
+  private def replaceExistentialArg(variance: Variance, ex: ScExistentialArgument)
                                          (invariantCase: ScExistentialArgument => ScType) = ReplaceWith {
     variance match {
       case Contravariant => ex.lower
@@ -511,7 +511,7 @@ private object ConstraintSystemImpl {
   private implicit def freshExistentialArg: FreshExistentialArg = new FreshExistentialArg
 
   private class FreshExistentialArg {
-    private[this] var index = 0
+    private var index = 0
 
     def apply(a: ScAbstractType): ScExistentialArgument = {
       index += 1

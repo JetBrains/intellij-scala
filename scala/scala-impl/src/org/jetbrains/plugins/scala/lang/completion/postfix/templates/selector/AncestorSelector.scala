@@ -83,7 +83,7 @@ object AncestorSelector {
       }
     }
 
-  private[this] def expressionTypeCondition(isValid: (ScExpression, ScType) => Boolean): Condition[PsiElement] = {
+  private def expressionTypeCondition(isValid: (ScExpression, ScType) => Boolean): Condition[PsiElement] = {
     case expression: ScExpression => expression.getTypeIgnoreBaseType.exists {
       isValid(expression, _)
     }

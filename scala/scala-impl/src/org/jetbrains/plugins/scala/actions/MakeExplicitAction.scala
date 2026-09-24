@@ -57,7 +57,7 @@ object MakeExplicitAction {
   private val MakeExplicit = ScalaBundle.message("make.explicit")
   private val MakeExplicitStatically = ScalaBundle.message("make.explicit.and.import.method")
 
-  private[this] var popup: JBPopup = _
+  private var popup: JBPopup = _
 
   def createPopup(list: JList[Parameters]): JBPopup = {
     GoToImplicitConversionAction.setList(list)
@@ -65,7 +65,7 @@ object MakeExplicitAction {
     popup
   }
 
-  private[this] def createPopupBuilder(list: JList[Parameters]) =
+  private def createPopupBuilder(list: JList[Parameters]) =
     new PopupChooserBuilder(list)
       .setTitle(ScalaBundle.message("title.choose.implicit.conversion.method"))
       .setAdText(ScalaBundle.message("press.alt.enter"))
@@ -155,13 +155,13 @@ object MakeExplicitAction {
   private def methodCallText(expression: ScExpression, function: ScFunction) =
     s"${function.name}(${expression.getText})"
 
-  private[this] def classAndPrefix(function: ScFunction, importStatically: Boolean)
+  private def classAndPrefix(function: ScFunction, importStatically: Boolean)
                                   (className: ScTemplateDefinition => String) = {
     val maybeClass = if (importStatically) Option(function.containingClass) else None
     (maybeClass, maybeClass.fold("")(className.andThen(_ + ".")))
   }
 
-  private[this] def runReplace(expression: ScExpression, replacementText: String)
+  private def runReplace(expression: ScExpression, replacementText: String)
                               (findTarget: => Option[PsiElement])
                               (onExpression: PartialFunction[(ScExpression, PsiElement), Unit])
                               (implicit project: Project, editor: Editor): Unit = {

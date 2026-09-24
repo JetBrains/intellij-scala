@@ -18,7 +18,7 @@ import scala.util.chaining.scalaUtilChainingOps
 
 abstract class ApiStatusInspectionTestBase extends JavaCodeInsightFixtureTestCase with ScalaSdkOwner {
 
-  private[this] val myLoaders = mutable.Set.empty[LibraryLoader]
+  private val myLoaders = mutable.Set.empty[LibraryLoader]
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(ScalaSDKLoader())
 

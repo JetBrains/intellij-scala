@@ -37,7 +37,7 @@ import scala.collection.mutable
 
 class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScReferenceExpression {
 
-  private[this] var maybeAssignment: Option[ScAssignment] = None
+  private var maybeAssignment: Option[ScAssignment] = None
 
   override def toString: String = "ReferenceExpression: " + ifReadAllowed(getText)("")
 
@@ -265,7 +265,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     *      * `pt` is an abstract type with a stable type as lower bound OR
     *      *  (not in the spec, but in the impl) `pt` denotes type refinement
     */
-  private[this] def isStableContext(t: ScType): Boolean = {
+  private def isStableContext(t: ScType): Boolean = {
     val expectedStable = this.expectedType() match {
       case Some(downer: DesignatorOwner) if downer.isStable => true
       case Some(t) if t eq Singleton                        => true
@@ -298,10 +298,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }) || isParamToDepMethod
   }
 
-  private[this] def isRefinement(compound: ScCompoundType): Boolean =
+  private def isRefinement(compound: ScCompoundType): Boolean =
     compound.signatureMap.nonEmpty || compound.typesMap.nonEmpty
 
-  private[this] def isReferencedInReturnType(f: ScFunction, p: ScParameter): Boolean = {
+  private def isReferencedInReturnType(f: ScFunction, p: ScParameter): Boolean = {
     var found = false
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitSimpleTypeElement(simple: ScSimpleTypeElement): Unit = {

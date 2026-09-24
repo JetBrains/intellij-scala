@@ -701,7 +701,7 @@ final class SyntheticClasses(project: Project) {
 }
 
 final class SyntheticClassElementFinder(project: Project) extends PsiElementFinder {
-  private[this] val instance = SyntheticClasses.get(project)
+  private val instance = SyntheticClasses.get(project)
 
   override def findClass(
     qualifiedName: String,

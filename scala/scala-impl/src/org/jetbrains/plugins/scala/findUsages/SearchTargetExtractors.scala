@@ -45,13 +45,13 @@ object SearchTargetExtractors {
   }
 
   object InstanceApplyUnapply {
-    private[this] def isInstance(member: ScMember): Boolean =
+    private def isInstance(member: ScMember): Boolean =
       member.containingClass.toOption.exists {
         case _: ScObject => false
         case _           => true
       }
 
-    private[this] def isInstanceApplyUnapply(f: ScFunction): Boolean =
+    private def isInstanceApplyUnapply(f: ScFunction): Boolean =
       isInstance(f) && (f.isApplyMethod || f.isUnapplyMethod)
 
     def unapply(e: PsiElement): Option[ScFunction] = e match {

@@ -63,7 +63,7 @@ object ScalaPrefixPackageCompletionContributor {
     prefixCompletion = true
   )
 
-  private[this] def prefixPackages(implicit project: Project): Seq[String] =
+  private def prefixPackages(implicit project: Project): Seq[String] =
     ScalaCodeStyleSettings
       .getInstance(project)
       .getImportsWithPrefix
@@ -74,7 +74,7 @@ object ScalaPrefixPackageCompletionContributor {
       .filterNot(fqn => CodeInsightSettings.getInstance.EXCLUDED_PACKAGES.exists(fqn.startsWith))
       .distinct
 
-  private[this] def findPackage(packageFqn: String,
+  private def findPackage(packageFqn: String,
                                 dummyPosition: PsiElement)
                                (implicit project: Project): Option[PsiPackage] =
     inReadAction(JavaPsiFacade.getInstance(project).findPackage(packageFqn)) match {

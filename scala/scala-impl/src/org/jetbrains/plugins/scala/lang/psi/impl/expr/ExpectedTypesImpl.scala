@@ -58,7 +58,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     filterAlternatives(types.toSeq, expr)
   }
 
-  private[this] def filterAlternatives(
+  private def filterAlternatives(
     types: Seq[ParameterType],
     place: PsiElement
   ): Option[ParameterType] = {
@@ -84,7 +84,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     else                 None
 
   /** Returns arity of the functional literal `e`, taking tupling into account. */
-  private[this] def aritiesOf(e: PsiElement): Arity = {
+  private def aritiesOf(e: PsiElement): Arity = {
     import Arity._
 
     e match {
@@ -129,7 +129,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
   }
 
-  private[this] def expectedFunctionTypeFromOverloadedAlternatives(
+  private def expectedFunctionTypeFromOverloadedAlternatives(
     alternatives: Seq[ScType],
     e:            PsiElement
   ): Option[ParameterType] = {

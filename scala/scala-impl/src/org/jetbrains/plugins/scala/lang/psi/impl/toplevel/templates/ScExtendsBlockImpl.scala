@@ -313,6 +313,6 @@ object ScExtendsBlockImpl {
       case element => tail(element.`type`())
     }
 
-  private[this] def tail(typeResult: result.TypeResult) =
+  private def tail(typeResult: result.TypeResult) =
     typeResult.toOption.flatMap(_.extractClass)
 }

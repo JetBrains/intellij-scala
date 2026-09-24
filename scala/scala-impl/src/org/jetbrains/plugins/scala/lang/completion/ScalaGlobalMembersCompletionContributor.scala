@@ -93,13 +93,13 @@ object ScalaGlobalMembersCompletionContributor {
         desugaredQualifier(reference)
       }
 
-    private[this] def stringContextQualifier(literal: ScInterpolatedStringLiteral) =
+    private def stringContextQualifier(literal: ScInterpolatedStringLiteral) =
       literal.desugaredExpression.flatMap {
         case (reference: ScReferenceExpression, _) => reference.qualifier
         case _ => None
       }
 
-    private[this] def desugaredQualifier(reference: ScReferenceExpression) =
+    private def desugaredQualifier(reference: ScReferenceExpression) =
       reference.getContext match {
         case ScSugarCallExpr(baseExpression, `reference`, _) => Option(baseExpression)
         case literal: ScInterpolatedStringLiteral => stringContextQualifier(literal)

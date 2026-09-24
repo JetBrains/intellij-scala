@@ -23,16 +23,16 @@ class CompilerIndicesFindUsagesHandler(
   e: PsiElement,
   config: ScalaFindUsagesConfiguration
 ) extends ScalaFindUsagesHandlerBase(e, config) {
-  private[this] val pfindex = ProjectFileIndex.getInstance(e.getProject)
+  private val pfindex = ProjectFileIndex.getInstance(e.getProject)
 
-  private[this] def isInLibrary(element: PsiElement): Boolean = inReadAction {
+  private def isInLibrary(element: PsiElement): Boolean = inReadAction {
     (for {
       file  <- element.getContainingFile.toOption
       vfile <- file.getVirtualFile.toOption
     } yield pfindex.isInLibrary(vfile)).getOrElse(false)
   }
 
-  private[this] def searchInCompilerIndices(
+  private def searchInCompilerIndices(
     e:         PsiNamedElement,
     processor: Processor[? >: UsageInfo]
   ): Boolean = {

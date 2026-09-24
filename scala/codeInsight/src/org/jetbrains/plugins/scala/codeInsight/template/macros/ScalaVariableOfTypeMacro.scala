@@ -143,13 +143,13 @@ object ScalaVariableOfTypeMacro {
     * @param element from which position we look at locals
     * @return visible variables and values from element position
     */
-  private[this] def variablesForScope(element: PsiElement) = {
+  private def variablesForScope(element: PsiElement) = {
     val processor = new VariablesCompletionProcessor(StdKinds.valuesRef)(element)
     PsiTreeUtil.treeWalkUp(processor, element, null, ScalaResolveState.empty)
     processor.candidates.toList
   }
 
-  private[this] def isFromScala(definition: ScTypeDefinition) =
+  private def isFromScala(definition: ScTypeDefinition) =
     PsiTreeUtil.getParentOfType(definition, classOf[PsiClass]) match {
       case ClassQualifiedName("scala.Predef" | "scala") => false
       case _ => true

@@ -231,7 +231,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       () => getCachedPackage("").map(ScPackageImpl(_))
    )
 
-  private[this] def isPackageOutOfScope(
+  private def isPackageOutOfScope(
     `package`: PsiPackage
   )(
     implicit
@@ -240,7 +240,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
     `package`.getSubPackages(scope).isEmpty &&
       `package`.getClasses(scope).isEmpty
 
-  private[this] def isScalaPackageInScope(fqn: String)
+  private def isScalaPackageInScope(fqn: String)
                                          (implicit scope: GlobalSearchScope): Boolean = {
     ScPackagingFqnIndex.instance.hasElement(fqn, project, scope, classOf[ScPackaging]) ||
       ScPackageObjectFqnIndex.instance.hasElement(fqn, project, scope, classOf[PsiClass])
@@ -369,7 +369,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
         case qualifiedName  => getJavaClasses(`package`) ++ getScalaClasses(qualifiedName)
       }
 
-  private[this] val getScalaPackageClassesCached =
+  private val getScalaPackageClassesCached =
     cachedWithoutModificationCount(
       "getScalaPackageClassesCached",
       ValueWrapper.None,
@@ -380,7 +380,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
         }.toArray
     )
 
-  private[this] def getJavaClasses(
+  private def getJavaClasses(
     `package`: PsiPackage
   )(
     implicit
@@ -400,7 +400,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       inJavaPsiFacade.value = false
   }
 
-  private[this] def getScalaClasses(
+  private def getScalaClasses(
     qualifiedName: String
   )(
     implicit
@@ -518,7 +518,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
     if (DumbService.getInstance(project).isDumb) Set.empty
     else getScalaClassNamesCached(ScalaLowerCase, scope)
 
-  private[this] val getScalaClassNamesCached =
+  private val getScalaClassNamesCached =
     cachedWithoutModificationCount(
       "getScalaClassNamesCached",
       ValueWrapper.None,

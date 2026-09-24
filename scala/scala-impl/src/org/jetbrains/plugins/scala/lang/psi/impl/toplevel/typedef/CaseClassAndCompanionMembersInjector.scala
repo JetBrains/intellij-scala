@@ -164,14 +164,14 @@ class CaseClassAndCompanionMembersInjector extends SyntheticMembersInjector {
   private def defaultExpressionString(p: ScParameter): String =
     if (p.isDefaultParam) " = " + p.getDefaultExpression.fold("{}")(toText("{}")) else ""
 
-  private[this] def typeParamsString(tparams: Seq[ScTypeParam]): String =
+  private def typeParamsString(tparams: Seq[ScTypeParam]): String =
     if (tparams.isEmpty) ""
     else
       tparams
         .map(ScalaPsiUtil.typeParamString(_, withContextBounds = false))
         .mkString("[", ",", "]")
 
-  private[this] def shouldGenerateCopyMethod(cls: ScClass): Boolean =
+  private def shouldGenerateCopyMethod(cls: ScClass): Boolean =
     !cls.hasAbstractModifier &&
       (cls.constructor match {
         case Some(cons: ScPrimaryConstructor) =>

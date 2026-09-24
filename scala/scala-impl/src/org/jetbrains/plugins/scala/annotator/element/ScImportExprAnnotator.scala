@@ -13,7 +13,7 @@ object ScImportExprAnnotator extends ElementAnnotator[ScImportExpr] {
     }
   }
 
-  private[this] def isScala3StyleAliasImport(element: ScImportExpr): Boolean = element.selectorSet match {
+  private def isScala3StyleAliasImport(element: ScImportExpr): Boolean = element.selectorSet match {
     case Some(ScImportSelectors(selector)) =>
       selector.isScala3StyleAliasImport
     case _ => false

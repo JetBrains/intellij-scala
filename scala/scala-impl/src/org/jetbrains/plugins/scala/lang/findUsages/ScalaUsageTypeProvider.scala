@@ -234,7 +234,7 @@ object ScalaUsageTypeProvider {
     }
   }
 
-  private[this] def nullableUsageType(element: PsiElement, original: PsiElement): UsageType = {
+  private def nullableUsageType(element: PsiElement, original: PsiElement): UsageType = {
     def isAppropriate(parent: PsiElement): Boolean = isAncestor(parent, original, false)
 
     def existsAppropriate(maybeParent: Option[PsiElement]): Boolean = maybeParent.exists(isAppropriate)
@@ -264,7 +264,7 @@ object ScalaUsageTypeProvider {
     }
   }
 
-  private[this] def typeArgsUsageType(typeArguments: ScTypeArgs): UsageType =
+  private def typeArgsUsageType(typeArguments: ScTypeArgs): UsageType =
     Option(typeArguments.getParent).collect {
       case ScGenericCall(reference, Seq(_)) => reference.refName
     }.collect {
@@ -273,7 +273,7 @@ object ScalaUsageTypeProvider {
       case "classOf" => CLASS_CLASS_OBJECT_ACCESS
     }.getOrElse(TYPE_PARAMETER)
 
-  private[this] def typeUsageType(typeElement: ScTypeElement): UsageType = {
+  private def typeUsageType(typeElement: ScTypeElement): UsageType = {
     def isAppropriate(maybeTypeElement: Option[ScTypeElement]) = maybeTypeElement.contains(typeElement)
 
     typeElement.getParent match {

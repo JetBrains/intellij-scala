@@ -9,9 +9,9 @@ import org.junit.Assert.assertEquals
 private[ml] object AssertFeatureValues {
 
   // no equal impl for MLFeatureValue
-  private[this] object DoubleValue {
+  private object DoubleValue {
 
-    private[this] val FloatPattern = """FloatValue\(value=([-\d.]+)\)""".r
+    private val FloatPattern = """FloatValue\(value=([-\d.]+)\)""".r
 
     def unapply(value: MLFeatureValue): Option[Double] = value.toString match {
       case FloatPattern(doubleValue) => Some(doubleValue.toDouble)

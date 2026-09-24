@@ -48,7 +48,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     }
   }
 
-  private[this] def widenSingletonsInRetType(retType: ScType): ScType = {
+  private def widenSingletonsInRetType(retType: ScType): ScType = {
     // The expected type doesn't have to be a function type, it may also be a SAM type, whose
     // abstract method is what determines the expected result type, as in
     // `((x => x): T)` for a `trait T { def apply(x: s.type): s.type }`

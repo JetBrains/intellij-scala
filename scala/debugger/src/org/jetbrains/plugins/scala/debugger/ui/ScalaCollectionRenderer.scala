@@ -188,7 +188,7 @@ private[debugger] object ScalaCollectionRenderer {
       Seq(new IntEvaluator(n))
     ).asExpressionEvaluator.evaluate(context)
 
-  private[this] implicit class EvaluatorToExpressionEvaluatorOps(private val evaluator: Evaluator) extends AnyVal {
+  private implicit class EvaluatorToExpressionEvaluatorOps(private val evaluator: Evaluator) extends AnyVal {
     def asExpressionEvaluator: ExpressionEvaluator = new ExpressionEvaluatorImpl(evaluator)
   }
 }

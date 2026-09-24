@@ -11,7 +11,7 @@ class MainMethodLiveTemplateTest extends ScalaLiveTemplateTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_3
 
-  private[this] var _scalaCompletionFixture: ScalaCompletionTestFixture = _
+  private var _scalaCompletionFixture: ScalaCompletionTestFixture = _
   private def scalaCompletionFixture: ScalaCompletionTestFixture = _scalaCompletionFixture
 
   override def setUp(): Unit = {

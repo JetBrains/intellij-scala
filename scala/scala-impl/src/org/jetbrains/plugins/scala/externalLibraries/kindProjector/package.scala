@@ -20,7 +20,7 @@ package object kindProjector {
   }
 
   object PolymorphicLambda {
-    private[this] val polyLambdaIds = Seq(Lambda, LambdaSymbolic)
+    private val polyLambdaIds = Seq(Lambda, LambdaSymbolic)
 
     def unapply(gc: ScGenericCall): Option[(ScTypeElement, ScTypeElement, ScTypeElement)] =
       if (gc.kindProjectorPluginEnabled) {

@@ -168,7 +168,7 @@ object ScClassFileDecompiler {
   //   A$B   -> A, A$B
   //   A$B$  -> A, A$B, A$B$
   //   A$B$C -> A, A$B, A$B$C
-  private[this] class DollarSeparatedFileNamePrefixesIterator(private val fileName: String) extends Iterator[String] {
+  private class DollarSeparatedFileNamePrefixesIterator(private val fileName: String) extends Iterator[String] {
 
     import reflect.NameTransformer._
 

@@ -31,7 +31,7 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase[ModuleFix
   )
 
   //start section: indexing mode setup
-  private[this] var indexingMode: IndexingMode = IndexingMode.SMART
+  private var indexingMode: IndexingMode = IndexingMode.SMART
 
   // SCL-21849
   protected def getIndexingMode: IndexingMode = indexingMode

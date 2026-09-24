@@ -40,7 +40,7 @@ object PatternTypeInference {
    * otherwise calculate type of the pattern and substitutor, corresponding to the unapply method, for further processing.
    */
   @tailrec
-  private[this] def getPatternType(
+  private def getPatternType(
     pattern:       ScPattern,
     scrutineeType: ScType
   ): Either[ScSubstitutor, (ScType, ScSubstitutor)] = {

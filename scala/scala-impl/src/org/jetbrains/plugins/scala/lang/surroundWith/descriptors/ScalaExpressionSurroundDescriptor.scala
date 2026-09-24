@@ -92,7 +92,7 @@ object ScalaExpressionSurroundDescriptor {
     }
   }
 
-  private[this] def findAllInRange(startOffset: Int, endOffset: Int)
+  private def findAllInRange(startOffset: Int, endOffset: Int)
                                   (implicit file: PsiFile): List[PsiElement] = {
     val elementAtCaret = file.findElementAt(startOffset)
 
@@ -128,7 +128,7 @@ object ScalaExpressionSurroundDescriptor {
   private def isWhitespaceOrCommentOrSemicolon(e: PsiElement): Boolean =
     e.isWhitespaceOrComment || e.getNode.getElementType == tSEMICOLON
 
-  private[this] def isAcceptable(element: PsiElement) = element match {
+  private def isAcceptable(element: PsiElement) = element match {
     case _: ScExpression |
          _: ScValue |
          _: ScVariable |

@@ -76,7 +76,7 @@ object ScalaImportTypeFix {
   def apply(reference: ScReference) = new ScalaImportTypeFix(reference)
 
   @annotation.tailrec
-  private[this] def notInner(clazz: PsiClass, ref: PsiElement): Boolean = clazz match {
+  private def notInner(clazz: PsiClass, ref: PsiElement): Boolean = clazz match {
     case enumCase: ScEnumCase => notInner(enumCase.enumParent, ref)
     case o: ScObject if o.isSyntheticObject =>
       val companion = getCompanionModule(o)

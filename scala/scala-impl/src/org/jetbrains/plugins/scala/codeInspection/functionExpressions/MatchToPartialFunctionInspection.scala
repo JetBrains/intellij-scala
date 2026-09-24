@@ -87,13 +87,13 @@ object MatchToPartialFunctionInspection {
     }
   }
 
-  private[this] def findLeftBraceOrMatchKeyword(statement: ScMatch): Option[PsiElement] =
+  private def findLeftBraceOrMatchKeyword(statement: ScMatch): Option[PsiElement] =
     findLeftBrace(statement).orElse(findMatchKeyword(statement))
 
-  private[this] def findLeftBrace(statement: ScMatch): Option[PsiElement] =
+  private def findLeftBrace(statement: ScMatch): Option[PsiElement] =
     statement.findFirstChildByType(ScalaTokenTypes.tLBRACE)
 
-  private[this] def findMatchKeyword(statement: ScMatch): Option[PsiElement] =
+  private def findMatchKeyword(statement: ScMatch): Option[PsiElement] =
     statement.findFirstChildByType(ScalaTokenTypes.kMATCH)
 
   object MatchToPartialFunctionQuickFix {
@@ -177,14 +177,14 @@ object MatchToPartialFunctionInspection {
       }
     }
 
-    private[this] def findReferences(element: PsiElement)
+    private def findReferences(element: PsiElement)
                                     (scope: LocalSearchScope) = {
       ReferencesSearch.search(element, scope)
         .findAll().asScala
         .map(_.getElement)
     }
 
-    private[this] def needParentheses: ScPattern => Boolean = {
+    private def needParentheses: ScPattern => Boolean = {
       case _: ScReferencePattern |
            _: ScLiteralPattern |
            _: ScConstructorPattern |

@@ -23,7 +23,7 @@ object MonadicTypeNamesProvider {
   private def findPrefix(designator: ScType): Option[String] =
     needPrefix.get(designator.canonicalText)
 
-  private[this] val needPrefix = Map(
+  private val needPrefix = Map(
     "_root_.scala.Option" -> "maybe",
     "_root_.scala.Some" -> "some",
     "_root_.scala.concurrent.Future" -> "eventual",

@@ -44,7 +44,7 @@ object DeprecatedKindProjectorSyntaxInspection {
         }
   }
 
-  private[this] val kindProjectorDeprecatedNames = Set("?", "+?", "-?")
+  private val kindProjectorDeprecatedNames = Set("?", "+?", "-?")
   private def deprecationMessageAndQuickFix(
     e: PsiElement,
   ): (String, Option[LocalQuickFix]) = {

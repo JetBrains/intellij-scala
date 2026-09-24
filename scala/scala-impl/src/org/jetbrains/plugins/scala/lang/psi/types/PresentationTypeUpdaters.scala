@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 object PresentationTypeUpdaters {
 
-  private[this] val uselessTypeNames = Set(
+  private val uselessTypeNames = Set(
     CommonQualifiedNames.JavaLangObjectCanonical,
     CommonQualifiedNames.ProductCanonical,
     CommonQualifiedNames.ScalaSerializableCanonical,

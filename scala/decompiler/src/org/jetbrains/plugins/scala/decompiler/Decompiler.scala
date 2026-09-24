@@ -15,7 +15,7 @@ object Decompiler {
 
   import scalasig._
 
-  private[this] val Log: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
+  private val Log: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
 
   private val ScalaSigBytes = "ScalaSig".getBytes(UTF_8)
 

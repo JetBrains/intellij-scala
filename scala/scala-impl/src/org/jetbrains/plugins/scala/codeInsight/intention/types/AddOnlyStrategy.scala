@@ -290,7 +290,7 @@ object AddOnlyStrategy {
       .map(createTypeElementFromText(_, ctx))
   }
 
-  private[this] def canonicalTypes(tpe: ScType)(implicit tpc: TypePresentationContext, context: Context): Seq[String] = {
+  private def canonicalTypes(tpe: ScType)(implicit tpc: TypePresentationContext, context: Context): Seq[String] = {
     import BaseTypes.get
 
     tpe.canonicalCodeText +: (tpe.extractClass match {

@@ -204,7 +204,7 @@ object ScalaUnreachableCodeInspection {
     case _ => new RemoveRangeQuickFix(head, last)
   }
 
-  private[this] final class RemoveRangeQuickFix(from: PsiElement, to: PsiElement)
+  private final class RemoveRangeQuickFix(from: PsiElement, to: PsiElement)
     extends AbstractUpdateModCommandOnTwoPsiElements[PsiElement, PsiElement](
       ScalaInspectionBundle.message("remove.unreachable.code"),
       from,
@@ -214,7 +214,7 @@ object ScalaUnreachableCodeInspection {
       from.getParent.deleteChildRange(from, to)
   }
 
-  private[this] final class RemoveFragmentQuickFix(fragment: PsiElement) extends PsiBasedModCommandAction[PsiElement](fragment) {
+  private final class RemoveFragmentQuickFix(fragment: PsiElement) extends PsiBasedModCommandAction[PsiElement](fragment) {
     override def getFamilyName: String = ScalaInspectionBundle.message("remove.unreachable.code")
 
     override def perform(context: ActionContext, element: PsiElement): ModCommand = ModCommand.psiUpdate(element, (element: PsiElement) => {
@@ -223,7 +223,7 @@ object ScalaUnreachableCodeInspection {
     })
   }
 
-  private[this] final class UnwrapDoStmtFix(doStatement: ScDo) extends PsiBasedModCommandAction[ScDo](doStatement) {
+  private final class UnwrapDoStmtFix(doStatement: ScDo) extends PsiBasedModCommandAction[ScDo](doStatement) {
     override def getFamilyName: String = ScalaInspectionBundle.message("unwrap.do.statement")
 
     override def perform(context: ActionContext, doStatement: ScDo): ModCommand =

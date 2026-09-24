@@ -68,7 +68,7 @@ object ScalaSourceRootFinder {
   }
 
   @tailrec
-  private[this] def appendPackageStatement(append: Boolean => Unit)
+  private def appendPackageStatement(append: Boolean => Unit)
                                           (implicit lexer: ScalaLexer): Unit =
     lexer.getTokenType match {
       case `tIDENTIFIER` =>
@@ -87,7 +87,7 @@ object ScalaSourceRootFinder {
       case _ =>
     }
 
-  private[this] def skipWhiteSpaceAndComments(advance: Boolean = true)
+  private def skipWhiteSpaceAndComments(advance: Boolean = true)
                                              (implicit lexer: ScalaLexer): Unit = {
     if (advance) lexer.advance()
     while (WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(lexer.getTokenType)) {

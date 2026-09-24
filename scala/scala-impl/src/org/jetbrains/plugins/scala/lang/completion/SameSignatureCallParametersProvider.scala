@@ -177,7 +177,7 @@ object SameSignatureCallParametersProvider {
       }
   }
 
-  private[this] final case class ArgumentToStart (
+  private final case class ArgumentToStart (
     args:              Seq[Seq[ScExpression]],
     clauseIndex:       Int,
     providedArguments: Int
@@ -198,7 +198,7 @@ object SameSignatureCallParametersProvider {
     }
   }
 
-  private[this] sealed abstract class Argument(protected val typeable: Typeable,
+  private sealed abstract class Argument(protected val typeable: Typeable,
                                                protected val iconable: PsiElement) {
 
     final def conformsTo(parameter: ScParameter,
@@ -212,11 +212,11 @@ object SameSignatureCallParametersProvider {
     final def icon: Icon = iconable.getIcon(0)
   }
 
-  private[this] final case class ExpressionArgument(override protected val typeable: ScReferenceExpression,
+  private final case class ExpressionArgument(override protected val typeable: ScReferenceExpression,
                                                     override protected val iconable: PsiElement)
     extends Argument(typeable, iconable)
 
-  private[this] final case class ParameterArgument(override protected val typeable: ScParameter)
+  private final case class ParameterArgument(override protected val typeable: ScParameter)
     extends Argument(typeable, typeable)
 
   private def createFunctionLookupElement(context: PsiElement,
@@ -231,7 +231,7 @@ object SameSignatureCallParametersProvider {
       builder.withMoveCaretInsertionHandler.withSuperMethodParameters(hasSuperQualifier)
     }
 
-  private[this] def createAssignmentLookupElement(method: ScMethodLike,
+  private def createAssignmentLookupElement(method: ScMethodLike,
                                                   argumentToStart: ArgumentToStart,
                                                   substitutor: ScSubstitutor): Option[LookupElementBuilder] =
     createLookupElement(
@@ -244,7 +244,7 @@ object SameSignatureCallParametersProvider {
       builder.withTailText(AssignmentText).withInsertHandler(new AssignmentsInsertHandler)
     }
 
-  private[this] def findResolvableParameters(reference: PsiElement,
+  private def findResolvableParameters(reference: PsiElement,
                                              invocationCount: Int)
                                             (parameters: Seq[ScParameter]): Seq[(String, ExpressionArgument)] = for {
     parameter <- parameters
@@ -263,7 +263,7 @@ object SameSignatureCallParametersProvider {
     }
   } yield name -> ExpressionArgument(expression, iconable)
 
-  private[this] def findMethodParameters(method: ScMethodLike): Seq[ScParameter] => Seq[(String, ParameterArgument)] = { _ =>
+  private def findMethodParameters(method: ScMethodLike): Seq[ScParameter] => Seq[(String, ParameterArgument)] = { _ =>
     method
       .parameterList
       .params
@@ -272,7 +272,7 @@ object SameSignatureCallParametersProvider {
       }
   }
 
-  private[this] def createLookupElement(method: ScMethodLike,
+  private def createLookupElement(method: ScMethodLike,
                                         argumentToStart: ArgumentToStart,
                                         substitutor: ScSubstitutor)
                                        (argumentsWithNames: Seq[ScParameter] => Seq[(String, Argument)]) = {
@@ -300,7 +300,7 @@ object SameSignatureCallParametersProvider {
     }
   }
 
-  private[this] def applicableNames(parameters: Seq[ScParameter],
+  private def applicableNames(parameters: Seq[ScParameter],
                                     substitutor: ScSubstitutor,
                                     nameToArgument: Map[String, Argument]) =
     for {
@@ -313,7 +313,7 @@ object SameSignatureCallParametersProvider {
       if argument.conformsTo(parameter, substitutor)
     } yield name
 
-  private[this] abstract class ExpressionListInsertHandler extends InsertHandler[LookupElement] {
+  private abstract class ExpressionListInsertHandler extends InsertHandler[LookupElement] {
 
     override final def handleInsert(context: InsertionContext,
                                     element: LookupElement): Unit = context.getCompletionChar match {
@@ -333,7 +333,7 @@ object SameSignatureCallParametersProvider {
                                   (implicit context: InsertionContext): Unit
   }
 
-  private[this] final class AssignmentsInsertHandler extends ExpressionListInsertHandler {
+  private final class AssignmentsInsertHandler extends ExpressionListInsertHandler {
 
     override protected def onExpressionList(list: ScArgumentExprList)
                                            (implicit context: InsertionContext): Unit = {
@@ -376,10 +376,10 @@ object SameSignatureCallParametersProvider {
     }
   }
 
-  private[this] def findArgumentsList(@Nullable position: PsiElement) =
+  private def findArgumentsList(@Nullable position: PsiElement) =
     getContextOfType(position, classOf[ScArgumentExprList])
 
-  private[this] implicit class LookupElementBuilderExt(private val builder: LookupElementBuilder) extends AnyVal {
+  private implicit class LookupElementBuilderExt(private val builder: LookupElementBuilder) extends AnyVal {
 
     import LookupElementBuilderExt._
 
@@ -395,7 +395,7 @@ object SameSignatureCallParametersProvider {
         builder
   }
 
-  private[this] object LookupElementBuilderExt {
+  private object LookupElementBuilderExt {
 
     private final class MoveCaretInsertHandler extends ExpressionListInsertHandler {
 
@@ -408,7 +408,7 @@ object SameSignatureCallParametersProvider {
     }
   }
 
-  private[this] def compositeIcon(leftIcon: Icon,
+  private def compositeIcon(leftIcon: Icon,
                                   rightIcon: Icon) = {
     val result = new LayeredIcon(2)
     result.setIcon(

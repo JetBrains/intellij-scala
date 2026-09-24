@@ -654,7 +654,7 @@ object InferUtil {
   }
 
   //truncate method type to have a chance to conform to expected
-  private[this] def truncateMethodType(
+  private def truncateMethodType(
     tpe:                              ScType,
     expr:                             PsiElement,
     shouldTruncateImplicitParameters: Boolean,

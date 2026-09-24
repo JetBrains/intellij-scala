@@ -129,7 +129,7 @@ object ImplicitUtil {
     }
   }
 
-  private[this] def relativeRangeInElement(usage: PsiElement): TextRange =
+  private def relativeRangeInElement(usage: PsiElement): TextRange =
     range(usage).shiftLeft(usage.getTextRange.getStartOffset)
 
   final case class ImplicitReference(e: PsiElement, targetImplicit: PsiElement)
@@ -156,7 +156,7 @@ object ImplicitUtil {
     override def findElementAt(i: Int): PsiElement = null
   }
 
-  private[this] object UnresolvedImplicitFakePsiElement {
+  private object UnresolvedImplicitFakePsiElement {
     def apply(targetImplicit: PsiElement, file: PsiFile, lineOffset: Int): UnresolvedImplicitFakePsiElement = {
       val project = inReadAction(targetImplicit.getProject)
       new UnresolvedImplicitFakePsiElement(project, file, lineOffset)

@@ -64,7 +64,7 @@ object AbstractIntroduceVariableValidatorTestBase {
     }
   }
 
-  private[this] def getContainerOne(file: PsiFile, length: Int)
+  private def getContainerOne(file: PsiFile, length: Int)
                                    (implicit selectionModel: SelectionModel): PsiElement = {
     val origin = file.findElementAt(selectionModel.getSelectionStart)
     val bound = file.findElementAt(selectionModel.getSelectionEnd - 1)
@@ -78,13 +78,13 @@ object AbstractIntroduceVariableValidatorTestBase {
     }).orNull
   }
 
-  private[this] def getVariableValidator(expression: ScExpression, file: PsiFile)
+  private def getVariableValidator(expression: ScExpression, file: PsiFile)
                                         (implicit selectionModel: SelectionModel): ScalaVariableValidator = {
     val occurrences = ScalaRefactoringUtil.getOccurrenceRanges(expression, ScalaRefactoringUtil.fileEncloser(file, selectionModel.getSelectionStart).orNull)
     ScalaVariableValidator(file, expression, occurrences)
   }
 
-  private[this] def getTypeValidator(typeElement: ScTypeElement, file: PsiFile)
+  private def getTypeValidator(typeElement: ScTypeElement, file: PsiFile)
                                     (implicit selectionModel: SelectionModel): ScalaTypeValidator = {
     val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, ScalaRefactoringUtil.fileEncloser(file, selectionModel.getSelectionStart).orNull)
     val containerOne = getContainerOne(file, occurrences.length)

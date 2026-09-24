@@ -19,7 +19,7 @@ private[implicits] final class ImplicitParametersProcessor(
   override protected val withoutPrecedence: Boolean
 ) extends ImplicitProcessor(getPlace, withoutPrecedence) {
 
-  private[this] val levelSets: mutable.ArrayBuffer[ju.Set[ScalaResolveResult]] = {
+  private val levelSets: mutable.ArrayBuffer[ju.Set[ScalaResolveResult]] = {
     val buffer = new mutable.ArrayBuffer[ju.Set[ScalaResolveResult]]()
     buffer += new SmartHashSet[ScalaResolveResult]()
     buffer

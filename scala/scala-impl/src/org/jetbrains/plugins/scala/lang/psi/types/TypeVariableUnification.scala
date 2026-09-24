@@ -24,7 +24,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     * where at least one of (TC1, TC2) is a higher-kinded type variable
     * (i.e. parameterized type with [[org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType]] as its designator)
     */
-  private[this] def unifyTypeVariable(
+  private def unifyTypeVariable(
     typeVariable: ParameterizedType,
     tpe:          ParameterizedType,
     constraints:  ConstraintSystem,
@@ -135,7 +135,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     * such supertype, or when trying to check if `hkTv` is a subtype of
     * `tpe` (i.e. `boundKind` == `Bound.Upper`) returns `ConstraintsResult.Left`.
     */
-  private[this] def tryUnifyParent(
+  private def tryUnifyParent(
     hkTv:        ParameterizedType,
     tpe:         ParameterizedType,
     constraints: ConstraintSystem,

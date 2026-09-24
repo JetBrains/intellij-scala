@@ -135,7 +135,7 @@ object MoveScalaClassHandler {
     }
   }
 
-  private[this] def canBeCompanions(left: ScTypeDefinition, right: ScTypeDefinition): Boolean = left.name == right.name && {
+  private def canBeCompanions(left: ScTypeDefinition, right: ScTypeDefinition): Boolean = left.name == right.name && {
     val classes = Seq(left, right)
     classes.count(_.isInstanceOf[ScObject]) == 1 &&
       !classes.exists(_.fakeCompanionModule.isDefined)

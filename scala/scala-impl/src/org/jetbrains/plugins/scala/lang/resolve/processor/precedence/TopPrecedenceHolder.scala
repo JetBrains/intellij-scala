@@ -17,7 +17,7 @@ sealed trait TopPrecedenceHolder {
 
 final class MappedTopPrecedenceHolder(strategy: Hash.Strategy[ScalaResolveResult]) extends TopPrecedenceHolder {
 
-  private[this] val precedences = new Object2IntOpenCustomHashMap[ScalaResolveResult](strategy)
+  private val precedences = new Object2IntOpenCustomHashMap[ScalaResolveResult](strategy)
 
   override def apply(result: ScalaResolveResult): Int =
     precedences(result)
@@ -35,7 +35,7 @@ final class MappedTopPrecedenceHolder(strategy: Hash.Strategy[ScalaResolveResult
 
 final class SimpleTopPrecedenceHolder extends TopPrecedenceHolder {
 
-  private[this] var precedence: Int = 0
+  private var precedence: Int = 0
 
   override def apply(result: ScalaResolveResult): Int = precedence
 

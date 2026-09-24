@@ -43,10 +43,10 @@ object ScAndType {
     else if (lhs.isAny)          rhs
     else                         makeAndType(lhs, rhs)
 
-  private[this] def checkEquiv(lhs: ScType, rhs: ScType)(implicit context: Context): Boolean =
+  private def checkEquiv(lhs: ScType, rhs: ScType)(implicit context: Context): Boolean =
     lhs.equiv(rhs, ConstraintSystem.empty, falseUndef = false).isRight
 
-  private[this] def makeAndType(lhs: ScType, rhs: ScType)(implicit context: Context): ScType = (lhs, rhs) match {
+  private def makeAndType(lhs: ScType, rhs: ScType)(implicit context: Context): ScType = (lhs, rhs) match {
     case (ParameterizedType(des1, args1), ParameterizedType(des2, args2))
       if !ScalaApplicationSettings.PRECISE_TEXT && checkEquiv(des1, des2) =>
       val jointArgs = glbArgs(args1, args2, extractTypeParameters(des1))
@@ -54,7 +54,7 @@ object ScAndType {
     case _ => new ScAndType(lhs, rhs)
   }
 
-  private[this] def glbArgs(
+  private def glbArgs(
     args1:      Seq[ScType],
     args2:      Seq[ScType],
     typeParams: Seq[TypeParameter]

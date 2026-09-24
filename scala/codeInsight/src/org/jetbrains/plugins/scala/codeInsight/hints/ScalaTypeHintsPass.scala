@@ -128,7 +128,7 @@ private object ScalaTypeHintsPass {
     }
   } yield (tpe, body, menu)
 
-  private[this] def typeOf(member: ScValueOrVariable)(implicit settings: ScalaHintsSettings): Option[(ScType, MenuProvider)] = {
+  private def typeOf(member: ScValueOrVariable)(implicit settings: ScalaHintsSettings): Option[(ScType, MenuProvider)] = {
     for {
       menu <- if (member.isLocal) settings.showLocalVariableType.option(localVariableTypeContextMenu)
               else settings.showMemberVariableType.option(memberVariableTypeContextMenu)
@@ -136,14 +136,14 @@ private object ScalaTypeHintsPass {
     } yield (ty, menu)
   }
 
-  private[this] def typeOf(member: ScFunction)(implicit settings: ScalaHintsSettings): Option[(ScType, MenuProvider)] =
+  private def typeOf(member: ScFunction)(implicit settings: ScalaHintsSettings): Option[(ScType, MenuProvider)] =
     if (settings.showMethodResultType) member.returnType.toOption.map(_ -> methodResultTypeContextMenu) else None
 
   private def adjacentDefinitionsHaveCustomIndent(definition: PsiElement): Boolean =
     (adjacentDefinitionsFrom(definition.prevSiblings) ++ adjacentDefinitionsFrom(definition.nextSiblings))
       .exists(_.hasCustomIndents)
 
-  private[this] def adjacentDefinitionsFrom(it: Iterator[PsiElement]) = it.grouped(2).collect {
+  private def adjacentDefinitionsFrom(it: Iterator[PsiElement]) = it.grouped(2).collect {
     // can we just use `_: ScDefinitionWithAssignment` here?
     case Seq(ws: PsiWhiteSpace, definition @(_: ScPatternDefinition | _: ScVariableDefinition | _: ScFunctionDefinition))
       if ws.getText.count(_ == '\n') == 1 =>

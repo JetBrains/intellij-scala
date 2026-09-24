@@ -201,7 +201,7 @@ object ImplicitProcessor {
     }
   }
 
-  private[this] def findImplicitObjectsImpl(
+  private def findImplicitObjectsImpl(
     `type`:               ScType,
     includePackagePrefix: Boolean
   )(implicit
@@ -493,7 +493,7 @@ object ImplicitProcessor {
     pathTerms.addAll(objects).toSeq
   }
 
-  private[this] val stdTypes =
+  private val stdTypes =
     Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char")
 
   def isDeclaredOrExportedInExtension(element: PsiNamedElement, state: ResolveState): Boolean =

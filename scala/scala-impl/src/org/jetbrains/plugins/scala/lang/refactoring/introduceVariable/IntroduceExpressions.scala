@@ -301,7 +301,7 @@ object IntroduceExpressions {
     }
   }
 
-  private[this] def runRefactoringInside(file: PsiFile,
+  private def runRefactoringInside(file: PsiFile,
                                          expression: ScExpression,
                                          occurrences: Seq[TextRange],
                                          mainOccurenceIndex: Int,
@@ -488,7 +488,7 @@ object IntroduceExpressions {
     SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(createdDeclaration)
   }
 
-  private[this] def replaceRangeByDeclaration(text: String, range: TextRange)
+  private def replaceRangeByDeclaration(text: String, range: TextRange)
                                              (implicit project: Project, editor: Editor): Unit = {
     val startOffset = range.getStartOffset
 
@@ -500,7 +500,7 @@ object IntroduceExpressions {
     editor.getCaretModel.moveToOffset(newCaretOffset)
   }
 
-  private[this] def isIntroduceForBinding(parent: PsiElement, element: PsiElement, range: TextRange): Option[ScFor] = {
+  private def isIntroduceForBinding(parent: PsiElement, element: PsiElement, range: TextRange): Option[ScFor] = {
     val maybeParent = element match {
       case statement: ScFor if statement.body.contains(parent) => None
       case statement: ScFor => Some(statement)
@@ -514,12 +514,12 @@ object IntroduceExpressions {
     }.filter(_.enumerators.exists(isAfterFirstGenerator(_, range)))
   }
 
-  private[this] def setPrivateModifier(declaration: PsiElement): Unit = declaration match {
+  private def setPrivateModifier(declaration: PsiElement): Unit = declaration match {
     case member: ScMember if member.isDefinedInClass => member.setModifierProperty(PRIVATE)
     case _ =>
   }
 
-  private[this] def isAfterFirstGenerator(enumerators: ScEnumerators, range: TextRange): Boolean =
+  private def isAfterFirstGenerator(enumerators: ScEnumerators, range: TextRange): Boolean =
     enumerators.generators.headOption
       .exists(_.getTextRange.getEndOffset < range.getStartOffset)
 

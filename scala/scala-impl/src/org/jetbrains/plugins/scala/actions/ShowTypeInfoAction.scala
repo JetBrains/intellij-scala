@@ -216,7 +216,7 @@ object ShowTypeInfoAction {
     scType.map(TypePresentation.withoutAliases)
   }
 
-  private[this] def typeText(optType: Option[ScType])
+  private def typeText(optType: Option[ScType])
                             (implicit tpc: TypePresentationContext, context: Context): Option[String] =
     optType.map(TypePresentation.withoutAliases)
 }

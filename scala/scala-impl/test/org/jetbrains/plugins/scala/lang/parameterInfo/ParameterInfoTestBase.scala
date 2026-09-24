@@ -131,7 +131,7 @@ object ParameterInfoTestBase {
     result.toSeq.flatMap(normalize)
   }
 
-  private[this] def createInfoUIContext[Owner <: PsiElement](parameterOwner: Owner)
+  private def createInfoUIContext[Owner <: PsiElement](parameterOwner: Owner)
                                                             (consume: String => Unit) = new ParameterInfoUIContext {
     override def getParameterOwner: PsiElement = parameterOwner
 
@@ -165,7 +165,7 @@ object ParameterInfoTestBase {
     valuesNormalized.toIndexedSeq
   }
 
-  private[this] def normalize(string: String) =
+  private def normalize(string: String) =
     StringUtil.convertLineSeparators(string)
       .split('\n')
       .map(_.trim)

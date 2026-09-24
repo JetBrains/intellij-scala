@@ -280,7 +280,7 @@ package object ml {
     }
 
   @tailrec
-  private[this] def isRightAncestor(child: PsiElement, parent: PsiElement): Boolean = {
+  private def isRightAncestor(child: PsiElement, parent: PsiElement): Boolean = {
     val currentParent = child.getParent
     if (currentParent.getLastChild ne child) false
     else if (currentParent eq parent) true

@@ -145,7 +145,7 @@ object TypeAdjuster {
 
   private object ToReplace {
 
-    private[this] val toReplaceKey = Key.create[String]("type.element.to.replace")
+    private val toReplaceKey = Key.create[String]("type.element.to.replace")
 
     def apply(element: PsiElement): Unit = element.putUserData(toReplaceKey, "")
 
@@ -159,7 +159,7 @@ object TypeAdjuster {
 
     object `with .type#` {
 
-      private[this] val Target = ".type#"
+      private val Target = ".type#"
 
       def unapply(info: SimpleInfo): Option[ReplacementInfo] = info.replacement match {
         case text if text.contains(Target) =>
@@ -171,7 +171,7 @@ object TypeAdjuster {
 
     object withThisRef {
 
-      private[this] val Target = "this."
+      private val Target = "this."
 
       def unapply(info: SimpleInfo): Option[ReplacementInfo] = {
         implicit val context: Context = Context(info.place)
@@ -308,7 +308,7 @@ object TypeAdjuster {
 
   private object ToRewrite {
 
-    private[this] val toRewriteKey = Key.create[Int]("type.element.to.rewrite.as.infix")
+    private val toRewriteKey = Key.create[Int]("type.element.to.rewrite.as.infix")
 
     def apply(element: PsiElement): Unit = element.putUserData(toRewriteKey, 1)
 

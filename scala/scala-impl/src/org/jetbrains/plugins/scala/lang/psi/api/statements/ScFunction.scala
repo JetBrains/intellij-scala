@@ -39,7 +39,7 @@ trait ScFunction
     with ScMethodLike
     with ScBlockStatement {
 
-  private[this] val probablyRecursive = new UnloadableThreadLocal[Boolean](false)
+  private val probablyRecursive = new UnloadableThreadLocal[Boolean](false)
 
   final def isProbablyRecursive: Boolean = probablyRecursive.value
 

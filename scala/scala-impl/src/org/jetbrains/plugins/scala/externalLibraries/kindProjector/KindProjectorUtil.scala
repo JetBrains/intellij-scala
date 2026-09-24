@@ -68,8 +68,8 @@ object KindProjectorUtil {
 
   def apply(project: Project): KindProjectorUtil = project.getService(classOf[KindProjectorUtil])
 
-  private[this] val newSyntaxVersion = new ComparableVersion("0.10.0")
-  private[this] val VersionPattern   = "(?:.+?)(?:-(\\d.*?))?\\.jar".r
+  private val newSyntaxVersion = new ComparableVersion("0.10.0")
+  private val VersionPattern   = "(?:.+?)(?:-(\\d.*?))?\\.jar".r
 
   def placeholderSymbolFor(e: PsiElement): String = {
     if (e.YKindProjectorUnderscoresOptionEnabled)  "_"
@@ -117,7 +117,7 @@ object KindProjectorUtil {
    *    3) Op is parameterized on two unary type constructors.
    *    4) someMethod is parametric (for any type A it takes F[A] and returns G[A]).
    */
-  private[this] def canBeRewritten(fn: ScFunction, tparams: Seq[ScTypeParam]): Boolean = {
+  private def canBeRewritten(fn: ScFunction, tparams: Seq[ScTypeParam]): Boolean = {
     val isAbstract     = fn.isAbstractMember
     val singleArgument = fn.parameters.size == 1
     val hasTypeParam   = fn.typeParameters.size == 1

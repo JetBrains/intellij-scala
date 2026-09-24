@@ -90,7 +90,7 @@ object ScalaLiteralTypeValuesCompletionContributor {
     }
   }
 
-  private[this] def getLiteralTypes(raw: ScType): Set[ScLiteralType] = {
+  private def getLiteralTypes(raw: ScType): Set[ScLiteralType] = {
     @tailrec
     def recur(stack: List[ScType], types: Set[ScLiteralType]): Set[ScLiteralType] = stack match {
       case (literal: ScLiteralType) :: tail =>

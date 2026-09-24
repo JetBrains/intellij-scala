@@ -48,7 +48,7 @@ object SAMUtil {
   }
 
 
-  private[this] def constructorValidForSAM(constructor: PsiMethod): Boolean = {
+  private def constructorValidForSAM(constructor: PsiMethod): Boolean = {
     val isPublicAndParameterless =
       constructor.getModifierList.hasModifierProperty(PsiModifier.PUBLIC) &&
         constructor.getParameterList.getParametersCount == 0
@@ -59,13 +59,13 @@ object SAMUtil {
     }
   }
 
-  private[this] def hasValidConstructor(td: ScTemplateDefinition): Boolean = td match {
+  private def hasValidConstructor(td: ScTemplateDefinition): Boolean = td match {
     case cla: ScClass => cla.constructor.exists(constructorValidForSAM)
     case _: ScTrait   => true
     case _            => false
   }
 
-  private[this] def hasValidConstructorAndSelfType(cls: PsiClass): Boolean = {
+  private def hasValidConstructorAndSelfType(cls: PsiClass): Boolean = {
     implicit val context: Context = Context(cls)
 
     def selfTypeValid(tdef: ScTemplateDefinition): Boolean =
@@ -173,7 +173,7 @@ object SAMUtil {
     * @see https://github.com/scala/scala/pull/4101
     * @see SCL-8956
     */
-  private[this] def extrapolateWildcardBounds(tp: ScType, expected: ScType, scalaVersion: ScalaLanguageLevel)
+  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, scalaVersion: ScalaLanguageLevel)
                                        (implicit elementScope: ElementScope): Option[ScType] = {
     def convertParameter(tpArg: ScType, wildcards: Seq[ScExistentialArgument], variance: Variance): ScType = {
       tpArg match {

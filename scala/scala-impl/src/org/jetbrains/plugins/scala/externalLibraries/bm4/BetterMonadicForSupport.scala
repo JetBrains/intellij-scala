@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.project.ScalaFeatures
   * See: https://github.com/oleg-py/better-monadic-for
  */
 class BetterMonadicForSupport(project: Project) {
-  private[this] val implicit0: PsiElement = {
+  private val implicit0: PsiElement = {
     val text =
     """
       |object implicit0 {

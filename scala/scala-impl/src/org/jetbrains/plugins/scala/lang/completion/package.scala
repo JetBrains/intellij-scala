@@ -351,7 +351,7 @@ package object completion {
       Option(getContextOfType(place, classOf[ScNewTemplateDefinition]))
   }
 
-  private[this] def requiresSuffix(element: PsiElement) =
+  private def requiresSuffix(element: PsiElement) =
     element != null && element.getNode.getElementType == tSTUB
 
   private[completion] def toValueType(`type`: ScType) =

@@ -19,10 +19,10 @@ import java.nio.file.Path
  *                                 with RC/Nightly versions of new Scala 3.x compiler
  */
 final class ScalaLibraryProperties private(
-  private[this] var _languageLevel: ScalaLanguageLevel,
-  private[this] var _compilerClasspath: Seq[Path],
-  private[this] var _scaladocExtraClasspath: Seq[Path],
-  private[this] var _compilerBridgeBinaryJar: Option[Path],
+  private var _languageLevel: ScalaLanguageLevel,
+  private var _compilerClasspath: Seq[Path],
+  private var _scaladocExtraClasspath: Seq[Path],
+  private var _compilerBridgeBinaryJar: Option[Path],
   private var _replClasspath: ReplClasspath
 ) extends LibraryProperties[ScalaLibraryPropertiesState] {
   import ScalaLibraryProperties._

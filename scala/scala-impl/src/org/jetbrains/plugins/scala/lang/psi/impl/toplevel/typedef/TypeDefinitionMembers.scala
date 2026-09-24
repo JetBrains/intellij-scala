@@ -144,12 +144,12 @@ object TypeDefinitionMembers {
   }
 
   /** Take extra care to avoid reentrancy issues when processing package objects */
-  private[this] val processing: UnloadableThreadLocal[ju.Map[String, java.lang.Long]] = new UnloadableThreadLocal(new ju.HashMap)
+  private val processing: UnloadableThreadLocal[ju.Map[String, java.lang.Long]] = new UnloadableThreadLocal(new ju.HashMap)
 
-  private[this] def checkPackageObjectReentrancy(fqn: String): Boolean =
+  private def checkPackageObjectReentrancy(fqn: String): Boolean =
     processing.value.getOrDefault(fqn, 0L) != 0L
 
-  private[this] def withReentrancyGuard(fqn: String)(action: => Boolean): Boolean =
+  private def withReentrancyGuard(fqn: String)(action: => Boolean): Boolean =
     try {
       processing.value.merge(fqn, 1L, (old, _) => old + 1)
       action

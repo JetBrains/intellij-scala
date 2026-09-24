@@ -16,10 +16,10 @@ import scala.util.control.NonFatal
   reportStatistic = true
 )
 class CompilerIndicesSettings(project: Project) extends PersistentStateComponent[CompilerIndicesSettings.State] {
-  private[this] var state: CompilerIndicesSettings.State = new CompilerIndicesSettings.State
+  private var state: CompilerIndicesSettings.State = new CompilerIndicesSettings.State
 
-  private[this] val taskManager = ProjectTaskManager.getInstance(project)
-  private[this] val runners     = ProjectTaskRunner.EP_NAME.getExtensionList.asScala
+  private val taskManager = ProjectTaskManager.getInstance(project)
+  private val runners     = ProjectTaskRunner.EP_NAME.getExtensionList.asScala
 
   /** Corresponds to the actual value set in configurable, consider using
     * [[isBytecodeIndexingActive]] to check if the indexing is explicitly enabled AND
@@ -42,7 +42,7 @@ class CompilerIndicesSettings(project: Project) extends PersistentStateComponent
   }
 
   //noinspection ApiStatus
-  private[this] def hasCompatibleRunner: Boolean =
+  private def hasCompatibleRunner: Boolean =
     runners.find { runner =>
       val task = taskManager.createAllModulesBuildTask(true, project)
       val moduleBuildTasks = task match {

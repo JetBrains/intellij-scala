@@ -300,7 +300,7 @@ class ScalaPsiBuilderImpl(
     }
   }
 
-  private[this] def dropMarkerFromStack(marker: ErrorTrackingMarkerParent): Unit = {
+  private def dropMarkerFromStack(marker: ErrorTrackingMarkerParent): Unit = {
     var droppedErrors = 0
     errorMarkerStack.dropWhileInPlace {
       case `marker` => false

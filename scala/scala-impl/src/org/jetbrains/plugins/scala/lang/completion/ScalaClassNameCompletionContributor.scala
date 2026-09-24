@@ -61,7 +61,7 @@ object ScalaClassNameCompletionContributor {
   import ScalaAfterNewCompletionContributor._
   import ScalaCompletionUtil._
 
-  private[this] final case class CompletionState(place: PsiElement,
+  private final case class CompletionState(place: PsiElement,
                                                  invocationCount: Int,
                                                  isInSimpleString: Boolean,
                                                  isInImport: Boolean,
@@ -93,7 +93,7 @@ object ScalaClassNameCompletionContributor {
     def createLookupItem(alias: ScTypeAlias): ScalaLookupItem =
       createLookupItemImpl(alias)
 
-    private[this] def createLookupItemImpl(element: PsiNamedElement): ScalaLookupItem = {
+    private def createLookupItemImpl(element: PsiNamedElement): ScalaLookupItem = {
       val renamed = renamesMap.get(element.name) match {
         case Some((`element`, name)) => Some(name)
         case _ => None
@@ -110,11 +110,11 @@ object ScalaClassNameCompletionContributor {
       )
     }
 
-    private[this] def isValidAndAccessible(member: PsiMember): Boolean =
+    private def isValidAndAccessible(member: PsiMember): Boolean =
       member.isValid &&
         isAccessible(member, invocationCount)(place)
 
-    private[this] def isApplicable(clazz: PsiClass): Boolean = clazz match {
+    private def isApplicable(clazz: PsiClass): Boolean = clazz match {
       case _: ScEnum => isInImport || classesOnly
       case c: ScEnumCase => isInImport || (classesOnly && c.is[ScEnumClassCase])
       case _: ScClass => isInImport || classesOnly || place.isInScala3File
@@ -124,7 +124,7 @@ object ScalaClassNameCompletionContributor {
     }
   }
 
-  private[this] object CompletionState {
+  private object CompletionState {
 
     def apply(place: PsiElement,
               invocationCount: Int,
@@ -236,7 +236,7 @@ object ScalaClassNameCompletionContributor {
     false
   }
 
-  private[this] def positionInString(place: PsiElement)
+  private def positionInString(place: PsiElement)
                                     (implicit parameters: CompletionParameters) =
     ScalaPsiElementFactory.createExpressionWithContextFromText(
       "s" + place.getText,

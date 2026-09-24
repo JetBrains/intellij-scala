@@ -39,7 +39,7 @@ object ScStubElementType {
   }
 
   object Processing {
-    private[this] val flag = new UnloadableThreadLocal[Long](0)
+    private val flag = new UnloadableThreadLocal[Long](0)
 
     def run[R](action: => R): R =
       try {

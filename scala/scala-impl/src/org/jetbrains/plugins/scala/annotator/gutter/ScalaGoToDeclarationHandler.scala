@@ -230,13 +230,13 @@ object ScalaGoToDeclarationHandler {
       (if (packageObjectRequired) maybePackageObject else None)
   }
 
-  private[this] def isReferencedFrom(reference: ScReference): Option[IsReferenced] =
+  private def isReferencedFrom(reference: ScReference): Option[IsReferenced] =
     reference.multiResolveScala(false) match {
       case Array() => None
       case results => Some(new IsReferenced(results.map(_.element).toIndexedSeq))
     }
 
-  private[this] def isRequired(set: Set[IsReferenced])
+  private def isRequired(set: Set[IsReferenced])
                               (predicate: IsReferenced => Boolean) =
     set.isEmpty || set.exists(predicate)
 

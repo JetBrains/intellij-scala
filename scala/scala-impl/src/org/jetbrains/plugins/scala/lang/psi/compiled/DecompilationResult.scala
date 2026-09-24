@@ -150,7 +150,7 @@ private object DecompilationResult {
     } yield result
   }
 
-  private[this] def readFrom(inputStream: DataInputStream): Option[DecompilationResult.WritableResult] = try {
+  private def readFrom(inputStream: DataInputStream): Option[DecompilationResult.WritableResult] = try {
     val isScala = inputStream.readBoolean()
     val sourceName = inputStream.readUTF()
     val timeStamp = inputStream.readLong()

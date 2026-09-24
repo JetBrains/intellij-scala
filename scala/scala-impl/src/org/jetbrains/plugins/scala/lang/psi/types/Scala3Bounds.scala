@@ -134,7 +134,7 @@ final case class Scala3Bounds(project: Project)
    *  - if corresponding type param is co/contravariant — lub/glb
    *  - otherwise fresh type parameter bounded by lub/glb
    */
-  private[this] def lubArgs(
+  private def lubArgs(
     args1:      Seq[ScType],
     args2:      Seq[ScType],
     typeParams: Seq[TypeParameter]
@@ -171,7 +171,7 @@ final case class Scala3Bounds(project: Project)
    *  - if at least one of the arguments is a type parameter — fresh type parameter bounded by glb/lub
    *  - otherwise None
    */
-  private[this] def glbArgs(
+  private def glbArgs(
     args1:      Seq[ScType],
     args2:      Seq[ScType],
     typeParams: Seq[TypeParameter]

@@ -62,7 +62,7 @@ object FunctionTypeFactory {
     extractMember(`type`)
       .flatMap(member => member.qualifiedNameOpt)
 
-  private[this] object AliasLowerBound {
+  private object AliasLowerBound {
 
     def unapply(`type`: ScType)(implicit context: Context): Option[ScType] = `type` match {
       case AliasType(_: ScTypeAliasDefinition, Right(lower), _, effectivelyOpaque) if !effectivelyOpaque => Option(lower)

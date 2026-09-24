@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPatt
 
 package object bm4 {
   object Implicit0Pattern {
-    private[this] def resolvesToImplicit0Unapply(ref: ScStableCodeReference): Boolean =
+    private def resolvesToImplicit0Unapply(ref: ScStableCodeReference): Boolean =
       ref.refName == "implicit0"
 
     def unapply(pat: ScConstructorPattern): Option[ScPattern] =

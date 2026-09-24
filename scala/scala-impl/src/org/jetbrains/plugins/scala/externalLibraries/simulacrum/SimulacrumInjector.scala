@@ -47,9 +47,9 @@ class SimulacrumInjector extends SyntheticMembersInjector {
 }
 
 object SimulacrumInjector {
-  private[this] val typeclassAnnotation = "simulacrum.typeclass"
-  private[this] val noopAnnotation      = "simulacrum.noop"
-  private[this] val opAnnotation        = "simulacrum.op"
+  private val typeclassAnnotation = "simulacrum.typeclass"
+  private val noopAnnotation      = "simulacrum.noop"
+  private val opAnnotation        = "simulacrum.op"
 
   private def isSimulacrumTypeclass(source: ScTypeDefinition): Boolean =
     source.findAnnotationNoAliases(typeclassAnnotation) != null && source.typeParameters.length == 1
@@ -62,7 +62,7 @@ object SimulacrumInjector {
     * specified name.
     *
     */
-  private[this] def opsMethodName(sourceMethod: ScFunction): Seq[String] = {
+  private def opsMethodName(sourceMethod: ScFunction): Seq[String] = {
     def extractNamesFromAnnArgs(args: Option[ScArgumentExprList]): Seq[String] = {
       val exprs = args.toSeq.flatMap(_.exprs)
 
@@ -93,7 +93,7 @@ object SimulacrumInjector {
     }
   }
 
-  private[this] def adaptForProperType(m: ScFunction, properTpe: ScTypeParam): Seq[String] = {
+  private def adaptForProperType(m: ScFunction, properTpe: ScTypeParam): Seq[String] = {
     val firstParamType = m.parameters.headOption.flatMap(_.`type`().toOption)
 
     firstParamType match {
@@ -102,7 +102,7 @@ object SimulacrumInjector {
     }
   }
 
-  private[this] def adaptForAppliedType(m: ScFunction, tCons: ScTypeParam, liftedTypeParams: Seq[ScTypeParam]): Seq[String] = {
+  private def adaptForAppliedType(m: ScFunction, tCons: ScTypeParam, liftedTypeParams: Seq[ScTypeParam]): Seq[String] = {
     val firstParamType = m.parameters.headOption.flatMap(_.`type`().toOption)
     val typeParamNames = m.typeParameters.map(tparam => tparam.name -> tparam).toMap
 
@@ -134,7 +134,7 @@ object SimulacrumInjector {
     }
   }
 
-  private[this] def methodText(
+  private def methodText(
     prototype:            ScFunction,
     name:                 String,
     typeParamsMappings:   Map[ScTypeParam, TypeParameterType] = Map.empty,
@@ -186,7 +186,7 @@ object SimulacrumInjector {
     *
     * see: [[adaptForProperType]] [[adaptForAppliedType]]
     */
-  private[this] def adaptMethods(
+  private def adaptMethods(
     source:           ScTypeDefinition,
     tCons:            ScTypeParam,
     liftedTypeParams: Seq[ScTypeParam],
@@ -200,10 +200,10 @@ object SimulacrumInjector {
     }
   }
 
-  private[this] def isEligibleForAdaptation(f: ScFunction): Boolean =
+  private def isEligibleForAdaptation(f: ScFunction): Boolean =
     !f.getModifierList.accessModifier.exists(mod => mod.isUnqualifiedPrivateOrThis || mod.isProtected)
 
-  private[this] def allOpsSupers(source: ScTypeDefinition, tConsName: String, tParamsText: String): Seq[String] = {
+  private def allOpsSupers(source: ScTypeDefinition, tConsName: String, tParamsText: String): Seq[String] = {
     source.extendsBlock.templateParents.toSeq.flatMap(_.superTypes).flatMap { superTpe =>
       val superFqn = superTpe.extractClass.map(_.getQualifiedName)
       superFqn.map(fqn => s"with $fqn.AllOps[$tConsName$tParamsText]")

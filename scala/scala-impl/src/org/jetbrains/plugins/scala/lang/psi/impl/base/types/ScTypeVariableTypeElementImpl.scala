@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeParamet
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeVariableTypeElement {
-  private[this] lazy val tvType = TypeParameterType(TypeParameter.light(name, List.empty, Nothing, Any))
+  private lazy val tvType = TypeParameterType(TypeParameter.light(name, List.empty, Nothing, Any))
 
   override def innerType: TypeResult = Right(tvType)
 

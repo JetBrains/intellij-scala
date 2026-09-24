@@ -12,7 +12,7 @@ trait ScNullLiteral extends ScLiteral {
 
 object ScNullLiteral {
 
-  private[this] val TypeKey = Key.create[ScType]("scala.type.without.implicits")
+  private val TypeKey = Key.create[ScType]("scala.type.without.implicits")
 
   def unapply(literal: ScNullLiteral): Option[ScType] =
     Option(literal.getCopyableUserData(TypeKey))

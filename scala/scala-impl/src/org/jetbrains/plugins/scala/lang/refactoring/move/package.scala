@@ -208,5 +208,5 @@ package object move {
     }
   }
 
-  private[this] val LOG: Logger = Logger.getInstance(getClass)
+  private val LOG: Logger = Logger.getInstance(getClass)
 }

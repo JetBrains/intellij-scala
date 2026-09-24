@@ -502,7 +502,7 @@ object ScalaFmtSettingsPanel {
     editor
   }
 
-  private[this] def fillEditorSettings(settings: EditorSettings,
+  private def fillEditorSettings(settings: EditorSettings,
                                        language: Language): Unit = {
     settings.setLanguageSupplier(() => language)
     settings.setWhitespacesShown(true)

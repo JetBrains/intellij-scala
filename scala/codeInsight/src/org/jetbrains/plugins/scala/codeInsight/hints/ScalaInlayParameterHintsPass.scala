@@ -151,14 +151,14 @@ object ScalaInlayParameterHintsPass {
     }
   }
 
-  private[this] def isNameable(argument: ScExpression) =
+  private def isNameable(argument: ScExpression) =
     argument.getParent match {
       case list: ScArgumentExprList => list.isArgsInParens
       case _ => false
     }
 
   @tailrec
-  private[this] def isUnclear(expression: ScExpression): Boolean = expression match {
+  private def isUnclear(expression: ScExpression): Boolean = expression match {
     case _: ScLiteral | _: ScThisReference => true
     case ScParenthesisedExpr(inner) => isUnclear(inner)
     case ScSugarCallExpr(base, _, _) => isUnclear(base)

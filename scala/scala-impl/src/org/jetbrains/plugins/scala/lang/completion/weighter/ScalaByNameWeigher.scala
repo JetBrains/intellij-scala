@@ -76,7 +76,7 @@ final class ScalaByNameWeigher extends CompletionWeigher {
 
 private object ScalaByNameWeigher {
 
-  private[this] val MaxDistance = 4
+  private val MaxDistance = 4
   private val TextForPositionKey = Key.create[String]("text.for.position")
 
   private def computeDistance(name: String, text: String): Int = {

@@ -65,17 +65,17 @@ object ShapelessForProduct extends ScalaMacroTypeable {
     } yield ScParameterizedType(projectionType, Seq(productLikeType, repr))
   }
 
-  private[this] def findShapelessClass(name: String)
+  private def findShapelessClass(name: String)
                                       (implicit scope: ElementScope) =
     scope.getCachedClass(s"shapeless.$name")
 
-  private[this] def reprType(`type`: ScType, place: PsiElement)
+  private def reprType(`type`: ScType, place: PsiElement)
                             (nilType: ScType, consType: ScType) =
     ExtractorMatch.extractPossibleProductParts(`type`, place).foldRight(nilType) {
       case (part, resultType) => ScParameterizedType(consType, Seq(part, resultType))
     }
 
-  private[this] def productLikeType(genericClass: ScTypeDefinition,
+  private def productLikeType(genericClass: ScTypeDefinition,
                                     expectedType: ScType)
                                    (implicit context: ProjectContext) = for {
     parameter <- genericClass.typeParameters.headOption

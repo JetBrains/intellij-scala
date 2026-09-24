@@ -169,7 +169,7 @@ sealed abstract class ScalaTextLookupItem(protected val reference: ScReference)
 
   protected val arguments: String = maybeArguments.fold("")(createParameters)
 
-  private[this] def createParameters(arguments: Iterable[ScExpression]) = {
+  private def createParameters(arguments: Iterable[ScExpression]) = {
     import NameSuggester._
     val suggester = new UniqueNameSuggester()
 
