@@ -85,7 +85,7 @@ class CreateScalaDocStubAction extends AnAction(
     }
 
     @inline def convertToParamMap[T <: ScNamedElement](params: collection.immutable.Seq[T]) =
-      mutable.HashMap(params.map(p => (p.getName, p)): _*)
+      mutable.HashMap(params.map(p => (p.getName, p))*)
 
     def processParams[T <: ScNamedElement](groupNames: List[String], params: List[Seq[T]]): Unit = {
       val paramMaps = groupNames zip params map {

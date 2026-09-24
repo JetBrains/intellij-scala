@@ -56,8 +56,8 @@ sealed abstract class ScPropertyStubFactory[P <: ScValueOrVariable](elementType:
 
   override final def indexStub(stub: ScPropertyStub[P], sink: IndexSink): Unit = {
     import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
-    sink.occurrences(PROPERTY_NAME_KEY, stub.names.toSeq: _*)
-    sink.occurrences(PROPERTY_CLASS_NAME_KEY, stub.classNames.toSeq: _*)
+    sink.occurrences(PROPERTY_NAME_KEY, stub.names.toSeq*)
+    sink.occurrences(PROPERTY_CLASS_NAME_KEY, stub.classNames.toSeq*)
 
     if (stub.isTopLevel) {
       stub.topLevelQualifier.foreach(

@@ -65,7 +65,7 @@ trait ScalaTestFrameworkCommandLineStateLike {
   ): DefaultExecutionResult = {
     val result = new DefaultExecutionResult(consoleView, processHandler)
     val restartActions = createRestartActions(testConsoleView)
-    result.setRestartActions(restartActions: _*)
+    result.setRestartActions(restartActions*)
     result
   }
 

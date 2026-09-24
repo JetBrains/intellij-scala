@@ -733,7 +733,7 @@ class ScopeAnnotatorTest_3 extends ScopeAnnotatorTest_213 {
   override def scalaCodeParsingFeatures: ScalaFeatures = ScalaFeatures.defaultScala3
 
   override protected def assertFine(@Language("Scala 3") code: String): Unit = super.assertFine(code)
-  override protected def assertClashes(/*/*@Language("Scala 3")*/*/ code: String, expectedClashes: String*): Unit = super.assertClashes(code, expectedClashes: _*)
+  override protected def assertClashes(/*/*@Language("Scala 3")*/*/ code: String, expectedClashes: String*): Unit = super.assertClashes(code, expectedClashes*)
   override protected def assert2Clashes(@Language("Scala 3") code: String, expectedClash: String): Unit = super.assert2Clashes(code, expectedClash)
 
   def testExtensions(): Unit = {

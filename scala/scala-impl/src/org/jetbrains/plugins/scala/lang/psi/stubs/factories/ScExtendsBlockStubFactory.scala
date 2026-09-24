@@ -26,6 +26,6 @@ final class ScExtendsBlockStubFactory(elementType: ScExtendsBlockElementType) ex
   override def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = new ScExtendsBlockImpl(stub)
 
   override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit = {
-    sink.occurrences(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, stub.baseClasses: _*)
+    sink.occurrences(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, stub.baseClasses*)
   }
 }

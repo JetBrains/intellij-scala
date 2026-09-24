@@ -37,7 +37,7 @@ final class ScSelfTypeElementStubFactory(elementType: ScSelfTypeElementElementTy
     )
 
   override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit = {
-    sink.occurrences(ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY, stub.classNames.toSeq: _*)
+    sink.occurrences(ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY, stub.classNames.toSeq*)
   }
 
   override def createPsi(stub: ScSelfTypeElementStub): ScSelfTypeElement = new ScSelfTypeElementImpl(stub)

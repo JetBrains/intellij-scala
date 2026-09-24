@@ -93,7 +93,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
   override def getAllMethods: Array[PsiMethod] = {
     val names = mutable.HashSet.empty[String]
-    val result = mutable.ArrayBuffer(getConstructors.toSeq: _*)
+    val result = mutable.ArrayBuffer(getConstructors.toSeq*)
 
     val signatures: Iterator[TermSignature] = allSignatures
 

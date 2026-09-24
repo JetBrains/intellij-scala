@@ -10,7 +10,7 @@ abstract class AbstractMethodSignatureInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
     case function: ScFunction if isApplicable(function) =>
       findProblemElement(function).foreach {
-        holder.registerProblem(_, getDisplayName, highlightType(function), createQuickFix(function).toArray: _*)
+        holder.registerProblem(_, getDisplayName, highlightType(function), createQuickFix(function).toArray*)
       }
     case _ =>
   }

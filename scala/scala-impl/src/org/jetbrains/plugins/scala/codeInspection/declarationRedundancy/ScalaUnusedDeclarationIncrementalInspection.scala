@@ -38,7 +38,7 @@ trait ScalaUnusedDeclarationIncrementalInspection { this: ScalaUnusedDeclaration
             case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) =>
             case _ =>
               val info = unusedProblemInfoFor(e, isOnTheFly = true)
-              holder.registerProblem(info.element, info.message, info.fixes: _*)
+              holder.registerProblem(info.element, info.message, info.fixes*)
           }
         }
       case e: ScImportExpr if e.isVisible(holder.getProject, holder.getFile) && e.selectorSet.isEmpty && !e.hasWildcardSelector && !e.hasGivenSelector =>

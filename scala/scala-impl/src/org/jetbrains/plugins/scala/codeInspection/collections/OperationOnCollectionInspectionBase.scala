@@ -132,7 +132,7 @@ abstract class OperationOnCollectionInspectionBase extends LocalInspectionTool {
         ).prefix(simplificationTypesPrefix)
       }
 
-      OptPane.pane(OptPane.checkboxPanel(checkboxes: _*), patternsPanel)
+      OptPane.pane(OptPane.checkboxPanel(checkboxes*), patternsPanel)
     } else OptPane.pane(patternsPanel)
   }
 
@@ -153,7 +153,7 @@ abstract class OperationOnCollectionInspectionBase extends LocalInspectionTool {
       )
 
   private def getMutablePatternList(patternListKey: String): Supplier[ju.List[String]] =
-    () => StreamEx.of(patternLists(patternListKey)(): _*).toMutableList
+    () => StreamEx.of(patternLists(patternListKey)()*).toMutableList
 
   private def consumeNewPatternList(patternListKey: String): Consumer[ju.List[String]] = { newList =>
     val newArray = newList.toArray.collect { case s: String => s }

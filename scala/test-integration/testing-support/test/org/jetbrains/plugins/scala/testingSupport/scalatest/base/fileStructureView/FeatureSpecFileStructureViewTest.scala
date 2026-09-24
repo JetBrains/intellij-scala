@@ -11,7 +11,7 @@ trait FeatureSpecFileStructureViewTest extends ScalaTestTestCase {
   import featureSpecApi._
 
   private def runTest(status: Int, names: String*): Unit = {
-    runFileStructureViewTest(className, status, names: _*)
+    runFileStructureViewTest(className, status, names*)
   }
 
   private def runTest(testName: String, parent: Option[String] = None): Unit = {

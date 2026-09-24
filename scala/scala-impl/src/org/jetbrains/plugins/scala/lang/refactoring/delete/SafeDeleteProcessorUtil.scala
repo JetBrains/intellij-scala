@@ -376,7 +376,7 @@ object SafeDeleteProcessorUtil {
                 case method: PsiMethod =>
                   val newText: StringBuffer = new StringBuffer
                   newText.append("/** @see #").append(method.name).append('(')
-                  val parameters: java.util.List[PsiParameter] = new util.ArrayList[PsiParameter](util.Arrays.asList(method.getParameterList.getParameters: _*))
+                  val parameters: java.util.List[PsiParameter] = new util.ArrayList[PsiParameter](util.Arrays.asList(method.getParameterList.getParameters*))
                   parameters.remove(parameter)
                   newText.append(parameters.asScala.map(_.getType.getCanonicalText).mkString(","))
                   newText.append(")*/")
@@ -455,7 +455,7 @@ object SafeDeleteProcessorUtil {
   }
 
   def isInside(place: PsiElement, ancestors: Array[PsiElement]): Boolean = {
-    isInside(place, util.Arrays.asList(ancestors : _*))
+    isInside(place, util.Arrays.asList(ancestors*))
   }
 
   def isInside(place: PsiElement, ancestors: util.Collection[? <: PsiElement]): Boolean = {

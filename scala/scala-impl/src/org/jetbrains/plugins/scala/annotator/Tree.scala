@@ -26,7 +26,7 @@ object Tree {
         (acc ++ xs, length + r)
       }
       val nodeLength = lenghtOf(this)
-      if (length <= maxLength.max(nodeLength)) (xs, length) else (Seq(Node(xs: _*)), nodeLength)
+      if (length <= maxLength.max(nodeLength)) (xs, length) else (Seq(Node(xs*)), nodeLength)
     }
 
     def fold[B](z: B)(op: (B, T) => B): B = children.foldLeft(z)((acc, x) => x.fold(acc)(op))

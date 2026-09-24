@@ -9,11 +9,11 @@ class ScalaDocMarkdownEnterHandlerTest extends DoEditorStateTestOps {
       val rAfterOther = afterOther.map(replace)
 
       if ((rBefore, rAfter, rAfterOther) != (before, after, afterOther)) {
-        super.doEnterTest(rBefore, rAfter, rAfterOther: _*)
+        super.doEnterTest(rBefore, rAfter, rAfterOther*)
       }
     }
 
-    super.doEnterTest(before, after, afterOther: _*)
+    super.doEnterTest(before, after, afterOther*)
     replaceInStr(_.replace("-", "+"))
     replaceInStr(_.replace("-", "*"))
     replaceInStr(_.replace(".", ")"))

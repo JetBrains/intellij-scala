@@ -175,7 +175,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   }
 
   private def findScopeBound(elements: Seq[PsiElement]): Option[PsiElement] = {
-    val commonParent = PsiTreeUtil.findCommonParent(elements: _*)
+    val commonParent = PsiTreeUtil.findCommonParent(elements*)
 
     def scopeBound(ref: ScReference): Option[PsiElement] = {
       val fromThisRef: Option[ScTemplateDefinition] = ref.qualifier match {

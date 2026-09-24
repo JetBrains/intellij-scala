@@ -13,7 +13,7 @@ trait TargetNameInspectionBase extends LocalInspectionTool {
         holder.registerProblem(
           problemElement.element,
           problemElement.maybeDescription.getOrElse(getDisplayName),
-          problemElement.maybeQuickFix.toArray: _*
+          problemElement.maybeQuickFix.toArray*
         )
       }
     }

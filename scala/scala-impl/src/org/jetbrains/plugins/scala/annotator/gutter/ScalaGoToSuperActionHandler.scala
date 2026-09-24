@@ -96,7 +96,7 @@ private object ScalaGoToSuperActionHandler {
           case n: NavigatablePsiElement => Some(n)
           case _ => None
         })
-        val supers = mutable.HashSet[NavigatablePsiElement](superElems: _*)
+        val supers = mutable.HashSet[NavigatablePsiElement](superElems*)
         (Seq(), supers.toSeq)
       case d: ScDeclaredElementsHolder =>
         (Seq(), declaredElementHolderSupers(d))

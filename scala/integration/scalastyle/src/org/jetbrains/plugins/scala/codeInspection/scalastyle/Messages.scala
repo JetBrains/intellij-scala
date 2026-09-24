@@ -21,7 +21,7 @@ private object Messages {
         Option(messages.getProperty(s"$key.message"))
           .getOrElse(messages.getProperty(key))
       val message = rawMessage.substring(0, rawMessage.length - 1).substring(1)
-      MessageFormat.format(message, args: _*)
+      MessageFormat.format(message, args*)
     } catch {
       case c: ControlFlowException => throw c
       case _: Throwable => customMessage.getOrElse("")

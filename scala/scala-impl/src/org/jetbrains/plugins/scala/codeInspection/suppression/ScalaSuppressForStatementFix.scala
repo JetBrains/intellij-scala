@@ -88,7 +88,7 @@ abstract class ScalaSuppressForDefinitionFix(key: HighlightDisplayKey, @Nls text
 
   override def getText: String = text
 
-  override def getContainer(context: PsiElement): PsiElement = PsiTreeUtil.getParentOfType(context, defClasses: _*)
+  override def getContainer(context: PsiElement): PsiElement = PsiTreeUtil.getParentOfType(context, defClasses*)
 }
 
 final class ScalaSuppressForFileFix(key: HighlightDisplayKey) extends ScalaSuppressByLineCommentFix(key) {

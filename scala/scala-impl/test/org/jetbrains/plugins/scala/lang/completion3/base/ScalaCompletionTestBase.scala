@@ -108,7 +108,7 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTestC
     invocationCount: Int = DefaultInvocationCount,
     completionType: CompletionType = BASIC
   )(expectedItems: String*): Unit =
-    scalaCompletionTestFixture.checkLookupItemsExist(fileText, completionType, invocationCount)(expectedItems: _*)
+    scalaCompletionTestFixture.checkLookupItemsExist(fileText, completionType, invocationCount)(expectedItems*)
 
   protected final def completeBasic(invocationCount: Int): Array[LookupElement] =
     scalaCompletionTestFixture.completeBasic(invocationCount)

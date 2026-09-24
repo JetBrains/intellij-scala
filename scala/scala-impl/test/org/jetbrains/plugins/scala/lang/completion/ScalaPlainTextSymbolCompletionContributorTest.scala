@@ -37,13 +37,13 @@ class ScalaPlainTextSymbolCompletionContributorTest
 
     val scala3TopLevelDefsAll = Seq("topLevelDef", "topLevelVal", "topLevelVal1", "topLevelVal2", "topLevelVar", "topLevelGiven", "TopLevelTypeAlias")
 
-    doAutoPopupTest("", Seq("Foo", "Bar", "Baz") ++ scala3TopLevelDefsAll: _*)
+    doAutoPopupTest("", (Seq("Foo", "Bar", "Baz") ++ scala3TopLevelDefsAll)*)
     doAutoPopupTest("fo", "Foo")
     doAutoPopupTest("Ba", "Bar", "Baz")
-    doAutoPopupTest("top", scala3TopLevelDefsAll: _*)
+    doAutoPopupTest("top", scala3TopLevelDefsAll*)
 
     doBasicTest("fo", "Foo", "foo")
-    doBasicTest("top", scala3TopLevelDefsAll: _*)
+    doBasicTest("top", scala3TopLevelDefsAll*)
   }
 
   def testInnerDefinitions(): Unit = {

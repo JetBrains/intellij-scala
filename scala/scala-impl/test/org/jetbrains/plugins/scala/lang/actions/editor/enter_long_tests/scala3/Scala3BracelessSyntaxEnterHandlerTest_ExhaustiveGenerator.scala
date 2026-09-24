@@ -53,7 +53,7 @@ private[scala3] object Scala3BracelessSyntaxEnterHandlerTest_ExhaustiveGenerator
     private def buildTestName(prefix: String, indented: String, wrapper: CodeWithDebugName, typed: CodeWithDebugName): String = {
       val lineWithCaret = indented.linesIterator.find(_.contains(CARET)).get
       val nameParts = List(prefix, lineWithCaret, wrapper.debugName, typed.debugName)
-      makeUniqueTestName(nameParts: _*)
+      makeUniqueTestName(nameParts*)
     }
 
     def addGeneratedTests(

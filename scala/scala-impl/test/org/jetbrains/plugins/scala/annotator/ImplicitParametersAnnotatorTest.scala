@@ -259,8 +259,8 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
 
     val error = Error("bar", notFound("Int")) :: Nil
 
-    assertMessages(error)(bothAbstract.get: _*)
-    assertMessages(error)(implicitAbstract.get: _*)
+    assertMessages(error)(bothAbstract.get*)
+    assertMessages(error)(implicitAbstract.get*)
   }
 
   def testRecursiveFunctionSeveralImplicits(): Unit = {

@@ -339,7 +339,7 @@ package object collections {
   }
 
   def invocationText(negation: Boolean, qual: ScExpression, methName: String, args: ScExpression*): String = {
-    val baseText = invocationText(qual, methName, args: _*)
+    val baseText = invocationText(qual, methName, args*)
     qual match {
       case _ if !negation => baseText
       case _ childOf ScInfixExpr(`qual`, _, _) => s"!($baseText)"
@@ -506,7 +506,7 @@ package object collections {
   private def isExpressionOfType(fqns: String*)(tpbl: Typeable): Boolean = tpbl match {
     case Resolved(srr @ ScalaResolveResult(fun: ScFunction, _)) if fun.name == CommonNames.Apply =>
       srr.getActualElement match {
-        case element: Typeable => isExpressionOfType(fqns: _*)(element)
+        case element: Typeable => isExpressionOfType(fqns*)(element)
         case _ => false
       }
     case Typeable(scType) => fqns.exists(conformsToTypeFromClass(scType, _)(scType.projectContext, Context.Empty))

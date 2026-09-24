@@ -102,7 +102,7 @@ object ScalaFilterScope {
 
 final class SourceFilterScope private(delegate: GlobalSearchScope, fileTypes: Seq[FileType])
                                      (implicit project: Project)
-  extends FilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(delegate, fileTypes: _*)) {
+  extends FilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(delegate, fileTypes*)) {
 
   override protected def mayContain(file: VirtualFile): Boolean = isInSourceContent(file)
 }

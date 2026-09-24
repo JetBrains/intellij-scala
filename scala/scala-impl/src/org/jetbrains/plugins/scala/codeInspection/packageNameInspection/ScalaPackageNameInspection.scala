@@ -102,7 +102,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
           }
 
           for (range <- ranges) yield
-            manager.createProblemDescriptor(file, range, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, buffer: _*)
+            manager.createProblemDescriptor(file, range, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, buffer*)
         }
 
         if (packageNameByDir != packageQualifier) {

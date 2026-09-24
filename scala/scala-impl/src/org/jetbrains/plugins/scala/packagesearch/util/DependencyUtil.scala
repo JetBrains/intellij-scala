@@ -25,7 +25,7 @@ object DependencyUtil {
   @ApiStatus.Internal
   @VisibleForTesting
   private[jetbrains] def updateMockVersionCompletionCache(newCache: ((String, String), Seq[String])*): Unit =
-    VersionCompletion.MockVersionCompletion.cache.set(Map(newCache: _*))
+    VersionCompletion.MockVersionCompletion.cache.set(Map(newCache*))
 
   private sealed trait VersionCompletion {
     def getVersions(groupId: String, artifactId: String): Seq[String]

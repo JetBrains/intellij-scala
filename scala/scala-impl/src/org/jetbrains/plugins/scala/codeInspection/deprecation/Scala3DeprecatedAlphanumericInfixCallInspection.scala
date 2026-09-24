@@ -29,19 +29,19 @@ final class Scala3DeprecatedAlphanumericInfixCallInspection extends LocalInspect
               new WrapRefExprInBackticksQuickFix(ref),
               new ConvertFromInfixExpressionQuickFix(infixExpr),
             ).map(LocalQuickFix.from)
-            holder.registerProblem(ref, message(ref.refName), fixes: _*)
+            holder.registerProblem(ref, message(ref.refName), fixes*)
           case infixType@ScInfixTypeElement(_, ref, _) if ref == element && isDeprecatedInfix(ref) =>
             val fixes = Array[ModCommandAction](
               new WrapStableCodeRefInBackticksQuickFix(ref),
               new ConvertFromInfixTypeQuickFix(infixType),
             ).map(LocalQuickFix.from)
-            holder.registerProblem(ref, message(ref.refName), fixes: _*)
+            holder.registerProblem(ref, message(ref.refName), fixes*)
           case infixPattern@ScInfixPattern(_, ref, _) if ref == element && isDeprecatedInfix(ref) =>
             val fixes = Array[ModCommandAction](
               new WrapStableCodeRefInBackticksQuickFix(ref),
               new ConvertFromInfixPatternQuickFix(infixPattern),
             ).map(LocalQuickFix.from)
-            holder.registerProblem(ref, message(ref.refName), fixes: _*)
+            holder.registerProblem(ref, message(ref.refName), fixes*)
           case _ =>
         }
       }

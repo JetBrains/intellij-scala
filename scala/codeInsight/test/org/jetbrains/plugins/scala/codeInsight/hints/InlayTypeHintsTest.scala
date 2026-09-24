@@ -9,7 +9,7 @@ class InlayTypeHintsTest extends InlayHintsTestBase {
   import ScalaCodeInsightSettings.{getInstance => settings}
 
   private def doTest(text: String, options: Setter[java.lang.Boolean]*): Unit =
-    doTest(text, false, options: _*)
+    doTest(text, false, options*)
 
   private def doTest(text: String, withTooltips: Boolean, options: Setter[java.lang.Boolean]*): Unit = {
     def setOptions(value: Boolean): Unit = options.foreach(_.set(value))

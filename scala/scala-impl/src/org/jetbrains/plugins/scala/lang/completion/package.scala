@@ -53,7 +53,7 @@ package object completion {
     identifierPattern.withParent(clazz)
 
   private[completion] def identifierWithParentsPattern(classes: Class[? <: ScalaPsiElement]*) =
-    identifierPattern.withParents(classes: _*)
+    identifierPattern.withParents(classes*)
 
   private[completion] def annotationPattern =
     psiElement.afterLeaf(psiElement(tAT))

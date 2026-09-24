@@ -54,7 +54,7 @@ final class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesH
                                                      adjustedElements: Array[PsiElement],
                                                      initialTargetElement: PsiElement,
                                                      moveCallback: MoveCallback): Unit = {
-    if (!CommonRefactoringUtil.checkReadOnlyStatusRecursively(project, ju.Arrays.asList(adjustedElements: _*), true)) {
+    if (!CommonRefactoringUtil.checkReadOnlyStatusRecursively(project, ju.Arrays.asList(adjustedElements*), true)) {
       return
     }
     val initialTargetPackageName: String = MoveClassesOrPackagesImpl.getInitialTargetPackageName(initialTargetElement, adjustedElements)

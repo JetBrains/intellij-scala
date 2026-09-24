@@ -74,7 +74,7 @@ class ScalaCompleteLibraryClassTest
     val (_, lookupItems) = activeLookupWithItems(fileText, CompletionType.BASIC)
     val actual = lookupItems.toList.map(item => (item.getLookupString, name(item.getPsiElement)))
     val expected = expectedDescriptors.map(d => (d.name, d.fqn))
-    UsefulTestCase.assertContainsElements(actual.asJava, expected: _*)
+    UsefulTestCase.assertContainsElements(actual.asJava, expected*)
   }
 
   @Test
@@ -112,7 +112,7 @@ class ScalaGoToLibraryClassTest
   private def checkClassElements(text: String, expectedDescriptors: Seq[ClassDescriptor]): Unit = {
     val elements = gotoClassElements(text)
     val expected = expectedDescriptors.map(d => (d.predicate, d.fqn))
-    super[ChooseClassOrSymbolByNameTestBase].checkContainExpected(elements, expected: _*)
+    super[ChooseClassOrSymbolByNameTestBase].checkContainExpected(elements, expected*)
   }
 
   @Test

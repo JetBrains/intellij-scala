@@ -18,7 +18,7 @@ trait FreeSpecScopeTest extends FreeSpecGenerator {
     val path2 = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", complexFreeSpecClassName, "A ComplexFreeSpec", "Outer scope 2", "Inner test")
     runTestByLocation(
       loc(complexFreeSpecFileName, 10, 10),
-      assertConfigAndSettings(_, complexFreeSpecClassName, testNames:_*),
+      assertConfigAndSettings(_, complexFreeSpecClassName, testNames*),
       root => {
         assertResultTreePathsEqualsUnordered(root)(Seq(
           path1,

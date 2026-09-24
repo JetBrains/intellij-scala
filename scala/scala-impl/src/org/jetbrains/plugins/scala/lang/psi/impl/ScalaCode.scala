@@ -90,7 +90,7 @@ object ScalaCode {
 
       val s = interleave(parts, separators).mkString
 
-      format(s, arguments: _*)
+      format(s, arguments*)
     }
   }
 

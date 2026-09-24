@@ -66,7 +66,7 @@ object TypeAnnotationInspection {
         anchor,
         ScalaInspectionBundle.message("type.annotation.required.for", reason.reasonToEnforceOrUse),
         reason.severity,
-        fixes: _*
+        fixes*
       )
     }
   }

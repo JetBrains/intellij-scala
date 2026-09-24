@@ -640,7 +640,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
   //  private def psiTypeFromJavaTypeText(text: String): PsiType =
   //    JavaPsiFacade.getElementFactory(projectContext).createTypeFromText(text, null)
 
-  private def javaList[T](elements: T*): ju.List[T] = ju.Arrays.asList(elements: _*)
+  private def javaList[T](elements: T*): ju.List[T] = ju.Arrays.asList(elements*)
 
   private implicit def projectContext: ProjectContext = myFixture.getProject
 }

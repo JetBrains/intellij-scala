@@ -110,9 +110,9 @@ class ScalaTestFrameworkCommandLineState(
     if (useTestsArgsFile) {
       val argsFile = prepareTempArgsFile(programParameters.testsArgs)
       params.getProgramParametersList.add(s"@${argsFile.toAbsolutePath.toString}")
-      params.getProgramParametersList.addAll(programParameters.otherArgs: _*)
+      params.getProgramParametersList.addAll(programParameters.otherArgs*)
     } else {
-      params.getProgramParametersList.addAll(programParameters.allArgs: _*)
+      params.getProgramParametersList.addAll(programParameters.allArgs*)
     }
 
     params.setShortenCommandLine(configuration.getShortenCommandLine, project)

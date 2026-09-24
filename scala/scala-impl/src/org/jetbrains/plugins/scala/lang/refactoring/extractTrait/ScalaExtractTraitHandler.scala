@@ -48,7 +48,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     val clazz = elements match {
       case Array(clazz: ScTemplateDefinition) => clazz
       case _ =>
-        val parent = PsiTreeUtil.findCommonParent(elements: _*)
+        val parent = PsiTreeUtil.findCommonParent(elements*)
         PsiTreeUtil.getParentOfType(parent, classOf[ScTemplateDefinition], false)
     }
 

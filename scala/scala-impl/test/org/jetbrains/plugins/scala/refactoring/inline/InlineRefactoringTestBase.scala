@@ -253,7 +253,7 @@ object InlineRefactoringTestBase {
     val expectedError = expectedErrorBundleKey.map { expectedError =>
       expectedError.split(',').toList.map(_.trim) match {
         case bundleKey :: args =>
-          ScalaBundle.message(bundleKey, args: _*)
+          ScalaBundle.message(bundleKey, args*)
         case _ =>
           fail(s"Unexpected error message format: $expectedError").asInstanceOf[Nothing]
       }

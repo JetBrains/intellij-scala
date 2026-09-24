@@ -23,12 +23,12 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
     keywords: String*
   ): Unit = extend(
     CompletionType.BASIC,
-    PlatformPatterns.psiElement.and(new FilterPattern(new AndFilter(filters: _*))),
+    PlatformPatterns.psiElement.and(new FilterPattern(new AndFilter(filters*))),
     new CompletionProvider[CompletionParameters] {
       override def addCompletions(parameters: CompletionParameters,
                                   context: ProcessingContext,
                                   resultSet: CompletionResultSet): Unit =
-        lookups.ScalaKeywordLookupItem.addFor(resultSet, keywords: _*)
+        lookups.ScalaKeywordLookupItem.addFor(resultSet, keywords*)
     }
   )
 
@@ -37,7 +37,7 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
     keywords: String*
   ): Unit = registerFor(
     Seq(not(AfterDotFilter), filter),
-    keywords: _*
+    keywords*
   )
 
   private def registerStandardCompletionForModifier(
@@ -49,7 +49,7 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
       not(AfterSemicolonOrNewLineExpectedErrorFilter),
       filter
     ),
-    keywords: _*
+    keywords*
   )
 
   private def registerStandardCompletionForDefinitionKeyword(
@@ -61,7 +61,7 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
       not(AfterSemicolonOrNewLineExpectedErrorFilter),
       filter
     ),
-    keywords: _*
+    keywords*
   )
 
   private def registerStandardCompletionForDefinitionKeywordNotTopLevelInScala3(
@@ -74,7 +74,7 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
       or(not(IsTopLevelElementInProductionScalaFileFilter), IsInScala3ModuleFilter),
       filter
     ),
-    keywords: _*
+    keywords*
   )
 
   private def registerStandardCompletionForExpression(
@@ -87,7 +87,7 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
       not(IsTopLevelElementInProductionScalaFileFilter),
       filter
     ),
-    keywords: _*
+    keywords*
   )
 
   registerStandardCompletionForModifier(new modifiers.ModifiersFilter, PRIVATE, PROTECTED, OVERRIDE, ABSTRACT, FINAL, SEALED, IMPLICIT, LAZY)
@@ -195,6 +195,6 @@ object ScalaKeywordCompletionContributor {
     override def toString: String = "AfterRightBraceExpectedErrorFilter"
   }
 
-  private def or(filter: ElementFilter*): OrFilter = new OrFilter(filter: _*)
+  private def or(filter: ElementFilter*): OrFilter = new OrFilter(filter*)
   private def not(filter: ElementFilter): NotFilter = new NotFilter(filter)
 }

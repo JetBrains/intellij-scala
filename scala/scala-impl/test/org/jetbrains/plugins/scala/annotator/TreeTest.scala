@@ -14,7 +14,7 @@ class TreeTest extends TestCase {
   private object Language extends RegexParsers {
     def comma: Parser[Unit]             = """\s*,\s*""".r                         ^^ { _ => () }
     def element: Parser[Leaf[TypeDiff]] = """\w+""".r                             ^^ { name => Leaf(Match(name))}
-    def group: Parser[Node[TypeDiff]]   = ("(" ~> repsep(parser, comma) <~ ")")   ^^ { Node(_: _*) }
+    def group: Parser[Node[TypeDiff]]   = ("(" ~> repsep(parser, comma) <~ ")")   ^^ { Node(_*) }
     def parser: Parser[Tree[TypeDiff]]  = group | element
 
     def apply(s: String): Node[TypeDiff] = parseAll(group, s"($s)").get

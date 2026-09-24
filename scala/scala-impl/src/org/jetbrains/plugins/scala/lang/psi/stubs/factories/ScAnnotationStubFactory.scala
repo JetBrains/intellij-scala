@@ -29,6 +29,6 @@ final class ScAnnotationStubFactory(elementType: ScAnnotationElementType)
   override def createPsi(stub: ScAnnotationStub): ScAnnotation = new ScAnnotationImpl(stub)
 
   override def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
-    sink.occurrences(ScalaIndexKeys.ANNOTATED_MEMBER_KEY, stub.name.toSeq: _*)
+    sink.occurrences(ScalaIndexKeys.ANNOTATED_MEMBER_KEY, stub.name.toSeq*)
   }
 }

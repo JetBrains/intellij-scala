@@ -342,7 +342,7 @@ class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTyp
     )
 
     for (context <- contexts) {
-      assertMessages(messages(Header + context))(expected: _*)
+      assertMessages(messages(Header + context))(expected*)
     }
   }
 }

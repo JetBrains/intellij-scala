@@ -77,7 +77,7 @@ case class ScalaSDKLoader(
 
   override final def init(implicit module: Module, version: ScalaVersion): Unit = {
     val dependencies = binaryDependencies
-    val resolved = dependencyManager.resolve(dependencies: _*)
+    val resolved = dependencyManager.resolve(dependencies*)
 
     if (version.isScala3)
       assertTrue(

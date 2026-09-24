@@ -10,12 +10,12 @@ abstract class ScalaMoveLeftRightTestBase extends ScalaLightCodeInsightFixtureTe
 
   protected def doTestFromLeftToRight(leftMostPosition: String, rightPositions: String*): Unit = {
     doTest(moveLeft = true, leftMostPosition)
-    doTest(false, leftMostPosition, rightPositions: _*)
+    doTest(false, leftMostPosition, rightPositions*)
   }
 
   protected def doTestFromRightToLeft(rightMostPosition: String, leftPositions: String*): Unit = {
     doTest(false, rightMostPosition)
-    doTest(true, rightMostPosition, leftPositions: _*)
+    doTest(true, rightMostPosition, leftPositions*)
   }
 
   protected def checkMoveRightIsDisabled(fileText: String): Unit = {

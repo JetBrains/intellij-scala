@@ -765,7 +765,7 @@ object ScalaImportOptimizer {
     val ImportRangeInfo(firstPsi, _, importStatementsWithInfos, usedImportedNames, isLocalRange) = rangeInfo
 
     val importInfos = importStatementsWithInfos.flatMap(_._2)
-    val buffer = ArrayBuffer(importInfos: _*)
+    val buffer = ArrayBuffer(importInfos*)
 
     val needReplaceWithFqnImports =
       settings.addFullQualifiedImports &&

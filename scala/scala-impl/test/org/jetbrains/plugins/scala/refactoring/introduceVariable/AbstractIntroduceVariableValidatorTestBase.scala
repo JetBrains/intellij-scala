@@ -89,7 +89,7 @@ object AbstractIntroduceVariableValidatorTestBase {
     val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, ScalaRefactoringUtil.fileEncloser(file, selectionModel.getSelectionStart).orNull)
     val containerOne = getContainerOne(file, occurrences.length)
 
-    val parent = findCommonParent(occurrences: _*)
+    val parent = findCommonParent(occurrences*)
     new ScalaTypeValidator(typeElement, occurrences.isEmpty, ScalaRefactoringUtil.enclosingContainer(parent), containerOne)
   }
 

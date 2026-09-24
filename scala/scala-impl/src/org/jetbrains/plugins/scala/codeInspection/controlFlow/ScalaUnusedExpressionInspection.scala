@@ -33,7 +33,7 @@ final class ScalaUnusedExpressionInspection extends LocalInspectionTool {
         val quickfixes =
           if (range == expression.getTextRange) createQuickFixes(expression).map(LocalQuickFix.from)
           else Nil
-        holder.registerProblem(expression, range.shiftLeft(expression.startOffset), descriptionTemplate, quickfixes: _*)
+        holder.registerProblem(expression, range.shiftLeft(expression.startOffset), descriptionTemplate, quickfixes*)
       }
     case _ =>
   }

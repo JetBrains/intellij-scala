@@ -51,7 +51,7 @@ class RestoreReferencesDialog(
 
   override protected def createCenterPanel: JComponent = {
     val panel = new JPanel(new BorderLayout(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP))
-    myList = new JBList(importedPathsArray: _*)
+    myList = new JBList(importedPathsArray*)
     myList.setCellRenderer(new BindingCellRenderer(features, colorScheme, project))
     panel.add(ScrollPaneFactory.createScrollPane(myList), BorderLayout.CENTER)
     panel.add(new JBLabel(JavaBundle.message("dialog.paste.on.import.text2"), SMALL, BRIGHTER), BorderLayout.NORTH)

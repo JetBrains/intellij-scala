@@ -38,8 +38,8 @@ class InterpolatedStringFormatterTest extends ScalaLightCodeInsightFixtureTestCa
     assertEquals(quoted("$"), formatFull("")(Text("$")))
 
     val parts = Seq(Text("$ "), Injection(exp("amount"), None))
-    assertEquals("$$ $amount", formatS(parts: _*))
-    assertEquals(quoted("$$ $amount", prefix = "s"), formatFull("s")(parts: _*))
+    assertEquals("$$ $amount", formatS(parts*))
+    assertEquals(quoted("$$ $amount", prefix = "s"), formatFull("s")(parts*))
   }
 
   def testPlainExpression(): Unit = {
@@ -104,7 +104,7 @@ class InterpolatedStringFormatterTest extends ScalaLightCodeInsightFixtureTestCa
 
   def testMixedParts(): Unit = {
     val parts = Seq(Text("foo "), Injection(exp("exp"), None), Text(" bar"))
-    assertEquals(quoted("foo $exp bar", prefix = "s"), formatFull("s")(parts: _*))
+    assertEquals(quoted("foo $exp bar", prefix = "s"), formatFull("s")(parts*))
   }
 
   def testLiterals(): Unit = {

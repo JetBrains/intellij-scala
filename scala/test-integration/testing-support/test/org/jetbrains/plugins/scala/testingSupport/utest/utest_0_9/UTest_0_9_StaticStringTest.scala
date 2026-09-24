@@ -14,7 +14,7 @@ trait UTest_0_9_StaticStringTest extends UTestTestCase {
 
   protected def checkTest(lineNumber: Int, position: Int, expectedNames: Seq[String] = Nil): Unit = {
     val configuration = createTestCaretLocation(lineNumber, position, StaticStringTestFileName)
-    assertConfigAndSettings(configuration, StaticStringTestName, expectedNames: _*)
+    assertConfigAndSettings(configuration, StaticStringTestName, expectedNames*)
   }
 
   addSourceFile(StaticStringTestFileName,

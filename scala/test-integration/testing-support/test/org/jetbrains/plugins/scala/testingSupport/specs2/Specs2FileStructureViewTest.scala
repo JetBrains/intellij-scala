@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.structureView.element.Test._
 abstract class Specs2FileStructureViewTest extends Specs2TestCase {
 
   private def prepareAndRunTestInner(status: Int, tests: String*): Unit = {
-    runFileStructureViewTest("SpecsFileStrctureViewTest", status, tests:_*)
+    runFileStructureViewTest("SpecsFileStrctureViewTest", status, tests*)
   }
 
   addSourceFile("SpecsFileStrctureViewTest.scala",

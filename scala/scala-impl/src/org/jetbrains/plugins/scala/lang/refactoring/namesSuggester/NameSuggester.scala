@@ -64,7 +64,7 @@ object NameSuggester {
       case seq => seq.reverse
     }
 
-    mutable.LinkedHashSet(collected: _*)
+    mutable.LinkedHashSet(collected*)
       .map(validator.validateName)
       .to(ArraySeq)
   }
@@ -135,7 +135,7 @@ object NameSuggester {
 
   private def namesByTypeableElement(typed: TypeableScalaPsiElement): Seq[String] = {
     val maybeName = typed.asOptionOf[ScGivenAliasDeclaration]
-      .map(decl => ScalaPsiUtil.generateGivenName(decl.typeElement.toSeq: _*))
+      .map(decl => ScalaPsiUtil.generateGivenName(decl.typeElement.toSeq*))
 
     maybeName.toSeq ++ namesByTypes(typed.`type`().toSeq)
   }

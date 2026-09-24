@@ -65,7 +65,7 @@ private class MyInheritorChooser(
 
     val renderer  = new PsiClassListCellRenderer()
     val classesSorted = classes.sorted(Ordering.comparatorToOrdering(renderer.getComparator))
-    val jbList = new JBList(classesSorted: _*)
+    val jbList = new JBList(classesSorted*)
     //scala type system gets confused because someone forgot generics in PsiElementListCellRenderer definition
     jbList.setCellRenderer(renderer.asInstanceOf[ListCellRenderer[PsiClass]])
     val testName = if (psiMethod != null) psiMethod.getName else containingClass.getName

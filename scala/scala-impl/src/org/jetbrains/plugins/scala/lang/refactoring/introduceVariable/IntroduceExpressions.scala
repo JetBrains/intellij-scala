@@ -260,7 +260,7 @@ object IntroduceExpressions {
         manager.doPostponedOperationsAndUnblockDocument(document)
 
         val introducer = new ScalaInplaceVariableIntroducer(newExpr, maybeType, named, replaceAll, forceType)
-        introducer.performInplaceRefactoring(new ju.LinkedHashSet(ju.Arrays.asList(suggestedNames: _*)))
+        introducer.performInplaceRefactoring(new ju.LinkedHashSet(ju.Arrays.asList(suggestedNames*)))
       }
     }
   }
@@ -353,7 +353,7 @@ object IntroduceExpressions {
       } else {
         replacedOccurrences.map(findParentExpr(file, _))
       }
-    val commonParent: PsiElement = PsiTreeUtil.findCommonParent(parentExprs: _*)
+    val commonParent: PsiElement = PsiTreeUtil.findCommonParent(parentExprs*)
 
     val nextParentInFile = nextParent(commonParent, file)
 

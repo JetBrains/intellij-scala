@@ -14,7 +14,7 @@ class SyncOutputExecutionListener extends ExecutionListener {
     env.getRunProfile match {
       case app: ApplicationConfiguration if isScala3ApplicationConfiguration(app) =>
         val outputPaths = CompilerPaths.getOutputPaths(app.getModules)
-        CompilerUtil.refreshOutputRoots(util.Arrays.asList(outputPaths: _*))
+        CompilerUtil.refreshOutputRoots(util.Arrays.asList(outputPaths*))
       case _ =>
     }
   }

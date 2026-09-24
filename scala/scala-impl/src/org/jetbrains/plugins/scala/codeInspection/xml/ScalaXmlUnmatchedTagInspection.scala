@@ -22,7 +22,7 @@ final class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool with Dumb
         if (s.getTextRange.isEmpty) return
 
         def register(fixes: LocalQuickFix*): Unit =
-          holder.registerProblem(s, ScalaBundle.message("xml.no.closing.tag"), fixes: _*)
+          holder.registerProblem(s, ScalaBundle.message("xml.no.closing.tag"), fixes*)
 
         val endTag = s.getClosingTag
         if (endTag == null) {
@@ -36,7 +36,7 @@ final class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool with Dumb
         if (!s.isVisible(holder.getProject, holder.getFile)) return
 
         def register(fixes: LocalQuickFix*): Unit =
-          holder.registerProblem(s, ScalaBundle.message("xml.no.opening.tag"), fixes: _*)
+          holder.registerProblem(s, ScalaBundle.message("xml.no.opening.tag"), fixes*)
 
         val startTag = s.getOpeningTag
         if (startTag == null) {

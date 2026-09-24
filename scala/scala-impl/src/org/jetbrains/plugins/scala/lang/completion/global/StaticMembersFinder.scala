@@ -74,7 +74,7 @@ private final class StaticMembersFinder(place: ScReferenceExpression,
     )(NameAvailability) {
 
     override protected def buildItem(lookupItem: ScalaLookupItem): LookupElement = {
-      putAllMethods(lookupItem, asList(overloadsToImport: _*))
+      putAllMethods(lookupItem, asList(overloadsToImport*))
       super.buildItem(lookupItem)
     }
   }

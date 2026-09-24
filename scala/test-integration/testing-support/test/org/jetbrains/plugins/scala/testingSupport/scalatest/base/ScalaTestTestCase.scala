@@ -20,6 +20,6 @@ abstract class ScalaTestTestCase
       case PendingStatusId => tests.map(_ + TestNodeProvider.PendingSuffix)
       case unknownStatus   => fail(s"unknown status code: $unknownStatus").asInstanceOf[Nothing]
     }
-    super.runFileStructureViewTest(testClassName, status, testsModified: _*)
+    super.runFileStructureViewTest(testClassName, status, testsModified*)
   }
 }

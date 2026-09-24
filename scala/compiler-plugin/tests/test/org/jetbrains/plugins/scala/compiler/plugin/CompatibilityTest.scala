@@ -127,7 +127,7 @@ object CompatibilityTest {
   }
 
   private def runProcessAndCaptureOutput(args: Seq[String]): String = {
-    val process = new ProcessBuilder().command(args: _*).start()
+    val process = new ProcessBuilder().command(args*).start()
 
     def exhaustStream(is: InputStream): String =
       Source.fromInputStream(is, StandardCharsets.UTF_8.name()).getLines().mkString(System.lineSeparator())

@@ -273,6 +273,6 @@ class GoToDeclarationTest extends GoToDeclarationTestBase {
     val conditionsWithSourceCheck = expected.map {
       case (condition, name) => ((element: PsiElement) => isFromScalaSource(element) && condition(element), name)
     }
-    doTest(fileText, conditionsWithSourceCheck: _*)
+    doTest(fileText, conditionsWithSourceCheck*)
   }
 }

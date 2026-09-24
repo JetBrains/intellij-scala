@@ -144,7 +144,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
               ) {
                 override val kinds: Set[ResolveTargets.Value] = Set(ResolveTargets.CLASS)
                 private val lookupStrings =
-                  mutable.Set(defaultLookupElements.map(_.getLookupString): _*)
+                  mutable.Set(defaultLookupElements.map(_.getLookupString)*)
 
                 override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] =
                   super.validLookupElement(result).collect {
@@ -177,7 +177,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
           ) {
 
             private val lookupStrings =
-              mutable.Set(defaultLookupElements.map(_.getLookupString): _*)
+              mutable.Set(defaultLookupElements.map(_.getLookupString)*)
             private val decorator = insertHandlerDecorator(canonicalText)
 
             override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = for {

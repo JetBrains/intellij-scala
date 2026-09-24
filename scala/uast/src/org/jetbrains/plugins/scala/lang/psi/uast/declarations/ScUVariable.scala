@@ -239,7 +239,7 @@ object ScUVariable {
                                                       lang: Language,
                                                       annotations: Array[PsiAnnotation],
                                                       modifiers: String*)
-    extends LightModifierList(manager, lang, modifiers: _*) {
+    extends LightModifierList(manager, lang, modifiers*) {
 
     override def getAnnotations: Array[PsiAnnotation] = annotations
 
@@ -260,7 +260,7 @@ object ScUVariable {
     }
 
     private def setModifiers(modifiers: Seq[String]): Unit =
-      myModifierList = new LightModifierListWithGivenAnnotations(getManager, getLanguage, annotations, modifiers: _*)
+      myModifierList = new LightModifierListWithGivenAnnotations(getManager, getLanguage, annotations, modifiers*)
 
     override def setModifiers(modifiers: String*): self.type = {
       setModifiers(modifiers)

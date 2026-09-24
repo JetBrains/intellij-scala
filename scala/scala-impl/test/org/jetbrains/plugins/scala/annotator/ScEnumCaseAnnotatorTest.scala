@@ -10,12 +10,12 @@ class ScEnumCaseAnnotatorTest extends ScalaHighlightingTestBase {
 
   private def doTest(text: String)(expectedErrors: Message*): Unit = {
     val errors = errorsFromScalaCode(text)
-    assertMessages(errors)(expectedErrors: _*)
+    assertMessages(errors)(expectedErrors*)
   }
 
   private def doTestInWorksheet(text: String)(expectedErrors: Message*): Unit = {
     val errors = errorsFromScalaCode(text, "worksheet.sc")
-    assertMessages(errors)(expectedErrors: _*)
+    assertMessages(errors)(expectedErrors*)
   }
 
   def testCreateBaseClassInstance(): Unit =

@@ -30,7 +30,7 @@ abstract class ScalaDirectiveAutoPopupTestBase extends ScalaCompletionAutoPopupT
 
     val actualLookupItems = myFixture.getLookupElementStrings
 
-    UsefulTestCase.assertContainsElements[String](actualLookupItems, expectedLookupItems: _*)
+    UsefulTestCase.assertContainsElements[String](actualLookupItems, expectedLookupItems*)
   }
 
   protected def doTestNoAutoCompletion(textToType: String)(src: String): Unit = {

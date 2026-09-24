@@ -679,7 +679,7 @@ package object extensions {
       Option(PsiTreeUtil.getParentOfType(element, clazz, strict))
 
     def parentOfType(classes: Seq[Class[? <: PsiElement]]): Option[PsiElement] =
-      Option(PsiTreeUtil.getParentOfType(element, classes: _*))
+      Option(PsiTreeUtil.getParentOfType(element, classes*))
 
     def nonStrictParentOfType[Psi <: PsiElement: ClassTag]: Option[Psi] =
       nonStrictParentOfType(implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]])
@@ -688,7 +688,7 @@ package object extensions {
       Option(PsiTreeUtil.getNonStrictParentOfType(element, clazz))
 
     def nonStrictParentOfType(classes: Seq[Class[? <: PsiElement]]): Option[PsiElement] =
-      Option(PsiTreeUtil.getNonStrictParentOfType(element, classes: _*))
+      Option(PsiTreeUtil.getNonStrictParentOfType(element, classes*))
 
 
     def findContextOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =

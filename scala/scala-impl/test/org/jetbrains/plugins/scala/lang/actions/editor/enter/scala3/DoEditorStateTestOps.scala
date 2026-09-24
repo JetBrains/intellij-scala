@@ -26,7 +26,7 @@ abstract class DoEditorStateTestOps extends CheckIndentAfterTypingCodeOps {
   }
 
   protected def doEditorStateTest(fixture: JavaCodeInsightTestFixture, states: (String, TypeText)*): Unit =
-    doEditorStateTest(fixture, EditorStates(states: _*))
+    doEditorStateTest(fixture, EditorStates(states*))
 
   protected def doEditorStateTest(fixture: JavaCodeInsightTestFixture, editorStates: EditorStates): Unit = {
     val states = editorStates.states

@@ -30,7 +30,7 @@ trait ScGivenAliasDeclarationOrDefinitionImpl extends ScFunction
     val explicitName = nameElement.map(_.getText)
 
     explicitName
-      .getOrElse(ScalaPsiUtil.generateGivenName(typeElement.toSeq: _*))
+      .getOrElse(ScalaPsiUtil.generateGivenName(typeElement.toSeq*))
   }
 
 

@@ -93,7 +93,7 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
     }
     val deps = props.map(_.artifact.toDepDescription)
     val resolver = new IvyExtensionsResolver(ivyResolvers, progress)
-    resolver.resolve(deps:_*).map(_.file)
+    resolver.resolve(deps*).map(_.file)
   }
 
   private def findJarsWithProps(): Seq[(VirtualFile, ExtensionProps)] = {

@@ -14,7 +14,7 @@ trait FeatureSpecScopeTest extends FeatureSpecGenerator {
     val bPath = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario B")
 
     runTestByLocation(loc(featureSpecFileName, 3, 10),
-      assertConfigAndSettings(_, featureSpecClassName, testNames:_*),
+      assertConfigAndSettings(_, featureSpecClassName, testNames*),
       root => {
         assertResultTreePathsEqualsUnordered(root)(Seq(aPath, bPath))
       }

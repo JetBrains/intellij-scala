@@ -46,12 +46,12 @@ class PsiElementMock(val name: String, children: PsiElementMock*) extends Abstra
 }
 
 object PsiElementMock extends JavaTokenParsers {
-  def apply(name: String, children: PsiElementMock*) = new PsiElementMock(name, children: _*)
+  def apply(name: String, children: PsiElementMock*) = new PsiElementMock(name, children*)
 
   def parse(s: String): PsiElementMock = parse(element, s).get
  
   private def element: Parser[PsiElementMock] = identifier~opt(elements) ^^ {
-      case name~children => PsiElementMock(name, children.getOrElse(Nil): _*)
+      case name~children => PsiElementMock(name, children.getOrElse(Nil)*)
   } 
  
   private def identifier: Parser[String] = """[^,() ]+""".r

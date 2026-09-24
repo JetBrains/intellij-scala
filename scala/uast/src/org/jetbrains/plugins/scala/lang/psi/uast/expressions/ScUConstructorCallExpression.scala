@@ -82,7 +82,7 @@ final class ScUConstructorCallExpression(
   override def getValueArguments: util.List[UExpression] = {
     Seq.concat(
       scElement.arguments
-        .map(_.exprs.map(_.convertToUExpressionOrEmpty(this))): _*
+        .map(_.exprs.map(_.convertToUExpressionOrEmpty(this)))*
     ).asJava
   }
 

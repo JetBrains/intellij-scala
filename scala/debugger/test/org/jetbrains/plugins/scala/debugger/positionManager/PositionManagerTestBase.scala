@@ -38,7 +38,7 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
 
   protected def checkGetAllClasses(mainClass: String = getTestName(false))
                                   (expectedClassNames: String*): Unit = {
-    checkGetAllClassesInFile(mainClass)(sourcePathForClass(mainClass))(expectedClassNames: _*)
+    checkGetAllClassesInFile(mainClass)(sourcePathForClass(mainClass))(expectedClassNames*)
   }
 
   protected def checkGetAllClassesInFile(mainClass: String = getTestName(false))

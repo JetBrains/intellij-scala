@@ -12,7 +12,7 @@ class MacroDefAnnotatorTest extends ScalaHighlightingTestBase {
 
   private def doTest(text: String)(expectedErrors: Message*): Unit = {
     val errors = errorsFromScalaCode(text)
-    assertMessages(errors)(expectedErrors: _*)
+    assertMessages(errors)(expectedErrors*)
   }
 
   def testMacroDef(): Unit = doTest(

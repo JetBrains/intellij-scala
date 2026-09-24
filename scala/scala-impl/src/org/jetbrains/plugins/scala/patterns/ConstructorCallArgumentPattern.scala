@@ -23,7 +23,7 @@ class ConstructorCallArgumentPattern(
 
   private def constructorPattern(useNewCollectionFramework: Boolean): PsiMethodPattern = {
     val parameterTypesTransformed = parameterTypes.map(transformVarargParameterType(_: String, useNewCollectionFramework))
-    PsiJavaPatterns.psiMethod.constructor(true).definedInClass(className).withParameters(parameterTypesTransformed: _*)
+    PsiJavaPatterns.psiMethod.constructor(true).definedInClass(className).withParameters(parameterTypesTransformed*)
   }
 
   private def transformVarargParameterType(`type`: String, useNewCollectionFramework: Boolean): String = {

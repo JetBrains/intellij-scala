@@ -42,13 +42,13 @@ abstract class ModifierCheckerTestBase extends SimpleTestCase {
 
   def testIllegalCombination_FinalSealed(): Unit = {
     assertMessages(messages("""final sealed class A1"""))(
-      illegalCombinationPairedErrors("final", "sealed"): _*
+      illegalCombinationPairedErrors("final", "sealed")*
     )
   }
 
   def testIllegalCombination_PrivateProtected(): Unit = {
     assertMessages(messages("""class Wrapper { private protected class A1 }"""))(
-      illegalCombinationPairedErrors("private", "protected"): _*
+      illegalCombinationPairedErrors("private", "protected")*
     )
   }
 
@@ -320,31 +320,31 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
 
   def testIllegalCombination_FinalOpen(): Unit = {
     assertMessages(messages("""final open class A1""".stripMargin))(
-      illegalCombinationPairedErrors("final", "open"): _*
+      illegalCombinationPairedErrors("final", "open")*
     )
   }
 
   def testIllegalCombination_OpenFinal(): Unit = {
     assertMessages(messages("""open final class A1""".stripMargin))(
-      illegalCombinationPairedErrors("open", "final"): _*
+      illegalCombinationPairedErrors("open", "final")*
     )
   }
 
   def testIllegalCombination_SealedOpen(): Unit = {
     assertMessages(messages("""sealed open class A1""".stripMargin))(
-      illegalCombinationPairedErrors("sealed", "open"): _*
+      illegalCombinationPairedErrors("sealed", "open")*
     )
   }
 
   def testIllegalCombination_LazyInline(): Unit = {
     assertMessages(messages("""lazy inline val A = 42"""))(
-      illegalCombinationPairedErrors("lazy", "inline"): _*
+      illegalCombinationPairedErrors("lazy", "inline")*
     )
   }
 
   def testIllegalCombination_InlineLazy(): Unit = {
     assertMessages(messages("""inline lazy val A = 42"""))(
-      illegalCombinationPairedErrors("inline", "lazy"): _*
+      illegalCombinationPairedErrors("inline", "lazy")*
     )
   }
 
@@ -432,11 +432,11 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
 
   def testIllegalCombination_ErasedLazy(): Unit =
     assertMessages(messages("erased lazy val x = 1"))(
-      illegalCombinationPairedErrors("erased", "lazy"): _*
+      illegalCombinationPairedErrors("erased", "lazy")*
     )
 
   def testIllegalCombination_LazyErased(): Unit =
     assertMessages(messages("lazy erased val x = 1"))(
-      illegalCombinationPairedErrors("lazy", "erased"): _*
+      illegalCombinationPairedErrors("lazy", "erased")*
     )
 }

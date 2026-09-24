@@ -227,7 +227,7 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
         val attachments = ranges.zipWithIndex.map {
           case (range, index) => new Attachment(s"Selection-${index + 1}.scala", subText(range))
         }
-        logger.error(e.getMessage, e, attachments: _*)
+        logger.error(e.getMessage, e, attachments*)
     } finally {
       result = Associations(buffer.toArray)
     }

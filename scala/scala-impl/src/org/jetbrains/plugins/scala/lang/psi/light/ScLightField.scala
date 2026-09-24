@@ -10,6 +10,6 @@ object ScLightField {
   def apply(name: String, scType: ScType, containingClass: ScTypeDefinition, modifiers: String*): PsiField = {
     new LightFieldBuilder(name, scType.toPsiType, containingClass)
       .setContainingClass(containingClass)
-      .setModifiers(modifiers: _*)
+      .setModifiers(modifiers*)
   }
 }

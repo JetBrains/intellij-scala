@@ -6,12 +6,12 @@ class ScalaSpacingTest extends AbstractScalaFormatterTestBase {
 
   // used to test that some formatting does not depend on some setting value
   private def doTextTestForAnyValue(before: String, after: String)(setters: (Boolean => Unit)*): Unit =
-    forAnyValue(setters: _*) { () =>
+    forAnyValue(setters*) { () =>
       doTextTest(before, after)
     }
 
   private def doTextTestForAnyValue(before: String)(setters: (Boolean => Unit)*): Unit =
-    forAnyValue(setters: _*) { () =>
+    forAnyValue(setters*) { () =>
       doTextTest(before)
     }
 
@@ -22,9 +22,9 @@ class ScalaSpacingTest extends AbstractScalaFormatterTestBase {
       testBody()
     case setter :: otherSetters =>
       setter(false)
-      forAnyValue(otherSetters: _*)(testBody)
+      forAnyValue(otherSetters*)(testBody)
       setter(true)
-      forAnyValue(otherSetters: _*)(testBody)
+      forAnyValue(otherSetters*)(testBody)
   }
 
   def testSpaceBeforeTypeColon(): Unit = {

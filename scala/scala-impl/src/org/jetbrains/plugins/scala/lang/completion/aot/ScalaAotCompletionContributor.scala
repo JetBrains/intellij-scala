@@ -174,7 +174,7 @@ object ScalaAotCompletionContributor {
 
     override protected def addCompletions(resultSet: CompletionResultSet, prefix: String)
                                          (implicit parameters: CompletionParameters, context: ProcessingContext): Unit =
-      PsiTreeUtil.getParentOfType(positionFromParameters, classes: _*) match {
+      PsiTreeUtil.getParentOfType(positionFromParameters, classes*) match {
         case member: ScMember if !member.hasModifierPropertyScala(ScalaModifier.OVERRIDE) =>
           super.addCompletions(resultSet, prefix)
         case _ =>
@@ -190,7 +190,7 @@ object ScalaAotCompletionContributor {
                                                                                                      classes: Class[? <: ScMember]*) extends aot.CompletionProvider[D] {
     override protected def addCompletions(resultSet: CompletionResultSet, prefix: String)
                                          (implicit parameters: CompletionParameters, context: ProcessingContext): Unit =
-      PsiTreeUtil.getParentOfType(positionFromParameters, classes: _*) match {
+      PsiTreeUtil.getParentOfType(positionFromParameters, classes*) match {
         case member: ScMember if !member.hasModifierPropertyScala(ScalaModifier.OVERRIDE) =>
           super.addCompletions(resultSet, prefix)
         case _ =>

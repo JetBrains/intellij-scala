@@ -331,7 +331,7 @@ object ScalaTestAstTransformer {
   }
 
   private class StMethodDefinition(val funDef: ScFunctionDefinition, pClassName: String, pParamTypes: Seq[String])
-    extends MethodDefinition(pClassName, null, Array.empty, funDef.name.withoutBackticks.trim, pParamTypes: _*) {
+    extends MethodDefinition(pClassName, null, Array.empty, funDef.name.withoutBackticks.trim, pParamTypes*) {
 
     override def parent: AstNode = getParentNode(className, funDef)
 
@@ -351,7 +351,7 @@ object ScalaTestAstTransformer {
                                    pName: String,
                                    nameSource: PsiElement,
                                    override val args: Array[AstNode])
-    extends org.scalatest.finders.MethodInvocation(pClassName, pTarget, null, new Array[AstNode](0), pName, args: _*) {
+    extends org.scalatest.finders.MethodInvocation(pClassName, pTarget, null, new Array[AstNode](0), pName, args*) {
 
     override def parent: AstNode =  getParentNode(pClassName, invocation)
 

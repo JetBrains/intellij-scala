@@ -222,11 +222,11 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     //comments generation
     if (settingsType == SettingsType.COMMENTER_SETTINGS) {
       enableSettings(
-        CodeGenerationPanel.SupportedCommenterStandardOptionNames.asScala.toSeq: _*
+        CodeGenerationPanel.SupportedCommenterStandardOptionNames.asScala.toSeq*
       )
     }
 
-    consumer.showStandardOptions(settingsToEnable.toArray: _*)
+    consumer.showStandardOptions(settingsToEnable.toArray*)
 
     def opt(@NonNls fieldName: String, @Nls title: String, @Nls groupName: String,
             keysAndValues: Array[(String, Int)] = Array()): Unit = {
@@ -234,7 +234,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         Array(keysAndValues.map(_._1), keysAndValues.map(_._2))
       else
         Array()
-      consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, options: _*)
+      consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, options*)
     }
 
     //noinspection SpellCheckingInspection
@@ -245,7 +245,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         Array(keysAndValues.map(_._1), keysAndValues.map(_._2))
       else
         Array()
-      consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, anchor, anchorField, options: _*)
+      consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, anchor, anchorField, options*)
     }
 
     import ApplicationBundle.{message => appMessage}

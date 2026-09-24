@@ -113,7 +113,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
           val parts = parameterDefinition.split("""\s*:\s*""")
           (parts(0), parts(1))
         }
-        Map(seq: _*)
+        Map(seq*)
       }
 
     TargetInfo(map)

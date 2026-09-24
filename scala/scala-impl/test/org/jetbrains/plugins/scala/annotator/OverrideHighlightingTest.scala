@@ -271,6 +271,6 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
       Error("class B4(@BeanProperty var value: Int) extends Setter", "Class 'B4' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
       Error("class C4(@BeanProperty var value: Int) extends GetterWithSetter", "Class 'C4' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
       Error("value", "Overriding type Int does not conform to base type String"),
-    ): _*)
+    )*)
   }
 }

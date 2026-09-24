@@ -9,7 +9,7 @@ class ScalaAlignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHintsTe
   val empty: String = S + "  " + E
 
   override protected def doTest(text: String, settings: Setting[?]*): Unit = {
-    super.doTest(text, alignMethodChainInlayHints(true) +: uniqueTypesToShowMethodChains(2) +: settings: _*)
+    super.doTest(text, (alignMethodChainInlayHints(true) +: uniqueTypesToShowMethodChains(2) +: settings)*)
   }
 
   def testChain(): Unit = doTest(

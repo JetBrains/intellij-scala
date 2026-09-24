@@ -110,7 +110,7 @@ object MakeExplicitAction {
                                 importStatically: Boolean)
                                (implicit project: Project, editor: Editor)
     extends BaseListPopupStep[String](null,
-      (if (importStatically) Array(MakeExplicit, MakeExplicitStatically) else Array(MakeExplicit)): _*) {
+      (if (importStatically) Array(MakeExplicit, MakeExplicitStatically) else Array(MakeExplicit))*) {
 
     override def getTextFor(value: String): String = value
 

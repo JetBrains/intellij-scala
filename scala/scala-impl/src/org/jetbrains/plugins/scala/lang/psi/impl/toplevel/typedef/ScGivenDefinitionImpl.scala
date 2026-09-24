@@ -66,7 +66,7 @@ class ScGivenDefinitionImpl(
   override protected def nameInner: String =
     nameElement
       .map(_.getText)
-      .getOrElse(ScalaPsiUtil.generateGivenName(typeElements: _*))
+      .getOrElse(ScalaPsiUtil.generateGivenName(typeElements*))
 
   private def typeElements: Seq[ScTypeElement] =
     ScalaPsiUtil.givenNameTypeElements(this)

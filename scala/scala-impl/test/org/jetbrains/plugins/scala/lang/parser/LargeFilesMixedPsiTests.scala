@@ -51,7 +51,7 @@ class LargeFilesMixedPsiTests extends ScalaLightCodeInsightFixtureTestCase {
       val pathParts = dirWithSourcesRelativePath.iterator().asScala.map(_.toString).toSeq
       val first = pathParts.head
       val rest = pathParts.tail
-      val sourcesRoot = fileSystem.getPath(first, rest: _*)
+      val sourcesRoot = fileSystem.getPath(first, rest*)
       val sourceFiles = Using.resource(Files.list(sourcesRoot))(_.filter(Files.isRegularFile(_)).iterator().asScala.toSeq)
       sourceFiles.map { filePath =>
         val content = new String(Files.readAllBytes(filePath), "UTF-8")

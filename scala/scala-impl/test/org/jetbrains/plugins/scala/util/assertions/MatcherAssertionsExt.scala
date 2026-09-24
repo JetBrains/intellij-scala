@@ -8,6 +8,6 @@ trait MatcherAssertionsExt extends MatcherAssertions {
     assertEqualsFailable(expected.mkString("\n"), actual.mkString("\n"))
 
   def assertMessagesSorted(actual: List[Message])(expected: Message*): Unit =
-    assertMessages(actual.sorted)(expected.sorted: _*)
+    assertMessages(actual.sorted)(expected.sorted*)
 
 }

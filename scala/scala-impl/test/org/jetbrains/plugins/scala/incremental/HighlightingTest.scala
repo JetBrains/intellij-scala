@@ -84,7 +84,7 @@ class HighlightingTest extends ScalaFixtureTestCase {
         .filter(_.enabledByDefault)
         .map(_.getInstance)
 
-    myFixture.enableInspections(defaultInspections: _*)
+    myFixture.enableInspections(defaultInspections*)
   }
 
   private def setVisibleRangeIn(psiFile: PsiFile, range: TextRange): Unit = {

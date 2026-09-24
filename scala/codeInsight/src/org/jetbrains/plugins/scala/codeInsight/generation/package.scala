@@ -80,7 +80,7 @@ package object generation {
   def elementOfTypeAtCaret[T <: PsiElement](types: Class[? <: T]*)
                                            (implicit editor: Editor, file: PsiFile): Option[T] = {
     val element = file.findElementAt(editor.getCaretModel.getOffset)
-    Option(PsiTreeUtil.getParentOfType(element, types: _*))
+    Option(PsiTreeUtil.getParentOfType(element, types*))
   }
 
   private def members(definition: ScTypeDefinition): Seq[ScMember] = {

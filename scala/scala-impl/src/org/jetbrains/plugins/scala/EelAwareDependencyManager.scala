@@ -14,7 +14,7 @@ import java.nio.file.{Files, Path}
 private[scala] class EelAwareDependencyManager extends DependencyManagerBase {
   @ApiStatus.Internal
   def resolveSafeAndTransferToRemoteEel(eelDescriptor: EelDescriptor, dependencies: DependencyDescription*): Seq[Path] = {
-    val resolvedPaths = resolveSafe(dependencies: _*).toOption.getOrElse(Seq.empty).map(_.file)
+    val resolvedPaths = resolveSafe(dependencies*).toOption.getOrElse(Seq.empty).map(_.file)
     eelDescriptor match {
       case LocalEelDescriptor.INSTANCE =>
         resolvedPaths

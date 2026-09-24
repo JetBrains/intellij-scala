@@ -38,7 +38,7 @@ trait TreeAdapter {
       case t: ScObject                => toObject(t)
       case t: ScAnnotation            => toAnnot(t)
       case t: ScExpression            => expression(Some(t)).get
-      case t: ScImportStmt            => m.Import(List(t.importExprs.map(imports):_*))
+      case t: ScImportStmt            => m.Import(List(t.importExprs.map(imports)*))
 
       case t: PsiClass => toClass(t)
       case t: PsiMethod => t ???
@@ -194,7 +194,7 @@ trait TreeAdapter {
   }
 
   def template(t: p.toplevel.templates.ScExtendsBlock): m.Template = {
-    val exprs   = t.templateBody.map (it => List(it.exprs.map(expression): _*))
+    val exprs   = t.templateBody.map (it => List(it.exprs.map(expression)*))
     val members = t.templateBody.map (it => it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]).toList)
     val early   = t.earlyDefinitions.map (it => it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]).toList).getOrElse(Nil)
     val parents = t.templateParents.toSeq.flatMap(_.parentClauses).map(toCtor).toList
@@ -512,7 +512,7 @@ trait TreeAdapter {
     val implicitMod = if(t.hasModifierPropertyScala("implicit")) Seq(m.Mod.Implicit()) else Nil
     val sealedMod = if (t.hasModifierPropertyScala("sealed")) Seq(m.Mod.Sealed()) else Nil
     val annotations: Seq[m.Mod.Annot] = t match {
-      case ah: ScAnnotationsHolder => Seq(ah.annotations.filterNot(_ == annotationToSkip).map(toAnnot):_*)
+      case ah: ScAnnotationsHolder => Seq(ah.annotations.filterNot(_ == annotationToSkip).map(toAnnot)*)
       case _ => Seq.empty
     }
     val overrideMod = if (t.hasModifierProperty("override")) Seq(m.Mod.Override()) else Nil

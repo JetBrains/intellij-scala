@@ -14,7 +14,7 @@ trait WordSpecScopeTest extends WordSpecGenerator {
 
     val path1 = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", wordSpecClassName, "WordSpecTest", "Run single test")
     val path2 = TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", wordSpecClassName, "WordSpecTest", "ignore other tests")
-    runTestByLocation(loc(wordSpecFileName, 3, 10), assertConfigAndSettings(_, wordSpecClassName, testNames:_*),
+    runTestByLocation(loc(wordSpecFileName, 3, 10), assertConfigAndSettings(_, wordSpecClassName, testNames*),
       root => {
         assertResultTreePathsEqualsUnordered(root)(Seq(path1, path2))
       })

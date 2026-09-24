@@ -165,7 +165,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
       .withoutSdk()
       .getAllSourceRoots
     val documentableFilesList = mutable.ListBuffer.empty[String]
-    val allModules = mutable.HashSet(modules.toSeq: _*)
+    val allModules = mutable.HashSet(modules.toSeq*)
     val modulesNeeded = mutable.HashSet.empty[Module]
 
     def filterModulesList(files: VirtualFile*): Unit = {
@@ -219,7 +219,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
       for (c <- children) {
         val documentableFiles = visitAll(c, scope)
         if (needFilter) {
-          filterModulesList(documentableFiles: _*)
+          filterModulesList(documentableFiles*)
         }
 
         for (docFile <- documentableFiles) {

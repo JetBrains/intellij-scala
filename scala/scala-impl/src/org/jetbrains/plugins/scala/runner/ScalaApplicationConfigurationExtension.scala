@@ -106,7 +106,7 @@ final class ScalaApplicationConfigurationExtension extends RunConfigurationExten
         showParametersDialogAndGet(configuration.getProject, actualParameters, expectedParameters).foreach { filledParameters0 =>
           val filledParameters = fixVarargParameter(filledParameters0, hasVarargs)
           val paramList = new ParametersList()
-          paramList.addAll(filledParameters: _*)
+          paramList.addAll(filledParameters*)
           configuration.setProgramParameters(paramList.getParametersString)
         }
       }

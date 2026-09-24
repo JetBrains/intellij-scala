@@ -30,7 +30,7 @@ class ScalaUsageGroupingRuleTest extends ScalaLightCodeInsightFixtureTestCase {
   protected lazy val ProtectedIcon = IconManager.getInstance.getPlatformIcon(PlatformIcons.Protected)
   protected lazy val PrivateIcon = IconManager.getInstance.getPlatformIcon(PlatformIcons.Private)
 
-  protected def layered(icons: Icon*): Icon = IconUtils.createLayeredIcon(icons: _*)
+  protected def layered(icons: Icon*): Icon = IconUtils.createLayeredIcon(icons*)
 
   private def unwrapIcon(icon: Icon): Icon = icon match {
     case deferred: DeferredIcon => deferred.getBaseIcon

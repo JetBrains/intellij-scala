@@ -17,7 +17,7 @@ class ScalaParameterTableModel(typeContext: PsiElement,
                                defaultValueContext: PsiElement,
                                methodDescriptor: ScalaMethodDescriptor,
                                columnInfos: ColumnInfo[?, ?]*)
-        extends ParameterTableModelBase[ScalaParameterInfo, ScalaParameterTableModelItem](typeContext, defaultValueContext, columnInfos: _*) {
+        extends ParameterTableModelBase[ScalaParameterInfo, ScalaParameterTableModelItem](typeContext, defaultValueContext, columnInfos*) {
 
   private implicit val project: Project = defaultValueContext.getProject
   val initialParams: Seq[Seq[ScalaParameterInfo]] = methodDescriptor.parameters

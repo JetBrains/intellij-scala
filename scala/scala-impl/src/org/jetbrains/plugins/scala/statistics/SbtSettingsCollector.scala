@@ -77,7 +77,7 @@ class SbtSettingsCollector extends ProjectUsagesCollector {
         new EventPair(Fields.EnableDebugSbtShell, projectSettings.enableDebugSbtShell: java.lang.Boolean),
         new EventPair(Fields.SbtVersion, projectSettings.sbtVersion),
         new EventPair(Fields.SbtVersionMajor, sbtVersionMajor),
-      ): _*
+      )*
     ))
   }
 }
@@ -107,7 +107,7 @@ private object SbtSettingsCollector {
         Fields.EnableDebugSbtShell,
         Fields.SbtVersion,
         Fields.SbtVersionMajor
-      ): _*
+      )*
     ) // TODO: SCL-24479
   }
 

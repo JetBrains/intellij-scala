@@ -52,7 +52,7 @@ class DataByIdTableModel[Data](dataById: DataById[Data],
                                columnInfos: ColumnInfo[String, ?]*)
                               (preferredWidths: Seq[Int])
 
-  extends ListTableModel[String](columnInfos: _*) {
+  extends ListTableModel[String](columnInfos*) {
 
   private val comparator = new SpeedSearchComparator(false)
   private var currentPattern: String = ""

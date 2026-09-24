@@ -36,7 +36,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     val ranges = startOffsets.zip(endOffsets).map {
       case (startOffset, endOffset) => TextRange.create(startOffset, endOffset)
     }
-    Option(Associations.collectAssociations(ranges.toSeq: _*)(scalaFile))
+    Option(Associations.collectAssociations(ranges.toSeq*)(scalaFile))
   }
 
   override def processTransferableData(

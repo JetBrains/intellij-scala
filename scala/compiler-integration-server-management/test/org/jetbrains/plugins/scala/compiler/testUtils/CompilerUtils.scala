@@ -31,7 +31,7 @@ object CompilerUtils {
     val incrementalityType = compilerConfiguration.incrementalityType
 
     val modules = ModuleManager.getInstance(project).getModules
-    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules: _*), null, false)
+    val compiler = new CompilerTester(project, java.util.Arrays.asList(modules*), null, false)
 
     def buildMessageText(message: CompilerMessage): String = {
       s"""[${message.getCategory}] ${message.getVirtualFile}

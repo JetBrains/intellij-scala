@@ -33,7 +33,7 @@ class RelativeImportInspection extends LocalInspectionTool {
             fixes += new EnableFullQualifiedImports()
           }
           fixes += new MakeFullQualifiedImportFix(q, qualifiedName)
-          holder.registerProblem(q, ScalaInspectionBundle.message("relative.import.detected"), fixes.toSeq: _*)
+          holder.registerProblem(q, ScalaInspectionBundle.message("relative.import.detected"), fixes.toSeq*)
         }
         result.element match {
           case p: PsiPackage if p.getQualifiedName.contains(".") =>

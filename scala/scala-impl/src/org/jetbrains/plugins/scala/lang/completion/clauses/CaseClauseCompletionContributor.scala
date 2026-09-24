@@ -183,7 +183,7 @@ object CaseClauseCompletionContributor {
               Some(arrow) = clause.funType
             } yield TextRange.from(clause.getTextOffset, arrow.getStartOffsetInParent)
 
-            reformatAndMoveCaret(clauses, clause, rangesToReformat: _*)
+            reformatAndMoveCaret(clauses, clause, rangesToReformat*)
         }
       }
     }

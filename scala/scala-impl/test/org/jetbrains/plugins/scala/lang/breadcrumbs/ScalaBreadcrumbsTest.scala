@@ -29,13 +29,13 @@ abstract class ScalaBreadcrumbsTestBase extends ScalaLightCodeInsightFixtureTest
   protected def doTest(@Lang("Scala") code: String, expectedComponents: String*): Unit = {
     val breadcrumbs = extractBreadCrumbsAtCaret(code)
     val actualComponents = breadcrumbs.map(_.getText).toArray
-    assertOrderedEquals(actualComponents, expectedComponents: _*)
+    assertOrderedEquals(actualComponents, expectedComponents*)
   }
 
   protected def doTestTooltip(@Lang("Scala") code: String, expectedTooltips: String*): Unit = {
     val breadcrumbs = extractBreadCrumbsAtCaret(code)
     val actualTooltips = breadcrumbs.map(_.getTooltip).toArray
-    assertOrderedEquals(actualTooltips, expectedTooltips: _*)
+    assertOrderedEquals(actualTooltips, expectedTooltips*)
   }
 
   @Test
@@ -575,10 +575,10 @@ class Scala3BreadcrumbsTest extends ScalaBreadcrumbsTest {
   override def supportedIn(version: ScalaVersion): Boolean = version.isScala3
 
   override protected def doTest(@Lang("Scala 3") code: String, expectedComponents: String*): Unit =
-    super.doTest(code, expectedComponents: _*)
+    super.doTest(code, expectedComponents*)
 
   override protected def doTestTooltip(@Lang("Scala 3") code: String, expectedTooltips: String*): Unit =
-    super.doTestTooltip(code, expectedTooltips: _*)
+    super.doTestTooltip(code, expectedTooltips*)
 
   // enums
 

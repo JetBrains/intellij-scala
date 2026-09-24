@@ -9,7 +9,7 @@ import scala.collection.mutable.ArrayBuffer
 class IncrementalBufferUpdateTest extends TestCase {
 
   private def doTest(from: Array[String], finalResult: Array[String]): Unit = {
-    val buffer = ArrayBuffer(from.toSeq: _*)
+    val buffer = ArrayBuffer(from.toSeq*)
     BufferUpdate.updateIncrementally(buffer, finalResult)(identity)
 
     Assert.assertEquals(buffer, finalResult.toSeq)

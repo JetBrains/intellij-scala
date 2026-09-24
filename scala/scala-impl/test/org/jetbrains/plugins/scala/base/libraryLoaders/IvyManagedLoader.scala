@@ -26,7 +26,7 @@ abstract class IvyManagedLoaderBase extends LibraryLoader {
    */
   def init(parentDisposable: Option[Disposable])(implicit module: Module, version: ScalaVersion): Unit = {
     val deps = dependencies(version)
-    val resolved = cache.getOrElseUpdate(deps, dependencyManager.resolve(deps: _*))
+    val resolved = cache.getOrElseUpdate(deps, dependencyManager.resolve(deps*))
     resolved.foreach { resolved =>
       val resolvedFile = resolved.file
       VfsRootAccess.allowRootAccess(module, resolvedFile.toCanonicalPath.toString)
@@ -61,7 +61,7 @@ final class IvyManagedLoader private(
   // TODO Support transitive sources directly, via LibraryLoader.init(..., sources: DependencyDescription => Boolean)
   def resolve(version: ScalaVersion): Seq[ResolvedDependency] = {
     val deps = dependencies(version)
-    cache.getOrElseUpdate(deps, dependencyManager.resolve(deps: _*))
+    cache.getOrElseUpdate(deps, dependencyManager.resolve(deps*))
   }
 
   /**
@@ -90,8 +90,8 @@ object IvyManagedLoader {
   ] = mutable.Map()
 
   def apply(dependencies: DependencyDescription*): IvyManagedLoader =
-    new IvyManagedLoader(TestDependencyManagers.IgnoringAllScalaArtifacts, dependencies: _*)
+    new IvyManagedLoader(TestDependencyManagers.IgnoringAllScalaArtifacts, dependencies*)
 
   def apply(dependencyManager: DependencyManagerBase, dependencies: DependencyDescription*): IvyManagedLoader =
-    new IvyManagedLoader(dependencyManager, dependencies: _*)
+    new IvyManagedLoader(dependencyManager, dependencies*)
 }

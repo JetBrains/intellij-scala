@@ -88,13 +88,13 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
       case module =>
         searchTest match {
           case SearchForTest.IN_SINGLE_MODULE            => modulesScope(module)
-          case SearchForTest.ACCROSS_MODULE_DEPENDENCIES => modulesScope(module.withDependencyModules: _*)
+          case SearchForTest.ACCROSS_MODULE_DEPENDENCIES => modulesScope(module.withDependencyModules*)
           case SearchForTest.IN_WHOLE_PROJECT            => projectScope(getProject)
         }
     }
 
   private def projectScope(project: Project): GlobalSearchScope =
-    modulesScope(project.modules: _*)
+    modulesScope(project.modules*)
 
   private def modulesScope(modules: Module*): GlobalSearchScope = {
     val moduleScopes = modules.map(GlobalSearchScope.moduleScope)

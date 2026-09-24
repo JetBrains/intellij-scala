@@ -71,9 +71,9 @@ abstract class ProjectCorpusTestBase(val projectDef: ProjectCorpusTestDef) exten
   override protected def setUpLibraries(module: Module): Unit = {
     super.setUpLibraries(module)
 
-    val classes = IvyManagedLoader(projectDef.dependencies.map(_.transitive()): _*).resolve(version)
+    val classes = IvyManagedLoader(projectDef.dependencies.map(_.transitive())*).resolve(version)
     val sources = IvyManagedLoader(
-      classes.filter(it => !ArtifactsWithoutSources(it.info.org, it.info.artId)).map(_.info.sources()): _*
+      classes.filter(it => !ArtifactsWithoutSources(it.info.org, it.info.artId)).map(_.info.sources())*
     ).resolve(version)
     classes.foreach { cls =>
       val source = sources.find(_.info == cls.info.sources())

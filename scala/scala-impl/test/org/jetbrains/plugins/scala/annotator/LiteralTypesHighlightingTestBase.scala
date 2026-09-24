@@ -32,6 +32,6 @@ abstract class LiteralTypesHighlightingTestBase
     }
 
     val errors = errorsFromScalaCode(text)
-    assertMessages(errors)(expectedErrors: _*)
+    assertMessages(errors)(expectedErrors*)
   }
 }

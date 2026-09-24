@@ -354,7 +354,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
   protected override def checkLocalScope(): PsiElement = {
     val scope = new LocalSearchScope(myElementToRename.getContainingFile)
     val elements: Array[PsiElement] = scope.getScope
-    PsiTreeUtil.findCommonParent(elements: _*)
+    PsiTreeUtil.findCommonParent(elements*)
   }
 
   protected override def startRename: StartMarkAction = {

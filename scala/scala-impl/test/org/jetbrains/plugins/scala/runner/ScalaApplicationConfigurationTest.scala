@@ -87,7 +87,7 @@ abstract class ScalaApplicationConfigurationTestBase
 
     // Test Run and Debug parameter preparation: configuration validation alone misses launch-time argument and read-access errors.
     val parameters = new ParametersList()
-    parameters.addAll(programArguments: _*)
+    parameters.addAll(programArguments*)
     configuration.setProgramParameters(parameters.getParametersString)
     Seq(DefaultRunExecutor.getRunExecutorInstance, DefaultDebugExecutor.getDebugExecutorInstance).foreach { executor =>
       assertJavaParameters(configuration, executor, mainClassName, programArguments)

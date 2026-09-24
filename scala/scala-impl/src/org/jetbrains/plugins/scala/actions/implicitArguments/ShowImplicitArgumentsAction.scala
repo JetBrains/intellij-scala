@@ -204,7 +204,7 @@ object ShowImplicitArgumentsAction {
     val F4: Array[Shortcut] =
       ActionManager.getInstance.getAction(IdeActions.ACTION_EDIT_SOURCE).getShortcutSet.getShortcuts
     val ENTER: Array[Shortcut] = CustomShortcutSet.fromString("ENTER").getShortcuts
-    val shortcutSet: CustomShortcutSet = new CustomShortcutSet(ArrayUtil.mergeArrays(F4, ENTER): _*)
+    val shortcutSet: CustomShortcutSet = new CustomShortcutSet(ArrayUtil.mergeArrays(F4, ENTER)*)
 
     val title = if (isConversion) ScalaBundle.message("implicit.arguments.for.implicit.conversion") else ScalaBundle.message("implicit.arguments")
 

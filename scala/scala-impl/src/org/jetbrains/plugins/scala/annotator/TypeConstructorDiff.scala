@@ -35,7 +35,7 @@ object TypeConstructorDiff {
     if (subjectParams.isEmpty && otherParams.isEmpty) {
       aMatch(subjectName)
     } else if (subjectParams.size > otherParams.size) {
-      Node(
+      Node((
         Seq(
           aMatch(subjectName),
           aMatch("[")
@@ -46,30 +46,30 @@ object TypeConstructorDiff {
               case (ty, _) => aMissing(ty.name)
             }
             .intersperse(aMatch(", ")) :+
-          aMatch("]"): _*
+          aMatch("]"))*
       )
     } else if (subjectParams.size < otherParams.size) {
       val paramDiff = otherParams.size - subjectParams.size
       val hasParams = subjectParams.nonEmpty
-      Node(
+      Node((
         Seq(
           aMatch(subjectName),
           aMatch(if (hasParams) "[" else "")
         ) ++
           subjectParams.map(ty => aMatch(ty.name)).intersperse(aMatch(", ")) ++
           (if (hasParams) Seq(aMatch("]")) else Seq.empty) ++
-          Iterator.fill(paramDiff)(Seq(aMissing(" "), aMatch(""))).flatten: _*
+          Iterator.fill(paramDiff)(Seq(aMissing(" "), aMatch(""))).flatten)*
       )
     } else {
       val newSubstitutor = substitute.withBindings(subjectParams, otherParams)
       val paramsDiffs = subjectParams.lazyZip(otherParams).map(diff(_, _, newSubstitutor))
-      Node(
+      Node((
         Seq(
           aMatch(subjectName),
           aMatch("[")
         ) ++
           paramsDiffs.iterator.intersperse(aMatch(", ")) :+
-          aMatch("]"): _*
+          aMatch("]"))*
       )
     }
   }
@@ -95,13 +95,13 @@ object TypeConstructorDiff {
       else str => list(aMatch(str))
     }
 
-    Node(
+    Node((
       diff(subjectParam.name, subjectParam.typeParameters, otherParam.typeParameters, substitute) ::
         lowerBoundLeaf(" >: ") :::
         lowerBoundLeaf(subjectLowerType.presentableText) :::
         upperBoundLeaf(" <: ") :::
         upperBoundLeaf(subjectUpperType.presentableText) :::
-        Nil: _*
+        Nil)*
     )
   }
 }

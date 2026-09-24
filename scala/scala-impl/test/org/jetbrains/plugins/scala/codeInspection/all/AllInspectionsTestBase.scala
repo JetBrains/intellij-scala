@@ -13,7 +13,7 @@ abstract class AllInspectionsTestBase extends ScalaLightCodeInsightFixtureTestCa
       LocalInspectionEP.LOCAL_INSPECTION
         .getExtensions()
         .toSeq
-    myFixture.enableInspections(acquireAllInspectionEPs().map(_.getInstance()): _*)
+    myFixture.enableInspections(acquireAllInspectionEPs().map(_.getInstance())*)
   }
 
   def checkHighlightingThrowsNoExceptions(code: String): Unit = {

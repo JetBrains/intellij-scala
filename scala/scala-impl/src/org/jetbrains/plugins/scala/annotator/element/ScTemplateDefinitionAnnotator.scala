@@ -330,7 +330,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     if (canBeImplementedInEnum.nonEmpty) {
       holder.createErrorAnnotation(
         range,
-        objectCreationImpossibleMessage(canBeImplementedInEnum.map(formatForObjectCreationImpossibleMessage): _*),
+        objectCreationImpossibleMessage(canBeImplementedInEnum.map(formatForObjectCreationImpossibleMessage)*),
         new ImplementMembersQuickFix(enumCase.enumParent)
       )
     }
@@ -338,7 +338,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     if (cannotBeImplemented.nonEmpty) {
       holder.createErrorAnnotation(
         range,
-        objectCreationImpossibleMessage(cannotBeImplemented.map(formatForObjectCreationImpossibleMessage): _*),
+        objectCreationImpossibleMessage(cannotBeImplemented.map(formatForObjectCreationImpossibleMessage)*),
         None
       )
     }
@@ -392,7 +392,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
 
             holder.createErrorAnnotation(
               range,
-              objectCreationImpossibleMessage(undefined: _*),
+              objectCreationImpossibleMessage(undefined*),
               new ImplementMembersQuickFix(element)
             )
           }

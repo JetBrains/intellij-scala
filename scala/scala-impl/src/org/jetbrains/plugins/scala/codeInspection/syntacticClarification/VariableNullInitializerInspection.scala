@@ -23,7 +23,7 @@ class VariableNullInitializerInspection extends LocalInspectionTool {
         val nullBodyExpr = definition.expr.filter(e => e.isValid && isNull(e))
         nullBodyExpr.foreach { expression =>
           val fixes = buildFixesFor(definition)
-          holder.registerProblem(expression, Message, fixes: _*)
+          holder.registerProblem(expression, Message, fixes*)
         }
       }
     case _ =>

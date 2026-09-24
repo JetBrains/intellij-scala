@@ -57,10 +57,10 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestCas
   }
 
   protected def doResolveTest(sources: (String, String)*)(implicit opts: SrcTgtOptions): Unit =
-    doResolveTest(target = None, shouldResolve = true, sources: _*)
+    doResolveTest(target = None, shouldResolve = true, sources*)
 
   protected def doResolveTest(target: PsiElement, sources: (String, String)*)(implicit opts: SrcTgtOptions): Unit =
-    doResolveTest(target = Some(target), shouldResolve = true, sources: _*)
+    doResolveTest(target = Some(target), shouldResolve = true, sources*)
 
   protected def setupResolveTest(target: Option[PsiElement], sources: (String, String)*)(implicit opts: SrcTgtOptions): (PsiReference, PsiElement) = {
     var src: PsiReference = null
@@ -91,7 +91,7 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestCas
   }
 
   private def doResolveTest(target: Option[PsiElement], shouldResolve: Boolean, sources: (String, String)*)(implicit opts: SrcTgtOptions): Unit = {
-    val (src, expectedResolvedElement) = setupResolveTest(target, sources: _*)
+    val (src, expectedResolvedElement) = setupResolveTest(target, sources*)
 
     val resolveResultMightBeSynthetic = src.resolve()
     //handle synthetic elements, for example reference to scala3 `enum` is resolved to synthetic element
@@ -174,7 +174,7 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestCas
   }
 
   protected def testNoResolve(sources: (String, String)*)(implicit opts: SrcTgtOptions): Unit =
-    doResolveTest(None, shouldResolve = false, sources: _*)
+    doResolveTest(None, shouldResolve = false, sources*)
 
   protected def testNoResolve(source: String, fileName: String = "dummy.scala")(implicit opts: SrcTgtOptions): Unit =
     testNoResolve(source -> fileName)

@@ -243,7 +243,7 @@ abstract class ApplicationAnnotatorTest_Common extends ApplicationAnnotatorTestB
 
   val fooDef = "def foo(first: Boolean, int: Int = 3, last: Boolean): Unit = ()\n"
   def assertWithFoo(code: String)(expected: Message*): Unit =
-    assertMessagesSorted(messages(fooDef + code))(expected: _*)
+    assertMessagesSorted(messages(fooDef + code))(expected*)
 
   def testIncompleteCallWithNamedParam_1(): Unit =
     assertWithFoo("foo(last = )")(

@@ -57,7 +57,7 @@ trait AllProjectHighlightingTest {
     val scope = if (processOnlyFilesInSourceRoots)
       SourceFilterScope(fileTypes)(getProject)
     else
-      GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(getProject), fileTypes: _*)
+      GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(getProject), fileTypes*)
     val scalaFiles = scalaFileTypes.flatMap(fileType => FileTypeIndex.getFiles(fileType, scope).asScala)
     val javaFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, scope).asScala
 

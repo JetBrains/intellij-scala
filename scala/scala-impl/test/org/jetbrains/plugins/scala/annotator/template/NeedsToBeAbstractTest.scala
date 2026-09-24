@@ -16,7 +16,7 @@ abstract class NeedsToBeAbstractTestBase extends AnnotatorTestBase[ScTemplateDef
     ScTemplateDefinitionAnnotator.annotateNeedsToBeAbstract(element)
 
   protected def message(params: String*) =
-    ScalaBundle.message("member.implementation.required", params: _*)
+    ScalaBundle.message("member.implementation.required", params*)
 
 }
 

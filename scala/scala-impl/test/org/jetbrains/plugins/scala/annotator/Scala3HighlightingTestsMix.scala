@@ -17,7 +17,7 @@ class Scala3HighlightingTestsMix extends ScalaHighlightingTestBase {
     version == ScalaVersion.Latest.Scala_3
 
   override def assertNoErrors(@Language("Scala 3") code: String): Unit =
-    assertErrors(code, Nil: _*)
+    assertErrors(code, Nil*)
 
   override protected def messagesFromScalaCode(file: PsiFile): List[Message] = {
     getFixture.openFileInEditor(file.getVirtualFile)

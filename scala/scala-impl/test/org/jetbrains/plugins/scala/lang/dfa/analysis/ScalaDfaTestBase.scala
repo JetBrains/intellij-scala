@@ -21,7 +21,7 @@ abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestCase wit
   protected def codeFromMethodBody(returnType: String = "Unit")(body: String): String = commonCodeTemplate(returnType)(body)
 
   def testWithUnsupportedPsiElements(code: String)(expectedResult: (String, String)*): Unit =
-    test(code, buildUnsupportedPsiElements = true)(expectedResult: _*)
+    test(code, buildUnsupportedPsiElements = true)(expectedResult*)
 
   def test(code: String, buildUnsupportedPsiElements: Boolean = false)(expectedResult: (String, String)*): Unit = {
     val actualFile = configureFromFileText(code)

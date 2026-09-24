@@ -30,7 +30,7 @@ trait ScalaHighlightingTestLike extends MatcherAssertionsExt {
   //////////////////////////////////////////////////
 
   protected def assertNoErrors(@Language("Scala") code: String): Unit =
-    assertErrors(code, Nil: _*)
+    assertErrors(code, Nil*)
 
   protected def assertErrors(@Language("Scala") code: String, messages: Message*): Unit =
     assertErrorsText(code, messages.mkString("\n"))
@@ -42,7 +42,7 @@ trait ScalaHighlightingTestLike extends MatcherAssertionsExt {
     assertMessagesText(code, messages.mkString("\n"))
 
   protected def assertNoMessages(@Language("Scala") code: String): Unit =
-    assertMessages(code, Nil: _*)
+    assertMessages(code, Nil*)
 
   protected def assertErrorsText(@Language("Scala") code: String, messagesConcatenated: String): Unit = {
     val actualMessages = errorsFromScalaCode(code)

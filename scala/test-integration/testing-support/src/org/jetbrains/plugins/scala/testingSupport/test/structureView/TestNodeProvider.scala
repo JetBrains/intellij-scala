@@ -216,7 +216,7 @@ object TestNodeProvider {
 
   private def checkScMethodCall(expr: ScMethodCall, funName: String, paramNames: List[String]*): Boolean = {
     val methodExpr = expr.getEffectiveInvokedExpr.findFirstChildByType(ScalaElementType.REFERENCE_EXPRESSION)
-    methodExpr.exists(methodExpr => checkRefExpr(methodExpr.asInstanceOf[ScReferenceExpression], funName, paramNames: _*))
+    methodExpr.exists(methodExpr => checkRefExpr(methodExpr.asInstanceOf[ScReferenceExpression], funName, paramNames*))
   }
 
   private def checkScMethodCallApply(expr: ScMethodCall, @NonNls callerName: String, @NonNls paramNames: List[String]*): Boolean = {
@@ -295,7 +295,7 @@ object TestNodeProvider {
       Some(ignoredScalaTestElement(expr, getInfixExprTestName(expr), entry.children(())))
     } else if (checkScInfixExpr(expr, "is", List("org.scalatest.PendingNothing")) || checkPendingInfixExpr(expr)) {
       Some(pendingScalaTestElement(expr, getInfixExprTestName(expr), entry.children(())))
-    } else if (checkScInfixExpr(expr, entry.funName, entry.args: _*)) {
+    } else if (checkScInfixExpr(expr, entry.funName, entry.args*)) {
       Some(new Test(expr, getInfixExprTestName(expr), entry.children(())))
     } else None
   }
@@ -368,19 +368,19 @@ object TestNodeProvider {
   }
 
   private def extractScMethodCall(expr: ScMethodCall, entry: ExtractEntry): Option[Test] = {
-    if (entry.canIgnore && (checkScMethodCall(expr, "ignore", scMethodCallDefaultArg: _*) ||
-      checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3_v1: _*) ||
-      checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3_v2: _*)))
+    if (entry.canIgnore && (checkScMethodCall(expr, "ignore", scMethodCallDefaultArg*) ||
+      checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3_v1*) ||
+      checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3_v2*)))
     {
       Some(ignoredScalaTestElement(expr, getMethodCallTestName(expr), entry.children(())))
     }
     else if (entry.canPend && checkMethodCallPending(expr)) {
       Some(pendingScalaTestElement(expr, getMethodCallTestName(expr), entry.children(())))
     }
-    else if (checkScMethodCall(expr, entry.funName, entry.args: _*) ||
-      checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArg:_*) ||
-      checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArgScalaTest3_v1:_*) ||
-      checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArgScalaTest3_v2:_*)
+    else if (checkScMethodCall(expr, entry.funName, entry.args*) ||
+      checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArg*) ||
+      checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArgScalaTest3_v1*) ||
+      checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArgScalaTest3_v2*)
     ) {
       Some(new Test(expr, getMethodCallTestName(expr), entry.children(())))
     }
@@ -446,48 +446,48 @@ object TestNodeProvider {
   private def extractFunSpec(expr: ScMethodCall, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerMethodCalls(expr), extractFunSpec, project)
     extractScMethodCall(expr, ExtractEntry("describe", true, true, _ => children, List("java.lang.String"), List("void"))).
-      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArg:_*))).
-      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3_v1:_*))).
-      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3_v2:_*))).
-      orElse(extractScMethodCall(expr, ExtractEntry("they", true, true, scMethodCallDefaultArg:_*)))
+      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArg*))).
+      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3_v1*))).
+      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3_v2*))).
+      orElse(extractScMethodCall(expr, ExtractEntry("they", true, true, scMethodCallDefaultArg*)))
   }
 
   private def extractFeatureSpec(expr: ScMethodCall, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerMethodCalls(expr), extractFeatureSpec, project)
     val entries = Seq(
       ExtractEntry("feature", true, false, _ => children, List("java.lang.String"), List("void")),
-      ExtractEntry("scenario", true, true, scMethodCallDefaultArg: _*),
-      ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3_v1: _*),
-      ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3_v2: _*),
+      ExtractEntry("scenario", true, true, scMethodCallDefaultArg*),
+      ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3_v1*),
+      ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3_v2*),
       //scalatest 3.1.0
       ExtractEntry("Feature", true, false, _ => children, List("java.lang.String"), List("void")),
-      ExtractEntry("Scenario", true, true, scMethodCallDefaultArg: _*),
-      ExtractEntry("Scenario", true, true, scMethodCallDefaultArgScalaTest3_v1: _*),
-      ExtractEntry("Scenario", true, true, scMethodCallDefaultArgScalaTest3_v2: _*),
+      ExtractEntry("Scenario", true, true, scMethodCallDefaultArg*),
+      ExtractEntry("Scenario", true, true, scMethodCallDefaultArgScalaTest3_v1*),
+      ExtractEntry("Scenario", true, true, scMethodCallDefaultArgScalaTest3_v2*),
     )
     entries.iterator.flatMap(extractScMethodCall(expr, _)).nextOption()
   }
 
   private def extractPropSpec(expr: ScMethodCall): Option[Test] = {
-    extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArg: _*)).
-      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3_v1: _*))).
-      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3_v2: _*)))
+    extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArg*)).
+      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3_v1*))).
+      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3_v2*)))
   }
 
   private def extractFunSuite(expr: ScMethodCall): Option[Test] = {
-    extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArg:_*))
-      .orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v1:_*)))
-      .orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v2:_*)))
+    extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArg*))
+      .orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v1*)))
+      .orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v2*)))
   }
 
   private val munitTestMethodCallArg = Seq(List("java.lang.String"), List("java.lang.Object"))
   private val munitPropertyMethodCallArg = Seq(List("java.lang.String"), List("org.scalacheck.Prop"))
   private val munitFunSuiteExtractEntries = Seq(
-    ExtractEntry("test", false, false, munitTestMethodCallArg: _*),
-    ExtractEntry("property", false, false, munitPropertyMethodCallArg: _*),
+    ExtractEntry("test", false, false, munitTestMethodCallArg*),
+    ExtractEntry("property", false, false, munitPropertyMethodCallArg*),
   )
   private def extractMUnitFunSuite(expr: ScMethodCall): Option[Test] = {
-    val foundEntry = munitFunSuiteExtractEntries.find(entry => checkScMethodCall(expr, entry.funName, entry.args: _*))
+    val foundEntry = munitFunSuiteExtractEntries.find(entry => checkScMethodCall(expr, entry.funName, entry.args*))
     foundEntry.flatMap { entry =>
       Some(new Test(expr, getMethodCallTestName(expr), entry.children(())))
     }
@@ -674,5 +674,5 @@ case class ExtractEntry(funName: String, canIgnore: Boolean, canPend: Boolean, c
 
 object ExtractEntry {
   def apply(funName: String, canIgnore: Boolean, canPend: Boolean, args: List[String]*): ExtractEntry =
-    ExtractEntry(funName, canIgnore, canPend, _ => Array[TreeElement](), args: _*)
+    ExtractEntry(funName, canIgnore, canPend, _ => Array[TreeElement](), args*)
 }
