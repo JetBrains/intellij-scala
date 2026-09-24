@@ -48,10 +48,10 @@ object Common {
     "-Xlint:nullary-unit",
     "-language:existentials",
     "-Ytasty-reader",
-    "-Wunused:nowarn",
+    "-Wunused:nowarn,imports",
     "-Xsource:3",
     "-Xsource-features:eta-expand-always,case-apply-copy-access",
-    "-Wconf:cat=scala3-migration:w",
+    "-Wconf:msg=infer-override:s", // don't warn about inferred overrides
     // NOTE: we agreed to disable "fatal warnings" in Scala Plugin repo after an exhaustive discussion in the team.
     // They are useful as code-quality signal, but treating them as compilation errors is not convenient in practice.
     // It hurts iterative local development and can block TeamCity from running tests.
