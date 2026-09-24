@@ -30,8 +30,8 @@ class SbtModuleBuilder(
 
   override def setupModule(module: Module): Unit = {
     val settings = getExternalProjectSettings
-    settings.setResolveClassifiers(selections.downloadScalaSdkSources)
-    settings.setResolveSbtClassifiers(selections.downloadSbtSources)
+    settings.resolveClassifiers = selections.downloadScalaSdkSources
+    settings.resolveSbtClassifiers = selections.downloadSbtSources
 
     super.setupModule(module)
   }
