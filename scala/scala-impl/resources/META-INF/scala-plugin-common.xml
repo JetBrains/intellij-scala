@@ -1401,11 +1401,6 @@
                          key="final.modifier.is.redundant.for.toplevel.objects"
                          groupPath="Scala" groupKey="group.general" shortName="RedundantFinalOnToplevelObject"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.modifiers.MarkInnerCaseObjectsAsFinal"
-                         bundle="messages.ScalaInspectionBundle"
-                         key="mark.inner.case.objects.as.final"
-                         groupPath="Scala" groupKey="group.general" shortName="MarkInnerCaseObjectsAsFinal"
-                         level="WARNING" enabledByDefault="false" language="Scala"/>
         <!--suppress PluginXmlCapitalization -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection"
                          bundle="messages.ScalaInspectionBundle"
