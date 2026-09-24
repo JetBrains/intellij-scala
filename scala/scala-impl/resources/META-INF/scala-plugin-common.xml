@@ -1055,6 +1055,13 @@
                          shortName="ScalaFileName"
                          language="Scala" level="WARNING"
                          enabledByDefault="true"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shebang.ScalaShebangExecutableInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="shebang.executable.inspection"
+                         groupPath="Scala" groupKey="group.general"
+                         shortName="ScalaShebangExecutable"
+                         language="Scala" level="WARNING"
+                         enabledByDefault="true"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ScalaPackageNameInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.package.name.inspection"
