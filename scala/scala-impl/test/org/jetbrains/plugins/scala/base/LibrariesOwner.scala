@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import scala.collection.mutable
 
 trait LibrariesOwner {
-  self: Test with ScalaVersionProvider =>
+  self: Test & ScalaVersionProvider =>
 
   protected def librariesLoaders: Seq[LibraryLoader]
   final def librariesLoadersPublic: Seq[LibraryLoader] = librariesLoaders

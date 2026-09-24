@@ -24,7 +24,7 @@ class ScalaMainMethodProvider extends JavaMainMethodProvider {
   }
 
   override def findMainInClass(clazz: PsiClass): PsiMethod = {
-    val objectToCheck: ScTypeDefinition with ScObject = clazz match {
+    val objectToCheck: ScTypeDefinition & ScObject = clazz match {
       case o: ScObject => o
       case t: ScTypeDefinition =>
         // - show "run" gutter on companion class as well as on the object with "main" method

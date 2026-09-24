@@ -289,7 +289,7 @@ object ScalaOverrideContributor {
       }
     }
 
-    private def onMember(member: ScModifierListOwner with PsiMember, item: LookupElement): Unit = {
+    private def onMember(member: ScModifierListOwner & PsiMember, item: LookupElement): Unit = {
       if (!hasOverride && !member.hasModifierPropertyScala("override")) {
         member.setModifierProperty("override")
       }

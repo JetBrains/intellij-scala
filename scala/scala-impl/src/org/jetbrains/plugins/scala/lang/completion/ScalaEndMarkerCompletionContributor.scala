@@ -259,18 +259,18 @@ object ScalaEndMarkerCompletionContributor {
      * @return keyword type (if, while, try, for, match) if given expression has multiline braceless part
      *         and the last part doesn't have braces */
     def unapply(expr: ScExpression): Option[IElementType] = expr match {
-      case scIf: ScIf with ScBegin =>
+      case scIf: (ScIf & ScBegin) =>
         keywordTypeIfAccepted(scIf)(scIf.thenExpression, scIf.elseExpression)
-      case scWhile: ScWhile with ScBegin =>
+      case scWhile: (ScWhile & ScBegin) =>
         keywordTypeIfAccepted(scWhile)(scWhile.expression)
-      case scTry: ScTry with ScBegin =>
+      case scTry: (ScTry & ScBegin) =>
         val expression = scTry.expression
         val catchExpr = scTry.catchBlock.flatMap(_.expression)
         val catchCaseClauses = scTry.catchBlock.flatMap(_.caseClauses)
         val finallyExpr = scTry.finallyBlock.flatMap(_.expression)
 
         keywordTypeIfAccepted(scTry)(expression, catchExpr, catchCaseClauses, finallyExpr)
-      case scFor: ScFor with ScBegin =>
+      case scFor: (ScFor & ScBegin) =>
         val cond = scFor.body match {
           case Some(body) if isWithoutBraces(body) =>
             isMultiline(body) || (scFor.enumerators.exists(isMultiline) && scFor.getLeftBracket.isEmpty)
@@ -278,7 +278,7 @@ object ScalaEndMarkerCompletionContributor {
         }
 
         Option.when(cond)(scFor.keyword.elementType)
-      case scMatch: ScMatch with ScBegin =>
+      case scMatch: (ScMatch & ScBegin) =>
         val cond = scMatch.caseClauses.exists(clauses => isMultiline(clauses) &&
           !clauses.prevSiblingNotWhitespaceComment.exists(_.elementType == ScalaTokenTypes.tLBRACE))
 

@@ -18,7 +18,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 trait BoundsUtil {
-  self: api.Bounds with ScalaBoundsBase with ProjectContextOwner =>
+  self: api.Bounds & ScalaBoundsBase & ProjectContextOwner =>
 
   protected def lubDepth(lhs: ScType, rhs: ScType): Int = {
     val ts = Seq(lhs, rhs)

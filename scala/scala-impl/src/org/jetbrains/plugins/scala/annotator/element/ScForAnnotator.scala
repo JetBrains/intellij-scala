@@ -136,7 +136,7 @@ object ScForAnnotator extends ElementAnnotator[ScFor] {
   }
 
   private def delegateHolderFor(target: PsiElement, session: AnnotationSession)
-                               (implicit holder: ScalaAnnotationHolder): DelegateAnnotationHolder with ErrorIndication =
+                               (implicit holder: ScalaAnnotationHolder): DelegateAnnotationHolder & ErrorIndication =
     new DelegateAnnotationHolder(session) with ErrorIndication {
       private var _hadError = false
       override def hadError: Boolean = _hadError

@@ -203,7 +203,7 @@ object FileDeclarationsHolder {
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)
                              (body: => Unit): Unit =
     processor match {
-      case b: BaseProcessor with SubstitutablePrecedenceHelper => b.runWithPriority(priority)(body)
+      case b: (BaseProcessor & SubstitutablePrecedenceHelper) => b.runWithPriority(priority)(body)
       case _                                                   => body
     }
 

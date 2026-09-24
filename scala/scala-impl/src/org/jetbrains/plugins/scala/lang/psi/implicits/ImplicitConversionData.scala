@@ -157,7 +157,7 @@ object ImplicitConversionData {
     rawCheck.map(_.withSubstitutor(substitutor))
   }
 
-  private def fromElementWithFunctionType(named: PsiNamedElement with Typeable, substitutor: ScSubstitutor)(implicit context: Context): Option[ImplicitConversionData] = {
+  private def fromElementWithFunctionType(named: PsiNamedElement & Typeable, substitutor: ScSubstitutor)(implicit context: Context): Option[ImplicitConversionData] = {
     val rawCheck: Option[ImplicitConversionData] = cachedInUserData("fromElementWithFunctionType.rawCheck", named, ModTracker.libraryAware(named), Tuple1(named)) {
       for {
         function1Type <- named.elementScope.cachedFunction1Type
@@ -190,7 +190,7 @@ object ImplicitConversionData {
       new RegularImplicitConversionData(element, rawParamType, rawReturnType, substitutor)
   }
 
-  private class ElementWithFunctionTypeData(override val element: PsiNamedElement with Typeable,
+  private class ElementWithFunctionTypeData(override val element: PsiNamedElement & Typeable,
                                             rawElementType: ScType,
                                             override val substitutor: ScSubstitutor = ScSubstitutor.empty) extends ImplicitConversionData {
     private implicit def context: Context = Context(element)

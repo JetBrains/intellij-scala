@@ -18,9 +18,9 @@ object SharedTestProjectToken {
   val DoNotShare: SharedTestProjectToken =
     SharedTestProjectToken(None)
 
-  def ByScalaSdkAndProjectLibraries(test: LibrariesOwner with ScalaSdkOwner): SharedTestProjectToken =
+  def ByScalaSdkAndProjectLibraries(test: LibrariesOwner & ScalaSdkOwner): SharedTestProjectToken =
     SharedTestProjectToken((test.version, test.librariesLoadersPublic))
 
-  def ByTestClassAndScalaSdkAndProjectLibraries(test: LibrariesOwner with ScalaSdkOwner): SharedTestProjectToken =
+  def ByTestClassAndScalaSdkAndProjectLibraries(test: LibrariesOwner & ScalaSdkOwner): SharedTestProjectToken =
     SharedTestProjectToken((test.getClass, test.version, test.librariesLoadersPublic))
 }

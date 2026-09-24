@@ -60,7 +60,7 @@ object NoTargetNameAnnotationForOperatorLikeDefinitionInspection {
       !isSynthetic(element) &&
       !isEndMarkerTarget(element)
 
-    private def accepts(maybeNameElement: PsiElement, element: ScAnnotationsHolder with ScNamedElement): Boolean =
+    private def accepts(maybeNameElement: PsiElement, element: ScAnnotationsHolder & ScNamedElement): Boolean =
       element.nameId == maybeNameElement && accepts(element, element.name)
 
     private def accepts(maybeNameElement: PsiElement, element: ScValueOrVariable): Boolean = element match {

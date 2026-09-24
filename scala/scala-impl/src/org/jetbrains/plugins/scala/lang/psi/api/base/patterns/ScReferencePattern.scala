@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariableDefi
 trait ScReferencePattern extends ScBindingPattern {
   override def setName(name: String): PsiElement = {
     this.parentsInFile
-      .findByType[ScValueOrVariableDefinition with ScBegin]
+      .findByType[ScValueOrVariableDefinition & ScBegin]
       .filter(valOrVal => valOrVal.tag == this && valOrVal.isSimple)
       .flatMap(_.end)
       .foreach(_.setName(name))

@@ -135,7 +135,7 @@ object ConvertImplicitBoundsToImplicitParameter {
   }
 
   private def contextBoundUsageAnchor(
-    parameterOwner: ScParameterOwner with ScTypeParametersOwner,
+    parameterOwner: ScParameterOwner & ScTypeParametersOwner,
     clauses:        Seq[ScParameterClause],
     typeParameters: Seq[ScTypeParam],
   ): Option[PsiElement] =

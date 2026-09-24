@@ -404,7 +404,7 @@ object ScalaSmartCompletionContributor {
             elementAdded
           }
 
-          def checkTyped(typed: PsiNamedElement with Typeable): Unit = {
+          def checkTyped(typed: PsiNamedElement & Typeable): Unit = {
             if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false) &&
               (originalPlace == null || !PsiTreeUtil.isContextAncestor(typed.nameContext, originalPlace, false)))
               for (tt <- typed.`type`()) checkType(tt, ScSubstitutor.empty, checkForSecondCompletion)

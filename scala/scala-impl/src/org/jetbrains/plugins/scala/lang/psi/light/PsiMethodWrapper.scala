@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import java.util
 
-abstract class PsiMethodWrapper[T <: ScalaPsiElement with PsiNamedElement with NavigatablePsiElement](
+abstract class PsiMethodWrapper[T <: ScalaPsiElement & PsiNamedElement & NavigatablePsiElement](
   override val delegate: T,
   methodName: String,
   containingClass: PsiClass

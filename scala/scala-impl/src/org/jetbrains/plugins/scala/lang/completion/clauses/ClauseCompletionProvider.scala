@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import scala.reflect.{ClassTag, classTag}
 
 private[clauses] abstract class ClauseCompletionProvider[
-  T <: ScalaPsiElement with Typeable : ClassTag
+  T <: ScalaPsiElement & Typeable : ClassTag
 ] extends CompletionProvider[CompletionParameters] {
 
   override final def addCompletions(parameters: CompletionParameters,

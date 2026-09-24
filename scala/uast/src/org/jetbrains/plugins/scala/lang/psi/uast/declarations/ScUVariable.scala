@@ -103,7 +103,7 @@ object ScUVariable {
     def apply(parent: LazyUElement): ScUVariableCommon
   }
 
-  type TypeableScPsiElement = ScalaPsiElement with Typeable
+  type TypeableScPsiElement = ScalaPsiElement & Typeable
 
   def unapply(arg: ScalaPsiElement): Option[Parent2ScUVariable] = {
     arg match {
@@ -138,7 +138,7 @@ object ScUVariable {
   }
 
   private def fieldOrLocalVariable(sourcePsi: ScalaPsiElement,
-                                   member: ScMember with Typeable,
+                                   member: ScMember & Typeable,
                                    nameHolder: ScNamedElement,
                                    typeElement: Option[ScTypeElement],
                                    initializer: Option[ScExpression],
@@ -159,7 +159,7 @@ object ScUVariable {
     new ScAnnotatedLightLocalVariable(name, containingFile, typeable, modifierList, isFinal, isField)
 
   private def localVariable(sourcePsi: ScalaPsiElement,
-                            element: ScMember with Typeable,
+                            element: ScMember & Typeable,
                             named: ScNamedElement,
                             typeElement: Option[ScTypeElement],
                             initializer: Option[ScExpression],
@@ -189,7 +189,7 @@ object ScUVariable {
     field(classParam, classParam, classParam, classParam.typeElement, classParam.getDefaultExpression, classParam.isVal)
 
   private def field(sourcePsi: ScalaPsiElement,
-                    member: ScMember with Typeable,
+                    member: ScMember & Typeable,
                     nameHolder: ScNamedElement,
                     typeElement: Option[ScTypeElement],
                     initializer: Option[ScExpression],

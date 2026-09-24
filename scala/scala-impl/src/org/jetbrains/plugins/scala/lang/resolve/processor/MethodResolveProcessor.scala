@@ -524,8 +524,8 @@ object MethodResolveProcessor {
         if correctTypeArgsSupplied(typeParamsSize) && currentArgumentsClause.isEmpty =>
         checkFunctionReference(fun, typeParamsSize != 0)
       //simple application including empty application
-      case _: ScTypeParametersOwner with PsiNamedElement     => checkSimpleApplication()
-      case _: PsiTypeParameterListOwner with PsiNamedElement => checkSimpleApplication()
+      case _: (ScTypeParametersOwner & PsiNamedElement)     => checkSimpleApplication()
+      case _: (PsiTypeParameterListOwner & PsiNamedElement) => checkSimpleApplication()
       case _ =>
         if (currentTypeArgsClause.nonEmpty) problems += DoesNotTakeTypeParameters
         if (currentArgumentsClause.nonEmpty) problems += DoesNotTakeParameters

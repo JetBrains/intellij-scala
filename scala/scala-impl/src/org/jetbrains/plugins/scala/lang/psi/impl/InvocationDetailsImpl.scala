@@ -30,7 +30,7 @@ import scala.collection.immutable.LongMap
  * Works out the details of the call an expression is part of, see [[InvocationDetails]].
  */
 private[psi] object InvocationDetailsImpl {
-  private type InvocationDetailsExpr = InvocationDetailsOwner with ScExpression
+  private type InvocationDetailsExpr = InvocationDetailsOwner & ScExpression
   
   def of(invocation: ConstructorInvocationLike): InvocationDetails =
     cachedInUserData(

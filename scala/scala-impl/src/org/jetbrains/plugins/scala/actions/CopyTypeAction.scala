@@ -76,7 +76,7 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
   }
 
   @RequiresBackgroundThread // can involve heavy resolution in complex code bases
-  private def getElementTypePresentation(element: ScalaPsiElement with Typeable): Option[String] = {
+  private def getElementTypePresentation(element: ScalaPsiElement & Typeable): Option[String] = {
     val typeResult = element match {
       case expr: ScExpression =>
         getExpressionType(expr)
@@ -112,7 +112,7 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
 
   @tailrec
   private def findInvocation(expr: ScExpression): Option[InvocationDetails] = {
-    val details = expr.asOptionOf[ScExpression with InvocationDetailsOwner].flatMap(_.invocationDetails)
+    val details = expr.asOptionOf[ScExpression & InvocationDetailsOwner].flatMap(_.invocationDetails)
     if (details.isDefined) details
     else expr.getContext match {
       case call: MethodInvocation if call.getInvokedExpr == expr => findInvocation(call)
@@ -123,7 +123,7 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
     }
   }
 
-  private def getSelectedTypeableElement(e: AnActionEvent): Option[ScalaPsiElement with Typeable] = {
+  private def getSelectedTypeableElement(e: AnActionEvent): Option[ScalaPsiElement & Typeable] = {
     val context = e.getDataContext
     implicit val project: Project = CommonDataKeys.PROJECT.getData(context)
     implicit val editor: Editor = CommonDataKeys.EDITOR.getData(context)
@@ -143,7 +143,7 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
     getSelectedTypeableElement(startOffset, endOffset, file)
   }
 
-  private def getSelectedTypeableElement(start: Int, end: Int, file: ScalaFile): Option[ScalaPsiElement with Typeable] = {
+  private def getSelectedTypeableElement(start: Int, end: Int, file: ScalaFile): Option[ScalaPsiElement & Typeable] = {
     @tailrec
     @Nullable
     def skipWsAndCommend(@Nullable e: PsiElement, next: PsiElement => PsiElement): PsiElement = e match {
@@ -161,7 +161,7 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
     }
 
     @tailrec
-    def findTypeableParentElement(@Nullable e: PsiElement): Option[ScalaPsiElement with Typeable] = {
+    def findTypeableParentElement(@Nullable e: PsiElement): Option[ScalaPsiElement & Typeable] = {
       if (e == null) {
         return None
       }

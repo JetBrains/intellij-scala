@@ -14,7 +14,7 @@ class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
 
   protected def localHandler = new ScalaLocalInplaceRenameHandler
 
-  protected def isAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Boolean = {
+  protected def isAvailable(handler: ScalaInplaceRenameHandler & VariableInplaceRenameHandler): Boolean = {
     val dataContext = SimpleDataContext.builder()
       .add(CommonDataKeys.PSI_ELEMENT, myFixture.getElementAtCaret)
       .add(CommonDataKeys.EDITOR, myFixture.getEditor)
@@ -23,11 +23,11 @@ class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
     handler.isAvailableOnDataContext(dataContext)
   }
 
-  protected def checkIsAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Unit = {
+  protected def checkIsAvailable(handler: ScalaInplaceRenameHandler & VariableInplaceRenameHandler): Unit = {
     Assert.assertTrue(s"$handler is not available", isAvailable(handler))
   }
 
-  protected def checkIsNotAvailable(handler: ScalaInplaceRenameHandler with VariableInplaceRenameHandler): Unit = {
+  protected def checkIsNotAvailable(handler: ScalaInplaceRenameHandler & VariableInplaceRenameHandler): Unit = {
     Assert.assertTrue(s"$handler is available", !isAvailable(handler))
   }
 

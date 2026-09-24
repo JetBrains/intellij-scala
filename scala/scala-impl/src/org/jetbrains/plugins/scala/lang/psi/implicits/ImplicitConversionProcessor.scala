@@ -34,7 +34,7 @@ final class ImplicitConversionProcessor(
   }
 
   private def addIfHasFunctionType(
-    namedElement: PsiNamedElement with Typeable
+    namedElement: PsiNamedElement & Typeable
   )(implicit
     state: ResolveState
   ): Unit = {

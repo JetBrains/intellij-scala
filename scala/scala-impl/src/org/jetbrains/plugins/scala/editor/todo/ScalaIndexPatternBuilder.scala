@@ -45,7 +45,7 @@ final class ScalaIndexPatternBuilder extends IndexPatternBuilder {
   private def byParserDefinition[T >: Null](file: PsiFile)
                                            (function: ParserDefinition => T) =
     file match {
-      case file: ScalaFile with PsiFileBase => function(file.getParserDefinition)
+      case file: (ScalaFile & PsiFileBase) => function(file.getParserDefinition)
       case _ => null
     }
 }

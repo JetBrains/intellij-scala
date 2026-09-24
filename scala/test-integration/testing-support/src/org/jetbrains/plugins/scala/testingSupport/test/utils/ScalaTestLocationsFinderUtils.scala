@@ -55,7 +55,7 @@ object ScalaTestLocationsFinderUtils {
 
   def collectTestLocationsForRefSpec(body: ScTemplateBody): Seq[ScNamedElement] = {
 
-    def canBeRefSpecPart(member: ScMember with ScNamedElement): Boolean =
+    def canBeRefSpecPart(member: ScMember & ScNamedElement): Boolean =
       !TestConfigurationUtil.isUnqualifiedPrivateOrThis(member) &&
         member.name.contains(" ")
 

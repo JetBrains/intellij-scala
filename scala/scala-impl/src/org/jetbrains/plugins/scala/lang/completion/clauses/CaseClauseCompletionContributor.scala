@@ -100,7 +100,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
 object CaseClauseCompletionContributor {
 
   private abstract class SingleClauseCompletionProvider[
-    T <: ScalaPsiElement with Typeable : reflect.ClassTag
+    T <: ScalaPsiElement & Typeable : reflect.ClassTag
   ] extends ClauseCompletionProvider[T] {
 
     override final protected def addCompletions(typeable: T, result: CompletionResultSet)

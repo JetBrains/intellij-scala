@@ -18,7 +18,7 @@ package object projectView {
     import FileNode._
 
     def apply(file: ScalaFile)
-             (implicit project: Project, settings: ViewSettings): Node with IconableNode = {
+             (implicit project: Project, settings: ViewSettings): Node & IconableNode = {
       val fileType = file.getFileType
       val isMill = isMillFile(file)
       fileType match {

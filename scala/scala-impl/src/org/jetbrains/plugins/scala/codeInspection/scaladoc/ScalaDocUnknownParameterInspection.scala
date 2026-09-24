@@ -72,7 +72,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
 
     val commentOwner = docComment.getOwner
     commentOwner match {
-      case _: ScTypeParametersOwner with ScParameterOwner =>
+      case _: (ScTypeParametersOwner & ScParameterOwner) =>
         processParametersOwnerCase()
       case enumCases: ScEnumCases =>
         val enumCasesList: Seq[ScEnumCase] = enumCases.declaredElements

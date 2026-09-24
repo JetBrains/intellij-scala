@@ -454,10 +454,10 @@ package object extensions {
     // Use for safely checking for null in chained calls
     @inline def safeMap[A](f: T => A): Option[A] = if (option.isEmpty) None else Option(f(option.get))
 
-    def filterByType[S <: AnyRef : ClassTag]: Option[T with S] = {
+    def filterByType[S <: AnyRef : ClassTag]: Option[T & S] = {
       option match {
         case Some(element) if implicitly[ClassTag[S]].runtimeClass.isInstance(element) =>
-          option.asInstanceOf[Option[T with S]]
+          option.asInstanceOf[Option[T & S]]
         case _ => None
       }
     }

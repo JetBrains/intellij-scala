@@ -54,7 +54,7 @@ object ScalaCollectionAccessProblem {
     def create(problemElement: ScExpression, lengthDescriptor: DerivedVariableDescriptor): ScalaCollectionAccessProblem =
       ScalaCollectionAccessProblem(lengthDescriptor, problemElement, this)
   }
-  type ProblemWithFactory = ScalaDfaProblemKind[ScalaCollectionAccessProblem] with Factory
+  type ProblemWithFactory = ScalaDfaProblemKind[ScalaCollectionAccessProblem] & Factory
 
   val indexOutOfBoundsProblem: ProblemWithFactory = new ScalaDfaProblemKind(ScalaInspectionBundle.message("invocation.index.out.of.bounds"))() with Factory
   val noSuchElementProblem: ProblemWithFactory = new ScalaDfaProblemKind(ScalaInspectionBundle.message("invocation.no.such.element"))() with Factory
@@ -81,7 +81,7 @@ object ScalaNullAccessProblem {
   trait Factory { this: ScalaDfaProblemKind[ScalaNullAccessProblem] =>
     def create(problemElement: PsiElement): ScalaNullAccessProblem = ScalaNullAccessProblem(problemElement, this)
   }
-  type ProblemWithFactory = ScalaDfaProblemKind[ScalaNullAccessProblem] with Factory
+  type ProblemWithFactory = ScalaDfaProblemKind[ScalaNullAccessProblem] & Factory
 
   val npeOnInvocation: ProblemWithFactory = new ScalaDfaProblemKind(ScalaBundle.message("method.invocation.might.produce.nullpointerexception"))( ScalaBundle.message("method.invocation.will.produce.nullpointerexception")) with Factory {
     override def create(problemElement: PsiElement): ScalaNullAccessProblem = {

@@ -95,7 +95,7 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
         }
 
         f match {
-          case typeParamOwner: PsiNamedElement with PsiTypeParameterListOwner if !isKindProjector(genCall) =>
+          case typeParamOwner: (PsiNamedElement & PsiTypeParameterListOwner) if !isKindProjector(genCall) =>
             val typeParams = f match {
               case ScalaConstructor(cons) =>
                 cons

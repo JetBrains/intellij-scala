@@ -35,9 +35,9 @@ trait ScDocRefQuerySegment extends ScDocRefQuery with ScDocResolvableCodeReferen
 trait ScDocRefThisQuery extends ScDocRefQuery {
   def thisToken: PsiElement = this.getFirstChild
 
-  def resolveThis(): Option[ScNamedElement with ScDocCommentOwner]
+  def resolveThis(): Option[ScNamedElement & ScDocCommentOwner]
 
-  override def resolve(): ScNamedElement with ScDocCommentOwner
+  override def resolve(): ScNamedElement & ScDocCommentOwner
 }
 
 trait ScPackageQuery extends ScDocRefQuery {

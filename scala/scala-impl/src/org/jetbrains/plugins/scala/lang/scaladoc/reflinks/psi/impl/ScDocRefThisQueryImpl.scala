@@ -18,9 +18,9 @@ class ScDocRefThisQueryImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wit
 
   override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
     resolveThis().iterator.map(new ScalaResolveResult(_)).toArray
-  override def resolveThis(): Option[ScNamedElement with ScDocCommentOwner] =
-    this.parentOfType[ScDocCommentOwner].filterByType[ScNamedElement with ScDocCommentOwner]
-  override def resolve(): ScNamedElement with ScDocCommentOwner = resolveThis().orNull
+  override def resolveThis(): Option[ScNamedElement & ScDocCommentOwner] =
+    this.parentOfType[ScDocCommentOwner].filterByType[ScNamedElement & ScDocCommentOwner]
+  override def resolve(): ScNamedElement & ScDocCommentOwner = resolveThis().orNull
 
   override def getCanonicalText: String = "this"
 

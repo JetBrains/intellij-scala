@@ -169,7 +169,7 @@ object ScalaAotCompletionContributor {
       parameter.paramType.map(_.typeElement)
   }
 
-  private abstract class DeclarationCompletionProvider[D <: ScMember with ScDeclaration](keyword: String,
+  private abstract class DeclarationCompletionProvider[D <: ScMember & ScDeclaration](keyword: String,
                                                                                          classes: Class[? <: ScMember]*) extends aot.CompletionProvider[D] {
 
     override protected def addCompletions(resultSet: CompletionResultSet, prefix: String)
@@ -186,7 +186,7 @@ object ScalaAotCompletionContributor {
     override protected final def createConsumer(resultSet: CompletionResultSet, position: PsiElement) = new UntypedConsumer(resultSet)
   }
 
-  private abstract class DefinitionCompletionProvider[D <: ScMember with ScDefinitionWithAssignment](keyword: String,
+  private abstract class DefinitionCompletionProvider[D <: ScMember & ScDefinitionWithAssignment](keyword: String,
                                                                                                      classes: Class[? <: ScMember]*) extends aot.CompletionProvider[D] {
     override protected def addCompletions(resultSet: CompletionResultSet, prefix: String)
                                          (implicit parameters: CompletionParameters, context: ProcessingContext): Unit =

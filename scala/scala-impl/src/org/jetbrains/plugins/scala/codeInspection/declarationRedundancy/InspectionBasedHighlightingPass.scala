@@ -160,7 +160,7 @@ object InspectionBasedHighlightingPass {
 
   @nowarn("cat=deprecation")
   private class LocalQuickFixAsIntentionIconableAdapter(
-    delegateFix: LocalQuickFix with Iconable,
+    delegateFix: LocalQuickFix & Iconable,
     problemDescriptor: ProblemDescriptor
   ) extends LocalQuickFixAsIntentionAdapter(delegateFix, problemDescriptor)
     with Iconable {

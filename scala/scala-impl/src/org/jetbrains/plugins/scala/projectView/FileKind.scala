@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 sealed trait FileKind {
   protected val delegate: ScTypeDefinitionLike
 
-  final type MyIconableNode = Node with IconableNode
+  final type MyIconableNode = Node & IconableNode
 
   private[scala] final def representative: ScTypeDefinitionLike = delegate
 

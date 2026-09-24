@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 
 object NameSuggester {
 
-  private type TypeableScalaPsiElement = ScalaPsiElement with Typeable
+  private type TypeableScalaPsiElement = ScalaPsiElement & Typeable
 
   private val DefaultName = "value"
 

@@ -43,14 +43,14 @@ object result {
     }
   }
 
-  implicit class TypeableExt(private val typeable: ScalaPsiElement with Typeable) extends AnyVal {
+  implicit class TypeableExt(private val typeable: ScalaPsiElement & Typeable) extends AnyVal {
 
     def flatMap[E](maybeElement: Option[E])
                   (function: E => TypeResult): TypeResult =
       maybeElement.map(function)
         .getOrElse(Failure(ScalaBundle.message("no.element.found")))
 
-    def flatMapType[E <: ScalaPsiElement with Typeable](maybeElement: Option[E]): TypeResult =
+    def flatMapType[E <: ScalaPsiElement & Typeable](maybeElement: Option[E]): TypeResult =
       flatMap(maybeElement)(_.`type`())
 
     private implicit def context: ProjectContext = typeable

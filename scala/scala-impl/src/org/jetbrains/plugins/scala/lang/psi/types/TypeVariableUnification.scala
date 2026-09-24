@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project._
   * Conformance parts related to HK type-variable unification
   * and related kind-checking infrastructure.
   */
-trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner =>
+trait TypeVariableUnification { self: ScalaConformance & ProjectContextOwner =>
   import TypeVariableUnification._
 
 

@@ -60,7 +60,7 @@ object ScalaRenameUtil {
   def addEndMarkerReference(@Nullable element: PsiNamedElement, references: util.Collection[PsiReference]): Unit = {
     val end = element match {
       case begin: ScBegin => begin.end
-      case Parent(Parent(begin: ScValueOrVariable with ScBegin)) =>
+      case Parent(Parent(begin: (ScValueOrVariable & ScBegin))) =>
         // ScVariableDefinition and ScValueDefinition are not ScBegin, so we need to go up two parents
         begin.end
       case _ => None

@@ -48,7 +48,7 @@ object ScImplicitStub {
     }
   }
 
-  def conversionParamClass(f: ScParameterOwner with ScTypeParametersOwner): Option[String] =
+  def conversionParamClass(f: ScParameterOwner & ScTypeParametersOwner): Option[String] =
     for {
       param         <- f.parameters.headOption
       paramTypeElem <- param.typeElement

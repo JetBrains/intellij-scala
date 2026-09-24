@@ -41,7 +41,7 @@ private[changeSignature] object ScalaNamedElementUsageInfo {
     }
   }
 
-  def apply(named: PsiNamedElement): UsageInfo with ScalaNamedElementUsageInfo = {
+  def apply(named: PsiNamedElement): UsageInfo & ScalaNamedElementUsageInfo = {
     val unwrapped = named match {
       case isWrapper(elem) => elem
       case _ => named

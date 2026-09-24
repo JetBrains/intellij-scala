@@ -333,7 +333,7 @@ class ScalaAnnotator extends Annotator
   }
 
   def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Variance,
-                                    declaredElements: Seq[Typeable with ScNamedElement])
+                                    declaredElements: Seq[Typeable & ScNamedElement])
                                    (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {
