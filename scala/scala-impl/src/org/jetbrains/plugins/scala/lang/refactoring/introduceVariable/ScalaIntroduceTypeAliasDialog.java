@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$;
 
 @SuppressWarnings(value = "unchecked")
 public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements NamedDialog {
@@ -285,7 +285,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
     private void updateOkStatus() {
         String text = getEnteredName();
-        setOKActionEnabled(MODULE$.isIdentifier(text));
+        setOKActionEnabled(ScalaNamesValidator$.MODULE$.isIdentifier(text));
     }
 
     private void fireNameDataChanged() {

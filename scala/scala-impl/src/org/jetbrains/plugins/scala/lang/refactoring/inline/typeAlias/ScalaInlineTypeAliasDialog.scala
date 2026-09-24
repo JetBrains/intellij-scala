@@ -18,7 +18,7 @@ final class ScalaInlineTypeAliasDialog(typeAlias: ScTypeAliasDefinition)(implici
       typeAlias,
       reference,
       inlineThisOnly = isInlineThisOnly,
-      removeDefinition = typeAlias.isWritable && !isKeepTheDeclaration,
+      removeDefinitionAfterInlining = typeAlias.isWritable && !isKeepTheDeclaration,
     )
 
   override protected def inlineThisGetter: ScalaApplicationSettings => Boolean = _.INLINE_TYPE_ALIAS_THIS

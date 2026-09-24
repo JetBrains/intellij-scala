@@ -156,7 +156,7 @@ trait IntroduceExpressions {
         override def getOccurrenceRange(occurrence: TextRange): TextRange = occurrence
       }
 
-      chooser.showChooser(mainRange, ju.Arrays.asList(occurrences_ : _*), replaceChoiceCallback)
+      chooser.showChooser(mainRange, ju.Arrays.asList((occurrences_)*), replaceChoiceCallback)
     }
   }
 

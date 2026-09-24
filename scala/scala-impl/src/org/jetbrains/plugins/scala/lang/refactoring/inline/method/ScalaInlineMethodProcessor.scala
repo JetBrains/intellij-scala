@@ -11,10 +11,10 @@ final class ScalaInlineMethodProcessor(
   method: ScFunctionDefinition,
   reference: Option[PsiReference],
   inlineThisOnly: Boolean,
-  removeDefinition: Boolean
+  removeDefinitionAfterInlining: Boolean
 )(
   implicit project: Project
-) extends ScalaInlineProcessor(method, reference, inlineThisOnly = inlineThisOnly, shouldRemoveDefinition = removeDefinition) {
+) extends ScalaInlineProcessor(method, reference, inlineThisOnly = inlineThisOnly, shouldRemoveDefinition = removeDefinitionAfterInlining) {
   override def getCommandName: String = ScalaInlineMethodHandler.RefactoringName
 
   override protected def removeDefinition(): Unit =

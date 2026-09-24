@@ -10,10 +10,10 @@ final class ScalaInlineTypeAliasProcessor(
   typeAlias: ScTypeAliasDefinition,
   reference: Option[PsiReference],
   inlineThisOnly: Boolean,
-  removeDefinition: Boolean
+  removeDefinitionAfterInlining: Boolean
 )(
   implicit project: Project
-) extends ScalaInlineProcessor(typeAlias, reference, inlineThisOnly = inlineThisOnly, shouldRemoveDefinition = removeDefinition) {
+) extends ScalaInlineProcessor(typeAlias, reference, inlineThisOnly = inlineThisOnly, shouldRemoveDefinition = removeDefinitionAfterInlining) {
   override def getCommandName: String = ScalaInlineTypeAliasHandler.RefactoringName
 
   override protected def removeDefinition(): Unit =

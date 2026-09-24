@@ -160,7 +160,8 @@ class SelectionDialog {
 }
 
 private abstract class Node(@Nls name: String) extends DefaultMutableTreeTableNode(name) {
-  var value: Option[Boolean]
+  def value: Option[Boolean]
+  def value_=(value: Option[Boolean]): Unit
 
   def transformers: Seq[Transformer]
 }

@@ -86,7 +86,7 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
   @Unmodifiable
   override def retargetUsages(@NotNull @Unmodifiable usages: ju.List[UsageInfo],
                               @NotNull oldToNewMap: ju.Map[PsiElement, PsiElement]): ju.List[UsageInfo] = {
-    val usageInfosToProcess = ContainerUtil.filter[UsageInfo](usages, {
+    val usageInfosToProcess = ContainerUtil.filter[UsageInfo](usages, (usage: UsageInfo) => usage match {
       case usageInfo: MoveRenameUsageInfo =>
         val referencedElement = usageInfo.getUpToDateReferencedElement
         referencedElement != null && referencedElement.getContainingFile.is[ScalaFile]

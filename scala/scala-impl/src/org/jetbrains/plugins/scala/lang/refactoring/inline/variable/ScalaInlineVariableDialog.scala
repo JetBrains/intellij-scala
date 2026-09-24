@@ -17,7 +17,7 @@ final class ScalaInlineVariableDialog(pattern: ScBindingPattern, variable: ScVal
       variable,
       reference,
       inlineThisOnly = isInlineThisOnly,
-      removeDefinition = pattern.isWritable && !isKeepTheDeclaration,
+      removeDefinitionAfterInlining = pattern.isWritable && !isKeepTheDeclaration,
     )
 
   override protected def inlineThisGetter: ScalaApplicationSettings => Boolean = _.INLINE_VARIABLE_THIS

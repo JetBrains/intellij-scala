@@ -36,7 +36,7 @@ case class ScalaIntroduceParameterData(methodLike: ScMethodLike,
 
   override def getParameterName: String = paramName
 
-  override def getParameterInitializer =
+  override def getParameterInitializer: JavaExpressionWrapper =
     new JavaExpressionWrapper(
       JavaPsiFacade.getElementFactory(methodLike.getProject).createExpressionFromText(getParameterName, elems.head.getContext)
     )

@@ -33,7 +33,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$;
 
 @SuppressWarnings(value = "unchecked")
 public class ScalaExtractMethodDialog extends DialogWrapper {
@@ -119,9 +119,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private void updateOkStatus() {
-    setOKActionEnabled(MODULE$.isIdentifier(getMethodName()) &&
-        (isPublic() || getVisibilityEncloser().equals("") || MODULE$.isIdentifier(getVisibilityEncloser())) &&
-        (isTuple() || MODULE$.isIdentifier(getMultipleOutputEncloser())));
+    setOKActionEnabled(ScalaNamesValidator$.MODULE$.isIdentifier(getMethodName()) &&
+        (isPublic() || getVisibilityEncloser().equals("") || ScalaNamesValidator$.MODULE$.isIdentifier(getVisibilityEncloser())) &&
+        (isTuple() || ScalaNamesValidator$.MODULE$.isIdentifier(getMultipleOutputEncloser())));
   }
 
   private String getVisibilityEncloser() {

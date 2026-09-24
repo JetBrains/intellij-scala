@@ -38,7 +38,7 @@ import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 
-import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$;
 
 @SuppressWarnings(value = "unchecked")
 public class ScalaIntroduceVariableDialog extends DialogWrapper implements NamedDialog {
@@ -399,7 +399,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
 
     private void updateOkStatus() {
         String text = getEnteredName();
-        setOKActionEnabled(MODULE$.isIdentifier(text));
+        setOKActionEnabled(ScalaNamesValidator$.MODULE$.isIdentifier(text));
     }
 
     private void fireNameDataChanged() {

@@ -15,7 +15,7 @@ final class ScalaInlineMethodDialog(method: ScFunctionDefinition)(implicit proje
       method,
       reference,
       inlineThisOnly = isInlineThisOnly,
-      removeDefinition = method.isWritable && !isKeepTheDeclaration,
+      removeDefinitionAfterInlining = method.isWritable && !isKeepTheDeclaration,
     )
 
   override protected def inlineThisGetter: ScalaApplicationSettings => Boolean = _.INLINE_METHOD_THIS

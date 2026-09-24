@@ -33,7 +33,7 @@ final class ScalaSuggestedRefactoringSupport extends SuggestedRefactoringSupport
   @Nullable
   override def nameRange(element: PsiElement): TextRange = element match {
     case named: ScNamedElement =>
-      ObjectUtils.doIfNotNull(named.getNameIdentifier, (_: PsiElement).getTextRange)
+      ObjectUtils.doIfNotNull[PsiElement, TextRange](named.getNameIdentifier, _.getTextRange)
     case _ => null
   }
 

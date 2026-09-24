@@ -903,7 +903,7 @@ object ScalaRefactoringUtil {
   def isInplaceAvailable(editor: Editor): Boolean =
     editor.getSettings.isVariableInplaceRenameEnabled && {
       if (ApplicationManager.getApplication.isUnitTestMode)
-        editor.getUserData(ENABLE_INPLACE_REFACTORING_IN_TESTS)
+        editor.getUserData[java.lang.Boolean](ENABLE_INPLACE_REFACTORING_IN_TESTS)
       else
         true
     }
