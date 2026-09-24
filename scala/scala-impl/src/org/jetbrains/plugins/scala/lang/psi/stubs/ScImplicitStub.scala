@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement}
+import com.intellij.psi.stubs.IndexSink
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
