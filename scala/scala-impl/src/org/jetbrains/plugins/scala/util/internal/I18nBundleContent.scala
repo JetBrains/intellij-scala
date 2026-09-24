@@ -188,7 +188,7 @@ object I18nBundleContent {
   private val Trimmed = raw"\W*(.*?)\W*".r
   def convertStringToKey(string: String): String = {
     val maxKeyLength = 60
-    val Trimmed(fullKey) = nonWordSeq.replaceAllIn(string, ".").toLowerCase
+    val Trimmed(fullKey) = nonWordSeq.replaceAllIn(string, ".").toLowerCase: @unchecked
 
     lazy val lastDotIdx = fullKey.lastIndexOf(".", maxKeyLength - 3)
     if (fullKey.length < maxKeyLength) fullKey

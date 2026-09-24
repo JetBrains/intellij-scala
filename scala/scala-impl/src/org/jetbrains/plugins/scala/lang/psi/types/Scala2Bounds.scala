@@ -53,8 +53,8 @@ final case class Scala2Bounds()(implicit val projectContext: ProjectContext)
     stopAddingUpperBound: Boolean,
     context: Context
   ): ScTypePolymorphicType = {
-    val ScTypePolymorphicType(lhsInt, lhsParams) = lhs
-    val ScTypePolymorphicType(rhsInt, rhsParams) = rhs
+    val ScTypePolymorphicType(lhsInt, lhsParams) = lhs: @unchecked
+    val ScTypePolymorphicType(rhsInt, rhsParams) = rhs: @unchecked
 
     val newParams = typeParametersBound(lhsParams, rhsParams, boundKind.inverse, checkWeak, depth)
     val lhsSubst  = ScSubstitutor.bind(lhsParams, newParams)(TypeParameterType(_))

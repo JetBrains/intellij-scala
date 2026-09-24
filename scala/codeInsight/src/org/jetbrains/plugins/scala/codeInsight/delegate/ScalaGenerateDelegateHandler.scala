@@ -153,7 +153,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   private def toMethodMembers(candidates: Iterable[ScalaResolveResult], place: PsiElement): ArraySeq[ScMethodMember] = {
     def toMember(srr: ScalaResolveResult): Option[ScMethodMember] = {
-      val ScalaResolveResult(element, subst) = srr
+      val ScalaResolveResult(element, subst) = srr: @unchecked
 
       if (srr.implicitFunction.nonEmpty) return None
       element match {

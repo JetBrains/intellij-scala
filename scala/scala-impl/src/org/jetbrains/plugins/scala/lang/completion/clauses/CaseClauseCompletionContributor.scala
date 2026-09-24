@@ -180,7 +180,7 @@ object CaseClauseCompletionContributor {
           case clauses: ScCaseClauses =>
             val rangesToReformat = for {
               clause <- clauses.caseClauses
-              Some(arrow) = clause.funType
+              Some(arrow) = clause.funType: @unchecked
             } yield TextRange.from(clause.getTextOffset, arrow.getStartOffsetInParent)
 
             reformatAndMoveCaret(clauses, clause, rangesToReformat*)

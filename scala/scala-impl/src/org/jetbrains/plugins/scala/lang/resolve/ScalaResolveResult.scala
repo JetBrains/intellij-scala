@@ -528,7 +528,7 @@ object ScalaResolveResult {
                             isInSimpleString: Boolean = false,
                             isInInterpolatedString: Boolean = false,
                             isInStableElementPattern: Boolean = false)(implicit context: Context): ScalaLookupItem = {
-      val ScalaResolveResult(element, substitutor) = resolveResult
+      val ScalaResolveResult(element, substitutor) = resolveResult: @unchecked
       if (!element.isValid) {
         throw new IllegalArgumentException(s"`$element` is supposed to be valid (please consider using ${classOf[com.intellij.openapi.application.ReadAction].getName})")
       }

@@ -93,7 +93,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       case alias: AliasSymbol if alias.isPrivate => isAliasedTypeAccessible(alias)
       case o: ObjectSymbol if o.isPrivate =>
         symbol.parent.exists(_.children.exists(s => s.isType && !s.isPrivate && s.name == o.name)) || {
-          val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType
+          val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType: @unchecked
           classSymbol.children.exists {
             case alias: AliasSymbol => !alias.isPrivate || isAliasedTypeAccessible(alias)
             case _ => false
@@ -144,7 +144,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
   }
 
   def isCaseClassObject(o: ObjectSymbol): Boolean = {
-    val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType
+    val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType: @unchecked
     o.isFinal && (classSymbol.children.find(x => x.isCase && x.isInstanceOf[MethodSymbol]) match {
       case Some(_) => true
       case None => false
@@ -337,7 +337,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
     print("object ")
     val poName = o.symbolInfo.owner.get.name
     print(processName(poName))
-    val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType
+    val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType: @unchecked
     printType(classSymbol)
     val previousLength = builder.length
     print(" {\n")
@@ -353,7 +353,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
     printModifiers(o)
     print("object ")
     print(processName(o.name))
-    val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType
+    val TypeRefType(_, Ref(classSymbol: ClassSymbol), _) = o.infoType: @unchecked
     printType(classSymbol)
     val previousLength = builder.length
     print(" {\n")
@@ -480,7 +480,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       val implicitClause = implicitClauseIn(mt)
       val contextBoundParams = implicitClause.map(_.paramSymbols.takeWhile(ps => ps.name.startsWith("evidence$") && hasSingleArgument(ps))).getOrElse(Seq.empty)
       contextBoundParams.collect { case ms: MethodSymbol =>
-        val TypeRefType(prefix, symbol, Seq(argument)) = ms.infoType
+        val TypeRefType(prefix, symbol, Seq(argument)) = ms.infoType: @unchecked
         (toString(argument)(TypeFlags(true)), toString(TypeRefType(prefix, symbol, Seq()))(TypeFlags(true)))
       }
     case _ => Seq.empty

@@ -64,7 +64,7 @@ abstract class GoToSymbolTestBase extends ScalaLightCodeInsightFixtureTestCase {
       ui.findElementsForPattern(searchText)
     }
 
-    val Duration(len, unit) = waitTimeout
+    val Duration(len, unit) = waitTimeout: @unchecked
     //noinspection ApiStatus,UnstableApiUsage
     val items = elementsFuture.get(len, unit).asScala.collect { case item: ItemWithPresentation[_] => item }.toSeq
 

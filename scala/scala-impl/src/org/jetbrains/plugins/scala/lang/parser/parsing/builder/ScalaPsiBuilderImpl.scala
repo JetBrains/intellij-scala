@@ -192,7 +192,7 @@ class ScalaPsiBuilderImpl(
   }
 
   override def popIndentationRegion(region: IndentationRegion): Unit = {
-    val popped :: rest = indentationRegionStack
+    val popped :: rest = indentationRegionStack: @unchecked
     assert(popped.region eq region)
     indentationRegionStack = rest
 

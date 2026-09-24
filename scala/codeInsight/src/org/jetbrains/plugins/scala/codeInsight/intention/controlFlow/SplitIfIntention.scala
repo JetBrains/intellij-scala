@@ -29,7 +29,7 @@ final class SplitIfIntention extends PsiElementBaseIntentionAction with DumbAwar
     val ifStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
-    val ScIf(Some(infix: ScInfixExpr), Some(ElementText(thenBranchText)), maybeElseBranch) = ifStmt
+    val ScIf(Some(infix: ScInfixExpr), Some(ElementText(thenBranchText)), maybeElseBranch) = ifStmt: @unchecked
     val ScInfixExpr.withAssoc(base, _, argument) = infix
 
     def conditionText(e: ScExpression): String = (e match {

@@ -38,7 +38,7 @@ class MakeBoxingExplicit extends AbstractTransformer {
 
       val target = s"$Class.${boxMethodName(t).get}"
 
-      val FirstChild(r: ScReferenceExpression) = e.replace(code"${simpleNameOf(target)}($e)")
+      val FirstChild(r: ScReferenceExpression) = e.replace(code"${simpleNameOf(target)}($e)"): @unchecked
       bindTo(r, target)
   }
 

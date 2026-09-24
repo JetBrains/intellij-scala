@@ -26,7 +26,7 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
   }
 
   protected override def innerType: TypeResult = {
-    val ScInfixExpr(ElementText(baseText), operation, ElementText(argumentText)) = this
+    val ScInfixExpr(ElementText(baseText), operation, ElementText(argumentText)) = this: @unchecked
 
     import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
     operation.bind().collect {

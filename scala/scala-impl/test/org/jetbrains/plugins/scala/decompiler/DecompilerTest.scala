@@ -32,7 +32,7 @@ trait DecompilerTestBase extends TestCase {
   protected final def decompile(classFilePath: String): String = {
     val file = Path.of(classFilePath)
     val bytes = Files.readAllBytes(file)
-    val Some((_, sourceText)) = Decompiler.sourceNameAndText(file.getFileName.toString, bytes)
+    val Some((_, sourceText)) = Decompiler.sourceNameAndText(file.getFileName.toString, bytes): @unchecked
     sourceText
   }
 }

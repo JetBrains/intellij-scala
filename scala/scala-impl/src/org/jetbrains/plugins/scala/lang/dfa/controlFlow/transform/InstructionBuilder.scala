@@ -207,7 +207,7 @@ abstract class InstructionBuilder(factory: DfaValueFactory,
     val index = flow.getInstructionCount
     addIncomingStack(label, stack.current)
     label.offset.setOffset(index)
-    val Left(stacks) = label.stacksOrIndex
+    val Left(stacks) = label.stacksOrIndex: @unchecked
     label.stacksOrIndex = Right(index)
     stacks.foreach(addIncomingStack(label, _))
   }

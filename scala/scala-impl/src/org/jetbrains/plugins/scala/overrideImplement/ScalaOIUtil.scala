@@ -37,7 +37,7 @@ import scala.jdk.CollectionConverters._
 object ScalaOIUtil {
 
   private def toClassMember(signature: Signature, isOverride: Boolean, tdContext: ScTemplateDefinition): Option[ClassMember] = {
-    val Signature(named, substitutor) = signature
+    val Signature(named, substitutor) = signature: @unchecked
     val maybeContext = Option(named.nameContext)
 
     def createMember(parameter: ScClassParameter): ScValue = {

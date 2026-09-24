@@ -137,7 +137,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     assert(elements.nonEmpty && elements.forall(_.isValid))
     if (!elements.forall(checkElementContainsRange)) return
 
-    val head :: tail = elements.toList
+    val head :: tail = elements.toList: @unchecked
     val parent = head.getParent
     val oldTextLength: Int = parent.getTextLength
     try {

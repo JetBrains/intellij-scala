@@ -45,7 +45,7 @@ class DivergenceInfoTest extends ScalaLightCodeInsightFixtureTestCase {
       def fromComment(decl: ScValueOrVariable, comment: String): Format = {
         val components = comment.split('|')
         assert(components.length <= 4)
-        val coreTp #:: complexity #:: topLevelTypeConstructors #:: coveringSet #:: _ = components.to(LazyList) ++ LazyList.continually("<missing>")
+        val coreTp #:: complexity #:: topLevelTypeConstructors #:: coveringSet #:: _ = components.to(LazyList) ++ LazyList.continually("<missing>"): @unchecked
         Format(decl.declaredNames.head, coreTp.trim, complexity.trim, topLevelTypeConstructors.trim, coveringSet.trim)
       }
     }

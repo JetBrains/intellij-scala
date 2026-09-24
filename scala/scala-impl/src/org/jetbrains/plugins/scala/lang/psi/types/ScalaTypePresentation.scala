@@ -135,7 +135,7 @@ trait ScalaTypePresentation extends TypePresentation {
 
     def compoundTypeText(compType: ScCompoundType)
                         (implicit tpc: TypePresentationContext): String = {
-      val ScCompoundType(comps, signatureMap, typeMap) = compType
+      val ScCompoundType(comps, signatureMap, typeMap) = compType: @unchecked
 
       val allSignatures = signatureMap ++ typeMap
 

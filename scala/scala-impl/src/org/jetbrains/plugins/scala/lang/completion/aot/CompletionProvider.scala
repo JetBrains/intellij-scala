@@ -26,7 +26,7 @@ private[completion] trait CompletionProvider[E <: ScalaPsiElement] extends Deleg
       replacement.context = context
       replacement.child = context.getLastChild
 
-      val Some(typeElement) = findTypeElement(replacement)
+      val Some(typeElement) = findTypeElement(replacement): @unchecked
       val newParameters = createParameters(typeElement, Some(prefix.length))
       createConsumer(resultSet, position).runRemainingContributors(newParameters)
     case _ =>

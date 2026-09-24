@@ -181,7 +181,7 @@ object Compatibility {
                       conformanceSubst(newTp, methodType).map(expectedResult)
                     } else if (checkImplicits) {
                       val implicitResult@ExpressionTypeResult(Right(newRetTpe), _, _, _) =
-                        updateTypeWithImplicitConversion(retTpe, ptRetTpe)
+                        updateTypeWithImplicitConversion(retTpe, ptRetTpe): @unchecked
 
                       if (retTpe == newRetTpe) None
                       else {

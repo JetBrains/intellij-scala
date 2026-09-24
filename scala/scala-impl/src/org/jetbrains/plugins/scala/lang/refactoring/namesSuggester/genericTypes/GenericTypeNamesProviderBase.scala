@@ -10,7 +10,7 @@ abstract class GenericTypeNamesProviderBase extends GenericTypeNamesProvider {
 
   override def names(`type`: ScParameterizedType): Seq[String] =
     if (isValid(`type`)) {
-      val ParameterizedType(designator, arguments) = `type`
+      val ParameterizedType(designator, arguments) = `type`: @unchecked
       val firstNames = this.firstNames(designator, arguments)
       val secondNames = this.secondNames(designator, arguments)
       namesByType(designator) ++ compoundNames(firstNames, secondNames, separator)

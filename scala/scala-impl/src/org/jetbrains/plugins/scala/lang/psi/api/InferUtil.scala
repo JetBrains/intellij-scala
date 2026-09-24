@@ -525,7 +525,7 @@ object InferUtil {
       shouldSearchImplicit(tp, ptConstraints) && implicitSearchFails(tp)
 
     def doLocalTypeInference(tpt: ScTypePolymorphicType, expected: ScType): ScType = {
-      val ScTypePolymorphicType(internal, typeParams) = tpt
+      val ScTypePolymorphicType(internal, typeParams) = tpt: @unchecked
 
       val sameDepth = internal match {
         case m: ScMethodType =>
@@ -593,7 +593,7 @@ object InferUtil {
       fromMethodInvocation: Boolean = false
     ): ScMethodType = {
       implicit val elementScope: ElementScope = mt.elementScope
-      val ScMethodType(result, params, _) = mt
+      val ScMethodType(result, params, _) = mt: @unchecked
 
       expr match {
         case _: MethodInvocation if !fromMethodInvocation =>
@@ -703,7 +703,7 @@ object InferUtil {
     preserveSingletonType: Boolean = false
   ): Option[ScType] =
     result.inferredType.orElse {
-      val ScalaResolveResult(element, substitutor) = result
+      val ScalaResolveResult(element, substitutor) = result: @unchecked
 
       val maybeType = element match {
         case lightParam: LightContextFunctionParameter =>

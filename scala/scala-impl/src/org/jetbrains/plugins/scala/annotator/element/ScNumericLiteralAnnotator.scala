@@ -118,7 +118,7 @@ object ScNumericLiteralAnnotator {
         case '_' => stringToNumber(number, kind, isNegative)(index + 1, value, exceedsIntLimit)
         case char =>
           val digit = char.asDigit
-          val IntegerKind(radix, divider) = kind
+          val IntegerKind(radix, divider) = kind: @unchecked
           val newValue = value * radix + digit
 
           def exceedsLimit(limit: Long) =

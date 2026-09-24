@@ -31,7 +31,7 @@ final class DeMorganLawIntention extends PsiElementBaseIntentionAction with Dumb
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    val infixExpr@ScInfixExpr(_, op, _) = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)
+    val infixExpr@ScInfixExpr(_, op, _) = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false): @unchecked
     val targetOpName = op.refName
     val upperMostInfixExpr: ScInfixExpr = infixExpr
       .withParents

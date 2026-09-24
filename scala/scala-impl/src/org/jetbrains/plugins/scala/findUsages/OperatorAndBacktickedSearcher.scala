@@ -46,7 +46,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
     if (readActionResult.isEmpty) {
       return true
     }
-    val Some((namesToProcess, scope)) = readActionResult
+    val Some((namesToProcess, scope)) = readActionResult: @unchecked
 
     namesToProcess.foreach { name =>
       try {

@@ -16,7 +16,7 @@ abstract class ExtendWordSelectionHandlerTestBase extends BasePlatformTestCase {
     EditorTestUtil.executeAction(editor, IdeActions.ACTION_EDITOR_SELECT_WORD_AT_CARET)
 
   protected def doTest(editorTextStates: Seq[String]): Unit = {
-    val Seq(initialState, otherStates@_*) = editorTextStates
+    val Seq(initialState, otherStates@_*) = editorTextStates: @unchecked
     val fileName = "a.scala"
     myFixture.configureByText(fileName, initialState)
     otherStates.zipWithIndex.foreach { case (text, idx) =>

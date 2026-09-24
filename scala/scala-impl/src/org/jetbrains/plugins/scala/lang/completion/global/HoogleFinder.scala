@@ -79,7 +79,7 @@ private object HoogleFinder {
             val ScMethodCall(methodReference: ScReferenceExpression, _) = expressionToReplace.replaceExpression(
               replacement,
               removeParenthesis = true
-            )
+            ): @unchecked
 
             methodReference.bindToElement(
               elementToImport,

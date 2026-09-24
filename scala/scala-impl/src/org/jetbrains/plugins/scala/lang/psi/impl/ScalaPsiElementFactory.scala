@@ -824,7 +824,7 @@ object ScalaPsiElementFactory {
   ): ScFunction = {
     val builder = new StringBuilder()
 
-    val PhysicalMethodSignature(method, substitutor) = signature
+    val PhysicalMethodSignature(method, substitutor) = signature: @unchecked
 
     if (withComment) {
       appendCommentText(builder, method)
@@ -975,7 +975,7 @@ object ScalaPsiElementFactory {
     extensionMethodsInfos.foreach { info =>
       assert(info.signature.isExtensionMethod)
 
-      val PhysicalMethodSignature(method, substitutor) = info.signature
+      val PhysicalMethodSignature(method, substitutor) = info.signature: @unchecked
 
       // use an indent which is 2 times bigger, cause it will be extra-indented in class body, to get
       //class wrapper:

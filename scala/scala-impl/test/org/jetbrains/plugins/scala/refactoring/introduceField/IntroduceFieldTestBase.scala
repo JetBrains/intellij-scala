@@ -63,7 +63,7 @@ abstract class IntroduceFieldTestBase extends ScalaLightCodeInsightFixtureTestCa
     //start to inline
     try {
       val handler = new ScalaIntroduceFieldFromExpressionHandler
-      val Some((expr, types)) = getExpressionWithTypes(scalaFile, editor.getDocument, startOffset, endOffset)(getProject)
+      val Some((expr, types)) = getExpressionWithTypes(scalaFile, editor.getDocument, startOffset, endOffset)(getProject): @unchecked
       val aClass = expr.parents.toList.filterByType[ScTemplateDefinition].apply(selectedClassNumber)
       val ifc = new IntroduceFieldContext[ScExpression](getProject, editor, scalaFile, expr, types, aClass)
       val settings = new IntroduceFieldSettings[ScExpression](ifc)

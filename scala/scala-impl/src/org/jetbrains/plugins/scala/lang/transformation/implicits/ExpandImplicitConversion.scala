@@ -13,11 +13,11 @@ class ExpandImplicitConversion extends AbstractTransformer {
   // TODO we need to aquire complete resolve result, not the bare element to account for substitutor
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e @ ImplicitConversion(f: ScFunction) =>
-      val FirstChild(reference: ScReferenceExpression) = e.replace(code"${f.name}($e)")
+      val FirstChild(reference: ScReferenceExpression) = e.replace(code"${f.name}($e)"): @unchecked
       bindTo(reference, qualifiedNameOf(f))
 
     case e @ ImplicitConversion(p: ScReferencePattern) =>
-      val FirstChild(reference: ScReferenceExpression) = e.replace(code"${p.name}($e)")
+      val FirstChild(reference: ScReferenceExpression) = e.replace(code"${p.name}($e)"): @unchecked
       bindTo(reference, qualifiedNameOf(p))
   }
 }

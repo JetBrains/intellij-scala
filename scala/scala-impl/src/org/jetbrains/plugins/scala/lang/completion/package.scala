@@ -439,7 +439,7 @@ package object completion {
     protected final def createParameters(typeElement: ScalaPsiElement,
                                          maybeLength: Option[Int] = None)
                                         (implicit parameters: CompletionParameters): CompletionParameters = {
-      val Some(identifier) = findIdentifier(typeElement)
+      val Some(identifier) = findIdentifier(typeElement): @unchecked
       val range = identifier.getTextRange
 
       val length = maybeLength.getOrElse(range.getLength)

@@ -97,7 +97,7 @@ trait IntroduceExpressions {
   @TestOnly
   def suggestedNamesForExpression(file: PsiFile, startOffset: Int, endOffset: Int)
                                  (implicit project: Project, editor: Editor): ArraySeq[String] = {
-    val Some((expr, types)) = getExpressionWithTypes(file, editor.getDocument, startOffset, endOffset)
+    val Some((expr, types)) = getExpressionWithTypes(file, editor.getDocument, startOffset, endOffset): @unchecked
     val occurrences = getOccurenceRangesInFile(file, startOffset, expr)
     val validator: ScalaVariableValidator = ScalaVariableValidator(file, expr, occurrences)
 
@@ -130,7 +130,7 @@ trait IntroduceExpressions {
       val replaceAll = replaceChoice != ReplaceChoice.NO
 
       executeWriteActionCommand(INTRODUCE_VARIABLE_REFACTORING_NAME) {
-        val SuggestedNames(expression, types, names) = suggestedNames
+        val SuggestedNames(expression, types, names) = suggestedNames: @unchecked
 
         val options = createOptions(suggestedNames, Some(replaceAll), testReplaceOptions)
         val pointer: SmartPsiElementPointer[PsiElement] =
@@ -164,7 +164,7 @@ trait IntroduceExpressions {
                            (implicit project: Project, editor: Editor): Unit = {
     val occurrences_ = occurrences.occurrences
 
-    val SuggestedNames(expression, types, names) = suggestedNames
+    val SuggestedNames(expression, types, names) = suggestedNames: @unchecked
     val validator = suggestedNames.validator
     val reporter = new ValidationReporter(project, this, validator)
     val dialog = new ScalaIntroduceVariableDialog(project, types, occurrences_.length, reporter, names.toArray, expression)
@@ -193,7 +193,7 @@ trait IntroduceExpressions {
     replaceAllFromUi: Option[Boolean],
     testReplaceOptions: Option[ReplaceTestOptions]
   ): IntroduceVariableOptions = {
-    val SuggestedNames(_, types, names) = suggestedNames
+    val SuggestedNames(_, types, names) = suggestedNames: @unchecked
 
     val varNameActual: String = testReplaceOptions.flatMap(_.definitionName).getOrElse(names.head)
     val replaceAllActual: Boolean =
