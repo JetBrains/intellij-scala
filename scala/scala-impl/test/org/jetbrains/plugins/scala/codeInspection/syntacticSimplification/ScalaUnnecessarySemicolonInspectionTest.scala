@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ScalaUnnecessarySemicolonInspectionTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ScalaUnnecessarySemicolonInspection]
 
   override val description = ScalaInspectionBundle.message("unnecessary.semicolon")

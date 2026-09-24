@@ -7,20 +7,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, 
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrExportStmtStub, ScImportStmtStub}
 
 abstract sealed class ScImportOrExportStmtStubImpl[T <: ScImportOrExportStmt](
-  parent: StubElement[_ <: PsiElement],
+  parent: StubElement[? <: PsiElement],
   elementType: IElementType,
   override val importText: String
 ) extends StubBase[T](parent, elementType)
   with ScImportOrExportStmtStub[T]
 
 class ScImportStmtStubImpl(
-  parent: StubElement[_ <: PsiElement],
+  parent: StubElement[? <: PsiElement],
   elementType: IElementType,
   importText: String
 ) extends ScImportOrExportStmtStubImpl[ScImportStmt](parent, elementType, importText) with ScImportStmtStub
 
 class ScExportStmtStubImpl(
-  parent: StubElement[_ <: PsiElement],
+  parent: StubElement[? <: PsiElement],
   elementType: IElementType,
   importText: String,
   override val isTopLevel: Boolean,

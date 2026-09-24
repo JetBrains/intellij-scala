@@ -72,7 +72,7 @@ object ModuleBuilderUtil {
     val project = module.getProject
     val settings =
       ExternalSystemApiUtil.getSettings(project, projectSystemId)
-        .asInstanceOf[AbstractExternalSystemSettings[_, T, _]]
+        .asInstanceOf[AbstractExternalSystemSettings[?, T, ?]]
 
     externalProjectSettings.setExternalProjectPath(contentRootDir.toCanonicalPath.toString)
     settings.linkProject(externalProjectSettings)

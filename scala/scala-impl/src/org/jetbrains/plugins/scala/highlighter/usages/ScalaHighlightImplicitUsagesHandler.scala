@@ -29,11 +29,11 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
 
   override lazy val getTargets: util.List[PsiElement] = (kind.target(data).toSeq: Seq[PsiElement]).asJava
 
-  override def selectTargets(targets: util.List[_ <: PsiElement],
-                             selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit =
+  override def selectTargets(targets: util.List[? <: PsiElement],
+                             selectionConsumer: Consumer[? >: util.List[? <: PsiElement]]): Unit =
     selectionConsumer.consume(targets)
 
-  override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = {
+  override def computeUsages(targets: util.List[? <: PsiElement]): Unit = {
     import ScalaHighlightImplicitUsagesHandler._
     val usages = targets.asScala
       .flatMap(findUsages(editor.getProject, file, _))

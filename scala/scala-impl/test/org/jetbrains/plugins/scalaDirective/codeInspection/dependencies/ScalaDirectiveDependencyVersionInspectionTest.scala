@@ -36,7 +36,7 @@ abstract class ScalaDirectiveDependencyVersionInspectionTestBase extends ScalaIn
 
   protected def fullScalaVersionSuffix: String = scalaVersion.minor
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ScalaDirectiveDependencyVersionInspection]
 
   override protected val description: String =

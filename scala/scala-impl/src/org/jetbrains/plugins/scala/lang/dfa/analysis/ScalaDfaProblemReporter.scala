@@ -145,13 +145,13 @@ object ScalaDfaProblemReporter {
   def reportingUnreachableCode(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
     ScalaDfaProblemReporter(problemsHolder).reportUnreachableCode
 
-  def reportingUnsatisfiedConditionsOfKind(kind: ScalaDfaProblemKind[_])(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+  def reportingUnsatisfiedConditionsOfKind(kind: ScalaDfaProblemKind[?])(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
     ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_, {
       case p: ScalaDfaProblem.WithKind => p.problemKind == kind
       case _ => false
     })
 
-  def reportingUnsatisfiedConditionsOfKind(kind: Set[ScalaDfaProblemKind[_]])(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
+  def reportingUnsatisfiedConditionsOfKind(kind: Set[ScalaDfaProblemKind[?]])(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
     ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_, {
       case p: ScalaDfaProblem.WithKind => kind.contains(p.problemKind)
       case _ => false

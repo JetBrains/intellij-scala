@@ -35,7 +35,7 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
   override def getTestDataPath: String =
     s"${super.getTestDataPath}parameterInfo/"
 
-  protected def createHandler: ParameterInfoHandlerWithTabActionSupport[Owner, Any, _ <: PsiElement]
+  protected def createHandler: ParameterInfoHandlerWithTabActionSupport[Owner, Any, ? <: PsiElement]
 
   import ParameterInfoTestBase._
 

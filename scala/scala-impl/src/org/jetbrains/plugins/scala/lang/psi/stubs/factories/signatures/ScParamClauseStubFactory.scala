@@ -17,13 +17,13 @@ final class ScParamClauseStubFactory(elementType: ScParamClauseElementType)
     dataStream.writeBoolean(stub.hasUsingKeyword)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScParamClauseStub =
     new ScParamClauseStubImpl(parentStub, elementType,
       hasImplicitKeyword = dataStream.readBoolean,
       hasUsingKeyword = dataStream.readBoolean,
     )
 
-  override def createStubImpl(parameterClause: ScParameterClause, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
+  override def createStubImpl(parameterClause: ScParameterClause, parentStub: StubElement[? <: PsiElement]): ScParamClauseStub =
     new ScParamClauseStubImpl(parentStub, elementType,
       hasImplicitKeyword = parameterClause.hasImplicitKeyword,
       hasUsingKeyword = parameterClause.hasUsingKeyword,

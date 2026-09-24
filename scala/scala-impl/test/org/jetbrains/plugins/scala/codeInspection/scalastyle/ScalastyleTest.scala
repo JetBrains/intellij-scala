@@ -19,7 +19,7 @@ class ScalastyleTest extends ScalaInspectionTestBase {
 
   val configString = config.toString()
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ScalastyleCodeInspection]
 
   override protected val description = "Class name does not match the regular expression '[A-Z][A-Za-z]*'."

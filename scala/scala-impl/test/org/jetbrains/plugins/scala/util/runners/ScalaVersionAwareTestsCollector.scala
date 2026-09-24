@@ -9,7 +9,7 @@ import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
+class ScalaVersionAwareTestsCollector(klass: Class[? <: TestCase],
                                       classScalaVersion: Seq[TestScalaVersion],
                                       classJdkVersion: Seq[TestJdkVersion]) {
 
@@ -36,7 +36,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
   }
 
   // warning test or collection of tests (each test method is multiplied by the amount of versions it is run with)
-  private def testsFromTestCase(klass: Class[_]): Seq[(Test, Method, TestScalaVersion, TestJdkVersion)] = {
+  private def testsFromTestCase(klass: Class[?]): Seq[(Test, Method, TestScalaVersion, TestJdkVersion)] = {
     def warn(text: String) = Seq((TestSuite.warning(text), null, null, null))
 
     try TestSuite.getTestConstructor(klass) catch {
@@ -47,7 +47,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
     if (!Modifier.isPublic(klass.getModifiers))
       return warn(s"Class ${klass.getName} is not public")
 
-    val withSuperClasses = Iterator.iterate[Class[_]](klass)(_.getSuperclass)
+    val withSuperClasses = Iterator.iterate[Class[?]](klass)(_.getSuperclass)
       .takeWhile(_ != null)
       .takeWhile(classOf[Test].isAssignableFrom)
       .toArray
@@ -78,7 +78,7 @@ class ScalaVersionAwareTestsCollector(klass: Class[_ <: TestCase],
       previous.getParameterTypes.toSeq == current.getParameterTypes.toSeq
 
   private def createTestMethods(
-    theClass: Class[_],
+    theClass: Class[?],
     method: Method
   ): Seq[(Test, TestScalaVersion, TestJdkVersion)] = {
     val name = method.getName

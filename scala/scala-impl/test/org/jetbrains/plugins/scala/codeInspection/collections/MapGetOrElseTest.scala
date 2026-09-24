@@ -4,7 +4,7 @@ package collections
 
 class MapGetOrElseTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[MapGetOrElseInspection]
 
   override protected val hint: String =

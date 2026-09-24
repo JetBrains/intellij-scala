@@ -66,7 +66,7 @@ object IntellijPlatformJars {
   val jpsBuildersJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[BuilderService]))
   val utilJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[FileUtil]))
   val utilRtJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[FileUtilRt]))
-  val fastUtilJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[Int2ObjectMap[_]]))
+  val fastUtilJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[Int2ObjectMap[?]]))
   val asmJar: Path = Path.of(PathUtil.getJarPathForClass(classOf[ClassReader]))
 
   /**

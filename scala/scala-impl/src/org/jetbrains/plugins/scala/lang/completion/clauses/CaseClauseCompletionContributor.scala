@@ -91,7 +91,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
     }
   }
 
-  private def extend(place: ElementPattern[_ <: PsiElement])
+  private def extend(place: ElementPattern[? <: PsiElement])
                     (provider: CompletionProvider[CompletionParameters]): Unit =
     extend(CompletionType.BASIC, place, provider)
 

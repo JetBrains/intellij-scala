@@ -26,7 +26,7 @@ class ExtensionDefFilter extends ElementFilter {
     false
   }
 
-  override def isClassAcceptable(hintClass: Class[_]): Boolean = true
+  override def isClassAcceptable(hintClass: Class[?]): Boolean = true
 
   @NonNls
   override def toString: String = "'def' keyword in extensions filter"

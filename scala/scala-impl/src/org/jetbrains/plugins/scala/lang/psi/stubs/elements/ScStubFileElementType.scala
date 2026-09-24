@@ -41,9 +41,9 @@ class ScStubFileElementType(debugName: String, language: Language)
   protected class ScFileStubBuilderImpl extends DefaultStubBuilder {
 
     override def buildStubTree(file: PsiFile) =
-      super.buildStubTree(file).asInstanceOf[PsiFileStubImpl[_ <: PsiFile]]
+      super.buildStubTree(file).asInstanceOf[PsiFileStubImpl[? <: PsiFile]]
 
-    protected override final def createStubForFile(file: PsiFile): PsiFileStubImpl[_ <: PsiFile] =
+    protected override final def createStubForFile(file: PsiFile): PsiFileStubImpl[? <: PsiFile] =
       file.getViewProvider.getPsi(getLanguage) match {
         case scalaFile: ScalaFile => new ScFileStubImpl(scalaFile)
         case _ => new PsiFileStubImpl(file)
@@ -53,7 +53,7 @@ class ScStubFileElementType(debugName: String, language: Language)
   protected final class ScFileStubImpl(@Nullable file: ScalaFile)
     extends PsiFileStubImpl(file) with ScFileStub {
 
-    override def getType: IStubFileElementType[_] =
+    override def getType: IStubFileElementType[?] =
       throw new UnsupportedOperationException("Use getFileElementType() instead")
 
     override def getFileElementType: IElementType = ScStubFileElementType.this

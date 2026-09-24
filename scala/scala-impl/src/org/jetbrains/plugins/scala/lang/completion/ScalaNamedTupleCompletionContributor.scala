@@ -56,7 +56,7 @@ object ScalaNamedTupleCompletionContributor {
 
     private def createCompletionFor(expr: ScExpression, existingComponents: Seq[(String, String)]): Seq[LookupElement] = {
       val existingComponentsMap = existingComponents.toMap
-      def hasNewComponent(components: Seq[(ScType, _)]): Boolean =
+      def hasNewComponent(components: Seq[(ScType, ?)]): Boolean =
         components.size > existingComponents.size || components.exists {
           case (NamedTupleType.NameType(name), _) => !existingComponentsMap.contains(name)
           case _ => false

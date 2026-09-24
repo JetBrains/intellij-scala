@@ -3,7 +3,7 @@ package codeInspection
 package collections
 
 abstract class SortedMaxMinInspectionTest extends OperationsOnCollectionInspectionTest {
-  override val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[SortedMaxMinInspection]
 }
 

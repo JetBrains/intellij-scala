@@ -27,11 +27,11 @@ object ReflectionTestUtils {
 
   def setNonDefaultFieldValue[T](instance: T, field: Field): Unit = {
     val fieldDefaultValue: AnyRef = field.get(instance)
-    val fieldType: Class[_] = field.getType
+    val fieldType: Class[?] = field.getType
 
     if (fieldType.isEnum) {
-      val enumValues: Array[_] = fieldType.getEnumConstants
-      val defaultOrdinal = fieldDefaultValue.asInstanceOf[java.lang.Enum[_]].ordinal()
+      val enumValues: Array[?] = fieldType.getEnumConstants
+      val defaultOrdinal = fieldDefaultValue.asInstanceOf[java.lang.Enum[?]].ordinal()
       val nonDefaultOrdinal = (defaultOrdinal + 1) % enumValues.length
       val nonDefaultValue = enumValues(nonDefaultOrdinal)
       field.set(instance, nonDefaultValue)
@@ -52,7 +52,7 @@ object ReflectionTestUtils {
       field.set(instance, fieldDefaultValue.asInstanceOf[Byte] + 1)
     else if (fieldType eq classOf[String])
       field.set(instance, NonDefaultStringValue)
-    else if (fieldType eq classOf[util.List[_]]) {
+    else if (fieldType eq classOf[util.List[?]]) {
       //Assuming it's list of Strings
       field.set(instance, java.util.List.of(NonDefaultStringValue))
     }

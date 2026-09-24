@@ -33,7 +33,7 @@ class DoFilter extends ElementFilter {
     } else false
   }
 
-  override def isClassAcceptable(hintClass: Class[_]): Boolean = true
+  override def isClassAcceptable(hintClass: Class[?]): Boolean = true
 
   @NonNls
   override def toString: String = "do after while keyword filter"

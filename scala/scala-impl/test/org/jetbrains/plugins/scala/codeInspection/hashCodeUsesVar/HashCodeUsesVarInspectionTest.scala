@@ -6,7 +6,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 
 class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[HashCodeUsesVarInspection]
 
   override protected val description: String =

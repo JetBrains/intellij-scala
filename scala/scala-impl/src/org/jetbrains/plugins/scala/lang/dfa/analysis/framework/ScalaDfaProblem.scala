@@ -25,7 +25,7 @@ sealed trait ScalaDfaProblem extends UnsatisfiedConditionProblem {
 
 object ScalaDfaProblem {
   trait WithKind extends ScalaDfaProblem {
-    def problemKind: ScalaDfaProblemKind[_]
+    def problemKind: ScalaDfaProblemKind[?]
     def problemElement: PsiElement
 
     override def registerTo(holder: ProblemsHolder, occurrence: ProblemOccurrence): Unit = {
@@ -99,7 +99,7 @@ object ScalaNullAccessProblem {
   val nullableToNotNullParam: ProblemWithFactory = new ScalaDfaProblemKind(ScalaBundle.message("nullable.to.notnull.param.sometimes.message"))(ScalaBundle.message("nullable.to.notnull.param.always.message")) with Factory
   val nullableToUnannotatedParam: ProblemWithFactory = new ScalaDfaProblemKind(ScalaBundle.message("nullable.to.unannotated.param.sometimes.message"))(ScalaBundle.message("nullable.to.unannotated.param.always.message")) with Factory
 
-  val allProblems: Set[ScalaDfaProblemKind[_]] = Set(npeOnInvocation, nullableToNotNullParam, nullableToUnannotatedParam)
+  val allProblems: Set[ScalaDfaProblemKind[?]] = Set(npeOnInvocation, nullableToNotNullParam, nullableToUnannotatedParam)
 }
 
 class ScalaDfaProblemKind[+E <: ScalaDfaProblem.WithKind](@Nls val sometimesMessage: String)

@@ -39,7 +39,7 @@ private object ScalaTypeParameterInfoHandler {
 class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs, Any, ScTypeElement] {
   import ScalaTypeParameterInfoHandler.{ResolvedElement, ScTypeParameterClauseInfo}
 
-  override def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
+  override def getArgListStopSearchClasses: java.util.Set[? <: Class[?]] = {
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
 
@@ -52,8 +52,8 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
 
   override def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
-  override def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
-    val set = new java.util.HashSet[Class[_]]()
+  override def getArgumentListAllowedParentClasses: java.util.Set[Class[?]] = {
+    val set = new java.util.HashSet[Class[?]]()
     set.add(classOf[ScParameterizedTypeElement])
     set.add(classOf[ScGenericCall])
     set

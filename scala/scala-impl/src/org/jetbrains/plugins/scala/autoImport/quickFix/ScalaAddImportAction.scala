@@ -108,7 +108,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
 
         override def getSeparatorAbove(value: PresentablePopupElement): ListSeparator = separatorAbove(value.elem)
 
-        override def onChosen(selectedValue: PresentablePopupElement, finalChoice: Boolean): PopupStep[_] = {
+        override def onChosen(selectedValue: PresentablePopupElement, finalChoice: Boolean): PopupStep[?] = {
           if (selectedValue == null) {
             return FINAL_CHOICE
           }
@@ -127,7 +127,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
     popupPosition.showPopup(popup, editor)
   }
 
-  protected def secondPopupStep(element: Elem): PopupStep[_] = {
+  protected def secondPopupStep(element: Elem): PopupStep[?] = {
     val qname: String = inReadAction(element.qualifiedName)
     if (qname == null)
       return FINAL_CHOICE
@@ -135,7 +135,7 @@ sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToI
     val toExclude = AddImportAction.getAllExcludableStrings(qname)
 
     new BaseListPopupStep[String](null, toExclude) {
-      override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] = {
+      override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[?] = {
         if (finalChoice) {
           AddImportAction.excludeFromImport(project, selectedValue)
         }
@@ -173,7 +173,7 @@ object ScalaAddImportAction {
 
   def apply(editor: Editor,
             reference: ScReference,
-            variants: Seq[ElementToImport]): ScalaAddImportAction[_, _] = reference match {
+            variants: Seq[ElementToImport]): ScalaAddImportAction[?, ?] = reference match {
     case reference: ScDocResolvableCodeReference => new ForScalaDoc(editor, variants, reference)
     case _ => new ForReference(editor, variants, reference)
   }
@@ -274,7 +274,7 @@ object ScalaAddImportAction {
     override protected def doAddImport(toImport: ImplicitToImport): Unit =
       ScImportsHolder(place).addImportForPath(toImport.qualifiedName)
 
-    override protected def secondPopupStep(element: ImplicitToImport): PopupStep[_] =
+    override protected def secondPopupStep(element: ImplicitToImport): PopupStep[?] =
       PopupStep.FINAL_CHOICE
 
     override protected def separatorAbove(variant: ImplicitToImport): ListSeparator = {
@@ -325,7 +325,7 @@ object ScalaAddImportAction {
     current.foreach(_.cancel())
   }
 
-  private def showDerivationPopup(variant: ImplicitToImport, editor: Editor, jList: JList[_]): JBPopup = {
+  private def showDerivationPopup(variant: ImplicitToImport, editor: Editor, jList: JList[?]): JBPopup = {
     val label = new JLabel(derivation(variant.found))
 
     label.setBorder(JBUI.Borders.empty(2))

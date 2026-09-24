@@ -9,7 +9,7 @@ class AutoTuplingInspectionTest extends ScalaInspectionTestBase {
   // TODO: fix for versions > 2.10
   override def defaultVersionOverride: Option[ScalaVersion] = Some(LatestScalaVersions.Scala_2_10)
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[AutoTuplingInspection]
 
   override protected val description: String =

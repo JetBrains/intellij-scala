@@ -5,7 +5,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.annotations.Nullable
 
-abstract class ScNamedStubBase[E <: PsiNamedElement] protected[impl](parent: StubElement[_ <: PsiElement],
+abstract class ScNamedStubBase[E <: PsiNamedElement] protected[impl](parent: StubElement[? <: PsiElement],
                                                                      elementType: IElementType,
                                                                      @Nullable name: String)
   extends StubBase[E](parent, elementType) with NamedStub[E] {

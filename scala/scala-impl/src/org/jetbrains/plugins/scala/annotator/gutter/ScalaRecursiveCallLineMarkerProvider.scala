@@ -22,10 +22,10 @@ class ScalaRecursiveCallLineMarkerProvider extends LineMarkerProvider {
 
   import ScalaRecursiveCallLineMarkerProvider.{PossibleMethodCall, createLineMarkerInfo, isRecursiveCall}
 
-  override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_] = null // do nothing
+  override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[?] = null // do nothing
 
-  override def collectSlowLineMarkers(elements: util.List[_ <: PsiElement],
-                                      result: util.Collection[_ >: LineMarkerInfo[_]]): Unit = {
+  override def collectSlowLineMarkers(elements: util.List[? <: PsiElement],
+                                      result: util.Collection[? >: LineMarkerInfo[?]]): Unit = {
     if (!GutterUtil.RecursionOption.isEnabled) return
 
     lazy val file = elements.getFirst.getContainingFile

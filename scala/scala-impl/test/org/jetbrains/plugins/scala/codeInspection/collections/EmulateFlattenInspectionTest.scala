@@ -4,7 +4,7 @@ package collections
 
 class EmulateFlattenInspectionTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[EmulateFlattenInspection]
 
   override protected val hint: String =

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 class AssertBetweenInconvertibleTypesInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[AssertBetweenInconvertibleTypesInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[AssertBetweenInconvertibleTypesInspection]
 
   override protected val description: String = null
 

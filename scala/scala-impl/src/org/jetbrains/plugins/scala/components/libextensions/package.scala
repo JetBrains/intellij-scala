@@ -12,7 +12,7 @@ package object libextensions {
   class BadManifestException(file: Path, cause: Throwable) extends ExtensionException(s"Failed to parse extension manifest from jar $file:\n$cause")
   class BadExtensionDescriptor(file: Path, error: String) extends ExtensionException(s"Failed to extract extensions descriptors from xml in file $file: $error")
 
-  case class ExtensionJarData(descriptor: LibraryDescriptor, file: Path, loadedExtensions: Map[Class[_], ArrayBuffer[Any]])
+  case class ExtensionJarData(descriptor: LibraryDescriptor, file: Path, loadedExtensions: Map[Class[?], ArrayBuffer[Any]])
   case class ExtensionProps(artifact: String, urlOverride: String)
 
   final implicit class JarPathStringExt(private val path: String) extends AnyVal {

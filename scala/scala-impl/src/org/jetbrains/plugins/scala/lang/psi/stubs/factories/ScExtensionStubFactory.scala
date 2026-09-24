@@ -17,7 +17,7 @@ final class ScExtensionStubFactory(elementType: ScExtensionElementType) extends 
     dataStream.writeOptionName(stub.extensionTargetClass)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScExtensionStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScExtensionStub =
     new ScExtensionStubImpl(
       parent = parentStub,
       elementType = elementType,
@@ -26,7 +26,7 @@ final class ScExtensionStubFactory(elementType: ScExtensionElementType) extends 
       extensionTargetClass = dataStream.readOptionName
     )
 
-  override def createStubImpl(extension: ScExtension, parentStub: StubElement[_ <: PsiElement]): ScExtensionStub =
+  override def createStubImpl(extension: ScExtension, parentStub: StubElement[? <: PsiElement]): ScExtensionStub =
     new ScExtensionStubImpl(
       parent = parentStub,
       elementType = elementType,

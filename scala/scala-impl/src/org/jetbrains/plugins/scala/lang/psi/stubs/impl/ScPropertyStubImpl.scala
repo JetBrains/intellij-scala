@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 
 final class ScPropertyStubImpl[P <: ScValueOrVariable](
-  parent:                         StubElement[_ <: PsiElement],
+  parent:                         StubElement[? <: PsiElement],
   elementType:                    IElementType,
   override val isDeclaration:     Boolean,
   override val isImplicit:        Boolean,

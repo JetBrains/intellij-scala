@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPrimaryConstructorStubI
 
 final class ScPrimaryConstructorStubFactory(elementType: ScPrimaryConstructorElementType)
   extends ScStubSerializingElementFactory[ScPrimaryConstructorStub, ScPrimaryConstructor](elementType) {
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPrimaryConstructorStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScPrimaryConstructorStub =
     new ScPrimaryConstructorStubImpl(parentStub, elementType)
 
-  override def createStubImpl(constructor: ScPrimaryConstructor, parentStub: StubElement[_ <: PsiElement]): ScPrimaryConstructorStub =
+  override def createStubImpl(constructor: ScPrimaryConstructor, parentStub: StubElement[? <: PsiElement]): ScPrimaryConstructorStub =
     new ScPrimaryConstructorStubImpl(parentStub, elementType)
 
   override def createPsi(stub: ScPrimaryConstructorStub): ScPrimaryConstructor = new ScPrimaryConstructorImpl(stub)

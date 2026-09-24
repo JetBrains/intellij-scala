@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.TOP_LEVEL
 final class ScExportStmtStubFactory(elementType: ScExportStmtElementType)
   extends ScStubSerializingElementFactory[ScExportStmtStub, ScExportStmt](elementType) {
 
-  override def createStubImpl(statement: ScExportStmt, parentStub: StubElement[_ <: PsiElement]): ScExportStmtStub =
+  override def createStubImpl(statement: ScExportStmt, parentStub: StubElement[? <: PsiElement]): ScExportStmtStub =
     new ScExportStmtStubImpl(
       parentStub,
       elementType,
@@ -30,7 +30,7 @@ final class ScExportStmtStubFactory(elementType: ScExportStmtElementType)
     dataStream.writeOptionName(stub.topLevelQualifier)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScExportStmtStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScExportStmtStub =
     new ScExportStmtStubImpl(
       parentStub,
       elementType,

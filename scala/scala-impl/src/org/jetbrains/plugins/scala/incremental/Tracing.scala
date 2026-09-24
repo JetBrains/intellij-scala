@@ -57,7 +57,7 @@ object Tracing {
     private var startInstants = Map.empty[FileEditor, Long]
     private var durations = Seq.empty[Long]
 
-    override def daemonStarting(fileEditors: util.Collection[_ <: FileEditor]): Unit = {
+    override def daemonStarting(fileEditors: util.Collection[? <: FileEditor]): Unit = {
       if (!isHighlightingTracingEnabled) return
       val editors = fileEditors.asScala.filter(e => isScalaIn(e.getFile))
       if (editors.isEmpty) return
@@ -69,7 +69,7 @@ object Tracing {
       statusBar.setInfo("Highlighting...")
     }
 
-    override def daemonFinished(fileEditors: util.Collection[_ <: FileEditor]): Unit = {
+    override def daemonFinished(fileEditors: util.Collection[? <: FileEditor]): Unit = {
       if (fileEditors.stream.anyMatch(e => isScalaIn(e.getFile))) {
         Highlighting.suppress = false
       }

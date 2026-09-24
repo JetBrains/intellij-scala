@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class ParameterlessInspectionTest extends ScalaInspectionTestBase {
-  protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
+  protected override val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[UnitMethodInspection.Parameterless]
 
   protected override val description: String =

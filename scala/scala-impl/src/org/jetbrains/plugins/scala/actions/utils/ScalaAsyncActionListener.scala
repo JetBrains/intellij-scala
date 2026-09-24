@@ -17,7 +17,7 @@ trait ScalaAsyncActionListener {
    * @param result      Success if the action was completed successfully<br>
    *                    Failure(exception) if the action failed with the given exception (on any thread)
    */
-  def actionCompleted(actionClass: Class[_ <: AnAction], result: Try[Unit]): Unit
+  def actionCompleted(actionClass: Class[? <: AnAction], result: Try[Unit]): Unit
 }
 
 object ScalaAsyncActionListener {

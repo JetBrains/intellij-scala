@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 class IfElseToFilteredOptionInspectionTest extends OperationsOnCollectionInspectionTest {
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[IfElseToFilteredOptionInspection]
 
   override protected val hint: String = "Replace if with filtered option"

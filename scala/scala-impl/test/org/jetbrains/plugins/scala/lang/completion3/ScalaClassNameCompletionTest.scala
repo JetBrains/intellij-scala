@@ -815,7 +815,7 @@ class FullQualifiedImportsCompletionTest_Scala_3 extends FullQualifiedImportsCom
     ))
   }
 
-  private def assertContainsElements[T](collection: Seq[_ <: T], expected: Seq[_ <: T]): Unit = {
+  private def assertContainsElements[T](collection: Seq[? <: T], expected: Seq[? <: T]): Unit = {
     import scala.jdk.CollectionConverters.SeqHasAsJava
     UsefulTestCase.assertContainsElements(collection.asJava, expected.asJava)
   }

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaI
 
 abstract class ConvertibleToMethodValueInspectionTestBase extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertibleToMethodValueInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[ConvertibleToMethodValueInspection]
 
   override val description = ScalaInspectionBundle.message("displayname.anonymous.function.convertible.to.a.method.value")
   val hintAnon = ScalaInspectionBundle.message("convertible.to.method.value.anonymous.hint")

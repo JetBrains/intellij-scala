@@ -15,10 +15,10 @@ final class ScPatternListStubFactory(elementType: ScPatternListElementType)
     dataStream.writeBoolean(stub.simplePatterns)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPatternListStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScPatternListStub =
     new ScPatternListStubImpl(parentStub, elementType, simplePatterns = dataStream.readBoolean)
 
-  override def createStubImpl(patterns: ScPatternList, parentStub: StubElement[_ <: PsiElement]): ScPatternListStub =
+  override def createStubImpl(patterns: ScPatternList, parentStub: StubElement[? <: PsiElement]): ScPatternListStub =
     new ScPatternListStubImpl(parentStub, elementType, simplePatterns = patterns.simplePatterns)
 
   override def createPsi(stub: ScPatternListStub): ScPatternList = new ScPatternListImpl(stub)

@@ -404,7 +404,7 @@ final class SyntheticClasses(project: Project) {
 
     /** See docs of [[registerClasses]] */
     def inCancellableReadAction[T](debugName: String)(body: => T): T = {
-      val task: Callable[_ <: T] = () => {
+      val task: Callable[? <: T] = () => {
         try {
           body
         } catch {

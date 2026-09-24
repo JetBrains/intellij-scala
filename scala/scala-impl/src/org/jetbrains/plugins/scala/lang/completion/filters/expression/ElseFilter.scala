@@ -42,7 +42,7 @@ class ElseFilter extends ElementFilter {
     }
   }
 
-  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
+  override def isClassAcceptable(hintClass: java.lang.Class[?]): Boolean = true
 
   @NonNls
   override def toString: String = "else keyword filter"

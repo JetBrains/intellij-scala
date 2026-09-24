@@ -77,7 +77,7 @@ package object generation {
       case _ => Seq.empty
     }
 
-  def elementOfTypeAtCaret[T <: PsiElement](types: Class[_ <: T]*)
+  def elementOfTypeAtCaret[T <: PsiElement](types: Class[? <: T]*)
                                            (implicit editor: Editor, file: PsiFile): Option[T] = {
     val element = file.findElementAt(editor.getCaretModel.getOffset)
     Option(PsiTreeUtil.getParentOfType(element, types: _*))

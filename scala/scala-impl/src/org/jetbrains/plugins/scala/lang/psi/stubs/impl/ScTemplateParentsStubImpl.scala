@@ -13,7 +13,7 @@ import scala.collection.immutable.ArraySeq
 
 
 final class ScTemplateParentsStubImpl(
-  parent:                         StubElement[_ <: PsiElement],
+  parent:                         StubElement[? <: PsiElement],
   elementType:                    IElementType,
   override val parentClausesText: Array[String]
 ) extends StubBase[ScTemplateParents](parent, elementType)

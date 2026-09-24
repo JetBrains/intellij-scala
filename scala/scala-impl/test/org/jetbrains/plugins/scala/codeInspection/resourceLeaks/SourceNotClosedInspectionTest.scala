@@ -4,7 +4,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
 class SourceNotClosedInspectionTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[SourceNotClosedInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[SourceNotClosedInspection]
 
   override protected val description: String = ScalaInspectionBundle.message("source.not.closed")
 

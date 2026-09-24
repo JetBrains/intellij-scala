@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtensionBody
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtensionBodyStub
 
 class ScExtensionBodyStubImpl(
-  parent:      StubElement[_ <: PsiElement],
+  parent:      StubElement[? <: PsiElement],
   elementType: IElementType
 ) extends StubBase[ScExtensionBody](parent, elementType)
     with ScExtensionBodyStub

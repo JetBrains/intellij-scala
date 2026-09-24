@@ -16,7 +16,7 @@ object ShowSettingsUtilImplExt {
   /**
    * see [[com.intellij.ide.actions.ShowSettingsUtilImpl.showSettingsDialog(project: Project, idToSelect: String, filter: String)]]
    */
-  def showSettingsDialog(@Nullable project: Project, configurableClass: Class[_ <: Configurable], filter: String): Unit = {
+  def showSettingsDialog(@Nullable project: Project, configurableClass: Class[? <: Configurable], filter: String): Unit = {
     val visitor: ConfigurableVisitor = (c: Configurable) => ConfigurableWrapper.cast(configurableClass, c) != null
     showSettingsDialogImpl(project, visitor, filter)
   }

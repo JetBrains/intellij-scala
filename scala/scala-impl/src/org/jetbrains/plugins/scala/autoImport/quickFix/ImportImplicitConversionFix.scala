@@ -28,7 +28,7 @@ class ImportImplicitConversionFix private (ref: ScReferenceExpression,
   override protected def findElementsToImport(): Seq[MemberToImport] =
     computation.conversions
 
-  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
+  override def createAddImportAction(editor: Editor): ScalaAddImportAction[?, ?] =
     ScalaAddImportAction.importImplicitConversion(editor, elements, ref)
 
   override def isAddUnambiguous: Boolean = false
@@ -153,7 +153,7 @@ object ImportImplicitConversionFixes {
       }
   }
 
-  def apply(ref: ScReferenceExpression): Seq[ScalaImportElementFix[_ <: ElementToImport]] = {
+  def apply(ref: ScReferenceExpression): Seq[ScalaImportElementFix[? <: ElementToImport]] = {
     val computation = new ConversionToImportComputation(ref)
     Seq(
       ImportImplicitConversionFix(ref, computation),

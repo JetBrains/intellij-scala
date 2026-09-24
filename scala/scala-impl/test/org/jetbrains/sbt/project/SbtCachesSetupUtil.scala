@@ -127,8 +127,8 @@ object SbtCachesSetupUtil {
     val listener = new ExternalSystemSettingsListenerEx {
       override def onProjectsLinked(
         project: Project,
-        manager: ExternalSystemManager[_, _, _, _, _],
-        settings: util.Collection[_ <: ExternalProjectSettings]
+        manager: ExternalSystemManager[?, ?, ?, ?, ?],
+        settings: util.Collection[? <: ExternalProjectSettings]
       ): Unit = {
         // This method is also called for the default project instance, whose settings act as a template
         // for the "New Projects" configuration and must not be polluted.

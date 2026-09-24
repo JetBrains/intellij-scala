@@ -6,9 +6,9 @@ import java.util
 
 class CaretModelMock(offset: Int, pos: LogicalPosition) extends CaretModelStub {
 
-  override def setCaretsAndSelections(caretStates: util.List[_ <: CaretState]): Unit = ()
+  override def setCaretsAndSelections(caretStates: util.List[? <: CaretState]): Unit = ()
 
-  override def setCaretsAndSelections(caretStates: util.List[_ <: CaretState], updateSystemSelection: Boolean): Unit = ()
+  override def setCaretsAndSelections(caretStates: util.List[? <: CaretState], updateSystemSelection: Boolean): Unit = ()
 
   override def getOffset: Int = offset
 

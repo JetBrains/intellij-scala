@@ -160,7 +160,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
   }
 
   //noinspection InstanceOf
-  override def matchesPosition(@NotNull breakpoint: LineBreakpoint[_], @NotNull position: SourcePosition): Boolean = {
+  override def matchesPosition(@NotNull breakpoint: LineBreakpoint[?], @NotNull position: SourcePosition): Boolean = {
     val method = getContainingMethod(breakpoint)
     if (method == null) return false
 
@@ -183,7 +183,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
   }
 
   @Nullable
-  override def getContainingMethod(@NotNull breakpoint: LineBreakpoint[_]): PsiElement = {
+  override def getContainingMethod(@NotNull breakpoint: LineBreakpoint[?]): PsiElement = {
     val position = breakpoint.getSourcePosition
     if (position == null) return null
     val element = position.getElementAt
@@ -221,7 +221,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
     }
   }
 
-  private def lambdaOrdinal(breakpoint: LineBreakpoint[_]): Integer = {
+  private def lambdaOrdinal(breakpoint: LineBreakpoint[?]): Integer = {
     val xBreakpoint = breakpoint.getXBreakpoint
     if (xBreakpoint != null) {
       xBreakpoint.getProperties match {
@@ -232,12 +232,12 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
     else null
   }
 
-  private def isLambda(breakpoint: LineBreakpoint[_]): Boolean = {
+  private def isLambda(breakpoint: LineBreakpoint[?]): Boolean = {
     val ordinal = lambdaOrdinal(breakpoint)
     ordinal != null && ordinal >= 0
   }
 
-  private def isMatchAll(breakpoint: LineBreakpoint[_]): Boolean = lambdaOrdinal(breakpoint) == null
+  private def isMatchAll(breakpoint: LineBreakpoint[?]): Boolean = lambdaOrdinal(breakpoint) == null
 
   private def isConditionalReturn(breakpoint: XLineBreakpoint[JavaLineBreakpointProperties]): Boolean =
     breakpoint.getProperties match {

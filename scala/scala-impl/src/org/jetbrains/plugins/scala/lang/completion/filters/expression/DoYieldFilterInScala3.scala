@@ -59,7 +59,7 @@ class DoYieldFilterInScala3 extends ElementFilter {
     }
   }
 
-  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
+  override def isClassAcceptable(hintClass: java.lang.Class[?]): Boolean = {
     true
   }
 

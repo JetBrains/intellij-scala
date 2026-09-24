@@ -22,9 +22,9 @@ import java.{util => ju}
 
 class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper {
 
-  override def findUsages(filesToMove: ju.Collection[_ <: PsiFile],
+  override def findUsages(filesToMove: ju.Collection[? <: PsiFile],
                           directoriesToMove: Array[PsiDirectory],
-                          usages: ju.Collection[_ >: UsageInfo],
+                          usages: ju.Collection[? >: UsageInfo],
                           searchInComments: Boolean,
                           searchInNonJavaFiles: Boolean,
                           project: Project): Unit = {
@@ -59,11 +59,11 @@ class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper
   override def move(file: PsiFile,
                     moveDestination: PsiDirectory,
                     oldToNewElementsMapping: ju.Map[PsiElement, PsiElement],
-                    movedFiles: ju.List[_ >: PsiFile],
+                    movedFiles: ju.List[? >: PsiFile],
                     listener: RefactoringElementListener): Boolean =
     moveFile(file, moveDestination, oldToNewElementsMapping, listener)
 
-  override def postProcessUsages(usages: Array[UsageInfo], newDirMapper: Function[_ >: PsiDirectory, _ <: PsiDirectory]): Unit = {
+  override def postProcessUsages(usages: Array[UsageInfo], newDirMapper: Function[? >: PsiDirectory, ? <: PsiDirectory]): Unit = {
     usages.foreach {
       case ImportExpressionToRemoveUsage(expr) =>
         // delete with parent statement if it is the only expression

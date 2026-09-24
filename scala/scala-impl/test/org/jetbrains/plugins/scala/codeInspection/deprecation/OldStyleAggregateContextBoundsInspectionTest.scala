@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.codeInspection.implicits.OldStyleAggregateContextBoundsInspection
 
 class OldStyleAggregateContextBoundsInspectionTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[OldStyleAggregateContextBoundsInspection]
 
   override protected def description: String =

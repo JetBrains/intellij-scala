@@ -25,15 +25,15 @@ import org.jetbrains.uast.util.{ClassSet, ClassSetKt}
  */
 // TODO(SCL-14071): include other light elements like PsiClassWrapper
 object ScalaUastSourceTypeMapping {
-  def canConvert(element: PsiElement, targets: Array[Class[_ <: UElement]]): Boolean = {
+  def canConvert(element: PsiElement, targets: Array[Class[? <: UElement]]): Boolean = {
     val clazz = element.getClass
     targets.exists(target => possibleSourceTypes(target).contains(clazz))
   }
 
-  def possibleSourceTypes(uastType: Class[_ <: UElement]): ClassSet[PsiElement] =
+  def possibleSourceTypes(uastType: Class[? <: UElement]): ClassSet[PsiElement] =
     mapping.getOrElse(uastType, ClassSetKt.emptyClassSet())
 
-  private val mapping: Map[Class[_ <: UElement], ClassSet[PsiElement]] = Map(
+  private val mapping: Map[Class[? <: UElement], ClassSet[PsiElement]] = Map(
     classOf[UAnchorOwner] -> ClassSetKt.classSetOf(
       classOf[ScAnnotationImpl],
       classOf[ScClassImpl],
@@ -43,8 +43,8 @@ object ScalaUastSourceTypeMapping {
       classOf[ScEnumSingletonCaseImpl],
       classOf[ScFieldIdImpl],
       classOf[ScFunctionWrapper],
-      classOf[ScFunctionDeclarationImpl[_]],
-      classOf[ScFunctionDefinitionImpl[_]],
+      classOf[ScFunctionDeclarationImpl[?]],
+      classOf[ScFunctionDefinitionImpl[?]],
       classOf[ScGivenAliasDeclarationImpl],
       classOf[ScGivenAliasDefinitionImpl],
       classOf[ScGivenDefinitionImpl],
@@ -81,8 +81,8 @@ object ScalaUastSourceTypeMapping {
       classOf[ScFloatLiteralImpl],
       classOf[ScForImpl],
       classOf[ScFunctionWrapper],
-      classOf[ScFunctionDeclarationImpl[_]],
-      classOf[ScFunctionDefinitionImpl[_]],
+      classOf[ScFunctionDeclarationImpl[?]],
+      classOf[ScFunctionDefinitionImpl[?]],
       classOf[ScFunctionExprImpl],
       classOf[ScGenericCallImpl],
       classOf[ScGivenAliasDeclarationImpl],
@@ -192,8 +192,8 @@ object ScalaUastSourceTypeMapping {
       classOf[ScExtendsBlockImpl],
       classOf[ScFieldIdImpl],
       classOf[ScFunctionWrapper],
-      classOf[ScFunctionDeclarationImpl[_]],
-      classOf[ScFunctionDefinitionImpl[_]],
+      classOf[ScFunctionDeclarationImpl[?]],
+      classOf[ScFunctionDefinitionImpl[?]],
       classOf[ScGivenAliasDeclarationImpl],
       classOf[ScGivenAliasDefinitionImpl],
       classOf[ScGivenDefinitionImpl],
@@ -205,7 +205,7 @@ object ScalaUastSourceTypeMapping {
       classOf[ScTraitImpl],
     ),
     classOf[UDeclarationsExpression] -> ClassSetKt.classSetOf(
-      classOf[ScFunctionDefinitionImpl[_]],
+      classOf[ScFunctionDefinitionImpl[?]],
       classOf[ScGivenAliasDefinitionImpl],
       classOf[ScPatternDefinitionImpl],
       classOf[ScValueDeclarationImpl],
@@ -244,8 +244,8 @@ object ScalaUastSourceTypeMapping {
       classOf[ScFloatLiteralImpl],
       classOf[ScForImpl],
       classOf[ScFunctionWrapper],
-      classOf[ScFunctionDeclarationImpl[_]],
-      classOf[ScFunctionDefinitionImpl[_]],
+      classOf[ScFunctionDeclarationImpl[?]],
+      classOf[ScFunctionDefinitionImpl[?]],
       classOf[ScFunctionExprImpl],
       classOf[ScGenericCallImpl],
       classOf[ScGivenAliasDeclarationImpl],
@@ -316,7 +316,7 @@ object ScalaUastSourceTypeMapping {
       classOf[ScFloatLiteralImpl],
       classOf[ScForImpl],
       classOf[ScFunctionWrapper],
-      classOf[ScFunctionDefinitionImpl[_]],
+      classOf[ScFunctionDefinitionImpl[?]],
       classOf[ScFunctionExprImpl],
       classOf[ScGenericCallImpl],
       classOf[ScGivenAliasDefinitionImpl],
@@ -432,8 +432,8 @@ object ScalaUastSourceTypeMapping {
     ),
     classOf[UMethod] -> ClassSetKt.classSetOf(
       classOf[ScFunctionWrapper],
-      classOf[ScFunctionDeclarationImpl[_]],
-      classOf[ScFunctionDefinitionImpl[_]],
+      classOf[ScFunctionDeclarationImpl[?]],
+      classOf[ScFunctionDefinitionImpl[?]],
       classOf[ScGivenAliasDeclarationImpl],
       classOf[ScGivenAliasDefinitionImpl],
       classOf[ScMacroDefinitionImpl],

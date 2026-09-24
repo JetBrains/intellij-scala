@@ -4,7 +4,7 @@ package collections
 
 abstract class SameElementsToEqualsInspectionTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[SameElementsToEqualsInspection]
 }
 

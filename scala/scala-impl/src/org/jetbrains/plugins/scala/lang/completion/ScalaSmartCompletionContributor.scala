@@ -279,19 +279,19 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     else extendSmartAndBasic(clazz, provider)
   }
 
-  private def extendSmart(clazz: Class[_ <: ScalaPsiElement],
+  private def extendSmart(clazz: Class[? <: ScalaPsiElement],
                           provider: CompletionProvider[CompletionParameters]): Unit =
     extendSmart(superParentPattern(clazz), provider)
 
-  private def extendSmartAndBasic(clazz: Class[_ <: ScalaPsiElement],
+  private def extendSmartAndBasic(clazz: Class[? <: ScalaPsiElement],
                                   provider: CompletionProvider[CompletionParameters]): Unit =
     extendSmartAndBasic(superParentPattern(clazz), provider)
 
-  private def extendSmart(pattern: ElementPattern[_ <: PsiElement],
+  private def extendSmart(pattern: ElementPattern[? <: PsiElement],
                           provider: CompletionProvider[CompletionParameters]): Unit =
     extend(CompletionType.SMART, pattern, provider)
 
-  private def extendSmartAndBasic(pattern: ElementPattern[_ <: PsiElement],
+  private def extendSmartAndBasic(pattern: ElementPattern[? <: PsiElement],
                                   provider: CompletionProvider[CompletionParameters]): Unit = {
     extendSmart(pattern, provider)
     extend(CompletionType.BASIC, pattern, provider) // SCL-19749
@@ -327,7 +327,7 @@ object ScalaSmartCompletionContributor {
       case Reference(r) => (r, r.getContext.asInstanceOf[T])
     }
 
-  private def superParentPattern(clazz: Class[_ <: ScalaPsiElement]) =
+  private def superParentPattern(clazz: Class[? <: ScalaPsiElement]) =
     identifierWithParentsPattern(classOf[ScReferenceExpression], clazz) ||
       identifierWithParentsPattern(classOf[ScReferenceExpression], classOf[ScReferenceExpression], clazz)
 

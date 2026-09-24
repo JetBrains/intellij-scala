@@ -225,7 +225,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
     } else Result.CONTINUE
   }
 
-  private def isInPlace(element: PsiElement, place: Class[_ <: PsiElement]*): Boolean = {
+  private def isInPlace(element: PsiElement, place: Class[? <: PsiElement]*): Boolean = {
     if (element == null || place == null)
       return false
 

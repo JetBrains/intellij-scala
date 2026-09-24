@@ -4,7 +4,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
 class ParameterlessMemberOverriddenAsEmptyParenInspectionTest extends ScalaInspectionTestBase {
-  protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
+  protected override val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[EmptyParenOverrideInspection.ParameterlessMemberOverriddenAsEmptyParenInspection]
 
   protected override val description: String =

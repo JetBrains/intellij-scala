@@ -12,10 +12,10 @@ final class ScAnnotationsStubFactory(elementType: ScAnnotationsElementType)
   extends ScStubSerializingElementFactory[ScAnnotationsStub, ScAnnotations](elementType) {
   override def serialize(stub: ScAnnotationsStub, dataStream: StubOutputStream): Unit = {}
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAnnotationsStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScAnnotationsStub =
     new ScAnnotationsStubImpl(parentStub, elementType)
 
-  override def createStubImpl(psi: ScAnnotations, parentStub: StubElement[_ <: PsiElement]): ScAnnotationsStub =
+  override def createStubImpl(psi: ScAnnotations, parentStub: StubElement[? <: PsiElement]): ScAnnotationsStub =
     new ScAnnotationsStubImpl(parentStub, elementType)
 
   override def createPsi(stub: ScAnnotationsStub): ScAnnotations = new ScAnnotationsImpl(stub)

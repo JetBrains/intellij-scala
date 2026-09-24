@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.codeInsight.{InlayHintsSettingsTestHelper, In
 
 
 abstract class ScalaMethodChainInlayHintsTestBase extends InlayHintsTestBase with InlayHintsSettingsTestHelper {
-  protected def doTest(text: String, settings: Setting[_]*): Unit = {
+  protected def doTest(text: String, settings: Setting[?]*): Unit = {
     val allSettings = showObviousTypeSetting(true) +: settings
 
     withSettings(allSettings) {

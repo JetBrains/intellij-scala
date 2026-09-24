@@ -26,7 +26,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
 
   override def execute(
     queryParameters: ReferencesSearch.SearchParameters,
-    consumer: Processor[_ >: PsiReference]
+    consumer: Processor[? >: PsiReference]
   ): Boolean = {
     val elementToSearch = queryParameters.getElementToSearch
     val scalaElementToSearch: ScNamedElement = elementToSearch match {
@@ -73,7 +73,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
 
   private class MyTextOccurenceProcessor(
     elementToSearch: PsiElement,
-    consumer: Processor[_ >: PsiReference]
+    consumer: Processor[? >: PsiReference]
   ) extends TextOccurenceProcessor {
 
     override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
@@ -114,7 +114,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
                                               searchContext: Short,
                                               caseSensitively: Boolean,
                                               text: String,
-                                              processor: Processor[_ >: VirtualFile]): Boolean = {
+                                              processor: Processor[? >: VirtualFile]): Boolean = {
       if (!ScalaNamesValidator.isIdentifier(text)) return true
 
       val entries = ju.Collections.singletonList(new IdIndexEntry(text, caseSensitively))

@@ -50,7 +50,7 @@ final class LibraryExtensionsManager(project: Project) {
   private val popup       = new PopupHelper
   private val publisher   = project.getMessageBus.syncPublisher(EXTENSIONS_TOPIC)
 
-  private val myExtensionInstances  = mutable.HashMap[Class[_], mutable.ArrayBuffer[Any]]()
+  private val myExtensionInstances  = mutable.HashMap[Class[?], mutable.ArrayBuffer[Any]]()
   private val myLoadedLibraries     = mutable.ArrayBuffer[ExtensionJarData]()
 
   { // init
@@ -167,7 +167,7 @@ final class LibraryExtensionsManager(project: Project) {
   }
 
   private def loadDescriptor(descriptor: LibraryDescriptor, jarFile: Path): Unit = {
-    val classBuffer = mutable.HashMap[Class[_], mutable.ArrayBuffer[Any]]()
+    val classBuffer = mutable.HashMap[Class[?], mutable.ArrayBuffer[Any]]()
     descriptor.getCurrentPluginDescriptor.foreach { currentVersion =>
       val IdeaVersionDescriptor(_, _, _, defaultPackage, extensions) = currentVersion
       val classLoader = UrlClassLoader.build()

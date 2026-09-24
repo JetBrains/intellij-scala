@@ -117,7 +117,7 @@ final class ScalaMultiModuleDependenciesCompletionTest
   private def addModule(name: String) =
     PsiTestUtil.addModule(
       getProject,
-      JavaModuleType.getModuleType.asInstanceOf[ModuleType[_ <: ModuleBuilder]],
+      JavaModuleType.getModuleType.asInstanceOf[ModuleType[? <: ModuleBuilder]],
       name,
       myFixture.getTempDirFixture.findOrCreateDir(name)
     )

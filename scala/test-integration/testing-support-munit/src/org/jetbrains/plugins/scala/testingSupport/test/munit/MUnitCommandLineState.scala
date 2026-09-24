@@ -110,7 +110,7 @@ private class MUnitCommandLineState(
     javaParameters
   }
 
-  override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
+  override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
     val result = super.execute(executor, runner)
     RawProcessOutputDebugLogger.maybeAddListenerTo(result.getProcessHandler)
     result

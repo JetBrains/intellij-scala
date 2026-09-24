@@ -11,7 +11,7 @@ import com.intellij.testFramework.{EditorTestUtil, IdeaTestUtil, IndexingTestUti
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, PlatformSdkJdkLoader, ScalaSDKLoader}
 
-abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase[ModuleFixtureBuilder[_]] with ScalaSdkOwner {
+abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase[ModuleFixtureBuilder[?]] with ScalaSdkOwner {
 
   protected val CARET = EditorTestUtil.CARET_TAG
 
@@ -46,7 +46,7 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase[ModuleFix
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
   }
 
-  override def tuneFixture(moduleBuilder: ModuleFixtureBuilder[_]): Unit = {
+  override def tuneFixture(moduleBuilder: ModuleFixtureBuilder[?]): Unit = {
     super.tuneFixture(moduleBuilder)
 
     indexingMode = this.getIndexingModeConsideringDumbModeChecks

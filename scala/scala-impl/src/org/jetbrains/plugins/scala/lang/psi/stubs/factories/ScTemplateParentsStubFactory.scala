@@ -15,14 +15,14 @@ final class ScTemplateParentsStubFactory(elementType: ScTemplateParentsElementTy
     dataStream.writeNames(stub.parentClausesText)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTemplateParentsStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScTemplateParentsStub =
     new ScTemplateParentsStubImpl(
       parentStub,
       elementType,
       parentClausesText = dataStream.readNames
     )
 
-  override def createStubImpl(templateParents: ScTemplateParents, parentStub: StubElement[_ <: PsiElement]): ScTemplateParentsStub =
+  override def createStubImpl(templateParents: ScTemplateParents, parentStub: StubElement[? <: PsiElement]): ScTemplateParentsStub =
     new ScTemplateParentsStubImpl(
       parentStub,
       elementType,

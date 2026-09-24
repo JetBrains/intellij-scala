@@ -37,7 +37,7 @@ class BindingCellRenderer(
 
   //NOTE: we don't add any icon because we don't know to which the path corresponds
   override def getListCellRendererComponent(
-    list: JList[_ <: BindingLike],
+    list: JList[? <: BindingLike],
     binding: BindingLike,
     index: Int,
     isSelected: Boolean,

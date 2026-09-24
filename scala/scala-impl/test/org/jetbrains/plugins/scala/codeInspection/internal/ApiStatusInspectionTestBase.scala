@@ -25,7 +25,7 @@ abstract class ApiStatusInspectionTestBase extends JavaCodeInsightFixtureTestCas
   override protected def setUp(): Unit = {
 
     def addModule(name: String): module.Module =
-      PsiTestUtil.addModule(getProject, JavaModuleType.getModuleType.asInstanceOf[ModuleType[_ <: ModuleBuilder]],
+      PsiTestUtil.addModule(getProject, JavaModuleType.getModuleType.asInstanceOf[ModuleType[? <: ModuleBuilder]],
         name, myFixture.getTempDirFixture.findOrCreateDir(name))
 
     super[JavaCodeInsightFixtureTestCase].setUp()

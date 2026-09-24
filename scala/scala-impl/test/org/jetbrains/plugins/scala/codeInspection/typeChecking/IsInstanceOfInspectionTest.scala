@@ -16,7 +16,7 @@ import org.junit.runner.RunWith
 ))
 class IsInstanceOfInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[IsInstanceOfInspection]
 
   override protected val description: String =

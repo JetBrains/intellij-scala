@@ -18,7 +18,7 @@ final class ScalaSearchEverywhereEqualityProvider extends SEResultsEqualityProvi
 
   override def compareItems(
     newItem: SearchEverywhereFoundElementInfo,
-    alreadyFoundItems: util.List[_ <: SearchEverywhereFoundElementInfo]
+    alreadyFoundItems: util.List[? <: SearchEverywhereFoundElementInfo]
   ): SEEqualElementsActionType = {
     val newPsiElement = toPsi(newItem)
     val action: SEEqualElementsActionType =

@@ -46,7 +46,7 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
       )
     }
 
-  override def execute(p: AnnotatedElementsSearch.Parameters, consumer: Processor[_ >: PsiMember]): Boolean = {
+  override def execute(p: AnnotatedElementsSearch.Parameters, consumer: Processor[? >: PsiMember]): Boolean = {
     val annotationFQN = getAnnotationName(p)
     assert(annotationFQN != null, "Annotation qualifier can't be null")
 
@@ -71,7 +71,7 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
 
   private def executeInner(
     parameters: AnnotatedElementsSearch.Parameters,
-    consumer: Processor[_ >: PsiMember],
+    consumer: Processor[? >: PsiMember],
     annotationFQN: String,
   ): Boolean = {
     val scope = parameters.getScope match {

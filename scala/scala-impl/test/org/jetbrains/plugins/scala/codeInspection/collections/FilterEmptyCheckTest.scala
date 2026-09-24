@@ -4,7 +4,7 @@ package collections
 
 class FilterIsEmptyCheckTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[FilterEmptyCheckInspection]
 
   override protected val hint: String = ScalaInspectionBundle.message("filter.empty.check.hint")
@@ -58,7 +58,7 @@ class FilterIsEmptyCheckTest extends OperationsOnCollectionInspectionTest {
 
 class FilterNonEmptyCheckTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[FilterEmptyCheckInspection]
 
   override protected val hint: String =

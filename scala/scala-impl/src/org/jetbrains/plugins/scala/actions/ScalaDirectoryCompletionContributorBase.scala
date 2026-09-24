@@ -46,7 +46,7 @@ abstract class ScalaDirectoryCompletionContributorBase(projectSystemId: ProjectS
 
     val result = new mutable.ArrayBuffer[Variant]()
 
-    def addAllPaths(rootData: ContentRootData, sourceType: ExternalSystemSourceType, rootType: JpsModuleSourceRootType[_]): Seq[Variant] = {
+    def addAllPaths(rootData: ContentRootData, sourceType: ExternalSystemSourceType, rootType: JpsModuleSourceRootType[?]): Seq[Variant] = {
       val paths = rootData.getPaths(sourceType)
       paths.asScala.map(p => new Variant(p.getPath, rootType)).toSeq
     }
@@ -109,7 +109,7 @@ object ScalaDirectoryCompletionContributorBase {
   }
   */
 
-  private def getModuleDataBasedOnProjectSystemId(projectSystemId: ProjectSystemId, module: Module): Option[DataNode[_ <: ModuleData]]  = {
+  private def getModuleDataBasedOnProjectSystemId(projectSystemId: ProjectSystemId, module: Module): Option[DataNode[? <: ModuleData]]  = {
     val project = module.getProject
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
     if (moduleId == null) return None

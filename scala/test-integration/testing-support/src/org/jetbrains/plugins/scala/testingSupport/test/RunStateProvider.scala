@@ -51,7 +51,7 @@ object CustomTestRunnerBasedStateProvider {
   case class TestFrameworkRunnerInfo(runnerClass: String)
 
   object TestFrameworkRunnerInfo {
-    def apply(runnerClass: Class[_]): TestFrameworkRunnerInfo =
+    def apply(runnerClass: Class[?]): TestFrameworkRunnerInfo =
       TestFrameworkRunnerInfo(runnerClass.getName)
   }
 }

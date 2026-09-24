@@ -4,7 +4,7 @@ package collections
 
 abstract class ComparingLengthTestBase extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[ComparingLengthInspection]
 
   protected def resultSuffix(op: String): String

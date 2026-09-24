@@ -47,7 +47,7 @@ class MoveScalaFileHandler extends MoveFileHandler {
       case _ => null
     }
 
-  override def retargetUsages(@NotNull @Unmodifiable usageInfos: util.List[_ <: UsageInfo],
+  override def retargetUsages(@NotNull @Unmodifiable usageInfos: util.List[? <: UsageInfo],
                               @NotNull oldToNewMap: util.Map[PsiElement, PsiElement]): Unit = {
     for (usage <- usageInfos.asScala) {
       usage match {

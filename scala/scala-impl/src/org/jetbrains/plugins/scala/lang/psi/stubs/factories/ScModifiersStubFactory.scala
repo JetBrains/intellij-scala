@@ -16,14 +16,14 @@ final class ScModifiersStubFactory(elementType: ScModifiersElementType)
   override def serialize(stub: ScModifiersStub, dataStream: StubOutputStream): Unit =
     dataStream.writeInt(stub.modifiers)
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScModifiersStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScModifiersStub =
     new ScModifiersStubImpl(
       parentStub,
       elementType,
       modifiers = EnumSet.readFromInt[ScalaModifier](dataStream.readInt)
     )
 
-  override def createStubImpl(psi: ScModifierList, parentStub: StubElement[_ <: PsiElement]): ScModifiersStub =
+  override def createStubImpl(psi: ScModifierList, parentStub: StubElement[? <: PsiElement]): ScModifiersStub =
     new ScModifiersStubImpl(parentStub, elementType, modifiers = psi.modifiers)
 
   override def createPsi(stub: ScModifiersStub): ScModifierList = new ScModifierListImpl(stub)

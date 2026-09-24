@@ -24,7 +24,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
  */
 class ScalaTestLocationProvider extends SMTestLocator {
 
-  override def getLocation(protocolId: String, locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[_ <: PsiElement]] =
+  override def getLocation(protocolId: String, locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[? <: PsiElement]] =
     protocolId match {
       case ScalaProtocol => // TODO: do we even need this separation? why not using just scalatest://?
         getLocationForScalaProtocol(locationData, project, scope)
@@ -62,8 +62,8 @@ object ScalaTestLocationProvider {
       case _                                             => None
     }
 
-  private def getLocationForScalaTestProtocol(locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[_ <: PsiElement]] = {
-    val res = new ju.ArrayList[Location[_ <: PsiElement]]()
+  private def getLocationForScalaTestProtocol(locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[? <: PsiElement]] = {
+    val res = new ju.ArrayList[Location[? <: PsiElement]]()
     locationData match {
       case ScalaTestTopOfClassPattern(classFqn, testName) =>
         val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(classFqn, scope)
@@ -111,7 +111,7 @@ object ScalaTestLocationProvider {
   //  2) class name is not fully qualified
   //  3) file name is not relevant to sources dir
   //  So there is no possibility to distinguish between different test classes with same name in different packages!
-  private def getLocationForScalaProtocol(locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[_ <: PsiElement]] =
+  private def getLocationForScalaProtocol(locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[? <: PsiElement]] =
     locationData match {
       case SpecsHintPattern(className, fileName, lineNumber) =>
         val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(className, scope)
@@ -119,7 +119,7 @@ object ScalaTestLocationProvider {
 
         found match {
           case Some(file) =>
-            val res = new ju.ArrayList[Location[_ <: PsiElement]]()
+            val res = new ju.ArrayList[Location[? <: PsiElement]]()
             res.add(createLocationFor(project, file.getContainingFile, lineNumber.toInt))
             res
           case _ =>
@@ -129,7 +129,7 @@ object ScalaTestLocationProvider {
         searchForClassByUnqualifiedName(project, locationData).toSeq.asJava
     }
 
-  private def searchForClassByUnqualifiedName(project: Project, locationData: String): Option[Location[_ <: PsiElement]] = {
+  private def searchForClassByUnqualifiedName(project: Project, locationData: String): Option[Location[? <: PsiElement]] = {
     val clazz = ElementScope(project).getCachedClass(locationData)
     val location = clazz.map(PsiLocation.fromPsiElement[PsiClass](project, _))
     location
@@ -140,7 +140,7 @@ object ScalaTestLocationProvider {
     psiFile: PsiFile,
     lineNum: Int,
     withName: Option[String] = None
-  ): Location[_ <: PsiElement] = {
+  ): Location[? <: PsiElement] = {
     assert(lineNum > 0)
 
     val doc: Document = PsiDocumentManager.getInstance(project).getDocument(psiFile)

@@ -28,5 +28,5 @@ class TypeFilter extends ElementFilter {
 
   override def toString: String = "'type' keyword filter"
 
-  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
+  override def isClassAcceptable(hintClass: java.lang.Class[?]): Boolean = true
 }

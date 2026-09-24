@@ -16,7 +16,7 @@ import scala.collection.mutable.ArrayBuffer
 class ScalaParameterTableModel(typeContext: PsiElement,
                                defaultValueContext: PsiElement,
                                methodDescriptor: ScalaMethodDescriptor,
-                               columnInfos: ColumnInfo[_, _]*)
+                               columnInfos: ColumnInfo[?, ?]*)
         extends ParameterTableModelBase[ScalaParameterInfo, ScalaParameterTableModelItem](typeContext, defaultValueContext, columnInfos: _*) {
 
   private implicit val project: Project = defaultValueContext.getProject

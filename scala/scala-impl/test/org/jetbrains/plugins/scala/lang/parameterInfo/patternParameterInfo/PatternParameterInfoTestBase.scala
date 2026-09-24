@@ -12,6 +12,6 @@ abstract class PatternParameterInfoTestBase extends ParameterInfoTestBase[ScPatt
   override def getTestDataPath: String =
     s"${super.getTestDataPath}patternParameterInfo/"
 
-  override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[ScPatternArgumentList, Any, _ <: PsiElement] =
+  override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[ScPatternArgumentList, Any, ? <: PsiElement] =
     new ScalaPatternParameterInfoHandler
 }

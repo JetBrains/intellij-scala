@@ -4,7 +4,7 @@ package collections
 
 class EqualityToSameElementsTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[EqualityToSameElementsInspection]
 
   override protected val hint: String =

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 abstract class SimplifyBooleanMatchInspectionTestBase extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[SimplifyBooleanMatchInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[SimplifyBooleanMatchInspection]
   override protected val description = "Trivial match can be simplified"
 
   protected val hint = "Simplify match to if statement"

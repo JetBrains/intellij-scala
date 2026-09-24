@@ -4,7 +4,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
 class JavaAccessorMethodOverriddenAsEmptyParenInspectionTest extends ScalaInspectionTestBase {
-  protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
+  protected override val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[EmptyParenOverrideInspection.JavaAccessorMethodOverriddenAsEmptyParenInspection]
 
   protected override val description: String =

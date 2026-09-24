@@ -24,7 +24,7 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
   import ScalaTokenType._
   import ScalaTokenTypes._
 
-  override def createHighlightUsagesHandler(editor: Editor, file: PsiFile): HighlightUsagesHandlerBase[_ <: PsiElement] = {
+  override def createHighlightUsagesHandler(editor: Editor, file: PsiFile): HighlightUsagesHandlerBase[? <: PsiElement] = {
     if (!file.is[ScalaFile]) return null
     val offset = TargetElementUtil.adjustOffset(file, editor.getDocument, editor.getCaretModel.getOffset)
     val element: PsiElement = file.findElementAt(offset) match {

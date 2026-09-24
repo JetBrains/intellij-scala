@@ -102,11 +102,11 @@ abstract class ScalaSourcePositionProviderTestBase extends ScalaDebuggerTestCase
   private def getSourcePosition(descriptor: ValueDescriptorImpl)(implicit project: Project, context: DebuggerContextImpl): SourcePosition =
     BuildersKt.runBlocking(
       Dispatchers.getDefault,
-      (_, continuation: Continuation[_ >: SourcePosition]) =>
+      (_, continuation: Continuation[? >: SourcePosition]) =>
         DebuggerManagerThreadImplKt.withDebugContext(
           context.getSuspendContext,
           PrioritizedTask.Priority.LOW,
-          (_: CoroutineScope, cont: Continuation[_ >: SourcePosition]) =>
+          (_: CoroutineScope, cont: Continuation[? >: SourcePosition]) =>
             SourcePositionProvider.getSourcePosition(descriptor, project, context, cont),
           continuation
         )

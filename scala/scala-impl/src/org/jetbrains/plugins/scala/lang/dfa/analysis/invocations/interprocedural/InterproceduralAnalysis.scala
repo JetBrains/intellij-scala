@@ -44,7 +44,7 @@ object InterproceduralAnalysis {
     }
   }
 
-  def registerParameterValues(parameterValues: Map[_ <: ScParameter, DfaValue],
+  def registerParameterValues(parameterValues: Map[? <: ScParameter, DfaValue],
                               qualifier: Option[ScalaDfaVariableDescriptor],
                               interpreter: DataFlowInterpreter, state: DfaMemoryState)
                              (implicit factory: DfaValueFactory): Unit = {

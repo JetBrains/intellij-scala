@@ -152,7 +152,7 @@ object DependencyUtil {
    *
    * e.g.: `foo:bar_2.13` is compatible with Scala 2.13.2, `foo:bar_3` is compatible with Scala 3.8.0, etc.
    */
-  def isArtifactCompatible(params: BaseDependencyCompletionParameters[_ <: PsiElement], artifactId: String): Boolean = artifactId match {
+  def isArtifactCompatible(params: BaseDependencyCompletionParameters[? <: PsiElement], artifactId: String): Boolean = artifactId match {
     case CrossPublishedArtifact(_, scalaVersionSuffix) if isScalaVersionSuffix(scalaVersionSuffix) =>
       params.scalaVersions.exists(isCompatibleScalaVersion(_, scalaVersionSuffix))
     case _ => true

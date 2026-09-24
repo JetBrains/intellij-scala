@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaI
 
 abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ScalaUnusedDeclarationInspection]
 
   override protected val description: String =

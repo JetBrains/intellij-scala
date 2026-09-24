@@ -11,7 +11,7 @@ abstract class ScalaJUnitTestingTestCaseBase extends ScalaTestingTestCase with J
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
-  override protected val expectedDefaultRunConfigurationClass: Class[_ <: RunConfiguration] = classOf[JUnitConfiguration]
+  override protected val expectedDefaultRunConfigurationClass: Class[? <: RunConfiguration] = classOf[JUnitConfiguration]
 
   protected def assertIsJUnitClassConfiguration(
     settings: RunnerAndConfigurationSettings,

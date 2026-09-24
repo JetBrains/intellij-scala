@@ -570,14 +570,14 @@ object ScalaPsiUtil {
     container.fold(if (next) element.getNextSibling else element.getPrevSibling)(_.orNull)
   }
 
-  def at(stubs: ju.List[StubElement[_ <: PsiElement]])
+  def at(stubs: ju.List[StubElement[? <: PsiElement]])
         (index: Int = stubs.size - 1): Option[PsiElement] =
     if (index < 0 || index >= stubs.size) None
     else Some(stubs.get(index).getPsi)
 
-  def stub(element: PsiElement): NullSafe[StubElement[_]] = NullSafe {
+  def stub(element: PsiElement): NullSafe[StubElement[?]] = NullSafe {
     element match {
-      case stubbed: StubBasedPsiElementBase[_] => stubbed.getStub.asInstanceOf[StubElement[_]]
+      case stubbed: StubBasedPsiElementBase[_] => stubbed.getStub.asInstanceOf[StubElement[?]]
       case file: PsiFileImpl => file.getStub
       case _ => null
     }

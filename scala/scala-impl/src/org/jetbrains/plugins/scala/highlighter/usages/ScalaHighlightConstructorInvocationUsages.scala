@@ -34,7 +34,7 @@ class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], 
 
   override def getTargets: util.List[PsiElement] = reference.fold(util.Collections.emptyList[PsiElement])(util.Collections.singletonList)
 
-  override def selectTargets(targets: util.List[_ <: PsiElement], selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit =
+  override def selectTargets(targets: util.List[? <: PsiElement], selectionConsumer: Consumer[? >: util.List[? <: PsiElement]]): Unit =
     selectionConsumer.consume(targets)
 
   override protected def addOccurrence(element: PsiElement): Unit = {
@@ -45,7 +45,7 @@ class ScalaHighlightConstructorInvocationUsages(reference: Option[ScReference], 
       })
   }
 
-  override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = elementsToHighlight.foreach { case (classToHighlight, constructor) =>
+  override def computeUsages(targets: util.List[? <: PsiElement]): Unit = elementsToHighlight.foreach { case (classToHighlight, constructor) =>
     val config = ScalaFindUsagesConfiguration.getInstance(file.getProject)
     val manager = new ScalaFindUsagesHandler(classToHighlight, config)
     val localSearchScope =

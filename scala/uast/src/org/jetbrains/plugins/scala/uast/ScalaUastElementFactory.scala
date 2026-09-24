@@ -62,7 +62,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
   }
 
   @Nullable
-  override def createBlockExpression(expressions: util.List[_ <: UExpression], @Nullable context: PsiElement): UBlockExpression = {
+  override def createBlockExpression(expressions: util.List[? <: UExpression], @Nullable context: PsiElement): UBlockExpression = {
     val block = createBlockWithGivenExpressions(expressions.asScala.toSeq.flatMap(_.getSourcePsi.toOption), context)
     block.context = context
     new ScUBlockExpression(block, LazyUElement.Empty)
@@ -71,7 +71,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
   @Nullable // TODO: implement type params handling
   override def createCallExpression(@Nullable receiver: UExpression,
                                     methodName: String,
-                                    parameters: util.List[_ <: UExpression],
+                                    parameters: util.List[? <: UExpression],
                                     @Nullable expectedReturnType: PsiType,
                                     kind: UastCallKind,
                                     @Nullable context: PsiElement = null): UCallExpression = {
@@ -123,7 +123,7 @@ final class ScalaUastElementFactory(project: Project) extends UastElementFactory
   }
 
   @Nullable
-  override def createDeclarationExpression(declarations: util.List[_ <: UDeclaration],
+  override def createDeclarationExpression(declarations: util.List[? <: UDeclaration],
                                            @Nullable context: PsiElement): UDeclarationsExpression =
     new ScUDeclarationsExpression(declarations.asScala.toList, LazyUElement.Empty)
 

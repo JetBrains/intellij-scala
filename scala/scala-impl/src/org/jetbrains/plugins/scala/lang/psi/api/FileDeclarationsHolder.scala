@@ -97,7 +97,7 @@ trait FileDeclarationsHolder
               case hint => hint.getName(state)
             }
             if (name == null) {
-              def processPackages(packages: Array[_ <: PsiPackage]): Boolean = {
+              def processPackages(packages: Array[? <: PsiPackage]): Boolean = {
                 val iterator = packages.iterator
                 while (iterator.hasNext) {
                   val pack = iterator.next()

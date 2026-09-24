@@ -25,7 +25,7 @@ abstract class ScalaAbstractProjectDataService[E, I](key: Key[E]) extends Abstra
     def findIdeModuleOpt(data: ModuleData): Option[Module] =
       Option(modelsProvider.findIdeModule(data))
 
-    def getIdeModuleByNode(node: DataNode[_]): Option[Module] = {
+    def getIdeModuleByNode(node: DataNode[?]): Option[Module] = {
       val key = Option(node.getParent(classOf[ModuleData]))
         .map(_.getKey)
         .getOrElse(ProjectKeys.MODULE)

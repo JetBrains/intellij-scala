@@ -13,7 +13,7 @@ import scala.collection.mutable
 package object implicits {
   private val ScalaImplicitHintKey = Key.create[Boolean]("SCALA_IMPLICIT_HINT")
 
-  private[implicits] type Inlay = com.intellij.openapi.editor.Inlay[_ <: EditorCustomElementRenderer]
+  private[implicits] type Inlay = com.intellij.openapi.editor.Inlay[? <: EditorCustomElementRenderer]
 
   implicit class Model(private val model: InlayModel) extends AnyVal {
     def inlaysIn(range: TextRange): collection.Seq[Inlay] =

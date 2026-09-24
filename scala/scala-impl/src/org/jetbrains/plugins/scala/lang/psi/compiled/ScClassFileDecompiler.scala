@@ -41,7 +41,7 @@ object ScClassFileDecompiler {
 
     override val getStubVersion = 486
 
-    override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[_ <: PsiFile] = {
+    override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[? <: PsiFile] = {
       val psiFile = decompiledScalaFile(content)
       psiFile
         .map((if (isTasty(content.getFile)) stub3Builder else stub2Builder).buildStubTree)

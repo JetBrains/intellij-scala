@@ -100,7 +100,7 @@ class ScalaCompilerConfigurationTest extends JavaModuleTestCase with ScalaSdkOwn
       writeFileWithConvertedLineSeparators(filePath, expectedScalaCompilerConfigXmlContent)
 
       val componentStore = getProject.asInstanceOf[ProjectStoreOwner].getComponentStore
-      CoroutinesKt.runBlockingMaybeCancellable { (_, cont: Continuation[_ >: kotlin.Unit]) =>
+      CoroutinesKt.runBlockingMaybeCancellable { (_, cont: Continuation[? >: kotlin.Unit]) =>
         componentStore.reloadState(classOf[ScalaCompilerConfiguration], cont)
       }
 

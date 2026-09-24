@@ -56,7 +56,7 @@ private final class ProcessWatcher(process: Process, commandLine: String, local:
   def isTerminatedByIdleTimeout: Boolean = _terminatedByIdleTimeout
 
   private object MyProcessListener extends ProcessListener {
-    override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+    override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = {
       val text = event.getText
 
       //print(s"[$outputType] $text")
@@ -88,7 +88,7 @@ private final class ProcessWatcher(process: Process, commandLine: String, local:
       }
     }
 
-    private def processErrorText(text: String, outputType: Key[_]): Unit = {
+    private def processErrorText(text: String, outputType: Key[?]): Unit = {
       Log.warn(s"[$outputType] ${text.trim}")
       val filtered = text.linesIterator.mkString(System.lineSeparator())
       if (filtered.nonEmpty) {

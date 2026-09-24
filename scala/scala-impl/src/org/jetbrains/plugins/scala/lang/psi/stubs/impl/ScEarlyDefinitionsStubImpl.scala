@@ -6,6 +6,6 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScEarlyDefinitionsStub
 
-class ScEarlyDefinitionsStubImpl(parent: StubElement[_ <: PsiElement],
+class ScEarlyDefinitionsStubImpl(parent: StubElement[? <: PsiElement],
                                  elementType: IElementType)
   extends StubBase[ScEarlyDefinitions](parent, elementType) with ScEarlyDefinitionsStub

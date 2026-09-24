@@ -184,7 +184,7 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
     toExpectedGutter(gutter, identity)
 
   private def toExpectedGutter(gutter: GutterMark, tooltipContentDecorator: String => String): ExpectedGutter = {
-    val info = gutter.asInstanceOf[LineMarkerGutterIconRenderer[_]].getLineMarkerInfo
+    val info = gutter.asInstanceOf[LineMarkerGutterIconRenderer[?]].getLineMarkerInfo
     val line = myFixture.getDocument(myFixture.getFile).getLineNumber(info.startOffset) + 1
     val tooltip = info.getLineMarkerTooltip
     val tooltipDecorated = tooltipContentDecorator(tooltip)
@@ -237,7 +237,7 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
         gutter.getTooltipText
     }
 
-  private def gutterDebugText(gutter: LineMarkerGutterIconRenderer[_]): String =
+  private def gutterDebugText(gutter: LineMarkerGutterIconRenderer[?]): String =
     gutterDebugText(toFullExpectedGutter(gutter))
 
   private def gutterDebugText(gutter: ExpectedGutter): String = {

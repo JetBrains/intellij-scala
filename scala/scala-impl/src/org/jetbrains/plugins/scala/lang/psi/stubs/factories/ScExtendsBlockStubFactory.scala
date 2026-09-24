@@ -17,10 +17,10 @@ final class ScExtendsBlockStubFactory(elementType: ScExtendsBlockElementType) ex
     dataStream.writeNames(stub.baseClasses)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScExtendsBlockStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScExtendsBlockStub =
     new ScExtendsBlockStubImpl(parentStub, elementType, baseClasses = ArraySeq.unsafeWrapArray(dataStream.readNames))
 
-  override def createStubImpl(psi: ScExtendsBlock, parentStub: StubElement[_ <: PsiElement]): ScExtendsBlockStub =
+  override def createStubImpl(psi: ScExtendsBlock, parentStub: StubElement[? <: PsiElement]): ScExtendsBlockStub =
     new ScExtendsBlockStubImpl(parentStub, elementType, baseClasses = ScalaInheritors.directSupersNames(psi))
 
   override def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = new ScExtendsBlockImpl(stub)

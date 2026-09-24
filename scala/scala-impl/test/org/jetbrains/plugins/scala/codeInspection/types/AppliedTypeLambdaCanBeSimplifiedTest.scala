@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings.ScalacPlugin
 
 abstract class AppliedTypeLambdaCanBeSimplifiedTestBase extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
 
   override protected val description: String = ScalaInspectionBundle.message("applied.type.lambda.can.be.simplified")
 

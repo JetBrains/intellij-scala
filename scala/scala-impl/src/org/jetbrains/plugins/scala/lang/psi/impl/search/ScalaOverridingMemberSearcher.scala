@@ -23,7 +23,7 @@ import scala.collection.mutable
  * This class is required for Ctrl+Alt+B action for cases when not PsiMethod overrides not PsiMethod (one of two cases)
  */
 class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] {
-  override def execute(sourceElement: PsiElement, consumer: Processor[_ >: PsiElement]): Boolean = {
+  override def execute(sourceElement: PsiElement, consumer: Processor[? >: PsiElement]): Boolean = {
     sourceElement match {
       case namedElement: ScNamedElement =>
         for (implementation <- ScalaOverridingMemberSearcher.getOverridingMethodsForNavigation(namedElement)
@@ -46,7 +46,7 @@ class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] 
  * Java analogue: [[com.intellij.psi.impl.search.JavaOverridingMethodsSearcher]]
  */
 class ScalaOverridingMemberSearcher extends QueryExecutor[PsiMethod, OverridingMethodsSearch.SearchParameters] {
-  override def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiMethod]): Boolean = {
+  override def execute(queryParameters: SearchParameters, consumer: Processor[? >: PsiMethod]): Boolean = {
     val method = queryParameters.getMethod
     method match {
       case namedElement: ScNamedElement =>

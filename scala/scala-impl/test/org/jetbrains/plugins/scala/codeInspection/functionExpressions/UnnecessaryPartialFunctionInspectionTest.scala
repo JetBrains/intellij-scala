@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 abstract class UnnecessaryPartialFunctionInspectionTestBase extends ScalaInspectionTestBase {
   private val hint = UnnecessaryPartialFunctionQuickFix.hint
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[UnnecessaryPartialFunctionInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[UnnecessaryPartialFunctionInspection]
 
   override protected val description: String = UnnecessaryPartialFunctionInspection.inspectionName
 

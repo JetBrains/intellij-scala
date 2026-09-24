@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
 
 //noinspection ApiStatus
 private final class TestStructureViewModelProvider extends ScalaStructureViewModelProvider {
-  override def nodeProvidersFor(rootElement: ScalaFile): Seq[NodeProvider[_ <: TreeElement]] = {
+  override def nodeProvidersFor(rootElement: ScalaFile): Seq[NodeProvider[? <: TreeElement]] = {
     if (rootElement.getFileType == ScalaFileType.INSTANCE)
       Seq(new TestNodeProvider())
     else

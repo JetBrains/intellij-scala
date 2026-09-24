@@ -6,7 +6,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.intellij.lang.annotations.Language
 
 abstract class ScalaDeprecationInspectionTestBase extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaDeprecationInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[ScalaDeprecationInspection]
   override protected val description: String = "is deprecated"
   override protected def descriptionMatches(s: String) = s != null && s.contains(description)
 }

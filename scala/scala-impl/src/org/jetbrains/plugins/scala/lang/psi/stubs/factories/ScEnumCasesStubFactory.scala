@@ -12,9 +12,9 @@ final class ScEnumCasesStubFactory(elementType: ScEnumCasesElementType) extends 
   override def createPsi(stub: ScEnumCasesStub): ScEnumCases =
     new ScEnumCasesImpl(stub, new ScEnumCasesElementType, null)
 
-  override def createStubImpl(psi: ScEnumCases, parentStub: StubElement[_ <: PsiElement]): ScEnumCasesStub =
+  override def createStubImpl(psi: ScEnumCases, parentStub: StubElement[? <: PsiElement]): ScEnumCasesStub =
     new ScEnumCasesStubImpl(parentStub, elementType)
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScEnumCasesStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScEnumCasesStub =
     new ScEnumCasesStubImpl(parentStub, elementType)
 }

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 
 class ScTypeAliasStubImpl(
-  parent:                          StubElement[_ <: PsiElement],
+  parent:                          StubElement[? <: PsiElement],
   elementType:                     IElementType,
   name:                            String,
   override val typeText:           Option[String],

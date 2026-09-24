@@ -187,7 +187,7 @@ class LargeFilesMixedPsiTests extends ScalaLightCodeInsightFixtureTestCase {
     // This is the existing behavior copied from Java.
     // The test just fixates the current behavior.
     //
-    val filesWithStubs: Seq[(PsiFile, PsiClassHolderFileStub[_])] = files
+    val filesWithStubs: Seq[(PsiFile, PsiClassHolderFileStub[?])] = files
       .map { file =>
         val stub = file match {
           case cls: ScClsFileImpl => cls.getStub

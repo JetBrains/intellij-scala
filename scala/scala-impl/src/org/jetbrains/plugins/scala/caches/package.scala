@@ -77,10 +77,10 @@ package object caches {
     }
   }
 
-  private def idFor(lambdaClass: Class[_], name: String): String =
+  private def idFor(lambdaClass: Class[?], name: String): String =
     withoutLambdaSuffix(lambdaClass.getName).replace('.', '$') + "$" + name.replace('.', '$') + "$cacheKey"
 
-  private def nameFor(lambdaClass: Class[_], name: String): String =
+  private def nameFor(lambdaClass: Class[?], name: String): String =
     withoutLambdaSuffix(lambdaClass.getSimpleName) + "." + name
 
   private def withoutLambdaSuffix(name: String): String = {

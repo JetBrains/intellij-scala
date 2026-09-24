@@ -49,7 +49,7 @@ class DataById[Data](id: Data => String) {
 }
 
 class DataByIdTableModel[Data](dataById: DataById[Data],
-                               columnInfos: ColumnInfo[String, _]*)
+                               columnInfos: ColumnInfo[String, ?]*)
                               (preferredWidths: Seq[Int])
 
   extends ListTableModel[String](columnInfos: _*) {

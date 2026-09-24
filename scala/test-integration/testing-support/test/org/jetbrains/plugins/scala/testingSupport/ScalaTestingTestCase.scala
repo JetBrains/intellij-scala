@@ -41,7 +41,7 @@ abstract class ScalaTestingTestCase
     with ScalaSdkOwner
     with TestOutputMarkers {
 
-  protected def expectedDefaultRunConfigurationClass: Class[_ <: RunConfiguration]
+  protected def expectedDefaultRunConfigurationClass: Class[? <: RunConfiguration]
 
   override def runInDispatchThread(): Boolean = false
 
@@ -82,7 +82,7 @@ abstract class ScalaTestingTestCase
 
   private def selectSingleConfigurationOfExpectedTypeOrFail(
     configurations: Seq[ConfigurationFromContext],
-    preferredClass: Option[Class[_ <: RunConfiguration]]
+    preferredClass: Option[Class[? <: RunConfiguration]]
   ): ConfigurationFromContext = {
     configurations match {
       case Seq(config) =>
@@ -99,7 +99,7 @@ abstract class ScalaTestingTestCase
     }
   }
 
-  private def assertConfigurationType(config: ConfigurationFromContext, expectedConfigClass: Class[_ <: RunConfiguration]): Unit = {
+  private def assertConfigurationType(config: ConfigurationFromContext, expectedConfigClass: Class[? <: RunConfiguration]): Unit = {
     Assert.assertEquals(
       s"Created run configuration has an unexpected class",
       expectedConfigClass,
@@ -241,8 +241,8 @@ abstract class ScalaTestingTestCase
 
   private def runProcess(
     runConfiguration: RunnerAndConfigurationSettings,
-    executorClass: Class[_ <: Executor],
-    runner: ProgramRunner[_ <: RunnerSettings],
+    executorClass: Class[? <: Executor],
+    runner: ProgramRunner[? <: RunnerSettings],
     listeners: Seq[ProcessListener],
   ): (ProcessHandler, RunContentDescriptor) = {
     val executionEnvironment = {

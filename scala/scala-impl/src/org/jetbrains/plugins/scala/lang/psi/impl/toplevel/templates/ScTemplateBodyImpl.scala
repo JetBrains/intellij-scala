@@ -75,7 +75,7 @@ class ScTemplateBodyImpl private(stub: ScTemplateBodyStub, node: ASTNode)
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    val td = PsiTreeUtil.getContextOfType(this, classOf[ScTemplateDefinitionImpl[_]])
+    val td = PsiTreeUtil.getContextOfType(this, classOf[ScTemplateDefinitionImpl[?]])
     if (td != null) {
       if (!td.processDeclarationsForTemplateBody(processor, state, td.extendsBlock, place))
         return false

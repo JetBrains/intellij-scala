@@ -92,7 +92,7 @@ object ScalaRerunFailedTestsAction {
     override def canRunOn(target: TargetEnvironmentConfiguration): Boolean =
       configuration.canRunOn(target)
 
-    override def getDefaultLanguageRuntimeType: LanguageRuntimeType[_] =
+    override def getDefaultLanguageRuntimeType: LanguageRuntimeType[?] =
       configuration.getDefaultLanguageRuntimeType
 
     override def getDefaultTargetName: String =

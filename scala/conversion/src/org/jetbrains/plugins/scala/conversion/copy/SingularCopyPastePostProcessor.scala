@@ -53,8 +53,8 @@ abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](da
     editor: Editor,
     bounds: RangeMarker,
     caretOffset: Int,
-    ref: Ref[_ >: JBoolean],
-    values: ju.List[_ <: T]
+    ref: Ref[? >: JBoolean],
+    values: ju.List[? <: T]
   ): Unit = {
     val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     psiFile match {
@@ -76,7 +76,7 @@ abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](da
   protected def processTransferableData(
     bounds: RangeMarker,
     caretOffset: Int,
-    ref: Ref[_ >: JBoolean],
+    ref: Ref[? >: JBoolean],
     value: T
   )(implicit
     project: Project,

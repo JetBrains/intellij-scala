@@ -62,7 +62,7 @@ private[backend] object ScalaSdkUtilImpl {
 
       try {
         //NOTE: the red code comes from SCL-23078
-        val libraryType: LibraryType[_ <: LibraryProperties[_]] = libraryConfiguration.getLibraryType
+        val libraryType: LibraryType[? <: LibraryProperties[?]] = libraryConfiguration.getLibraryType
         val libraryKind = if (libraryType != null) libraryType.getKind else null
         libraryModel.setKind(libraryKind)
 

@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference
  * Originally copied and converted to Scala from com.intellij.codeInsight.hint.CancelProgressOnScrolling (it's package private and inaccessible)
  * No changes behavioral changes made in the initial commit.
  */
-final class CancelProgressOnScrolling private[utils](private val myCancellablePromiseRef: AtomicReference[_ <: CancellablePromise[_]])
+final class CancelProgressOnScrolling private[utils](private val myCancellablePromiseRef: AtomicReference[? <: CancellablePromise[?]])
   extends VisibleAreaListener {
 
   override def visibleAreaChanged(@NotNull e: VisibleAreaEvent): Unit = {

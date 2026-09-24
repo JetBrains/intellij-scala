@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{UndefinedType, ValueType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object UnnecessaryPartialFunctionInspection {
-  private val PartialFunctionClassName = classOf[PartialFunction[_, _]].getCanonicalName
-  private val Function1ClassName       = classOf[(_) => _].getCanonicalName
+  private val PartialFunctionClassName = classOf[PartialFunction[?, ?]].getCanonicalName
+  private val Function1ClassName       = classOf[(?) => ?].getCanonicalName
   val inspectionName: String           = ScalaInspectionBundle.message("displayname.unnecessary.partial.function")
 }
 

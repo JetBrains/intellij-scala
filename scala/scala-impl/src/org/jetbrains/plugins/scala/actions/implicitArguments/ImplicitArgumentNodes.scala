@@ -73,18 +73,18 @@ private class ImplicitParameterProblemNode(value: ScalaResolveResult)
 
   assert(value.isImplicitParameterProblem)
 
-  override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] = {
+  override def getChildrenImpl: util.Collection[AbstractTreeNode[?]] = {
     val arguments = ImplicitCollector.probableArgumentsFor(value)
-    val nodes: Seq[AbstractTreeNode[_]] = arguments.map {
+    val nodes: Seq[AbstractTreeNode[?]] = arguments.map {
       case (resolveResult, fullInfo) => new ImplicitArgumentWithReason(resolveResult, fullInfo)
     }
     if (nodes.nonEmpty) nodes.asJavaCollection
     else errorLeafNode(ScalaBundle.message("no.implicits.applicable.by.type"))
   }
 
-  private def errorLeafNode(@Nls errorText: String): util.Collection[AbstractTreeNode[_]] = {
+  private def errorLeafNode(@Nls errorText: String): util.Collection[AbstractTreeNode[?]] = {
     singletonList(new AbstractTreeNode[String](project, errorText) {
-      override def getChildren = new util.ArrayList[AbstractTreeNode[_]]()
+      override def getChildren = new util.ArrayList[AbstractTreeNode[?]]()
 
       override def update(data: PresentationData): Unit = {
         data.setPresentableText(errorText)
@@ -112,7 +112,7 @@ private abstract class ImplicitParametersNodeBase(value: ScalaResolveResult)
 
   override def extractPsiFromValue(): PsiNamedElement = value.getElement
 
-  override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] =
+  override def getChildrenImpl: util.Collection[AbstractTreeNode[?]] =
     value
       .implicitArguments
       .flatMap(_.args)
@@ -162,7 +162,7 @@ private abstract class ImplicitParametersNodeBase(value: ScalaResolveResult)
 }
 
 private object ImplicitArgumentNodes {
-  def resolveResultNode(srr: ScalaResolveResult): AbstractTreeNode[_] = {
+  def resolveResultNode(srr: ScalaResolveResult): AbstractTreeNode[?] = {
     if (srr.isImplicitParameterProblem) new ImplicitParameterProblemNode(srr)
     else new ImplicitArgumentRegularNode(srr)
   }

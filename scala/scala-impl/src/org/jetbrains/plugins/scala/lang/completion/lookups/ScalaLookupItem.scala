@@ -269,7 +269,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     }
   }
 
-  private def typeParametersText(typeParameters: Seq[_ <: PsiTypeParameter])
+  private def typeParametersText(typeParameters: Seq[? <: PsiTypeParameter])
                                 (implicit project: Project, tpc: TypePresentationContext, context: Context): String =
     if (typeParameters.isEmpty)
       ""

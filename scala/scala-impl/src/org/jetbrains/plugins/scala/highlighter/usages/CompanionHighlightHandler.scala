@@ -15,7 +15,7 @@ import java.util.Collections
 private class CompanionHighlightHandler(keyword: PsiElement, definition: ScTypeDefinitionLike, editor: Editor, file: PsiFile)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
 
-  override def computeUsages(targets: util.List[_ <: PsiElement]): Unit =
+  override def computeUsages(targets: util.List[? <: PsiElement]): Unit =
     definition.baseCompanion.map(_.nameId.getPrevSiblingNotWhitespace).foreach { companionKeyword =>
       definition match {
         case ScBegin(_, Some(_)) if CodeInsightSettings.getInstance.HIGHLIGHT_BRACES => // Highlight as "brace" rather than "usage" (in ScalaBlockSupportHandler)
@@ -24,7 +24,7 @@ private class CompanionHighlightHandler(keyword: PsiElement, definition: ScTypeD
       myReadUsages.add(companionKeyword.getTextRange)
     }
 
-  override def selectTargets(targets: util.List[_ <: PsiElement], selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit = {
+  override def selectTargets(targets: util.List[? <: PsiElement], selectionConsumer: Consumer[? >: util.List[? <: PsiElement]]): Unit = {
     selectionConsumer.consume(targets)
   }
 

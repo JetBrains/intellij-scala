@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 abstract class ScalaInspectionTestBase extends ScalaAnnotatorQuickFixTestBase {
   override protected def defaultVersionOverride: Option[ScalaVersion] = Some(ScalaSdkOwner.preferableSdkVersion)
 
-  protected val classOfInspection: Class[_ <: LocalInspectionTool]
+  protected val classOfInspection: Class[? <: LocalInspectionTool]
 
   protected override def setUp(): Unit = {
     super.setUp()

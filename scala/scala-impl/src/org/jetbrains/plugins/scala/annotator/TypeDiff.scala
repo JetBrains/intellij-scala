@@ -210,6 +210,6 @@ object TypeDiff {
   }
 
   private object EmptyMap {
-    def unapply(map: Map[_, _]): Boolean = map.isEmpty
+    def unapply(map: Map[?, ?]): Boolean = map.isEmpty
   }
 }

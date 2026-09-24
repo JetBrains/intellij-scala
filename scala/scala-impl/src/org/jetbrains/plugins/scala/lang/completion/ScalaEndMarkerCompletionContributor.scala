@@ -41,8 +41,8 @@ final class ScalaEndMarkerCompletionContributor extends CompletionContributor {
     .`with`(firstNonWhitespaceChildInLinePattern)),
     new EndMarkerCompletionProvider(classOf[ScReferenceExpression], useEndKeywordInLookupString = true))
 
-  private def extendBasicAndSmart(place: PsiElementPattern.Capture[_ <: PsiElement],
-                                  provider: EndMarkerCompletionProvider[_ <: ScalaPsiElement]): Unit = {
+  private def extendBasicAndSmart(place: PsiElementPattern.Capture[? <: PsiElement],
+                                  provider: EndMarkerCompletionProvider[? <: ScalaPsiElement]): Unit = {
     val pattern = place.notAfterLeafSkippingWhitespaceComment(ScalaTokenTypes.tDOT)
 
     extend(CompletionType.BASIC, pattern, provider)

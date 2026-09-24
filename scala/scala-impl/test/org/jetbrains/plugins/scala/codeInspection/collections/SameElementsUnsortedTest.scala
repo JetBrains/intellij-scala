@@ -4,7 +4,7 @@ package collections
 
 abstract class CorrespondsUnsortedInspectionTest extends OperationsOnCollectionInspectionTest {
 
-  override val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[CorrespondsUnsortedInspection]
 }
 

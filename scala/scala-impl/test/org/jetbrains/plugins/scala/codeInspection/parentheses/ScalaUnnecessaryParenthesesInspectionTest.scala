@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions.TextRangeExt
 
 abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaInspectionTestBase {
 
-  protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
+  protected override val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ScalaUnnecessaryParenthesesInspection]
 
   protected override val description = "Unnecessary parentheses"

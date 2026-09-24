@@ -5,7 +5,7 @@ package forwardReferenceInspection
 import com.intellij.codeInspection.LocalInspectionTool
 
 class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ForwardReferenceInspection]
 
   override protected val description =

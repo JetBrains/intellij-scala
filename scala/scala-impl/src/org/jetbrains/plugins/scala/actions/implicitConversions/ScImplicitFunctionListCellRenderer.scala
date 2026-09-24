@@ -36,7 +36,7 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement, place:
     result
   }
 
-  override def getListCellRendererComponent(list: JList[_], value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+  override def getListCellRendererComponent(list: JList[?], value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
     val item = value.asInstanceOf[Parameters].newExpression
     super.getListCellRendererComponent(list, item, index, isSelected, cellHasFocus)
   }

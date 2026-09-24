@@ -70,7 +70,7 @@ class CaseClassParametersCompletionContributor extends ScalaCompletionContributo
 
       private def createWeigher(position: Int, parameters: Seq[ScParameter]) = new LookupElementWeigher("orderByPosition") {
 
-        override def weigh(element: LookupElement): Comparable[_] = element match {
+        override def weigh(element: LookupElement): Comparable[?] = element match {
           case ScalaLookupItem(item, namedElement) =>
             namedElement match {
               case parameter: ScParameter if parameter.name == item.getLookupString /*not equals when name computed by type*/ =>

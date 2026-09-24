@@ -13,7 +13,7 @@ class NonNullableValueBasedListRenderer[T](
   @Nullable default: String = null
 ) extends SimpleListCellRenderer[T] {
 
-  override def customize(list: JList[_ <: T], value: T, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
+  override def customize(list: JList[? <: T], value: T, index: Int, selected: Boolean, hasFocus: Boolean): Unit = {
     val text = if (value == null) default else valueTransformer(value)
     setText(text)
   }

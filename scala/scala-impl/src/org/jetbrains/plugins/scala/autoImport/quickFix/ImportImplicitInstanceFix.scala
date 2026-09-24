@@ -29,7 +29,7 @@ final class ImportImplicitInstanceFix private (notFoundImplicitParams: () => Seq
   override def shouldShowHint(): Boolean =
     super.shouldShowHint() && ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_IMPLICITS
 
-  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
+  override def createAddImportAction(editor: Editor): ScalaAddImportAction[?, ?] =
     ScalaAddImportAction.importImplicits(editor, elements, owner, popupPosition)
 
   override def isAddUnambiguous: Boolean = false

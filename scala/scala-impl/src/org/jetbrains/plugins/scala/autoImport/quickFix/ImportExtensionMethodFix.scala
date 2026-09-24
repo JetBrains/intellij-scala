@@ -9,7 +9,7 @@ class ImportExtensionMethodFix(ref: ScReferenceExpression,
                                computation: ConversionToImportComputation) extends ScalaImportElementFix[ExtensionMethodToImport](ref) {
   override protected def findElementsToImport(): Seq[ExtensionMethodToImport] = computation.extensionMethods
 
-  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
+  override def createAddImportAction(editor: Editor): ScalaAddImportAction[?, ?] =
     ScalaAddImportAction.importExtensionMethod(editor, elements, ref)
 
   override def isAddUnambiguous: Boolean = false

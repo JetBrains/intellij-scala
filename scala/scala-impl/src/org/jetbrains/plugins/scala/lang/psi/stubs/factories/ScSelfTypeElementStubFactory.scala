@@ -18,7 +18,7 @@ final class ScSelfTypeElementStubFactory(elementType: ScSelfTypeElementElementTy
     dataStream.writeNames(stub.classNames)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScSelfTypeElementStub =
     new ScSelfTypeElementStubImpl(
       parentStub,
       elementType,
@@ -27,7 +27,7 @@ final class ScSelfTypeElementStubFactory(elementType: ScSelfTypeElementElementTy
       classNames = dataStream.readNames
     )
 
-  override def createStubImpl(typeElement: ScSelfTypeElement, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub =
+  override def createStubImpl(typeElement: ScSelfTypeElement, parentStub: StubElement[? <: PsiElement]): ScSelfTypeElementStub =
     new ScSelfTypeElementStubImpl(
       parentStub,
       elementType,

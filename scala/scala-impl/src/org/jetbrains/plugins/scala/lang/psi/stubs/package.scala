@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyRefFqn
 
 package object stubs {
 
-  private[stubs] type RawStubElement = StubElement[_ <: PsiElement]
+  private[stubs] type RawStubElement = StubElement[? <: PsiElement]
 
   final def classNames(te: ScTypeElement): Array[String] = {
     val allNames = te match {

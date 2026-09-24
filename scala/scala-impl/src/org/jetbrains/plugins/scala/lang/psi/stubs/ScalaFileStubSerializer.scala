@@ -13,7 +13,7 @@ final class ScalaFileStubSerializer(fileType: ScStubFileElementType) extends Stu
 
   override def serialize(stub: ScFileStub, dataStream: StubOutputStream): Unit = {}
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFileStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScFileStub =
     fileType.createFileStub(null)
 
   override def indexStub(stub: ScFileStub, sink: IndexSink): Unit = {}

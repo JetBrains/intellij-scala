@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScSelfTypeElementStub
 
-class ScSelfTypeElementStubImpl(parent: StubElement[_ <: PsiElement],
+class ScSelfTypeElementStubImpl(parent: StubElement[? <: PsiElement],
                                 elementType: IElementType,
                                 @Nullable name: String,
                                 override val typeText: Option[String],

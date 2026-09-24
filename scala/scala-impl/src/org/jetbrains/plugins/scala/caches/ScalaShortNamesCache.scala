@@ -64,7 +64,7 @@ class ScalaShortNamesCache(implicit project: Project) extends PsiShortNamesCache
     res.toArray
   }
 
-  override def processMethodsWithName(name: String, scope: GlobalSearchScope, processor: Processor[_ >: PsiMethod]): Boolean = {
+  override def processMethodsWithName(name: String, scope: GlobalSearchScope, processor: Processor[? >: PsiMethod]): Boolean = {
     //todo:
     true
   }

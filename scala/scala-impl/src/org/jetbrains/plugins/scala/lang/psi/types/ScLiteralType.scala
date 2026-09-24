@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-final class ScLiteralType private(val value: ScLiteral.Value[_],
+final class ScLiteralType private(val value: ScLiteral.Value[?],
                                   // The psiElement, this literal type was created from
                                   // Especially useful in Scala3,
                                   // where String literals are used more and more
@@ -34,11 +34,11 @@ object ScLiteralType {
 
   import ScLiteral.Value
 
-  def apply(value: Value[_],
+  def apply(value: Value[?],
             @Nullable psiElement: PsiElement = null)
            (implicit project: Project) =
     new ScLiteralType(value, Option(psiElement))
 
-  def unapply(literalType: ScLiteralType): Some[Value[_]] =
+  def unapply(literalType: ScLiteralType): Some[Value[?]] =
     Some(literalType.value)
 }

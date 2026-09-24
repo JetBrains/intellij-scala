@@ -23,7 +23,7 @@ class ScaladocLinkResolveTest_Old extends ScalaResolveTestCase {
   override protected lazy val projectJdk: Sdk =
     SmartJDKLoader.createFilteredJdk(LanguageLevel.JDK_17, Seq("java.base", "java.desktop"))
 
-  protected def genericResolve(expectedLength: Int, expectedClass: Class[_]): Unit = try {
+  protected def genericResolve(expectedLength: Int, expectedClass: Class[?]): Unit = try {
     //NOTE: the file is prepared in `setUp`
     val caretOffsets: Seq[Int] = getEditor.getCaretModel.getAllCarets.asScala.map(_.getOffset).toSeq
     for (caretOffset <- caretOffsets) {

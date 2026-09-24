@@ -12,7 +12,7 @@ final class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
 
   override def fillActions(element: LookupElement,
                            lookup: Lookup,
-                           consumer: Consumer[_ >: LookupElementAction]): Unit = element match {
+                           consumer: Consumer[? >: LookupElementAction]): Unit = element match {
     case element: ScalaLookupItem if element.isClassName &&
       element.getInsertHandler == null &&
       !element.getPsiElement.isInstanceOf[PsiClass] =>

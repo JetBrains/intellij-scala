@@ -8,9 +8,9 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import java.util
 
 class CaretModelStub extends CaretModel {
-  override def setCaretsAndSelections(caretStates: util.List[_ <: CaretState]): Unit = ???
+  override def setCaretsAndSelections(caretStates: util.List[? <: CaretState]): Unit = ???
 
-  override def setCaretsAndSelections(caretStates: util.List[_ <: CaretState], updateSystemSelection: Boolean): Unit = ???
+  override def setCaretsAndSelections(caretStates: util.List[? <: CaretState], updateSystemSelection: Boolean): Unit = ???
 
   override def getCaretCount: Int = ???
 

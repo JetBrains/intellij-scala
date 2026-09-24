@@ -6,7 +6,7 @@ import com.intellij.openapi.util.TextRange
 import java.awt.datatransfer.DataFlavor
 
 abstract class AssociationsData(val associations: Array[Association],
-                                private val companion: AssociationsData.Companion[_]) extends TextBlockTransferableData {
+                                private val companion: AssociationsData.Companion[?]) extends TextBlockTransferableData {
 
   import AssociationsData._
 

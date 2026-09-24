@@ -67,7 +67,7 @@ abstract class AbstractTestRunConfiguration(
 
   override protected def alternativeJrePath: Option[String] = Option(getAlternativeJrePath)
 
-  def configurationProducer: AbstractTestConfigurationProducer[_]
+  def configurationProducer: AbstractTestConfigurationProducer[?]
   def testFramework: AbstractTestFramework
 
   private lazy val suitePaths: Seq[String] = testFramework.baseSuitePaths
@@ -209,7 +209,7 @@ abstract class AbstractTestRunConfiguration(
     JavaRunConfigurationExtensionManager.checkConfigurationIsValid(thisConfiguration)
   }
 
-  override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = {
+  override def getConfigurationEditor: SettingsEditor[? <: RunConfiguration] = {
     val group: SettingsEditorGroup[AbstractTestRunConfiguration] = new SettingsEditorGroup
     group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new AbstractTestRunConfigurationEditor(project))
     JavaRunConfigurationExtensionManager.getInstance.appendEditors(thisConfiguration, group)
@@ -217,7 +217,7 @@ abstract class AbstractTestRunConfiguration(
     group
   }
 
-  private def thisConfiguration: RunConfigurationBase[_] = this
+  private def thisConfiguration: RunConfigurationBase[?] = this
 
   protected[test] final def isValidSuite(clazz: PsiClass): Boolean = {
     val suiteClass = getSuiteClass

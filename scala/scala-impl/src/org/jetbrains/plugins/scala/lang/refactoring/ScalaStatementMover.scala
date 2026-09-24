@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 class ScalaStatementMover extends LineMover {
-  private type ElementClass = Class[_ <: PsiElement]
+  private type ElementClass = Class[? <: PsiElement]
 
   override def afterMove(editor: Editor, file: PsiFile, info: MoveInfo, down: Boolean): Unit = {
     super.afterMove(editor, file, info, down)

@@ -627,7 +627,7 @@ object TestNodeProvider {
     case _ => None
   }
 
-  def getTestNames(aSuite: ScTypeDefinition, configurationProducer: AbstractTestConfigurationProducer[_]): Seq[String] = {
+  def getTestNames(aSuite: ScTypeDefinition, configurationProducer: AbstractTestConfigurationProducer[?]): Seq[String] = {
     @tailrec
     def getTestLeaves(elements: Iterable[TreeElement], res: List[Test] = List()): List[Test] = {
       if (elements.isEmpty) res else {

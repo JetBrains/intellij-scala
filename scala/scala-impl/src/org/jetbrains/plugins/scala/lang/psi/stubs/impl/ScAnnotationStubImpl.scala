@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
 
-class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
+class ScAnnotationStubImpl(parent: StubElement[? <: PsiElement],
                            elementType: IElementType,
                            override val annotationText: String,
                            override val name: Option[String])

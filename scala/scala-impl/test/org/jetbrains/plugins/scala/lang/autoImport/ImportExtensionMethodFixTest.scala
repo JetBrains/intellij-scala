@@ -10,7 +10,7 @@ class ImportExtensionMethodFixTest
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
   //noinspection InstanceOf
-  override def createFix(ref: ScReferenceExpression): Option[ScalaImportElementFix[_ <: ElementToImport]] =
+  override def createFix(ref: ScReferenceExpression): Option[ScalaImportElementFix[? <: ElementToImport]] =
     ImportImplicitConversionFixes(ref).find(_.isInstanceOf[ImportExtensionMethodFix])
 
   def testPostfix(): Unit = checkElementsToImport(

@@ -17,11 +17,11 @@ abstract class ScHighlightEndMarkerUsagesHandler private(element: ScalaPsiElemen
 
   override def getTargets: util.List[PsiElement] = Collections.singletonList(elementNameId)
 
-  override def selectTargets(targets: util.List[_ <: PsiElement], selectionConsumer: com.intellij.util.Consumer[_ >: util.List[_ <: PsiElement]]): Unit = {
+  override def selectTargets(targets: util.List[? <: PsiElement], selectionConsumer: com.intellij.util.Consumer[? >: util.List[? <: PsiElement]]): Unit = {
     selectionConsumer.consume(targets)
   }
 
-  override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = {
+  override def computeUsages(targets: util.List[? <: PsiElement]): Unit = {
     myReadUsages.add(elementNameId.getTextRange)
 
     element.containingFile.foreach { file =>

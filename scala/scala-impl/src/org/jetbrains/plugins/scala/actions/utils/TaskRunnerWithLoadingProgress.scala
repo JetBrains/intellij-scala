@@ -97,7 +97,7 @@ private[actions] object TaskRunnerWithLoadingProgress {
   def runTask[T](
     project: Project,
     backgroundAction: NonBlockingReadAction[T],
-    uiDataConsumer: Consumer[_ >: T],
+    uiDataConsumer: Consumer[? >: T],
     @Nullable @NlsContexts.ProgressTitle
     progressTitle: String,
     editor: Editor,
@@ -111,7 +111,7 @@ private[actions] object TaskRunnerWithLoadingProgress {
       case _ => project
     }
 
-    val cancellablePromiseRef = new AtomicReference[CancellablePromise[_]]()
+    val cancellablePromiseRef = new AtomicReference[CancellablePromise[?]]()
     val (stopAction, stopActionDisposable) =
       startProgressAndCreateStopAction(project, progressTitle, cancellablePromiseRef, editor, editorOrProjectDisposable)
 
@@ -149,7 +149,7 @@ private[actions] object TaskRunnerWithLoadingProgress {
     project: Project,
     @Nullable @NlsContexts.ProgressTitle
     progressTitle: String,
-    promiseRef: AtomicReference[_ <: CancellablePromise[_]],
+    promiseRef: AtomicReference[? <: CancellablePromise[?]],
     editor: Editor,
     editorOrProjectDisposable: Disposable
   ): (Consumer[Boolean], Option[Disposable]) = {

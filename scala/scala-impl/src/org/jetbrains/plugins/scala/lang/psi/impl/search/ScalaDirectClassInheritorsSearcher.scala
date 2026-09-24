@@ -21,7 +21,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectClassInheritorsSearch.SearchParameters] {
 
-  override def execute(queryParameters: DirectClassInheritorsSearch.SearchParameters, consumer: Processor[_ >: PsiClass]): Boolean = {
+  override def execute(queryParameters: DirectClassInheritorsSearch.SearchParameters, consumer: Processor[? >: PsiClass]): Boolean = {
     val clazz = queryParameters.getClassToProcess
 
     val scope: SearchScope = inReadAction {

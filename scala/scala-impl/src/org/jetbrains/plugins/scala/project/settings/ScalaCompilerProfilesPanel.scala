@@ -195,7 +195,7 @@ class ScalaCompilerProfilesPanel(val myProject: Project) extends JPanel(new Bord
       }
     }
 
-    override def removeNodes(path: util.Collection[_ <: TreePath]): Unit = ()
+    override def removeNodes(path: util.Collection[? <: TreePath]): Unit = ()
 
     override def moveNodeTo(parentOrNeighbour: TreePath): Unit = ()
   }

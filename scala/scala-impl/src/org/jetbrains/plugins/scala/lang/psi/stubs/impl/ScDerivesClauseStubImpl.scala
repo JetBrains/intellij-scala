@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClau
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScDerivesClauseStub
 
 class ScDerivesClauseStubImpl(
-  parent:      StubElement[_ <: PsiElement],
+  parent:      StubElement[? <: PsiElement],
   elementType: IElementType
 ) extends StubBase[ScDerivesClause](parent, elementType)
     with ScDerivesClauseStub

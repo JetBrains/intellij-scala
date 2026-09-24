@@ -33,7 +33,7 @@ import scala.annotation.tailrec
 
 class ScParameterImpl protected(
   stub: ScParameterStub,
-  nodeType: ScParamElementType[_ <: ScParameter],
+  nodeType: ScParamElementType[? <: ScParameter],
   node: ASTNode
 ) extends ScalaStubBasedElementImpl(
   stub,
@@ -143,7 +143,7 @@ class ScParameterImpl protected(
         //noinspection InstanceOf
         paramStub.typeText match {
           case None if paramStub.getParentStub != null && paramStub.getParentStub.getParentStub != null &&
-            paramStub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub[_]] =>
+            paramStub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub[?]] =>
             Failure(ScalaBundle.message("cannot.infer.type"))
           case None => Failure(ScalaBundle.message("wrong.stub.problem")) //shouldn't be
           case Some(_: String) => paramStub.typeElement match {

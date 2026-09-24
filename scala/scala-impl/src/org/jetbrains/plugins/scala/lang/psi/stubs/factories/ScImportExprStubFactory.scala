@@ -17,13 +17,13 @@ final class ScImportExprStubFactory(elementType: ScImportExprElementType)
     dataStream.writeBoolean(stub.hasGivenSelector)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportExprStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScImportExprStub =
     new ScImportExprStubImpl(parentStub, elementType,
       referenceText = dataStream.readOptionName,
       hasWildcardSelector = dataStream.readBoolean,
       hasGivenSelector = dataStream.readBoolean)
 
-  override def createStubImpl(expr: ScImportExpr, parentStub: StubElement[_ <: PsiElement]): ScImportExprStub =
+  override def createStubImpl(expr: ScImportExpr, parentStub: StubElement[? <: PsiElement]): ScImportExprStub =
     new ScImportExprStubImpl(parentStub, elementType,
       referenceText = expr.reference.map(_.getText),
       hasWildcardSelector = expr.hasWildcardSelector,

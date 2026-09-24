@@ -15,7 +15,7 @@ final class ScalaRecursiveFunctionLineMarkerProvider extends LineMarkerProvider 
 
   import ScalaRecursiveFunctionLineMarkerProvider._
 
-  override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
+  override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[? <: PsiElement] = {
     if (!GutterUtil.RecursionOption.isEnabled) {
       return null
     }

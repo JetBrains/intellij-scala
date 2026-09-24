@@ -6,7 +6,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorsStub
 
-class ScImportSelectorsStubImpl(parent: StubElement[_ <: PsiElement],
+class ScImportSelectorsStubImpl(parent: StubElement[? <: PsiElement],
                                 elementType: IElementType,
                                 override val hasWildcard: Boolean)
   extends StubBase[ScImportSelectors](parent, elementType) with ScImportSelectorsStub

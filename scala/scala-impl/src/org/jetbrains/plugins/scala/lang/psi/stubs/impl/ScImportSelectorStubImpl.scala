@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
 
-class ScImportSelectorStubImpl(parent: StubElement[_ <: PsiElement],
+class ScImportSelectorStubImpl(parent: StubElement[? <: PsiElement],
                                elementType: IElementType,
                                override val referenceText: Option[String],
                                override val importedName: Option[String],

@@ -42,7 +42,7 @@ class IconsTest extends UsefulTestCase {
     }
   }
 
-  private def getAllIconFields(iconsHolder: Class[_]): Array[Field] = {
+  private def getAllIconFields(iconsHolder: Class[?]): Array[Field] = {
     val fields = iconsHolder.getDeclaredFields
     val iconFields = fields.filter(_.getType == classOf[javax.swing.Icon])
     assert(iconFields.nonEmpty)

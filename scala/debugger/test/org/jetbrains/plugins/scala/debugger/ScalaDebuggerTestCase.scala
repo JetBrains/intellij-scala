@@ -106,7 +106,7 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
             props.setEncodedInlinePosition(lambdaOrdinal)
             val xbp = inWriteAction(breakpointManager.addLineBreakpoint(bpType, virtualFile.getUrl, lineNumber, props))
             val javaBp = BreakpointManager.getJavaBreakpoint(xbp)
-              .asInstanceOf[Breakpoint[_ <: JavaLineBreakpointProperties]]
+              .asInstanceOf[Breakpoint[? <: JavaLineBreakpointProperties]]
             BreakpointManager.addBreakpoint(javaBp)
           }
         }
@@ -159,7 +159,7 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
         props.setEncodedInlinePosition(null)
         val xbp = inWriteAction(breakpointManager.addLineBreakpoint(bpType, vFile.getUrl, lineNumber, props))
         val javaBp = BreakpointManager.getJavaBreakpoint(xbp)
-          .asInstanceOf[Breakpoint[_ <: JavaLineBreakpointProperties]]
+          .asInstanceOf[Breakpoint[? <: JavaLineBreakpointProperties]]
         BreakpointManager.addBreakpoint(javaBp)
       }
     }

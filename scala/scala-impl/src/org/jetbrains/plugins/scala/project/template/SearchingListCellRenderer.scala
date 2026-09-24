@@ -11,7 +11,7 @@ import javax.swing.{DefaultListCellRenderer, JList}
 class SearchingListCellRenderer[T](isSearching: AtomicBoolean, textCustomizer: Option[T => String] = None) extends DefaultListCellRenderer(){
 
   override def getListCellRendererComponent(
-    list: JList[_ <: AnyRef],
+    list: JList[? <: AnyRef],
     value: scala.Any,
     index: Int,
     isSelected: Boolean,

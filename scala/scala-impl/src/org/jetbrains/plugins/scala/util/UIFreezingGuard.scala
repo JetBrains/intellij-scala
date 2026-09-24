@@ -43,7 +43,7 @@ object UIFreezingGuard {
   @Service(Array(Service.Level.APP))
   private final class AppService extends Disposable {
     private final val periodMs = 300
-    private var periodicTask: ScheduledFuture[_] =
+    private var periodicTask: ScheduledFuture[?] =
       if (pceEnabled)
         JobScheduler.getScheduler.scheduleWithFixedDelay(() => cancelOnUserInput(), periodMs, periodMs, TimeUnit.MILLISECONDS)
       else

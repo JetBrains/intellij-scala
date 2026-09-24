@@ -25,7 +25,7 @@ class ModifiersFilter extends ElementFilter {
     }
   }
 
-  override def isClassAcceptable(hintClass: java.lang.Class[_]) = true
+  override def isClassAcceptable(hintClass: java.lang.Class[?]) = true
 
   @NonNls
   override def toString = "modifiers keyword filter"

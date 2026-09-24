@@ -12,6 +12,6 @@ abstract class TypeParameterInfoTestBase extends ParameterInfoTestBase[ScTypeArg
   override def getTestDataPath: String =
     s"${super.getTestDataPath}typeParameterInfo/"
 
-  override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[ScTypeArgs, Any, _ <: PsiElement] =
+  override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[ScTypeArgs, Any, ? <: PsiElement] =
     new ScalaTypeParameterInfoHandler
 }

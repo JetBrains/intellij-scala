@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 class TypedParameterWithoutParenthesisInspectionTest extends InspectionSeverityForcingScalaInspectionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
-  protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
+  protected override val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[TypedParameterWithoutParenthesisInspection]
 
   override protected val description: String =

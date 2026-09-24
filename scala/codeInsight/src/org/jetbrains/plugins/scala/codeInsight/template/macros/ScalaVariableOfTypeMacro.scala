@@ -57,7 +57,7 @@ sealed abstract class ScalaVariableOfTypeMacro extends ScalaMacro {
 
   override def getDefaultValue: String = "x"
 
-  def arrayIsValid(array: Array[_]): Boolean = array.isEmpty
+  def arrayIsValid(array: Array[?]): Boolean = array.isEmpty
 
   protected def typeText(expressions: Array[Expression], `type`: ScType)
                         (implicit context: ExpressionContext): Boolean = {
@@ -93,7 +93,7 @@ object ScalaVariableOfTypeMacro {
 
     override def getPresentableName: String = JavaBundle.message("macro.variable.of.type")
 
-    override def arrayIsValid(array: Array[_]): Boolean = array.nonEmpty
+    override def arrayIsValid(array: Array[?]): Boolean = array.nonEmpty
   }
 
   final class ArrayVariable extends ScalaVariableOfTypeMacro {

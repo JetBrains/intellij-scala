@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 abstract class XmlUnmatchedTagInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ScalaXmlUnmatchedTagInspection]
 }
 

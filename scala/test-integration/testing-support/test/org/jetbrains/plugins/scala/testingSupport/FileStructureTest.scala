@@ -123,7 +123,7 @@ trait FileStructureTest {
       val virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(Path.of(filePath))
       val file = PsiManager.getInstance(getProject).findFile(virtualFile)
       val treeViewModel: ScalaStructureViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
-        override def isEnabled(provider: NodeProvider[_]): Boolean = provider.isInstanceOf[TestNodeProvider]
+        override def isEnabled(provider: NodeProvider[?]): Boolean = provider.isInstanceOf[TestNodeProvider]
       }
       val wrapper = StructureViewComponent.createWrapper(getProject, treeViewModel.getRoot, treeViewModel)
 
@@ -160,7 +160,7 @@ trait FileStructureTest {
     expectedStatus: Int
   ): Unit = {
 
-    def containsNodeWithName(currentNode: AbstractTreeNode[_], currentParentName: String): Boolean = {
+    def containsNodeWithName(currentNode: AbstractTreeNode[?], currentParentName: String): Boolean = {
       val treeElement = currentNode.getValue.asInstanceOf[TreeElement]
       val nodeName = treeElement.getPresentation.getPresentableText
       val matches = treeElement match {
@@ -190,8 +190,8 @@ trait FileStructureTest {
     }
   }
 
-  private def allAvailablePaths(root: AbstractTreeNode[_]): Seq[FileStructurePath] = inReadAction {
-    def inner(node: AbstractTreeNode[_], curPath: List[FileStructureNode]): Seq[Seq[FileStructureNode]] = {
+  private def allAvailablePaths(root: AbstractTreeNode[?]): Seq[FileStructurePath] = inReadAction {
+    def inner(node: AbstractTreeNode[?], curPath: List[FileStructureNode]): Seq[Seq[FileStructureNode]] = {
       val children = node.getChildren
       val path = nodeInfo(node.getValue.asInstanceOf[TreeElement]) :: curPath
       if (children.isEmpty)

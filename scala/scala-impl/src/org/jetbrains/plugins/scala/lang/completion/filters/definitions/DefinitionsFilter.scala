@@ -54,7 +54,7 @@ class DefinitionsFilter extends ElementFilter {
     otherParent != null && otherParent.getTextRange.getStartOffset == parent.getTextRange.getStartOffset
   }
 
-  override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
+  override def isClassAcceptable(hintClass: java.lang.Class[?]): Boolean = {
     true
   }
 

@@ -38,7 +38,7 @@ class ScaladocAction extends BaseAnalysisAction(ScalaBundle.message("generate.sc
       try {
         val runConfig = new ScaladocRunConfiguration(project, configurationDialog, config)
 
-        val runner: ProgramRunner[_ <: RunnerSettings] =
+        val runner: ProgramRunner[? <: RunnerSettings] =
           ProgramRunner.getRunner(DefaultRunExecutor.EXECUTOR_ID, config)
         val builder: ExecutionEnvironmentBuilder =
           new ExecutionEnvironmentBuilder(project, DefaultRunExecutor.getRunExecutorInstance)
@@ -85,7 +85,7 @@ object ScaladocAction {
   ) extends RunConfigurationBase[Unit](project, null, "Generate ScalaDoc") {
     override def checkConfiguration(): Unit = {}
 
-    override def getConfigurationEditor: SettingsEditor[_ <: ScaladocRunConfiguration] = new SettingsEditor[ScaladocRunConfiguration]() {
+    override def getConfigurationEditor: SettingsEditor[? <: ScaladocRunConfiguration] = new SettingsEditor[ScaladocRunConfiguration]() {
       override def createEditor(): JComponent = dialog.createCenterPanel()
 
       override def resetEditorFrom(s: ScaladocRunConfiguration): Unit = {}

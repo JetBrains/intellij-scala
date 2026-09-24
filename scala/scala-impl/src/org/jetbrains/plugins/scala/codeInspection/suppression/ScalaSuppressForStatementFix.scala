@@ -67,7 +67,7 @@ abstract class ScalaSuppressByLineCommentFix(key: HighlightDisplayKey) extends S
     }
   }
 
-  override def getCommentsFor(container: PsiElement): util.List[_ <: PsiElement] = {
+  override def getCommentsFor(container: PsiElement): util.List[? <: PsiElement] = {
     ScalaSuppressableInspectionTool.commentsFor(container).asJava
   }
 }
@@ -83,7 +83,7 @@ class ScalaSuppressForStatementFix(key: HighlightDisplayKey) extends ScalaSuppre
   }
 }
 
-abstract class ScalaSuppressForDefinitionFix(key: HighlightDisplayKey, @Nls text: String, defClasses: Class[_ <: PsiElement]*)
+abstract class ScalaSuppressForDefinitionFix(key: HighlightDisplayKey, @Nls text: String, defClasses: Class[? <: PsiElement]*)
   extends ScalaSuppressByLineCommentFix(key) {
 
   override def getText: String = text
@@ -96,7 +96,7 @@ final class ScalaSuppressForFileFix(key: HighlightDisplayKey) extends ScalaSuppr
 
   override def getContainer(context: PsiElement): PsiElement = context.containingScalaFile.orNull
 
-  override def getCommentsFor(container: PsiElement): util.List[_ <: PsiElement] =
+  override def getCommentsFor(container: PsiElement): util.List[? <: PsiElement] =
     container.asOptionOf[ScalaFile]
       .flatMap(_.firstChild.filterByType[PsiComment])
       .toList

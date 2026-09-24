@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
 
 class ScTypeParamStubImpl(
-  parent: StubElement[_ <: PsiElement],
+  parent: StubElement[? <: PsiElement],
   elementType: IElementType,
   name: String,
   override val text: String,

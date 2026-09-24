@@ -22,7 +22,7 @@ object ScalaAsyncActionTestUtils {
   @RequiresBackgroundThread // We are waiting for an action result, so we shouldn't block the EDT
   def invokeActionAndWaitForCompletion(
     project: Project,
-    invokedActionClass: Class[_],
+    invokedActionClass: Class[?],
     actionInvocationBody: () => Unit,
     waitForDuration: Duration = 20.seconds
   ): Unit = {

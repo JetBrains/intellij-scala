@@ -14,10 +14,10 @@ final class ScParamClausesStubFactory(elementType: ScParamClausesElementType)
 
   override def serialize(stub: ScParamClausesStub, dataStream: StubOutputStream): Unit = {}
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParamClausesStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScParamClausesStub =
     new ScParamClausesStubImpl(parentStub, elementType)
 
-  override def createStubImpl(psi: ScParameters, parentStub: StubElement[_ <: PsiElement]): ScParamClausesStub =
+  override def createStubImpl(psi: ScParameters, parentStub: StubElement[? <: PsiElement]): ScParamClausesStub =
     new ScParamClausesStubImpl(parentStub, elementType)
 
   override def createPsi(stub: ScParamClausesStub): ScParameters = new ScParametersImpl(stub)

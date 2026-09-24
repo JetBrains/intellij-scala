@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 
 class UnzipSingleElementTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[UnzipSingleElementInspection]
 
   override protected val hint: String = ScalaInspectionBundle.message("replace.with.map")

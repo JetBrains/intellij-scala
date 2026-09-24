@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaI
 
 // TODO Inherit from and extend ScalaUnreachableCodeInspectionTest
 class DfaUnreachableCodeInspectionTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[DfaUnreachableCodeInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[DfaUnreachableCodeInspection]
 
   override protected def description: String = ScalaInspectionBundle.message("unreachable.code.name")
 

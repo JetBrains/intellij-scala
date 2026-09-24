@@ -49,10 +49,10 @@ package object completion {
   private[completion] def identifierPattern =
     psiElement(tIDENTIFIER)
 
-  private[completion] def identifierWithParentPattern(clazz: Class[_ <: ScalaPsiElement]) =
+  private[completion] def identifierWithParentPattern(clazz: Class[? <: ScalaPsiElement]) =
     identifierPattern.withParent(clazz)
 
-  private[completion] def identifierWithParentsPattern(classes: Class[_ <: ScalaPsiElement]*) =
+  private[completion] def identifierWithParentsPattern(classes: Class[? <: ScalaPsiElement]*) =
     identifierPattern.withParents(classes: _*)
 
   private[completion] def annotationPattern =
@@ -161,13 +161,13 @@ package object completion {
     result
   }
 
-  implicit class CaptureExt(private val pattern: ElementPattern[_ <: PsiElement]) extends AnyVal {
+  implicit class CaptureExt(private val pattern: ElementPattern[? <: PsiElement]) extends AnyVal {
 
     import StandardPatterns.{and, or}
 
-    def &&(pattern: ElementPattern[_ <: PsiElement]): ElementPattern[_ <: PsiElement] = and(this.pattern, pattern)
+    def &&(pattern: ElementPattern[? <: PsiElement]): ElementPattern[? <: PsiElement] = and(this.pattern, pattern)
 
-    def ||(pattern: ElementPattern[_ <: PsiElement]): ElementPattern[_ <: PsiElement] = or(this.pattern, pattern)
+    def ||(pattern: ElementPattern[? <: PsiElement]): ElementPattern[? <: PsiElement] = or(this.pattern, pattern)
   }
 
   private[completion] implicit class LookupElementExt[E <: LookupElement](private val lookupElement: E) extends AnyVal {
@@ -405,7 +405,7 @@ package object completion {
 
   private[completion] implicit class CompletionResultSetExt(private val set: CompletionResultSet) extends AnyVal {
 
-    def addAllElements(lookupElements: Iterable[_ <: LookupElement]): Unit = {
+    def addAllElements(lookupElements: Iterable[? <: LookupElement]): Unit = {
       import scala.jdk.CollectionConverters._
       set.addAllElements(lookupElements.asJava)
     }
@@ -481,7 +481,7 @@ package object completion {
 
   private final class ScalaByTypeWeigher extends LookupElementWeigher("scalaTypeCompletionWeigher") {
 
-    override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] =
+    override def weigh(element: LookupElement, context: WeighingContext): Comparable[?] =
       element.getPsiElement match {
         case typeAlias: ScTypeAlias if typeAlias.isLocal => 1 // localType
         case typeDefinition: ScTypeDefinition if isLocal(typeDefinition) => 1 // localType

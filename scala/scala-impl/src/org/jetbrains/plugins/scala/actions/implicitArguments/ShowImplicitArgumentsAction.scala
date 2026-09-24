@@ -137,7 +137,7 @@ class ShowImplicitArgumentsAction extends AnAction(
 }
 
 object ShowImplicitArgumentsAction {
-  private def getSelectedNode(jTree: JTree): AbstractTreeNode[_] = {
+  private def getSelectedNode(jTree: JTree): AbstractTreeNode[?] = {
     val path: TreePath = jTree.getSelectionPath
     if (path != null) {
       var component: AnyRef = path.getLastPathComponent
@@ -155,7 +155,7 @@ object ShowImplicitArgumentsAction {
   }
 
   private def navigateSelectedElement(popup: JBPopup, jTree: JTree, project: Project): Boolean = {
-    val selectedNode: AbstractTreeNode[_] = getSelectedNode(jTree)
+    val selectedNode: AbstractTreeNode[?] = getSelectedNode(jTree)
 
     val succeeded: Ref[Boolean] = new Ref[Boolean]
     val commandProcessor: CommandProcessor = CommandProcessor.getInstance

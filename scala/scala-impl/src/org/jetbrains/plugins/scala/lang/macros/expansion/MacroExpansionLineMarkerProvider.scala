@@ -20,8 +20,8 @@ import scala.collection.mutable.ArrayBuffer
 
 abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
-  protected type Marker = RelatedItemLineMarkerInfo[_]
-  protected type Markers = util.Collection[_ >: Marker]
+  protected type Marker = RelatedItemLineMarkerInfo[?]
+  protected type Markers = util.Collection[? >: Marker]
 
   override def collectNavigationMarkers(element: PsiElement, result: Markers): Unit = {
     val file = element.getContainingFile

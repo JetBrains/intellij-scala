@@ -6,6 +6,6 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
 
-class ScTemplateBodyStubImpl(parent: StubElement[_ <: PsiElement],
+class ScTemplateBodyStubImpl(parent: StubElement[? <: PsiElement],
                              elementType: IElementType)
   extends StubBase[ScTemplateBody](parent, elementType) with ScTemplateBodyStub

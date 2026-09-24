@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 
 import scala.collection.immutable.ArraySeq
 
-class ScExtendsBlockStubImpl(parent: StubElement[_ <: PsiElement],
+class ScExtendsBlockStubImpl(parent: StubElement[? <: PsiElement],
                              elementType: IElementType,
                              override val baseClasses: ArraySeq[String])
   extends StubBase[ScExtendsBlock](parent, elementType) with ScExtendsBlockStub

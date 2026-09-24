@@ -15,10 +15,10 @@ abstract class ScBindingPatternStubFactory[P <: ScBindingPattern](elementType: S
     dataStream.writeName(stub.getName)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScBindingPatternStub[P] =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScBindingPatternStub[P] =
     new ScBindingPatternStubImpl[P](parentStub, elementType, name = dataStream.readNameString)
 
-  override def createStubImpl(psi: P, parentStub: StubElement[_ <: PsiElement]): ScBindingPatternStub[P] =
+  override def createStubImpl(psi: P, parentStub: StubElement[? <: PsiElement]): ScBindingPatternStub[P] =
     new ScBindingPatternStubImpl[P](parentStub, elementType, psi.name)
 }
 

@@ -6,7 +6,7 @@ abstract class MapFlattenTestBase extends OperationsOnCollectionInspectionTest {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_12
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[MapFlattenInspection]
 
   override protected val hint: String =

@@ -4,7 +4,7 @@ package collections
 
 class SomeToOptionInspectionTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[SomeToOptionInspection]
 
   override protected val hint: String = ScalaInspectionBundle.message("replace.with.option")

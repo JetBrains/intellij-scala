@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
  */
 class TypeAliasUsagesSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
-  override def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[_ >: PsiReference]): Unit = {
+  override def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[? >: PsiReference]): Unit = {
     val data = inReadAction {
       parameters.getElementToSearch match {
         case target @ ScalaPsiUtil.inNameContext(ta: ScTypeAliasDefinition) =>
@@ -53,7 +53,7 @@ class TypeAliasUsagesSearcher extends QueryExecutorBase[PsiReference, References
   }
 
   private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String) extends RequestResultProcessor(myTarget, prefix) {
-    override def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[_ >: PsiReference]): Boolean = inReadAction {
+    override def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[? >: PsiReference]): Boolean = inReadAction {
       element.parentOfType(classOf[ScConstructorInvocation], strict = false) match {
         case Some(cons) if PsiTreeUtil.isAncestor(cons.typeElement, element, false) =>
           element match {

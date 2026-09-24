@@ -86,7 +86,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScNamedTupleTypeElementAnnotator ::
       Nil
 
-  private val cachedAnnotators: AtomicReference[Map[Class[_], Seq[ElementAnnotator[_]]]] =
+  private val cachedAnnotators: AtomicReference[Map[Class[?], Seq[ElementAnnotator[?]]]] =
     new AtomicReference(Map.empty)
 
   override def annotate(element: ScalaPsiElement, typeAware: Boolean)

@@ -51,14 +51,14 @@ object MultipleScalaVersionsJUnit4Runner {
     result
   }
 
-  private def scalaVersionsToRun(klass: Class[_ <: ScalaSdkOwner]): Seq[TestScalaVersion] = {
+  private def scalaVersionsToRun(klass: Class[? <: ScalaSdkOwner]): Seq[TestScalaVersion] = {
     val annotation = Annotations.findAnnotation(klass, classOf[RunWithScalaVersions])
     annotation
       .map(_.value.toSeq)
       .getOrElse(DefaultScalaVersionsToRun)
   }
 
-  private def jdkVersionsToRun(klass: Class[_ <: ScalaSdkOwner]): Seq[TestJdkVersion] = {
+  private def jdkVersionsToRun(klass: Class[? <: ScalaSdkOwner]): Seq[TestJdkVersion] = {
     val annotation = Annotations.findAnnotation(klass, classOf[RunWithJdkVersions])
     annotation
       .map(_.value.toSeq)

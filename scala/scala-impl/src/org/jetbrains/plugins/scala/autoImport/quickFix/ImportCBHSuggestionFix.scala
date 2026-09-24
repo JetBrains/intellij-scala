@@ -9,7 +9,7 @@ final class ImportCBHSuggestionFix private(variants: Seq[CBHSuggestionToImport],
 {
   override protected def findElementsToImport(): Seq[CBHSuggestionToImport] = variants
 
-  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] = ScalaAddImportAction.cbhSuggested(editor, variants, place)
+  override def createAddImportAction(editor: Editor): ScalaAddImportAction[?, ?] = ScalaAddImportAction.cbhSuggested(editor, variants, place)
 
   override def isAddUnambiguous: Boolean = false
 

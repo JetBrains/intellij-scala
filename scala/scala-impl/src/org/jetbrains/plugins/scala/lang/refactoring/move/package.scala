@@ -139,7 +139,7 @@ package object move {
     }
   }
 
-  def collectUsages(file: ScalaFile, usages: ju.Collection[_ >: UsageInfo], searchInComments: Boolean, searchInNonJavaFiles: Boolean): Unit =
+  def collectUsages(file: ScalaFile, usages: ju.Collection[? >: UsageInfo], searchInComments: Boolean, searchInNonJavaFiles: Boolean): Unit =
     file.namedElements.foreach {
       case obj: ScObject if obj.isPackageObject =>
         for {
@@ -179,7 +179,7 @@ package object move {
                                 searchInStringsAndComments: Boolean,
                                 searchInNonJavaFiles: Boolean,
                                 newQName: String,
-                                usages: ju.Collection[_ >: UsageInfo]): Unit = {
+                                usages: ju.Collection[? >: UsageInfo]): Unit = {
     val stringToSearch = getStringToSearch(element)
     if (stringToSearch != null && stringToSearch.nonEmpty) {
       TextOccurrencesUtil.findNonCodeUsages(element, searchScope, stringToSearch,

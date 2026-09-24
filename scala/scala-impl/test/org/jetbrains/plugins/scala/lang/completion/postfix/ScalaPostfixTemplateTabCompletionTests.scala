@@ -37,7 +37,7 @@ abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaCompletion
     myFixture.checkResultByFile(testName + resultFilePostfix, true)
   }
 
-  def doTest(expectedTemplateClass: Class[_ <: PostfixTemplate], testName: String = getTestName(true))
+  def doTest(expectedTemplateClass: Class[? <: PostfixTemplate], testName: String = getTestName(true))
             (textToType: String = "." + testName): Unit = {
     LiveTemplateCompletionContributor.setShowTemplatesInTests(true, myFixture.getTestRootDisposable)
 

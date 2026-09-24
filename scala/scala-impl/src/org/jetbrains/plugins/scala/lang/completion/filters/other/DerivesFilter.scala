@@ -28,7 +28,7 @@ class DerivesFilter extends ElementFilter {
     }
   }
 
-  override def isClassAcceptable(hintClass: Class[_]): Boolean = true
+  override def isClassAcceptable(hintClass: Class[?]): Boolean = true
 
   @NonNls
   override def toString: String = "derives keyword filter"

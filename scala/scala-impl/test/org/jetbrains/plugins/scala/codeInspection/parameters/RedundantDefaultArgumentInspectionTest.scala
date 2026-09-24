@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 // TODO constructors
 class RedundantDefaultArgumentInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[RedundantDefaultArgumentInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[RedundantDefaultArgumentInspection]
 
   override protected val description = "Argument duplicates corresponding parameter default value"
 

@@ -4,7 +4,7 @@ package collections
 
 class CollectHeadOptionTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[CollectHeadOptionInspection]
 
   override protected val hint: String =

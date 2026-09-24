@@ -127,7 +127,7 @@ object ScalaUnusedImportPass {
           HighlightSeverity.ERROR,
           0,
           document.getTextLength,
-          ((_: HighlightInfo) => false) : Processor[_ >: HighlightInfo] //todo: only unresolved ref issues?
+          ((_: HighlightInfo) => false) : Processor[? >: HighlightInfo] //todo: only unresolved ref issues?
         )
 
     }

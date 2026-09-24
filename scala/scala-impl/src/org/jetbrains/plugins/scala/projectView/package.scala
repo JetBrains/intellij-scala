@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 
 package object projectView {
 
-  private[projectView] type Node = AbstractTreeNode[_]
+  private[projectView] type Node = AbstractTreeNode[?]
 
   private[projectView] object Node {
 

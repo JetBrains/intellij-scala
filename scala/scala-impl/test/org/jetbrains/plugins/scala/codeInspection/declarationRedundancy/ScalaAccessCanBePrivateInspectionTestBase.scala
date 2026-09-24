@@ -7,7 +7,7 @@ abstract class ScalaAccessCanBePrivateInspectionTestBase extends ScalaInspection
 
   override protected val description : String = ScalaInspectionBundle.message("access.can.be.private")
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaAccessCanBeTightenedInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[ScalaAccessCanBeTightenedInspection]
 
   override def setUp(): Unit = {
     super.setUp()

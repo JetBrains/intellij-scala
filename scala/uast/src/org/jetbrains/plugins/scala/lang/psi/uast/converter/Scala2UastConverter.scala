@@ -354,7 +354,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
     element.parents.flatMap(convertWithParent).nextOption()
 
   private def makeUParent(sourcePsi: PsiElement,
-                          free: Free[_ <: UElement]): Option[UElement] = {
+                          free: Free[? <: UElement]): Option[UElement] = {
 
     val detachedUElement = free.standalone
     val firstPossibleParent = firstConvertibleParent(sourcePsi)

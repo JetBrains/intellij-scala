@@ -50,7 +50,7 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
 
   protected def findElementsToImport(): Seq[Element]
 
-  def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _]
+  def createAddImportAction(editor: Editor): ScalaAddImportAction[?, ?]
 
   def shouldShowHint(): Boolean = !mayBeKeyword(place)
 

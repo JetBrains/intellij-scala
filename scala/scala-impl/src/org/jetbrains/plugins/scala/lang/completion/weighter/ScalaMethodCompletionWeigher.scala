@@ -21,7 +21,7 @@ final class ScalaMethodCompletionWeigher extends CompletionWeigher {
     }
   }
 
-  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = element match {
+  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[?] = element match {
     case ScalaLookupItem(_, namedElement) =>
       namedElement match {
         case psi: ScFunction =>

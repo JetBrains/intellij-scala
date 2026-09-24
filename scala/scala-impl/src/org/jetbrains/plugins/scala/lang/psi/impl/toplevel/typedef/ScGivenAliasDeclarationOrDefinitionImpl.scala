@@ -15,7 +15,7 @@ trait ScGivenAliasDeclarationOrDefinitionImpl extends ScFunction
   with ScGivenImpl
   with ScGivenAlias {
 
-  self: ScalaStubBasedElementImpl[_, _ <: ScTypeElementOwnerStub[_]] =>
+  self: ScalaStubBasedElementImpl[?, ? <: ScTypeElementOwnerStub[?]] =>
 
   override def returnType: TypeResult =
     typeElement match {

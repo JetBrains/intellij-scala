@@ -193,7 +193,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     result
   }
 
-  override def registerConflictResolvers(snapshots: util.List[_ >: ResolveSnapshot],
+  override def registerConflictResolvers(snapshots: util.List[? >: ResolveSnapshot],
                                          resolveSnapshotProvider: ResolveSnapshotProvider,
                                          usages: Array[UsageInfo],
                                          changeInfo: ChangeInfo): Unit = {}

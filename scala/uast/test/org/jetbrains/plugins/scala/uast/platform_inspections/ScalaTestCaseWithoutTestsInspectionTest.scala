@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 final class ScalaTestCaseWithoutTestsInspectionTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[TestCaseWithoutTestsInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[TestCaseWithoutTestsInspection]
 
   override protected val description: String = null
 

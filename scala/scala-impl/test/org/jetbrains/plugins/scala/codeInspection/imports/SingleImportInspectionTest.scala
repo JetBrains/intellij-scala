@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersi
 
 
 abstract class SingleImportInspectionTestBase extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[SingleImportInspection]
 
   override val description = ScalaInspectionBundle.message("single.import")

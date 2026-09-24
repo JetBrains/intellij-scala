@@ -66,8 +66,8 @@ final class ExhaustiveMatchCompletionContributor extends ScalaCompletionContribu
     }
   }
 
-  private def extend(place: ElementPattern[_ <: PsiElement])
-                    (provider: ExhaustiveClauseCompletionProvider[_]): Unit =
+  private def extend(place: ElementPattern[? <: PsiElement])
+                    (provider: ExhaustiveClauseCompletionProvider[?]): Unit =
     extend(CompletionType.BASIC, place, provider)
 }
 
@@ -107,7 +107,7 @@ object ExhaustiveMatchCompletionContributor {
     protected def targetType(expression: E)
                             (implicit place: PsiElement): Option[ScType]
 
-    protected def createInsertHandler(strategy: PatternGenerationStrategy): ExhaustiveClauseInsertHandler[_]
+    protected def createInsertHandler(strategy: PatternGenerationStrategy): ExhaustiveClauseInsertHandler[?]
   }
 
   private final class ExhaustiveClauseInsertHandler[

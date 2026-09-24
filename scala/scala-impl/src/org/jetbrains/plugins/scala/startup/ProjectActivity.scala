@@ -11,7 +11,7 @@ import kotlin.coroutines.Continuation
 trait ProjectActivity extends com.intellij.openapi.startup.ProjectActivity {
   def execute(project: Project): Unit
 
-  final override def execute(project: Project, continuation: Continuation[_ >: kotlin.Unit]): AnyRef = {
+  final override def execute(project: Project, continuation: Continuation[? >: kotlin.Unit]): AnyRef = {
     //noinspection ApiStatus,UnstableApiUsage
     JavaCoroutines.suspendJava[kotlin.Unit](cont => {
       execute(project)

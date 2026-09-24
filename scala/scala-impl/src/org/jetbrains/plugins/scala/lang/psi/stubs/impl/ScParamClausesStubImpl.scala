@@ -6,6 +6,6 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClausesStub
 
-class ScParamClausesStubImpl(parent: StubElement[_ <: PsiElement],
+class ScParamClausesStubImpl(parent: StubElement[? <: PsiElement],
                              elementType: IElementType)
   extends StubBase[ScParameters](parent, elementType) with ScParamClausesStub

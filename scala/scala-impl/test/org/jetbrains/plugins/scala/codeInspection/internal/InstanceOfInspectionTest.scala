@@ -6,7 +6,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 
 class InstanceOfInspectionTest extends ScalaInspectionTestBase {
 
-  protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
+  protected override val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[InstanceOfInspection]
 
   override protected val description: String = ScalaInspectionBundle.message("replace.with.is")

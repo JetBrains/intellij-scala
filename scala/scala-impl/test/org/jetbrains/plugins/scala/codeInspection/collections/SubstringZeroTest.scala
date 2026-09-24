@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 
 class SubstringZeroTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[SubstringZeroInspection]
 
   override protected val hint: String =

@@ -11,10 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScDerivesClauseStubImpl
 final class ScDerivesClauseStubFactory(elementType: ScDerivesClauseElementType)
   extends ScStubSerializingElementFactory[ScDerivesClauseStub, ScDerivesClause](elementType) {
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScDerivesClauseStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScDerivesClauseStub =
     new ScDerivesClauseStubImpl(parentStub, elementType)
 
-  override def createStubImpl(psi: ScDerivesClause, parentStub: StubElement[_ <: PsiElement]): ScDerivesClauseStub =
+  override def createStubImpl(psi: ScDerivesClause, parentStub: StubElement[? <: PsiElement]): ScDerivesClauseStub =
     new ScDerivesClauseStubImpl(parentStub, elementType)
 
   override def createPsi(stub: ScDerivesClauseStub): ScDerivesClause = new ScDerivesClauseImpl(stub)

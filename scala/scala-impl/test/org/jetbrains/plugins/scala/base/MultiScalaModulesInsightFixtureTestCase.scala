@@ -23,7 +23,7 @@ abstract class MultiScalaModulesInsightFixtureTestCase(thisModuleVersion: ScalaV
     otherModule =
       PsiTestUtil.addModule(
         getProject,
-        JavaModuleType.getModuleType.asInstanceOf[ModuleType[_ <: ModuleBuilder]],
+        JavaModuleType.getModuleType.asInstanceOf[ModuleType[? <: ModuleBuilder]],
         otherModuleName,
         myFixture.getTempDirFixture.findOrCreateDir(otherModuleName)
       )

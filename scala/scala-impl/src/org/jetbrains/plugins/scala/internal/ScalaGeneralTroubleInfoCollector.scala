@@ -53,8 +53,8 @@ object ScalaGeneralTroubleInfoCollector {
 
   @VisibleForTesting
   def buildText(
-    scalaVersionToModules: Map[ScalaVersion, Seq[_]],
-    sbtVersionToModules: Map[Version, Seq[_]]
+    scalaVersionToModules: Map[ScalaVersion, Seq[?]],
+    sbtVersionToModules: Map[Version, Seq[?]]
   ): String = {
     val result = new StringBuilder
 

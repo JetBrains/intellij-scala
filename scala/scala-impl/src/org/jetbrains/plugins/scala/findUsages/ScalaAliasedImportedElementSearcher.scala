@@ -16,7 +16,7 @@ import scala.annotation.nowarn
 
 class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
-  override def processQuery(parameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Unit = {
+  override def processQuery(parameters: ReferencesSearch.SearchParameters, consumer: Processor[? >: PsiReference]): Unit = {
     val data: Option[(PsiNamedElement, String, SearchScope)] = inReadAction {
       parameters.getElementToSearch match {
         case named: PsiNamedElement =>
@@ -49,7 +49,7 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
       _.importedName
     }
 
-    override def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[_ >: PsiReference]): Boolean = inReadAction {
+    override def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[? >: PsiReference]): Boolean = inReadAction {
       getAlias(element) match {
         case Some(alias) =>
           val reference: PsiReference = element.getReference

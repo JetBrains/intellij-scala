@@ -24,7 +24,7 @@ final class ScalaByNameWeigher extends CompletionWeigher {
 
   import ScalaByNameWeigher._
 
-  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
+  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[?] = {
     val parameters = location.getBaseCompletionParameters
     val position = positionFromParameters(parameters)
 

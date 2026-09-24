@@ -15,7 +15,7 @@ final class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnota
 
   import TypeAnnotationsPanel._
 
-  private def bindingsFor(settings: CodeStyleSettings): Seq[Binding[_]] = {
+  private def bindingsFor(settings: CodeStyleSettings): Seq[Binding[?]] = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
     import scalaSettings._

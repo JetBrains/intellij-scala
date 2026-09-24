@@ -678,7 +678,7 @@ package object extensions {
     def parentOfType[Psi <: PsiElement](clazz: Class[Psi], strict: Boolean = true): Option[Psi] =
       Option(PsiTreeUtil.getParentOfType(element, clazz, strict))
 
-    def parentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
+    def parentOfType(classes: Seq[Class[? <: PsiElement]]): Option[PsiElement] =
       Option(PsiTreeUtil.getParentOfType(element, classes: _*))
 
     def nonStrictParentOfType[Psi <: PsiElement: ClassTag]: Option[Psi] =
@@ -687,7 +687,7 @@ package object extensions {
     def nonStrictParentOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
       Option(PsiTreeUtil.getNonStrictParentOfType(element, clazz))
 
-    def nonStrictParentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
+    def nonStrictParentOfType(classes: Seq[Class[? <: PsiElement]]): Option[PsiElement] =
       Option(PsiTreeUtil.getNonStrictParentOfType(element, classes: _*))
 
 
@@ -1734,7 +1734,7 @@ package object extensions {
         case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(elementType, f)
         case file: PsiFileImpl =>
           file.withGreenStubOrAst(
-            (stub: StubElement[_]) => stub.getChildrenByType(elementType, f),
+            (stub: StubElement[?]) => stub.getChildrenByType(elementType, f),
             (_: FileElement) => findWithNode()
           )
         case _ => findWithNode()
@@ -1758,7 +1758,7 @@ package object extensions {
         case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(filter, f)
         case file: PsiFileImpl =>
           file.withGreenStubOrAst(
-            (stub: StubElement[_]) => stub.getChildrenByType(filter, f),
+            (stub: StubElement[?]) => stub.getChildrenByType(filter, f),
             (_: FileElement) => findWithNode()
           )
         case _ => findWithNode()
@@ -1777,20 +1777,20 @@ package object extensions {
         case st: StubBasedPsiElementBase[_] => Option(st.getStubOrPsiChild(elementType)).map(_.asInstanceOf[Psi])
         case file: PsiFileImpl =>
           file.withGreenStubOrAst(
-            (stub: StubElement[_]) => Option(stub.findChildStubByElementType(elementType)).map(_.getPsi.asInstanceOf[Psi]),
+            (stub: StubElement[?]) => Option(stub.findChildStubByElementType(elementType)).map(_.getPsi.asInstanceOf[Psi]),
             (_: FileElement) => findWithNode()
           )
         case _ => findWithNode()
       }
     }
 
-    def withGreenStub[T](stubProcessor: StubElement[_] => T, treeProcessor: () => T): T = element match {
+    def withGreenStub[T](stubProcessor: StubElement[?] => T, treeProcessor: () => T): T = element match {
       case st: StubBasedPsiElementBase[_] =>
-        val stub = st.getGreenStub.asInstanceOf[StubElement[_]]
+        val stub = st.getGreenStub.asInstanceOf[StubElement[?]]
         if (stub == null) treeProcessor()
         else stubProcessor(stub)
       case file: PsiFileImpl => file.withGreenStubOrAst(
-        (stub: StubElement[_]) => stubProcessor(stub),
+        (stub: StubElement[?]) => stubProcessor(stub),
         (_: FileElement) => treeProcessor()
       )
       case _ => treeProcessor()

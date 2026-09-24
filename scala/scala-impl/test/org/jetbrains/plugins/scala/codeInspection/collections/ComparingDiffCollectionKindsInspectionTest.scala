@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.collections.ComparingDiffColle
 
 abstract class ComparingDiffCollectionKindsInspectionTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[ComparingDiffCollectionKindsInspection]
 
   protected val side: Side

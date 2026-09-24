@@ -4,7 +4,7 @@ package collections
 
 class FoldSumTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[SimplifiableFoldOrReduceInspection]
 
   override protected val hint: String =
@@ -42,7 +42,7 @@ class FoldSumTest extends OperationsOnCollectionInspectionTest {
 
 class ReduceMinTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[SimplifiableFoldOrReduceInspection]
 
   override protected val hint: String =
@@ -70,7 +70,7 @@ class ReduceMinTest extends OperationsOnCollectionInspectionTest {
 
 class ReduceProductTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[SimplifiableFoldOrReduceInspection]
 
   override protected val hint: String =

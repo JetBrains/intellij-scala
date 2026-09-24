@@ -67,7 +67,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
  * supermethod-overrider pairs for every relevant method in a class.
  */
 class ScalaAwareJavaOverridingSearcher extends QueryExecutor[PsiMethod, OverridingMethodsSearch.SearchParameters] {
-  override def execute(searchParams: OverridingMethodsSearch.SearchParameters, consumer: Processor[_ >: PsiMethod]): Boolean = {
+  override def execute(searchParams: OverridingMethodsSearch.SearchParameters, consumer: Processor[? >: PsiMethod]): Boolean = {
     val method = searchParams.getMethod
     method match {
       // Handles Java raw parameters such as `List`, whose Scala overrides use existential types such as `List[_]`.
@@ -113,7 +113,7 @@ class ScalaAwareJavaAllOverridingSearcher extends QueryExecutor[Pair[PsiMethod, 
 
   override def execute(
     seachParameters: AllOverridingMethodsSearch.SearchParameters,
-    consumer: Processor[_ >: Pair[PsiMethod, PsiMethod]]
+    consumer: Processor[? >: Pair[PsiMethod, PsiMethod]]
   ): Boolean = {
     val clazz = seachParameters.getPsiClass
     val candidates = inReadAction {
@@ -153,7 +153,7 @@ class ScalaAwareJavaAllOverridingSearcher extends QueryExecutor[Pair[PsiMethod, 
     kind: CandidateKind,
     clazz: PsiClass,
     searchParameters: AllOverridingMethodsSearch.SearchParameters,
-    consumer: Processor[_ >: Pair[PsiMethod, PsiMethod]]
+    consumer: Processor[? >: Pair[PsiMethod, PsiMethod]]
   ): Boolean = kind match {
     case CandidateKind.RawParameter => inReadAction {
       val wrapper = rawMethodWrapper(superMethod, clazz)
@@ -328,7 +328,7 @@ private object ScalaAwareJavaOverridingSearcherUtils {
     superMethod: PsiMethod,
     scope: SearchScope,
     processAllExactOverriders: Boolean,
-    consumer: Processor[_ >: PsiMethod]
+    consumer: Processor[? >: PsiMethod]
   ): Boolean = {
     val superClass = inReadAction(superMethod.containingClass)
     if (superClass == null)

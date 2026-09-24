@@ -6,6 +6,6 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationsStub
 
-class ScAnnotationsStubImpl(parent: StubElement[_ <: PsiElement],
+class ScAnnotationsStubImpl(parent: StubElement[? <: PsiElement],
                             elementType: IElementType)
   extends StubBase[ScAnnotations](parent, elementType) with ScAnnotationsStub

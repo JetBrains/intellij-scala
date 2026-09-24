@@ -42,7 +42,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
   override def processTransferableData(
     bounds: RangeMarker,
     caretOffset: Int,
-    ref: Ref[_ >: java.lang.Boolean],
+    ref: Ref[? >: java.lang.Boolean],
     associations: Associations
   )(implicit project: Project, editor: Editor, file: ScalaFile): Unit = {
     import CodeInsightSettings._

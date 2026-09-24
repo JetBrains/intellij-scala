@@ -17,7 +17,7 @@ class SoftAssert {
 
   final protected def assertThat[A](reason: String,
                                     actual: A,
-                                    expected: Matcher[_ >: A]): Unit =
+                                    expected: Matcher[? >: A]): Unit =
     catchError(MatcherAssert.assertThat(reason, actual, expected))
 
   // other assert methods...

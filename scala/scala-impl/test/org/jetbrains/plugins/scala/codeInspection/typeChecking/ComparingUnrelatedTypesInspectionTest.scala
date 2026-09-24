@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 ))
 abstract class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ComparingUnrelatedTypesInspection]
 }
 

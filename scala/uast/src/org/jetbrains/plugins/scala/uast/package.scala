@@ -27,7 +27,7 @@ package object uast {
 
   private[uast] object DummyDialect extends Language(ScalaLanguage.INSTANCE, "DummyDialect") with DependentLanguage
 
-  private[uast] def toClassTag(@Nullable requiredType: Class[_ <: UElement]) =
+  private[uast] def toClassTag(@Nullable requiredType: Class[? <: UElement]) =
     reflect.ClassTag[UElement](if (requiredType == null) classOf[UElement] else requiredType)
 
 }

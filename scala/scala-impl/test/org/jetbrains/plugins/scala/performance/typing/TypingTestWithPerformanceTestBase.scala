@@ -27,7 +27,7 @@ abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
 
     myFixture.configureByText(fileName, input.withNormalizedSeparator.trim)
 
-    val testBody: ThrowableRunnable[_] = () => {
+    val testBody: ThrowableRunnable[?] = () => {
       stringsToType.foreach(myFixture.`type`)
       PsiDocumentManager.getInstance(myFixture.getProject).commitAllDocuments()
       if (expectedOutput != null) {

@@ -5,7 +5,7 @@ class ScalaUnalignedMethodChainInlayHintsTest extends ScalaMethodChainInlayHints
 
   import Hint.{End => E, Start => S}
 
-  override protected def doTest(text: String, settings: Setting[_]*): Unit = {
+  override protected def doTest(text: String, settings: Setting[?]*): Unit = {
     super.doTest(text, uniqueTypesToShowMethodChains(2) +: alignMethodChainInlayHints(false) +: settings: _*)
   }
 

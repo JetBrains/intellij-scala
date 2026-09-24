@@ -78,7 +78,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
     RenameSuperMembersUtil.prepareSuperMembers(newName, allRenames)
   }
   override def findCollisions(element: PsiElement, newName: String,
-                              allRenames: util.Map[_ <: PsiElement, String], result: util.List[UsageInfo]): Unit = {/*todo*/}
+                              allRenames: util.Map[? <: PsiElement, String], result: util.List[UsageInfo]): Unit = {/*todo*/}
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = {
     element match {
@@ -89,7 +89,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
     }
   }
 
-  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[_ >: PsiElement]): Unit = {
+  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[? >: PsiElement]): Unit = {
     val named = element match {case named: ScNamedElement => named; case _ => return}
     RenameSuperMembersUtil.chooseAndProcessSuper(named, (named: PsiNamedElement) => {
       renameCallback.pass(named)

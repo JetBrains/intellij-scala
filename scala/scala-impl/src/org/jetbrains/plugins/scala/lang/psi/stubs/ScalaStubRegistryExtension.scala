@@ -82,7 +82,7 @@ trait ScalaStubRegistryExtensionAdapter extends StubRegistryExtension {
     fileType: FileType,
   ): Unit = registry.registerStubSerializer(fileType, new ScalaFileStubSerializer(fileType))
 
-  def registerStubSerializingFactory[Factory <: StubSerializingElementFactory[_ <: StubElement[_], _ <: PsiElement]](
+  def registerStubSerializingFactory[Factory <: StubSerializingElementFactory[? <: StubElement[?], ? <: PsiElement]](
     registry: StubRegistry,
     elementType: IElementType,
     factory: Factory,

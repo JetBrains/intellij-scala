@@ -135,7 +135,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
           return c
       }
     } else {
-      val parentSourceMirror = classParent.asInstanceOf[ScTypeDefinitionImpl[_]].getSourceMirrorClass
+      val parentSourceMirror = classParent.asInstanceOf[ScTypeDefinitionImpl[?]].getSourceMirrorClass
       parentSourceMirror match {
         case td: ScTypeDefinitionImpl[_] =>
           for (i <- td.typeDefinitions if name == i.name && hasSameScalaKind(i))

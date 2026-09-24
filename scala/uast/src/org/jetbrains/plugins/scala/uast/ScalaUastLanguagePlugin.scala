@@ -34,7 +34,7 @@ final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
   @Nullable
   override def convertElement(element: PsiElement,
                               @Nullable parent: UElement,
-                              @Nullable requiredType: Class[_ <: UElement]): UElement =
+                              @Nullable requiredType: Class[? <: UElement]): UElement =
     convertTo(element, parent)(
       toClassTag(requiredType),
       implicitly[NotNothing[UElement]]
@@ -42,7 +42,7 @@ final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
 
   @Nullable
   override def convertElementWithParent(element: PsiElement,
-                                        @Nullable requiredType: Class[_ <: UElement]): UElement =
+                                        @Nullable requiredType: Class[? <: UElement]): UElement =
     convertWithParentTo(element)(
       toClassTag(requiredType),
       implicitly[NotNothing[UElement]]
@@ -112,7 +112,7 @@ final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
   override def isExpressionValueUsed(uExpression: UExpression): Boolean =
     throw new NotImplementedError // TODO: not implemented
 
-  override def getPossiblePsiSourceTypes(uastTypes: Class[_ <: UElement]*): ClassSet[PsiElement] = {
+  override def getPossiblePsiSourceTypes(uastTypes: Class[? <: UElement]*): ClassSet[PsiElement] = {
     import ScalaUastSourceTypeMapping.possibleSourceTypes
     uastTypes match {
       case Seq() => possibleSourceTypes(classOf[UElement])

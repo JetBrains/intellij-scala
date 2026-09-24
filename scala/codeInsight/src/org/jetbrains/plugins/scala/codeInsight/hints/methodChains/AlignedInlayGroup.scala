@@ -90,7 +90,7 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
 private object AlignedInlayGroup {
   private val ScalaMethodChainDisposableKey: Key[Disposable] = Key.create[Disposable]("SCALA_METHOD_CHAIN_DISPOSABLE_KEY")
 
-  def dispose(inlay: Inlay[_]): Unit = {
+  def dispose(inlay: Inlay[?]): Unit = {
     inlay
       .getUserData(ScalaMethodChainDisposableKey)
       .nullSafe
@@ -122,7 +122,7 @@ private object AlignedInlayGroup {
 
     private var cached: Cached = Cached(lineEndX = 0, targetX = 0)
 
-    def setMargin(lineEndX: Int, targetX: Int, inlay: Inlay[_], repaint: Boolean): Unit = {
+    def setMargin(lineEndX: Int, targetX: Int, inlay: Inlay[?], repaint: Boolean): Unit = {
       val newCached = Cached(lineEndX, targetX)
       if (cached != newCached) {
         cached = newCached

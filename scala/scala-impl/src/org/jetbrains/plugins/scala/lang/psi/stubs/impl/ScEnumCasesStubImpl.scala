@@ -6,6 +6,6 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCases
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScEnumCasesStub
 
-class ScEnumCasesStubImpl(parent: StubElement[_ <: PsiElement],
+class ScEnumCasesStubImpl(parent: StubElement[? <: PsiElement],
                           elementType: IElementType)
   extends StubBase[ScEnumCases](parent, elementType) with ScEnumCasesStub

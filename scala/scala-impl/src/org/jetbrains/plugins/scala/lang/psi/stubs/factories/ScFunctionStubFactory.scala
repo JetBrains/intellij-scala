@@ -34,7 +34,7 @@ abstract class ScFunctionStubFactory[Fun <: ScFunction](elementType: ScFunctionE
     dataStream.writeNames(stub.givenClassNames)
   }
 
-  override def deserialize(dataStream: StubInputStream, parent: StubElement[_ <: PsiElement]): ScFunctionStub[Fun] =
+  override def deserialize(dataStream: StubInputStream, parent: StubElement[? <: PsiElement]): ScFunctionStub[Fun] =
     new ScFunctionStubImpl(
       parent,
       elementType,
@@ -54,7 +54,7 @@ abstract class ScFunctionStubFactory[Fun <: ScFunction](elementType: ScFunctionE
       givenClassNames = dataStream.readNames,
     )
 
-  override def createStubImpl(function: Fun, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub[Fun] = {
+  override def createStubImpl(function: Fun, parentStub: StubElement[? <: PsiElement]): ScFunctionStub[Fun] = {
     val returnTypeElement = function.returnTypeElement
 
     val returnTypeText = returnTypeElement.map(_.getText)
@@ -123,7 +123,7 @@ abstract class ScFunctionStubFactory[Fun <: ScFunction](elementType: ScFunctionE
       val packageFqn = stub.topLevelQualifier.orElse {
         //Handle case when @main method is not toplevel but is inside some object
         //In this case, we should use containing package name, ignoring the containing object names
-        val containingPackaging = Iterator.iterate[StubElement[_]](stub)(_.getParentStub)
+        val containingPackaging = Iterator.iterate[StubElement[?]](stub)(_.getParentStub)
           .takeWhile(_ != null)
           .findByType[ScPackagingStub]
         containingPackaging.map(_.packageName)

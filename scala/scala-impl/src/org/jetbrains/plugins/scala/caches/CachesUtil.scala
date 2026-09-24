@@ -19,7 +19,7 @@ import scala.util.control.ControlThrowable
 object CachesUtil {
   type CachedMap[Data, Result] = CachedValue[ConcurrentMap[Data, Result]]
   type CachedRef[Result] = CachedValue[AtomicReference[Result]]
-  private val keys = new ConcurrentHashMap[String, Key[_]]()
+  private val keys = new ConcurrentHashMap[String, Key[?]]()
 
   /**
    * IMPORTANT:
@@ -44,7 +44,7 @@ object CachesUtil {
 
   case class ProbablyRecursionException[Data](elem: PsiElement,
                                               data: Data,
-                                              key: Key[_],
+                                              key: Key[?],
                                               set: Set[ScFunction]) extends ControlThrowable
 
   def getOrCreateCachedMap[Dom: ProjectUserDataHolder, Data, Result](elem: Dom,
@@ -89,7 +89,7 @@ object CachesUtil {
 
   def handleRecursiveCall[Data, Result](e: PsiElement,
                                         data: Data,
-                                        key: Key[_],
+                                        key: Key[?],
                                         defaultValue: => Result): Result = {
     val function = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
     if (function == null || function.isProbablyRecursive) {
@@ -149,7 +149,7 @@ object CachesUtil {
         override def clear(cache: CacheType): Unit = realCache(cache).foreach(_.set(null.asInstanceOf[Result]))
       }
 
-    implicit def timestampedMapCacheCapabilities[M >: Null <: ConcurrentMap[_, _]]: CacheCapabilities[AtomicReference[Timestamped[M]]] =
+    implicit def timestampedMapCacheCapabilities[M >: Null <: ConcurrentMap[?, ?]]: CacheCapabilities[AtomicReference[Timestamped[M]]] =
       new CacheCapabilities[AtomicReference[Timestamped[M]]] {
         override def cachedEntitiesCount(cache: CacheType): Int = cache.get().data.nullSafe.fold(0)(_.size())
 

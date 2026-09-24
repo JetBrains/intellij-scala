@@ -12,7 +12,7 @@ class DeprecatedKindProjectorSyntaxInspectionTest extends ScalaInspectionTestBas
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version < new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "9")
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[DeprecatedKindProjectorSyntaxInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[DeprecatedKindProjectorSyntaxInspection]
   override protected val description: String = "Usage of `?` placeholder is going to be deprecated. Consider using `*` instead."
 
   protected override def setUp(): Unit = {
@@ -78,7 +78,7 @@ class DeprecatedKindProjectorSyntaxInspectionOutdatedKindProjectorTest extends S
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version < new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "9")
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[DeprecatedKindProjectorSyntaxInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[DeprecatedKindProjectorSyntaxInspection]
   override protected val description: String =
     "Usage of `?` placeholder is going to be deprecated. Consider updating kind-projector plugin and using `*` instead."
 

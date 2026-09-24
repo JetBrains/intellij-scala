@@ -44,7 +44,7 @@ abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](
     dataStream.writeBoolean(stub.enumClassCaseMentionsParentTypeParams)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub[TypeDef] =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScTemplateDefinitionStub[TypeDef] =
     new ScTemplateDefinitionStubImpl(
       parentStub,
       elementType,
@@ -69,7 +69,7 @@ abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](
       enumClassCaseMentionsParentTypeParams = dataStream.readBoolean,
     )
 
-  override def createStubImpl(definition: TypeDef, parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub[TypeDef] = {
+  override def createStubImpl(definition: TypeDef, parent: StubElement[? <: PsiElement]): ScTemplateDefinitionStub[TypeDef] = {
     val fileName = definition.containingVirtualFile.map(_.getName).orNull
 
     val (isDeprecated, additionalJavaName, isPackageObject) = definition match {

@@ -12,15 +12,15 @@ final class TestRunnerOutputListener(printProcessOutputToConsole: Boolean)
   extends ProcessListener
     with TestOutputMarkers {
 
-  private val _output: mutable.Buffer[(String, Key[_])] =
-    ContainerUtil.createConcurrentList[(String, Key[_])].asScala
+  private val _output: mutable.Buffer[(String, Key[?])] =
+    ContainerUtil.createConcurrentList[(String, Key[?])].asScala
 
   private val _outputTextFromTests = new StringBuilder
 
   def outputText: String = _output.map { case (text, typ) => s"[$typ] $text" }.mkString
   def outputTextFromTests: String = _outputTextFromTests.mkString
 
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+  override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = {
     // remove 1 `#` in order the tests are not displayed in test tree view when debugging process output in tests
     val text = event.getText.replace("##teamcity", "#teamcity")
 

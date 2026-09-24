@@ -23,7 +23,7 @@ final class ScTypeParamStubFactory(elementType: ScTypeParamElementType)
     dataStream.writeName(stub.containingFileName)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeParamStub = new ScTypeParamStubImpl(
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScTypeParamStub = new ScTypeParamStubImpl(
     parentStub,
     elementType,
     name = dataStream.readNameString,
@@ -37,7 +37,7 @@ final class ScTypeParamStubFactory(elementType: ScTypeParamElementType)
     containingFileName = dataStream.readNameString(),
   )
 
-  override def createStubImpl(typeParam: ScTypeParam, parentStub: StubElement[_ <: PsiElement]): ScTypeParamStub = {
+  override def createStubImpl(typeParam: ScTypeParam, parentStub: StubElement[? <: PsiElement]): ScTypeParamStub = {
     val lowerBoundText = typeParam.lowerTypeElement
       .map(_.getText)
     val upperBoundText = typeParam.upperTypeElement

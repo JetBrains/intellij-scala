@@ -15,13 +15,13 @@ import javax.swing.{JComponent, JTree}
 
 final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
   extends CallHierarchyBrowserBase(project, method) {
-  override protected def createTrees(type2TreeMap: util.Map[_ >: String,_ >: JTree]): Unit = {
+  override protected def createTrees(type2TreeMap: util.Map[? >: String,? >: JTree]): Unit = {
     val group: ActionGroup = ActionManager.getInstance.getAction(IdeActions.GROUP_CALL_HIERARCHY_POPUP).asInstanceOf[ActionGroup]
     val tree1: JTree = createTree(false)
     PopupHandler.installPopupMenu(tree1, group, ActionPlaces.CALL_HIERARCHY_VIEW_POPUP)
-    val forName: Class[_] = Class.forName("com.intellij.ide.hierarchy.CallHierarchyBrowserBase")
+    val forName: Class[?] = Class.forName("com.intellij.ide.hierarchy.CallHierarchyBrowserBase")
     val classes = forName.getDeclaredClasses
-    var baseClass: Class[_] = null
+    var baseClass: Class[?] = null
     for (clazz <- classes if clazz.getName endsWith "BaseOnThisMethodAction") baseClass = clazz
     val constructor = baseClass.getConstructor()
     val inst: Any = constructor.newInstance()
@@ -60,7 +60,7 @@ final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
     else null
   }
 
-  override protected def getComparator: Comparator[NodeDescriptor[_]] = {
+  override protected def getComparator: Comparator[NodeDescriptor[?]] = {
     JavaHierarchyUtil.getComparator(myProject)
   }
 }

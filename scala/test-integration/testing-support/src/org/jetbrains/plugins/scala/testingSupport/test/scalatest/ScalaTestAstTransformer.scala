@@ -29,7 +29,7 @@ object ScalaTestAstTransformer {
   private val LOG: Logger = Logger.getInstance(ScalaTestAstTransformer.getClass)
   private val FindersAnnotationFqn = "org.scalatest.Finders"
 
-  def testSelection(location: Location[_ <: PsiElement]): Option[Selection] = {
+  def testSelection(location: Location[? <: PsiElement]): Option[Selection] = {
     val element = location.getPsiElement
     val typeDef = PsiTreeUtil.getNonStrictParentOfType(element, classOf[ScClass], classOf[ScTrait])
 
@@ -62,7 +62,7 @@ object ScalaTestAstTransformer {
           finderFqnOpt match {
             case Some(finderFqn) =>
               try {
-                val finderClass: Class[_] = Class.forName(finderFqn)
+                val finderClass: Class[?] = Class.forName(finderFqn)
                 return Option(finderClass.getDeclaredConstructor().newInstance().asInstanceOf[Finder])
               } catch {
                 case _: ClassNotFoundException =>

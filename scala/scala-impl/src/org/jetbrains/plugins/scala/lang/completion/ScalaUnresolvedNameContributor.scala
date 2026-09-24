@@ -234,7 +234,7 @@ object ScalaTextLookupItem {
 
   object Weigher extends LookupElementWeigher("unresolvedOnTop") {
 
-    override def weigh(item: LookupElement): Comparable[_] = item match {
+    override def weigh(item: LookupElement): Comparable[?] = item match {
       case lookupItem: ScalaTextLookupItem => lookupItem
       case _ => null
     }

@@ -6,7 +6,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 
 class ScalaShouldBeTextContainsInspectionTest extends ScalaInspectionTestBase {
 
-  protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
+  protected override val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ScalaShouldBeTextContainsInspection]
 
   override protected val description: String =

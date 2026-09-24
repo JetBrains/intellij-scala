@@ -36,7 +36,7 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor with ScalaRen
     }
   }
 
-  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[_ >: PsiElement]): Unit = {
+  override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[? >: PsiElement]): Unit = {
     val named = element match {case named: ScNamedElement => named; case _ => return}
     val guess = ScalaRenameUtil.findSubstituteElement(element)
 

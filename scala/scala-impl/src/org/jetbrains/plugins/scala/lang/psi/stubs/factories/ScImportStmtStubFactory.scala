@@ -14,12 +14,12 @@ final class ScImportStmtStubFactory(elementType: ScImportStmtElementType)
   override def createPsi(stub: ScImportStmtStub): ScImportStmt =
     new ScImportStmtImpl(stub, elementType, null, elementType.toString)
 
-  override def createStubImpl(statement: ScImportStmt, parentStub: StubElement[_ <: PsiElement]): ScImportStmtStub =
+  override def createStubImpl(statement: ScImportStmt, parentStub: StubElement[? <: PsiElement]): ScImportStmtStub =
     new ScImportStmtStubImpl(parentStub, elementType, importText = statement.getText)
 
   override def serialize(stub: ScImportStmtStub, dataStream: StubOutputStream): Unit =
     dataStream.writeName(stub.importText)
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportStmtStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScImportStmtStub =
     new ScImportStmtStubImpl(parentStub, elementType, importText = dataStream.readNameString)
 }

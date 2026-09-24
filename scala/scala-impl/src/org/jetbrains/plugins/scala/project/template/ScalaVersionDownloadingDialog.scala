@@ -147,19 +147,19 @@ object ScalaVersionDownloadingDialog {
   }
   object UiUtils {
 
-    def scrollToTheTop(versionComboBox: SComboBox[_]): Unit = {
+    def scrollToTheTop(versionComboBox: SComboBox[?]): Unit = {
       for {
         scrollPane <- findPopupScrollPane(versionComboBox)
       } scrollToTop(scrollPane)
     }
 
-    private def findPopupScrollPane(comboBox: SComboBox[_]): Option[JScrollPane] =
+    private def findPopupScrollPane(comboBox: SComboBox[?]): Option[JScrollPane] =
       for {
         popup <- findPopupMenu(comboBox)
         scrollPane <- findScrollPane(popup)
       } yield scrollPane
 
-    private def findPopupMenu(versionComboBox: SComboBox[_]): Option[JPopupMenu] = {
+    private def findPopupMenu(versionComboBox: SComboBox[?]): Option[JPopupMenu] = {
       val ui = versionComboBox.getUI
       val children = Iterable.tabulate(ui.getAccessibleChildrenCount(versionComboBox))(ui.getAccessibleChild(versionComboBox, _))
       children.findByType[JPopupMenu]

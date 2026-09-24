@@ -109,12 +109,12 @@ object Tracing {
   }
 
   private val daemonListener = new DaemonListener {
-    override def daemonStarting(fileEditors: util.Collection[_ <: FileEditor]): Unit = if (parameters.annotator) {
+    override def daemonStarting(fileEditors: util.Collection[? <: FileEditor]): Unit = if (parameters.annotator) {
       trace("Highlighting started")
       annotatedElements = ListBuffer.empty[PsiElement]
     }
 
-    override def daemonFinished(fileEditors: util.Collection[_ <: FileEditor]): Unit = if (parameters.annotator) {
+    override def daemonFinished(fileEditors: util.Collection[? <: FileEditor]): Unit = if (parameters.annotator) {
       trace(s"Annotated: ${annotatedElements.map(_.asText).mkString(" ")}")
       trace("Highlighting finished")
     }

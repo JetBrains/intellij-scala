@@ -20,7 +20,7 @@ class ScalaTestFinder extends JavaTestFinder {
         val cache = PsiShortNamesCache.getInstance(obj.getProject)
         val scope: GlobalSearchScope = getSearchScope(obj, false)
         val names = cache.getAllClassNames.distinct
-        val res = new java.util.ArrayList[Pair[_ <: PsiNamedElement, Integer]]()
+        val res = new java.util.ArrayList[Pair[? <: PsiNamedElement, Integer]]()
         names.foreach { testClassName =>
           if (pattern.matcher(testClassName).matches()) {
             for (testClass <- cache.getClassesByName(testClassName, scope)) {
@@ -41,8 +41,8 @@ class ScalaTestFinder extends JavaTestFinder {
     if (klass == null) return Collections.emptySet[PsiElement]
     val scope: GlobalSearchScope = getSearchScope(element, true)
     val cache: PsiShortNamesCache = PsiShortNamesCache.getInstance(element.getProject)
-    val classesWithWeights: java.util.List[Pair[_ <: PsiNamedElement, Integer]] =
-      new java.util.ArrayList[Pair[_ <: PsiNamedElement, Integer]]()
+    val classesWithWeights: java.util.List[Pair[? <: PsiNamedElement, Integer]] =
+      new java.util.ArrayList[Pair[? <: PsiNamedElement, Integer]]()
 
     TestFinderHelper.collectPossibleClassNamesWithWeights(klass.getName).forEach { nameWithWeight =>
       for (aClass <- cache.getClassesByName(nameWithWeight.first, scope)) {

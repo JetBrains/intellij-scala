@@ -136,19 +136,19 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
     provider
   )
 
-  private def registerDeclarationProvider[E <: ScalaPsiElement : ClassTag](provider: DeclarationCompletionProvider[_]): Unit = extend(
+  private def registerDeclarationProvider[E <: ScalaPsiElement : ClassTag](provider: DeclarationCompletionProvider[?]): Unit = extend(
     BASIC,
     identifierWithParentPattern(classTag[E].runtimeClass.asSubclass(classOf[ScalaPsiElement])),
     provider
   )
 
-  private def registerDefinitionProvider[E <: ScalaPsiElement : ClassTag](provider: DefinitionCompletionProvider[_]): Unit = extend(
+  private def registerDefinitionProvider[E <: ScalaPsiElement : ClassTag](provider: DefinitionCompletionProvider[?]): Unit = extend(
     BASIC,
     identifierWithParentPattern(classTag[E].runtimeClass.asSubclass(classOf[ScalaPsiElement])),
     provider
   )
 
-  private def registerVariableDefinitionProvider[E <: ScalaPsiElement : ClassTag](provider: DefinitionCompletionProvider[_]): Unit = extend(
+  private def registerVariableDefinitionProvider[E <: ScalaPsiElement : ClassTag](provider: DefinitionCompletionProvider[?]): Unit = extend(
     BASIC,
     identifierPattern.withParents(classOf[ScReferencePattern], classOf[ScPatternList], classTag[E].runtimeClass.asSubclass(classOf[ScalaPsiElement])),
     provider
@@ -170,7 +170,7 @@ object ScalaAotCompletionContributor {
   }
 
   private abstract class DeclarationCompletionProvider[D <: ScMember with ScDeclaration](keyword: String,
-                                                                                         classes: Class[_ <: ScMember]*) extends aot.CompletionProvider[D] {
+                                                                                         classes: Class[? <: ScMember]*) extends aot.CompletionProvider[D] {
 
     override protected def addCompletions(resultSet: CompletionResultSet, prefix: String)
                                          (implicit parameters: CompletionParameters, context: ProcessingContext): Unit =
@@ -187,7 +187,7 @@ object ScalaAotCompletionContributor {
   }
 
   private abstract class DefinitionCompletionProvider[D <: ScMember with ScDefinitionWithAssignment](keyword: String,
-                                                                                                     classes: Class[_ <: ScMember]*) extends aot.CompletionProvider[D] {
+                                                                                                     classes: Class[? <: ScMember]*) extends aot.CompletionProvider[D] {
     override protected def addCompletions(resultSet: CompletionResultSet, prefix: String)
                                          (implicit parameters: CompletionParameters, context: ProcessingContext): Unit =
       PsiTreeUtil.getParentOfType(positionFromParameters, classes: _*) match {

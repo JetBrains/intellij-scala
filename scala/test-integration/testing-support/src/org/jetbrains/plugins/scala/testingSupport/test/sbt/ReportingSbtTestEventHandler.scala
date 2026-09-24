@@ -127,7 +127,7 @@ object ReportingSbtTestEventHandler {
   val regexes: List[Pattern] = List(testStartRegex, testSuccessfulRegex, testFailedRegex, suiteStartRegex,
     suiteFinishedRegex, scopeOpenedRegex, scopeClosedRegex, testPendingRegex, testIgnoredRegex)
 
-  val processOutputType: Key[_] = ProcessOutputTypes.STDOUT
+  val processOutputType: Key[?] = ProcessOutputTypes.STDOUT
 
   def getDuration(duration: String): Long = {
     val durationMatcher = timePattern.matcher(duration)
@@ -145,6 +145,6 @@ object ReportingSbtTestEventHandler {
     /**
      * @param message test status reprot message in TeamCity format
      */
-    def report(message: String, key: Key[_]): Unit
+    def report(message: String, key: Key[?]): Unit
   }
 }

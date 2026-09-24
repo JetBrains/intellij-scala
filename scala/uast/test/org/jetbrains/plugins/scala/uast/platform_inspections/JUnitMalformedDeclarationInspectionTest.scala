@@ -15,7 +15,7 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 
 class JUnitMalformedDeclarationInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[JUnitMalformedDeclarationInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[JUnitMalformedDeclarationInspection]
 
   override protected def description: String = null
 

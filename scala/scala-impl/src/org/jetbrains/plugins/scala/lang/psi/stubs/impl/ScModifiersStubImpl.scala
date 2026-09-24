@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.util.EnumSet.EnumSet
 
-class ScModifiersStubImpl(parent: StubElement[_ <: PsiElement],
+class ScModifiersStubImpl(parent: StubElement[? <: PsiElement],
                           elemType: IElementType,
                           override val modifiers: EnumSet[ScalaModifier])
   extends StubBase[ScModifierList](parent, elemType) with ScModifiersStub

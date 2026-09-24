@@ -4,7 +4,7 @@ package collections
 
 class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
 
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[RangeToIndicesInspection]
 
   override protected val hint: String =

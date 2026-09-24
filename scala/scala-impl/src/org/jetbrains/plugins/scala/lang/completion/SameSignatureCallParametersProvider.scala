@@ -36,7 +36,7 @@ final class SameSignatureCallParametersProvider extends CompletionContributor {
 
   extendBasicAndSmart(classOf[ScConstructorInvocation])(new ConstructorParametersCompletionProvider)
 
-  private def extendBasicAndSmart(invocationClass: Class[_ <: ScalaPsiElement])
+  private def extendBasicAndSmart(invocationClass: Class[? <: ScalaPsiElement])
                                  (provider: CompletionProvider[CompletionParameters]): Unit = {
     val place = identifierWithParentsPattern(
       classOf[ScReferenceExpression],

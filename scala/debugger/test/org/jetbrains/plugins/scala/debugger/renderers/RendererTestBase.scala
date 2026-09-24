@@ -59,7 +59,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
       renderer.buildChildren(value, new DummyChildrenBuilder(nodeManager, descriptor) {
         private val allChildren = mutable.ListBuffer.empty[DebuggerTreeNode]
 
-        override def addChildren(children: java.util.List[_ <: DebuggerTreeNode], last: Boolean): Unit = {
+        override def addChildren(children: java.util.List[? <: DebuggerTreeNode], last: Boolean): Unit = {
           allChildren ++= children.asScala
           if (last && !future.isDone) {
             val result = allChildren.map(_.getDescriptor).collect { case n: ValueDescriptorImpl => n }.toSeq
@@ -107,7 +107,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
     override def addChildren(children: XValueChildrenList, last: Boolean): Unit = {}
 
-    override def setChildren(children: java.util.List[_ <: DebuggerTreeNode]): Unit = {
+    override def setChildren(children: java.util.List[? <: DebuggerTreeNode]): Unit = {
       addChildren(children, true)
     }
 

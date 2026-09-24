@@ -37,7 +37,7 @@ private[completion] sealed abstract class Consumer(originalResultSet: Completion
       override def getExpensiveRenderer: LookupElementRenderer[_ <: LookupElement] = {
         val renderer = getDelegate.getExpensiveRenderer.asInstanceOf[LookupElementRenderer[LookupElement]]
         if (renderer eq null) null
-        else (element: LookupElementDecorator[_], presentation) => {
+        else (element: LookupElementDecorator[?], presentation) => {
           renderer.renderElement(element.getDelegate.asInstanceOf[LookupElement], presentation)
           augmentPresentation(itemText)(presentation)
         }

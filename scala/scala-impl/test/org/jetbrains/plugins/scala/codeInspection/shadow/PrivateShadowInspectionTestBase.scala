@@ -6,7 +6,7 @@ import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 abstract class PrivateShadowInspectionTestBase extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[PrivateShadowInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[PrivateShadowInspection]
 
   override protected val description: String = PrivateShadowInspection.annotationDescription
 

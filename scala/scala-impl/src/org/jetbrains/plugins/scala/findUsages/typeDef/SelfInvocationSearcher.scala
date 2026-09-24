@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTemplateDefinition}
 
 class SelfInvocationSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
-  override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
+  override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[? >: PsiReference]): Boolean = {
     queryParameters.getElementToSearch match {
       case ml: ScMethodLike if inReadAction(ml.isConstructor) =>
         doExecute(ml, inReadAction(Option(ml.containingClass)))(queryParameters, consumer)
@@ -25,7 +25,7 @@ class SelfInvocationSearcher extends QueryExecutor[PsiReference, ReferencesSearc
   }
 
   private def doExecute(ml: ScMethodLike, containingClass: Option[ScTemplateDefinition])
-                 (queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
+                 (queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[? >: PsiReference]): Boolean = {
     val localScope = inReadAction {
       containingClass.map {
         new LocalSearchScope(_)

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
 abstract class ScalaPackageNameInspectionTestBase extends ScalaInspectionTestBase with AssertionMatchers {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ScalaPackageNameInspection]
 
   override protected val description = "Description of ScalaPackageNameInspection"

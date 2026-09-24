@@ -143,7 +143,7 @@ object InternalProfilerToolWindowFactory {
     mainPanel
   }
 
-  def scheduleRefresh[Data](tableModel: DataByIdTableModel[Data], dataSource: DataSource[Data]): Future[_] = {
+  def scheduleRefresh[Data](tableModel: DataByIdTableModel[Data], dataSource: DataSource[Data]): Future[?] = {
     val refreshRateMs = 500L
 
     JobScheduler.getScheduler
@@ -154,7 +154,7 @@ object InternalProfilerToolWindowFactory {
       }, 0, refreshRateMs, TimeUnit.MILLISECONDS)
   }
 
-  class RunPauseAction(dataSource: DataSource[_]) extends AnAction with DumbAware {
+  class RunPauseAction(dataSource: DataSource[?]) extends AnAction with DumbAware {
 
     private def currentIcon(): Icon = {
       if (dataSource.isActive)
@@ -174,7 +174,7 @@ object InternalProfilerToolWindowFactory {
     override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.EDT
   }
 
-  class ClearAction(dataSource: DataSource[_], tableModel: DataByIdTableModel[_]) extends AnAction with DumbAware {
+  class ClearAction(dataSource: DataSource[?], tableModel: DataByIdTableModel[?]) extends AnAction with DumbAware {
     getTemplatePresentation.setIcon(AllIcons.Actions.GC)
 
     override def actionPerformed(e: AnActionEvent): Unit = {

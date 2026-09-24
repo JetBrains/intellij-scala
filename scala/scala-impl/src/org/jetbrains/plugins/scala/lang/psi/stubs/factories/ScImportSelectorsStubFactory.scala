@@ -14,10 +14,10 @@ final class ScImportSelectorsStubFactory(elementType: ScImportSelectorsElementTy
     dataStream.writeBoolean(stub.hasWildcard)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorsStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScImportSelectorsStub =
     new ScImportSelectorsStubImpl(parentStub, elementType, hasWildcard = dataStream.readBoolean)
 
-  override def createStubImpl(selectors: ScImportSelectors, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorsStub =
+  override def createStubImpl(selectors: ScImportSelectors, parentStub: StubElement[? <: PsiElement]): ScImportSelectorsStub =
     new ScImportSelectorsStubImpl(parentStub, elementType, hasWildcard = selectors.hasWildcard)
 
   override def createPsi(stub: ScImportSelectorsStub): ScImportSelectors = new ScImportSelectorsImpl(stub)

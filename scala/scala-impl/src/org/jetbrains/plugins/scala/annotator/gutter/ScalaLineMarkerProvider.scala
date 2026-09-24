@@ -44,7 +44,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
   import GutterUtil._
   import ScalaMarkerType._
 
-  override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
+  override def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[? <: PsiElement] = {
     val file = element.getContainingFile
     val project = if (file != null) file.getProject else element.getProject // Avoid tree walk-up
 
@@ -63,7 +63,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
 
   //Method separators can be enabled in
   //File | Settings | Editor | General | Appearance | Show method separators
-  private def augmentSeparatorInfo(element: PsiElement, lineMarkerInfo: LineMarkerInfo[_ <: PsiElement]): LineMarkerInfo[_ <: PsiElement] =
+  private def augmentSeparatorInfo(element: PsiElement, lineMarkerInfo: LineMarkerInfo[? <: PsiElement]): LineMarkerInfo[? <: PsiElement] =
     if (DaemonCodeAnalyzerSettings.getInstance().SHOW_METHOD_SEPARATORS && ScalaMethodSeparatorUtils.isMethodSeparatorNeeded(element)) {
       val info = if (lineMarkerInfo eq null) createMarkerInfo(element) else lineMarkerInfo
       addSeparatorInfo(info)
@@ -78,7 +78,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
     )
   }
 
-  private[this] def addSeparatorInfo(info: LineMarkerInfo[_ <: PsiElement]): Unit = {
+  private[this] def addSeparatorInfo(info: LineMarkerInfo[? <: PsiElement]): Unit = {
     val colorScheme = EditorColorsManager.getInstance.getGlobalScheme
     info.separatorColor = colorScheme.getColor(CodeInsightColors.METHOD_SEPARATORS_COLOR)
     info.separatorPlacement = SeparatorPlacement.TOP
@@ -116,7 +116,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
   private[this] val trivialSAMs: Set[String] = Set("scala.Function", "scala.PartialFunction", "java.util.function", "scala.ContextFunction")
   private[this] def isInterestingSAM(sam: PsiClass): Boolean = !trivialSAMs.exists(sam.qualifiedName.startsWith)
 
-  private[this] def getImplementsSAMTypeMarker(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] = {
+  private[this] def getImplementsSAMTypeMarker(element: PsiElement): Option[LineMarkerInfo[? <: PsiElement]] = {
     if (!SamOption.isEnabled) {
       return None
     }
@@ -131,7 +131,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
     else None
   }
 
-  private[this] def getOverridesImplementsMarkers(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] = {
+  private[this] def getOverridesImplementsMarkers(element: PsiElement): Option[LineMarkerInfo[? <: PsiElement]] = {
     val isEnabled = OverridingOption.isEnabled || ImplementingOption.isEnabled
     if (!isEnabled)
       return None
@@ -234,8 +234,8 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor {
     if (isEnabled(OverridingMethod) && member.hasModifierProperty("override")) arrowUpLineMarker(element, OverridingMethod, overridingMember).toOption
     else None
 
-  override def collectSlowLineMarkers(elements: ju.List[_ <: PsiElement],
-                                      result: ju.Collection[_ >: LineMarkerInfo[_]]): Unit = {
+  override def collectSlowLineMarkers(elements: ju.List[? <: PsiElement],
+                                      result: ju.Collection[? >: LineMarkerInfo[?]]): Unit = {
     import scala.jdk.CollectionConverters._
 
     lazy val file = elements.getFirst.getContainingFile
@@ -323,21 +323,21 @@ private object GutterUtil {
     alignment,
     () => markerType.tooltipProvider.fun(element)
   ) {
-    override def canMergeWith(other: MergeableLineMarkerInfo[_]): Boolean = other match {
+    override def canMergeWith(other: MergeableLineMarkerInfo[?]): Boolean = other match {
       case that: ArrowUpOrDownLineMarkerInfo => icon == that.icon
       case _                                 => false
     }
 
-    override def getCommonIcon(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): Icon = icon
+    override def getCommonIcon(infos: ju.List[? <: MergeableLineMarkerInfo[?]]): Icon = icon
 
-    override def getCommonTooltip(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): IJFunction[_ >: PsiElement, String] = _ => {
+    override def getCommonTooltip(infos: ju.List[? <: MergeableLineMarkerInfo[?]]): IJFunction[? >: PsiElement, String] = _ => {
       markerType match {
         case ScalaMarkerType.overriddenMember => ScalaBundle.message("multiple.overriden.tooltip")
         case _                                => ScalaBundle.message("multiple.overriding.tooltip")
       }
     }
 
-    override def getCommonIconAlignment(infos: ju.List[_ <: MergeableLineMarkerInfo[_]]): GutterIconRenderer.Alignment =
+    override def getCommonIconAlignment(infos: ju.List[? <: MergeableLineMarkerInfo[?]]): GutterIconRenderer.Alignment =
       infos.get(0) match {
         case that: ArrowUpOrDownLineMarkerInfo =>
           that.alignment
@@ -358,7 +358,7 @@ private object GutterUtil {
   def namedParent(e: PsiElement): Option[PsiElement] =
     e.withParentsInFile.find(ScalaPsiUtil.isNameContext)
 
-  def collectInheritingClassesMarker(aClass: ScTypeDefinition): Option[LineMarkerInfo[_ <: PsiElement]] = {
+  def collectInheritingClassesMarker(aClass: ScTypeDefinition): Option[LineMarkerInfo[? <: PsiElement]] = {
     val inheritor = ClassInheritorsSearch.search(aClass, false).findFirst.toOption
     inheritor.map { _ =>
       val range = aClass.nameId.getTextRange
@@ -385,7 +385,7 @@ private object GutterUtil {
     }
   }
 
-  def collectOverriddenMemberMarker(member: ScMember, anchor: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] =
+  def collectOverriddenMemberMarker(member: ScMember, anchor: PsiElement): Option[LineMarkerInfo[? <: PsiElement]] =
     member match {
       case Constructor(_) => None
       case _ =>
@@ -444,7 +444,7 @@ private object GutterUtil {
   }
 
   // Show companion for class / trait / object / enum in the gutter, https://youtrack.jetbrains.com/issue/SCL-17697
-  private[gutter] def companionMarker(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] = {
+  private[gutter] def companionMarker(element: PsiElement): Option[LineMarkerInfo[? <: PsiElement]] = {
     if (!CompanionOption.isEnabled) {
       return None
     }

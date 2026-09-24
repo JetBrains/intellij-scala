@@ -6,7 +6,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 
 abstract class TypeAnnotationInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[TypeAnnotationInspection]
 
   override protected val description: String =

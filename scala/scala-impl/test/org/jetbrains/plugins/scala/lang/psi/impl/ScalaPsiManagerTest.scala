@@ -49,14 +49,14 @@ class ScalaPsiManagerTest extends ScalaLightCodeInsightFixtureTestCase {
 
     val manager = ScalaPsiManager.instance(getProject)
     val topLevelDefs = manager.getClasses(manager.getCachedPackage("org.example").get)(GlobalSearchScope.everythingScope(getProject)).toSeq
-    val topLevelDefNamesAndClasses: Seq[(String, Class[_ <: PsiElement])] =
+    val topLevelDefNamesAndClasses: Seq[(String, Class[? <: PsiElement])] =
       topLevelDefs.sortBy(_.getTextOffset).map {
         case named: ScNamedElement => (named.name, named.getClass)
         case d => (null, d.getClass)
       }
 
     assertCollectionEquals(
-      Seq[(String, Class[_ <: PsiElement])](
+      Seq[(String, Class[? <: PsiElement])](
         ("MyEnum", classOf[ScObjectImpl]), //synthetic companion of the enum
         ("MyClass", classOf[ScClassImpl]),
         ("MyObject", classOf[ScObjectImpl]),
@@ -73,23 +73,23 @@ class ScalaPsiManagerTest extends ScalaLightCodeInsightFixtureTestCase {
 
     val manager = ScalaPsiManager.instance(getProject)
     val topLevelDefs = manager.getTopLevelDefinitionsByPackage("org.example", GlobalSearchScope.everythingScope(getProject)).toSeq
-    val topLevelDefNamesAndClasses: Seq[(String, Class[_ <: PsiElement])] =
+    val topLevelDefNamesAndClasses: Seq[(String, Class[? <: PsiElement])] =
       topLevelDefs.sortBy(_.getTextOffset).map {
         case named: ScNamedElement => (named.name, named.getClass)
         case d => (null, d.getClass)
       }
 
     assertCollectionEquals(
-      Seq[(String, Class[_ <: PsiElement])](
+      Seq[(String, Class[? <: PsiElement])](
         (null, classOf[ScPatternDefinitionImpl]),
         (null, classOf[ScPatternDefinitionImpl]),
         (null, classOf[ScVariableDefinitionImpl]),
         (null, classOf[ScVariableDefinitionImpl]),
-        ("myFunction", classOf[ScFunctionDefinitionImpl[_]]),
+        ("myFunction", classOf[ScFunctionDefinitionImpl[?]]),
         //NOTE: Both extension methods and the containing extension are return
         //The extension is required in usage place to process the exports from its body
         (null, classOf[ScExtensionImpl]),
-        ("myExtension", classOf[ScFunctionDefinitionImpl[_]]),
+        ("myExtension", classOf[ScFunctionDefinitionImpl[?]]),
         ("myGivenAlias", classOf[ScGivenAliasDefinitionImpl]),
         ("given_Short", classOf[ScGivenAliasDefinitionImpl]),
         ("MyAlias", classOf[ScTypeAliasDefinitionImpl]),

@@ -7,7 +7,7 @@ import java.util
 import scala.jdk.CollectionConverters._
 
 class ShowImplicitArgumentsActionPromoter extends ActionPromoter {
-  override def promote(actions: util.List[_ <: AnAction], context: DataContext): util.List[AnAction] = {
+  override def promote(actions: util.List[? <: AnAction], context: DataContext): util.List[AnAction] = {
     val filtered = actions.asScala.filter {
       case _: ShowExpressionTypeAction | _: ShowImplicitArgumentsAction => true
       case _ => false

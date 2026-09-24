@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class DoubleNegationInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[DoubleNegationInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[DoubleNegationInspection]
   override protected val description: String = "Double negation"
 
   private val hint = "Remove double negation"

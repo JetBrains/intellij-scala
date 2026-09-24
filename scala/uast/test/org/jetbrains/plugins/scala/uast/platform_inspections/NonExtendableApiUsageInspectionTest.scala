@@ -21,7 +21,7 @@ import java.util
  */
 class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
 
-  protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
+  protected override val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[NonExtendableApiInspection]
 
   override protected val description: String = ""
@@ -48,7 +48,7 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
       PsiTestUtil.addProjectLibrary(model, "annotations", util.Arrays.asList(PathUtil.getJarPathForClass(classOf[org.jetbrains.annotations.ApiStatus.NonExtendable])))
       PsiTestUtil.addProjectLibrary(model, "library", util.Arrays.asList(libraryRootPath))
 
-      PsiTestUtil.addProjectLibrary(model, "intellij_platform_utils", util.Arrays.asList(PathUtil.getJarPathForClass(classOf[com.intellij.util.messages.Topic[_]])))
+      PsiTestUtil.addProjectLibrary(model, "intellij_platform_utils", util.Arrays.asList(PathUtil.getJarPathForClass(classOf[com.intellij.util.messages.Topic[?]])))
     })
   }
 

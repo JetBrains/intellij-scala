@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
 
 final class ScalaScopeWeigher extends CompletionWeigher {
 
-  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = element match {
+  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[?] = element match {
     case ScalaLookupItem(_, namedElement) =>
       val scopes = namedElement.scopes
       if (scopes.hasNext) checkByContext(positionFromParameters(location.getBaseCompletionParameters), scopes.next())

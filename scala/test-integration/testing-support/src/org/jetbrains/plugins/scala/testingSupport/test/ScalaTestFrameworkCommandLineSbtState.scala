@@ -31,7 +31,7 @@ class ScalaTestFrameworkCommandLineSbtState(
   override def startProcess(): ProcessHandler =
     new DummyProcessHandler // It's not used anyway
 
-  override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
+  override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
     val useUiWithSbt = testConfigurationData.useUiWithSbt
 
     val processHandler = new DummyProcessHandler

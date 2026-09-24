@@ -4,7 +4,7 @@ package collections
 
 class UnitInMapTest extends OperationsOnCollectionInspectionTest {
 
-  override val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+  override val classOfInspection: Class[? <: OperationOnCollectionInspection] =
     classOf[UnitInMapInspection]
 
   override protected lazy val description: String =

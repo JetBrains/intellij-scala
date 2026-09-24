@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 class RedundantFinalOnToplevelObjectInspectionTest extends ScalaInspectionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version.languageLevel < ScalaLanguageLevel.Scala_2_13
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[RedundantFinalOnToplevelObjectInspection]
 
   override protected val description: String =

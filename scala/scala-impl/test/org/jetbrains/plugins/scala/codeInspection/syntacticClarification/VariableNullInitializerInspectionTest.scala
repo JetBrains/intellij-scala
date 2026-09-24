@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaI
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class VariableNullInitializerInspectionTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
 
   override protected val description = ScalaInspectionBundle.message("variable.with.null.initializer")
 
@@ -112,7 +112,7 @@ class VariableNullInitializerInspectionTest extends ScalaInspectionTestBase {
 }
 
 class VariableNullInitializerInspectionTest_Scala3 extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
 
   override protected val description = ScalaInspectionBundle.message("variable.with.null.initializer")
 

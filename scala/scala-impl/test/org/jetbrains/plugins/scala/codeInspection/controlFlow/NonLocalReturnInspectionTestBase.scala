@@ -5,7 +5,7 @@ import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 abstract class NonLocalReturnInspectionTestBase extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[NonLocalReturnInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[NonLocalReturnInspection]
 
   override protected val description: String = NonLocalReturnInspection.annotationDescription
 

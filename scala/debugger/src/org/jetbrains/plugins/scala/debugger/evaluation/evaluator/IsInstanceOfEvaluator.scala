@@ -18,7 +18,7 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
     def booleanValue(b: Boolean): BooleanValue =
       context.getDebugProcess.getVirtualMachineProxy.mirrorOf(b)
 
-    def primitiveClassOfValue(value: PrimitiveValue): Class[_] = value match {
+    def primitiveClassOfValue(value: PrimitiveValue): Class[?] = value match {
       case _: BooleanValue => classOf[Boolean]
       case _: ByteValue => classOf[Byte]
       case _: CharValue => classOf[Char]
@@ -37,7 +37,7 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
       throw EvaluationException(DebuggerBundle.message("error.type.cannot.be.used.in.isinstanceof", kind, tpe))
 
     object Primitive {
-      def unapply(tpe: ScType): Option[Class[_]] = {
+      def unapply(tpe: ScType): Option[Class[?]] = {
         val stdTypes = tpe.projectContext.stdTypes
         import stdTypes._
 

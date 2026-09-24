@@ -80,7 +80,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
   // After the stub/PSI decoupling Scala element types are plain IElementTypes, not IStubElementTypes,
   // so the deprecated getElementType can no longer return one.
   // It is intentionally unsupported; every caller must use getIElementType (below) instead.
-  override final def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] =
+  override final def getElementType: IStubElementType[? <: StubElement[? <: PsiElement], ? <: PsiElement] =
     throw new UnsupportedOperationException("Use getIElementType() instead of the deprecated getElementType()")
 
   // The frontend-safe element-type accessor. Unlike the deprecated getElementType, this returns the raw
@@ -107,7 +107,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
 
   override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
-  override def getStubOrPsiChildren[Psi <: PsiElement](filter: TokenSet, f: ArrayFactory[_ <: Psi]): Array[Psi] = {
+  override def getStubOrPsiChildren[Psi <: PsiElement](filter: TokenSet, f: ArrayFactory[? <: Psi]): Array[Psi] = {
     assertFilterMakesSenseForStubs(filter)
     super.getStubOrPsiChildren(filter, f)
   }
@@ -141,7 +141,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
   override def copyCopyableDataTo(clone: UserDataHolderBase): Unit = {
     super.copyCopyableDataTo(clone)
 
-    val stubbed = clone.asInstanceOf[ScalaStubBasedElementImpl[_, _]]
+    val stubbed = clone.asInstanceOf[ScalaStubBasedElementImpl[?, ?]]
     stubbed.context = this.context
     stubbed.child = this.child
   }
@@ -154,7 +154,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
   private def assertFilterMakesSenseForStubs(filter: TokenSet): Unit = {
     if (isUnitTestMode && (filter ne TokenSet.ANY)) {
       val elementTypes = filter.getTypes
-      val nonStubTypes = elementTypes.filterNot(_.is[ScStubElementType[_]])
+      val nonStubTypes = elementTypes.filterNot(_.is[ScStubElementType[?]])
       if (nonStubTypes.nonEmpty)
         throw new IllegalArgumentException(s"Non-stub element types (${nonStubTypes.mkString(", ")}) should not be used in getStubOrPsiChildren")
     }

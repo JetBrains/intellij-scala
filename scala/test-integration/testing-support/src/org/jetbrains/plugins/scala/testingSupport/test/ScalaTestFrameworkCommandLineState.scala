@@ -176,7 +176,7 @@ class ScalaTestFrameworkCommandLineState(
   /**
    * @note Written according to [[com.intellij.execution.JavaTestFrameworkRunnableState#execute]].
    */
-  override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
+  override def execute(executor: Executor, runner: ProgramRunner[?]): ExecutionResult = {
     val testConsoleView: BaseTestsOutputConsoleView = {
       val consoleProperties = configuration.createTestConsoleProperties(executor)
       consoleProperties.setIdBasedTestTree(true)

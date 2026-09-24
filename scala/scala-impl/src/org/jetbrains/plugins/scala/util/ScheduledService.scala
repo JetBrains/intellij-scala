@@ -17,7 +17,7 @@ abstract class ScheduledService(delay: FiniteDuration,
   require(terminationTimeout.length > 0, "non-positive termination timeout")
 
   private var currentScheduler: Option[ScheduledExecutorService] = None
-  private var currentTask: Option[ScheduledFuture[_]] = None
+  private var currentTask: Option[ScheduledFuture[?]] = None
 
   /**
    * Start scheduling process.

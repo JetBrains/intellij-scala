@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 object IsInScala3ModuleFilter extends ElementFilter {
   override def toString: String = "IsInScala3ModuleFilter"
 
-  override def isClassAcceptable(hintClass: Class[_]): Boolean = true
+  override def isClassAcceptable(hintClass: Class[?]): Boolean = true
 
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean =
     context != null && context.isInScala3Module

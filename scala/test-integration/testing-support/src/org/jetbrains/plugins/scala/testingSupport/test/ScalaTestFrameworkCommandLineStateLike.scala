@@ -89,7 +89,7 @@ trait ScalaTestFrameworkCommandLineStateLike {
     }
 
   protected def attachExtensionsToProcess(
-    configuration: RunConfigurationBase[_],
+    configuration: RunConfigurationBase[?],
     processHandler: ProcessHandler
   ): Unit = {
     val runnerSettings = getRunnerSettings
@@ -97,8 +97,8 @@ trait ScalaTestFrameworkCommandLineStateLike {
   }
 
   // case is required to avoid bad red-highlighting by Scala Plugin which can't understand Kotlin generics
-  private def configurationExtensionManager: RunConfigurationExtensionsManager[RunConfigurationBase[_], _] =
-    JavaRunConfigurationExtensionManager.getInstance.asInstanceOf[RunConfigurationExtensionsManager[RunConfigurationBase[_], _]]
+  private def configurationExtensionManager: RunConfigurationExtensionsManager[RunConfigurationBase[?], ?] =
+    JavaRunConfigurationExtensionManager.getInstance.asInstanceOf[RunConfigurationExtensionsManager[RunConfigurationBase[?], ?]]
 }
 
 

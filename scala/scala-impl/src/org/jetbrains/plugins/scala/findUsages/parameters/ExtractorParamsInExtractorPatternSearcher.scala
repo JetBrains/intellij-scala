@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
  * }}}
  */
 class ExtractorParamsInExtractorPatternSearcher extends CustomUsageSearcher {
-  override def processElementUsages(element: PsiElement, processor0: Processor[_ >: Usage], options: FindUsagesOptions): Unit = {
+  override def processElementUsages(element: PsiElement, processor0: Processor[? >: Usage], options: FindUsagesOptions): Unit = {
     element match {
       case parameterOfClassWithIndex(cls, index) =>
         val scope = inReadAction(element.getUseScope)

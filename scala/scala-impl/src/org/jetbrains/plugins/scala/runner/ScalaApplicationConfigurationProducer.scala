@@ -61,13 +61,13 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     }
   }
 
-  private def sameModule(configuration: T, location: Location[_ <: PsiElement]): Boolean = {
+  private def sameModule(configuration: T, location: Location[? <: PsiElement]): Boolean = {
     val module = configuration.getConfigurationModule.getModule
     val predefinedModule = getPredefinedModule(location)
     location.getModule == module || predefinedModule == module
   }
 
-  private def getPredefinedModule(location: Location[_ <: PsiElement]): Module = {
+  private def getPredefinedModule(location: Location[? <: PsiElement]): Module = {
     val manager = RunManagerEx.getInstanceEx(location.getProject).asInstanceOf[RunManagerImpl]
     val template = manager.getConfigurationTemplate(getConfigurationFactory)
     template.getConfiguration.asInstanceOf[T].getConfigurationModule.getModule
@@ -108,7 +108,7 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     mainClassName: String,
     element: PsiElement,
     context: ConfigurationContext,
-    location: Location[_ <: PsiElement],
+    location: Location[? <: PsiElement],
     configuration: T
   ): Unit = {
     configuration.setMainClassName(mainClassName)

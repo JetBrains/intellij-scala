@@ -148,7 +148,7 @@ object ScalaKeywordCompletionContributor {
 
     override def toString: String = "AfterDotFilter"
 
-    override def isClassAcceptable(hintClass: Class[_]): Boolean = true
+    override def isClassAcceptable(hintClass: Class[?]): Boolean = true
 
     override def isAcceptable(element: Any, context: PsiElement): Boolean =
       element match {
@@ -162,7 +162,7 @@ object ScalaKeywordCompletionContributor {
 
   private abstract class AfterErrorFilter(errorDescription: String) extends ElementFilter {
 
-    override def isClassAcceptable(hintClass: Class[_]): Boolean = true
+    override def isClassAcceptable(hintClass: Class[?]): Boolean = true
 
     override def isAcceptable(element: Any, context: PsiElement): Boolean =
       element match {

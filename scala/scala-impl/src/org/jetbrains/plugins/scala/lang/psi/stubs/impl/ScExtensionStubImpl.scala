@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtensionStub
 
 class ScExtensionStubImpl(
-  parent:                            StubElement[_ <: PsiElement],
+  parent:                            StubElement[? <: PsiElement],
   elementType:                       IElementType,
   override val isTopLevel:           Boolean,
   override val topLevelQualifier:    Option[String],

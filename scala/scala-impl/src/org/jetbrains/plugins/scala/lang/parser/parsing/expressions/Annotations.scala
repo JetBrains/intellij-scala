@@ -14,7 +14,7 @@ import java.{util => ju}
 private[parsing] object Annotations extends ParsingRule {
 
   private val LeftEdgeBinder: WhitespacesAndCommentsBinder =
-    (tokens: ju.List[_ <: IElementType], _: Boolean, _: WhitespacesAndCommentsBinder.TokenTextGetter) => tokens.size
+    (tokens: ju.List[? <: IElementType], _: Boolean, _: WhitespacesAndCommentsBinder.TokenTextGetter) => tokens.size
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     parseAnnotations()

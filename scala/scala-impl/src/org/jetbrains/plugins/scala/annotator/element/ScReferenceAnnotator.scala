@@ -466,7 +466,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     parenthesise(parts)
   }
 
-  private def parenthesise(items: Seq[_]) = items.mkString("(", ", ", ")")
+  private def parenthesise(items: Seq[?]) = items.mkString("(", ", ", ")")
 
   private def highlightImplicitMethod(refElement: ScReference)
                                      (implicit holder: ScalaAnnotationHolder): Unit = {

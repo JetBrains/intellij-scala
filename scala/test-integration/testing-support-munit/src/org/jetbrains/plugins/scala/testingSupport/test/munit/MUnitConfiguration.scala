@@ -31,7 +31,7 @@ final class MUnitConfiguration(
 
   override val testFramework: MUnitTestFramework = MUnitTestFramework()
 
-  override val configurationProducer: AbstractTestConfigurationProducer[_] = MUnitConfigurationProducer()
+  override val configurationProducer: AbstractTestConfigurationProducer[?] = MUnitConfigurationProducer()
 
   override protected def validityChecker: SuiteValidityChecker = new SuiteValidityCheckerBase
 

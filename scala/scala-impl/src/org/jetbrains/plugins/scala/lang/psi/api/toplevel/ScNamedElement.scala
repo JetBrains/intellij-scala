@@ -67,7 +67,7 @@ trait ScNamedElement extends ScalaPsiElement
 
   private val _nameContext = cached("nameContext", ModTracker.anyScalaPsiChange, () => {
     @tailrec
-    def byStub(stub: StubElement[_]): PsiElement = {
+    def byStub(stub: StubElement[?]): PsiElement = {
       if (stub == null) null
       else {
         val psi = stub.getPsi.asInstanceOf[PsiElement]
@@ -84,7 +84,7 @@ trait ScNamedElement extends ScalaPsiElement
 
     this match {
       case st: StubBasedPsiElementBase[_] =>
-        val stub = st.getStub.asInstanceOf[StubElement[_]]
+        val stub = st.getStub.asInstanceOf[StubElement[?]]
 
         if (stub != null) byStub(stub)
         else byAST(this)

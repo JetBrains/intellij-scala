@@ -167,7 +167,7 @@ object RenameSuperMembersUtil {
     }
     val aClass = member.containingClass
 
-    val signatures: MixinNodes.Map[_ <: Signature] = member match {
+    val signatures: MixinNodes.Map[? <: Signature] = member match {
       case _: ScTypeAlias =>
         if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(aClass)
         else TypeDefinitionMembers.getTypes(aClass)

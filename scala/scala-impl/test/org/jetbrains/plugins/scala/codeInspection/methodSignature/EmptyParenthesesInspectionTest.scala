@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaI
 
 
 class EmptyParenthesesInspectionTest extends ScalaInspectionTestBase {
-  protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
+  protected override val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[AccessorLikeMethodInspection.EmptyParentheses]
 
   protected override val description: String =

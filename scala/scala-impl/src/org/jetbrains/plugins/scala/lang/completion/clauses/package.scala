@@ -50,7 +50,7 @@ package object clauses {
   private[clauses] def `match`: Capture[ScMatch] =
     psiElement(classOf[ScMatch])
 
-  private[clauses] def leafWithParent(pattern: ElementPattern[_ <: PsiElement]) =
+  private[clauses] def leafWithParent(pattern: ElementPattern[? <: PsiElement]) =
     psiElement(classOf[LeafPsiElement]).withParent(pattern)
 
   private[clauses] def nonQualifiedReference =
@@ -107,7 +107,7 @@ package object clauses {
   }
 
   private[clauses] def buildLookupElement(lookupString: String,
-                                          insertHandler: ClauseInsertHandler[_])
+                                          insertHandler: ClauseInsertHandler[?])
                                          (presentation: LookupElementRenderer[LookupElement]): LookupElement =
     LookupElementBuilder.create(lookupString)
       .withInsertHandler(insertHandler)

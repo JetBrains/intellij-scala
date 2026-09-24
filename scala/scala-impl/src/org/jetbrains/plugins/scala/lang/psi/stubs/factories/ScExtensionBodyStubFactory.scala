@@ -11,10 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtensionBodyStubImpl
 final class ScExtensionBodyStubFactory(elementType: ScExtensionBodyElementType)
   extends ScStubSerializingElementFactory[ScExtensionBodyStub, ScExtensionBody](elementType) {
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScExtensionBodyStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScExtensionBodyStub =
     new ScExtensionBodyStubImpl(parentStub, elementType)
 
-  override def createStubImpl(extBody: ScExtensionBody, parentStub: StubElement[_ <: PsiElement]): ScExtensionBodyStub =
+  override def createStubImpl(extBody: ScExtensionBody, parentStub: StubElement[? <: PsiElement]): ScExtensionBodyStub =
     new ScExtensionBodyStubImpl(parentStub, elementType)
 
   override def createPsi(stub: ScExtensionBodyStub): ScExtensionBody = new ScExtensionBodyImpl(stub)

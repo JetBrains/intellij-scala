@@ -12,8 +12,8 @@ import scala.jdk.CollectionConverters._
 
 class TestStatusListener extends SMTRunnerEventsAdapter {
 
-  private val _uncapturedOutput: mutable.Buffer[(String, String, Key[_])] =
-    ContainerUtil.createConcurrentList[(String, String, Key[_])].asScala
+  private val _uncapturedOutput: mutable.Buffer[(String, String, Key[?])] =
+    ContainerUtil.createConcurrentList[(String, String, Key[?])].asScala
   private val testingFinished = Promise[Unit]()
 
   /**
@@ -33,7 +33,7 @@ class TestStatusListener extends SMTRunnerEventsAdapter {
   override def onTestingFinished(testsRoot: SMTestProxy.SMRootTestProxy): Unit =
     testingFinished.trySuccess(())
 
-  override def onUncapturedOutput(activeProxy: SMTestProxy, text: String, `type`: Key[_]): Unit = {
+  override def onUncapturedOutput(activeProxy: SMTestProxy, text: String, `type`: Key[?]): Unit = {
     val nodeName = activeProxy.getName
     _uncapturedOutput.append((nodeName, text, `type`))
   }

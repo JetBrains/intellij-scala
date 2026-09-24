@@ -99,7 +99,7 @@ abstract class CaseClause extends ParsingRule {
  */
 object CaseClause extends CaseClause {
   private val RightCommentBinder: WhitespacesAndCommentsBinder =
-    (tokens: ju.List[_ <: IElementType], _: Boolean, _: WhitespacesAndCommentsBinder.TokenTextGetter) => {
+    (tokens: ju.List[? <: IElementType], _: Boolean, _: WhitespacesAndCommentsBinder.TokenTextGetter) => {
       tokens.size() - tokens.asScala.reverseIterator.takeWhile(token => !ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(token)).length
     }
 

@@ -164,7 +164,7 @@ trait QuasiquoteInferUtilApiImpl extends QuasiquoteInferUtilApi {
       str.replaceAll("^\"", "").replaceAll("\"$", "")
   }
 
-  private def classToScTypeString(c: Class[_]): String = {
+  private def classToScTypeString(c: Class[?]): String = {
     if (c.isArray) {
       s"scala.collection.immutable.Seq[${classToScTypeString(c.getComponentType)}]"
     } else {

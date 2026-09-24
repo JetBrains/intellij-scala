@@ -11,10 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScEarlyDefinitionsStubImp
 final class ScEarlyDefinitionsStubFactory(elementType: ScEarlyDefinitionsElementType)
   extends ScStubSerializingElementFactory[ScEarlyDefinitionsStub, ScEarlyDefinitions](elementType) {
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScEarlyDefinitionsStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScEarlyDefinitionsStub =
     new ScEarlyDefinitionsStubImpl(parentStub, elementType)
 
-  override def createStubImpl(psi: ScEarlyDefinitions, parentStub: StubElement[_ <: PsiElement]): ScEarlyDefinitionsStub =
+  override def createStubImpl(psi: ScEarlyDefinitions, parentStub: StubElement[? <: PsiElement]): ScEarlyDefinitionsStub =
     new ScEarlyDefinitionsStubImpl(parentStub, elementType)
 
   override def createPsi(stub: ScEarlyDefinitionsStub): ScEarlyDefinitions = new ScEarlyDefinitionsImpl(stub)

@@ -26,7 +26,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
   override def parseWithNew(
     root:     PsiElement,
     document: Document,
-    ranges:   util.Collection[_ <: TextRange],
+    ranges:   util.Collection[? <: TextRange],
     element:  PsiElement,
     settings: ArrangementSettings
   ): Pair[ScalaArrangementEntry, util.List[ScalaArrangementEntry]] = {
@@ -47,7 +47,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
   override def parse(
     root:     PsiElement,
     document: Document,
-    ranges:   util.Collection[_ <: TextRange],
+    ranges:   util.Collection[? <: TextRange],
     settings: ArrangementSettings
   ): util.List[ScalaArrangementEntry] = {
     ScalaActionUsagesCollector.logRearrange(root.getProject)

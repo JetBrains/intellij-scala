@@ -117,7 +117,7 @@ object FormatConversionIntention {
   ) with AnyToStringConcatenationBase
 
   trait AnyToStringConcatenationBase {
-    self: FormatConversionIntention[_] =>
+    self: FormatConversionIntention[?] =>
 
     // just run the tests...
     override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {

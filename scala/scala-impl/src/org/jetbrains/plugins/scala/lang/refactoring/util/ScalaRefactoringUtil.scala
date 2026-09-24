@@ -531,7 +531,7 @@ object ScalaRefactoringUtil {
           }
         }
         .setRenderer(new DefaultListCellRenderer {
-          override def getListCellRendererComponent(list: JList[_], value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+          override def getListCellRendererComponent(list: JList[?], value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
             val rendererComponent: Component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
             val element: T = value.asInstanceOf[T]
             setText(presentation(element))

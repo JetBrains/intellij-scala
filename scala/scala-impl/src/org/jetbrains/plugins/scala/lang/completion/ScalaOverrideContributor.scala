@@ -117,7 +117,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
           case body: ScTemplateBody => body
         }
 
-        val filterClass: Class[_ <: ScalaNamedMember] = declaration match {
+        val filterClass: Class[? <: ScalaNamedMember] = declaration match {
           case _: PsiMethod => classOf[ScMethodMember]
           case _: ScValueDeclaration => classOf[ScValueMember]
           case _: ScVariableDeclaration => classOf[ScVariableMember]

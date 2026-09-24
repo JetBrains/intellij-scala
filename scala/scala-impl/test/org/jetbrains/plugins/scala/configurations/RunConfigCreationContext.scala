@@ -15,5 +15,5 @@ import com.intellij.execution.configurations.RunConfiguration
  */
 case class RunConfigCreationContext(
   location: RunConfigCreationLocation,
-  preferredConfigClass: Option[Class[_ <: RunConfiguration]] = None
+  preferredConfigClass: Option[Class[? <: RunConfiguration]] = None
 )

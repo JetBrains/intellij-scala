@@ -8,7 +8,7 @@ import java.util.Collections
 abstract class SingleActionPromoterBase extends ActionPromoter {
   def shouldPromote(anAction: AnAction, context: DataContext): Boolean
   
-  override def promote(actions: util.List[_ <: AnAction], context: DataContext): util.List[AnAction] = {
+  override def promote(actions: util.List[? <: AnAction], context: DataContext): util.List[AnAction] = {
     val it = actions.iterator()
 
     while (it.hasNext) {

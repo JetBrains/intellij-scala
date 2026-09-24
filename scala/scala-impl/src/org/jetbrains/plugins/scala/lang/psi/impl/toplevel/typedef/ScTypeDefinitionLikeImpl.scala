@@ -40,7 +40,7 @@ trait ScTypeDefinitionLikeImpl extends ScTypeDefinitionLike {
       case _ => false
     }
 
-    def findByStub(contextStub: StubElement[_]): Option[ScTypeDefinitionLike] = {
+    def findByStub(contextStub: StubElement[?]): Option[ScTypeDefinitionLike] = {
       val siblings  = contextStub.getChildrenByType(TYPE_DEFINITION_LIKES, ScTypeDefinitionLikeFactory)
       siblings.find(isCompanion)
     }

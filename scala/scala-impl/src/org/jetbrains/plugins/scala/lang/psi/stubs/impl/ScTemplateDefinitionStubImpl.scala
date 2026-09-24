@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 
 class ScTemplateDefinitionStubImpl[TypeDef <: ScTemplateDefinition](
-  parent:                                             StubElement[_ <: PsiElement],
+  parent:                                             StubElement[? <: PsiElement],
   elementType:                                        IElementType,
   nameRef:                                            String,
   override val getQualifiedName:                      String,

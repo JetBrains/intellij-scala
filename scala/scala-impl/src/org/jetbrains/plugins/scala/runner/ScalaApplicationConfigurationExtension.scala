@@ -17,7 +17,7 @@ final class ScalaApplicationConfigurationExtension extends RunConfigurationExten
   import ValidateCommand._
 
   override def isApplicableFor(
-    configuration: RunConfigurationBase[_]
+    configuration: RunConfigurationBase[?]
   ): Boolean =
     configuration.isInstanceOf[ApplicationConfiguration]
 
@@ -30,12 +30,12 @@ final class ScalaApplicationConfigurationExtension extends RunConfigurationExten
    * @see [[com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl.checkSettings]]
    */
   override def validateConfiguration(
-    configurationBase: RunConfigurationBase[_],
+    configurationBase: RunConfigurationBase[?],
     isExecution: Boolean
   ): Unit = ()
 
   @throws[ExecutionException]
-  override def updateJavaParameters[T <: RunConfigurationBase[_]](
+  override def updateJavaParameters[T <: RunConfigurationBase[?]](
     configurationBase: T,
     javaParams: JavaParameters,
     runnerSettings: RunnerSettings

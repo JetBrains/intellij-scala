@@ -11,10 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScIdListStubImpl
 final class ScIdListStubFactory(elementType: ScIdListElementType)
   extends ScStubSerializingElementFactory[ScIdListStub, ScIdList](elementType) {
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScIdListStub =
     new ScIdListStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], elementType)
 
-  override def createStubImpl(psi: ScIdList, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
+  override def createStubImpl(psi: ScIdList, parentStub: StubElement[? <: PsiElement]): ScIdListStub =
     new ScIdListStubImpl(parentStub, elementType)
 
   override def createPsi(stub: ScIdListStub): ScIdList = new ScIdListImpl(stub)

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 
 final class ScFunctionStubImpl[F <: ScFunction](
-  parent:                                        StubElement[_ <: PsiElement],
+  parent:                                        StubElement[? <: PsiElement],
   elementType:                                   IElementType,
   name:                                          String,
   override val isDeclaration:                    Boolean,

@@ -354,7 +354,7 @@ class ScalaApplicationConfigurationTest_Scala2 extends ScalaApplicationConfigura
     }
 
     myFixture.openFileInEditor(vFile)
-    val gutters: Seq[LineMarkerInfo[_]] = myFixture.findAllGutters.asScala.toSeq.map(_.asInstanceOf[LineMarkerGutterIconRenderer[_]].getLineMarkerInfo)
+    val gutters: Seq[LineMarkerInfo[?]] = myFixture.findAllGutters.asScala.toSeq.map(_.asInstanceOf[LineMarkerGutterIconRenderer[?]].getLineMarkerInfo)
     val runGutters = gutters.filter(_.getIcon == ScalaRunLineMarkerContributor.RunIcon)
 
     if (runGutters.nonEmpty) {

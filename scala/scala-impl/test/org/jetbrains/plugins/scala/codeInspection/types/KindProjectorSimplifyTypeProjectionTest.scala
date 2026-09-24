@@ -12,7 +12,7 @@ class KindProjectorSimplifyTypeProjectionTest extends ScalaInspectionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version < new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "9")
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[KindProjectorSimplifyTypeProjectionInspection]
 
   override protected val description: String =

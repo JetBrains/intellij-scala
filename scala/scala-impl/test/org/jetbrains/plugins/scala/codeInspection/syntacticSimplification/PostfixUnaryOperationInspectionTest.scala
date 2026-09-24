@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class PostfixUnaryOperationInspectionTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection : Class[_ <: LocalInspectionTool] = classOf[PostfixUnaryOperationInspection]
+  override protected val classOfInspection : Class[? <: LocalInspectionTool] = classOf[PostfixUnaryOperationInspection]
   override protected val description = ScalaInspectionBundle.message("displayname.postfix.unary.operation")
 
   private val hint = ScalaInspectionBundle.message("unary.operation.can.use.prefix.notation")

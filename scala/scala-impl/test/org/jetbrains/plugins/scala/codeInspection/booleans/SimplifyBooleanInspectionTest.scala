@@ -8,7 +8,7 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 class SimplifyBooleanInspectionTest extends ScalaInspectionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[SimplifyBooleanInspection]
 
   override protected val description =

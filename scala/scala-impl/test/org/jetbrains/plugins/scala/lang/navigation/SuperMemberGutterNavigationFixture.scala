@@ -53,7 +53,7 @@ final class SuperMemberGutterNavigationFixture(private val originalFixture: Code
   def navigateToImplementationTarget(fileName: String): PsiElement =
     navigateToTarget(fileName, isImplementationNavigationLineMarker)
 
-  private def navigateToTarget(fileName: String, markerFilter: LineMarkerInfo[_] => Boolean): PsiElement = {
+  private def navigateToTarget(fileName: String, markerFilter: LineMarkerInfo[?] => Boolean): PsiElement = {
     val lineMarkerInfo = findSingleNavigationLineMarker(fileName, markerFilter)
     val navigationHandler = lineMarkerInfo.getNavigationHandler
     assertNotNull(s"Expected non-null gutter navigation handler for file $fileName", navigationHandler)
@@ -84,7 +84,7 @@ final class SuperMemberGutterNavigationFixture(private val originalFixture: Code
 
   private def findSingleNavigationLineMarker(
     fileName: String,
-    markerFilter: LineMarkerInfo[_] => Boolean
+    markerFilter: LineMarkerInfo[?] => Boolean
   ): LineMarkerInfo[PsiElement] = {
     val allLineMarkersAtCaret = originalFixture.findGuttersAtCaret().asScala.toSeq.collect {
       case renderer: LineMarkerGutterIconRenderer[_] =>
@@ -115,11 +115,11 @@ final class SuperMemberGutterNavigationFixture(private val originalFixture: Code
     matchingLineMarkers.head
   }
 
-  private def isSuperNavigationLineMarker(lineMarkerInfo: LineMarkerInfo[_]): Boolean =
+  private def isSuperNavigationLineMarker(lineMarkerInfo: LineMarkerInfo[?]): Boolean =
     lineMarkerInfo.getIcon == AllIcons.Gutter.OverridingMethod ||
       lineMarkerInfo.getIcon == AllIcons.Gutter.ImplementingMethod
 
-  private def isImplementationNavigationLineMarker(lineMarkerInfo: LineMarkerInfo[_]): Boolean =
+  private def isImplementationNavigationLineMarker(lineMarkerInfo: LineMarkerInfo[?]): Boolean =
     lineMarkerInfo.getIcon == AllIcons.Gutter.OverridenMethod ||
       lineMarkerInfo.getIcon == AllIcons.Gutter.ImplementedMethod
 

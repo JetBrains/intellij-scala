@@ -23,7 +23,7 @@ object ScalaElementPatternImpl {
   def isMethodCallArgument[T <: ScalaPsiElement](
     host: T, context: ProcessingContext,
     index: Int,
-    methodPattern: ElementPattern[_ <: PsiMethod]
+    methodPattern: ElementPattern[? <: PsiMethod]
   ): Boolean = {
     host.getParent match {
       case argsList: ScArgumentExprList =>
@@ -102,7 +102,7 @@ object ScalaElementPatternImpl {
 
   private def argsListResolvesToMatchingMethod(
     argsList: ScArgumentExprList,
-    methodPattern: ElementPattern[_ <: PsiMethod],
+    methodPattern: ElementPattern[? <: PsiMethod],
     context: ProcessingContext
   ): Boolean = {
     argsList.getParent match {
@@ -126,7 +126,7 @@ object ScalaElementPatternImpl {
 
   private def resolvesAndMatchesPattern(
     ref: ScReference,
-    methodPattern: ElementPattern[_ <: PsiMethod],
+    methodPattern: ElementPattern[? <: PsiMethod],
     context: ProcessingContext,
   ): Boolean = {
     val resolveResults = ref.multiResolveScala(false)

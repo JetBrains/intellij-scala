@@ -19,7 +19,7 @@ final class DummyModuleBuilder extends ModuleBuilder {
   override def isAvailable: Boolean = false
   override def isOpenProjectSettingsAfter = false
   override def canCreateModule = false
-  override def getModuleType: ModuleType[_ <: ModuleBuilder] = ModuleType.EMPTY.asInstanceOf[ModuleType[_ <: ModuleBuilder]]
+  override def getModuleType: ModuleType[? <: ModuleBuilder] = ModuleType.EMPTY.asInstanceOf[ModuleType[? <: ModuleBuilder]]
   override def getPresentableName: String = ""
   override def getGroupName: String = ""
   override def isTemplateBased = false

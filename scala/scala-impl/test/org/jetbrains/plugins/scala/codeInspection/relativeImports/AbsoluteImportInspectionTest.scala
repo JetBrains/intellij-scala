@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaI
 
 class AbsoluteImportInspectionTest extends ScalaInspectionTestBase {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[AbsoluteImportInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[AbsoluteImportInspection]
 
   override protected def description: String = ScalaInspectionBundle.message("absolute.import.detected")
 

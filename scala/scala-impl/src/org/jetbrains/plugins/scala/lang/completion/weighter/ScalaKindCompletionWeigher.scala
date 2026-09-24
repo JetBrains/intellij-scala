@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
  */
 final class ScalaKindCompletionWeigher extends CompletionWeigher {
 
-  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
+  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[?] = {
     import KindWeights._
 
     def handleMember(inMember: PsiMember): Value = inMember match {

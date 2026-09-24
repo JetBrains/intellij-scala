@@ -22,7 +22,7 @@ final class ScImportSelectorStubFactory(elementType: ScImportSelectorElementType
     dataStream.writeOptionName(stub.typeText)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScImportSelectorStub =
     new ScImportSelectorStubImpl(parentStub, elementType,
       referenceText = dataStream.readOptionName,
       importedName = dataStream.readOptionName,
@@ -33,7 +33,7 @@ final class ScImportSelectorStubFactory(elementType: ScImportSelectorElementType
       typeText = dataStream.readOptionName
     )
 
-  override def createStubImpl(selector: ScImportSelector, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorStub =
+  override def createStubImpl(selector: ScImportSelector, parentStub: StubElement[? <: PsiElement]): ScImportSelectorStub =
     new ScImportSelectorStubImpl(parentStub, elementType,
       referenceText = selector.reference.map(_.getText),
       importedName = selector.importedName,

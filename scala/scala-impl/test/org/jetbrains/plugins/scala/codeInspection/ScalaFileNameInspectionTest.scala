@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
 class ScalaFileNameInspectionTest extends ScalaInspectionTestBase with AssertionMatchers {
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ScalaFileNameInspection]
 
   override protected val description: String =

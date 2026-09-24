@@ -92,7 +92,7 @@ class ScalaPluginAboutPopupDescriptionProvider extends AboutPopupDescriptionProv
       return Nil
 
     val sbtProjectSettings = SbtProjectSettings.forProject(project)
-    val sbtSettingsMappings: Seq[SettingsMapping[_, _]] = sbtProjectSettings.toSeq.flatMap { settings =>
+    val sbtSettingsMappings: Seq[SettingsMapping[?, ?]] = sbtProjectSettings.toSeq.flatMap { settings =>
       buildSettingsMappings(settings, DefaultSettings.SbtProjectSettings)(
         SettingLabels.ResolveClassifiers -> (_.resolveClassifiers),
         SettingLabels.ResolveSbtClassifiers -> (_.resolveSbtClassifiers),
@@ -107,7 +107,7 @@ class ScalaPluginAboutPopupDescriptionProvider extends AboutPopupDescriptionProv
     }
 
     val scalaProjectSettings = ScalaProjectSettings.getInstance(project)
-    val scalaProjectSettingsMappings: Seq[SettingsMapping[_, _]] =
+    val scalaProjectSettingsMappings: Seq[SettingsMapping[?, ?]] =
       buildSettingsMappings(scalaProjectSettings, DefaultSettings.ScalaProjectSettings)(
         SettingLabels.CompilerHighlightingScala2 -> (_.isCompilerHighlightingScala2),
         SettingLabels.CompilerHighlightingScala3 -> (_.isCompilerHighlightingScala3),
@@ -116,7 +116,7 @@ class ScalaPluginAboutPopupDescriptionProvider extends AboutPopupDescriptionProv
         SettingLabels.IncrementalHighlighting -> (_.isIncrementalHighlighting),
       )
 
-    val scalaCompilerSettingsMappings: Seq[SettingsMapping[_, _]] =
+    val scalaCompilerSettingsMappings: Seq[SettingsMapping[?, ?]] =
       buildSettingsMappings(ScalaCompilerConfiguration.instanceIn(project), DefaultSettings.ScalaCompilerSettings)(
         SettingLabels.IncrementalityType -> (_.incrementalityType),
       )
@@ -190,7 +190,7 @@ object ScalaPluginAboutPopupDescriptionProvider {
    */
   private case class SettingValue(label: String, value: String)
 
-  private def collectFormatterSettings(scalaCodeStyleSettings: ScalaCodeStyleSettings): Seq[SettingsMapping[_, _]] = {
+  private def collectFormatterSettings(scalaCodeStyleSettings: ScalaCodeStyleSettings): Seq[SettingsMapping[?, ?]] = {
     // Create a custom mapping for formatter type, use the string representation instead of Int (ScalaCodeStyleSettings.FORMATTER)
     def renderFormatterType(formatterType: Int): String = formatterType match {
       case ScalaCodeStyleSettings.SCALAFMT_FORMATTER => "scalafmt"
@@ -220,7 +220,7 @@ object ScalaPluginAboutPopupDescriptionProvider {
     }
   }
 
-  private def collectNonDefaultSettingsGroup(groupName: String, mappings: Seq[SettingsMapping[_, _]]): NonDefaultSettingsGroup = {
+  private def collectNonDefaultSettingsGroup(groupName: String, mappings: Seq[SettingsMapping[?, ?]]): NonDefaultSettingsGroup = {
     val nonDefaultLabels = collectNonDefaultSettingsLabels(mappings)
     NonDefaultSettingsGroup(groupName, nonDefaultLabels)
   }
@@ -229,7 +229,7 @@ object ScalaPluginAboutPopupDescriptionProvider {
    * @return list of items in format `setting.label=non-default-value`
    *         for all settings that are different from the default value
    */
-  private def collectNonDefaultSettingsLabels(mappings: Seq[SettingsMapping[_, _]]): Seq[SettingValue] =
+  private def collectNonDefaultSettingsLabels(mappings: Seq[SettingsMapping[?, ?]]): Seq[SettingValue] =
     mappings.flatMap { case SettingsMapping(label, settings, defaultSettings, accessor, renderer) =>
       val currentValue = accessor(settings)
       val defaultValue = accessor(defaultSettings)

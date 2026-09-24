@@ -4,7 +4,7 @@ package codeInspection.collections
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 abstract class OperationsOnCollectionInspectionTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection]
+  override protected val classOfInspection: Class[? <: OperationOnCollectionInspection]
 
   protected val hint: String
 

@@ -48,7 +48,7 @@ final class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcesso
   override protected def processTransferableData(
     bounds: RangeMarker,
     caretOffset: Int,
-    ref: Ref[_ >: java.lang.Boolean],
+    ref: Ref[? >: java.lang.Boolean],
     value: ConvertedCode
   )(implicit
     project: Project,

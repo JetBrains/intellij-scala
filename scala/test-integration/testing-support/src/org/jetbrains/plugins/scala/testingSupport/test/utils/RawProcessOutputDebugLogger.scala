@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.utils.RawProcessOutputDeb
 
 final class RawProcessOutputDebugLogger extends ProcessListener {
 
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+  override def onTextAvailable(event: ProcessEvent, outputType: Key[?]): Unit = {
     val eventText = event.getText
     if (eventText.trim.nonEmpty) {
       val message = s"[$outputType] $eventText"

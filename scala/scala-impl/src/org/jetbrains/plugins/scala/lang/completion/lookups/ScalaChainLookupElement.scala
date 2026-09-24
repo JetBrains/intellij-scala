@@ -32,7 +32,7 @@ final class ScalaChainLookupElement(delegate: ScalaLookupItem, prefix: ScalaLook
   }
 
   override def getExpensiveRenderer: LookupElementRenderer[_ <: LookupElement] = {
-    (_: LookupElementDecorator[_], presentation) => {
+    (_: LookupElementDecorator[?], presentation) => {
       val prefixPresentation = new LookupElementPresentation()
       prefix.renderElement(prefixPresentation)
 

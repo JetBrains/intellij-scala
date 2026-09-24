@@ -61,7 +61,7 @@ abstract class InlayHintsTestBase extends base.ScalaLightCodeInsightFixtureTestC
       .flatMap(_.parts.flatMap(_.errorTooltip).map(_.message))
   }
 
-  private def inlayText(withTooltips: Boolean): Inlay[_] => Option[String] = (_: Inlay[_]).getRenderer match {
+  private def inlayText(withTooltips: Boolean): Inlay[?] => Option[String] = (_: Inlay[?]).getRenderer match {
     case renderer: TextPartsHintRenderer if withTooltips =>
       Some(renderer.parts.flatMap(p => p.string + p.tooltip().map(" /* " + _ + " */ ").mkString.replace("\"", "'").replace("\n", "\\n")).mkString)
     case renderer: HintRenderer => Some(renderer.getText)

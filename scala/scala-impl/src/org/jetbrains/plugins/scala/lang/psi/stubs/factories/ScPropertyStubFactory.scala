@@ -24,7 +24,7 @@ sealed abstract class ScPropertyStubFactory[P <: ScValueOrVariable](elementType:
     dataStream.writeOptionName(stub.topLevelQualifier)
   }
 
-  override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPropertyStub[P] =
+  override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScPropertyStub[P] =
     new ScPropertyStubImpl(
       parentStub,
       elementType,
@@ -39,7 +39,7 @@ sealed abstract class ScPropertyStubFactory[P <: ScValueOrVariable](elementType:
       topLevelQualifier = dataStream.readOptionName
     )
 
-  override final def createStubImpl(property: P, parentStub: StubElement[_ <: PsiElement]): ScPropertyStub[P] =
+  override final def createStubImpl(property: P, parentStub: StubElement[? <: PsiElement]): ScPropertyStub[P] =
     new ScPropertyStubImpl(
       parentStub,
       elementType,

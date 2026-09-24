@@ -16,7 +16,7 @@ import java.util.Collections
 class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,
                                       file: PsiFile, keyword: PsiElement)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
-  override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = {
+  override def computeUsages(targets: util.List[? <: PsiElement]): Unit = {
     val returns = expr.calculateTailReturns ++ (keyword match {
       case Parent(ScBegin(_, Some(_))) if CodeInsightSettings.getInstance.HIGHLIGHT_BRACES => Set.empty // Highlight as "brace" rather than "usage" (in ScalaBlockSupportHandler)
       case _ => Set(keyword)
@@ -24,7 +24,7 @@ class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,
     returns.map(_.getTextRange).foreach(myReadUsages.add)
   }
 
-  override def selectTargets(targets: util.List[_ <: PsiElement], selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit = {
+  override def selectTargets(targets: util.List[? <: PsiElement], selectionConsumer: Consumer[? >: util.List[? <: PsiElement]]): Unit = {
     selectionConsumer.consume(targets)
   }
 

@@ -17,10 +17,10 @@ final class ScAnnotationStubFactory(elementType: ScAnnotationElementType)
     dataStream.writeOptionName(stub.name)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScAnnotationStub =
     new ScAnnotationStubImpl(parentStub, elementType, annotationText = dataStream.readNameString, name = dataStream.readOptionName)
 
-  override def createStubImpl(annotation: ScAnnotation, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub =
+  override def createStubImpl(annotation: ScAnnotation, parentStub: StubElement[? <: PsiElement]): ScAnnotationStub =
     new ScAnnotationStubImpl(parentStub, elementType,
       annotationText = annotation.getText.stripPrefix("@"),
       name = annotation.constructorInvocation.reference.map(_.refName)

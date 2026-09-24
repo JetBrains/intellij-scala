@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaI
 
 class ScalaShouldBeTextMatchesInspectionTest extends ScalaInspectionTestBase {
 
-  protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
+  protected override val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[ScalaShouldBeTextMatchesInspection]
 
   override protected val description: String =

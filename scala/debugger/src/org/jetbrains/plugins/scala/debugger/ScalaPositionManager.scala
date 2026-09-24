@@ -67,7 +67,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   ScalaPositionManager.cacheInstance(this)
 
-  override def getAcceptedFileTypes: ju.Set[_ <: FileType] =
+  override def getAcceptedFileTypes: ju.Set[? <: FileType] =
     ju.Collections.singleton(ScalaFileType.INSTANCE)
 
   @Nullable

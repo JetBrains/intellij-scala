@@ -25,7 +25,7 @@ import java.awt.Color
 import scala.collection.mutable.ArrayBuffer
 
 class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatternArgumentList, Any, ScPattern] {
-  override def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
+  override def getArgListStopSearchClasses: java.util.Set[? <: Class[?]] = {
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
 
@@ -37,8 +37,8 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
 
   override def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
-  override def getArgumentListAllowedParentClasses: java.util.Set[Class[_]] = {
-    val set = new java.util.HashSet[Class[_]]()
+  override def getArgumentListAllowedParentClasses: java.util.Set[Class[?]] = {
+    val set = new java.util.HashSet[Class[?]]()
     set.add(classOf[ScConstructorPattern])
     set
   }

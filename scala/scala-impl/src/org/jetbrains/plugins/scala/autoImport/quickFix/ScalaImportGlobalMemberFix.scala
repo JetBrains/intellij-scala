@@ -30,7 +30,7 @@ import scala.jdk.CollectionConverters._
 private class ScalaImportGlobalMemberFix(computation: MemberToImportComputation,
                                          ref: ScReferenceExpression) extends ScalaImportElementFix[MemberToImport](ref) {
 
-  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
+  override def createAddImportAction(editor: Editor): ScalaAddImportAction[?, ?] =
     ScalaAddImportAction(editor, ref, elements)
 
   override def isAddUnambiguous: Boolean =
@@ -53,7 +53,7 @@ private class ScalaImportGlobalMemberFix(computation: MemberToImportComputation,
 
 private class ScalaImportGlobalMemberWithPrefixFix(computation: MemberToImportComputation,
                                                    ref: ScReferenceExpression) extends ScalaImportElementFix[MemberToImport](ref) {
-  override def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _] =
+  override def createAddImportAction(editor: Editor): ScalaAddImportAction[?, ?] =
     ScalaAddImportAction.importWithPrefix(editor, elements, ref)
 
   override def isAddUnambiguous: Boolean = false
@@ -159,10 +159,10 @@ object ScalaImportGlobalMemberFix {
   }
 
   @TestOnly
-  def fixWithoutPrefix(ref: ScReferenceExpression): Option[ScalaImportElementFix[_ <: ElementToImport]] =
+  def fixWithoutPrefix(ref: ScReferenceExpression): Option[ScalaImportElementFix[? <: ElementToImport]] =
     create(ref).findByType[ScalaImportGlobalMemberFix]
 
   @TestOnly
-  def fixWithPrefix(ref: ScReferenceExpression): Option[ScalaImportElementFix[_ <: ElementToImport]] =
+  def fixWithPrefix(ref: ScReferenceExpression): Option[ScalaImportElementFix[? <: ElementToImport]] =
     create(ref).findByType[ScalaImportGlobalMemberWithPrefixFix]
 }

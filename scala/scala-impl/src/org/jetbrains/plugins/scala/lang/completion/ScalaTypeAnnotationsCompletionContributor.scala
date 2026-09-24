@@ -35,7 +35,7 @@ final class ScalaTypeAnnotationsCompletionContributor extends CompletionContribu
 }
 
 object ScalaTypeAnnotationsCompletionContributor {
-  private def pattern(parentClass: Class[_ <: ScalaPsiElement]) =
+  private def pattern(parentClass: Class[? <: ScalaPsiElement]) =
     identifierPattern
       .withParent(psiElement(classOf[ScStableCodeReference])
         .withParent(psiElement(classOf[ScSimpleTypeElement])

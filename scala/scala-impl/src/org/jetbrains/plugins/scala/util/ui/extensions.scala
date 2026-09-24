@@ -41,10 +41,10 @@ object extensions {
      * Executes `startOp` if the component becomes visible.
      * Cancels the created future when the component is hidden.
      */
-    def bindExecutionToVisibility(startOp: () => Future[_]): Unit =
+    def bindExecutionToVisibility(startOp: () => Future[?]): Unit =
       component.addHierarchyListener(new HierarchyListener {
 
-        private var refreshFuture = Option.empty[Future[_]]
+        private var refreshFuture = Option.empty[Future[?]]
 
         invokeLater {
           startOrCancelScheduling()

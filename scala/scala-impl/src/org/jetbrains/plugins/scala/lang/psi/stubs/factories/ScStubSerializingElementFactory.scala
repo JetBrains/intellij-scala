@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.psi.tree.IScalaElementType
 
-abstract class ScStubSerializingElementFactory[Stub <: StubElement[_], Psi <: PsiElement](
+abstract class ScStubSerializingElementFactory[Stub <: StubElement[?], Psi <: PsiElement](
   elementType: IScalaElementType,
 ) extends StubSerializingElementFactory[Stub, Psi] {
 
@@ -21,9 +21,9 @@ abstract class ScStubSerializingElementFactory[Stub <: StubElement[_], Psi <: Ps
 
   override def shouldCreateStub(node: ASTNode): Boolean = !ScStubElementType.isLocal(node)
 
-  override final def createStub(psi: Psi, parentStub: StubElement[_ <: PsiElement]): Stub = ScStubElementType.Processing.run {
+  override final def createStub(psi: Psi, parentStub: StubElement[? <: PsiElement]): Stub = ScStubElementType.Processing.run {
     createStubImpl(psi, parentStub)
   }
 
-  protected def createStubImpl(psi: Psi, parentStub: StubElement[_ <: PsiElement]): Stub
+  protected def createStubImpl(psi: Psi, parentStub: StubElement[? <: PsiElement]): Stub
 }

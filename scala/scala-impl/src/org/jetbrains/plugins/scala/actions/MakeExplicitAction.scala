@@ -97,7 +97,7 @@ object MakeExplicitAction {
       .show(new RelativePoint(list, currentItemPoint(list)))
   }
 
-  def currentItemPoint(list: JList[_], moveLeft: Int = 20): Point = list.getSelectedIndex match {
+  def currentItemPoint(list: JList[?], moveLeft: Int = 20): Point = list.getSelectedIndex match {
     case -1 => throw new RuntimeException("Index = -1 is less than zero.")
     case index =>
       list.getCellBounds(index, index) match {
@@ -114,7 +114,7 @@ object MakeExplicitAction {
 
     override def getTextFor(value: String): String = value
 
-    override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] =
+    override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[?] =
       selectedValue match {
         case null =>
           PopupStep.FINAL_CHOICE

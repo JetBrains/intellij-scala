@@ -111,7 +111,7 @@ class SelectionDialog {
 
     override protected def createCenterPanel: JComponent = {
       val rightColumn: ColumnInfo[Node, lang.Boolean] = new ColumnInfo[Node, java.lang.Boolean](ScalaBundle.message("column.enabled")) {
-        override def getColumnClass: Class[_] = classOf[Boolean]
+        override def getColumnClass: Class[?] = classOf[Boolean]
 
         override def isCellEditable(item: Node) = true
 

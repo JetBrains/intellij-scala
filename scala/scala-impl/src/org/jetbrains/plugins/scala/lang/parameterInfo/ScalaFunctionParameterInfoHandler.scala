@@ -37,7 +37,7 @@ import scala.collection.immutable.ArraySeq
 
 class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiElement, Any, ScExpression] {
 
-  override def getArgListStopSearchClasses: util.Set[_ <: Class[_]] =
+  override def getArgListStopSearchClasses: util.Set[? <: Class[?]] =
     util.Collections.singleton(classOf[PsiMethod])
 
   override def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
@@ -57,8 +57,8 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
   override def getActualParametersRBraceType: IElementType = ScalaTokenTypes.tRBRACE
 
-  override def getArgumentListAllowedParentClasses: util.Set[Class[_]] = {
-    val set = new util.HashSet[Class[_]]()
+  override def getArgumentListAllowedParentClasses: util.Set[Class[?]] = {
+    val set = new util.HashSet[Class[?]]()
     set.add(classOf[ScMethodCall])
     set.add(classOf[ScConstructorInvocation])
     set.add(classOf[ScSelfInvocation])

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
 class CaseClassParameterInspectionTest extends ScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[CaseClassParamInspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[CaseClassParamInspection]
 
   override protected val description: String = ScalaBundle.message("val.on.case.class.param.redundant")
 

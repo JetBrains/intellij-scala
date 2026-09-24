@@ -22,7 +22,7 @@ abstract class Source3InspectionTestBase(source3Flag: String) extends ScalaInspe
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_2_13.withMinor(6)
 
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[Source3Inspection]
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] = classOf[Source3Inspection]
 
   override protected val description = "Scala 2 syntax with -Xsource:3"
 }

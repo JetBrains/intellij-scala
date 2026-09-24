@@ -18,7 +18,7 @@ final class ScPackagingStubFactory(elementType: ScPackagingElementType)
     dataStream.writeBoolean(stub.isExplicit)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPackagingStub =
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[? <: PsiElement]): ScPackagingStub =
     new ScPackagingStubImpl(
       parentStub,
       elementType,
@@ -27,7 +27,7 @@ final class ScPackagingStubFactory(elementType: ScPackagingElementType)
       isExplicit = dataStream.readBoolean
     )
 
-  override def createStubImpl(packaging: ScPackaging, parentStub: StubElement[_ <: PsiElement]): ScPackagingStub =
+  override def createStubImpl(packaging: ScPackaging, parentStub: StubElement[? <: PsiElement]): ScPackagingStub =
     new ScPackagingStubImpl(
       parentStub,
       elementType,

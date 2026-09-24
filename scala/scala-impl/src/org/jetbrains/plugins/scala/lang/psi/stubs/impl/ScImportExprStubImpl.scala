@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportExprStub
 
-class ScImportExprStubImpl(parent: StubElement[_ <: PsiElement],
+class ScImportExprStubImpl(parent: StubElement[? <: PsiElement],
                            elementType: IElementType,
                            override val referenceText: Option[String],
                            override val hasWildcardSelector: Boolean,

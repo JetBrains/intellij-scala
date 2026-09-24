@@ -98,7 +98,7 @@ object ScalaSbtProjectViewTestBase {
         presentNodeWithNodeType(node)
     }
 
-    private def presentNodeWithNodeType(node: AbstractTreeNode[_]): String = {
+    private def presentNodeWithNodeType(node: AbstractTreeNode[?]): String = {
       val presentationText = presentNode(node)
       node match {
         case _: ProjectViewModuleGroupNode => s"GroupNode: $presentationText"
@@ -107,7 +107,7 @@ object ScalaSbtProjectViewTestBase {
       }
     }
 
-    private def presentNode(node: AbstractTreeNode[_]): String = {
+    private def presentNode(node: AbstractTreeNode[?]): String = {
       node.update()
 
       val presentation = node.getPresentation

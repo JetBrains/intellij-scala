@@ -123,7 +123,7 @@ object ScalaElementFeatureProvider {
 
     val contextFeatures = new util.HashMap[String, MLFeatureValue]
 
-    def put(kind: String, pattern: ElementPattern[_ <: PsiElement]): Unit =
+    def put(kind: String, pattern: ElementPattern[? <: PsiElement]): Unit =
       contextFeatures.put(
         kind,
         MLFeatureValue.binary(pattern.accepts(position, processingContext))

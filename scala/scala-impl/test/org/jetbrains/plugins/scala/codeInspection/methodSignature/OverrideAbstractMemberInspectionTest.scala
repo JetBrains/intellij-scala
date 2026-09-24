@@ -6,7 +6,7 @@ import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.LocalInspectionTool
 
 class OverrideAbstractMemberInspectionTest extends InspectionSeverityForcingScalaInspectionTestBase {
-  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+  override protected val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[OverrideAbstractMemberInspection]
 
   override protected def forcedInspectionSeverity: HighlightDisplayLevel =

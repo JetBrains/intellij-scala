@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 class ProcedureDeclarationInspectionTest extends ScalaInspectionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
-  protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
+  protected override val classOfInspection: Class[? <: LocalInspectionTool] =
     classOf[UnitMethodInspection.ProcedureDeclaration]
 
   protected override val description: String = ScalaInspectionBundle.message("method.signature.procedure.declaration")
