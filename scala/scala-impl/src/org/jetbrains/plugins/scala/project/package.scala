@@ -48,7 +48,7 @@ import org.jetbrains.sbt.{Sbt, WorkspaceModelUtil}
 
 import java.net.{URI, URL}
 import java.nio.file.Path
-import kotlin.Unit.{INSTANCE => KUnit}
+import kotlin.Unit.INSTANCE as KUnit
 import scala.annotation.unused
 import scala.jdk.CollectionConverters.*
 import scala.ref.Reference
