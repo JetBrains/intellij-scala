@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
-import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeElementOwnerStub
 
-trait ScImportSelectorStub extends StubElement[ScImportSelector] with ScTypeElementOwnerStub[ScImportSelector] {
+trait ScImportSelectorStub extends ScStubElement[ScImportSelector] with ScTypeElementOwnerStub[ScImportSelector] {
   def isAliasedImport: Boolean
 
   def referenceText: Option[String]

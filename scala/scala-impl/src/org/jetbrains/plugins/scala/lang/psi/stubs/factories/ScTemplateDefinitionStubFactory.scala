@@ -75,7 +75,7 @@ abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](
     val (isDeprecated, additionalJavaName, isPackageObject) = definition match {
       case typeDefinition: ScTypeDefinition =>
         val annotations = definition.getModifierList match {
-          case null => Array.empty
+          case null => Array.empty[PsiAnnotation]
           case list => list.getAnnotations
         }
 

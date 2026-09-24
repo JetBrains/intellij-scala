@@ -4,6 +4,6 @@ import com.intellij.psi.stubs.NamedStub
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeElementOwnerStub
 
-trait ScSelfTypeElementStub extends NamedStub[ScSelfTypeElement] with ScTypeElementOwnerStub[ScSelfTypeElement] {
+trait ScSelfTypeElementStub extends NamedStub[ScSelfTypeElement] with ScStubElement[ScSelfTypeElement] with ScTypeElementOwnerStub[ScSelfTypeElement] {
   def classNames: Array[String]
 }

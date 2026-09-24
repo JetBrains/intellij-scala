@@ -4,7 +4,7 @@ import com.intellij.psi.stubs.NamedStub
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, ScTypeElementOwnerStub}
 
-trait ScParameterStub extends NamedStub[ScParameter]
+trait ScParameterStub extends NamedStub[ScParameter] with ScStubElement[ScParameter]
   with ScTypeElementOwnerStub[ScParameter]
   with ScExpressionOwnerStub[ScParameter]
   with ScImplicitStub[ScParameter] {

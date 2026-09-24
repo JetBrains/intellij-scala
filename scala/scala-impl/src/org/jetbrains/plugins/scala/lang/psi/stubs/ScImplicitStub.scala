@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 
 import scala.annotation.tailrec
 
-trait ScImplicitStub[T <: PsiElement] extends StubElement[T] {
+trait ScImplicitStub[T <: PsiElement] extends ScStubElement[T] {
 
   /**
    * Non-trivial class names of a return type of implicit function or val,

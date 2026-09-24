@@ -40,7 +40,7 @@ class ScStubFileElementType(debugName: String, language: Language)
 
   protected class ScFileStubBuilderImpl extends DefaultStubBuilder {
 
-    override def buildStubTree(file: PsiFile) =
+    override def buildStubTree(file: PsiFile): PsiFileStubImpl[? <: PsiFile] =
       super.buildStubTree(file).asInstanceOf[PsiFileStubImpl[? <: PsiFile]]
 
     protected override final def createStubForFile(file: PsiFile): PsiFileStubImpl[? <: PsiFile] =

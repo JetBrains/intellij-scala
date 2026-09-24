@@ -5,8 +5,9 @@ import com.intellij.psi.stubs.NamedStub
 import com.intellij.util.SofterReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScContextBound, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createContextBoundFromText, createTypeElementFromText}
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScStubElement
 
-trait ScBoundsOwnerStub[E <: PsiNamedElement] extends NamedStub[E] with PsiOwner[E] {
+trait ScBoundsOwnerStub[E <: PsiNamedElement] extends NamedStub[E] with ScStubElement[E] with PsiOwner[E] {
 
   private val lowerBoundStub = new ScTypeElementOwnerStubImpl[E](lowerBoundText, this)
 

@@ -163,6 +163,11 @@ final class ScUTypeReferenceExpression(
     with ScUCommonReferenceExpression
     with UReferenceExpression {
 
+  override def asLogString(): String = super[UReferenceExpression].asLogString()
+
+  override def accept[D, R](visitor: UastTypedVisitor[? >: D, ? <: R], data: D): R =
+    super[UReferenceExpression].accept(visitor, data)
+
   @Nullable
   override def getSourcePsi: PsiElement = sourcePsi
 

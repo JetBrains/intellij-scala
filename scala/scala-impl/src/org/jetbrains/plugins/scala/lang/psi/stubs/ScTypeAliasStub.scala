@@ -7,7 +7,8 @@ trait ScTypeAliasStub
   extends ScBoundsOwnerStub[ScTypeAlias]
     with ScTopLevelElementStub[ScTypeAlias]
     with ScTypeElementOwnerStub[ScTypeAlias]
-    with ScMemberOrLocal[ScTypeAlias] {
+    with ScMemberOrLocal[ScTypeAlias]
+    with ScStubElement[ScTypeAlias] {
 
   def isDeclaration: Boolean
 
