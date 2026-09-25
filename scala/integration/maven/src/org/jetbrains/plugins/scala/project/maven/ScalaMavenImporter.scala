@@ -111,7 +111,7 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
     val implicitScalaLibraryInfo = Option(mavenProject.getCachedValue(MavenImplicitScalaLibraryInfo))
     implicitScalaLibraryInfo.map { info =>
       val vfUrlManager = WorkspaceModel.getInstance(project).getVirtualFileUrlManager
-      val jarUrl = vfUrlManager.getOrCreateFromUrl(s"jar://${info.path}!/")
+      val jarUrl = vfUrlManager.storeAndGet(s"jar://${info.path}!/")
 
       val libraryRoot = new LibraryRoot(jarUrl, LibraryRootTypeIdCompanion.getCOMPILED, InclusionOptions.ROOT_ITSELF)
       storage.addLibraryEntity(info.libraryName, project, SerializationConstants.MAVEN_EXTERNAL_SOURCE_ID, Seq(libraryRoot))
