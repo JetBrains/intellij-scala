@@ -173,8 +173,8 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       }.asJava
 
       val scope = GlobalSearchScope.filesScope(getProject, files)
-      val inBaseClasses = ScalaShortNamesCacheManager.getInstance(getProject)
-        .methodsByName(name)(scope)
+      val inBaseClasses = ScalaShortNamesCacheManager.getInstance(using getProject)
+        .methodsByName(name)(using scope)
         .filter { method =>
           isInheritor(method.containingClass, checkDeep = true)
         }

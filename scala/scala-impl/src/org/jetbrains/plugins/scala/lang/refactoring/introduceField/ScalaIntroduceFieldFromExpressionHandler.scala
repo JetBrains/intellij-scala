@@ -153,7 +153,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
                      settings: IntroduceFieldSettings[ScExpression]): Unit = {
     executeWriteActionCommand(REFACTORING_NAME) {
       runRefactoringInside(ifc, settings)
-    }(ifc.project)
+    }(using ifc.project)
     ifc.editor.getSelectionModel.removeSelection()
   }
 

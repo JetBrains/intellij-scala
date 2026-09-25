@@ -63,11 +63,11 @@ object AncestorSelector {
   val AnyExpression: Condition[PsiElement] = (_: PsiElement).is[ScExpression]
 
   val AnyRefExpression: Condition[PsiElement] = expressionTypeCondition {
-    case (expression, scType) => scType.conforms(api.AnyRef(expression))(Context(expression))
+    case (expression, scType) => scType.conforms(api.AnyRef(using expression))(using Context(expression))
   }
 
   val BooleanExpression: Condition[PsiElement] = expressionTypeCondition {
-    case (expression, scType) => scType.conforms(api.Boolean(expression))(Context(expression))
+    case (expression, scType) => scType.conforms(api.Boolean(using expression))(using Context(expression))
   }
 
   def isSameOrInheritor(fqns: String*): Condition[PsiElement] =

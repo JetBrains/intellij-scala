@@ -120,7 +120,7 @@ object ScImportOrExportImpl {
       case Some(element) => element
       // `import foo as bar` in Scala 3
       case _ if isScala3 && importExpr.selectors.exists(_.isScala3StyleAliasImport) =>
-        ScalaPsiElementFactory.createReferenceFromText("_root_")(project)
+        ScalaPsiElementFactory.createReferenceFromText("_root_")(using project)
       case _ =>
         return true
     }
@@ -146,7 +146,7 @@ object ScImportOrExportImpl {
         case Some(element) => element
         // `import foo as bar` in Scala 3
         case _ if isScala3 && importExpr.selectors.exists(_.isScala3StyleAliasImport) =>
-          ScalaPsiElementFactory.createReferenceFromText("_root_")(project)
+          ScalaPsiElementFactory.createReferenceFromText("_root_")(using project)
         case _ =>
           return true
       }
@@ -181,7 +181,7 @@ object ScImportOrExportImpl {
           if (!checkPackageObject) None
           else
             ScalaShortNamesCacheManager
-              .getInstance(project)
+              .getInstance(using project)
               //NOTE: note sure whether we need to take resolveScope from importsStmt and can't take it from importExpr
               .findPackageObjectByName(p.getQualifiedName, importOrExportStmt.resolveScope)
               .flatMap(_.`type`().toOption)
@@ -194,7 +194,7 @@ object ScImportOrExportImpl {
                                givenImports: GivenImports = GivenImports.empty): BaseProcessor = {
       assert(bp == processor)
 
-      class MyBaseProcessor extends BaseProcessor(bp.kinds)(project) {
+      class MyBaseProcessor extends BaseProcessor(bp.kinds)(using project) {
 
         override def getHint[T](hintKey: Key[T]): T = bp.getHint(hintKey)
 
@@ -312,7 +312,7 @@ object ScImportOrExportImpl {
           val newImportsUsed = importsUsed + new ImportExprUsed(importExpr)
           val newState       = state.withPrefixCompletion.withImportsUsed(newImportsUsed)
 
-          val importsProcessor = new BaseProcessor(StdKinds.stableImportSelector)(project) {
+          val importsProcessor = new BaseProcessor(StdKinds.stableImportSelector)(using project) {
 
             override protected def execute(namedElement: PsiNamedElement)
                                           (implicit state: ResolveState): Boolean =

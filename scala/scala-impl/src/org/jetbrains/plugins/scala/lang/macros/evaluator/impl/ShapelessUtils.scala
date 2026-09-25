@@ -24,7 +24,7 @@ trait ShapelessUtils {
     */
   protected def extractTargetType(context: MacroContext): ScType = context.expectedType.get match {
     case t: ScParameterizedType => t.typeArguments.head
-    case _ => StdTypes.instance(context.place.projectContext).Any
+    case _ => StdTypes.instance(using context.place.projectContext).Any
   }
 
   private def extractFiledsFromClass(c: ScClass): Seq[(String, ScType)] = {

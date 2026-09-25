@@ -78,7 +78,7 @@ private object PlainTextCopyUtil {
 
     def isOneWord(text: String): Boolean = !text.trim.contains(" ")
 
-    if (isJavaClassWithPublic(text)(module.getProject))
+    if (isJavaClassWithPublic(text)(using module.getProject))
       false
     else if (isOneWord(text))
       true
@@ -102,7 +102,7 @@ private object PlainTextCopyUtil {
    */
   def createScalaCodeFragmentIfParsedTolerably(text: String, module: Module): Option[ScalaFile] = {
     val language = module.languageLevel.map(_.getLanguage).getOrElse(ScalaLanguage.INSTANCE)
-    val file = ScalaCodeFragment.create(text, language)(module.getProject)
+    val file = ScalaCodeFragment.create(text, language)(using module.getProject)
     // allow multiple parser error in code that is supposed to be a scala code candidate
     Some(file).filter(isParsedCorrectlyWithTolerableErrors(_, maxAllowedParserErrors = Int.MaxValue))
   }

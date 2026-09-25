@@ -143,8 +143,8 @@ object ImportImplicitInstanceFix {
       if !isRootClass(qualifiedName)
 
       candidateMember <-
-        ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)(place.getProject) ++
-          ScGivenIndex.forClassFqn(qualifiedName, scope)(place.getProject)
+        ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)(using place.getProject) ++
+          ScGivenIndex.forClassFqn(qualifiedName, scope)(using place.getProject)
 
       global <- findGlobalMembers(candidateMember, scope)(GlobalImplicitInstance(_, _, _))
       if checkCompatible(global, collector)

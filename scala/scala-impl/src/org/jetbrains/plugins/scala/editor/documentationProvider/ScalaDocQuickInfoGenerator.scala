@@ -46,7 +46,7 @@ object ScalaDocQuickInfoGenerator {
 
   @HintText
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement, substitutor: ScSubstitutor): Option[String] = {
-    val typeRenderer: TypeRenderer = ScalaDocTypeRenderer.forQuickInfo(originalElement, substitutor)(ProjectContext.fromPsi(element))
+    val typeRenderer: TypeRenderer = ScalaDocTypeRenderer.forQuickInfo(originalElement, substitutor)(using ProjectContext.fromPsi(element))
     val generator = new ScalaDocQuickInfoGenerator(typeRenderer)
     generator.getQuickNavigateInfo(element)
   }

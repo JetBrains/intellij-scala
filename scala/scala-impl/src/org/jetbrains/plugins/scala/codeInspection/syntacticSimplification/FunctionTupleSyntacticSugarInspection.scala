@@ -116,7 +116,7 @@ object FunctionTupleSyntacticSugarInspection {
           case _                                                 => false
         }
 
-        val arrow = ScalaPsiUtil.functionArrow(project)
+        val arrow = ScalaPsiUtil.functionArrow(using project)
         s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesize(needParens)
       }
       typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement))

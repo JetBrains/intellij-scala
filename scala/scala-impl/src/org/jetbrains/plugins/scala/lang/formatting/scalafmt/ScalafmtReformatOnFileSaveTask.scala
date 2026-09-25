@@ -28,7 +28,7 @@ final class ScalafmtReformatOnFileSaveTask extends AnActionListener {
       case _: SaveDocumentAction => //no shortcut by default
         val editor = event.getDataContext.getData(CommonDataKeys.EDITOR)
         if (editor != null) {
-          reformatIfNeededInUndoTransparentAction(Seq(editor.getDocument))(project)
+          reformatIfNeededInUndoTransparentAction(Seq(editor.getDocument))(using project)
         }
       case _: SaveAllAction => // Ctrl/Cmd + S (by default)
         //NOTE: for now we reformat only the selected editor, because it was how it worked before
@@ -41,7 +41,7 @@ final class ScalafmtReformatOnFileSaveTask extends AnActionListener {
           else FileEditorManager.getInstance(project).getAllEditors.toSeq
 
         val documents = editors.filterByType[TextEditor].map(_.getEditor.getDocument)
-        reformatIfNeededInUndoTransparentAction(documents)(project)
+        reformatIfNeededInUndoTransparentAction(documents)(using project)
       case _ =>
     }
   }

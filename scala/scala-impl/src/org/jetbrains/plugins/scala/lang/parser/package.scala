@@ -181,7 +181,7 @@ package object parser {
         .map(IndentationRegion.Indented(_)(Some(repr.currentIndentationRegion)))
 
     def newBracedIndentationRegionHere: IndentationRegion =
-      IndentationRegion.Braced.fromHere(repr)
+      IndentationRegion.Braced.fromHere(using repr)
 
     def hasPrecedingIndentation: Boolean =
       repr.findPrecedingIndentation.isDefined

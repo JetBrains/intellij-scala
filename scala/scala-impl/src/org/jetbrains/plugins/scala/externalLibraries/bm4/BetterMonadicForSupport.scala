@@ -18,7 +18,7 @@ class BetterMonadicForSupport(project: Project) {
     """.stripMargin
 
 
-    val file = ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)(project)
+    val file = ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)(using project)
     file.typeDefinitions.head
   }
 

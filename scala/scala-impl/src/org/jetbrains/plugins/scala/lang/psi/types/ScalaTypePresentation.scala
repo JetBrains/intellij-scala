@@ -151,7 +151,7 @@ trait ScalaTypePresentation extends TypePresentation {
           case _ =>
             tpc
         }
-        innerTypeText(tp)(tpcNew)
+        innerTypeText(tp)(using tpcNew)
       }
 
       val componentsText: Seq[String] =
@@ -218,8 +218,8 @@ trait ScalaTypePresentation extends TypePresentation {
             if (signature.isDefinition)
               s" = ${typeText0(signature.upperBound, alias)}"
             else {
-              val lowerBoundText = boundsRenderer.lowerBoundText(signature.lowerBound)(typeText0(_, alias))
-              val upperBoundText = boundsRenderer.upperBoundText(signature.upperBound)(typeText0(_, alias))
+              val lowerBoundText = boundsRenderer.lowerBoundText(signature.lowerBound)(using typeText0(_, alias))
+              val upperBoundText = boundsRenderer.upperBoundText(signature.upperBound)(using typeText0(_, alias))
               lowerBoundText + upperBoundText
             }
 
@@ -242,8 +242,8 @@ trait ScalaTypePresentation extends TypePresentation {
           case parameters => parameters.commaSeparated(model = Model.SquareBrackets)
         }
 
-        val lowerBound = boundsRenderer.lowerBoundText(wildcard.lower)(innerTypeText(_))
-        val upperBound = boundsRenderer.upperBoundText(wildcard.upper)(innerTypeText(_))
+        val lowerBound = boundsRenderer.lowerBoundText(wildcard.lower)(using innerTypeText(_))
+        val upperBound = boundsRenderer.upperBoundText(wildcard.upper)(using innerTypeText(_))
         s"$name$argsText$lowerBound$upperBound"
       }
 
@@ -464,7 +464,7 @@ trait ScalaTypePresentation extends TypePresentation {
         def toString(tpe: ScType) = if (ScalaApplicationSettings.PRECISE_TEXT) innerTypeText(tpe) else tpe.toString // SCL-21203
         val typeParametersTexts = typeParameters.map {
           case TypeParameter(parameter, _, lowerType, upperType) =>
-            parameter.name + boundsRenderer.lowerBoundText(lowerType)(toString) + boundsRenderer.upperBoundText(upperType)(toString)
+            parameter.name + boundsRenderer.lowerBoundText(lowerType)(using toString) + boundsRenderer.upperBoundText(upperType)(using toString)
         }
         val typeParametersText = typeParametersTexts.commaSeparated(model = Model.SquareBrackets)
         // TODO Custom lambda and polymorphic function types, SCL-20394

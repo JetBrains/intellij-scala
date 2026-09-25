@@ -33,9 +33,9 @@ object ScalaGenerateToStringAction {
       if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
       for {
-        definition <- findTypeDefinition(editor, file)
+        definition <- findTypeDefinition(using editor, file)
 
-        (fields, withFieldNames) <- showWizard(definition)(project)
+        (fields, withFieldNames) <- showWizard(definition)(using project)
 
         fieldsText = fields.map { field =>
           val fieldName = field.name
@@ -58,7 +58,7 @@ object ScalaGenerateToStringAction {
       */
     override def isValidFor(editor: Editor, file: PsiFile): Boolean =
       super.isValidFor(editor, file) &&
-        findTypeDefinition(editor, file).exists {
+        findTypeDefinition(using editor, file).exists {
           case _: ScTrait => true
           case definition => !definition.isCase
         }

@@ -119,9 +119,9 @@ object ScalaLibraryType {
         ScalaLibraryProperties(version, compilerClasspath, scaladocExtraClasspath, compilerBridge, replClasspath)
       ) {
         override def addRoots(editor: libraryEditor.LibraryEditor): Unit = {
-          addRootsInner(libraryFiles, OrderRootType.CLASSES)(editor)
-          addRootsInner(sourceFiles, OrderRootType.SOURCES)(editor)
-          addRootsInner(docFiles, JavadocOrderRootType.getInstance)(editor)
+          addRootsInner(libraryFiles, OrderRootType.CLASSES)(using editor)
+          addRootsInner(sourceFiles, OrderRootType.SOURCES)(using editor)
+          addRootsInner(docFiles, JavadocOrderRootType.getInstance)(using editor)
 
           if (sourceFiles.isEmpty && docFiles.isEmpty) editor.addRoot(
             s"https://www.scala-lang.org/api/${version.getOrElse("current")}/",

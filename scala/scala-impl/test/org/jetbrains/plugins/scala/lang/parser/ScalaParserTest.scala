@@ -32,7 +32,7 @@ class ScalaParserTest extends NoSdkFileSetTestBase {
   override protected def transform(testName: String, fileText: String): String = {
     val version = new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "8")
     val features = ScalaFeatures.forParserTests(version)
-    val file = ScalaPsiElementFactory.createScalaFileFromText(fileText, features, shouldTrimText = false)(project)
+    val file = ScalaPsiElementFactory.createScalaFileFromText(fileText, features, shouldTrimText = false)(using project)
     //noinspection ScalaWrongPlatformMethodsUsage
     DebugUtil.psiToString(file, true).replace(": " + file.getName, "")
   }

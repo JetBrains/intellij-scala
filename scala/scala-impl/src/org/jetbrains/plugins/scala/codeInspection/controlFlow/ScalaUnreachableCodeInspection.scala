@@ -56,7 +56,7 @@ final class ScalaUnreachableCodeInspection extends LocalInspectionTool {
       if (!element.isVisible(holder.getProject, holder.getFile)) return
 
       for {
-        descriptor <- problemDescriptors(element, descriptionTemplate)(holder.getManager, isOnTheFly)
+        descriptor <- problemDescriptors(element, descriptionTemplate)(using holder.getManager, isOnTheFly)
       } holder.registerProblem(descriptor)
     }
   }

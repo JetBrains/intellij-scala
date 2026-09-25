@@ -13,7 +13,7 @@ object ScalaUtil {
 
   def getScalaVersion(file: PsiFile): Option[String] = file match {
     case ScFile.VirtualFile(virtualFile) =>
-      getModuleForFile(virtualFile)(file.getProject)
+      getModuleForFile(virtualFile)(using file.getProject)
         .flatMap(_.scalaSdk)
         .flatMap(_.libraryVersion)
     case _ => None

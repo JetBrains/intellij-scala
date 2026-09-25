@@ -77,7 +77,7 @@ object ReferenceMustBePrefixedInspection {
       val fqn = segments.dropRight(1).mkString(".")
       findPackage(fqn) match {
         case Some(psiPackage) => replaceReference.foreach(_.bindToPackage(psiPackage, addImport = true))
-        case _ => findClass(fqn)(reference.elementScope) match {
+        case _ => findClass(fqn)(using reference.elementScope) match {
           case Some(clazz) => replaceReference.foreach(_.bindToElement(clazz))
           case _ =>
         }
@@ -95,7 +95,7 @@ object ReferenceMustBePrefixedInspection {
     private def findClass(fqn: String)
                          (implicit elementScope: ElementScope) = {
       val ElementScope(project, scope) = elementScope
-      val namesManager = ScalaShortNamesCacheManager.getInstance(project)
+      val namesManager = ScalaShortNamesCacheManager.getInstance(using project)
       Option(namesManager.getClassByFQName(fqn, scope))
     }
   }

@@ -90,7 +90,7 @@ final class ScalaCodeInsightTestFixture(
     javaFixture.openFileInEditor(dummyFile.getVirtualFile)
     val pastedRanges = inWriteCommandAction {
       EditorCopyPasteHelper.getInstance().pasteFromClipboard(javaFixture.getEditor)
-    }(javaFixture.getProject)
+    }(using javaFixture.getProject)
     assertNotNull("Paste from clipboard failed", pastedRanges)
     javaFixture.checkResult(expectedClipboardContent, ignoreTrailingSpaces)
   }

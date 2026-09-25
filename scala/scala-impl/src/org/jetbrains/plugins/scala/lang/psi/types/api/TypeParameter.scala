@@ -98,7 +98,7 @@ object TypeParameter {
   private case class JavaTypeParameter(override val psiTypeParameter: PsiTypeParameter) extends TypeParameter {
     override val typeParameters: Seq[TypeParameter] = Seq.empty
 
-    override def lowerType: ScType = Nothing(psiTypeParameter.getProject)
+    override def lowerType: ScType = Nothing(using psiTypeParameter.getProject)
 
     override def upperType: ScType = javaPsiTypeParameterUpperType(psiTypeParameter)
   }
@@ -113,6 +113,6 @@ object TypeParameter {
     override def upperType: ScType = upper()
 
     override lazy val psiTypeParameter: PsiTypeParameter =
-      new DummyLightTypeParam(name)(lowerType.projectContext)
+      new DummyLightTypeParam(name)(using lowerType.projectContext)
   }
 }

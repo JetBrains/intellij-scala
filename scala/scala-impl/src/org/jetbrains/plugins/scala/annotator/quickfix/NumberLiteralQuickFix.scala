@@ -41,7 +41,7 @@ sealed abstract class NumberLiteralQuickFix[L <: Numeric](private val literal: L
   private def replaceLiteral(literal: L): Unit = {
     val newText = transformText(literal.getText)
     literal.replace {
-      ScalaPsiElementFactory.createExpressionFromText(newText, literal)(literal)
+      ScalaPsiElementFactory.createExpressionFromText(newText, literal)(using literal)
     }
   }
 }
@@ -63,7 +63,7 @@ object NumberLiteralQuickFix {
     def isApplicableTo(literal: ScLiteral, expectedType: ScType): Boolean = {
       implicit val context: Context = Context(literal)
 
-      val types = api.Long(literal.getProject) ::
+      val types = api.Long(using literal.getProject) ::
         ScalaPsiElementFactory.createTypeFromText(
           "_root_.scala.math.BigInt",
           literal.getContext,

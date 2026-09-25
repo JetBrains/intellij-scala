@@ -68,7 +68,7 @@ object UsingDirectiveDependencyCopyPastePreProcessor {
   private case class DependencyDescriptor(groupId: String, artifactId: String, versionOrPlaceholder: Either[String, String], groupDelimiterLength: Int)
 
   private def parseSbtDependencies(text: String, context: PsiElement): Seq[DependencyDescriptor] = {
-    val element = ScalaPsiElementFactory.safe(_.createPsiElementFromText(text, context)(context.getProject))
+    val element = ScalaPsiElementFactory.safe(_.createPsiElementFromText(text, context)(using context.getProject))
     element match {
       case Some(SbtLibraryDependencies(descriptors@_*)) => descriptors
       case Some(SeqOfSbtDependencies(descriptors@_*)) => descriptors

@@ -502,7 +502,7 @@ object TypeDefinitionMembers {
               val property = ScalaPsiElementFactory.createMethodFromText(
                 text = s"def $name: ${compType.canonicalText}",
                 features = ScalaFeatures.defaultScala3,
-              )(p.projectContext)
+              )(using p.projectContext)
 
               navigationElement.foreach {
                 // This enables navigation to "a" in `NamedTuple[("a", "b"), (Int, Int)](???)`
@@ -553,7 +553,7 @@ object TypeDefinitionMembers {
             val property = ScalaPsiElementFactory.createMethodFromText(
               text = s"def _$index: ${comp.canonicalText}",
               features = ScalaFeatures.defaultScala3,
-            )(p.projectContext)
+            )(using p.projectContext)
 
             execute(property)
           }

@@ -21,7 +21,7 @@ class MethodInvocationMatchedTypeParametersTest extends ScalaFixtureTestCase {
       .sortBy(_.getTextRange.getEndOffset)
       .flatMap(_.matchedTypeParameters)
       .map { case (tpe, typeParameter) =>
-        typeParameter.name -> tpe.presentableText(TypePresentationContext.emptyContext, Context.Empty)
+        typeParameter.name -> tpe.presentableText(using TypePresentationContext.emptyContext, Context.Empty)
       }
 
     assertEquals(expected, actual)

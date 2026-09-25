@@ -10,9 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{StdTypes, TypeSystem}
 import scala.language.implicitConversions
 
 class ProjectContext(val project: Project) extends AnyVal {
-  def stdTypes: StdTypes = StdTypes.instance(this)
+  def stdTypes: StdTypes = StdTypes.instance(using this)
 
-  def typeSystem: TypeSystem = ScalaTypeSystem.instance(project)
+  def typeSystem: TypeSystem = ScalaTypeSystem.instance(using project)
 }
 
 object ProjectContext extends LowerPriority {

@@ -15,8 +15,8 @@ trait ScalaRefactoringActionHandler extends RefactoringActionHandler {
             (implicit project: Project, dataContext: DataContext): Unit = {}
 
   override final def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit =
-    invoke(file)(project, editor, dataContext)
+    invoke(file)(using project, editor, dataContext)
 
   override def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext): Unit =
-    invoke(elements)(project, dataContext)
+    invoke(elements)(using project, dataContext)
 }

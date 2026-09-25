@@ -39,7 +39,7 @@ trait IntegrationTest extends UsefulTestCase
       RunConfigCreationContext(testLocation),
       assertConfig,
       assertTestTree,
-    )(testOptions)
+    )(using testOptions)
 
   def runTestByLocation(
     testLocation: RunConfigCreationLocation,
@@ -52,7 +52,7 @@ trait IntegrationTest extends UsefulTestCase
       assertConfig,
       assertTestTree,
       assertProcessOutput
-    )(testOptions)
+    )(using testOptions)
   }
 
   def runTestByLocation(
@@ -65,7 +65,7 @@ trait IntegrationTest extends UsefulTestCase
       assertConfig,
       assertTestTree,
       IgnoreProcessOutput
-    )(testOptions)
+    )(using testOptions)
 
   def runTestByLocation(
     context: RunConfigCreationContext,
@@ -84,7 +84,7 @@ trait IntegrationTest extends UsefulTestCase
       context,
       assertConfig,
       assertTestResult
-    )(testOptions)
+    )(using testOptions)
   }
 
   def runTestByLocation2(
@@ -96,7 +96,7 @@ trait IntegrationTest extends UsefulTestCase
       RunConfigCreationContext(testLocation),
       assertConfig,
       assertTestResult
-    )(testOptions)
+    )(using testOptions)
   }
 
   def runTestByLocation2(
@@ -107,7 +107,7 @@ trait IntegrationTest extends UsefulTestCase
     try {
       val runConfig = createTestFromLocation(context)
       assertConfig(runConfig)
-      runTestByLocation3(runConfig, assertTestResult)(testOptions)
+      runTestByLocation3(runConfig, assertTestResult)(using testOptions)
     } catch {
       case ex: AssertionError =>
         val filePath = context.location match {

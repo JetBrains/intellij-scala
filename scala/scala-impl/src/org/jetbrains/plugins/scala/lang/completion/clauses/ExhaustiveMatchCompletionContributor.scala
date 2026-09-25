@@ -87,7 +87,7 @@ object ExhaustiveMatchCompletionContributor {
       implicit val context: Context = Context(expression)
 
       for {
-        case PatternGenerationStrategy(strategy) <- targetType(expression)(parameters.place)
+        case PatternGenerationStrategy(strategy) <- targetType(expression)(using parameters.place)
         if strategy.canBeExhaustive
 
         lookupElement = buildLookupElement(

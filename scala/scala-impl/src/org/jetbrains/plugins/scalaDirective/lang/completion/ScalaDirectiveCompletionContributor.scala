@@ -13,7 +13,7 @@ final class ScalaDirectiveCompletionContributor extends ScalaCompletionContribut
 
   extend(CompletionType.BASIC, pattern, new CompletionProvider[CompletionParameters] {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
-      val place = positionFromParameters(parameters)
+      val place = positionFromParameters(using parameters)
       val trimmedText = place.getText
         .stripPrefix(DirectivePrefix)
         .replace(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED, "")

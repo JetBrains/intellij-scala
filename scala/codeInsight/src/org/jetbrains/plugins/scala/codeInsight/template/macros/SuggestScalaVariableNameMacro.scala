@@ -22,7 +22,7 @@ final class SuggestScalaVariableNameMacro extends ScalaMacro {
   override def getDefaultValue: String = "value"
 
   override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] =
-    getNames(params)(context) match {
+    getNames(params)(using context) match {
       case names if names.length < 2 => null
       case names =>
         names.map { s =>
@@ -31,7 +31,7 @@ final class SuggestScalaVariableNameMacro extends ScalaMacro {
     }
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =
-    getNames(params)(context)
+    getNames(params)(using context)
       .map(new TextResult(_))
       .headOption
       .orNull

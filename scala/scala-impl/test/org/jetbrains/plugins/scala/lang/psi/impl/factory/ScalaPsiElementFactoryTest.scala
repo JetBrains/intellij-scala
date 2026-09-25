@@ -222,7 +222,7 @@ abstract class ScalaPsiElementFactoryTestBase extends ScalaLightCodeInsightFixtu
   )
 
   private def doCheckCreateExprFromText(text: String)(extraValidation: ScExpression => Unit): Unit = {
-    val expr = ScalaPsiElementFactory.createExpressionFromText(text, features)(getProject)
+    val expr = ScalaPsiElementFactory.createExpressionFromText(text, features)(using getProject)
     assertNotNull(expr)
 
     val containingFile = expr.getContainingFile

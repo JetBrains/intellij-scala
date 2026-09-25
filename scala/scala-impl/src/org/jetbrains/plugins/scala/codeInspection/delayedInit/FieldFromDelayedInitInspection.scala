@@ -39,7 +39,7 @@ object FieldFromDelayedInitInspection {
             Option(definition.asInstanceOf[ScValueOrVariable].containingClass).collect {
               case scalaClass: ScClass => scalaClass
               case scalaObject: ScObject => scalaObject
-            }.filter(conformsToTypeFromClass(scType, "scala.DelayedInit")(_, context))
+            }.filter(conformsToTypeFromClass(scType, "scala.DelayedInit")(using _, context))
           case _ => None
         }
       }

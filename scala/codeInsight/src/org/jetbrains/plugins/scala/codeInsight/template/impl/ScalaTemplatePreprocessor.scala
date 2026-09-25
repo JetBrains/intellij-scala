@@ -24,7 +24,7 @@ final class ScalaTemplatePreprocessor extends TemplatePreprocessor {
 
         leaf <- findNonEmptySibling(element)
         if leaf.getElementType == ScalaTokenTypes.kDEF
-      } removeRedundantToken(leaf.getStartOffset, caretOffset)(editor)
+      } removeRedundantToken(leaf.getStartOffset, caretOffset)(using editor)
     }
 }
 

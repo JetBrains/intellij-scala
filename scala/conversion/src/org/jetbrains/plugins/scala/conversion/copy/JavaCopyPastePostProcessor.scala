@@ -66,7 +66,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
               children.append(LiteralExpression(comment.getText))
             dropElements.add(comment)
           case ElementPart(element) =>
-            val result = convertPsiToIntermediatePublic(element, null)(associationsHelper, data, dropElements, textMode = false)
+            val result = convertPsiToIntermediatePublic(element, null)(using associationsHelper, data, dropElements, textMode = false)
             children.append(result)
         }
       }

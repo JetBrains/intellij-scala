@@ -36,7 +36,7 @@ package object types {
   }
 
   object ExtractDesignated {
-    def unapply(tpe: ScType): Option[PsiNamedElement] = tpe.extractDesignated(expandAliases = false)(Context.Empty)
+    def unapply(tpe: ScType): Option[PsiNamedElement] = tpe.extractDesignated(expandAliases = false)(using Context.Empty)
   }
 
   implicit class ScTypeExt(private val scType: ScType) extends AnyVal {
@@ -127,7 +127,7 @@ package object types {
     }
 
     def equivalentToLiteral(b: Boolean)(implicit context: Context): Boolean =
-      scType.equiv(ScLiteralType(ScBooleanLiteralImpl.Value(b))(projectContext.project))
+      scType.equiv(ScLiteralType(ScBooleanLiteralImpl.Value(b))(using projectContext.project))
 
     def isNumericType: Boolean = scType match {
       case valType: ValType => stdTypes.allNumericTypes.contains(valType)
@@ -235,7 +235,7 @@ package object types {
     }
 
     def removeAliasDefinitionsIn(place: PsiElement): ScType =
-      removeAliasDefinitions()(Context(place))
+      removeAliasDefinitions()(using Context(place))
 
     def removeAliasDefinitionsAndReduceMatchTypes(
       expandableOnly: Boolean = false,
@@ -406,7 +406,7 @@ package object types {
           }
         case tpe if tpe.isTransparent && !mustKeep.contains(tpe) =>
           dropped.append(tpe)
-          Any(scType.projectContext)
+          Any(using scType.projectContext)
         case _ => tpe
       }
 

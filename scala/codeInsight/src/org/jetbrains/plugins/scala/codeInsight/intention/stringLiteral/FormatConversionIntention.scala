@@ -52,7 +52,7 @@ sealed abstract class FormatConversionIntention[P <: StringParser](
       case _ => return
     }
     val stringFormatted = formatter.format(parts)
-    val replacement = ScalaPsiElementFactory.createExpressionFromText(stringFormatted, element)(element.getProject)
+    val replacement = ScalaPsiElementFactory.createExpressionFromText(stringFormatted, element)(using element.getProject)
     target.replace(replacement) match {
       case literal: ScStringLiteral if literal.isMultiLineString =>
         MultilineStringUtil.addMarginsAndFormatMLString(literal, editor.getDocument)

@@ -7,7 +7,7 @@ import com.intellij.openapi.startup.StartupActivity
 class ScalafmtProjectListener extends StartupActivity.DumbAware with ProjectManagerListener {
 
   override def runActivity(project: Project): Unit = {
-    ScalaFmtSuggesterService.instance(project).init()
+    ScalaFmtSuggesterService.instance(using project).init()
     ScalafmtDynamicConfigService.instanceIn(project).init()
   }
 

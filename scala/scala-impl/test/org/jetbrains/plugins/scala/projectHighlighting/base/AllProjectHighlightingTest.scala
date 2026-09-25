@@ -55,7 +55,7 @@ trait AllProjectHighlightingTest {
 
     val fileTypes = scalaFileTypes :+ JavaFileType.INSTANCE
     val scope = if (processOnlyFilesInSourceRoots)
-      SourceFilterScope(fileTypes)(getProject)
+      SourceFilterScope(fileTypes)(using getProject)
     else
       GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(getProject), fileTypes*)
     val scalaFiles = scalaFileTypes.flatMap(fileType => FileTypeIndex.getFiles(fileType, scope).asScala)
@@ -228,7 +228,7 @@ object AllProjectHighlightingTest {
 
     for ((element, elementIndex) <- elementsMaybeShuffled.zipWithIndex) { //zipWIthIndex for easier debugging
       try {
-        annotator.annotate(element)(annotatorHolder)
+        annotator.annotate(element)(using annotatorHolder)
       } catch {
         case ex: Throwable =>
           val message = s"Exception while highlighting element at index $elementIndex (${element.getText} - ${element.getNode.getTextRange}): $ex (random seed: $randomSeed)"

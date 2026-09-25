@@ -22,7 +22,7 @@ object TypeParam {
     val errorMessageBuilder = List.newBuilder[String]
     var exist               = false
 
-    while (Annotation()(builder)) {
+    while (Annotation()(using builder)) {
       exist = true
     }
 

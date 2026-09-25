@@ -26,7 +26,7 @@ class MakeImplicitConversionExplicit extends PsiElementBaseIntentionAction {
       (expression, function) <- findImplicitElement(element)
 
       importStatically = expression.implicitConversions(fromUnderscore = true).contains(function)
-    } MakeExplicitAction.replaceWithExplicit(expression, function, importStatically)(project, editor)
+    } MakeExplicitAction.replaceWithExplicit(expression, function, importStatically)(using project, editor)
 }
 
 object MakeImplicitConversionExplicit {

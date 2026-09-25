@@ -167,7 +167,7 @@ object ScalaMemberChooser {
         else c1.name.compareTo(c2.name)
       }
     }
-    val groupedMembersSorted = clazzToMembers.keys.toSeq.sorted(ordering)
+    val groupedMembersSorted = clazzToMembers.keys.toSeq.sorted(using ordering)
     sortedClasses ++= groupedMembersSorted
 
     sortedClasses.flatMap { c =>

@@ -291,7 +291,7 @@ final class ShowImplicitConversionsAction(cs: CoroutineScope) extends AnAction(
       override def mousePressed(e: MouseEvent): Unit = e.getButton match {
         case MouseEvent.BUTTON1 if !e.isPopupTrigger =>
           GoToImplicitConversionAction.getList.getSelectedValue match {
-            case Parameters(function: ScFunction, _, _, _, _) => showMakeExplicitPopup(expr, function, elements)(project, editor)
+            case Parameters(function: ScFunction, _, _, _, _) => showMakeExplicitPopup(expr, function, elements)(using project, editor)
             case _ =>
           }
         case _ =>

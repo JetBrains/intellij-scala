@@ -70,7 +70,7 @@ object TupleOrNamedTupleOrParenthesizedType {
         }
       }
 
-      val parsedType = ParamType.parseWithoutScParamTypeCreation(isPattern, typeVariables)(builder)
+      val parsedType = ParamType.parseWithoutScParamTypeCreation(isPattern, typeVariables)(using builder)
 
       if (contentType == ContentType.NamedTuple) {
         componentMarker.done(ScalaElementType.NAMED_TUPLE_TYPE_COMPONENT)

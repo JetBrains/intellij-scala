@@ -264,7 +264,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       clearCacheOnTopLevelChange,
       (fqn: String, scope: GlobalSearchScope) =>
         getCachedPackage(fqn).filter { `package` =>
-          isScalaPackageInScope(fqn)(scope) || !isPackageOutOfScope(`package`)(scope)
+          isScalaPackageInScope(fqn)(using scope) || !isPackageOutOfScope(`package`)(using scope)
         }
     )
 
@@ -287,7 +287,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
           } finally inJavaPsiFacade.value = false
         }
 
-        val res = ScalaShortNamesCacheManager.getInstance(project).getClassByFQName(fqn, scope)
+        val res = ScalaShortNamesCacheManager.getInstance(using project).getClassByFQName(fqn, scope)
         Option(res).orElse(getCachedFacadeClass(scope, fqn))
       }
     )
@@ -340,7 +340,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
   def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] =
     if (DumbService.getInstance(project).isDumb) Seq.empty
     else {
-      val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
+      val scalaClasses = ScalaShortNamesCacheManager.getInstance(using project).getClassesByName(name, scope)
       val builder = ArraySeq.newBuilder[PsiClass]
       builder ++= PsiShortNamesCache
         .getInstance(project)
@@ -444,7 +444,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       if (DumbService.getInstance(project).isDumb) Array.empty[PsiClass]
       else { // TODO Don't cache
         val classes = getCachedFacadeClasses(scope, cleanFqn(fqn))
-        val fromScala = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
+        val fromScala = ScalaShortNamesCacheManager.getInstance(using project).getClassesByFQName(fqn, scope)
         val scalaSynthetic =
           if (fromScala.isEmpty) SyntheticClasses.get(project).findClasses(fqn)
           else Array.empty[PsiClass]
@@ -568,7 +568,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
 
   def syntheticPackage(fqn: String): ScSyntheticPackage = {
     val syntheticOrEmptyMarker =
-      syntheticPackages.computeIfAbsent(fqn, fqn => Option(ScSyntheticPackage(fqn)(project)).getOrElse(emptyMarker))
+      syntheticPackages.computeIfAbsent(fqn, fqn => Option(ScSyntheticPackage(fqn)(using project)).getOrElse(emptyMarker))
 
     syntheticOrEmptyMarker match {
       case s: ScSyntheticPackage => s

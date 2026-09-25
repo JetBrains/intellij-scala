@@ -97,7 +97,7 @@ object SimplifyBooleanUtil {
       else {
         booleanConst(operand) match {
           case Some(bool: Boolean) =>
-            createExpressionFromText((!bool).toString, expr)(expr.getManager)
+            createExpressionFromText((!bool).toString, expr)(using expr.getManager)
           case None => expr
         }
       }

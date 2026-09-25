@@ -36,7 +36,7 @@ abstract class ApiStatusInspectionTestBase extends JavaCodeInsightFixtureTestCas
     ModuleRootModificationUtil.addDependency(module2, module1)
 
     myLoaders += IvyManagedLoader("org.jetbrains" % "annotations" % "24.0.1")
-      .tap(_.init(module1, version))
+      .tap(_.init(using module1, version))
 
     myFixture.enableInspections(classOf[ApiStatusInspection])
   }
@@ -45,7 +45,7 @@ abstract class ApiStatusInspectionTestBase extends JavaCodeInsightFixtureTestCas
     for {
       module <- getProject.modules
       loader <- myLoaders
-    } loader.clean(module)
+    } loader.clean(using module)
 
     myLoaders.clear()
 

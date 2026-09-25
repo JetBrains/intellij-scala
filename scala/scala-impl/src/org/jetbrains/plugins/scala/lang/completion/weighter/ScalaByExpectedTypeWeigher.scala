@@ -35,7 +35,7 @@ final class ScalaByExpectedTypeWeigher(maybeDefinition: Option[ScExpression])
 
       elementAndSubstitutor match {
         case (element: PsiNamedElement, substitutor) if isAccessible(element) &&
-          computeType(element, substitutor).exists(expectedType(_)(Context(element))) => 0
+          computeType(element, substitutor).exists(expectedType(_)(using Context(element))) => 0
         case _ => 1
       }
     } else {

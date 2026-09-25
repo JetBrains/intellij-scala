@@ -22,7 +22,7 @@ private[clauses] abstract class ClauseInsertHandler[
 
   override final def handleInsert(context: InsertionContext,
                                   lookupElement: LookupElement): Unit =
-    handleInsert(context)
+    handleInsert(using context)
 
   protected final def onTargetElement[U >: Null](onElement: E => U)
                                                 (implicit context: InsertionContext): U =

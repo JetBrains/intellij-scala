@@ -155,7 +155,7 @@ object BaseTypes {
     case td: ScTemplateDefinition => td.superTypes.map(subst)
     case _ =>
       ArraySeq.unsafeWrapArray(c.getSuperTypes).map { st =>
-        subst(st.toScType()(c)) match {
+        subst(st.toScType()(using c)) match {
           case exist: ScExistentialType => exist.quantified
           case other                    => other
         }

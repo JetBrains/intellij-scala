@@ -17,7 +17,7 @@ final class ScalaComponentTypeOfMacro extends ScalaMacro {
     case Array(head) =>
       val maybeType = head.calculateResult(context) match {
         case ScalaTypeResult(scType) => Some(scType)
-        case result => resultToScExpr(result)(context)
+        case result => resultToScExpr(result)(using context)
       }
 
       maybeType.flatMap(arrayComponent)

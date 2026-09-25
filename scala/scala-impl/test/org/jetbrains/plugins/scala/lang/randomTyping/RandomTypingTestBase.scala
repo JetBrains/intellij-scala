@@ -44,7 +44,7 @@ abstract class RandomTypingTestBase extends EditorActionTestBase {
     def commit(): Unit = {
       inWriteCommandAction {
         psiDocumentManager.commitAllDocuments()
-      }(getProject)
+      }(using getProject)
 
       // process awt events... otherwise they will stack and we get a warning
       EDT.dispatchAllInvocationEvents()
@@ -130,7 +130,7 @@ abstract class RandomTypingTestBase extends EditorActionTestBase {
           inWriteCommandAction {
             getEditor.getDocument.setText(targetText.take(fixIdx) + result.drop(actionOffset + 15))
             PsiDocumentManager.getInstance(getProject).commitAllDocuments()
-          }(getProject)
+          }(using getProject)
 
           log(
             s"""---------------------------

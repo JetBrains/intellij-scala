@@ -275,7 +275,7 @@ package object collections {
           }
         case ScInfixExpr(underscore(), oper, underscore()) if oper.refName == "&&" =>
           val identityElement =
-            ScalaPsiElementFactory.createExpressionFromText("identity", ScalaFeatures.default)(expr.getProject)
+            ScalaPsiElementFactory.createExpressionFromText("identity", ScalaFeatures.default)(using expr.getProject)
           Some(identityElement)
         case ScInfixExpr(underscore(), oper, right) if oper.refName == "&&" => Some(right)
         case _ => None
@@ -509,7 +509,7 @@ package object collections {
         case element: Typeable => isExpressionOfType(fqns*)(element)
         case _ => false
       }
-    case Typeable(scType) => fqns.exists(conformsToTypeFromClass(scType, _)(scType.projectContext, Context.Empty))
+    case Typeable(scType) => fqns.exists(conformsToTypeFromClass(scType, _)(using scType.projectContext, Context.Empty))
     case _                => false
   }
 

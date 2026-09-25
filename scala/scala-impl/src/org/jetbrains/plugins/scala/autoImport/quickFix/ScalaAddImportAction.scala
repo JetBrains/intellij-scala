@@ -203,7 +203,7 @@ object ScalaAddImportAction {
 
     //use fully qualified name instead of adding imports for scaladoc references
     override protected def doAddImport(toImport: ElementToImport): Unit = {
-      ref.replace(createScalaDocLinkValue(toImport.qualifiedName)(ref.getManager))
+      ref.replace(createScalaDocLinkValue(toImport.qualifiedName)(using ref.getManager))
     }
   }
 

@@ -13,7 +13,7 @@ class IntroduceVariableSuggestNamesTest extends AbstractIntroduceVariableValidat
     val startOffset = selectionModel.getSelectionStart
     val endOffset = selectionModel.getSelectionEnd
     val handler = new ScalaIntroduceVariableHandler()
-    val names = handler.suggestedNamesForExpression(fixture.psiFile, startOffset, endOffset)(fixture.psiFile.getProject, fixture.editor)
+    val names = handler.suggestedNamesForExpression(fixture.psiFile, startOffset, endOffset)(using fixture.psiFile.getProject, fixture.editor)
     names.mkString("\n")
   }
 }

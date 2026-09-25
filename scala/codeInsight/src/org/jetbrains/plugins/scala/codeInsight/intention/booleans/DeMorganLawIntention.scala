@@ -23,7 +23,7 @@ final class DeMorganLawIntention extends PsiElementBaseIntentionAction with Dumb
     val operation = infixExpr.operation
     val refName = operation.refName
     Replacement.get(refName) match {
-      case Some(replacement) if caretIsInRange(operation)(editor) =>
+      case Some(replacement) if caretIsInRange(operation)(using editor) =>
         setText(ScalaCodeInsightBundle.message("replace.refname.with.replacement", refName, replacement))
         true
       case _ => false
@@ -53,7 +53,7 @@ final class DeMorganLawIntention extends PsiElementBaseIntentionAction with Dumb
       case _ => negate(expr)
     }
 
-    negateAndValidateExpression(upperMostInfixExpr, inner(upperMostInfixExpr))(project, editor)
+    negateAndValidateExpression(upperMostInfixExpr, inner(upperMostInfixExpr))(using project, editor)
   }
 
   override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.demorgan.law")

@@ -73,7 +73,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
         case _: IncorrectOperationException =>
           throw new IncorrectOperationException(s"Could not delegate methods to ${target.getText}")
       }
-    }(project)
+    }(using project)
   }
 
   private def methodBody(delegate: ClassMember, prototype: ScFunction, context: PsiElement): ScExpression = {
@@ -111,7 +111,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       case ScSignatureClause.TermClause(clause) => paramClauseApplicationText(clause)
     }.mkString
 
-    createExpressionFromText(s"$dText.$methodName$signatureArguments", context)(prototype.getManager)
+    createExpressionFromText(s"$dText.$methodName$signatureArguments", context)(using prototype.getManager)
   }
 
   private def delegateText(delegate: ClassMember): String = {

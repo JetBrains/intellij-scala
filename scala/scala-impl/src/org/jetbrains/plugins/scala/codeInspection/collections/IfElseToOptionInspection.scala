@@ -32,7 +32,7 @@ object IfElseToOption extends SimplificationType {
         Some((x, x1))
       case _ => None
     }
-    val anyRef = StdTypes.instance(expr).AnyRef
+    val anyRef = StdTypes.instance(using expr).AnyRef
     inner.filterNot {
       case (in, out) =>
         // check if the value would be converted into a value type before being given into Option(...)

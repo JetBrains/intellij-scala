@@ -23,7 +23,7 @@ class ExpectedTypeDrivenOverloadingResolutionTest extends SimpleResolveTestBase 
     result match {
       case fn: ScFunctionDefinition =>
         fn.`type`()
-          .foreach(tpe => Assert.assertEquals("T => ClassTag[T] => Array[T]", tpe.presentableText(TypePresentationContext.emptyContext, Context.Empty)))
+          .foreach(tpe => Assert.assertEquals("T => ClassTag[T] => Array[T]", tpe.presentableText(using TypePresentationContext.emptyContext, Context.Empty)))
       case _ => Assert.fail("Invalid resolve result.")
     }
   }

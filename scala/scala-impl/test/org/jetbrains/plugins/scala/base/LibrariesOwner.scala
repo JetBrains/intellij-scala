@@ -17,11 +17,11 @@ trait LibrariesOwner {
   protected def setUpLibraries(module: Module): Unit =
     librariesLoaders.foreach { loader =>
       myLoaders += loader
-      loader.init(module, version)
+      loader.init(using module, version)
     }
 
   protected def disposeLibraries(module: Module): Unit = {
-    myLoaders.foreach(_.clean(module))
+    myLoaders.foreach(_.clean(using module))
     myLoaders.clear()
   }
 }

@@ -18,7 +18,7 @@ class ModifierQuickFixTest extends ScalaLightCodeInsightFixtureTestCase {
 
     inWriteCommandAction({
       fix.asIntention().invoke(getProject, getEditor, getFile)
-    })(getProject)
+    })(using getProject)
 
     myFixture.checkResult(after)
   }

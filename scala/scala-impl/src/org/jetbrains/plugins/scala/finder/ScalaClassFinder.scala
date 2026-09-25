@@ -21,7 +21,7 @@ import scala.jdk.CollectionConverters._
 
 class ScalaClassFinder(project: Project) extends PsiElementFinder {
   private def psiManager  : ScalaPsiManager             = ScalaPsiManager.instance(project)
-  private def cacheManager: ScalaShortNamesCacheManager = ScalaShortNamesCacheManager.getInstance(project)
+  private def cacheManager: ScalaShortNamesCacheManager = ScalaShortNamesCacheManager.getInstance(using project)
 
   override def findClasses(qualifiedName0: String, scope: GlobalSearchScope): Array[PsiClass] = {
     if (psiManager == null || psiManager.isInJavaPsiFacade) {

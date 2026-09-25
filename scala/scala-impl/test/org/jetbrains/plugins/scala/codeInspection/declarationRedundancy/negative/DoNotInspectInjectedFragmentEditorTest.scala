@@ -29,7 +29,7 @@ class DoNotInspectInjectedFragmentEditorTest extends ScalaLightCodeInsightFixtur
 
   private def doCommonTest(injectedCode: String): Unit = {
     val file = myFixture.configureByText("Foo.scala", injectedCode)
-    val mockedInjectedCodeContext = ScalaCodeFragment.create("\"\"", ScalaLanguage.INSTANCE)(getProject)
+    val mockedInjectedCodeContext = ScalaCodeFragment.create("\"\"", ScalaLanguage.INSTANCE)(using getProject)
     val mockedLiteral = mockedInjectedCodeContext.findElementAt(0).getContext
     file.putUserData(FileContextUtil.INJECTED_IN_ELEMENT, SmartPointerManager.createPointer(mockedLiteral))
     val highlights = myFixture.doHighlighting().asScala.filterNot(_.getDescription == null)

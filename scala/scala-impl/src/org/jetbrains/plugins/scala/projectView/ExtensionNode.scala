@@ -16,7 +16,7 @@ private class ExtensionNode(extension: ScExtension)(implicit project: ProjectCon
 
   override protected def getChildrenImpl: util.Collection[Node] =
     Option(getValue).filter(_.isValid).fold(java.util.Collections.emptyList[Node]) { ext =>
-      ext.extensionMethods.flatMap(buildMemberNodes(_)(project, settings)).asJava
+      ext.extensionMethods.flatMap(buildMemberNodes(_)(using project, settings)).asJava
     }
 
   override protected def updateImpl(data: PresentationData): Unit =

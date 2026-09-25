@@ -12,11 +12,11 @@ package object aot {
   private[aot] class InsertHandler(itemText: String) extends IJInsertHandler[Decorator] {
 
     override final def handleInsert(context: InsertionContext, decorator: Decorator): Unit =
-      handleInsert(decorator)(context)
+      handleInsert(decorator)(using context)
 
     protected def handleInsert(decorator: Decorator)
                               (implicit context: InsertionContext): Unit = {
-      handleReplace(context)
+      handleReplace(using context)
       decorator.getDelegate.handleInsert(context)
     }
 

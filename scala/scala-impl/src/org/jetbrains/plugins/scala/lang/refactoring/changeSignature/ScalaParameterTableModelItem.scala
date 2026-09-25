@@ -40,7 +40,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
       return
     }
 
-    val funArrow = ScalaPsiUtil.functionArrow(typeCodeFragment.getProject)
+    val funArrow = ScalaPsiUtil.functionArrow(using typeCodeFragment.getProject)
     val arrow = if (trimmed.startsWith("=>")) "=>" else if (trimmed.startsWith(funArrow)) funArrow else ""
     if (arrow != "") {
       parameter.isByName = true
@@ -63,7 +63,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
   }
 
   private def generateTypeText(parameter: ScalaParameterInfo) = {
-    val arrow = if (parameter.isByName) ScalaPsiUtil.functionArrow(typeCodeFragment.getProject) else ""
+    val arrow = if (parameter.isByName) ScalaPsiUtil.functionArrow(using typeCodeFragment.getProject) else ""
     val star = if (parameter.isRepeatedParameter) "*" else ""
     val text = Option(parameter.scType).map(_.codeText)
     text.map(tpeText => s"$arrow $tpeText$star").getOrElse("")

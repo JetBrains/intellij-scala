@@ -61,7 +61,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       )
 
   private def findScalaReferenceTarget(link: String, context: PsiElement): Option[PsiElement] = {
-    val fragment = ScalaCodeFragment.create(link, ScalaDocRefLinkLanguage.INSTANCE, context)(context.getProject)
+    val fragment = ScalaCodeFragment.create(link, ScalaDocRefLinkLanguage.INSTANCE, context)(using context.getProject)
     fragment.getFirstChild.asInstanceOf[ScDocRefQuery].multiResolveScala(false).headOption.map(_.element)
   }
 

@@ -71,6 +71,6 @@ class ScalaCompletionScopeTest extends ScalaCompletionTestBase {
 
       member = element.asInstanceOf[PsiMember]
       name = member.qualifiedNameOpt.getOrElse(member.getName)
-    } assertTrue(name + " is not accessible", isAccessible(member)(lookup.getPsiElement))
+    } assertTrue(name + " is not accessible", isAccessible(member)(using lookup.getPsiElement))
   }
 }

@@ -140,7 +140,7 @@ object ScopeSuggester {
     val scope = {
       val project = containingFile.getProject
       val module = Option(containingFile.getVirtualFile)
-        .flatMap(ScalaUtil.getModuleForFile(_)(project))
+        .flatMap(ScalaUtil.getModuleForFile(_)(using project))
         .getOrElse(project.anyScalaModule.get)
       GlobalSearchScope.moduleScope(module)
     }

@@ -21,7 +21,7 @@ abstract class ScalaWithTrySurrounderBase extends ScalaExpressionSurrounder {
 
   protected def arrow(elements: Array[PsiElement]): String =
     if (elements.isEmpty) "=>"
-    else ScalaPsiUtil.functionArrow(elements.head.getProject)
+    else ScalaPsiUtil.functionArrow(using elements.head.getProject)
 
   private def getRange(tryStmt: ScTry): Option[TextRange] = for {
     file          <- tryStmt.containingFile

@@ -56,7 +56,7 @@ trait Conformance {
         val stackStamp = RecursionManager.markStack()
         tracer.calculationStart()
         try {
-          val (value, valueInContext) = resultInContext.updatedUsing(ctx => conformsComputable(key, visited)(ctx).get())
+          val (value, valueInContext) = resultInContext.updatedUsing(ctx => conformsComputable(key, visited)(using ctx).get())
           Tracing.conformance(key.left, key.right, value)
           if (stackStamp.mayCacheNow()) {
             cache.put(key, valueInContext)

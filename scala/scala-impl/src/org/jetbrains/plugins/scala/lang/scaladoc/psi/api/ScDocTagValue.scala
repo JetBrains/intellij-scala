@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createSc
 trait ScDocTagValue extends PsiDocTagValue with ScPolyResolvable with PsiNamedElement {
 
   override def setName(name: String): PsiElement = {
-    replace(createScalaDocTagValue(name)(getManager))
+    replace(createScalaDocTagValue(name)(using getManager))
     this
   }
 }

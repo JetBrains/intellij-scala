@@ -140,7 +140,7 @@ object KindProjectorSimplifyTypeProjectionInspection {
                 case _ => false
               }
               val args = if (needsParentheses) newTypeArgs.init.mkString("(", ", ", ")") else newTypeArgs.head
-              Some(s"$args ${ScalaPsiUtil.functionArrow(alias)} ${newTypeArgs.last}")
+              Some(s"$args ${ScalaPsiUtil.functionArrow(using alias)} ${newTypeArgs.last}")
             case _ =>
               (!typeParamIt.hasNext && currentTypeParam.isEmpty).option {
                 val designatorText =

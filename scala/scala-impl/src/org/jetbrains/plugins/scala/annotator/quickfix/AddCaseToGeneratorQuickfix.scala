@@ -14,7 +14,7 @@ final class AddCaseToGeneratorQuickfix(gen: ScGenerator) extends PsiBasedModComm
     else ModCommand.psiUpdate(gen,
       (gen : ScGenerator) => {
         gen.replace(
-          ScalaPsiElementFactory.createExpressionFromText(s"for { case ${gen.getText} } ()", gen)(gen)
+          ScalaPsiElementFactory.createExpressionFromText(s"for { case ${gen.getText} } ()", gen)(using gen)
             .asInstanceOf[ScFor].enumerators.head.generators.head
         )
         ()

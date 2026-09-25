@@ -109,7 +109,7 @@ class ShowTypeInfoAction extends AnAction(
     }
 
     def hintForExpression: Option[String] = {
-      val selectedExpression = getSelectedExpression(file)(project, editor)
+      val selectedExpression = getSelectedExpression(file)(using project, editor)
       selectedExpression.map {
         case expr@Typeable(tpe) =>
           expressionTypeHintForSelection(expr, tpe)

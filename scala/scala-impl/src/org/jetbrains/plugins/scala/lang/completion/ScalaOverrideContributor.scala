@@ -50,7 +50,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
         // one word (simple completion throw generation all possible variants)
 
-        val position = positionFromParameters(parameters)
+        val position = positionFromParameters(using parameters)
         implicit val tpc: TypePresentationContext = TypePresentationContext(position)
         implicit val context: Context = Context(position)
 
@@ -79,7 +79,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       override def addCompletions(completionParameters: CompletionParameters,
                                   processingContext: ProcessingContext,
                                   completionResultSet: CompletionResultSet): Unit = {
-        val position = positionFromParameters(completionParameters)
+        val position = positionFromParameters(using completionParameters)
         implicit val tpc: TypePresentationContext = TypePresentationContext(position)
         implicit val context: Context = Context(position)
 
@@ -107,7 +107,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     new CompletionProvider[CompletionParameters] {
 
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
-      val position = positionFromParameters(parameters)
+      val position = positionFromParameters(using parameters)
       implicit val tpc: TypePresentationContext = TypePresentationContext(position)
       implicit val context: Context = Context(position)
 

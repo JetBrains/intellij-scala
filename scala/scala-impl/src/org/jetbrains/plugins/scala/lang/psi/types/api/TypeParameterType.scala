@@ -49,8 +49,8 @@ class TypeParameterType private (val typeParameter: TypeParameter)
           /** see
            * [[org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector#maskTypeParametersInExtensions]]
            */
-          if (isMaskedExtensionTypeParameter(this, that)(context)
-            || isMaskedExtensionTypeParameter(that, this)(context))
+          if (isMaskedExtensionTypeParameter(this, that)(using context)
+            || isMaskedExtensionTypeParameter(that, this)(using context))
             constraints
           else ConstraintsResult.Left
         }

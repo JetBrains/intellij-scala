@@ -165,7 +165,7 @@ object ScalaImportTypeFix {
 
     val packages = for {
       packageQualifier <- packagesList
-      pack <- ScPackageImpl.findPackage(packageQualifier)(manager)
+      pack <- ScPackageImpl.findPackage(packageQualifier)(using manager)
       if kindMatches(pack, kinds)
     } yield PrefixPackageToImport(pack)
 
@@ -180,7 +180,7 @@ object ScalaImportTypeFix {
           Option(cls.qualifiedName)
             .map(_.stripSuffix("." + memberName))
             .filter(pkgFqn => pkgFqn.nonEmpty && pkgFqn.substring(pkgFqn.lastIndexOf('.') + 1) == referenceName)
-            .flatMap(ScPackageImpl.findPackage(_)(manager))
+            .flatMap(ScPackageImpl.findPackage(_)(using manager))
             .filter(kindMatches(_, kinds))
             .map(PrefixPackageToImport(_))
         }
@@ -189,7 +189,7 @@ object ScalaImportTypeFix {
 
     val elementsAll = classesToImport ++ inheritedClassesToImport ++ aliasesToImport ++ packages ++ prefixPackages
     val elementsFiltered = elementsAll.filterNot(e => isExcluded(e.qualifiedName, project))
-    val elementsSorted = elementsFiltered.sorted(defaultImportOrdering(ref))
+    val elementsSorted = elementsFiltered.sorted(using defaultImportOrdering(ref))
     // it is possible to have same qualified name with different owners in case of val overriding
     // or (case) classes with companion objects
     val elementsDistinct = elementsSorted.distinctBy(_.qualifiedName)

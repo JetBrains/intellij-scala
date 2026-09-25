@@ -108,7 +108,7 @@ object ScalaIntroduceFieldHandlerBase {
     val parent =
       if (isNotBlock && needBraces(parExpr, nextParent(parExpr, file))) {
         firstRange = firstRange.shiftRight(1)
-        parExpr.replaceExpression(createExpressionFromText(s"{${parExpr.getText}}", parExpr)(file.getManager),
+        parExpr.replaceExpression(createExpressionFromText(s"{${parExpr.getText}}", parExpr)(using file.getManager),
           removeParenthesis = false)
       } else container(parExpr).getOrElse(file)
     if (parent == null) None

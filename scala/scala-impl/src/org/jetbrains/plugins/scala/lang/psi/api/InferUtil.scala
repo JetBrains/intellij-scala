@@ -148,7 +148,7 @@ object InferUtil {
                   Seq(param),
                   hasImplicitKW = mt.hasImplicitKW,
                   hasUsingKW = mt.hasUsingKW
-                )(mt.elementScope)
+                )(using mt.elementScope)
 
             }
           case other =>
@@ -664,7 +664,7 @@ object InferUtil {
       internal match {
         case ScMethodType(retType, _, true) => withoutImplicitClause(retType)
         case m @ ScMethodType(retType, params, false) =>
-          ScMethodType(withoutImplicitClause(retType), params)(m.elementScope)
+          ScMethodType(withoutImplicitClause(retType), params)(using m.elementScope)
         case other => other
       }
     } else internal

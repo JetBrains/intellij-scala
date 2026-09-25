@@ -12,13 +12,13 @@ final class ScalaSuggestVariableNameByTypeMacro extends ScalaMacro {
   override def getPresentableName: String = ScalaCodeInsightBundle.message("macro.suggest.variable.name.by.type")
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
-    val names = suggestNames(params)(context)
+    val names = suggestNames(params)(using context)
     names.headOption.map(new TextResult(_)).orNull
   }
 
   private def suggestNames(params: Array[Expression])(implicit context: ExpressionContext): Seq[String] =
     params match {
-      case Array(typeExpression) => suggestNames(typeExpression)(context)
+      case Array(typeExpression) => suggestNames(typeExpression)(using context)
       case _                     => Nil
     }
 
@@ -31,7 +31,7 @@ final class ScalaSuggestVariableNameByTypeMacro extends ScalaMacro {
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = null
 
   override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
-    val names = suggestNames(params)(context)
+    val names = suggestNames(params)(using context)
     if (names.size > 2) {
       names.map(LookupElementBuilder.create).toArray
     } else {

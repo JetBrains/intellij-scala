@@ -15,7 +15,7 @@ object PatVarDef extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val patVarMarker = builder.mark()
 
-    Annotations()(builder)
+    Annotations()(using builder)
 
     //parse modifiers
     val modifierMarker = builder.mark()

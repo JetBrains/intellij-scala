@@ -147,7 +147,7 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
                     ctx.members,
                     isImplement = true,
                     ctx.definition
-                  )(project, editor)
+                  )(using project, editor)
                 }
               })
               .submit(AppExecutorUtil.getAppExecutorService)
@@ -158,9 +158,9 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
 
   private def simplifyReference(`class`: PsiClass, reference: ScReference): ScReference = reference match {
     case ref: ScStableCodeReference =>
-      doSimplifyReference(`class`, ref, createReferenceFromText(_)(`class`))
+      doSimplifyReference(`class`, ref, createReferenceFromText(_)(using `class`))
     case ref: ScReferenceExpression =>
-      doSimplifyReference(`class`, ref, createReferenceExpressionFromText(_)(`class`))
+      doSimplifyReference(`class`, ref, createReferenceExpressionFromText(_)(using `class`))
     case _ => reference
   }
 

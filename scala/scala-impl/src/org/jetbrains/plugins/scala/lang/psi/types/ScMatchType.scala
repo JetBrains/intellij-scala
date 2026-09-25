@@ -117,7 +117,7 @@ object ScMatchType {
     val result = resultInContext.get.getOrElse {
       try {
         val (value, valueInContext) =
-          resultInContext.updatedUsing(ctx => reduce(tpe, 0)(ctx))
+          resultInContext.updatedUsing(ctx => reduce(tpe, 0)(using ctx))
 
         cache.put(tpe, valueInContext)
         value
@@ -125,7 +125,7 @@ object ScMatchType {
         case _: MaximumRecursionDepthExceeded =>
           Failure(
             ScalaBundle.message("match.type.recursion.depth.exceeded", tpe.canonicalText)
-          )(tpe.projectContext)
+          )(using tpe.projectContext)
       }
     }
 

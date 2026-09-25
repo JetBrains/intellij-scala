@@ -12,7 +12,7 @@ class DoNotInspectEvaluatorExpressionsTest extends ScalaLightCodeInsightFixtureT
   override def runInDispatchThread(): Boolean = false
 
   def test_unused_declarations(): Unit = {
-    val fragment = ScalaCodeFragment.create("class DoNotInspectEvaluatorExpressionsTest", ScalaLanguage.INSTANCE)(getProject)
+    val fragment = ScalaCodeFragment.create("class DoNotInspectEvaluatorExpressionsTest", ScalaLanguage.INSTANCE)(using getProject)
     myFixture.configureByText("Foo.scala", "")
     myFixture.enableInspections(classOf[ScalaUnusedDeclarationInspection])
     val pass = new ScalaUnusedDeclarationPass(fragment, Option(getEditor.getDocument))
@@ -22,7 +22,7 @@ class DoNotInspectEvaluatorExpressionsTest extends ScalaLightCodeInsightFixtureT
 
   def test_can_be_private(): Unit = {
     val code = "class DoNotInspectEvaluatorExpressionsTest { val doNotInspectMe = 42; println(doNotInspectMe) }"
-    val fragment = ScalaCodeFragment.create(code, ScalaLanguage.INSTANCE)(getProject)
+    val fragment = ScalaCodeFragment.create(code, ScalaLanguage.INSTANCE)(using getProject)
     myFixture.configureByText("Foo.scala", "")
     myFixture.enableInspections(classOf[ScalaAccessCanBeTightenedInspection])
     val pass = new ScalaAccessCanBeTightenedPass(fragment, Option(getEditor.getDocument))

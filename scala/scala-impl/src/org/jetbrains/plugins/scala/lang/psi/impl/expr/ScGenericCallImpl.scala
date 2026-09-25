@@ -180,7 +180,7 @@ object ScGenericCallImpl {
 
     workWithApplyCandidates(applyCandidates) match {
       case Some(tp) => tp
-      case None     => Nothing(gen.projectContext)
+      case None     => Nothing(using gen.projectContext)
     }
   }
 }

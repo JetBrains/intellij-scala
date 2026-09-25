@@ -36,7 +36,7 @@ object ScalaChangeContextUtil {
     case scalaFile: ScalaFile if !DumbService.getInstance(scalaFile.getProject).isDumb =>
       element.getTextRange match {
         case range if range.getStartOffset == 0 => null
-        case range => Associations.collectAssociations(range)(scalaFile)
+        case range => Associations.collectAssociations(range)(using scalaFile)
       }
     case _ => null
   }

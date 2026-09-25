@@ -308,7 +308,7 @@ final class ScalaInliner {
       toMultiline = targetString.isMultiLineString,
       enforceInterpolator = enforceInterpolator
     )
-    createStringLiteralFromText(newStringText, targetString)(targetString.projectContext)
+    createStringLiteralFromText(newStringText, targetString)(using targetString.projectContext)
   }
 }
 

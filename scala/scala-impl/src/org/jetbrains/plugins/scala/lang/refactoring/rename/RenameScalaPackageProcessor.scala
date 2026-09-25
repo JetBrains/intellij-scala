@@ -48,7 +48,7 @@ class RenameScalaPackageProcessor extends RenamePsiPackageProcessor with ScalaRe
                                newName: String,
                                allRenames: ju.Map[PsiElement, String]): Unit = element match {
     case p: PsiPackage =>
-      val manager = ScalaShortNamesCacheManager.getInstance(element.getProject)
+      val manager = ScalaShortNamesCacheManager.getInstance(using element.getProject)
       val packageObjects = manager.findPackageObjectByName(p.getQualifiedName, element.resolveScope)
       for {
         packageObject <- packageObjects

@@ -34,7 +34,7 @@ trait TypePresentation {
         case e                              => e.name + "."
       }
     }
-    typeText(`type`, renderer, PresentationOptions.Default)(tpc, context)
+    typeText(`type`, renderer, PresentationOptions.Default)(using tpc, context)
   }
 
   final def canonicalText(`type`: ScType, tpc: TypePresentationContext)(implicit context: Context): String = {
@@ -69,7 +69,7 @@ trait TypePresentation {
         if (res.nonEmpty && withPoint) res + "." else res
       }
     }
-    typeText(`type`, renderer, PresentationOptions(renderStdTypes = ScalaApplicationSettings.PRECISE_TEXT, canonicalForm = true))(tpc, context)
+    typeText(`type`, renderer, PresentationOptions(renderStdTypes = ScalaApplicationSettings.PRECISE_TEXT, canonicalForm = true))(using tpc, context)
   }
 }
 

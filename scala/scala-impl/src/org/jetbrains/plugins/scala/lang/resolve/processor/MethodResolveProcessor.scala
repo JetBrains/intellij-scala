@@ -376,7 +376,7 @@ object MethodResolveProcessor {
       def methodTypeWithoutImplicits(tpe: ScType): ScType = tpe match {
         case ScMethodType(inner, _, true) => inner
         case t @ ScMethodType(inner, ps, false) =>
-          ScMethodType(methodTypeWithoutImplicits(inner), ps)(t.elementScope)
+          ScMethodType(methodTypeWithoutImplicits(inner), ps)(using t.elementScope)
         case ScTypePolymorphicType(internalType, tparams) =>
           ScTypePolymorphicType(methodTypeWithoutImplicits(internalType), tparams)
         case t => t

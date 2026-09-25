@@ -32,7 +32,7 @@ final class CreateParameterQuickFix(ref: ScReferenceExpression) extends CreateFr
       case _ => DataContext.EMPTY_CONTEXT
     }
 
-    handler.invoke(file)(project, editor, dataContext)
+    handler.invoke(file)(using project, editor, dataContext)
   }
 
   // TODO: Add preview (SCL-20398)

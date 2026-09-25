@@ -20,7 +20,7 @@ final class SplitIfIntention extends PsiElementBaseIntentionAction with DumbAwar
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     element.parentOfType(classOf[ScIf], strict = false).exists {
-      case ScIf(Some(ScInfixExpr(_, operation, _)), _, _) if caretIsInRange(operation)(editor) =>
+      case ScIf(Some(ScInfixExpr(_, operation, _)), _, _) if caretIsInRange(operation)(using editor) =>
         operation.refName == "&&"
       case _ => false
     }

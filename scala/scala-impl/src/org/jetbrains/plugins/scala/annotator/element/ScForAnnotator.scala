@@ -87,7 +87,7 @@ object ScForAnnotator extends ElementAnnotator[ScFor] {
           case ScEnumerator.withDesugaredAndEnumeratorToken(desugaredEnum, enumToken) =>
             val errorHolder = delegateHolderFor(enumToken, session)
             // TODO decouple
-            desugaredEnum.callExpr.foreach(ScReferenceAnnotator.qualifierPart(_, typeAware)(errorHolder))
+            desugaredEnum.callExpr.foreach(ScReferenceAnnotator.qualifierPart(_, typeAware)(using errorHolder))
             errorHolder.hadError
           case _ =>
             false
@@ -108,15 +108,15 @@ object ScForAnnotator extends ElementAnnotator[ScFor] {
               nextDesugaredGen =>
                 val errorHolder = delegateHolderFor(nextGen, session)
                 // TODO decouple
-                ScExpressionAnnotator.checkExpressionType(nextDesugaredGen.analogMethodCall, typeAware)(errorHolder)
+                ScExpressionAnnotator.checkExpressionType(nextDesugaredGen.analogMethodCall, typeAware)(using errorHolder)
                 errorHolder.hadError
             }
 
             if (!foundMonadicError) {
               val errorHolder = delegateHolderFor(nextGen, session)
               // TODO decouple
-              desugaredGenerator.callExpr.foreach(ScReferenceAnnotator.annotateReference(_)(errorHolder))
-              ScMethodInvocationAnnotator.annotateMethodInvocation(desugaredGenerator.analogMethodCall, inDesugaring = true)(errorHolder)
+              desugaredGenerator.callExpr.foreach(ScReferenceAnnotator.annotateReference(_)(using errorHolder))
+              ScMethodInvocationAnnotator.annotateMethodInvocation(desugaredGenerator.analogMethodCall, inDesugaring = true)(using errorHolder)
               foundMonadicError = errorHolder.hadError
             }
           }
@@ -125,10 +125,10 @@ object ScForAnnotator extends ElementAnnotator[ScFor] {
         if (!foundMonadicError) {
           // TODO decouple
           desugaredGenerator.callExpr.foreach { e =>
-            ScReferenceAnnotator.qualifierPart(e, typeAware)(delegateHolderFor(generatorToken, session))
+            ScReferenceAnnotator.qualifierPart(e, typeAware)(using delegateHolderFor(generatorToken, session))
 
             e.qualifier.flatMap(_.asOptionOf[ScMethodCall].map(_.getInvokedExpr).collect { case re: ScReferenceExpression if re.refName == "withFilter" => re }).foreach {
-              ScReferenceAnnotator.qualifierPart(_, typeAware)(delegateHolderFor(generatorToken, session))
+              ScReferenceAnnotator.qualifierPart(_, typeAware)(using delegateHolderFor(generatorToken, session))
             }
           }
         }

@@ -34,7 +34,7 @@ trait IntegrationTestGoToTests extends UsefulTestCase
       assertConfiguration,
       testPath,
       GoToLocation(sourceFile.getOrElse(caretLocation.fileName), sourceLine)
-    )(testOptions)
+    )(using testOptions)
 
   case class GoToLocation(sourceFile: String, sourceLine: Int)
 

@@ -19,7 +19,7 @@ class ScalaMoveMembersHandler extends MoveHandlerDelegate {
       case _: ScTypeDefinition | _: ScClassParameter => false
       case NotSupportedMember(message) =>
         val refactoringName = ScalaBundle.message("move.members")
-        ScalaRefactoringUtil.showErrorHint(message.nls, refactoringName, null)(project, editor)
+        ScalaRefactoringUtil.showErrorHint(message.nls, refactoringName, null)(using project, editor)
         true
       case objectMember(obj, member) =>
         val dialog = new ScalaMoveMembersDialog(project, true, obj, member)

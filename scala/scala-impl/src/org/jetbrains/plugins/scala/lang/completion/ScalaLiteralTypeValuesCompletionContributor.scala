@@ -36,7 +36,7 @@ object ScalaLiteralTypeValuesCompletionContributor {
     override def addCompletions(parameters: CompletionParameters,
                                 context: ProcessingContext,
                                 result: CompletionResultSet): Unit = {
-      val position = positionFromParameters(parameters)
+      val position = positionFromParameters(using parameters)
 
       position.getContext match {
         case ref: ScReferenceExpression if !ref.isQualified =>

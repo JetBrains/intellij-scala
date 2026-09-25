@@ -24,7 +24,7 @@ abstract class ScCharSequenceHashStubIndexExtension[Psi <: PsiElement : ClassTag
   final def getElements(key: CharSequence, project: Project, scope: GlobalSearchScope): util.Collection[Psi] = {
     val keyPreprocessed = preprocessKey(key)
     val requiredClass = classTag[Psi].runtimeClass.asInstanceOf[Class[Psi]]
-    val scalaScope = ScalaFilterScope(scope)(project)
+    val scalaScope = ScalaFilterScope(scope)(using project)
     StubIndex.getElements(getKey, keyPreprocessed, project, scalaScope, requiredClass)
   }
 

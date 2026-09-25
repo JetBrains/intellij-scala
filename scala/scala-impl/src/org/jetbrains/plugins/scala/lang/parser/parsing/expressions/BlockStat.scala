@@ -42,7 +42,7 @@ object BlockStat extends ParsingRule {
         true
       case IsTemplateDefinition() =>
         TmplDef()
-      case _ if builder.skipExternalToken() => BlockStat.parse(builder)
+      case _ if builder.skipExternalToken() => BlockStat.parse(using builder)
       case _ =>
         if (!Def() && !TmplDef()) {
           if (Dcl()) {

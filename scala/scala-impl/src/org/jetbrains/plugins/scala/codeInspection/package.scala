@@ -106,7 +106,7 @@ package object codeInspection {
   private[codeInspection] class ExpressionOfTypeMatcher(fqn: String) {
     def unapply(expr: ScExpression): Option[ScExpression] = {
       expr match {
-        case Typeable(ty) if conformsToTypeFromClass(ty, fqn)(expr, Context(expr)) => Some(expr)
+        case Typeable(ty) if conformsToTypeFromClass(ty, fqn)(using expr, Context(expr)) => Some(expr)
         case _ => None
       }
     }

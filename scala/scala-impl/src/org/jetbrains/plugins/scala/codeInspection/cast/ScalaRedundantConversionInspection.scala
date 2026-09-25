@@ -37,7 +37,7 @@ class ScalaRedundantConversionInspection extends LocalInspectionTool {
               (f.getTypeParameterList == null || f.getTypeParameterList.getTypeParameters.isEmpty) =>
         for {
           leftType <- left.`type`().toOption
-          if conformsToTypeFromClass(leftType, "java.lang.String")(element, context)
+          if conformsToTypeFromClass(leftType, "java.lang.String")(using element, context)
         } registerProblem(element, left, "java.lang.String", offset, holder)
       case _ =>
     }

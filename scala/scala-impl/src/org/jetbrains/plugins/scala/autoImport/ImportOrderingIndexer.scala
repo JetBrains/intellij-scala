@@ -94,7 +94,7 @@ object ImportOrderingIndexer {
 
   def qualifierImportCountF(implicit ctx: ProjectContext): String => Int = {
     val project = ctx.project
-    val sourcesScope = SourceFilterScope(Seq(ScalaFileType.INSTANCE))(project)
+    val sourcesScope = SourceFilterScope(Seq(ScalaFileType.INSTANCE))(using project)
     val fileIndex = FileBasedIndex.getInstance()
     (fqn: String) => {
       val count = fileIndex.getValues(Id, fqn, sourcesScope).size()

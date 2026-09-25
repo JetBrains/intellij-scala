@@ -12,7 +12,7 @@ class AddCallParenthesesQuickFix(reference: PsiElement) extends LocalQuickFixAnd
   override def invoke(project: Project, psiFile: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
     if (!reference.isValid) return
 
-    val replacement = ScalaPsiElementFactory.createExpressionFromText(s"${reference.getText}()", reference)(project)
+    val replacement = ScalaPsiElementFactory.createExpressionFromText(s"${reference.getText}()", reference)(using project)
 
     IntentionPreviewUtils.write { () =>
       reference.replace(replacement)

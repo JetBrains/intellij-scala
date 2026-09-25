@@ -42,7 +42,7 @@ class AddTypeAnnotationQuickFix(element: PsiElement)
       val typeAdjuster = new TypeAdjuster()
       strategy.addActualTypes(refreshViews, typeAdjuster)
       typeAdjuster.adjustTypes()
-    }(project)
+    }(using project)
   }
 }
 

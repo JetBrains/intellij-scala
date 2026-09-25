@@ -36,8 +36,8 @@ case class InvokedElement(psiElement: PsiElement) {
   lazy val returnType: ScType = psiElement match {
     case synthetic: ScSyntheticFunction => synthetic.retType
     case function: ScFunction => function.returnType.getOrAny
-    case javaFun: PsiMethod => javaFun.getReturnType.toScType()(psiElement)
-    case _ => Any(psiElement.getProject)
+    case javaFun: PsiMethod => javaFun.getReturnType.toScType()(using psiElement)
+    case _ => Any(using psiElement.getProject)
   }
 
   lazy val returnInfo: ValueInfo = {

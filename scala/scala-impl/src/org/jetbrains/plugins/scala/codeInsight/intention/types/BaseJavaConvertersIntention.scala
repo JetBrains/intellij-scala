@@ -79,7 +79,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
         case _ => false
       })
       val replacementText = s"${expression.getText.parenthesize(needsParentheses)}.$methodName"
-      val replacement = createExpressionFromText(replacementText, expression)(expression.getManager)
+      val replacement = createExpressionFromText(replacementText, expression)(using expression.getManager)
       CodeEditUtil.replaceChild(expression.getParent.getNode, expression.getNode, replacement.getNode)
     }
 

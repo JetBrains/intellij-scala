@@ -7,7 +7,7 @@ class ScalaLibVarianceTest extends VarianceTestBase {
   import Message._
 
   override def annotateFun(element: PsiElement, annotator: ScalaAnnotator, mock: AnnotatorHolderMock): Unit =
-    annotator.annotate(element)(mock)
+    annotator.annotate(element)(using mock)
 
   protected def code(insertLine: String): String =
     s"""

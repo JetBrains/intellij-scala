@@ -99,7 +99,7 @@ object ScalaDfaTypeUtils {
       case Some(psiClass) if psiClass.qualifiedNameOpt.exists(_.startsWith(s"$ScalaCollectionImmutable.Nil")) =>
         dfTypeImmutableCollectionFromSize(0)
       case Some(psiClass) if psiClass.qualifiedName == ScalaNone || psiClass.qualifiedName == ScalaNothing => DfType.TOP
-      case Some(psiClass) if scType == Any(psiClass.getProject) => DfType.TOP
+      case Some(psiClass) if scType == Any(using psiClass.getProject) => DfType.TOP
       case Some(psiClass) =>
         psiClass.qualifiedName match {
           case "scala.Unit" => DfUnitType

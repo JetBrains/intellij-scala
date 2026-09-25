@@ -26,7 +26,7 @@ abstract class ToggleTypeAnnotationIntentionTestBase extends ScalaIntentionTestB
 
     executeWriteActionCommand("Test Intention Command")({
       intention.invoke(getProject, getEditor, getFile)
-    })(getProject)
+    })(using getProject)
 
     val templateManager = TemplateManager.getInstance(getProject)
     val activeTemplate = templateManager.getActiveTemplate(getEditor)

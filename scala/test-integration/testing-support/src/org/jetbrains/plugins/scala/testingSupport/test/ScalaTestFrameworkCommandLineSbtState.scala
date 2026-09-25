@@ -77,7 +77,7 @@ class ScalaTestFrameworkCommandLineSbtState(
         // runs with and without the UI. In the previous implementation, the exit code was always hardcoded to 0.
         val exitCode = if (result.isSuccess) 0 else 1
         processHandler.terminate(exitCode)
-      }(sbtSupport.executionContext)
+      }(using sbtSupport.executionContext)
     }
 
     executionResult

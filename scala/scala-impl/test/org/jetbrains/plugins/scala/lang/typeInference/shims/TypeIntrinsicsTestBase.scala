@@ -14,9 +14,9 @@ abstract class TypeIntrinsicsTestBase extends ScalaLightCodeInsightFixtureTestCa
   def assertDoesNotReduce(code: String, tpe: String): Unit = assertTypeIs(code, tpe)
 
   def assertTypeIs(code: String, tpe: String): Unit = {
-    val file = ScalaPsiElementFactory.createScalaFileFromText(transformCode(code), ScalaFeatures.onlyByVersion(version))(getProject)
+    val file = ScalaPsiElementFactory.createScalaFileFromText(transformCode(code), ScalaFeatures.onlyByVersion(version))(using getProject)
     val typeElement = file.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
-    val actual = typeElement.`type`().toOption.fold("<error>")(_.presentableText(TypePresentationContext(typeElement), Context.Empty))
+    val actual = typeElement.`type`().toOption.fold("<error>")(_.presentableText(using TypePresentationContext(typeElement), Context.Empty))
     assertEquals(tpe, actual)
   }
 
@@ -24,13 +24,13 @@ abstract class TypeIntrinsicsTestBase extends ScalaLightCodeInsightFixtureTestCa
 
   def assertConforms(code: String, tpe: String): Unit = {
     val expected = {
-      val file = ScalaPsiElementFactory.createScalaFileFromText(s"type X = $tpe", ScalaFeatures.onlyByVersion(version))(getProject)
+      val file = ScalaPsiElementFactory.createScalaFileFromText(s"type X = $tpe", ScalaFeatures.onlyByVersion(version))(using getProject)
       val typeElement = file.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
       typeElement.`type`().get
     }
 
     val actual = {
-      val file = ScalaPsiElementFactory.createScalaFileFromText(code, ScalaFeatures.onlyByVersion(version))(getProject)
+      val file = ScalaPsiElementFactory.createScalaFileFromText(code, ScalaFeatures.onlyByVersion(version))(using getProject)
       val typeElement = file.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
       typeElement.`type`().get
     }

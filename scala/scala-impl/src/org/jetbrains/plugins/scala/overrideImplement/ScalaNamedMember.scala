@@ -60,7 +60,7 @@ case class ScMethodMember(
       case fun: ScFunction => fun.returnType.getOrAny
       case method: PsiMethod =>
         val psiType = Option(method.getReturnType).getOrElse(PsiTypeConstants.Void)
-        psiType.toScType()(signature.projectContext)
+        psiType.toScType()(using signature.projectContext)
     }
     substitutor(returnType)
   }
@@ -174,7 +174,7 @@ object ScExtensionMethodMember {
       case ScSignatureClause.TermClause(clause) => parametersRenderer.renderClause(clause)
     }.mkString
 
-  private val typeRenderer: TypeRenderer = _.presentableText(TypePresentationContext.emptyContext, Context.Empty)
+  private val typeRenderer: TypeRenderer = _.presentableText(using TypePresentationContext.emptyContext, Context.Empty)
   private val typeAnnotationRenderer = new TypeAnnotationRenderer(typeRenderer)
   private val typeParamsRenderer = new TypeParamsRenderer(typeRenderer)
   private val extensionParametersRenderer = new ParametersRenderer(new ParameterRenderer(
@@ -198,7 +198,7 @@ sealed abstract class ScValueOrVariableMember[T <: ScValueOrVariable](
 )(
   override val name: String = element.name,
   override val scType: ScType = substitutor(element.`type`().getOrAny)
-) extends PsiElementClassMember[T](member, NlsString.force(s"$name: ${scType.presentableText(element, Context(element))}"))
+) extends PsiElementClassMember[T](member, NlsString.force(s"$name: ${scType.presentableText(using element, Context(element))}"))
   with ScalaFieldMember
 
 class ScValueMember(

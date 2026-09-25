@@ -51,7 +51,7 @@ class ScalaAnnotator extends Annotator
       if ((file ne null) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)) false
       else HighlightingAdvisor.isTypeAwareHighlightingEnabled(element)
 
-    annotate(element, typeAware)(new ScalaAnnotationHolderAdapter(holder))
+    annotate(element, typeAware)(using new ScalaAnnotationHolderAdapter(holder))
 
     Tracing.annotator(element)
   }

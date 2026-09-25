@@ -136,7 +136,7 @@ object FakePsiMethod {
 
       override def params: Array[Parameter] = Array(Parameter(t.`type`().getOrAny, isRepeated = false, index = 0))
 
-      override def retType: ScType = api.Unit(t.projectContext)
+      override def retType: ScType = api.Unit(using t.projectContext)
     }
 }
 

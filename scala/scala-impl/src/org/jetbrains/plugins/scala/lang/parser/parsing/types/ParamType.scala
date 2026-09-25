@@ -19,7 +19,7 @@ trait ParamType extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean =
     builder.build(ScalaElementType.PARAM_TYPE) {
-      parseWithoutScParamTypeCreation()(builder)
+      parseWithoutScParamTypeCreation()(using builder)
     }
 
   def parseWithoutScParamTypeCreation(isPattern: Boolean = false, typeVariables: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {

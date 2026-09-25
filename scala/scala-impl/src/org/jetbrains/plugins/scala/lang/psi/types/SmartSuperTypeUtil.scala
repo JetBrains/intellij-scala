@@ -81,7 +81,7 @@ object SmartSuperTypeUtil {
       case td: ScTypeDefinition => td.superTypes.map(subst)
       case _ =>
         cls.getSuperTypes.map { tpe =>
-          subst(tpe.toScType()(cls)) match {
+          subst(tpe.toScType()(using cls)) match {
             case exist: ScExistentialType => exist.quantified
             case other                    => other
           }

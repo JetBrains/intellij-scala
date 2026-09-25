@@ -154,7 +154,7 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
       if a
         .parametersTypes(withExtension = true)
         .zip(b.parametersTypes(withExtension = true))
-        .forall { case (a, b) => a.equiv(b)(Context(element)) }
+        .forall { case (a, b) => a.equiv(b)(using Context(element)) }
     } result ++= Seq(a, b)
 
     result.result().iterator
@@ -194,14 +194,14 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
 
   private def erasedReturnType(f: ScFunction, isInStructuralType: Boolean, forPresentableText: Boolean): String = {
     if (!isInStructuralType) {
-      val returnType = f.returnType.getOrAny.removeAliasDefinitions()(Context.Empty)
+      val returnType = f.returnType.getOrAny.removeAliasDefinitions()(using Context.Empty)
       erased(returnType, forPresentableText).canonicalText
     }
     else ""
   }
 
   private def erased(t: ScType, forPresentableText: Boolean): ScType = {
-    val stdTypes = StdTypes.instance(t.projectContext)
+    val stdTypes = StdTypes.instance(using t.projectContext)
 
     t.updateRecursively {
       case t @ AliasType(ta: ScTypeAliasDeclaration, _, _, _) if ta.hasModifierProperty("opaque") => t match {
@@ -242,7 +242,7 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
     val `*` = if (p.isRepeatedParameter) "*" else ""
 
     val paramType = p.`type`().getOrAny
-    val paramTypeExpanded = paramType.removeAliasDefinitions()(Context.Empty)
+    val paramTypeExpanded = paramType.removeAliasDefinitions()(using Context.Empty)
     val erasedType =
       if (eraseParamType) erased(paramTypeExpanded, forPresentableText)
       else paramTypeExpanded

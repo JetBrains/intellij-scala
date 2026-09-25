@@ -20,7 +20,7 @@ final class ScalaImplicitClassNameMacro extends ScalaMacro {
       case _                     => return null
     }
 
-    val name = calculateName(targetTypeName)(context)
+    val name = calculateName(targetTypeName)(using context)
     new TextResult(name)
   }
 
@@ -40,7 +40,7 @@ final class ScalaImplicitClassNameMacro extends ScalaMacro {
   }
 
   private def calculateName(targetTypeName: Expression)(implicit context: ExpressionContext): String = {
-    val typeElement = scTypeElement(targetTypeName)(context)
+    val typeElement = scTypeElement(targetTypeName)
     val (prefix, suffix) = prefixAndSuffix
     val withSuffix = typeElement
       .map(appendSuffixToType(_, suffix))

@@ -109,7 +109,7 @@ class ScObjectImpl(
         case pack =>
           val newState = state.withFromType(None)
 
-          ScPackageImpl.packageProcessDeclarations(pack)(processor, newState, lastParent, place)(ScalaPsiManager.instance)
+          ScPackageImpl.packageProcessDeclarations(pack)(processor, newState, lastParent, place)(using ScalaPsiManager.instance)
       }
     } else true
 

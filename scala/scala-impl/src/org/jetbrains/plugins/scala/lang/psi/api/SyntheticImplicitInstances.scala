@@ -174,7 +174,7 @@ object SyntheticImplicitInstances {
 
     def compareToBoxed(l: ScType, r: ScType): Boolean = {
       val boxedNumericClass = {
-        val maybeEntry = StdTypes.instance(place.getProject).fqnBoxedToScType.find {
+        val maybeEntry = StdTypes.instance(using place.getProject).fqnBoxedToScType.find {
           case (_, tpe) => tpe == l
         }
 

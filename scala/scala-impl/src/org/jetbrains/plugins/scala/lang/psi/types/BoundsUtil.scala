@@ -324,7 +324,7 @@ trait BoundsUtil {
 
             resTypeArgs += (tp match {
               case scp: ScTypeParam if scp.isCovariant =>
-                if (depth > 0) lubInner(substed1, substed2, depth - 1, checkWeak)(stopAddingUpperBound, context)
+                if (depth > 0) lubInner(substed1, substed2, depth - 1, checkWeak)(using stopAddingUpperBound, context)
                 else           Any
               case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2, checkWeak)
               case _ =>

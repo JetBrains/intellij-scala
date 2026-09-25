@@ -52,10 +52,10 @@ abstract class ScalaMoveDirectoryWithClassesTestBase extends ScalaMoveTestBase {
   }
 
   protected def doRenamePackageTest(sourcePackageName: String, newPackageName: String): Unit =
-    doTest(new RenamePackageTestAction(sourcePackageName, newPackageName)(getProject))
+    doTest(new RenamePackageTestAction(sourcePackageName, newPackageName)(using getProject))
 
   protected def doMovePackageTest(sourcePackageName: String = "pack1", targetPkgName: String = "targetPack"): Unit =
-    doTest(new MovePackageTestAction(sourcePackageName, targetPkgName)(getProject))
+    doTest(new MovePackageTestAction(sourcePackageName, targetPkgName)(using getProject))
 }
 
 object ScalaMoveDirectoryWithClassesTestBase {

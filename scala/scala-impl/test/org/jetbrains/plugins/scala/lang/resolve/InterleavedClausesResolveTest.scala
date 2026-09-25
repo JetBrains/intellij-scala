@@ -118,17 +118,17 @@ class InterleavedClausesResolveWithNamedContextBoundsTest extends SimpleResolveT
   def test_previous_named_context_bound_visible_in_later_term_clause(): Unit = doResolveTest(
     s"""trait TC[A]
        |def foo[T: TC as ${REFTGT}tc](x: ${REFSRC}tc.type)[U](u: U): U = u""".stripMargin
-  )(SrcTgtOptions(targetIsLeaf = true))
+  )(using SrcTgtOptions(targetIsLeaf = true))
 
   def test_previous_named_context_bound_visible_in_later_type_clause(): Unit = doResolveTest(
     s"""trait TC[A]
        |def foo[T: TC as ${REFTGT}tc](x: T)[U <: ${REFSRC}tc.type](u: U): U = u""".stripMargin
-  )(SrcTgtOptions(targetIsLeaf = true))
+  )(using SrcTgtOptions(targetIsLeaf = true))
 
   def test_previous_named_context_bound_visible_in_explicit_using_clause(): Unit = doResolveTest(
     s"""trait TC[A]
        |def foo[T: TC as ${REFTGT}tc](using x: ${REFSRC}tc.type)(y: Int): Int = y""".stripMargin
-  )(SrcTgtOptions(targetIsLeaf = true))
+  )(using SrcTgtOptions(targetIsLeaf = true))
 
   def test_named_context_bound_type_member_visible_in_later_using_clause(): Unit = doResolveTest(
     s"""trait Foo[A] { type ${REFTGT}Out }
@@ -143,5 +143,5 @@ class InterleavedClausesResolveWithNamedContextBoundsTest extends SimpleResolveT
   def test_last_named_context_bound_visible_in_return_type(): Unit = doResolveTest(
     s"""trait TC[A]
        |def foo[T](x: T)[U: TC as ${REFTGT}tc]: ${REFSRC}tc.type = ???""".stripMargin
-  )(SrcTgtOptions(targetIsLeaf = true))
+  )(using SrcTgtOptions(targetIsLeaf = true))
 }

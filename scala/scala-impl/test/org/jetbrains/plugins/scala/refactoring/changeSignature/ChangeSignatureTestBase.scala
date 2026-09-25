@@ -143,6 +143,6 @@ abstract class ChangeSignatureTestBase extends ScalaLightCodeInsightFixtureTestC
       ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScMethodLike], newName, maybeReturnType.getOrElse(Any), params,
         isAddDefaultValue, Some(annotationNeeded))
 
-    new ScalaChangeSignatureProcessor(changeInfo)(getProject)
+    new ScalaChangeSignatureProcessor(changeInfo)(using getProject)
   }
 }

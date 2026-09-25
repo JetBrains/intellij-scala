@@ -43,7 +43,7 @@ abstract class ScalaTodoItemsTestBase extends ScalaLightCodeInsightFixtureTestCa
     highlightInfos
       .filter(_.`type` == HighlightInfoType.TODO)
       .map(info => TextRange.create(info.getHighlighter))
-      .sorted(comparatorToOrdering(Segment.BY_START_OFFSET_THEN_END_OFFSET))
+      .sorted(using comparatorToOrdering(using Segment.BY_START_OFFSET_THEN_END_OFFSET))
 
   private def assertSameTodoCountInIndexAndHighlighting(vFile: VirtualFile): Unit = {
     val todosInIndex = TodoCacheManager.getInstance(getProject).getTodoCount(vFile, TodoIndexPatternProvider.getInstance)

@@ -27,7 +27,7 @@ abstract class ScLiteralImplBase(node: ASTNode,
     case null =>
       fallbackType
     case value =>
-      ScLiteralType(wrappedValue(value), psiElement = this)(getProject)
+      ScLiteralType(wrappedValue(value), psiElement = this)(using getProject)
   }
 
   override def contentRange: TextRange = getTextRange

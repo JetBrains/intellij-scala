@@ -12,7 +12,7 @@ private class GridUiBuilder(panel: JPanel, val columns: Int) {
   panel.setLayout(new GridLayoutManager(99, columns, JBUI.emptyInsets, -1, -1))
 
   def append[T <: JComponent](component: T): T =
-    append(component, constraint(_rowIdx)(this))
+    append(component, constraint(_rowIdx)(using this))
 
   def append[T <: JComponent](component: T, constraints: Any): T = {
     panel.add(component, constraints)

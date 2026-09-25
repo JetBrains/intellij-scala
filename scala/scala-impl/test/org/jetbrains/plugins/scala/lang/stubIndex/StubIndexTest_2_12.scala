@@ -27,7 +27,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   private def moduleWithLibrariesScope: GlobalSearchScope = GlobalSearchScope.moduleWithLibrariesScope(getModule)
 
   private def elementsInScalaLibrary[Key, Psi <: PsiElement : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[Psi] =
-    indexKey.elements(key, moduleWithLibrariesScope)(getProject).toList
+    indexKey.elements(key, moduleWithLibrariesScope)(using getProject).toList
 
   private def elementsInScalaLibraryByFqnKey[Psi <: PsiElement : ClassTag](fqn: CharSequence, index: ScFqnHashStubIndexExtension[Psi]): Seq[Psi] =
     index.getElements(fqn, getProject, moduleWithLibrariesScope).asScala.toSeq
@@ -257,7 +257,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
 
   def testImplicitInstance(): Unit = {
     def forClassFqn(fqn: String) =
-      ImplicitInstanceIndex.forClassFqn(fqn, moduleWithLibrariesScope)(getProject).flatMap(_.qualifiedNameOpt)
+      ImplicitInstanceIndex.forClassFqn(fqn, moduleWithLibrariesScope)(using getProject).flatMap(_.qualifiedNameOpt)
 
     val orderings = forClassFqn("scala.math.Ordering")
     assertCollectionEqualsTextual(orderings)(
@@ -285,7 +285,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
 
   def testImplicitConversion_ForClassFqn(): Unit = {
     def forClassFqn(fqn: String): Set[String] =
-      ImplicitConversionIndex.forClassFqn(fqn, moduleWithLibrariesScope)(getProject).flatMap(_.qualifiedNameOpt)
+      ImplicitConversionIndex.forClassFqn(fqn, moduleWithLibrariesScope)(using getProject).flatMap(_.qualifiedNameOpt)
 
     val forScalaAny = forClassFqn(AnyFqn)
     assertContains(forScalaAny, "scala.math.Ordering.mkOrderingOps")
@@ -308,7 +308,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testImplicitConversion_AllConversions(): Unit = {
-    val all = ImplicitConversionIndex.allConversions(moduleWithLibrariesScope)(getProject).flatMap(_.qualifiedNameOpt).toSet
+    val all = ImplicitConversionIndex.allConversions(moduleWithLibrariesScope)(using getProject).flatMap(_.qualifiedNameOpt).toSet
     assertCollectionEqualsTextual(all)(
       """scala.Byte.byte2double
         |scala.Byte.byte2float

@@ -24,7 +24,7 @@ class OptionWithLiteralToSomeIntention extends PsiElementBaseIntentionAction  {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = element match {
     case OptionLiteral(opt, constant) =>
-      val newExpr = ScalaPsiElementFactory.createExpressionFromText(s"Some($constant)", element)(project)
+      val newExpr = ScalaPsiElementFactory.createExpressionFromText(s"Some($constant)", element)(using project)
       opt.replaceExpression(newExpr, removeParenthesis = true)
     case _ =>
   }

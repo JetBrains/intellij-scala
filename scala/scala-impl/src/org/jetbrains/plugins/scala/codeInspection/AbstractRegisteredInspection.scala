@@ -23,7 +23,7 @@ abstract class AbstractRegisteredInspection extends LocalInspectionTool {
   override final def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = new PsiElementVisitor {
 
     override def visitElement(element: PsiElement): Unit =
-      problemDescriptor(element)(holder.getManager, isOnTheFly) match {
+      problemDescriptor(element)(using holder.getManager, isOnTheFly) match {
         case Some(descriptor) => holder.registerProblem(descriptor)
         case _ =>
       }

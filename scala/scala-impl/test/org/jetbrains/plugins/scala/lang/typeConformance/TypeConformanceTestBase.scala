@@ -135,8 +135,8 @@ abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestC
         errors +=
           s"""
              |Expected: $expectedResult
-             |Param tp: ${param.paramType.presentableText(TypePresentationContext.emptyContext, Context.Empty)}
-             |Arg   tp: ${exprTp.presentableText(TypePresentationContext.emptyContext, Context.Empty)}
+             |Param tp: ${param.paramType.presentableText(using TypePresentationContext.emptyContext, Context.Empty)}
+             |Arg   tp: ${exprTp.presentableText(using TypePresentationContext.emptyContext, Context.Empty)}
           """.stripMargin
     }
     assertTrue(if (shouldPass) "Conformance failure:\n"+ errors.mkString("\n\n").trim else failingPassed, !shouldPass ^ errors.isEmpty)

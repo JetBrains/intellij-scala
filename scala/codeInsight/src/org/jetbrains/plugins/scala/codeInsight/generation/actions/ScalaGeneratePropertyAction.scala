@@ -27,12 +27,12 @@ object ScalaGeneratePropertyAction {
     import Handler._
 
     override def isValidFor(editor: Editor, file: PsiFile): Boolean =
-      super.isValidFor(editor, file) && findValidVariableDefinition(editor, file).isDefined
+      super.isValidFor(editor, file) && findValidVariableDefinition(using editor, file).isDefined
 
     override def invoke(project: Project,
                         editor: Editor,
                         file: PsiFile): Unit =
-      findValidVariableDefinition(editor, file).foreach { definition =>
+      findValidVariableDefinition(using editor, file).foreach { definition =>
         addPropertyMembers(definition)
         definition.delete()
       }

@@ -302,8 +302,8 @@ object ScalaSmartCompletionContributor {
 
   private abstract class ScalaSmartCompletionProvider extends CompletionProvider[CompletionParameters] {
     final override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
-      val place = positionFromParameters(parameters)
-      addCompletions(parameters, result, place)
+      val place = positionFromParameters(using parameters)
+      addCompletions(using parameters, result, place)
     }
 
     protected def addCompletions(implicit parameters: CompletionParameters, result: CompletionResultSet, place: PsiElement): Unit
@@ -742,7 +742,7 @@ object ScalaSmartCompletionContributor {
         params.map { `type` =>
           `type` -> `type`.canonicalText
         }
-      }(project)
+      }(using project)
 
       document.insertString(editor.getCaretModel.getOffset, text)
       val documentManager = PsiDocumentManager.getInstance(project)

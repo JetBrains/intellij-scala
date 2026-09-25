@@ -365,7 +365,7 @@ package object completion {
       val sorter = CompletionSorter.defaultSorter(parameters, prefixMatcher) match {
         case defaultSorter if parameters.getCompletionType == CompletionType.SMART => defaultSorter
         case defaultSorter =>
-          val position = positionFromParameters(parameters)
+          val position = positionFromParameters(using parameters)
           val isAfterNew = afterNewKeywordPattern.accepts(position)
           val maybeDefinition = definitionByPosition(position)
 
@@ -376,7 +376,7 @@ package object completion {
 
           newSorter.weighAfter(
             if (isAfterNew) "scalaTypeCompletionWeigher" else "scalaKindWeigher",
-            new ScalaByExpectedTypeWeigher(maybeDefinition)(position)
+            new ScalaByExpectedTypeWeigher(maybeDefinition)(using position)
           )
       }
 
@@ -418,7 +418,7 @@ package object completion {
                                       resultSet: CompletionResultSet): Unit =
       resultSet.getPrefixMatcher.getPrefix match {
         case prefix if ScalaNamesValidator.isIdentifier(prefix) && !ScalaNamesValidator.isSoftKeyword(prefix) && prefix.forall(_.isLetterOrDigit) =>
-          addCompletions(resultSet, prefix)(parameters, context)
+          addCompletions(resultSet, prefix)(using parameters, context)
         case _ =>
       }
 

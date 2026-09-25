@@ -253,7 +253,7 @@ object TypeCheckCanBeMatchInspection {
     } builder.append(text)
 
     if (ifStmts != Nil) {
-      builder ++= buildCaseClauseText("_", None, ifStmts.last.elseExpression)(ifStmt.getProject)
+      builder ++= buildCaseClauseText("_", None, ifStmts.last.elseExpression)(using ifStmt.getProject)
     }
 
     (builder.toString(), renameData)

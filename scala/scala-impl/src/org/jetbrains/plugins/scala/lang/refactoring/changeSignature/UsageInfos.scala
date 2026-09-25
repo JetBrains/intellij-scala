@@ -182,7 +182,7 @@ private[changeSignature] object UsageUtil {
       case jc: JavaChangeInfo =>
         val method = jc.getMethod
         val psiType = jc.getNewReturnType.getType(method.getParameterList, method.getManager)
-        psiType.toScType()(method.projectContext)
+        psiType.toScType()(using method.projectContext)
       case _ => return None
     }
 

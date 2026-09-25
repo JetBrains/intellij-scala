@@ -101,7 +101,7 @@ object ScalaEndMarkerCompletionContributor {
       // collect possible end marker suggestions for all parents and one previous sibling
       // use index to determine lookup element priority: show closest first
       (element, idx) <- (markerCtx.prevSiblingNotWhitespaceComment ++ markerCtx.contexts).zipWithIndex
-      token <- findEndMarkerToken(element)(markerCtx)
+      token <- findEndMarkerToken(element)(using markerCtx)
     } yield EndMarkerLookupItem(token, getMarkerContextOffset(markerCtx), element, -idx, useEndKeywordInLookupString)
 
     /**

@@ -21,7 +21,7 @@ abstract class ScalaDirectiveDependencyCompletionProviderBase extends Completion
 
 object ScalaDirectiveDependencyCompletionProviderBase {
   final class DependencyCompletionParameters(completionParams: CompletionParameters, resultSet: CompletionResultSet)
-    extends BaseDependencyCompletionParameters(completionParams, resultSet, positionFromParameters(completionParams)) {
+    extends BaseDependencyCompletionParameters(completionParams, resultSet, positionFromParameters(using completionParams)) {
     val (placeText: String, valueKind: ScalaDirectiveValueKind) = ScalaDirectiveValueKind.extract(place.getText)
 
     val tokens: Array[String] = placeText.split(':').filterNot(_.isBlank)

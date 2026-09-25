@@ -136,7 +136,7 @@ class ScFunctionWrapper(
         .findNode(delegate)
         .map(_.supers.map(_.info).filterByType[PhysicalMethodSignature])
 
-    superSignatures.getOrElse(Seq.empty).mapToArray(wrap)(PsiMethod.ARRAY_FACTORY)
+    superSignatures.getOrElse(Seq.empty).mapToArray(wrap)(using PsiMethod.ARRAY_FACTORY)
   }
 
   override def copy(): PsiElement =

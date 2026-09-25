@@ -35,7 +35,7 @@ class ConvertToInfixIntention extends PsiElementBaseIntentionAction with DumbAwa
       case _ => true
     }
     val newTypeText = Seq(targ1, paramTypeElement.typeElement, targ2).map(_.getText).mkString(" ").parenthesize(needParens)
-    val newTypeElement = createTypeElementFromText(newTypeText, element)(element)
+    val newTypeElement = createTypeElementFromText(newTypeText, element)(using element)
     if (paramTypeElement.isValid) {
       val replaced = try {
         paramTypeElement.replace(newTypeElement)

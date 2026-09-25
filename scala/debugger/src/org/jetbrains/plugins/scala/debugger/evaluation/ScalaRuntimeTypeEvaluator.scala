@@ -37,7 +37,7 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
     val value: Value = evaluator.evaluate(evaluationContext)
     if (value != null) {
       inReadAction {
-        getCastableRuntimeType(value)(ElementScope(project, process.getSearchScope))
+        getCastableRuntimeType(value)(using ElementScope(project, process.getSearchScope))
           .map(new PsiImmediateClassType(_, PsiSubstitutor.EMPTY)).orNull
       }
     } else throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.surrounded.expression.null"))

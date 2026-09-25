@@ -105,7 +105,7 @@ object BindingCellRenderer {
     project: Project,
     colorScheme: EditorColorsScheme,
   ): Seq[(String, TextAttributes)] = {
-    val file = ScalaPsiElementFactory.createScalaFileFromText(fileText, features)(project)
+    val file = ScalaPsiElementFactory.createScalaFileFromText(fileText, features)(using project)
     val highlighter = ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter(project, file = null, language = file.getLanguage)
 
     val leafElements = file.elements.filter(_.is[LeafPsiElement])

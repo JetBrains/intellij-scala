@@ -111,7 +111,7 @@ class Source3Inspection extends LocalInspectionTool {
           withKw,
           getDisplayName,
           createReplacingQuickFix(withKw, ScalaInspectionBundle.message("replace.with.and.char")) { withKw =>
-            ScalaPsiElementFactory.createIdentifier("&")(withKw).getPsi
+            ScalaPsiElementFactory.createIdentifier("&")(using withKw).getPsi
           }
         )
       case _ =>

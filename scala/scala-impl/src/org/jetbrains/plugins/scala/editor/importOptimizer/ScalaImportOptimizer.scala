@@ -684,7 +684,7 @@ object ScalaImportOptimizer {
 
       def addGroup(names: Iterable[String]) = {
         if (options.nameOrdering.isDefined)
-          groupStrings ++= names.toSeq.sorted(options.nameOrdering.get)
+          groupStrings ++= names.toSeq.sorted(using options.nameOrdering.get)
         else
           groupStrings ++= names
       }
@@ -1042,7 +1042,7 @@ object ScalaImportOptimizer {
     }
 
     def replace(oldInfos: collection.Seq[ImportInfo], newInfos: collection.Seq[ImportInfo], buffer: mutable.Buffer[ImportInfo]): Unit = {
-      val oldIndices = oldInfos.map(buffer.indexOf).filter(_ >= 0).sorted(Ordering[Int].reverse)
+      val oldIndices = oldInfos.map(buffer.indexOf).filter(_ >= 0).sorted(using Ordering[Int].reverse)
       if (oldIndices.nonEmpty) {
         val minIndex = oldIndices.last
         oldIndices.foreach(buffer.remove)

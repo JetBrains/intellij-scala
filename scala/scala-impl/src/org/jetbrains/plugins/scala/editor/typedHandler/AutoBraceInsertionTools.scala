@@ -287,7 +287,7 @@ object AutoBraceInsertionTools {
       probeFile =
         ScalaPsiElementFactory.createScalaFileFromText(
           enclosementTextWithoutStatement, element, shouldTrimText = false
-        )(element.getProject)
+        )(using element.getProject)
 
       // find the expression that comes after the statement start (which is parsed corretly now in the dummy file)
       probeExprBeginOrWs = probeFile.findElementAt(statementStartInEnclosement)

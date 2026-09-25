@@ -28,7 +28,7 @@ final class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool with
               val whitespaceOffset = nextLeaf.endOffset
               val offset = element.startOffset
               val textWithoutSemicolon = removeChar(file.charSequence, offset)
-              val newFile = createScalaFileFromText(textWithoutSemicolon, element)(element.getManager)
+              val newFile = createScalaFileFromText(textWithoutSemicolon, element)(using element.getManager)
               var elem1 = file.findElementAt(offset - 1)
               var elem2 = newFile.findElementAt(offset - 1)
               while (elem1 != null && elem1.endOffset <= offset && elem2 != null) {

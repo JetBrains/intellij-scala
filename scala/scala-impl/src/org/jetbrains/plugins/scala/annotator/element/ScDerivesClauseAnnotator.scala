@@ -45,8 +45,8 @@ object ScDerivesClauseAnnotator extends ElementAnnotator[ScDerivesClause] {
 
     derivedMember.foreach { member =>
       member.body.foreach { body =>
-        ImplicitParametersAnnotator.annotate(body, typeAware)(delegateHolder)
-        ScExpressionAnnotator.checkExpressionType(body, typeAware, inDesugaring = true)(delegateHolder)
+        ImplicitParametersAnnotator.annotate(body, typeAware)(using delegateHolder)
+        ScExpressionAnnotator.checkExpressionType(body, typeAware, inDesugaring = true)(using delegateHolder)
       }
     }
   }

@@ -16,7 +16,7 @@ object PackageObject extends ParsingRule {
     marker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
 
     //empty annotations
-    Annotations.parseEmptyAndBindLeft()(builder)
+    Annotations.parseEmptyAndBindLeft()(using builder)
 
     //empty modifiers
     val modifierMarker = builder.mark()

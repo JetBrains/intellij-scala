@@ -61,7 +61,7 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement, place:
   )
 
   private def typeRenderer: TypeRenderer =
-    _.presentableText(place, Context(place))
+    _.presentableText(using place, Context(place))
 
   private def paramRenderer = new ParameterRenderer(
     typeRenderer,

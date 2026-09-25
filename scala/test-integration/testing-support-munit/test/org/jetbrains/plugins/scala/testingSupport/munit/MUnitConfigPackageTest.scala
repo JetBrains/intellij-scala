@@ -94,7 +94,7 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
         TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest22 / MyTest22.test error 22")),
         TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest22 / MyTest22.test success 22")),
       ))
-    )(optionsWithErrorCode)
+    )(using optionsWithErrorCode)
 
   @Test
   def testPackage1(): Unit =
@@ -113,7 +113,7 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
         TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest12 / MyTest12.test error 12")),
         TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest12 / MyTest12.test success 12"))
       ))
-    )(optionsWithErrorCode)
+    )(using optionsWithErrorCode)
 
   @Test
   def testPackage2(): Unit =
@@ -132,7 +132,7 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
         TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest22 / MyTest22.test error 22")),
         TestNodePathWithStatus(Magnitude.PASSED_INDEX, TestNodePath.parse("[root] / MyTest22 / MyTest22.test success 22")),
       ))
-    )(optionsWithErrorCode)
+    )(using optionsWithErrorCode)
 
   private def assertPackageCommandLineWithoutReadAccess(
     settings: RunnerAndConfigurationSettings,
@@ -218,7 +218,7 @@ abstract class MUnitConfigPackageTestBase extends MUnitTestCase {
       root => assertResultTreePathsEqualsUnordered(root.testTreeRoot.get)(Seq(
         TestNodePathWithStatus(Magnitude.FAILED_INDEX, TestNodePath.parse("[root] / MyTest21 / MyTest21.test error 21"))
       ))
-    )(optionsWithErrorCode)
+    )(using optionsWithErrorCode)
   }
 }
 

@@ -76,7 +76,7 @@ trait ScalaCodeParsing {
       parseScalaFile(text, enableEventSystem = true)
 
     def parse[T <: PsiElement : ClassTag](implicit project: ProjectContext): T =
-      parse()(project).depthFirst().findByType[T].getOrElse {
+      parse()(using project).depthFirst().findByType[T].getOrElse {
         throw new RuntimeException("Unable to find PSI element with type " +
           implicitly[ClassTag[T]].runtimeClass.getSimpleName)
       }

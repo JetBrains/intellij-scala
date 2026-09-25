@@ -12,7 +12,7 @@ final class ScNullLiteralImpl(node: ASTNode,
     with literals.ScNullLiteral {
 
   override protected def innerType: Right[Nothing, ScType] = Right {
-    wrappedValue(getValue).wideType(getProject)
+    wrappedValue(getValue).wideType(using getProject)
   }
 
   override protected def fallbackType: ScType = api.Null

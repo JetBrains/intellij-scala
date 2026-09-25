@@ -80,7 +80,7 @@ object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
             case _ =>
               Failure(
                 ScalaBundle.message("invalid.context.bounds.owner", element.getText)
-              )(element)
+              )(using element)
           },
           isForContextBound = true
         )

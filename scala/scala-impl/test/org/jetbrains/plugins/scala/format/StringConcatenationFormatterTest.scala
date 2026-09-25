@@ -216,7 +216,7 @@ class StringConcatenationFormatterTest extends ScalaLightCodeInsightFixtureTestC
       |}
       |""".stripMargin,
     ScalaFeatures.onlyByVersion(version)
-  )(getProject)
+  )(using getProject)
 
   private def exp(s: String): ScExpression = {
     val context = contextFile.depthFirst().findByType[ScTemplateBody].get

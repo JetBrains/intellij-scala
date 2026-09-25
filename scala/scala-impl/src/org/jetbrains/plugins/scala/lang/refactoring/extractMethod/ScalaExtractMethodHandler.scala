@@ -315,7 +315,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     if (method == null) return
     val ics = settings.innerClassSettings
 
-    def newLine = createNewLine()(method.getManager)
+    def newLine = createNewLine()(using method.getManager)
 
     def addElementBefore(elem: PsiElement, nextSibling: PsiElement, typeAdjuster: TypeAdjuster) = {
       val added = nextSibling.getParent.addBefore(elem, nextSibling)
@@ -361,7 +361,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
       editor.getSelectionModel.removeSelection()
 
       if (settings.returnType.isEmpty && settings.typeParameters.isEmpty && duplicates.nonEmpty) {
-        DuplicatesUtil.processDuplicates(duplicates, settings)(project, editor)
+        DuplicatesUtil.processDuplicates(duplicates, settings)(using project, editor)
       }
     }
   }

@@ -169,7 +169,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       val exception = new IllegalStateException(
         s"""Infinite recursion detected while calculating ScalaPsiTypeBridge.toPsiTypeInner
            |recursionCallDepth    : $recursionCallDepth
-           |type presentable text : ${prevTypeValue.presentableText(TypePresentationContext.emptyContext, Context.Empty)}
+           |type presentable text : ${prevTypeValue.presentableText(using TypePresentationContext.emptyContext, Context.Empty)}
            |noPrimitives          : $prevNoPrimitivesValue
            |""".stripMargin.trim
       )
@@ -230,7 +230,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
                 noPrimitives
               )(
                 recursionCallDepth + 1, `type`, noPrimitives
-              )(visitedAliases + typeAlias.physical, visitedExistentialArgs)
+              )(using visitedAliases + typeAlias.physical, visitedExistentialArgs)
             case _ => javaObject
           }
         case _ => javaObject
@@ -246,7 +246,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           }
         case typeAlias: ScTypeAlias if !visitedAliases.contains(typeAlias.physical) =>
           typeAlias.upperBound.toOption
-            .map(toPsiTypeInner(_, noPrimitives)(recursionCallDepth + 1, `type`, noPrimitives)(visitedAliases + typeAlias.physical, visitedExistentialArgs))
+            .map(toPsiTypeInner(_, noPrimitives)(recursionCallDepth + 1, `type`, noPrimitives)(using visitedAliases + typeAlias.physical, visitedExistentialArgs))
             .getOrElse(javaObject)
         case _ => javaObject
       }
@@ -261,12 +261,12 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           val lower = argument.lower
           if (lower.equiv(Nothing)) PsiWildcardType.createUnbounded(manager)
           else {
-            val sup: PsiType = toPsiTypeInner(lower, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives)(visitedAliases, visitedExistentialArgs + argument)
+            val sup: PsiType = toPsiTypeInner(lower, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives)(using visitedAliases, visitedExistentialArgs + argument)
             if (sup.isInstanceOf[PsiWildcardType]) javaObject
             else PsiWildcardType.createSuper(manager, sup)
           }
         } else {
-          val psi = toPsiTypeInner(upper, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives)(visitedAliases, visitedExistentialArgs + argument)
+          val psi = toPsiTypeInner(upper, noPrimitives = false)(recursionCallDepth + 1, `type`, noPrimitives)(using visitedAliases, visitedExistentialArgs + argument)
           if (psi.isInstanceOf[PsiWildcardType]) javaObject
           else PsiWildcardType.createExtends(manager, psi)
         }

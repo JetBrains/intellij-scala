@@ -347,7 +347,7 @@ object DerivesUtil {
         companionType.toOption,
         noImplicitsForArgs = false,
         forCompletion = false
-      )(identity)(place)
+      )(identity)(using place)
 
       processor.candidatesS
     } else candidatesWithoutImplicits

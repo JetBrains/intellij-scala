@@ -99,7 +99,7 @@ abstract class ScalaExpressionSurrounder extends ScalaModCommandSurrounder {
     case expr: ScExpression =>
       implicit val context: Context = Context(expr)
 
-      expr.getTypeIgnoreBaseType.getOrAny.conforms(api.Boolean(expr.getProject))
+      expr.getTypeIgnoreBaseType.getOrAny.conforms(api.Boolean(using expr.getProject))
     case _ => false
   }
 }

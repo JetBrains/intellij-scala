@@ -50,7 +50,7 @@ abstract class ScalaSuppressByLineCommentFix(key: HighlightDisplayKey) extends S
 
   override def createSuppression(project: Project, element: PsiElement, container: PsiElement): Unit = {
     val comment = createComment(project)
-    val newLine = createNewLine()(element.getManager)
+    val newLine = createNewLine()(using element.getManager)
     container match {
       case owner: ScDocCommentOwner if owner.docComment.isDefined =>
         val docComment = owner.docComment.get
@@ -105,7 +105,7 @@ final class ScalaSuppressForFileFix(key: HighlightDisplayKey) extends ScalaSuppr
   override def createSuppression(project: Project, element: PsiElement, container: PsiElement): Unit = container match {
     case file: ScalaFile =>
       val comment = createComment(project)
-      val newLine = createNewLine()(element.getManager)
+      val newLine = createNewLine()(using element.getManager)
       file.firstChild.foreach { anchor =>
         file.addBefore(comment, anchor)
         file.addBefore(newLine, anchor)

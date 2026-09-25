@@ -77,7 +77,7 @@ class ScalaAwareJavaOverridingSearcher extends QueryExecutor[PsiMethod, Overridi
         if (cClass == null) return true
 
         val wrapper = rawMethodWrapper(m, cClass)
-        val scalaScope = ScalaFilterScope(searchParams.getScope)(wrapper.getProject)
+        val scalaScope = ScalaFilterScope(searchParams.getScope)(using wrapper.getProject)
 
         val newParams = new OverridingMethodsSearch.SearchParameters(wrapper, scalaScope, searchParams.isCheckDeep)
         val newProcessor = new Processor[PsiMethod] {
@@ -91,7 +91,7 @@ class ScalaAwareJavaOverridingSearcher extends QueryExecutor[PsiMethod, Overridi
         // Java's overrider search substitutes a Scala specialization of a Java class type parameter with `Object`.
         // It therefore misses a value-type override such as `foo(Int)` of `foo(T)` from `JavaBaseClass[Int]`.
         // Scala supermethod resolution preserves that substitution and identifies the exact overriding function.
-        val scalaScope = ScalaFilterScope(searchParams.getScope)(m.getProject)
+        val scalaScope = ScalaFilterScope(searchParams.getScope)(using m.getProject)
         processScalaPrimitiveSpecializationOverriders(m, scalaScope, searchParams.isCheckDeep, consumer)
       case _ =>
         true
@@ -158,7 +158,7 @@ class ScalaAwareJavaAllOverridingSearcher extends QueryExecutor[Pair[PsiMethod, 
   ): Boolean = kind match {
     case CandidateKind.RawParameter => inReadAction {
       val wrapper = rawMethodWrapper(superMethod, clazz)
-      val scalaScope = ScalaFilterScope(searchParameters.getScope)(wrapper.getProject)
+      val scalaScope = ScalaFilterScope(searchParameters.getScope)(using wrapper.getProject)
 
       val params = new OverridingMethodsSearch.SearchParameters(wrapper, scalaScope, /*checkDeep*/ true)
       val processor = new Processor[PsiMethod] {
@@ -173,7 +173,7 @@ class ScalaAwareJavaAllOverridingSearcher extends QueryExecutor[Pair[PsiMethod, 
     }
 
     case CandidateKind.ClassTypeParameter =>
-      val scalaScope = ScalaFilterScope(searchParameters.getScope)(superMethod.getProject)
+      val scalaScope = ScalaFilterScope(searchParameters.getScope)(using superMethod.getProject)
       val processor = new Processor[PsiMethod] {
         override def process(t: PsiMethod): Boolean =
           consumer.process(new Pair(superMethod, t))

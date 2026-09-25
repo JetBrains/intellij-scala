@@ -104,7 +104,7 @@ class ScalaSyntaxHighlighterProjectModelChangeIntegrationTest
     })
 
   private def addMockScalaSdk(module: Module, scalaVersion: ScalaVersion): Unit =
-    new MockScalaSDKLoader().init(module, scalaVersion)
+    new MockScalaSDKLoader().init(using module, scalaVersion)
 
   private def createScalaFileInModuleSourceRoot(text: String): VirtualFile = inWriteAction {
     val virtualFile = moduleSourceRoot.createChildData(this, "RawUnicodeEscape.scala")

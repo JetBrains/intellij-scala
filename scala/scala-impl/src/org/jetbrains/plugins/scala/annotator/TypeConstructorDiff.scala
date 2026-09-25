@@ -20,10 +20,10 @@ object TypeConstructorDiff {
   type TyConstr = (String, Seq[TypeParameter])
 
   def forActual(expected: TyConstr, actual: TyConstr, substitute: ScSubstitutor)(implicit tpc: TypePresentationContext, context: Context): Tree[TypeConstructorDiff] =
-    diff(actual._1, actual._2, expected._2, substitute)((lower, upper) => lower.conforms(upper), tpc)
+    diff(actual._1, actual._2, expected._2, substitute)(using (lower, upper) => lower.conforms(upper), tpc)
 
   def forExpected(expected: TyConstr, actual: TyConstr, substitute: ScSubstitutor)(implicit tpc: TypePresentationContext, context: Context): Tree[TypeConstructorDiff] =
-    diff(expected._1, expected._2, actual._2, substitute)((lower, upper) => upper.conforms(lower), tpc)
+    diff(expected._1, expected._2, actual._2, substitute)(using (lower, upper) => upper.conforms(lower), tpc)
 
   private def aMatch(text: String) = Leaf(new TypeConstructorDiff(text, false, false))
   private def aMismatch(text: String) = Leaf(new TypeConstructorDiff(text, true, false))

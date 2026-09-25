@@ -75,7 +75,7 @@ class CachingTest extends ScalaFixtureTestCase {
   private def highlightSequentially(): Seq[Error] = {
     val annotator = new ScalaAnnotator()
     val holder = new AnnotatorHolderMock(getFile)
-    getFile.elements.foreach(e => annotator.annotate(e)(holder))
+    getFile.elements.foreach(e => annotator.annotate(e)(using holder))
     holder.errorAnnotations
   }
 }

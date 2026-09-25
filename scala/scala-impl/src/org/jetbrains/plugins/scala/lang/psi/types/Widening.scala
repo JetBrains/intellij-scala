@@ -105,7 +105,7 @@ object Widening {
     case ScProjectionType(_, enumCase: ScEnumSingletonCase) =>
       val superTypes = enumCase.superTypes
       superTypes.headOption.getOrElse(
-        ScCompoundType(superTypes)(tpe.projectContext)
+        ScCompoundType(superTypes)(using tpe.projectContext)
       )
     case designator: DesignatorOwner if designator.isSingleton =>
       // Dereferencing an `x.type` asks for the type of `x`, which may itself be inferred and lead

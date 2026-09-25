@@ -30,7 +30,7 @@ final class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAc
     val refName = operation.refName
 
     Replacement.get(refName) match {
-      case Some(replacement) if caretIsInRange(operation)(editor) =>
+      case Some(replacement) if caretIsInRange(operation)(using editor) =>
         val text =
           if (replacement == refName) ScalaCodeInsightBundle.message("flip.operation", refName)
           else ScalaCodeInsightBundle.message("flip.operation.to.inverse", refName, replacement)

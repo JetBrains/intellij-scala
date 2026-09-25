@@ -67,7 +67,7 @@ private[psi] object InvocationDetailsImpl {
     val applicability = for {
       result <- target
       method <- result.element.asOptionOf[PsiMethod]
-    } yield Compatibility.checkConstructorApplicability(invocation, method, result)(invocation.projectContext)
+    } yield Compatibility.checkConstructorApplicability(invocation, method, result)(using invocation.projectContext)
 
     val inferred = applicability.toSeq.flatMap { case (tpe, _, _) =>
       val typeParameters = call.remaining.collect { case t: TypeSignature => t.parameters }.flatten
@@ -492,7 +492,7 @@ private[psi] object InvocationDetailsImpl {
               val method = ScMethodType(
                 api.Unit, signature.parameters.map(substituteParameter(_, subst)),
                 hasImplicitKW = !signature.hasUsing, hasUsingKW = signature.hasUsing
-              )(details.origin.elementScope)
+              )(using details.origin.elementScope)
               InferUtil.updateTypeWithImplicitParameters(
                 method, details.origin, None, canThrowSCE = false, fullInfo = false
               )._2.head

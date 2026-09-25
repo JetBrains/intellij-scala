@@ -86,7 +86,7 @@ object DynamicResolveProcessor {
         }
     }
 
-    val emptyStringExpression = createExpressionFromText("\"\"", ref)(qualifier.projectContext)
+    val emptyStringExpression = createExpressionFromText("\"\"", ref)(using qualifier.projectContext)
     val args                  = Seq(Seq(emptyStringExpression), expressionsOrContext.getOrElse(Seq.empty))
     val clauses               = args.map(InvocationClause.argsOnly)
 

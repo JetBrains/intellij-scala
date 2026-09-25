@@ -305,7 +305,7 @@ final class ScalaBlockBuilder(
 
     var prevChild: ASTNode = null
     for (child <- children) {
-      val childAlignment = calcChildAlignment(node, child)(getPrevGroupNode)(FunctionTypeTokenSet)
+      val childAlignment = calcChildAlignment(node, child)(getPrevGroupNode)(using FunctionTypeTokenSet)
       subBlocks.add(subBlock(child, null, childAlignment))
       prevChild = child
     }
@@ -362,7 +362,7 @@ final class ScalaBlockBuilder(
     var prevChild: ASTNode = null
     for (child <- children) {
       //TODO process rare case of first-line comment before one of the fields  for SCL-10000 here
-      val childAlignment = calcChildAlignment(node, child)(getPrevGroupNode)(FieldGroupSubBlocksTokenSet)
+      val childAlignment = calcChildAlignment(node, child)(getPrevGroupNode)(using FieldGroupSubBlocksTokenSet)
       subBlocks.add(subBlock(child, null, childAlignment))
       prevChild = child
     }

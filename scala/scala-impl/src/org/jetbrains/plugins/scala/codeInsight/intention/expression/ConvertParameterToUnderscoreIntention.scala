@@ -45,7 +45,7 @@ final class ConvertParameterToUnderscoreIntention extends PsiElementBaseIntentio
             val added = expr.getParent match {
               case parent: ScOptionalBracesOwner if !expr.startsFromNewLine() && parent.isEnclosedByColon =>
                 parent.addAfter(newExpr, expr).tap { _ =>
-                  expr.replace(createNewLine()(project))
+                  expr.replace(createNewLine()(using project))
                 }
               case _ => expr.replace(newExpr)
             }
@@ -122,7 +122,7 @@ object ConvertParameterToUnderscoreIntention {
           buf.replace(offset, offset + p.name.length, newParam)
         }
 
-        val newExpr = createExpressionFromText(buf.toString, expr)(expr.getManager)
+        val newExpr = createExpressionFromText(buf.toString, expr)(using expr.getManager)
         if (isValidExpr(newExpr, expr.parameters.length))
           Right(newExpr)
         else

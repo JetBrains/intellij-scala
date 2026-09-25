@@ -66,7 +66,7 @@ case class ApplyOrUpdateInvocation(
       forCompletion = false
     ) {
       _.withImports.withType
-    }(baseExpr)
+    }(using baseExpr)
 
     processor.candidatesS
   }

@@ -43,13 +43,13 @@ final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAw
           case node: ScalaProjectViewModuleGroupNode => node.projectViewTopLevelDirectories
           case _ => Nil
         }
-        transformProjectViewModuleGroupNodeChildren(childrenSeq, topLevelDirectories, settings)(project)
+        transformProjectViewModuleGroupNodeChildren(childrenSeq, topLevelDirectories, settings)(using project)
       case _: ProjectViewProjectNode =>
-        transformProjectViewProjectNodeChildren(childrenSeq)(project, settings)
+        transformProjectViewProjectNodeChildren(childrenSeq)(using project, settings)
       case scalaProjectViewModuleNode: ScalaProjectViewModuleNode =>
         transformScalaProjectViewModuleNodeChildren(module = scalaProjectViewModuleNode.getValue, childrenSeq)
       case _ =>
-        childrenSeq.map { it => transform(it)(it.getProject, settings) }
+        childrenSeq.map { it => transform(it)(using it.getProject, settings) }
     }
     modifiedChildren.asJavaCollection
   }
@@ -97,7 +97,7 @@ private object ScalaTreeStructureProvider {
     val collectedNodes = moduleChildren.map(_._1)
     val otherNodes = children.diff(collectedNodes)
 
-    val sortedModuleChildren = moduleChildren.sortBy(_._3)(Ordering.fromLessThan {
+    val sortedModuleChildren = moduleChildren.sortBy(_._3)(using Ordering.fromLessThan {
       case (None, Some(_)) => false
       case (Some(x1), Some(y1)) => VfsUtilCore.compareByPath(x1, y1) < 0
       case _ => true
@@ -331,7 +331,7 @@ private object ScalaTreeStructureProvider {
     def isFileTheCorrectParent(parentFile: VirtualFile): Boolean = {
       if (parentFile == null || !isInsideProjectRoot(parentFile)) return true
 
-      val parentFileModule = getModuleFromVirtualFile(parentFile)(project)
+      val parentFileModule = getModuleFromVirtualFile(parentFile)(using project)
       val canProcessParentFileModule = parentFileModule != null && !isSourceSetModule(parentFileModule)
       if (canProcessParentFileModule) {
         // If adding a source set suffix to the parent module's name results in the module's name,

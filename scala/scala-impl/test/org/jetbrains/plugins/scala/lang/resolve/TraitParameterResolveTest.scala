@@ -33,7 +33,7 @@ class TraitParameterResolveTest extends SimpleResolveTestBase {
        |  def foo = ${REFSRC}x
        |}
        |""".stripMargin
-  )(SrcTgtOptions(targetIsLeaf = true))
+  )(using SrcTgtOptions(targetIsLeaf = true))
 
   def test_named_bound_with_normal_param(): Unit = doResolveTest(
     s"""
@@ -43,5 +43,5 @@ class TraitParameterResolveTest extends SimpleResolveTestBase {
        |  def foo = ${REFSRC}x
        |}
        |""".stripMargin
-  )(SrcTgtOptions(targetIsLeaf = true))
+  )(using SrcTgtOptions(targetIsLeaf = true))
 }

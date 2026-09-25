@@ -25,7 +25,7 @@ abstract class ScCodeBlockElementType extends IErrorCounterReparseableElementTyp
     val scalaLexer = new ScalaLexer(false, null)
     scalaLexer.start(buf)
     scalaLexer.getTokenType match {
-      case ScalaTokenTypes.tLBRACE => iterate(1)(scalaLexer)
+      case ScalaTokenTypes.tLBRACE => iterate(1)(using scalaLexer)
       case _ => FATAL_ERROR
     }
   }

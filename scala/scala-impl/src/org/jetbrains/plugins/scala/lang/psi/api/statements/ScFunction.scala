@@ -112,7 +112,7 @@ trait ScFunction
     visitor.visitFunction(this)
   }
 
-  override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(PsiTypeParameter.ARRAY_FACTORY)
+  override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(using PsiTypeParameter.ARRAY_FACTORY)
 
   override def getTypeParameterList: org.jetbrains.plugins.scala.lang.psi.fake.FakePsiTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
 

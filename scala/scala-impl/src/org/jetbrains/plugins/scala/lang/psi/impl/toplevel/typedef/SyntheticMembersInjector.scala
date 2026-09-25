@@ -210,7 +210,7 @@ object SyntheticMembersInjector {
 
     extendsBlock.templateBody.getOrElse {
       cachedInUserData("templateBodyOrSynthetic", td, ModTracker.libraryAware(td)) {
-        val body = ScalaPsiElementFactory.createTemplateBody(isGiven = false, features = extendsBlock)(td.getProject)
+        val body = ScalaPsiElementFactory.createTemplateBody(isGiven = false, features = extendsBlock)(using td.getProject)
         body.context = extendsBlock
         body.child = extendsBlock.getLastChild
         body

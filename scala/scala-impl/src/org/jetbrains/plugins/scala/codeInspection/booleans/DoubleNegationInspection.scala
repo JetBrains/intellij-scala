@@ -66,7 +66,7 @@ object DoubleNegationUtil {
         builder.append(if (hasNegRight) invertedNegationText(right) else right.getText)
         builder.toString()
     }
-    createExpressionFromText(text, expr)(expr.getManager)
+    createExpressionFromText(text, expr)(using expr.getManager)
   }
 
   @tailrec

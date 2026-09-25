@@ -23,14 +23,14 @@ abstract class ScalaBaseGenerateAction(handler: ScalaCodeInsightActionHandler,
   override protected def isValidForFile(project: Project, editor: Editor, file: PsiFile): Boolean =
     file match {
       case scalaFile: ScalaFile if scalaFile.isWritable =>
-        handler.isValidFor(editor, file) && targetClass(editor, scalaFile).exists(isValidForClass)
+        handler.isValidFor(editor, file) && targetClass(using editor, scalaFile).exists(isValidForClass)
       case _ => false
     }
 
   override protected def isValidForClass(targetClass: PsiClass): Boolean = true
 
   override protected def getTargetClass(editor: Editor, file: PsiFile): PsiClass =
-    targetClass(editor, file).orNull
+    targetClass(using editor, file).orNull
 
   private def targetClass(implicit editor: Editor, file: PsiFile) =
     elementOfTypeAtCaret(classOf[ScTemplateDefinition])

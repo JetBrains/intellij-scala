@@ -38,7 +38,7 @@ package object clauses {
   def isAccessible(member: PsiMember)
                   (implicit parameters: ClauseCompletionParameters): Boolean = {
     val ClauseCompletionParameters(place, _, invocationCount) = parameters
-    completion.isAccessible(member, invocationCount)(place)
+    completion.isAccessible(member, invocationCount)(using place)
   }
 
   import PlatformPatterns.psiElement

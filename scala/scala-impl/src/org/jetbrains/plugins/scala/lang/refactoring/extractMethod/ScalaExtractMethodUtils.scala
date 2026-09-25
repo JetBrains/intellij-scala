@@ -41,7 +41,7 @@ object ScalaExtractMethodUtils {
 
     def paramText(param: ExtractMethodParameter): String = {
       val ExtractMethodParameter(oldName, _, fromElement, tp, _) = param
-      typedName(oldName, tp.canonicalCodeText(fromElement), param.isCallByNameParameter)(fromElement.getProject)
+      typedName(oldName, tp.canonicalCodeText(fromElement), param.isCallByNameParameter)(using fromElement.getProject)
     }
 
     val parameters = settings.parameters.filter(_.passAsParameter).map(paramText)
@@ -71,7 +71,7 @@ object ScalaExtractMethodUtils {
 
     val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map {
       case ExtractMethodParameter(oldName, _, fromElement, tp, _) =>
-        val nameAndType = typedName(oldName, tp.canonicalCodeText(fromElement))(fromElement.getProject)
+        val nameAndType = typedName(oldName, tp.canonicalCodeText(fromElement))(using fromElement.getProject)
         s"val $nameAndType = ???\n"
     }
     val notPassedParamsText = notPassedParams.mkString
@@ -120,7 +120,7 @@ object ScalaExtractMethodUtils {
     val firstPart = s"${accessMod}def $methodName$typeParamsText$paramsText$retType {\n$notPassedParamsText"
     val offset = firstPart.length
     val secondPart = s"$elementsText$returnText\n}"
-    val method = createMethodFromText(firstPart + secondPart, target)(target)
+    val method = createMethodFromText(firstPart + secondPart, target)(using target)
 
     if (!settings.lastReturn) {
       val returnVisitor = new ScalaRecursiveElementVisitor {
@@ -140,7 +140,7 @@ object ScalaExtractMethodUtils {
             )
             case None => "" //should not occur
           }
-          val retElem = createExpressionFromText(s"return $newText", ret)(ret.getManager)
+          val retElem = createExpressionFromText(s"return $newText", ret)(using ret.getManager)
           ret.replace(retElem)
         }
       }
@@ -210,7 +210,7 @@ object ScalaExtractMethodUtils {
     newVisitor.visitScalaElement(method)
     for ((named, newName) <- bindTo) {
       val id = named.asInstanceOf[ScNamedElement].nameId
-      id.getParent.getNode.replaceChild(id.getNode, createIdentifier(newName)(id.getManager))
+      id.getParent.getNode.replaceChild(id.getNode, createIdentifier(newName)(using id.getManager))
     }
     method
   }
@@ -341,7 +341,7 @@ object ScalaExtractMethodUtils {
       implicit val tpc: TypePresentationContext = TypePresentationContext(fromElement)
       implicit val context: Context = Context(fromElement)
 
-      this.typedName(newName, tp.codeText, param.isCallByNameParameter)(fromElement.getProject)
+      this.typedName(newName, tp.codeText, param.isCallByNameParameter)(using fromElement.getProject)
     }
 
     val ics = settings.innerClassSettings
@@ -403,7 +403,7 @@ object ScalaExtractMethodUtils {
 
     val outputTypedNames = settings.outputs.map { o =>
       val fromElement = o.fromElement
-      ScalaExtractMethodUtils.typedName(outputName(o), o.returnType.canonicalCodeText(fromElement))(fromElement.getProject)
+      ScalaExtractMethodUtils.typedName(outputName(o), o.returnType.canonicalCodeText(fromElement))(using fromElement.getProject)
     }
     val ics = settings.innerClassSettings
 
@@ -476,7 +476,7 @@ object ScalaExtractMethodUtils {
       implicit val tpc: TypePresentationContext = TypePresentationContext(lastElem.getParent)
       def addElement(elem: PsiElement) = {
         lastElem = lastElem.getParent.addAfter(elem, lastElem)
-        lastElem.getParent.addBefore(createNewLine()(elem.getManager), lastElem)
+        lastElem.getParent.addBefore(createNewLine()(using elem.getManager), lastElem)
         lastElem
       }
 

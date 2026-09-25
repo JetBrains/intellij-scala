@@ -32,7 +32,7 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
       override def addCompletions(parameters: CompletionParameters,
                                   context: ProcessingContext,
                                   resultSet: CompletionResultSet): Unit = {
-        val reference = positionFromParameters(parameters)
+        val reference = positionFromParameters(using parameters)
           .getContext
           .asInstanceOf[ScReferenceExpression]
 

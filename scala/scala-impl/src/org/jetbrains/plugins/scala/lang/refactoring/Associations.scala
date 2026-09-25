@@ -37,7 +37,7 @@ final class Associations private(override val associations: Array[Association])
   def restore(segment: Segment, adjuster: AfterIndentOffsetAdjuster)
              (filter: Seq[Binding] => Seq[Binding])
              (implicit project: Project, file: PsiFile): Unit = {
-    val bindings = getBindingsForOffset(segment.getStartOffset)(file, adjuster)
+    val bindings = getBindingsForOffset(segment.getStartOffset)(using file, adjuster)
     val bindingsDistinct = bindings.distinct
     val bindingsToRestore = filter(bindingsDistinct)
 
@@ -47,7 +47,7 @@ final class Associations private(override val associations: Array[Association])
 
       val commonParent = PsiTreeUtil.findCommonParent(references.asJava)
       if (commonParent != null) {
-        val importsHolder = ScImportsHolder(commonParent)(project)
+        val importsHolder = ScImportsHolder(commonParent)(using project)
         inWriteAction {
           importsHolder.addImportsForPaths(importPaths, commonParent)
         }
@@ -94,7 +94,7 @@ final class Associations private(override val associations: Array[Association])
 
       val commonParent = PsiTreeUtil.findCommonParent(references.asJava)
       if (commonParent != null) {
-        val importsHolder = ScImportsHolder(commonParent)(project)
+        val importsHolder = ScImportsHolder(commonParent)(using project)
         inWriteAction {
           importsHolder.addImportsForPaths(importPaths, commonParent)
         }
@@ -190,7 +190,7 @@ object Associations extends AssociationsData.Companion(classOf[Associations], "S
     val associations = Data(movedElement)
     if (associations != null) {
       try {
-        associations.restore(movedElement.getTextRange, adjuster)(identity)(movedElement.getProject, movedElement.getContainingFile)
+        associations.restore(movedElement.getTextRange, adjuster)(identity)(using movedElement.getProject, movedElement.getContainingFile)
       } finally {
         Data(movedElement) = null
       }

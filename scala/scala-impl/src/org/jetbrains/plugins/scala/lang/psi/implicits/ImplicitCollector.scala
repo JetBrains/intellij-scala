@@ -795,7 +795,7 @@ class ImplicitCollector(
     val subst = c.substitutor
     ty match {
       case Right(t) =>
-        val conformance = subst(t).conforms(tp, ConstraintSystem.empty)(Context(place))
+        val conformance = subst(t).conforms(tp, ConstraintSystem.empty)(using Context(place))
         conformance match {
           case ConstraintSystem(subst) =>
             //Update synthetic parameters, coming from expected context-function type

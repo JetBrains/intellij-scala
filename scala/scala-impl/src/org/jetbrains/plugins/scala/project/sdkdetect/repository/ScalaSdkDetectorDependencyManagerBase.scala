@@ -22,7 +22,7 @@ abstract class ScalaSdkDetectorDependencyManagerBase extends ScalaSdkDetectorBas
   protected def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path]
 
   protected def collectSdkDescriptors(implicit indicator: ProgressIndicator): Seq[ScalaSdkDescriptor] = {
-    val jarStream = buildJarStream(indicator)
+    val jarStream = buildJarStream(using indicator)
     val components: Seq[ScalaSdkComponent] = componentsFromJarStream(jarStream)
 
     val componentsByVersion: Seq[(Option[String], Seq[ScalaSdkComponent])] =

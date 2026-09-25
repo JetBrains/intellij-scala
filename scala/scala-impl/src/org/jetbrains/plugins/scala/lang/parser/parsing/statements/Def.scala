@@ -26,7 +26,7 @@ object Def extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val defMarker = builder.mark()
     defMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
-    Annotations.parseAndBindToLeft()(builder)
+    Annotations.parseAndBindToLeft()(using builder)
 
     val modifierMarker = builder.mark()
 

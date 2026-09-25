@@ -70,7 +70,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         if (kindMatches) {
           val onlyProcessElementsWithStableType = kinds.contains(ResolveTargets.HAS_STABLE_TYPE)
           val stateNew = if (onlyProcessElementsWithStableType) state.withStableTypeExpected else state
-          execute(namedElement)(stateNew)
+          execute(namedElement)(using stateNew)
         }
         else true
       case _ =>
@@ -143,7 +143,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     place:                    PsiElement,
     state:                    ResolveState = ScalaResolveState.empty,
     updateWithProjectionType: Boolean      = true
-  ): Boolean = processTypeImpl(t, place, state, updateWithProjectionType)(RecursionState.empty)
+  ): Boolean = processTypeImpl(t, place, state, updateWithProjectionType)(using RecursionState.empty)
 
   private def processTypeImpl(
     t:                         ScType,
@@ -262,7 +262,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
               if (upper.isAny || upper.isAnyRef) upper
               else                               p.substitutor(ParameterizedType(tpt.upperType, typeArgs))
 
-            processTypeImpl(substedType, place, newState)(recState.add(tpt))
+            processTypeImpl(substedType, place, newState)(using recState.add(tpt))
           case _ =>
             p.extractDesignatedType(expandAliases = false) match {
               case Some((des, subst)) =>
@@ -284,13 +284,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             elem match {
               case alias: ScTypeAlias =>
                 val upper = alias.upperBound.getOrElse(return true)
-                processTypeImpl(s(upper), place, state.withSubstitutor(ScSubstitutor.empty))(recState.add(alias))
+                processTypeImpl(s(upper), place, state.withSubstitutor(ScSubstitutor.empty))(using recState.add(alias))
               case elem =>
                 val subst =
                   if (updateWithProjectionSubst) ScSubstitutor(proj).followed(s)
                   else                           s
 
-                processElement(elem, subst, place, state)(recState.add(elem))
+                processElement(elem, subst, place, state)(using recState.add(elem))
             }
         }
       case lit: ScLiteralType => processType(lit.wideType, place, state, updateWithProjectionSubst)
@@ -346,7 +346,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         ta match {
           case tadef: ScTypeAliasDefinition if tadef.isMatchTypeAlias =>
             val dealiased = tadef.aliasedType.getOrAny.removeAliasDefinitions()
-            processTypeImpl(s(dealiased), place, state)(recState.add(ta))
+            processTypeImpl(s(dealiased), place, state)(using recState.add(ta))
           case _ =>
             if (recState.visitedProjections.contains(ta)) return true
             val newState = state.withSubstitutor(ScSubstitutor.empty)
@@ -361,7 +361,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
               case other                              => s(other)
             }
 
-            processTypeImpl(upperBound, place, newState)(recState.add(ta))
+            processTypeImpl(upperBound, place, newState)(using recState.add(ta))
         }
       //need to process scala way
       case clazz: PsiClass =>

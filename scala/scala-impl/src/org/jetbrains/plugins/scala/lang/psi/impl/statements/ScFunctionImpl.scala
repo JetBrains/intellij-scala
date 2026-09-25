@@ -457,7 +457,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
               val tpc: TypePresentationContext = paramFromStub
               val context: Context             = Context(paramFromStub)
 
-              Seq(tpe.presentableText(tpc, context), tpe.canonicalText(tpc)(context))
+              Seq(tpe.presentableText(using tpc, context), tpe.canonicalText(tpc)(using context))
             case Left(_)    => Seq.empty
           }
 

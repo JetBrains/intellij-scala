@@ -365,7 +365,7 @@ object TypeAdjuster {
                 mappings.get(name).exists(smartEquivalence(_, target))
             }
 
-            val newTypeText = e.calcType.presentableText(presentationContext, Context(info.place))
+            val newTypeText = e.calcType.presentableText(using presentationContext, Context(info.place))
             simple.copy(replacement = newTypeText)
           case _ => simple
         }
@@ -474,7 +474,7 @@ object TypeAdjuster {
         return None
       }
 
-      class FindTypeAliasProcessor extends BaseProcessor(ValueSet(CLASS))(clazz) {
+      class FindTypeAliasProcessor extends BaseProcessor(ValueSet(CLASS))(using clazz) {
         var collected: Option[ScTypeAliasDefinition] = None
 
         override protected def execute(namedElement: PsiNamedElement)

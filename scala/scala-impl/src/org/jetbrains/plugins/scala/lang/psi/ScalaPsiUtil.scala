@@ -981,7 +981,7 @@ object ScalaPsiUtil {
         expr.getParent match {
           case ScParenthesisedExpr(_) =>
             val text = expr.getText
-            val dummyFile = createScalaFileFromText(text, expr)(expr.getManager)
+            val dummyFile = createScalaFileFromText(text, expr)(using expr.getManager)
             dummyFile.firstChild match {
               case Some(newExpr: ScExpression) => !newExpr.textMatches(text)
               case _ => true
@@ -1633,7 +1633,7 @@ object ScalaPsiUtil {
         if aliasRef.multiResolveScala(false).exists(rr => ScEquivalenceUtil.smartEquivalence(rr.getElement, element)) => aliasName
     }
     if (suitableAliases.nonEmpty) {
-      val newRef: ScStableCodeReference = createReferenceFromText(suitableAliases.head)(refPosition.getManager)
+      val newRef: ScStableCodeReference = createReferenceFromText(suitableAliases.head)(using refPosition.getManager)
       Some(newRef)
     } else None
   }
@@ -1661,10 +1661,10 @@ object ScalaPsiUtil {
       parent <- element.parent
     } {
       if (!prevElement.is[PsiWhiteSpace]) {
-        parent.addBefore(createWhitespace(element.getManager), element)
+        parent.addBefore(createWhitespace(using element.getManager), element)
       }
       if (!nextElement.is[PsiWhiteSpace]) {
-        parent.addAfter(createWhitespace(element.getManager), element)
+        parent.addAfter(createWhitespace(using element.getManager), element)
       }
     }
   }
@@ -1701,7 +1701,7 @@ object ScalaPsiUtil {
 
     def addBefore(e: PsiElement) = parent.addBefore(e, anchor)
 
-    def newLine: PsiElement = createNewLine()(element.getManager)
+    def newLine: PsiElement = createNewLine()(using element.getManager)
 
     val anchorEndsLine = isLineTerminator(anchor)
     if (anchorEndsLine) addBefore(newLine)
@@ -1830,7 +1830,7 @@ object ScalaPsiUtil {
     val elementNode = element.getNode
     val parentNode  = elementNode.getTreeParent
 
-    def newLineNode = ScalaPsiElementFactory.createNewLineNode()(element.getProject)
+    def newLineNode = ScalaPsiElementFactory.createNewLineNode()(using element.getProject)
 
     comments.foreach { comment =>
       parentNode.addChild(comment.copy().getNode, elementNode)

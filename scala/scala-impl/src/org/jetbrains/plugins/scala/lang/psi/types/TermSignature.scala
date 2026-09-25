@@ -476,7 +476,7 @@ object PhysicalMethodSignature {
 
     val paramTypeNoVarargs = p.paramType(extractVarargComponent = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
 
-    if (p.isVarArgs) paramTypeNoVarargs.tryWrapIntoSeqType(p.elementScope)
+    if (p.isVarArgs) paramTypeNoVarargs.tryWrapIntoSeqType(using p.elementScope)
     else             paramTypeNoVarargs
   }
 

@@ -28,7 +28,7 @@ trait ScalaBoundsBase extends api.Bounds {
       r,
       lubDepth(l, r),
       checkWeak
-    )(stopAddingUpperBound = stopAddingUpperBound, context = context)
+    )(using stopAddingUpperBound = stopAddingUpperBound, context = context)
 
   protected def lubInner(
     t1:        ScType,

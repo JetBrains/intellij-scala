@@ -48,7 +48,7 @@ class ScalaPsiManagerTest extends ScalaLightCodeInsightFixtureTestCase {
     configureScala3FromFileText(TopLevelDeclarationsOfAllKinds)
 
     val manager = ScalaPsiManager.instance(getProject)
-    val topLevelDefs = manager.getClasses(manager.getCachedPackage("org.example").get)(GlobalSearchScope.everythingScope(getProject)).toSeq
+    val topLevelDefs = manager.getClasses(manager.getCachedPackage("org.example").get)(using GlobalSearchScope.everythingScope(getProject)).toSeq
     val topLevelDefNamesAndClasses: Seq[(String, Class[? <: PsiElement])] =
       topLevelDefs.sortBy(_.getTextOffset).map {
         case named: ScNamedElement => (named.name, named.getClass)

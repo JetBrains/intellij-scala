@@ -18,7 +18,7 @@ class ScNamedTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
   override protected def innerType: TypeResult = {
     def transformComponent(comp: ScNamedTupleTypeComponent): (ScType, ScType) = {
       implicit val project: Project = this.projectContext
-      val stdTypes = StdTypes.instance(project)
+      val stdTypes = StdTypes.instance(using project)
       val nameType = comp.nameElement match {
         case Some(nameElement) => ScLiteralType(ScStringLiteralImpl.Value(nameElement.getText), psiElement = comp)
         case None => stdTypes.Nothing

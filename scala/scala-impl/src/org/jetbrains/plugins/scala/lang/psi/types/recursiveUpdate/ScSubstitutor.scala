@@ -58,7 +58,7 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
     if (cacheSubstitutions)
       cache ++= this.allTypeParamsMap
 
-    recursiveUpdateImpl(`type`)(SubtypeUpdaterNoVariance, Set.empty)
+    recursiveUpdateImpl(`type`)(using SubtypeUpdaterNoVariance, Set.empty)
   }
 
   //This method allows application of different `Update` functions in a single pass (see ScSubstitutor).
@@ -76,17 +76,17 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
 
       currentUpdate(scType, variance) match {
         case ReplaceWith(res) =>
-          next.recursiveUpdateImpl(res, variance, isLazySubtype)(subtypeUpdater, visited)
+          next.recursiveUpdateImpl(res, variance, isLazySubtype)(using subtypeUpdater, visited)
         case Stop => scType
         case ProcessSubtypes =>
           val newVisited = if (isLazySubtype) visited + scType else visited
 
           if (hasNonLeafSubstitutions) {
-            val withCurrentUpdate = subtypeUpdater.updateSubtypes(scType, variance, ScSubstitutor(currentUpdate))(newVisited)
-            next.recursiveUpdateImpl(withCurrentUpdate, variance)(subtypeUpdater, Set.empty)
+            val withCurrentUpdate = subtypeUpdater.updateSubtypes(scType, variance, ScSubstitutor(currentUpdate))(using newVisited)
+            next.recursiveUpdateImpl(withCurrentUpdate, variance)(using subtypeUpdater, Set.empty)
           }
           else {
-            subtypeUpdater.updateSubtypes(scType, variance, this)(newVisited)
+            subtypeUpdater.updateSubtypes(scType, variance, this)(using newVisited)
           }
       }
     }

@@ -43,7 +43,7 @@ final case class Scala3Bounds(project: Project)
                     lhs,
                     rhs,
                     checkWeak
-                  )(stopAddingUpperBound = false, context = context)
+                  )(using stopAddingUpperBound = false, context = context)
               }
           }
       }

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, Wideni
 final class ScNamedTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScNamedTuple {
   protected override def innerType: TypeResult = {
     implicit val project: Project = this.projectContext
-    val stdTypes = StdTypes.instance(project)
+    val stdTypes = StdTypes.instance(using project)
 
     def transformComponent(comp: ScNamedTupleExprComponent): (ScType, ScType) = {
       val exprType = comp.expr match {

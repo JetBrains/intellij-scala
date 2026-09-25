@@ -40,7 +40,7 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
       val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditor)
       if (subst == null) return
       new RenameProcessor(getProject, subst, "NameAfterRename", searchInComments, false).run()
-    }(getProject)
+    }(using getProject)
 
     val ExpectedResultFromLastComment(res, output) = TestUtils.extractExpectedResultFromLastComment(getFile)
 

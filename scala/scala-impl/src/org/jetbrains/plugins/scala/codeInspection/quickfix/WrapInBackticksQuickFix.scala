@@ -21,7 +21,7 @@ object WrapInBackticksQuickFix {
 }
 
 final class WrapRefExprInBackticksQuickFix(ref: ScReferenceExpression)
-  extends WrapInBackticksQuickFix(ref, ScalaPsiElementFactory.createReferenceExpressionFromText(_)(_))
+  extends WrapInBackticksQuickFix(ref, ScalaPsiElementFactory.createReferenceExpressionFromText(_)(using _))
 
 final class WrapStableCodeRefInBackticksQuickFix(ref: ScStableCodeReference)
-  extends WrapInBackticksQuickFix(ref, ScalaPsiElementFactory.createReferenceFromText(_)(_))
+  extends WrapInBackticksQuickFix(ref, ScalaPsiElementFactory.createReferenceFromText(_)(using _))

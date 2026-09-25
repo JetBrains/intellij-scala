@@ -35,7 +35,7 @@ class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
     if (qualAtCaret == null || !checkQualifier(qualAtCaret)) return
     qualAtCaret.resolve() match {
       case named: PsiNamedElement =>
-        val importHolder = ScImportsHolder(element)(project)
+        val importHolder = ScImportsHolder(element)(using project)
         val usages = ReferencesSearch.search(named, new LocalSearchScope(importHolder)).findAll()
         val pathWithWildcard = ScalaNamesUtil.qualifiedName(named).getOrElse(return) + "._"
 

@@ -107,6 +107,6 @@ class FormattedStringFormatterTest extends ScalaLightCodeInsightFixtureTestCase 
     s""""$formatter".format($arguments)"""
 
   private def exp(s: String): ScExpression = {
-    createExpressionFromText(s, ScalaFeatures.default)(getProject)
+    createExpressionFromText(s, ScalaFeatures.default)(using getProject)
   }
 }

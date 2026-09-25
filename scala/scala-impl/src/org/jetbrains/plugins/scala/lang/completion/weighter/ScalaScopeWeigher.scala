@@ -13,7 +13,7 @@ final class ScalaScopeWeigher extends CompletionWeigher {
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[?] = element match {
     case ScalaLookupItem(_, namedElement) =>
       val scopes = namedElement.scopes
-      if (scopes.hasNext) checkByContext(positionFromParameters(location.getBaseCompletionParameters), scopes.next())
+      if (scopes.hasNext) checkByContext(positionFromParameters(using location.getBaseCompletionParameters), scopes.next())
       else null
     case _ => null
   }

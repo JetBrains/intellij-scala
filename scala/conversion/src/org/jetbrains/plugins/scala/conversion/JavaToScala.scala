@@ -153,7 +153,7 @@ object JavaToScala {
 
     //NOTE: we need to calculate the comments before calculating IntermediateNode result
     //because some comments can be attached to different nodes and we would like them to occur in the most top-level parent nodes
-    val comments = CommentsCollector.allCommentsForElement(element)(conversionContext.usedComments)
+    val comments = CommentsCollector.allCommentsForElement(element)(using conversionContext.usedComments)
 
     val result: IntermediateNode = element match {
       case f: PsiFile =>
@@ -250,7 +250,7 @@ object JavaToScala {
         SwitchLabelStatement(
           caseValues,
           guardExpression.map(convertPsiToIntermediate(_, externalProperties)),
-          ScalaPsiUtil.functionArrow(s.getProject),
+          ScalaPsiUtil.functionArrow(using s.getProject),
           body.map(convertPsiToIntermediate(_, externalProperties))
         )
       case s: PsiSwitchBlock =>
@@ -258,7 +258,7 @@ object JavaToScala {
           Option(s.getBody).map(_.getStatements)
 
         def defaultStatement: SwitchLabelStatement =
-          SwitchLabelStatement(Seq(LiteralExpression("_")), None, ScalaPsiUtil.functionArrow(s.getProject))
+          SwitchLabelStatement(Seq(LiteralExpression("_")), None, ScalaPsiUtil.functionArrow(using s.getProject))
 
         val expr = Option(s.getExpression).map(convertPsiToIntermediate(_, externalProperties))
         val body = Option(s.getBody).map(convertPsiToIntermediate(_, externalProperties))
@@ -578,7 +578,7 @@ object JavaToScala {
             convertPsiToIntermediate(cb.getCatchBlock, externalProperties))
         }.toIndexedSeq
         val finallyBlockStatements = Option(t.getFinallyBlock).map(_.getStatements.map(convertPsiToIntermediate(_, externalProperties)).toSeq)
-        TryCatchStatement(resourcesVariables.toSeq, tryBlock, catches, finallyBlockStatements, ScalaPsiUtil.functionArrow(t.getProject))
+        TryCatchStatement(resourcesVariables.toSeq, tryBlock, catches, finallyBlockStatements, ScalaPsiUtil.functionArrow(using t.getProject))
       case p: PsiPrefixExpression =>
         PrefixExpression(convertPsiToIntermediate(p.getOperand, externalProperties), p.getOperationSign.getText, ExpressionUtils.isVoidContext(p))
       case p: PsiPostfixExpression =>
@@ -1183,7 +1183,7 @@ object JavaToScala {
 
     val modifiers = ModifiersConstruction(handleAnnotations, handleModifiers)
     owner.getModifierList.toOption.foreach { modList =>
-      val comments = CommentsCollector.allCommentsForElement(modList)(conversionContext.usedComments)
+      val comments = CommentsCollector.allCommentsForElement(modList)(using conversionContext.usedComments)
       modifiers.setComments(comments)
     }
     modifiers
@@ -1210,7 +1210,7 @@ object JavaToScala {
     val usedComments: UsedComments = new UsedComments(dropElements.filterByType[PsiComment])
     val children = elements.toSeq.map { part =>
       val context = new ConversionContext(textMode, mutable.ListBuffer(), Nil, dropElements, usedComments)
-      convertPsiToIntermediate(part, null)(context)
+      convertPsiToIntermediate(part, null)(using context)
     }
     val resultNode = MainConstruction(children)
     val text = PrintWithComments.print(resultNode)
@@ -1218,7 +1218,7 @@ object JavaToScala {
   }
 
   def convertPsiToText(element: PsiElement): String = {
-    val resultNode = convertPsiToIntermediatePublic(element, null)(textMode = true)
+    val resultNode = convertPsiToIntermediatePublic(element, null)(using textMode = true)
     val text = PrintWithComments.print(resultNode)
     text
   }

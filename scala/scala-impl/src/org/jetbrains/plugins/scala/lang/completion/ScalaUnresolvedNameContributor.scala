@@ -48,7 +48,7 @@ class ScalaUnresolvedNameContributor extends ScalaCompletionContributor {
       override def addCompletions(parameters: CompletionParameters,
                                   processingContext: ProcessingContext,
                                   resultSet: CompletionResultSet): Unit = {
-        positionFromParameters(parameters).getContext match {
+        positionFromParameters(using parameters).getContext match {
           case OverrideAnnotationOwner() |
                (_: ScFieldId) childOf (_ childOf OverrideAnnotationOwner()) =>
           case declaration@(_: ScTypeDefinition

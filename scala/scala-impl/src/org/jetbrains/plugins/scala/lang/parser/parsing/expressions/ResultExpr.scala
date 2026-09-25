@@ -104,5 +104,5 @@ object ResultExpr {
   }
 
   private def isColonArgumentCall(implicit builder: ScalaPsiBuilder): Boolean =
-    builder.predict { ColonArgument(needArgNode = true)(_) }
+    builder.predict { ColonArgument(needArgNode = true)(using _) }
 }

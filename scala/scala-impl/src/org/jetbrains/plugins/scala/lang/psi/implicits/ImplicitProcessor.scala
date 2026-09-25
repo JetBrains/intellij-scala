@@ -34,7 +34,7 @@ import scala.collection.mutable
 abstract class ImplicitProcessor(
   override protected val getPlace: PsiElement,
   protected val withoutPrecedence: Boolean
-) extends BaseProcessor(StdKinds.refExprLastRef)(getPlace.projectContext)
+) extends BaseProcessor(StdKinds.refExprLastRef)(using getPlace.projectContext)
   with SubstitutablePrecedenceHelper {
 
   private object ImplicitStrategy extends NameUniquenessStrategy
@@ -132,7 +132,7 @@ abstract class ImplicitProcessor(
     val scopeParts =
       ImplicitProcessor
         .findImplicitScopeParts(
-          expandedType.removeAliasDefinitionsAndReduceMatchTypes()(Context(getPlace)),
+          expandedType.removeAliasDefinitionsAndReduceMatchTypes()(using Context(getPlace)),
           getPlace.resolveScope,
           includePackagePrefix
         )
@@ -193,7 +193,7 @@ object ImplicitProcessor {
         val implicitObjects =
           findImplicitObjectsImpl(
             `type`, includePackagePrefix
-          )(ElementScope(projectContext.project, scope), context)
+          )(using ElementScope(projectContext.project, scope), context)
 
         implicitObjectsCache.put(cacheKey, implicitObjects)
         implicitObjects

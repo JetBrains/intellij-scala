@@ -64,7 +64,7 @@ trait Equivalence {
 
         tracer.calculationStart()
         try {
-          val (value, valueInContext) = resultInContext.updatedUsing(ctx => equivComputable(key)(ctx).get())
+          val (value, valueInContext) = resultInContext.updatedUsing(ctx => equivComputable(key)(using ctx).get())
           Tracing.equivalence(key.left, key.right, value)
           if (!nowEval && stackStamp.mayCacheNow()) {
             eval.withValue(true) {

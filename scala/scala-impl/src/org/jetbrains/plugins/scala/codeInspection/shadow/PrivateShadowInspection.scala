@@ -36,7 +36,7 @@ final class PrivateShadowInspection extends LocalInspectionTool {
         case elem: ScNamedElement if
           isInspectionAllowed(elem, privateShadowCompilerOption, "-Xlint:private-shadow") &&
             isClassParamWithoutAccessModsAndOverride(elem) && isElementShadowing(elem) =>
-          holder.registerProblem(createProblemDescriptor(elem, annotationDescription)(holder.getManager, isOnTheFly))
+          holder.registerProblem(createProblemDescriptor(elem, annotationDescription)(using holder.getManager, isOnTheFly))
         case _ =>
       }
     }

@@ -66,11 +66,11 @@ object ScalaTestLocationProvider {
     val res = new ju.ArrayList[Location[? <: PsiElement]]()
     locationData match {
       case ScalaTestTopOfClassPattern(classFqn, testName) =>
-        val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(classFqn, scope)
+        val classes = ScalaShortNamesCacheManager.getInstance(using project).getClassesByFQName(classFqn, scope)
         val clazz = classes.find(!_.isInstanceOf[ScObject]).orElse(classes.headOption)
         clazz.foreach(c => res.add(PsiLocationWithName(project, c, testName)))
       case ScalaTestTopOfMethodPattern(classFqn, methodName, testName) =>
-        val classes = ScalaShortNamesCacheManager.getInstance(project).
+        val classes = ScalaShortNamesCacheManager.getInstance(using project).
           getClassesByFQName(classFqn, GlobalSearchScope.allScope(project))
         val methodOwner = classes.find(!_.isInstanceOf[ScObject]).orElse(classes.headOption)
         methodOwner match {
@@ -114,7 +114,7 @@ object ScalaTestLocationProvider {
   private def getLocationForScalaProtocol(locationData: String, project: Project, scope: GlobalSearchScope): ju.List[Location[? <: PsiElement]] =
     locationData match {
       case SpecsHintPattern(className, fileName, lineNumber) =>
-        val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(className, scope)
+        val classes = ScalaShortNamesCacheManager.getInstance(using project).getClassesByFQName(className, scope)
         val found = classes.find(c => Option(c.getContainingFile).exists(_.name == fileName))
 
         found match {

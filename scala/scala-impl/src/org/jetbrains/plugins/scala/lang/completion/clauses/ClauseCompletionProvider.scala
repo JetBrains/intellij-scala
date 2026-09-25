@@ -16,13 +16,13 @@ private[clauses] abstract class ClauseCompletionProvider[
   override final def addCompletions(parameters: CompletionParameters,
                                     context: ProcessingContext,
                                     result: CompletionResultSet): Unit = {
-    val place = positionFromParameters(parameters)
+    val place = positionFromParameters(using parameters)
     getContextOfType(place, classTag.runtimeClass.asInstanceOf[Class[T]]) match {
       case null =>
       case typeable =>
         val originalFile = parameters.getOriginalFile
         val clauseParameters = ClauseCompletionParameters(place, originalFile.getResolveScope, parameters.getInvocationCount)
-        addCompletions(typeable, result)(clauseParameters)
+        addCompletions(typeable, result)(using clauseParameters)
     }
   }
 

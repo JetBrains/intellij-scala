@@ -84,7 +84,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
       override def addCompletions(parameters: CompletionParameters,
                                   context: ProcessingContext,
                                   resultSet: CompletionResultSet): Unit = for {
-        case ExtractorCompletionProvider(provider) <- positionFromParameters(parameters).parentOfType(classOf[ScReferencePattern]).toSeq
+        case ExtractorCompletionProvider(provider) <- positionFromParameters(using parameters).parentOfType(classOf[ScReferencePattern]).toSeq
 
         provider <- AotCompletionProvider :: provider :: Nil
       } provider.addCompletions(parameters, context, resultSet)
@@ -113,7 +113,7 @@ object CaseClauseCompletionContributor {
       lookupElement = createLookupElement(
         components.presentablePatternText(),
         components
-      )(parameters.place)
+      )(using parameters.place)
     } result.addElement(lookupElement)
 
     protected def targetType(typeable: T): Option[ScType]

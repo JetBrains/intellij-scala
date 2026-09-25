@@ -165,7 +165,7 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
             case _ => false
           }
           if (!isCommaNext && trailingElement.followedByNewLine() && !isSingleInfixBlock) {
-            val newComma = ScalaPsiElementFactory.createComma(project)
+            val newComma = ScalaPsiElementFactory.createComma(using project)
             CodeEditUtil.addChild(
               SourceTreeToPsiMap.psiElementToTree(parent),
               SourceTreeToPsiMap.psiElementToTree(newComma),

@@ -26,7 +26,7 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction with 
       val parent = clazz.getParent
       val obj = parent.addAfter(companion, psiElement.getParent)
       if (ScalaCodeStyleSettings.getInstance(project).USE_SCALAFMT_FORMATTER)
-        parent.addAfter(ScalaPsiElementFactory.createNewLine()(project), psiElement.getParent)
+        parent.addAfter(ScalaPsiElementFactory.createNewLine()(using project), psiElement.getParent)
 
       if (!IntentionPreviewUtils.isPreviewElement(psiElement))
         moveCaret(project, editor, obj)

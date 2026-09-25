@@ -132,7 +132,7 @@ object ImplicitConversionData {
         val scope = expr.resolveScope
         (for {
           qName    <- withSuperClasses
-          function <- ImplicitConversionIndex.conversionCandidatesForFqn(qName, scope)(expr.getProject)
+          function <- ImplicitConversionIndex.conversionCandidatesForFqn(qName, scope)(using expr.getProject)
 
           if ImplicitConversionProcessor.applicable(function, expr)
 
@@ -195,7 +195,7 @@ object ImplicitConversionData {
                                             override val substitutor: ScSubstitutor = ScSubstitutor.empty) extends ImplicitConversionData {
     private implicit def context: Context = Context(element)
 
-    private def stdTypes = StdTypes.instance(element.getProject)
+    private def stdTypes = StdTypes.instance(using element.getProject)
 
     private lazy val functionTypeParams: Option[(ScType, ScType)] = {
       val undefiningSubst = element match {

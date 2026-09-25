@@ -15,7 +15,7 @@ abstract class ScalaForStatementFixerBase extends ScalaFixer {
                            psiElement: PsiElement): OperationPerformed = {
     val forStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScFor], false)
     if (forStatement == null) NoOperation
-    else doApply(forStatement)(editor, editor.getDocument, processor)
+    else doApply(forStatement)(using editor, editor.getDocument, processor)
   }
 
   protected def doApply(forStatement: ScFor)(implicit editor: Editor, document: Document,

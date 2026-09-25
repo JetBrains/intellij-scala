@@ -19,7 +19,7 @@ class AutoImportSortingTest extends ScalaLightCodeInsightFixtureTestCase with Ps
     val imports = possibilities.reverse
 
     val ordering = localOrdering(ref)
-    val result = imports.sorted(ordering)
+    val result = imports.sorted(using ordering)
 
     assertEquals(possibilities.mkString("\n"), result.mkString("\n"))
   }

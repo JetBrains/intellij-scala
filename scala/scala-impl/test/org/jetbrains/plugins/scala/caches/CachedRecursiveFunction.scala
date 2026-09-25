@@ -39,7 +39,7 @@ case class CachedRecursiveFunction(name: String)(implicit projectContext: Projec
 
   private val psi =
     PsiSelectionUtil.selectElement[PsiElement](
-      ScalaPsiElementFactory.createScalaFileFromText("class Test", ScalaFeatures.default)(projectContext),
+      ScalaPsiElementFactory.createScalaFileFromText("class Test", ScalaFeatures.default)(using projectContext),
       PsiSelectionUtil.path("Test")
     )
   private var innerCalls = Seq.empty[CachedRecursiveFunction]

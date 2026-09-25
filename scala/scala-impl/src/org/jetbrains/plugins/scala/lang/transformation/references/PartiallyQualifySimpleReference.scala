@@ -16,7 +16,7 @@ class PartiallyQualifySimpleReference extends AbstractTransformer {
         val paths = targetFor(result).split("\\.").toVector
 
         if (paths.length > 1) {
-          val reference = createReferenceExpressionFromText(paths.takeRight(2).mkString("."))(e.getManager)
+          val reference = createReferenceExpressionFromText(paths.takeRight(2).mkString("."))(using e.getManager)
           val context = e.getParent
           reference.context = context
           reference.child = context.getFirstChild

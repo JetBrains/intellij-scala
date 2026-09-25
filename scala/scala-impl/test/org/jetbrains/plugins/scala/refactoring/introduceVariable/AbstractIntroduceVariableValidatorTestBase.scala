@@ -43,7 +43,7 @@ abstract class AbstractIntroduceVariableValidatorTestBase(kind: String) extends 
   }
 
   protected def doTest(replaceAllOccurrences: Boolean, fileText: String): String = {
-    val maybeValidator = getValidator(fixture.psiFile)(project, fixture.editor)
+    val maybeValidator = getValidator(fixture.psiFile)(using project, fixture.editor)
     val conflicts = maybeValidator.toSeq.flatMap(_.findConflicts(getName(fileText), replaceAllOccurrences))
     conflicts.map(_._2).toSet.mkString("\n")
   }

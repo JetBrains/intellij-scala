@@ -77,7 +77,7 @@ final class ScPackageImpl private (val pack: PsiPackage)
     ScalaPsiManager.instance(getProject).TopLevelModificationTracker,
     Tuple1(scope: GlobalSearchScope)
   ) {
-    ScalaShortNamesCacheManager.getInstance(getProject).findPackageObjectByName(getQualifiedName, scope)
+    ScalaShortNamesCacheManager.getInstance(using getProject).findPackageObjectByName(getQualifiedName, scope)
   }
 
   override def fqn: String = getQualifiedName
@@ -122,7 +122,7 @@ object ScPackageImpl {
   }
 
   def findPackage(project: Project, packageName: String): Option[ScPackageImpl] =
-    findPackage(packageName)(ScalaPsiManager.instance(project))
+    findPackage(packageName)(using ScalaPsiManager.instance(project))
 
   def findPackage(
     packageName: String
@@ -256,7 +256,7 @@ object ScPackageImpl {
             }
             val qName: String = psiPack.getQualifiedName
             val subpackageQName: String = if (qName.isEmpty) name else qName + "." + name
-            manager.getCachedPackageInScope(subpackageQName)(place.getResolveScope).foreach { `package` =>
+            manager.getCachedPackageInScope(subpackageQName)(using place.getResolveScope).foreach { `package` =>
               if (!processor.execute(`package`, state)) return false
             }
             true
@@ -270,7 +270,7 @@ object ScPackageImpl {
               case r: ResolveProcessor => r.getResolveScope
               case _                   => place.resolveScope
             }
-            val classes = manager.getClasses(`package`)(scope)
+            val classes = manager.getClasses(`package`)(using scope)
             val iterator = classes.iterator
             while (iterator.hasNext) {
               val clazz = iterator.next()

@@ -33,7 +33,7 @@ class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
       override def addCompletions(parameters: CompletionParameters,
                                   context: ProcessingContext,
                                   result: CompletionResultSet): Unit = {
-        completeClassName(result)(parameters, context)
+        completeClassName(result)(using parameters, context)
         result.stopHere()
       }
     }
@@ -49,7 +49,7 @@ class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
                                   result: CompletionResultSet): Unit =
         parameters.getPosition.getNode.getElementType match {
           case `tSTRING` | `tMULTILINE_STRING` =>
-            completeClassName(result)(parameters, context)
+            completeClassName(result)(using parameters, context)
           case _ =>
         }
     }
@@ -112,7 +112,7 @@ object ScalaClassNameCompletionContributor {
 
     private def isValidAndAccessible(member: PsiMember): Boolean =
       member.isValid &&
-        isAccessible(member, invocationCount)(place)
+        isAccessible(member, invocationCount)(using place)
 
     private def isApplicable(clazz: PsiClass): Boolean = clazz match {
       case _: ScEnum => isInImport || classesOnly

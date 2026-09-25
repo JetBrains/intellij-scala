@@ -75,7 +75,7 @@ object TypeAnnotationRenderer {
   class ParameterTypeDecorator(showByNameArrow: Boolean, showDefaultValue: Boolean) {
     final def decorate(buffer: StringBuilder, param: ScParameter)(action: => Unit): Unit = {
       if (showByNameArrow && param.isCallByNameParameter) {
-        buffer.append(ScalaPsiUtil.functionArrow(param.getProject))
+        buffer.append(ScalaPsiUtil.functionArrow(using param.getProject))
         buffer.append(" ")
       }
 

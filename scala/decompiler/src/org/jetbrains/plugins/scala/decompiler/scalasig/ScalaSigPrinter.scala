@@ -367,7 +367,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
 
   private def methodSymbolAsMethodParam(ms: MethodSymbol): String = {
     val nameId = processName(ms.name)
-    val nameAndType = nameId + colonAfter(nameId)+ toString(ms.infoType)(TypeFlags(true))
+    val nameAndType = nameId + colonAfter(nameId)+ toString(ms.infoType)(using TypeFlags(true))
     val default = if (ms.hasDefault) compiledCodeBody else ""
     nameAndType + default
   }
@@ -404,7 +404,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       }
 
       val nameId = processName(methodName)
-      val nameAndType = nameId + colonAfter(nameId) + toString(msymb.infoType)(TypeFlags(true))
+      val nameAndType = nameId + colonAfter(nameId) + toString(msymb.infoType)(using TypeFlags(true))
       val default = if (msymb.hasDefault) compiledCodeBody else ""
       printer.print(nameAndType + default)
     }
@@ -481,7 +481,7 @@ class ScalaSigPrinter(builder: StringBuilder) {
       val contextBoundParams = implicitClause.map(_.paramSymbols.takeWhile(ps => ps.name.startsWith("evidence$") && hasSingleArgument(ps))).getOrElse(Seq.empty)
       contextBoundParams.collect { case ms: MethodSymbol =>
         val TypeRefType(prefix, symbol, Seq(argument)) = ms.infoType: @unchecked
-        (toString(argument)(TypeFlags(true)), toString(TypeRefType(prefix, symbol, Seq()))(TypeFlags(true)))
+        (toString(argument)(using TypeFlags(true)), toString(TypeRefType(prefix, symbol, Seq()))(using TypeFlags(true)))
       }
     case _ => Seq.empty
   }
@@ -616,15 +616,15 @@ class ScalaSigPrinter(builder: StringBuilder) {
     }
   }
 
-  def printType(sym: SymbolInfoSymbol)(implicit flags: TypeFlags): Unit = printType(sym.infoType)(flags)
+  def printType(sym: SymbolInfoSymbol)(implicit flags: TypeFlags): Unit = printType(sym.infoType)(using flags)
 
-  def printType(t: Type)(implicit flags: TypeFlags): Unit = print(toString(t)(flags))
+  def printType(t: Type)(implicit flags: TypeFlags): Unit = print(toString(t)(using flags))
 
-  def printType(t: Type, sep: String)(implicit flags: TypeFlags): Unit = print(toString(t, sep)(flags))
+  def printType(t: Type, sep: String)(implicit flags: TypeFlags): Unit = print(toString(t, sep)(using flags))
 
-  def toString(t: Type)(implicit flags: TypeFlags): String = toString(t, "")(flags)
+  def toString(t: Type)(implicit flags: TypeFlags): String = toString(t, "")(using flags)
 
-  def toString(t: Type, level: Int)(implicit flags: TypeFlags): String = toString(t, "", level)(flags)
+  def toString(t: Type, level: Int)(implicit flags: TypeFlags): String = toString(t, "", level)(using flags)
 
   private val SingletonTypePattern = """(.*?)\.type""".r
 

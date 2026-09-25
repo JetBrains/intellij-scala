@@ -462,7 +462,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
     inWriteCommandAction {
       assertNotNull(expression.getValueArguments.get(0).replace(newArgument))
-    }(getProject)
+    }(using getProject)
 
     val updated = expression.refreshed()
     assertNotNull("Could not update expression", updated)
@@ -499,7 +499,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
     inWriteCommandAction {
       generatePlugin.initializeField(uField, uParameter, null, false)
-    }(getProject)
+    }(using getProject)
 
     myFixture.checkResult(
       """
@@ -531,7 +531,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
     inWriteCommandAction {
       generatePlugin.initializeField(uField, uParameter, null, false)
-    }(getProject)
+    }(using getProject)
 
     myFixture.checkResult(
       """
@@ -562,7 +562,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
     inWriteCommandAction {
       generatePlugin.initializeField(uField, uParameter, null, false)
-    }(getProject)
+    }(using getProject)
 
     myFixture.checkResult(
       """
@@ -593,7 +593,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
     inWriteCommandAction {
       generatePlugin.initializeField(uField, uParameter, null, false)
-    }(getProject)
+    }(using getProject)
 
     myFixture.checkResult(
       """
@@ -620,7 +620,7 @@ class ScalaUastGenerationTest extends ScalaLightCodeInsightFixtureTestCase {
 
     inWriteCommandAction {
       generatePlugin.initializeField(uField, uParameter, null, false)
-    }(getProject)
+    }(using getProject)
 
     myFixture.checkResult(
       """

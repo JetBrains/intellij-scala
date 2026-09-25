@@ -49,7 +49,7 @@ object ScalaAfterNewCompletionContributor {
     override def addCompletions(parameters: CompletionParameters,
                                 context: ProcessingContext,
                                 result: CompletionResultSet): Unit = {
-      val place = positionFromParameters(parameters)
+      val place = positionFromParameters(using parameters)
       implicit val project: Project = place.getProject
       implicit val tpc: TypePresentationContext = TypePresentationContext(place)
       implicit val placeContext: Context = Context(place)
@@ -58,7 +58,7 @@ object ScalaAfterNewCompletionContributor {
 
       val props = for {
         expectedType <- types
-        prop <- collectProps(expectedType)(isAccessible(_)(place))
+        prop <- collectProps(expectedType)(isAccessible(_)(using place))
       } yield prop
 
       if (props.nonEmpty) {

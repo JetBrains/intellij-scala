@@ -22,6 +22,6 @@ final class ScalaIntroduceFieldPostfixTemplate extends PostfixTemplateWithExpres
 
     editor.getSelectionModel.setSelection(startOffset, endOffset)
     new ScalaIntroduceFieldFromExpressionHandler()
-      .invoke(expression.getContainingFile, startOffset, endOffset)(expression.getProject, editor)
+      .invoke(expression.getContainingFile, startOffset, endOffset)(using expression.getProject, editor)
   }
 }

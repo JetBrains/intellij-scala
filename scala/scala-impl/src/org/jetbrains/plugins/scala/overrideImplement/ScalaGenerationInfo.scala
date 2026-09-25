@@ -55,7 +55,7 @@ class ScalaGenerationInfo(classMember: ClassMember0, needsOverrideModifier: Bool
       case member: ScExtensionMember =>
         myMember = insertExtension(member, templDef, anchor, typeAdjuster)
       case ScAliasMember(alias, substitutor, _) =>
-        val m = createOverrideImplementType(alias, substitutor, needsOverrideModifier, aClass, comment)(alias.getManager, Context(anchor))
+        val m = createOverrideImplementType(alias, substitutor, needsOverrideModifier, aClass, comment)(using alias.getManager, Context(anchor))
 
         val added = templDef.addMember(m, Option(anchor))
         addTargetNameAnnotationIfNeeded(added, alias)
@@ -263,7 +263,7 @@ object ScalaGenerationInfo {
       td,
       withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC,
       withAnnotation = false
-    )(method.getManager)
+    )(using method.getManager)
 
     val added = td.addMember(m, Option(anchor))
     addTargetNameAnnotationIfNeeded(added, method)
@@ -292,7 +292,7 @@ object ScalaGenerationInfo {
       ScalaFeatures.forPsiOrDefault(td),
       wrapMultipleExtensionsWithBraces = !td.containingFile.exists(_.useIndentationBasedSyntax),
       withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC,
-    )(extension.getManager)
+    )(using extension.getManager)
 
     val addedExtension = td.addMember(newExtension, Option(anchor)).asInstanceOf[ScExtension]
 
@@ -327,7 +327,7 @@ object ScalaGenerationInfo {
       case _ => ???
     }
 
-    val m = createOverrideImplementVariable(value, substitutor, needsOverrideModifier, isVal, anchor, comment)(value.getManager)
+    val m = createOverrideImplementVariable(value, substitutor, needsOverrideModifier, isVal, anchor, comment)(using value.getManager)
     TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m, typeAnnotationsPolicy)
     m
   }

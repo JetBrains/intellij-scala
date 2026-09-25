@@ -39,7 +39,7 @@ final class MakeExplicitAction extends AnAction(
         editor != null &&
         elements != null =>
         PsiUtilBase.getPsiFileInEditor(editor, project) match {
-          case _: ScalaFile => MakeExplicitAction.showMakeExplicitPopup(oldExpression, function, elements)(project, editor)
+          case _: ScalaFile => MakeExplicitAction.showMakeExplicitPopup(oldExpression, function, elements)(using project, editor)
           case _ =>
         }
       case _ =>
@@ -123,7 +123,7 @@ object MakeExplicitAction {
           popup.dispose()
 
           value match {
-            case MakeExplicit => replaceWithExplicit(expression, function, importStatically)(project, editor)
+            case MakeExplicit => replaceWithExplicit(expression, function, importStatically)(using project, editor)
             case MakeExplicitStatically => replaceWithExplicitStatically()
           }
 

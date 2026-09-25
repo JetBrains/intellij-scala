@@ -31,7 +31,7 @@ object ElementRenderer {
     } finally {
       ScalaApplicationSettings.PRECISE_TEXT = false
     }
-    val file = ScalaPsiElementFactory.createScalaFileFromText(text, e.module.map(_.features).getOrElse(ScalaFeatures.default))(e.getProject)
+    val file = ScalaPsiElementFactory.createScalaFileFromText(text, e.module.map(_.features).getOrElse(ScalaFeatures.default))(using e.getProject)
     file.children.foreach(_.asInstanceOf[ScalaPsiElement].context = context)
 
     val highlighted = highlight(file, EditorColorsManager.getInstance.getGlobalScheme)

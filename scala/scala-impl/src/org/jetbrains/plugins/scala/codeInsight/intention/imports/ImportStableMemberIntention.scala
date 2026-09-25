@@ -27,7 +27,7 @@ class ImportStableMemberIntention extends PsiElementBaseIntentionAction {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val refAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReference])
-    invokeOn(refAtCaret)(project)
+    invokeOn(refAtCaret)(using project)
   }
 }
 

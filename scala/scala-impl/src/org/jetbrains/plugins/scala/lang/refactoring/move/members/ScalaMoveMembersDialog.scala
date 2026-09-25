@@ -19,7 +19,7 @@ import javax.swing._
 
 class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObject: ScObject, memberToMove: ScMember) extends RefactoringDialog(project, canBeParent) {
 
-  private val targetObjectFragment = ScalaCodeFragment("", memberToMove.getContext, memberToMove)(project)
+  private val targetObjectFragment = ScalaCodeFragment("", memberToMove.getContext, memberToMove)(using project)
 
   private val myTfTargetClassName: EditorComboBox = {
     val document = PsiDocumentManager.getInstance(project).getDocument(targetObjectFragment)

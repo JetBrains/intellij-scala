@@ -187,7 +187,7 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
           case ref: ScReferenceExpression =>
             ref.getParent match {
               case parentRef: ScReferenceExpression =>
-                val newRef = createExpressionFromText(ref.getText, ref)(ref)
+                val newRef = createExpressionFromText(ref.getText, ref)(using ref)
                 Some(parentRef.replace(newRef).getFirstChild)
               case _ => None
             }

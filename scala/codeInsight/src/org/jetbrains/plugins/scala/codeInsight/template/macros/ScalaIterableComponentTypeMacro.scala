@@ -12,7 +12,7 @@ final class ScalaIterableComponentTypeMacro extends ScalaMacro {
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {
     case Array(head) =>
       Option(head.calculateResult(context))
-        .flatMap(resultToScExpr(_)(context))
+        .flatMap(resultToScExpr(_)(using context))
         .flatMap { exprType =>
           arrayComponent(exprType).orElse {
             Some(exprType).filter(ScalaVariableOfTypeMacro.isIterable)

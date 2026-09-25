@@ -41,7 +41,7 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
 
     val ptr = SmartPointerManager.createPointer(source.nameId)
 
-    ImportStableMemberIntention.invokeOn(source)(source.getProject)
+    ImportStableMemberIntention.invokeOn(source)(using source.getProject)
 
     val element = ptr.getElement
 

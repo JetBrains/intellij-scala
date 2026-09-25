@@ -82,7 +82,7 @@ class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsight
     val manager = ScalaPsiManager.instance(getProject)
 
     val allScalaClasses = allPackages
-      .flatMap(manager.getClasses(_)(scope))
+      .flatMap(manager.getClasses(_)(using scope))
       // this is an exceptional class in the standard library which is defined in `scala/reflect/package.scala`
       // but has package `scala` so we can't detect the original source file
       .filterNot(_.qualifiedName.contains("ScalaReflectionException"))
@@ -116,7 +116,7 @@ class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsight
     val manager = ScalaPsiManager.instance(getProject)
 
     val allScalaClasses = allPackages
-      .flatMap(manager.getClasses(_)(scope))
+      .flatMap(manager.getClasses(_)(using scope))
       // this is an exceptional class in the standard library which is defined in `scala/reflect/package.scala`
       // but has package `scala` so we can't detect the original source file
       .filterNot(_.qualifiedName.contains("ScalaReflectionException"))

@@ -26,7 +26,7 @@ abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](da
     startOffsets: Array[Int],
     endOffsets: Array[Int]
   ): ju.List[T] = {
-    val transferableData = collectTransferableData(startOffsets, endOffsets)(file, editor)
+    val transferableData = collectTransferableData(startOffsets, endOffsets)(using file, editor)
     transferableData.fold(emptyList[T]())(singletonList)
   }
 
@@ -66,7 +66,7 @@ abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](da
         }
         else {
           values.forEach {
-            processTransferableData(bounds, caretOffset, ref, _)(project, editor, scalaFile)
+            processTransferableData(bounds, caretOffset, ref, _)(using project, editor, scalaFile)
           }
         }
       case _ =>

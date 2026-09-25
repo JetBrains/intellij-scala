@@ -26,6 +26,6 @@ class FakeAnonymousClassConstructor(templ: ScNewTemplateDefinition, interfaceNam
 
   override def params: Array[Parameter] = Array.empty
 
-  override def retType: ScType = Unit(templ.projectContext)
+  override def retType: ScType = Unit(using templ.projectContext)
 }
 

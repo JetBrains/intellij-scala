@@ -41,7 +41,7 @@ abstract class ScStringLiteralAnnotatorTestBase extends SdkFileSetTestBase {
         val quickFixes = actualMessages.flatMap(_.fixes)
         executeWriteActionCommand() {
           quickFixes.foreach(_.asIntention().invoke(project, getEditor, getFile))
-        }(project)
+        }(using project)
 
         getEditor.getDocument.commit(project)
 
@@ -64,7 +64,7 @@ abstract class ScStringLiteralAnnotatorTestBase extends SdkFileSetTestBase {
   private def collectMessages(file: PsiFile): List[Message2] = {
     val mock = new AnnotatorHolderExtendedMock(file)
     val literals = file.depthFirst().filterByType[ScStringLiteral].toSeq
-    literals.foreach(ElementAnnotator.annotate(_, typeAware = true)(mock))
+    literals.foreach(ElementAnnotator.annotate(_, typeAware = true)(using mock))
     mock.annotations
   }
 }

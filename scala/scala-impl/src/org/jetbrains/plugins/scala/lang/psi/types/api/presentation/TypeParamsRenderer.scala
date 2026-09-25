@@ -85,19 +85,19 @@ class TypeParamsRenderer(
     buffer ++= parametersClauseRendered
 
     lower.foreach { tp =>
-      buffer.append(boundsRenderer.lowerBoundText(tp)(typeRenderer))
+      buffer.append(boundsRenderer.lowerBoundText(tp)(using typeRenderer))
     }
     upper.foreach { tp =>
-      boundsRenderer.upperBoundText(tp)(typeRenderer)
-      buffer.append(boundsRenderer.upperBoundText(tp)(typeRenderer))
+      boundsRenderer.upperBoundText(tp)(using typeRenderer)
+      buffer.append(boundsRenderer.upperBoundText(tp)(using typeRenderer))
     }
     view.foreach { tp =>
-      buffer.append(boundsRenderer.boundText(tp, ScalaTokenTypes.tVIEW)(typeRenderer))
+      buffer.append(boundsRenderer.boundText(tp, ScalaTokenTypes.tVIEW)(using typeRenderer))
     }
     context.foreach { tp =>
       val tpFixed = if (stripContextTypeArgs) ScTypeUtil.stripTypeArgs(tp) else tp
       val needsSpace = paramName.lastOption.exists(c => !c.isLetterOrDigit && c != '`')
-      buffer.append(boundsRenderer.boundText(tpFixed, ScalaTokenTypes.tCOLON, space = needsSpace)(typeRenderer))
+      buffer.append(boundsRenderer.boundText(tpFixed, ScalaTokenTypes.tCOLON, space = needsSpace)(using typeRenderer))
     }
   }
 

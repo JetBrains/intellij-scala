@@ -22,7 +22,7 @@ abstract class ScalaGenerateTestBase extends base.ScalaLightCodeInsightFixtureTe
 
     extensions.executeWriteActionCommand("Generate Action Test") {
       handler.invoke(getProject, getEditor, getFile)
-    }(getProject)
+    }(using getProject)
 
     val (expected, expectedOffset) = findCaretOffset(expectedText, stripTrailingSpaces)
     if (checkCaretOffset) {

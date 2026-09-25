@@ -174,7 +174,7 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
    */
   private def assertResolves(symbol: String, targets: Seq[PsiElement]): Unit = {
     val path = parse(symbol)
-    val element = resolve(None, path)(getProject)
+    val element = resolve(None, path)(using getProject)
 
     val expected = targets.map {
       case p: ScPackageImpl => p.pack
@@ -349,7 +349,7 @@ object ReferenceComparisonTestBase {
         isImplicit = false,
         isScalaDocRef = ref.parentOfType[ScDocComment].isDefined,
         isExportImportRef = ref.parentOfType[ScImportOrExportStmt].isDefined
-      )(Context(ref))
+      )(using Context(ref))
     }
 
     def forImplicitArguments(iao: ImplicitArgumentsOwner): Seq[RefInfo] = {
@@ -369,7 +369,7 @@ object ReferenceComparisonTestBase {
             isImplicit = true,
             isScalaDocRef = false,
             isExportImportRef = false,
-          )(Context(iao)))
+          )(using Context(iao)))
         }
       }
     }

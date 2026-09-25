@@ -103,13 +103,13 @@ final class ScalaMultiModuleDependenciesCompletionTest
   } setupLibrariesFor(module, loader)
 
   private def setupLibrariesFor(module: Module, loader: LibraryLoader): Unit =
-    myLoaders += loader.tap(_.init(module, version))
+    myLoaders += loader.tap(_.init(using module, version))
 
   private def disposeLibraries(): Unit = {
     for {
       module <- getProject.modules
       loader <- myLoaders
-    } loader.clean(module)
+    } loader.clean(using module)
 
     myLoaders.clear()
   }

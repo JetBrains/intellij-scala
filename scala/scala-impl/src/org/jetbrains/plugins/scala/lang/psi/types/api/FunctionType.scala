@@ -113,7 +113,7 @@ object PartialFunctionType extends FunctionTypeFactory[ScTrait, (ScType, ScType)
 //noinspection ScalaUnusedSymbol
 object TupleType {
   def apply(types: Seq[ScType], context: PsiElement): ScType =
-    apply(types, scala3 = context.isInScala3File)(context.elementScope, Context(context))
+    apply(types, scala3 = context.isInScala3File)(using context.elementScope, Context(context))
 
   def apply(types: Seq[ScType], scala3: Boolean)(implicit scope: ElementScope, context: Context): ScType = {
     if (scala3 && types.sizeIs > TupleN.maxTupleN) TupleHList(types)
@@ -173,7 +173,7 @@ object TupleType {
         }
       case None  =>
         if (TupleHList.isEmptyTupleHList(`type`)) Some(Seq.empty -> None)
-        else if (scopeIfTailIsExpected.exists(TupleHList.isTupleHList(`type`)(_, context))) Some(Seq.empty -> Some(`type`))
+        else if (scopeIfTailIsExpected.exists(TupleHList.isTupleHList(`type`)(using _, context))) Some(Seq.empty -> Some(`type`))
         else None
     }
   }
@@ -333,7 +333,7 @@ object NamedTupleType extends FunctionTypeFactory[ScClass, Seq[(ScType, ScType)]
 
   object NameType {
     def apply(name: String, psiElement: PsiElement)(implicit context: ProjectContext): ScType =
-      ScLiteralType(ScStringLiteralImpl.Value(name), psiElement = psiElement)(context.project)
+      ScLiteralType(ScStringLiteralImpl.Value(name), psiElement = psiElement)(using context.project)
 
     def unapply(scType: ScType): Option[String] = from(scType)
 

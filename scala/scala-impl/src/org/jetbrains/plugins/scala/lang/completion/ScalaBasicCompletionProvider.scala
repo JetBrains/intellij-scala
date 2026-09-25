@@ -43,7 +43,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
   override def addCompletions(parameters: CompletionParameters,
                               context: ProcessingContext,
                               result: CompletionResultSet): Unit = {
-    val dummyPosition = positionFromParameters(parameters)
+    val dummyPosition = positionFromParameters(using parameters)
     val dummyOffset = parameters.getOffset - parameters.getPosition.startOffset + dummyPosition.startOffset
 
     val (isInSimpleString, isInInterpolatedString) = isInString(dummyPosition)
@@ -72,7 +72,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
 
     val prefixMatcher = result.getPrefixMatcher
     //if prefix is capitalized, class name completion is enabled
-    val classNameCompletion = shouldRunClassNameCompletion(dummyPosition, prefixMatcher)(parameters)
+    val classNameCompletion = shouldRunClassNameCompletion(dummyPosition, prefixMatcher)(using parameters)
     val annotationsOnly = annotationPattern.accepts(position, context)
 
     position.getContext match {
@@ -127,8 +127,8 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
 
         if (!defaultLookupElements.exists(prefixMatcher.prefixMatches)
           && !classNameCompletion
-          && (annotationsOnly || shouldRunClassNameCompletion(dummyPosition, prefixMatcher, checkInvocationCount = false)(parameters))) {
-          ScalaClassNameCompletionContributor.completeClassName(dummyPosition, result)(parameters, context)
+          && (annotationsOnly || shouldRunClassNameCompletion(dummyPosition, prefixMatcher, checkInvocationCount = false)(using parameters))) {
+          ScalaClassNameCompletionContributor.completeClassName(dummyPosition, result)(using parameters, context)
         }
 
         ProgressManager.checkCanceled()
@@ -382,7 +382,7 @@ object ScalaBasicCompletionProvider {
         (element match {
           case method: FakePsiMethod => !method.name.endsWith("_=") // TODO unify! // don't show _= methods for vars in basic completion
           case _: ScClassParameter if isNamedParameter => true
-          case member: PsiMember => completion.isAccessible(member)(getPlace)
+          case member: PsiMember => completion.isAccessible(member)(using getPlace)
           case _ => true
         })
   }

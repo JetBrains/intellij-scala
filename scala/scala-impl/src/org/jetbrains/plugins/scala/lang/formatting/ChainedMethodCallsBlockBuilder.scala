@@ -34,7 +34,7 @@ private final class ChainedMethodCallsBlockBuilder(
   def buildSubBlocks(node: ASTNode): util.List[ScalaBlock] = {
     val result = new util.ArrayList[ScalaBlock]
 
-    collectChainedMethodCalls(node)(result)
+    collectChainedMethodCalls(node)(using result)
 
     //We need to sort blocks because we add them in arbitrary order
     util.Collections.sort(result, util.Comparator.comparingInt[ScalaBlock](_.node.getTextRange.getStartOffset))
@@ -287,7 +287,7 @@ private final class ChainedMethodCallsBlockBuilder(
       case _ => false
     }
     val indentFinal = indent.getOrElse(ScalaIndentProcessor.getChildIndent(parentBlock, node))
-    val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(parentBlock, node, parentBlock.suggestedWrap)(scalaSettings))
+    val wrapFinal = wrap.getOrElse(ScalaWrapManager.arrangeSuggestedWrapForChild(parentBlock, node, parentBlock.suggestedWrap)(using scalaSettings))
     new ChainedMethodCallBlock(parentBlock, node, lastNode.orNull, alignment.orNull, indentFinal, wrapFinal, settings, context, endsWithColonArgs, isInMatchExpr)
   }
 }

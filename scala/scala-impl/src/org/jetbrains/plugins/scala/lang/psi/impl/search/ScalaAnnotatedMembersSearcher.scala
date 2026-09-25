@@ -83,7 +83,7 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
 
     import ScalaIndexKeys._
     val shortName = StringUtil.getShortName(annotationFQN)
-    val elements = ANNOTATED_MEMBER_KEY.elements(shortName, scope)(parameters.getProject)
+    val elements = ANNOTATED_MEMBER_KEY.elements(shortName, scope)(using parameters.getProject)
     val iterator = elements.iterator
     while (iterator.hasNext) {
       val annotation = iterator.next()

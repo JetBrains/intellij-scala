@@ -124,7 +124,7 @@ final class ScPackagingImpl private(stub: ScPackagingStub,
   }
 
   override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] =
-    ScalaShortNamesCacheManager.getInstance(getProject)
+    ScalaShortNamesCacheManager.getInstance(using getProject)
       .findPackageObjectByName(fullPackageName, scope)
 
   override def fqn: String = fullPackageName

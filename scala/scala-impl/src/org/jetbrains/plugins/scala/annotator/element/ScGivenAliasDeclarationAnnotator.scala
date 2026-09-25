@@ -70,7 +70,7 @@ object ScGivenAliasDeclarationAnnotator extends ElementAnnotator[ScGivenAliasDec
         ScalaPsiElementFactory.createMethodFromText(
           decl.getText + " = scala.compiletime.deferred",
           ScalaFeatures.forPsiOrDefault(decl)
-        )(decl)
+        )(using decl)
 
       decl.replace(deferredGiven)
     }
@@ -89,7 +89,7 @@ private[element] abstract class AnonymousGivenAliasDeclarationQuickFix(declarati
     declaration.isValid && declaration.nameElement.isEmpty
 
   final override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
-    doInvoke(editor, project)
+    doInvoke(using editor, project)
 
   protected def doInvoke(implicit editor: Editor, project: Project): Unit
 

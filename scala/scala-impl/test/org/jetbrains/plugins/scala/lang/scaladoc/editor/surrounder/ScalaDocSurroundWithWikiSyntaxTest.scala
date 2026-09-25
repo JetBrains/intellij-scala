@@ -30,7 +30,7 @@ class ScalaDocSurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTes
 
     executeWriteActionCommand("Surround With Test") {
       SurroundWithHandler.invoke(getProject, getEditor, getFile, surrounder)
-    }(getProject)
+    }(using getProject)
 
     val expected: String = {
       val tag = surrounder.getSyntaxTag

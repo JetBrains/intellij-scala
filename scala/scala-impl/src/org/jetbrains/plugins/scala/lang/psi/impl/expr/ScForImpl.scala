@@ -153,7 +153,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
     val forceSingleLine = !(forDisplay && this.getText.contains("\n"))
 
     var nextNameIdx = 0
-    val `=>` = ScalaPsiUtil.functionArrow(getProject)
+    val `=>` = ScalaPsiUtil.functionArrow(using getProject)
 
     val underscores = ScUnderScoreSectionUtil.underscores(this).zipWithIndex.toMap
 

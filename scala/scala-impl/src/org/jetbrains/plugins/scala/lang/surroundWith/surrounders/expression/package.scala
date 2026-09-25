@@ -20,11 +20,11 @@ package object expression {
       val withIndentationBasedSyntax = Rewriters.rewriteToIndentationBasedSyntax(withNewSyntax)
 
       withIndentationBasedSyntax
-    }(ctx.project)
+    }(using ctx.project)
 
     def toNewSyntax(implicit ctx: ProjectContext = element.projectContext,
                     features: ScalaFeatures = element): E =
-      inWriteCommandActionIf(element.isPhysical)(Rewriters.rewriteToNewSyntax(element))(ctx.project)
+      inWriteCommandActionIf(element.isPhysical)(Rewriters.rewriteToNewSyntax(element))(using ctx.project)
 
     private[expression] def forcePostprocessAndRestore: Option[PsiElement] =
       scala.util.Try(CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(element)).toOption

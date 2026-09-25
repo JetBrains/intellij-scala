@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveRes
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
-                       val name: String) extends BaseProcessor(kinds)(ref) with PrecedenceHelper {
+                       val name: String) extends BaseProcessor(kinds)(using ref) with PrecedenceHelper {
 
   private object ResolveStrategy extends NameUniquenessStrategy {
 

@@ -37,7 +37,7 @@ private class DeleteUnusedElementFix(e: ScNamedElement, override val getText: St
   }
 
   private def removeInWriteAction(startElement: PsiElement, project: Project): Unit = inWriteAction {
-    def wildcard = createWildcardNode(startElement)(project).getPsi
+    def wildcard = createWildcardNode(startElement)(using project).getPsi
     startElement match {
       case ref: ScReferencePattern => ref.getContext match {
         case pList: ScPatternList if pList.patterns == Seq(ref) =>
@@ -57,7 +57,7 @@ private class DeleteUnusedElementFix(e: ScNamedElement, override val getText: St
         case _ =>
           // val (a, b) = t
           // val (_, b) = t
-          ref.replace(createWildcardPattern(project))
+          ref.replace(createWildcardPattern(using project))
       }
       case typed: ScTypedPattern => typed.nameId.replace(wildcard)
       case p: ScParameter => p.nameId.replace(wildcard)

@@ -203,7 +203,7 @@ object ScParameterizedType {
 
           val name = alias.name
 
-          if (typeArgs.size != 2) Any(alias.projectContext)
+          if (typeArgs.size != 2) Any(using alias.projectContext)
           else if (name == "&")   ScAndType(typeArgs.head, typeArgs(1))
           else                    ScOrType(typeArgs.head, typeArgs(1))
         // Any and Nothing can take type parameter but will always produce themselves ignoring the arguments

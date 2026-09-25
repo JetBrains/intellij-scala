@@ -78,7 +78,7 @@ final class ScalaQuickFixTestFixture(
   ): Unit = {
     executeWriteActionCommand() {
       actions.foreach(_.invoke(getProject, getEditor, getFile))
-    }(getProject)
+    }(using getProject)
 
     val expectedFileText = createTestText(expected)
     val expectedFileTextProcessed = expectedFileText.withNormalizedSeparator.pipeIf(trimExpectedText)(_.trim)

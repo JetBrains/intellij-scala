@@ -18,7 +18,7 @@ final class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
   override def getSurrounders: Array[Surrounder] = Surrounders
 
   override def getElementsToSurround(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] =
-    expressionsInRange(startOffset, endOffset)(file) match {
+    expressionsInRange(startOffset, endOffset)(using file) match {
       case Nil => PsiElement.EMPTY_ARRAY
       case expressions => expressions.toArray
     }

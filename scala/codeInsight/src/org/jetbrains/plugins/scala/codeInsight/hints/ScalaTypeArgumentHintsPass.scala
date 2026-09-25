@@ -31,7 +31,7 @@ private[codeInsight] trait ScalaTypeArgumentHintsPass {
         argument.tpe,
         ScalaCodeInsightSettings.getInstance.presentationLength,
         anchor
-      )(editor.getColorsScheme, TypePresentationContext(anchor), Context(anchor))
+      )(using editor.getColorsScheme, TypePresentationContext(anchor), Context(anchor))
 
     val inferred = clause.arguments.filterNot(_.isExplicit)
     val presentation = clause.origin match {

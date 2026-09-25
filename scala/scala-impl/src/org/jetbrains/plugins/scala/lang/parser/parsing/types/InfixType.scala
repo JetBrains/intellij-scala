@@ -43,7 +43,7 @@ trait InfixType {
                   inContextBound: Boolean = false)
                  (implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.isScala3) {
-      return parseInScala3(star, isPattern, typeVariables, inContextBound)(builder)
+      return parseInScala3(star, isPattern, typeVariables, inContextBound)(using builder)
     }
 
     var markerList = List.empty[PsiBuilder.Marker] //This list consist of markers for right-associated op

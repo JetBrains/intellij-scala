@@ -7,7 +7,7 @@ final class ScalaExpressionTypeMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {
     case Array(param) =>
-      val maybeType = resultToScExpr(param.calculateResult(context))(context)
+      val maybeType = resultToScExpr(param.calculateResult(context))(using context)
       maybeType.map(ScalaTypeResult.apply).orNull
     case _            => null
   }

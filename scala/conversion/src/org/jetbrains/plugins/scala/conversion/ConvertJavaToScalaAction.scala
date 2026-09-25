@@ -68,7 +68,7 @@ class ConvertJavaToScalaAction extends AnAction(
             executeWriteActionCommand(ScalaConversionBundle.message("convert.to.scala")) {
               val scalaFile = convertToScalaFile(javaFile)
               scalaFile.foreach(_.navigate(true))
-            }(javaFile.getProject)
+            }(using javaFile.getProject)
           }
         case _ =>
       }

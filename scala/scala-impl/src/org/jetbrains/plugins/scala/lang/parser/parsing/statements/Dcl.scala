@@ -21,7 +21,7 @@ object Dcl {
     val dclMarker = builder.mark()
     dclMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
     if (isMod) {
-      Annotations.parseAndBindToLeft()(builder)
+      Annotations.parseAndBindToLeft()(using builder)
 
       //parse modifiers
       val modifierMarker = builder.mark()

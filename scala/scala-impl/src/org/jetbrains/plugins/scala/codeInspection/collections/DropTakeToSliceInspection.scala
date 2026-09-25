@@ -34,7 +34,7 @@ object DropTakeToSlice extends SimplificationType {
       case (intLiteral(a), q) => s"${q.getText} + $a"
       case _ => s"${left.getText} + ${right.getText}"
     }
-    createExpressionFromText(sumText, left)(left.getManager)
+    createExpressionFromText(sumText, left)(using left.getManager)
   }
 
   object intLiteral {

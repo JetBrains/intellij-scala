@@ -37,7 +37,7 @@ final case class Scala2Bounds()(implicit val projectContext: ProjectContext)
         case (TypeConstructor(poly), _) => glb(poly, t2, checkWeak)
         case (_, TypeConstructor(poly)) => glb(t1, poly, checkWeak)
         case (lhs: ScTypePolymorphicType, rhs: ScTypePolymorphicType) =>
-          polymorphicTypesBound(lhs, rhs, Bound.Glb, checkWeak, 0)(stopAddingUpperBound = false, context = context)
+          polymorphicTypesBound(lhs, rhs, Bound.Glb, checkWeak, 0)(using stopAddingUpperBound = false, context = context)
         case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
       }
     }

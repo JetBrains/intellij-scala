@@ -105,7 +105,7 @@ object CompatibilityTest {
 
   private def download(version: ScalaVersion): Seq[Path] = {
     val dependencyManager = new DependencyManagerBase() { override protected def progressIndicator: Option[ProgressIndicator] = None }
-    dependencyManager.resolveSafe(DependencyManagerBase.scalaCompilerDescription(version).transitive())
+    dependencyManager.resolveSafe(DependencyManagerBase.scalaCompilerDescription(using version).transitive())
       .getOrElse(throw new RuntimeException(s"Cannot download Scala $version")).map(_.file)
   }
 

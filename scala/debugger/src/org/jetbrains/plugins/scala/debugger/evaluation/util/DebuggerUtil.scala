@@ -457,7 +457,7 @@ object DebuggerUtil {
   }
 
   def findClassesByQName(qName: String, elementScope: ElementScope, fallbackToProjectScope: Boolean): Seq[PsiClass] = {
-    val cacheManager = ScalaShortNamesCacheManager.getInstance(elementScope.project)
+    val cacheManager = ScalaShortNamesCacheManager.getInstance(using elementScope.project)
 
     def classesInScope(scope: GlobalSearchScope): Seq[PsiClass] =
       if (qName.endsWith(PackageObjectSingletonClassPackageSuffix))

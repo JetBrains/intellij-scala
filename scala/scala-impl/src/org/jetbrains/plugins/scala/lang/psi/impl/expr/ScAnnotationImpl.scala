@@ -153,7 +153,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
             createExpressionFromText(
               PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME + " = " + params.head.getText,
               params.head
-            )(params.head.getManager)
+            )(using params.head.getManager)
           )
         }
         val allowNoName: Boolean = params.isEmpty &&
@@ -166,7 +166,7 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
           namePrefix = attributeName + " = "
         }
 
-        args.head.addBefore(createExpressionFromText(namePrefix + value.getText, value)(value.getManager), null)
+        args.head.addBefore(createExpressionFromText(namePrefix + value.getText, value)(using value.getManager), null)
       }
     }
     findDeclaredAttributeValue(attributeName).asInstanceOf[T]

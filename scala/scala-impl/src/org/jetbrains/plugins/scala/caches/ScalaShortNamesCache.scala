@@ -26,7 +26,7 @@ class ScalaShortNamesCache(implicit project: Project) extends PsiShortNamesCache
       res
     }
 
-    val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
+    val cacheManager = ScalaShortNamesCacheManager.getInstance(using project)
 
     val classes = cacheManager.getClassesByName(name, scope)
     var res = new ArrayBuffer[PsiClass]()

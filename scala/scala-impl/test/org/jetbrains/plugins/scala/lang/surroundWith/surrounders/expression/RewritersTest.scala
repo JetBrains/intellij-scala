@@ -33,10 +33,10 @@ class RewritersTest extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def checkNewSyntax[E <: ScExpression : ClassTag](text: String, expectedText: String): Unit =
-    check[E](text, expectedText)(e => e.toNewSyntax(_, _))
+    check[E](text, expectedText)(e => e.toNewSyntax(using _, _))
 
   def checkIndentationBasedSyntax[E <: ScExpression : ClassTag](text: String, expectedText: String): Unit =
-    check[E](text, expectedText)(e => e.toIndentationBasedSyntax(_, _))
+    check[E](text, expectedText)(e => e.toIndentationBasedSyntax(using _, _))
 
   def testIf_newSyntax(): Unit = checkNewSyntax[ScIf](
     """if (a && b) {

@@ -87,7 +87,7 @@ class ScPolyFunctionExprImpl(node: ASTNode)
             }.mkString("(", ", ", ")")
 
             text ->
-              this.flatMapType(fn.result).getOrAny.presentableText(this, Context.Empty)
+              this.flatMapType(fn.result).getOrAny.presentableText(using this, Context.Empty)
           case _ => "()" -> "scala.Any"
         }
 

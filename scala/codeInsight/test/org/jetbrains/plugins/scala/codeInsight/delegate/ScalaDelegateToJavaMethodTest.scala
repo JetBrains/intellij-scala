@@ -14,7 +14,7 @@ class ScalaDelegateToJavaMethodTest extends ScalaDelegateMethodTestBase {
     javaText: String,
     scalaText: String,
     expectedText: String,
-    settings: ScalaCodeStyleSettings = defaultSettings(getProject)
+    settings: ScalaCodeStyleSettings = defaultSettings(using getProject)
   ): Unit = {
     import StringUtil.convertLineSeparators
 
@@ -176,6 +176,6 @@ class ScalaDelegateToJavaMethodTest extends ScalaDelegateMethodTestBase {
          |
          |  def foo[T]() = d.foo[T]()
          |}""".stripMargin
-    doTestWithJava(javaText, scalaText, result, settings = noTypeAnnotationForPublic(getProject))
+    doTestWithJava(javaText, scalaText, result, settings = noTypeAnnotationForPublic(using getProject))
   }
 }

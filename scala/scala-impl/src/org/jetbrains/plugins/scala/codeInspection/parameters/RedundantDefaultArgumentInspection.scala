@@ -17,7 +17,7 @@ class RedundantDefaultArgumentInspection extends LocalInspectionTool {
         case function: ScFunction =>
           arguments.indices
             .filter(index => RedundantDefaultArgumentUtil.isRedundantArgumentAt(arguments, index, function.parameters))
-            .foreach(index => registerProblem(arguments(index))(holder))
+            .foreach(index => registerProblem(arguments(index))(using holder))
         case _ =>
       }
     case _ =>

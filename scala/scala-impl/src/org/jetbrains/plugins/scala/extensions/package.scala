@@ -292,7 +292,7 @@ package object extensions {
   implicit class SeqExt[CC[X] <: collection.SeqOps[X, CC, CC[X]], A](private val value: CC[A]) extends AnyVal {
     // Don't use `sorted` to improve auto import (avoiding name clash)
     def sort[B >: A](reverse: Boolean)(implicit ordering: Ordering[B]): CC[A] =
-      value.sorted(if (reverse) ordering.reverse else ordering)
+      value.sorted(using if (reverse) ordering.reverse else ordering)
   }
 
   implicit class IterableOfNullablesExt[CC[X] <: collection.IterableOps[X, CC, CC[X]], A <: AnyRef](private val value: CC[A]) extends AnyVal {
@@ -640,7 +640,7 @@ package object extensions {
         case e: ScBindingPattern => e.`type`().toOption
         case e: ScFieldId        => e.`type`().toOption
         case e: ScParameter      => e.outsideParamType.toOption
-        case e: PsiMethod        => e.functionType(scope, context)
+        case e: PsiMethod        => e.functionType(using scope, context)
         case e: PsiVariable      => lift(e.getType)
         case e: ScTypeAliasDefinition if !e.isEffectivelyOpaque => e.aliasedType.toOption
         case e: ScObject         => e.`type`().toOption
@@ -1291,7 +1291,7 @@ package object extensions {
 
     def superTypes: Seq[ScType] = clazz match {
       case tdef: ScTemplateDefinition => tdef.superTypes
-      case _                          => clazz.getSuperTypes.map(_.toScType()(clazz)).toSeq
+      case _                          => clazz.getSuperTypes.map(_.toScType()(using clazz)).toSeq
     }
   }
 

@@ -24,7 +24,7 @@ trait ScalaDocWithSyntaxSurrounder extends ScalaModCommandSurrounder {
     val surroundedText = new StringBuilder()
     elements.foreach(surroundedText append _.getText)
 
-    var newExpr = createScalaDocSimpleData(getNewExprText(surroundedText.toString()))(element.getManager)
+    var newExpr = createScalaDocSimpleData(getNewExprText(surroundedText.toString()))(using element.getManager)
 
     while (newExpr != null && newExpr.getNode.getElementType != ScalaDocTokenType.DOC_COMMENT_END) {
       element.getParent.addBefore(newExpr, element)

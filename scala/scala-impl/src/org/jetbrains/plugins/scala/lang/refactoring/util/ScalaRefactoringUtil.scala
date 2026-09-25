@@ -188,7 +188,7 @@ object ScalaRefactoringUtil {
     val rangeText = file.charSequence.substring(startOffset, endOffset)
 
     def selectedInfixExpr(): Option[(ScExpression, ArraySeq[ScType])] = {
-      val expr = createOptionExpressionFromText(rangeText, file)(file.getManager)
+      val expr = createOptionExpressionFromText(rangeText, file)(using file.getManager)
       expr match {
         case Some(expression: ScInfixExpr) =>
           val op1 = expression.operation
@@ -261,7 +261,7 @@ object ScalaRefactoringUtil {
 
   def expressionToIntroduce(expr: ScExpression): ScExpression = {
     def copyExpr = expr.copy.asInstanceOf[ScExpression]
-    def liftMethod = createExpressionFromText(expr.getText + " _", expr)(expr.getManager)
+    def liftMethod = createExpressionFromText(expr.getText + " _", expr)(using expr.getManager)
 
     @tailrec
     def needToLift(srr: ScalaResolveResult): Boolean = srr match {
@@ -657,7 +657,7 @@ object ScalaRefactoringUtil {
 
         builder.append("{...}")
       case f: ScFunctionExpr =>
-        val arrow = ScalaPsiUtil.functionArrow(f.getProject)
+        val arrow = ScalaPsiUtil.functionArrow(using f.getProject)
         builder.append(f.params.getText).append(s" $arrow {...}")
       case g: ScGenericCall =>
         builder.append(getShortText(g.referencedExpr))
@@ -705,7 +705,7 @@ object ScalaRefactoringUtil {
         builder.append("new ")
         val types = n.extendsBlock.superTypes
         for (tp <- types) {
-          builder.append(tp.codeText(expr, Context(expr)))
+          builder.append(tp.codeText(using expr, Context(expr)))
           if (tp != types.last) builder.append(" with ")
         }
         n.extendsBlock.templateBody match {

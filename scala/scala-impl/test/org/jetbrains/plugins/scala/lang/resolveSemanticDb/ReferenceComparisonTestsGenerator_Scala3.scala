@@ -72,7 +72,7 @@ object ReferenceComparisonTestsGenerator_Scala3  {
         path.getFileName.toString.replaceAll("(\\.[0-9a-f]{6})?\\.semdb$", "")
 
       val testOutPaths = config.outPath.children()
-        .sortBy(testNameFromFilePath)((x, y) => StringUtil.naturalCompare(x, y))
+        .sortBy(testNameFromFilePath)(using (x, y) => StringUtil.naturalCompare(x, y))
 
       val originalTestNames = testOutPaths.map(testNameFromFilePath).toSet
       val usedTestNames = mutable.Set.empty[String]

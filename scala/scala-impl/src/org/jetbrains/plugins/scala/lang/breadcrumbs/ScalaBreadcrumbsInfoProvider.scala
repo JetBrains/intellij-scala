@@ -92,12 +92,12 @@ object ScalaBreadcrumbsInfoProvider {
         limitString(parameters.map(p => p.name + ": " +  p.typeElement.map(_.getText).getOrElse("Any")).mkString("(", ", ", ")")) +
         (if (needTpe && el.exists(e => !DumbService.isDumb(e.getProject))) ": " + tpe.map(_.presentableText).getOrElse("") else "")
 
-    def getSignature(fun: ScFunction): String = getSignature(Option(fun), fun.parameters, None)(fun)
+    def getSignature(fun: ScFunction): String = getSignature(Option(fun), fun.parameters, None)(using fun)
 
-    def getSignature(fun: ScFunctionExpr): String = getSignature(None, fun.parameters, None)(fun)
+    def getSignature(fun: ScFunctionExpr): String = getSignature(None, fun.parameters, None)(using fun)
 
     def getConstructorSignature(constr: ScFunction): String =
-      if (!constr.isConstructor) "" else "this" + limitString(getSignature(None, constr.parameters, None)(constr))
+      if (!constr.isConstructor) "" else "this" + limitString(getSignature(None, constr.parameters, None)(using constr))
 
     def describeFunction(fun: ScFunction): String = if (fun.isConstructor) getConstructorSignature(fun) else getSignature(fun)
 

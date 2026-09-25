@@ -90,7 +90,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
     new AtomicReference(Map.empty)
 
   override def annotate(element: ScalaPsiElement, typeAware: Boolean)
-                       (implicit holder: ScalaAnnotationHolder): Unit = if (isDumbMode(element.getProject)) {
+                       (implicit holder: ScalaAnnotationHolder): Unit = if (isDumbMode(using element.getProject)) {
     // run only `DumbAware` annotators during indexing
     // don't cache to get others when indexing finishes
     Instances.withFilter(_.isInstanceOf[DumbAware])

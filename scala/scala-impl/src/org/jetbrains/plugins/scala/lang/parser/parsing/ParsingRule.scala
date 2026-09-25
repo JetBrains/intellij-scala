@@ -6,7 +6,7 @@ trait ParsingRule {
   def parse(implicit builder: ScalaPsiBuilder): Boolean
 
   @inline
-  final def apply()(implicit builder: ScalaPsiBuilder): Boolean = parse(builder)
+  final def apply()(implicit builder: ScalaPsiBuilder): Boolean = parse(using builder)
 }
 
 object ParsingRule {

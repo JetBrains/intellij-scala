@@ -42,7 +42,7 @@ final class ScalaColorSchemeAnnotator extends Annotator {
     val file = holder.getCurrentAnnotationSession.getFile
     if (!element.isVisible(file.getProject, file)) return
 
-    highlightElement(element)(new ScalaAnnotationHolderAdapter(holder))
+    highlightElement(element)(using new ScalaAnnotationHolderAdapter(holder))
   }
 }
 

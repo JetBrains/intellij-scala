@@ -272,7 +272,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
           val bodyType = {
             val paramTypes = sig.substitutedTypes.head.map(_.apply())
-            FunctionType((retType, paramTypes))(expr.elementScope, Context.Empty)
+            FunctionType((retType, paramTypes))(using expr.elementScope, Context.Empty)
           }
 
           //val f2: [T, S] => T => S => Unit = [_, _] => x => y => ???
@@ -707,7 +707,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         newParams.head.paramType.removeAbstracts match {
           case TupleType(args) =>
             paramTypeFromExpr(expr, paramsFromTuple(args), idx, isDynamicNamed)
-          case _ => Option(Any(expr), None)
+          case _ => Option(Any(using expr), None)
         }
       } else paramTypeFromExpr(expr, newParams, idx, isDynamicNamed)
     }
@@ -752,7 +752,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     invokedExprType match {
       case Right(mt: ScMethodType) => fromMethodParams(extractParamsFromMethodType(mt))
       case Right(t @ ScTypePolymorphicType(mt: ScMethodType, _)) =>
-        val callPt = call.flatMap(_.expectedType()).getOrElse(Any(expr))
+        val callPt = call.flatMap(_.expectedType()).getOrElse(Any(using expr))
 
         val unwrappedPt = callPt match {
           case ContextFunctionType(ret, _) => ret

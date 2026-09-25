@@ -38,7 +38,7 @@ abstract class NewScalaFileActionTestBase extends ScalaFileTemplateTestBase {
 
     inWriteCommandAction {
       action.actionPerformed(event)
-    }(getProject)
+    }(using getProject)
 
     val selectedElement = view.getSelectedElement
     assertNotNull("No element was created", selectedElement)

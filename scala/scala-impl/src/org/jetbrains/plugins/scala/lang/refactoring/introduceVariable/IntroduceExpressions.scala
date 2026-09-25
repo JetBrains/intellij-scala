@@ -292,7 +292,7 @@ object IntroduceExpressions {
     def needsTypeAnnotation(element: PsiElement) =
       ScalaInplaceVariableIntroducer.needsTypeAnnotation(element, copy, forceType, fromDialogMode)
 
-    val maybeTypeText = Option(options.varType).map(_.canonicalCodeText(copy)(Context(copy)))
+    val maybeTypeText = Option(options.varType).map(_.canonicalCodeText(copy)(using Context(copy)))
 
     runRefactoringInside(file, unparExpr(copy), occurrences, mainOccurrence, options.varName, options.isVariable, forceType) { element =>
       maybeTypeText
@@ -384,7 +384,7 @@ object IntroduceExpressions {
         } else {
           if (sibling.getText.indexOf('\n') != -1) needSemicolon = false
           result = parent.addBefore(created, elem).asInstanceOf[ScForBinding]
-          parent.addBefore(createNewLine()(elem.getManager), elem)
+          parent.addBefore(createNewLine()(using elem.getManager), elem)
           if (needSemicolon) {
             parent.addBefore(createNewLine(), result)
           }
@@ -396,7 +396,7 @@ object IntroduceExpressions {
     def createVariableDefinition(): PsiElement = {
       if (fastDefinition) {
         val declaration = createDeclaration(varName, typeTextIfNeeded(firstElement), isVariable, parenthesisedExpr, features)
-        replaceRangeByDeclaration(declaration.getText, firstRange)(declaration.getProject, editor)
+        replaceRangeByDeclaration(declaration.getText, firstRange)(using declaration.getProject, editor)
 
         val start = firstRange.getStartOffset
 
@@ -545,7 +545,7 @@ object IntroduceExpressions {
       if needNewLine(prev)
       parent <- elem.getParent.toOption
     } {
-      parent.addBefore(ScalaPsiElementFactory.createWhitespace("\n")(element.getProject), elem)
+      parent.addBefore(ScalaPsiElementFactory.createWhitespace("\n")(using element.getProject), elem)
     }
   }
 

@@ -28,7 +28,7 @@ final class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAc
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
     instanceOfCall(element).foreach { case (iioCall, ifStmt) =>
-      replaceTypeCheckWithMatch(iioCall, ifStmt, onlyFirst = false)(project)
+      replaceTypeCheckWithMatch(iioCall, ifStmt, onlyFirst = false)(using project)
     }
 }
 

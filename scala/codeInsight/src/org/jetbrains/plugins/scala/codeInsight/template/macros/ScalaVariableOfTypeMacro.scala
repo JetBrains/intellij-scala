@@ -66,7 +66,7 @@ sealed abstract class ScalaVariableOfTypeMacro extends ScalaMacro {
   }
 
   protected def typeText(expressions: Array[String], `type`: ScType): Option[String] = expressions match {
-    case Array("", _*) => Some(`type`.presentableText(TypePresentationContext.emptyContext, Context.Empty))
+    case Array("", _*) => Some(`type`.presentableText(using TypePresentationContext.emptyContext, Context.Empty))
     case Array(IterableId, _*) =>
       if (isArray(`type`) || isIterable(`type`)) {
         Some(null)
@@ -144,7 +144,7 @@ object ScalaVariableOfTypeMacro {
     * @return visible variables and values from element position
     */
   private def variablesForScope(element: PsiElement) = {
-    val processor = new VariablesCompletionProcessor(StdKinds.valuesRef)(element)
+    val processor = new VariablesCompletionProcessor(StdKinds.valuesRef)(using element)
     PsiTreeUtil.treeWalkUp(processor, element, null, ScalaResolveState.empty)
     processor.candidates.toList
   }

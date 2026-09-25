@@ -12,7 +12,7 @@ final class ConvertFromInfixPatternQuickFix(expr: ScInfixPattern) extends PsiUpd
   override def getFamilyName: String = message
 
   override def invoke(context: ActionContext, infixPattern: ScInfixPattern, updater: ModPsiUpdater): Unit =
-    ConvertFromInfixPatternQuickFix.applyFix(infixPattern)(context.project())
+    ConvertFromInfixPatternQuickFix.applyFix(infixPattern)(using context.project())
 }
 
 object ConvertFromInfixPatternQuickFix {

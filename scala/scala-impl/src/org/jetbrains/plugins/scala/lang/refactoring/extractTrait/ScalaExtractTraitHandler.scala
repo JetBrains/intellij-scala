@@ -115,7 +115,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     inWriteCommandAction {
       val newTrait = createTraitFromTemplate(name, packName, clazz)
       finishExtractTrait(newTrait, extractInfo, typeAdjuster)
-    }(project)
+    }(using project)
   }
 
   private def finishExtractTrait(trt: ScTrait, extractInfo: ExtractInfo, typeAdjuster: TypeAdjuster): Unit = {
@@ -305,7 +305,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
       }.mkString(TypePresentationContext(clazz).compoundTypeSeparatorText)
 
       if (classesForSelfType.nonEmpty) {
-        val arrow = ScalaPsiUtil.functionArrow(clazz.getProject)
+        val arrow = ScalaPsiUtil.functionArrow(using clazz.getProject)
         Some(s"$alias: $typeText $arrow")
       } else None
     }

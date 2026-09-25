@@ -686,7 +686,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val name = withoutSuffix.drop(index)
     val isScalaObject = originalQName.endsWith("$")
 
-    val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
+    val cacheManager = ScalaShortNamesCacheManager.getInstance(using project)
     val classes = cacheManager.getClassesByName(name, GlobalSearchScope.allScope(project)).toSeq
 
     val inSameFile = classes.filter(c => c.isValid && sameFileName(c))

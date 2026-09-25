@@ -28,14 +28,14 @@ final class ScalaPrefixPackageCompletionContributor extends ScalaCompletionContr
         if (parameters.getInvocationCount == 0 ||
           prefixMatcher.getPrefix.isEmpty) return
 
-        val dummyPosition = positionFromParameters(parameters)
+        val dummyPosition = positionFromParameters(using parameters)
         if (!isInImport(dummyPosition) ||
-          shouldRunClassNameCompletion(dummyPosition, prefixMatcher)(parameters)) return
+          shouldRunClassNameCompletion(dummyPosition, prefixMatcher)(using parameters)) return
 
         for {
           resolveResult <- findApplicablePackages(dummyPosition) {
             prefixMatcher.prefixMatches
-          }(dummyPosition.getProject)
+          }(using dummyPosition.getProject)
 
           lookupElement = resolveResult.createLookupElement(isInImport = true)
         } result.addElement(lookupElement)

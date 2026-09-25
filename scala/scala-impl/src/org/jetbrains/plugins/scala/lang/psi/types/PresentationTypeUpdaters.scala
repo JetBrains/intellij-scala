@@ -21,6 +21,6 @@ object PresentationTypeUpdaters {
       val newSignatures = if (refinementsAreNecessary) signatureMap else Map.empty[TermSignature, ScType]
       val newComponents = if (withoutUselessComponents.isEmpty) components.headOption.toList else withoutUselessComponents
 
-      ScCompoundType(newComponents, newSignatures, tpe.typesMap, tpe.forceRefinement)(tpe.projectContext)
+      ScCompoundType(newComponents, newSignatures, tpe.typesMap, tpe.forceRefinement)(using tpe.projectContext)
   }
 }

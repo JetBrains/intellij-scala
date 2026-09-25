@@ -400,7 +400,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
     val availableTargets = availableSmartStepIntoTargets(context)
     val smartStepIntoTarget = inReadAction(availableTargets.find(_.getPresentation == target.target))
     assertTrue(s"Cannot find smart step into target $target", smartStepIntoTarget.isDefined)
-    smartStepInto(smartStepIntoTarget.get)(context)
+    smartStepInto(smartStepIntoTarget.get)(using context)
   }
 
   private def availableSmartStepIntoTargets(context: SuspendContextImpl): Seq[SmartStepTarget] = inReadAction {

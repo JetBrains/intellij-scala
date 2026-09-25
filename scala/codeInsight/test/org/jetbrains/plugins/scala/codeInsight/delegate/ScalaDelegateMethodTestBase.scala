@@ -15,7 +15,7 @@ abstract class ScalaDelegateMethodTestBase extends ScalaLightCodeInsightFixtureT
   protected def doTest(
     fileText: String,
     expectedText: String,
-    settings: ScalaCodeStyleSettings = defaultSettings(getProject)
+    settings: ScalaCodeStyleSettings = defaultSettings(using getProject)
   ): Unit = {
     configureFromFileText("dummy.scala", fileText)
 

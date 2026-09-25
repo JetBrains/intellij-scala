@@ -25,7 +25,7 @@ object ScalaFileTemplateContextType {
     override final def isInContext(context: TemplateActionContext): Boolean =
       context.getFile match {
         case scalaFile: ScalaFile =>
-          isInContextInScalaFile(context)(scalaFile)
+          isInContextInScalaFile(context)(using scalaFile)
         case _ =>
           false
       }

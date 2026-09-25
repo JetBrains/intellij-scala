@@ -107,7 +107,7 @@ object InvocationInfo {
     val place = invocations.headOption.getOrElse(fallbackPlace)
     val properArguments = if (clauses.nonEmpty) clauses.map(buildArguments).toList else fallbackPlace match {
       // Unresolved calls have no signature clauses, but their arguments still need evaluating.
-      case invocation: MethodInvocation => List(buildUnmatchedArguments(invocation.argumentExpressions)(invocation.projectContext))
+      case invocation: MethodInvocation => List(buildUnmatchedArguments(invocation.argumentExpressions)(using invocation.projectContext))
       case _ => Nil
     }
     val thisArgument = Argument.thisArg(details.thisExpr)

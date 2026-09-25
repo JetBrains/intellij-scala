@@ -183,7 +183,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
 }
 
 private class CollectingProcessor(element: PsiElement)
-  extends VariablesCompletionProcessor(StdKinds.valuesRef)(element) {
+  extends VariablesCompletionProcessor(StdKinds.valuesRef)(using element) {
 
   private val containingFile = element.getContainingFile
   private val startOffset = element.getTextRange.getStartOffset

@@ -48,7 +48,7 @@ abstract class OptimizeImportsTestBase extends ScalaLightCodeInsightFixtureTestC
       runAndGetNotification(importOptimizer.processFile(scalaFile), notification),
       "OptimiseImportsInTestsCommand",
       UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION
-    )(getProject)
+    )(using getProject)
 
     val actual = scalaFile.getText
     assertEquals(after.withNormalizedSeparator, actual)

@@ -111,7 +111,7 @@ object ScalaGenerateEqualsAction {
       val stateText = stateParts.mkString("Seq(", ", ", ")")
       val stateValName = getUniqueLocalVarName("state")
       val firstStmtText = s"val $stateValName = $stateText"
-      val arrow = ScalaPsiUtil.functionArrow(ctx)
+      val arrow = ScalaPsiUtil.functionArrow
       val calculationText = s"$stateValName.map(_.hashCode()).foldLeft(0)((a, b) $arrow 31 * a + b)"
       val methodText =
         optBraces"""override $declText =$BlockStart
@@ -143,7 +143,7 @@ object ScalaGenerateEqualsAction {
       val canEqualCheck = Option(if (aClass.hasFinalModifier) null else s"$thatValName.canEqual(this)")
       val allChecks = superCheck ++ canEqualCheck ++ fieldComparisons
       val checksText = allChecks.mkString(" &&\n")
-      val arrow = ScalaPsiUtil.functionArrow(ctx)
+      val arrow = ScalaPsiUtil.functionArrow
       val text =
         optBraces"""override $declText = $otherParamName match$BlockStart
                    |  case $thatValName: ${aClass.name} $arrow
@@ -156,8 +156,8 @@ object ScalaGenerateEqualsAction {
       if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
       try {
-        val aClass: ScClass = findClassAtCaret(editor, file).getOrElse(return)
-        val isOk = chooseOriginalMembers(aClass)(project, editor)
+        val aClass: ScClass = findClassAtCaret(using editor, file).getOrElse(return)
+        val isOk = chooseOriginalMembers(aClass)(using project, editor)
         if (!isOk) return
 
         implicit val projectContext: ProjectContext = project
@@ -189,7 +189,7 @@ object ScalaGenerateEqualsAction {
 
     override def isValidFor(editor: Editor, file: PsiFile): Boolean =
       super.isValidFor(editor, file) &&
-        findClassAtCaret(editor, file).exists(!_.isCase)
+        findClassAtCaret(using editor, file).exists(!_.isCase)
 
     private def hasEquals(clazz: ScClass): Option[ScFunction] = {
       val stdTypes = clazz.projectContext.stdTypes

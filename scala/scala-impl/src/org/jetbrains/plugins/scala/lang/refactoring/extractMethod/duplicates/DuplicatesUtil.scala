@@ -62,7 +62,7 @@ object DuplicatesUtil {
   }
 
   def findDuplicates(settings: ScalaExtractMethodSettings): Seq[DuplicateMatch] = {
-    val pattern = new DuplicatePattern(filtered(settings.elements.toSeq), settings.parameters.toSeq)(settings.projectContext)
+    val pattern = new DuplicatePattern(filtered(settings.elements.toSeq), settings.parameters.toSeq)(using settings.projectContext)
     pattern.findDuplicates(settings.nextSibling.getParent)
   }
 

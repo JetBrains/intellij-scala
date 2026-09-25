@@ -53,7 +53,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
       forceRefinement = ct.forceRefinement,
       updSignatureMap,
       updatedTypes
-    )(ct.projectContext)
+    )(using ct.projectContext)
   }
 
   private def updateExistentialArg(exArg: ScExistentialArgument,
@@ -136,7 +136,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
       mt.params.map(updateParameter),
       hasImplicitKW = mt.hasImplicitKW,
       hasUsingKW    = mt.hasUsingKW,
-    )(mt.elementScope)
+    )(using mt.elementScope)
   }
 
   private def updateTypePolymorphicType(tpt: ScTypePolymorphicType,
@@ -247,7 +247,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
     update(scType, variance) match {
       case ReplaceWith(res) => res
       case Stop => scType
-      case ProcessSubtypes => updateSubtypes(scType, variance, ScSubstitutor(update))(Set.empty)
+      case ProcessSubtypes => updateSubtypes(scType, variance, ScSubstitutor(update))(using Set.empty)
     }
 
 }

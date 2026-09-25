@@ -17,7 +17,7 @@ object StableValIndex {
 
   def findValuesOfClassType(c: PsiClass, scope: GlobalSearchScope): Set[ScValue] = {
     val className = c.qualifiedName
-    forClassFqn(className, scope)(c.getProject)
+    forClassFqn(className, scope)(using c.getProject)
       .filter {
         case v: ScValue if v.declaredElements.size == 1 =>
           v.`type`().toOption

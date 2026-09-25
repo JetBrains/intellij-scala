@@ -25,7 +25,7 @@ class MatchTypeReductionTest extends TupleIntrinsicsTest {
       ScalaPsiElementFactory.createScalaFileFromText(
         transformCode(code),
         ScalaFeatures.onlyByVersion(version)
-      )(getProject)
+      )(using getProject)
 
     val typeElement = file.getLastChild.getLastChild.asInstanceOf[ScTypeElement]
 
@@ -40,7 +40,7 @@ class MatchTypeReductionTest extends TupleIntrinsicsTest {
             }
             else tpe
 
-          val text = res.presentableText(TypePresentationContext(typeElement), Context.Empty)
+          val text = res.presentableText(using TypePresentationContext(typeElement), Context.Empty)
           text
         }
         .getOrElse("<error>")

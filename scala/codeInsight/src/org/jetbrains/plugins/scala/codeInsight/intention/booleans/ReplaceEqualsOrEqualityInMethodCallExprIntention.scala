@@ -51,7 +51,7 @@ final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementB
 
     val convertedExpr: String = convertExpression(methodCallExpr, scReferenceExpression, desiredOper)
 
-    val newMethodCallExpr = createExpressionFromText(convertedExpr, element)(element.getManager)
+    val newMethodCallExpr = createExpressionFromText(convertedExpr, element)(using element.getManager)
 
     IntentionPreviewUtils.write { () =>
       val newExpr = methodCallExpr.replaceExpression(newMethodCallExpr, removeParenthesis = true)

@@ -537,7 +537,7 @@ object ScalaResolveResult {
         val classExtractedFromType: Option[PsiClass] = {
           val fromType = resolveResult.fromType
 
-          def isPredef = fromType.exists(_.presentableText(TypePresentationContext.emptyContext, Context.Empty) == "Predef.type")
+          def isPredef = fromType.exists(_.presentableText(using TypePresentationContext.emptyContext, Context.Empty) == "Predef.type")
 
           import resolveResult.projectContext
           val maybeType = qualifierType.orElse(fromType).map(_.widen)

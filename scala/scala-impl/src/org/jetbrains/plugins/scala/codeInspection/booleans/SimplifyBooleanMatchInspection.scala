@@ -33,7 +33,7 @@ class SimplifyBooleanMatchToIfStmtQuickFix(stmt: ScMatch) extends PsiBasedModCom
   override def perform(context: ActionContext, scStmt: ScMatch): ModCommand = {
     if (SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(scStmt)) {
       ModCommand.psiUpdate(scStmt, (scStmt: ScMatch) => {
-        val newExpr = SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt)(context.project, scStmt)
+        val newExpr = SimpleBooleanMatchUtil.simplifyMatchStmt(scStmt)(using context.project, scStmt)
         scStmt.replaceExpression(newExpr, removeParenthesis = false)
         ()
       })

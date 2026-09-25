@@ -54,7 +54,7 @@ package object macros {
   }
 
   private[macros] def scTypeElement(typeText: String, context: PsiElement): Option[ScTypeElement] =
-    ScalaPsiElementFactory.safe(_.createTypeElementFromText(typeText, context.features)(context))
+    ScalaPsiElementFactory.safe(_.createTypeElementFromText(typeText, context.features)(using context))
 
   private[macros] def arrayComponent(scType: ScType): Option[ScType] = scType match {
     case JavaArrayType(argument)                                         => Some(argument)

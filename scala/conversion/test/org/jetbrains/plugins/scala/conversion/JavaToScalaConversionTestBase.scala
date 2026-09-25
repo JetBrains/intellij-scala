@@ -90,7 +90,7 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightCodeInsightFixtur
             },
             "deleting test comment",
             UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION
-          )(getProject)
+          )(using getProject)
         }
         commentContent
       case e =>

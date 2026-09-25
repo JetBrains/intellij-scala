@@ -69,6 +69,6 @@ object Constructor extends ParsingRule {
     builder.getTokenType == ScalaTokenTypes.kIMPLICIT ||
       builder.getTokenText == "using" ||
       (!first && builder.getTokenType == ScalaTokenTypes.tRPARENTHESIS) ||
-      ClassParam.parse(ignoreErrors = false)(builder)
+      ClassParam.parse(ignoreErrors = false)(using builder)
   }
 }

@@ -67,8 +67,8 @@ package object transformation {
       qualifiedNameOf(result.element) == relative(target))
 
   private def createReferenceElement(reference: String, ctx: PsiElement)(implicit isExpression: Boolean): ScReference =
-    if (isExpression) createReferenceExpressionFromText(reference)(ctx.getProject)
-    else createTypeElementFromText(reference, ctx)(ctx).getFirstChild.asInstanceOf[ScReference]
+    if (isExpression) createReferenceExpressionFromText(reference)(using ctx.getProject)
+    else createTypeElementFromText(reference, ctx)(using ctx).getFirstChild.asInstanceOf[ScReference]
 
   // TODO define PsiMember.qualifiedName
   def qualifiedNameOf(e: PsiNamedElement): String = e match {

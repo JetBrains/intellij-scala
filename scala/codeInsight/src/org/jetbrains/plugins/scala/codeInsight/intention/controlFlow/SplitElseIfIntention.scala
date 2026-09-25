@@ -52,7 +52,7 @@ final class SplitElseIfIntention extends PsiElementBaseIntentionAction with Dumb
       append(ifStmt.thenExpression.get.getText).append(if (newlineBeforeElse) "\n" else " ").append("else {\n").
       append(ifStmt.elseExpression.get.getText).append("\n}")
 
-    val newIfStmt: ScExpression = createExpressionFromText(expr.toString(), element)(element.getManager)
+    val newIfStmt: ScExpression = createExpressionFromText(expr.toString(), element)(using element.getManager)
     val size = newIfStmt.asInstanceOf[ScIf].thenExpression.get.getTextRange.getEndOffset -
       newIfStmt.asInstanceOf[ScIf].getTextRange.getStartOffset
 

@@ -144,7 +144,7 @@ object CreateScalaDocStubAction {
   private[documentationProvider]
   def createStub(docLocation: ScDocCommentOwner, docOwner: ScDocCommentOwner, psiDocument: Document): Unit = {
     val stubText = ScalaDocStubGenerator.createScalaDocStub(docOwner).trim
-    val newComment = createScalaDocCommentFromText(stubText)(docOwner.getManager)
+    val newComment = createScalaDocCommentFromText(stubText)(using docOwner.getManager)
     val project = docOwner.getProject
     val docCommentEnd = docLocation.getTextRange.getStartOffset
 

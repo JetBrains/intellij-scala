@@ -105,7 +105,7 @@ object KindProjectorUtil {
          |}
        """.stripMargin
 
-    ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)(ctx).getFirstChild
+    ScalaPsiElementFactory.createScalaFileFromText(text, ScalaFeatures.default)(using ctx).getFirstChild
   }
 
   /**

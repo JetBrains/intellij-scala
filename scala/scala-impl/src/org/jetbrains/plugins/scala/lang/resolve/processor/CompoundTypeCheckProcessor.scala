@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 class CompoundTypeCheckSignatureProcessor(s: TermSignature,
                                           retType: ScType,
                                           constraints: ConstraintSystem)
-  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(s.projectContext) {
+  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(using s.projectContext) {
 
   private def nameHint: NameHint = _ => s.name
 
@@ -159,7 +159,7 @@ class CompoundTypeCheckTypeAliasProcessor(
   sign:        TypeAliasSignature,
   constraints: ConstraintSystem,
   substitutor: ScSubstitutor
-) extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(sign.typeAlias.projectContext) {
+) extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(using sign.typeAlias.projectContext) {
   private val name = sign.name
 
   private var trueResult = false

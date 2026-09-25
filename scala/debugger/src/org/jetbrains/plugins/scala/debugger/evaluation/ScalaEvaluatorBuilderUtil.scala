@@ -939,7 +939,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             try evaluatorFor(expr)
             catch {
               case _: NeedCompilationException =>
-                new ScalaCompilingEvaluator(expr, ScalaCodeFragment(expr.getText)(caseCl.getProject))
+                new ScalaCompilingEvaluator(expr, ScalaCodeFragment(expr.getText)(using caseCl.getProject))
             }
 
           val fromPatternEvaluator = evaluateSubpatternFromPattern(exprEval, pattern.get, namedElement.asInstanceOf[ScPattern])
@@ -1027,7 +1027,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                     new NewValueClassInstanceEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText("scala.Array$UnapplySeqWrapper")), extractEval)
                   )
                 )
-              val indexExpr = createExpressionFromText("" + nextPatternIndex, pattern)(pattern.getManager)
+              val indexExpr = createExpressionFromText("" + nextPatternIndex, pattern)(using pattern.getManager)
               val indexEval = evaluatorFor(indexExpr)
               ScalaMethodEvaluator(getEval, "apply", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(indexEval))
             } else throw EvaluationException(DebuggerBundle.message("pattern.doesnot.resolves.to.unapply", ref.refName))

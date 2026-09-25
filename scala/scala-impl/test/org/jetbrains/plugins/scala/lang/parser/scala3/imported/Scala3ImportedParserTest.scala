@@ -41,7 +41,7 @@ sealed trait ImportedParserTestUtil {
     val lightFile = ScalaPsiElementFactory.createScalaFileFromText(
       fileText,
       ScalaFeatures.forParserTests(config.scalaTargetVersion)
-    )(project)
+    )(using project)
 
     val errors = lightFile
       .elements

@@ -41,7 +41,7 @@ trait HelperFixtureEditorOps {
       inWriteCommandAction {
         getFixture.getEditor.getDocument.insertString(offset, text)
         commitDocumentInEditor()
-      }(getProject)
+      }(using getProject)
     }
   }
 }

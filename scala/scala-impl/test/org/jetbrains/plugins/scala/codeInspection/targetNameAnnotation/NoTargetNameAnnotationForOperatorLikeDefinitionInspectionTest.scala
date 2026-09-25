@@ -39,7 +39,7 @@ class NoTargetNameAnnotationForOperatorLikeDefinitionInspectionTest extends Scal
     executeWriteActionCommand() {
       myFixture.`type`(textToTypeWithTemplate)
       templateState.gotoEnd(false)
-    }(getProject)
+    }(using getProject)
 
     myFixture.checkResult(expectedAfterTemplateFinished.withNormalizedSeparator.trim, true)
   }

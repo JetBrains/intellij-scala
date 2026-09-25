@@ -397,7 +397,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
     if (parentTypes.isEmpty)        tpe
     else if (parentTypes.size == 1) parentTypes.head
-    else                            ScCompoundType(parentTypes)(tpe.projectContext)
+    else                            ScCompoundType(parentTypes)(using tpe.projectContext)
   }
 
   /**

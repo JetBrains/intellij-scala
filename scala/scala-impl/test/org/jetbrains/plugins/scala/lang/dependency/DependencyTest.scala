@@ -229,7 +229,7 @@ class DependencyTest extends base.SimpleTestCase {
   private def assertDependenciesAre(@Language("Scala") code: String, expected: String*): Unit = {
     val file = parseScalaFile(code)
 
-    val descriptors = Dependency.collect(file.getTextRange)(file).map {
+    val descriptors = Dependency.collect(file.getTextRange)(using file).map {
       case (path, _) => path.asString()
     }.toSet
 

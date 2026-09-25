@@ -18,7 +18,7 @@ abstract class MultiScalaModulesInsightFixtureTestCase(thisModuleVersion: ScalaV
   override def setUp(): Unit = {
     super.setUp()
 
-    scalaModuleSdkLoader.init(getModule, thisModuleVersion)
+    scalaModuleSdkLoader.init(using getModule, thisModuleVersion)
 
     otherModule =
       PsiTestUtil.addModule(
@@ -29,13 +29,13 @@ abstract class MultiScalaModulesInsightFixtureTestCase(thisModuleVersion: ScalaV
       )
 
     PsiTestUtil.addSourceRoot(otherModule, myFixture.getTempDirFixture.findOrCreateDir(otherModuleSourceDir))
-    scalaModuleSdkLoader.init(otherModule, otherModuleVersion)
+    scalaModuleSdkLoader.init(using otherModule, otherModuleVersion)
     ModuleRootModificationUtil.addDependency(getModule, otherModule)
   }
 
   override def tearDown(): Unit = {
-    scalaModuleSdkLoader.clean(otherModule)
-    scalaModuleSdkLoader.clean(getModule)
+    scalaModuleSdkLoader.clean(using otherModule)
+    scalaModuleSdkLoader.clean(using getModule)
     super.tearDown()
   }
 

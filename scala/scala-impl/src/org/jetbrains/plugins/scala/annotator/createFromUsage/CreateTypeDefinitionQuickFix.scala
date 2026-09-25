@@ -121,7 +121,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
       val text = s"${kind.keyword} $name"
       val newTd = createTemplateDefinitionFromText(text, parent, parent.getFirstChild)
       val anchor = anchorAfter.orNull
-      parent.addBefore(createNewLine()(parent.getManager), anchor)
+      parent.addBefore(createNewLine()(using parent.getManager), anchor)
       val result = parent.addBefore(newTd, anchor)
       afterCreationWork(result.asInstanceOf[ScTypeDefinition])(editor)
     }
@@ -144,7 +144,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
         } else {
           val title = ScalaBundle.message("choose.level.popup.title")
           val processor: PsiElementProcessor[PsiElement] = { elem =>
-            inWriteCommandAction(createClassAtLevel(elem)(editor))(elem.getProject)
+            inWriteCommandAction(createClassAtLevel(elem)(editor))(using elem.getProject)
             false
           }
           val renderer: TargetPresentationProvider[PsiElement] = { element =>

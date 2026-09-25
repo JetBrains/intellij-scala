@@ -72,7 +72,7 @@ class AddBracesIntention extends PsiElementBaseIntentionAction with DumbAware {
         CodeEditUtil.replaceChild(
           expr.getParent.getNode,
           expr.getNode,
-          createExpressionFromText("{\n%s}".format(expr.getText), expr)(expr.getManager).getNode
+          createExpressionFromText("{\n%s}".format(expr.getText), expr)(using expr.getManager).getNode
         )
 
         if (!IntentionPreviewUtils.isIntentionPreviewActive)

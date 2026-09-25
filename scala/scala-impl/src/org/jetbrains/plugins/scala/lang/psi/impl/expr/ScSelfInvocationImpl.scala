@@ -130,7 +130,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
       constructor <- srr.element.asOptionOf[PsiMethod]
     } {
       val (_, _, implicitArguments) =
-        Compatibility.checkConstructorApplicability(this, constructor, srr)(this.projectContext)
+        Compatibility.checkConstructorApplicability(this, constructor, srr)(using this.projectContext)
 
       setImplicitArguments(implicitArguments)
     }

@@ -39,7 +39,7 @@ abstract class ScalaPackageNameInspectionTestBase extends ScalaInspectionTestBas
       }
       subDir.findChild(file.getName).toOption.foreach { existingFile => existingFile.delete(this) }
       file.getVirtualFile.move(this, subDir)
-    }(getProject)
+    }(using getProject)
   }
 
   protected def testMoveQuickfix(code: String, resultDir: String, hint: String): Unit = {

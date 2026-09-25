@@ -386,7 +386,7 @@ object ScalaFmtPreFormatProcessor {
     implicit val context: ConfigContext = ConfigContext(config, file)
     formatWithoutCommit(document) match {
       case Left(error: ScalafmtFormatError) =>
-        reportInvalidCodeFailure(file, Some(error))(file.getProject)
+        reportInvalidCodeFailure(file, Some(error))(using file.getProject)
       case _ =>
         ScalafmtNotifications.hideAllFormatErrorNotifications()
     }
@@ -431,7 +431,7 @@ object ScalaFmtPreFormatProcessor {
 
       val newContext = context.withConfig(noRewriteConfig)
 
-      val formattedInSingleFile = formatInSingleFile(elements, wrap)(project, newContext)
+      val formattedInSingleFile = formatInSingleFile(elements, wrap)(using project, newContext)
       formattedInSingleFile match {
         case Some(formatted) =>
           replaceWithFormatted(elements, formatted, rewriteElementsToFormatted, features, range, typeAdjuster) match {
@@ -474,7 +474,7 @@ object ScalaFmtPreFormatProcessor {
 
   //Use this since calls to 'getText' for inner elements of big files are somewhat expensive
   private def getText(element: PsiElement)(implicit fileText: String): String =
-    getText(element.getTextRange)(fileText)
+    getText(element.getTextRange)(using fileText)
 
   private def getText(range: TextRange)(implicit fileText: String): String =
     fileText.substring(range.getStartOffset, range.getEndOffset)
@@ -733,7 +733,7 @@ object ScalaFmtPreFormatProcessor {
     }
 
     override def visitWhiteSpace(space: PsiWhiteSpace): Unit = {
-      val replacer = space.withAdditionalIndent(additionalIndent)(project)
+      val replacer = space.withAdditionalIndent(additionalIndent)(using project)
       if (replacer != space) inWriteAction(space.replace(replacer))
     }
   }
@@ -879,7 +879,7 @@ object ScalaFmtPreFormatProcessor {
     val changes1 = changes0.filter(_.isInRange(range))
     val changes2 = changes1.filter(_.isValid)
     // changes order: Inserts first, then Replaces and Removes ordered by offset
-    val changesFinal = changes2.sorted(Ordering.fromLessThan[PsiChange] {
+    val changesFinal = changes2.sorted(using Ordering.fromLessThan[PsiChange] {
       case (_: Insert, _) => true
       case (_, _: Insert) => false
       case (left, right)  => left.getStartOffset < right.getStartOffset

@@ -142,7 +142,7 @@ object ImplicitConversionResolveResult {
   ): Seq[ScalaResolveResult] = {
     implicit val elementScope: ElementScope = ElementScope(place)
 
-    val functionType          = FunctionType(Any(place.getProject), Seq(expressionType))
+    val functionType          = FunctionType(Any(using place.getProject), Seq(expressionType))
     val expandedFunctionType  = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
 
     def checkImplicits(

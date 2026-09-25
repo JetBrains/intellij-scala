@@ -70,7 +70,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     def addType(element: ScNamedElement, oldTypeElem: Option[ScTypeElement], substType: ScType): Unit = {
       oldTypeElem match {
         case Some(te) =>
-          val replaced = te.replace(createTypeElementFromText(substType.canonicalCodeText(element), element)(element))
+          val replaced = te.replace(createTypeElementFromText(substType.canonicalCodeText(element), element)(using element))
           typeAdjuster.markToAdjust(replaced)
         case None =>
           val (context, anchor) = element.nameContext match {
@@ -151,7 +151,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
               case None => NameSuggester.suggestNamesByType(param.paramType).head
             }
           paramsBuf = paramsBuf :+ paramName
-          arg.replaceExpression(createExpressionFromText(paramName, arg)(arg.getManager), removeParenthesis = true)
+          arg.replaceExpression(createExpressionFromText(paramName, arg)(using arg.getManager), removeParenthesis = true)
         }
         (paramsBuf, inv.getText)
       case _ =>
@@ -165,14 +165,14 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       if (paramTypes.size == names.size)
         names.zip(paramTypes).map {
           case (name, tpe) =>
-            ScalaExtractMethodUtils.typedName(name, tpe.canonicalCodeText(expr))(expr.getProject)
+            ScalaExtractMethodUtils.typedName(name, tpe.canonicalCodeText(expr))(using expr.getProject)
         }
       else names
     val clause = params.mkString("(", ", ", ")")
     val newFunExprText = s"$clause => $exprText"
 
     val replaced = expr.replaceExpression(
-      createExpressionFromText(newFunExprText, expr)(expr.getManager),
+      createExpressionFromText(newFunExprText, expr)(using expr.getManager),
       removeParenthesis = true
     ) match {
       case fn: ScFunctionExpr                      => fn
@@ -202,7 +202,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case _ => return
     }
     keywordToChange.foreach { kw =>
-      val defKeyword = createMethodFromText("def foo {}", named)(named.getManager).children.find(_.textMatches("def")).get
+      val defKeyword = createMethodFromText("def foo {}", named)(using named.getManager).children.find(_.textMatches("def")).get
       if (change.getNewParameters.nonEmpty) kw.replace(defKeyword)
     }
 
@@ -354,7 +354,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
               argExprs match {
                 case Seq(ScMethodCall(ElementText("Array"), arrayArgs)) => arrayArgs.map(_.getText)
                 case Seq(expr) =>
-                  val typedText = ScalaExtractMethodUtils.typedName(expr.getText, "_*")(expr.getProject)
+                  val typedText = ScalaExtractMethodUtils.typedName(expr.getText, "_*")(using expr.getProject)
                   val naming = if (wasNamed) param.getName + " = " else ""
                   val text = naming + typedText
                   Seq(text)

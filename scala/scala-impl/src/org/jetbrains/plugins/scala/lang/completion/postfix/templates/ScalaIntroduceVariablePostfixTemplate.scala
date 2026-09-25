@@ -23,6 +23,6 @@ final class ScalaIntroduceVariablePostfixTemplate extends PostfixTemplateWithExp
 
     editor.getSelectionModel.setSelection(startOffset, endOffset)
     new ScalaIntroduceVariableHandler()
-      .invokeExpression(expression.getContainingFile, startOffset, endOffset)(expression.getProject, editor, DataContext.EMPTY_CONTEXT)
+      .invokeExpression(expression.getContainingFile, startOffset, endOffset)(using expression.getProject, editor, DataContext.EMPTY_CONTEXT)
   }
 }

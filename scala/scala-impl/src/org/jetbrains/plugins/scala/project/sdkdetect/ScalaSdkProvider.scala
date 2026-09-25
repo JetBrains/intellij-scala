@@ -20,7 +20,7 @@ final class ScalaSdkProvider(
       indicator.setText(message("sdk.scan.title", detector.friendlyName))
       indicator.setIndeterminate(true)
 
-      val sdkChoices = detector.collectSdkChoices(indicator)
+      val sdkChoices = detector.collectSdkChoices(using indicator)
       val sdkChaisesSorted = sdkChoices.sortBy(_.sdk.version).reverse
       sdkChaisesSorted.foreach(callback.accept)
     }

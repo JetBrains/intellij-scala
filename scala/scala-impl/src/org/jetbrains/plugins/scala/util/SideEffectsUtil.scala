@@ -58,12 +58,12 @@ object SideEffectsUtil {
     // "get",
   )
 
-  def hasNoSideEffects(expr: ScExpression): Boolean = hasNoSideEffectsInner(expr)(allowThrows = false)
+  def hasNoSideEffects(expr: ScExpression): Boolean = hasNoSideEffectsInner(expr)(using allowThrows = false)
 
   def hasNoSideEffectsItself(expr: ScExpression): Boolean =
-    hasNoSideEffectsInner(expr, asArg = false, checkSubExpression = false)(allowThrows = false)
+    hasNoSideEffectsInner(expr, asArg = false, checkSubExpression = false)(using allowThrows = false)
 
-  def mayOnlyThrow(expr: ScExpression): Boolean = hasNoSideEffectsInner(expr)(allowThrows = true)
+  def mayOnlyThrow(expr: ScExpression): Boolean = hasNoSideEffectsInner(expr)(using allowThrows = true)
 
   private def hasNoSideEffectsInner(expr: ScExpression)(implicit allowThrows: Boolean): Boolean =
     hasNoSideEffectsInner(expr, asArg = false)

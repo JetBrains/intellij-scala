@@ -49,7 +49,7 @@ object ScalaTypeAnnotationsCompletionContributor {
     override def addCompletions(parameters: CompletionParameters,
                                 context: ProcessingContext,
                                 resultSet: CompletionResultSet): Unit = {
-      val place = positionFromParameters(parameters)
+      val place = positionFromParameters(using parameters)
 
       import AbstractTypeAnnotationIntention._
 

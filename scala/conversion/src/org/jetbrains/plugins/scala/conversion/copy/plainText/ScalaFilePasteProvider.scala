@@ -66,7 +66,7 @@ final class ScalaFilePasteProvider extends PasteProvider {
   override def performPaste(context: DataContext): Unit = {
     calculatePasteActionOutcome(context) match {
       case Some((pasteActionOutcome, project)) =>
-        executePasteActionOutcome(pasteActionOutcome)(project)
+        executePasteActionOutcome(pasteActionOutcome)(using project)
       case _ => // Nothing to paste or invalid context
     }
   }

@@ -50,7 +50,7 @@ sealed trait ScImportsOrExportsHolder extends ScalaPsiElement {
       val lineBreaks = wsNode.getText.count(_ == '\n')
       if (lineBreaks >= 2) {
         val nlText = wsNode.getText.replaceFirst("[\n]", "")
-        val nl = ScalaPsiElementFactory.createNewLine(nlText)(getManager)
+        val nl = ScalaPsiElementFactory.createNewLine(nlText)(using getManager)
         getNode.replaceChild(wsNode, nl.getNode)
       }
     }
@@ -695,7 +695,7 @@ object ScImportsHolder {
   // Use more descriptive name `forNewImport` instead
   def apply(place: PsiElement)
            (implicit project: Project = place.getProject): ScImportsHolder =
-    forNewImportInsertion(place)(project)
+    forNewImportInsertion(place)(using project)
 
   /**
    * @param qualifiedName      for example `org.example.MyClass`

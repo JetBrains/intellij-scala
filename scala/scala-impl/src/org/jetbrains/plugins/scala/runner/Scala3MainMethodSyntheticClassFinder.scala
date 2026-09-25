@@ -33,7 +33,7 @@ private final class Scala3MainMethodSyntheticClassFinder(project: Project)
 
   private def findClass(qualifiedName: String, scope: GlobalSearchScope, project: Project): Scala3MainMethodSyntheticClass = {
     import ScalaIndexKeys.StubIndexKeyExt
-    val results = ScalaIndexKeys.ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY.elements(qualifiedName, scope)(project)
+    val results = ScalaIndexKeys.ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY.elements(qualifiedName, scope)(using project)
     if (results.nonEmpty) {
       val function = results.head
       syntheticClassForFunction(function, qualifiedName)
@@ -74,7 +74,7 @@ private final class Scala3MainMethodSyntheticClassFinder(project: Project)
   }
 
   private def customParameter(param: ScParameter): CustomParameter = {
-    val typeText = param.`type`().fold(_ => "", _.presentableText(TypePresentationContext.emptyContextIn(scala3 = true), Context.Empty))
+    val typeText = param.`type`().fold(_ => "", _.presentableText(using TypePresentationContext.emptyContextIn(scala3 = true), Context.Empty))
     CustomParameter(param.name, typeText, param.isVarArgs)
   }
 

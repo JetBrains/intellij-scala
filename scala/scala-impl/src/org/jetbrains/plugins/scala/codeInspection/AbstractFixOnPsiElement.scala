@@ -31,7 +31,7 @@ abstract class AbstractFixOnPsiElement[T <: PsiElement](@Nls name: String, eleme
     if (!startElement.isValid)
       return
 
-    doApplyFix(startElement.asInstanceOf[T])(project)
+    doApplyFix(startElement.asInstanceOf[T])(using project)
   }
 
   protected def doApplyFix(element: T)
@@ -54,8 +54,8 @@ abstract class AbstractFixOnTwoPsiElements[T <: PsiElement, S <: PsiElement](@Nl
       case ValidSmartPointer(first: T @unchecked) =>
         myEndElement match {
           // myEndElement is null when start and end elements are equal in LocalQuickFixOnPsiElement's constructor
-          case null => doApplyFix(first, first.asInstanceOf[S])(project)
-          case ValidSmartPointer(second: S @unchecked) => doApplyFix(first, second)(project)
+          case null => doApplyFix(first, first.asInstanceOf[S])(using project)
+          case ValidSmartPointer(second: S @unchecked) => doApplyFix(first, second)(using project)
           case _ =>
         }
       case _ =>

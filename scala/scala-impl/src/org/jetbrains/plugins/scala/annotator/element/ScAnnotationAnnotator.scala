@@ -16,7 +16,7 @@ object ScAnnotationAnnotator extends ElementAnnotator[ScAnnotation] with DumbAwa
 
     PrivateBeanProperty.annotate(element, typeAware)
 
-    if (typeAware && !isDumbMode(element.getProject)) {
+    if (typeAware && !isDumbMode(using element.getProject)) {
       for {
         tpe <- element.typeElement.`type`().toOption
         cls <- tpe.extractClass

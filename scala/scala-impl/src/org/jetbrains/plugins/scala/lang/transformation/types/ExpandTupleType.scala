@@ -12,6 +12,6 @@ class ExpandTupleType extends AbstractTransformer {
     case e @ ScTupleTypeElement(elements @ _*)
       if !e.getParent.is[ScFunctionalTypeElement] =>
 
-      e.replace(code"Tuple${elements.length}[${@@(elements)}]"(Type))
+      e.replace(code"Tuple${elements.length}[${@@(elements)}]"(using Type))
   }
 }

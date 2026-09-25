@@ -104,7 +104,7 @@ object MethodTypeProvider {
   implicit class PsiMethodTypeProviderExt(private val m: PsiMethod) extends AnyVal {
     def methodTypeProvider(scope: ElementScope): MethodTypeProvider[PsiMethod] = m match {
       case ml: ScMethodLike => fromScMethodLike(ml)
-      case m: PsiMethod     => JavaMethodProvider(m)(scope)
+      case m: PsiMethod     => JavaMethodProvider(m)(using scope)
     }
   }
 

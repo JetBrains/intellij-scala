@@ -45,7 +45,7 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] with DumbAware
       case _: ScMethodLike | _: ScExtension =>
         if (element.isCallByNameParameter)
           annotateCallByNameParameter(element)
-      case _: ScFunctionExpr if !isDumbMode(element.getProject) =>
+      case _: ScFunctionExpr if !isDumbMode(using element.getProject) =>
         if (element.typeElement.isEmpty && element.expectedParamType.isEmpty) {
           val inFunctionLiteral = element.parents.drop(2).nextOption().exists(_.is[ScFunctionExpr])
           if (!inFunctionLiteral) { // ScFunctionExprAnnotator does that more gracefully

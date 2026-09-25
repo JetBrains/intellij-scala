@@ -23,7 +23,7 @@ final class NegateComparisonIntention extends PsiElementBaseIntentionAction with
     val operation = infixExpr.operation
     val refName = operation.refName
     Replacement.get(refName) match {
-      case Some(replacement) if caretIsInRange(operation)(editor) =>
+      case Some(replacement) if caretIsInRange(operation)(using editor) =>
         setText(ScalaCodeInsightBundle.message("negate.operation.to.inverse", refName, replacement))
         true
       case _ => false
@@ -36,7 +36,7 @@ final class NegateComparisonIntention extends PsiElementBaseIntentionAction with
 
     val ScInfixExpr(ElementText(baseText), operation, ElementText(argumentText)) = infixExpr: @unchecked
     val text = s"$baseText ${Replacement(operation.refName)} $argumentText"
-    negateAndValidateExpression(infixExpr, text)(project, editor)
+    negateAndValidateExpression(infixExpr, text)(using project, editor)
   }
 
   override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.negate.comparison")

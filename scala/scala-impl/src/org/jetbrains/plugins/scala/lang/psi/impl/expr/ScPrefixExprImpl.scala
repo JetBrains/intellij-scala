@@ -28,7 +28,7 @@ class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
         @tailrec
         def fold(expr: Option[ScType]): TypeResult = expr match {
           case Some(literal: ScLiteralType) =>
-            foldUnOpTypes(literal, synth.name)(getProject)
+            foldUnOpTypes(literal, synth.name)(using getProject)
               .fold(default)(Right.apply)
           case Some(ScProjectionType(_, element: Typeable)) =>
             fold(element.`type`().toOption.filter(_.isInstanceOf[ScLiteralType]))

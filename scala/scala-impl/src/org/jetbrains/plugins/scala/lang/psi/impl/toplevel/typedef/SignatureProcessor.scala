@@ -134,7 +134,7 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
     processSig:       TypeSignature => Unit,
     extensionContext: Option[ScExtension]
   ): PsiScopeProcessor =
-    new BaseProcessor(Set(ResolveTargets.CLASS))(place) {
+    new BaseProcessor(Set(ResolveTargets.CLASS))(using place) {
       override protected def execute(
         namedElement: PsiNamedElement
       )(implicit
@@ -218,7 +218,7 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
     processSig:       TermSignature => Unit,
     extensionContext: Option[ScExtension] = None
   ): PsiScopeProcessor =
-    new BaseProcessor(StdKinds.stableImportSelector)(place) {
+    new BaseProcessor(StdKinds.stableImportSelector)(using place) {
       override protected def execute(
         namedElement: PsiNamedElement
       )(implicit

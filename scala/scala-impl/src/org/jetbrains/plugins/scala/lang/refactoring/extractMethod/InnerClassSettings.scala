@@ -9,7 +9,7 @@ final case class InnerClassSettings(needClass: Boolean, className: String, outpu
       val tp = output.returnType
       implicit val ctx: TypePresentationContext = output.fromElement
       val typeText = if (canonTextForTypes) tp.canonicalCodeText(ctx) else tp.codeText
-      val typed = ScalaExtractMethodUtils.typedName(output.paramName, typeText)(output.fromElement.getProject)
+      val typed = ScalaExtractMethodUtils.typedName(output.paramName, typeText)(using output.fromElement.getProject)
       if (isCase) typed else s"val $typed"
     }
     val paramsText = outputs.map(paramText).mkString("(", ", ", ")")

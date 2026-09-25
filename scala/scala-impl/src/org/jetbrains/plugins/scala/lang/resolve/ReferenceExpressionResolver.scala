@@ -627,7 +627,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       qualifier.getNonValueType() match {
         case Right(tpt @ ScTypePolymorphicType(internal, tp)) if tp.nonEmpty &&
           !internal.is[ScMethodType, UndefinedType] /* optimization */ =>
-          val substed = tpt.abstractOrLowerTypeSubstitutor(context)(internal)
+          val substed = tpt.abstractOrLowerTypeSubstitutor(using context)(internal)
           processType(substed, qualifier)
           if (proc.candidates.nonEmpty) return proc.candidates
         case _ =>
@@ -762,7 +762,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           procForConversions,
           noImplicitsForArgs = candidates.nonEmpty,
           forCompletion      = procForConversions.is[CompletionProcessor]
-        )(_.withImports.withImplicitConversionResultType.withType)(qualifier)
+        )(_.withImports.withImplicitConversionResultType.withType)(using qualifier)
 
         val fromImplicits = (procForConversions, procForConversions.candidates) match {
           case (methodProcessor: MethodResolveProcessor, Array()) if conformsToDynamic(fromType, ref.resolveScope) =>

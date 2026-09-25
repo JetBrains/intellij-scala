@@ -345,7 +345,7 @@ class ScalaDelegateMethodTest extends ScalaDelegateMethodTestBase {
          |
          |  def foo[S >: AnyRef](x: Int) = d.foo[S](x)
          |}""".stripMargin
-    doTest(text, result, settings = noTypeAnnotationForPublic(getProject))
+    doTest(text, result, settings = noTypeAnnotationForPublic(using getProject))
   }
 
   def testNoTypeParamWithReturn(): Unit = {

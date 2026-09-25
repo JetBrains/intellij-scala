@@ -148,7 +148,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
             val isBuiltinOperation = isIdentityFunction(oper.refName) || !hasNonDefaultEquals(leftType)
             val comparability = checkComparability(leftType, rightType, isBuiltinOperation)
             if (comparability.shouldNotBeCompared) {
-              val message = generateComparingUnrelatedTypesMsg(leftType, rightType)(expr)
+              val message = generateComparingUnrelatedTypesMsg(leftType, rightType)(using expr)
               holder.registerProblem(expr, message)
             }
           case _ =>
@@ -164,7 +164,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
         comparability = checkComparability(elemType, argType, isBuiltinOperation = !hasNonDefaultEquals(elemType))
         if comparability.shouldNotBeCompared
       } {
-        val message = generateComparingUnrelatedTypesMsg(elemType, argType)(arg)
+        val message = generateComparingUnrelatedTypesMsg(elemType, argType)(using arg)
         holder.registerProblem(arg, message)
       }
     case IsInstanceOfCall(call) =>
@@ -182,7 +182,7 @@ class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
         comparability = checkComparability(t1, t2, isBuiltinOperation = true)
         if comparability == Comparability.Incomparable
       } {
-        val message = generateComparingUnrelatedTypesMsg(t1, t2)(call)
+        val message = generateComparingUnrelatedTypesMsg(t1, t2)(using call)
         holder.registerProblem(call, message)
       }
     case _ =>

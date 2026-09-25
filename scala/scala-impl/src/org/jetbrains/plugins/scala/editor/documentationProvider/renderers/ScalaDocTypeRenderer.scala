@@ -78,7 +78,7 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     case ScOrType(lhs, rhs) =>
       infixTypeText(Infix("|"), renderedOr, lhs, rhs, render)
     case mt@ScMethodType(retType, params, _) =>
-      render(FunctionType(retType, params.map(_.paramType))(mt.elementScope, Context.Empty))
+      render(FunctionType(retType, params.map(_.paramType))(using mt.elementScope, Context.Empty))
     case ScLiteralType(value) =>
       nameRenderer.escapeName(value.presentation)
     case ScMatchType(scrutinee, cases, _) =>
@@ -99,8 +99,8 @@ private [documentationProvider] class ScalaDocTypeRenderer(
     val typeParametersTexts = typeParameters.map {
       case TypeParameter(parameter, _, lowerType, upperType) =>
         renderWithAttrKey(parameter.name, DefaultHighlighter.TYPEPARAM) +
-          boundsRenderer.lowerBoundText(lowerType)(render) +
-          boundsRenderer.upperBoundText(upperType)(render)
+          boundsRenderer.lowerBoundText(lowerType)(using render) +
+          boundsRenderer.upperBoundText(upperType)(using render)
     }
     val typeParametersText = typeParametersTexts.commaSeparated(model = Model.SquareBrackets)
     // TODO Custom lambda and polymorphic function types, SCL-20394
@@ -133,8 +133,8 @@ private [documentationProvider] class ScalaDocTypeRenderer(
       case parameters => parameters.commaSeparated(model = Model.SquareBrackets)
     }
 
-    val lowerBound = boundsRenderer.lowerBoundText(wildcard.lower)(this)
-    val upperBound = boundsRenderer.upperBoundText(wildcard.upper)(this)
+    val lowerBound = boundsRenderer.lowerBoundText(wildcard.lower)(using this)
+    val upperBound = boundsRenderer.upperBoundText(wildcard.upper)(using this)
     s"$name$argsText$lowerBound$upperBound"
   }
 

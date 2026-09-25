@@ -113,15 +113,15 @@ object AutoBraceLookupListenerService {
       }
 
       val element = file.findElementAt(caret)
-      findAutoBraceInsertionOpportunity(currentItem, caret, element)(project, file, editor)
+      findAutoBraceInsertionOpportunity(currentItem, caret, element)(using project, file, editor)
     }
 
     private def doAutoBraceInsertion(event: LookupEvent, info: AutoBraceInsertionInfo): Unit = {
       val lookup = event.getLookup
       val project = lookup.getProject
       inWriteCommandAction(
-        insertAutoBraces(info)(project, lookup.getPsiFile, lookup.getEditor)
-      )(project)
+        insertAutoBraces(info)(using project, lookup.getPsiFile, lookup.getEditor)
+      )(using project)
     }
   }
 }

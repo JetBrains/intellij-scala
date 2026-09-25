@@ -14,6 +14,6 @@ class ExpandFunctionType extends AbstractTransformer {
         case ScTupleTypeElement(elements @ _*) => elements
         case element => Seq(element)
       }
-      e.replace(code"Function${elements.length}[${@@(elements)}, $r]"(Type))
+      e.replace(code"Function${elements.length}[${@@(elements)}, $r]"(using Type))
   }
 }

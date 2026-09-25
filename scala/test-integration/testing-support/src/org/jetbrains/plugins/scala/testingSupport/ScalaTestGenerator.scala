@@ -124,10 +124,10 @@ class ScalaTestGenerator extends TestGenerator {
       return
 
     def addExtendsRef(refName: String): PsiElement = {
-      val (extendsToken, classParents) = createClassTemplateParents(refName, typeDefinition)(typeDefinition.getManager)
+      val (extendsToken, classParents) = createClassTemplateParents(refName, typeDefinition)(using typeDefinition.getManager)
       val extendsAdded = extendsBlock.addBefore(extendsToken, extendsBlock.getFirstChild)
       val res = extendsBlock.addAfter(classParents, extendsAdded)
-      extendsBlock.addBefore(createWhitespace(extendsAdded.getProject), res)
+      extendsBlock.addBefore(createWhitespace(using extendsAdded.getProject), res)
       res
     }
 
@@ -412,7 +412,7 @@ object ScalaTestGenerator {
       s"""override val tests: Tests = Tests {
          |$methodsBodyText
          |}""".stripMargin
-    val testsValDefinition = createElementWithContext[ScPatternDefinition](testsValDefinitionText, templateBody, null)(Def.parse(_))
+    val testsValDefinition = createElementWithContext[ScPatternDefinition](testsValDefinitionText, templateBody, null)(Def.parse(using _))
     templateBody.addBefore(testsValDefinition, templateBody.getLastChild)
   }
 

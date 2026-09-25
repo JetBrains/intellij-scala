@@ -74,13 +74,13 @@ final class ScalaFilterScope private(delegate: GlobalSearchScope)
 object ScalaFilterScope {
 
   def apply(parameters: ReferencesSearch.SearchParameters): SearchScope =
-    apply(parameters.getEffectiveSearchScope)(parameters.getProject)
+    apply(parameters.getEffectiveSearchScope)(using parameters.getProject)
 
   def apply(parameters: MethodReferencesSearch.SearchParameters): SearchScope =
-    apply(parameters.getEffectiveSearchScope)(parameters.getProject)
+    apply(parameters.getEffectiveSearchScope)(using parameters.getProject)
 
   def apply(delegate: GlobalSearchScope)
-           (implicit project: Project): ScalaFilterScope = new ScalaFilterScope(delegate)(project)
+           (implicit project: Project): ScalaFilterScope = new ScalaFilterScope(delegate)(using project)
 
   def apply(scope: SearchScope)
            (implicit project: Project): SearchScope = scope match {
@@ -174,5 +174,5 @@ final class WorksheetResolveFilterScope(delegate: GlobalSearchScope,
 object WorksheetResolveFilterScope {
   def apply(delegate: GlobalSearchScope, worksheetFile: VirtualFile)
            (implicit project: Project): WorksheetResolveFilterScope =
-    new WorksheetResolveFilterScope(delegate, worksheetFile)(project)
+    new WorksheetResolveFilterScope(delegate, worksheetFile)(using project)
 }

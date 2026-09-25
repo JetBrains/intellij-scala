@@ -232,7 +232,7 @@ object ExtractorMatch {
       for {
         apply <- findMember(CommonNames.Apply, tpe, place, parameterless = false)
         resTpe <- apply match {
-          case FunctionType(res, Seq(idxTpe)) if idxTpe.equiv(api.Int(place)) =>
+          case FunctionType(res, Seq(idxTpe)) if idxTpe.equiv(api.Int(using place)) =>
             res.toOption
           case _ => None
         }
@@ -546,18 +546,18 @@ object ExtractorMatch {
             }
             params.map(p => substitutor(p.`type`().getOrNothing)) match {
               case comps :+ seqTy => (comps, seqTy)
-              case comps => (comps, api.Nothing(place))
+              case comps => (comps, api.Nothing(using place))
             }
           case Some(TupleType(types)) =>
             types match {
               case comps :+ seqTy => (comps, extractSeqElementType(seqTy, place).getOrElse(seqTy))
-              case comps => (comps, api.Any(place))
+              case comps => (comps, api.Any(using place))
             }
           case Some(seqTy) =>
             (Seq.empty, extractSeqElementType(seqTy, place).getOrElse(seqTy))
           case _ =>
             // Hmm... something went wrong...
-            (Seq.empty, api.Any(place))
+            (Seq.empty, api.Any(using place))
         }
 
         return LazyList(ExtractorMatch.UnapplySeq(comps, seqTy, extractorType.getOrElse(tpe), irrefutable = true))

@@ -1627,7 +1627,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |import foo.$CARET
          |""".stripMargin
 
-    val stdTypes = StdTypes.instance(getProject)
+    val stdTypes = StdTypes.instance(using getProject)
     val anyRefMethods = getSyntheticClassMethodNames(stdTypes.AnyRef)
 
     checkNoCompletion(fileText, anyRefMethods)
@@ -1641,7 +1641,7 @@ abstract class ScalaBasicCompletionTest_CommonTests extends ScalaBasicCompletion
          |import foo.$CARET
          |""".stripMargin
 
-    val stdTypes = StdTypes.instance(getProject)
+    val stdTypes = StdTypes.instance(using getProject)
     val anyMethods = getSyntheticClassMethodNames(stdTypes.Any)
 
     checkNoCompletion(fileText, anyMethods)

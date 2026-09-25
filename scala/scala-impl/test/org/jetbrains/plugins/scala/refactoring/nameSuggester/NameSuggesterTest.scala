@@ -103,7 +103,7 @@ abstract class NameSuggesterTest extends AbstractNameSuggesterTest {
   }
 
   protected def testNamesByType(typeElementText: String, expected: String*): Unit = {
-    val typeElement = createTypeElementFromText(typeElementText, ScalaFeatures.onlyByVersion(version))(getProject)
+    val typeElement = createTypeElementFromText(typeElementText, ScalaFeatures.onlyByVersion(version))(using getProject)
     testNamesByElement(typeElement, expected)
   }
 }

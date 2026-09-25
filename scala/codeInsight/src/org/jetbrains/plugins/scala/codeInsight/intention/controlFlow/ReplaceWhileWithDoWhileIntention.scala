@@ -45,7 +45,7 @@ final class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionActi
 
       val newStmtText = s"if ($condText) {\n do $bodyText while ($condText)\n}"
 
-      val newStmt = createExpressionFromText(newStmtText, element)(element.getManager)
+      val newStmt = createExpressionFromText(newStmtText, element)(using element.getManager)
 
       IntentionPreviewUtils.write { () =>
         whileStmt.replaceExpression(newStmt, removeParenthesis = true)

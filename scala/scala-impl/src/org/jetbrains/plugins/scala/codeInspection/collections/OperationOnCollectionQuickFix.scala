@@ -11,7 +11,7 @@ class OperationOnCollectionQuickFix(
   replacementText: String,
 ) extends PsiUpdateModCommandAction[ScExpression](expression) {
   override def invoke(context: ActionContext, expression: ScExpression, updater: ModPsiUpdater): Unit = {
-    val replacement = createExpressionFromText(replacementText, expression)(context.project())
+    val replacement = createExpressionFromText(replacementText, expression)(using context.project())
     expression.replaceExpression(replacement, removeParenthesis = true)
   }
 }

@@ -22,7 +22,7 @@ private final class StaticMembersFinder(place: ScReferenceExpression,
 
   override protected[global] def allCandidates: Iterable[GlobalMemberResult] = {
     implicit val scope: GlobalSearchScope = place.resolveScope
-    val cacheManager = ScalaShortNamesCacheManager.getInstance(place.getProject)
+    val cacheManager = ScalaShortNamesCacheManager.getInstance(using place.getProject)
 
     findStableScalaFunctions(cacheManager.allFunctions(namePredicate))(findInheritorObjectsForOwner) {
       StaticMemberResult(_, _)

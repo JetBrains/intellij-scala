@@ -61,7 +61,7 @@ final class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction w
       elseKeyWord.delete()
       elseBranch.delete()
       ifStmt.getParent.addRangeAfter(from, to, ifStmt)
-      ifStmt.getParent.addAfter(createNewLine()(PsiManager.getInstance(project)), ifStmt)
+      ifStmt.getParent.addAfter(createNewLine()(using PsiManager.getInstance(project)), ifStmt)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }

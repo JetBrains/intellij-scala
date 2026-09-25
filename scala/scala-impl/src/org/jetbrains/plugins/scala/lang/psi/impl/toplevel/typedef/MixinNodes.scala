@@ -219,7 +219,7 @@ object MixinNodes {
     def apply(thisClass: PsiClass): SuperTypesData =
       cachedInUserData("SuperTypesData.apply", thisClass, ModTracker.libraryAware(thisClass), Tuple1(thisClass)) {
         val superTypes = thisClass match {
-          case syn: ScSyntheticClass          => syn.getSuperTypes.map(_.toScType()(syn)).toSeq
+          case syn: ScSyntheticClass          => syn.getSuperTypes.map(_.toScType()(using syn)).toSeq
           case newTd: ScNewTemplateDefinition => MixinNodes.linearization(newTd)
           case _                              => MixinNodes.linearization(thisClass).drop(1)
         }
@@ -624,7 +624,7 @@ object MixinNodes {
 
       def returnType(e: PsiNamedElement): ScType = e match {
         case fn: ScFunction         => fn.returnType.getOrAny
-        case m: PsiMethod           => m.getReturnType.toScType()(e.projectContext)
+        case m: PsiMethod           => m.getReturnType.toScType()(using e.projectContext)
         case tpd: ScTypedDefinition => tpd.`type`().getOrAny
         case other                  => throw new IllegalArgumentException(s"Unexpected signature element of class ${other.getClass}")
       }

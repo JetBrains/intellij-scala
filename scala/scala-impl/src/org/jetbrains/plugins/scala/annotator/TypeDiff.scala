@@ -34,15 +34,15 @@ object TypeDiff {
 
   // To display a type hint
   def parse(tpe: ScType)(implicit tpc: TypePresentationContext, context: Context): Tree[TypeDiff] =
-    diff(tpe, tpe)((_, _) => true, tpc, context)
+    diff(tpe, tpe)(using (_, _) => true, tpc, context)
 
   // To highlight a type ascription
   def forExpected(expected: ScType, actual: ScType)(implicit tpc: TypePresentationContext, context: Context): Tree[TypeDiff] =
-    diff(actual, expected)(_.conforms(_), tpc, context)
+    diff(actual, expected)(using _.conforms(_), tpc, context)
 
   // To display a type mismatch hint
   def forActual(expected: ScType, actual: ScType)(implicit tpc: TypePresentationContext, context: Context): Tree[TypeDiff] =
-    diff(expected, actual)(reversed(_.conforms(_)), tpc, context)
+    diff(expected, actual)(using reversed(using _.conforms(_)), tpc, context)
 
   // To display a type mismatch tooltip
   def forBoth(expected: ScType, actual: ScType)(implicit tpc: TypePresentationContext, context: Context): (Tree[TypeDiff], Tree[TypeDiff]) =
@@ -88,7 +88,7 @@ object TypeDiff {
       case (_: ScExistentialType, ScExistentialType(q2: ScParameterizedType, ws2)) if tpe1 == tpe2 =>
         val wildcards = ws2.map { case ScExistentialArgument(_, _, lower, upper) =>
           Node((aMatch("_") +:
-            ((if (lower.isNothing) Seq.empty else Seq(aMatch(" >: "), diff(lower, lower)(reversed(conformance), tpc, context))) ++
+            ((if (lower.isNothing) Seq.empty else Seq(aMatch(" >: "), diff(lower, lower)(using reversed(using conformance), tpc, context))) ++
               (if (upper.isAny) Seq.empty else Seq(aMatch(" <: "), diff(upper, upper)))))*)
         }
         Node(diff(q2.designator, q2.designator), aMatch("["), Node(wildcards.intersperse(aMatch(", "))*), aMatch("]"))
@@ -99,7 +99,7 @@ object TypeDiff {
         val diffComponent: ((ScType, ScType), (ScType, ScType)) => Tree[TypeDiff] = {
           case ((name1, tpe1), (name2, tpe2)) =>
             val name = NamedTupleType.NameType.from(name2).getOrElse(tpe2.presentableText)
-            Node(if (name1.conforms(name2)) aMatch(name) else aMismatch(name), aMatch(": "), diff(tpe1, tpe2)(conformance, tpc, context))
+            Node(if (name1.conforms(name2)) aMatch(name) else aMismatch(name), aMatch(": "), diff(tpe1, tpe2)(using conformance, tpc, context))
         }
 
         if (comps1.length == comps2.length) Node(aMatch("("), Node((comps1 lazyZip comps2).map(diffComponent).intersperse(aMatch(", "))*), aMatch(")"))
@@ -139,20 +139,20 @@ object TypeDiff {
 
         Node(
           leftPBefore,
-          diff(l1, l2)(conformanceFor(v1), tpc, context),
+          diff(l1, l2)(using conformanceFor(v1), tpc, context),
           leftPAfter,
           aMatch(" "),
           opDiff,
           aMatch(" "),
           rightPBefore,
-          diff(r1, r2)(conformanceFor(v2), tpc, context),
+          diff(r1, r2)(using conformanceFor(v2), tpc, context),
           rightPAfter,
         )
       case (FunctionType(r1, p1), FunctionType(r2, p2)) =>
         val needsParens = (t: ScType) => FunctionType.isFunctionType(t) || TupleType.TupleN.tupleNArity(t).exists(_ >= 2)
         val left = {
           if (p1.length == p2.length) {
-            val parameters = (p1 lazyZip p2).map(diff(_, _)(reversed, tpc, context)).intersperse(aMatch(", "))
+            val parameters = (p1 lazyZip p2).map(diff(_, _)(using reversed, tpc, context)).intersperse(aMatch(", "))
             if (p2.isEmpty) Seq(aMatch("()"))
             else if (p2.length > 1) Seq(aMatch("("), Node(parameters*), aMatch(")"))
             else if (p2.exists(needsParens)) Seq(aMatch("("), parameters.head, aMatch(")"))
@@ -171,7 +171,7 @@ object TypeDiff {
           case _ => Seq.fill(args2.length)((t1: ScType, t2: ScType) => t1.equiv(t2))
         }
         val inner = if (args1.length == args2.length)
-          (args1 lazyZip args2 lazyZip conformances).map(diff(_, _)(_, tpc, context)).intersperse(aMatch(", "))
+          (args1 lazyZip args2 lazyZip conformances).map(diff(_, _)(using _, tpc, context)).intersperse(aMatch(", "))
         else
           Seq(aMismatch(args2.map(_.presentableText).mkString(", ")))
 

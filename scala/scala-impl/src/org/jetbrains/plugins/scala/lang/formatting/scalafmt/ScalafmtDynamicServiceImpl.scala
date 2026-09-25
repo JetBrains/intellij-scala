@@ -105,7 +105,7 @@ final class ScalafmtDynamicServiceImpl
     }
 
     if (verbosity == FmtVerbosity.Verbose)
-      resolveResult.left.foreach(reportResolveError(_)(project))
+      resolveResult.left.foreach(reportResolveError(_)(using project))
 
     resolveResult
   }
@@ -183,7 +183,7 @@ final class ScalafmtDynamicServiceImpl
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
       val project = e.getProject
       resolveAsync(version, project, onResolved = {
-        case Right(_) => ScalafmtNotifications.displayInfo(ScalaBundle.message("scalafmt.progress.version.was.downloaded", version))(project)
+        case Right(_) => ScalafmtNotifications.displayInfo(ScalaBundle.message("scalafmt.progress.version.was.downloaded", version))(using project)
         case _ => // relying on error reporting in resolve method
       })
       notification.expire()

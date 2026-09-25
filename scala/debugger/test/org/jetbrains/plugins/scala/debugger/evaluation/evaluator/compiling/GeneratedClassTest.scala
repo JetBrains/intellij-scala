@@ -47,7 +47,7 @@ abstract class GeneratedClassTestBase extends ScalaLightCodeInsightFixtureTestCa
     val testData = parseTestData()
 
     val file = configureFromFileText(testData.fileText.replace(bp, ""))
-    val fragment = ScalaCodeFragment(testData.codeFragment)(file.getProject)
+    val fragment = ScalaCodeFragment(testData.codeFragment)(using file.getProject)
     fragment.addImportsFromString(testData.additionalImports.mkString(","))
     val context = PsiTreeUtilEx.topmostElementAtOffset(file, testData.fileText.indexOf(bp))
 

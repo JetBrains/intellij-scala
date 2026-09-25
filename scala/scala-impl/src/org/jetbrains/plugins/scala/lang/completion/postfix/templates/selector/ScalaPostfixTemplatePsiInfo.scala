@@ -44,7 +44,7 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
                              _: ScParenthesisedExpr)) =>
         "!" + expression.getNode.getText
       case Array(ScPrefixExpr(operation, operand@Typeable(operandType)), _*)
-        if operation.refName == "!" && operandType.conforms(api.Boolean(operand))(Context(operation)) =>
+        if operation.refName == "!" && operandType.conforms(api.Boolean(using operand))(using Context(operation)) =>
         operand.getNode.getText
       case _ => super.getTemplateAsString(elements)
     }

@@ -24,7 +24,7 @@ class ScalaUnwrapContext extends AbstractUnwrapper.AbstractContext {
 
   def insertNewLine(): Unit = {
     val lastExtracted = myElementsToExtract.get(myElementsToExtract.size() - 1)
-    val newLine = createNewLine()(lastExtracted.getManager)
+    val newLine = createNewLine()(using lastExtracted.getManager)
     if (myIsEffective && lastExtracted.isValid) {
       lastExtracted.getParent.addAfter(newLine, lastExtracted)
     }

@@ -50,7 +50,7 @@ abstract class ScalaSdkDetectorBase extends ScalaSdkDetector
     systemRoot: Option[Path] = None
   ): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
     val descriptorShort = buildFromComponentsShort(components, label).map(_.copy(systemRoot = systemRoot))
-    val descriptorFull = descriptorShort.flatMap(resolveExtraRequiredJars(_)(indicator))
+    val descriptorFull = descriptorShort.flatMap(resolveExtraRequiredJars(_)(using indicator))
     descriptorFull
   }
 

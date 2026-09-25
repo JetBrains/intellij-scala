@@ -49,13 +49,13 @@ private[codeInsight] trait ScalaTypeHintsPass {
         if !(settings.preserveIndents && (!element.textContains('\n') && definition.hasCustomIndents || adjacentDefinitionsHaveCustomIndent(element)))
         if !ScMethodType.hasMethodType(body)
         if settings.showObviousType || !(definition.hasStableType || isTypeObvious(definition.name, tpe, body))
-        info <- hintFor(definition, tpe, menu)(editor.getColorsScheme, TypePresentationContext(element), Context(element), settings)
+        info <- hintFor(definition, tpe, menu)(using editor.getColorsScheme, TypePresentationContext(element), Context(element), settings)
       } yield info) ++ (if (ScalaHintsSettings.xRayMode) collectXRayHints(editor, root) else Seq.empty)
     }.toSeq
   }
 
   private def collectXRayHints(editor: Editor, root: PsiFile) = root.elements(_.isVisible(editor.getProject, root)).flatMap {
-    case e @ Typeable(t) => xRayHintsFor(e, t)(editor.getColorsScheme, TypePresentationContext(e), Context(e), settings)
+    case e @ Typeable(t) => xRayHintsFor(e, t)(using editor.getColorsScheme, TypePresentationContext(e), Context(e), settings)
     case _ => Seq.empty
   }
 

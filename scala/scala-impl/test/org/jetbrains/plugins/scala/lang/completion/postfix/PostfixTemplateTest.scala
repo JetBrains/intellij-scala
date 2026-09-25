@@ -104,7 +104,7 @@ object PostfixTemplateTest {
 
       applicableElement match {
         case Some(element) =>
-          inWriteCommandAction(template.expand(element, editor))(null)
+          inWriteCommandAction(template.expand(element, editor))(using null)
           NonBlockingReadActionImpl.waitForAsyncTaskCompletion()
           true
         case None => false

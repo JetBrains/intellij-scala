@@ -18,11 +18,11 @@ object ImportOrderings {
   def defaultImportOrdering(place: PsiElement): Ordering[ElementToImport] = {
     orderingByDeprecated.on[ElementToImport](_.element) orElse
       sameFileOrdering(place).on(_.element) orElse
-      orderingByImportCountInProject(place).on(_.qualifiedName) orElse
+      orderingByImportCountInProject(using place).on(_.qualifiedName) orElse
       externalOriginOrdering.on(_.element) orElse
       (
         orderingByDistanceToLocalImports(place) orElse
-        orderingByPackageImportCountInProject(place) orElse
+        orderingByPackageImportCountInProject(using place) orElse
         specialPackageOrdering orElse
         orderingByPackageDepth orElse
         orderingByPackageName

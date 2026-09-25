@@ -16,7 +16,7 @@ final class FromJavaOverrideImplementTest extends ScalaLightCodeInsightFixtureTe
     val scalaFile = myFixture.configureByText("ScalaDummy.scala", scalaText.replace("\r", "").stripMargin.trim)
     TypeAnnotationSettings.set(getProject, defaultSettings)
 
-    ScalaOIUtil.invokeOverrideImplement(scalaFile, isImplement, Some(methodName))(getProject, myFixture.getEditor)
+    ScalaOIUtil.invokeOverrideImplement(scalaFile, isImplement, Some(methodName))(using getProject, myFixture.getEditor)
     TypeAnnotationSettings.set(getProject, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     assertEquals(expectedText.replace("\r", "").stripMargin.trim, scalaFile.getText.stripMargin.trim)
   }

@@ -66,7 +66,7 @@ object SdkUtils {
         .filter(sdk => EelUtilsKt.ownsSdk(eelMachine, sdk) && condition(sdk))
 
       if (jdks.isEmpty) None
-      else Option(jdks.max(comparatorToOrdering(sdkType.versionComparator())))
+      else Option(jdks.max(using comparatorToOrdering(using sdkType.versionComparator())))
     }
   }
 

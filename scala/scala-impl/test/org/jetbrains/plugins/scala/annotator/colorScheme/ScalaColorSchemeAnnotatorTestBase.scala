@@ -50,7 +50,7 @@ abstract class ScalaColorSchemeAnnotatorTestBase[T] extends ScalaLightCodeInsigh
       scalaFile.breadthFirst().foreach { element =>
         if (needToAnnotateElement(element)) {
           highlightingVisitor.visit(element)
-          ScalaColorSchemeAnnotator.highlightElement(element)(annotationHolder)
+          ScalaColorSchemeAnnotator.highlightElement(element)(using annotationHolder)
         }
       }
     })

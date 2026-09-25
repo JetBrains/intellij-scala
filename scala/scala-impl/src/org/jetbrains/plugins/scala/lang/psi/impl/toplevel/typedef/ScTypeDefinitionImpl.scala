@@ -381,7 +381,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     }
   }
 
-  override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(PsiTypeParameter.ARRAY_FACTORY)
+  override def psiTypeParameters: Array[PsiTypeParameter] = typeParameters.makeArray(using PsiTypeParameter.ARRAY_FACTORY)
 
   override def methodsByName(name: String): Iterator[PhysicalMethodSignature] = {
     TypeDefinitionMembers.getSignatures(this).forName(name)

@@ -82,7 +82,7 @@ private class MemberToImportComputation(ref: ScReferenceExpression) {
         .toSeq
         .distinctBy(_.qualifiedName)
         .filterNot(c => isExcluded(c.qualifiedName, ref.getProject))
-        .sorted(defaultImportOrdering(ref))
+        .sorted(using defaultImportOrdering(ref))
 
     //check for compatibility takes too long if there are that many candidates
     //in this case it's probably better to use qualified reference anyway

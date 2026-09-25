@@ -119,7 +119,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
       targetModifier match {
         case Some(targetModifier) =>
           val modifierList = member.getModifierList
-          setModifier(modifierList, targetModifier)(project)
+          setModifier(modifierList, targetModifier)(using project)
         case _ =>
           availableModifiers(member).mkString(", ")
           return new IntentionPreviewInfo.Html(HtmlChunk.text(

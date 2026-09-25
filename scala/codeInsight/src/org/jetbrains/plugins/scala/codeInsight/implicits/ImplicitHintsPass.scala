@@ -128,7 +128,7 @@ class ImplicitHintsPass(
         case clause: ImplicitValueClause
           if !isDeferredTraitParent && shouldSearchForImplicits(enabledForElement) &&
             shouldShowImplicitArgumentsOrErrors(enabledForElement, clause.arguments) =>
-          Seq(implicitArgumentsHint(clause, owner)(editor.getColorsScheme))
+          Seq(implicitArgumentsHint(clause, owner)(using editor.getColorsScheme))
         case clause: ValueClause if ImplicitHints.enabled =>
           clause.target match {
             case ArgumentClauseTarget.ScalaParameters(parameters) if parameters.isImplicit =>
@@ -145,7 +145,7 @@ class ImplicitHintsPass(
 
       val implicitConversion = expression.implicitConversion()
       implicitConversion.toSeq.flatMap { conversion =>
-        implicitConversionHint(expression, conversion)(editor.getColorsScheme, expression)
+        implicitConversionHint(expression, conversion)(using editor.getColorsScheme, expression)
       }
     }
 
@@ -183,7 +183,7 @@ class ImplicitHintsPass(
               if (shouldShowImplicitArgumentsOrErrors(enabledForElement, implicitArgsFlat)) {
                 Text(s" with $name") +:
                   implicitArgsClauses.flatMap(clause =>
-                    presentationOf(clause.args, None)(editor.getColorsScheme)
+                    presentationOf(clause.args, None)(using editor.getColorsScheme)
                   )
               } else Seq.empty
             }

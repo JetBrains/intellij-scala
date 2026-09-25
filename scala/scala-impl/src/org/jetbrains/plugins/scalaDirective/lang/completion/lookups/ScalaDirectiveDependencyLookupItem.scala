@@ -19,7 +19,7 @@ object ScalaDirectiveDependencyLookupItem {
         context.getFile.findElementAt(context.getStartOffset) match {
           case value@ElementType(ScalaDirectiveTokenTypes.tDIRECTIVE_VALUE) =>
             val newValueText = valueKind.wrap(item.getLookupString)
-            val newValue = ScalaPsiElementFactory.createDirectiveValueFromText(newValueText)(context.getProject)
+            val newValue = ScalaPsiElementFactory.createDirectiveValueFromText(newValueText)(using context.getProject)
             value.replace(newValue)
             if (scheduleAutoPopupAfterInsert) {
               context.scheduleAutoPopup()

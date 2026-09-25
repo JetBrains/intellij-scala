@@ -153,7 +153,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
             parameter.typeElement.get.getText
           )
 
-          val ranges = mismatchRangesIn(parameter.typeElement.get, expectedType)(parameter)
+          val ranges = mismatchRangesIn(parameter.typeElement.get, expectedType)(using parameter)
           ranges.foreach(holder.createErrorAnnotation(_, message, ReportHighlightingErrorQuickFix))
           typeMismatch = true
         }

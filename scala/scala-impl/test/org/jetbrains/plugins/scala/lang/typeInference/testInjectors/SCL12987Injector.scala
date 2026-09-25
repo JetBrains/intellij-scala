@@ -29,7 +29,7 @@ class SCL12987Injector extends InterpolatedStringMacroTypeProvider {
   override def inferExpressionType(pat: ScInterpolatedStringLiteral): TypeResult = {
     val resultingType = pat.getStringParts.mkString.split(':').last
     ScalaPsiElementFactory
-      .createTypeElementFromText(resultingType, pat)(pat)
+      .createTypeElementFromText(resultingType, pat)(using pat)
       .`type`()
   }
 }

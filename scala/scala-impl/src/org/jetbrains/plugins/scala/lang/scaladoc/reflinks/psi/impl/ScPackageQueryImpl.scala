@@ -20,7 +20,7 @@ class ScPackageQueryImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     resolvePackage().iterator.map(new ScalaResolveResult(_)).toArray
 
   override def resolvePackage(): Option[ScPackage] =
-    this.parentOfType[ScPackaging].flatMap(p => ScPackageImpl.findPackage(p.fqn)(ScalaPsiManager.instance))
+    this.parentOfType[ScPackaging].flatMap(p => ScPackageImpl.findPackage(p.fqn)(using ScalaPsiManager.instance))
 
   override def resolve(): ScPackage = resolvePackage().orNull
 

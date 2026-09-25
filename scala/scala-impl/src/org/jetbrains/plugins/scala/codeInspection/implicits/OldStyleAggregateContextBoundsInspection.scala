@@ -34,9 +34,9 @@ final class OldStyleAggregateContextBoundsInspection extends LocalInspectionTool
     override protected def doApplyFix(owner: ScTypeBoundsOwner)
                                      (implicit project: Project): Unit = {
       val bounds = owner.contextBounds
-      val comma  = ScalaPsiElementFactory.createComma(owner)
-      val lbrace = ScalaPsiElementFactory.createLBrace(owner)
-      val rbrace = ScalaPsiElementFactory.createRBrace(owner)
+      val comma  = ScalaPsiElementFactory.createComma(using owner)
+      val lbrace = ScalaPsiElementFactory.createLBrace(using owner)
+      val rbrace = ScalaPsiElementFactory.createRBrace(using owner)
 
       bounds.headOption.foreach(cb => owner.addBefore(lbrace, cb))
       bounds.tail.foreach(cb => PsiTreeUtil.skipWhitespacesBackward(cb).replace(comma))

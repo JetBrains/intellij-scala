@@ -20,7 +20,7 @@ trait ScType extends ProjectContextOwner {
     case Some(value) => value
     case None =>
       ProgressManager.checkCanceled()
-      val (value, valueInContext) = cachedAliasType.updatedUsing(ctx => calculateAliasType(ctx))
+      val (value, valueInContext) = cachedAliasType.updatedUsing(ctx => calculateAliasType(using ctx))
       cachedAliasType = valueInContext
       value
   }
@@ -42,7 +42,7 @@ trait ScType extends ProjectContextOwner {
   // TODO: we must not override toString which does such a complex stuff (resolve, tree traversal etc...)
   //  for such things we should always use explicit methods oText/mkString/presentableText/etc...
   override final def toString: String = ifReadAllowed {
-    presentableText(TypePresentationContext.emptyContext, Context.Empty)
+    presentableText(using TypePresentationContext.emptyContext, Context.Empty)
   }(getClass.getSimpleName)
 
   def isValue: Boolean
@@ -69,7 +69,7 @@ trait ScType extends ProjectContextOwner {
   def presentableText(implicit tpc: TypePresentationContext, context: Context): String =
     typeSystem.presentableText(this)
 
-  def canonicalText: String = canonicalText(TypePresentationContext.emptyContext)(Context.Empty)
+  def canonicalText: String = canonicalText(TypePresentationContext.emptyContext)(using Context.Empty)
 
   def canonicalText(tpc: TypePresentationContext)(implicit context: Context): String = typeSystem.canonicalText(this, tpc)
 

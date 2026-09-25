@@ -25,16 +25,16 @@ object ScalaGenerateCompanionObjectAction {
 
     override def isValidFor(editor: Editor, file: PsiFile): Boolean =
       super.isValidFor(editor, file) &&
-        findTypeDefinitionAtCaret(editor, file).exists(canAddCompanionObject)
+        findTypeDefinitionAtCaret(using editor, file).exists(canAddCompanionObject)
 
     override def invoke(project: Project,
                         editor: Editor,
                         file: PsiFile): Unit =
-      for (clazz <- findTypeDefinitionAtCaret(editor, file)) {
+      for (clazz <- findTypeDefinitionAtCaret(using editor, file)) {
         val obj = createCompanionObject(clazz)
         val parent = clazz.getParent
         val addedObj = parent.addAfter(obj, clazz)
-        parent.addAfter(createNewLine()(clazz.getManager), clazz)
+        parent.addAfter(createNewLine()(using clazz.getManager), clazz)
 
         val document = editor.getDocument
         PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)

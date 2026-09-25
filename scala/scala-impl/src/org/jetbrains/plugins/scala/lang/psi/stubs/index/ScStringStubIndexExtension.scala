@@ -18,7 +18,7 @@ abstract class ScStringStubIndexExtension[E <: PsiElement : ClassTag] extends St
 
   final def getElements(key: String, project: Project, scope: GlobalSearchScope): ju.Collection[E] = {
     val requiredClass = classTag[E].runtimeClass.asInstanceOf[Class[E]]
-    val scalaScope = ScalaFilterScope(scope)(project)
+    val scalaScope = ScalaFilterScope(scope)(using project)
     StubIndex.getElements(getKey, key, project, scalaScope, requiredClass)
   }
 }

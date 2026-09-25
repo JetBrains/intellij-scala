@@ -258,7 +258,7 @@ object SameSignatureCallParametersProvider {
 
     iconable <- expression.resolve match {
       case method: PsiMethod if method.isConstructor || !method.isParameterless => None
-      case member: PsiMember if !isAccessible(member, invocationCount)(reference) => None
+      case member: PsiMember if !isAccessible(member, invocationCount)(using reference) => None
       case iconable => Option(iconable)
     }
   } yield name -> ExpressionArgument(expression, iconable)
@@ -325,7 +325,7 @@ object SameSignatureCallParametersProvider {
 
         findArgumentsList(element) match {
           case null =>
-          case list => onExpressionList(list)(context)
+          case list => onExpressionList(list)(using context)
         }
     }
 
@@ -340,7 +340,7 @@ object SameSignatureCallParametersProvider {
       foreachArgument(list) { argument =>
         val replacementText = argument.getText + AssignmentText + NotImplementedError
         argument.replaceExpression(
-          createExpressionFromText(replacementText, list)(argument),
+          createExpressionFromText(replacementText, list)(using argument),
           removeParenthesis = false
         )
       }

@@ -27,7 +27,7 @@ abstract class ScalaTypePresentationTestBase extends ScalaLightCodeInsightFixtur
 
   def assertPresentationIs(tpe: String, expected: String, header: String): Unit = {
     val typeElement = makeTypeElement(tpe, header)
-    val actual = typeElement.`type`().get.presentableText(TypePresentationContext(typeElement), Context(typeElement))
+    val actual = typeElement.`type`().get.presentableText(using TypePresentationContext(typeElement), Context(typeElement))
     assertEquals(expected, actual)
 
     if (tpe != expected) {
@@ -38,7 +38,7 @@ abstract class ScalaTypePresentationTestBase extends ScalaLightCodeInsightFixtur
   private def makeTypeElement(tpe: String, header: String): ScTypeElement = {
     val file =
       ScalaPsiElementFactory.createScalaFileFromText(header + "type T[A] = " + tpe, ScalaFeatures.onlyByVersion(version))(
-        getProject
+        using getProject
       )
 
     file.elements.collectFirst { case e: ScTypeElement if e.getTextOffset > header.length => e }.get

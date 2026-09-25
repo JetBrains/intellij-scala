@@ -88,7 +88,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
     addTypeAnnotation(Some(ty), context, anchor)
 
   def addTypeAnnotation(tyOpt: Option[ScType], context: PsiElement, anchor: PsiElement): Unit = {
-    val ty = tyOpt.getOrElse(StdTypes.instance(context).Any)
+    val ty = tyOpt.getOrElse(StdTypes.instance(using context).Any)
     addTypeAnnotation(Seq(TypeForAnnotation(ty, anchor)), context, anchor)
   }
 
@@ -137,7 +137,7 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
 
     maybeExpression.foreach {
       case call@Implementation.EmptyCollectionFactoryCall(ref) if true =>
-        val replacement = createPsiElementFromText(ref.getText, ref)(ref.projectContext)
+        val replacement = createPsiElementFromText(ref.getText, ref)(using ref.projectContext)
         call.replace(replacement)
       case _ =>
     }
@@ -148,7 +148,7 @@ object AddOnlyStrategy {
   case class TypeForAnnotation(ty: ScType, ctx: PsiElement, addSuperTypes: Boolean = true) {
     def typeWithSuperTypes: Seq[ScTypeElement] =
       if (addSuperTypes) AddOnlyStrategy.annotationsFor(ty, ctx)
-      else Seq(createTypeElementFromText(ty.canonicalCodeText(ctx), ctx)(ctx))
+      else Seq(createTypeElementFromText(ty.canonicalCodeText(ctx), ctx)(using ctx))
   }
 
   case class TypeAnnotationWithVariants(annotation: ScTypeElement, validVariants: Seq[ScTypeText])

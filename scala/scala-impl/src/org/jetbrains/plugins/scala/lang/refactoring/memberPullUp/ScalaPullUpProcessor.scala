@@ -134,7 +134,7 @@ final class ScalaPullUpProcessor(project: Project,
         copy.accept(new ScalaRecursiveElementVisitor() {
           override def visitSimpleTypeElement(te: ScSimpleTypeElement): Unit = {
             val tpe = te.calcType
-            te.replace(createTypeElementFromText(tpe.canonicalCodeText(te), te)(te))
+            te.replace(createTypeElementFromText(tpe.canonicalCodeText(te), te)(using te))
           }
         })
         Seq(copy.getText)

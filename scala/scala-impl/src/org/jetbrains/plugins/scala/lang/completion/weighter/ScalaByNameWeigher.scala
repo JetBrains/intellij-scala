@@ -26,7 +26,7 @@ final class ScalaByNameWeigher extends CompletionWeigher {
 
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[?] = {
     val parameters = location.getBaseCompletionParameters
-    val position = positionFromParameters(parameters)
+    val position = positionFromParameters(using parameters)
 
     def handleByText(@NotNull name: String): Option[Integer] = {
       val maybeNameAtPosition = parameters.getOriginalPosition match {

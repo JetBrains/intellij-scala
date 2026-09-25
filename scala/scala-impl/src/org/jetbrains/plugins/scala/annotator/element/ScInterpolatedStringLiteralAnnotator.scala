@@ -54,8 +54,8 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
       override protected def transformRange(range: TextRange): TextRange =
         syntheticToReal(range)
     }
-    ScReferenceAnnotator.annotateReference(reference)(delegateHolder)
-    ScMethodInvocationAnnotator.annotateMethodInvocation(call, inDesugaring = true)(delegateHolder)
+    ScReferenceAnnotator.annotateReference(reference)(using delegateHolder)
+    ScMethodInvocationAnnotator.annotateMethodInvocation(call, inDesugaring = true)(using delegateHolder)
   }
 
   private def createSyntheticToRealRangeMap(injections: Seq[ScExpression],

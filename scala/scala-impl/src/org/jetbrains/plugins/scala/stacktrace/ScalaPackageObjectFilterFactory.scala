@@ -73,7 +73,7 @@ class ScalaPackageObjectFilter(scope: GlobalSearchScope) extends ExceptionFilter
         return None
 
       for {
-        packageObject <- ScalaShortNamesCacheManager.getInstance(project)
+        packageObject <- ScalaShortNamesCacheManager.getInstance(using project)
           .findPackageObjectByName(className.split('.').dropRight(1).mkString("."), scope)
 
         vFile <- packageObject.containingVirtualFile

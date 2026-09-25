@@ -59,7 +59,7 @@ object CompletionProcessor {
 class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           override protected val getPlace: PsiElement,
                           val withImplicitConversions: Boolean = false)
-  extends BaseProcessor(kinds)(getPlace) with PrecedenceHelper {
+  extends BaseProcessor(kinds)(using getPlace) with PrecedenceHelper {
 
   private object CompletionStrategy extends NameUniquenessStrategy {
 

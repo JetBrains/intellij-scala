@@ -119,7 +119,7 @@ final case class ScTypePolymorphicType(
   def abstractOrLowerTypeSubstitutor(implicit context: Context): ScSubstitutor = {
     //approximation of logic from scala.tools.nsc.typechecker.Infer.Inferencer#exprTypeArgs#variance
     val forVarianceCheck = internalType match {
-      case mt: ScMethodType if mt.isImplicit => mt.copy(result = Any)(mt.elementScope)
+      case mt: ScMethodType if mt.isImplicit => mt.copy(result = Any)(using mt.elementScope)
       case _ => internalType
     }
     ScSubstitutor.bind(typeParameters) { tp =>

@@ -113,7 +113,7 @@ object SyntheticNamedElement {
 final class ScSyntheticTypeParameter(
   override val name: String,
   override val owner: ScSyntheticFunction
-) extends SyntheticNamedElement(name)(owner.projectContext)
+) extends SyntheticNamedElement(name)(using owner.projectContext)
   with ScTypeParam
   with PsiClassFake {
 

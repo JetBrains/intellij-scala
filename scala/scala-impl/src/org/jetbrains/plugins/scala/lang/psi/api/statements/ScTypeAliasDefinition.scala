@@ -29,13 +29,13 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
   }
 
   override def lowerBound(implicit context: Context): TypeResult =
-    if (!isEffectivelyOpaque(context)) aliasedType else lowerTypeElement match {
+    if (!isEffectivelyOpaque(using context)) aliasedType else lowerTypeElement match {
       case Some(te) => te.`type`()
       case _ => Right(Nothing)
     }
 
   override def upperBound(implicit context: Context): TypeResult =
-    if (!isEffectivelyOpaque(context) && !isMatchTypeAlias) aliasedType
+    if (!isEffectivelyOpaque(using context) && !isMatchTypeAlias) aliasedType
     else
       upperTypeElement match {
         case Some(te) => te.`type`()
@@ -53,7 +53,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
   def isMatchTypeAlias: Boolean = aliasedTypeElement.exists(_.is[ScMatchTypeElement])
 
   def isAliasFor(cls: PsiClass)(implicit context: Context): Boolean =
-    ScTypeAliasDefinition.isAliasFor(this, cls)(context)
+    ScTypeAliasDefinition.isAliasFor(this, cls)(using context)
 }
 
 private object ScTypeAliasDefinition {

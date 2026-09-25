@@ -17,7 +17,7 @@ import scala.jdk.CollectionConverters.IterableHasAsJava
 final class ScalaDirectiveScalaVersionCompletionContributor extends CompletionContributor with DumbAware {
   extend(CompletionType.BASIC, ScalaDirectiveScalaVersionPattern, new CompletionProvider[CompletionParameters] {
     override def addCompletions(params: CompletionParameters, processingContext: ProcessingContext, resultSet: CompletionResultSet): Unit = {
-      val place = positionFromParameters(params)
+      val place = positionFromParameters(using params)
       val (_, valueKind) = ScalaDirectiveValueKind.extract(place.getText)
 
       val onlyStableVersions = !params.isExtendedCompletion

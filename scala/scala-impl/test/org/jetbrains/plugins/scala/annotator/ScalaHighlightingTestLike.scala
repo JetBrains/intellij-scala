@@ -143,7 +143,7 @@ trait ScalaHighlightingTestLike extends MatcherAssertionsExt {
 
     val annotationHolder: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    file.depthFirst().foreach(annotate(_)(annotationHolder))
+    file.depthFirst().foreach(annotate(_)(using annotationHolder))
 
     annotationHolder.annotations
   }

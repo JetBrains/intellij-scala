@@ -140,6 +140,6 @@ class InterpolatedStringFormatterTest extends ScalaLightCodeInsightFixtureTestCa
   }
 
   private def exp(s: String): ScExpression = {
-    createExpressionFromText(s, ScalaFeatures.onlyByVersion(version))(getProject)
+    createExpressionFromText(s, ScalaFeatures.onlyByVersion(version))(using getProject)
   }
 }

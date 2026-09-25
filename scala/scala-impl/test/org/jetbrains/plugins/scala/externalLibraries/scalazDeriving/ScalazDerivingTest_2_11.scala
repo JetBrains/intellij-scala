@@ -52,7 +52,7 @@ class ScalazDerivingTest_2_11 extends ScalaLightCodeInsightFixtureTestCase {
         case Some(method) =>
           method.returnType match {
             case Right(t) =>
-              val tyText = t.presentableText(clazz, Context(clazz))
+              val tyText = t.presentableText(using clazz, Context(clazz))
               assertEquals(s"$tyText != $expectedType", expectedType, tyText)
             case Failure(cause) => fail(cause)
           }

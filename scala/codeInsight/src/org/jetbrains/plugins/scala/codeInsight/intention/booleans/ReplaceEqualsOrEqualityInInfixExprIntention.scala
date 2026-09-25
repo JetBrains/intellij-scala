@@ -26,7 +26,7 @@ final class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIn
     val refName = operation.refName
 
     Replacement.get(refName) match {
-      case Some(replacement) if caretIsInRange(operation)(editor) =>
+      case Some(replacement) if caretIsInRange(operation)(using editor) =>
         setText(ScalaCodeInsightBundle.message("replace.refname.with.replacement", refName, replacement))
         true
       case _ => false

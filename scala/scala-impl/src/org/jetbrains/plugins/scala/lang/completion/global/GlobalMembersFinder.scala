@@ -19,7 +19,7 @@ sealed abstract class GlobalMembersFinder protected(protected val place: ScExpre
 
   protected final def isAccessible(member: PsiMember): Boolean =
     accessAll ||
-      completion.isAccessible(member)(place)
+      completion.isAccessible(member)(using place)
 
   final def lookupItems: Iterable[LookupElement] = {
     val candidatesRes = candidates

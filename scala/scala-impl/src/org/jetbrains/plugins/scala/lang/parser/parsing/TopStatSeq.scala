@@ -32,7 +32,7 @@ object TopStatSeq {
           continueLoop = false
         case _ =>
           semicolonOrNewLineExpected = false
-          val topStatParsed = TopStat.parse()(builder)
+          val topStatParsed = TopStat.parse()(using builder)
           if (!topStatParsed) {
             builder.error(ScalaBundle.message("wrong.top.statement.declaration"))
             builder.advanceLexer()

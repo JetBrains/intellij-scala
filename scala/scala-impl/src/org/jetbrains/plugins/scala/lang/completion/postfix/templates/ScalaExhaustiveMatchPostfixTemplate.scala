@@ -37,7 +37,7 @@ final class ScalaExhaustiveMatchPostfixTemplate(
   override def expand(context: PsiElement, editor: Editor): Unit =
     for {
       (expression, strategy) <- topMostStrategy(context)
-    } expandForStrategy(expression, strategy)(context.getProject, editor)
+    } expandForStrategy(expression, strategy)(using context.getProject, editor)
 
   override def isEditable: Boolean = false
 }
