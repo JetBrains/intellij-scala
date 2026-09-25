@@ -36,12 +36,12 @@ import org.jetbrains.sbt.process.SbtRunner
 import org.jetbrains.sbt.project.SbtProjectResolver.*
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportContext.given
 import org.jetbrains.sbt.project.data.*
-import org.jetbrains.sbt.project.versionNotifications.LegacySbtVersionBuildToolWindowWarning
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.*
 import org.jetbrains.sbt.project.structure.data.*
 import org.jetbrains.sbt.project.structure.data.XmlDeserializer.deserialize
 import org.jetbrains.sbt.project.structure.{Play2OldStructureAdapter, SbtStructureDumper, data as sbtStructure}
+import org.jetbrains.sbt.project.versionNotifications.LegacySbtVersionBuildToolWindowWarning
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, usingTempFile}
 
@@ -820,7 +820,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   protected def createScalaSdkData(scala: Option[ScalaData])(using context: ImportContext): ScalaSdkNode = {
-    val replClasspath = scala.map(_.version).map(ScalaSdkUtils.resolveReplClasspath(context.eelDescriptor, _)).getOrElse(ReplClasspath.Bundled)
+    val replClasspath = scala.map(_.version).map(context.resolveReplClasspath).getOrElse(ReplClasspath.Bundled)
 
     val data = SbtScalaSdkData(
       scalaVersion = scala.map(_.version),
@@ -1653,6 +1653,16 @@ object SbtProjectResolver {
 
     def useSeparateProdTestSources: Boolean = executionSettings.separateProdTestSources
     def useSeparateCompilerOutputPaths: Boolean = executionSettings.useSeparateCompilerOutputPaths
+
+    /**
+     * Holds already resolved REPL classpaths. This in-memory cache exploits the fact that the REPL classpath is stable
+     * for a given Scala version. This helps us avoid re-resolving the REPL classpath for every sbt subproject and
+     * cuts down on network traffic.
+     */
+    private val replClasspathCache: mutable.HashMap[String, ReplClasspath] = mutable.HashMap.empty
+
+    def resolveReplClasspath(scalaVersion: String): ReplClasspath =
+      replClasspathCache.getOrElseUpdate(scalaVersion, ScalaSdkUtils.resolveReplClasspath(eelDescriptor, scalaVersion))
   }
 
   private[project] object ImportContext:
