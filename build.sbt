@@ -355,13 +355,13 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
     intellijPlugins ++= Seq(
       "intellij.structureView.plugin".toPlugin,
       "intellij.navbar.plugin".toPlugin
-    )
+    ),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.structure-view"),
   )
 
 lazy val repl = newProject("repl", file("scala/repl"))
   .dependsOn(
     scalaImpl % "test->test;compile->compile",
-    structureView % "test->test;compile->compile",
   )
   .settings(
     scalaVersion := Versions.scala3Version,
