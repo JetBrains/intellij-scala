@@ -66,6 +66,7 @@
         <module name="scalaCommunity.compiler-integration-server-management"/>
         <module name="scalaCommunity.compiler-integration"/>
         <module name="scalaCommunity.compiler-highlighting"/>
+        <module name="scalaCommunity.conversion"/>
         <module name="scalaCommunity.repl"/>
         <module name="scalaCommunity.structural-search"/>
         <module name="scalaCommunity.structure-view"/>
@@ -90,7 +91,6 @@
     <xi:include href="/META-INF/scala-plugin-common.xml"/>
     <xi:include href="/META-INF/sbt.xml"/>
     <xi:include href="/META-INF/codeInsight.xml"/>
-    <xi:include href="/META-INF/conversion.xml"/>
     <xi:include href="/META-INF/scala-meta-impl.xml"/>
     <xi:include href="/META-INF/scalastyle-integration.xml"/>
 

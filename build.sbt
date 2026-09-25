@@ -274,6 +274,8 @@ lazy val conversion = newProject(
   file("scala/conversion")
 ).dependsOn(
   codeInsight % "test->test;compile->compile"
+).settings(
+  packageMethod := PackagingMethod.PluginModule("scalaCommunity.conversion"),
 )
 
 lazy val uast = newProject(
