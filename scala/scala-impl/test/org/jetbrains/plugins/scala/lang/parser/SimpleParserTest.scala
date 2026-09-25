@@ -1,6 +1,50 @@
 package org.jetbrains.plugins.scala.lang.parser
 
+import com.intellij.psi.PsiComment
+import org.junit.Assert.{assertEquals, assertTrue}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+
 class SimpleParserTest extends SimpleScalaParserTestBase {
+  def testSCL25035_shebangIsAComment(): Unit = {
+    val shebang = "#!/usr/bin/env -S scala-cli shebang -q"
+    val code = s"$shebang\nobject Main"
+    val file = checkParseErrors(code)
+
+    val comment = file.depthFirst().collectFirst { case comment: PsiComment => comment }.orNull
+    assertTrue(
+      "A first-line shebang must be represented by a PsiComment",
+      comment != null
+    )
+    assertEquals(
+      "The PsiComment must preserve the complete shebang text",
+      shebang,
+      comment.getText
+    )
+    assertTrue(
+      "Scala declarations following a shebang must still be parsed",
+      file.depthFirst().exists(_.isInstanceOf[ScObject])
+    )
+    checkTree(
+      code,
+      """
+        |ScalaFile
+        |  ScObject: Main
+        |    PsiComment(comment)('#!/usr/bin/env -S scala-cli shebang -q')
+        |    PsiWhiteSpace('\n')
+        |    AnnotationsList
+        |      <empty list>
+        |    Modifiers
+        |      <empty list>
+        |    PsiElement(object)('object')
+        |    PsiWhiteSpace(' ')
+        |    PsiElement(identifier)('Main')
+        |    ExtendsBlock
+        |      <empty list>
+        |""".stripMargin
+    )
+  }
+
   def test_parameter_named_inline(): Unit = checkTree(
     """
       |def test(inline: T) = ()

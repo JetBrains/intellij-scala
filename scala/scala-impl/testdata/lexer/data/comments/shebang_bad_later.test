@@ -1,0 +1,24 @@
+// ordinary comment
+#!/usr/bin/env -S scala-cli shebang -q
+-----
+comment {// ordinary comment}
+white space in line {
+}
+identifier {#!/}
+identifier {usr}
+identifier {/}
+identifier {bin}
+identifier {/}
+identifier {env}
+white space in line { }
+identifier {-}
+identifier {S}
+white space in line { }
+identifier {scala}
+identifier {-}
+identifier {cli}
+white space in line { }
+identifier {shebang}
+white space in line { }
+identifier {-}
+identifier {q}

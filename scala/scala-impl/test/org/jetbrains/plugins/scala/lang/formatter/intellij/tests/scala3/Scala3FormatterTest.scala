@@ -4,6 +4,15 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 
 class Scala3FormatterTest extends Scala3FormatterBaseTest {
 
+  def testSCL25035(): Unit = doTextTest(
+    """#!/usr/bin/env -S scala-cli shebang -q
+      |@main def main()=println("Hello")""".stripMargin,
+    """#!/usr/bin/env -S scala-cli shebang -q
+      |@main def main() = println("Hello")""".stripMargin,
+    repeats = 2,
+    checkAfterEachIteration = true
+  )
+
   def testColon_AfterTypeDefinition(): Unit = doTextTest(
     """trait Trait:
       |  def test = ()

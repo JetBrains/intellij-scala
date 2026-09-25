@@ -1,0 +1,9 @@
+#!/usr/bin/env -S scala-cli shebang -q
+object Main
+-----
+comment {#!/usr/bin/env -S scala-cli shebang -q}
+white space in line {
+}
+object {object}
+white space in line { }
+identifier {Main}

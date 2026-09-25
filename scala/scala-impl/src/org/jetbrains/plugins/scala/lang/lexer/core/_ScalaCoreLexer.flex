@@ -325,6 +325,10 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 %xstate INSIDE_INTERPOLATED_STRING
 %xstate INSIDE_MULTI_LINE_INTERPOLATED_STRING
 %xstate INJ_COMMON_STATE
+// A one-token prologue entered by ScalaPlainLexer only when `startOffset == 0`.
+// The exclusive state keeps a literal first-character #! special without affecting
+// incremental-lexer restarts from later offsets.
+%xstate FILE_START
 
 %%
 
@@ -332,6 +336,27 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////  XML processing ///////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+<FILE_START> {
+  // A hashbang is a script header, not general-purpose Scala # comment syntax. Java,
+  // JS/TS, and Python likewise give it special meaning only at absolute file start.
+  // Leading whitespace or a BOM is therefore not skipped before matching this rule.
+  // Use the existing line-comment token, so normal comment PSI, highlighting, and
+  // formatting paths apply; leave the newline to the ordinary whitespace rule.
+  "#!" [^\r\n]* {
+    yybegin(COMMON_STATE);
+    return process(tLINE_COMMENT);
+  }
+
+  // No first-line hashbang: put the inspected character back and run the normal
+  // initial-state rules. This prologue must never consume or reinterpret ordinary
+  // Scala source, and no later or indented #! can return to FILE_START.
+  [^] {
+    yypushback(yylength());
+    yybegin(YYINITIAL);
+    return advance();
+  }
+}
 
 <YYINITIAL> {
   {XML_BEGIN}  {
@@ -643,4 +668,3 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 ////////////////////// STUB ///////////////////////////////////////////////
 .                                       {   return process(tSTUB); }
-
