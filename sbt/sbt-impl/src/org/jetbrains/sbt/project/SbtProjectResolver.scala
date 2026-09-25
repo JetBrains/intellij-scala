@@ -1617,10 +1617,10 @@ object SbtProjectResolver {
   /**
    * Contains some options that are actual and unchanged for the whole import process, for all modules
    */
-  private[project] case class ImportContext(
+  private[project] class ImportContext(
     executionSettings: SbtExecutionSettings,
-    eelDescriptor: EelDescriptor,
-    useShellImport: Boolean
+    val eelDescriptor: EelDescriptor,
+    val useShellImport: Boolean
   ) {
     /**
      * @see [[SbtUtil#getRepoDir]]
