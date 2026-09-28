@@ -1,0 +1,8 @@
+Document tests/pos/i24308.scala
+(1:24..1:27) scala/Int#
+(3:29..3:38) _empty_/ValHolder# -> 1:7
+(3:48..3:52) _empty_/ValHolder# -> 1:7
+(3:53..3:54) _empty_/ValHolder#v. -> 1:21
+(3:64..3:67) scala/Predef.`???`().
+(4:5..4:14) _empty_/ValHolder# -> 1:7
+

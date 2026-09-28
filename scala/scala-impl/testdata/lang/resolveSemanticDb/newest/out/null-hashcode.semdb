@@ -1,0 +1,6 @@
+Document tests/pos/null-hashcode.scala
+(3:2..3:6) scala/main#
+(3:18..3:22) scala/Unit#
+(4:3..4:10) scala/Predef.println(+1).
+(4:16..4:24) scala/Any#hashCode().
+

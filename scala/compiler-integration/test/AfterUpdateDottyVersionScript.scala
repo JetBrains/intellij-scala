@@ -912,7 +912,8 @@ object AfterUpdateDottyVersionScript {
         |inline-trait-private-nested-inline-must-delete.scala
         |inline-trait-body-def-context-bound.scala
         |tailrec-synchronized.scala
-        |        |
+        |i27041.scala
+        |
         |# release-3.3.9
         |i25866b.scala
         |""".stripMargin.trim

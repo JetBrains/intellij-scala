@@ -1,0 +1,14 @@
+Document tests/pos/i26959-alias/Lib_1.scala
+(5:12..5:16) scala/Unit#
+(6:16..6:17) repro/Outer#ID#[T] -> 6:11
+(7:30..7:39) repro/Outer#Companion. -> 11:7
+(8:14..8:15) repro/Outer#U# -> 5:8
+(9:14..9:16) repro/Outer#ID# -> 6:8
+(9:17..9:21) scala/Unit#
+(11:18..11:32) repro/Outer#CompanionTrait# -> 12:9
+(12:32..12:44) repro/Outer#InnerSupport# -> 7:9
+(12:53..12:62) repro/Outer#Companion. -> 11:7
+
+Document tests/pos/i26959-alias/User_2.scala
+(2:15..2:20) repro/Outer# -> 4:7
+

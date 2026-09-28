@@ -1,0 +1,8 @@
+Document tests/pos/i26959-joint.scala
+(5:30..5:39) repro/Outer#Companion. -> 8:7
+(6:14..6:18) scala/Unit#
+(8:18..8:32) repro/Outer#CompanionTrait# -> 9:9
+(9:32..9:44) repro/Outer#InnerSupport# -> 5:9
+(9:53..9:62) repro/Outer#Companion. -> 8:7
+(12:15..12:20) repro/Outer# -> 4:7
+

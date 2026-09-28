@@ -1,0 +1,41 @@
+package repro
+class User(c: Outer)
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: repro
+      PsiElement(identifier)('repro')
+    PsiWhiteSpace('\n')
+    ScClass: User
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(class)('class')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('User')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            ClassParameter: c
+              AnnotationsList
+                <empty list>
+              Modifiers
+                <empty list>
+              PsiElement(identifier)('c')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                SimpleType: Outer
+                  CodeReferenceElement: Outer
+                    PsiElement(identifier)('Outer')
+            PsiElement())(')')
+      ExtendsBlock
+        <empty list>
