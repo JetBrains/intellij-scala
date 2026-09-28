@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataSer
 
 import java.nio.file.Path
 import java.util
+import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 
 class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelData, Library](ScalaModelData.KEY) {
@@ -31,6 +32,13 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     //TODO remove this in some feature release (probably 2026/2027)
     ScalaSdkUtils.revertScalaSdkFromLibraries(modelsProvider, externalSystemName = GradleExternalSystemReadableName)
 
+    // The REPL classpath is a transitive resolve which bypasses the local Ivy cache.
+    // We resolve the REPL classpath of each Scala version present in the project once,
+    // and cache it for the duration of the project import.
+    val replClasspathCache = mutable.HashMap.empty[String, ReplClasspath]
+    def resolveReplClasspath(scalaVersion: String): ReplClasspath =
+      replClasspathCache.getOrElseUpdate(scalaVersion, ScalaSdkUtils.resolveReplClasspath(project, scalaVersion))
+
     toImport.forEach { scalaNode =>
       Option(scalaNode.getData(ProjectKeys.MODULE)).foreach { moduleData =>
         val gradleSourceSetModules = findGradleSourceSetModules(moduleData, project, modelsProvider)
@@ -43,7 +51,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
             gradleSourceSetModules
           }
 
-        configureModules(scalaNode, modulesForScalaSDK*)(using project, modelsProvider)
+        configureModules(scalaNode, resolveReplClasspath, modulesForScalaSDK*)(using project, modelsProvider)
       }
     }
   }
@@ -75,6 +83,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
 
   private def configureModules(
     scalaNode: DataNode[ScalaModelData],
+    resolveReplClasspath: String => ReplClasspath,
     modules: Module*
   )(implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
     val scalaData = scalaNode.getData
@@ -84,20 +93,21 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     val classpath = scalaData.getScalaClasspath.asScala.toSeq.map(_.toPath)
     modules.foreach { module =>
       module.configureScalaCompilerSettingsFrom(GradleExternalSystemReadableName, compilerOptions, project)
-      configureScalaSdk(module, classpath)
+      configureScalaSdk(module, classpath, resolveReplClasspath)
     }
   }
 
   private def configureScalaSdk(
     module: Module,
-    compilerClasspath: Seq[Path]
+    compilerClasspath: Seq[Path],
+    resolveReplClasspath: String => ReplClasspath
   )(implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
     import LibraryExt.*
     val scalaLibrariesInCompilerClasspath = compilerClasspath.map(_.getFileName.toString).filter(isRuntimeLibrary)
     val compilerVersion = scalaLibrariesInCompilerClasspath.flatMap(runtimeVersion).headOption
     compilerVersion match {
       case Some(version) =>
-        configureScalaSdk(project, module, version, compilerClasspath)
+        configureScalaSdk(project, module, version, compilerClasspath, resolveReplClasspath)
       case None        =>
         showWarning(NlsString(ScalaGradleBundle.message("gradle.dataService.scalaVersionCantBeDetected", module.getName)))
     }
@@ -107,7 +117,8 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     project: Project,
     module: Module,
     compilerVersion: String,
-    compilerClasspath: Seq[Path]
+    compilerClasspath: Seq[Path],
+    resolveReplClasspath: String => ReplClasspath
   )(implicit modelsProvider: IdeModifiableModelsProvider): Unit = {
     // Only resolve the compiler bridge for Scala 3. Gradle reports a compiler classpath that doesn't work with
     // the Scala 2.13.12+ compiler bridges, due to clashes.
@@ -118,7 +129,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
         }
       } else None
 
-    val replClasspath = ScalaSdkUtils.resolveReplClasspath(project, compilerVersion)
+    val replClasspath = resolveReplClasspath(compilerVersion)
 
     ScalaSdkUtils.configureScalaSdk(
       module,

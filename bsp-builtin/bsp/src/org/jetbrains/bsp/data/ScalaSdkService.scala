@@ -22,7 +22,8 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
     // The REPL classpath is a transitive resolve which bypasses the local Ivy cache.
-    // We resolve the REPL classpath of each Scala version once and cache it for the duration of the project import.
+    // We resolve the REPL classpath of each Scala version present in the project once,
+    // and cache it for the duration of the project import.
     val replClasspathCache = mutable.HashMap.empty[String, ReplClasspath]
     def resolveReplClasspath(scalaVersion: String): ReplClasspath =
       replClasspathCache.getOrElseUpdate(scalaVersion, ScalaSdkUtils.resolveReplClasspath(project, scalaVersion))
