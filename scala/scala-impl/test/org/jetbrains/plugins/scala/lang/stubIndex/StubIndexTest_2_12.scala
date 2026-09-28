@@ -29,7 +29,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   private def elementsInScalaLibrary[Key, Psi <: PsiElement : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[Psi] =
     indexKey.elements(key, moduleWithLibrariesScope)(using getProject).toList
 
-  private def elementsInScalaLibraryByFqnKey[Psi <: PsiElement : ClassTag](fqn: CharSequence, index: ScFqnHashStubIndexExtension[Psi]): Seq[Psi] =
+  private def elementsInScalaLibraryByFqnKey[Psi <: PsiElement](fqn: CharSequence, index: ScFqnHashStubIndexExtension[Psi]): Seq[Psi] =
     index.getElements(fqn, getProject, moduleWithLibrariesScope).asScala.toSeq
 
   private def checkNamesFromIndex[Psi <: PsiMember : ClassTag](indexKey: StubIndexKey[String, Psi], key: String)
@@ -42,8 +42,8 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
     assertEquals(expectedText, actualText)
   }
 
-  private def checkFQNamesFromIndex[Psi <: PsiMember : ClassTag](index: ScFqnHashStubIndexExtension[Psi], key: CharSequence)
-                                                                 (expected: String*): Unit = {
+  private def checkFQNamesFromIndex[Psi <: PsiMember](index: ScFqnHashStubIndexExtension[Psi], key: CharSequence)
+                                                     (expected: String*): Unit = {
     val actualElements = elementsInScalaLibraryByFqnKey(key, index)
     val actualElementsFqns = actualElements.flatMap(_.qualifiedNameOpt).sorted
 

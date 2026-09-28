@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
-abstract class AnnotatorPart[T <: ScalaPsiElement : reflect.ClassTag] {
+abstract class AnnotatorPart[T <: ScalaPsiElement] {
 
   def annotate(element: T, typeAware: Boolean)
               (implicit holder: ScalaAnnotationHolder): Unit

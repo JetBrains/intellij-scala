@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TupleType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 
 import scala.collection.mutable.ArrayBuffer
@@ -299,7 +299,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 object ScExtendsBlockImpl {
 
   private def extractSupers(typeElements: Seq[ScTypeElement])
-                           (implicit project: ProjectContext, context: Context): Seq[PsiClass] =
+                           (implicit context: Context): Seq[PsiClass] =
     typeElements.flatMap {
       case typeElement@ScSimpleTypeElement.unwrapped(reference) =>
         reference.resolveNoConstructor match {

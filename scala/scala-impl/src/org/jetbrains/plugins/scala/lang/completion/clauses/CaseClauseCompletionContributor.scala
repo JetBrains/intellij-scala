@@ -65,8 +65,7 @@ final class CaseClauseCompletionContributor extends ScalaCompletionContributor {
         }
 
       override protected def createLookupElement(patternText: String,
-                                                 components: ClassPatternComponents)
-                                                (implicit place: PsiElement): LookupElement =
+                                                 components: ClassPatternComponents): LookupElement =
         buildLookupElement(
           patternText,
           new PatternInsertHandler(patternText, components)
@@ -113,7 +112,7 @@ object CaseClauseCompletionContributor {
       lookupElement = createLookupElement(
         components.presentablePatternText(),
         components
-      )(using parameters.place)
+      )
     } result.addElement(lookupElement)
 
     protected def targetType(typeable: T): Option[ScType]
@@ -126,8 +125,7 @@ object CaseClauseCompletionContributor {
       }
 
     protected def createLookupElement(patternText: String,
-                                      components: ClassPatternComponents)
-                                     (implicit place: PsiElement): LookupElement =
+                                      components: ClassPatternComponents): LookupElement =
       buildLookupElement(
         ScalaKeyword.CASE + patternText,
         new CaseClauseInsertHandler(components)

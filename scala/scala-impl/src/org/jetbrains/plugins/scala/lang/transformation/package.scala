@@ -61,8 +61,7 @@ package object transformation {
 
   private def relative(reference: String): String = reference.replaceFirst("^_root_.", "")
 
-  private def isResolvedTo(reference: ScReference, target: String)
-                          (implicit context: PsiElement, isExpression: Boolean): Boolean =
+  private def isResolvedTo(reference: ScReference, target: String): Boolean =
     reference.bind().exists(result =>
       qualifiedNameOf(result.element) == relative(target))
 

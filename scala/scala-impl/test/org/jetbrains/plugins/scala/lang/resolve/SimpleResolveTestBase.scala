@@ -32,7 +32,7 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestCas
     implicit val defaultSrcTgtOptions: SrcTgtOptions = SrcTgtOptions(targetIsLeaf = false)
   }
 
-  protected def getSrc(source: String, file: PsiFile)(implicit opts: SrcTgtOptions): PsiReference = {
+  protected def getSrc(source: String, file: PsiFile): PsiReference = {
     val srcOffset = source.replaceAll(REFTGT, "").indexOf(REFSRC)
     if (srcOffset != -1)
       file.findElementAt(srcOffset).withParents.map(_.getReference).find(_ != null).orNull

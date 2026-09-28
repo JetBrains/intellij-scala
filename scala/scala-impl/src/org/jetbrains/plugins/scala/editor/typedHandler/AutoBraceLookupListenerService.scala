@@ -113,7 +113,7 @@ object AutoBraceLookupListenerService {
       }
 
       val element = file.findElementAt(caret)
-      findAutoBraceInsertionOpportunity(currentItem, caret, element)(using project, file, editor)
+      findAutoBraceInsertionOpportunity(currentItem, caret, element)(using file, editor)
     }
 
     private def doAutoBraceInsertion(event: LookupEvent, info: AutoBraceInsertionInfo): Unit = {

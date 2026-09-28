@@ -33,7 +33,7 @@ object AutoBraceInsertionTools {
   private val continuesPreviousLine = Set('.')
 
   def findAutoBraceInsertionOpportunity(c: Option[Char], caretOffset: Int, element: PsiElement)
-                                       (implicit project: Project, file: PsiFile, editor: Editor): Option[AutoBraceInsertionInfo] = {
+                                       (implicit file: PsiFile, editor: Editor): Option[AutoBraceInsertionInfo] = {
 
     if (file.useIndentationBasedSyntax)
       return None

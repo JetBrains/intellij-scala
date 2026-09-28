@@ -4,7 +4,6 @@ import com.intellij.util.containers.WeakList
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters._
-import scala.reflect.ClassTag
 
 
 object CacheTracker {
@@ -26,17 +25,17 @@ object CacheTracker {
 
   def isEnabled: Boolean = Tracer.isEnabled
 
-  def alwaysTrack[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String)(cache: Cache): Cache = {
+  def alwaysTrack[Cache: CacheCapabilities](cacheTypeId: String, name: String)(cache: Cache): Cache = {
     track(cacheTypeId, name, cache, alwaysTrack = true)
     cache
   }
 
-  def track[Cache: ClassTag: CacheCapabilities](cacheTypeId: => String, name: => String)(cache: Cache): Cache = {
+  def track[Cache: CacheCapabilities](cacheTypeId: => String, name: => String)(cache: Cache): Cache = {
     if (isEnabled) track(cacheTypeId, name, cache, alwaysTrack = false)
     cache
   }
 
-  private def track[Cache: ClassTag: CacheCapabilities](cacheTypeId: String, name: String, cache: Cache, alwaysTrack: Boolean): Unit = {
+  private def track[Cache: CacheCapabilities](cacheTypeId: String, name: String, cache: Cache, alwaysTrack: Boolean): Unit = {
     val cacheType =
       trackedCacheTypes
         .computeIfAbsent(cacheTypeId, new TrackedCacheTypeImpl[Cache](_, name, implicitly[CacheCapabilities[Cache]], alwaysTrack))

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
+import scala.annotation.unused
 import scala.collection.immutable.SortedMap
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -159,7 +160,7 @@ abstract class IntegerLiteralCheckTestBase(supportsOctal: Boolean,
     doLiteralValueTest(groups)
   }
 
-  private def doLiteralValueTest[N: Numeric](groups: SortedMap[N, Seq[String]]): Unit = {
+  private def doLiteralValueTest[N](groups: SortedMap[N, Seq[String]])(implicit @unused guard: Numeric[N]): Unit = {
     val numberStrings = groups.values.flatten.toSeq
 
     val text = numberStrings.mkString("\n")

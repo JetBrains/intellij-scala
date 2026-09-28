@@ -92,8 +92,7 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
     }
   }
 
-  private def buildNewArgumentsText(stmt: ScBlockStatement)
-                                   (implicit context: ProjectContext): Option[String] = stmt match {
+  private def buildNewArgumentsText(stmt: ScBlockStatement): Option[String] = stmt match {
     case function: ScFunctionExpr =>
       buildNewFunctionalArguments(function)
     case expr: ScExpression =>
@@ -102,8 +101,7 @@ final class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAc
       None
   }
 
-  private def buildNewFunctionalArguments(function: ScFunctionExpr)
-                                         (implicit context: ProjectContext): Option[String] = {
+  private def buildNewFunctionalArguments(function: ScFunctionExpr): Option[String] = {
     val params: ScParameters = function.params
     for {
       body <- function.result

@@ -35,8 +35,8 @@ class Ref[T <: Entry : ClassTag](val index: Int)(implicit val scalaSig: ScalaSig
   override def hashCode(): Int = index
 }
 
-class MappedRef[T <: Entry : ClassTag, S <: Entry : ClassTag](val ref: Ref[T], val fun: T => S)
-                                                             (implicit override val scalaSig: ScalaSig)
+class MappedRef[T <: Entry, S <: Entry : ClassTag](val ref: Ref[T], val fun: T => S)
+                                                  (implicit override val scalaSig: ScalaSig)
   extends Ref[S](ref.index) {
 
   override def get: S = fun(ref.get)
@@ -53,7 +53,7 @@ object Ref {
 
   implicit def unwrapOption[T <: Entry](ref: Option[Ref[T]]): Option[T] = ref.map(_.get)
 
-  implicit class RefOps[T <: Entry : ClassTag](ref: Ref[T]) {
+  implicit class RefOps[T <: Entry](ref: Ref[T]) {
     import ref.scalaSig
 
     def map[S <: Entry : ClassTag](fun: T => S): Ref[S] = new MappedRef[T, S](ref, fun)

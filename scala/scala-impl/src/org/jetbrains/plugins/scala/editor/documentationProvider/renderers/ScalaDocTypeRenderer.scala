@@ -287,7 +287,7 @@ private [documentationProvider] object ScalaDocTypeRenderer {
         .filter(named => mayUseSimpleName(named) && (annotated(named) || ScalaNamesUtil.isOperatorName(named.name)))
   }
 
-  private def annotationsRenderer(implicit projectContext: ProjectContext) = new NameRenderer {
+  private val annotationsRenderer = new NameRenderer {
     override def renderName(e: PsiNamedElement): String = renderNameImpl(e)
 
     override def renderNameWithPoint(e: PsiNamedElement): String = {

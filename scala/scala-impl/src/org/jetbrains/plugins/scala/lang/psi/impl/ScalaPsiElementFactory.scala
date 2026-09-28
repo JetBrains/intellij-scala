@@ -271,7 +271,7 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def createScalaElementFromTextWithContext[E <: ScalaPsiElement : ClassTag](
+  def createScalaElementFromTextWithContext[E <: ScalaPsiElement](
     text: String,
     @Nullable contextElement: PsiElement
   )(implicit ctx: ProjectContext): Option[E] = {

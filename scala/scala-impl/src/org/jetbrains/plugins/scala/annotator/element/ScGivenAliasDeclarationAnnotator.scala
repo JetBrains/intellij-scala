@@ -94,7 +94,7 @@ private[element] abstract class AnonymousGivenAliasDeclarationQuickFix(declarati
   protected def doInvoke(implicit editor: Editor, project: Project): Unit
 
   protected def runTemplate(builder: TemplateBuilderImpl, context: PsiElement)
-                           (implicit editor: Editor, project: Project): Unit = {
+                           (implicit editor: Editor): Unit = {
     val template = builder.buildTemplate()
     TemplateUtils.startTemplateAtElement(editor, template, context)
   }

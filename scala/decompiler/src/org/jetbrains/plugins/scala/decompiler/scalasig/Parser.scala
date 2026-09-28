@@ -7,7 +7,6 @@ import java.lang.Float.intBitsToFloat
 import org.jetbrains.plugins.scala.decompiler.scalasig.TagGroups._
 
 import scala.annotation.switch
-import scala.reflect.ClassTag
 import scala.reflect.internal.pickling.PickleFormat._
 
 //Some parts of scala.reflect.internal.pickling.UnPickler used
@@ -101,9 +100,9 @@ object Parser {
 
     def tagAt(i: Int): Byte = bytes(index(i))
 
-    def tryReadRef[T <: Entry : ClassTag](tagCondition: Int => Boolean,
-                                          constructor: Int => Ref[T],
-                                          entryEnd: Int): Option[Ref[T]] = {
+    def tryReadRef[T <: Entry](tagCondition: Int => Boolean,
+                               constructor: Int => Ref[T],
+                               entryEnd: Int): Option[Ref[T]] = {
       if (readIndex >= entryEnd) return None
 
       val savedIdx = readIndex

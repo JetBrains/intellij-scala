@@ -48,7 +48,7 @@ final class ScalaImplicitClassNameMacro extends ScalaMacro {
     prefix + withSuffix
   }
 
-  private def appendSuffixToType(typeElement: ScTypeElement, suffix: String)(implicit context: ExpressionContext): String =
+  private def appendSuffixToType(typeElement: ScTypeElement, suffix: String): String =
     typeElement match {
       case generic: ScParameterizedTypeElement =>
         val typeParams = collectGenericParamNames(generic)
