@@ -12,11 +12,10 @@ import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.gradle.model.data.{GradleSourceSetData, ScalaModelData}
 import org.jetbrains.plugins.gradle.util.{GradleConstants, GradleUtil}
 import org.jetbrains.plugins.scala.project.*
-import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataService, ScalaSdkUtils}
+import org.jetbrains.plugins.scala.project.external.{ReplClasspathCachedResolver, ScalaAbstractProjectDataService, ScalaSdkUtils}
 
 import java.nio.file.Path
 import java.util
-import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 
 class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelData, Library](ScalaModelData.KEY) {
@@ -32,12 +31,8 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     //TODO remove this in some feature release (probably 2026/2027)
     ScalaSdkUtils.revertScalaSdkFromLibraries(modelsProvider, externalSystemName = GradleExternalSystemReadableName)
 
-    // The REPL classpath is a transitive resolve which bypasses the local Ivy cache.
-    // We resolve the REPL classpath of each Scala version present in the project once,
-    // and cache it for the duration of the project import.
-    val replClasspathCache = mutable.HashMap.empty[String, ReplClasspath]
-    def resolveReplClasspath(scalaVersion: String): ReplClasspath =
-      replClasspathCache.getOrElseUpdate(scalaVersion, ScalaSdkUtils.resolveReplClasspath(project, scalaVersion))
+    //noinspection ApiStatus
+    val replClasspathResolver = ReplClasspathCachedResolver(project)
 
     toImport.forEach { scalaNode =>
       Option(scalaNode.getData(ProjectKeys.MODULE)).foreach { moduleData =>
@@ -51,7 +46,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
             gradleSourceSetModules
           }
 
-        configureModules(scalaNode, resolveReplClasspath, modulesForScalaSDK*)(using project, modelsProvider)
+        configureModules(scalaNode, replClasspathResolver.resolve, modulesForScalaSDK*)(using project, modelsProvider)
       }
     }
   }

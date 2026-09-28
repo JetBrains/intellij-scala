@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.*
 import org.jetbrains.plugins.scala.build.*
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, ScalaSdkUtils, SdkReference}
+import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, ReplClasspathCachedResolver, SdkReference}
 import org.jetbrains.plugins.scala.project.{ReplClasspath, Version}
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil.*
@@ -1654,15 +1654,11 @@ object SbtProjectResolver {
     def useSeparateProdTestSources: Boolean = executionSettings.separateProdTestSources
     def useSeparateCompilerOutputPaths: Boolean = executionSettings.useSeparateCompilerOutputPaths
 
-    /**
-     * Holds already resolved REPL classpaths. This in-memory cache exploits the fact that the REPL classpath is stable
-     * for a given Scala version. This helps us avoid re-resolving the REPL classpath for every sbt subproject and
-     * cuts down on network traffic.
-     */
-    private val replClasspathCache: mutable.HashMap[String, ReplClasspath] = mutable.HashMap.empty
+    //noinspection ApiStatus
+    private val replClasspathCachedResolver: ReplClasspathCachedResolver = ReplClasspathCachedResolver(eelDescriptor)
 
     def resolveReplClasspath(scalaVersion: String): ReplClasspath =
-      replClasspathCache.getOrElseUpdate(scalaVersion, ScalaSdkUtils.resolveReplClasspath(eelDescriptor, scalaVersion))
+      replClasspathCachedResolver.resolve(scalaVersion)
   }
 
   private[project] object ImportContext:

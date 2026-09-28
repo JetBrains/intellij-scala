@@ -8,10 +8,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.bsp.BSP
 import org.jetbrains.plugins.scala.project.*
-import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataService, ScalaSdkUtils}
+import org.jetbrains.plugins.scala.project.external.{ReplClasspathCachedResolver, ScalaAbstractProjectDataService, ScalaSdkUtils}
 
 import java.nio.file.Path
-import scala.collection.mutable
 
 class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Library](ScalaSdkData.Key) {
 
@@ -21,14 +20,9 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
-    // The REPL classpath is a transitive resolve which bypasses the local Ivy cache.
-    // We resolve the REPL classpath of each Scala version present in the project once,
-    // and cache it for the duration of the project import.
-    val replClasspathCache = mutable.HashMap.empty[String, ReplClasspath]
-    def resolveReplClasspath(scalaVersion: String): ReplClasspath =
-      replClasspathCache.getOrElseUpdate(scalaVersion, ScalaSdkUtils.resolveReplClasspath(project, scalaVersion))
-
-    toImport.forEach(doImport(_, project, resolveReplClasspath)(using modelsProvider))
+    //noinspection ApiStatus
+    val replClasspathResolver = ReplClasspathCachedResolver(project)
+    toImport.forEach(doImport(_, project, replClasspathResolver.resolve)(using modelsProvider))
   }
 
   private def doImport(dataNode: DataNode[ScalaSdkData], project: Project, resolveReplClasspath: String => ReplClasspath)

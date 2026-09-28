@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.project.*
 import org.jetbrains.plugins.scala.project.external.CompanionProxyUtils.LibraryRootTypeIdCompanion
-import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
+import org.jetbrains.plugins.scala.project.external.{ReplClasspathCachedResolver, ScalaSdkUtils}
 import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter.*
 
 import java.nio.file.Path
@@ -27,7 +27,6 @@ import java.util
 import java.util.stream.Stream
 import kotlin.coroutines.Continuation
 import scala.annotation.nowarn
-import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
@@ -79,12 +78,8 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
     val mavenProjectsWithModules = context.getMavenProjectsWithModules.iterator().asScala
     val project = context.getProject
 
-    // The REPL classpath is a transitive resolve which bypasses the local Ivy cache.
-    // We resolve the REPL classpath of each Scala version present in the project once,
-    // and cache it for the duration of the project import.
-    val replClasspathCache = mutable.HashMap.empty[String, ReplClasspath]
-    def resolveReplClasspath(scalaVersion: String): ReplClasspath =
-      replClasspathCache.getOrElseUpdate(scalaVersion, ScalaSdkUtils.resolveReplClasspath(project, scalaVersion))
+    //noinspection ApiStatus
+    val replClasspathResolver = ReplClasspathCachedResolver(project)
 
     mavenProjectsWithModules.foreach { mavenProjectWithModules =>
       val mavenProject = mavenProjectWithModules.getMavenProject
@@ -108,7 +103,7 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
 
           configuration.compilerVersion match {
             case Some(compilerVersion) =>
-              configureScalaSdk(moduleEntity, storage, project, compilerVersion, mavenProject, resolveReplClasspath)
+              configureScalaSdk(moduleEntity, storage, project, compilerVersion, mavenProject, replClasspathResolver.resolve)
             case _ =>
           }
         }
