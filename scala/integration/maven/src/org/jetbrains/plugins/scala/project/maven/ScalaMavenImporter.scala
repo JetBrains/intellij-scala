@@ -27,6 +27,7 @@ import java.util
 import java.util.stream.Stream
 import kotlin.coroutines.Continuation
 import scala.annotation.nowarn
+import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
@@ -76,6 +77,15 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
 
   override def beforeModelApplied(context: MutableModelContext): Unit = {
     val mavenProjectsWithModules = context.getMavenProjectsWithModules.iterator().asScala
+    val project = context.getProject
+
+    // The REPL classpath is a transitive resolve which bypasses the local Ivy cache.
+    // We resolve the REPL classpath of each Scala version present in the project once,
+    // and cache it for the duration of the project import.
+    val replClasspathCache = mutable.HashMap.empty[String, ReplClasspath]
+    def resolveReplClasspath(scalaVersion: String): ReplClasspath =
+      replClasspathCache.getOrElseUpdate(scalaVersion, ScalaSdkUtils.resolveReplClasspath(project, scalaVersion))
+
     mavenProjectsWithModules.foreach { mavenProjectWithModules =>
       val mavenProject = mavenProjectWithModules.getMavenProject
       validConfigurationIn(mavenProject).foreach { configuration =>
@@ -86,7 +96,6 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
         }
 
         val compileOrder = configuration.compileOrder.getOrElse(CompileOrder.Mixed)
-        val project = context.getProject
         val storage = context.getStorage
 
         val implicitScalaLibrary = addImplicitScalaLibraryIfNeeded(mavenProject, project, storage)
@@ -99,7 +108,7 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
 
           configuration.compilerVersion match {
             case Some(compilerVersion) =>
-              configureScalaSdk(moduleEntity, storage, project, compilerVersion, mavenProject)
+              configureScalaSdk(moduleEntity, storage, project, compilerVersion, mavenProject, resolveReplClasspath)
             case _ =>
           }
         }
@@ -132,7 +141,8 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
     storage: MutableEntityStorage,
     project: Project,
     compilerVersion: String,
-    mavenProject: MavenProject
+    mavenProject: MavenProject,
+    resolveReplClasspath: String => ReplClasspath
   ): Unit = {
     val compilerClasspathFull = mavenProject.getCachedValue(MavenFullCompilerClasspathKey)
     if (compilerClasspathFull != null) {
@@ -140,7 +150,7 @@ final class ScalaMavenImporter extends MavenApplicableConfigurator(PluginGroupId
         compilerClasspathFull.find(_.getFileName.toString == bridgeJarName)
       }
 
-      val replClasspath = ScalaSdkUtils.resolveReplClasspath(project, compilerVersion)
+      val replClasspath = resolveReplClasspath(compilerVersion)
 
       val toRemove = compilerBridgeBinaryJar.toSeq ++ replClasspath.asPaths
 
