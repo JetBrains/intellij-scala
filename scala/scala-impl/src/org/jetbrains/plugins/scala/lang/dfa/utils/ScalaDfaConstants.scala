@@ -6,7 +6,7 @@ import com.intellij.codeInspection.dataFlow.value.RelationType
 object ScalaDfaConstants {
 
   sealed trait DfaConstantValue
-  final object DfaConstantValue {
+  object DfaConstantValue {
     case object True extends DfaConstantValue
     case object False extends DfaConstantValue
     case object Zero extends DfaConstantValue
@@ -15,20 +15,20 @@ object ScalaDfaConstants {
   }
 
   sealed trait LogicalOperation
-  final object LogicalOperation {
+  object LogicalOperation {
     case object And extends LogicalOperation
     case object Or extends LogicalOperation
     case object Not extends LogicalOperation
   }
 
-  final object Exceptions {
+  object Exceptions {
     val ScalaMatchErrorName = "scala.MatchError"
     val IndexOutOfBoundsExceptionName = "java.lang.IndexOutOfBoundsException"
     val NoSuchElementExceptionName = "java.util.NoSuchElementException"
     val NullPointerExceptionName = "java.util.NullPointerException"
   }
 
-  final object Packages {
+  object Packages {
     val ScalaUnit = "Scala.Unit"
     val ScalaBoolean = "scala.Boolean"
     val ScalaByte = "scala.Byte"
@@ -58,7 +58,7 @@ object ScalaDfaConstants {
     Packages.ScalaDouble,
   )
 
-  final object SyntheticOperators {
+  object SyntheticOperators {
     val NumericBinary: Map[String, LongRangeBinOp] = Map(
       "+" -> LongRangeBinOp.PLUS,
       "-" -> LongRangeBinOp.MINUS,

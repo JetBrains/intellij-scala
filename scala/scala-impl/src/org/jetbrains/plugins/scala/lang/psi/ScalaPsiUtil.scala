@@ -1770,7 +1770,7 @@ object ScalaPsiUtil {
               sig.paramClauseSizes === Array(1) &&
                 actualType.conforms(sig.substitutedTypes.head.head.apply())
             }
-          case _ => false
+          case null => false
         }
 
       case _ => false

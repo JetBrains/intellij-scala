@@ -19,7 +19,7 @@ import scala.language.postfixOps
 import scala.meta.ScalaMetaBundle
 import scala.meta.collections._
 import scala.meta.trees.error._
-import scala.{meta => m, Seq => _}
+import scala.{meta => m}
 
 trait TypeAdapter {
   self: TreeConverter =>
@@ -82,7 +82,6 @@ trait TypeAdapter {
         case other: ScTypeElement =>
           LOG.warn(s"Using slow type conversion of type element ${other.getClass}: ${other.getText}")
           toType(other.`type`())
-        case other => other ?!
       }
     })
   }

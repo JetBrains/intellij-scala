@@ -8,8 +8,6 @@ import org.jetbrains.plugins.scala.project.ScalaFeatures
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 
 abstract class AbsentTypeArgumentAnnotatorTestBase(scalaCodeParsingVersion: ScalaVersion) extends AnnotatorSimpleTestCase {
-  import Message._
-
   private final val Prefix =
     """
        object Test {

@@ -271,7 +271,7 @@ private[declarationRedundancy] object Search {
     }
   }
 
-  private[declarationRedundancy] final object Pipeline {
+  private[declarationRedundancy] object Pipeline {
 
     /**
      * The conditions that are at `ShouldProcess`'s disposal when deciding if the `Search.Method` it belongs to
@@ -293,7 +293,7 @@ private[declarationRedundancy] object Search {
     type ShouldProcess = Conditions => Boolean
   }
 
-  private[declarationRedundancy] final object Util {
+  private[declarationRedundancy] object Util {
 
     /**
      * PSI trees are complex, layered structures, where each node is a `PsiElement`.

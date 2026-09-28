@@ -8,15 +8,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types as ptype
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
+import org.jetbrains.plugins.scala.lang.psi.types.result.*
 
 import scala.collection.immutable.LongMap
-import scala.meta.trees.error._
+import scala.meta as m
 import scala.meta.{ScalaMetaBundle, Term, Type}
-import scala.{meta => m, Seq => _}
 
 trait Utils {
   self: TreeConverter =>
@@ -62,7 +61,6 @@ trait Utils {
       case m.Type.Select(_, n:m.Type.Name) => n
       case m.Type.Project(_, n:m.Type.Name) => n
       case other: m.Type => other
-      case _ => unreachable
     }
   }
 

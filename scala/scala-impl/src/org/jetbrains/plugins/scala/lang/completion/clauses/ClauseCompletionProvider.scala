@@ -17,12 +17,11 @@ private[clauses] abstract class ClauseCompletionProvider[
                                     context: ProcessingContext,
                                     result: CompletionResultSet): Unit = {
     val place = positionFromParameters(using parameters)
-    getContextOfType(place, classTag.runtimeClass.asInstanceOf[Class[T]]) match {
-      case null =>
-      case typeable =>
-        val originalFile = parameters.getOriginalFile
-        val clauseParameters = ClauseCompletionParameters(place, originalFile.getResolveScope, parameters.getInvocationCount)
-        addCompletions(typeable, result)(using clauseParameters)
+    val typeable = getContextOfType(place, classTag.runtimeClass.asInstanceOf[Class[T]])
+    if (typeable != null) {
+      val originalFile = parameters.getOriginalFile
+      val clauseParameters = ClauseCompletionParameters(place, originalFile.getResolveScope, parameters.getInvocationCount)
+      addCompletions(typeable, result)(using clauseParameters)
     }
   }
 

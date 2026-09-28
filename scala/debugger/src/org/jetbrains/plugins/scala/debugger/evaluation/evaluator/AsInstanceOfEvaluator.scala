@@ -86,6 +86,8 @@ class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
         val castType = new ClassOfEvaluator(tpe).evaluate(context).reflectedType()
         if (DebuggerUtilsImpl.instanceOf(valueType, castType)) o
         else throw EvaluationException(message)
+      case x =>
+        throw new MatchError(x)
     }
   }
 }

@@ -28,6 +28,6 @@ final class NoTailRecursionAnnotationInspection extends LocalInspectionTool {
       }
 
       holder.registerProblem(element, getDisplayName, quickFix)
-    case _ => None
+    case _ =>
   }
 }

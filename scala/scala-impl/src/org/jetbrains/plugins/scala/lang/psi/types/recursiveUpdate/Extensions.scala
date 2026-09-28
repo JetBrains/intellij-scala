@@ -26,18 +26,24 @@ class Extensions(val tp: ScType) extends AnyVal {
 
   def subtypeExists(predicate: ScType => Boolean): Boolean = {
     var found = false
-    visitRecursively {
-      case t if predicate(t) || found =>
-        found = true
-        Stop
-      case _ =>
-        ProcessSubtypes
-    }
+    SubtypeTraverser.recursiveUpdate(tp, Variance.Covariant, foreachSubtypeUpdate2(
+      t =>
+        if (predicate(t)) {
+          found = true
+          Stop
+        } else {
+          ProcessSubtypes
+        }
+    ))
     found
   }
 
-  private def foreachSubtypeUpdate(fun: ScType => Unit): SimpleUpdate = scType => {
-    fun(scType)
-    ProcessSubtypes
-  }
+  private def foreachSubtypeUpdate(fun: ScType => Unit): SimpleUpdate =
+    scType => {
+      fun(scType)
+      ProcessSubtypes
+    }
+
+  private def foreachSubtypeUpdate2(fun: ScType => AfterUpdate): SimpleUpdate =
+    scType => fun(scType)
 }

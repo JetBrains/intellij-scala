@@ -65,7 +65,6 @@ object ComparingUtil {
 
       subTps.zip(supTps).zip(tparams.map(getVariance)).exists {
         case ((subTp, supTp), vr) => isNeverSubArg(subTp, supTp, vr)
-        case _ => false
       }
     }
 

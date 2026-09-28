@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInspection.*
 import com.intellij.java.i18n.JavaI18nBundle
-import com.intellij.psi.{util as _, *}
+import com.intellij.psi.*
 import org.jetbrains.plugins.scala.annotator.element.ScMethodInvocationAnnotator
 import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.extensions.ObjectExt

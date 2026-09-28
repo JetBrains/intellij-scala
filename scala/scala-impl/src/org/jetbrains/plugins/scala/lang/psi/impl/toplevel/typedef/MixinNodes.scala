@@ -5,7 +5,7 @@ package typedef
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiClassType, PsiMethod, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiMethod, PsiNamedElement}
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import com.intellij.util.{AstLoadingFilter, SmartList}
 import it.unimi.dsi.fastutil.Hash
@@ -106,10 +106,7 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
     // Keep the refinement in both halves of the member graph, as before signature-origin tracking was added.
     // Refinement members are type-level requirements, not implementation sources.
     map.useSource(SourceKind.RefinementSuper)
-    cp match {
-      case comp: ScCompoundType => signatureCollector.processRefinement(comp, map)
-      case _                    => ()
-    }
+    signatureCollector.processRefinement(cp, map)
 
     // Compound/self-type expansion contributes inherited members applicable via self-type constraints.
     addSuperSignatures(SuperTypesData(cp, compoundThisType), map, SourceKind.SelfTypeSuper)
@@ -780,12 +777,11 @@ object MixinNodes {
             clazz match {
               case td: ScTemplateDefinition => td.superTypes
               case clazz: PsiClass => clazz.getSuperTypes.map {
-                case ctp: PsiClassType =>
+                ctp =>
                   //noinspection ScalaRedundantCast
                   val cl = ctp.resolve().asInstanceOf[PsiClass]
                   if (cl != null && cl.qualifiedName == "java.lang.Object") ScDesignatorType(cl)
                   else ctp.toScType()
-                case ctp => ctp.toScType()
               }.toSeq
             }
           }

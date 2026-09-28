@@ -13,7 +13,7 @@ class XRayModeAction extends ToggleAction(() => ScalaCodeInsightBundle.message("
     CommonDataKeys.EDITOR.getData(e.getDataContext) match {
       case editor: Editor =>
         ScalaEditorFactoryListener.setXRayModeEnabled(state, editor)
-      case _ =>
+      case null =>
         ScalaHintsSettings.xRayMode = state
     }
     ScalaHintsSettings.xRayModePinned = state

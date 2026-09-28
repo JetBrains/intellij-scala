@@ -779,7 +779,7 @@ object CompileServerLauncher {
   sealed trait CompileServerProblem
 
   object CompileServerProblem {
-    final case object SdkNotSpecified extends CompileServerProblem
+    case object SdkNotSpecified extends CompileServerProblem
     final case class Error(@Nls text: String) extends CompileServerProblem
     final case class UnexpectedException(cause: Throwable) extends CompileServerProblem
   }

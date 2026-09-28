@@ -133,7 +133,6 @@ object ScalaCompilingEvaluator {
     keep(reference, context)
     bytes.zipWithIndex.foreach {
       case (_, i) => reference.setValue(i, process.getVirtualMachineProxy.asInstanceOf[VirtualMachineProxyImpl].mirrorOf(bytes(i)))
-      case _ =>
     }
     reference
   }

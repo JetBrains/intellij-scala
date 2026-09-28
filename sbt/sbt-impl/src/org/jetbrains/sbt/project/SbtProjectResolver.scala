@@ -442,7 +442,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     )
 
     val dummySbtProjectData = SbtProjectData(
-      settings.jdk.map(JdkByName),
+      settings.jdk.map(JdkByName(_)),
       context.sbtVersion.minor,
       projectPath,
       prodTestSourcesSeparated = false,
@@ -648,7 +648,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val jdkHomeInSbtProject = project.java.flatMap(_.home).map(home => JdkByHome(home.toPath))
 
     // default either from project structure or initial import settings
-    val default = defaultJdk.map(JdkByName)
+    val default = defaultJdk.map(JdkByName(_))
 
     jdkHomeInSbtProject
       .orElse(default)

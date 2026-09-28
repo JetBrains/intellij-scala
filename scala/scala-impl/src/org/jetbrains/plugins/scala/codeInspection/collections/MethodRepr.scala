@@ -20,10 +20,7 @@ object MethodRepr {
     case expr => cachedInUserData("unapply", expr, ModTracker.anyScalaPsiChange, Tuple1(expr)) {
       expr match {
         case call: ScMethodCall =>
-          val args = call.args match {
-            case exprList: ScArgumentExprList => exprList.exprs.map(stripped)
-            case _ => Nil
-          }
+          val args = call.args.exprs.map(stripped)
           call.getEffectiveInvokedExpr match {
             case baseExpr: ScExpression if call.isApplyOrUpdateCall && !call.isUpdateCall =>
               Some(expr, Some(baseExpr), None, args)

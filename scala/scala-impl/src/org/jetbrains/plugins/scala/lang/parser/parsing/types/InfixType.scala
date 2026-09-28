@@ -180,29 +180,29 @@ trait InfixType {
           !(!isPattern && builder.features.`parses capture checking` && PureFunctionArrow.isTokenText(builder.getTokenText)) &&
           super.shouldContinue
 
-    private def parseTypeVariable(): Boolean =
-      if (isPattern &&
-        typeVariables &&
-        (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER ||
-          builder.getTokenType == ScalaTokenTypes.tUNDER)
-      ) {
-        val firstChar = builder.getTokenText.charAt(0)
-        if ((firstChar != '`' && firstChar.isLower) || firstChar == '_') {
-          val typeVariableMarker = builder.mark()
-          val identifierMarker = builder.mark()
-          builder.advanceLexer()
-          builder.getTokenType match {
-            case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tFUNTYPE | ScalaTokenTypes.tCOMMA  =>
-              identifierMarker.drop()
-              typeVariableMarker.done(ScalaElementType.TYPE_VARIABLE)
-              true
-            case _ =>
-              identifierMarker.rollbackTo()
-              typeVariableMarker.drop()
-              false
-          }
+      private def parseTypeVariable(): Boolean =
+        if (isPattern &&
+          typeVariables &&
+          (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER ||
+            builder.getTokenType == ScalaTokenTypes.tUNDER)
+        ) {
+          val firstChar = builder.getTokenText.charAt(0)
+          if ((firstChar != '`' && firstChar.isLower) || firstChar == '_') {
+            val typeVariableMarker = builder.mark()
+            val identifierMarker = builder.mark()
+            builder.advanceLexer()
+            builder.getTokenType match {
+              case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tFUNTYPE | ScalaTokenTypes.tCOMMA  =>
+                identifierMarker.drop()
+                typeVariableMarker.done(ScalaElementType.TYPE_VARIABLE)
+                true
+              case _ =>
+                identifierMarker.rollbackTo()
+                typeVariableMarker.drop()
+                false
+            }
+          } else false
         } else false
-      } else false
     }
 
     infixParsingRule()

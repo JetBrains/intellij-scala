@@ -369,7 +369,6 @@ object TypeCheckCanBeMatchInspection {
       _: PsiElement, {
         case (left: ScParameter, right: ScParameter) => left == right || left.name == right.name
         case (left: PsiElement, right: PsiElement)   => left == right
-        case _                                       => false
       }: java.util.function.BiPredicate[PsiElement, PsiElement],
       false
     )

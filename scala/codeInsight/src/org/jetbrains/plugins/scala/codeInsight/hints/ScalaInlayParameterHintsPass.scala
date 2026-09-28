@@ -123,7 +123,6 @@ object ScalaInlayParameterHintsPass {
       case (_: ScUnderscoreSection, _) => false
       case (_, parameter) if parameter.name.isEmpty || !(ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_FOR_ALL_PARAMETERS) && parameter.name.length == 1 => false
       case (argument, _) => (ScalaHintsSettings.xRayMode && ScalaApplicationSettings.XRAY_FOR_ALL_PARAMETERS) || isUnclear(argument)
-      case _ => true
     }.map {
       case (argument, parameter) =>
 

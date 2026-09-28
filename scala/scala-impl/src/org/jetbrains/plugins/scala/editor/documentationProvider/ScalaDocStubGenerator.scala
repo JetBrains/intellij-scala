@@ -60,7 +60,7 @@ object ScalaDocStubGenerator {
                 registerInheritedParam(inheritedParams, paramTag)
             }
           }
-        case _ =>
+        case null =>
       }
     }
 
@@ -118,7 +118,7 @@ object ScalaDocStubGenerator {
             var inherRetTag: PsiDocTag = null
             parent.getDocComment match {
               case comment: PsiDocComment  => inherRetTag = comment.findTagByName("return")
-              case _                       =>
+              case null                    =>
             }
             if (inherRetTag != null) {
               returnTag = inherRetTag.getText.substring(0, inherRetTag.getText.lastIndexOf("\n") + 1)

@@ -1,7 +1,6 @@
 package scala.meta.converter
 
 import scala.meta.{TreeConverterTestBaseWithLibrary, _}
-import scala.{Seq => _}
 
 class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
 

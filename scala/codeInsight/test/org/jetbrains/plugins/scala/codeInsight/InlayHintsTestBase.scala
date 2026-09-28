@@ -3,7 +3,7 @@ package codeInsight
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.editor.Inlay
-import org.jetbrains.plugins.scala.base
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.annotator.hints.Text
 import org.jetbrains.plugins.scala.codeInsight.implicits.TextPartsHintRenderer
 import org.junit.experimental.categories.Category
@@ -11,7 +11,7 @@ import org.junit.experimental.categories.Category
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Category(Array(classOf[EditorTests]))
-abstract class InlayHintsTestBase extends base.ScalaLightCodeInsightFixtureTestCase {
+abstract class InlayHintsTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def setUp(): Unit = {
     super.setUp()

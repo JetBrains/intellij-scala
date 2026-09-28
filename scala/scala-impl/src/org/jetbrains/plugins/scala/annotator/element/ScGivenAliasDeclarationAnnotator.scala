@@ -156,7 +156,7 @@ private[element] final class NameAnonymousAbstractGivenFix(declaration: ScGivenA
             builder.replaceElement(nameElement, new ChooseStringValueExpression(suggestedNames, firstName))
             runTemplate(builder, nameElement)
           }
-        case _ =>
+        case null =>
       }
     }
   }

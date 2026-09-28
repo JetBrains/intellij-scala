@@ -236,15 +236,15 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
         case _ => None
       }
     }
- }
-
- override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor, state: ResolveState,
-                                          lastParent: PsiElement, place: PsiElement): Boolean =
-  extendsBlock.templateBody match {
-    case Some(body) if PsiTreeUtil.isContextAncestor(body, place, false) =>
-      super.processDeclarationsForTemplateBody(processor, state, lastParent, place)
-    case _ => true
   }
+
+  override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor, state: ResolveState,
+                                                  lastParent: PsiElement, place: PsiElement): Boolean =
+    extendsBlock.templateBody match {
+      case Some(body) if PsiTreeUtil.isContextAncestor(body, place, false) =>
+        super.processDeclarationsForTemplateBody(processor, state, lastParent, place)
+      case _ => true
+    }
 
   override def nameId: PsiElement = null
   override def setName(name: String): PsiElement = throw new IncorrectOperationException("cannot set name")

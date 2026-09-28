@@ -119,7 +119,7 @@ trait TypeVariableUnification { self: ScalaConformance & ProjectContextOwner =>
     } else UnificationResult.Failure
   }
 
-  private[this] def checkTypeConstructorParameterBounds(
+  private def checkTypeConstructorParameterBounds(
     lhsTypeParams:        Seq[TypeParameter],
     abstractedTypeParams: Seq[TypeParameter]
   ): Boolean = {

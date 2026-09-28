@@ -31,7 +31,6 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
-import org.jetbrains.sbt.SbtUtil.{detectSbtVersion as _, *}
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.process.mock.MockSbtProcessForTests
 import org.jetbrains.sbt.process.options.reporting.WarningsCollectingBuildReporter
@@ -95,7 +94,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
    */
   private def createShellProcessHandler: (OSProcessHandler, Option[RemoteConnection], SbtVersion, Boolean) = {
     log.debug("createShellProcessHandler")
-    val workingDirPath = getWorkingDirPath(project)
+    val workingDirPath = SbtUtil.getWorkingDirPath(project)
     val workingDir = Path.of(workingDirPath)
 
     val sbtSettings = getSbtSettings(workingDirPath)

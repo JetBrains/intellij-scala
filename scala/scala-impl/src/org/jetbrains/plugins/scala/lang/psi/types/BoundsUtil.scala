@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -131,16 +131,17 @@ trait BoundsUtil {
         case None       => ScSubstitutor.empty
       }
 
-      (getNamedElement match {
+      getNamedElement match {
         case t: ScTemplateDefinition =>
           t.superTypes.map(tp => new BaseClassInfo(subst(tp))).filter(!_.isEmpty)
-        case p: PsiClass =>
-          p.getSupers.toSeq.map(cl => new BaseClassInfo(toType(cl))).filter(!_.isEmpty)
         case _: ScTypeAlias =>
           val upper = nonSingletonType.aliasType.map(_.upper.getOrAny).getOrElse(Any)
           extractBaseClassInfo(upper).filter(!_.isEmpty)
-        case param: ScTypeParam => extractBaseClassInfo(param.upperBound.getOrAny)
-      }): @nowarn("msg=unreachable code")
+        case param: ScTypeParam =>
+          extractBaseClassInfo(param.upperBound.getOrAny)
+        case p: PsiClass =>
+          p.getSupers.toSeq.map(cl => new BaseClassInfo(toType(cl))).filter(!_.isEmpty)
+      }
     }
 
     private def toType(cls: PsiClass): ScType =

@@ -42,7 +42,6 @@ object ScalaColorsSchemeUtils {
                   case mod: ScModifierListOwner if hasLazyModifier(mod) => ScalaHighlightInfoTypes.LAZY
                   case _: ScValue                                       => ScalaHighlightInfoTypes.VALUES
                   case _: ScVariable                                    => ScalaHighlightInfoTypes.VARIABLES
-                  case _                                                => ScalaHighlightInfoTypes.IDENTIFIER
                 }
                 Some(attributes)
               case _ =>
@@ -50,7 +49,6 @@ object ScalaColorsSchemeUtils {
                   case mod: ScModifierListOwner if hasLazyModifier(mod) => ScalaHighlightInfoTypes.LOCAL_LAZY
                   case _: ScValue                                       => ScalaHighlightInfoTypes.LOCAL_VALUES
                   case _: ScVariable                                    => ScalaHighlightInfoTypes.LOCAL_VARIABLES
-                  case _                                                => ScalaHighlightInfoTypes.IDENTIFIER
                 }
                 Some(attributes)
             }
@@ -147,14 +145,12 @@ object ScalaColorsSchemeUtils {
               case v: ScValue if isHighlightableScalaTestKeyword(v) => ScalaHighlightInfoTypes.SCALATEST_KEYWORD
               case _: ScValue                                       => ScalaHighlightInfoTypes.VALUES
               case _: ScVariable                                    => ScalaHighlightInfoTypes.VARIABLES
-              case _                                                => ScalaHighlightInfoTypes.IDENTIFIER
             }
           case _ =>
             r match {
               case mod: ScModifierListOwner if hasLazyModifier(mod) => ScalaHighlightInfoTypes.LOCAL_LAZY
               case _: ScValue                                       => ScalaHighlightInfoTypes.LOCAL_VALUES
               case _: ScVariable                                    => ScalaHighlightInfoTypes.LOCAL_VARIABLES
-              case _                                                => ScalaHighlightInfoTypes.IDENTIFIER
             }
         }
       case _: ScCaseClause                                          => ScalaHighlightInfoTypes.PATTERN

@@ -162,6 +162,8 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
           case e: Exception =>
             throw EvaluationException(e)
         }
+      case x =>
+        throw new MatchError(x)
     }
   }
 }

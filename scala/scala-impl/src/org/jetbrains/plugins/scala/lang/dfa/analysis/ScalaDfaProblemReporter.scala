@@ -71,7 +71,6 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
         if (!shouldSuppress(element, value)) {
           problemsHolder.registerProblem(element, message)
         }
-      case _ =>
     }
   }
 
@@ -148,12 +147,10 @@ object ScalaDfaProblemReporter {
   def reportingUnsatisfiedConditionsOfKind(kind: ScalaDfaProblemKind[?])(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
     ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_, {
       case p: ScalaDfaProblem.WithKind => p.problemKind == kind
-      case _ => false
     })
 
   def reportingUnsatisfiedConditionsOfKind(kind: Set[ScalaDfaProblemKind[?]])(problemsHolder: ProblemsHolder): ScalaDfaResult => Unit =
     ScalaDfaProblemReporter(problemsHolder).reportUnsatisfiedConditionProblems(_, {
       case p: ScalaDfaProblem.WithKind => kind.contains(p.problemKind)
-      case _ => false
     })
 }

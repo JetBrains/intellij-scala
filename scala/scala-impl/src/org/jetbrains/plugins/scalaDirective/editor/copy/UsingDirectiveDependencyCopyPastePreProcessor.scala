@@ -101,7 +101,7 @@ object UsingDirectiveDependencyCopyPastePreProcessor {
         if (elementAtCaret.is[PsiWhiteSpace]) {
           elementAtCaret.prevSibling.map(_.elementType) match {
             // `//> ${caret}`
-            case ScalaDirectiveTokenTypes.tDIRECTIVE_PREFIX => Some(s"$UsingDirective deps ")
+            case Some(ScalaDirectiveTokenTypes.tDIRECTIVE_PREFIX) => Some(s"$UsingDirective deps ")
             // `//> using ${caret}`
             case _ if directive.key.isEmpty => Some("deps ")
             // `//> using dep ${caret}`

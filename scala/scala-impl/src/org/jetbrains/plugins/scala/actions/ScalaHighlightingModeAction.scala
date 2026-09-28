@@ -15,7 +15,7 @@ final class ScalaHighlightingModeAction extends AnAction(
   override def actionPerformed(e: AnActionEvent): Unit = {
     CommonDataKeys.PROJECT.getData(e.getDataContext) match {
       case project: Project => perform(project)
-      case _ =>
+      case null =>
     }
   }
 

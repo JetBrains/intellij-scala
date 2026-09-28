@@ -19,7 +19,7 @@ import scala.annotation.tailrec
 import scala.language.postfixOps
 import scala.meta.ScalaMetaBundle
 import scala.meta.trees.error._
-import scala.{meta => m, Seq => _}
+import scala.{meta => m}
 
 trait Namer {
   self: TreeConverter =>

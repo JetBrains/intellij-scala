@@ -286,7 +286,7 @@ private class ScalaDocContentWithSectionsGenerator(
           case _ =>
             false
         }
-      case javaDocOwner: PsiDocCommentOwner =>
+      case javaDocOwner =>
         ScalaDocUtil.generateJavaDocInfoContentInner(javaDocOwner) match {
           case Some(superContent) =>
             if (hasOwnDescription)
@@ -296,8 +296,6 @@ private class ScalaDocContentWithSectionsGenerator(
           case None   =>
             false
         }
-      case _ =>
-        false
     }
   } catch {
     case _: IndexNotReadyException =>

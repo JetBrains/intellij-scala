@@ -18,8 +18,7 @@ class ScExistentialClauseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     if (lastParent != null) {
-      val stop = declarations.exists(d => !processElement(d, processor, state))
-      stop
+      val _ = declarations.exists(d => !processElement(d, processor, state))
     }
     true
   }

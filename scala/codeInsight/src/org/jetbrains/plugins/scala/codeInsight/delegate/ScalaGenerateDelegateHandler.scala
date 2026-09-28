@@ -206,7 +206,6 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
         case m: PsiMethod if isMethodFromJavaLangObject(m) => false
         case f: ScFunction => (f.isParameterless || f.isEmptyParen) && ResolveUtils.isAccessible(f, clazz)
         case m: PsiMethod => m.isAccessor && ResolveUtils.isAccessible(m, clazz)
-        case _ => false
       }
     case fieldMember: ScalaFieldMember => ResolveUtils.isAccessible(fieldMember.getElement, clazz)
     case _ => false

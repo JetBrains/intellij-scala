@@ -360,7 +360,7 @@ class ScalaReplacementBuilder(val profile: StructuralSearchProfile) {
               }
             }
             foundFirst = true
-            result.append(sb.result)
+            result.append(sb.result())
           }
           lastEl = Some(param)
         }

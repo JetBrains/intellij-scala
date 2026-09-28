@@ -242,7 +242,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Debug
   private def isConditionalReturn(breakpoint: XLineBreakpoint[JavaLineBreakpointProperties]): Boolean =
     breakpoint.getProperties match {
       case props: JavaLineBreakpointProperties => props.isConditionalReturn
-      case _ => false //the properties are nullable in practice
+      case null => false //the properties are nullable in practice
     }
 
   override def getPriority: Int = super.getPriority + 1

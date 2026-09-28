@@ -95,8 +95,7 @@ object ScalaGlobalMembersCompletionContributor {
 
     private def stringContextQualifier(literal: ScInterpolatedStringLiteral) =
       literal.desugaredExpression.flatMap {
-        case (reference: ScReferenceExpression, _) => reference.qualifier
-        case _ => None
+        case (reference, _) => reference.qualifier
       }
 
     private def desugaredQualifier(reference: ScReferenceExpression) =

@@ -24,7 +24,7 @@ trait ScBoundsOwnerStub[E <: PsiNamedElement] extends NamedStub[E] with ScStubEl
   private var viewElementsReferences: SofterReference[Seq[ScTypeElement]] = _
   private var contextElementsReferences: SofterReference[Seq[ScContextBound]] = _
 
- def viewBounds: Seq[ScTypeElement] = {
+  def viewBounds: Seq[ScTypeElement] = {
     getFromReference(viewElementsReferences) {
       case (context, child) =>
         viewBoundsTexts.map {
@@ -33,7 +33,7 @@ trait ScBoundsOwnerStub[E <: PsiNamedElement] extends NamedStub[E] with ScStubEl
     } (viewElementsReferences = _)
   }
 
- def contextBounds: Seq[ScContextBound] = {
+  def contextBounds: Seq[ScContextBound] = {
     getFromReference(contextElementsReferences) {
       case (context, child) =>
         contextBoundsTexts.map {

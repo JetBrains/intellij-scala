@@ -39,7 +39,6 @@ final class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction w
       case e: ScExpression =>
         if (e.is[ScReturn, ScThrow]) return true
         false
-      case _ => false
     }
   }
 

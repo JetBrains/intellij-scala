@@ -234,7 +234,7 @@ object ScalaTestAstTransformer {
           case Some(parentAst) => parentAst
           case None => getParentNode(className, parent)
         }
-      case _ => null
+      case null => null
     }
   }
 

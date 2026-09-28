@@ -442,7 +442,7 @@ object ScalaDocContentGeneratorWikidoc {
   private sealed trait DocListType
   private object DocListType {
     final case class OrderedList(cssClass: String) extends DocListType
-    final object UnorderedList extends DocListType
+    object UnorderedList extends DocListType
   }
 
   @TestOnly

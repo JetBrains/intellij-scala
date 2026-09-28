@@ -147,7 +147,7 @@ object MatchToPartialFunctionInspection {
       }
     }
 
-    private[this] def needNamingPattern(statement: ScMatch): Seq[Int] = statement match {
+    private def needNamingPattern(statement: ScMatch): Seq[Int] = statement match {
       case ScMatch(ScReferenceExpression(argument), _) =>
         val references = findReferences(argument)(new LocalSearchScope(statement))
 
@@ -157,8 +157,8 @@ object MatchToPartialFunctionInspection {
       case _ => Seq.empty
     }
 
-    private[this] def addNamingPatterns(statement: ScMatch, indices: Seq[Int])
-                                       (implicit projectContext: ProjectContext = statement.projectContext): Unit = {
+    private def addNamingPatterns(statement: ScMatch, indices: Seq[Int])
+                                 (implicit projectContext: ProjectContext = statement.projectContext): Unit = {
       val expression = statement.expression.getOrElse(return)
       val name = expression.getText
 

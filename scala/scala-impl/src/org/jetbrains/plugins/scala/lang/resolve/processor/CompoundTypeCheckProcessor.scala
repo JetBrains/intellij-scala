@@ -260,7 +260,6 @@ class CompoundTypeCheckTypeAliasProcessor(
               return true
             }
           }
-        case _ =>
       }
       false
     }
@@ -281,7 +280,6 @@ class CompoundTypeCheckTypeAliasProcessor(
               return false
             }
           case _: ScTypeAlias => if (checkDeclarationForTypeAlias(tp)) return false
-          case _ => throw new IllegalArgumentException("Type alias must be either a declaration of definition.")
         }
       case tp: ScTypeAliasDeclaration => if (checkDeclarationForTypeAlias(tp)) return false
       case _ => ()

@@ -8,8 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 
 abstract class ApplicationAnnotatorTestBase extends AnnotatorSimpleTestCase {
-  final val Header =
-"""
+  final val Header = """
 class Seq[+A]
 object Seq {
   def apply[A](a: A) = new Seq[A]

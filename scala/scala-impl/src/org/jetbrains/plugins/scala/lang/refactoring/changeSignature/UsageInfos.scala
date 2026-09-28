@@ -165,12 +165,8 @@ private[changeSignature] object UsageUtil {
 
   def substitutor(usage: ScalaNamedElementUsageInfo): ScSubstitutor = usage match {
     case ScalaNamedElementUsageInfo(funUsage: FunUsageInfo) =>
-      funUsage.namedElement match {
-        case fun: ScFunction =>
-          fun.superMethodAndSubstitutor match {
-            case Some((_, subst)) => subst
-            case _ => ScSubstitutor.empty
-          }
+      funUsage.namedElement.superMethodAndSubstitutor match {
+        case Some((_, subst)) => subst
         case _ => ScSubstitutor.empty
       }
     case _ => ScSubstitutor.empty

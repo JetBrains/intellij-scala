@@ -9,7 +9,7 @@ import com.intellij.platform.eel.provider.utils.EelProjectUtils
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.sbt.SbtUtil.{detectSbtVersion as _, *}
+import org.jetbrains.sbt.SbtUtil.*
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.{Sbt, SbtUtil, SbtVersion, SbtVersionCapabilities, normalizedLocalPath}
 

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenType}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScPrimaryConstructor, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScEnumCase, ScEnumSingletonCase, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -437,10 +437,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     element.extendsBlock.members.foreach {
       case _: ScTypeAliasDeclaration => // abstract type declarations are allowed
       case declaration: ScDeclaration =>
-        val isNative = declaration match {
-          case a: ScAnnotationsHolder => a.hasAnnotation("scala.native")
-          case _ => false
-        }
+        val isNative = declaration.hasAnnotation("scala.native")
         if (!isNative) holder.createErrorAnnotation(declaration, ScalaBundle.message("illegal.undefined.member"))
       case _ =>
     }

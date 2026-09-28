@@ -198,7 +198,7 @@ object ScalaSyntheticProvider {
               case mutable.Buffer(sam) => sam.name == m.name
               case _ => false
             }
-          case _ => false
+          case null => false
         }
       case _ => false
     }

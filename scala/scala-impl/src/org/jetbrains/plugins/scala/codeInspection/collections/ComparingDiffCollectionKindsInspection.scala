@@ -19,8 +19,8 @@ object ComparingDiffCollectionKinds extends SimplificationType {
     }
   }
   object Side {
-    final case object Right extends Side
-    final case object Left extends Side
+    case object Right extends Side
+    case object Left extends Side
   }
 
   override def hint: String = ScalaInspectionBundle.message("hint.comparing.different.collection.kinds")

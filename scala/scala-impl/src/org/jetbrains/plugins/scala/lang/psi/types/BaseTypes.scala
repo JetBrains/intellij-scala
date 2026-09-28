@@ -176,7 +176,7 @@ object BaseTypes {
     val res = mutable.HashMap.empty[PsiClass, ScType]
     val all = mutable.HashMap.empty[PsiClass, mutable.Set[ScType]]
     while (typesIt.hasNext) {
-       val t = typesIt.next()
+      val t = typesIt.next()
       t.extractClass match {
         case Some(c) =>
           val isBest = all.get(c) match {

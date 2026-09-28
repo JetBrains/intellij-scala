@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.extensions.implementation.iterator
 import com.intellij.psi.PsiElement
 
 class ParentsIteratorTest extends IteratorTestCase {
-   def testEmpty(): Unit = {
+  def testEmpty(): Unit = {
     assertIterates("", "0")
   }
 

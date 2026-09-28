@@ -21,7 +21,7 @@ import scala.annotation.implicitAmbiguous
 sealed trait NotNothing[T]
 
 //noinspection ScalaUnusedSymbol
-private object NotNothing {
+object NotNothing {
   implicit def good[T]: NotNothing[T] = null
 
   @implicitAmbiguous("Specify generic type other than Nothing")

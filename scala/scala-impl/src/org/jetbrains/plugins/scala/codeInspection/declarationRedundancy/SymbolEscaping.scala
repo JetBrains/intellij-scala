@@ -120,7 +120,7 @@ private[declarationRedundancy] object SymbolEscaping {
 
   final class EscapeInfo(val member: ScMember, val types: Seq[ScType])
 
-  private final object EscapeInfo {
+  private object EscapeInfo {
     def apply(member: ScMember, types: Seq[ScType]) = new EscapeInfo(member, types)
   }
 

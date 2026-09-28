@@ -1281,14 +1281,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScTuplePattern =>
-          WITHOUT_SPACING //todo: add setting
+          return WITHOUT_SPACING //todo: add setting
         case _: ScParenthesisedTypeElement =>
           if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScTupleTypeElement =>
-          WITHOUT_SPACING //todo: add setting
+          return WITHOUT_SPACING //todo: add setting
         case _: ScTuple =>
-          WITHOUT_SPACING //todo: add setting
+          return WITHOUT_SPACING //todo: add setting
         case _: ScFunctionalTypeElement =>
           if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
@@ -1328,14 +1328,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScTuplePattern =>
-          WITHOUT_SPACING //todo: add setting
+          return WITHOUT_SPACING //todo: add setting
         case _: ScParenthesisedTypeElement =>
           if (settings.SPACE_WITHIN_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScTupleTypeElement =>
-          WITHOUT_SPACING //todo: add setting
+          return WITHOUT_SPACING //todo: add setting
         case _: ScTuple =>
-          WITHOUT_SPACING //todo: add setting
+          return WITHOUT_SPACING //todo: add setting
         case _: ScFunctionalTypeElement =>
           if (settings.SPACE_WITHIN_METHOD_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING

@@ -5,7 +5,7 @@ import com.intellij.patterns.{ElementPattern, PlatformPatterns, PsiElementPatter
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
-import com.intellij.psi.{util => _, _}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster

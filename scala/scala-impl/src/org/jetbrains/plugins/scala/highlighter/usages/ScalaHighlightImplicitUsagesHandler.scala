@@ -94,7 +94,7 @@ object ScalaHighlightImplicitUsagesHandler {
     trait ContextBoundTargetKind extends TargetKind[ScContextBound] {
       def target(t: ScContextBound): Option[ScParameter]
     }
-    implicit val contextBoundKind: ContextBoundTargetKind = contextBoundImplicitTarget
+    implicit val contextBoundKind: ContextBoundTargetKind = contextBoundImplicitTarget(_)
 
     private def target(named: PsiNamedElement): Option[PsiNamedElement] = named match {
       case _ if !named.isValid                             => None

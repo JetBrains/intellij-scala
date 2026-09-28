@@ -390,7 +390,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           )
         else
           context.setUIComponentEnabled(false)
-      case _ =>
+      case null =>
     }
   }
 
@@ -782,6 +782,8 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                   for (typez <- call.getEffectiveInvokedExpr.`type`()) { //todo: implicit conversions
                     collectForType(typez)
                   }
+                case _ =>
+                  throw new AssertionError(s"Unexpected call: $call")
               }
           }
         }

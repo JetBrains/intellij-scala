@@ -208,5 +208,5 @@ package object move {
     }
   }
 
-  private val LOG: Logger = Logger.getInstance(getClass)
+  private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.refactoring.move")
 }

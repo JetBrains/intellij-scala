@@ -572,7 +572,6 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case other: ScalaResolveResult =>
         other.element.processDeclarations(processor, ScalaResolveState.withSubstitutor(other.substitutor),
           null, this)
-      case _ =>
     }
 
     withDynamicResult.getOrElse(processor.candidates)

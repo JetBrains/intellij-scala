@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.components
 
 import com.intellij.ide.plugins.cl.PluginClassLoader
-import com.intellij.ide.plugins.{org => _, _}
+import com.intellij.ide.plugins._
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 

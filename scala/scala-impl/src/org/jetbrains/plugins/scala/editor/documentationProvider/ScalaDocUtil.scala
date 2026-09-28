@@ -4,7 +4,6 @@ import com.intellij.codeInsight.javadoc.JavaDocInfoGenerator
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.psi.util.PsiUtil
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement}
-import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -118,6 +117,6 @@ private object ScalaDocUtil {
     if (contentEndIndex == -1)
       return None
 
-   Some(javadoc.substring(contentStartIdx, contentEndIndex))
+    Some(javadoc.substring(contentStartIdx, contentEndIndex))
   }
 }

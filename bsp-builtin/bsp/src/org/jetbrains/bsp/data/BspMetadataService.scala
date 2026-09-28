@@ -31,7 +31,7 @@ class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Mo
     modelsProvider.getIdeModuleByNode(node).foreach { module =>
       val data = node.getData
       val jdkByHome = Option(data.javaHome).map(u => JdkByHome(u.uri.asPath(using EelProviderUtil.getEelDescriptor(project))))
-      val jdkByVersion = Option(data.javaVersion).map(JdkByVersion)
+      val jdkByVersion = Option(data.javaVersion).map(JdkByVersion(_))
       val existingJdk = Option(ModuleRootManager.getInstance(module).getSdk)
       val moduleJdk = jdkByHome
         .orElse(jdkByVersion)

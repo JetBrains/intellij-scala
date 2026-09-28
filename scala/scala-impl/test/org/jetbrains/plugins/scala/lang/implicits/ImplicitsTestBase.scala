@@ -40,9 +40,8 @@ abstract class ImplicitsTestBase extends ScalaLightCodeInsightFixtureTestCase {
       expr.implicitElement() match {
         case None => "None"
         case Some(elem: PsiNamedElement) => "Some(" + elem.name + ")"
-        case _ => assert(assertion = false, message = "elem is not PsiNamedElement")
       }
-      )
+    )
 
     val ExpectedResultFromLastComment(_, output) = TestUtils.extractExpectedResultFromLastComment(scalaFile)
 

@@ -45,7 +45,7 @@ trait QuasiquoteInferUtilApiImpl extends QuasiquoteInferUtilApi {
     val joined = stringContextApplicationRef.qualifier match {
       case Some(mc: ScMethodCallImpl) => mc.argumentExpressions.zipWithIndex.foldLeft("") {
         case (a, (expr, i)) if i > 0 => s"$a$$__meta$i${unquoteString(expr.getText)}"
-        case (_, (expr, i)) if i == 0 => unquoteString(expr.getText)
+        case (_, (expr, _)) => unquoteString(expr.getText)
       }
       case _ => ""
     }

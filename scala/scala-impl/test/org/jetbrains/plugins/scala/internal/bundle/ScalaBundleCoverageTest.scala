@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.internal.bundle
 
 import junit.framework.TestCase.fail
-import org.jetbrains.plugins.scala.extensions.PathExt
 import org.junit.Test
 
 import java.nio.file.Path

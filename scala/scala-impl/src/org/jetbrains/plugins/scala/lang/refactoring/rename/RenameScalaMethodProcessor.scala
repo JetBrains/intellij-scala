@@ -135,7 +135,7 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
         } else if (!f.hasParameterClause) {
           clazz.functions.find(_.name == name + "_=")
         } else None
-      case _ => None
+      case null => None
     }
   }
 

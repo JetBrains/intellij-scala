@@ -31,10 +31,10 @@ class SystemDetectorIntegrationTest(parameter: ScalaVersionParameter) {
     try {
       val scalaVersionStr = scalaVersion.minor
 
-    val zipFile = ScalaInstallationTestUtils.downloadScalaDistribution(scalaVersion, baseTempDir)
+      val zipFile = ScalaInstallationTestUtils.downloadScalaDistribution(scalaVersion, baseTempDir)
 
-    val tempDir = baseTempDir.resolve("scala-sdk")
-    val unzippedDir = ScalaInstallationTestUtils.unzipScalaSdkArchive(zipFile, tempDir)
+      val tempDir = baseTempDir.resolve("scala-sdk")
+      val unzippedDir = ScalaInstallationTestUtils.unzipScalaSdkArchive(zipFile, tempDir)
 
       val scalaSdkInnerDirNamePrefix = if (scalaVersion.isScala3) s"scala3-$scalaVersionStr" else s"scala-$scalaVersionStr"
 

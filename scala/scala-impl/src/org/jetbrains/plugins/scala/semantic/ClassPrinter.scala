@@ -308,7 +308,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         case named: ScNamedElement => if (named.name == "<anonymous>") "this" else named.name + ".this"
         case _ => e.name
       }
-      case e: PsiNamedElement => e.nameContext match {
+      case e => e.nameContext match {
         case p: PsiPackage => if (p.getName == null) "_root_" else p.getQualifiedName
         case p: ScClassParameter if p.containingClass.extendsBlock.templateParents.exists(place.contexts.contains) => p.name
         case m: ScMember if m.isLocal => e.name
@@ -329,7 +329,6 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
           }
         case _ => e.name
       }
-      case _ => result.name
     }
   }
 

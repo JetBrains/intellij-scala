@@ -43,7 +43,7 @@ class IntroduceTypeAliasData {
     element match {
       case typeAlias: ScTypeAlias =>
         typeAlias
-      case _ => null
+      case null => null
     }
   }
 }

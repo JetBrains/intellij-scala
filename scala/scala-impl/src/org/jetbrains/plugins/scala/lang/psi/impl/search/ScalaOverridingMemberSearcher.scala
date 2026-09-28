@@ -198,11 +198,9 @@ object ScalaOverridingMemberSearcher {
         inTemplateBodyOrEarlyDef(member)
       case cp: ScClassParameter if cp.isClassMember =>
         true
-      case x: PsiNamedElement =>
+      case x =>
         val nameContext = x.nameContext
         nameContext != null && inTemplateBodyOrEarlyDef(nameContext)
-      case _ =>
-        false
     }
   }
 

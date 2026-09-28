@@ -1,28 +1,27 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.impl.light.LightDefaultConstructor
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.*
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgument
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
+import org.jetbrains.plugins.scala.lang.psi.api.statements.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types.*
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ApplicabilityCheckResult, Expression}
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.*
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
+import org.jetbrains.plugins.scala.lang.psi.types.result.*
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.*
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
@@ -151,8 +150,7 @@ class MethodResolveProcessor(
             case alias: ScTypeAliasDefinition =>
               val rhsOption = alias.aliasedType.toOption
               rhsOption.flatMap(_.extractClass)
-            case cls: PsiClass                => Option(cls)
-            case _                            => throw new IllegalArgumentException(ScalaBundle.message("unexpected.resolve.target", target))
+            case cls: PsiClass                => Some(cls)
           }
 
           targetCls.foreach { cls =>
@@ -720,7 +718,7 @@ object MethodResolveProcessor {
     proc:  MethodResolveProcessor,
     input: Set[ScalaResolveResult],
   ): Set[ScalaResolveResult] = {
-    import proc.{candidates => _, _}
+    import proc.{candidates as _, *}
     val argumentClauses = invocationClauses.collect { case InvocationClause(_, Some(args)) => args }
     val maxArgClauseIdx = invocationClauses.size - 1
 
@@ -872,7 +870,7 @@ object MethodResolveProcessor {
     clauseIdx:       Int,
     useExpectedType: Boolean
   ): Set[ApplicabilityCandidate] = {
-    import proc.{candidates => _, _}
+    import proc.*
 
     def applicableResults(cands: Set[ApplicabilityCandidate]): Set[ApplicabilityCandidate] =
       cands.collect { case cand if cand.isApplicable(withExpectedType = useExpectedType) => cand }
@@ -1059,7 +1057,7 @@ object MethodResolveProcessor {
     clauseIdx:                 Int,
     exhaustedTypeParamClauses: Boolean
   ): Set[ApplicabilityCandidate] = {
-    import proc._
+    import proc.*
     val initialRR = cand.resolveResult
 
     implicit val projectContext: ProjectContext = initialRR.element
@@ -1111,7 +1109,7 @@ object MethodResolveProcessor {
     cand: ApplicabilityCandidate,
     proc: MethodResolveProcessor
   ): Set[ApplicabilityCandidate] = {
-    import proc._
+    import proc.*
     val noExpansion        = Set(cand)
     val r                  = cand.resolveResult
     val typeArgs           = typeArgsForArgClause(0)
@@ -1214,7 +1212,7 @@ object MethodResolveProcessor {
     argClauseIdx:          Int,
     shapesOnly:            Boolean = false,
   ): Set[ApplicabilityCandidate] = {
-    import proc._
+    import proc.*
 
     val resultBuilder = Set.newBuilder[ApplicabilityCandidate]
     val iterator      = expandedInput.iterator

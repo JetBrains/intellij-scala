@@ -72,7 +72,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
 
       override def getCanonicalText: String = resolve match {
         case c: PsiClass => c.qualifiedName
-        case _ => null
+        case null => null
       }
 
       override def isSoft: Boolean = false

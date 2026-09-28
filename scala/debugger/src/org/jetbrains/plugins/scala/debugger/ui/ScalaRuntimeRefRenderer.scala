@@ -63,7 +63,7 @@ class ScalaRuntimeRefRenderer extends ScalaClassRenderer {
     descriptor.getType match {
       case RefType(refType) =>
         s"unwrapped Scala runtime $refType reference"
-      case _ => super.calcIdLabel(descriptor, process, labelListener)
+      case null => super.calcIdLabel(descriptor, process, labelListener)
     }
 
   private def unwrapValue(ref: Value): Value = {

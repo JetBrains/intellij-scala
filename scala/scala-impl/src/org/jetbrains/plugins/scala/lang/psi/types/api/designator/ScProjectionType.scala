@@ -126,7 +126,7 @@ final class ScProjectionType private(val projected: ScType,
             } else {
               Some(candidateElement, defaultSubstitutor)
             }
-          case _ => None
+          case null => None
         }
         case _ => None
       }

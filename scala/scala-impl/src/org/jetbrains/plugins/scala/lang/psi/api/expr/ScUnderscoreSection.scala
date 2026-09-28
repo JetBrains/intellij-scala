@@ -58,8 +58,7 @@ trait ScUnderscoreSection extends ScExpression with InvocationDetailsOwner {
         case x: ScTypedExpression if !calcArguments => Some(x)
         case _ => expr match {
           case _: ScUnderscoreSection => None
-          case x: ScExpression => Some(x)
-          case _ => None
+          case x => Some(x)
         }
       }
     }

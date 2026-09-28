@@ -88,12 +88,11 @@ class LanguageFeatureInspection extends LocalInspectionTool {
   )
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = PsiElementVisitorSimple(holder) {
-    case e: PsiElement =>
+    e =>
       val hasScala = e.module.exists(_.hasScala)
       if (hasScala) {
         Features.foreach(_.process(e, holder))
       }
-    case _ =>
   }
 }
 

@@ -504,7 +504,7 @@ object JavaToScala {
             case method: PsiMethod =>
               val returnType = method.getReturnType
               returnType != null && returnType.isInstanceOf[PsiArrayType]
-            case _ => false
+            case null => false
           }
         }
 

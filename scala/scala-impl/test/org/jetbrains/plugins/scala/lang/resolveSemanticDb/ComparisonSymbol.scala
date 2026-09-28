@@ -190,7 +190,7 @@ object ComparisonSymbol {
         val offset = if (sc.qualifiedName == "scala.Int" && f.name == "+") 1 else 0 // No def +(x: String): String
         val overloads = sc.syntheticMethods.get(f.name).asScala.toSeq
         offset + overloads.indexOf(f)
-      case _ =>
+      case null =>
         throw new java.lang.AssertionError(e)
     }
 
@@ -218,7 +218,7 @@ object ComparisonSymbol {
       case cls: PsiClass =>
         val overloads = cls.findMethodsByName(m.getName, false)
         overloads.indexOf(m)
-      case _ =>
+      case null =>
         throw new java.lang.AssertionError(e)
     }
 

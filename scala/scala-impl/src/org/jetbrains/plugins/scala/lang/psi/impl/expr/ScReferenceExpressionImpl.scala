@@ -407,12 +407,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             extensionOwner       = extensionOwner
           )
           .updateTypeOfDynamicCall(result.isDynamic)
-      case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
-        val computeType = param.`type`() match {
-          case Right(tp) => s(tp)
-          case result => return result
-        }
-        computeType.tryWrapIntoSeqType
       case ScalaResolveResult(obj: ScObject, _) =>
         def tail =
           fromType match {

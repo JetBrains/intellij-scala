@@ -172,7 +172,7 @@ final class CopyTypeAction extends AnAction(ScalaBundle.message("copy.scala.type
 
       if (e.endOffset >= endElement.startOffset) {
         e match {
-          case e: ScalaPsiElement with Typeable  =>
+          case e: (ScalaPsiElement & Typeable)  =>
             return Some(e)
           case Parent(p: ScTypeDefinition) if p.nameId == e =>
             return Some(p)

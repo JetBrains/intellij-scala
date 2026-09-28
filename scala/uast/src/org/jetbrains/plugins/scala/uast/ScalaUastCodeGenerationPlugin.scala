@@ -129,13 +129,10 @@ final class ScalaUastCodeGenerationPlugin extends UastCodeGenerationPlugin {
           case block: ScBlockExpr =>
             addToBlock(block, createAssignment, anchor, addBefore)
           case bodyExpr =>
-            ScalaPsiElementFactory.createBlockWithGivenExpression(bodyExpr, bodyExpr) match {
-              case block: ScBlockExpr =>
-                val assignment = addToBlock(block, createAssignment, anchor, addBefore)
-                bodyExpr.replace(block)
-                assignment
-              case _ => return null
-            }
+            val block = ScalaPsiElementFactory.createBlockWithGivenExpression(bodyExpr, bodyExpr)
+            val assignment = addToBlock(block, createAssignment, anchor, addBefore)
+            bodyExpr.replace(block)
+            assignment
         }.orNull
         toUElement(psiElement, classOf[UExpression])
       case _ => null

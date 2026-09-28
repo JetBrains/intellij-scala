@@ -2,23 +2,23 @@ package org.jetbrains.plugins.scala.lang
 package completion
 package aot
 
-import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup._
+import com.intellij.codeInsight.completion.{CompletionInitializationContext, CompletionParameters, CompletionResultSet, CompletionType, InsertionContext}
+import com.intellij.codeInsight.lookup.*
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, ScalaCompletionContributor, ScalaKeyword, aot, identifierPattern, identifierWithParentPattern, positionFromParameters}
+import org.jetbrains.plugins.scala.extensions.*
+import org.jetbrains.plugins.scala.lang.completion.{InsertionContextExt, ScalaCompletionContributor, ScalaKeyword, identifierPattern, identifierWithParentPattern, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPatternList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.*
 
 final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
@@ -32,9 +32,9 @@ final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
     new ParameterCompletionProvider {
 
       //noinspection TypeAnnotation
-      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): aot.TypedConsumer = new TypedConsumer(resultSet) {
+      override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): TypedConsumer = new TypedConsumer(resultSet) {
 
-        override protected def createInsertHandler(itemText: String): aot.InsertHandler = new aot.InsertHandler(itemText) {
+        override protected def createInsertHandler(itemText: String): InsertHandler = new InsertHandler(itemText) {
 
           override def handleInsert(decorator: Decorator)
                                    (implicit context: InsertionContext): Unit = {

@@ -11,7 +11,7 @@ class MethodResultDfaListener(resultDestination: DfaValue) extends DfaListener {
   private var resultValue: Option[DfType] = None
 
   def collectResultValue: DfType = resultValue match {
-    case DfType.TOP | DfType.BOTTOM => DfType.TOP
+    case Some(DfType.TOP | DfType.BOTTOM) => DfType.TOP
     case Some(other) => other
     case _ => DfType.TOP
   }

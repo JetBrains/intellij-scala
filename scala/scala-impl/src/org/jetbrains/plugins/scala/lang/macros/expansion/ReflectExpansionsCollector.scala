@@ -28,7 +28,7 @@ class ReflectExpansionsCollector(project: Project) {
   def getExpansion(elem: PsiElement): Option[MacroExpansion] = {
     val offset = PsiTreeUtil.getParentOfType(elem, classOf[ScAnnotation]) match {
       case _: ScAnnotation => elem.getTextOffset
-      case _ => elem.getNode.getTextRange.getEndOffset
+      case null => elem.getNode.getTextRange.getEndOffset
     }
     val path = elem.getContainingFile.getVirtualFile.getPath
     val place = Place(path, offset)()

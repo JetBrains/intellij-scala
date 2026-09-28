@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScExistentialType, ScType, ScTypeExt}
 
-import scala.annotation.{switch, tailrec}
+import scala.annotation.tailrec
 
 object TypeIntrinsics {
   def apply(
@@ -45,7 +45,7 @@ object TypeIntrinsics {
 
         lazy val argumentsDealiased = arguments
 
-        (containingClassName: @switch) match {
+        containingClassName match {
           // compiletime.ops
           case "scala.compiletime.ops.any"     => CompileTimeOpsIntrinsics.anyOp(alias.name, argumentsDealiased)
           case "scala.compiletime.ops.boolean" => CompileTimeOpsIntrinsics.booleanOp(alias.name, argumentsDealiased)

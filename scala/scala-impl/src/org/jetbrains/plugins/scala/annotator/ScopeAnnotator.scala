@@ -100,7 +100,7 @@ trait ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
         case td: ScTemplateDefinition => td.members
         case _                        => element.children
       }
-      children.foreach {
+      children.iterator.foreach {
         //stop processing when found another scope
         _.depthFirst(!ScalaPsiUtil.isScope(_)).foreach { e =>
           definitions += e

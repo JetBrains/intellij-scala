@@ -210,7 +210,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
         SyntheticNamedElement.getNavigationElementForSyntheticScalaLibraryDefinition(
           getProject, element = this, sourceFileName, isScala3LibraryDefinition
         )
-      case _ =>
+      case null =>
         None
     }
 

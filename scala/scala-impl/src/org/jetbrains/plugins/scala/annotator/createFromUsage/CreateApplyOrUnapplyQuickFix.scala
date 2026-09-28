@@ -61,7 +61,7 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
     ScalaPsiUtil.adjustTypes(entity)
     entity.tap {
       case scalaPsi: ScalaPsiElement => TypeAnnotationUtil.removeTypeAnnotationIfNeeded(scalaPsi)
-      case _ =>
+      case null =>
     }
   }
 

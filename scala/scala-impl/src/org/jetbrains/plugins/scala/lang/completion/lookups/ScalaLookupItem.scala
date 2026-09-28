@@ -359,6 +359,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
               case _: ScFile => return
             }
             case pack: ScPackage                            => PrefixPackageToImport(pack)
+            case _ => throw new AssertionError("Unexpected element: " + element)
           }
 
           def nameToUse(qualifiedName: String = cl.qualifiedName) = ref match {

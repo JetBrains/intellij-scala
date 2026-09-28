@@ -15,9 +15,11 @@ final class ScalaAnnotatedMacro extends ScalaMacro {
 
   protected def getAnnotatedMembers(params: Array[Expression], context: ExpressionContext): Query[PsiMember] = {
     (params, context) match {
-      case (null, _) |
-           (_, null) => EmptyQuery.getEmptyQuery[PsiMember]
-      case _ if params.length > 0 => //TODO should params.length always equal 1?
+      case (null, _) | (_, null) =>
+        EmptyQuery.getEmptyQuery[PsiMember]
+      case (params, _) if params.length == 0 =>
+        EmptyQuery.getEmptyQuery[PsiMember]
+      case _ => //TODO should params.length always equal 1?
         val project = context.getProject
         val scope = GlobalSearchScope.allScope(project)
         Option(params.head.calculateResult(context)).flatMap(res => ScalaPsiManager.instance(project).

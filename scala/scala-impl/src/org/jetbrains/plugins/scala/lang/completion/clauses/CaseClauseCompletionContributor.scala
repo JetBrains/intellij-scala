@@ -156,7 +156,7 @@ object CaseClauseCompletionContributor {
       }
   }
 
-  private final object AotCompletionProvider extends aot.CompletionProvider[ScTypedPatternLike] {
+  private object AotCompletionProvider extends aot.CompletionProvider[ScTypedPatternLike] {
 
     override protected def findTypeElement(pattern: ScTypedPatternLike): Option[ScTypeElement] =
       pattern.typePattern.map(_.typeElement)

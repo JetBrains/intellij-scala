@@ -44,7 +44,7 @@ trait ScalaTestFrameworkCommandLineStateLike {
         testConfigurationData.getTestMap
     }
 
-  protected final object DebugOptions {
+  protected object DebugOptions {
     def attachDebugAgent = false // set to true to debug test runner process
     def waitUntilDebuggerAttached = true //if set to true JVM will wait until you attach the debugger
     def port = "5009"

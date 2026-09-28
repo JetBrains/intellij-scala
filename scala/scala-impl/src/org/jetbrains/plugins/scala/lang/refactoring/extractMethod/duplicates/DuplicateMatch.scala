@@ -43,7 +43,6 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
     if (filteredP.isEmpty) return true
     filteredP.zip(filteredC).forall {
       case (e1, e2) => checkElement(e1, e2)
-      case _ => false
     }
   }
 

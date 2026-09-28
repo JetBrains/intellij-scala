@@ -134,6 +134,7 @@ object InterpolatedStringParser extends StringParser {
       val specialEscape = m.matched match {
         case PercentChar.originalText   => PercentChar
         case LineSeparator.originalText => LineSeparator
+        case any => throw new AssertionError("Unexpected match: " + any)
       }
       result += specialEscape
 

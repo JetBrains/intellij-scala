@@ -32,8 +32,8 @@ sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag]
 }
 
 object ScNumericLiteralAnnotator {
-    private def annotate[L <: Numeric : reflect.ClassTag](literal: L, target: ScExpression, isLong: Boolean)
-                                                         (implicit holder: ScalaAnnotationHolder): Option[(ScExpression, Boolean)] = {
+  private def annotate[L <: Numeric](literal: L, target: ScExpression, isLong: Boolean)
+                                    (implicit holder: ScalaAnnotationHolder): Option[(ScExpression, Boolean)] = {
     val languageLevel = literal.scalaLanguageLevel
     val scalaVersion = literal.scalaMinorVersion
 
@@ -83,14 +83,12 @@ object ScNumericLiteralAnnotator {
     //        PsiElement(identifier)
     //          PsiElement(integer)
     val isNegativeExpression = target != literal
-    val isNegativeInsideLiteralType = literal match {
-      case numeric: Numeric =>
-        val c = numeric.getFirstChild
-        val startsWithMinus = c != null &&
-          c.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER &&
-          c.textMatches("-")
-        startsWithMinus
-      case _ => false
+    val isNegativeInsideLiteralType = {
+      val c = literal.getFirstChild
+      val startsWithMinus = c != null &&
+        c.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER &&
+        c.textMatches("-")
+      startsWithMinus
     }
     val isNegative = isNegativeExpression || isNegativeInsideLiteralType
     val maybeNumber = stringToNumber(number, kind, isNegative)()

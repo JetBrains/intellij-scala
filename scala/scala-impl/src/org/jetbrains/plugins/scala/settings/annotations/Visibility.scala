@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.settings.annotations
 sealed trait Visibility
 
 object Visibility {
-  final object Private extends Visibility
-  final object Protected extends Visibility
-  final object Default extends Visibility
+  object Private extends Visibility
+  object Protected extends Visibility
+  object Default extends Visibility
 
   def apply(s: String): Visibility =
     if (s == null) Visibility.Default

@@ -54,7 +54,7 @@ final class SbtShellJdkSelector(project: Project) {
   }
 
   private def findJdkByNameStoredInSettings(settings: SbtExecutionSettings): Option[Sdk] = {
-    val jdkByName = settings.jdk.map(JdkByName)
+    val jdkByName = settings.jdk.map(JdkByName(_))
     jdkByName.flatMap(SdkUtils.findProjectSdk(_, project))
   }
 

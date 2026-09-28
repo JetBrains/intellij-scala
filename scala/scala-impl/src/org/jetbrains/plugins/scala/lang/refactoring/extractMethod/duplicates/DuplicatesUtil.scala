@@ -50,7 +50,6 @@ object DuplicatesUtil {
       case (_: ScReferenceExpression, _: ScExpression) => true
       case (ElementType(tp1), ElementType(tp2)) => tp1 == tp2
         //todo this expressions, return statements, infix expressions
-      case _ => false
     }
   }
 

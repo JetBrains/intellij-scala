@@ -71,7 +71,7 @@ private class DeleteUnusedElementFix(e: ScNamedElement, override val getText: St
 
   // show "Remove  whole definition" before "Remove only binding"
   override def compareTo(o: AnyRef): Int = o match {
-    case o: DeleteUnusedElementFix => this.removeBindingOnly compareTo o.removeBindingOnly
+    case o: DeleteUnusedElementFix => this.removeBindingOnly `compareTo` o.removeBindingOnly
     case _ => 0
   }
 }

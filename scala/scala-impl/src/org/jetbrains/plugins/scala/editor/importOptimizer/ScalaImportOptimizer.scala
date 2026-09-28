@@ -135,9 +135,8 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     def collectRanges(createInfo: ScImportStmt => Seq[ImportInfo]): Seq[ImportRangeInfo] = {
       val importsInfo = ContainerUtil.newConcurrentSet[ImportRangeInfo]()
       processAllElementsConcurrentlyUnderProgress(importHolders) {
-        case holder: ScImportsHolder =>
+        holder =>
           importsInfo.addAll(collectImportRanges(holder, createInfo, usedImportedNames.asScala.toSet).asJava)
-        case _ =>
       }
       importsInfo.asScala.toSeq.sortBy(_.startOffset)
     }

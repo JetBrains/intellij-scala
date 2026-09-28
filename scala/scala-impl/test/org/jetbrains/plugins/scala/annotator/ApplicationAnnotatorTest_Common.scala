@@ -4,8 +4,6 @@ import org.jetbrains.plugins.scala.annotator.Message.Error
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
 abstract class ApplicationAnnotatorTest_Common extends ApplicationAnnotatorTestBase {
-  import Message._
-
   def testEmpty(): Unit = {
     assertNoErrors("()")
   }

@@ -625,7 +625,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
         } else {
           psiClass.isInterface == forImplementsList
         }
-      case _ => false
+      case null => false
     }
   }
 

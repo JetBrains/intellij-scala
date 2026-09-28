@@ -35,7 +35,6 @@ package object intention {
 
       sortedMatchedArgs.dropWhile {
         case (e, _) => !PsiTreeUtil.isAncestor(e, element, /*strict =*/ false)
-        case _ => true
       }
     }
 
@@ -63,7 +62,6 @@ package object intention {
                 argExpr.replace(createExpressionFromText(param.name + " = " + argExpr.getText, argList)(using element.getManager))
               }
             }
-          case _ =>
         }
       }
       Some(doIt)
