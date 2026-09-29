@@ -1,5 +1,47 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin visibility="public">
+    <dependencies>
+        <module name="intellij.java"/>
+        <module name="intellij.java.analysis"/>
+        <module name="intellij.java.compiler"/>
+        <module name="intellij.java.compiler.impl"/>
+        <module name="intellij.java.execution"/>
+        <module name="intellij.java.execution.impl"/>
+        <module name="intellij.java.impl"/>
+        <module name="intellij.java.psi"/>
+        <module name="intellij.java.syntax"/>
+        <module name="intellij.java.ui"/>
+        <module name="intellij.libraries.commons.codec"/>
+        <module name="intellij.libraries.commons.io"/>
+        <module name="intellij.libraries.gson"/>
+        <module name="intellij.libraries.kotlinx.coroutines.core"/>
+        <module name="intellij.libraries.teamcity.service.messages"/>
+        <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.concurrency"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.core.ui"/>
+        <module name="intellij.platform.editor.ui"/>
+        <module name="intellij.platform.eel.provider"/>
+        <module name="intellij.platform.execution"/>
+        <module name="intellij.platform.execution.impl"/>
+        <module name="intellij.platform.externalSystem"/>
+        <module name="intellij.platform.externalSystem.impl"/>
+        <module name="intellij.platform.ide"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.ide.core.impl"/>
+        <module name="intellij.platform.ide.impl"/>
+        <module name="intellij.platform.lang"/>
+        <module name="intellij.platform.lang.core"/>
+        <module name="intellij.platform.lang.impl"/>
+        <module name="intellij.platform.projectModel"/>
+        <module name="intellij.platform.smRunner"/>
+        <module name="intellij.platform.testRunner"/>
+        <module name="intellij.platform.util.coroutines"/>
+        <module name="intellij.platform.util.ui"/>
+        <module name="intellij.platform.vcs"/>
+    </dependencies>
+
     <extensionPoints>
         <extensionPoint qualifiedName="com.intellij.bspEnvironmentRunnerExtension"
                         interface="org.jetbrains.bsp.project.test.environment.BspEnvironmentRunnerExtension"
@@ -26,7 +68,7 @@
     <extensions defaultExtensionNs="org.jetbrains.sbt">
         <buildToolModuleHandler implementation="org.jetbrains.bsp.project.BspModuleHandler"/>
     </extensions>
-    
+
     <extensions defaultExtensionNs="com.intellij">
         <externalSystemUnlinkedProjectAware implementation="org.jetbrains.bsp.project.BspUnlinkedProjectAware"/>
 
@@ -45,7 +87,7 @@
         <externalProjectDataService implementation="org.jetbrains.bsp.data.SbtBuildModuleDataBspService"/>
         <externalProjectDataService implementation="org.jetbrains.bsp.data.BspTargetCanCompileDataService"/>
 
-        <externalIconProvider key="BSP" implementationClass="org.jetbrains.bsp.BspIconProvider" />
+        <externalIconProvider key="BSP" implementationClass="org.jetbrains.bsp.BspIconProvider"/>
 
         <search.topHitProvider implementation="org.jetbrains.bsp.BspTopHitProvider"/>
 
@@ -60,11 +102,11 @@
 
         <projectOpenProcessor implementation="org.jetbrains.bsp.project.importing.BspProjectOpenProcessor"/>
 
-        <projectConfigurable groupId="build.tools" displayName="BSP" instance="org.jetbrains.bsp.project.BspExternalSystemConfigurable" />
+        <projectConfigurable groupId="build.tools" displayName="BSP" instance="org.jetbrains.bsp.project.BspExternalSystemConfigurable"/>
 
         <toolWindow id="BSP" anchor="right"
                     icon="/org/jetbrains/plugins/scala/bsp/images/toolWindowBuildServerProtocol.svg"
-                    factoryClass="org.jetbrains.bsp.BspToolWindowFactory" />
+                    factoryClass="org.jetbrains.bsp.BspToolWindowFactory"/>
 
         <projectTaskRunner implementation="org.jetbrains.bsp.project.BspProjectTaskRunner"/>
         <postStartupActivity implementation="org.jetbrains.bsp.BspStartupActivity"/>
@@ -85,7 +127,7 @@
 
         <createDirectoryCompletionContributor implementation="org.jetbrains.bsp.actions.BspDirectoryCompletionContributor"/>
 
-        <iconMapper mappingFile="BSPIconMappings.json" />
+        <iconMapper mappingFile="BSPIconMappings.json"/>
     </extensions>
 
     <projectListeners>
@@ -97,6 +139,4 @@
         <action id="BSP.RegenerateBspConfigurationFile"
                 class="org.jetbrains.bsp.project.importing.experimental.GenerateBspConfigurationFile"/>
     </actions>
-
-
 </idea-plugin>
