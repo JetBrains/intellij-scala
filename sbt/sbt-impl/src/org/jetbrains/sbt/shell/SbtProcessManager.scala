@@ -12,7 +12,6 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
-import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager
 import com.intellij.platform.eel.provider.EelProviderUtil
@@ -24,8 +23,8 @@ import com.intellij.util.EnvironmentUtil
 import com.intellij.util.concurrency.ThreadingAssertions
 import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresEdt}
 import com.intellij.util.messages.MessageBusConnection
+import com.intellij.util.system.OS
 import com.jediterm.core.util.TermSize
-import com.sun.jna.Platform
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.*
@@ -40,7 +39,7 @@ import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 import org.jetbrains.sbt.shell.SbtProcessManager.*
 import org.jetbrains.sbt.shell.action.{DebugShellAction, EOFAction, StartAction, StopAction}
-import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.{ShellState, ShellStateEvent}
+import org.jetbrains.sbt.shell.communication.SbtShellLifecycle.ShellStateEvent
 import org.jetbrains.sbt.shell.optionsWarn.SbtShellOptionsWarningService
 import org.jetbrains.sbt.shell.process.utils.{SbtSettingsInjector, SbtShellJdkSelector, SbtShellRunId, SbtShellVmOptionsBuilder}
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, SbtVersionDetector, normalizedLocalPath}
@@ -250,7 +249,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
     pty.withWorkingDirectory(workingDir)
     pty.withEnvironment(preparedEnvironment.variables.asJava)
 
-    if isUnitTestMode && SystemInfo.isWindows then
+    if isUnitTestMode && OS.CURRENT == OS.Windows then
       pty.withEnvironment(SbtRunner.defaultCoursierDirectoriesAsEnvVariables().asJava)
 
     pty.addParameters(vmParams.getList)
@@ -290,7 +289,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
 
      Dynamic window size adjustments can be done in the custom TTY connector (see [[createTerminalConsole]]).
      */
-    val requireResizeForOldShell = !isUnitTestMode && Platform.isWindows
+    val requireResizeForOldShell = !isUnitTestMode && OS.CURRENT == OS.Windows
     val shouldPatchInitialSize = requireResizeForOldShell || withNewShell
 
     if (shouldPatchInitialSize) {
