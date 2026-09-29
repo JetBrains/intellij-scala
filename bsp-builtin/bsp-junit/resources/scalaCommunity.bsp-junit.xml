@@ -2,6 +2,7 @@
 <idea-plugin>
     <dependencies>
         <plugin id="JUnit"/>
+        <module name="intellij.platform.execution"/>
         <module name="scalaCommunity.bsp"/>
     </dependencies>
 
