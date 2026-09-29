@@ -2,6 +2,8 @@
 <idea-plugin>
     <dependencies>
         <plugin id="org.jetbrains.plugins.terminal"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.vcs"/>
         <module name="scalaCommunity.bsp"/>
     </dependencies>
 
