@@ -1108,7 +1108,10 @@ lazy val bspTerminal =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += "org.jetbrains.plugins.terminal".toPlugin,
+      intellijPlugins ++= Seq(
+        "org.jetbrains.plugins.terminal".toPlugin,
+        "com.intellij.platform.vcs".toPlugin,
+      ),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp-terminal")
     )
 
@@ -1126,6 +1129,7 @@ lazy val bsp =
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
       libraryDependencies ++= DependencyGroups.bsp,
+      intellijPlugins += "com.intellij.platform.vcs".toPlugin,
       excludeDependencies += "org.scala-lang.modules" % "scala-xml_2.13",
       buildInfoPackage := "org.jetbrains.bsp.buildinfo",
       buildInfoKeys := Seq("bloopVersion" -> Versions.bloopVersion),
