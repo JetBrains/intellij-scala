@@ -44,17 +44,17 @@ object SbtProjectImportTestUtils {
 
   /**
    * It is necessary to explicitly set all project settings that are tested/required for test, because what is set in
-   * #setUp method in each SbtProjectStructureImportingTest classes is not applied to the project settings of the linked project
+   * #setUp method in each SbtProjectStructureImportingTest classes is not applied to the project settings of the linked project.
+   * The main/test modules mode is not a part of these settings: it is controlled by the global registry key
+   * [[SbtProjectSettings.SeparateMainTestModulesRegistryKey]], so the linked project uses the same mode as the main project.
    */
   def linkSbtProjectWithNewSettingsToProject(
     project: Project,
     externalProjectPath: String,
-    prodTestSourcesSeparated: Boolean,
     jdkName: String
   ): Unit = {
     val settings = createSbtProjectSettingsForLinkedProject(
       externalProjectPath = externalProjectPath,
-      prodTestSourcesSeparated = prodTestSourcesSeparated,
       jdkName = jdkName
     )
 
@@ -63,13 +63,11 @@ object SbtProjectImportTestUtils {
 
   private def createSbtProjectSettingsForLinkedProject(
     externalProjectPath: String,
-    prodTestSourcesSeparated: Boolean,
     jdkName: String
   ): SbtProjectSettings = {
     val settings = new SbtProjectSettings
     settings.jdk = jdkName
     settings.setExternalProjectPath(externalProjectPath)
-    settings.setSeparateProdAndTestSources(prodTestSourcesSeparated)
     settings
   }
 }

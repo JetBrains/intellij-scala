@@ -25,7 +25,6 @@ final class SbtLinkedProjectsStructureImportingTest
     SbtProjectImportTestUtils.linkSbtProjectWithNewSettingsToProject(
       getMyProject,
       externalProjectPath = linkedSbtProjectPath,
-      prodTestSourcesSeparated = true,
       jdkName = getJdkConfiguredForTestCase.getName
     )
     val siProjectPath = FileUtil.toSystemIndependentName(getProjectPath)

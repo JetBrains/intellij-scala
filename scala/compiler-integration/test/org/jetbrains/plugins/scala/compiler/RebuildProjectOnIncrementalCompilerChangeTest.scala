@@ -6,6 +6,7 @@ import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.SlowTests
@@ -33,7 +34,6 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
-    settings.separateProdAndTestSources = false
     settings.jdk = sdk.getName
     settings
   }
@@ -46,6 +46,8 @@ class RebuildProjectOnIncrementalCompilerChangeTest extends ExternalSystemImport
 
   override def setUp(): Unit = {
     super.setUp()
+
+    Registry.get(SbtProjectSettings.SeparateMainTestModulesRegistryKey).setValue(false, getTestRootDisposable)
 
     sdk = {
       val res = SmartJDKLoader.getOrCreateJDK()

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
-import org.jetbrains.sbt.{Sbt, SbtBundle, SbtVersion}
+import org.jetbrains.sbt.{Sbt, SbtVersion}
 import org.junit.Assert
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.experimental.categories.Category
@@ -130,7 +130,6 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     SbtProjectImportTestUtils.linkSbtProjectWithNewSettingsToProject(
       getMyProject,
       externalProjectPath = linkedSbtProjectPath,
-      prodTestSourcesSeparated = false,
       jdkName = getJdkConfiguredForTestCase.getName
     )
     runTest(
@@ -1388,8 +1387,7 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
           },
         )
       },
-      optionsModifier = identity,
-      mutedNotificationTitles = Seq(SbtBundle.message("sbt.legacy.modules.layout.notification.title"))
+      optionsModifier = identity
     )
 
     // Adding the assertion here not to create a separate heavy test for such a tiny check
@@ -1426,5 +1424,5 @@ final class SbtProjectStructureImportingTest_LegacyModulesLayout extends SbtProj
     )
 
   override protected def runTest(expected: project): Unit =
-    runTest(expected, identity, mutedNotificationTitles = Seq(SbtBundle.message("sbt.legacy.modules.layout.notification.title")))
+    runTest(expected, identity)
 }

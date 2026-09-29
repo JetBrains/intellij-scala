@@ -48,7 +48,6 @@ abstract class ScalaSbtProjectViewTestBase extends SbtExternalSystemImportingTes
     SbtProjectImportTestUtils.linkSbtProjectWithNewSettingsToProject(
       getMyProject,
       externalProjectPath = linkedProjectPath.toString,
-      prodTestSourcesSeparated = true,
       jdkName = getJdkConfiguredForTestCase.getName
     )
 

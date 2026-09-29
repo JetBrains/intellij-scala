@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike.TestSbtProjectSettings
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -53,7 +54,8 @@ trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTes
     settings.jdk = getJdkConfiguredForTestCase.getName
 
     val testSbtSettings = getTestSbtProjectSettings
-    settings.separateProdAndTestSources = testSbtSettings.separateProdAndTestSources
+    Registry.get(SbtProjectSettings.SeparateMainTestModulesRegistryKey)
+      .setValue(testSbtSettings.separateProdAndTestSources, getTestRootDisposable)
     settings.useSbtShellForImport = testSbtSettings.useSbtShellForImport
   }
 
@@ -71,7 +73,8 @@ object SbtExternalSystemImportingTestLike {
     val Default: TestSbtProjectSettings = {
       val settings = new SbtProjectSettings
       TestSbtProjectSettings(
-        separateProdAndTestSources = settings.separateProdAndTestSources,
+        // the default value of the registry key SbtProjectSettings.SeparateMainTestModulesRegistryKey
+        separateProdAndTestSources = true,
         useSbtShellForImport = settings.useSbtShellForImport
       )
     }

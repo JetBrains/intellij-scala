@@ -4,6 +4,7 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.platform.externalSystem.testFramework.ExternalSystemImportingTestCase
 import com.intellij.testFramework.CompilerTester
@@ -52,7 +53,6 @@ abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean
 
   override lazy val getCurrentExternalProjectSettings: SbtProjectSettings = {
     val settings = new SbtProjectSettings()
-    settings.separateProdAndTestSources = separateProdAndTestSources
     settings.jdk = sdk.getName
     settings
   }
@@ -63,6 +63,8 @@ abstract class SbtProjectCompilationTestBase(separateProdAndTestSources: Boolean
 
   override def setUp(): Unit = {
     super.setUp()
+
+    Registry.get(SbtProjectSettings.SeparateMainTestModulesRegistryKey).setValue(separateProdAndTestSources, getTestRootDisposable)
 
     sdk = {
       val res = SmartJDKLoader.getOrCreateJDK(jdkVersionForTest.toProductionVersion)

@@ -53,7 +53,6 @@ class SharedSourcesEvaluationTest extends DebuggerTestCase {
     CompileServerTestUtil.registerLongRunningThreads()
 
     val settings = new SbtProjectSettings()
-    settings.separateProdAndTestSources = true
 
     ExternalSystemImportingTestCaseProxy.importProject(
       getProject,
