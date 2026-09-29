@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.compiler.highlighting.services.core.Compilati
  * @param compiledAt       Maps each module target to the epoch it was last successfully built.
  * @param modifiedAt       Maps unbuilt files to the epoch they were modified.
  * @param failedFiles      Files that failed during a recent compilation attempt.
+ * @param failedTargets    Module targets that deterministically failed during a 1-target compilation.
  * @param coveredFiles     Files reached and processed during the last compilation attempt.
- * @param failedScopes     Exact scopes (combinations of files) that failed during recent attempts.
  */
 final case class CompilationState(
   changesEpoch: Long,
@@ -25,8 +25,8 @@ final case class CompilationState(
   compiledAt: Map[ModuleKey, Long],
   modifiedAt: Map[VirtualFile, Long],
   failedFiles: Set[VirtualFile],
-  coveredFiles: Set[VirtualFile],
-  failedScopes: Set[Set[VirtualFile]]
+  failedTargets: Set[ModuleKey],
+  coveredFiles: Set[VirtualFile]
 ):
   /** The set of modified files that have not yet been successfully built. */
   def modifiedFiles: Set[VirtualFile] = modifiedAt.keySet
@@ -36,8 +36,8 @@ final case class CompilationState(
     s"\n compiledAt:$compiledAt" +
     s"\n modifiedAt: ${modifiedAt.map((f, at) => s"${f.getPresentableName}@$at").mkString(",")}" +
     s"\n failedFiles: ${failedFiles.map(_.getPresentableName).mkString(",")}" +
-    s"\n coveredFiles: ${coveredFiles.map(_.getPresentableName).mkString(",")}" +
-    s"\n failedScopes: ${failedScopes.map(_.map(_.getPresentableName).mkString("[", ",", "]")).mkString(",")}"
+    s"\n failedTargets: $failedTargets" +
+    s"\n coveredFiles: ${coveredFiles.map(_.getPresentableName).mkString(",")}"
 
 object CompilationState:
 
@@ -48,7 +48,7 @@ object CompilationState:
 
     /**
      * Records modifications to the specified files, advancing the change epoch and marking them as unbuilt.
-     * Clears any previous failure status and obsolete failed scopes for these files.
+     * Clears any previous file failure status and immediately lifts the module quarantine.
      */
     def modified(files: Set[VirtualFile]): CompilationState =
       val epoch = state.changesEpoch + 1
@@ -56,7 +56,7 @@ object CompilationState:
         changesEpoch = epoch,
         modifiedAt = state.modifiedAt.filter(_._1.isValid) ++ files.filter(_.isValid).map(_ -> epoch),
         failedFiles = state.failedFiles -- files,
-        failedScopes = Set.empty
+        failedTargets = Set.empty
       )
 
     /**
@@ -65,11 +65,11 @@ object CompilationState:
      */
     def invalidated: CompilationState =
       state.copy(changesEpoch = state.changesEpoch + 1, compiledAt = Map.empty,
-        modifiedAt = Map.empty, failedFiles = Set.empty, coveredFiles = Set.empty, failedScopes = Set.empty)
+        modifiedAt = Map.empty, failedFiles = Set.empty, failedTargets = Set.empty, coveredFiles = Set.empty)
 
     /**
      * Records a successful compilation attempt.
-     * Updates the build epochs for the specified targets, clears failed files and scopes,
+     * Updates the build epochs for the specified targets, clears failed files/targets,
      * and records the files covered. Drops modifications for files up to the point the token was created.
      */
     def succeeded(token: CompilationToken,
@@ -81,21 +81,29 @@ object CompilationState:
         compiledAt = state.compiledAt ++ targets.map(_ -> token.epoch),
         modifiedAt = state.modifiedAt.filter((file, at) => at > token.epoch && file.isValid),
         failedFiles = Set.empty,
-        coveredFiles = covered.filter(_.isValid),
-        failedScopes = Set.empty
+        failedTargets = Set.empty,
+        coveredFiles = covered.filter(_.isValid)
       )
 
     /**
      * Records a failed compilation attempt.
-     * Appends the requested files to the failed set and records the exact scope that failed.
-     * Replaces the covered files for the current attempt. No successful build epoch is recorded.
+     * Appends the requested files to the failed set. If the failure is isolated to a single target,
+     * that target is quarantined. Replaces the covered files for the current attempt.
+     *
+     * A failure speaks only for the sources as they were when it was dispatched, as a success does. A file
+     * modified since then is not marked failed, because the edit may well be the fix, and nothing is quarantined
+     * once anything has changed, because the quarantine holds only while the same request would fail the same way.
      */
-    def failed(token: CompilationToken, covered: Set[VirtualFile]): CompilationState =
+    def failed(token: CompilationToken, targets: Set[ModuleKey], covered: Set[VirtualFile]): CompilationState =
+      val unchangedSinceDispatch = token.epoch == state.changesEpoch
+      val newFailedTargets =
+        if (unchangedSinceDispatch && targets.size == 1) state.failedTargets ++ targets else state.failedTargets
+      val failedAsDispatched = token.files.filterNot(file => state.modifiedAt.get(file).exists(_ > token.epoch))
       state.copy(
-        failedFiles = (state.failedFiles ++ token.files).filter(_.isValid),
+        failedFiles = (state.failedFiles ++ failedAsDispatched).filter(_.isValid),
+        failedTargets = newFailedTargets,
         lastAttemptEpoch = token.epoch,
-        coveredFiles = covered.filter(_.isValid),
-        failedScopes = state.failedScopes + token.files.filter(_.isValid)
+        coveredFiles = covered.filter(_.isValid)
       )
 
     /** Creates a snapshot token for a compilation request spanning the specified files. */
@@ -105,13 +113,15 @@ object CompilationState:
     /** Determines the required compilation strategy to obtain up-to-date diagnostics for a specific file. */
     def decide(target: Option[ModuleKey], file: VirtualFile): CompilationDecision =
       (target, file) match
-        case (t, _) if state.isCurrent(t) && state.modifiedFiles.isEmpty => UpToDate
+        case (t, _) if state.isClean(t) => UpToDate
         case (_, f) if state.isRecorded(f) => Recorded
+        case (t, _) if t.exists(state.failedTargets.contains) => UpToDate
         case (t, f) if state.isDocumentCompilable(t, f) => Document
-        case (_, f) =>
-          val scope = state.incrementalScope(Set(f))
-          if (state.isBlocked(scope)) UpToDate
-          else Incremental(scope)
+        case (_, f) => Incremental(state.incrementalScope(Set(f)))
+
+    /** Checks if the target is fully up to date with no modified files in the project. */
+    private def isClean(target: Option[ModuleKey]): Boolean =
+      state.isCurrent(target) && state.modifiedFiles.isEmpty
 
     /** Checks if the file was covered in the most recent compilation attempt and remains unmodified since. */
     private def isRecorded(file: VirtualFile): Boolean =
@@ -121,22 +131,10 @@ object CompilationState:
      * Calculates the scope for incremental compilation, excluding known unbuildable files.
      *
      * Takes a set because several files can be asked about at once, and the union of their scopes has to be
-     * computed here rather than by folding the single-file answers. Folding happens to give the same result
-     * today only because this formula distributes over the added files; a narrower rule, per module say,
-     * would not, and the fold would then diverge silently.
+     * computed here rather than by folding the single-file answers.
      */
     def incrementalScope(files: Set[VirtualFile]): Set[VirtualFile] =
       (state.modifiedFiles -- state.failedFiles ++ files).filter(_.isValid)
-    /**
-     * Checks if we recently tried to compile this exact set of files and it failed,
-     * and no files in the project have been modified since that attempt.
-     */
-    private def isBlocked(scope: Set[VirtualFile]): Boolean =
-      state.lastAttemptEpoch == state.changesEpoch && state.failedScopes.contains(scope)
-
-    /** Calculates the scope for incremental compilation, excluding known unbuildable files. */
-    private def incrementalScope(file: VirtualFile): Set[VirtualFile] =
-      (state.modifiedFiles -- state.failedFiles + file).filter(_.isValid)
 
     /** Identifies module targets eligible for document compilation based on the latest successful build epoch. */
     def documentEnabledFor: Set[ModuleKey] =

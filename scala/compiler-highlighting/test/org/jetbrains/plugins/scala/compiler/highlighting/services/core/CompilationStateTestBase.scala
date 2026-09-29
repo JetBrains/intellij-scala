@@ -9,8 +9,8 @@ import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.CompilationDecision.{Document, Incremental, Recorded, UpToDate}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationDecision, CompilationState, CompilationToken, ModuleKey}
-import org.junit.jupiter.api.{AfterEach, Test}
 import org.junit.jupiter.api.Assertions.{assertEquals, fail}
+import org.junit.jupiter.api.{AfterEach, Test}
 
 import scala.collection.mutable
 
@@ -78,7 +78,7 @@ trait CompilationStateTestBase:
       state.compilationFailed(scope, covering = scope)
 
     def compilationFailed(scope: Set[VirtualFile], covering: Set[VirtualFile]): CompilationState =
-      state.failed(state.startCompilation(scope.toSeq*), covering)
+      state.failed(state.startCompilation(scope.toSeq*), targetsOf(scope.toSeq *), covering)
 
     /** Snapshots the state a compilation over `files` runs against, as the request path does. */
     def startCompilation(files: VirtualFile*): CompilationToken = state.tokenFor(files.toSet)
@@ -151,10 +151,10 @@ trait CompilationStateTestBase:
       empty.compilationSucceeded(Set(f1), Set(f1,f2))
     )
     // compilation failed
-    assertEquals(empty.failed(empty.tokenFor(Set(f1, f2)), Set(f1, f2)),
+    assertEquals(empty.failed(empty.tokenFor(Set(f1, f2)), Set(m1, m2), Set(f1, f2)),
       empty.compilationFailed(f1, f2)
     )
-    assertEquals(empty.failed(empty.tokenFor(Set(f1)), Set(f1, f2)),
+    assertEquals(empty.failed(empty.tokenFor(Set(f1)), Set(m1), Set(f1, f2)),
       empty.compilationFailed(Set(f1), Set(f1, f2))
     )
     // decision
