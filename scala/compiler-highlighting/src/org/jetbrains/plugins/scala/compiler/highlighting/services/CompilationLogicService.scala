@@ -63,8 +63,8 @@ class CompilationLogicService(project: Project):
    * `covered` is the files the compiler reached before giving up, which is the part of the failure that is
    * still informative: the rest of the scope was never looked at.
    */
-  def compilationFailed(token: CompilationToken, covered: Set[VirtualFile]): Unit =
-    update(_.failed(token, covered))
+  def compilationFailed(token: CompilationToken, targets: Set[ModuleKey], covered: Set[VirtualFile]): Unit =
+    update(_.failed(token, targets, covered))
 
   /** What has to be done to obtain up-to-date diagnostics for `file`. */
   def decide(file: VirtualFile): CompilationDecision = state.get().decide(ModuleKey.of(project, file), file)

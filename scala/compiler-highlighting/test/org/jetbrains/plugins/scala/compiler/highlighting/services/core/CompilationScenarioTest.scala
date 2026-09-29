@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services.core
 
 import com.intellij.openapi.vfs.VirtualFile
-import CompilationStateTestBase.CompilerHighlightingCoreTest
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.CompilationStateTestBase.CompilerHighlightingCoreTest
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationState, ModuleKey}
 import org.junit.jupiter.api.Assertions.{assertEquals, assertFalse, assertTrue}
 import org.junit.jupiter.api.{Nested, Tag, Test}
@@ -39,7 +39,7 @@ class CompilationScenarioTest extends CompilationStateTestBase:
 
     @Test
     def costsNothingForAnyFileInTheProject(): Unit =
-      everything.foreach(builtProject.on(_).assertUpToDate)
+      everything.foreach(file => builtProject.on(file).assertUpToDate)
 
     @Test
     def outsideEveryModuleCompilesTheFile(): Unit = 
@@ -160,8 +160,16 @@ class CompilationScenarioTest extends CompilationStateTestBase:
         // lets assume we open controller which module depends on service's module
         .compilationFailed(scope = Set(controller), covering = Set(service))
         .on(controller).assertUpToDate
+        .on(view).assertUpToDate
         .edit(service)
         .on(controller).assertIncremental(controller, service)
+
+    @Test
+    def theFailingModuleIsOnlyCompiledOnce(): Unit =
+      builtProject.edit(controller)
+        .compilationFailed(controller)
+        .on(view)
+        .assertUpToDate
 
     @Test
     def serveRecordedForAFailedFileWithNoChanges(): Unit =
@@ -245,6 +253,22 @@ class CompilationScenarioTest extends CompilationStateTestBase:
         .compilationSucceeded(strings)
         .on(strings).assertUpToDate
         .on(service).assertIncremental(service)
+        .on(controller).assertIncremental(controller)
+
+    @Test
+    def singleModulesAreJustCompiledOnceAfterFailure(): Unit =
+      val another = util / "another"
+      builtProject.edit(service, controller, strings)
+        .compilationFailed(service, controller, strings)
+        .on(controller).assertRecorded
+        .on(view).assertIncremental(view)
+        .compilationFailed(scope = Set(view), covering= Set(controller))
+        .on(controller).assertRecorded
+        .on(view).assertUpToDate
+        .on(another).assertIncremental(another)
+        .compilationSucceeded(another)
+        .on(strings).assertUpToDate
+        .on(another).assertUpToDate
         .on(controller).assertIncremental(controller)
 
   @Nested

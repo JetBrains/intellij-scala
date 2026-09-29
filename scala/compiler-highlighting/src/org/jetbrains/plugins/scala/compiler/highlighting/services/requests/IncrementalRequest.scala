@@ -114,9 +114,9 @@ abstract class IncrementalRequest(
    * — says nothing about whether the sources build, and marking its scope would stop retrying files that were
    * never attempted.
    */
-  protected def compilationFailed(token: CompilationToken, covered: Set[VirtualFile]): Unit =
+  protected def compilationFailed(token: CompilationToken, scopes: Map[VirtualFile, FileCompilationScope], covered: Set[VirtualFile]): Unit =
     if (Log.isDebugEnabled) Log.debug(s"Compilation failed for files: ${covered.map(_.getPresentableName)}")
-    logic.compilationFailed(token, covered)
+    logic.compilationFailed(token, scopes.values.map(ModuleKey.of).toSet, covered)
 
   /**
    * The sources a compilation reported compiling, as virtual files.

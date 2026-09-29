@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services.core
 
-import CompilationStateTestBase.CompilerHighlightingCoreTest
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.CompilationState
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.CompilationStateTestBase.CompilerHighlightingCoreTest
 import org.junit.jupiter.api.Assertions.{assertAll, assertEquals, assertNotEquals, assertTrue}
 import org.junit.jupiter.api.{Nested, Tag, Test}
 
@@ -217,13 +217,48 @@ class CompilationStateTest extends CompilationStateTestBase:
     def dropsFilesThatNoLongerExist(): Unit = 
       val token = empty.startCompilation(a, b)
       delete(b)
-      val state = empty.failed(token, Set(a, b))
+      val state = empty.failed(token, targetsOf(a,b), Set(a, b))
 
       assertEquals(names(a), names(state.failedFiles))
       assertEquals(names(a), names(state.coveredFiles))
     
     @Test
-    def recordsNoBuild(): Unit = 
+    def quarantinesItsTargetWhenNothingChangedSinceDispatch(): Unit =
+      val state = empty.edit(a).compilationFailed(a)
+
+      assertEquals(Set(main), state.failedTargets)
+
+    @Test
+    def quarantinesNothingAfterAnEditSinceDispatch(): Unit =
+      val dispatched = empty.edit(a)
+      val token = dispatched.startCompilation(a)
+      val state = dispatched.edit(b).failed(token, Set(main), Set(a))
+
+      assertEquals(Set.empty, state.failedTargets)
+
+    @Test
+    def doesNotMarkAFileEditedSinceDispatchAsFailed(): Unit =
+      val dispatched = empty.edit(a, b)
+      val token = dispatched.startCompilation(a, b)
+      val state = dispatched.edit(b).failed(token, Set(main), Set(a, b))
+
+      assertEquals(names(a), names(state.failedFiles))
+
+    /**
+     * `a` is broken; `b` is edited and dispatched alone; `a` is edited while that runs; it fails on `a`'s old
+     * text. Had the failure quarantined `main`, `a` would answer `UpToDate (blocked)` and its edit would never be
+     * compiled.
+     */
+    @Test
+    def compilesAFileEditedWhileAnotherCompilationFailed(): Unit =
+      val dispatched = empty.edit(a).compilationFailed(a).edit(b)
+      val token = dispatched.startCompilation(b)
+
+      dispatched.edit(a).failed(token, Set(main), Set(a, b))
+        .on(a).assertIncremental(a)
+
+    @Test
+    def recordsNoBuild(): Unit =
       val built = empty.compilationSucceeded(a)
       val dispatched = built.edit(a)
       val state = dispatched.compilationFailed(a)
