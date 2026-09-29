@@ -6,23 +6,22 @@ import com.intellij.profile.codeInspection.ui.table.ThreeStateCheckBoxRenderer
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.treeStructure.treetable.{ListTreeTableModel, TreeColumnInfo, TreeTable}
 import com.intellij.util.ui.ColumnInfo
-import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.BooleanExt
-import org.jetbrains.plugins.scala.lang.transformation.annotations._
-import org.jetbrains.plugins.scala.lang.transformation.calls._
+import org.jetbrains.plugins.scala.lang.transformation.annotations.*
+import org.jetbrains.plugins.scala.lang.transformation.calls.*
 import org.jetbrains.plugins.scala.lang.transformation.declarations.{ExpandProcedureSyntax, MakeResultExpressionExplicit}
 import org.jetbrains.plugins.scala.lang.transformation.functions.{ExpandEtaExpansion, ExpandPlaceholderSyntax, MakeEtaExpansionExplicit}
-import org.jetbrains.plugins.scala.lang.transformation.general._
-import org.jetbrains.plugins.scala.lang.transformation.implicits._
-import org.jetbrains.plugins.scala.lang.transformation.references._
-import org.jetbrains.plugins.scala.lang.transformation.types._
+import org.jetbrains.plugins.scala.lang.transformation.general.*
+import org.jetbrains.plugins.scala.lang.transformation.implicits.*
+import org.jetbrains.plugins.scala.lang.transformation.references.*
+import org.jetbrains.plugins.scala.lang.transformation.types.*
 
 import java.awt.Dimension
 import java.lang
-import javax.swing._
-import javax.swing.tree.{DefaultTreeCellRenderer, TreeNode}
+import javax.swing.*
+import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeCellRenderer, TreeNode}
 
 class SelectionDialog {
   private val RootGroup = Group("root",
@@ -159,7 +158,7 @@ class SelectionDialog {
   private def padding = if (ClientSystemInfo.isMac) 10 else 0
 }
 
-private abstract class Node(@Nls name: String) extends DefaultMutableTreeTableNode(name) {
+private abstract class Node(@Nls name: String) extends DefaultMutableTreeNode(name) {
   def value: Option[Boolean]
   def value_=(value: Option[Boolean]): Unit
 
