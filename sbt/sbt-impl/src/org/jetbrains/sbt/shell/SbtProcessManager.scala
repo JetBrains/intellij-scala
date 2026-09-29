@@ -12,6 +12,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener}
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.encoding.EncodingProjectManager
 import com.intellij.platform.eel.provider.EelProviderUtil
@@ -62,7 +63,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   messageBus.subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
     override def projectClosing(p: Project): Unit = {
       if (project == p)
-        SbtProcessManager.instanceIfCreated(project).foreach(_.dispose())
+        SbtProcessManager.instanceIfCreated(project).foreach(Disposer.dispose)
     }
   })
 

@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.codeInsight.implicits.menu
 
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.util.Disposer
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHint, MouseHandler}
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.MakeImplicitConversionExplicit
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class MakeConversionExplicit extends AnAction(
   ScalaCodeInsightBundle.message("make.conversion.explicit.action.text"),
@@ -34,7 +35,7 @@ class MakeConversionExplicit extends AnAction(
         model.getInlineElementsInRange(startOffset, endOffset).asScala
       }
 
-    prefixAndSuffixInlays.foreach(_.dispose())
+    prefixAndSuffixInlays.foreach(Disposer.dispose)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

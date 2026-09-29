@@ -13,10 +13,10 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.ScalaShutDownTracker
 
 import java.net.URI
-import java.nio.file._
+import java.nio.file.*
 import java.util.concurrent.TimeUnit
 import scala.collection.concurrent.TrieMap
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Try
 
@@ -27,7 +27,7 @@ class BspCommunicationService extends Disposable {
   private val logger = Logger.getInstance(classOf[BspCommunicationService])
 
   { // init
-    ScalaShutDownTracker.registerShutdownTask(() => this.dispose())
+    ScalaShutDownTracker.registerShutdownTask(() => Disposer.dispose(this))
 
     val bus = ApplicationManager.getApplication.getMessageBus.connect(this)
     bus.subscribe(ProjectManager.TOPIC, MyProjectListener)

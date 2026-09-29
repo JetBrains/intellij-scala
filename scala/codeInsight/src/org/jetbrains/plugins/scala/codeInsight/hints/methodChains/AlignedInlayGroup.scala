@@ -84,7 +84,7 @@ private class AlignedInlayGroup(hints: Seq[AlignedHintTemplate],
     }
   }
 
-  override def dispose(): Unit = alignmentLines.foreach(_.dispose())
+  override def dispose(): Unit = alignmentLines.foreach(Disposer.dispose)
 }
 
 private object AlignedInlayGroup {

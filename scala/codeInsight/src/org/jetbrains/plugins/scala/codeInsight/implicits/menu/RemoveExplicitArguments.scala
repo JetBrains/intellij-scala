@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.implicits.menu
 
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.util.Disposer
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHint, MouseHandler}
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
@@ -18,7 +19,7 @@ class RemoveExplicitArguments extends AnAction(
     val element = ImplicitHint.elementOf(inlay)
 
     inWriteCommandAction(element.getParent.replace(element.getPrevSibling))(using editor.getProject)
-    inlay.dispose()
+    Disposer.dispose(inlay)
   }
 
   override def getActionUpdateThread: ActionUpdateThread = ActionUpdateThread.BGT

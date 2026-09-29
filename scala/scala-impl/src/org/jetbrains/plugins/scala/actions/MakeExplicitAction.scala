@@ -1,16 +1,17 @@
 package org.jetbrains.plugins.scala.actions
 
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
-import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, PopupChooserBuilder, PopupStep}
+import com.intellij.openapi.util.Disposer
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{NavigatablePsiElement, PsiDocumentManager, PsiElement, PsiNamedElement}
 import com.intellij.ui.awt.RelativePoint
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -51,7 +52,7 @@ final class MakeExplicitAction extends AnAction(
 
 object MakeExplicitAction {
 
-  import JBPopupFactory.{getInstance => PopupFactory}
+  import JBPopupFactory.getInstance as PopupFactory
   import ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 
   private val MakeExplicit = ScalaBundle.message("make.explicit")
@@ -120,7 +121,7 @@ object MakeExplicitAction {
           PopupStep.FINAL_CHOICE
         case value if finalChoice =>
           PsiDocumentManager.getInstance(project).commitAllDocuments()
-          popup.dispose()
+          Disposer.dispose(popup)
 
           value match {
             case MakeExplicit => replaceWithExplicit(expression, function, importStatically)(using project, editor)

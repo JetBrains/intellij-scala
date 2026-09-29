@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget}
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
@@ -19,7 +20,7 @@ import java.awt.event.MouseEvent
 import java.net.URI
 import java.util.concurrent.TimeUnit
 import javax.swing.Icon
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 private final class BspServerWidget extends StatusBarWidget
   with StatusBarWidget.IconPresentation
@@ -37,7 +38,7 @@ private final class BspServerWidget extends StatusBarWidget
   }
 
   override def dispose(): Unit = {
-    connection.dispose()
+    Disposer.dispose(connection)
   }
 
   override def getPresentation: StatusBarWidget.WidgetPresentation = this
