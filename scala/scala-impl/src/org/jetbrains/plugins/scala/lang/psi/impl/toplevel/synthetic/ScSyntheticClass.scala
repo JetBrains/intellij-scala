@@ -238,14 +238,21 @@ final class ScSyntheticClass(
  */
 sealed class ScSyntheticFunction(
   val name: String,
-  val retType: ScType,
-  val paramClauses: Seq[Seq[Parameter]],
-  typeParameterNames: Seq[String]
+  typeParameterNames: Seq[String],
+  makeRetType: Seq[ScSyntheticTypeParameter] => ScType,
+  makeParamClauses: Seq[ScSyntheticTypeParameter] => Seq[Seq[Parameter]],
 )(implicit projectContext: ProjectContext)
   extends SyntheticNamedElement(name)
     with ScTypeParametersOwner {
 
   private var containingSyntheticClass: Option[ScSyntheticClass] = None
+
+  val typeParams: Seq[ScSyntheticTypeParameter] =
+    typeParameterNames.map { name => new ScSyntheticTypeParameter(name, this) }
+
+  val retType: ScType = makeRetType(typeParams)
+
+  val paramClauses: Seq[Seq[Parameter]] = makeParamClauses(typeParams)
 
   @TestOnly
   @Nullable
@@ -268,15 +275,13 @@ sealed class ScSyntheticFunction(
           (implicit ctx: ProjectContext) =
     this(
       name = name,
-      retType = retType,
-      paramClauses = paramTypes.mapWithIndex { case (p, index) =>
+      typeParameterNames = Nil,
+      makeRetType = (_) => retType,
+      makeParamClauses = (_) => paramTypes.mapWithIndex { case (p, index) =>
         p.map(Parameter(_, isRepeated = false, isByName = paramsByName, index = index))
       },
-      typeParameterNames = Nil
     )
 
-  val typeParams: Seq[ScSyntheticTypeParameter] =
-    typeParameterNames.map { name => new ScSyntheticTypeParameter(name, this) }
   override def typeParameters: Seq[ScTypeParam] = typeParams
 
   override def getIcon(flags: Int): Icon = Icons.FUNCTION
@@ -444,19 +449,18 @@ final class SyntheticClasses(project: Project) {
     any.addMethod(new ScSyntheticFunction("==", Boolean, Seq(Seq(Any))))
     any.addMethod(new ScSyntheticFunction("!=", Boolean, Seq(Seq(Any))))
     any.addMethod(new ScSyntheticFunction("##", Int, Nil))
-    any.addMethod(new ScSyntheticFunction("isInstanceOf", Boolean, Nil, typeParameters))
-    any.addMethod(new ScSyntheticFunction("asInstanceOf", Any, Nil, typeParameters) {
-      override val retType: ScType = TypeParameterType(typeParams.head)
-    })
+    any.addMethod(new ScSyntheticFunction("isInstanceOf", typeParameters, _ => Boolean, _ => Nil))
+    any.addMethod(new ScSyntheticFunction("asInstanceOf", typeParameters, tps => TypeParameterType(tps.head), _ => Nil))
 
     val anyRef = registerClass(AnyRef, "AnyRef")
     anyRef.addMethod(new ScSyntheticFunction("eq", Boolean, Seq(Seq(AnyRef))))
     anyRef.addMethod(new ScSyntheticFunction("ne", Boolean, Seq(Seq(AnyRef))))
-    anyRef.addMethod(new ScSyntheticFunction("synchronized", Any, Nil, typeParameters) {
-      override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(Parameter(
-        TypeParameterType(typeParams.head), isRepeated = false, index = 0)))
-      override val retType: ScType = TypeParameterType(typeParams.head)
-    })
+    anyRef.addMethod(new ScSyntheticFunction(
+      "synchronized",
+      typeParameters,
+      tps => TypeParameterType(tps.head),
+      tps => Seq(Seq(Parameter(TypeParameterType(tps.head), isRepeated = false, index = 0)))
+    ))
 
     registerClass(AnyVal, "AnyVal")
     registerClass(Nothing, "Nothing")

@@ -140,9 +140,9 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
                 ref,
                 isInSimpleString,
                 isInInterpolatedString,
-                parameters.getInvocationCount
+                parameters.getInvocationCount,
+                kinds = Set(ResolveTargets.CLASS)
               ) {
-                override val kinds: Set[ResolveTargets.Value] = Set(ResolveTargets.CLASS)
                 private val lookupStrings =
                   mutable.Set(defaultLookupElements.map(_.getLookupString)*)
 
@@ -204,9 +204,10 @@ object ScalaBasicCompletionProvider {
                                            private val isInInterpolatedString: Boolean,
                                            private val invocationCount: Int,
                                            private val qualifierType: Option[ScType] = None,
-                                           withImplicitConversions: Boolean = false)
+                                           withImplicitConversions: Boolean = false,
+                                           kinds: Set[ResolveTargets.Value] = null)
     extends CompletionProcessor(
-      getPlace.getKinds(incomplete = false, completion = true),
+      Option(kinds).getOrElse(getPlace.getKinds(incomplete = false, completion = true)),
       getPlace,
       withImplicitConversions
     ) {
