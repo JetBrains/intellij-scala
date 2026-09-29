@@ -241,10 +241,10 @@ object Common {
       intellijPlugins ++= Seq(
         "com.intellij.java",
         // required for Java plugin (IJPL-244879)
-        "intellij.todo.plugin",
+        "com.intellij.todo",
         // TODO: add these plugins only in the modules where they are needed
         "intellij.java.aetherDependencyResolver.plugin",
-        "intellij.testRunner.plugin"
+        "com.intellij.platform.testRunner"
       ).map(_.toPlugin),
       pathExcludeFilter := excludePathsFromPackage _
     )

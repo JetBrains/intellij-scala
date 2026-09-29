@@ -358,8 +358,8 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
     intellijPlugins ++= Seq(
-      "intellij.structureView.plugin".toPlugin,
-      "intellij.navbar.plugin".toPlugin
+      "com.intellij.structureView".toPlugin,
+      "com.intellij.navbar".toPlugin
     ),
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.structure-view"),
   )
@@ -462,8 +462,8 @@ lazy val scalaImpl: sbt.Project =
       resolvers += Versions.IntellijTestFrameworkArtifactsResolver,
       intellijPlugins ++= Seq(
         "JUnit".toPlugin,
-        "intellij.vcs.plugin".toPlugin,
-        "intellij.xml.plugin".toPlugin,
+        "com.intellij.platform.vcs".toPlugin,
+        "com.intellij.xml".toPlugin,
       ),
       intellijPluginJars := intellijPluginJars.value.map { case PluginJars(descriptor, root, cp) =>
         PluginJars(descriptor, root, cp.filterNot(_.getName.contains("junit-jupiter-api")))
@@ -589,7 +589,7 @@ lazy val sbtImpl =
     .settings(
       scalaVersion := Versions.scala3Version,
       Compile / scalacOptions := globalScala3ScalacOptions,
-      intellijPlugins += "intellij.vcs.plugin".toPlugin,
+      intellijPlugins += "com.intellij.platform.vcs".toPlugin,
 //      libraryDependencies += Dependencies.sbtStructureCore.exclude("org.scala-lang.modules", "scala-xml_3")
     )
 
@@ -946,7 +946,7 @@ lazy val structuralSearch =
       Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
         "JUnit".toPlugin,
-        "intellij.structuralSearch.plugin".toPlugin,
+        "com.intellij.structuralSearch".toPlugin,
       ),
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.structural-search")
     )
@@ -963,9 +963,9 @@ lazy val testingSupport =
     .settings(
       // Scala 3 resolves the Specs2 types in TestRunnerUtil's Java method signatures.
       libraryDependencies += provided.specs2_4x,
-      intellijPlugins += "intellij.structureView.plugin".toPlugin,
+      intellijPlugins += "com.intellij.structureView".toPlugin,
       // TODO: ideally it should be added only in Test (IJPL-244879)
-      intellijPlugins += "intellij.execution.serviceView.plugin".toPlugin,
+      intellijPlugins += "com.intellij.platform.serviceView".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.testing-support")
     )
 
@@ -982,7 +982,7 @@ lazy val testingSupportMunit = newProject("testing-support-munit", file("scala/t
   .settings(
     intellijPlugins ++= Seq(
       "JUnit".toPlugin,
-      "intellij.structureView.plugin".toPlugin,
+      "com.intellij.structureView".toPlugin,
     ),
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.testing-support.munit")
   )
@@ -1237,9 +1237,8 @@ lazy val languageInjectionTests =
       // Database plugin descriptors also require Navbar and Grid plugin content modules to load SQL parser definitions.
       intellijPlugins ++= Seq(
         "com.intellij.modules.json".toPlugin,
-        "intellij.navbar.plugin".toPlugin,
-        "intellij.grid.core.plugin".toPlugin,
-        "intellij.grid.plugin".toPlugin,
+        "com.intellij.navbar".toPlugin,
+        "com.intellij.grid".toPlugin,
         "com.intellij.database".toPlugin,
       ),
     )
