@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
-import com.intellij.concurrency.JobLauncher
+import com.intellij.concurrency.{ConcurrencyUtils, JobLauncher}
 import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.lang.ImportOptimizer.CollectingInfoRunnable
 import com.intellij.lang.{ASTNode, ImportOptimizer, LanguageImportStatements}
@@ -11,7 +11,7 @@ import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressIndicator,
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{EmptyRunnable, TextRange}
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
@@ -23,10 +23,10 @@ import org.jetbrains.plugins.scala.annotator.usageTracker.RedundantImportUtils
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleUtils
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.*
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScMethodCall}
@@ -53,14 +53,14 @@ import java.util.concurrent.atomic.AtomicInteger
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.chaining.scalaUtilChainingOps
 
 class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
   def this() = this(isOnTheFly = false)
 
-  import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._
+  import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer.*
 
   protected def settings(file: PsiFile): OptimizeImportSettings = OptimizeImportSettings(file)
 
@@ -112,18 +112,21 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
     def processAllElementsConcurrentlyUnderProgress[T <: PsiElement](elements: util.List[T])(action: T => Unit) = {
       indicator.setIndeterminate(false)
-      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, false, (element: T) => {
-        ProgressManager.checkCanceled()
+      //noinspection JetBrainsInternalApiUsage
+      ConcurrencyUtils.runWithIndicatorOrContextCancellation { _ =>
+        JobLauncher.getInstance().invokeConcurrentlyUnderContextProgress(elements, (element: T) => {
+          ProgressManager.checkCanceled()
 
-        val count: Int = counter.getAndIncrement
-        if (count <= size) {
-          indicator.setFraction(count.toDouble / size)
-        }
+          val count: Int = counter.getAndIncrement
+          if (count <= size) {
+            indicator.setFraction(count.toDouble / size)
+          }
 
-        action(element)
+          action(element)
 
-        true
-      })
+          true
+        })
+      }
     }
 
     processAllElementsConcurrentlyUnderProgress(importUsers) { element =>
