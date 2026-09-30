@@ -8,7 +8,8 @@ import org.jetbrains.plugins.scala.startup.ProjectActivity
 
 private final class CompilerHighlightingSetupActivity extends ProjectActivity {
   override def execute(project: Project): Unit = {
-    val psiChangeListener = new CompilerHighlightingPsiChangeListener(project)
-    PsiManager.getInstance(project).addPsiTreeChangeListener(psiChangeListener, project.unloadAwareDisposable)
+    val disposable = project.unloadAwareDisposable
+    val psiChangeListener = new CompilerHighlightingPsiChangeListener(project, disposable)
+    PsiManager.getInstance(project).addPsiTreeChangeListener(psiChangeListener, disposable)
   }
 }

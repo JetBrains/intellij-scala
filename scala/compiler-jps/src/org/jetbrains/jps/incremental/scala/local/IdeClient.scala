@@ -33,7 +33,7 @@ abstract class IdeClient(compilerName: String,
   
   private val buildReason: Option[String] = {
     val forced = chunk.getTargets.asScala.exists(context.getScope.isBuildForced)
-    Some((if (forced) BuildReason.Compile else BuildReason.Rebuild).toString)
+    Some((if (forced) BuildReason.Rebuild else BuildReason.Compile).toString)
   }
 
   /**

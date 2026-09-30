@@ -74,6 +74,23 @@ private[highlighting] class ExternalHighlightingUpdater(project: Project, proble
     }
   }
 
+  def clearWolfProblems(file: VirtualFile, source: AnyRef): Unit = {
+    WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(
+      file, source
+    )
+  }
+  def eraseEditorHighlightings(editor: Editor): Unit = {
+    val document = editor.getDocument
+    UpdateHighlightersUtil.setHighlightersToEditor(
+      project,
+      document,
+      0,
+      document.getTextLength,
+      Collections.emptyList(),
+      editor.getColorsScheme,
+      ScalaCompilerPassId
+    ): @nowarn("cat=deprecation")
+  }
   def eraseAllHighlightings(): Unit = {
     for {
       editor <- EditorFactory.getInstance.getAllEditors
@@ -81,18 +98,15 @@ private[highlighting] class ExternalHighlightingUpdater(project: Project, proble
       if editorProject == project
     } invokeLater {
       if (!project.isDisposed) {
-        val document = editor.getDocument
-        UpdateHighlightersUtil.setHighlightersToEditor(
-          project,
-          document, 0, document.getTextLength,
-          Collections.emptyList(),
-          editor.getColorsScheme,
-          ScalaCompilerPassId
-        ): @nowarn("cat=deprecation")
+        eraseEditorHighlightings(editor)
       }
     }
-    ProblemSolverUtils.clearAllProblemsFromExternalSource(project, problemSource)
+    clearAllWolfProblems()
   }
+  
+  private def clearAllWolfProblems(): Unit =
+    ProblemSolverUtils.clearAllProblemsFromExternalSource(project, problemSource)
+
 
   private def informWolf(errorFiles: Set[VirtualFile]): Unit = {
     if (!project.isDisposed && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {

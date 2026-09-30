@@ -30,7 +30,7 @@ class ScratchFileCompilerHighlightingTest extends ScalaCompilerHighlightingTestB
 
     try {
       waitUntilHighlightingApplied(scratchFile) {
-        openAndFocusEditor(scratchFile)
+        openEditor(scratchFile)
       }
       doAssertion(scratchFile, expected)
     } finally {

@@ -36,7 +36,16 @@ case class JpsIncrementalRequest(
   ): Unit = {
     val modules = scopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet
     val sourceScope = mergeSourceScope(scopes)
+    val token = compilationStarted(scopes)
     IncrementalCompiler.compile(project, modules, sourceScope, client)
+    // Complete here: both of the channels `compiledSources` unions arrive while `compile` is still
+    // running. A chunk the build never reached contributes nothing to either, which is the point.
+    val covered = coveredFiles(client.compiledSources)
+    if (client.successful) {
+      compilationSucceeded(token, scopes, covered)
+    } else {
+      compilationFailed(token, covered)
+    }
 
     if (!DocumentUtil.stillValid(docVersions)) {
       Tracing(project).instant(EndEvent(id, "Documents changed during JPS incremental compilation"))
@@ -50,9 +59,6 @@ case class JpsIncrementalRequest(
       )
     if (!handedOff) {
       Tracing(project).instant(EndEvent(id, "No document compilation followed JPS incremental compilation"))
-    }
-    if (client.successful) {
-      enableDocumentCompiler(scopes)
     }
   }
 

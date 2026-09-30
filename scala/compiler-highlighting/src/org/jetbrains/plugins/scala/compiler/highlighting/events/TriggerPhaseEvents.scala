@@ -67,6 +67,17 @@ object TriggerPhaseEvents {
       args = "source" -> source)
 
   /**
+   * A file served from what had already been recorded for it: its build target is current, so the
+   * diagnostics on hand are applied to the editor and nothing is compiled.
+   *
+   * `diagnostics` is how many were on hand. Zero is a meaningful answer rather than a miss, it says the
+   * compiler last reported the file clean, which is recorded explicitly.
+   */
+  case class RecordedDiagnosticsServedEvent(requestId: RequestId, file: String, diagnostics: Int)
+    extends TriggerPhaseEvent("Served from recorded state", Some(requestId), None, false,
+      "file" -> file, "diagnostics" -> diagnostics.toString)
+
+  /**
    * The time a compilation request spends waiting in the priority queue, from the moment it is scheduled
    * until it is dispatched to the executor, merged into another request, or dropped.
    *

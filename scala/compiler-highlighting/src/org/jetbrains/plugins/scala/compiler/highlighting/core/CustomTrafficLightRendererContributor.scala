@@ -53,9 +53,10 @@ final class CustomTrafficLightRendererContributor extends TrafficLightRendererCo
       val status = super.getStatus
       if (project.isDisposed) return status
 
+      val progressService = ProjectProgressService(project)
       val progress =
-        if (ProjectProgressService(project).isCompiling)
-          Some(CompilerGeneratedStateManager.get(project).progress)
+        if (progressService.isCompiling)
+          Some(progressService.compilationProgress)
         else
           None
 

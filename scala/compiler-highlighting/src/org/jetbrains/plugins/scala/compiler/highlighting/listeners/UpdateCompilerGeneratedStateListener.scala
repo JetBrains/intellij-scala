@@ -20,16 +20,18 @@ import org.jetbrains.plugins.scala.compiler.highlighting.core.{CompilerGenerated
 import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.{CompilationDurationEvent, CompilationProgressMark, ExternalBuildEvent}
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{BuildManagerSessionPhaseEvent, CompilationRequestPhaseEvent}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
-import org.jetbrains.plugins.scala.compiler.highlighting.services.ExternalHighlightersService
+import org.jetbrains.plugins.scala.compiler.highlighting.services.{ExternalHighlightersService, ProjectProgressService}
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 import org.jetbrains.plugins.scala.compiler.tracing.core.events.EndEvent
-import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
+import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiFileExt}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.nio.file.Path
+import java.util.UUID
 
 //noinspection ApiStatus,UnstableApiUsage
 private class UpdateCompilerGeneratedStateListener(project: Project) extends CompilerEventListener {
@@ -41,6 +43,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
 
   private val Log: Logger = Logger.getInstance(classOf[UpdateCompilerGeneratedStateListener])
 
+  private val tracer = Tracing(project)
   private def parseEelPath(source: SerializablePath): Option[Path] =
     try {
       val pathString = FileUtil.toSystemIndependentName(SerializablePath.unsafePathAsString(source))
@@ -69,26 +72,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
       case CompilerEvent.CompilationStarted(compilationId, compilationUnitId, buildReason, jpsSessionId) =>
         Log.info(s"[tracing] CompilationStarted received: id=$compilationId module=${compilationUnitId.map(_.moduleId)} " +
           s"reason=$buildReason session=$jpsSessionId")
-        val externalBuild = ExternalBuildEvent(
-          buildReason.getOrElse("unknown"),
-          compilationUnitId.map(_.moduleId).getOrElse("unknown"),
-          compilationId,
-          jpsSessionId,
-        )
-        Tracing(project).handoff(compilationId, compilationId, externalBuild) { // with  externalBuild fallback
-          case CompilationRequestPhaseEvent(kind, file, reason, _, compilationId, _, closeOnEnd) =>
-            CompilationDurationEvent(kind, file, reason, compilationId, closeOnEnd)
-          case other => other
-        }
-        // Record this external build span on its open BuildManagerSession, so the session end can close
-        // any that were left open (a cancelled build may never emit CompilationFinished for its modules).
-        jpsSessionId.foreach { sid =>
-          Tracing(project).map(sid) {
-            case session: BuildManagerSessionPhaseEvent =>
-              Some(session.copy(compilationIds = compilationId :: session.compilationIds))
-            case other => Some(other)
-          }
-        }
+        traceCompilationStart(compilationId, compilationUnitId, buildReason, jpsSessionId)
         val newHighlightOnCompilationFinished = oldState.toHighlightingState.filesWithHighlightings
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
         CompilerGeneratedStateManager.update(project, newState)
@@ -152,19 +136,21 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
 
           CompilerGeneratedStateManager.update(project, newState)
         }
-      case CompilerEvent.ProgressEmitted(compilationId, _, progress) =>
-        Tracing(project).mark(compilationId, CompilationProgressMark(compilationId, progress))
-        val newState = oldState.copy(progress = progress)
-        CompilerGeneratedStateManager.update(project, newState)
-      case CompilerEvent.CompilationFinished(compilationId, _, sources) =>
-        Log.info(s"[tracing] CompilationFinished received: $compilationId")
-        Tracing(project).mapAndEnd(compilationId) {
-          // A compilation cancelled before it started still emits CompilationFinished (the JPS `finally`), so its
-          // request span was never handed off. It self-removes its own compilationId context key here.
-          case req: CompilationRequestPhaseEvent => Some(req.closed())
-          // duration / external build must not self-remove here.
-          case other => Some(other)
+      case CompilerEvent.DiagnosticsCleared(compilationId, _, source) =>
+        // The compiler compiled this file and found nothing wrong with it.
+        findVirtualFile(source).foreach { virtualFile =>
+          val cleanState = FileCompilerGeneratedState(compilationId, Set.empty, Map.empty)
+          val newState = oldState.copy(
+            files = oldState.files.updated(virtualFile, cleanState),
+            highlightOnCompilationFinished = oldState.highlightOnCompilationFinished + virtualFile
+          )
+          CompilerGeneratedStateManager.update(project, newState)
         }
+      case CompilerEvent.ProgressEmitted(compilationId, _, progress) =>
+        tracer.mark(compilationId, CompilationProgressMark(compilationId, progress))
+        ProjectProgressService(project).setCompilationProgress(progress)
+      case CompilerEvent.CompilationFinished(compilationId, _, sources) =>
+        traceCompilationFinished(compilationId)
         val vFiles = for {
           source <- sources
           virtualFile <- findVirtualFile(source)
@@ -177,17 +163,16 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         // Do not hold highlighting information for invalid virtual files, such as deleted ones.
         val newState = CompilerGeneratedState(
           files = intermediateState.files.filter(_._1.isValid),
-          progress = 1.0,
           highlightOnCompilationFinished = Set.empty
         )
 
         CompilerGeneratedStateManager.update(project, newState)
+        ProjectProgressService(project).resetCompilationProgress()
 
         if (toHighlight.nonEmpty) {
           executeOnBackgroundThreadInNotDisposed(project) {
-            val highlightingState = newState.toHighlightingState
             try {
-              ExternalHighlightersService.instance(project).applyHighlightingState(toHighlight, highlightingState, compilationId)
+              ExternalHighlightersService(project).applyHighlightingState(toHighlight, compilationId)
             } catch {
               // don't know what else we can do if compilation was cancelled at this stage
               // probably just don't show updated highlightings
@@ -196,9 +181,43 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
             }
           }
         } else {
-          Tracing(project).instant(EndEvent(CompilationDurationEvent.key(compilationId), "No file to highlight"))
+          tracer.instant(EndEvent(CompilationDurationEvent.key(compilationId), "No file to highlight"))
         }
       case _ =>
+    }
+  }
+
+  private def traceCompilationFinished(compilationId: CompilationId): Unit = {
+    Log.info(s"[tracing] CompilationFinished received: $compilationId")
+    tracer.mapAndEnd(compilationId) {
+      // A compilation cancelled before it started still emits CompilationFinished (the JPS `finally`), so its
+      // request span was never handed off. It self-removes its own compilationId context key here.
+      case req: CompilationRequestPhaseEvent => Some(req.closed())
+      // duration / external build must not self-remove here.
+      case other => Some(other)
+    }
+  }
+
+  private def traceCompilationStart(compilationId: CompilationId, compilationUnitId: Option[CompilationUnitId], buildReason: Option[String], jpsSessionId: Option[UUID]): Unit = {
+    lazy val externalBuild = ExternalBuildEvent(
+      buildReason.getOrElse("unknown"),
+      compilationUnitId.map(_.moduleId).getOrElse("unknown"),
+      compilationId,
+      jpsSessionId,
+    )
+    tracer.handoff(compilationId, compilationId, externalBuild) { // with  externalBuild fallback
+      case CompilationRequestPhaseEvent(kind, file, reason, _, compilationId, _, closeOnEnd) =>
+        CompilationDurationEvent(kind, file, reason, compilationId, closeOnEnd)
+      case other => other
+    }
+    // Record this external build span on its open BuildManagerSession, so the session end can close
+    // any that were left open (a cancelled build may never emit CompilationFinished for its modules).
+    jpsSessionId.foreach { sid =>
+      tracer.map(sid) {
+        case session: BuildManagerSessionPhaseEvent =>
+          Some(session.copy(compilationIds = compilationId :: session.compilationIds))
+        case other => Some(other)
+      }
     }
   }
 

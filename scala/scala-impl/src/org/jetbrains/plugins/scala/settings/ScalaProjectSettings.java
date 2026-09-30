@@ -181,7 +181,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean INCREMENTAL_HIGHLIGHTING = false;
   private boolean DISABLE_INSPECTIONS = false;
   private boolean USE_COMPILER_TYPES = true;
-  public static final int DEFAULT_COMPILER_HIGHLIGHTING_DELAY = 750; // ms.
+  public static final int DEFAULT_COMPILER_HIGHLIGHTING_DELAY = 450; // ms.
   private int COMPILER_HIGHLIGHTING_DELAY = DEFAULT_COMPILER_HIGHLIGHTING_DELAY; // ms
 
   public static ScalaProjectSettings in(@NotNull Project project) {

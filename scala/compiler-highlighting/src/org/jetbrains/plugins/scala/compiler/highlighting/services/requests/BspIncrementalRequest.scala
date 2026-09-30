@@ -43,8 +43,19 @@ case class BspIncrementalRequest(
     val reporter = new CompilerEventReporter(project, client.compilationId)
     val arguments = CustomTaskArguments(CompilerHighlightingBundle.message("highlighting.compilation"), reporter)
     val taskRunner = new BspProjectTaskRunner(Some(arguments))
+    val token = compilationStarted(scopes)
     val promise = taskRunner.run(project, context, task)
     promise.blockingGet(1, TimeUnit.DAYS)
+    // BSP reports through `reporter`, so `client` never sees a `compilationEnd` and contributes no compiled
+    // sources. The reporter's own set stands in for it: the server publishes diagnostics per file as it
+    // compiles them, and an empty, resetting set for a file it found clean, so every file it compiled is
+    // named there and nothing else is.
+    val covered = coveredFiles(reporter.coveredFiles)
+    if (reporter.successful && client.successful) {
+      compilationSucceeded(token, scopes, covered)
+    } else {
+      compilationFailed(token, covered)
+    }
 
     if (!DocumentUtil.stillValid(docVersions)) {
       Tracing(project).instant(EndEvent(id, "Documents changed during BSP incremental compilation"))
@@ -59,9 +70,6 @@ case class BspIncrementalRequest(
       )
     if (!handedOff) {
       Tracing(project).instant(EndEvent(id, "No document compilation followed BSP incremental compilation"))
-    }
-    if (reporter.successful && client.successful) {
-      enableDocumentCompiler(scopes)
     }
   }
 

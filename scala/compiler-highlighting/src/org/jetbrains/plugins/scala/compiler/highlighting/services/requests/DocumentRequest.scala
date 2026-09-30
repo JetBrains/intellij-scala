@@ -27,7 +27,7 @@ case class DocumentRequest(
 
   override def kind: CompilationKind =
     if (DocumentCompiler.useInMemoryFile) CompilationKind.InMemoryDocument else CompilationKind.Document
-    
+
   override def delayed(newDeadline: Deadline): DocumentRequest = copy(deadline = newDeadline)
 
   override def isReadyForExecution: RequestState = {

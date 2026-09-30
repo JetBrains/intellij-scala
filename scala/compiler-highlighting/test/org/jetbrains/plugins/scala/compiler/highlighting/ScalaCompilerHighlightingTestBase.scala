@@ -14,7 +14,7 @@ import com.intellij.util.messages.MessageBusConnection
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.{Description, Matcher}
 import org.jetbrains.plugins.scala.CompilerHighlightingTests
-import org.jetbrains.plugins.scala.compiler.highlighting.listeners.{CompilerHighlightingEditorFocusListener, ExternalHighlightingAppliedListener}
+import org.jetbrains.plugins.scala.compiler.highlighting.listeners.ExternalHighlightingAppliedListener
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, inReadAction, invokeAndWait, invokeLater}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
@@ -66,12 +66,11 @@ abstract class ScalaCompilerHighlightingTestBase
   type ExpectedResult = Matcher[Seq[HighlightInfo]]
 
 
-  protected def openAndFocusEditor(virtualFile: VirtualFile): Unit = invokeLater {
+  /** Opening the editor is enough to start compiler highlighting: `CompilerHighlightingFileEditorListener`
+   * reacts to `fileOpened`/`selectionChanged`, which are fired even in a headless environment. */
+  protected def openEditor(virtualFile: VirtualFile): Unit = invokeLater {
     val descriptor = new OpenFileDescriptor(getProject, virtualFile)
-    val editor = FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
-    // The tests are running in a headless environment where focus events are not propagated.
-    // We need to call our listener manually.
-    new CompilerHighlightingEditorFocusListener(editor).focusGained()
+    FileEditorManager.getInstance(getProject).openTextEditor(descriptor, true)
   }
 
   protected def runTestCase(
@@ -93,7 +92,7 @@ abstract class ScalaCompilerHighlightingTestBase
           timeline.mark(Phase.WaitStart)
           waitUntilHighlightingApplied(virtualFile, compileCycles) {
             timeline.mark(Phase.TriggerStart)
-            openAndFocusEditor(virtualFile)
+            openEditor(virtualFile)
             timeline.mark(Phase.TriggerEnd)
           }
           timeline.mark(Phase.HighlightingApplied)
@@ -157,7 +156,7 @@ abstract class ScalaCompilerHighlightingTestBase
   ): VirtualFile = {
     val virtualFile = addFileToProjectSources(fileName, content)
     waitUntilHighlightingApplied(virtualFile, compileCycles) {
-      openAndFocusEditor(virtualFile)
+      openEditor(virtualFile)
     }
     doAssertion(virtualFile, expectedResult)
     virtualFile
