@@ -85,7 +85,7 @@ object ExternalSystemUtil {
     moduleId: String,
     rootProjectPath: Option[String],
     sbtModuleChildKey: Option[SbtModuleChildKey]
-  ): Option[DataNode[_ <: ModuleData]] = {
+  ): Option[DataNode[? <: ModuleData]] = {
     val dataManager = ProjectDataManager.getInstance()
     getModuleDataNode(dataManager, projectSystemId, project, moduleId, rootProjectPath, sbtModuleChildKey).toOption
   }
@@ -93,7 +93,7 @@ object ExternalSystemUtil {
   /**
    * Class that holds keys corresponding to the types of child modules added to the ModuleData during the SBT import process.
    */
-  case class SbtModuleChildKey(sbtNestedModuleKey: Key[_ <: ModuleData], sbtSourceSetModuleKey: Key[_ <: ModuleData])
+  case class SbtModuleChildKey(sbtNestedModuleKey: Key[? <: ModuleData], sbtSourceSetModuleKey: Key[? <: ModuleData])
 
   private def getModuleDataNode(
     dataManager: ProjectDataManager,
@@ -102,15 +102,15 @@ object ExternalSystemUtil {
     moduleId: String,
     rootProjectPath: Option[String],
     sbtModuleChildKey: Option[SbtModuleChildKey],
-  ): Either[String, DataNode[_ <: ModuleData]] = {
+  ): Either[String, DataNode[? <: ModuleData]] = {
     val (projectInfo: ExternalProjectInfo, projectDataNode: DataNode[ProjectData]) = getExternalProjectInfoAndData(dataManager, projectSystemId, project, rootProjectPath) match {
       case Right(value) => value
       case Left(error) =>
         return Left(error)
     }
 
-    def findDataNodeWithModuleId(parentNode: DataNode[_], key: Key[_<:ModuleData]): DataNode[_<:ModuleData] = {
-      ExternalSystemApiUtil.findChild(parentNode, key, (node: DataNode[_ <: ModuleData]) => {
+    def findDataNodeWithModuleId(parentNode: DataNode[?], key: Key[? <: ModuleData]): DataNode[? <: ModuleData] = {
+      ExternalSystemApiUtil.findChild(parentNode, key, (node: DataNode[? <: ModuleData]) => {
         // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
         node.getData.getId == moduleId
       })
@@ -131,9 +131,9 @@ object ExternalSystemUtil {
     projectDataNode: DataNode[ProjectData],
     moduleId: String,
     moduleChildKey: SbtModuleChildKey
-  ): Option[DataNode[_<:ModuleData]] = {
+  ): Option[DataNode[? <: ModuleData]] = {
 
-    def findModuleDataInChildren(key: Key[_ <: ModuleData], parents: Seq[DataNode[_]]): Either[Seq[DataNode[_<:ModuleData]], DataNode[_<:ModuleData]] = {
+    def findModuleDataInChildren(key: Key[? <: ModuleData], parents: Seq[DataNode[?]]): Either[Seq[DataNode[? <: ModuleData]], DataNode[? <: ModuleData]] = {
       val children = parents.flatMap(ExternalSystemApiUtil.findAll(_, key).asScala.toSeq)
       children.find(_.getData.getId == moduleId).toRight(children)
     }
@@ -155,7 +155,7 @@ object ExternalSystemUtil {
     sbtSourceSetModuleDataEither.toOption
   }
 
-  private def findAllNodesEnsuring[K](dataManager: ProjectDataManager, parent: DataNode[_], key: Key[K]): Iterable[DataNode[K]] = {
+  private def findAllNodesEnsuring[K](dataManager: ProjectDataManager, parent: DataNode[?], key: Key[K]): Iterable[DataNode[K]] = {
     val dataNodes = ExternalSystemApiUtil.findAll(parent, key).asScala
     dataNodes.foreach(dataManager.ensureTheDataIsReadyToUse)
     dataNodes

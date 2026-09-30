@@ -19,7 +19,7 @@ object Messages {
   final case class ChunkCompilationInfo(data: JpsCompilationInfo)
     extends CustomBuilderMessage(id, compilationDataType, compressCompilationInfo(data))
 
-  final case object CompilationFinished
+  case object CompilationFinished
     extends CustomBuilderMessage(id, compilationFinishedType, "")
 
   final case class CompilationStarted(isCleanBuild: Boolean)

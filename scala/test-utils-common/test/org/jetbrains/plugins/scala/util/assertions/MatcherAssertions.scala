@@ -44,7 +44,7 @@ trait MatcherAssertions extends FailableTest {
 
   implicit class ObjectOps(private val value: Object) {
     def assertInstanceOf[T](implicit classTag: ClassTag[T]): T =
-      assertIsA(value)(classTag)
+      assertIsA(value)(using classTag)
   }
 
   case class ContainsPattern(fragment: String) {

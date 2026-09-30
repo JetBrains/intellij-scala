@@ -45,9 +45,9 @@ ThisBuild / resolvers := {
 
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
-(Global / javacOptions) := globalJavacOptions
-
-(Global / scalacOptions) := globalScala3ScalacOptions
+ThisBuild / scalaVersion := Versions.scala3Version
+ThisBuild / scalacOptions := globalScala3ScalacOptions
+ThisBuild / javacOptions := globalJavacOptions
 
 Global / intellijAttachSources := true
 
@@ -177,10 +177,8 @@ lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
 
 lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
   .settings(
-  scalaVersion := Versions.scalaVersion,
-  Compile / scalacOptions := globalScalacOptions,
-  idePackagePrefix := Some("org.jetbrains.plugins.scala")
-)
+    idePackagePrefix := Some("org.jetbrains.plugins.scala")
+  )
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
   .settings(
@@ -215,8 +213,6 @@ lazy val sbtKotlinIjPluginInterop =
   newProject("sbt-kotlin-ij-plugin-interop", file("sbt/sbt-kotlin-ij-plugin-interop"))
     .dependsOn(sbtApi)
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.kotlin".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt-kotlin-ij-plugin-interop"),
 
@@ -305,8 +301,6 @@ lazy val worksheet =
       worksheetReplInterface,
       repl % "test->test;compile->compile", //do we indeed need this dependency on Scala REPL? can we get rid of it?
     ).settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.worksheet")
     )
 
@@ -355,8 +349,6 @@ lazy val worksheetReplInterfaceImpls =
 lazy val structureView = newProject("structure-view", file("scala/structure-view"))
   .dependsOn(scalaImpl % "test->test;compile->compile")
   .settings(
-    scalaVersion := Versions.scala3Version,
-    Compile / scalacOptions := globalScala3ScalacOptions,
     intellijPlugins ++= Seq(
       "com.intellij.structureView".toPlugin,
       "com.intellij.navbar".toPlugin
@@ -384,6 +376,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     intellijMainJars := Seq.empty,
     intellijTestJars := Seq.empty,
     scalaVersion := Versions.scala3Version,
+    Compile / scalacOptions := globalScala3ScalacOptions,
     libraryDependencies += Dependencies.tastyCore,
     (Compile / scalacOptions) := Seq("-deprecation"),
     libraryDependencies ++= Seq(
@@ -509,8 +502,6 @@ lazy val kotlinUtils: sbt.Project =
 lazy val scalaLanguageUtils: sbt.Project =
   newPlainScalaProject("scala-utils-language", file("scala/scala-utils-language"))
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
 
@@ -520,10 +511,8 @@ lazy val scalaLanguageUtils: sbt.Project =
  */
 lazy val scalaLanguageUtilsRt: sbt.Project =
   newPlainScalaProject("scala-utils-language-rt", file("scala/scala-utils-language-rt"))
+    .withOutOfIDEAProcessSettings
     .settings(
-      scalaVersion := Versions.scala3CompilerRuntimeVersion,
-      Compile / scalacOptions := outOfIDEAProcessScala3ScalacOptions,
-      Compile / javacOptions := outOfIDEAProcessJavacOptions,
       packageMethod := PackagingMethod.Standalone("lib/utils_rt.jar", static = true),
     )
 
@@ -572,10 +561,6 @@ lazy val compilerTestUtils: sbt.Project =
 
 lazy val compilerSettingsDefinition: sbt.Project =
   newProject("compiler-settings-definition", file("scala/compiler-settings-definition"))
-    .settings(
-      scalaVersion := Versions.scalaVersion,
-      Compile / scalacOptions := globalScalacOptions,
-    )
 
 lazy val sbtImpl =
   newProject("sbt-impl", file("sbt/sbt-impl"))
@@ -587,8 +572,6 @@ lazy val sbtImpl =
       testUtilsPlatform % "test->test",
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "com.intellij.platform.vcs".toPlugin,
 //      libraryDependencies += Dependencies.sbtStructureCore.exclude("org.scala-lang.modules", "scala-xml_3")
     )
@@ -602,10 +585,6 @@ lazy val sbtProjectImportingTestFramework =
       compilerIntegrationServerManagement % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
     )
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions
-    )
 
 lazy val sbtProjectStructureTests =
   newProject("sbt-project-structure-tests", file("sbt/sbt-project-structure-tests"))
@@ -615,10 +594,6 @@ lazy val sbtProjectStructureTests =
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
     )
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions
-    )
 
 lazy val sbtProjectHighlightingTests =
   newProject("sbt-project-highlighting-tests", file("sbt/sbt-project-highlighting-tests"))
@@ -627,10 +602,6 @@ lazy val sbtProjectHighlightingTests =
       sbtProjectImportingTestFramework % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
-    )
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 // A tiny JVM program used by sbt shell/runtime tests instead of launching a real sbt process.
@@ -675,10 +646,6 @@ lazy val sbtShellRuntimeTests =
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
     )
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions
-    )
 
 lazy val sbtShellBuildDelegationTests =
   newProject("sbt-shell-build-delegation-tests", file("sbt/sbt-shell-build-delegation-tests"))
@@ -687,10 +654,6 @@ lazy val sbtShellBuildDelegationTests =
       sbtShellRuntimeTests % "test->test",
       sbtImpl % "compile->compile;test->test",
       testUtilsPlatform % "test->test",
-    )
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions
     )
 
 lazy val compilerIntegration =
@@ -708,8 +671,6 @@ lazy val compilerIntegration =
       bsp
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration")
     )
 
@@ -719,8 +680,6 @@ lazy val compilerHighlighting =
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-highlighting")
     )
 
@@ -748,10 +707,6 @@ lazy val compilerIntegrationServerManagementTests =
     .dependsOn(
       compilerIntegrationServerManagement % "test->test;compile->compile"
     )
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions
-    )
 
 lazy val debugger =
   newProject("debugger", file("scala/debugger"))
@@ -767,10 +722,9 @@ lazy val debugger =
 lazy val compileServer =
   newPlainScalaProject("compile-server", file("scala/compile-server"))
     .dependsOn(compilerShared, repackagedZinc, worksheetReplInterface)
+    .withOutOfIDEAProcessSettings
     .withJpsClasspath
     .settings(
-      Compile / javacOptions := outOfIDEAProcessJavacOptions,
-      Compile / scalacOptions := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/jps/compile-server.jar", static = true),
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar")
@@ -780,6 +734,7 @@ lazy val compileServer =
 lazy val compileServerRuntime =
   newPlainScalaProject("compile-server-runtime", file("scala/compile-server/runtime"))
     .settings(NoSourceDirectories)
+    .withOutOfIDEAProcessSettings
     .settings(
       autoScalaLibrary := false,
       libraryDependencies ++= Seq(Dependencies.compilerRuntimeScalaLibrary, Dependencies.compilerRuntimeScala3Library),
@@ -860,10 +815,10 @@ lazy val scalaCompilerPluginTests: sbt.Project =
 lazy val compilerJps =
   newPlainScalaProject("compiler-jps", file("scala/compiler-jps"))
     .dependsOn(jps, compileServer)
+    .withOutOfIDEAProcessSettings
+    .withReplacedJavaRelease("8", "11") // JPS APIs use @Deprecated(forRemoval = true).
     .withJpsClasspath
     .settings(
-      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
-      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
       libraryDependencies ++= Seq(Dependencies.scalaParallelCollections),
       packageLibraryMappings ++= Seq(
@@ -873,9 +828,10 @@ lazy val compilerJps =
 
 lazy val repackagedZinc =
   newProject("repackagedZinc", file("target/tools/zinc"))
+    .withOutOfIDEAProcessSettings
     .settings(NoSourceDirectories)
     .settings(
-      scalaVersion := Versions.scalaVersion,
+      scalaVersion := Versions.scala2Version,
       Compile / scalacOptions := outOfIDEAProcessScalacOptions,
       packageOutputDir := baseDirectory.value / "plugin",
       packageAssembleLibraries := true,
@@ -895,11 +851,9 @@ lazy val compilerShared =
   newPlainScalaProject("compiler-shared", file("scala/compiler-shared"))
     .dependsOn(scalaLanguageUtilsRt)
     .enablePlugins(BuildInfoPlugin)
+    .withOutOfIDEAProcessSettings
     .withJpsSharedClasspath
     .settings(
-      scalaVersion := Versions.scala3CompilerRuntimeVersion,
-      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
-      (Compile / scalacOptions) := outOfIDEAProcessScala3ScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true),
       libraryDependencies += Dependencies.sprayJson,
       packageLibraryMappings += Dependencies.sprayJson -> Some(s"lib/spray-json_2.13-${Versions.sprayJsonVersion}.jar")
@@ -916,10 +870,9 @@ lazy val compilerShared =
 
 lazy val jps =
   newPlainScalaProject("jps", file("scala/jps"))
+    .withOutOfIDEAProcessSettings
     .withJpsClasspath
     .settings(
-      Compile / javacOptions := outOfIDEAProcessJavacOptions,
-      Compile / scalacOptions := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone("lib/scala-jps.jar", static = true),
       libraryDependencies += Dependencies.compilerIndicesProtocol,
       packageLibraryMappings += Dependencies.compilerIndicesProtocol -> Some(s"lib/scala-compiler-indices-protocol_2.13-${Versions.compilerIndicesVersion}.jar")
@@ -927,10 +880,8 @@ lazy val jps =
 
 lazy val runners: Project =
   newProject("runners", file("scala/runners"))
+    .withOutOfIDEAProcessSettings
     .settings(
-      scalaVersion := Versions.scalaVersion,
-      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
-      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone(static = true),
       packageAdditionalProjects ++= Seq(testRunners, testRunners_spec2_2x)
     )
@@ -942,8 +893,6 @@ lazy val structuralSearch =
       codeInsight % "test->test;compile->compile"
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
         "JUnit".toPlugin,
         "com.intellij.structuralSearch".toPlugin,
@@ -989,21 +938,17 @@ lazy val testingSupportMunit = newProject("testing-support-munit", file("scala/t
 
 lazy val testRunners: Project =
   newProject("test-runners", file("scala/test-integration/test-runners"))
+    .withOutOfIDEAProcessSettings
     .settings(
-      scalaVersion := Versions.scalaVersion,
-      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
-      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.MergeIntoOther(runners),
       libraryDependencies ++= DependencyGroups.testRunners
     )
 
 lazy val testRunners_spec2_2x: Project =
   newProject("test-runners-spec2_2x", file("scala/test-integration/test-runners-spec2_2x"))
+    .withOutOfIDEAProcessSettings
     .dependsOn(testRunners)
     .settings(
-      scalaVersion := Versions.scalaVersion,
-      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
-      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.MergeIntoOther(runners),
       libraryDependencies ++= Seq(provided.specs2_2x)
     )
@@ -1013,7 +958,6 @@ lazy val scalatestFindersRootDir = file("scala/test-integration/scalatest-finder
 lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir)
   .settings(
     name := "scalatest-finders",
-    scalaVersion := Versions.scalaVersion,
     // NOTE: we might continue NOT using Scala in scalatestFinders just in case
     // in some future we will decide again to extract the library, so as it can be used even without scala jar
     crossPaths := false, // disable using the Scala version in output paths and artifacts
@@ -1062,7 +1006,7 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
   .settings(
     name := "scalatest-finders-tests-3_2",
     scalatestFindersTestSettings,
-    scalaVersion := Versions.scalaVersion,
+    scalaVersion := Versions.scala2Version,
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test),
     intellijMainJars := Nil,
     intellijTestJars := Nil,
@@ -1071,10 +1015,8 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
 
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
+    .withOutOfIDEAProcessSettings
     .settings(
-      scalaVersion := Versions.scalaVersion,
-      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
-      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       libraryDependencies += Dependencies.nailgun,
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
       packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true)
@@ -1094,8 +1036,6 @@ lazy val bspJUnit =
       bsp % "compile->compile",
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "JUnit".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.bsp-junit")
     )
@@ -1106,8 +1046,6 @@ lazy val bspTerminal =
       bsp % "compile->compile",
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
         "org.jetbrains.plugins.terminal".toPlugin,
         "com.intellij.platform.vcs".toPlugin,
@@ -1126,8 +1064,6 @@ lazy val bsp =
       testUtilsPlatform % "test->test",
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       libraryDependencies ++= DependencyGroups.bsp,
       intellijPlugins += "com.intellij.platform.vcs".toPlugin,
       excludeDependencies += "org.scala-lang.modules" % "scala-xml_2.13",
@@ -1144,10 +1080,6 @@ lazy val bspIntegrationTests =
       bsp % "compile->compile",
       compilerIntegration % "compile->compile;test->test",
     )
-    .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions
-    )
 
 lazy val scalaCli =
   newProject("scala-cli", file("scala-cli"))
@@ -1157,8 +1089,6 @@ lazy val scalaCli =
       bspIntegrationTests % "test->test",
       sbtImpl % "test->test"
     ).settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-cli")
     )
 
@@ -1171,8 +1101,6 @@ lazy val devKitIntegration =
   newProject("devKit", file("scala/integration/devKit"))
     .dependsOn(scalaImpl, sbtImpl)
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.devkit")
     )
 
@@ -1180,8 +1108,6 @@ lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "com.intellij.copyright".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.copyright"),
       idePackagePrefix := Some("org.jetbrains.plugins.scala.copyright"),
@@ -1196,8 +1122,6 @@ lazy val gradleIntegration =
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
         "com.intellij.gradle",           // required by Android
         "org.intellij.groovy",           // required by Gradle
@@ -1211,8 +1135,6 @@ lazy val intellijBazelIntegration =
   newProject("intellij-bazel", file("scala/integration/intellij-bazel"))
     .dependsOn(scalaImpl, sbtImpl, testingSupport)
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.bazel::super-early-bird".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.intellij-bazel")
     )
@@ -1223,8 +1145,6 @@ lazy val intelliLangIntegration = newProject(
 ).dependsOn(
   scalaImpl % "test->test;compile->compile"
 ).settings(
-  scalaVersion := Versions.scala3Version,
-  Compile / scalacOptions := globalScala3ScalacOptions,
   packageMethod := PackagingMethod.PluginModule("scalaCommunity.intelliLang"),
 )
 
@@ -1234,8 +1154,6 @@ lazy val languageInjectionTests =
       intelliLangIntegration % "test->test;compile->compile"
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       // Note: these plugins are added to access JSON and SQL languages in tests.
       // Without them being available in the classpath, the language injection logic won't find the languages.
       // Database plugin descriptors also require Navbar and Grid plugin content modules to load SQL parser definitions.
@@ -1251,8 +1169,6 @@ lazy val markdownIntegration =
   newProject("markdown", file("scala/integration/markdown"))
     .dependsOn(scalaApi)
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       idePackagePrefix := Some("org.jetbrains.plugins.scala.markdown"),
       intellijPlugins += "org.intellij.plugins.markdown".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.markdown"),
@@ -1267,8 +1183,6 @@ lazy val mavenIntegration =
       compilerIntegration % "test->test;compile->compile"
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
         "org.jetbrains.idea.maven",
         "intellij.java.aetherDependencyResolver.plugin" // required for Maven (IJPL-35276)
@@ -1285,8 +1199,6 @@ lazy val i18nIntegration =
   newProject("i18n", file("scala/integration/i18n"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
         "com.intellij.java-i18n".toPlugin,
         "com.intellij.properties".toPlugin,
@@ -1300,8 +1212,6 @@ lazy val propertiesIntegration =
       scalaImpl % "test->test;compile->compile",
       sbtImpl
     ).settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "com.intellij.properties".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.properties")
     )
@@ -1310,8 +1220,6 @@ lazy val javaDecompilerIntegration =
   newProject("java-decompiler", file("scala/integration/java-decompiler"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "org.jetbrains.java.decompiler".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.javaDecompiler")
     )
@@ -1334,8 +1242,6 @@ lazy val textAnalysis =
       intelliLangIntegration //uses logic related to parsing interpolated strings
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins ++= Seq(
         "tanvd.grazi".toPlugin
       ),
@@ -1373,8 +1279,6 @@ lazy val featuresTrainerIntegration =
       scalaImpl % "test->test;compile->compile",
     )
     .settings(
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijPlugins += "training".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.featuresTrainer")
     )

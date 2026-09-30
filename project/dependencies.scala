@@ -6,7 +6,7 @@ import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
 import sbt.*
 
 object Versions {
-  val scalaVersion: String = "2.13.18"
+  val scala2Version: String = "2.13.18"
   val scala3Version: String = "3.8.4"
   // Code shared with the compile server must run on Java 8; use the Scala 3.3 LTS line.
   val scala3CompilerRuntimeVersion: String = "3.3.8"
@@ -121,14 +121,15 @@ object Dependencies {
   // Since Scala 3.8 the unified standard library uses the Scala 3 version.
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scala3Version
   val scala3Library: ModuleID = "org.scala-lang" % "scala3-library_3" % scala3Version
-  val compilerRuntimeScalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
+  val compilerRuntimeScalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scala2Version
   val compilerRuntimeScala3Library: ModuleID = "org.scala-lang" % "scala3-library_3" % scala3CompilerRuntimeVersion
-  val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion
-  val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
+  val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scala2Version
+  val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scala2Version
   val scala3Compiler: ModuleID = "org.scala-lang" % "scala3-compiler_3" % scala3Version
   val scalaXml: ModuleID = "org.scala-lang.modules" % "scala-xml_2.13" % "2.4.0"
   val tastyCore: ModuleID = "org.scala-lang" % "tasty-core_3" % Versions.scala3Version
-  val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
+  // Version 0.2.0 has no Scala 3 artifact; keep the Scala 2.13 artifact for packageLibraryMappings too.
+  val scalaParallelCollections: ModuleID = "org.scala-lang.modules" % "scala-parallel-collections_2.13" % "0.2.0"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
   val coursierPaths: ModuleID = "io.get-coursier" % "coursier-paths" % "2.1.25-M26"

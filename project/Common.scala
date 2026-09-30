@@ -151,9 +151,9 @@ object Common {
     KotlinAnalysisApiIdeSourcesDependencies.map(_ % Provided)
 
   private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
-    scalaVersion := Versions.scalaVersion,
+    scalaVersion := Versions.scala3Version,
     (Compile / javacOptions) := globalJavacOptions,
-    (Compile / scalacOptions) := globalScalacOptions,
+    (Compile / scalacOptions) := globalScala3ScalacOptions,
     updateOptions := updateOptions.value.withCachedResolution(true),
     instrumentThreadingAnnotations := true,
     instrumentNotNullAnnotations := true,
@@ -233,9 +233,6 @@ object Common {
       NewProjectBaseSettings
     ).settings(
       name := projectName,
-      // IDE modules migrate together: Scala 2 cannot read Scala 3.8 standard-library TASTy.
-      scalaVersion := Versions.scala3Version,
-      Compile / scalacOptions := globalScala3ScalacOptions,
       intellijMainJars ~= { _.filterNot(Dependencies.excludeJarsFromPlatformDependencies).filter(_.exists()) },
       intellijTestJars ~= { _.filter(_.exists()) },
       intellijPlugins ++= Seq(
@@ -287,6 +284,26 @@ object Common {
      * @see [[IntellijSdkSubsetInfo.Jps]]
      */
     def withJpsClasspath: Project = withIntellijSubsetDependency(IntellijSdkSubsetInfo.Jps)
+
+    def withOutOfIDEAProcessSettings: Project =
+      project.settings(
+        scalaVersion := Versions.scala3CompilerRuntimeVersion,
+        Compile / scalacOptions := outOfIDEAProcessScala3ScalacOptions,
+        Compile / javacOptions  := outOfIDEAProcessJavacOptions,
+      )
+
+    def withReplacedJavaRelease(expectedVersion: String, targetVersion: String): Project = {
+      def replaceReleaseFlag(seq: Seq[String]): Seq[String] = {
+        val idx = seq.sliding(2).indexOf(Seq("--release", expectedVersion))
+        assert(idx >= 0)
+        seq.updated(idx + 1, targetVersion)
+      }
+
+      project.settings(
+        Compile / javacOptions ~= replaceReleaseFlag,
+        Compile / scalacOptions ~= replaceReleaseFlag,
+      )
+    }
 
     /**
      * Similar to [[withJpsClasspath]] but defines the classes that are used in both JPS and IntelliJ processes
