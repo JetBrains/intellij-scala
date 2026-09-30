@@ -244,6 +244,7 @@ object Common {
         "com.intellij.todo",
         // TODO: add these plugins only in the modules where they are needed
         "intellij.java.aetherDependencyResolver.plugin",
+        "com.intellij.modules.asyncProfiler",
         "com.intellij.modules.jna",
         "com.intellij.modules.pty4j",
         "com.intellij.platform.testRunner"
