@@ -16,7 +16,6 @@ abstract class ScalaCompilerTestdataHighlightingFailingTestBase_2_12 extends Sca
   protected def filesWithProblems: Map[String, Set[TextRange]] = {
     import org.jetbrains.plugins.scala.util.TextRangeUtils.ImplicitConversions.tupleToTextRange
     getTestName(true) match {
-      case "_t7232c" => Map("t7232c/Test.scala" -> Set())
       case "_t7364b" => Map("t7364b/UseIt_2.scala" -> Set((68, 79), (56, 64)))
       case "_t4365" => Map("t4365/a_1.scala" -> Set((535, 557)))
       case "_t5545" => Map("t5545/S_2.scala" -> Set((64, 66)), "S_1.scala" -> Set((64, 66)))
