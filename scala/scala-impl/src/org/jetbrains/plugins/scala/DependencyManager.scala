@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.util.registry.RegistryManager
 import com.intellij.util.SystemProperties
@@ -19,15 +20,16 @@ import org.jetbrains.sbt.usingTempFile
 
 import java.net.URL
 import java.nio.file.{Files, Path}
-import java.util.concurrent.atomic.AtomicReference
 import scala.annotation.unused
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Promise
+import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Try}
 
 object DependencyManager extends DependencyManagerBase
 
 abstract class DependencyManagerBase {
-  import DependencyManagerBase._
+  import DependencyManagerBase.*
 
   protected def useFileSystemResolversOnly: Boolean =
     if (ApplicationManager.getApplication == null) //to be able to use DependencyManagerBase outside IntelliJ App
@@ -44,7 +46,7 @@ abstract class DependencyManagerBase {
   protected def resolvers: Seq[Resolver] = defaultResolvers
 
   private def defaultResolvers: Seq[Resolver] =
-    if (java.lang.Boolean.getBoolean(UseJetBrainsMavenCentralMirrorPropertyKey) || isUnitTestMode)
+    if (java.lang.Boolean.getBoolean(UseJetBrainsMavenCentralMirrorPropertyKey) || isUnitTestApplication)
       Seq(Resolver.JetBrainsMavenCentralMirror)
     else
       Seq(Resolver.MavenCentral)
@@ -159,69 +161,79 @@ abstract class DependencyManagerBase {
     val logger = createLogger
     org.apache.ivy.util.Message.setDefaultLogger(logger) // ¯\_(ツ)_/¯ SCL-15168
 
-    val ref = new AtomicReference[ResolveReport]()
+    // The report of the resolving thread, or the exception it failed with.
+    val outcome = Promise[ResolveReport]()
 
     val ivy = new Ivy()
-    // Using a raw `java.lang.Thread` because `Ivy` is particularly destructive when it comes to the thread interruption
-    // mechanism, ultimately calling `Thread#stop()` if the thread doing the resolution has not responded after 2
-    // seconds of waiting. It is not worth doing this to an IDEA platform background thread.
-    // This is because `java.io.InputStream#read` (which is used in the implementation of the download code) isn't
-    // guaranteed to respond to Java thread interruption.
-    val thread = new Thread(() => {
-      // ATTENTION: settings should be created before other code SCL-15168
-      val settings = mkIvySettings()
-      ivy.getLoggerEngine.pushLogger(logger)
-      ivy.setSettings(settings)
-      ivy.bind()
 
-      val report = usingTempFile("ivy", Some(".xml")) { ivyFile =>
-        val ivyXml = mkIvyXml(deps)
-        Files.write(ivyFile, ivyXml.getBytes)
-        val resolveOptions = new ResolveOptions()
-          .setConfs(Array("compile"))
-        ivy.resolve(ivyFile.toUri.toURL, resolveOptions)
-      }
+    def doResolve(): Unit = {
+      val report = Try {
+        // ATTENTION: settings should be created before other code SCL-15168
+        val settings = mkIvySettings()
+        ivy.getLoggerEngine.pushLogger(logger)
+        ivy.setSettings(settings)
+        ivy.bind()
 
-      ref.set(report)
-    })
-    // Do not print rethrown exceptions from the resolving thread, in case of interruption. Ivy already reports errors,
-    // including interruption, to the provided Ivy logger instance.
-    thread.setUncaughtExceptionHandler((_, _) => ())
-
-    thread.start()
-
-    val indicator = progressIndicator.orNull
-    while (ref.get() eq null) {
-      // Check cancellation.
-      if ((indicator ne null) && indicator.isCanceled) {
-        // Interrupt the Ivy instance.
-        try ivy.interrupt(thread)
-        catch {
-          case NonFatal(_) => // Ignore non fatal errors
-          case _: InterruptedException => // Ignore possible interruption exceptions from the resolving thread
-        } finally {
-          indicator.checkCanceled() // Propagate the PCE
+        usingTempFile("ivy", Some(".xml")) { ivyFile =>
+          val ivyXml = mkIvyXml(deps)
+          Files.write(ivyFile, ivyXml.getBytes)
+          val resolveOptions = ResolveOptions().setConfs(Array("compile"))
+          ivy.resolve(ivyFile.toUri.toURL, resolveOptions)
         }
       }
+      outcome.complete(report)
+    }
 
-      // Sleep for a while.
-      try Thread.sleep(300L)
+    // A dedicated thread, because `Ivy#interrupt` is particularly destructive: it interrupts the thread doing the
+    // resolution and, if it hasn't finished after 2 seconds, calls `Thread#stop()` on it (note, since JDK 20,
+    // `Thread#stop()` throws `UnsupportedOperationException` instead). It is not worth doing this to an IDEA platform
+    // background thread.
+    // A virtual thread, because interrupting it aborts blocking `java.net.Socket` reads (the socket is closed and the
+    // read throws `SocketException`), so a stuck download ends when the resolution is cancelled. On a platform thread,
+    // such a read doesn't respond to interruption.
+    // Virtual threads are always daemon threads, so a stuck resolution can't keep the JVM alive.
+    val resolveThread = Thread.ofVirtual().name("Scala plugin Ivy dependency resolution").start(() => doResolve())
+
+    // `Ivy#interrupt` sets Ivy's interruption flag and interrupts the resolving thread, but then waits up to 2 seconds
+    // for it to finish before calling `Thread#stop()`. It runs on its own thread, so that cancellation takes effect
+    // immediately. The resolving thread isn't stopped, but it ends early: the interrupt aborts its blocking socket
+    // reads, and Ivy checks its interruption flag between steps.
+    def interruptInBackground(): Unit = {
+      Thread.ofVirtual()
+        .name("Scala plugin Ivy dependency resolution interrupter")
+        .start(() => {
+          try ivy.interrupt(resolveThread)
+          catch case NonFatal(_) => () // e.g. `UnsupportedOperationException` from `Thread#stop()`
+        })
+    }
+
+    val indicator = progressIndicator.orNull
+    var interrupted = false
+    while (resolveThread.isAlive) {
+      // Check cancellation.
+      if ((indicator ne null) && indicator.isCanceled) {
+        if (!interrupted) {
+          interruptInBackground()
+          interrupted = true
+        }
+        indicator.checkCanceled() // Propagate the PCE
+      }
+
+      // Returns as soon as the resolving thread finishes, otherwise wakes up to check cancellation again.
+      try resolveThread.join(300L)
       catch {
         case e: InterruptedException =>
           // This can happen on IDEA exit.
-          try ivy.interrupt(thread)
-          catch {
-            case NonFatal(_) => // Ignore non fatal errors
-            case _: InterruptedException => // Ignore possible interruption exceptions from the resolving thread
-          } finally {
-            throw e // Propagate the InterruptedException
-          }
+          interruptInBackground()
+          throw e // Propagate the InterruptedException
       }
     }
 
-    // The `ref` has already been set, join should be instant here.
-    thread.join()
-    processIvyReport(ref.get())
+    outcome.future.value match {
+      case Some(Success(report)) => processIvyReport(report)
+      case Some(Failure(t)) => throw t
+      case None => throw IllegalStateException("The resolving thread finished without a result")
+    }
   }
 
   // Ivy's ArtifactDownloadReport#getLocalFile only returns java.io.File; there is no nio.Path-based alternative.
@@ -306,6 +318,8 @@ abstract class DependencyManagerBase {
       resolveIvy(deps)
     }
     result.toEither.left.map {
+      // `Try` catches `ProcessCanceledException` too, but cancellation must reach the caller instead of becoming a failure
+      case e: ControlFlowException => throw e
       case re: ResolveException if re.unresolved.isEmpty =>
         ResolveFailure.UnknownProblem(re.allProblemMessages)
       case re: ResolveException =>
@@ -328,11 +342,18 @@ object DependencyManagerBase {
    */
   val UseJetBrainsMavenCentralMirrorPropertyKey = "scala.ui.tests.use.jetbrains.maven.central.mirror"
 
+  /**
+   * `isUnitTestMode` requires an application, but `DependencyManagerBase` can also be used without one
+   * (see `useFileSystemResolversOnly` and `progressIndicator`).
+   */
+  private def isUnitTestApplication: Boolean =
+    ApplicationManager.getApplication != null && isUnitTestMode
+
   private val homePrefix: Path = sys.props.get("tc.idea.prefix")
     .orElse(Some(SystemProperties.getUserHome))
     .map(Path.of(_)).get
   val ivyHome: Path = sys.props.get("sbt.ivy.home")
-    .orElse(sys.env.get("TC_SBT_IVY_HOME").filter(_ => isUnitTestMode))
+    .orElse(sys.env.get("TC_SBT_IVY_HOME").filter(_ => isUnitTestApplication))
     .map(Path.of(_))
     .orElse(Option(homePrefix.resolve(".ivy2"))).get
 
@@ -352,7 +373,7 @@ object DependencyManagerBase {
     val JAR, SRC = new Type
   }
 
-  import Types._
+  import Types.*
 
   case class DependencyDescription(org: String,
                                    artId: String,
