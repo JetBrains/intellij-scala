@@ -8,8 +8,6 @@ class ScalaCompilerTestdataHighlightingFailingTests_2_12 extends ScalaCompilerTe
 
   def test_t6169(): Unit = doTestForFileOrDirectory()
 
-  def test_t7232c(): Unit = doTestForFileOrDirectory()
-
   def test_t7364b(): Unit = doTestForFileOrDirectory()
 
   def test_t8497(): Unit = doTestForFileOrDirectory()
