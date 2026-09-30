@@ -401,7 +401,7 @@ lazy val semanticDecompiler = Project("semantic-decompiler", file("scala/semanti
     intellijTestJars := Seq.empty,
     scalaVersion := Versions.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
-    libraryDependencies += Dependencies.scala3Compiler,
+    libraryDependencies += Dependencies.scala3Compiler % Provided,
     packageMethod := PackagingMethod.Standalone("lib/semantic/decompiler.jar", static = true),
   )
   .settings(projectDirectoriesSettings)
