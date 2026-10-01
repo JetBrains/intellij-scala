@@ -57,6 +57,7 @@ abstract class SbtRunConfiguration_ExecutionEventsPublishingTestBase extends Sbt
     )
     executionObserver.awaitSuccessfulTermination(timeout = 10.seconds)
     assertExpectedDebugOutput(options, executionObserver)
+    eventsCollector.awaitProcessTerminated(timeout = 10.seconds)
 
     val actualEvents = eventsCollector.eventsSnapshot
     assertCollectionEquals(

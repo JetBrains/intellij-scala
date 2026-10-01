@@ -3,10 +3,13 @@ package org.jetbrains.sbt.runner.utils
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.{ExecutionListener, RunnerAndConfigurationSettings}
+import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.runner.utils.ExecutionEventsCollector.ExecutionEvent
 
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.mutable
+import scala.concurrent.duration.FiniteDuration
 
 private[runner] final class ExecutionEventsCollector(
   settings: RunnerAndConfigurationSettings,
@@ -14,11 +17,30 @@ private[runner] final class ExecutionEventsCollector(
 ) extends ExecutionListener {
 
   private val events = mutable.ArrayBuffer.empty[ExecutionEvent]
+  private val terminationRecorded = new CountDownLatch(1)
 
   def eventsSnapshot: Vector[ExecutionEvent] =
     events.synchronized {
       events.toVector
     }
+
+  /**
+   * Waits until this listener has recorded `processTerminated` for the observed configuration.
+   *
+   * Execution tests subscribe both this collector and [[RunConfigurationExecutionObserver]]
+   * to `ExecutionManager.EXECUTION_TOPIC`. The observer releases its own
+   * `awaitSuccessfulTermination` wait in its `processTerminated` callback, but delivery
+   * of that same event to this collector can still be pending. For example, the test
+   * thread can wake and snapshot events ending at `processTerminating` before this
+   * collector appends `processTerminated`. This latch makes the snapshot wait for
+   * the collector's callback rather than the observer's callback.
+   */
+  def awaitProcessTerminated(timeout: FiniteDuration): Unit =
+    AwaitTestUtils.waitForLatchDispatchingAllEdtEvents(
+      terminationRecorded,
+      timeout,
+      s"Timed out waiting for '${settings.getName}' processTerminated event",
+    )
 
   override def processStartScheduled(executorId: String, env: ExecutionEnvironment): Unit =
     record(env, "processStartScheduled")
@@ -35,8 +57,12 @@ private[runner] final class ExecutionEventsCollector(
   override def processTerminating(executorId: String, env: ExecutionEnvironment, handler: ProcessHandler): Unit =
     record(env, "processTerminating", Some(handler))
 
-  override def processTerminated(executorId: String, env: ExecutionEnvironment, handler: ProcessHandler, exitCode: Int): Unit =
-    record(env, "processTerminated", Some(handler))
+  override def processTerminated(executorId: String, env: ExecutionEnvironment, handler: ProcessHandler, exitCode: Int): Unit = {
+    if (isObservedEnvironment(env)) {
+      record(env, "processTerminated", Some(handler))
+      terminationRecorded.countDown()
+    }
+  }
 
   private def record(
     env: ExecutionEnvironment,

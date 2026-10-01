@@ -4,32 +4,31 @@ import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromCo
 import com.intellij.execution.configurations.{JavaCommandLineState, RunConfiguration, RunProfileState, RunnerSettings}
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
-import com.intellij.execution.process.{ProcessHandler, ProcessListener}
+import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
-import com.intellij.execution.ui.{ExecutionConsole, RunContentDescriptor}
+import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.execution.{Executor, PsiLocation, RunnerAndConfigurationSettings}
-import com.intellij.openapi.Disposable
 import com.intellij.psi.PsiElement
-import com.intellij.testFramework.EdtTestUtil
-import com.intellij.util.concurrency.Semaphore
+import com.intellij.testFramework.{EdtTestUtil, PlatformTestUtil}
 import org.jetbrains.plugins.scala.TestingSupportTests
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.compiler.{ScalaExecutionTestCase, ScalaExecutionTestUtils}
 import org.jetbrains.plugins.scala.configurations.RunConfigCreationContext
 import org.jetbrains.plugins.scala.configurations.RunConfigCreationLocation.CaretLocation
 import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.runner.RunProcessTestSupport
+import org.jetbrains.plugins.scala.runner.RunProcessTestSupport.StartedProcess
 import org.jetbrains.plugins.scala.util.assertions.failWithCause
 import org.junit.Assert
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 import java.nio.file.{Files, Path}
-import java.util.concurrent.atomic.AtomicReference
-import scala.concurrent.Await
-import scala.concurrent.duration.FiniteDuration
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.{Failure, Try}
 
@@ -159,7 +158,6 @@ abstract class ScalaTestingTestCase
   ): TestRunResult = {
     val testResultListener = new TestRunnerOutputListener(debugProcessOutput)
     val testStatusListener = new TestStatusListener
-    val exitCodeListener = new ProcessFinishedListener
     var testTreeRoot: Option[AbstractTestProxy] = None
 
     runConfig.getConfiguration.getProject
@@ -167,9 +165,10 @@ abstract class ScalaTestingTestCase
       .connect(getTestRootDisposable)
       .subscribe(SMTRunnerEventsListener.TEST_STATUS, testStatusListener)
 
-    val (handler, _) = EdtTestUtil.runInEdtAndGet(() => {
+    val startedProcess = EdtTestUtil.runInEdtAndGet(() => {
       val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find(_.getClass == classOf[DefaultJavaProgramRunner]).get
-      val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], runner, Seq(testResultListener, exitCodeListener))
+      val started = runProcess(runConfig, classOf[DefaultRunExecutor], runner, Seq(testResultListener), duration)
+      val runContentDescriptor = started.descriptor
 
       runContentDescriptor.getExecutionConsole match {
         case widget if isJavaConsoleWithProfilerWidget(widget) =>
@@ -187,10 +186,10 @@ abstract class ScalaTestingTestCase
         case _ =>
       }
 
-      (handler, runContentDescriptor)
+      started
     })
 
-    val exitCode = waitForTestEnd(handler, exitCodeListener, duration)
+    val exitCode = waitForTestEnd(startedProcess, duration)
     testTreeRoot.foreach { _ =>
       // The process listener reports termination independently from the SM test-event processor.
       // Do not expose the test tree until the processor has consumed its final service messages.
@@ -222,14 +221,15 @@ abstract class ScalaTestingTestCase
   }
 
   private def waitForTestEnd(
-    handler: ProcessHandler,
-    exitCodeListener: ProcessFinishedListener,
+    startedProcess: StartedProcess,
     duration: FiniteDuration
   ): Try[Int] = {
-    val exitCode = Try(Await.result(exitCodeListener.exitCodeFuture, duration))
+    val exitCode = Try(startedProcess.exitCodeFuture.get(duration.toMillis, TimeUnit.MILLISECONDS))
+    val handler = startedProcess.handler
     // in case of unprocessed output we want to wait for the process end until the project is disposed
     val processInput = handler.getProcessInput
-    if (processInput != null) processInput.flush()
+    if (processInput != null)
+      processInput.flush()
 
     if (!handler.isProcessTerminated) {
       ScalaExecutionTestUtils.printThreadDumpAfterTimeout(handler)
@@ -244,7 +244,8 @@ abstract class ScalaTestingTestCase
     executorClass: Class[? <: Executor],
     runner: ProgramRunner[? <: RunnerSettings],
     listeners: Seq[ProcessListener],
-  ): (ProcessHandler, RunContentDescriptor) = {
+    duration: FiniteDuration,
+  ): StartedProcess = {
     val executionEnvironment = {
       val configuration = runConfiguration.getConfiguration
       val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(executorClass)
@@ -253,41 +254,18 @@ abstract class ScalaTestingTestCase
       builder.build()
     }
 
-    val processHandler: AtomicReference[ProcessHandler] = new AtomicReference[ProcessHandler]
-    val contentDescriptor: AtomicReference[RunContentDescriptor] = new AtomicReference[RunContentDescriptor]
-
-    val semaphore = new Semaphore(1)
-
-    //noinspection ApiStatus
-    executionEnvironment.setCallback { (descriptor: RunContentDescriptor) =>
+    val run = new RunProcessTestSupport(getTestRootDisposable, listeners, _ => {
       System.setProperty("idea.dynamic.classpath", useDynamicClassPath.toString)
-      val handler: ProcessHandler = descriptor.getProcessHandler
-      assertNotNull(handler)
-      disposeOnTearDown(new Disposable {
-        override def dispose(): Unit = {
-          if (!handler.isProcessTerminated)
-            handler.destroyProcess()
-          descriptor.dispose()
-        }
-      })
-      listeners.foreach(handler.addProcessListener)
-
-      processHandler.set(handler)
-      contentDescriptor.set(descriptor)
-
-      semaphore.up()
-    }
+      ()
+    })
 
     val state = executionEnvironment.getState
     if (state != null) {
       ensureWorkingDirectoryExists(state)
     }
 
-    runner.execute(executionEnvironment)
-
-    semaphore.waitFor()
-
-    (processHandler.get, contentDescriptor.get)
+    val startupTimeout = duration.max(30.seconds)
+    PlatformTestUtil.waitForFuture(run.execute(executionEnvironment, runner), startupTimeout.toMillis)
   }
 
   private def ensureWorkingDirectoryExists(state: RunProfileState): Any = {

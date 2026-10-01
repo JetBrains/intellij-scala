@@ -543,6 +543,11 @@ lazy val testUtilsPlatform: sbt.Project =
       ),
     )
 
+/** Shared test support for IntelliJ run configuration execution and process lifecycle. */
+lazy val testUtilsExecution: sbt.Project =
+  newProject("test-utils-execution", file("scala/test-utils-execution"))
+    .projectWithTestsOnly
+
 lazy val compilerTestUtils: sbt.Project =
   newProject("compiler-test-utils", file("scala/compiler-test-utils"))
     .projectWithTestsOnly
@@ -904,6 +909,7 @@ lazy val testingSupport =
   newProject("testing-support", file("scala/test-integration/testing-support"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
+      testUtilsExecution % "test->test",
       sbtImpl % "test->test;compile->compile",
       bsp,
       structureView % "test->test;compile->compile",

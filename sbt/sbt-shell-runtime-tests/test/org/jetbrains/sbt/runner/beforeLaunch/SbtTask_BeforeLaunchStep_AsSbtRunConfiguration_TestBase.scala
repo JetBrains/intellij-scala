@@ -127,6 +127,8 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
     dependentConfigurationObserver.awaitSuccessfulTermination(timeout = 10.seconds)
     debuggerSessionsAwaiter.foreach(_.awaitAllSessionsDetached())
     assertExpectedDebugOutput(options, sbtTaskObserver)
+    sbtTaskEventsCollector.awaitProcessTerminated(timeout = 10.seconds)
+    dependentConfigurationEventsCollector.awaitProcessTerminated(timeout = 10.seconds)
 
     BeforeLaunchExecutionResult(
       sbtTaskEventsCollector.eventsSnapshot,
