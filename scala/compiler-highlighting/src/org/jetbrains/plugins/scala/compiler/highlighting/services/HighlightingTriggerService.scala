@@ -68,14 +68,18 @@ final class HighlightingTriggerService(project: Project):
 
 
   private def dispatchRequest(vf: VirtualFile, reason: String): Unit = executeOnBackgroundThreadInNotDisposed(project) {
-    val requestId = TriggerPhaseEvents.newRequestId()
-    tracer.instant(HighlightingTriggerPhaseEvent(requestId, reason))
+      val requestId = TriggerPhaseEvents.newRequestId()
+      tracer.instant(HighlightingTriggerPhaseEvent(requestId, reason))
 
-    if (!canBeScheduled(vf)) {
-      tracer.endTrace(requestId, "not eligible for compilation (pre-checks failed)")
-      return
-    }
+      if (!canBeScheduled(vf)) {
+        tracer.endTrace(requestId, "not eligible for compilation (pre-checks failed)")
+      } else {
+        requestHighlighting(vf, reason, requestId)
+      }
+  }
 
+
+  private def requestHighlighting(vf: VirtualFile, reason: String, requestId: TriggerPhaseEvents.RequestId): Unit = {
     inReadAction {
       val psi = PsiManager.getInstance(project).findFile(vf)
       val doc = FileDocumentManager.getInstance().getDocument(vf)
@@ -104,7 +108,6 @@ final class HighlightingTriggerService(project: Project):
         None
     }.foreach(service.requestCompilation)
   }
-
 
   /**
    * Whether the decision is answered out of the recorded diagnostics instead of by compiling.
