@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project.versionNotifications.utils
+package org.jetbrains.plugins.scala.browser
 
 import com.intellij.ide.browsers.{BrowserLauncher, WebBrowser}
 import com.intellij.openapi.project.Project
@@ -10,10 +10,9 @@ import scala.jdk.CollectionConverters.*
  * Test double for [[BrowserLauncher]] that records URLs passed via the `browse(String, WebBrowser?, Project?)`
  * overload — the one `BrowserUtil.browse(String)` ultimately calls.
  *
- * The production code does not exercise other overloads (file/Path/open) under test.
- * So they no-op rather than fail; flipping them to a failure would make the test fragile to incidental future calls.
+ * The known callers use the URL overload. Other overloads no-op so this
+ * focused double does not affect incidental browser requests in a fixture.
  */
-private[versionNotifications]
 final class CapturingBrowserLauncher extends BrowserLauncher {
   private val capturedUrls = new ConcurrentLinkedQueue[String]
 

@@ -13,7 +13,7 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.jetbrains.sbt.project.fixture.TestProjectRootFixture
-import org.jetbrains.sbt.project.versionNotifications.utils.CapturingBrowserLauncher
+import org.jetbrains.plugins.scala.browser.CapturingBrowserLauncher
 import org.jetbrains.sbt.{SbtTestDataUtils, SbtVersion}
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 
