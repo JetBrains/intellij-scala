@@ -28,7 +28,7 @@ private class CompilerEventFromCustomBuilderMessageListener(project: Project)
           project.getMessageBus.syncPublisher(CompilerEventListener.topic).eventReceived(event)
       }
 
-  // Duplicated in org.jetbrains.jps.incremental.scala.remote.Jps to avoid complex compile time dependencies
+  // Duplicated in org.jetbrains.jps.incremental.scala.remote.JpsFacadeImpl to avoid complex compile time dependencies
   // between modules.
   private def fromCustomMessage(customMessage: CustomBuilderMessage): Option[CompilerEvent] = {
     val text = customMessage.getMessageText

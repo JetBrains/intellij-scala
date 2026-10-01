@@ -310,6 +310,8 @@ object Common {
      */
     def withJpsSharedClasspath: Project = withIntellijSubsetDependency(IntellijSdkSubsetInfo.JpsShared)
 
+    def withCompileServerClasspath: Project = withIntellijSubsetDependency(IntellijSdkSubsetInfo.CompileServer)
+
     private def withIntellijSubsetDependency(subsetInfo: IntellijSdkSubsetInfo): Project = {
       project.settings(
         // This line only registers information about special INTELLIJ-SDK-* libraries in the update report
@@ -444,7 +446,7 @@ object Common {
   }
 
   lazy val verifyJpsSdkSubsetBytecode: TaskKey[Unit] =
-    taskKey(s"Verify the IntelliJ SDK subset (JPS) classpaths contain no Java ${JpsSdkSubsetBytecodeVerifier.MaxAllowedJavaVersion + 1}+ bytecode (SCL-25518)")
+    taskKey("Verify the IntelliJ SDK subset classpaths contain no unsupported Java version bytecode (SCL-25518)")
 
   def verifyJpsSdkSubsetBytecodeTask: Def.Initialize[Task[Unit]] = Def.task {
     val log = sLog.value
@@ -452,19 +454,8 @@ object Common {
     val buildNumber = productInfo.value.buildNumber
 
     // Reference the subset definitions directly so this check always reflects their current contents.
-    val subsets = Seq(IntellijSdkSubsetInfo.Jps, IntellijSdkSubsetInfo.JpsShared)
-    val maxJava = JpsSdkSubsetBytecodeVerifier.MaxAllowedJavaVersion
+    val subsets = IntellijSdkSubsetInfo.All
     val result = JpsSdkSubsetBytecodeVerifier.verify(subsets, buildNumber, intellijBaseDir)
-
-    if (result.suppressedViolations.nonEmpty) {
-      val summary = result.suppressedViolations
-        .groupBy(_.jar.getName)
-        .toSeq
-        .sortBy(_._1)
-        .map { case (jarName, vs) => s"$jarName (${vs.size} classes up to Java ${vs.map(_.requiredJavaVersion).max})" }
-        .mkString(", ")
-      log.warn(s"JPS SDK subset bytecode: suppressed violations in known non-compliant jar(s) (SCL-25518): $summary")
-    }
 
     if (result.hasProblems) {
       val missingSection =
@@ -475,17 +466,14 @@ object Common {
         else None
       val violationSection =
         if (result.violations.nonEmpty)
-          Some(s"Bytecode requiring newer than Java $maxJava:\n" + result.violations
-            .map(v => s"  - ${v.jar.getName} -> ${v.entry}: class major ${v.classMajorVersion} (Java ${v.requiredJavaVersion})")
+          Some(s"Bytecode requiring newer than allowed Java version:\n" + result.violations
+            .map(v => s"  - ${v.jar.getName} -> ${v.entry}: class major ${v.classMajorVersion} (Java ${v.requiredJavaVersion}), max allowed Java version ${v.maxAllowedJavaVersion}")
             .mkString("\n"))
         else None
       val sections = Seq(missingSection, violationSection).flatten
-      sys.error((s"JPS SDK subset bytecode verification failed (SCL-25518): code in these classpaths must run on Java $maxJava or older." +: sections).mkString("\n\n"))
+      sys.error((s"JPS SDK subset bytecode verification failed (SCL-25518)." +: sections).mkString("\n\n"))
     } else {
-      val suppressedSuffix =
-        if (result.suppressedViolations.nonEmpty) s"; ${result.suppressedViolations.size} suppressed violation(s) in known non-compliant jar(s)"
-        else ""
-      log.info(s"JPS SDK subset bytecode OK: scanned ${result.scannedClasses} classes in ${result.scannedJars} jars, all (non-suppressed) bytecode <= Java $maxJava$suppressedSuffix.")
+      log.info(s"JPS SDK subset bytecode OK: scanned ${result.scannedClasses} classes in ${result.scannedJars} jars.")
     }
   }
 

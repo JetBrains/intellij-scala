@@ -5,6 +5,7 @@ case class IntellijSdkSubsetInfo(
   artifact: Artifact,
   modulePrefix: OrganizationArtifactName,
   jarsRelativePaths: Seq[String],
+  maxAllowedJavaVersion: Int
 ) {
   def toMaterialisedInfo(
     buildNumber: String,
@@ -23,13 +24,14 @@ object IntellijSdkSubsetInfo {
   private def IntelliJSdkSubsetArtifactName(subsetName: String): String =
     IntelliJSdkSubsetPrefix + subsetName
 
-  def apply(subsetName: String, jarsRelativePaths: Seq[String]): IntellijSdkSubsetInfo = {
+  def apply(subsetName: String, jarsRelativePaths: Seq[String], maxAllowedJavaVersion: Int): IntellijSdkSubsetInfo = {
     val artifactName: String = IntelliJSdkSubsetArtifactName(subsetName)
     val artifact = Artifact(name = artifactName)
     new IntellijSdkSubsetInfo(
       artifact = artifact,
       modulePrefix = "org.jetbrains" % artifactName,
-      jarsRelativePaths = jarsRelativePaths
+      jarsRelativePaths = jarsRelativePaths,
+      maxAllowedJavaVersion = maxAllowedJavaVersion
     )
   }
 
@@ -41,6 +43,10 @@ object IntellijSdkSubsetInfo {
     artifact: Artifact,
     module: ModuleID,
   )
+
+  private final val Util8Jar = "lib/util-8.jar"
+
+  private final val UtilRtJar = "lib/util_rt.jar"
 
   /**
    * JPS classpath construction logic can be found here:
@@ -60,8 +66,8 @@ object IntellijSdkSubsetInfo {
     subsetName = "jps",
     jarsRelativePaths = Seq(
       /** see also org.jetbrains.plugins.scala.compiler.CompileServerLauncher.compileServerJars */
-      "lib/util-8.jar",
-      "lib/util_rt.jar",
+      Util8Jar,
+      UtilRtJar,
       "lib/intellij.libraries.protobuf.jar",
       "lib/jps-model.jar",
       "lib/intellij.libraries.asm.jar",
@@ -69,13 +75,27 @@ object IntellijSdkSubsetInfo {
       //If you need any extra plugin dependencies, add the jars here
       "plugins/java/lib/intellij.platform.jps.build.javac.rt.jar",
       "plugins/java/lib/modules/intellij.platform.jps.build.jar"
-    )
+    ),
+    maxAllowedJavaVersion = 11
   )
 
   val JpsShared: IntellijSdkSubsetInfo = IntellijSdkSubsetInfo(
     subsetName = "jps-shared",
     jarsRelativePaths = Seq(
-      "lib/util-8.jar"
-    )
+      Util8Jar
+    ),
+    maxAllowedJavaVersion = 8
   )
+
+  val CompileServer: IntellijSdkSubsetInfo = IntellijSdkSubsetInfo(
+    subsetName = "compile-server",
+    jarsRelativePaths = Seq(
+      /** see also org.jetbrains.plugins.scala.compiler.CompileServerLauncher.compileServerJars */
+      Util8Jar,
+      UtilRtJar
+    ),
+    maxAllowedJavaVersion = 8
+  )
+
+  lazy val All: Seq[IntellijSdkSubsetInfo] = Seq(Jps, JpsShared, CompileServer)
 }

@@ -70,7 +70,7 @@ Global / excludeLintKeys ++= Set(idePackagePrefix, ideSkipProject, ideExcludedDi
 
 ThisBuild / cleanAll := Common.cleanAllTask.value
 
-// Verifies the IntelliJ SDK subset classpaths (IntellijSdkSubsetInfo.Jps / .JpsShared) used to compile
+// Verifies the IntelliJ SDK subset classpaths (IntellijSdkSubsetInfo.All) used to compile
 // modules that run outside the IDE contain only bytecode runnable on older Java versions (SCL-25518).
 ThisBuild / verifyJpsSdkSubsetBytecode := Common.verifyJpsSdkSubsetBytecodeTask.value
 
@@ -723,7 +723,7 @@ lazy val compileServer =
   newPlainScalaProject("compile-server", file("scala/compile-server"))
     .dependsOn(compilerShared, repackagedZinc, worksheetReplInterface)
     .withOutOfIDEAProcessSettings
-    .withJpsClasspath
+    .withCompileServerClasspath
     .settings(
       packageMethod := PackagingMethod.Standalone("lib/jps/compile-server.jar", static = true),
       libraryDependencies += Dependencies.nailgun,
