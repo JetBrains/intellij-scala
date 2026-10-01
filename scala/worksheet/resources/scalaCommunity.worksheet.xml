@@ -28,6 +28,7 @@
         <module name="scalaCommunity.bsp"/>
         <module name="scalaCommunity.compiler-highlighting"/>
         <module name="scalaCommunity.compiler-integration-server-management"/>
+        <module name="scalaCommunity.repl"/>
     </dependencies>
 
     <extensions defaultExtensionNs="com.intellij">
