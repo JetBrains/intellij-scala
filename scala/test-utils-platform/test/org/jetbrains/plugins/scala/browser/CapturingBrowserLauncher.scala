@@ -4,6 +4,7 @@ import com.intellij.ide.browsers.{BrowserLauncher, WebBrowser}
 import com.intellij.openapi.project.Project
 
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CompletableFuture
 import scala.jdk.CollectionConverters.*
 
 /**
@@ -15,6 +16,7 @@ import scala.jdk.CollectionConverters.*
  */
 final class CapturingBrowserLauncher extends BrowserLauncher {
   private val capturedUrls = new ConcurrentLinkedQueue[String]
+  val firstOpenedUrl: CompletableFuture[String] = new CompletableFuture[String]()
 
   def getCapturedUrls: Seq[String] = capturedUrls.asScala.toSeq
 
@@ -24,5 +26,6 @@ final class CapturingBrowserLauncher extends BrowserLauncher {
 
   override def browse(url: String, browser: WebBrowser, project: Project): Unit = {
     capturedUrls.add(url)
+    firstOpenedUrl.complete(url)
   }
 }
