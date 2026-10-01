@@ -3,9 +3,8 @@ import java.nio.file.{FileSystems, Files, Path}
 import scala.collection.JavaConverters.*
 
 /**
- * Verifies that the jars referenced by [[IntellijSdkSubsetInfo]] subsets (e.g.
- * [[IntellijSdkSubsetInfo.Jps]] and [[IntellijSdkSubsetInfo.JpsShared]]) contain only
- * bytecode that can be executed on Java [[MaxAllowedJavaVersion]] or older.
+ * Verifies that the jars referenced by [[IntellijSdkSubsetInfo]] subsets contain only
+ * bytecode that can be executed on specific Java versions (varies by subset).
  *
  * Code from these subsets is executed outside the IDE (the JPS build process, the compile
  * server), where the JVM may be older than the one running the IDE. Shipping bytecode that
@@ -16,30 +15,20 @@ import scala.collection.JavaConverters.*
  */
 object JpsSdkSubsetBytecodeVerifier {
 
-  /** Maximum Java feature version whose bytecode is allowed in the verified subsets. */
-  final val MaxAllowedJavaVersion = 11
-
-  /**
-   * Jars (matched by file name) that are known to contain bytecode newer than [[MaxAllowedJavaVersion]]
-   * but are tolerated for now. They are still scanned, but their violations are reported as warnings
-   * instead of failing the check.
-   */
-  final val KnownNonCompliantJars: Set[String] = Set.empty
-
   /**
    * Class-file major version corresponding to a Java feature version.
    * Java 1 == 45, and every feature version since adds 1 (Java 8 == 52, Java 11 == 55, Java 12 == 56).
    */
   private final val ClassMajorVersionOffset = 44
 
-  private final val MaxAllowedClassMajorVersion = MaxAllowedJavaVersion + ClassMajorVersionOffset
-
   private final val ClassFileMagic = 0xCAFEBABE
+
+  private def maxAllowedClassMajorVersion(version: Int) = version + ClassMajorVersionOffset
 
   private def javaVersionOfClassMajor(major: Int): Int = major - ClassMajorVersionOffset
 
-  /** A class file whose bytecode requires a newer Java than [[MaxAllowedJavaVersion]]. */
-  final case class Violation(jar: File, entry: String, classMajorVersion: Int) {
+  /** A class file whose bytecode requires a newer Java than [[IntellijSdkSubsetInfo.maxAllowedJavaVersion]]. */
+  final case class Violation(jar: File, entry: String, classMajorVersion: Int, maxAllowedJavaVersion: Int) {
     def requiredJavaVersion: Int = javaVersionOfClassMajor(classMajorVersion)
   }
 
@@ -48,7 +37,6 @@ object JpsSdkSubsetBytecodeVerifier {
 
   final case class Result(
     violations: Seq[Violation],
-    suppressedViolations: Seq[Violation],
     missingJars: Seq[MissingJar],
     scannedJars: Int,
     scannedClasses: Int,
@@ -61,42 +49,41 @@ object JpsSdkSubsetBytecodeVerifier {
     buildNumber: String,
     intellijBaseDir: File,
   ): Result = {
-    // Pair every referenced jar with the subset and relative path it came from (for diagnostics).
-    val referencedJars: Seq[(String, String, File)] = subsets.flatMap { subset =>
+    // Pair every referenced jar with the subset, relative path it came from (for diagnostics) and the
+    // maximum allowed Java version for that subset.
+    val referencedJars: Seq[(String, String, File, Int)] = subsets.flatMap { subset =>
       val materialised = subset.toMaterialisedInfo(buildNumber, intellijBaseDir)
       subset.jarsRelativePaths.zip(materialised.jarFiles).map { case (relativePath, jarFile) =>
-        (subset.artifact.name, relativePath, jarFile)
+        (subset.artifact.name, relativePath, jarFile, subset.maxAllowedJavaVersion)
       }
     }
 
     val missingJars = referencedJars.collect {
-      case (subsetName, relativePath, jarFile) if !jarFile.exists() =>
+      case (subsetName, relativePath, jarFile, _) if !jarFile.exists() =>
         MissingJar(subsetName, relativePath, jarFile)
     }
 
-    // Dedup existing jars by canonical path: e.g. util-8.jar is referenced by both Jps and JpsShared.
-    val existingJars: Seq[File] = referencedJars
-      .collect { case (_, _, jarFile) if jarFile.exists() => jarFile }
-      .groupBy(_.getCanonicalFile)
-      .keys
+    // Dedup existing jars by canonical path, keeping the strictest limit: e.g. util-8.jar is referenced by
+    // several subsets with different limits. A class that breaks a looser limit also breaks the strictest one.
+    val existingJars: Seq[(File, Int)] = referencedJars
+      .collect { case (_, _, jarFile, maxAllowedJavaVersion) if jarFile.exists() => (jarFile, maxAllowedJavaVersion) }
+      .map { case (file, version) => (file.getCanonicalFile, version) }
+      .groupBy(_._1)
+      .map { case (file, pairs) => (file, pairs.map(_._2).min) }
       .toSeq
-      .sortBy(_.getPath)
+      .sortBy(_._1.getPath)
 
     var scannedClasses = 0
-    val allViolations = existingJars.flatMap { jarFile =>
-      val (jarViolations, classCount) = scanJar(jarFile)
+    val violations = existingJars.flatMap { case (jarFile, maxAllowedJavaVersion) =>
+      val (jarViolations, classCount) = scanJar(jarFile, maxAllowedJavaVersion)
       scannedClasses += classCount
       jarViolations
     }
 
-    // Known non-compliant jars are still scanned, but their violations are suppressed (reported, not fatal).
-    val (suppressedViolations, violations) =
-      allViolations.partition(violation => KnownNonCompliantJars.contains(violation.jar.getName))
-
-    Result(violations, suppressedViolations, missingJars, existingJars.size, scannedClasses)
+    Result(violations, missingJars, existingJars.size, scannedClasses)
   }
 
-  private def scanJar(jarFile: File): (Seq[Violation], Int) = {
+  private def scanJar(jarFile: File, version: Int): (Seq[Violation], Int) = {
     val violations = Seq.newBuilder[Violation]
     var classCount = 0
 
@@ -113,8 +100,8 @@ object JpsSdkSubsetBytecodeVerifier {
           if (entry.endsWith(".class") && !entry.startsWith("/META-INF/versions/") && Files.isRegularFile(path)) {
             classCount += 1
             val major = readClassMajorVersion(path)
-            if (major > MaxAllowedClassMajorVersion)
-              violations += Violation(jarFile, entry, major)
+            if (major > maxAllowedClassMajorVersion(version))
+              violations += Violation(jarFile, entry, major, version)
           }
         }
       } finally paths.close()
