@@ -36,7 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ScalaFeatures}
 import org.jetbrains.plugins.scala.{NlsString, ScalaFileType, ScalaLanguage}
 
 import java.util.concurrent.Callable
@@ -707,15 +707,25 @@ final class SyntheticClasses(project: Project) {
 final class SyntheticClassElementFinder(project: Project) extends PsiElementFinder {
   private val instance = SyntheticClasses.get(project)
 
+  // TODO(SCL-22349): Remove this visibility workaround once synthetic classes are registered per module/version.
+  private def isVisibleIn(scope: GlobalSearchScope): Boolean =
+    project.modulesWithScala.exists(scope.isSearchInModuleContent)
+
   override def findClass(
     qualifiedName: String,
     scope:         GlobalSearchScope
-  ): PsiClass = instance.findClass(qualifiedName)
+  ): PsiClass = {
+    val candidate = instance.findClass(qualifiedName)
+    if (candidate != null && isVisibleIn(scope)) candidate else null
+  }
 
   override def findClasses(
     qualifiedName: String,
     scope:         GlobalSearchScope
-  ): Array[PsiClass] = instance.findClasses(qualifiedName)
+  ): Array[PsiClass] = {
+    val candidates = instance.findClasses(qualifiedName)
+    if (candidates.nonEmpty && isVisibleIn(scope)) candidates else Array.empty
+  }
 }
 
 object SyntheticClasses {
