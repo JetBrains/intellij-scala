@@ -1,6 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
     <dependencies>
-        <module name="intellij.platform.structuralSearch" />
+        <module name="intellij.java.psi"/>
+        <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.analysis.impl"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.duplicates.analysis"/>
+        <module name="intellij.platform.structuralSearch"/>
     </dependencies>
 
     <extensions defaultExtensionNs="com.intellij.structuralsearch">
