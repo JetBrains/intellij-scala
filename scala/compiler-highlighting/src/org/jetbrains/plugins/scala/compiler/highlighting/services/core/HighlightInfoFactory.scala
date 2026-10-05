@@ -23,8 +23,6 @@ import org.jetbrains.plugins.scala.compiler.highlighting.core.{CompilerDiagnosti
 import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.{FindUnresolvedReferenceEvent, RegisterQuickFixes}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.ExternalHighlightersService.{ScalaCompilerPassId, TextRangeWithEndOfLine}
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
-import org.jetbrains.plugins.scala.compiler.tracing.core.TracingOps
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.ContextTraceEvent
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScArgumentExprList

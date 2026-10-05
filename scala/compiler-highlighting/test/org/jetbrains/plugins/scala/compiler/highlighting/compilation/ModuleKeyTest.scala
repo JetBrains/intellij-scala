@@ -34,7 +34,7 @@ import java.nio.file.{Files, Path}
 class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
 
   /** Test source root of [[myModule]], created in addition to the `src` root added by the base class. */
-  private var testRoot: VirtualFile = _
+  private var testRoot: VirtualFile = scala.compiletime.uninitialized
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -43,7 +43,7 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
   }
 
   /** Temp directory outside the project, deleted in [[tearDown]]. */
-  private var outsideTempDir: Path = _
+  private var outsideTempDir: Path = scala.compiletime.uninitialized
 
   override def tearDown(): Unit = try {
     if (outsideTempDir != null) {

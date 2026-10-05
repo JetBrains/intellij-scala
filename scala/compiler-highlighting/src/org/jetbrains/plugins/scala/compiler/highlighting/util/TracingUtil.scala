@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.util
 
-import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.RequestId
 import org.jetbrains.plugins.scala.compiler.tracing.core.TracingOps
 import org.jetbrains.plugins.scala.compiler.tracing.core.events.{ContextTraceEvent, EndEvent}
 
