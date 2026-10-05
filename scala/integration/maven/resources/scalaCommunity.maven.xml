@@ -15,24 +15,31 @@
   -->
 
 <idea-plugin>
-  <dependencies>
-    <plugin id="org.jetbrains.idea.maven"/>
-    <module name="scalaCommunity.compiler-integration"/>
-    <module name="scalaCommunity.testing-support"/>
-  </dependencies>
+    <dependencies>
+        <module name="intellij.maven"/>
+        <module name="intellij.platform.backend.workspace"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.ui"/>
+        <module name="intellij.platform.externalSystem"/>
+        <module name="intellij.platform.projectModel"/>
+        <module name="intellij.platform.workspace.jps"/>
+        <module name="intellij.platform.workspace.storage"/>
+        <module name="scalaCommunity.compiler-integration"/>
+        <module name="scalaCommunity.testing-support"/>
+    </dependencies>
 
-  <extensions defaultExtensionNs="org.jetbrains.idea.maven">
-    <importing.workspaceConfigurator implementation="org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter"/>
-    <projectResolutionContributor implementation="org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter"/>
-  </extensions>
-  <extensions defaultExtensionNs="org.intellij.scala">
-    <testWorkingDirectoryProvider implementation="org.jetbrains.plugins.scala.project.maven.MavenTestWorkingDirectoryProvider"/>
-    <buildToolProjectSyncHelper implementation="org.jetbrains.plugins.scala.project.maven.MavenProjectSyncHelper"/>
-  </extensions>
-  <extensions defaultExtensionNs="org.jetbrains.idea.maven">
-    <repositoryProvider implementation="org.jetbrains.plugins.scala.project.maven.resolvers.SbtMavenRepositoryProvider"/>
-  </extensions>
-  <extensions defaultExtensionNs="org.jetbrains.sbt">
-    <buildToolModuleHandler implementation="org.jetbrains.plugins.scala.project.maven.MavenModuleHandler"/>
-  </extensions>
+    <extensions defaultExtensionNs="org.jetbrains.idea.maven">
+        <importing.workspaceConfigurator implementation="org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter"/>
+        <projectResolutionContributor implementation="org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter"/>
+    </extensions>
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <testWorkingDirectoryProvider implementation="org.jetbrains.plugins.scala.project.maven.MavenTestWorkingDirectoryProvider"/>
+        <buildToolProjectSyncHelper implementation="org.jetbrains.plugins.scala.project.maven.MavenProjectSyncHelper"/>
+    </extensions>
+    <extensions defaultExtensionNs="org.jetbrains.idea.maven">
+        <repositoryProvider implementation="org.jetbrains.plugins.scala.project.maven.resolvers.SbtMavenRepositoryProvider"/>
+    </extensions>
+    <extensions defaultExtensionNs="org.jetbrains.sbt">
+        <buildToolModuleHandler implementation="org.jetbrains.plugins.scala.project.maven.MavenModuleHandler"/>
+    </extensions>
 </idea-plugin>
