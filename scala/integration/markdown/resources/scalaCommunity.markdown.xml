@@ -1,6 +1,9 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
     <dependencies>
         <plugin id="org.intellij.plugins.markdown"/>
+        <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.core"/>
     </dependencies>
 
     <extensions defaultExtensionNs="org.intellij.markdown">
