@@ -287,7 +287,7 @@ object Common {
 
     def withOutOfIDEAProcessSettings: Project =
       project.settings(
-        scalaVersion := Versions.scala3CompilerRuntimeVersion,
+        scalaVersion := Versions.compileServerScala3Version,
         Compile / scalacOptions := outOfIDEAProcessScala3ScalacOptions,
         Compile / javacOptions  := outOfIDEAProcessJavacOptions,
       )

@@ -6,10 +6,12 @@ import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
 import sbt.*
 
 object Versions {
-  val scala2Version: String = "2.13.18"
   val scala3Version: String = "3.8.4"
-  // Code shared with the compile server must run on Java 8; use the Scala 3.3 LTS line.
-  val scala3CompilerRuntimeVersion: String = "3.3.8"
+
+  // Code running in the compile server must run on Java 8; use the Scala 3.3 LTS line. The version should be compatible
+  // with `scala2Version` because earlier versions of Scala 3 reused the Scala 2 standard library.
+  val compileServerScala3Version: String = "3.3.8"
+  val scala2Version: String = "2.13.18"
 
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
   // NOTE: sbt-launch won't be fetched on refresh.
@@ -121,8 +123,6 @@ object Dependencies {
   // Since Scala 3.8 the unified standard library uses the Scala 3 version.
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scala3Version
   val scala3Library: ModuleID = "org.scala-lang" % "scala3-library_3" % scala3Version
-  val compilerRuntimeScalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scala2Version
-  val compilerRuntimeScala3Library: ModuleID = "org.scala-lang" % "scala3-library_3" % scala3CompilerRuntimeVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scala2Version
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scala2Version
   val scala3Compiler: ModuleID = "org.scala-lang" % "scala3-compiler_3" % scala3Version

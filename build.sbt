@@ -144,7 +144,6 @@ lazy val scalaCommunity: sbt.Project =
         repackagedZinc,
         worksheetReplInterfaceImpls,
         compileServer,
-        compileServerRuntime,
         scalaCompilerPlugin_2_12,
         scalaCompilerPlugin_2_13,
         scalaCompilerPlugin_3_3,
@@ -735,21 +734,6 @@ lazy val compileServer =
       packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar")
     )
 
-// Package a Java 8-compatible standard library separately from the IDE's Scala 3.8 runtime.
-lazy val compileServerRuntime =
-  newPlainScalaProject("compile-server-runtime", file("scala/compile-server/runtime"))
-    .settings(NoSourceDirectories)
-    .withOutOfIDEAProcessSettings
-    .settings(
-      autoScalaLibrary := false,
-      libraryDependencies ++= Seq(Dependencies.compilerRuntimeScalaLibrary, Dependencies.compilerRuntimeScala3Library),
-      packageMethod := PackagingMethod.DepsOnly(),
-      packageLibraryMappings := Seq(
-        Dependencies.compilerRuntimeScalaLibrary -> Some("lib/jps/scala-library.jar"),
-        Dependencies.compilerRuntimeScala3Library -> Some("lib/jps/scala3-library_3.jar"),
-      ),
-    )
-
 // Compiler plugins
 
 def compilerPluginProject(
@@ -1302,6 +1286,10 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
     ideSkipProject := true,
     packageMethod := PackagingMethod.DepsOnly(),
     dynamicDependencies := Seq(
+      // Package a Java 8 compatible standard library specifically for the code running in the Scala Compile Server
+      binaryDep("org.scala-lang", "scala-library", Versions.scala2Version) -> "lib/jps/compile-server-scala-library.jar",
+      binaryDep("org.scala-lang", "scala3-library_3", Versions.compileServerScala3Version) -> "lib/jps/compile-server-scala3-library_3.jar",
+
       binaryDep("org.scala-sbt", "sbt-launch", Versions.sbtVersion) -> "launcher/sbt-launch.jar",
       binaryDep("org.scala-sbt", "util-interface", Versions.sbtVersion) -> "lib/jps/sbt-interface.jar",
       binaryDep("org.scala-sbt", "compiler-interface", Versions.zincVersion) -> "lib/jps/compiler-interface.jar",
