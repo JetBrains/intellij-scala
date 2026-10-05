@@ -515,12 +515,12 @@ private object ConstraintSystemImpl {
 
     def apply(a: ScAbstractType): ScExistentialArgument = {
       index += 1
-      ScExistentialArgument(s"_$$$index", Nil, a.lower, a.upper)
+      ScExistentialArgument(s"_$$$index", Nil, a.lower, a.upper) // Matches ScalaTypePresentation.FreshExistentialArg
     }
 
     def apply(e: ScExistentialArgument): ScExistentialArgument = {
       index += 1
-      ScExistentialArgument(s"_$$$index", Nil, e.lower, e.upper)
+      ScExistentialArgument(s"_$$$index", Nil, e.lower, e.upper) // Matches ScalaTypePresentation.FreshExistentialArg
     }
   }
 }

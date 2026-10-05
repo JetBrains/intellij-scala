@@ -250,10 +250,17 @@ trait ScalaTypePresentation extends TypePresentation {
       def placeholder(wildcard: ScExistentialArgument) =
         existentialArgWithBounds(wildcard, if (tpc.compoundTypeWithAndToken) "?" else "_")
 
-      def namedExistentials(wildcards: Seq[ScExistentialArgument]) =
-        wildcards.map { wildcard =>
+      def namedExistentials(wildcards: Seq[ScExistentialArgument]) = {
+        val sortedWildcards = wildcards.sortWith { (wildcard1, wildcard2) =>
+          (wildcard1.name, wildcard2.name) match {
+            case (FreshExistentialArg(index1), FreshExistentialArg(index2)) => index1 < index2
+            case _ => false // Preserve the order (sortWith is stable)
+          }
+        }
+        sortedWildcards.map { wildcard =>
           existentialArgWithBounds(wildcard, s"type ${wildcard.name}")
         }.mkString(" forSome {", "; ", "}")
+      }
 
       existentialType match {
         case ScExistentialType(q, Seq(w)) if checkWildcard =>
@@ -496,6 +503,8 @@ object ScalaTypePresentation {
   val ObjectTypeSuffix = ".type"
 
   private val TypeLambdaArrowWithSpaces = s" ${ScalaTokenType.TypeLambdaArrow} "
+
+  private val FreshExistentialArg = "_\\$(\\d+)".r // Matches ConstraintSystemImpl.FreshExistentialArg.apply
 
   final case class Infix(op: String)(implicit tpc: TypePresentationContext) {
     lazy val precedence: Int =
