@@ -8,8 +8,9 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.compiler.CompileServerNotificationsService
+import org.jetbrains.plugins.scala.compiler.highlighting.core.{CompilerGeneratedState, CompilerGeneratedStateManager}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
-import org.jetbrains.plugins.scala.compiler.highlighting.services.ExternalHighlightersService
+import org.jetbrains.plugins.scala.compiler.highlighting.services.{CompilationLogicService, ExternalHighlightersService}
 import org.jetbrains.plugins.scala.compiler.highlighting.triggers.EditorTrigger
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction, invokeLater, invokeWhenSmart}
 import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaHighlightingMode}
@@ -25,6 +26,7 @@ abstract class ToggleHighlightingModeListener(project: Project) {
       executeOnBackgroundThreadInNotDisposed(project) {
         if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
           inReadAction(AnnotatorHints.clearIn(project))
+          CompilationLogicService(project).invalidateAll()
         } else {
           ExternalHighlightersService(project).eraseAllHighlightings()
         }

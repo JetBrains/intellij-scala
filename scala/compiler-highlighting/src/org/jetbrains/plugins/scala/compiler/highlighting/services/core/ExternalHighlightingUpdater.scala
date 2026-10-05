@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.caches.ModTracker.anyScalaPsiChange
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.compiler.highlighting.services.ExternalHighlightersService.{HighlightInfoData, HighlightingData, ScalaCompilerPassId}
 import org.jetbrains.plugins.scala.compiler.highlighting.util.DocumentUtil
-import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
+import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode, ScalaProjectSettings}
 import org.jetbrains.plugins.scala.util.CompilationId
@@ -30,7 +30,6 @@ private[highlighting] class ExternalHighlightingUpdater(project: Project, proble
 
   def applyHighlightingInfo(highlightInfoData: HighlightInfoData, compilationId: CompilationId): Set[VirtualFile] = {
     val infos = highlightInfoData.highlightingData
-    val errorFiles = highlightInfoData.virtualFiles
     val expressions = highlightInfoData.psiElements
     val settings = ScalaProjectSettings.getInstance(project)
 
@@ -53,8 +52,6 @@ private[highlighting] class ExternalHighlightingUpdater(project: Project, proble
           ErrorStripeUpdateManager.getInstance(project).launchRepaintErrorStripePanel(editor, psiFile)
           virtualFile
       }.toSet
-      // Show red squiggly lines for errors in Project View.
-      executeOnPooledThread(informWolf(errorFiles))
 
       if (expressions.nonEmpty) {
         // We change the type of the expression without changing the PSI, so we trigger the update manually (see ScalaPsiChangeListener)
@@ -108,7 +105,7 @@ private[highlighting] class ExternalHighlightingUpdater(project: Project, proble
     ProblemSolverUtils.clearAllProblemsFromExternalSource(project, problemSource)
 
 
-  private def informWolf(errorFiles: Set[VirtualFile]): Unit = {
+  private[highlighting] def informWolf(errorFiles: Set[VirtualFile]): Unit = {
     if (!project.isDisposed && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
       ProblemSolverUtils.clearAllProblemsFromExternalSource(project, problemSource)
       val wolf = WolfTheProblemSolver.getInstance(project)

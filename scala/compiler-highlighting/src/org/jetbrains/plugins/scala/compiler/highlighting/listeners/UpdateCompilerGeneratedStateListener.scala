@@ -169,6 +169,11 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
         CompilerGeneratedStateManager.update(project, newState)
         ProjectProgressService(project).resetCompilationProgress()
 
+        try ExternalHighlightersService(project).updateWolf()
+        catch {
+          case _: ProcessCanceledException =>
+        }
+
         if (toHighlight.nonEmpty) {
           executeOnBackgroundThreadInNotDisposed(project) {
             try {

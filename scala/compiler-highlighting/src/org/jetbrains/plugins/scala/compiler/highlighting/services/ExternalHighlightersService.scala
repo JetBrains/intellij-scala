@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiManager}
-import com.intellij.util.concurrency.annotations.RequiresReadLock
+import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresReadLock}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.compiler.highlighting.core.CompilerGeneratedStateManager
 import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.HighlightingEvent
@@ -86,7 +86,6 @@ private[highlighting] final class ExternalHighlightersService(project: Project) 
         val highlightInfos = highlightInfoFactory.calculateHighlightInfos(externalHighlights, document, psiFile, compilationId)
         HighlightingData(editor, document, psiFile, virtualFile, highlightInfos)
       }
-      val errorFiles = filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes))
 
       var elements = Vector.empty[PsiElement]
       // Add types only to a file opened in the current editor
@@ -114,7 +113,7 @@ private[highlighting] final class ExternalHighlightersService(project: Project) 
             }
         }
       }
-      HighlightInfoData(data, errorFiles, elements)
+      HighlightInfoData(data, elements)
     }
 
     /**
@@ -194,6 +193,23 @@ private[highlighting] final class ExternalHighlightersService(project: Project) 
       files.toSeq.map(recorded.externalHighlightings(_).size).sum
     }
 
+  /**
+   * Reports to the Wolf the files the recorded diagnostics have errors in, and clears the rest.
+   *
+   * Runs on the calling thread so that successive compilations reach the Wolf in order.
+   */
+  @RequiresBackgroundThread
+  def updateWolf(): Unit = {
+    val update: Callable[Unit] = { () =>
+      val state = CompilerGeneratedStateManager.get(project).toHighlightingState
+      updater.informWolf(filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes)))
+    }
+    ReadAction
+      .nonBlocking(update)
+      .expireWhen(() => project.isDisposed)
+      .executeSynchronously()
+  }
+
   def eraseAllHighlightings(): Unit = {
     updater.eraseAllHighlightings()
   }
@@ -239,7 +255,6 @@ private[highlighting] object ExternalHighlightersService {
   }
 
   final case class HighlightInfoData(highlightingData: Seq[HighlightingData],
-                                     virtualFiles: Set[VirtualFile],
                                      psiElements: Seq[PsiElement])
 
   final case class HighlightingData(editor: Editor,
