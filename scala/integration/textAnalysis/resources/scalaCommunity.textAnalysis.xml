@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
     <dependencies>
+        <plugin id="tanvd.grazi"/>
         <module name="intellij.grazie.core"/>
         <module name="intellij.java.psi"/>
         <module name="intellij.platform.core"/>

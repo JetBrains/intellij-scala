@@ -2,6 +2,7 @@
 <idea-plugin>
     <dependencies>
         <plugin id="training"/>
+        <module name="intellij.platform.analysis"/>
         <module name="intellij.platform.core"/>
     </dependencies>
 
