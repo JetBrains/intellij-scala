@@ -11,7 +11,10 @@ final class ScalaTypeParametersMacro extends ScalaMacro {
   override def getPresentableName: String = ScalaCodeInsightBundle.message("marco.typeParameters")
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
-    val owner = ScalaTypeParametersMacro.typeOwner(params, context).getOrElse(return null)
+    val owner = ScalaTypeParametersMacro.typeOwner(params, context) match {
+      case Some(owner) => owner
+      case None => return null
+    }
     val result = owner.typeParametersClause.map(_.getText).getOrElse("")
     new TextResult(result)
   }
@@ -41,7 +44,10 @@ final class ScalaTypeParametersWithoutBoundsMacro extends ScalaMacro {
   override def getPresentableName: String = ScalaCodeInsightBundle.message("marco.typeParameters.without.bounds")
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
-    val owner = ScalaTypeParametersMacro.typeOwner(params, context).getOrElse(return null)
+    val owner = ScalaTypeParametersMacro.typeOwner(params, context) match {
+      case Some(owner) => owner
+      case None => return null
+    }
     val typeParams = owner.typeParameters.map(_.nameId).map(_.getText)
     val result =
       if (typeParams.isEmpty) ""

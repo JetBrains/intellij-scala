@@ -68,29 +68,27 @@ object ScalaTestRunConfiguration {
       case _ => clazz.getConstructors.toList
     }
 
-    for (con <- constructors) {
+    constructors.forall { con =>
       if (con.isConstructor && con.getParameterList.getParametersCount == 1) {
         con match {
-          case owner: ScModifierListOwner =>
-            if (owner.hasModifierProperty(PsiModifier.PUBLIC)) {
-              val params = con.parameters
-              val firstParam = params.head
-              val psiManager = ScalaPsiManager.instance
-              val mapPsiClass = psiManager.getCachedClass(ProjectScope.getAllScope(projectContext), "scala.collection.immutable.Map").orNull
-              val mapClass = ScalaType.designator(mapPsiClass)
-              val paramClass = firstParam.getType.toScType()
-              val conformanceType = paramClass match {
-                case parameterizedType: ScParameterizedType => parameterizedType.designator
-                case _ => paramClass
-              }
-              if (conformanceType.conforms(mapClass))
-                return false
+          case owner: ScModifierListOwner if owner.hasModifierProperty(PsiModifier.PUBLIC) =>
+            val params = con.parameters
+            val firstParam = params.head
+            val psiManager = ScalaPsiManager.instance
+            val mapPsiClass = psiManager.getCachedClass(ProjectScope.getAllScope(projectContext), "scala.collection.immutable.Map").orNull
+            val mapClass = ScalaType.designator(mapPsiClass)
+            val paramClass = firstParam.getType.toScType()
+            val conformanceType = paramClass match {
+              case parameterizedType: ScParameterizedType => parameterizedType.designator
+              case _ => paramClass
             }
+            !conformanceType.conforms(mapClass)
           case _ =>
+            true
         }
+      } else {
+        true
       }
     }
-
-    true
   }
 }

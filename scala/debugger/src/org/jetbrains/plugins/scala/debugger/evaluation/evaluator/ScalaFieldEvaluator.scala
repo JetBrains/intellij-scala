@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaFieldEvaluator.MyModifier
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
+import scala.jdk.CollectionConverters.*
+
 /**
  * Follows the implementation details of `com.intellij.debugger.engine.evaluation.expression.FieldEvaluator` but is
  * adapted for Scala.
@@ -23,24 +25,20 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
 
   private def fieldByName(t: ReferenceType, fieldName: String): Field = {
     if (classPrivateThisField) {
-      t.fields().forEach( field =>
-        if (field.name().endsWith("$$" + fieldName))
-          return field
-      )
+      val field = t.fields().asScala.find(_.name().endsWith("$$" + fieldName))
+      if (field.isDefined) return field.get
     }
     var field = t.fieldByName(fieldName)
     if (field != null) {
       return field
     }
-    for (i <- 1 to 3) {
+    var i = 1
+    while (i <= 3) {
       field = t.fieldByName(fieldName + "$" + i)
       if (field != null) return field
+      i += 1
     }
-    t.fields().forEach( field =>
-      if (field.name().startsWith(fieldName + "$"))
-        return field
-    )
-    null
+    t.fields().asScala.find(_.name().startsWith(fieldName + "$")).orNull
   }
   
   private def findField(t: Type, context: EvaluationContextImpl): Field = {
@@ -49,23 +47,18 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
         val foundInClass = fieldByName(cls, fieldName)
         if (foundInClass != null) return foundInClass
 
-        cls.interfaces.forEach { interfaceType =>
-          val field: Field = findField(interfaceType, context)
-          if (field != null) {
-            return field
-          }
-        }
-        return findField(cls.superclass, context)
+        return cls.interfaces.asScala.iterator
+          .map(findField(_, context))
+          .find(_ != null)
+          .getOrElse(findField(cls.superclass, context))
       case iface: InterfaceType =>
         val foundInInterface = fieldByName(iface, fieldName)
         if (foundInInterface != null) return foundInInterface
 
-        iface.superinterfaces.forEach { interfaceType =>
-          val field: Field = findField(interfaceType, context)
-          if (field != null) {
-            return field
-          }
-        }
+        return iface.superinterfaces.asScala.iterator
+          .map(findField(_, context))
+          .find(_ != null)
+          .orNull
       case _ =>
     }
     null

@@ -60,26 +60,26 @@ object WorksheetCompilerUtil {
       treeView.addMessage(severity.toType, msg, file, pos.line, pos.column, null)
 
     invokeLater {
-      if (file == null || !file.isValid) return
+      if (file != null && file.isValid) {
+        val (currentContent, treeError) =
+          Option(contentManager.findContent(ERROR_CONTENT_NAME)) match {
+            case Some(old) if old.getComponent.is[CompilerErrorTreeView] =>
+              val oldView = old.getComponent.asInstanceOf[CompilerErrorTreeView]
+              addMessageToView(oldView)
+              (old, oldView)
+            case _ =>
+              val newView = new CompilerErrorTreeView(project, null)
+              addMessageToView(newView)
+              //noinspection ReferencePassedToNls
+              val errorContent = ContentFactory.getInstance.createContent(newView, ERROR_CONTENT_NAME, true)
+              contentManager.addContent(errorContent)
+              (errorContent, newView)
+          }
 
-      val (currentContent, treeError) =
-        Option(contentManager.findContent(ERROR_CONTENT_NAME)) match {
-          case Some(old) if old.getComponent.is[CompilerErrorTreeView] =>
-            val oldView = old.getComponent.asInstanceOf[CompilerErrorTreeView]
-            addMessageToView(oldView)
-            (old, oldView)
-          case _ =>
-            val newView = new CompilerErrorTreeView(project, null)
-            addMessageToView(newView)
-            //noinspection ReferencePassedToNls
-            val errorContent = ContentFactory.getInstance.createContent(newView, ERROR_CONTENT_NAME, true)
-            contentManager.addContent(errorContent)
-            (errorContent, newView)
-        }
+        contentManager.setSelectedContent(currentContent)
 
-      contentManager.setSelectedContent(currentContent)
-
-      onShow()
+        onShow()
+      }
     }
   }
 

@@ -53,21 +53,24 @@ private[sbt] object MockSbtProcessForTests {
     state(project).isDefined
 
   def configureJavaParametersForNonSbtShell(project: Project, params: JavaParameters): Unit = {
-    val mockState = state(project).getOrElse(return)
-    mockState.configureJavaParameters(params)
-    params.getVMParametersList.add(mockModeVmOption(VmOptions.NoShellMode))
+    state(project).foreach { mockState =>
+      mockState.configureJavaParameters(params)
+      params.getVMParametersList.add(mockModeVmOption(VmOptions.NoShellMode))
+    }
   }
 
   def mockMainClassCommandLineTailForNonShellFromStdin(project: Project): Seq[String] = {
-    val mockState = state(project).getOrElse(return Seq.empty)
-    mockModeVmOption(VmOptions.NoShellStdinMode) +: mockState.mainClassCommandLineTail
+    state(project).toSeq.flatMap { mockState =>
+      mockModeVmOption(VmOptions.NoShellStdinMode) +: mockState.mainClassCommandLineTail
+    }
   }
 
   def mockMainClassCommandLineTailForSbtShell(project: Project, useNewShell: Boolean): Seq[String] = {
-    val mockState = state(project).getOrElse(return Seq.empty)
-    val mode = if (useNewShell) VmOptions.NewShellMode else VmOptions.OldShellMode
-    val modeOption = mockModeVmOption(mode)
-    modeOption +: mockState.mainClassCommandLineTail
+    state(project).toSeq.flatMap { mockState =>
+      val mode = if (useNewShell) VmOptions.NewShellMode else VmOptions.OldShellMode
+      val modeOption = mockModeVmOption(mode)
+      modeOption +: mockState.mainClassCommandLineTail
+    }
   }
 
   private def mockModeVmOption(mode: String): String =

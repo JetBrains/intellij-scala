@@ -16,17 +16,14 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
     if (objRef == null) {
       return null
     }
-    val list = objRef.referenceType.visibleFields.asScala
-    for (field <- list) {
-      val name: String = field.name
-      if (name != null && name.startsWith("$outer")) {
-        val rv: ObjectReference = objRef.getValue(field).asInstanceOf[ObjectReference]
-        if (rv != null) {
-          return rv
-        }
+    objRef.referenceType.visibleFields.asScala.iterator
+      .filter { field =>
+        val name = field.name
+        name != null && name.startsWith("$outer")
       }
-    }
-    null
+      .map(objRef.getValue(_).asInstanceOf[ObjectReference])
+      .find(_ != null)
+      .orNull
   }
 
   override def evaluate(context: EvaluationContextImpl): AnyRef = {

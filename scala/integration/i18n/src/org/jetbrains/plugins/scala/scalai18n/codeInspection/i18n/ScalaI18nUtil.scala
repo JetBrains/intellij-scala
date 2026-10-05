@@ -168,12 +168,7 @@ object ScalaI18nUtil {
   def isMethodParameterAnnotated(method: PsiMethod, idx: Int, checker: AnnotationChecker): Boolean = {
     val params = method.parameters
     def varArgsParam = params.lastOption.filter(_.isVarArgs)
-    val param: PsiParameter =
-      params
-        .lift(idx)
-        .orElse(varArgsParam)
-        .getOrElse(return false)
-    isAnnotated(param, checker)
+    params.lift(idx).orElse(varArgsParam).exists(isAnnotated(_, checker))
   }
 
   def isAnnotatedWithNlsOrNlsSafe(element: PsiElement): Boolean = isAnnotated(element, PassedToNlsOrNlsSafeChecker)

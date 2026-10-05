@@ -163,11 +163,7 @@ trait TypeAdapter {
     ProgressManager.checkCanceled()
     typeCache.getOrElseUpdate(tp, {
       tp match {
-        case AliasType(ta, _, _, _) => return toTypeName(ta)
-        case _                   =>
-      }
-
-      tp match {
+        case AliasType(ta, _, _, _) => toTypeName(ta)
         case t: ptype.ScParameterizedType =>
           m.Type.Apply(toType(t.designator), t.typeArguments.map(toType(_)).toList)//.setTypechecked
         case t: ptype.api.designator.ScThisType =>

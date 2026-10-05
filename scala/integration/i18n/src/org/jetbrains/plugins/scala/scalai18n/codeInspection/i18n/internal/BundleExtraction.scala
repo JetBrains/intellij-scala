@@ -25,22 +25,23 @@ object BundleExtraction {
   def executeBundleExtraction(element: PsiElement, parts: Seq[ExtractPart], project: Project)(f: BundleExtractionInfo => Unit): Unit = {
     val showErrorDialog = Messages.showErrorDialog(project, _: String, _: String)
     val BundleUsageInfo(elementPath, srcRoot, _, maybeBundlePath) =
-      I18nBundleContent
-        .findBundlePathFor(element)
-        .getOrElse {
+      I18nBundleContent.findBundlePathFor(element) match {
+        case Some(info) => info
+        case None =>
           val elementPath = element.containingVirtualFile.fold("<memory-only file>")(_.getCanonicalPath)
           showErrorDialog(s"Couldn't determine module root for element in $elementPath", "No module root found")
           return
-        }
+      }
 
     assert(elementPath.startsWith(srcRoot))
 
     val BundleInfo(bundlePropertyPath, _, bundleClassName, bundleQualifiedClassName) =
-      maybeBundlePath
-        .getOrElse {
+      maybeBundlePath match {
+        case Some(info) => info
+        case None =>
           showErrorDialog("Couldn't find bundle for " + elementPath, "No bundle found")
           return
-        }
+      }
 
     val fileUrl = VirtualFileManager.constructUrl(URLUtil.FILE_PROTOCOL, bundlePropertyPath)
     val vfile = VirtualFileManager.getInstance().findFileByUrl(fileUrl)

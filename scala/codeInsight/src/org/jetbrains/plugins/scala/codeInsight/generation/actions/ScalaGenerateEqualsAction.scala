@@ -156,7 +156,10 @@ object ScalaGenerateEqualsAction {
       if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
       try {
-        val aClass: ScClass = findClassAtCaret(using editor, file).getOrElse(return)
+        val aClass = findClassAtCaret(using editor, file) match {
+          case Some(cls) => cls
+          case None => return
+        }
         val isOk = chooseOriginalMembers(aClass)(using project, editor)
         if (!isOk) return
 

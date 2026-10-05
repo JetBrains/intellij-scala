@@ -147,7 +147,10 @@ class ScalaTestGenerator extends TestGenerator {
     generateAfter: Boolean,
     className: String
   ): Unit = {
-    val body = typeDef.extendsBlock.templateBody.getOrElse(return)
+    val body = typeDef.extendsBlock.templateBody match {
+      case Some(body) => body
+      case None => return
+    }
 
     import ScalaTestUtil._
     import TestConfigurationUtil.isInheritor

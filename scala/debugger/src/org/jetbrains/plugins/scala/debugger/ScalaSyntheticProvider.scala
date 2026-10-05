@@ -177,14 +177,11 @@ object ScalaSyntheticProvider {
         val interfaces = ct.allInterfaces().asScala
         val vm = ct.virtualMachine()
         val allTraitImpls = vm.allClasses().asScala.filter(_.name().endsWith(TraitImplementationClassSuffix_211))
-        for {
-          interface <- interfaces
-          traitImpl <- allTraitImpls
-          if traitImpl.name().stripSuffix(TraitImplementationClassSuffix_211) == interface.name() && !traitImpl.methodsByName(m.name).isEmpty
-        } {
-          return true
+        interfaces.exists { interface =>
+          allTraitImpls.exists { traitImpl =>
+            traitImpl.name().stripSuffix(TraitImplementationClassSuffix_211) == interface.name() && !traitImpl.methodsByName(m.name).isEmpty
+          }
         }
-        false
       case _ => false
     }
   }

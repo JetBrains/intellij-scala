@@ -61,9 +61,9 @@ final class SbtShellRunner(
   }
 
   private def showInitializingPlaceholder(): Unit = {
-    SbtShellToolWindowFactory.instance(using project).foreach { toolWindow =>
-      if (isUnitTestMode) return
+    if (isUnitTestMode) return
 
+    SbtShellToolWindowFactory.instance(using project).foreach { toolWindow =>
       invokeLater {
         val label = new JLabel(SbtBundle.message("initializing.sbt.shell.message"), SwingConstants.CENTER)
         label.setOpaque(true)

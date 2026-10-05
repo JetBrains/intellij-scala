@@ -5,11 +5,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.RegistryManager
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
-import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
+import org.jetbrains.plugins.scala.compiler.RemoteServerRunner.*
 import org.jetbrains.plugins.scala.server.{CompileServerPort, CompileServerToken}
 
 import java.net.{ConnectException, InetAddress, UnknownHostException}
 import java.nio.file.Path
+import scala.annotation.tailrec
 import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 import scala.util.control.NonFatal
 
@@ -42,20 +43,25 @@ final class RemoteServerRunner(project: Project) extends RemoteResourceOwner {
       val scalaCompileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir(project)
       var unhandledException: Option[Throwable] = None
       try {
-        for (i <- 0 until ConnectionRetryAttempts - 1) {
-          try {
-            Thread.sleep(i * 20)
+        @tailrec
+        def sendToken(attempt: Int, maxAttempts: Int): Unit = {
+          if (attempt < maxAttempts - 1) {
+            try {
+              Thread.sleep(attempt * 20)
+              val token = readToken(scalaCompileServerSystemDir, compileServerPort.forToken)
+              send(command, token +: arguments, client)
+            } catch {
+              case _: ConnectException | _: TCPPortMissingException | _: CantFindSecureTokenException =>
+                Thread.sleep(100)
+                sendToken(attempt + 1, maxAttempts)
+            }
+          } else {
             val token = readToken(scalaCompileServerSystemDir, compileServerPort.forToken)
             send(command, token +: arguments, client)
-            return
-          } catch {
-            case _: ConnectException | _: TCPPortMissingException | _: CantFindSecureTokenException =>
-              Thread.sleep(100)
           }
         }
 
-        val token = readToken(scalaCompileServerSystemDir, compileServerPort.forToken)
-        send(command, token +: arguments, client)
+        sendToken(attempt = 0, maxAttempts = ConnectionRetryAttempts)
       } catch {
         case e: ConnectException =>
           val message = ScalaCompileServerMessages.cantConnectToCompileServerErrorMessage(address, compileServerPort.forCommunication)

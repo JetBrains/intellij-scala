@@ -285,9 +285,11 @@ final class WorksheetEditorPrinterRepl private[printers](
     stripLambdaClassName(outputLine)
 
   private def handleReplMessageLine(encodedMessageLine: String): Unit = {
-    val replMessageInfo = extractReplMessage(encodedMessageLine).getOrElse {
-      Log.error(s"Cannot parse error message: $encodedMessageLine")
-      return
+    val replMessageInfo = extractReplMessage(encodedMessageLine) match {
+      case Some(info) => info
+      case None =>
+        Log.error(s"Cannot parse error message: $encodedMessageLine")
+        return
     }
 
     val showErrorInViewer = replMessageInfo.messageCategory == CompilerMessageCategory.ERROR && showReplErrorsInEditor
@@ -297,11 +299,13 @@ final class WorksheetEditorPrinterRepl private[printers](
       chunkOutputBuffer.append(line + "\n")
     }
     else {
-      val currentPsi = psiToProcess.headOption.getOrElse(return)
-      val messagesConsumer = messagesConsumerOpt.getOrElse(return)
-
-      val compilerMessage = buildCompilerMessage(replMessageInfo, currentPsi)
-      messagesConsumer.message(compilerMessage)
+      for {
+        currentPsi <- psiToProcess.headOption
+        messagesConsumer <- messagesConsumerOpt
+      } {
+        val compilerMessage = buildCompilerMessage(replMessageInfo, currentPsi)
+        messagesConsumer.message(compilerMessage)
+      }
     }
   }
 

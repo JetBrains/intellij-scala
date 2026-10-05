@@ -135,37 +135,38 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     inReadAction {
       val contextClass = ScalaEvaluatorBuilderUtil.getContextClass(place, strict = false)
       val containingClass = ScalaEvaluatorBuilderUtil.getContextClass(named)
-      if (contextClass == containingClass) return false
-      if (contextClass == null) return true
-
-      val placesToSearch = ArrayBuffer[PsiElement]()
-      contextClass.accept(new ScalaRecursiveElementVisitor() {
-        override def visitFunctionDefinition(fun: ScFunctionDefinition): Unit = {
-          placesToSearch += fun
-        }
-
-        override def visitPatternDefinition(pat: ScPatternDefinition): Unit = {
-          pat match {
-            case LazyVal(_) => placesToSearch += pat
-            case _ =>
-          }
-        }
-      })
-      if (placesToSearch.isEmpty) true
+      if (contextClass == containingClass) false
+      else if (contextClass == null) true
       else {
-        val scopes = placesToSearch.map(new LocalSearchScope(_))
-        val helper = new PsiSearchHelperImpl(place.getProject)
-        var used = false
-        val processor = new TextOccurenceProcessor {
-          override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
-            used = true
-            false
+        val placesToSearch = ArrayBuffer[PsiElement]()
+        contextClass.accept(new ScalaRecursiveElementVisitor() {
+          override def visitFunctionDefinition(fun: ScFunctionDefinition): Unit = {
+            placesToSearch += fun
           }
+
+          override def visitPatternDefinition(pat: ScPatternDefinition): Unit = {
+            pat match {
+              case LazyVal(_) => placesToSearch += pat
+              case _ =>
+            }
+          }
+        })
+        if (placesToSearch.isEmpty) true
+        else {
+          val scopes = placesToSearch.map(new LocalSearchScope(_))
+          val helper = new PsiSearchHelperImpl(place.getProject)
+          var used = false
+          val processor = new TextOccurenceProcessor {
+            override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+              used = true
+              false
+            }
+          }
+          scopes.foreach { scope =>
+            helper.processElementsWithWord(processor, scope, named.name, UsageSearchContext.IN_CODE, /*caseSensitive =*/ true)
+          }
+          !used
         }
-        scopes.foreach { scope =>
-          helper.processElementsWithWord(processor, scope, named.name, UsageSearchContext.IN_CODE, /*caseSensitive =*/ true)
-        }
-        !used
       }
     }
   }
