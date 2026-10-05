@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
     <dependencies>
-        <plugin id="org.jetbrains.bazel"/>
         <module name="intellij.bazel.backend"/>
-        <module name="intellij.bazel.java.core"/>
+        <module name="intellij.bazel.commons"/>
+        <module name="intellij.bazel.core"/>
+        <module name="intellij.java.execution.impl"/>
+        <module name="intellij.java.psi"/>
+        <module name="intellij.platform.backend.workspace"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.core.ui"/>
+        <module name="intellij.platform.editor.ui"/>
+        <module name="intellij.platform.execution"/>
+        <module name="intellij.platform.workspace.jps"/>
+        <module name="intellij.platform.workspace.storage"/>
         <module name="scalaCommunity.testing-support"/>
     </dependencies>
 
