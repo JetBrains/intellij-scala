@@ -1,7 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
     <dependencies>
-        <plugin id="tanvd.grazi"/>
-        <module name="scalaCommunity.intelliLang" />
+        <module name="intellij.grazie.core"/>
+        <module name="intellij.java.psi"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.langInjection"/>
+        <module name="intellij.spellchecker"/>
+        <module name="scalaCommunity.intelliLang"/>
     </dependencies>
 
     <extensions defaultExtensionNs="com.intellij.spellchecker">
