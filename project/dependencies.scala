@@ -234,7 +234,7 @@ object Dependencies {
   val intellijIdeMetricsCollector: ModuleID = ("com.jetbrains.intellij.tools" % "ide-metrics-collector" % IntellijTestFrameworkVersion).notTransitive()
   val intellijIdeUtilCommon: ModuleID = ("com.jetbrains.intellij.tools" % "ide-util-common" % IntellijTestFrameworkVersion).notTransitive.notTransitive()
 
-  val coursierApi = "io.get-coursier" % "interface" % "1.0.28" excludeAll ExclusionRule(organization = "org.slf4j")
+  val coursierApi = "io.get-coursier" % "interface" % "1.0.30" excludeAll ExclusionRule(organization = "org.slf4j")
 }
 
 object DependencyGroups {
