@@ -1,9 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin visibility="public">
     <dependencies>
         <plugin id="JUnit"/>
-        <module name="scalaCommunity.testing-support"/>
+        <module name="intellij.java.execution"/>
+        <module name="intellij.java.execution.impl"/>
+        <module name="intellij.java.psi"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.execution"/>
+        <module name="intellij.platform.execution.impl"/>
         <module name="intellij.platform.smRunner"/>
+        <module name="intellij.platform.testIntegration"/>
+        <module name="intellij.platform.testRunner"/>
+        <module name="scalaCommunity.testing-support"/>
     </dependencies>
 
     <extensions defaultExtensionNs="com.intellij">
