@@ -245,15 +245,15 @@ object CompileServerLauncher {
         catching(classOf[IOException])
           .either(builder.createProcess())
           .left.map(e => CompileServerProblem.UnexpectedException(e))
-          .map { process =>
+          .flatMap {
+            process =>
+              waitUntilNailgunServerIsReady(compileServerSystemDir, process.getInputStream)
+                .zip(Some(process))
+                .toRight(CompileServerProblem.Error(ServerManagementBundle.message("compile.server.missing.tcp.port")))
+          }
+          .map { (portReportedByServer, process) =>
             val local = EelProjectUtils.isProjectLocal(project)
-            val port = {
-              val portReportedByServer = waitUntilNailgunServerIsReady(compileServerSystemDir, process.getInputStream) match {
-                case Some(p) => p
-                case None =>
-                  return Left(CompileServerProblem.Error(ServerManagementBundle.message("compile.server.missing.tcp.port")))
-              }
-
+            val port =
               if (local) CompileServerPort.Local(portReportedByServer)
               else {
                 val eelApi = EelProviderUtil.toEelApiBlocking(eelDescriptor)
@@ -262,7 +262,6 @@ object CompileServerLauncher {
                 val forwardedLocalPort = EelTunnels.forwardLocalPort(scope, tunnels, portReportedByServer)
                 CompileServerPort.Remote(forwardedLocalPort, portReportedByServer)
               }
-            }
 
             writePortFile(compileServerSystemDir, port.forToken)
 

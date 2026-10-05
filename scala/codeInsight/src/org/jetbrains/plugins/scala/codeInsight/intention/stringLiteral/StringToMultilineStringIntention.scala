@@ -39,8 +39,10 @@ final class StringToMultilineStringIntention extends PsiElementBaseIntentionActi
     if (!element.isValid)
       return
 
-    val lit = stringLiteralParent(element)
-      .getOrElse(return)
+    val lit = stringLiteralParent(element) match {
+      case Some(literal) => literal
+      case None => return
+    }
 
     if (!IntentionPreviewUtils.prepareElementForWrite(element))
       return

@@ -31,8 +31,11 @@ final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
     }.contains("Boolean")
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    val statement = findReturnParent(element).filter(_.isValid)
-      .getOrElse(return)
+    val statement =
+      findReturnParent(element).filter(_.isValid) match {
+        case Some(element) => element
+        case None => return
+      }
 
     val expressionText = statement match {
       case ScReturn(ScParenthesisedExpr(ElementText(text))) => text

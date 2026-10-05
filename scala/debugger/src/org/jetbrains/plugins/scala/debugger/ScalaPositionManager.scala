@@ -1067,7 +1067,9 @@ object ScalaPositionManager {
       var nameTail = name
       updateParts()
 
-      for (part <- classJVMNameParts) {
+      val parts = classJVMNameParts.iterator
+      while (parts.hasNext) {
+        val part = parts.next()
         val index = nameTail.indexOf(part)
         if (index >= 0) {
           nameTail = nameTail.substring(index + part.length)

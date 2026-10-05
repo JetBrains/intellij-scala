@@ -165,14 +165,16 @@ object RunWorksheetAction {
       }
     }
 
-    invokeAndWait {
+    val alreadyRunning = invokeAndWait {
       if (WorksheetFileHook.isRunning(vFile)) {
         promise.success(RunWorksheetActionResult.AlreadyRunning)
-        return
+        true
       } else {
         WorksheetFileHook.disableRun(vFile, None)
+        false
       }
     }
+    if (alreadyRunning) return
 
     def runnable(): Unit = {
       val compiler = new WorksheetCompiler(module, file)

@@ -52,10 +52,12 @@ object CompilationDataFactory
     val scalaOptions = CompilerDataFactory.scalaOptionsFor(compilerSettings, chunk) ++ sourcePathOptions
     val order = compilerSettings.getCompileOrder
 
-    createOutputToCacheMap(context).map { outputToCacheMap =>
-
-      val cacheFile = outputToCacheMap.getOrElse(output, return Left(NoCompilationData))
-
+    createOutputToCacheMap(context).flatMap {
+      outputToCacheMap =>
+        outputToCacheMap.get(output)
+          .zip(Some(outputToCacheMap))
+          .toRight(NoCompilationData)
+    }.map { (cacheFile, outputToCacheMap) =>
       val classpathSet = classpath.toSet
       val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpathSet.contains(p._1.toFile))
 

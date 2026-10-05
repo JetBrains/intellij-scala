@@ -115,21 +115,21 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
 
   override def generatePreview(project: Project, editor: Editor, file: PsiFile): IntentionPreviewInfo = {
     val element = file.findElementAt(editor.getCaretModel.getOffset)
-    findMember(element).foreach { member =>
-      targetModifier match {
-        case Some(targetModifier) =>
-          val modifierList = member.getModifierList
-          setModifier(modifierList, targetModifier)(using project)
-        case _ =>
-          availableModifiers(member).mkString(", ")
-          return new IntentionPreviewInfo.Html(HtmlChunk.text(
-            ScalaCodeInsightBundle.message("change.access.modifier.preview",
-              member.getName,
-              NlsMessages.formatOrList(availableModifiers(member).map("'" + _ + "'").asJavaCollection))
-          ))
-      }
+    (findMember(element), targetModifier) match {
+      case (Some(member), Some(targetModifier)) =>
+        val modifierList = member.getModifierList
+        setModifier(modifierList, targetModifier)(using project)
+        IntentionPreviewInfo.DIFF
+      case (Some(member), _) =>
+        availableModifiers(member).mkString(", ")
+        new IntentionPreviewInfo.Html(HtmlChunk.text(
+          ScalaCodeInsightBundle.message("change.access.modifier.preview",
+            member.getName,
+            NlsMessages.formatOrList(availableModifiers(member).map("'" + _ + "'").asJavaCollection))
+        ))
+      case _ =>
+        IntentionPreviewInfo.DIFF
     }
-    IntentionPreviewInfo.DIFF
   }
 
   private def directlySetModifier(member: ScMember, modifier: String): Unit = {

@@ -221,6 +221,18 @@ package object extensions {
 
     def zipMapped[B](f: A => B): CC[(A, B)] =
       value.map(item => item -> f(item))
+
+    def collectFirstSome[R](pf: PartialFunction[A, Option[R]]): Option[R] = {
+      val it = value.toIterator: @nowarn // needs to be nowarn, because .iterator cannot be called here on value
+      while (it.hasNext) {
+        val next = it.next()
+        val result = pf.applyOrElse(next, _ => None)
+        if (result.isDefined) {
+          return result
+        }
+      }
+      None
+    }
   }
 
   implicit class IterableExt[CC[X] <: collection.IterableOps[X, CC, CC[X]], A](private val value: CC[A]) extends AnyVal {

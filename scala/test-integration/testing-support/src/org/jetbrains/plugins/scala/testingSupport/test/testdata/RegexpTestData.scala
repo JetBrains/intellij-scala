@@ -46,7 +46,9 @@ class RegexpTestData(config: AbstractTestRunConfiguration) extends TestConfigura
     val patterns = zippedRegexps
     if (patterns.isEmpty) return Left(noPatternException)
 
-    for ((classString, testString) <- patterns) {
+    val iterator = patterns.iterator
+    while (iterator.hasNext) {
+      val (classString, testString) = iterator.next()
       try {
         Pattern.compile(classString)
       } catch {

@@ -237,21 +237,24 @@ object WorksheetDefaultSourcePreprocessor {
           classBuilder.append("\n" * headerNewLines)
         case _ =>
       }
-      for (e <- elements) e match {
-        case tpe: ScTypeAlias             => processTypeAlias(tpe)
-        case fun: ScFunction              => processFunDef(fun)
-        case tpeDef: ScTypeDefinition     => processTypeDef(tpeDef)
-        case valDef: ScPatternDefinition  => processValDef(valDef)
-        case varDef: ScVariableDefinition => processVarDef(varDef)
-        case assign: ScAssignment         => processAssign(assign)
-        case imp: ScImportStmt            => if (!processLocalImport(imp)) processImport(imp)
-        case comment: PsiComment          => appendCommentToClass(comment)
-        case _: ScPackaging               => //skip
-        case otherExpr: ScExpression      => processOtherExpr(otherExpr)
-        case _: PsiWhiteSpace             => //skip
-        case error: PsiErrorElement       => return Left(error)
-        case null                         => logError(None)
-        case unknown                      => processUnknownElement(unknown)
+      val iterator = elements.iterator
+      while (iterator.hasNext) {
+        iterator.next() match {
+          case tpe: ScTypeAlias             => processTypeAlias(tpe)
+          case fun: ScFunction              => processFunDef(fun)
+          case tpeDef: ScTypeDefinition     => processTypeDef(tpeDef)
+          case valDef: ScPatternDefinition  => processValDef(valDef)
+          case varDef: ScVariableDefinition => processVarDef(varDef)
+          case assign: ScAssignment         => processAssign(assign)
+          case imp: ScImportStmt            => if (!processLocalImport(imp)) processImport(imp)
+          case comment: PsiComment          => appendCommentToClass(comment)
+          case _: ScPackaging               => //skip
+          case otherExpr: ScExpression      => processOtherExpr(otherExpr)
+          case _: PsiWhiteSpace             => //skip
+          case error: PsiErrorElement       => return Left(error)
+          case null                         => logError(None)
+          case unknown                      => processUnknownElement(unknown)
+        }
       }
 
       insertUntouched(classBuilder, postDeclarations)

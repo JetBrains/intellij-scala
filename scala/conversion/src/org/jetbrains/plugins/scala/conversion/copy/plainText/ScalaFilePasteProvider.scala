@@ -224,7 +224,7 @@ final class ScalaFilePasteProvider extends PasteProvider {
       }
     }
 
-    inWriteCommandAction {
+    def createAndOpenFile(): Unit = {
       val psiFile =
         if (existingFile != null)
           existingFile.asInstanceOf[ScalaFile] //we are sure it's scala file because of `.scala` extension
@@ -251,6 +251,7 @@ final class ScalaFilePasteProvider extends PasteProvider {
         new OpenFileDescriptor(project, psiFile.getVirtualFile).navigate(true)
       }
     }
+    inWriteCommandAction { createAndOpenFile() }
   }
 
   private def updateExistingFileInDirectory(update: UpdateExistingFile)(implicit project: Project): Unit = {

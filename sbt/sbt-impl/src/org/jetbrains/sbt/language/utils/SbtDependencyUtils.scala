@@ -181,35 +181,35 @@ object SbtDependencyUtils {
       targetCoordinates.getGroupId,
       targetCoordinates.getArtifactId.replaceAll("_\\d+.*$", ""),
       if (versionRequired) targetCoordinates.getVersion else "",
-      if (configurationRequired) dependency.getScope else SbtDependencyCommon.defaultLibScope)
-    val libDeps = getLibraryDependenciesOrPlaces(sbtFileOpt, project, module, GetDep)
-    libDeps.foreach(
-      libDep => {
-        var processedDep: List[String] = List()
-        processedDep = processLibraryDependencyFromExprAndString(libDep.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)]).map(_.asInstanceOf[String])
-        var processedDepText: String = ""
-        processedDep match {
-          case List(a, b, c) =>
-            processedDepText = generateArtifactTextVerbose(
-              a,
-              b,
-              if (versionRequired) c else "",
-              SbtDependencyCommon.defaultLibScope)
-          case List(a, b, c, d) =>
-            processedDepText = generateArtifactTextVerbose(
-              a,
-              b,
-              if (versionRequired) c else "",
-              if (configurationRequired) d else SbtDependencyCommon.defaultLibScope)
-          case _ =>
-        }
-
-        if (targetDepText.equals(processedDepText)) {
-          return libDep.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)]
-        }
-      }
+      if (configurationRequired) dependency.getScope else SbtDependencyCommon.defaultLibScope
     )
-    null
+    val libDeps = getLibraryDependenciesOrPlaces(sbtFileOpt, project, module, GetDep)
+    libDeps.find(
+        libDep => {
+          var processedDep: List[String] = List()
+          processedDep = processLibraryDependencyFromExprAndString(libDep.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)])
+            .map(_.asInstanceOf[String])
+          var processedDepText: String = ""
+          processedDep match {
+            case List(a, b, c) =>
+              processedDepText = generateArtifactTextVerbose(
+                a,
+                b,
+                if (versionRequired) c else "",
+                SbtDependencyCommon.defaultLibScope)
+            case List(a, b, c, d) =>
+              processedDepText = generateArtifactTextVerbose(
+                a,
+                b,
+                if (versionRequired) c else "",
+                if (configurationRequired) d else SbtDependencyCommon.defaultLibScope)
+            case _ =>
+          }
+
+          targetDepText.equals(processedDepText)
+        }
+      )
+      .map(_.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)]).orNull
   }
 
 
@@ -342,17 +342,17 @@ object SbtDependencyUtils {
         case infix: ScInfixExpr if infix.operation.refName.contains("%") =>
           infix.getText.split('%').map(_.trim).filter(_.nonEmpty).length - 1 match {
             case 1 if infix.right.isInstanceOf[ScReferenceExpression] &&
-              infix.right.`type`().getOrAny.canonicalText.equals(SBT_LIB_CONFIGURATION) => inReadAction {
+              infix.right.`type`().getOrAny.canonicalText.equals(SBT_LIB_CONFIGURATION) => return inReadAction {
               val configuration = cleanUpDependencyPart(infix.right.getText).toLowerCase.capitalize
 
               def callbackRef(psiElement: PsiElement): Boolean = {
                 psiElement match {
                   case subInfix: ScInfixExpr if subInfix.operation.refName.contains("%") =>
                     result ++= Seq((subInfix, configuration, infix))
-                    return false
+                    false
                   case _ =>
+                    true
                 }
-                true
               }
 
               infix.left match {
@@ -360,7 +360,7 @@ object SbtDependencyUtils {
                   SbtDependencyTraverser.traverseReferenceExpr(refExpr)(callbackRef)
                 case _ =>
               }
-              return false
+              false
             }
             case _ if infix.right.isInstanceOf[ScReferenceExpression] &&
               infix.right.`type`().getOrAny.canonicalText.equals(SBT_LIB_CONFIGURATION) =>

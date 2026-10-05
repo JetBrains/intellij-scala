@@ -10,10 +10,12 @@ import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
+
+import scala.collection.immutable.ArraySeq
 
 final class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction with DumbAware {
 
@@ -43,25 +45,24 @@ final class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction w
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    val ifStmt: ScIf = PsiTreeUtil.getParentOfType(element, classOf[ScIf], false)
-    if (ifStmt == null || !ifStmt.isValid) return
-
-    val thenBranch = ifStmt.thenExpression.getOrElse(return)
-    val elseKeyWord = thenBranch.getNextSiblingNotWhitespaceComment
-
-    val elseBranch = ifStmt.elseExpression.getOrElse(return)
-
-    val children = elseBranch.copy().children.toList
-    var from = children.find(_.getNode.getElementType != ScalaTokenTypes.tLBRACE).getOrElse(return)
-    if (ScalaTokenTypes.WHITES_SPACES_TOKEN_SET.contains(from.getNode.getElementType)) from = from.getNextSibling
-    val to = children.findLast(_.getNode.getElementType != ScalaTokenTypes.tRBRACE).getOrElse(return)
-
-    IntentionPreviewUtils.write { () =>
-      elseKeyWord.delete()
-      elseBranch.delete()
-      ifStmt.getParent.addRangeAfter(from, to, ifStmt)
-      ifStmt.getParent.addAfter(createNewLine()(using PsiManager.getInstance(project)), ifStmt)
-      PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+    for {
+      ifStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScIf], false))
+      if ifStmt.isValid
+      thenBranch <- ifStmt.thenExpression
+      elseKeyWord = thenBranch.getNextSiblingNotWhitespaceComment
+      elseBranch <- ifStmt.elseExpression
+      children = elseBranch.copy().children.to(ArraySeq)
+      from <- children.find(_.getNode.getElementType != ScalaTokenTypes.tLBRACE)
+      to <- children.findLast(_.getNode.getElementType != ScalaTokenTypes.tRBRACE)
+    } {
+      IntentionPreviewUtils.write { () =>
+        elseKeyWord.delete()
+        elseBranch.delete()
+        val adjustedFrom = if (from.isWhitespace) from.nextSibling.getOrElse(from) else from
+        ifStmt.getParent.addRangeAfter(adjustedFrom, to, ifStmt)
+        ifStmt.getParent.addAfter(createNewLine()(using PsiManager.getInstance(project)), ifStmt)
+        PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+      }
     }
   }
 

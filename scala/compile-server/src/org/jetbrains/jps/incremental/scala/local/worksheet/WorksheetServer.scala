@@ -21,9 +21,11 @@ class WorksheetServer {
   ): Unit = {
     def printStream = new PrintStream(new RedirectToClientOutputStream(client))
 
-    val compilerJars = commonArgs.compilerData.compilerJars.getOrElse {
-      client.error(CompileServerBundle.message("compiler.jars.are.missing"))
-      return
+    val compilerJars = commonArgs.compilerData.compilerJars match {
+      case Some(compilerJars) => compilerJars
+      case None =>
+        client.error(CompileServerBundle.message("compiler.jars.are.missing"))
+        return
     }
     worksheetArgs match {
       case args: WorksheetArgs.RunRepl  =>

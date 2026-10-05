@@ -54,7 +54,9 @@ object ScalaTestAstTransformer {
   def getFinder(clazz: ScTypeDefinition): Option[Finder] = {
     val classes = MixinNodes.linearization(clazz).flatMap(_.extractClass.toSeq)
 
-    for (clazz <- classes) {
+    val iterator = classes.iterator
+    while (iterator.hasNext) {
+      val clazz = iterator.next()
       clazz match {
         case td: ScTypeDefinition =>
           ProgressManager.checkCanceled()
