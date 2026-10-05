@@ -109,18 +109,17 @@ abstract class ScalaTestingTestCase
   protected def assertNoConfigurationCreatedAtCaret(location: CaretLocation): Unit =
     inReadAction {
       val psiElement = findPsiElement(location, getProject, srcPath)
-      if (psiElement == null)
-        return // good: no element -> no configuration created
+      if (psiElement != null) {
+        val context: ConfigurationContext = new ConfigurationContext(psiElement)
+        val configurationsFromContext = Option(context.getConfigurationsFromContext).toSeq.flatMap(_.asScala)
+        val relevantConfigs = configurationsFromContext.filter(c => expectedDefaultRunConfigurationClass.isInstance(c.getConfiguration))
 
-      val context: ConfigurationContext = new ConfigurationContext(psiElement)
-      val configurationsFromContext = Option(context.getConfigurationsFromContext).toSeq.flatMap(_.asScala)
-      val relevantConfigs = configurationsFromContext.filter(c => expectedDefaultRunConfigurationClass.isInstance(c.getConfiguration))
-
-      if (relevantConfigs.nonEmpty) {
-        fail(
-          s"""Expected no run configuration to be created at location $location, but found ${relevantConfigs.size} configuration(s):
-             |${relevantConfigs.map(_.toString).mkString("\n")}""".stripMargin
-        )
+        if (relevantConfigs.nonEmpty) {
+          fail(
+            s"""Expected no run configuration to be created at location $location, but found ${relevantConfigs.size} configuration(s):
+               |${relevantConfigs.map(_.toString).mkString("\n")}""".stripMargin
+          )
+        }
       }
     }
 

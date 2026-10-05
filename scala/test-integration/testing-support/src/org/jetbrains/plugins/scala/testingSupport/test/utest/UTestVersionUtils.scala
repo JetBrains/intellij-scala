@@ -35,16 +35,12 @@ object UTestVersionUtils {
    *       [[com.intellij.testIntegration.createTest.CreateTestAction.suggestModuleForTests]]
    */
   def getUTestLibraryVersion(module: Module): Option[Version] = cachedInUserData("UTestUtils.getUTestLibraryVersion", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
-    if (module.isDisposed || module.getProject.isDefault)
-      return None
-
-    val scalaVersion = module.scalaMinorVersion.orNull
-    if (scalaVersion == null)
-      return None
-
-    val coordinatesWithSuffix = UTestMavenCoordinates + libraryCrossSuffix(scalaVersion)
-    val version = JavaLibraryUtil.getLibraryVersion(module, coordinatesWithSuffix)
-    Option(version).map(Version(_))
+    if (module.isDisposed || module.getProject.isDefault) None
+    else module.scalaMinorVersion.flatMap { scalaVersion =>
+      val coordinatesWithSuffix = UTestMavenCoordinates + libraryCrossSuffix(scalaVersion)
+      val version = JavaLibraryUtil.getLibraryVersion(module, coordinatesWithSuffix)
+      Option(version).map(Version(_))
+    }
   }
 
   private def libraryCrossSuffix(scalaVersion: ScalaVersion): String =

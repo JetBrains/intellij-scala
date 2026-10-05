@@ -204,10 +204,10 @@ private[protocol] class BloopRemoteLauncherConnector(
   }
 
   private def startBloop(using reporter: BuildReporter, scope: CoroutineScope, indicator: Option[ProgressIndicator]): Either[BspError, BloopPorts] = {
-    val classpath = transferBloopClasspath.fold(
-      err => return Left(err),
-      identity
-    )
+    val classpath = transferBloopClasspath match {
+      case Left(err) => return Left(err)
+      case Right(paths) => paths
+    }
     val bloopRemotePort = findAvailablePort()
 
     reporter.log(BspBundle.message("bsp.protocol.bloop.remote.starting.server", bloopRemotePort.toString))

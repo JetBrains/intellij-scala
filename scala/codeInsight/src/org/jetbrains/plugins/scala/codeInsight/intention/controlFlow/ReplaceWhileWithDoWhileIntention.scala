@@ -19,17 +19,17 @@ final class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionActi
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     if (element.isInScala3File) return false
 
-    for {
-      whileStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScWhile], false))
-      condition <- whileStmt.condition
-      _ <- whileStmt.expression
-    } {
-      val offset = editor.getCaretModel.getOffset
-      if (offset >= whileStmt.getTextRange.getStartOffset && offset <= condition.getTextRange.getStartOffset - 1)
-        return true
-    }
+    val result =
+      for {
+        whileStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScWhile], false))
+        condition <- whileStmt.condition
+        _ <- whileStmt.expression
+      } yield {
+        val offset = editor.getCaretModel.getOffset
+        offset >= whileStmt.getTextRange.getStartOffset && offset < condition.getTextRange.getStartOffset
+      }
 
-    false
+    result.contains(true)
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {

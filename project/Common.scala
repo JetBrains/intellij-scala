@@ -64,7 +64,6 @@ object Common {
     "-feature",
     "-unchecked",
     "-Wunused:implicits,imports",
-    "-Wconf:msg=Non local returns are no longer supported:s", // I like local returns!!!
     "-Wconf:msg=Alphanumeric method isInstance is not declared infix:s", // and everyone loves infix notation!
     "-Wconf:msg=method .* is eta-expanded even though .* does not have the @FunctionalInterface annotation:s", // bullshit warning
     // NOTE: The same comment as for "-Xfatal-warnings" in Scala 2 (see above)

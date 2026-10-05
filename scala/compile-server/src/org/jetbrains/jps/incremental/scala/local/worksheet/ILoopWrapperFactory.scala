@@ -50,7 +50,10 @@ class ILoopWrapperFactory {
           None
       }
     }, _.shutdown())
-    val inst = instOpt.getOrElse(return)
+    val inst = instOpt match {
+      case Some(inst) => inst
+      case None => return
+    }
 
     val out = inst.getOutput
     out match {
@@ -70,7 +73,8 @@ class ILoopWrapperFactory {
     val code = new String(Base64.getDecoder.decode(args.codeChunk), StandardCharsets.UTF_8)
     // note: do not remove String generic parameter, it will fail in JVM 11
     val statements = if (code.isEmpty) Array.empty[String] else code.split(Pattern.quote(ReplDelimiter))
-    for  { (statement, idx) <- statements.zipWithIndex if statement.trim.nonEmpty } {
+    var shouldContinue = true
+    for  { (statement, idx) <- statements.zipWithIndex if shouldContinue && statement.trim.nonEmpty } {
       val commandAction = if (statement.startsWith(":")) commands.get(statement) else None
       commandAction match {
         case Some(action) =>
@@ -86,18 +90,19 @@ class ILoopWrapperFactory {
               printStackTrace(ex, out)
               false
           }
-          val shouldContinue = noErrors || args.continueOnChunkError
+          shouldContinue = noErrors || args.continueOnChunkError
           if (shouldContinue) {
             printService(out, ReplChunkEnd)
           } else {
             printService(out, ReplChunkCompilationError)
-            return
           }
       }
     }
 
-    client.progress(CompileServerBundle.message("worksheet.execution.finished"), Some(1))
-    printService(out, ReplEnd)
+    if (shouldContinue) {
+      client.progress(CompileServerBundle.message("worksheet.execution.finished"), Some(1))
+      printService(out, ReplEnd)
+    }
   }
 
   private def printStackTrace(ex: Throwable, output: Flushable): Unit =

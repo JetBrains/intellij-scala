@@ -5,6 +5,7 @@ import org.jetbrains.jps.incremental.scala.remote.PathTranslator
 import org.jetbrains.plugins.scala.compiler.data.Extractors.{StringToPath, StringToPaths}
 
 import java.nio.file.Path
+import scala.util.boundary
 
 case class CompilerData(compilerJars: Option[CompilerJars],
                         javaHome: Option[Path],
@@ -35,21 +36,22 @@ object CompilerData {
       StringToOption(javaHomePath) +:
       incrementalTypeName +:
       tail =>
-      val compilerJars = compilerJarPaths.map {
-        case StringToPaths(files) =>
-          val compilerBridgeJar = customCompilerBridgeJarPath.map(StringToPath)
-          val replClasspath = optReplClasspath.map(StringToPaths).getOrElse(Seq.empty)
-          CompilerJarsFactory.fromFiles(files, compilerBridgeJar, replClasspath) match {
-            case Left(resolveError) => return Left(s"Couldn't extract compiler jars from: ${files.mkString(";")}\n$resolveError")
-            case Right(jars) => jars
-          }
+      boundary {
+        val compilerJars = compilerJarPaths.map {
+          case StringToPaths(files) =>
+            val compilerBridgeJar = customCompilerBridgeJarPath.map(StringToPath)
+            val replClasspath = optReplClasspath.map(StringToPaths).getOrElse(Seq.empty)
+            CompilerJarsFactory.fromFiles(files, compilerBridgeJar, replClasspath) match {
+              case Left(resolveError) => boundary.break(Left(s"Couldn't extract compiler jars from: ${files.mkString(";")}\n$resolveError"))
+              case Right(jars) => jars
+            }
+        }
+        val javaHome = javaHomePath.map {
+          case StringToPath(file) => file
+        }
+        val incrementalType = IncrementalityType.valueOf(incrementalTypeName)
+        Right(CompilerData(compilerJars, javaHome, incrementalType) -> tail)
       }
-      val javaHome = javaHomePath.map {
-        case StringToPath(file) => file
-      }
-      val incrementalType = IncrementalityType.valueOf(incrementalTypeName)
-      Right(CompilerData(compilerJars, javaHome, incrementalType) -> tail)
-
     case args => Left(s"The arguments don't match the expected shape of CompilerData: ${args.mkString("[", ",", "]")}")
   }
 

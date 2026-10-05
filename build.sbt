@@ -417,7 +417,10 @@ lazy val scalaImpl: sbt.Project =
       compilerTestUtils % "test->test",
     )
     .settings(
-      Compile / scalacOptions += "-no-indent",
+      Compile / scalacOptions ++= Seq(
+        "-no-indent",
+        "-Wconf:msg=Non local returns are no longer supported:s", // I like local returns!!!
+      ),
       ideExcludedDirectories := Seq(
         baseDirectory.value / "target",
         baseDirectory.value / "testdata" / "projectsForHighlightingTests" / ".ivy_cache",

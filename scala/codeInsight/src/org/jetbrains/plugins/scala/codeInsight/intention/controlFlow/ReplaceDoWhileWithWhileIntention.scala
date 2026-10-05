@@ -30,34 +30,36 @@ final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionActi
   import ReplaceDoWhileWithWhileIntention._
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    for {
-      doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo], false))
-      condition <- doStmt.condition
-      body <- doStmt.body
-    } {
-      val offset = editor.getCaretModel.getOffset
-      //offset is on the word "do" or "while"
-      if ((offset >= doStmt.getTextRange.getStartOffset && offset < body.getTextRange.getStartOffset) ||
-              (offset > body.getTextRange.getEndOffset && offset < condition.getTextRange.getStartOffset))
-        return true
-    }
+    val result =
+      for {
+        doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo], false))
+        condition <- doStmt.condition
+        body <- doStmt.body
+      } yield {
+        val offset = editor.getCaretModel.getOffset
+        //offset is on the word "do" or "while"
+        (offset >= doStmt.getTextRange.getStartOffset && offset < body.getTextRange.getStartOffset) ||
+          (offset > body.getTextRange.getEndOffset && offset < condition.getTextRange.getStartOffset)
+      }
 
-    false
+    result.contains(true)
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     implicit val ctx: ProjectContext = project
     //check for name conflicts
-    for {
-      doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo]))
-      body <- doStmt.body
-      doStmtParent <- doStmt.parent
-    } {
-      val nameConflict = declaredNames(body).intersect(declaredNames(doStmtParent)).nonEmpty
-      if (nameConflict) {
-        showNotification(ScalaCodeInsightBundle.message("this.action.will.cause.name.conflict"))
-        return
+    val hasNameConflict =
+      for {
+        doStmt <- Option(PsiTreeUtil.getParentOfType(element, classOf[ScDo]))
+        body <- doStmt.body
+        doStmtParent <- doStmt.parent
+      } yield {
+        declaredNames(body).intersect(declaredNames(doStmtParent)).nonEmpty
       }
+
+    if (hasNameConflict.contains(true)) {
+      showNotification(ScalaCodeInsightBundle.message("this.action.will.cause.name.conflict"))
+      return
     }
 
     doReplacement()
