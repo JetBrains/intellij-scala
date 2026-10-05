@@ -16,7 +16,14 @@
 
 <idea-plugin>
     <dependencies>
-        <plugin id="com.intellij.gradle"/>
+        <module name="intellij.gradle"/>
+        <module name="intellij.gradle.settings"/>
+        <module name="intellij.gradle.toolingExtension"/>
+        <module name="intellij.libraries.gradle"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.externalSystem"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.projectModel"/>
         <module name="scalaCommunity.compiler-integration"/>
     </dependencies>
 
