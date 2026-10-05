@@ -1,7 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
     <dependencies>
         <plugin id="com.intellij.properties"/>
+        <module name="intellij.libraries.maven.resolver.provider"/>
+        <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.editor.ui"/>
+        <module name="intellij.properties.psi"/>
     </dependencies>
 
     <extensions defaultExtensionNs="com.intellij">
