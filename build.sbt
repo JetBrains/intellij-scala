@@ -820,13 +820,15 @@ lazy val repackagedZinc =
     .withOutOfIDEAProcessSettings
     .settings(NoSourceDirectories)
     .settings(
-      scalaVersion := Versions.scala2Version,
-      Compile / scalacOptions := outOfIDEAProcessScalacOptions,
       packageOutputDir := baseDirectory.value / "plugin",
       packageAssembleLibraries := true,
       shadePatterns += ShadePattern("com.google.protobuf.**", "zinc.protobuf.@1"),
       packageMethod := PackagingMethod.DepsOnly("lib/jps/incremental-compiler.jar"),
-      libraryDependencies ++= Seq(Dependencies.zinc, Dependencies.compilerInterface, Dependencies.sbtInterface),
+      libraryDependencies ++= Seq(
+        Dependencies.zinc,
+        Dependencies.compilerInterface,
+        Dependencies.sbtInterface
+      ),
       // We package and ship these jars separately. They are also transitive dependencies of `zinc`.
       // These mappings ensure that the transitive dependencies are not packaged into the assembled
       // `incremental-compiler.jar`, which leads to a bloated classpath with repeated classes.

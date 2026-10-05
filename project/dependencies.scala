@@ -186,7 +186,7 @@ object Dependencies {
 
   val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % nailgunVersion
 
-  val zinc = "org.scala-sbt" %% "zinc" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
+  val zinc = "org.scala-sbt" % "zinc_2.13" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
   val compilerInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
   val sbtInterface = "org.scala-sbt" % "util-interface" % sbtVersion
 
