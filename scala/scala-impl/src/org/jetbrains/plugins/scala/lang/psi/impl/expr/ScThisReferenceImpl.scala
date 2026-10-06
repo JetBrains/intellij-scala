@@ -49,7 +49,9 @@ object ScThisReferenceImpl {
       case ref: ScStableCodeReference if ref.pathQualifier.contains(expr) => ScThisType(td)
       case referenceExpression: ScReferenceExpression if referenceExpression.qualifier.contains(expr) =>
         ScThisType(td)
-      case _ => expr.expectedType() match {
+      case _ => expr.expectedType().map(_.removeAliasDefinitions()) match {
+        case Some(_: ScThisType) =>
+          ScThisType(td)
         case Some(designatorOwner: DesignatorOwner) if designatorOwner.isStable =>
           ScThisType(td)
         case _ =>

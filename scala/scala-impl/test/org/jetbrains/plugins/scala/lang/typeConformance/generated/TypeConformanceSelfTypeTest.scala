@@ -50,6 +50,39 @@ class TypeConformanceSelfTypeTest extends TypeConformanceTestBase {
     doTest(text)
   }
 
+  // A class type does not conform to its own `this.type`: `C.this.type` denotes one instance.
+  def testClassTypeDoesNotConformToThisType(): Unit = {
+    val text =
+      s"""
+         |class C {
+         |  ${caretMarker}val y: this.type = (this: C)
+         |}
+         |//false
+      """.stripMargin
+    doTest(text)
+  }
 
+  def testOtherInstanceDoesNotConformToThisType(): Unit = {
+    val text =
+      s"""
+         |class C {
+         |  def f(other: C): Unit = {
+         |    ${caretMarker}val y: C.this.type = other
+         |  }
+         |}
+         |//false
+      """.stripMargin
+    doTest(text)
+  }
 
+  def testThisConformsToThisType(): Unit = {
+    val text =
+      s"""
+         |class C {
+         |  ${caretMarker}val y: this.type = this
+         |}
+         |//true
+      """.stripMargin
+    doTest(text)
+  }
 }

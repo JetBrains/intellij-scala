@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance._
@@ -1363,8 +1364,28 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      result = t.element.getTypeWithProjections() match {
-        case Right(value) => conformsInner(value, r, visited, constraints, checkWeak)
+      // `C.this.type` denotes a single instance, so it must not be widened to `C` here: that would
+      // accept any `C` (`(this: C)`, another instance `other: C`) as a `C.this.type`. Besides the same
+      // this-type (`checkEquiv` above), only a singleton whose underlying type reaches `C.this.type`
+      // (`val x: C.this.type`, then `x.type`), the designator of the very same object (`O.this.type`
+      // and `O.type` denote one instance) or an intersection with such a component conforms.
+      result = r match {
+        case des: DesignatorOwner if des.element.is[ScObject] =>
+          if (areClassesEquivalent(des.element.asInstanceOf[ScObject], t.element)) constraints
+          else ConstraintsResult.Left
+        case des: DesignatorOwner if des.isSingleton =>
+          des.extractDesignatorSingleton match {
+            case Some(underlying) => conformsInner(l, underlying, visited, constraints, checkWeak)
+            case None             => ConstraintsResult.Left
+          }
+        case ScCompoundType(components, _, _) =>
+          components.iterator
+            .map(conformsInner(l, _, visited, constraints, checkWeak))
+            .find(_.isRight)
+            .getOrElse(ConstraintsResult.Left)
+        case ScAndType(lhs, rhs) =>
+          val lhsResult = conformsInner(l, lhs, visited, constraints, checkWeak)
+          if (lhsResult.isRight) lhsResult else conformsInner(l, rhs, visited, constraints, checkWeak)
         case _ => ConstraintsResult.Left
       }
     }
