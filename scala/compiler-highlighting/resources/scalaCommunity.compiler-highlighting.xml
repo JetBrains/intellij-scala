@@ -53,6 +53,8 @@
         <registryKey key="scala.compiler.highlighting.tracing.enabled" defaultValue="false" restartRequired="true"
                      description="Enables tracing of compilation and highlighting events when compiler error highlighting is enabled"/>
 
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.highlighting.services.CompilationLogicService"/>
+
         <vfs.asyncListener implementation="org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingFileListener"/>
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.highlighting.core.CompilerHighlightingSetupActivity"/>

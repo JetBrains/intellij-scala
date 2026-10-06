@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services
 
-import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.compiler.highlighting.compilation.{CompilationDecision, CompilationState, CompilationToken, ModuleKey}
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 import java.util.concurrent.atomic.AtomicReference
 
@@ -13,12 +13,11 @@ import java.util.concurrent.atomic.AtomicReference
  * Owns what the plugin knows about the state of the build, and answers the one question the triggers ask:
  * what has to be compiled for a file.
  */
-@Service(Array(Service.Level.PROJECT))
-final class CompilationLogicService(project: Project) {
+class CompilationLogicService(project: Project) {
 
   private val state = new AtomicReference(CompilationState.empty)
   private val Log = Logger.getInstance(classOf[CompilationLogicService])
-  
+
   /**
    * Records that `file`, no longer match what was built from it.
    * A deletion, a move and a rename are modifications like any other.
@@ -27,10 +26,13 @@ final class CompilationLogicService(project: Project) {
   /**
    * Records that `files`, no longer match what was built from them.
    * A deletion, a move and a rename are modifications like any other.
+   *
+   * Nothing is recorded while compiler-based highlighting is off.
    */
   def filesModified(files: Set[VirtualFile]): Unit = {
     Log.debug(s"File modified ${files.toSeq.toString()}")
-    if (files.nonEmpty) update(_.modified(files))
+    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project) && files.nonEmpty)
+      update(_.modified(files))
   }
 
   /**
