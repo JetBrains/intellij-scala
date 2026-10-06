@@ -336,6 +336,50 @@ object ScProjectionType {
       case _ => None
     }
 
+  /**
+   * Collapse a stable val-path projection to the singleton it is known to be, to a
+   * fixpoint: `global.analyzer.global`, where `analyzer`'s type refines
+   * `val global: Global.this.type`, normalizes to `global`. scalac follows a path's
+   * singleton type when comparing prefixes of path-dependent types; without this, a cake
+   * member reached through such an alias yields an unreduced prefix and a spurious
+   * mismatch (SCL-21947, `Infer.inferTypedPattern`). `fuel` bounds the walk.
+   */
+  @annotation.tailrec
+  private[types] def collapseSingletonPath(tp: ScType, fuel: Int = 8): ScType = tp match {
+    case proj: ScProjectionType if fuel > 0 =>
+      val stable = proj.element match {
+        case d: ScTypedDefinition => d.isStable
+        case _                    => false
+      }
+      if (!stable) tp
+      else projectionSingleton(proj) match {
+        case Some(singleton) if singleton ne proj => collapseSingletonPath(singleton, fuel - 1)
+        case _                                    => tp
+      }
+    case _ => tp
+  }
+
+  /**
+   * The singleton type of the stable path `proj`: its own (override-aware)
+   * `designatorSingletonType`, or else, when the member resolved to an abstract
+   * declaration (`Analyzer#global: Global`), the singleton its prefix's refinement
+   * declares (`new { val global: Global.this.type } with Analyzer`).
+   */
+  private def projectionSingleton(proj: ScProjectionType): Option[ScType] =
+    proj.designatorSingletonType.filter(isSingletonLike).orElse {
+      proj.projected match {
+        case pp: ScProjectionType =>
+          pp.designatorSingletonType match {
+            case Some(ct: ScCompoundType) =>
+              ct.signatureMap.iterator.collectFirst {
+                case (sig, tpe) if sig.name == proj.element.name && isSingletonLike(proj.actualSubst(tpe)) => proj.actualSubst(tpe)
+              }
+            case _ => None
+          }
+        case _ => None
+      }
+    }
+
   def simpleAliasProjection(p: ScProjectionType): ScType = {
     p.actual() match {
       case (td: ScTypeAliasDefinition, subst) if td.typeParameters.isEmpty =>

@@ -282,44 +282,7 @@ private object ThisTypeSubstitution {
     if (inCanonicalize.get) tp
     else {
       inCanonicalize.set(true)
-      try collapseSingletonPath(tp, 8)
+      try ScProjectionType.collapseSingletonPath(tp)
       finally inCanonicalize.set(false)
-    }
-
-  // The singleton-path collapse of `ScalaConformance`, see there.
-  @tailrec
-  private def collapseSingletonPath(tp: ScType, fuel: Int): ScType = tp match {
-    case proj: ScProjectionType if fuel > 0 =>
-      val stable = proj.element match {
-        case d: ScTypedDefinition => d.isStable
-        case _                    => false
-      }
-      if (!stable) tp
-      else projectionSingleton(proj) match {
-        case Some(singleton) if singleton ne proj => collapseSingletonPath(singleton, fuel - 1)
-        case _                                    => tp
-      }
-    case _ => tp
-  }
-
-  private def isSingletonLike(t: ScType): Boolean = t match {
-    case _: ScThisType      => true
-    case d: DesignatorOwner => d.isSingleton
-    case _                  => false
-  }
-
-  private def projectionSingleton(proj: ScProjectionType): Option[ScType] =
-    proj.designatorSingletonType.filter(isSingletonLike).orElse {
-      proj.projected match {
-        case pp: ScProjectionType =>
-          pp.designatorSingletonType match {
-            case Some(ct: ScCompoundType) =>
-              ct.signatureMap.iterator.collectFirst {
-                case (sig, tpe) if sig.name == proj.element.name && isSingletonLike(proj.actualSubst(tpe)) => proj.actualSubst(tpe)
-              }
-            case _ => None
-          }
-        case _ => None
-      }
     }
 }
