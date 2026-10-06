@@ -24,6 +24,16 @@
       "lhs": "AnimalBox",
       "rhs": "Animal",
       "holds": false
+    },
+    {
+      "lhs": "Box",
+      "rhs": "BoxThis",
+      "holds": false
+    },
+    {
+      "lhs": "AnimalBox",
+      "rhs": "AnimalBoxThis",
+      "holds": false
     }
   ],
   "equivalence": [
