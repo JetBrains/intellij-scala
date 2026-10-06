@@ -950,4 +950,44 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
       case Nil =>
     }
   }
+
+  // Typers.scala:3106 / 3564 shape (scala/scala b4ad4458da): `definitions.FunctionClass(n)` typed as
+  // `Symbols.this.Symbol` instead of `global.Symbol`. `VarArityClass#apply`'s inferred result mentions
+  // `Symbol`, which `Definitions` sees through its self type. IntelliJ spells it after the declaring
+  // trait (`Symbols.this.Symbol`); scalac after the using one (`Definitions.this.Symbol`). The anchored
+  // walk from `global.definitions` (VarArityClass -> DefinitionsClass -> Definitions) must reach
+  // `Symbols` through `Definitions`' self type.
+  private val SelfTypedSiblingCake =
+    """
+      |package p {
+      |  trait Symbols { self: SymbolTable =>
+      |    abstract class Symbol
+      |    abstract class ClassSymbol extends Symbol
+      |    object NoSymbol extends Symbol
+      |  }
+      |  trait Definitions { self: SymbolTable =>
+      |    object definitions extends DefinitionsClass
+      |    abstract class DefinitionsClass {
+      |      class VarArityClass {
+      |        def seq: Seq[ClassSymbol] = Nil
+      |        def apply(i: Int) = if (i > 0) seq(i) else NoSymbol
+      |      }
+      |      lazy val FunctionClass = new VarArityClass
+      |    }
+      |  }
+      |  abstract class SymbolTable extends Symbols with Definitions
+      |  class Global extends SymbolTable
+      |  trait Analyzer extends Typers { val global: Global }
+      |  trait Typers { self: Analyzer =>
+      |    import global._
+      |""".stripMargin
+
+  private def assertNoErrorsInSelfTypedSiblingCake(body: String): Unit =
+    assertNothing(errorsFromScalaCode(SelfTypedSiblingCake + body + "\n  }\n}\n"))
+
+  def testInferredLubThroughSelfTypeSeenFromPath(): Unit =
+    assertNoErrorsInSelfTypedSiblingCake("    def f: Symbol = definitions.FunctionClass(1)")
+
+  def testInferredLubThroughSelfTypeAsArg(): Unit =
+    assertNoErrorsInSelfTypedSiblingCake("    def g(s: Symbol) = s\n    def f = g(definitions.FunctionClass(1))")
 }

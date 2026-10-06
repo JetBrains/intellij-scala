@@ -156,7 +156,19 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
   private def ownerChainReaches(clazz: PsiClass, thisTp: ScThisType): Boolean =
     if (clazz == null) false
     else if (isSameOrInheritor(clazz, thisTp) || ScEquivalenceUtil.areClassesEquivalent(clazz, thisTp.element)) true
+    else if (selfTypeReaches(clazz, thisTp)) true
     else ownerChainReaches(clazz.containingClass, thisTp)
+
+  // A cake trait sees a sibling's members through its self type (`trait Definitions
+  // { self: SymbolTable => }` uses `Symbol` from `Symbols`). scalac spells such a type
+  // `Definitions.this.Symbol`, so its owner-chain walk matches at `Definitions`; IntelliJ
+  // spells it after the declaring trait, `Symbols.this.Symbol`. Treat a cursor whose self
+  // type reaches the this-type's class as reaching it.
+  private def selfTypeReaches(clazz: PsiClass, thisTp: ScThisType): Boolean = clazz match {
+    case td: ScTemplateDefinition =>
+      td.selfType.flatMap(_.extractClass).exists(sc => sc != clazz && isSameOrInheritor(sc, thisTp))
+    case _ => false
+  }
 
   private def targetDenotesLeafClass(target: ScType, thisTp: ScThisType)(implicit context: Context): Boolean = {
     def denotesLeaf(tp: ScType): Boolean = extractAll(tp) match {
