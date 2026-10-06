@@ -6,7 +6,7 @@ import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
 import sbt.*
 
 object Versions {
-  val scala3Version: String = "3.8.4"
+  val scala3Version: String = "3.9.0"
 
   // Code running in the compile server must run on Java 8; use the Scala 3.3 LTS line. The version should be compatible
   // with `scala2Version` because earlier versions of Scala 3 reused the Scala 2 standard library.
