@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScPackage, ScPackageLik
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInference, ScReferenceImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
@@ -391,7 +391,15 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
               if (nodes ne null) {
                 val forName = nodes.forName(refName)
-                val state   = ScalaResolveState.empty.withFromType(ScalaType.designator(clsContext))
+                // The qualifier names a member of `this`: anchor it at `C.this`, as ordinary resolution
+                // does, not at the class designator `C`, or the exported members' `this.type`s become
+                // the type projection `C#a` rather than `C.this.a.type`. (An object's designator is
+                // already the stable path `O.type`, so objects keep it.)
+                val prefix = clsContext match {
+                  case td: ScTemplateDefinition if !td.is[ScObject] => ScThisType(td)
+                  case cls                                         => ScalaType.designator(cls)
+                }
+                val state   = ScalaResolveState.empty.withFromType(prefix)
                 if (!forName.isEmpty) {
                   forName.iterator.filter { sig =>
                     sig.namedElement match {

@@ -165,6 +165,20 @@ class ExportsResolveTest extends SimpleResolveTestBase {
         |""".stripMargin
     )
 
+  // An exported member's `this.type` is re-anchored at the export qualifier path `B.this.a`
+  // (not the type projection `B#a`), so it can be seen from another path `b`.
+  def testSubstThroughPath(): Unit =
+    checkTextHasNoErrors(
+      """
+        |trait A { def foo: this.type = ??? }
+        |trait B {
+        |  val a: A = ???
+        |  export a._
+        |}
+        |def g(b: B): b.a.type = b.foo
+        |""".stripMargin
+    )
+
   def testWildcardSelector(): Unit =
     checkTextHasNoErrors(
       """
