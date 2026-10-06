@@ -14,6 +14,8 @@ import scala.jdk.CollectionConverters.IteratorHasAsScala
  * @see Kotlin implementation `org.jetbrains.kotlin.idea.searcheverywhere.KtSearchEverywhereEqualityProvider`
  */
 @ApiStatus.Internal
+// The legacy Search Everywhere still invokes this extension; its replacement uses a different API.
+@scala.annotation.nowarn("msg=(?s).*(SEResultsEqualityProvider|SearchEverywhereFoundElementInfo).*deprecated.*")
 final class ScalaSearchEverywhereEqualityProvider extends SEResultsEqualityProvider {
 
   override def compareItems(

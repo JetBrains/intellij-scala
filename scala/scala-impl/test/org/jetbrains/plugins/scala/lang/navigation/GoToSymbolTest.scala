@@ -43,6 +43,8 @@ abstract class GoToSymbolTestBase extends ScalaLightCodeInsightFixtureTestCase {
    * Ideally, it would be nice to have some API in the platform, see IJPL-174061
    */
   @RequiresBackgroundThread
+  // These tests intentionally exercise the legacy Search Everywhere and its equality providers.
+  @scala.annotation.nowarn("msg=(?s).*class (SearchEverywhereUI|SearchEverywhereManagerImpl|SymbolSearchEverywhereContributor).*deprecated.*")
   protected def getGotoSymbolE2EResults(
     searchText: String,
     waitTimeout: Duration = 10.seconds
