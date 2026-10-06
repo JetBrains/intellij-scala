@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionExt, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionExt, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
@@ -290,33 +290,11 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
               return true
 
             elem match {
+              // `withActual` is scalac's `pre.memberType(sym)`: an abstract `type Symbol` realized by a
+              // `class Symbol` on the prefix already resolves to the class here.
               case alias: ScTypeAlias =>
-                // scalac's pre.memberType(sym): when the projected element is an abstract
-                // type alias, the prefix may carry an overriding class member of the same
-                // name (e.g. `class Symbol` overriding `type Symbol >: Null`). Consult the
-                // prefix's override-aware type members before falling back to the abstract
-                // bound, mirroring scalac's memberType resolution.
-                val overridingElem: Option[PsiNamedElement] = alias match {
-                  case _: ScTypeAliasDeclaration =>
-                    implicit val ctx: Context = Context(place)
-                    proj.projected.tryExtractDesignatorSingleton.widen.extractClass.flatMap { cls =>
-                      getTypes(cls).forName(alias.name).iterator
-                        .map(_.namedElement)
-                        .find(e => e != alias && !e.is[ScTypeAliasDeclaration])
-                    }
-                  case _ => None
-                }
-
-                overridingElem match {
-                  case Some(overrider) =>
-                    val subst =
-                      if (updateWithProjectionSubst) ScSubstitutor(proj, ScSubstitutor.declarationAnchor(overrider)).followed(s)
-                      else                           s
-                    processElement(overrider, subst, place, state)(using recState.add(alias))
-                  case None =>
-                    val upper = alias.upperBound.getOrElse(return true)
-                    processTypeImpl(s(upper), place, state.withSubstitutor(ScSubstitutor.empty))(using recState.add(alias))
-                }
+                val upper = alias.upperBound.getOrElse(return true)
+                processTypeImpl(s(upper), place, state.withSubstitutor(ScSubstitutor.empty))(using recState.add(alias))
               case elem =>
                 val subst =
                   if (updateWithProjectionSubst) ScSubstitutor(proj, ScSubstitutor.declarationAnchor(elem)).followed(s)
