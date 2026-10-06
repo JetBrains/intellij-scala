@@ -7,6 +7,8 @@ import org.jetbrains.jps.model.java.JavaResourceRootType
 import org.jetbrains.plugins.scala.compiler.highlighting.services.CompilationLogicService
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.runner.ScalaFixtureTestCaseWithSourceFolder
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.util.RevertableChange
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 
 import scala.compiletime.uninitialized
@@ -17,6 +19,9 @@ import scala.compiletime.uninitialized
  *
  * `outside` sits beside the project directory rather than inside it: the fixture registers the project
  * directory itself as a source root, so a child of it would still be in source content.
+ *
+ * Compiler-based highlighting is on, since [[CompilationLogicService]] records nothing while it is off and
+ * every assertion that nothing was recorded would hold vacuously.
  */
 abstract class CompilationStateWritesTestBase extends ScalaFixtureTestCaseWithSourceFolder {
 
@@ -29,6 +34,11 @@ abstract class CompilationStateWritesTestBase extends ScalaFixtureTestCaseWithSo
     outsideDir = VfsTestUtil.createDir(getBaseDir.getParent, "outside")
     PsiTestUtil.addSourceRoot(myModule, resourceRoot, JavaResourceRootType.RESOURCE)
     assertRootsAreAsExpected()
+    RevertableChange.withModifiedSetting[Boolean](
+      ScalaHighlightingMode.compilerHighlightingEnabledInTests,
+      ScalaHighlightingMode.compilerHighlightingEnabledInTests = _,
+      true
+    ).applyChange(this)
   }
 
   private def assertRootsAreAsExpected(): Unit = {
