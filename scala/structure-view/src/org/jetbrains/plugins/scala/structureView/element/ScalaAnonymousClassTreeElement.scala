@@ -50,5 +50,5 @@ final class ScalaAnonymousClassTreeElement(definition: ScNewTemplateDefinition)
 
   override def isAlwaysLeaf: Boolean = false
 
-  override def isAlwaysShowsPlus: Boolean = true
+  override def isAlwaysShowsPlus: Boolean = false
 }
