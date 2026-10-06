@@ -617,6 +617,13 @@
 
         <vcs.codeVisionLanguageContext language="Scala"
                                        implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.codeVision.ScalaVcsCodeVisionContext"/>
+        <registryKey key="scala.code.vision.inlay" defaultValue="true"
+                     description="Allows to disable usages and inheritors code vision for Scala"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.hints.codeVision.ScalaUsagesCountManager"/>
+        <codeInsight.daemonBoundCodeVisionProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.codeVision.ScalaReferencesCodeVisionProvider"/>
+        <codeInsight.codeVisionSettingsPreviewLanguage modelId="references" language="Scala"/>
+        <codeInsight.daemonBoundCodeVisionProvider implementation="org.jetbrains.plugins.scala.codeInsight.hints.codeVision.ScalaInheritorsCodeVisionProvider"/>
+        <codeInsight.codeVisionSettingsPreviewLanguage modelId="inheritors" language="Scala"/>
 
         <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassElementFinder"/>
         <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder"/>
