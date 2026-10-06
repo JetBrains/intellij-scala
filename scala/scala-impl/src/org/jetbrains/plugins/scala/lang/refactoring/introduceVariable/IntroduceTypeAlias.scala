@@ -119,7 +119,7 @@ trait IntroduceTypeAlias {
                 maybeTypeAlias.foreach { typeAlias =>
                   editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).addScopeElement(scopeItem)
 
-                  new ScalaInplaceTypeAliasIntroducer(typeAlias)
+                  new ScalaInplaceTypeAliasIntroducer(typeAlias, editor)
                     .performInplaceRefactoring(new util.LinkedHashSet[String](suggestedNames))
                 }
               }
