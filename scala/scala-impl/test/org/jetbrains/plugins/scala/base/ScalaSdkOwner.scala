@@ -29,9 +29,12 @@ trait ScalaSdkOwner extends UsefulTestCase
     }
   }
 
-  private var _injectedScalaVersion: Option[ScalaVersion] = None
-  def injectedScalaVersion: Option[ScalaVersion] = _injectedScalaVersion
-  def injectedScalaVersion_=(version: ScalaVersion): Unit = _injectedScalaVersion = Option(version)
+  // A non-generic state accessor avoids Scala 3's raw trait-field accessors in Java subclasses.
+  private object ScalaVersionInjection {
+    var value: Option[ScalaVersion] = None
+  }
+  def injectedScalaVersion: Option[ScalaVersion] = ScalaVersionInjection.value
+  def injectedScalaVersion_=(version: ScalaVersion): Unit = ScalaVersionInjection.value = Option(version)
 
   private def configuredScalaVersion: Option[ScalaVersion] =
     injectedScalaVersion.orElse(globalConfiguredScalaVersion)

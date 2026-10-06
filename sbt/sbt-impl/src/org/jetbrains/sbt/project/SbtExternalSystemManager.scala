@@ -39,7 +39,7 @@ class SbtExternalSystemManager
 
     classpath.add(jarWith[this.type])
     //    classpath.add(jarWith[org.jetbrains.sbt.structure.XmlSerializer[?]].toCanonicalPath.toString)
-    classpath.add(jarWith[scala.App])
+    classpath.add(jarWith[scala.Specializable])
     classpath.add(jarWith[scala.xml.Node])
 
     parameters.getVMParametersList.addProperty(

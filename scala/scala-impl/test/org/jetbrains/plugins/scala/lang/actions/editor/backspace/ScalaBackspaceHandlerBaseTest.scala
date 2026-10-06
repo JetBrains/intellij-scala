@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
-import org.jetbrains.plugins.scala.extensions.{StringExt => StringExt1}
 import org.jetbrains.plugins.scala.lang.actions.editor.backspace.ScalaBackspaceHandlerBaseTest.StringExt
 import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode
 import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode.{CodeWithDebugName, WrapperCodeContexts, injectCodeWithIndentAdjust}
@@ -67,7 +67,7 @@ abstract class ScalaBackspaceHandlerBaseTest extends EditorActionTestBase with S
   }
 
   protected def prepareBeforeAfterStates(textWithCaretMarkers0: String): Seq[String] = {
-    val textWithCaretMarkers = textWithCaretMarkers0.withNormalizedSeparator
+    val textWithCaretMarkers = StringUtil.convertLineSeparators(textWithCaretMarkers0)
 
     val caretIndexes = textWithCaretMarkers.zipWithIndex
       .filter(_._1 == SpaceCaretMarker)

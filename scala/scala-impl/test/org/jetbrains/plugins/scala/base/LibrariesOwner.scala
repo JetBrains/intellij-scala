@@ -12,16 +12,19 @@ trait LibrariesOwner {
   protected def librariesLoaders: Seq[LibraryLoader]
   final def librariesLoadersPublic: Seq[LibraryLoader] = librariesLoaders
 
-  private lazy val myLoaders = mutable.ListBuffer.empty[LibraryLoader]
+  // A non-generic state accessor avoids Scala 3's raw trait-field accessors in Java subclasses.
+  private object Loaders {
+    val buffer: mutable.ListBuffer[LibraryLoader] = mutable.ListBuffer.empty
+  }
 
   protected def setUpLibraries(module: Module): Unit =
     librariesLoaders.foreach { loader =>
-      myLoaders += loader
+      Loaders.buffer += loader
       loader.init(using module, version)
     }
 
   protected def disposeLibraries(module: Module): Unit = {
-    myLoaders.foreach(_.clean(using module))
-    myLoaders.clear()
+    Loaders.buffer.foreach(_.clean(using module))
+    Loaders.buffer.clear()
   }
 }

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.runner
 import com.intellij.execution._
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
 import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationProducer, ApplicationConfigurationType}
+import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.execution.junit.JavaRunConfigurationProducerBase
 import com.intellij.openapi.module.Module
@@ -32,10 +33,11 @@ object ScalaApplicationConfigurationProducer {
     configuration.getCopyableUserData(key) == TRUE
 }
 
-@scala.annotation.nowarn("msg=constructor JavaRunConfigurationProducerBase in class JavaRunConfigurationProducerBase is deprecated")
 abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfiguration](configurationType: ApplicationConfigurationType)
-  extends JavaRunConfigurationProducerBase[T](configurationType)
+  extends JavaRunConfigurationProducerBase[T]()
     with Cloneable {
+
+  override def getConfigurationFactory: ConfigurationFactory = configurationType.getConfigurationFactories.head
 
   override def findModule(configuration: T, contextModule: Module): Module =
     Option(super.findModule(configuration, contextModule))
@@ -48,7 +50,7 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     val element = context.getPsiLocation
     if (element == null) return false
     val containingFile = element.getContainingFile
-    if (!containingFile.isInstanceOf[ScalaFile]) return false
+    if (!containingFile.is[ScalaFile]) return false
 
     val mainMethod = ScalaApplicationConfigurationProducerMainMethodUtils.findMainMethodFromContext(element)
     mainMethod match {
