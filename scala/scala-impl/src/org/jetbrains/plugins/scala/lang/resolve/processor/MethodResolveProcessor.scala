@@ -114,8 +114,23 @@ class MethodResolveProcessor(
       val accessible = isNamedParameter || isAccessible(namedElement, ref)
       if (accessibility && !accessible) return true
 
-      val s =
-        state.substitutorWithThisType(namedElement.findContextOfType(classOf[PsiClass]).orNull)
+      // An exported member is seen through its forwarder, which belongs to the class `C` declaring the
+      // export: its signature's substitutor re-anchors the member's this-types at the export qualifier
+      // (`C.this.a.type`). The use-site this-substitution therefore has to be anchored at `C` and applied
+      // *after* the signature's substitutor (`followUpdateThisType` prepends it), so that it rewrites the
+      // `C.this` that substitutor introduces.
+      // (Exports inside an extension are forwarded as extension methods on the receiver; their qualifier
+      // isn't a path on `C.this`, so they keep the ordinary treatment.)
+      val exportingClass =
+        exportedInfo
+          .filterNot(_.exportedIn.getContext.is[ScExtension])
+          .flatMap(_.exportedIn.findContextOfType(classOf[PsiClass]))
+      val s = exportingClass match {
+        case Some(exportingClass) =>
+          state.fromType.fold(state.substitutor)(fromType => state.substitutor.followed(ScSubstitutor(fromType, exportingClass)))
+        case None =>
+          state.substitutorWithThisType(namedElement.findContextOfType(classOf[PsiClass]).orNull)
+      }
 
       val resultBuilder: PsiNamedElement => ScalaResolveResult = e =>
         new ScalaResolveResult(
