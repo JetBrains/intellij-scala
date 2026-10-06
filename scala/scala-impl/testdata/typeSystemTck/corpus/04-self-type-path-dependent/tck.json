@@ -14,7 +14,9 @@
     { "lhs": "BoxThisT", "rhs": "BoxThisT", "expect": true },
     { "lhs": "AnimalBoxThis", "rhs": "AnimalBox", "expect": true },
     { "lhs": "AnimalBoxThis", "rhs": "Animal", "expect": true },
-    { "lhs": "AnimalBox", "rhs": "Animal", "expect": false }
+    { "lhs": "AnimalBox", "rhs": "Animal", "expect": false },
+    { "lhs": "Box", "rhs": "BoxThis", "expect": false },
+    { "lhs": "AnimalBox", "rhs": "AnimalBoxThis", "expect": false }
   ],
   "equivalence": [
     { "lhs": "BoxThis", "rhs": "Box", "expect": false },
