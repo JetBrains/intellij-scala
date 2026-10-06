@@ -965,48 +965,39 @@ lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir
   )
   .settings(compilationCacheSettings)
 
-lazy val scalatestFindersTestSettings = Seq(
-  scalacOptions := Seq("-deprecation")
-)
-val scalatestLatest_2   = "2.2.6"
-val scalatestLatest_3_0 = "3.0.9"
-val scalatestLatest_3_2 = "3.2.16"
+// The scalatest-finders tests are compiled with different Scala versions than the rest of the plugin,
+// so they are not added to the main project test classpath. Instead, they are standalone sbt projects
+// (sbt-idea-plugin is disabled, so running their tests doesn't build the plugin), which are run separately
+// using the `runScalatestFindersTests` command.
+def scalatestFindersTestProject(projectName: String, projectPath: File): sbt.Project =
+  Project(projectName, projectPath)
+    .disablePlugins(SbtIdeaPluginExtension)
+    .dependsOn(scalatestFinders)
+    .settings(
+      name := projectName,
+      intellijPlugins := Seq.empty,
+      scalacOptions := Seq("-deprecation"),
+      Test / fork := true
+    )
+    .settings(compilationCacheSettings)
 
-lazy val scalatestFindersTests_2 = Project("scalatest-finders-tests-2", scalatestFindersRootDir / "tests-2")
-  .dependsOn(scalatestFinders)
+lazy val scalatestFindersTests_2 = scalatestFindersTestProject("scalatest-finders-tests-2", scalatestFindersRootDir / "tests-2")
   .settings(
-    name := "scalatest-finders-tests-2",
-    scalatestFindersTestSettings,
     scalaVersion := "2.11.12",
-    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_2 % Test),
-    intellijMainJars := Nil,
-    intellijTestJars := Nil
+    libraryDependencies := Seq("org.scalatest" %% "scalatest" % "2.2.6" % Test)
   )
-  .settings(compilationCacheSettings)
 
-lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scalatestFindersRootDir / "tests-3_0")
-  .dependsOn(scalatestFinders)
+lazy val scalatestFindersTests_3_0 = scalatestFindersTestProject("scalatest-finders-tests-3_0", scalatestFindersRootDir / "tests-3_0")
   .settings(
-    name := "scalatest-finders-tests-3_0",
-    scalatestFindersTestSettings,
-    scalaVersion := "2.12.20",
-    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test),
-    intellijMainJars := Nil,
-    intellijTestJars := Nil,
+    scalaVersion := "2.12.21",
+    libraryDependencies := Seq("org.scalatest" %% "scalatest" % "3.0.9" % Test)
   )
-  .settings(compilationCacheSettings)
 
-lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scalatestFindersRootDir / "tests-3_2")
-  .dependsOn(scalatestFinders)
+lazy val scalatestFindersTests_3_2 = scalatestFindersTestProject("scalatest-finders-tests-3_2", scalatestFindersRootDir / "tests-3_2")
   .settings(
-    name := "scalatest-finders-tests-3_2",
-    scalatestFindersTestSettings,
     scalaVersion := Versions.scala2Version,
-    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test),
-    intellijMainJars := Nil,
-    intellijTestJars := Nil,
+    libraryDependencies := Seq("org.scalatest" %% "scalatest" % "3.2.20" % Test)
   )
-  .settings(compilationCacheSettings)
 
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
@@ -1471,8 +1462,15 @@ Global / commands ++= Seq(
   ("runFastTestsScala", "scala.*")
 ).map((runFastTestsCommand _).tupled)
 
+// Scalatest finders tests command definitions.
+addCommandAlias("runScalatestFindersTests-2", "scalatest-finders-tests-2/test")
+addCommandAlias("runScalatestFindersTests-3_0", "scalatest-finders-tests-3_0/test")
+addCommandAlias("runScalatestFindersTests-3_2", "scalatest-finders-tests-3_2/test")
+addCommandAlias("runScalatestFindersTests", "runScalatestFindersTests-2; runScalatestFindersTests-3_0; runScalatestFindersTests-3_2")
+
 // Compiler plugin tests command definitions.
 addCommandAlias("runCompilerPluginTests-2_12", "compiler-plugin-2_12/testOnly -- -v -s -a +c +q")
 addCommandAlias("runCompilerPluginTests-2_13", "compiler-plugin-2_13/testOnly -- -v -s -a +c +q")
 addCommandAlias("runCompilerPluginTests-3_3", "compiler-plugin-3_3/testOnly -- -v -s -a +c +q")
-addCommandAlias("runCompilerPluginTests", "runCompilerPluginTests-2_12; runCompilerPluginTests-2_13; runCompilerPluginTests-3_3")
+addCommandAlias("runCompilerPluginTests", "runCompilerPluginTests-2_12; runCompilerPluginTests-2_13; runCompilerPluginTests-3_3; runScalatestFindersTests")
+
