@@ -186,6 +186,9 @@ trait ScExpression extends ScBlockStatement
               case None =>
                 if (isJavaReflectPolymorphic)        ExpressionTypeResult(Right(expType))
                 else if (!checkImplicits || isShape) ExpressionTypeResult(initialType)
+                // "an expression of type Null is ineligible for implicit conversion" (scalac), e.g.
+                // `val i: Int = null` must not be adapted via `Predef.Integer2int`
+                else if (tp eq Null)                 ExpressionTypeResult(initialType)
                 else                                 this.updateTypeWithImplicitConversion(tp, expType)
             }
           case _ => ExpressionTypeResult(initialType)
