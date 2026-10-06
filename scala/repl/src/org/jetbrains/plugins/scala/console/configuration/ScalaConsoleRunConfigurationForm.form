@@ -73,7 +73,7 @@
         </constraints>
         <properties/>
       </component>
-      <component id="70232" class="com.intellij.execution.configuration.EnvironmentVariablesComponent" binding="environmentVariables">
+      <component id="70232" class="com.intellij.execution.configuration.EnvironmentVariablesComponent" binding="environmentVariables" custom-create="true">
         <constraints>
           <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>

@@ -35,7 +35,11 @@ import scala.language.postfixOps
  *
  * compile and test are called against previously resolved build target URIs.
  */
-object BSPCli extends App {
+object BSPCli {
+  def main(args: Array[String]): Unit = new BSPCli(args).run()
+}
+
+final class BSPCli private (args: Array[String]) {
 
   private implicit val reporter: ConsoleReporter = new ConsoleReporter("BSPCli")
 
@@ -114,7 +118,7 @@ object BSPCli extends App {
     targets.getTargets.asScala.map { t => (t.getId, t)}.toMap
   private val targetIds =
     targetIdToTarget.keys.toList
-  repl
+  private def run(): Unit = repl
 
   type BuildIds = util.List[BuildTargetIdentifier]
 
@@ -235,4 +239,3 @@ object BSPCli extends App {
     System.exit(0)
   }
 }
-

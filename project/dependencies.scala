@@ -1,6 +1,6 @@
 import LocalRepoPackager.sbtDep
 import coursier.core.Dependency
-import org.jetbrains.sbtidea.IntelliJPlatform.IdeaCommunity
+import org.jetbrains.sbtidea.IntelliJPlatform.Idea
 import org.jetbrains.sbtidea.download.BuildInfo
 import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
 import sbt.*
@@ -41,7 +41,7 @@ object Versions {
   ) = detectIntellijArtifactVersionAndRepository(intellijVersion)
 
   private def detectIntellijArtifactVersionAndRepository(intellijVersion: String): (String, MavenRepository) = {
-    val locationDescriptor = IntellijVersionUtils.detectArtifactLocation(BuildInfo(intellijVersion, IdeaCommunity), ".zip")
+    val locationDescriptor = IntellijVersionUtils.detectArtifactLocation(BuildInfo(intellijVersion, Idea), ".zip")
     val artifactVersion = locationDescriptor.artifactVersion
     val artifactUrl = locationDescriptor.url
     //println(s"""[detectIntellijArtifactVersionAndRepository] build number: $intellijVersion, artifact version: $artifactVersion, artifact url: $artifactUrl""")

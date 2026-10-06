@@ -4,9 +4,12 @@ import com.intellij.pom.java.LanguageLevel
 
 trait InjectableJdk {
 
-  private var _injectedJdkVersion: Option[LanguageLevel] = None
-  def injectedJdkVersion: Option[LanguageLevel] = _injectedJdkVersion
-  def injectedJdkVersion_=(value: LanguageLevel): Unit = _injectedJdkVersion = Some(value)
+  // A non-generic state accessor avoids Scala 3's raw trait-field accessors in Java subclasses.
+  private object JdkVersionInjection {
+    var value: Option[LanguageLevel] = None
+  }
+  def injectedJdkVersion: Option[LanguageLevel] = JdkVersionInjection.value
+  def injectedJdkVersion_=(value: LanguageLevel): Unit = JdkVersionInjection.value = Some(value)
 
   def defaultJdkVersion: LanguageLevel = InjectableJdk.DefaultJdk
 
