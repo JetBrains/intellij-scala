@@ -27,6 +27,17 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13 // Literal types
 
+  // scalac: "an expression of type Null is ineligible for implicit conversion", so `null` is not
+  // adapted to `Int` via `Predef.Integer2int` (`Null <: java.lang.Integer`)
+  def testNullIneligibleForImplicitConversion(): Unit = assertMatches(errorsFromScalaCode(
+    """object Test {
+      |  val i: Int = null
+      |}
+      |""".stripMargin
+  )) {
+    case Error("null", "Expression of type Null doesn't conform to expected type Int") :: Nil =>
+  }
+
   // Type ascription, SCL-15544
 
   // SCL-15544
