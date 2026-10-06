@@ -83,6 +83,13 @@ trait BoundsUtil {
 
   protected class BaseClassInfo(rawType: ScType)(implicit context: Context) {
     private val nonSingletonType = rawType match {
+      // Keep the prefix. `type()` of the designated element is the type as seen from its
+      // own declaration, so `global.Symbol` would become `Symbols.this.Symbol`, and the lub
+      // of `global.AliasTypeSymbol` and `global.AbstractTypeSymbol` would be computed over
+      // base classes that no longer conform to `global.Symbol` (scalac computes it over
+      // base type sequences as seen from `global`).
+      case d: DesignatorOwner if d.isSingleton     => d.widen
+      case DesignatorOwner(_: PsiClass)            => rawType
       case DesignatorOwner(Typeable(nonSingleton)) => nonSingleton
       case ex: ScExistentialType                   => ex.quantified
       case lit: ScLiteralType                      => lit.wideType
