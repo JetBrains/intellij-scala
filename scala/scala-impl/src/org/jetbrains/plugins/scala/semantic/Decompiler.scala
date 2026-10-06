@@ -12,7 +12,8 @@ trait Decompiler {
 }
 
 object Decompiler {
-  private val CompilerVersion = "3.8.4"
+  // Keep in sync with Versions.scala3Version in community/project/dependencies.scala: the compiler reads the bundled library's TASTy.
+  private val CompilerVersion = "3.9.0"
 
   def apply(classpath: Seq[String], classLoader: ClassLoader): Decompiler = {
     val decompilerClass = classLoader.loadClass("org.jetbrains.plugins.scala.semantic.DecompilerImpl")
