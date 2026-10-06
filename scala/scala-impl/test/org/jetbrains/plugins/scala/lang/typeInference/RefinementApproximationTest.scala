@@ -45,6 +45,18 @@ object RefinementApproximationTest {
       |val z: Int = x.foo
       |""".stripMargin,
     """
+      |// RefinementOfParentMemberNarrowedToThisType
+      |// `global` is narrowed from `SymbolTable` to the singleton `SymbolTable.this.type`, so both versions
+      |// keep it: a class type doesn't conform to its own `this.type`. (The scala/scala compiler cake:
+      |// `val gen = new TreeGen { val global: Global.this.type = Global.this }`.)
+      |abstract class TreeGen { val global: SymbolTable }
+      |abstract class SymbolTable {
+      |  val gen = new TreeGen { val global: SymbolTable.this.type = SymbolTable.this }
+      |  val y: SymbolTable.this.type = gen.global
+      |}
+      |def f(st: SymbolTable): st.type = st.gen.global
+      |""".stripMargin,
+    """
       |// RefinementOfNarrowedJavaParentMember
       |// `toString` is declared by `Object` with a wider type, so both versions keep the narrowed one
       |val x = new Object { override def toString(): "test" = "test" }
