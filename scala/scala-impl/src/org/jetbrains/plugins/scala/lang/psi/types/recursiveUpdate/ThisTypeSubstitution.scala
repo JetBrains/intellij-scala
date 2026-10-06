@@ -269,8 +269,6 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
 
 private object ThisTypeSubstitution {
 
-  private val inCanonicalize: ThreadLocal[Boolean] = ThreadLocal.withInitial[Boolean](() => false)
-
   /**
    * Collapse a non-canonical spelling of a singleton path (`global.analyzer.global` for
    * `global`) where it is minted: when a substitutor is built, and when a substitution
@@ -279,10 +277,5 @@ private object ThisTypeSubstitution {
    * (`analyzer.global.analyzer.global...`) until the no-self-embedding rule cuts them off.
    */
   def canonicalizeTarget(tp: ScType): ScType =
-    if (inCanonicalize.get) tp
-    else {
-      inCanonicalize.set(true)
-      try ScProjectionType.collapseSingletonPath(tp)
-      finally inCanonicalize.set(false)
-    }
+    ScProjectionType.collapseSingletonPath(tp)
 }
