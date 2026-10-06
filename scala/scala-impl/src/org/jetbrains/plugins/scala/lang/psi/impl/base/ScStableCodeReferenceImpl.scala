@@ -358,6 +358,14 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     qualifierResult match {
       case None =>
         var searchedDocOwner = false
+
+        def foundInSameExtension(exportStmt: ScExportStmt): Boolean = exportStmt.getContext match {
+          case body: ScExtensionBody =>
+            body.functions.foreach(processor.execute(_, ScalaResolveState.empty))
+            processor.candidatesS.nonEmpty
+          case _ => false
+        }
+
         @scala.annotation.tailrec
         def treeWalkUp(@Nullable place: PsiElement, lastParent: PsiElement, state: ResolveState): Unit = {
           ProgressManager.checkCanceled()
@@ -385,6 +393,12 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             case p: ScAnnotationsHolder
               if processor.kinds.contains(ResolveTargets.ANNOTATION) && PsiTreeUtil.isContextAncestor(p, this, true) =>
                 treeWalkUp(place.getContext, place, state)
+            case exportStmt: ScExportStmt if isExportInExtension && foundInSameExtension(exportStmt) =>
+              // The qualifier of an export in an extension must be an extension method of the same
+              // extension clause (SCL-22266). Look there first: walking further up would process the
+              // members of the enclosing definition, which include the members exported by this very
+              // statement, so we would re-enter the resolve of this reference and cache an empty result.
+              ()
             case exportStmt: ScExportStmt =>
               val clsContext = PsiTreeUtil.getContextOfType(exportStmt, classOf[PsiClass])
               val nodes      = MixinNodes.currentlyProcessedSigs.value.get(clsContext)
