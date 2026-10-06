@@ -68,7 +68,8 @@ class FlatSpecFinderSuite extends FinderSuite {
     assert(finder.getClass == classOf[FlatSpecFinder], "Suite that uses org.scalatest.FlatSpec should use FlatSpecFinder.")
     
     val spec1ConstructorSelection = finder.find(spec1Constructor)
-    expectSelection(spec1ConstructorSelection, suiteClass.getName, suiteClass.getName, Array("A Stack should pop values in last-in-first-out order", "A Stack should throw NoSuchElementException if an empty stack is popped", "A List should put values in the sequence they are put in", "A List should throw ArrayIndexOutOfBoundsException when invalid index is applied"))
+    // Like the other finders, FlatSpecFinder doesn't select the whole suite when the constructor is selected
+    assertResult(null)(spec1ConstructorSelection)
     
     val spec1BehaviorOf1Selection = finder.find(spec1BehaviorOf1)
     expectSelection(spec1BehaviorOf1Selection, suiteClass.getName, "A Stack", Array("A Stack should pop values in last-in-first-out order", "A Stack should throw NoSuchElementException if an empty stack is popped"))
@@ -140,7 +141,8 @@ class FlatSpecFinderSuite extends FinderSuite {
     assert(finder.getClass == classOf[FlatSpecFinder], "Suite that uses org.scalatest.FlatSpec should use FlatSpecFinder.")
     
     val spec1ConstructorSelection = finder.find(spec1Constructor)
-    expectSelection(spec1ConstructorSelection, suiteClass.getName, suiteClass.getName, Array("A Stack must pop values in last-in-first-out order", "A Stack must throw NoSuchElementException if an empty stack is popped", "A List must put values in the sequence they are put in", "A List must throw ArrayIndexOutOfBoundsException when invalid index is applied"))
+    // Like the other finders, FlatSpecFinder doesn't select the whole suite when the constructor is selected
+    assertResult(null)(spec1ConstructorSelection)
     
     val spec1BehaviorOf1Selection = finder.find(spec1BehaviorOf1)
     expectSelection(spec1BehaviorOf1Selection, suiteClass.getName, "A Stack", Array("A Stack must pop values in last-in-first-out order", "A Stack must throw NoSuchElementException if an empty stack is popped"))
@@ -207,7 +209,8 @@ class FlatSpecFinderSuite extends FinderSuite {
     assert(finder.getClass == classOf[FlatSpecFinder], "Suite that uses org.scalatest.FlatSpec should use FlatSpecFinder.")
                   
     val spec2ConstructorSelection = finder.find(spec2Constructor)
-    expectSelection(spec2ConstructorSelection, suiteClass.getName, suiteClass.getName, Array("A Stack should pop values in last-in-first-out order", "A Stack should throw NoSuchElementException if an empty stack is popped", "A List should put values in the sequence they are put in", "A List should throw ArrayIndexOutOfBoundsException when invalid index is applied"))
+    // Like the other finders, FlatSpecFinder doesn't select the whole suite when the constructor is selected
+    assertResult(null)(spec2ConstructorSelection)
     
     val spec2ItShouldIn1Selection = finder.find(spec2ItShouldIn1)
     expectSelection(spec2ItShouldIn1Selection, suiteClass.getName, "A Stack should pop values in last-in-first-out order", Array("A Stack should pop values in last-in-first-out order"))
@@ -268,7 +271,8 @@ class FlatSpecFinderSuite extends FinderSuite {
     assert(finder.getClass == classOf[FlatSpecFinder], "Suite that uses org.scalatest.FlatSpec should use FlatSpecFinder.")
                   
     val spec2ConstructorSelection = finder.find(spec2Constructor)
-    expectSelection(spec2ConstructorSelection, suiteClass.getName, suiteClass.getName, Array("A Stack must pop values in last-in-first-out order", "A Stack must throw NoSuchElementException if an empty stack is popped", "A List must put values in the sequence they are put in", "A List must throw ArrayIndexOutOfBoundsException when invalid index is applied"))
+    // Like the other finders, FlatSpecFinder doesn't select the whole suite when the constructor is selected
+    assertResult(null)(spec2ConstructorSelection)
     
     val spec2ItShouldIn1Selection = finder.find(spec2ItShouldIn1)
     expectSelection(spec2ItShouldIn1Selection, suiteClass.getName, "A Stack must pop values in last-in-first-out order", Array("A Stack must pop values in last-in-first-out order"))
