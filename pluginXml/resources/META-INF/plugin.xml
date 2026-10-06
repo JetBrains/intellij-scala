@@ -38,7 +38,7 @@
         For a sneak peek at what's in store, check our EAP and nightly build
     </change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
-    <idea-version since-build="263.6259" until-build="263.*"/>
+    <idea-version since-build="271.14" until-build="271.*"/>
 
     <!-- Required dependencies of the plugin. If they cannot be loaded, the Scala Plugin cannot be loaded -->
     <dependencies>

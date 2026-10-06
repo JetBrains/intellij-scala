@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import java.util
 import java.util.concurrent.Future
 import scala.concurrent.duration.{Duration, DurationInt}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /**
  * The test covers functionality of "Go to Symbol" action
@@ -53,7 +53,7 @@ abstract class GoToSymbolTestBase extends ScalaLightCodeInsightFixtureTestCase {
       val tabId = classOf[SymbolSearchEverywhereContributor].getSimpleName
       val event = createDummyActionEvent
       searchManager.show(tabId, "", event)
-      searchManager.getCurrentlyShownUI
+      searchManager.getCurrentlyShownPopupInstance.asInstanceOf[SearchEverywhereUI]
     }
 
     // Wait until "SearchEverywhereUI.rebuildList" is invoked (see SearchEverywhereUI.scheduleRebuildList)
