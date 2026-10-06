@@ -1,32 +1,19 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.compilation
 
-import org.jetbrains.plugins.scala.compiler.highlighting.compilation.CompilationStateTestBase.CompilerHighlightingTests
-import org.jetbrains.plugins.scala.compiler.highlighting.services.CompilationLogicService
-import org.junit.jupiter.api.Assertions.{assertAll, assertEquals, assertFalse, assertTrue}
-import org.junit.jupiter.api.{BeforeEach, Tag, Test}
+import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.CompilerHighlightingTests
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
+import org.junit.Test
+import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 import java.util.concurrent.{CountDownLatch, Executors, TimeUnit}
-import scala.compiletime.uninitialized
 
-/**
- * What [[CompilationLogicService]] adds over the value it holds: which transition each method applies, how
- * often, and that concurrent writers all land.
- *
- * The transitions themselves belong to [[CompilationStateTest]] and are not repeated here. `decide` is the
- * only method that reads the project — to resolve a build target — so a null one covers everything else,
- * and the rule table it delegates to is covered against [[CompilationStateTestBase.targetOf]] instead.
- */
-@Tag(CompilerHighlightingTests)
-class CompilationLogicServiceTest extends CompilationStateTestBase {
-
-  private val main = module("main")
-  private val a = file("A.scala", in = main)
-  private val b = file("B.scala", in = main)
-
-  private var logic: CompilationLogicService = uninitialized
-
-  @BeforeEach
-  def freshService(): Unit = logic = new CompilationLogicService(null)
+@Category(Array(classOf[CompilerHighlightingTests]))
+@RunWith(classOf[JUnit4])
+class CompilationLogicServiceTest extends CompilationStateWritesTestBase {
 
   /**
    * The guard in `filesModified` is load-bearing: `modified` advances the clock before it looks at the
@@ -35,31 +22,36 @@ class CompilationLogicServiceTest extends CompilationStateTestBase {
    * surviving changes are creations the VFS could not resolve to a file.
    */
   @Test
-  def modifyingNoFilesChangesNothing(): Unit = {
-    markBuilt()
-    val before = logic.snapshot
-    logic.filesModified(Set.empty)
-    assertEquals(before, logic.snapshot)
-  }
+  def testModifyingNoFilesChangesNothing(): Unit = 
+    markTargetBuilt(inSources("A.scala"))
+    assertRecordsNothing(logic.filesModified(Set.empty))
+  
 
   @Test
-  def modifyingFilesAdvancesTheClockOnce(): Unit = {
-    val before = logic.snapshot.changesEpoch
-    logic.filesModified(Set(a, b))
-    assertAll(
-      () => assertEquals(before + 1, logic.snapshot.changesEpoch),
-      () => assertEquals(names(a, b), names(logic.snapshot.modifiedFiles))
-    )
-  }
+  def testModifyingFilesWhileCompilerHighlightingIsOffChangesNothing(): Unit = 
+    val a = inSources("A.scala")
+    val b = inSources("B.scala")
+    markTargetBuilt(a)
+    ScalaHighlightingMode.compilerHighlightingEnabledInTests = false
+    assertRecordsNothing(logic.filesModified(Set(a, b)))
+  
 
   @Test
-  def modifyingOneFileRecordsThatFileAlone(): Unit = {
-    logic.fileModified(a)
-    assertAll(
-      () => assertEquals(1L, logic.snapshot.changesEpoch),
-      () => assertEquals(names(a), names(logic.snapshot.modifiedFiles))
-    )
-  }
+  def testModifyingFilesAdvancesTheClockOnce(): Unit = 
+    val a = inSources("A.scala")
+    val b = inSources("B.scala")
+    val before = state.changesEpoch
+    assertRecordsModified(a, b)(logic.filesModified(Set(a, b)))
+    assertEquals(before + 1, state.changesEpoch)
+  
+
+  @Test
+  def testModifyingOneFileRecordsThatFileAlone(): Unit = 
+    val a = inSources("A.scala")
+    val before = state.changesEpoch
+    assertRecordsModified(a)(logic.fileModified(a))
+    assertEquals(before + 1, state.changesEpoch)
+  
 
   /**
    * `compilationStarted` only reads. Were it ever to write, a compilation would commit against the state as
@@ -67,40 +59,42 @@ class CompilationLogicServiceTest extends CompilationStateTestBase {
    * absorbed by its success.
    */
   @Test
-  def startingACompilationOnlyReads(): Unit = {
-    logic.fileModified(a)
-    val before = logic.snapshot
+  def testStartingACompilationOnlyReads(): Unit = 
+    val a = inSources("A.scala")
+    val before = state
     val token = logic.compilationStarted(Set(a))
-    assertAll(
-      () => assertEquals(before, logic.snapshot),
-      () => assertEquals(before.changesEpoch, token.epoch),
-      () => assertEquals(names(a), names(token.files))
-    )
-  }
+    assertEquals("nothing should have been recorded", before, state)
+    assertEquals(before.changesEpoch, token.epoch)
+    assertEquals(Set(a), token.files)
+  
 
   @Test
-  def aSucceededCompilationMakesItsTargetCurrent(): Unit = {
-    markBuilt()
-    assertTrue(isCurrent, "the built target must read as current")
-  }
+  def testASucceededCompilationMakesItsTargetCurrent(): Unit = 
+    val a = inSources("A.scala")
+    markTargetBuilt(a)
+    assertTrue("the built target must read as current", isCurrent(a))
+  
 
   @Test
-  def aBuildInputChangeLeavesNoTargetCurrent(): Unit = {
-    markBuilt()
-    logic.buildInputChanged()
-    assertFalse(isCurrent)
-  }
+  def testABuildInputChangeLeavesNoTargetCurrent(): Unit = 
+    val a = inSources("A.scala")
+    markTargetBuilt(a)
+    assertInvalidatesEverything(logic.buildInputChanged())
+    assertFalse(isCurrent(a))
+  
 
   @Test
-  def invalidatingLeavesNoTargetCurrent(): Unit = {
-    markBuilt()
-    logic.invalidateAll()
-    assertFalse(isCurrent)
-  }
+  def testInvalidatingLeavesNoTargetCurrent(): Unit = 
+    val a = inSources("A.scala")
+    markTargetBuilt(a)
+    assertInvalidatesEverything(logic.invalidateAll())
+    assertFalse(isCurrent(a))
+  
 
   @Test
-  def concurrentModificationsAreAllRecorded(): Unit = {
-    val files = (1 to 64).map(i => file(s"F$i.scala", in = main))
+  def testConcurrentModificationsAreAllRecorded(): Unit = 
+    val files = (1 to 64).map(i => inSources(s"F$i.scala"))
+    val before = state.changesEpoch
     val pool = Executors.newFixedThreadPool(8)
     val start = new CountDownLatch(1)
     val finished = new CountDownLatch(files.size)
@@ -111,23 +105,13 @@ class CompilationLogicServiceTest extends CompilationStateTestBase {
         finished.countDown()
       })
       start.countDown()
-      assertTrue(finished.await(30, TimeUnit.SECONDS), "every writer must finish")
+      assertTrue("every writer must finish", finished.await(30, TimeUnit.SECONDS))
     } finally pool.shutdownNow()
 
-    assertAll(
-      () => assertEquals(files.size.toLong, logic.snapshot.changesEpoch, "one advance per write, none lost"),
-      () => assertEquals(names(files *), names(logic.snapshot.modifiedFiles))
-    )
-  }
+    assertEquals("one advance per write, none lost", before + files.size, state.changesEpoch)
+    assertTrue("every file must be recorded", files.forall(state.modifiedFiles.contains))
+  
 
-  /** Puts `main` in `compiledAt` at the current epoch, so that losing its currency is observable. */
-  private def markBuilt(): Unit = {
-    val token = logic.compilationStarted(Set(a))
-    logic.compilationSucceeded(token, Set(main), Set(a))
-  }
-
-  private def isCurrent: Boolean = {
-    val current = logic.snapshot
-    current.compiledAt.get(main).contains(current.changesEpoch)
-  }
+  private def isCurrent(file: VirtualFile): Boolean =
+    ModuleKey.of(getProject, file).exists(target => state.compiledAt.get(target).contains(state.changesEpoch))
 }
