@@ -35,7 +35,7 @@ class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElementDe
 
   override def isAlwaysLeaf: Boolean = definition.is[ScEnumCase]
 
-  override def isAlwaysShowsPlus: Boolean = true
+  override def isAlwaysShowsPlus: Boolean = false
 }
 
 object TypeDefinition {
