@@ -33,12 +33,12 @@
   ],
   "baseTypeSeq": {
     "BoxWild": [
-      "__tck.Corpus.Box[_]",
+      "Box[_1] forSome { type _1 >: scala.Nothing <: scala.Any }",
       "java.lang.Object",
       "scala.Any"
     ],
     "BoxAnimalWild": [
-      "__tck.Corpus.Box[_ <: __tck.Corpus.Animal]",
+      "Box[_1] forSome { type _1 >: scala.Nothing <: Animal }",
       "java.lang.Object",
       "scala.Any"
     ]

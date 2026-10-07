@@ -1,5 +1,5 @@
 {
-  "description": "re-anchor an INFERRED member type across a proper-superclass owner in a nested cake (scalac toPrefix first branch; the Definitions.AnyTpe report shape, SCL-21947).",
+  "description": "re-anchor an INFERRED member type across a proper-superclass owner in a nested cake (scalac spells it Definitions.this.Type and matches it exactly; IntelliJ needs the SLS subclass reading; the Definitions.AnyTpe report shape, SCL-21947).",
   "concepts": ["member-type", "nested-member", "self-type", "this-type-substitution", "inferred-type", "cake"],
   "types": [
     { "name": "GType", "expr": "g.Type", "anchor": "inUse" },

@@ -1,0 +1,14 @@
+{
+  "description": "Type avoidance beyond singletons (SPEC-GAPS §6): block-local vals in invariant positions and block-local classes/objects are packed existentially, as SLS §6.11 specifies.",
+  "concepts": ["type-avoidance", "packedType", "existential", "block", "local-class"],
+  "types": [],
+  "conformance": [],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "localValInvariant", "expr": "{ val X: Tree = new Tree; new Ref[X.type](X) }", "anchor": "inUse" },
+    { "name": "localClass", "expr": "{ class C extends Base; new C }", "anchor": "inUse" },
+    { "name": "localClassInvariant", "expr": "{ class C extends Base; new Ref(new C) }", "anchor": "inUse" },
+    { "name": "localClassThisType", "expr": "{ class C { def me: this.type = this }; new C().me }", "anchor": "inUse" },
+    { "name": "localObject", "expr": "{ object O extends Base; O }", "anchor": "inUse" }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "description": "Override-aware singleton path through a plain val override (SPEC-GAPS §1): b.get has type b.x.type whose underlying is B's String, not A's AnyRef.",
+  "concepts": ["member-type", "singleton-type", "override", "rebind", "path-dependent"],
+  "types": [
+    { "name": "BX", "expr": "b.x.type", "anchor": "inUse" },
+    { "name": "Str", "expr": "String" },
+    { "name": "AnyRefT", "expr": "AnyRef" }
+  ],
+  "conformance": [
+    { "lhs": "BX", "rhs": "Str", "expect": true },
+    { "lhs": "BX", "rhs": "AnyRefT", "expect": true }
+  ],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "get", "expr": "b.get", "anchor": "inUse" },
+    { "name": "getLength", "expr": "b.get.length", "anchor": "inUse" }
+  ]
+}
