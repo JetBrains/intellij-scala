@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -72,9 +72,13 @@ final case class Scala2Bounds()(implicit val projectContext: ProjectContext)
 
   /**
    * scalac's `lubRefined`, for type members: a type member that the lub's classes leave abstract and that
-   * both operands define as equivalent aliases keeps that definition as a refinement. The lub of
-   * `SingleAttachment[P]` and `NonemptyAttachments[P]` (both `type Pos = P`) is `Attachments { type Pos = P }`,
-   * not `Attachments`, so an inferred override result still conforms to `Attachments { type Pos = self.Pos }`.
+   * both operands define as equivalent aliases keeps that definition as a refinement, if scalac's `addMember`
+   * and lub verification keep it. The refinement member is a clone of the abstract one, so `type Pos = T`
+   * there means `T`'s bounds: the bounds of a type parameter or abstract type, a singleton's underlying type,
+   * or else `T` itself. The lub of two classes with `type Pos = String` (or `List[P]`, or `Q` for `Q <: Foo`)
+   * is `Attachments { type Pos = String }`, but with `type Pos = P` for `P >: Null` it is `Attachments`: `P`'s
+   * bounds already contain the base's `Pos >: Null`. With a singleton the refinement doesn't verify (its
+   * bounds are the underlying type, which doesn't conform to the singleton) and is dropped too.
    */
   private def refineTypeMembers(lub: ScType, t1: ScType, t2: ScType)(implicit context: Context): ScType = {
     val classes = lub match {
@@ -100,13 +104,37 @@ final case class Scala2Bounds()(implicit val projectContext: ProjectContext)
       case dealiased => Some(dealiased)
     }
 
+    // `T.bounds` in scalac: an abstract type's or type parameter's bounds, a singleton's underlying type.
+    def scalacBounds(tp: ScType): (ScType, ScType) = tp match {
+      case tpt: TypeParameterType => (tpt.lowerType, tpt.upperType)
+      case ex: ScExistentialArgument => (ex.lower, ex.upper)
+      case AliasType(_: ScTypeAliasDeclaration, Right(lower), Right(upper), _) => (lower, upper)
+      case singleton: DesignatorOwner if singleton.isSingleton =>
+        val underlying = singleton.widen
+        (underlying, underlying)
+      case _: ScThisType =>
+        val underlying = tp.widen
+        (underlying, underlying)
+      case _ => (tp, tp)
+    }
+
+    def keptByScalac(lub: ScType, member: ScTypeAlias, alias: ScType): Boolean = {
+      val (lower, upper) = scalacBounds(alias)
+      // `addMember`: the base's own member already specializes the refinement (its bounds lie within `T`'s).
+      val impliedByBase = ScProjectionType(lub, member).aliasType.exists { base =>
+        base.lower.exists(lower.conforms(_)) && base.upper.exists(_.conforms(upper))
+      }
+      // lub verification: every operand, whose member is `T`, conforms to the refinement.
+      !impliedByBase && lower.conforms(alias) && alias.conforms(upper)
+    }
+
     val refinements =
       if (abstractMembers.isEmpty) Seq.empty
       else abstractMembers.flatMap { member =>
         for {
           alias1 <- aliasOf(t1, member)
           alias2 <- aliasOf(t2, member)
-          if alias1.equiv(alias2)
+          if alias1.equiv(alias2) && keptByScalac(lub, member, alias1)
         } yield member.name -> TypeAliasSignature(member, member.name, Seq.empty, alias1, alias1, isDefinition = true, ScSubstitutor.empty)
       }
 
