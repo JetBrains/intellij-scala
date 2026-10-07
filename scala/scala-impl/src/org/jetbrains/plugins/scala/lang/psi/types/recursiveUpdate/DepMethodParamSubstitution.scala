@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScThisReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -27,7 +29,13 @@ private case class ParamsToExprs(params: Seq[Parameter], exprs: Seq[Expression],
     val expr = exprs.lift(idx)
     val expectedType = if (useExpected) params.lift(idx).map(_.expectedType) else None
 
-    expr.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, expectedType).tr.getOrAny)
+    expr.map { e =>
+      val argType = e.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, expectedType).tr.getOrAny
+      e match {
+        case arg: ScExpression => ScThisReferenceImpl.dependentArgumentType(arg, argType)
+        case _                 => argType
+      }
+    }
   }
 }
 
