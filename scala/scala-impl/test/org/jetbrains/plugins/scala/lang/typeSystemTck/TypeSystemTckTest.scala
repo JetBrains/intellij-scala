@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.typeSystemTck
 
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -34,6 +34,12 @@ import scala.collection.mutable.ArrayBuffer
  * Iterate: `testOnly org.jetbrains.plugins.scala.lang.typeSystemTck.TypeSystemTckTest`
  */
 class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
+
+  // The goldens come from scalac 2.13 (the reference engine pins 2.13.16), so the PSI
+  // side must see the 2.13 standard library too. The fixture's default is 2.12, whose
+  // collections differ (e.g. `Iterable` extends `Equals` there).
+  override protected def defaultVersionOverride: Option[ScalaVersion] = Some(ScalaVersion.Latest.Scala_2_13)
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   // Local-iteration escape hatch: report diffs without failing on the soft dimensions
   // (baseTypeSeq / baseClasses / termType). Conformance, equivalence and baseType stay
@@ -87,9 +93,10 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
      * I. Block type avoidance (33): `ScBlock` packs block-local definitions
      *    existentially, but a local class whose members mention `this.type` becomes its
      *    plain parents, where scalac keeps a refinement (`Object { def me: this.type }`).
-     * K. lub precision (36): scalac's n-ary lub keeps `Equals` and a refinement, and
-     *    folds differently for `if` vs `match`; PSI's pairwise lub is coarser. (The
-     *    golden also spells `Function1[..]` where PSI renders `=>` sugar.)
+     * K. lub refinements (36): PSI's lub has scalac's parents
+     *    (`Iterable[Int] with (Int => AnyVal) with Equals`) but builds no refinement
+     *    (`{ def iterableFactory: ... }`), and folds pairwise where scalac's `lubList`
+     *    is n-ary, so it can't reproduce the `if`/`match` difference.
      */
     val termType: Set[String] = Set(
       "30-asf-unstable-prefix/arr",                // G
