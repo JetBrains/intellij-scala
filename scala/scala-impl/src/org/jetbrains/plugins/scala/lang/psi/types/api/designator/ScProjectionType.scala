@@ -200,9 +200,11 @@ final class ScProjectionType private(val projected: ScType,
       case _                => false
     }
 
-    def checkDesignatorType(e: PsiNamedElement, other: ScType): ConstraintsResult = e match {
+    // A stable value typed as a singleton, or as an alias to one, is that singleton.
+    def checkDesignatorType(e: PsiNamedElement, subst: ScSubstitutor, other: ScType): ConstraintsResult = e match {
       case td: ScTypedDefinition if td.isStable =>
-        val tp = actualSubst(td.`type`().getOrAny)
+        val declared = subst(td.`type`().getOrAny)
+        val tp = ScProjectionType.singletonThroughAliases(declared, td).getOrElse(declared)
         tp match {
           case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
             tp.equiv(other, constraints, falseUndef)
@@ -212,7 +214,7 @@ final class ScProjectionType private(val projected: ScType,
       case _ => ConstraintsResult.Left
     }
 
-    val desRes = checkDesignatorType(actualElement, r)
+    val desRes = checkDesignatorType(actualElement, actualSubst, r)
     if (desRes.isRight) return desRes
 
     r match {
@@ -236,7 +238,7 @@ final class ScProjectionType private(val projected: ScType,
           case _ => ConstraintsResult.Left
         }
       case proj2 @ ScProjectionType(p1, _) =>
-        val desRes = checkDesignatorType(proj2.actualElement, this)
+        val desRes = checkDesignatorType(proj2.actualElement, proj2.actualSubst, this)
         if (desRes.isRight) return desRes
 
         val lElement = actualElement
@@ -336,26 +338,35 @@ object ScProjectionType {
    * `self.global.analyzer`. scalac follows a path's singleton type when comparing prefixes of path-dependent
    * types; without this, a cake member reached through such an alias yields an unreduced prefix and a spurious
    * mismatch (SCL-21947, `Infer.inferTypedPattern`; scala/scala `Macros.macroContext`). `fuel` bounds the walk.
+   *
+   * `throughAliases` also follows a val typed by an alias to a singleton (`val symbolTable: SymbolTable` for
+   * `type SymbolTable = outer.symbolTable.type`). That is right for comparing paths, but not for respelling
+   * one: scalac keeps `TastyUniverse.symbolTable.Symbol` as written, so canonicalization passes `false`.
    */
-  private[types] def collapseSingletonPath(tp: ScType, fuel: Int = 8): ScType = tp match {
-    case proj: ScProjectionType if fuel > 0 =>
-      val prefix = collapseSingletonPath(proj.projected, fuel - 1)
-      val withPrefix: ScType = if (prefix eq proj.projected) proj else ScProjectionType(prefix, proj.element)
-      withPrefix match {
-        case p: ScProjectionType if isStableValue(p.element) =>
-          projectionSingleton(p) match {
-            case Some(singleton) if singleton ne p => collapseSingletonPath(singleton, fuel - 1)
-            case _                                 => p
-          }
-        case other => other
-      }
-    // A stable value without a prefix (a local or early-defined val, a parameter) typed as a singleton.
-    case des: ScDesignatorType if fuel > 0 && isStableValue(des.element) =>
-      des.designatorSingletonType.flatMap(singletonThroughAliases(_, des.element)) match {
-        case Some(singleton) if singleton ne des => collapseSingletonPath(singleton, fuel - 1)
-        case _                                   => tp
-      }
-    case _ => tp
+  private[types] def collapseSingletonPath(tp: ScType, fuel: Int = 8, throughAliases: Boolean = true): ScType = {
+    def singletonOf(t: ScType, place: PsiElement): Option[ScType] =
+      if (throughAliases) singletonThroughAliases(t, place) else Some(t).filter(isSingletonLike)
+
+    tp match {
+      case proj: ScProjectionType if fuel > 0 =>
+        val prefix = collapseSingletonPath(proj.projected, fuel - 1, throughAliases)
+        val withPrefix: ScType = if (prefix eq proj.projected) proj else ScProjectionType(prefix, proj.element)
+        withPrefix match {
+          case p: ScProjectionType if isStableValue(p.element) =>
+            p.designatorSingletonType.flatMap(singletonOf(_, p.element)) match {
+              case Some(singleton) if singleton ne p => collapseSingletonPath(singleton, fuel - 1, throughAliases)
+              case _                                 => p
+            }
+          case other => other
+        }
+      // A stable value without a prefix (a local or early-defined val, a parameter) typed as a singleton.
+      case des: ScDesignatorType if fuel > 0 && isStableValue(des.element) =>
+        des.designatorSingletonType.flatMap(singletonOf(_, des.element)) match {
+          case Some(singleton) if singleton ne des => collapseSingletonPath(singleton, fuel - 1, throughAliases)
+          case _                                   => tp
+        }
+      case _ => tp
+    }
   }
 
   private def isStableValue(element: PsiNamedElement): Boolean = element match {
@@ -364,17 +375,13 @@ object ScProjectionType {
     case _                    => false
   }
 
-  /** The singleton type of the stable path `proj`: its override-aware `designatorSingletonType`. */
-  private def projectionSingleton(proj: ScProjectionType): Option[ScType] =
-    proj.designatorSingletonType.flatMap(singletonThroughAliases(_, proj.element))
-
   /**
    * `t` if it is a singleton, or the singleton that the alias `t` stands for: a val typed by an alias to a
    * singleton is that singleton, as for scalac, which dealiases a singleton's underlying type. scala/scala's
    * `ClassfileParser.TastyUniverse` has `type SymbolTable = ClassfileParser.this.symbolTable.type` and
    * `val symbolTable: SymbolTable`, so `TastyUniverse.symbolTable.Symbol` is `symbolTable.Symbol`.
    */
-  private def singletonThroughAliases(t: ScType, place: PsiElement, fuel: Int = 4): Option[ScType] =
+  private[designator] def singletonThroughAliases(t: ScType, place: PsiElement, fuel: Int = 4): Option[ScType] =
     if (isSingletonLike(t)) Some(t)
     else if (fuel <= 0) None
     else

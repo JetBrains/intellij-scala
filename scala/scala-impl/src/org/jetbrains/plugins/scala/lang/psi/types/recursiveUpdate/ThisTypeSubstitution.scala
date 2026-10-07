@@ -278,5 +278,5 @@ private object ThisTypeSubstitution {
    * (`analyzer.global.analyzer.global...`) until the no-self-embedding rule cuts them off.
    */
   def canonicalizeTarget(tp: ScType): ScType =
-    TypeRecursionGuard.nestedSubstitution(tp, s"canonicalizing $tp")(ScProjectionType.collapseSingletonPath(tp))
+    TypeRecursionGuard.nestedSubstitution(tp, s"canonicalizing $tp")(ScProjectionType.collapseSingletonPath(tp, throughAliases = false))
 }
