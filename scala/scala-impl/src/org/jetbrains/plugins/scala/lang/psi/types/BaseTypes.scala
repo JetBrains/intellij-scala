@@ -172,34 +172,6 @@ object BaseTypes {
     }
 
   /**
-   * Ordered, deduplicated, same-symbol-merged base type sequence — one entry per
-   * base class, more-derived classes first (an order consistent with subtyping).
-   * Mirrors scalac's `baseTypeSeq` (modulo the exact symbol-id tie-break among
-   * unrelated classes, which is deterministic here but by base-class count + name).
-   */
-  def baseTypeSeq(t: ScType)(implicit context: Context): Seq[ScType] = {
-    val all = (Iterator(t) ++ iterator(t)).toList
-    val perClass = all.flatMap(tp => tp.extractClass.map(_ -> tp)).groupBy(_._1)
-    val merged = perClass.toSeq.map { case (c, ps) => mergeSameClass(ps.map(_._2), c) }
-    merged.sortBy { tp =>
-      val name = tp.extractClass.flatMap(c => Option(c.getQualifiedName)).getOrElse("")
-      (-baseClassCount(tp), name)
-    }
-  }
-
-  /** Number of transitive base classes — a subtyping-consistent ordering key
-   *  (a subtype has a superset of its supertype's base classes). */
-  private def baseClassCount(t: ScType)(implicit context: Context): Int =
-    t.extractClass match {
-      case Some(c) =>
-        val seen = mutable.Set.empty[PsiClass]
-        def go(c: PsiClass): Unit = if (seen.add(c)) c.getSupers.foreach(go)
-        go(c)
-        seen.size
-      case None => 0
-    }
-
-  /**
    * Returns the direct super types of `tp` in declaration order, resolving
    * aliases / type parameters / this-types / existentials to their underlying
    * types first. `seenAliases` tracks aliases already unwrapped to break
