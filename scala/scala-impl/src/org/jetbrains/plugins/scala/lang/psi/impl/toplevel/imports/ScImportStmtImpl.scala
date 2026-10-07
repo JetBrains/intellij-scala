@@ -420,10 +420,14 @@ object ScImportOrExportImpl {
                 val newImportsUsed =
                   importsUsed ++ wildcardExprUsed
 
+                // As for a plain wildcard import, members imported by the wildcard are seen from the import's
+                // qualifier: `TypeTagClass` from `import runDefinitions.{A, B, _}` is a
+                // `runDefinitions.TypeTagClass.type`, not a bare designator whose members lose the path.
                 val newState =
                   state
                     .withImportsUsed(newImportsUsed)
                     .withSubstitutor(subst)
+                    .withFromType(qualifierType(isInPackageObject(next.element)))
 
                 (elem, processor) match {
                   case (cl: PsiClass, processor: BaseProcessor) if hasWildcard && !cl.is[ScTemplateDefinition] =>
