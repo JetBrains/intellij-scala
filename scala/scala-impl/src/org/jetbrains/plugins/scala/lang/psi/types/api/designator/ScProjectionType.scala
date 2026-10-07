@@ -143,7 +143,10 @@ final class ScProjectionType private(val projected: ScType,
       processor.candidates match {
         case Array(candidate) => candidate.element match {
           case candidateElement: PsiNamedElement =>
-            val thisSubstitutor = ScSubstitutor(projected, element.findContextOfType(classOf[PsiClass]).orNull)
+            // Seen from `projected` at the owner of the member found there (scalac's `sym.owner` for the `sym`
+            // that `pre.memberType` picks), not of the static `element`: an abstract `type T` of `api.Internals`
+            // realized by a `class T` of `internal.Trees` has `Trees.this` in its base types.
+            val thisSubstitutor = ScSubstitutor(projected, ScSubstitutor.declarationAnchor(candidateElement))
             val defaultSubstitutor =
               projected match {
                 case _: ScThisType => candidate.substitutor

@@ -295,12 +295,23 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
               case alias: ScTypeAlias =>
                 val upper = alias.upperBound.getOrElse(return true)
                 processTypeImpl(s(upper), place, state.withSubstitutor(ScSubstitutor.empty))(using recState.add(alias))
-              case elem =>
+              // A class designated by the projection (`pre.C` as a type) sees its own `C.this` as `pre.C`.
+              case cls: PsiClass =>
                 val subst =
-                  if (updateWithProjectionSubst) ScSubstitutor(proj, ScSubstitutor.declarationAnchor(elem)).followed(s)
+                  if (updateWithProjectionSubst) ScSubstitutor(proj, ScSubstitutor.declarationAnchor(cls)).followed(s)
                   else                           s
 
-                processElement(elem, subst, place, state)(using recState.add(elem))
+                processElement(cls, subst, place, state)(using recState.add(cls))
+              // The members of a value designated by the projection (`pre.v`) are seen from `pre.v`, each from
+              // its own owner (scalac's `pre.v.type.memberType(sym)`, `sym.owner`): the processors anchor that
+              // at the member they find, given `pre.v` as the `fromType`. `v`'s own type is `s`, as seen from
+              // `pre`. One substitution onto `pre.v` anchored at `v`'s owner instead rewrote that owner's
+              // this-types onto `v`: inside `class StandardImporter { val from: SymbolTable }`,
+              // `Importers.this` onto `from`, so the enclosing universe's types became `from`'s.
+              case elem if updateWithProjectionSubst =>
+                processElement(elem, s, place, state.withFromType(proj))(using recState.add(elem))
+              case elem =>
+                processElement(elem, s, place, state)(using recState.add(elem))
             }
         }
       case lit: ScLiteralType => processType(lit.wideType, place, state, updateWithProjectionSubst)
