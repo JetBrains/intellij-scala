@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -66,6 +68,53 @@ final case class Scala2Bounds()(implicit val projectContext: ProjectContext)
     }
 
     ScTypePolymorphicType(intTpe, newParams)
+  }
+
+  /**
+   * scalac's `lubRefined`, for type members: a type member that the lub's classes leave abstract and that
+   * both operands define as equivalent aliases keeps that definition as a refinement. The lub of
+   * `SingleAttachment[P]` and `NonemptyAttachments[P]` (both `type Pos = P`) is `Attachments { type Pos = P }`,
+   * not `Attachments`, so an inferred override result still conforms to `Attachments { type Pos = self.Pos }`.
+   */
+  private def refineTypeMembers(lub: ScType, t1: ScType, t2: ScType)(implicit context: Context): ScType = {
+    val classes = lub match {
+      case c: ScCompoundType => c.components.flatMap(_.extractClass)
+      case _                 => lub.extractClass.toSeq
+    }
+    val abstractMembers =
+      classes.iterator
+        .flatMap(TypeDefinitionMembers.getTypes(_).allSignatures)
+        .map(_.namedElement)
+        .collect { case d: ScTypeAliasDeclaration if d.typeParameters.isEmpty => d }
+        .distinctBy(_.name)
+        .toSeq
+
+    // `tp#member` as `tp` defines it: the projection constructor already dealiases a concrete override;
+    // a projection that remains is an alias to read, or still abstract.
+    def aliasOf(tp: ScType, member: ScTypeAlias): Option[ScType] = ScProjectionType(tp, member) match {
+      case proj: ScProjectionType =>
+        proj.aliasType.collect {
+          case alias if alias.ta.is[ScTypeAliasDefinition] && !alias.effectivelyOpaque &&
+            alias.lower.exists(lower => alias.upper.exists(lower.equiv(_))) => alias.upper.get
+        }
+      case dealiased => Some(dealiased)
+    }
+
+    val refinements =
+      if (abstractMembers.isEmpty) Seq.empty
+      else abstractMembers.flatMap { member =>
+        for {
+          alias1 <- aliasOf(t1, member)
+          alias2 <- aliasOf(t2, member)
+          if alias1.equiv(alias2)
+        } yield member.name -> TypeAliasSignature(member, member.name, Seq.empty, alias1, alias1, isDefinition = true, ScSubstitutor.empty)
+      }
+
+    if (refinements.isEmpty) lub
+    else lub match {
+      case c: ScCompoundType => ScCompoundType(c.components, c.signatureMap, c.typesMap ++ refinements)
+      case _                 => ScCompoundType(Seq(lub), Map.empty, refinements.toMap)
+    }
   }
 
   override def lubInner(
@@ -157,12 +206,13 @@ final case class Scala2Bounds()(implicit val projectContext: ProjectContext)
               if (tp != Any) buf += tp
             }
 
-            buf.toArray match {
+            val base = buf.toArray match {
               case a: Array[ScType] if a.length == 0 => Any
               case a: Array[ScType] if a.length == 1 => a(0)
               case many                              => ScCompoundType(many.toSeq, Map.empty, Map.empty)
             }
-          //todo: refinement for compound types
+            refineTypeMembers(base, t1, t2)
+          //todo: refinement for term members
         }
       }
       lubWithExpandedAliases(t1, t2).unpackedType
