@@ -129,7 +129,7 @@ class MethodResolveProcessor(
         case Some(exportingClass) =>
           state.fromType.fold(state.substitutor)(fromType => state.substitutor.followed(ScSubstitutor(fromType, exportingClass)))
         case None =>
-          state.substitutorWithThisType(namedElement.findContextOfType(classOf[PsiClass]).orNull)
+          state.substitutorWithThisType(ScSubstitutor.declarationAnchor(namedElement))
       }
 
       val resultBuilder: PsiNamedElement => ScalaResolveResult = e =>
