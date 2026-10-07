@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
+import org.jetbrains.plugins.scala.caches.RecursionManager
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -36,9 +37,13 @@ object TypeRecursionGuard {
       case None        => ApplicationManager.getApplication != null && ApplicationManager.getApplication.isUnitTestMode
     }
 
-  /** Records a trip of the guard `what`; throws when failing hard. */
+  /**
+   * Records a trip of the guard `what`; throws when failing hard. Otherwise the caller returns a
+   * fallback, so nothing computed from it in the enclosing guarded computation may be cached.
+   */
   def tripped(what: String, detail: => String): Unit = {
     tripCount.incrementAndGet()
+    RecursionManager.prohibitCaching()
     val message = s"type recursion guard tripped: $what: $detail"
     if (failHard) throw new TypeRecursionGuardException(message)
     else LOG.warn(message)
@@ -51,8 +56,8 @@ object TypeRecursionGuard {
   /**
    * Runs `body` one level deeper in nested this-type substitution or canonicalization; beyond
    * [[MaxSubstitutionDepth]] the guard trips and `fallback` is returned. A depth bound rather than a
-   * keyed `RecursionGuard`, because a diverging substitution grows its types, so no key repeats. The
-   * cost is that a result computed after a trip can be cached; tests fail hard instead.
+   * keyed `RecursionGuard`, because a diverging substitution grows its types, so no key repeats. A trip
+   * prohibits caching in the enclosing `RecursionManager` computations, so the fallback is not cached.
    */
   def nestedSubstitution[T](fallback: => T, detail: => String)(body: => T): T = {
     val depth = substitutionDepth.get
