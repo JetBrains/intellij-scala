@@ -74,7 +74,9 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
 
   protected override def innerType: TypeResult = {
     val paramTypes      = parameters.map(_.`type`().getOrNothing)
-    val maybeResultType = result.map(r => widenSingletonsInRetType(r.`type`().getOrAny))
+    // the result may not mention the literal's own parameters, as in scalac's `typedFunction`
+    // (`(k: Key) => get(k)` for `def get(k: Key): k.V` is a `Key => Key#V`, not `Key => k.V`)
+    val maybeResultType = result.map(r => ScBlock.avoidLocals(widenSingletonsInRetType(r.`type`().getOrAny), this))
 
     val functionTypeFactory =
       if (isContext) ContextFunctionType

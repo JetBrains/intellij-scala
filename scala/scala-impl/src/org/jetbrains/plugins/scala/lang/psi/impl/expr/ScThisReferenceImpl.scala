@@ -7,9 +7,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScThisReference {
@@ -39,13 +40,28 @@ class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with
 
 object ScThisReferenceImpl {
   /** The type an argument of type `argType` stands for in a parameter's dependent `p.type`. A stable
-   *  argument is substituted by its singleton type, as in scalac, so `apply(this)` for
-   *  `def apply(tree: Tree): tree.type` is a `C.this.type`, not a `C`. Not when `this` was converted
-   *  to fit the parameter: the argument is then the conversion's result. */
-  def dependentArgumentType(arg: ScExpression, argType: ScType): ScType = arg match {
-    case ths: ScThisReference =>
-      ths.refTemplate.map(ScThisType(_)).filter(_.conforms(argType)(using Context(arg))).getOrElse(argType)
-    case _ => argType
+   *  argument (a path: `this`, or stable identifiers selected from a path) is substituted by its singleton
+   *  type, as in scalac: `apply(this)` for `def apply(tree: Tree): tree.type` is a `C.this.type`, not a
+   *  `C`, and `updateAttachment(tree, a)` for a `val tree: T` is a `tree.type`, not a `T`. Not when the
+   *  argument was converted to fit the parameter: it is then the conversion's result. */
+  def dependentArgumentType(arg: ScExpression, argType: ScType): ScType =
+    stablePathType(arg).filter(_.conforms(argType)(using Context(arg))).getOrElse(argType)
+
+  /** The singleton type of `expr` when it is a stable path. */
+  private def stablePathType(expr: ScExpression): Option[ScType] = expr match {
+    case ths: ScThisReference => ths.refTemplate.map(ScThisType(_))
+    case ref: ScReferenceExpression =>
+      ref.bind().flatMap { srr =>
+        srr.element match {
+          case td: ScTypedDefinition if td.isStable =>
+            ref.qualifier match {
+              case None            => Some(srr.fromType.map(ScProjectionType(_, td)).getOrElse(ScDesignatorType(td)))
+              case Some(qualifier) => stablePathType(qualifier).map(ScProjectionType(_, td))
+            }
+          case _ => None
+        }
+      }
+    case _ => None
   }
 
   def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult = {
