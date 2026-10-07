@@ -4,10 +4,11 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.SubstitutorInvariants.{Mode, Rule}
 import org.junit.Assert._
 
@@ -84,6 +85,48 @@ class SubstitutorInvariantsTest extends ScalaLightCodeInsightFixtureTestCase {
         |}
         |""".stripMargin)
     assertSilent(Rule.FixedTarget, Rule.NoReentry, Rule.StateSafe)
+  }
+
+  // `Scanners.scala`: `parensAnalyzer.balance` inside `UnitScanner` views an inherited member through
+  // `UnitScanner.this -> UnitScanner.this.parensAnalyzer.type`, a self-rooted link: right once
+  // (`once_is_scalac`), wrong twice (`selfRooted_twice_diverges`).
+  private val unitScanner =
+    """class UnitScanner {
+      |  type T
+      |  def balance: T = ???
+      |  lazy val parensAnalyzer = new ParensAnalyzer
+      |  def use = parensAnalyzer.balance
+      |}
+      |class ParensAnalyzer extends UnitScanner
+      |""".stripMargin
+
+  def testSelfRootedLinkOnceIsAllowed(): Unit = {
+    typeEverything(unitScanner)
+    assertTrue("A1 classified no link as self-rooted", SubstitutorInvariants.fixedTargetSelfRooted > 0)
+    assertSilent(Rule.FixedTarget)
+  }
+
+  def testSelfRootedLinkTwiceIsReported(): Unit = {
+    val file = typeEverything(unitScanner)
+    val us   = file.depthFirst().collectFirst { case c: ScClass if c.name == "UnitScanner" => c }.get
+    val pa   = file.depthFirst().collectFirst { case b: ScBindingPattern if b.name == "parensAnalyzer" => b }.get
+    val target = ScProjectionType(ScThisType(us), pa)
+    SubstitutorInvariants.reset()
+
+    val once = ScSubstitutor(target, us)
+    assertEquals(target, once(ScThisType(us)))
+    assertSilent(Rule.FixedTarget)
+    assertEquals(1, SubstitutorInvariants.fixedTargetSelfRooted)
+
+    // The first copy is already classified: reported at `followed`.
+    once.followed(ScSubstitutor(target, us))
+    assertEquals(1, SubstitutorInvariants.count(Rule.FixedTarget))
+
+    // Neither copy classified yet: reported at the first use, once.
+    val twice = ScSubstitutor(target, us).followed(ScSubstitutor(target, us))
+    assertEquals(1, SubstitutorInvariants.count(Rule.FixedTarget))
+    twice(ScThisType(us))
+    assertEquals(SubstitutorInvariants.samplesOf(Rule.FixedTarget).mkString("\n"), 2, SubstitutorInvariants.count(Rule.FixedTarget))
   }
 
   // The leak of §5.2: the extractor's this-links must not reach the substitutor that the resolver threads to
