@@ -68,23 +68,30 @@ object SubstitutorInvariants {
   }
 
   object Rule {
-    /** C2. `ScSubstitutor(target, anchor)` applied to `target` is the identity. This is the `hp` hypothesis of
-     *  `idempotent`, so the link may be re-run on its own output and duplicates dropped. Checked semantically
-     *  (the link is applied to its target) rather than by the Lean's sufficient condition "no this-leaf of the
-     *  target is on the anchor's owner chain", which `Outer.this.i.type` seen from `Inner` legitimately violates
-     *  while still mapping to itself. Only targets that meet the syntactic precondition are checked.
+    /** C2. Every this-link may be applied as often as the chain holds it. A link is one of two kinds:
+     *
+     *  - fixed: `ScSubstitutor(target, anchor)` applied to `target` is the identity, the `hp` hypothesis of
+     *    `idempotent`, so the link may be re-run on its own output. Checked semantically (the link is applied to
+     *    its target) rather than by the Lean's sufficient condition "no this-leaf of the target is on the anchor's
+     *    owner chain", which `Outer.this.i.type` seen from `Inner` legitimately violates while still mapping to
+     *    itself;
+     *  - self-rooted (`SelfRooted`): the target is a path rooted in the anchor's own this-type, as in
+     *    `UnitScanner.this -> UnitScanner.this.parensAnalyzer.type` (`ParensAnalyzer extends UnitScanner`). The
+     *    `UnitScanner.this` inside the target is the enclosing scanner, not the receiver; one pass leaves it
+     *    alone, as scalac's does, and gives scalac's result (`once_is_scalac`), but a second copy of the link
+     *    later in the chain rewrites it too (`selfRooted_twice_diverges`). So a self-rooted link may occur at
+     *    most once in a chain, which [[selfRootedOnce]] checks at `followed`.
+     *
+     *  A link of neither kind, or a self-rooted link that a chain holds twice, is a violation. Only targets with
+     *  a this-leaf on the anchor's owner chain are at risk (`asf_eq_of_fixed`); others are not checked.
      *
      *  Checked lazily, the first time the walk applies the link, and reported with the line that minted it.
      *  Checked when the substitutor was built, it evaluated types out of turn and changed the result
      *  (`scala/reflect/internal/util/JavaClearable.scala` then reported `JavaClearableCollection[T]` not
      *  conforming to `JavaClearable[T]`); checked lazily, the tests, the TCK and scala/scala's sources give the
-     *  same results with it on and off.
-     *
-     *  A violation is not necessarily a bug. Over scala/scala it flags links such as
-     *  `UnitScanner.this -> UnitScanner.this.parensAnalyzer.type` (`ParensAnalyzer extends UnitScanner`):
-     *  correct applied once, as scalac applies it, but not idempotent, so they rely on `chain_is_single` (I4).
-     *  Off by default, since it costs about 8% on the type-system tests; `.A1=record` for a census. */
-    case object FixedTarget extends Rule("A1", 0, "idempotent_of_fixed", "a this-link maps its own target to itself", Mode.Off)
+     *  same results with it on and off. The duplicate check at `followed` compares links by equality only and
+     *  defers to that first use when the link has not been classified yet. */
+    case object FixedTarget extends Rule("A1", 0, "idempotent_of_fixed, once_is_scalac", "a this-link maps its own target to itself, or is self-rooted and occurs once in its chain", Mode.Off)
 
     /** C3. A substitutor threaded into resolve *state*, and so applied to the types of other references
      *  (`matchClauseSubstitutor`), binds type variables only: no this-link. `stateSafe_preserves_this`. */
@@ -143,6 +150,7 @@ object SubstitutorInvariants {
     else {
       val m = fromProps.getOrElse(if (app.isUnitTestMode) rule.defaultInTests else Mode.Off)
       modes(rule.index) = m
+      if (m ne Mode.Off) reportOnExit
       m
     }
   }
@@ -163,15 +171,25 @@ object SubstitutorInvariants {
   def count(rule: Rule): Int = counts(rule.index).get
 
   private val fixedTargetChecks = new AtomicInteger
+  private val fixedLinks        = new AtomicInteger
+  private val selfRootedLinks   = new AtomicInteger
+  private val selfRootedSamples = mutable.LinkedHashSet.empty[String]
 
   /** How many links A1 has checked, so that a silent A1 is known to have run. */
   def fixedTargetChecked: Int = fixedTargetChecks.get
+
+  /** Of those, how many were fixed and how many self-rooted. */
+  def fixedTargetFixed: Int = fixedLinks.get
+  def fixedTargetSelfRooted: Int = selfRootedLinks.get
 
   def samplesOf(rule: Rule): Seq[String] = samples(rule.index).synchronized(samples(rule.index).toSeq)
 
   def reset(): Unit = {
     counts.foreach(_.set(0))
     fixedTargetChecks.set(0)
+    fixedLinks.set(0)
+    selfRootedLinks.set(0)
+    selfRootedSamples.synchronized(selfRootedSamples.clear())
     samples.foreach(s => s.synchronized(s.clear()))
     StackProfile.reset()
   }
@@ -181,7 +199,10 @@ object SubstitutorInvariants {
     val sb = new StringBuilder("substitutor invariants:\n")
     for (rule <- Rule.all) {
       sb.append(f"  ${rule.id}%-3s ${mode(rule)}%-7s ${count(rule)}%8d  ${rule.statement}\n")
-      if (rule == Rule.FixedTarget && enabled(rule)) sb.append(s"        ($fixedTargetChecked links checked)\n")
+      if (rule == Rule.FixedTarget && enabled(rule)) {
+        sb.append(s"        ($fixedTargetChecked links checked: $fixedTargetFixed fixed, $fixedTargetSelfRooted self-rooted)\n")
+        selfRootedSamples.synchronized(selfRootedSamples.toSeq).foreach(l => sb.append("        self-rooted: ").append(l).append('\n'))
+      }
       samplesOf(rule).foreach(s => sb.append("        ").append(s).append('\n'))
       if (StackProfile.depth > 0) StackProfile.render(rule, sb)
     }
@@ -341,7 +362,16 @@ object SubstitutorInvariants {
 
   // ---- the checks, called from the sites they guard -----------------------------------------------------------
 
-  /** A1, at `ScSubstitutor(target, anchor)`. */
+  // A1's classification of a link, made at its first use.
+  private[recursiveUpdate] final val A1Unchecked  = 0
+  private[recursiveUpdate] final val A1Fixed      = 1
+  private[recursiveUpdate] final val A1SelfRooted = 2
+  private[recursiveUpdate] final val A1Neither    = 3
+
+  /** Two equal links in one chain, found before either was classified: reported once, by whichever is classified
+   *  first, if it turns out self-rooted. */
+  private[recursiveUpdate] final class A1Duplicate(val mintSites: String) extends java.util.concurrent.atomic.AtomicBoolean
+
   /**
    * A1, at `ScSubstitutor(target, anchor)`. Only syntactic work happens here: a link whose target has a
    * this-leaf on the anchor's owner chain (the only ones at risk, `asf_eq_of_fixed` otherwise) is marked with
@@ -353,24 +383,77 @@ object SubstitutorInvariants {
     if (enabled(Rule.FixedTarget) && !checking.get) {
       val leaves = thisLeaves(link.target)
       if (leaves.exists(th => ownerChainContains(link.seenFromClass, th.element)))
-        link.pendingFixedTargetCheck = StackProfile.mintSite()
+        link.a1MintSite = StackProfile.mintSite()
     }
 
-  /** A1, the first time the walk applies `link`: the link maps its own target to itself. */
-  private[recursiveUpdate] def fixedTargetOnFirstUse(link: ThisTypeSubstitution): Unit = {
-    val mintSite = link.pendingFixedTargetCheck
-    if (mintSite != null && !checking.get) {
-      link.pendingFixedTargetCheck = null
+  /** A1, the first time the walk applies `link`: classify it as fixed or self-rooted, else report it. A
+   *  self-rooted link already seen twice in one chain is reported now. */
+  private[recursiveUpdate] def fixedTargetOnFirstUse(link: ThisTypeSubstitution): Unit =
+    if (!checking.get) {
       fixedTargetChecks.incrementAndGet()
       withoutNestedChecks {
         val res = ScSubstitutor(link)(link.target)
         // `==` first (cheap, exact); `equiv` tolerates a re-spelling of the same path (`Obj.v` as a
         // designator or as a projection).
-        if (res != link.target && !res.equiv(link.target)(using Context(link.seenFromClass)))
-          violated(Rule.FixedTarget, s"[$link] maps its own target to $res (minted at $mintSite)")
+        val kind =
+          if (res == link.target || res.equiv(link.target)(using Context(link.seenFromClass))) A1Fixed
+          else if (ThisTypeSubstitution.isSelfRooted(link, res)) A1SelfRooted
+          else A1Neither
+        link.a1Kind = kind
+        kind match {
+          case A1Fixed =>
+            fixedLinks.incrementAndGet()
+          case A1SelfRooted =>
+            selfRootedLinks.incrementAndGet()
+            selfRootedSamples.synchronized(if (selfRootedSamples.size < MaxSamples) selfRootedSamples += s"[$link] (minted at ${link.a1MintSite})")
+            val dup = link.a1Duplicate
+            if (dup != null && dup.compareAndSet(false, true)) duplicated(link, dup.mintSites)
+          case _ =>
+            violated(Rule.FixedTarget, s"[$link] maps its own target to $res, and its target is not rooted in ${link.seenFromClass.name}.this (minted at ${link.a1MintSite})")
+        }
       }
     }
-  }
+
+  private def duplicated(link: ThisTypeSubstitution, mintSites: String): Unit =
+    violated(Rule.FixedTarget, s"self-rooted [$link] occurs twice in one chain (minted at $mintSites)")
+
+  /**
+   * A1 at `first.followed(second)`: a self-rooted link may occur at most once in a chain. Each operand was checked
+   * when it was built, so only a link of `second` equal to one of `first` is new. Only links A1 marked at risk
+   * are compared, so this is a scan of a few array slots unless both operands hold one. Classification is not
+   * forced here: if neither copy has been used yet, both are tagged and the first use reports.
+   */
+  private[recursiveUpdate] def selfRootedOnce(first: ScSubstitutor, second: ScSubstitutor): Unit =
+    if (enabled(Rule.FixedTarget) && !checking.get) {
+      val subs1 = first.substitutions
+      val subs2 = second.substitutions
+      var j = 0
+      while (j < subs2.length) {
+        subs2(j) match {
+          case b: ThisTypeSubstitution if b.a1MintSite != null && b.a1Kind != A1Fixed =>
+            var i = 0
+            while (i < subs1.length) {
+              subs1(i) match {
+                case a: ThisTypeSubstitution if a.a1MintSite != null && a == b =>
+                  val kind = if (a.a1Kind != A1Unchecked) a.a1Kind else b.a1Kind
+                  val sites = s"${a.a1MintSite} and ${b.a1MintSite}"
+                  kind match {
+                    case A1SelfRooted => duplicated(b, sites)
+                    case A1Unchecked =>
+                      val dup = new A1Duplicate(sites)
+                      a.a1Duplicate = dup
+                      b.a1Duplicate = dup
+                    case _ => // fixed: idempotent; neither: reported at its first use
+                  }
+                case _ =>
+              }
+              i += 1
+            }
+          case _ =>
+        }
+        j += 1
+      }
+    }
 
     /** A2, where a substitutor is put into resolve state for other references. */
   def stateSafe(subst: ScSubstitutor, where: String): Unit =

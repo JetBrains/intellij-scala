@@ -31,37 +31,23 @@ private case class ThisTypeSubstitution(target: ScType, seenFromClass: PsiClass)
 
   override def toString: String = s"`this` -> $target asSeenFrom $seenFromClass"
 
-  /** A1's pending check: the frame that minted this link, until the walk first applies it. Not part of the
-   *  case class's equality. */
-  @volatile private[recursiveUpdate] var pendingFixedTargetCheck: String = null
+  /** A1's bookkeeping, not part of the case class's equality. `a1MintSite`: the frame that minted the link, if
+   *  its target has a this-leaf on the anchor's owner chain (the only links at risk). `a1Kind`: what the check at
+   *  the link's first use found. `a1Duplicate`: set when a chain holds this link twice before it was classified.
+   *  See [[SubstitutorInvariants.fixedTargetOnFirstUse]]. */
+  @volatile private[recursiveUpdate] var a1MintSite: String = null
+  @volatile private[recursiveUpdate] var a1Kind: Int = SubstitutorInvariants.A1Unchecked
+  @volatile private[recursiveUpdate] var a1Duplicate: SubstitutorInvariants.A1Duplicate = null
 
   override protected val subst: PartialFunction[LeafType, ScType] = {
     case th: ScThisType =>
       TypeRecursionGuard.nestedSubstitution(th, s"$th with $this") {
-        if (pendingFixedTargetCheck != null) SubstitutorInvariants.fixedTargetOnFirstUse(this)
+        if (a1MintSite != null && a1Kind == SubstitutorInvariants.A1Unchecked) SubstitutorInvariants.fixedTargetOnFirstUse(this)
         val res = doUpdateThisTypeFromClass(th, target, seenFromClass)
-        if (SubstitutorInvariants.enabled(SubstitutorInvariants.Rule.NoReentry) && (res ne th) && embedsRewrittenThis(res, th))
+        if (SubstitutorInvariants.enabled(SubstitutorInvariants.Rule.NoReentry) && (res ne th) && ThisTypeSubstitution.embedsRewrittenThis(res, th))
           SubstitutorInvariants.noReentry(this, th, res)
         res
       }
-  }
-
-  @tailrec
-  private def spineRootThis(tp: ScType): Option[ScThisType] = tp match {
-    case th: ScThisType                                 => Some(th)
-    case ScProjectionType(pre, _)                       => spineRootThis(pre)
-    case ParameterizedType(ScProjectionType(pre, _), _) => spineRootThis(pre)
-    case _                                              => None
-  }
-
-  /**
-   * I4's census: a result that is a path still rooted in (an inheritor of) the rewritten
-   * this-type's class. The former no-self-embedding brake refused these; a bare this-type
-   * result (`Types.this -> Global.this`) never counts.
-   */
-  private def embedsRewrittenThis(res: ScType, th: ScThisType): Boolean = res match {
-    case _: ScThisType => false
-    case _             => spineRootThis(res).exists(rootTh => isSameOrInheritor(rootTh.element, th))
   }
 
   /** Narrows `thisTp` against `target`, climbing `target`'s prefix while it doesn't. */
@@ -269,6 +255,43 @@ private case class ThisTypeSubstitution(target: ScType, seenFromClass: PsiClass)
 }
 
 private object ThisTypeSubstitution {
+
+  @tailrec
+  private def spineRootThis(tp: ScType): Option[ScThisType] = tp match {
+    case th: ScThisType                                 => Some(th)
+    case ScProjectionType(pre, _)                       => spineRootThis(pre)
+    case ParameterizedType(ScProjectionType(pre, _), _) => spineRootThis(pre)
+    case _                                              => None
+  }
+
+  private def isSameOrInheritor(clazz: PsiClass, cls: PsiClass): Boolean =
+    clazz == cls || ScEquivalenceUtil.areClassesEquivalent(clazz, cls) || isInheritorDeep(clazz, cls)
+
+  /**
+   * A result that is a path still rooted in (an inheritor of) the rewritten this-type's
+   * class. I4's census of what the former no-self-embedding brake refused; a bare
+   * this-type result (`Types.this -> Global.this`) never counts.
+   */
+  def embedsRewrittenThis(res: ScType, th: ScThisType): Boolean = res match {
+    case _: ScThisType => false
+    case _             => spineRootThis(res).exists(rootTh => isSameOrInheritor(rootTh.element, th.element))
+  }
+
+  /**
+   * `SelfRooted` of the Lean model (`Chain.lean`): the link's target is a path rooted in the
+   * this-type of its anchor (or of an inheritor of it), and `res`, the link applied to its
+   * own target, grafts the target onto that root again
+   * (`UnitScanner.this.parensAnalyzer.type` to `UnitScanner.this.parensAnalyzer.parensAnalyzer.type`).
+   * Such a link is right applied once and wrong applied twice (`once_is_scalac`,
+   * `selfRooted_twice_diverges`).
+   */
+  def isSelfRooted(link: ThisTypeSubstitution, res: ScType): Boolean = link.target match {
+    case _: ScThisType => false
+    case target =>
+      spineRootThis(target).exists { root =>
+        isSameOrInheritor(root.element, link.seenFromClass) && embedsRewrittenThis(res, root)
+      }
+  }
 
   /**
    * Collapse a non-canonical spelling of a singleton path (`global.analyzer.global` for
