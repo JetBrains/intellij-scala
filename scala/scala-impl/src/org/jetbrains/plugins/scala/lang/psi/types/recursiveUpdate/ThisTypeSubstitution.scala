@@ -18,15 +18,14 @@ import scala.annotation.tailrec
  *
  * Unlike scalac, whose walk only ever strips prefixes off `pre`, this substitution runs
  * inside the generic `recursiveUpdate` engine, is fused with other updates into one
- * chain, and its output is fed back into resolution. Two rules keep that sound and
- * terminating (they replace the former `hasRecursiveThisType` guard, which scanned the
- * whole target and still missed the cross-symbol case):
- *
- *  - No self-embedding: refuse a rewrite whose result is a path still rooted in (an inheritor of)
- *    the this-type being rewritten; see [[embedsRewrittenThis]].
- *  - Owner-chain matching: a walk that never reaches the this-type's class leaves it
- *    alone, rather than narrowing by inheritance alone; see
- *    [[ownerChainMatches]].
+ * chain, and its output is fed back into resolution. Owner-chain matching keeps that
+ * sound and terminating: a walk that never reaches the this-type's class leaves it
+ * alone, rather than narrowing by inheritance alone; see [[ownerChainMatches]]. With every
+ * link anchored, as scalac's are, no brake on the result is needed: the former
+ * `hasRecursiveThisType` guard, and the no-self-embedding rule that replaced it, refused
+ * legitimate single-pass rewrites (a member of `TokenData` seen from
+ * `ScannerData.this.next.type`, where `ScannerData <: TokenData`) and are gone.
+ * [[TypeRecursionGuard]] turns any growth that remains into a test failure.
  */
 private case class ThisTypeSubstitution(target: ScType, seenFromClass: PsiClass) extends LeafSubstitution {
 
@@ -36,10 +35,9 @@ private case class ThisTypeSubstitution(target: ScType, seenFromClass: PsiClass)
     case th: ScThisType =>
       TypeRecursionGuard.nestedSubstitution(th, s"$th with $this") {
         val res = doUpdateThisTypeFromClass(th, target, seenFromClass)
-        if ((res ne th) && embedsRewrittenThis(res, th)) {
+        if (SubstitutorInvariants.enabled(SubstitutorInvariants.Rule.NoReentry) && (res ne th) && embedsRewrittenThis(res, th))
           SubstitutorInvariants.noReentry(this, th, res)
-          th
-        } else res
+        res
       }
   }
 
@@ -52,15 +50,9 @@ private case class ThisTypeSubstitution(target: ScType, seenFromClass: PsiClass)
   }
 
   /**
-   * No self-embedding: a rewrite of `th` to a path whose root is still `th`'s class (or an
-   * inheritor of it) hasn't eliminated `th`, it has embedded it. Fed back through
-   * resolution, such a result is re-substituted and grows without bound. scalac's walk
-   * can't produce this shape, since it only strips prefixes off `pre`.
-   *
-   * A bare this-type result (`Types.this -> Global.this`) is always progress: it is the
-   * ordinary cake re-anchor onto an inheritor, and has no structure to recirculate.
-   * SCL-7043's `Enumeration.this -> CE.this.enum.type` is admitted too: `CE` aggregates an
-   * `Enumeration` rather than inheriting one.
+   * I4's census: a result that is a path still rooted in (an inheritor of) the rewritten
+   * this-type's class. The former no-self-embedding brake refused these; a bare this-type
+   * result (`Types.this -> Global.this`) never counts.
    */
   private def embedsRewrittenThis(res: ScType, th: ScThisType): Boolean = res match {
     case _: ScThisType => false
