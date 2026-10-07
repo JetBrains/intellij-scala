@@ -141,35 +141,43 @@ object BaseTypes {
    * the applied types (`Box[Dog] with Box[Cat]`) rather than the merge
    * (`Box[Dog with Cat]`), so we do it explicitly.
    */
-  private def mergeSameClass(types: Seq[ScType], clazz: PsiClass)(implicit context: Context): ScType =
-    if (types.lengthCompare(1) <= 0) types.head
+  private def mergeSameClass(types: Seq[ScType], clazz: PsiClass)(implicit context: Context): ScType = {
+    val distinct = types.distinct
+    if (distinct.lengthCompare(1) <= 0) distinct.head
     else clazz match {
       case owner: ScTypeParametersOwner =>
         val variances = owner.typeParameters.map(_.variance)
-        types.reduce { (a, b) =>
-          (a, b) match {
-            case (ParameterizedType(designator, as), ParameterizedType(_, bs))
-                if as.sizeCompare(bs) == 0 && as.sizeCompare(variances) == 0 =>
-              val wildcards = List.newBuilder[ScExistentialArgument]
-              val merged = variances.indices.map { i =>
-                val v = variances(i)
-                if (v.isCovariant) as(i).glb(bs(i))
-                else if (v.isContravariant) as(i).lub(bs(i))
-                else if (as(i).equiv(bs(i))) as(i)
-                else {
-                  val w = ScExistentialArgument(s"_$$${i + 1}", Nil, as(i).glb(bs(i)), as(i).lub(bs(i)))
-                  wildcards += w
-                  w
-                }
-              }
-              val applied = ScParameterizedType(designator, merged)
-              val ws      = wildcards.result()
-              if (ws.isEmpty) applied else ScExistentialType(applied, Some(ws))
-            case _ => a.glb(b)
-          }
+        // Merge all applications of `clazz` at once, position by position: a pairwise reduce would
+        // turn the first merge into an existential, which no longer matches the next application.
+        val (applied, other) = distinct.partitionMap {
+          case p: ParameterizedType if p.typeArguments.sizeCompare(variances) == 0 => Left(p)
+          case t                                                                   => Right(t)
         }
-      case _ => types.reduce((a, b) => a.glb(b))
+        val merged = applied match {
+          case Seq()       => None
+          case Seq(single) => Some(single)
+          case several =>
+            val wildcards = List.newBuilder[ScExistentialArgument]
+            val args = variances.indices.map { i =>
+              val v  = variances(i)
+              val ts = several.map(_.typeArguments(i))
+              if (v.isCovariant) ts.reduce(_ glb _)
+              else if (v.isContravariant) ts.reduce(_ lub _)
+              else if (ts.tail.forall(_.equiv(ts.head))) ts.head
+              else {
+                val w = ScExistentialArgument(s"_$$${i + 1}", Nil, ts.reduce(_ glb _), ts.reduce(_ lub _))
+                wildcards += w
+                w
+              }
+            }
+            val app = ScParameterizedType(several.head.designator, args)
+            val ws  = wildcards.result()
+            Some(if (ws.isEmpty) app else ScExistentialType(app, Some(ws)))
+        }
+        (merged.toSeq ++ other).reduce(_ glb _)
+      case _ => distinct.reduce(_ glb _)
     }
+  }
 
   /**
    * Returns the direct super types of `tp` in declaration order, resolving
@@ -243,13 +251,12 @@ object BaseTypes {
   // (mergeSameClass) rather than the previous "keep the most specific arm", so a
   // class reached via several paths with different arguments yields the variance
   // merge (e.g. Box[Dog with Cat]) instead of a single arm (Box[Dog] or Box[Cat]).
-  private def reduce(typesIt: Iterator[ScType])(implicit context: Context): Seq[ScType] =
-    typesIt.toList
-      .flatMap(t => t.extractClass.map(_ -> t))
-      .groupBy(_._1)
-      .iterator
-      .map { case (clazz, ps) => mergeSameClass(ps.map(_._2), clazz) }
-      .toList
+  // Classes keep the order in which the walk first reaches them.
+  private def reduce(typesIt: Iterator[ScType])(implicit context: Context): Seq[ScType] = {
+    val byClass = mutable.LinkedHashMap.empty[PsiClass, mutable.ArrayBuffer[ScType]]
+    typesIt.foreach(t => t.extractClass.foreach(c => byClass.getOrElseUpdate(c, mutable.ArrayBuffer.empty) += t))
+    byClass.iterator.map { case (clazz, ts) => mergeSameClass(ts.toSeq, clazz) }.toList
+  }
 
   private object SingletonUnderlying {
     def unapply(tp: ScType): Option[ScType] = tp match {
