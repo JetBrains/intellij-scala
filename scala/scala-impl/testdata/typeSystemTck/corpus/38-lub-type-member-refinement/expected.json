@@ -1,0 +1,30 @@
+{
+  "conformance": [
+    {
+      "lhs": "SingleP",
+      "rhs": "AttPosP",
+      "holds": true
+    },
+    {
+      "lhs": "NonemptyStr",
+      "rhs": "AttPosP",
+      "holds": false
+    },
+    {
+      "lhs": "AttPosP",
+      "rhs": "Att",
+      "holds": true
+    },
+    {
+      "lhs": "Att",
+      "rhs": "AttPosP",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "samePos": "Attachments",
+    "sameConcretePos": "Attachments { type Pos = java.lang.String }",
+    "differentPos": "Attachments"
+  }
+}
