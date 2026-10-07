@@ -198,4 +198,37 @@ class CakeTypersReproTest extends ScalaHighlightingTestBase {
 
   def testControlNewAbstractType(): Unit =
     assertClean("    def f(s: Symbol): Symbol = s.newAbstractType(\"T\")")
+
+  // scala/scala reify `Utils`: a member of a refinement typed path, `reifier.global`, is the singleton its
+  // refinement declares, as seen from where `reifier` was selected (`NodePrinters.this.global`). Seen from
+  // `reifier` instead, `Utils.this` was rewritten onto `reifier`, `reifier.global` became its own singleton,
+  // and highlighting overflowed the stack.
+  private val ReifierCake =
+    """|class Global { class Position }
+      |trait Errors { self: Reifier =>
+      |  def defaultErrorPosition: global.Position = ???
+      |}
+      |trait NodePrinters { self: Utils =>
+      |  def describe: String = "// produced from " + reifier.defaultErrorPosition
+      |}
+      |trait Utils extends NodePrinters {
+      |  val global: Global
+      |  lazy val reifier: Reifier { val global: Utils.this.global.type } = getReifier
+      |  def getReifier: Reifier { val global: Utils.this.global.type } = ???
+      |}
+      |abstract class Reifier extends Errors with Utils {
+      |  val global: Global
+      |  override def getReifier: Reifier { val global: Reifier.this.global.type } =
+      |    this.asInstanceOf[Reifier { val global: Reifier.this.global.type }]
+      |}
+      |""".stripMargin
+
+  def testRefinementMemberOfSelfTypedSibling(): Unit =
+    assertNothing(errorsFromScalaCode(ReifierCake.replace(
+      "  def describe:", "  def position: global.Position = reifier.defaultErrorPosition\n  def describe:")))
+
+  def testRefinementMemberIsNotAnotherUniversesMember(): Unit = assertMatches(errorsFromScalaCode(ReifierCake.replace(
+    "  def describe:", "  def other(g: Global): g.Position = reifier.defaultErrorPosition\n  def describe:"))) {
+    case Message.Error("reifier.defaultErrorPosition", _) :: Nil =>
+  }
 }
