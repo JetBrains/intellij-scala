@@ -368,4 +368,31 @@ class CakeTypersReproTest extends ScalaHighlightingTestBase {
         |    } with MacroContext
         |}
         |""".stripMargin))
+
+  // scala/scala `symtab/classfile/ClassfileParser.scala`: `object TastyUniverse` has
+  // `type SymbolTable = ClassfileParser.this.symbolTable.type; val symbolTable: SymbolTable`, so the path
+  // `TastyUniverse.symbolTable` is `symbolTable` through the alias, and `TastyUniverse.Symbol` (`u.Symbol` for an
+  // import-renamed `self.symbolTable`) accepts a `ClassSymbol`. Pre-existing on idea263.x.
+  def testSingletonThroughTypeAliasAsPrefix(): Unit =
+    assertNothing(errorsFromScalaCode(
+      """|abstract class SymbolTable { class Symbol; class ClassSymbol extends Symbol }
+        |abstract class TastyCore { self: TastyUniverse =>
+        |  import self.{symbolTable => u}
+        |  type SymbolTable <: _root_.SymbolTable
+        |  val symbolTable: SymbolTable
+        |  type Symbol = u.Symbol
+        |}
+        |abstract class TastyUniverse extends TastyCore
+        |object TastyUnpickler { def unpickle[T <: TastyUniverse](tasty: T)(root: tasty.Symbol): Unit = () }
+        |abstract class ClassfileParser {
+        |  val symbolTable: SymbolTable
+        |  import symbolTable._
+        |  object TastyUniverse extends TastyUniverse {
+        |    type SymbolTable = ClassfileParser.this.symbolTable.type
+        |    val symbolTable: SymbolTable = ClassfileParser.this.symbolTable
+        |  }
+        |  def parse(clazz: ClassSymbol): Unit = TastyUnpickler.unpickle(TastyUniverse)(clazz)
+        |  def direct(clazz: ClassSymbol): TastyUniverse.Symbol = clazz
+        |}
+        |""".stripMargin))
 }

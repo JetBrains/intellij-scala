@@ -351,7 +351,7 @@ object ScProjectionType {
       }
     // A stable value without a prefix (a local or early-defined val, a parameter) typed as a singleton.
     case des: ScDesignatorType if fuel > 0 && isStableValue(des.element) =>
-      des.designatorSingletonType.filter(isSingletonLike) match {
+      des.designatorSingletonType.flatMap(singletonThroughAliases(_, des.element)) match {
         case Some(singleton) if singleton ne des => collapseSingletonPath(singleton, fuel - 1)
         case _                                   => tp
       }
@@ -366,7 +366,22 @@ object ScProjectionType {
 
   /** The singleton type of the stable path `proj`: its override-aware `designatorSingletonType`. */
   private def projectionSingleton(proj: ScProjectionType): Option[ScType] =
-    proj.designatorSingletonType.filter(isSingletonLike)
+    proj.designatorSingletonType.flatMap(singletonThroughAliases(_, proj.element))
+
+  /**
+   * `t` if it is a singleton, or the singleton that the alias `t` stands for: a val typed by an alias to a
+   * singleton is that singleton, as for scalac, which dealiases a singleton's underlying type. scala/scala's
+   * `ClassfileParser.TastyUniverse` has `type SymbolTable = ClassfileParser.this.symbolTable.type` and
+   * `val symbolTable: SymbolTable`, so `TastyUniverse.symbolTable.Symbol` is `symbolTable.Symbol`.
+   */
+  private def singletonThroughAliases(t: ScType, place: PsiElement, fuel: Int = 4): Option[ScType] =
+    if (isSingletonLike(t)) Some(t)
+    else if (fuel <= 0) None
+    else
+      t.aliasType(using Context(place))
+        .filter(alias => alias.ta.is[ScTypeAliasDefinition] && !alias.effectivelyOpaque)
+        .flatMap(_.upper.toOption)
+        .flatMap(singletonThroughAliases(_, place, fuel - 1))
 
   /** Whether `member` is declared in a refinement, which gives it no class to anchor this-types at. */
   private[designator] def isRefinementMember(member: PsiNamedElement): Boolean =
