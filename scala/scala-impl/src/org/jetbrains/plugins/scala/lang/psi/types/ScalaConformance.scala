@@ -176,8 +176,22 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                 return ConstraintsResult.Left
             case _ =>
               val t = lhs.equiv(rhs, constraints, falseUndef = false)
-              if (t.isLeft) return ConstraintsResult.Left
-              constraints = t.constraints
+              if (t.isRight) constraints = t.constraints
+              else {
+                // scalac checks an invariant argument by mutual `<:<` (Types.isSubArgs),
+                // not `=:=`: `Inv[Cat with Dog] <: Inv[Dog with Cat]` holds although the
+                // two arguments aren't `=:=` (refined-type parents compare in order).
+                // Only for `<:<`, and only where the two can differ: compound arguments.
+                val mutual =
+                  !checkEquivalence && (lhs.is[ScCompoundType] || rhs.is[ScCompoundType]) && {
+                    val lr = conformsInner(lhs, rhs, HashSet.empty, constraints)
+                    lr.isRight && {
+                      val rl = conformsInner(rhs, lhs, HashSet.empty, lr.constraints)
+                      rl.isRight && { constraints = rl.constraints; true }
+                    }
+                  }
+                if (!mutual) return ConstraintsResult.Left
+              }
           }
       }
     }
