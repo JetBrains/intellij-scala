@@ -119,10 +119,6 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
     }
   }
 
-  def followUpdateThisType(tp: ScType): ScSubstitutor = {
-    ScSubstitutor(tp).followed(this)
-  }
-
   def followUpdateThisType(tp: ScType, seenFromClass: PsiClass): ScSubstitutor = {
     ScSubstitutor(tp, seenFromClass).followed(this)
   }
@@ -211,19 +207,24 @@ object ScSubstitutor {
     else ScSubstitutor(TypeParamSubstitution(tvMap))
   }
 
-  def apply(updateThisType: ScType): ScSubstitutor = apply(updateThisType, null)
-
-  def apply(updateThisType: ScType, @Nullable seenFromClass: PsiClass): ScSubstitutor = {
-    val link  = ThisTypeSubstitution(ThisTypeSubstitution.canonicalizeTarget(updateThisType), seenFromClass)
-    val subst = ScSubstitutor(link)
-    if (seenFromClass == null) SubstitutorInvariants.anchored(link.target)
-    SubstitutorInvariants.fixedTarget(link, subst)
-    subst
-  }
+  /**
+   * `tp.asSeenFrom(updateThisType, seenFromClass)`: the this-types on `seenFromClass`'s owner chain
+   * re-anchored onto the prefix `updateThisType`. With no class (`null`: a top-level, local, synthetic
+   * or refinement member) there is no owner chain to climb and the prefix contributes nothing, as in
+   * scalac; the former anchorless walk, which narrowed by inheritance alone, is gone.
+   */
+  def apply(updateThisType: ScType, @Nullable seenFromClass: PsiClass): ScSubstitutor =
+    if (seenFromClass == null) ScSubstitutor.empty
+    else {
+      val link  = ThisTypeSubstitution(ThisTypeSubstitution.canonicalizeTarget(updateThisType), seenFromClass)
+      val subst = ScSubstitutor(link)
+      SubstitutorInvariants.fixedTarget(link, subst)
+      subst
+    }
 
   /** The `seenFromClass` for viewing `member`'s type from a prefix: its containing class,
    *  scalac's `sym.owner` in `sym.info.asSeenFrom(pre, sym.owner)`. `null` when there is
-   *  none (top-level, local or synthetic members), which selects the anchorless walk. */
+   *  none (top-level, local or synthetic members). */
   def declarationAnchor(member: PsiNamedElement): PsiClass = member.nameContext match {
     case m: PsiMember => m.getContainingClass
     case _            => null
