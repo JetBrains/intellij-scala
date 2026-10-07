@@ -38,6 +38,24 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     case Error("null", "Expression of type Null doesn't conform to expected type Int") :: Nil =>
   }
 
+  // scalac selects `x.put` through the base type of `x` at `I`, which merges all three
+  // applications to `I[_1] forSome { type _1 >: Bird with Cat with Dog <: Animal }`: an argument
+  // must have all three types
+  def testMemberOfCompoundWithThreeInvariantApplications(): Unit = assertMatches(errorsFromScalaCode(
+    """trait Animal; trait Dog extends Animal; trait Cat extends Animal; trait Bird extends Animal
+      |trait I[T] { def get: T; def put(t: T): Unit }
+      |object Test {
+      |  def f(x: I[Dog] with I[Cat] with I[Bird], all: Dog with Cat with Bird, two: Dog with Cat): Unit = {
+      |    val a: Animal = x.get
+      |    x.put(all)
+      |    x.put(two)
+      |  }
+      |}
+      |""".stripMargin
+  )) {
+    case Error("two", _) :: Nil =>
+  }
+
   // Type ascription, SCL-15544
 
   // SCL-15544
