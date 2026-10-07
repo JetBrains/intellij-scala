@@ -5,6 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, isContextAncestor}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -53,6 +54,7 @@ object ScThisReferenceImpl {
     case ref: ScReferenceExpression =>
       ref.bind().flatMap { srr =>
         srr.element match {
+          case selfAlias: ScSelfTypeElement => Option(getContextOfType(selfAlias, classOf[ScTemplateDefinition])).map(ScThisType(_))
           case td: ScTypedDefinition if td.isStable =>
             ref.qualifier match {
               case None            => Some(srr.fromType.map(ScProjectionType(_, td)).getOrElse(ScDesignatorType(td)))
