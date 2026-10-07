@@ -79,9 +79,11 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
      *
      * G. Unstable prefix (30): scalac types `x.arr` for an unstable `x` existentially
      *    (`captureThis`); PSI substitutes the prefix's class type directly.
-     * H. Same-class invariant merge in a compound (32): scalac's `baseType` merges
-     *    `I[Dog] with I[Cat]` to `I[_1] forSome { type _1 >: Cat with Dog <: Animal }`
-     *    and member types follow it (`xGet: Animal`); PSI takes the first parent.
+     * H. Member selection on a compound with a same-class invariant merge (32):
+     *    `BaseTypes.baseType` now merges `I[Dog] with I[Cat]` to
+     *    `I[_1] forSome { type _1 >: Cat with Dog <: Animal }` as scalac does, but
+     *    selecting `x.get` still takes the first parent's substitution (`Dog`), where
+     *    scalac's `memberType` goes through the merged base type (`Animal`).
      * I. Block type avoidance beyond singletons (33): `ScBlock` widens escaping
      *    singletons only; block-local classes and objects still escape, and no
      *    existential is packed.
@@ -107,11 +109,9 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
      *    `x: global.ValDef`, ValDef -> ValOrDefDef -> Tree inside the Trees cake).
      *    Fixed: BaseTypesIterator now widens a singleton path's `designatorSingletonType`
      *    (the same widen also fixed group A's `12-singleton-literal-path/DogSingleton`
-     *    for baseTypeSeq). Now holds only group H (see `termType`).
+     *    for baseTypeSeq). Empty on purpose — kept for the two-way pin structure.
      */
-    val baseType: Set[String] = Set(
-      "32-compound-invariant-merge/IDogCatAtI",    // H
-    )
+    val baseType: Set[String] = Set.empty
   }
 
   def testCorpus(): Unit = {
