@@ -432,7 +432,7 @@ object UpdateScalacOptionsInfo {
     new URLClassLoader(compilerClasspath, null, null)
   }
 
-  private def mergeScalacOptions(left: SbtScalacOptionInfo, right: SbtScalacOptionInfo): SbtScalacOptionInfo = {
+  private[completion] def mergeScalacOptions(left: SbtScalacOptionInfo, right: SbtScalacOptionInfo): SbtScalacOptionInfo = {
     assert(left.flag == right.flag, "Cannot merge scalac options with different flags:\n" +
       s"\tleft is '${left.flag}' (${left.scalaVersions}), right is ${right.flag} (${right.scalaVersions})")
     assert(left.argType == right.argType, "Cannot merge scalac options with different arg types:\n" +
@@ -445,7 +445,7 @@ object UpdateScalacOptionsInfo {
     val descriptions = left.descriptions ++ right.descriptions
     val choices = left.choices ++ right.choices
     val versions = left.scalaVersions | right.scalaVersions
-    val deprecation = (left.deprecations.toSeq ++ right.deprecations.toSeq)
+    val deprecations = (left.deprecations.toSeq ++ right.deprecations.toSeq)
       .groupMapReduce(_._1)(_._2) {
         case (a, b) =>
           assert(a == b, "Cannot merge scalac options with different deprecation messages:\n" +
@@ -453,6 +453,6 @@ object UpdateScalacOptionsInfo {
           a
       }
 
-    right.copy(descriptions = descriptions, choices = choices, scalaVersions = versions)
+    right.copy(descriptions = descriptions, choices = choices, scalaVersions = versions, deprecations = deprecations)
   }
 }
