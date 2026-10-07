@@ -46,15 +46,33 @@ final class ScProjectionType private(val projected: ScType,
   override private[types] def designatorSingletonType: Option[ScType] = element match {
     case _: ScObject                                                                  => None
     case stable: ScTypedDefinition if stable.isStable && !ScProjectionType.overridable(stable) =>
-      super.designatorSingletonType.map(actualSubst)
+      compoundMemberType(stable).orElse(super.designatorSingletonType.map(actualSubst))
     case stable: ScTypedDefinition if stable.isStable =>
       actualElement match {
         case parameter: ScParameter if parameter.isStable         => parameter.insideParamType.toOption.map(actualSubst)
-        case definition: ScTypedDefinition if definition.isStable => definition.`type`().toOption.map(actualSubst)
+        case definition: ScTypedDefinition if definition.isStable =>
+          compoundMemberType(definition).orElse(definition.`type`().toOption.map(actualSubst))
         case _                                                    => None
       }
     case _ => None
   }
+
+  /**
+   * The type of `member` when it is a member of the compound type `projected` is typed with, as
+   * scalac's `memberType` reads a compound's decls: `reifier.global` for
+   * `lazy val reifier: Reifier { val global: Utils.this.global.type }`, or `bTypes.coreBTypes.bTypes`
+   * for `val coreBTypes = new CoreBTypesFromSymbols[G] { val bTypes: BTypesFromSymbols.this.type = ... }`.
+   * The compound holds the member's type as seen from where `projected` was selected
+   * (`NodePrinters.this.global.type` inside `trait NodePrinters { self: Utils => }`). The declaration
+   * belongs to a refinement or an anonymous class, which has no owner chain through `projected`, so
+   * re-substituting its this-types from `projected` would rewrite `Utils.this` onto `reifier` and make
+   * `reifier.global` its own singleton.
+   */
+  private def compoundMemberType(member: ScTypedDefinition): Option[ScType] =
+    projected.widen match {
+      case ScCompoundType(_, signatures, _) => signatures.collectFirst { case (sig, tpe) if sig.namedElement == member => tpe }
+      case _                                => None
+    }
 
   private def actualImpl(projected: ScType, updateWithProjectionSubst: Boolean)(implicit context: Context): Option[(PsiNamedElement, ScSubstitutor)] = cachedWithRecursionGuard("actualImpl", element, Option.empty[(PsiNamedElement, ScSubstitutor)], BlockModificationTracker(element), (projected, updateWithProjectionSubst)) {
     val resolvePlace = {

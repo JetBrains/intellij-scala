@@ -39,9 +39,11 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
 
   override protected val subst: PartialFunction[LeafType, ScType] = {
     case th: ScThisType =>
-      val res = doUpdateThisTypeFromClass(th, target, seenFromClass)
-      if ((res ne th) && embedsRewrittenThis(res, th)) th
-      else res
+      TypeRecursionGuard.nestedSubstitution(th, s"$th with $this") {
+        val res = doUpdateThisTypeFromClass(th, target, seenFromClass)
+        if ((res ne th) && embedsRewrittenThis(res, th)) th
+        else res
+      }
   }
 
   @tailrec
@@ -289,5 +291,5 @@ private object ThisTypeSubstitution {
    * (`analyzer.global.analyzer.global...`) until the no-self-embedding rule cuts them off.
    */
   def canonicalizeTarget(tp: ScType): ScType =
-    ScProjectionType.collapseSingletonPath(tp)
+    TypeRecursionGuard.nestedSubstitution(tp, s"canonicalizing $tp")(ScProjectionType.collapseSingletonPath(tp))
 }
