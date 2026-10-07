@@ -5,12 +5,15 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiClass
 import org.jetbrains.annotations.{Nullable, TestOnly}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, Context, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.{AtomicInteger, LongAdder}
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -90,10 +93,14 @@ object SubstitutorInvariants {
      *  `(t, a)` require `a == cls(run.widen)` and set `run := (t, a)(run)`. One base-type walk per link. */
     case object RunningAnchor extends Rule("A4", 3, "chain_is_intended", "each this-link is anchored at the class of the running composed prefix", Mode.Off)
 
-    /** Precondition `inView` of `compose`. A link that leaves `D.this` alone although `D` is on its anchor's
-     *  owner chain was handed a type that is not in the view its prefix resolves (scalac: `clazz == D` but no
-     *  `pre baseType D`): the prefix is wrong or an earlier link was mis-anchored. */
-    case object NoLeftover extends Rule("A5", 4, "compose (inView)", "a this-type on the anchor's owner chain is rewritten, not left over", Mode.Record)
+    /** Precondition `inView` of `compose`. A link left `D.this` alone, `D` is on its anchor's owner chain, and
+     *  scalac's `thisTypeAsSeen` (the prefix of `pre baseType clazz`, climbing `clazz`'s owner chain until it is
+     *  `D`) rewrites it to something else: the prefix is wrong or an earlier link was mis-anchored. A leftover
+     *  that scalac also leaves, or rewrites to `D.this` itself, is not counted.
+     *
+     *  Off by default: like A1 it evaluates base types while a substitution is running, which can perturb
+     *  typing; compare a census run's results with a run without it. */
+    case object NoLeftover extends Rule("A5", 4, "compose (inView)", "a this-type on the anchor's owner chain is rewritten as scalac does", Mode.Off)
 
     /** `IntelliJ.agrees` applies to anchored walks only. Holds by construction: `ScSubstitutor(target, null)` is
      *  empty, since a member with no class owner has no owner chain for `asSeenFrom` to climb. Kept so that the
@@ -344,8 +351,36 @@ object SubstitutorInvariants {
 
   /** A5, in `ThisTypeSubstitution` when `th` is left alone. */
   private[recursiveUpdate] def noLeftover(link: ThisTypeSubstitution, th: ScThisType): Unit =
-    if (enabled(Rule.NoLeftover) && link.seenFromClass != null && ownerChainContains(link.seenFromClass, th.element))
-      violated(Rule.NoLeftover, s"[$link] left $th alone although ${th.element.name} is on the anchor's owner chain")
+    if (enabled(Rule.NoLeftover) && !checking.get && ownerChainContains(link.seenFromClass, th.element)) withoutNestedChecks {
+      scalacThisTypeAsSeen(link.target, link.seenFromClass, th) match {
+        case Some(expected) if expected != th && !expected.equiv(th)(using Context(link.seenFromClass)) =>
+          violated(Rule.NoLeftover, s"[$link] left $th alone; scalac's walk gives $expected")
+        case _ =>
+      }
+    }
+
+  /** scalac's `AsSeenFromMap.thisTypeAsSeen` for `th`, `None` where it leaves `th` alone. */
+  private def scalacThisTypeAsSeen(pre0: ScType, clazz0: PsiClass, th: ScThisType): Option[ScType] = {
+    implicit val context: Context = Context(clazz0)
+
+    def prefixOf(tp: ScType): Option[ScType] = tp match {
+      case ScProjectionType(pre, _)                       => Some(pre)
+      case ParameterizedType(ScProjectionType(pre, _), _) => Some(pre)
+      case _                                              => None
+    }
+
+    @tailrec
+    def loop(pre: ScType, clazz: PsiClass): Option[ScType] =
+      if (clazz == null) None
+      else if (sameClass(clazz, th.element) &&
+        pre.widen.extractClass.exists(c => sameClass(c, clazz) || ScalaPsiUtil.isInheritorDeep(c, clazz))) Some(pre)
+      else BaseTypes.baseType(pre, clazz).flatMap(prefixOf) match {
+        case Some(prefix) => loop(prefix, clazz.containingClass)
+        case None         => None
+      }
+
+    loop(pre0, clazz0)
+  }
 
   /** I4, in `ThisTypeSubstitution`, for a result rooted in the rewritten this-type's class. */
   private[recursiveUpdate] def noReentry(link: ThisTypeSubstitution, th: ScThisType, refused: ScType): Unit =
