@@ -433,13 +433,19 @@ object PatternTypeInference {
     }
   }
 
+  /**
+   * The bindings a case clause's pattern contributes to its body: type variables and the enclosing
+   * method's type parameters. The this-links the pattern was typed with (the extractor's prefix) stay
+   * with the pattern; threaded through resolve state they would rewrite the this-types of every member
+   * referenced in the body.
+   */
   def doForMatchClause(m: ScMatch, cc: ScCaseClause): ScSubstitutor = {
     val maybeSubst =
       for {
         scrutinee    <- m.expression
         scrutineeTpe <- scrutinee.`type`().toOption
         pattern      <- cc.pattern
-      } yield PatternTypeInference.doTypeInference(pattern, scrutineeTpe)
+      } yield PatternTypeInference.doTypeInference(pattern, scrutineeTpe).withoutThisTypeSubstitutions
 
     maybeSubst.getOrElse(ScSubstitutor.empty)
   }
