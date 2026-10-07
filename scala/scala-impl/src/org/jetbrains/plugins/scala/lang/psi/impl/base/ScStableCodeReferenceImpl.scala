@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder.ImportPath
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSelfTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatch, ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -559,6 +559,13 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val macroEvaluator = ScalaMacroEvaluator.getInstance(fun.getProject)
         val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(qualifier, None))
         typeFromMacro.foreach(processor.processType(_, qualifier))
+      // A self alias (`self` in `trait C { self: S => }`) denotes `C.this`: `self.X` is `C.this.X`.
+      case ScalaResolveResult(selfAlias: ScSelfTypeElement, _)
+        if PsiTreeUtil.getContextOfType(selfAlias, classOf[ScTemplateDefinition]) != null =>
+        val thisType = ScThisType(PsiTreeUtil.getContextOfType(selfAlias, classOf[ScTemplateDefinition]))
+        val state    = ScalaResolveState.withFromType(thisType)
+        processor.processType(thisType, this, state)
+        withDynamicResult = withDynamic(thisType, state, processor)
       case r @ ScalaResolveResult((td: ScTypedDefinition) & Typeable(tp), s) =>
         val lookupType = s(tp)
         // For a STABLE qualifier (a path `pre.v`) record its SINGLETON type as the

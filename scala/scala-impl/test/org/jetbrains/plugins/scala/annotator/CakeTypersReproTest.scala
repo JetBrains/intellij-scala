@@ -261,4 +261,18 @@ class CakeTypersReproTest extends ScalaHighlightingTestBase {
     "new ClassDef(importModifiers(mods))", "{ val m: Modifiers = mods; new ClassDef(m) }"))) {
     case Message.Error("mods", _) :: Nil =>
   }
+
+  // scala/scala `reflect/internal/ReificationSupport.scala`: a self alias in a path, `self.Block`, is `C.this.Block`.
+  def testSelfAliasInExtractorPath(): Unit =
+    assertNothing(errorsFromScalaCode(
+      """|trait Trees { abstract class Tree; case class Block(stats: List[Tree]) extends Tree }
+        |trait SymbolTable extends Trees with ReificationSupport
+        |trait ReificationSupport { self: SymbolTable =>
+        |  def body(block: Block): List[Tree] = block.stats
+        |  def statements(tree: Tree): List[Tree] = tree match {
+        |    case bl @ self.Block(_) => body(bl)
+        |    case _                  => Nil
+        |  }
+        |}
+        |""".stripMargin))
 }

@@ -193,10 +193,17 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             val clazzType = clazz.getTypeWithProjections().getOrElse(return true)
 
             if (selfType.conforms(clazzType)) {
+              // The members found here come with the signature substitutors of the self type's class `S`,
+              // which put their types into `S`'s view (`S.this`, and `S`'s outer this-types as seen from
+              // `S`). So the rewrite onto `clazz.this` is anchored at `S`, not at `clazz`: inside
+              // `trait TreeMakerWarnings { self: MatchTranslator => }` (nested in `trait MatchWarnings`),
+              // `MatchTranslation.this`, `MatchTranslator`'s outer, is reached through the self type's
+              // prefix `MatchWarnings.this.MatchTranslator`, as scalac's `asSeenFrom(clazz.this, S)` does.
+              val selfTypeClass = selfType.extractClass.getOrElse(clazz)
               val newState =
                 state
                   .withCompoundOrSelfType(t)
-                  .withSubstitutor(ScSubstitutor(ScThisType(clazz), clazz))
+                  .withSubstitutor(ScSubstitutor(ScThisType(clazz), selfTypeClass))
 
               processTypeImpl(selfType, place, newState)
             } else if (clazzType.conforms(selfType)) {
