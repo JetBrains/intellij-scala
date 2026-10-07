@@ -1,0 +1,48 @@
+{
+  "conformance": [
+    {
+      "lhs": "ClassSym",
+      "rhs": "TUSymbol",
+      "holds": true
+    },
+    {
+      "lhs": "ClassSym",
+      "rhs": "TUSTSymbol",
+      "holds": true
+    },
+    {
+      "lhs": "STType",
+      "rhs": "TUSTType",
+      "holds": true
+    },
+    {
+      "lhs": "TUSTType",
+      "rhs": "STType",
+      "holds": true
+    }
+  ],
+  "equivalence": [
+    {
+      "lhs": "TUSymbol",
+      "rhs": "STSymbol",
+      "holds": true
+    },
+    {
+      "lhs": "TUSTSymbol",
+      "rhs": "STSymbol",
+      "holds": true
+    },
+    {
+      "lhs": "STType",
+      "rhs": "TUSTType",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "tuSymbolTable": "ClassfileParser.this.symbolTable.type",
+    "newViaAlias": "ClassfileParser.this.TastyUniverse.symbolTable.ClassSymbol",
+    "asTUSymbol": "ClassfileParser.this.TastyUniverse.symbolTable.Symbol",
+    "asTUSTSymbol": "ClassfileParser.this.TastyUniverse.symbolTable.Symbol"
+  }
+}
