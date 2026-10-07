@@ -217,9 +217,8 @@ object ScSubstitutor {
     if (seenFromClass == null) ScSubstitutor.empty
     else {
       val link  = ThisTypeSubstitution(ThisTypeSubstitution.canonicalizeTarget(updateThisType), seenFromClass)
-      val subst = ScSubstitutor(link)
-      SubstitutorInvariants.fixedTarget(link, subst)
-      subst
+      SubstitutorInvariants.fixedTarget(link)
+      ScSubstitutor(link)
     }
 
   /** The `seenFromClass` for viewing `member`'s type from a prefix: its containing class,
