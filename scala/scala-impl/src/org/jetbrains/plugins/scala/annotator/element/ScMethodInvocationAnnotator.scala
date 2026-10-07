@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
 
@@ -209,7 +210,11 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
   private def checkMissingArgumentClauses(call: MethodInvocation)(implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val context: Context = Context(call)
 
-    def functionTypeExpected = call.expectedType().exists(FunctionType.isFunctionType)
+    // A method with an argument list still to supply is eta-expanded when a function type is expected, or,
+    // since Scala 2.12, a SAM type (`solvedTypes(.., varianceInType(tp), ..)` with a `Variance.Extractor[Symbol]`).
+    def functionTypeExpected = call.expectedType().exists { tp =>
+      FunctionType.isFunctionType(tp) || call.isSAMEnabled && SAMUtil.SAMToFunctionType(tp, call).isDefined
+    }
     def isScala3dotcErrorsMode: Boolean = ScalaHighlightingMode.showCompilerErrorsScala3(call.getProject) && call.isInScala3Module
     def isInterpolatedStringExpr: Boolean =
       call.child.is[ScInterpolatedStringLiteral]
