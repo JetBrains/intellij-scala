@@ -95,8 +95,9 @@ object SubstitutorInvariants {
      *  `pre baseType D`): the prefix is wrong or an earlier link was mis-anchored. */
     case object NoLeftover extends Rule("A5", 4, "compose (inView)", "a this-type on the anchor's owner chain is rewritten, not left over", Mode.Record)
 
-    /** `IntelliJ.agrees` applies to anchored walks only. An anchorless link (`seenFromClass == null`) narrows by
-     *  inheritance alone, which scalac never does; refinement and synthetic members still take this route. */
+    /** `IntelliJ.agrees` applies to anchored walks only. Holds by construction: `ScSubstitutor(target, null)` is
+     *  empty, since a member with no class owner has no owner chain for `asSeenFrom` to climb. Kept so that the
+     *  rule ids of the tally stay stable. */
     case object Anchored extends Rule("A6", 5, "IntelliJ.agrees", "a this-link has an anchor", Mode.Record)
 
     /** I4. Under C1–C3 `chain_is_single` says no output needs re-rewriting, so the no-self-embedding brake
@@ -331,11 +332,7 @@ object SubstitutorInvariants {
       }
     }
 
-  /** A6, at `ScSubstitutor(target)` / `ScSubstitutor(target, null)`. */
-  private[recursiveUpdate] def anchored(target: ScType): Unit =
-    if (enabled(Rule.Anchored)) violated(Rule.Anchored, s"anchorless this-link to $target")
-
-  /** A2, where a substitutor is put into resolve state for other references. */
+    /** A2, where a substitutor is put into resolve state for other references. */
   def stateSafe(subst: ScSubstitutor, where: String): Unit =
     if (enabled(Rule.StateSafe)) {
       val links = thisLinks(subst)
