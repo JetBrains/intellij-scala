@@ -111,17 +111,48 @@ class CakeLubTest extends TypeInferenceTestBase {
   def testControlSubsumingSide(): Unit =
     assertCleanTrees("  def f(t: Tree, d: DocDef, c: Boolean): Tree = { val r = if (c) d else t; r }")
 
-  // scalac's lubRefined keeps a type member both operands define alike (scala/scala's
-  // reflect/macros/Attachments.scala: `SingleAttachment.update`'s inferred result).
+  // scalac's lubRefined keeps a type member both operands define as the same concrete alias.
   def testLubKeepsCommonTypeMemberRefinement(): Unit = doTest(
+    s"""abstract class Attachments { type Pos >: Null }
+       |final class SingleAttachment[P >: Null] extends Attachments { type Pos = P }
+       |final class NonemptyAttachments[P >: Null] extends Attachments { type Pos = P }
+       |class Test {
+       |  def f(c: Boolean) = ${START}if (c) new SingleAttachment[String] else new NonemptyAttachments[String]$END
+       |}
+       |//Attachments { type Pos = String }""".stripMargin
+  )
+
+  // ...but not one aliased to a type parameter whose bounds contain the base's `Pos` (scalac's addMember).
+  def testLubDropsTypeMemberAliasedToTypeParameter(): Unit = doTest(
     s"""abstract class Attachments { type Pos >: Null }
        |final class SingleAttachment[P >: Null] extends Attachments { type Pos = P }
        |final class NonemptyAttachments[P >: Null] extends Attachments { type Pos = P }
        |class Test[P >: Null] {
        |  def f(c: Boolean) = ${START}if (c) new SingleAttachment[P] else new NonemptyAttachments[P]$END
        |}
-       |//Attachments { type Pos = P }""".stripMargin
+       |//Attachments""".stripMargin
   )
+
+  // scala/scala's reflect/macros/Attachments.scala: an untyped override whose rhs is an `if` has the overridden
+  // result type, not the lub of the branches (scalac types the rhs against it, and `ptOrLub` takes it).
+  def testUntypedOverrideOfIfTakesOverriddenResultType(): Unit =
+    assertNothing(errorsFromScalaCode(
+      """abstract class Attachments { self =>
+        |  type Pos >: Null
+        |  def update(a: Int): Attachments { type Pos = self.Pos }
+        |}
+        |final class SingleAttachment[P >: Null] extends Attachments {
+        |  type Pos = P
+        |  override def update(a: Int) = if (a > 0) new SingleAttachment[P] else new NonemptyAttachments[P]
+        |}
+        |final class NonemptyAttachments[P >: Null] extends Attachments {
+        |  type Pos = P
+        |  override def update(a: Int) = this
+        |}
+        |class Test[P >: Null] {
+        |  def f(s: SingleAttachment[P]): Attachments { type Pos = P } = { val r = s.update(1); r }
+        |}
+        |""".stripMargin))
 
   def testLubDropsDifferingTypeMember(): Unit = doTest(
     s"""abstract class Attachments { type Pos >: Null }
