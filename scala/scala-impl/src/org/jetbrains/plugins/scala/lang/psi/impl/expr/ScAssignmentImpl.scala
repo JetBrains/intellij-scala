@@ -129,7 +129,9 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
               )
 
               r.fromType match {
-                case Some(tp) => processor.processType(tp, ref)
+                // The setter is seen from the getter's prefix, as the getter is: `otherSetting.value = x`
+                // expects an `otherSetting.T`, not the declaring class's `Setting.this.T`.
+                case Some(tp) => processor.processType(tp, ref, ScalaResolveState.withFromType(tp))
                 case None =>
                   fun.getContext match {
                     case d: ScDeclarationSequenceHolder =>
