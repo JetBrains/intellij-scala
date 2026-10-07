@@ -84,9 +84,9 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
      *    `I[_1] forSome { type _1 >: Cat with Dog <: Animal }` as scalac does, but
      *    selecting `x.get` still takes the first parent's substitution (`Dog`), where
      *    scalac's `memberType` goes through the merged base type (`Animal`).
-     * I. Block type avoidance beyond singletons (33): `ScBlock` widens escaping
-     *    singletons only; block-local classes and objects still escape, and no
-     *    existential is packed.
+     * I. Block type avoidance (33): `ScBlock` packs block-local definitions
+     *    existentially, but a local class whose members mention `this.type` becomes its
+     *    plain parents, where scalac keeps a refinement (`Object { def me: this.type }`).
      * K. lub precision (36): scalac's n-ary lub keeps `Equals` and a refinement, and
      *    folds differently for `if` vs `match`; PSI's pairwise lub is coarser. (The
      *    golden also spells `Function1[..]` where PSI renders `=>` sugar.)
@@ -94,11 +94,7 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
     val termType: Set[String] = Set(
       "30-asf-unstable-prefix/arr",                // G
       "32-compound-invariant-merge/xGet",          // H
-      "33-block-local-existentials/localValInvariant",   // I
-      "33-block-local-existentials/localClass",          // I
-      "33-block-local-existentials/localClassInvariant", // I
       "33-block-local-existentials/localClassThisType",  // I
-      "33-block-local-existentials/localObject",         // I
       "36-lub-associativity/nary",                 // K
       "36-lub-associativity/foldLeft",             // K
       "36-lub-associativity/foldRight",            // K
@@ -391,6 +387,8 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
       // `useGlobalCall` must resolve to `Int`, so a re-emerging cross-symbol pump
       // (which would grow the type) still fails the suite.
       .replaceAll("\\bscala\\.(Int|Long|Short|Byte|Char|Float|Double|Boolean|Unit)\\b", "$1")
+      // ...and for the other short-rendered std types that appear in existential bounds.
+      .replaceAll("\\bscala\\.(Nothing|Null|Singleton)\\b", "$1")
 
   /** Whitespace-insensitive key so formatting differences don't mask membership. */
   private def normalizeKey(s: String): String =
