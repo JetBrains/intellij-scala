@@ -105,6 +105,9 @@ trait BoundsUtil {
 
     private val projectionOption: Option[ScType] = projectionOptionImpl(nonSingletonType, Set.empty)
 
+    /** The path this class is selected from (`a` in `a.Tree`), if any. */
+    def prefix: Option[ScType] = projectionOption
+
     @tailrec
     private def projectionOptionImpl(tp: ScType, visited: Set[ScType]): Option[ScType] = {
       if (visited(tp))
@@ -313,6 +316,32 @@ trait BoundsUtil {
       }
     }
 
+  /**
+   * The designator of the common base class `baseClass` (found among `clazz1`'s base
+   * classes). scalac's `mergePrefixAndArgs` lubs the prefixes under which each operand
+   * reaches the class, so the lub of `a.Tree` and `b.Tree` for distinct paths `a`, `b`
+   * of type `G` is `G#Tree`. Taking `baseClass`'s own prefix would give `a.Tree`, which
+   * `b.Tree` does not conform to.
+   */
+  private def mergedBaseDesignator(baseClass: BaseClassInfo, clazz2: BaseClassInfo)(implicit context: Context): ScType = {
+    val fromLeft = baseClass.baseDesignator
+    (baseClass.prefix, findBaseClass(clazz2, baseClass.getNamedElement).flatMap(_.prefix)) match {
+      case (Some(p1), Some(p2)) if !p1.equiv(p2) => ScProjectionType(lub(p1, p2, checkWeak = false), baseClass.getNamedElement)
+      case _                                     => fromLeft
+    }
+  }
+
+  /** `info` itself or the base class of it that designates `target`. */
+  private def findBaseClass(info: BaseClassInfo, target: PsiNamedElement): Option[BaseClassInfo] = {
+    val visited = mutable.HashSet.empty[PsiNamedElement]
+    def go(i: BaseClassInfo): Option[BaseClassInfo] =
+      if (i.isEmpty) None
+      else if (smartEquivalence(i.getNamedElement, target)) Some(i)
+      else if (!visited.add(i.getNamedElement)) None
+      else i.getSuperClasses.iterator.map(go).collectFirst { case Some(found) => found }
+    go(info)
+  }
+
   protected def mergeSuperClassTypes(
     clazz1:               BaseClassInfo,
     clazz2:               BaseClassInfo,
@@ -321,7 +350,7 @@ trait BoundsUtil {
     checkWeak:            Boolean,
     stopAddingUpperBound: Boolean
   )(implicit context: Context): ScType = {
-    val baseClassDesignator = baseClass.baseDesignator
+    val baseClassDesignator = mergedBaseDesignator(baseClass, clazz2)
     val baseClassTps        = baseClass.getTypeParameters
 
     if (baseClassTps.isEmpty) return baseClassDesignator
