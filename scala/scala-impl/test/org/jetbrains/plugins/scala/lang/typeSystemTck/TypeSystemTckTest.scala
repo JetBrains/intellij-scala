@@ -85,8 +85,6 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
      * I. Block type avoidance beyond singletons (33): `ScBlock` widens escaping
      *    singletons only; block-local classes and objects still escape, and no
      *    existential is packed.
-     * J. lub of one class through distinct paths (34): scalac lubs the prefixes
-     *    (`G#Tree`); PSI keeps the first operand's prefix (`a.Tree`).
      * K. lub precision (36): scalac's n-ary lub keeps `Equals` and a refinement, and
      *    folds differently for `if` vs `match`; PSI's pairwise lub is coarser. (The
      *    golden also spells `Function1[..]` where PSI renders `=>` sugar.)
@@ -99,7 +97,6 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
       "33-block-local-existentials/localClassInvariant", // I
       "33-block-local-existentials/localClassThisType",  // I
       "33-block-local-existentials/localObject",         // I
-      "34-cake-lub-prefix/distinctPaths",          // J
       "36-lub-associativity/nary",                 // K
       "36-lub-associativity/foldLeft",             // K
       "36-lub-associativity/foldRight",            // K
