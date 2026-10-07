@@ -59,6 +59,7 @@ class SubstitutorInvariantsTest extends ScalaLightCodeInsightFixtureTestCase {
         |  def nested: Inner = i.g.g
         |}
         |""".stripMargin)
+    assertTrue("A1 checked no link", SubstitutorInvariants.fixedTargetChecked > 0)
     assertSilent(Rule.FixedTarget, Rule.NoReentry, Rule.StateSafe)
   }
 

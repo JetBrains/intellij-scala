@@ -31,9 +31,14 @@ private case class ThisTypeSubstitution(target: ScType, seenFromClass: PsiClass)
 
   override def toString: String = s"`this` -> $target asSeenFrom $seenFromClass"
 
+  /** A1's pending check: the frame that minted this link, until the walk first applies it. Not part of the
+   *  case class's equality. */
+  @volatile private[recursiveUpdate] var pendingFixedTargetCheck: String = null
+
   override protected val subst: PartialFunction[LeafType, ScType] = {
     case th: ScThisType =>
       TypeRecursionGuard.nestedSubstitution(th, s"$th with $this") {
+        if (pendingFixedTargetCheck != null) SubstitutorInvariants.fixedTargetOnFirstUse(this)
         val res = doUpdateThisTypeFromClass(th, target, seenFromClass)
         if (SubstitutorInvariants.enabled(SubstitutorInvariants.Rule.NoReentry) && (res ne th) && embedsRewrittenThis(res, th))
           SubstitutorInvariants.noReentry(this, th, res)
