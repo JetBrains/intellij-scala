@@ -1,19 +1,26 @@
 {
-  "description": "baseType merge across multiple inheritance paths (covariant glb, contravariant lub).",
-  "concepts": ["base-type-merge", "multi-path", "glb", "lub", "diamond"],
+  "description": "baseType merge across multiple inheritance paths (covariant glb, contravariant lub), via compound types; class templates must name an instance conforming to all others.",
+  "concepts": ["base-type-merge", "multi-path", "glb", "lub", "diamond", "compound-type"],
   "types": [
-    { "name": "LR", "expr": "LR" },
-    { "name": "LRS", "expr": "LRS" },
+    { "name": "LR", "expr": "L with R" },
+    { "name": "LRS", "expr": "LS with RS" },
+    { "name": "LRB", "expr": "LRB" },
+    { "name": "LRSB", "expr": "LRSB" },
     { "name": "BoxDog", "expr": "Box[Dog]" },
     { "name": "SinkDog", "expr": "Sink[Dog]" },
-    { "name": "BoxAnimal", "expr": "Box[Animal]" }
+    { "name": "BoxAnimal", "expr": "Box[Animal]" },
+    { "name": "BoxDogCat", "expr": "Box[Dog with Cat]" }
   ],
   "conformance": [
-    { "lhs": "LR", "rhs": "BoxAnimal", "expect": true }
+    { "lhs": "LR", "rhs": "BoxAnimal", "expect": true },
+    { "lhs": "LR", "rhs": "BoxDogCat", "expect": false },
+    { "lhs": "LRB", "rhs": "BoxDogCat", "expect": true }
   ],
-  "baseTypeSeq": ["LR", "LRS"],
+  "baseTypeSeq": ["LR", "LRS", "LRB", "LRSB"],
   "baseTypes": [
     { "name": "LRatBox", "prefix": "LR", "clazz": "BoxDog" },
-    { "name": "LRSatSink", "prefix": "LRS", "clazz": "SinkDog" }
+    { "name": "LRSatSink", "prefix": "LRS", "clazz": "SinkDog" },
+    { "name": "LRBatBox", "prefix": "LRB", "clazz": "BoxDog" },
+    { "name": "LRSBatSink", "prefix": "LRSB", "clazz": "SinkDog" }
   ]
 }

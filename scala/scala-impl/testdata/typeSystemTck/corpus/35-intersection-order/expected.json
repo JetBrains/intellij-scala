@@ -1,0 +1,37 @@
+{
+  "conformance": [
+    {
+      "lhs": "CD",
+      "rhs": "DC",
+      "holds": true
+    },
+    {
+      "lhs": "DC",
+      "rhs": "CD",
+      "holds": true
+    },
+    {
+      "lhs": "InvCD",
+      "rhs": "InvDC",
+      "holds": true
+    },
+    {
+      "lhs": "InvDC",
+      "rhs": "InvCD",
+      "holds": true
+    }
+  ],
+  "equivalence": [
+    {
+      "lhs": "CD",
+      "rhs": "DC",
+      "holds": false
+    },
+    {
+      "lhs": "InvCD",
+      "rhs": "InvDC",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {}
+}

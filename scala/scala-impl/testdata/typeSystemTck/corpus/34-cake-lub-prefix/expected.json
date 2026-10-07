@@ -1,0 +1,8 @@
+{
+  "conformance": [],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "cakeSiblings": "Use.this.global.Symbol",
+    "distinctPaths": "G#Tree"
+  }
+}

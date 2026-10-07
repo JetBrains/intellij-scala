@@ -1,0 +1,14 @@
+{
+  "description": "lub keeps the path prefix (SPEC-GAPS §4): lub(global.TypeSymbol, global.TermSymbol) = global.Symbol; lub(a.Tree, b.Tree) = G#Tree.",
+  "concepts": ["lub", "path-dependent", "cake", "self-type", "prefix-merge"],
+  "types": [
+    { "name": "GlobalSymbol", "expr": "global.Symbol", "anchor": "inUse" },
+    { "name": "ProjTree", "expr": "G#Tree" }
+  ],
+  "conformance": [],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "cakeSiblings", "expr": "if (c) (null: global.TypeSymbol) else (null: global.TermSymbol)", "anchor": "inUse" },
+    { "name": "distinctPaths", "expr": "if (c) new a.Tree else new b.Tree", "anchor": "inUse" }
+  ]
+}

@@ -1,22 +1,28 @@
 // Concept: re-anchor an INFERRED member type across a PROPER-SUPERCLASS owner in a
-// nested cake — scalac's AsSeenFromMap.toPrefix first (non-skip) branch.
+// nested cake (the scala/scala `Definitions.AnyTpe` report, SCL-21947 family).
 //
-// `foo`'s result type is INFERRED as `SymbolTable.this.Type` (from `NoSymbol.tpe`).
-// `foo` is declared in `Definitions`, a PROPER superclass of `SymbolTable`
-// (`SymbolTable extends Definitions`); both are members of the enclosing corpus
-// object. Accessed as `g.foo` with `g: Global` (`Global <: SymbolTable`), asSeenFrom
-// must yield `g.Type`: scalac's `toPrefix` returns the prefix `g.type` directly at its
-// FIRST step, because `SymbolTable <: Definitions` and `Global <: SymbolTable`, WITHOUT
-// ever consulting `pre baseType Definitions` (whose prefix is the enclosing object,
-// not the root).
+// `foo` is declared in `Definitions` (self type `SymbolTable`, a PROPER subclass:
+// `SymbolTable extends Definitions`); its result type is inferred from
+// `NoSymbol.tpe`. Accessed as `g.foo` with `g: Global` (`Global <: SymbolTable`),
+// the result must be `g.Type`.
 //
-// IntelliJ's ThisTypeSubstitution.doUpdateThisTypeFromClass lacked that first-branch
-// check: with the member owner `Definitions` != the this-type's class `SymbolTable`,
-// it walked `Definitions`'s owner chain up to the enclosing object and fell off as
-// UNMATCHED, keeping the raw `SymbolTable.this.Type` — a false "cannot upcast
-// SymbolTable.this.Type to g.Type" (the scala/scala `Definitions.AnyTpe` report,
-// SCL-21947 family). Contrast entry 25, whose member type re-anchors through a val
-// path rather than a bare enclosing-cake this-type.
+// How scalac 2.13 gets there: it spells the inferred type after the USING class,
+// `Definitions.this.Type` (`NoSymbol` is selected from `Definitions.this`, and
+// `Symbol#tpe: SymbolTable.this.Type` seen from `Definitions.this.NoSymbol.type`
+// re-anchors at `SymbolTable`, a base class of `Definitions.this` via the self type).
+// `asSeenFrom(g.type, Definitions)` then matches `Definitions.this` at its first step
+// (AsSeenFromMap.matchesPrefixAndClass: same class, and `g.type` has `Definitions`
+// as a base class). See entry 37 and SPEC-GAPS.md §2(a), §7.
+//
+// IntelliJ spells the inferred type after the DECLARING class,
+// `SymbolTable.this.Type`. Re-anchoring that needs SLS §3.4's "D is a subclass of C"
+// reading of the this-type rule (scalac 2.10's `toPrefix`; 2.11+ match the exact
+// class). ThisTypeSubstitution.doUpdateThisTypeFromClass lacked it: with the member
+// owner `Definitions` != the this-type's class `SymbolTable`, it walked
+// `Definitions`'s owner chain up to the enclosing object and fell off as UNMATCHED,
+// keeping the raw `SymbolTable.this.Type`, a false "cannot upcast
+// SymbolTable.this.Type to g.Type". Contrast entry 25, whose member type re-anchors
+// through a val path rather than a bare enclosing-cake this-type.
 trait Definitions {
   self: SymbolTable =>
   def foo = NoSymbol.tpe
