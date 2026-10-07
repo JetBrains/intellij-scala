@@ -29,6 +29,11 @@ import scala.collection.immutable.HashSet
 trait ScalaConformance extends api.Conformance with TypeVariableUnification {
   typeSystem: api.TypeSystem =>
 
+  /** The prefix of `p`, with singleton-typed vals collapsed to the paths they denote: for a local or early-defined
+   *  `val universe: self.global.type`, the prefixes of `universe.analyzer.Typer` and `global.analyzer.Typer` are
+   *  the same path, as scalac's prefix comparison follows a val's singleton type. */
+  private def collapsedPrefix(p: ScProjectionType): ScType = ScProjectionType.collapseSingletonPath(p.projected)
+
   override protected def conformsComputable(key: Key,
                                             visited: Set[PsiClass])(implicit context: Context): Supplier[ConstraintsResult] =
     new Supplier[ConstraintsResult] {
@@ -575,7 +580,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           case _ =>
             l match {
               case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
-                result = conformsInner(proj1.projected, proj2.projected, visited, constraints)
+                result = conformsInner(collapsedPrefix(proj1), collapsedPrefix(proj2), visited, constraints)
               case _ =>
                 val res = proj2.actualElement match {
                   case syntheticClass: ScSyntheticClass =>
@@ -856,10 +861,10 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       r match {
         case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj.actualElement) =>
-          result = conformsInner(proj.projected, proj1.projected, visited, constraints)
+          result = conformsInner(collapsedPrefix(proj), collapsedPrefix(proj1), visited, constraints)
           if (result != null) return
         case proj1: ScProjectionType if proj1.actualElement.name == proj.actualElement.name =>
-          val t = conformsInner(proj.projected, proj1.projected, visited, constraints)
+          val t = conformsInner(collapsedPrefix(proj), collapsedPrefix(proj1), visited, constraints)
           if (t.isRight) {
             result = t
             return
