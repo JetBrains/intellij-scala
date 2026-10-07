@@ -402,6 +402,11 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testTypeMismatchUnappliedEtaExpansion(): Unit = assertErrorsWithHints(
     "def f(i: Int)(s: String): Unit = (); val v = f(1) _")
 
+  // A SAM expected type eta-expands the remaining argument list, as a function type does (scala/scala's
+  // `solvedTypes(tvars, tparams, varianceInType(tp), ...)`, with a `Variance.Extractor[Symbol]` parameter).
+  def testTypeMismatchUnappliedCurryingSamExpected(): Unit = assertErrorsWithHints(
+    "trait Extractor[A] { def apply(x: A): Int }; def f(i: Int, b: Boolean = false)(s: String): Int = 1; def solve(e: Extractor[String]): Unit = (); solve(f(1))")
+
   def testTypeMismatchUnappliedImplicit(): Unit = assertErrorsWithHints(
     "def f(i: Int)(implicit s: String): Int = 1; implicit val s = \"\"; val v: String = f(2)",
     Hint("f(2)", ": Int"),
