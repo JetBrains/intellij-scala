@@ -69,8 +69,13 @@ object SubstitutorInvariants {
      *  `idempotent`, so the link may be re-run on its own output and duplicates dropped. Checked semantically
      *  (the link is applied to its target) rather than by the Lean's sufficient condition "no this-leaf of the
      *  target is on the anchor's owner chain", which `Outer.this.i.type` seen from `Inner` legitimately violates
-     *  while still mapping to itself. Only targets that meet the syntactic precondition are checked. */
-    case object FixedTarget extends Rule("A1", 0, "idempotent_of_fixed", "a this-link maps its own target to itself", Mode.Record)
+     *  while still mapping to itself. Only targets that meet the syntactic precondition are checked.
+     *
+     *  Off by default: applying the link while the substitutor is being built evaluates types out of turn, and
+     *  that is observable. With A1 on, `scala/reflect/internal/util/JavaClearable.scala` reports
+     *  `JavaClearableCollection[T]` not conforming to `JavaClearable[T]`; with it off, it doesn't. Enable it
+     *  explicitly (`.A1=record`) and treat a result that differs from a run without it as an artifact. */
+    case object FixedTarget extends Rule("A1", 0, "idempotent_of_fixed", "a this-link maps its own target to itself", Mode.Off)
 
     /** C3. A substitutor threaded into resolve *state*, and so applied to the types of other references
      *  (`matchClauseSubstitutor`), binds type variables only: no this-link. `stateSafe_preserves_this`. */
