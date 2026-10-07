@@ -110,4 +110,26 @@ class CakeLubTest extends TypeInferenceTestBase {
 
   def testControlSubsumingSide(): Unit =
     assertCleanTrees("  def f(t: Tree, d: DocDef, c: Boolean): Tree = { val r = if (c) d else t; r }")
+
+  // scalac's lubRefined keeps a type member both operands define alike (scala/scala's
+  // reflect/macros/Attachments.scala: `SingleAttachment.update`'s inferred result).
+  def testLubKeepsCommonTypeMemberRefinement(): Unit = doTest(
+    s"""abstract class Attachments { type Pos >: Null }
+       |final class SingleAttachment[P >: Null] extends Attachments { type Pos = P }
+       |final class NonemptyAttachments[P >: Null] extends Attachments { type Pos = P }
+       |class Test[P >: Null] {
+       |  def f(c: Boolean) = ${START}if (c) new SingleAttachment[P] else new NonemptyAttachments[P]$END
+       |}
+       |//Attachments { type Pos = P }""".stripMargin
+  )
+
+  def testLubDropsDifferingTypeMember(): Unit = doTest(
+    s"""abstract class Attachments { type Pos >: Null }
+       |final class A extends Attachments { type Pos = String }
+       |final class B extends Attachments { type Pos = Integer }
+       |class Test {
+       |  def f(c: Boolean) = ${START}if (c) new A else new B$END
+       |}
+       |//Attachments""".stripMargin
+  )
 }
