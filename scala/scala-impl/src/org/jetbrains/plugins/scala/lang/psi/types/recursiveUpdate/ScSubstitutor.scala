@@ -115,6 +115,7 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
 
       val combined = new ScSubstitutor(newArray)
       SubstitutorInvariants.wellAnchored(this, other, combined)
+      SubstitutorInvariants.selfRootedOnce(this, other)
       combined
     }
   }
