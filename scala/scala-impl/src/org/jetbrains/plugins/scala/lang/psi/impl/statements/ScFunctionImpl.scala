@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionImpl.isJavaVarargs
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScTopLevelStubBasedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
@@ -514,45 +514,33 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       }
   }
 
-  override def superSignatures: Seq[TermSignature] = {
-    val forName = TypeDefinitionMembers.getSignatures(containingClass).forName(name)
-    forName.findNode(this) match {
-      case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
-      case Some(x)                                => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
-      case None =>
-        // `this` may not be the slot's primary node — e.g. an abstract member
-        // re-abstracting a concrete inherited one keeps the concrete member as the
-        // node's info. Look the slot up by signature and return its supers (+ info),
-        // mirroring `superSignaturesIncludingSelfType`. Otherwise the override is
-        // wrongly reported as "overrides nothing".
-        forName.get(new PhysicalMethodSignature(this, ScSubstitutor.empty)) match {
-          case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
-          case Some(x)                                => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
-          case None                                   => Seq.empty
-        }
-    }
-  }
+  override def superSignatures: Seq[TermSignature] =
+    supersIn(TypeDefinitionMembers.getSignatures(containingClass).forName(name))
 
   override def superSignaturesIncludingSelfType: Seq[TermSignature] = {
     val clazz = containingClass
     if (clazz == null) return Seq.empty
 
-    if (clazz.selfType.isDefined) {
-      val signs   = TypeDefinitionMembers.getSelfTypeSignatures(clazz)
-      val forName = signs.forName(name)
-
-      forName.findNode(this) match {
-        case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
-        case Some(x)                                => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
-        case None =>
-          forName.get(new PhysicalMethodSignature(this, ScSubstitutor.empty)) match {
-            case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
-            case Some(x)                                => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
-            case None                                   => Seq.empty
-          }
-      }
-    } else superSignatures
+    if (clazz.selfType.isDefined) supersIn(TypeDefinitionMembers.getSelfTypeSignatures(clazz).forName(name))
+    else superSignatures
   }
+
+  /**
+   * The signatures `this` overrides in the slot of `forName` that holds it. `this` is not always the slot's
+   * key: an abstract member re-abstracting a concrete inherited one keeps the concrete member as the node's
+   * info, and equivalent overrides from several classes (`validateClassInfo` in `Types`, `JavaMirrors` and
+   * `SymbolLoaders`, seen through `JavaMirrors`' self type `runtime.SymbolTable`) share one node keyed by
+   * one of them, with the others among its supers. Otherwise the override is wrongly reported as
+   * "overrides nothing".
+   */
+  private def supersIn(forName: MixinNodes.AllNodes[TermSignature]): Seq[TermSignature] =
+    forName.findNode(this)
+      .orElse(forName.get(new PhysicalMethodSignature(this, ScSubstitutor.empty)))
+      .orElse(forName.nodesIterator.find(_.supers.exists(_.info.namedElement == this))) match {
+      case Some(x) if x.info.namedElement == this => x.supers.map(_.info)
+      case Some(x)                                => x.supers.filter(_.info.namedElement != this).map(_.info) :+ x.info
+      case None                                   => Seq.empty
+    }
 }
 
 object ScFunctionImpl {
