@@ -231,4 +231,34 @@ class CakeTypersReproTest extends ScalaHighlightingTestBase {
     "  def describe:", "  def other(g: Global): g.Position = reifier.defaultErrorPosition\n  def describe:"))) {
     case Message.Error("reifier.defaultErrorPosition", _) :: Nil =>
   }
+
+  // scala/scala `reflect/internal/Importers.scala`: inside `class StandardImporter { val from: SymbolTable }`,
+  // members found on the path `from` are seen from `from`, each from its own owner. Seen from `from` at the
+  // owner of `from` itself, this universe's `Importers.this` was rewritten onto `from`, so
+  // `importModifiers(mods): Modifiers` became a `from.Modifiers`.
+  private val ImportersCake =
+    """|trait Universe {
+      |  class Tree
+      |  class Modifiers
+      |  case class ClassDef(mods: Modifiers) extends Tree
+      |}
+      |trait Importers { to: SymbolTable =>
+      |  abstract class StandardImporter {
+      |    val from: SymbolTable
+      |    def importModifiers(mods: from.Modifiers): Modifiers = new Modifiers
+      |    def recreateTree(their: from.Tree): to.Tree = their match {
+      |      case from.ClassDef(mods) => new ClassDef(importModifiers(mods))
+      |    }
+      |  }
+      |}
+      |abstract class SymbolTable extends Universe with Importers
+      |""".stripMargin
+
+  def testTypesOfThisUniverseInsideAnotherUniversesPattern(): Unit =
+    assertNothing(errorsFromScalaCode(ImportersCake))
+
+  def testBinderOfAnotherUniversesPatternIsThatUniverses(): Unit = assertMatches(errorsFromScalaCode(ImportersCake.replace(
+    "new ClassDef(importModifiers(mods))", "{ val m: Modifiers = mods; new ClassDef(m) }"))) {
+    case Message.Error("mods", _) :: Nil =>
+  }
 }
