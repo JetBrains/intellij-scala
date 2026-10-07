@@ -134,7 +134,9 @@ object BaseTypes {
   /**
    * Merge several base types of the same class into one — scalac's
    * `mergePrefixAndArgs`: combine arguments per position by the class's variance
-   * (covariant -> glb, contravariant -> lub, invariant -> kept). IntelliJ's plain
+   * (covariant -> glb, contravariant -> lub, invariant -> kept when equivalent, else
+   * an existential bounded by their glb and lub: `I[Dog] with I[Cat]` has base type
+   * `I[_1] forSome { type _1 >: Cat with Dog <: Animal }`). IntelliJ's plain
    * `glb` does NOT do this — for incomparable args it yields the intersection of
    * the applied types (`Box[Dog] with Box[Cat]`) rather than the merge
    * (`Box[Dog with Cat]`), so we do it explicitly.
@@ -148,13 +150,21 @@ object BaseTypes {
           (a, b) match {
             case (ParameterizedType(designator, as), ParameterizedType(_, bs))
                 if as.sizeCompare(bs) == 0 && as.sizeCompare(variances) == 0 =>
+              val wildcards = List.newBuilder[ScExistentialArgument]
               val merged = variances.indices.map { i =>
                 val v = variances(i)
                 if (v.isCovariant) as(i).glb(bs(i))
                 else if (v.isContravariant) as(i).lub(bs(i))
-                else as(i) // invariant: contributions are equivalent
+                else if (as(i).equiv(bs(i))) as(i)
+                else {
+                  val w = ScExistentialArgument(s"_$$${i + 1}", Nil, as(i).glb(bs(i)), as(i).lub(bs(i)))
+                  wildcards += w
+                  w
+                }
               }
-              ScParameterizedType(designator, merged)
+              val applied = ScParameterizedType(designator, merged)
+              val ws      = wildcards.result()
+              if (ws.isEmpty) applied else ScExistentialType(applied, Some(ws))
             case _ => a.glb(b)
           }
         }
