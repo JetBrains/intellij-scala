@@ -100,9 +100,11 @@ object SubstitutorInvariants {
      *  rule ids of the tally stay stable. */
     case object Anchored extends Rule("A6", 5, "IntelliJ.agrees", "a this-link has an anchor", Mode.Record)
 
-    /** I4. Under C1–C3 `chain_is_single` says no output needs re-rewriting, so the no-self-embedding brake
-     *  ([[ThisTypeSubstitution]]) never fires. Each firing marks a chain outside the model. */
-    case object NoReentry extends Rule("I4", 6, "chain_is_single", "the no-self-embedding brake does not fire", Mode.Record)
+    /** I4. Under C1–C3 `chain_is_single` says no output needs re-rewriting. A census of the results that the
+     *  former no-self-embedding brake refused (rooted in an inheritor of the rewritten this-type's class): with
+     *  every link anchored they are legitimate single-pass rewrites, so the brake is gone, and a count here is
+     *  information, not a violation. */
+    case object NoReentry extends Rule("I4", 6, "chain_is_single", "a rewrite's result is not rooted in the rewritten class", Mode.Off)
 
     val all: Seq[Rule] = Seq(FixedTarget, StateSafe, AdjacentAnchors, RunningAnchor, NoLeftover, Anchored, NoReentry)
   }
@@ -345,10 +347,10 @@ object SubstitutorInvariants {
     if (enabled(Rule.NoLeftover) && link.seenFromClass != null && ownerChainContains(link.seenFromClass, th.element))
       violated(Rule.NoLeftover, s"[$link] left $th alone although ${th.element.name} is on the anchor's owner chain")
 
-  /** I4, in `ThisTypeSubstitution` when the no-self-embedding brake refuses a result. */
+  /** I4, in `ThisTypeSubstitution`, for a result rooted in the rewritten this-type's class. */
   private[recursiveUpdate] def noReentry(link: ThisTypeSubstitution, th: ScThisType, refused: ScType): Unit =
     if (enabled(Rule.NoReentry))
-      violated(Rule.NoReentry, s"[$link] would embed $th in $refused")
+      violated(Rule.NoReentry, s"[$link] embeds $th in $refused")
 
   /** A3 and A4, at `followed`. A3 looks at the junction only (each operand's own junctions were checked when it
    *  was built); A4 folds the whole combined chain. */
