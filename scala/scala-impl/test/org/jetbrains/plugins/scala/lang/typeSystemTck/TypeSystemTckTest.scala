@@ -85,11 +85,6 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
      *
      * G. Unstable prefix (30): scalac types `x.arr` for an unstable `x` existentially
      *    (`captureThis`); PSI substitutes the prefix's class type directly.
-     * H. Member selection on a compound with a same-class invariant merge (32):
-     *    `BaseTypes.baseType` now merges `I[Dog] with I[Cat]` to
-     *    `I[_1] forSome { type _1 >: Cat with Dog <: Animal }` as scalac does, but
-     *    selecting `x.get` still takes the first parent's substitution (`Dog`), where
-     *    scalac's `memberType` goes through the merged base type (`Animal`).
      * I. Block type avoidance (33): `ScBlock` packs block-local definitions
      *    existentially, but a local class whose members mention `this.type` becomes its
      *    plain parents, where scalac keeps a refinement (`Object { def me: this.type }`).
@@ -100,7 +95,6 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
      */
     val termType: Set[String] = Set(
       "30-asf-unstable-prefix/arr",                // G
-      "32-compound-invariant-merge/xGet",          // H
       "33-block-local-existentials/localClassThisType",  // I
       "36-lub-associativity/nary",                 // K
       "36-lub-associativity/foldLeft",             // K

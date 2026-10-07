@@ -328,7 +328,11 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           }
         }
         true
-      case comp: ScCompoundType   => processDeclarations(comp, this, state, null, place)
+      case comp: ScCompoundType   =>
+        mergeSameClassComponents(comp) match {
+          case Some(merged) => processTypeImpl(merged, place, state, updateWithProjectionSubst)
+          case None         => processDeclarations(comp, this, state, null, place)
+        }
       case and: ScAndType         => processDeclarations(and, this, state, null, place)
       case or: ScOrType           => processTypeImpl(or.join, place, state, updateWithProjectionSubst)
       case matchType: ScMatchType =>
@@ -339,6 +343,38 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case ScExistentialArgument(_, _, _, upper) =>
         processTypeImpl(upper, place, state)
       case _ => true
+    }
+  }
+
+  /**
+   * scalac's `memberType` selects a member through the qualifier's base type at the
+   * member's class, which merges a class reached through several components:
+   * `x.get` for `x: I[Dog] with I[Cat]` is seen from
+   * `I[_1] forSome { type _1 >: Cat with Dog <: Animal }`, so it is an `Animal`.
+   * Signatures of a compound otherwise come from the first component that has the
+   * member (`Dog`). Replace same-class components that differ by their merged base
+   * type (`BaseTypes.baseType`), quantifying any existential over the whole compound.
+   */
+  private def mergeSameClassComponents(comp: ScCompoundType)(implicit context: Context): Option[ScType] = {
+    val byClass = comp.components.zipWithIndex.collect {
+      case (p @ ParameterizedType(_, _), i) if p.extractClass.isDefined => (p.extractClass.get, p, i)
+    }.groupBy(_._1).values.filter(_.sizeIs > 1)
+    val toMerge = byClass.filter(group => group.exists(!_._2.equiv(group.head._2)))
+    if (toMerge.isEmpty) None
+    else {
+      val replaced  = toMerge.flatMap(_.map(_._3)).toSet
+      val wildcards = List.newBuilder[ScExistentialArgument]
+      val merged = toMerge.toSeq.flatMap { group =>
+        BaseTypes.baseType(comp, group.head._1).map {
+          case ex: ScExistentialType => wildcards ++= ex.wildcards; ex.quantified
+          case other                 => other
+        }
+      }
+      if (merged.sizeIs != toMerge.size) return None
+      val kept     = comp.components.zipWithIndex.collect { case (c, i) if !replaced(i) => c }
+      val compound = ScCompoundType(kept ++ merged, comp.signatureMap, comp.typesMap)
+      val ws       = wildcards.result()
+      Some(if (ws.isEmpty) compound else ScExistentialType(compound, Some(ws)))
     }
   }
 
