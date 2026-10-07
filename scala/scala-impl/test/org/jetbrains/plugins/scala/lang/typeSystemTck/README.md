@@ -163,7 +163,10 @@ sbt "scala-impl/Test/compile"
 
 - Scaffold: conformance is a hard assertion; baseTypeSeq is a reported set diff.
 - TODO: order-preserving base-type comparison once an ordered API exists.
-- TODO: tighten the renderer (currently a normalization of `canonicalText`) to
-  fully match SPEC §4 for refinements / existentials.
+- The renderer is `canonicalText` plus the SPEC §4 forms PSI's presentation doesn't
+  produce: dealiased types, top-level existentials as `Q forSome { type _1 >: L <: U }`,
+  and `X.this.p` compared equal to `X.p` (an object's own `this`). TODO: a refinement's
+  `this.type`, existentials nested below the top level, and `FunctionN`/`TupleN`
+  without sugar. No current comparison depends on these.
 - Corpus is vendored from https://github.com/retronym/scala-type-system-tck;
   refresh by re-copying `corpus/` after regenerating its goldens.

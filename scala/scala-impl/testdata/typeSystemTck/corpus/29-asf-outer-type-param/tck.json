@@ -1,0 +1,8 @@
+{
+  "description": "asSeenFrom of an outer class type parameter through an inner class re-extending the outer (SPEC-GAPS §2b): c.f is String, not Int.",
+  "concepts": ["asSeenFrom", "type-parameter", "inner-class", "owner-chain"],
+  "types": [],
+  "conformance": [],
+  "baseTypeSeq": [],
+  "termTypes": [ { "name": "cf", "expr": "c.f", "anchor": "inUse" } ]
+}

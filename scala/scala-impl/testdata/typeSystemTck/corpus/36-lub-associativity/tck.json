@@ -1,0 +1,12 @@
+{
+  "description": "lub is not associative (SPEC-GAPS §4): an n-ary match over List/Vector/Set differs from the left-nested if over the same branches.",
+  "concepts": ["lub", "associativity", "refinement", "depth"],
+  "types": [],
+  "conformance": [],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "nary", "expr": "i match { case 0 => List(1); case 1 => Vector(2); case _ => Set(3) }", "anchor": "inUse" },
+    { "name": "foldLeft", "expr": "if (c1) (if (c2) List(1) else Vector(2)) else Set(3)", "anchor": "inUse" },
+    { "name": "foldRight", "expr": "if (c1) List(1) else (if (c2) Vector(2) else Set(3))", "anchor": "inUse" }
+  ]
+}

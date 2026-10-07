@@ -1,0 +1,11 @@
+{
+  "description": "asSeenFrom of this.type from an unstable prefix (SPEC-GAPS §2c): mk().arr is Array[_ <: X with Singleton] (captured existential), mk().self is X.",
+  "concepts": ["asSeenFrom", "this-type", "unstable-prefix", "existential"],
+  "types": [],
+  "conformance": [],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "arr", "expr": "mk().arr", "anchor": "inUse" },
+    { "name": "self", "expr": "mk().self", "anchor": "inUse" }
+  ]
+}

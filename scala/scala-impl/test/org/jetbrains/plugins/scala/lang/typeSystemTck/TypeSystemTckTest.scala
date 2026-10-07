@@ -8,7 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
-import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScCompoundType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, Context, ScCompoundType, ScExistentialArgument, ScExistentialType, ScType, ScTypeExt}
 import org.junit.Assert
 
 import scala.collection.mutable.ArrayBuffer
@@ -67,20 +68,41 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
       "15-top-bottom-valueclass/Int",              // A: primitive, empty actual
       "18-multipath-base-type/LR",                 // B: arg-order / merge
       "18-multipath-base-type/LRS",                // B
+      "32-compound-invariant-merge/IDogCat",       // B
     )
     val baseClasses: Set[String] = Set(
       "04-self-type-path-dependent/AnimalBoxThis", // D: self-type base order
     )
     /**
-     * E. Member type left as the un-reduced path-dependent projection (`BooleanSetting#T`)
-     *    where scalac eagerly normalizes to the alias' RHS (`Boolean`). The PSI type is
-     *    correct up to `=:=` (`BooleanSetting#T =:= Boolean`, so the access conforms — see
-     *    `OverrideHighlightingTest.testSCL21947MutableSettings`); only the literal render
-     *    differs, so this is a representation seam, not a conformance bug.
+     * Semantic divergences in member/expression types, pinned from TCK entries 29–37
+     * (SPEC-GAPS.md in the TCK repo).
+     *
+     * G. Unstable prefix (30): scalac types `x.arr` for an unstable `x` existentially
+     *    (`captureThis`); PSI substitutes the prefix's class type directly.
+     * H. Same-class invariant merge in a compound (32): scalac's `baseType` merges
+     *    `I[Dog] with I[Cat]` to `I[_1] forSome { type _1 >: Cat with Dog <: Animal }`
+     *    and member types follow it (`xGet: Animal`); PSI takes the first parent.
+     * I. Block type avoidance beyond singletons (33): `ScBlock` widens escaping
+     *    singletons only; block-local classes and objects still escape, and no
+     *    existential is packed.
+     * J. lub of one class through distinct paths (34): scalac lubs the prefixes
+     *    (`G#Tree`); PSI keeps the first operand's prefix (`a.Tree`).
+     * K. lub precision (36): scalac's n-ary lub keeps `Equals` and a refinement, and
+     *    folds differently for `if` vs `match`; PSI's pairwise lub is coarser. (The
+     *    golden also spells `Function1[..]` where PSI renders `=>` sugar.)
      */
     val termType: Set[String] = Set(
-      "22-bound-refinement-member/valViaBound",
-      "22-bound-refinement-member/valViaCompound",
+      "30-asf-unstable-prefix/arr",                // G
+      "32-compound-invariant-merge/xGet",          // H
+      "33-block-local-existentials/localValInvariant",   // I
+      "33-block-local-existentials/localClass",          // I
+      "33-block-local-existentials/localClassInvariant", // I
+      "33-block-local-existentials/localClassThisType",  // I
+      "33-block-local-existentials/localObject",         // I
+      "34-cake-lub-prefix/distinctPaths",          // J
+      "36-lub-associativity/nary",                 // K
+      "36-lub-associativity/foldLeft",             // K
+      "36-lub-associativity/foldRight",            // K
     )
     /**
      * F. `BaseTypes.baseType` MISSES entirely (returns None) for an inherited inner
@@ -88,9 +110,11 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
      *    `x: global.ValDef`, ValDef -> ValOrDefDef -> Tree inside the Trees cake).
      *    Fixed: BaseTypesIterator now widens a singleton path's `designatorSingletonType`
      *    (the same widen also fixed group A's `12-singleton-literal-path/DogSingleton`
-     *    for baseTypeSeq). Empty on purpose — kept for the two-way pin structure.
+     *    for baseTypeSeq). Now holds only group H (see `termType`).
      */
-    val baseType: Set[String] = Set.empty
+    val baseType: Set[String] = Set(
+      "32-compound-invariant-merge/IDogCatAtI",    // H
+    )
   }
 
   def testCorpus(): Unit = {
@@ -322,8 +346,37 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
   // --- canonical rendering (SPEC §4), normalized to the TCK form ---
 
   private def render(tp: ScType): String =
-    try normalize(tp.canonicalText)
+    try normalize(specText(tp.removeAliasDefinitions()(using Context.Empty)))
     catch { case _: Throwable => tp.toString }
+
+  /**
+   * SPEC §4 forms that IntelliJ's presentation doesn't produce. Type aliases are
+   * dealiased by the caller. A top-level existential renders as
+   * `Q forSome { type _1 >: L <: U; ... }`: quantifiers numbered in order of first
+   * appearance in `Q`, bounds always written out. (IntelliJ would print `Box[_]` or
+   * `Box[_ <: Animal]`, and omit trivial bounds.)
+   */
+  private def specText(tp: ScType): String = tp match {
+    case ex: ScExistentialType =>
+      val order = scala.collection.mutable.LinkedHashSet.empty[ScExistentialArgument]
+      ex.quantified.visitRecursively {
+        case a: ScExistentialArgument if ex.wildcards.contains(a) => order += a
+        case _                                                    =>
+      }
+      val quantifiers = (order.toList ++ ex.wildcards.filterNot(order.contains)).zipWithIndex.map {
+        case (a, i) => a -> s"_${i + 1}"
+      }
+      val names = quantifiers.toMap
+      val placeholder: PartialFunction[ScType, ScType] = {
+        case a: ScExistentialArgument if names.contains(a) =>
+          TypeParameterType(TypeParameter.light(names(a), Seq.empty, a.lower, a.upper))
+      }
+      val decls = quantifiers.map { case (a, n) =>
+        s"type $n >: ${a.lower.updateRecursively(placeholder).canonicalText} <: ${a.upper.updateRecursively(placeholder).canonicalText}"
+      }
+      s"${ex.quantified.updateRecursively(placeholder).canonicalText} forSome { ${decls.mkString("; ")} }"
+    case _ => tp.canonicalText
+  }
 
   private def normalize(s: String): String =
     s.replace("_root_.", "")
@@ -343,7 +396,13 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
       .replaceAll("\\bscala\\.(Int|Long|Short|Byte|Char|Float|Double|Boolean|Unit)\\b", "$1")
 
   /** Whitespace-insensitive key so formatting differences don't mask membership. */
-  private def normalizeKey(s: String): String = normalize(s).replaceAll("\\s+", "")
+  private def normalizeKey(s: String): String =
+    normalize(s)
+      // An object's own `this` and its stable name are the same instance: scalac
+      // renders a path from inside `object Use` as `Use.this.b`, IntelliJ as `Use.b`.
+      // (For a class `C`, `C.b` isn't a legal path, so this can't conflate two paths.)
+      .replaceAll("\\b(\\w+)\\.this\\.", "$1.")
+      .replaceAll("\\s+", "")
 
   /** Order-insensitive atom key for baseType comparison: drops bracket/`with`
    *  structure and sorts the identifier atoms, so commutative-intersection order
