@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.{ArrayExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeArgument, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId, TypeParamIdOwner}
@@ -112,7 +113,9 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
       substitutions.copyToArray(newArray, 0)
       other.substitutions.copyToArray(newArray, thisLength)
 
-      new ScSubstitutor(newArray)
+      val combined = new ScSubstitutor(newArray)
+      SubstitutorInvariants.wellAnchored(this, other, combined)
+      combined
     }
   }
 
@@ -200,11 +203,15 @@ object ScSubstitutor {
     else ScSubstitutor(TypeParamSubstitution(tvMap))
   }
 
-  def apply(updateThisType: ScType): ScSubstitutor =
-    ScSubstitutor(ThisTypeSubstitution(ThisTypeSubstitution.canonicalizeTarget(updateThisType), null))
+  def apply(updateThisType: ScType): ScSubstitutor = apply(updateThisType, null)
 
-  def apply(updateThisType: ScType, seenFromClass: PsiClass): ScSubstitutor =
-    ScSubstitutor(ThisTypeSubstitution(ThisTypeSubstitution.canonicalizeTarget(updateThisType), seenFromClass))
+  def apply(updateThisType: ScType, @Nullable seenFromClass: PsiClass): ScSubstitutor = {
+    val link  = ThisTypeSubstitution(ThisTypeSubstitution.canonicalizeTarget(updateThisType), seenFromClass)
+    val subst = ScSubstitutor(link)
+    if (seenFromClass == null) SubstitutorInvariants.anchored(link.target)
+    SubstitutorInvariants.fixedTarget(link, subst)
+    subst
+  }
 
   /** The `seenFromClass` for viewing `member`'s type from a prefix: its containing class,
    *  scalac's `sym.owner` in `sym.info.asSeenFrom(pre, sym.owner)`. `null` when there is
