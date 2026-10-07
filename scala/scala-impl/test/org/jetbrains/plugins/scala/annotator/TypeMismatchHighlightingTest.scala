@@ -56,6 +56,32 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     case Error("two", _) :: Nil =>
   }
 
+  // SLS 6.5: `this` as the receiver of an operator is the prefix of a selection, so it is a `C.this.type`
+  // (scala/scala `Trees.clearType`, `Symbols.makePublic`)
+  def testThisAsOperatorReceiverIsThisType(): Unit = assertMatches(errorsFromScalaCode(
+    """abstract class Tree {
+      |  def setType(tp: Int): this.type = this
+      |  def resetFlag(f: Long): this.type = this
+      |  def clearType(): this.type = this setType 0
+      |  def makePublic: this.type = this setType 0 resetFlag 1L
+      |}
+      |""".stripMargin
+  )) {
+    case Nil =>
+  }
+
+  // A stable argument stands for its singleton type in a dependent result type (scala/scala
+  // `Trees.changeOwner`: `ChangeOwnerTraverser.apply[T <: Tree](tree: T): tree.type`)
+  def testThisArgumentOfDependentMethod(): Unit = assertMatches(errorsFromScalaCode(
+    """abstract class Tree {
+      |  def changeOwner(): this.type = new Traverser().apply(this)
+      |}
+      |class Traverser { def apply[T <: Tree](tree: T): tree.type = tree }
+      |""".stripMargin
+  )) {
+    case Nil =>
+  }
+
   // Type ascription, SCL-15544
 
   // SCL-15544
