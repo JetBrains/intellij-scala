@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Signature}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.{ScSubstitutor, SubstitutorInvariants}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveStateOps._
 
 object ScalaResolveState extends ResolveStateOps {
@@ -70,8 +70,10 @@ trait ResolveStateOps extends Any {
   def withImplicitScopeType(tpe: Option[ScType]): ResolveState =
     tpe.fold(resolveState)(withImplicitScopeType)
 
-  def withMatchClauseSubstitutor(subst: ScSubstitutor): ResolveState =
+  def withMatchClauseSubstitutor(subst: ScSubstitutor): ResolveState = {
+    SubstitutorInvariants.stateSafe(subst, "matchClauseSubstitutor")
     resolveState.put(MATCH_SUBSTITUTOR, subst)
+  }
 
   def withExtensionMethodMarker: ResolveState =
     resolveState.put(EXTENSION_METHOD, TRUE)
