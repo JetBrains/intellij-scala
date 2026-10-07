@@ -38,6 +38,16 @@ class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with
 }
 
 object ScThisReferenceImpl {
+  /** The type an argument of type `argType` stands for in a parameter's dependent `p.type`. A stable
+   *  argument is substituted by its singleton type, as in scalac, so `apply(this)` for
+   *  `def apply(tree: Tree): tree.type` is a `C.this.type`, not a `C`. Not when `this` was converted
+   *  to fit the parameter: the argument is then the conversion's result. */
+  def dependentArgumentType(arg: ScExpression, argType: ScType): ScType = arg match {
+    case ths: ScThisReference =>
+      ths.refTemplate.map(ScThisType(_)).filter(_.conforms(argType)(using Context(arg))).getOrElse(argType)
+    case _ => argType
+  }
+
   def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult = {
     import td.projectContext
     implicit val context: Context = Context(expr)
@@ -48,6 +58,9 @@ object ScThisReferenceImpl {
     val result = expr.getContext match {
       case ref: ScStableCodeReference if ref.pathQualifier.contains(expr) => ScThisType(td)
       case referenceExpression: ScReferenceExpression if referenceExpression.qualifier.contains(expr) =>
+        ScThisType(td)
+      // So is the receiver of an operator (`this setType null`, `this resetFlag F`).
+      case sugarCall: ScSugarCallExpr if sugarCall.getBaseExpr == expr =>
         ScThisType(td)
       case _ => expr.expectedType().map(_.removeAliasDefinitions()) match {
         case Some(_: ScThisType) =>
