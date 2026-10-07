@@ -85,10 +85,9 @@ class SubstitutorInvariantsTest extends ScalaLightCodeInsightFixtureTestCase {
     assertSilent(Rule.FixedTarget, Rule.NoReentry, Rule.StateSafe)
   }
 
-  // The leak of §5.2: `PatternTypeInference` puts `ThisTypeSubstitution(C.this, owner(unapply))` into the
-  // substitutor that the resolver threads to every reference in the case body. The detector must see it; once
-  // the match-clause substitutor is type-parameter-only this assertion flips to `assertSilent(Rule.StateSafe)`.
-  def testMatchClauseSubstitutorCarriesThisLink(): Unit = {
+  // The leak of §5.2: the extractor's this-links must not reach the substitutor that the resolver threads to
+  // every reference in the case body; `doForMatchClause` keeps the bindings alone.
+  def testMatchClauseSubstitutorHasNoThisLink(): Unit = {
     typeEverything(
       """class C {
         |  object E { def unapply(x: Any): Option[Int] = Some(1) }
@@ -99,8 +98,7 @@ class SubstitutorInvariantsTest extends ScalaLightCodeInsightFixtureTestCase {
         |  }
         |}
         |""".stripMargin)
-    assertTrue(SubstitutorInvariants.report, SubstitutorInvariants.count(Rule.StateSafe) > 0)
-    assertTrue(SubstitutorInvariants.samplesOf(Rule.StateSafe).exists(_.contains("matchClauseSubstitutor")))
+    assertSilent(Rule.StateSafe)
   }
 
   def testStateSafeDetectsThisLinkDirectly(): Unit = {

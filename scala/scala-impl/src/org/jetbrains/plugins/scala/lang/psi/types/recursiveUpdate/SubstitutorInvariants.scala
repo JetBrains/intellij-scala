@@ -79,7 +79,7 @@ object SubstitutorInvariants {
 
     /** C3. A substitutor threaded into resolve *state*, and so applied to the types of other references
      *  (`matchClauseSubstitutor`), binds type variables only: no this-link. `stateSafe_preserves_this`. */
-    case object StateSafe extends Rule("A2", 1, "stateSafe_preserves_this", "a substitutor threaded into resolve state has no this-links", Mode.Record)
+    case object StateSafe extends Rule("A2", 1, "stateSafe_preserves_this", "a substitutor threaded into resolve state has no this-links", Mode.Fail)
 
     /** C1, cheap form. At a `followed` junction, when the last this-link of the left operand targets `Q.this`,
      *  the first this-link of the right operand is anchored at `Q`: the running prefix is `Q.this`, so `Q` is the
