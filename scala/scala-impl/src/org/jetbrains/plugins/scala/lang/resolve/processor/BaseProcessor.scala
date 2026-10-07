@@ -270,12 +270,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         val cont = designator match {
           case tpt: TypeParameterType =>
             if (recState.visitedTypeParameter.contains(tpt)) return true
-            val newState = state.withSubstitutor(ScSubstitutor(p))
             val upper    = tpt.upperType
 
             val substedType =
               if (upper.isAny || upper.isAnyRef) upper
               else                               p.substitutor(ParameterizedType(tpt.upperType, typeArgs))
+            // The bound's members are seen from `T[A]`, each from the bound's class.
+            val newState = state.withSubstitutor(ScSubstitutor(p, substedType.extractClass.orNull))
 
             processTypeImpl(substedType, place, newState)(using recState.add(tpt))
           case _ =>
