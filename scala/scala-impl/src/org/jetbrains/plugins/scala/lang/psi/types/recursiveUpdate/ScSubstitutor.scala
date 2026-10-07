@@ -127,6 +127,14 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
     ScSubstitutor(tp, seenFromClass).followed(this)
   }
 
+  /** This substitutor without its this-type links: the bindings alone. */
+  def withoutThisTypeSubstitutions: ScSubstitutor = {
+    assertFullSubstitutor()
+
+    if (!substitutions.exists(_.isInstanceOf[ThisTypeSubstitution])) this
+    else new ScSubstitutor(substitutions.filterNot(_.isInstanceOf[ThisTypeSubstitution]))
+  }
+
   def withBindings(from: Iterable[TypeParameter], target: Iterable[TypeParameter]): ScSubstitutor = {
     assertFullSubstitutor()
 
