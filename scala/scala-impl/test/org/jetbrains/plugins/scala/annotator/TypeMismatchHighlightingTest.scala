@@ -82,6 +82,23 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     case Nil =>
   }
 
+  // A stable path argument stands for its singleton type in a dependent result, also when the method is
+  // overloaded (scala/scala `macros.Universe.MacroTreeDecoratorApi.updateAttachment`)
+  def testStablePathArgumentOfOverloadedDependentMethod(): Unit = assertMatches(errorsFromScalaCode(
+    """|class Tree
+      |class Symbol
+      |trait Internal {
+      |  def updateAttachment(tree: Tree, attachment: Any): tree.type
+      |  def updateAttachment(symbol: Symbol, attachment: Any): symbol.type
+      |}
+      |class Decorator[T <: Tree](val tree: T, internal: Internal) {
+      |  def updateAttachment(attachment: Any): tree.type = internal.updateAttachment(tree, attachment)
+      |}
+      |""".stripMargin
+  )) {
+    case Nil =>
+  }
+
   // Type ascription, SCL-15544
 
   // SCL-15544
