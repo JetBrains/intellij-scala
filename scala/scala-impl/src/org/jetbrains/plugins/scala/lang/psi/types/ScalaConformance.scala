@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance._
@@ -1391,8 +1391,17 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       // and `O.type` denote one instance) or an intersection with such a component conforms.
       result = r match {
         case des: DesignatorOwner if des.element.is[ScObject] =>
-          if (areClassesEquivalent(des.element.asInstanceOf[ScObject], t.element)) constraints
-          else ConstraintsResult.Left
+          val obj = des.element.asInstanceOf[ScObject]
+          if (!areClassesEquivalent(obj, t.element)) ConstraintsResult.Left
+          else des match {
+            // A member object `pre.O` is the instance `O.this` only when `pre` is the instance `O` is a
+            // member of: inside `class A { object O }`, `A.this.O` is, but `other.O` for `other: A` is not.
+            case ScProjectionType(pre, _) => obj.containingClass match {
+              case outer: ScTemplateDefinition => conformsToThisOf(outer, pre)
+              case _                           => constraints
+            }
+            case _ => constraints
+          }
         case des: DesignatorOwner if des.isSingleton =>
           des.extractDesignatorSingleton match {
             case Some(underlying) => conformsInner(l, underlying, visited, constraints, checkWeak)
@@ -1408,6 +1417,14 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           if (lhsResult.isRight) lhsResult else conformsInner(l, rhs, visited, constraints, checkWeak)
         case _ => ConstraintsResult.Left
       }
+    }
+
+    /** Whether the prefix `pre` denotes the instance `outer.this`. A this-type of a subclass of `outer`
+     *  qualifies too: IntelliJ may spell a cake's this-type after the self type (`SymbolTable.this`
+     *  inside `trait Definitions { self: SymbolTable => }`), and both denote the same instance there. */
+    private def conformsToThisOf(outer: ScTemplateDefinition, pre: ScType): ConstraintsResult = pre match {
+      case ScThisType(c) if areClassesEquivalent(c, outer) || c.isInheritor(outer, true) => constraints
+      case _ => conformsInner(ScThisType(outer), pre, visited, constraints, checkWeak)
     }
 
     override def visitDesignatorType(des: ScDesignatorType): Unit = {

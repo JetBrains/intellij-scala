@@ -85,4 +85,44 @@ class TypeConformanceSelfTypeTest extends TypeConformanceTestBase {
       """.stripMargin
     doTest(text)
   }
+
+  // A member object is its own `this.type` only through the instance it is a member of.
+  def testOtherInstancesMemberObjectDoesNotConformToThisType(): Unit = {
+    val text =
+      s"""
+         |class A {
+         |  object O {
+         |    def f(other: A): Unit = {
+         |      ${caretMarker}val y: O.this.type = other.O
+         |    }
+         |  }
+         |}
+         |//false
+      """.stripMargin
+    doTest(text)
+  }
+
+  def testOwnMemberObjectConformsToThisType(): Unit = {
+    val text =
+      s"""
+         |class A {
+         |  object O {
+         |    ${caretMarker}val y: O.this.type = A.this.O
+         |  }
+         |}
+         |//true
+      """.stripMargin
+    doTest(text)
+  }
+
+  def testTopLevelObjectConformsToThisType(): Unit = {
+    val text =
+      s"""
+         |object O {
+         |  ${caretMarker}val y: O.this.type = O
+         |}
+         |//true
+      """.stripMargin
+    doTest(text)
+  }
 }
