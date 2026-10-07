@@ -275,4 +275,55 @@ class CakeTypersReproTest extends ScalaHighlightingTestBase {
         |  }
         |}
         |""".stripMargin))
+
+  // scala/scala `settings/MutableSettings.scala`: the setter of `otherSetting.value = x` is seen from the getter's
+  // prefix, so it expects an `otherSetting.T`, not `Setting.this.T`.
+  def testSetterSeenFromTheGettersPrefix(): Unit =
+    assertNothing(errorsFromScalaCode(
+      """|trait AbsSettings {
+        |  trait AbsSettingValue { type T <: Any; def value: T }
+        |}
+        |abstract class InternalSettings extends AbsSettings {
+        |  trait SettingValue extends AbsSettingValue {
+        |    protected var v: T
+        |    def value: T = v
+        |    def value_=(arg: T): Unit = v = arg
+        |  }
+        |}
+        |class Settings extends InternalSettings {
+        |  abstract class Setting(val name: String) extends SettingValue
+        |  def allSettings: Map[String, Setting] = Map.empty
+        |  def copyInto(settings: Settings): Unit =
+        |    allSettings.valuesIterator foreach { thisSetting =>
+        |      settings.allSettings.get(thisSetting.name) foreach { otherSetting =>
+        |        otherSetting.value = thisSetting.value.asInstanceOf[otherSetting.T]
+        |      }
+        |    }
+        |}
+        |""".stripMargin))
+
+  // scala/scala `reify/codegen/GenTypes.scala`: a member imported by the wildcard of `import x.{a, _}` is seen
+  // from `x`, as with `import x._`.
+  def testMemberImportedByWildcardAmongSelectors(): Unit =
+    assertNothing(errorsFromScalaCode(
+      """|class Global {
+        |  class Type
+        |  class Symbol { def toTypeConstructor: Type = ??? }
+        |  object definitions {
+        |    final class RunDefinitions {
+        |      lazy val TagClass: Symbol = ???
+        |      val OtherClass: Symbol = ???
+        |    }
+        |  }
+        |  def runDefinitions: definitions.RunDefinitions = ???
+        |}
+        |trait Gen {
+        |  val global: Global
+        |  import global._
+        |  private val runDefinitions = global.runDefinitions
+        |  import runDefinitions.{OtherClass, _}
+        |  def tagType: global.Type = TagClass.toTypeConstructor
+        |}
+        |""".stripMargin))
+
 }
