@@ -1,0 +1,22 @@
+{
+  "description": "lub and a shared type member: scalac keeps type Pos = String but drops Pos aliased to the abstract P (and differing Pos); against an expected Attachments { type Pos = P } each branch conforms.",
+  "concepts": ["lub", "refinement", "type-member", "lubRefined"],
+  "types": [
+    { "name": "SingleP", "expr": "SingleAttachment[P]", "anchor": "inUse" },
+    { "name": "NonemptyStr", "expr": "NonemptyAttachments[String]", "anchor": "inUse" },
+    { "name": "AttPosP", "expr": "Attachments { type Pos = P }", "anchor": "inUse" },
+    { "name": "Att", "expr": "Attachments" }
+  ],
+  "conformance": [
+    { "lhs": "SingleP", "rhs": "AttPosP", "expect": true },
+    { "lhs": "NonemptyStr", "rhs": "AttPosP", "expect": false },
+    { "lhs": "AttPosP", "rhs": "Att", "expect": true },
+    { "lhs": "Att", "rhs": "AttPosP", "expect": false }
+  ],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "samePos", "expr": "if (c) new SingleAttachment[P] else new NonemptyAttachments[P]", "anchor": "inUse" },
+    { "name": "sameConcretePos", "expr": "if (c) new SingleAttachment[String] else new NonemptyAttachments[String]", "anchor": "inUse" },
+    { "name": "differentPos", "expr": "if (c) new SingleAttachment[P] else new NonemptyAttachments[String]", "anchor": "inUse" }
+  ]
+}
