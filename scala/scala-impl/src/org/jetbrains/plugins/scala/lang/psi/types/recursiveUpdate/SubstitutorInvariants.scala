@@ -90,8 +90,11 @@ object SubstitutorInvariants {
      *  (`scala/reflect/internal/util/JavaClearable.scala` then reported `JavaClearableCollection[T]` not
      *  conforming to `JavaClearable[T]`); checked lazily, the tests, the TCK and scala/scala's sources give the
      *  same results with it on and off. The duplicate check at `followed` compares links by equality only and
-     *  defers to that first use when the link has not been classified yet. */
-    case object FixedTarget extends Rule("A1", 0, "idempotent_of_fixed, once_is_scalac", "a this-link maps its own target to itself, or is self-rooted and occurs once in its chain", Mode.Off)
+     *  defers to that first use when the link has not been classified yet.
+     *
+     *  Fails the tests: silent over the type-system tests and scala/scala's sources, where every link checked is
+     *  fixed except a handful of self-rooted ones, none duplicated, at no measurable cost. */
+    case object FixedTarget extends Rule("A1", 0, "idempotent_of_fixed, once_is_scalac", "a this-link maps its own target to itself, or is self-rooted and occurs once in its chain", Mode.Fail)
 
     /** C3. A substitutor threaded into resolve *state*, and so applied to the types of other references
      *  (`matchClauseSubstitutor`), binds type variables only: no this-link. `stateSafe_preserves_this`. */
