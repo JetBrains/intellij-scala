@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.gutter.methodSeparator
 
-import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
+import com.intellij.codeInsight.daemon.impl.LineMarkersPass
 import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzerSettings, LineMarkerInfo}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.markup.SeparatorPlacement
@@ -15,7 +15,7 @@ import org.junit.experimental.categories.Category
 
 import java.nio.file.Path
 import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 //NOTE: method separators are enabled in
 //`File | Settings | Editor | General | Appearance | Show method separators`
@@ -66,7 +66,7 @@ abstract class MethodSeparatorLineMarkerTestBase extends LightJavaCodeInsightFix
   } yield (lineText, lineIndex + 1)
 
   private def getSeparatorsFrom(document: Document): Seq[(LineMarkerInfo[PsiElement], Int)] = (for {
-    marker <- DaemonCodeAnalyzerImpl.getLineMarkers(document, getProject).asInstanceOf[util.List[LineMarkerInfo[PsiElement]]].asScala
+    marker <- LineMarkersPass.getDisplayedLineMarkers(document, getProject).asInstanceOf[util.List[LineMarkerInfo[PsiElement]]].asScala
     if marker.separatorPlacement == SeparatorPlacement.TOP
   } yield {
     val markerElement = marker.getElement

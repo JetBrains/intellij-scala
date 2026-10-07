@@ -17,7 +17,9 @@
         <module name="intellij.libraries.kotlinx.coroutines.core"/>
         <module name="intellij.libraries.teamcity.service.messages"/>
         <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.buildView"/>
         <module name="intellij.platform.concurrency"/>
+        <module name="intellij.platform.consoleView"/>
         <module name="intellij.platform.core"/>
         <module name="intellij.platform.core.impl"/>
         <module name="intellij.platform.core.ui"/>
@@ -40,6 +42,7 @@
         <module name="intellij.platform.util.coroutines"/>
         <module name="intellij.platform.util.ui"/>
         <module name="intellij.platform.vcs"/>
+        <module name="intellij.platform.vfs.impl"/>
     </dependencies>
 
     <extensionPoints>
