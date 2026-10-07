@@ -135,7 +135,8 @@ trait BoundsUtil {
       }
     }
 
-    def getSuperClasses: Seq[BaseClassInfo] = {
+    // Computed once per instance: the lub walk and `allBaseClasses` both revisit the same infos.
+    lazy val getSuperClasses: Seq[BaseClassInfo] = {
       // asSeenFrom anchor for this class's OWN superTypes list is the class itself
       // (scalac's `sym.info.asSeenFrom(pre, sym)`, not `sym.owner` as for a member) -
       // getNamedElement IS the class whose supertypes are being viewed, except when
@@ -160,6 +161,19 @@ trait BoundsUtil {
         case p: PsiClass =>
           p.getSupers.toSeq.map(cl => new BaseClassInfo(toType(cl))).filter(!_.isEmpty)
       }
+    }
+
+    /** This class and its base classes, each class once, in depth-first pre-order. */
+    lazy val allBaseClasses: Seq[BaseClassInfo] = {
+      val visited = mutable.HashSet.empty[PsiNamedElement]
+      val out     = mutable.ArrayBuffer.empty[BaseClassInfo]
+      def go(i: BaseClassInfo): Unit =
+        if (!i.isEmpty && visited.add(i.getNamedElement)) {
+          out += i
+          i.getSuperClasses.foreach(go)
+        }
+      go(this)
+      out.toSeq
     }
 
     private def toType(cls: PsiClass): ScType =
@@ -331,16 +345,10 @@ trait BoundsUtil {
     }
   }
 
-  /** `info` itself or the base class of it that designates `target`. */
-  private def findBaseClass(info: BaseClassInfo, target: PsiNamedElement): Option[BaseClassInfo] = {
-    val visited = mutable.HashSet.empty[PsiNamedElement]
-    def go(i: BaseClassInfo): Option[BaseClassInfo] =
-      if (i.isEmpty) None
-      else if (smartEquivalence(i.getNamedElement, target)) Some(i)
-      else if (!visited.add(i.getNamedElement)) None
-      else i.getSuperClasses.iterator.map(go).collectFirst { case Some(found) => found }
-    go(info)
-  }
+  /** `info` itself or the base class of it that designates `target`. `allBaseClasses` is
+   *  built once per `info`, so the lookups for each common base class of a lub share one walk. */
+  private def findBaseClass(info: BaseClassInfo, target: PsiNamedElement): Option[BaseClassInfo] =
+    info.allBaseClasses.find(i => smartEquivalence(i.getNamedElement, target))
 
   protected def mergeSuperClassTypes(
     clazz1:               BaseClassInfo,
