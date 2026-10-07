@@ -3044,6 +3044,7 @@
 
   },
   "deprecations": {
+    "3.8": true,
     "3.9": true
   },
   "descriptions": {
@@ -3858,6 +3859,7 @@
 
   },
   "deprecations": {
+    "3.8": true,
     "3.9": true
   },
   "descriptions": {
@@ -4265,6 +4267,7 @@
 
   },
   "deprecations": {
+    "3.8": true,
     "3.9": true
   },
   "descriptions": {
