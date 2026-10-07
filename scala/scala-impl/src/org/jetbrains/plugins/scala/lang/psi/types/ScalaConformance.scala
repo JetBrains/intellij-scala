@@ -796,12 +796,12 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
 
       def workWithTypeAlias(sign: TypeAliasSignature): Boolean = {
-        val singletonSubst = r match {
-          case ScDesignatorType(_: ScParameter | _: ScFieldId | _: ScBindingPattern) => ScSubstitutor(r, ScSubstitutor.declarationAnchor(sign.typeAlias))
-          case _                                                                     => ScSubstitutor.empty
+        val singletonPrefix = r match {
+          case ScDesignatorType(_: ScParameter | _: ScFieldId | _: ScBindingPattern) => Some(r)
+          case _                                                                     => None
         }
 
-        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, constraints, singletonSubst)
+        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, constraints, singletonPrefix)
         processor.processType(r, sign.typeAlias)
         constraints = processor.getConstraints
         processor.getResult

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import com.intellij.psi._
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -15,8 +14,7 @@ import scala.annotation.tailrec
 /**
  * Re-anchors `C.this` leaves onto the prefix `target`, the analogue of scalac's
  * `AsSeenFromMap.thisTypeAsSeen`. `seenFromClass` is the class the type was declared in
- * (scalac's `clazz` in `tp.asSeenFrom(pre, clazz)`); `null` selects the legacy anchorless
- * walk, which narrows by inheritance alone.
+ * (scalac's `clazz` in `tp.asSeenFrom(pre, clazz)`).
  *
  * Unlike scalac, whose walk only ever strips prefixes off `pre`, this substitution runs
  * inside the generic `recursiveUpdate` engine, is fused with other updates into one
@@ -26,16 +24,13 @@ import scala.annotation.tailrec
  *
  *  - No self-embedding: refuse a rewrite whose result is a path still rooted in (an inheritor of)
  *    the this-type being rewritten; see [[embedsRewrittenThis]].
- *  - Owner-chain matching: an anchored walk that never reaches the this-type's class leaves
- *    it alone, rather than falling back to the anchorless heuristic; see
+ *  - Owner-chain matching: a walk that never reaches the this-type's class leaves it
+ *    alone, rather than narrowing by inheritance alone; see
  *    [[ownerChainMatches]].
  */
-private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass: PsiClass) extends LeafSubstitution {
+private case class ThisTypeSubstitution(target: ScType, seenFromClass: PsiClass) extends LeafSubstitution {
 
-  override def toString: String = seenFromClass match {
-    case null => s"`this` -> $target"
-    case _    => s"`this` -> $target asSeenFrom $seenFromClass"
-  }
+  override def toString: String = s"`this` -> $target asSeenFrom $seenFromClass"
 
   override protected val subst: PartialFunction[LeafType, ScType] = {
     case th: ScThisType =>
@@ -91,8 +86,7 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
 
   /** The anchored walk: scalac's `thisTypeAsSeen`, climbing `clazz`'s owner chain in step with `target`. */
   @tailrec
-  private def doUpdateThisTypeFromClass(thisTp: ScThisType, target: ScType, @Nullable clazz: PsiClass): ScType =
-    if (clazz == null) doUpdateThisType(thisTp, target)
+  private def doUpdateThisTypeFromClass(thisTp: ScThisType, target: ScType, clazz: PsiClass): ScType =
     // scalac's `toPrefix` returns `pre` as soon as the this-type's class is a subclass of
     // the cursor and `pre` widens to that class, before consulting `pre baseType clazz`.
     // Without this, a this-type declared in a proper superclass of the cursor is walked
@@ -100,7 +94,7 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
     // `Definitions` (`SymbolTable <: Definitions`), seen from `g: Global`, must become
     // `g.Type`. The subclass test keeps the cross-symbol case out (there, `Infer` is not a
     // subclass of the cursor `Typer`), so owner-chain matching below still applies to it.
-    else if (isInheritorDeep(thisTp.element, clazz) && isMoreNarrow(target, thisTp, Set.empty))
+    if (isInheritorDeep(thisTp.element, clazz) && isMoreNarrow(target, thisTp, Set.empty))
       doUpdateThisType(thisTp, target)
     else if (clazz == thisTp.element || clazz.containingClass == null) {
       if (ownerChainMatches(clazz, target, thisTp)) doUpdateThisType(thisTp, target)
