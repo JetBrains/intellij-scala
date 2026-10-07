@@ -74,10 +74,16 @@ object SubstitutorInvariants {
      *  target is on the anchor's owner chain", which `Outer.this.i.type` seen from `Inner` legitimately violates
      *  while still mapping to itself. Only targets that meet the syntactic precondition are checked.
      *
-     *  Off by default: applying the link while the substitutor is being built evaluates types out of turn, and
-     *  that is observable. With A1 on, `scala/reflect/internal/util/JavaClearable.scala` reports
-     *  `JavaClearableCollection[T]` not conforming to `JavaClearable[T]`; with it off, it doesn't. Enable it
-     *  explicitly (`.A1=record`) and treat a result that differs from a run without it as an artifact. */
+     *  Checked lazily, the first time the walk applies the link, and reported with the line that minted it.
+     *  Checked when the substitutor was built, it evaluated types out of turn and changed the result
+     *  (`scala/reflect/internal/util/JavaClearable.scala` then reported `JavaClearableCollection[T]` not
+     *  conforming to `JavaClearable[T]`); checked lazily, the tests, the TCK and scala/scala's sources give the
+     *  same results with it on and off.
+     *
+     *  A violation is not necessarily a bug. Over scala/scala it flags links such as
+     *  `UnitScanner.this -> UnitScanner.this.parensAnalyzer.type` (`ParensAnalyzer extends UnitScanner`):
+     *  correct applied once, as scalac applies it, but not idempotent, so they rely on `chain_is_single` (I4).
+     *  Off by default, since it costs about 8% on the type-system tests; `.A1=record` for a census. */
     case object FixedTarget extends Rule("A1", 0, "idempotent_of_fixed", "a this-link maps its own target to itself", Mode.Off)
 
     /** C3. A substitutor threaded into resolve *state*, and so applied to the types of other references
@@ -156,10 +162,16 @@ object SubstitutorInvariants {
 
   def count(rule: Rule): Int = counts(rule.index).get
 
+  private val fixedTargetChecks = new AtomicInteger
+
+  /** How many links A1 has checked, so that a silent A1 is known to have run. */
+  def fixedTargetChecked: Int = fixedTargetChecks.get
+
   def samplesOf(rule: Rule): Seq[String] = samples(rule.index).synchronized(samples(rule.index).toSeq)
 
   def reset(): Unit = {
     counts.foreach(_.set(0))
+    fixedTargetChecks.set(0)
     samples.foreach(s => s.synchronized(s.clear()))
     StackProfile.reset()
   }
@@ -169,6 +181,7 @@ object SubstitutorInvariants {
     val sb = new StringBuilder("substitutor invariants:\n")
     for (rule <- Rule.all) {
       sb.append(f"  ${rule.id}%-3s ${mode(rule)}%-7s ${count(rule)}%8d  ${rule.statement}\n")
+      if (rule == Rule.FixedTarget && enabled(rule)) sb.append(s"        ($fixedTargetChecked links checked)\n")
       samplesOf(rule).foreach(s => sb.append("        ").append(s).append('\n'))
       if (StackProfile.depth > 0) StackProfile.render(rule, sb)
     }
@@ -202,6 +215,10 @@ object SubstitutorInvariants {
     private val roots: Array[Node] = Array.fill(Rule.all.size)(new Node)
 
     private val walker = StackWalker.getInstance()
+
+    /** The first plugin frame outside the engine: the line that minted a link. One frame, no `Throwable`. */
+    def mintSite(): String =
+      walker.walk(_.filter(f => !isNoise(f.getClassName)).findFirst()).map(f => s"${f.getClassName}.${f.getMethodName}:${f.getLineNumber}").orElse("?")
 
     private val OwnPackage = "org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate."
 
@@ -325,21 +342,35 @@ object SubstitutorInvariants {
   // ---- the checks, called from the sites they guard -----------------------------------------------------------
 
   /** A1, at `ScSubstitutor(target, anchor)`. */
-  private[recursiveUpdate] def fixedTarget(link: ThisTypeSubstitution, subst: ScSubstitutor): Unit =
+  /**
+   * A1, at `ScSubstitutor(target, anchor)`. Only syntactic work happens here: a link whose target has a
+   * this-leaf on the anchor's owner chain (the only ones at risk, `asf_eq_of_fixed` otherwise) is marked with
+   * the frame that minted it. The check itself is deferred to [[fixedTargetOnFirstUse]]: applying the link
+   * while the substitutor is being built evaluated types out of turn, which changed the result
+   * (`JavaClearable.scala`).
+   */
+  private[recursiveUpdate] def fixedTarget(link: ThisTypeSubstitution): Unit =
     if (enabled(Rule.FixedTarget) && !checking.get) {
       val leaves = thisLeaves(link.target)
-      // Only a this-leaf of the target that the walk can reach is at risk (`asf_eq_of_fixed` otherwise).
-      // Anchorless links are A6's business and have no `Context` to check under.
-      val atRisk =
-        leaves.nonEmpty && link.seenFromClass != null && leaves.exists(th => ownerChainContains(link.seenFromClass, th.element))
-      if (atRisk) withoutNestedChecks {
-        val res = subst(link.target)
+      if (leaves.exists(th => ownerChainContains(link.seenFromClass, th.element)))
+        link.pendingFixedTargetCheck = StackProfile.mintSite()
+    }
+
+  /** A1, the first time the walk applies `link`: the link maps its own target to itself. */
+  private[recursiveUpdate] def fixedTargetOnFirstUse(link: ThisTypeSubstitution): Unit = {
+    val mintSite = link.pendingFixedTargetCheck
+    if (mintSite != null && !checking.get) {
+      link.pendingFixedTargetCheck = null
+      fixedTargetChecks.incrementAndGet()
+      withoutNestedChecks {
+        val res = ScSubstitutor(link)(link.target)
         // `==` first (cheap, exact); `equiv` tolerates a re-spelling of the same path (`Obj.v` as a
         // designator or as a projection).
         if (res != link.target && !res.equiv(link.target)(using Context(link.seenFromClass)))
-          violated(Rule.FixedTarget, s"[$link] maps its own target to $res")
+          violated(Rule.FixedTarget, s"[$link] maps its own target to $res (minted at $mintSite)")
       }
     }
+  }
 
     /** A2, where a substitutor is put into resolve state for other references. */
   def stateSafe(subst: ScSubstitutor, where: String): Unit =
