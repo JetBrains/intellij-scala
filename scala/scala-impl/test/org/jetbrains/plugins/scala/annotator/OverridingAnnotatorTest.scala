@@ -104,6 +104,27 @@ class OverridingAnnotatorTest_Scala2 extends OverridingAnnotatorTestBase {
     )
   }
 
+  // scalac allows overriding a type alias with an equivalent one (scala/scala `StdNames.TypeNames`:
+  // `override type NameType = TypeName` over `TypeNamesApi`'s `type NameType = TypeName`)
+  def testOverrideTypeAliasWithEquivalentAlias(): Unit = {
+    assertNoErrors(
+      """
+        |trait Base { type T = Int }
+        |trait Derived extends Base { override type T = Int }
+        |""".stripMargin
+    )
+  }
+
+  def testOverrideFinalTypeAlias(): Unit = {
+    assertMessagesText(
+      """
+        |trait Base { final type T = Int }
+        |trait Derived extends Base { override type T = Int }
+        |""".stripMargin,
+      """Error(T,Type 'T' cannot override final member)"""
+    )
+  }
+
   def testOverrideFinalVal(): Unit = {
     assertMessagesText(
       """
