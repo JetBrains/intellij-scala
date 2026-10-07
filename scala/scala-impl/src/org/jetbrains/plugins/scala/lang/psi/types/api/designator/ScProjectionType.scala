@@ -146,7 +146,14 @@ final class ScProjectionType private(val projected: ScType,
             // Seen from `projected` at the owner of the member found there (scalac's `sym.owner` for the `sym`
             // that `pre.memberType` picks), not of the static `element`: an abstract `type T` of `api.Internals`
             // realized by a `class T` of `internal.Trees` has `Trees.this` in its base types.
-            val thisSubstitutor = ScSubstitutor(projected, ScSubstitutor.declarationAnchor(candidateElement))
+            // A member of a refinement (`Symbol { type NameType = Symbol.this.NameType }`) has no owner chain
+            // through `projected`: its this-types belong to the refinement's lexical context, which the
+            // compound's own substitutor (in `candidate.substitutor`) already puts into the right view, as
+            // scalac reads a compound's decls. Re-substituted from `projected`, the anchorless walk rewrote
+            // `Symbol.this` onto `projected` itself (`clone.NameType` aliasing `clone.NameType`).
+            val thisSubstitutor =
+              if (ScProjectionType.isRefinementMember(candidateElement)) ScSubstitutor.empty
+              else ScSubstitutor(projected, ScSubstitutor.declarationAnchor(candidateElement))
             val defaultSubstitutor =
               projected match {
                 case _: ScThisType => candidate.substitutor
@@ -240,7 +247,7 @@ final class ScProjectionType private(val projected: ScType,
             (isEligibleForPrefixUnification(projected) || isEligibleForPrefixUnification(p1))
         }
 
-        if (sameElements) projected.equiv(p1, constraints, falseUndef)
+        if (sameElements) ScProjectionType.collapseSingletonPath(projected).equiv(ScProjectionType.collapseSingletonPath(p1), constraints, falseUndef)
         else
           r match {
             case AliasType(_: ScTypeAliasDefinition, Right(lower), _, effectivelyOpaque) if !effectivelyOpaque =>
@@ -323,31 +330,48 @@ object ScProjectionType {
   }
 
   /**
-   * Collapse a stable val-path projection to the singleton it is known to be, to a
-   * fixpoint: `global.analyzer.global`, where `analyzer`'s type refines
-   * `val global: Global.this.type`, normalizes to `global`. scalac follows a path's
-   * singleton type when comparing prefixes of path-dependent types; without this, a cake
-   * member reached through such an alias yields an unreduced prefix and a spurious
-   * mismatch (SCL-21947, `Infer.inferTypedPattern`). `fuel` bounds the walk.
+   * Collapse a stable val path to the singleton it is known to be, to a fixpoint, prefixes first:
+   * `global.analyzer.global`, where `analyzer`'s type refines `val global: Global.this.type`, normalizes to
+   * `global`, and `universe.analyzer` for a local or early-defined `val universe: self.global.type` to
+   * `self.global.analyzer`. scalac follows a path's singleton type when comparing prefixes of path-dependent
+   * types; without this, a cake member reached through such an alias yields an unreduced prefix and a spurious
+   * mismatch (SCL-21947, `Infer.inferTypedPattern`; scala/scala `Macros.macroContext`). `fuel` bounds the walk.
    */
-  @annotation.tailrec
   private[types] def collapseSingletonPath(tp: ScType, fuel: Int = 8): ScType = tp match {
     case proj: ScProjectionType if fuel > 0 =>
-      val stable = proj.element match {
-        case d: ScTypedDefinition => d.isStable
-        case _                    => false
+      val prefix = collapseSingletonPath(proj.projected, fuel - 1)
+      val withPrefix: ScType = if (prefix eq proj.projected) proj else ScProjectionType(prefix, proj.element)
+      withPrefix match {
+        case p: ScProjectionType if isStableValue(p.element) =>
+          projectionSingleton(p) match {
+            case Some(singleton) if singleton ne p => collapseSingletonPath(singleton, fuel - 1)
+            case _                                 => p
+          }
+        case other => other
       }
-      if (!stable) tp
-      else projectionSingleton(proj) match {
-        case Some(singleton) if singleton ne proj => collapseSingletonPath(singleton, fuel - 1)
-        case _                                    => tp
+    // A stable value without a prefix (a local or early-defined val, a parameter) typed as a singleton.
+    case des: ScDesignatorType if fuel > 0 && isStableValue(des.element) =>
+      des.designatorSingletonType.filter(isSingletonLike) match {
+        case Some(singleton) if singleton ne des => collapseSingletonPath(singleton, fuel - 1)
+        case _                                   => tp
       }
     case _ => tp
+  }
+
+  private def isStableValue(element: PsiNamedElement): Boolean = element match {
+    case _: ScObject          => false
+    case d: ScTypedDefinition => d.isStable
+    case _                    => false
   }
 
   /** The singleton type of the stable path `proj`: its override-aware `designatorSingletonType`. */
   private def projectionSingleton(proj: ScProjectionType): Option[ScType] =
     proj.designatorSingletonType.filter(isSingletonLike)
+
+  /** Whether `member` is declared in a refinement, which gives it no class to anchor this-types at. */
+  private[designator] def isRefinementMember(member: PsiNamedElement): Boolean =
+    ScSubstitutor.declarationAnchor(member) == null &&
+      com.intellij.psi.util.PsiTreeUtil.getContextOfType(member, classOf[org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement]) != null
 
   def simpleAliasProjection(p: ScProjectionType): ScType = {
     p.actual() match {

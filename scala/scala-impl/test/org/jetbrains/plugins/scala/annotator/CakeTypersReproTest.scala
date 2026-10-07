@@ -276,6 +276,27 @@ class CakeTypersReproTest extends ScalaHighlightingTestBase {
         |}
         |""".stripMargin))
 
+  // scala/scala `transform/SpecializeTypes.scala`: `TypeOfClonedSymbol <: Symbol { type NameType = Symbol.this.NameType }`.
+  // The refinement's `Symbol.this` is the outer `Symbol`, which the compound's own substitutor already sees from the
+  // prefix; re-substituted from the path, `clone.NameType` aliased itself and `decode` did not resolve.
+  def testRefinementTypeMemberOfAnUnstableClone(): Unit =
+    assertNothing(errorsFromScalaCode(
+      """|abstract class Name { def decode: String = "" }
+        |abstract class Symbol {
+        |  type NameType >: Null <: Name
+        |  type TypeOfClonedSymbol >: Null <: Symbol { type NameType = Symbol.this.NameType }
+        |  def name: NameType = null
+        |  def cloneSymbol: TypeOfClonedSymbol = null
+        |}
+        |object Test {
+        |  def overrideIn(sym: Symbol) = sym.cloneSymbol
+        |  def decoded(s: Symbol): String = {
+        |    val clone = overrideIn(s)
+        |    clone.name.decode
+        |  }
+        |}
+        |""".stripMargin))
+
   // scala/scala `settings/MutableSettings.scala`: the setter of `otherSetting.value = x` is seen from the getter's
   // prefix, so it expects an `otherSetting.T`, not `Setting.this.T`.
   def testSetterSeenFromTheGettersPrefix(): Unit =
@@ -326,4 +347,25 @@ class CakeTypersReproTest extends ScalaHighlightingTestBase {
         |}
         |""".stripMargin))
 
+  // scala/scala `typechecker/Macros.scala`, `macros/contexts/Reifiers.scala`: an early-defined (or local)
+  // `val universe: self.global.type` is the path `self.global`, both in types minted by substitution
+  // (`universe.analyzer.original(t)` expects a `universe.Tree`) and in types written in code
+  // (`universe.analyzer.Typer`). Pre-existing on idea263.x.
+  def testSingletonTypedLocalValAsPrefix(): Unit =
+    assertNothing(errorsFromScalaCode(
+      """|class Global {
+        |  class Tree
+        |  class Analyzer { class Typer; def original(t: Tree): Tree = t }
+        |  val analyzer: Analyzer = new Analyzer
+        |}
+        |trait MacroContext { val universe: Global; val callsiteTyper: universe.analyzer.Typer; val expandee: universe.Tree }
+        |class Macros(val global: Global) { self =>
+        |  def macroContext(typer: global.analyzer.Typer, expandeeTree: global.Tree): MacroContext =
+        |    new {
+        |      val universe: self.global.type = self.global
+        |      val callsiteTyper: universe.analyzer.Typer = typer
+        |      val expandee = universe.analyzer.original(expandeeTree)
+        |    } with MacroContext
+        |}
+        |""".stripMargin))
 }
