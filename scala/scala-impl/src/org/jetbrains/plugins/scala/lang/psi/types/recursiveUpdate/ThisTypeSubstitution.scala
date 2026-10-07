@@ -41,8 +41,10 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
     case th: ScThisType =>
       TypeRecursionGuard.nestedSubstitution(th, s"$th with $this") {
         val res = doUpdateThisTypeFromClass(th, target, seenFromClass)
-        if ((res ne th) && embedsRewrittenThis(res, th)) th
-        else res
+        if ((res ne th) && embedsRewrittenThis(res, th)) {
+          SubstitutorInvariants.noReentry(this, th, res)
+          th
+        } else res
       }
   }
 
@@ -77,9 +79,15 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
     else {
       containingClassType(target) match {
         case Some(targetContext) => doUpdateThisType(thisTp, targetContext)
-        case _                   => thisTp
+        case _                   => leftAlone(thisTp)
       }
     }
+
+  /** Every path on which the walk leaves `thisTp` unrewritten, for [[SubstitutorInvariants.noLeftover]] (A5). */
+  private def leftAlone(thisTp: ScThisType): ScThisType = {
+    SubstitutorInvariants.noLeftover(this, thisTp)
+    thisTp
+  }
 
   /** The anchored walk: scalac's `thisTypeAsSeen`, climbing `clazz`'s owner chain in step with `target`. */
   @tailrec
@@ -96,7 +104,7 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
       doUpdateThisType(thisTp, target)
     else if (clazz == thisTp.element || clazz.containingClass == null) {
       if (ownerChainMatches(clazz, target, thisTp)) doUpdateThisType(thisTp, target)
-      else thisTp
+      else leftAlone(thisTp)
     }
     else {
       // The merged base type (scalac's `pre baseType clazz`), so that several contributions
@@ -111,7 +119,7 @@ private case class ThisTypeSubstitution(target: ScType, @Nullable seenFromClass:
           // instead of giving up, so narrow against `target` directly (SCL-21947, the
           // `OuterPathTransformer` shape), subject to owner-chain matching.
           if (ownerChainMatches(clazz, target, thisTp)) doUpdateThisType(thisTp, target)
-          else thisTp
+          else leftAlone(thisTp)
       }
     }
 
