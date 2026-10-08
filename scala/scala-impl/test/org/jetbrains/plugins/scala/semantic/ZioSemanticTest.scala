@@ -57,7 +57,6 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     zio.InterruptStatus
     zio.IntersectionTypeCompat
     zio.IsReloadable
-    //zio.IsReloadableMacros
     //zio.IsReloadableVersionSpecific
     //zio.IsSubtypeOfError
     //zio.IsSubtypeOfOutput
@@ -187,7 +186,6 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.internal.macros.RemainderMethod
     //zio.internal.macros.RenderedGraph
     //zio.internal.macros.StringUtils
-    //zio.internal.macros.ZLayerDerivationMacros
     zio.internal.metrics.AddersVersionSpecific
     //zio.internal.metrics.AtomicDouble
     zio.internal.metrics.ConcurrentMetricHooks
