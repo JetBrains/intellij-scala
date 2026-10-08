@@ -538,6 +538,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
     if (!project.isDisposed) {
       ScMatchType.clearReductionCache(project)
       ParameterizedType.substitutorCache(project).clear()
+      BaseTypes.clearCache(project)
     }
     PropertyMethods.clearCache()
     collectImplicitObjectsCache.clear()
