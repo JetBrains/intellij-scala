@@ -54,8 +54,8 @@ class DecompilerImpl(classpath: Array[String]) extends dotc.Driver {
   private val decompiler = new PartialTASTYDecompiler()
 
   // Implements.jetbrains.plugins.scala.semantic.Decompiler.decompile
-  def decompile(fileName: String, contents: Array[Byte]): String =
-    run(new VirtualFile(fileName, contents))
+  def decompile(fileName: String, contents: Seq[Byte]): String =
+    run(new VirtualFile(fileName, contents.toArray))
 
   def run(tastyFile: AbstractFile): String = {
     val reporter = new StoreReporter(null) with HideNonSensicalMessages

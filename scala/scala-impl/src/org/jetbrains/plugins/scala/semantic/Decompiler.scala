@@ -4,11 +4,11 @@ import org.jetbrains.plugins.scala.DependencyManager
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
-import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
+import scala.language.reflectiveCalls
 
 trait Decompiler {
-  def decompile(fileName: String, contents: Array[Byte]): String
+  def decompile(fileName: String, contents: Seq[Byte]): String
 }
 
 object Decompiler {
@@ -17,15 +17,10 @@ object Decompiler {
   def apply(classpath: Seq[String], classLoader: ClassLoader): Decompiler = {
     val decompilerClass = classLoader.loadClass("org.jetbrains.plugins.scala.semantic.DecompilerImpl")
     val constructor = decompilerClass.getConstructor(classOf[Array[String]])
-    val decompiler = constructor.newInstance(classpath.toArray)
-    // Scala 3.8.4 crashes when pickling a structural call with an Array[Byte] parameter.
-    val decompileMethod = decompilerClass.getMethod("decompile", classOf[String], classOf[Array[Byte]])
+    //noinspection TypeAnnotation
+    val decompiler = constructor.newInstance(classpath.toArray).asInstanceOf[ { def decompile(fileName: String, contents: Seq[Byte]): String } ]
 
-    (fileName: String, contents: Array[Byte]) =>
-      try decompileMethod.invoke(decompiler, fileName, contents).asInstanceOf[String]
-      catch {
-        case e: InvocationTargetException => throw e.getCause
-      }
+    (fileName: String, contents: Seq[Byte]) => decompiler.decompile(fileName, contents)
   }
 
   /**
