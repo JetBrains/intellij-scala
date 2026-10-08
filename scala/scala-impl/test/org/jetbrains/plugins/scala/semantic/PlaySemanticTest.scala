@@ -266,7 +266,6 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.libs.json.JsFalse
     //play.api.libs.json.JsLookup
     play.api.libs.json.JsLookupResult
-    //play.api.libs.json.JsMacroImpl
     //play.api.libs.json.JsMacros
     //play.api.libs.json.JsMacrosWithOptions
     //play.api.libs.json.JsNull
