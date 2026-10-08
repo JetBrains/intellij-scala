@@ -34,6 +34,10 @@ private[highlighting] class CompilerEventGeneratingClient(
 
   private var reported: Set[Path] = Set.empty
 
+  private var started: Boolean = false
+
+  private var ended: Boolean = false
+
   private val tracer = Tracing(project)
 
   indicator.setIndeterminate(false)
@@ -65,11 +69,14 @@ private[highlighting] class CompilerEventGeneratingClient(
     sendEvent(CompilerEvent.MessageEmitted(compilationId, None, None, msg))
   }
 
-  override def compilationStart(): Unit =
+  override def compilationStart(): Unit = {
+    started = true
     // No JPS build session on the compile-server path.
     sendEvent(CompilerEvent.CompilationStarted(compilationId, None, None, None))
+  }
 
   override def compilationEnd(sources: Set[Path]): Unit = {
+    ended = true
     compiled = sources
     if (refreshVfs) {
       VfsUtil.refreshOutputPaths(project, sources)
@@ -89,6 +96,26 @@ private[highlighting] class CompilerEventGeneratingClient(
     log.error(s"[${project.getName}] ${exception.getMessage}", exception)
 
   def successful: Boolean = !hasErrors
+
+  /**
+   * Ends a compilation that started but never ended, and returns whether it had to.
+   *
+   * The compile server sends exactly one `compilationStart` and one `compilationEnd` per request. A compilation
+   * the user cancels is left between the two: the IDE stops reading from the socket at the cancel, so the
+   * server's `compilationEnd` is never received. Publishing `CompilationFinished` here runs the same cleanup a
+   * normal end runs, and the result tells the caller not to treat the compilation as a success or a failure.
+   *
+   * The output refresh `compilationEnd` performs is skipped: the compilation was interrupted, and it runs a
+   * read action that the cancelled indicator would abort.
+   */
+  def endIfInterrupted(): Boolean = {
+    val interrupted = started && !ended
+    if (interrupted) {
+      ended = true
+      sendEvent(CompilerEvent.CompilationFinished(compilationId, None, Set.empty))
+    }
+    interrupted
+  }
 
   /**
    * The sources this compilation looked at, which is what the build actually did rather than what was asked
