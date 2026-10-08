@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services.requests
 
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.compiler.highlighting.compilers.IncrementalCompiler
@@ -31,7 +32,10 @@ case class JpsIncrementalRequest(
     val sourceScope = mergeSourceScope(scopes)
     val token = compilationStarted(scopes)
     IncrementalCompiler.compile(project, modules, sourceScope, client)
-    
+    // A cancelled compilation returns normally, without its end. It is neither a success nor a failure, and
+    // nothing is dispatched after it: throwing also aborts a worksheet waiting on this as its first build.
+    if (client.endIfInterrupted()) throw new ProcessCanceledException()
+
     val covered = coveredFiles(client.compiledSources)
     if (client.successful) {
       compilationSucceeded(token, scopes, covered)

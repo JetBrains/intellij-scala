@@ -83,7 +83,8 @@ object CompilationUtils {
         try {
           val client = new CompilerEventGeneratingClient(project, indicator, Log, refreshVfs, documentVersions)
           CompilerLockService.instance(project).withCompilerLock(indicator, requestId) {
-            compile(client)
+            try compile(client)
+            finally client.endIfInterrupted()
           }
           promise.success(())
         } catch {
