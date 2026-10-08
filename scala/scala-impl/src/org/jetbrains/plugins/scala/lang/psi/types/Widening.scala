@@ -155,10 +155,12 @@ object Widening {
   private def widenSingletons(tpe: ScType)(implicit context: Context): ScType = tpe match {
     case ScOrType(lhs, rhs) =>
       val (l, r) = (widenSingletons(lhs), widenSingletons(rhs))
-      if ((l eq lhs) && (r eq rhs)) tpe else ScOrType(l, r)
+      if ((l eq lhs) && (r eq rhs)) tpe
+      else                          l.lub(r)
     case ScAndType(lhs, rhs) =>
       val (l, r) = (widenSingletons(lhs), widenSingletons(rhs))
-      if ((l eq lhs) && (r eq rhs)) tpe else ScAndType(l, r)
+      if ((l eq lhs) && (r eq rhs)) tpe
+      else                          l.glb(r)
     case _ => widenSingleton(tpe)
   }
 

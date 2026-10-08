@@ -303,7 +303,6 @@ private object TextToTextTestConfig {
         "io.getquill.parser.Unlifter", // ?=> | N/A
         "io.getquill.parser.ValParser", // ?=> | N/A
         "io.getquill.parser.ValueParser", // ?=> | N/A
-        "io.getquill.util.Interpolator2", // scala.|[T, (T, L)] | scala.Any
         "io.getquill.util.Load", // private | private[Load]
       ),
       transformed = {

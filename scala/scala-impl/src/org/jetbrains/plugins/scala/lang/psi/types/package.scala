@@ -338,51 +338,9 @@ package object types {
       case _                    => scType
     }
 
-    /**
-     * Widen inferred type `scType` with an expected type `pt` using the following rules:
-     * 1. If `scType` is a [[ScLiteralType]] or a [[ScOrType]] containing literals,
-     *    widen all literals, unless the result does not conform to `pt`.
-     * 2. If `scType` is a [[ScOrType]], replace it with its join, unless it does not conform to `pt`
-     * 3. If `scType` is a [[ScAndType]] with one or more of its operands designated to transparent traits,
-     *    drop as many of them as possible, as long as the result still conforms to `pt`
-     */
-    def widenInferredType(
-      widenLiterals: Boolean        = true,
-      pt:            Option[ScType] = None
-    )(implicit ctx: Context): ScType = {
-      def withoutLiterals(t: ScType): ScType = t match {
-        case lit: ScLiteralType  => lit.wideType
-//          if (!widenLiterals || !lit.allowWiden) lit.blockWiden
-//          else                                   lit.wideType
-        case ScOrType(lhs, rhs) => ScOrType(withoutLiterals(lhs), withoutLiterals(rhs))
-        case other              => other
-      }
-
-      val join = withoutLiterals(scType) match {
-        case orType: ScOrType =>
-          val res = orType.join
-
-          if (pt.forall(res.conforms)) res
-          else                         orType
-        case other => other
-      }
-
-      val dropTransparent = join.dropTransparentTraits(pt)
-
-      dropTransparent
-    }
-
-    def underlyingClassRef(implicit context: Context): Option[PsiClass] =
-      scType match {
-        case DesignatorOwner(cls: PsiClass)     => cls.toOption
-        case AliasType(_, _, Right(tpe), false) => tpe.underlyingClassRef
-        case ParameterizedType(des, _)          => des.underlyingClassRef
-        case _                                  => None
-      }
-
     def isTransparent(implicit context: Context): Boolean = scType match {
       case ScAndType(lhs, rhs) => lhs.isTransparent && rhs.isTransparent
-      case tpe                 => tpe.underlyingClassRef.exists(_.isTransparentTrait)
+      case tpe                 => tpe.removeAliasDefinitions().extractClass.exists(_.isTransparentTrait)
     }
 
     /**

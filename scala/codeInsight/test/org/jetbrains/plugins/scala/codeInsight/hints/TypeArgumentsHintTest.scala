@@ -116,7 +116,7 @@ class TypeArgumentsHintTest extends InlayHintsTestBase {
        |
        |def test[T >: B](t: T): T = t
        |
-       |test$S[Any]$E()
+       |test$S[Unit | B]$E()
        |""".stripMargin
   )
 
