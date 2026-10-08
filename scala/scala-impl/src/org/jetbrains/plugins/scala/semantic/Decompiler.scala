@@ -17,9 +17,7 @@ object Decompiler {
   def apply(classpath: Seq[String], classLoader: ClassLoader): Decompiler = {
     val decompilerClass = classLoader.loadClass("org.jetbrains.plugins.scala.semantic.DecompilerImpl")
     val constructor = decompilerClass.getConstructor(classOf[Array[String]])
-    // Append JAR with `scala.caps.internal.consume` annotation as a workaround for 3.8.4, see SCL-26070
-    val decompilerClasspath = classpath :+ ScalaPluginJars.scalaLibraryJar.toString
-    val decompiler = constructor.newInstance(decompilerClasspath.toArray)
+    val decompiler = constructor.newInstance(classpath.toArray)
     // Scala 3.8.4 crashes when pickling a structural call with an Array[Byte] parameter.
     val decompileMethod = decompilerClass.getMethod("decompile", classOf[String], classOf[Array[Byte]])
 
