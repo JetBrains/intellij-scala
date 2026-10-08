@@ -93,7 +93,7 @@ class ContextFunctionTypeInferenceTest extends TypeInferenceTestBase {
        |    123
        |  }$END
        |}
-       |//Any
+       |//Int | String
        |""".stripMargin
   )
 
