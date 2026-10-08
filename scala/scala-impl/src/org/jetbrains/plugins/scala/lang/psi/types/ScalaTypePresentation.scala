@@ -458,7 +458,7 @@ trait ScalaTypePresentation extends TypePresentation {
       case ScOrType(lhs, rhs) =>
         if (ScalaApplicationSettings.PRECISE_TEXT && options.canonicalForm) {
           if (ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS) {
-            def componentsOf(tpe: ScType): Seq[ScType] = tpe match { case ScOrType(l, r) => componentsOf(l) :+ r case t => Vector(t) }
+            def componentsOf(tpe: ScType): Seq[ScType] = tpe match { case ScOrType(l, r) => componentsOf(l) ++ componentsOf(r); case t => Vector(t) }
             componentsOf(t).map(innerTypeText(_)).sorted.reduceRight("_root_.scala.|[" + _ + ", " + _ + "]")
           } else {
             val l = innerTypeText(lhs)
