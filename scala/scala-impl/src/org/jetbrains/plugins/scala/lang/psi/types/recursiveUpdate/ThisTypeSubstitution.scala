@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -301,5 +302,28 @@ private object ThisTypeSubstitution {
    * (`analyzer.global.analyzer.global...`) until the no-self-embedding rule cuts them off.
    */
   def canonicalizeTarget(tp: ScType): ScType =
+    if (!ScProjectionType.mayCollapse(tp)) tp
+    else if (isPlainPath(tp)) canonicalizeCached(tp)
+    else canonicalize(tp)
+
+  /**
+   * Cached because canonicalizing a path re-canonicalizes its prefix through the uncached
+   * `designatorSingletonType`, and a nested canonicalization starts with fresh fuel: without the
+   * cache the cost grows exponentially in path depth. Context-free: `collapseSingletonPath`
+   * without `throughAliases` doesn't consult opaque aliases. Only plain paths are cached, so no key
+   * holds an inference variable.
+   */
+  private val canonicalizeCached: ScType => ScType =
+    cached("canonicalizeTarget", ModTracker.anyScalaPsiChange, (tp: ScType) => canonicalize(tp))
+
+  private def canonicalize(tp: ScType): ScType =
     TypeRecursionGuard.nestedSubstitution(tp, s"canonicalizing $tp")(ScProjectionType.collapseSingletonPath(tp, throughAliases = false))
+
+  /** A path rooted in a this-type or a designator: `C.this.a.b`, `o.a.b`, `a.b`. */
+  @tailrec
+  private def isPlainPath(tp: ScType): Boolean = tp match {
+    case proj: ScProjectionType              => isPlainPath(proj.projected)
+    case _: ScThisType | _: ScDesignatorType => true
+    case _                                   => false
+  }
 }

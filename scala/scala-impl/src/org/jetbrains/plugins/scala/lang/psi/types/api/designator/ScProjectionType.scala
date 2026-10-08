@@ -369,6 +369,14 @@ object ScProjectionType {
     }
   }
 
+  /** Whether [[collapseSingletonPath]] may change `tp`: some element of its prefix spine is a stable value. */
+  @scala.annotation.tailrec
+  private[types] def mayCollapse(tp: ScType): Boolean = tp match {
+    case proj: ScProjectionType => isStableValue(proj.element) || mayCollapse(proj.projected)
+    case des: ScDesignatorType  => isStableValue(des.element)
+    case _                      => false
+  }
+
   private def isStableValue(element: PsiNamedElement): Boolean = element match {
     case _: ScObject          => false
     case d: ScTypedDefinition => d.isStable
