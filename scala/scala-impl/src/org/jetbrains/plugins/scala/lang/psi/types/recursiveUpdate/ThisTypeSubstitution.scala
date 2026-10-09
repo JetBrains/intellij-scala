@@ -296,10 +296,11 @@ private object ThisTypeSubstitution {
    * second is not, so it may occur at most once in a chain. The Lean model of retronym/scala-type-system-tck#7
    * (`Relaxations.lean`) covers three shapes:
    *
-   *  - self-rooted (`SelfRooted`): the target is a path rooted in the this-type of the anchor (or of an
-   *    inheritor of it), and `res`, the link applied to its own target, grafts the target onto that root
-   *    again (`UnitScanner.this.parensAnalyzer.type` to `UnitScanner.this.parensAnalyzer.parensAnalyzer.type`).
-   *    `once_is_scalac`, `selfRooted_twice_diverges`;
+   *  - self-rooted (`SelfRooted`): the target is a path rooted in the this-type of the anchor itself, and
+   *    `res`, the link applied to its own target, grafts the target onto that root again
+   *    (`UnitScanner.this.parensAnalyzer.type` to `UnitScanner.this.parensAnalyzer.parensAnalyzer.type`).
+   *    `once_is_scalac`, `selfRooted_twice_diverges`. As for compounds below, a path rooted in an
+   *    inheritor's this-type is not admitted: the model doesn't cover it;
    *  - compound self-rooted (`PartSelfRooted`): a compound target with a part rooted in the anchor's own
    *    this-type, the view `MixinNodes.SuperTypesData` mints for the members of a compound
    *    (`T1.this -> T1 with T1.this.M3`). Applied to its target the link grafts the compound into that part
@@ -310,7 +311,8 @@ private object ThisTypeSubstitution {
    *    `doUpdateThisTypeFromClass`, which the model leaves out, moves it;
    *  - outer-rooted (`OuterRooted`): the target is a path rooted in `D.this` for a class `D` strictly
    *    enclosing the anchor, through a value whose `D`-instance is another one (`I2.this -> T2.this.v12.type`
-   *    with `v12: K0#I5`, `I5 <: I2`, inner classes of `T2`). The walk takes `T2.this` to the prefix of
+   *    with `v12: K0#I5`, `I5 <: I2`, inner classes of `T2`), and `res` is the target with only its root
+   *    replaced (`asf_rootedAt`; that the root moved is `rewrites`, by `graft_inj`). The walk takes `T2.this` to the prefix of
    *    `v12.type`'s base type `K0#I2`. `outerRooted_once_is_scalac` holds against the model's scalac, which
    *    substitutes that prefix directly, as the plugin does; real scalac captures an unstable prefix like `K0`
    *    existentially, a separate difference that the TCK's group G covers.
@@ -322,9 +324,26 @@ private object ThisTypeSubstitution {
     case target =>
       val anchor = link.seenFromClass
       spineRootThis(target).exists { root =>
-        if (isSameOrInheritor(root.element, anchor)) embedsRewrittenThis(res, root)
-        else anchor.containingClass != null && SubstitutorInvariants.ownerChainContains(anchor.containingClass, root.element)
+        if (sameClass(root.element, anchor))
+          // `SelfRooted`: `res` is the target grafted onto itself, so still rooted in the anchor
+          spineRootThis(res).exists(r => sameClass(r.element, anchor))
+        else
+          // `OuterRooted`: `res` is the target with only its root replaced (`asf_rootedAt`)
+          anchor.containingClass != null &&
+            SubstitutorInvariants.ownerChainContains(anchor.containingClass, root.element) &&
+            selections(res).endsWith(selections(target))
       }
+  }
+
+  /** The members selected along a path, outermost first: `List(v12)` for `T2.this.v12.type`. */
+  private def selections(tp: ScType): List[PsiNamedElement] = {
+    @tailrec
+    def go(t: ScType, acc: List[PsiNamedElement]): List[PsiNamedElement] = t match {
+      case p @ ScProjectionType(pre, _)                       => go(pre, p.element :: acc)
+      case ParameterizedType(p @ ScProjectionType(pre, _), _) => go(pre, p.element :: acc)
+      case _                                                  => acc
+    }
+    go(tp, Nil)
   }
 
   /**
