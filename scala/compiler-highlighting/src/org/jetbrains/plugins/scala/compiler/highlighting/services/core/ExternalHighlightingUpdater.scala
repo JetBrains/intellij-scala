@@ -8,12 +8,10 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import org.jetbrains.plugins.scala.caches.ModTracker.anyScalaPsiChange
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
-import org.jetbrains.plugins.scala.compiler.highlighting.services.ExternalHighlightersService.{HighlightInfoData, HighlightingData, ScalaCompilerPassId}
-import org.jetbrains.plugins.scala.compiler.highlighting.util.DocumentUtil
+import org.jetbrains.plugins.scala.compiler.highlighting.services.ExternalHighlightersService.{AppliedHighlightings, HighlightInfoData, HighlightingData, ScalaCompilerPassId}
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.{ProblemSolverUtils, ScalaHighlightingMode, ScalaProjectSettings}
-import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.util.Collections
 import scala.annotation.nowarn
@@ -28,7 +26,11 @@ import scala.jdk.CollectionConverters.*
  */
 private[highlighting] class ExternalHighlightingUpdater(project: Project, problemSource: AnyRef) {
 
-  def applyHighlightingInfo(highlightInfoData: HighlightInfoData, compilationId: CompilationId): Set[VirtualFile] = {
+  /**
+   * Applies each file's highlightings to its editor, skipping a file that has been edited since they were built: their
+   * offsets were computed against the text it had then.
+   */
+  def applyHighlightingInfo(highlightInfoData: HighlightInfoData): AppliedHighlightings = {
     val infos = highlightInfoData.highlightingData
     val expressions = highlightInfoData.psiElements
     val settings = ScalaProjectSettings.getInstance(project)
@@ -38,9 +40,10 @@ private[highlighting] class ExternalHighlightingUpdater(project: Project, proble
       !(settings.isCompilerHighlightingScala3 && settings.isUseCompilerTypes) || LookupManager.getActiveLookup(editor) == null
     }
 
-    if (!project.isDisposed && DocumentUtil.stillValid(compilationId.documentVersions)) {
-      val applied = infos.collect {
-        case HighlightingData(editor, document, psiFile, virtualFile, highlightInfos) if shouldApplyHighlightings(editor) =>
+    if (!project.isDisposed) {
+      val (current, stale) = infos.partition(data => data.document.getModificationStamp == data.textStamp)
+      val applied = current.collect {
+        case HighlightingData(editor, document, psiFile, virtualFile, highlightInfos, _) if shouldApplyHighlightings(editor) =>
           val collection = highlightInfos.asJavaCollection
           UpdateHighlightersUtil.setHighlightersToEditor(
             project,
@@ -64,10 +67,10 @@ private[highlighting] class ExternalHighlightingUpdater(project: Project, proble
         ImplicitHints.updateInAllEditors()
       }
 
-      applied
+      AppliedHighlightings(applied, stale.map(_.virtualFile).toSet)
     } else {
-      // The project is disposed or the results are stale, so nothing was applied to the editors.
-      Set.empty[VirtualFile]
+      // The project is disposed, so nothing was applied to the editors.
+      AppliedHighlightings.empty
     }
   }
 

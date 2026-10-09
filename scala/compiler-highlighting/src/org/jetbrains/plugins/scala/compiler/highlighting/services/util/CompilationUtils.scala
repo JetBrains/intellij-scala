@@ -68,7 +68,7 @@ object CompilationUtils {
   def performCompilation(
     project: Project,
     requestId: RequestId,
-    documentVersions: SerializableMap[CanonicalPath, Long],
+    compiledTextVersions: SerializableMap[CanonicalPath, Long],
     delayIndicator: Boolean,
     refreshVfs: Boolean
   )(compile: CompilerEventGeneratingClient => Unit): Future[Unit] = {
@@ -81,7 +81,7 @@ object CompilationUtils {
         val progress = ProjectProgressService(project)
         progress.setIndicator(indicator)
         try {
-          val client = new CompilerEventGeneratingClient(project, indicator, Log, refreshVfs, documentVersions)
+          val client = new CompilerEventGeneratingClient(project, indicator, Log, refreshVfs, compiledTextVersions)
           CompilerLockService.instance(project).withCompilerLock(indicator, requestId) {
             try compile(client)
             finally client.endIfInterrupted()

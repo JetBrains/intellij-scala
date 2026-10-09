@@ -26,7 +26,7 @@ case class JpsIncrementalRequest(
   override protected def doCompile(
     scopes: Map[VirtualFile, FileCompilationScope],
     client: CompilerEventGeneratingClient,
-    docVersions: SerializableMap[CanonicalPath, Long]
+    scopeDocumentVersions: SerializableMap[CanonicalPath, Long]
   ): Unit = 
     val modules = scopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet
     val sourceScope = mergeSourceScope(scopes)
@@ -43,7 +43,7 @@ case class JpsIncrementalRequest(
       compilationFailed(token, scopes, covered)
     }
 
-    if (!DocumentUtil.stillValid(docVersions)) {
+    if (!DocumentUtil.stillValid(scopeDocumentVersions)) {
       Tracing(project).endTrace(id, "Documents changed during JPS incremental compilation")
       return
     }

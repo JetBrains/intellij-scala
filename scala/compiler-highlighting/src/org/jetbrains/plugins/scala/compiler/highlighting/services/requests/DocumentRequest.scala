@@ -61,10 +61,9 @@ case class DocumentRequest(
     }
 
   /**
-   * The document versions reported to the compilation, used to discard the results if the document has changed
-   * since the request was created. Overridden by the post-build variant to report none (always apply).
+   * The text this compilation compiles: the document as it is in memory, which is what the document compiler reads.
    */
-  protected def reportedDocumentVersions: SerializableMap[CanonicalPath, Long] =
+  private def reportedDocumentVersions: SerializableMap[CanonicalPath, Long] =
     documentVersions.map { case (_, DocumentVersion(path, version)) =>
       path -> version
     }.to(HashMap.mapFactory[CanonicalPath, Long])

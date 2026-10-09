@@ -19,7 +19,7 @@ abstract class BaseCompilationRequest(
   override final val documentVersions: Map[VirtualFile, DocumentVersion] =
     originFiles.map { case (vf, doc) => vf -> DocumentUtil.documentVersion(vf, doc) }
 
-  override def isReadyForExecution: RequestState = 
+  override def isReadyForExecution: RequestState =
     if (isExpired) return RequestState.Expired
     if (DumbService.isDumb(project)) return RequestState.NotReady
       canDocumentsBeCompiled
