@@ -123,4 +123,26 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
         |//True
       """.stripMargin)
   }
+
+  // An alias from an unrelated mixin is not the abstract member of the same name: scalac dealiases `K#M` to `Any`.
+  def testMixedInAliasDoesNotConformToAbstractMemberOfSameName(): Unit = doTest(
+    s"""
+       |trait T0 { type M }
+       |trait T1 extends T0
+       |trait T2 { type M = Any }
+       |trait K extends T1 with T2
+       |val k: K = ???
+       |${caretMarker}val x: T1#M = (??? : k.M)
+       |//false
+      """.stripMargin)
+
+  // A class implementing an abstract type member of the same name does conform to it.
+  def testClassImplementingAbstractTypeConformsToIt(): Unit = doTest(
+    s"""
+       |class A { type T <: S; class S }
+       |class B extends A { class T extends S }
+       |val b = new B
+       |${caretMarker}val x: A#T = (??? : b.T)
+       |//true
+      """.stripMargin)
 }

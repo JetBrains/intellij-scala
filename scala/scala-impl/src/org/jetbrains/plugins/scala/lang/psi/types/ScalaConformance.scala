@@ -863,7 +863,12 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj.actualElement) =>
           result = conformsInner(collapsedPrefix(proj), collapsedPrefix(proj1), visited, constraints)
           if (result != null) return
-        case proj1: ScProjectionType if proj1.actualElement.name == proj.actualElement.name =>
+        // `proj1 <: proj` for a member of the same name: a class implementing an abstract type (`B#A <: A#A`
+        // for `class A` in `B extends A`, where A declares `type A`). Not when `proj1`'s member is an alias:
+        // scalac dealiases it first, so `K#M` with `type M = Any` from an unrelated mixin doesn't conform to
+        // `T#M` for an abstract `T#M`.
+        case proj1: ScProjectionType
+          if proj1.actualElement.name == proj.actualElement.name && !proj1.actualElement.is[ScTypeAliasDefinition] =>
           val t = conformsInner(collapsedPrefix(proj), collapsedPrefix(proj1), visited, constraints)
           if (t.isRight) {
             result = t
