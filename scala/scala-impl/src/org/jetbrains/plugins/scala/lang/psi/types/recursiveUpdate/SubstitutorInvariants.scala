@@ -80,7 +80,16 @@ object SubstitutorInvariants {
      *    `UnitScanner.this` inside the target is the enclosing scanner, not the receiver; one pass leaves it
      *    alone, as scalac's does, and gives scalac's result (`once_is_scalac`), but a second copy of the link
      *    later in the chain rewrites it too (`selfRooted_twice_diverges`). So a self-rooted link may occur at
-     *    most once in a chain, which [[selfRootedOnce]] checks at `followed`.
+     *    most once in a chain, which [[selfRootedOnce]] checks at `followed`. Two more shapes count with it,
+     *    justified in retronym/scala-type-system-tck#7 (see `ThisTypeSubstitution.isSelfRooted`): a compound
+     *    target with a part rooted in the anchor's own this-type (`MixinNodes.SuperTypesData`'s view of a
+     *    compound's members, `T1.this -> T1 with T1.this.M3`; `partRooted_once_is_scalac`,
+     *    `partRooted_twice_diverges`), and a path rooted in an enclosing class's this-type through a value of
+     *    another instance of it (`I2.this -> T2.this.v12.type`, `v12: K0#I5`; `outerRooted_once_is_scalac`,
+     *    against the model's scalac).
+     *
+     *  "Fixed" is up to singleton aliases and the order and repetition of a compound's parts
+     *  (`ThisTypeSubstitution.sameUpToAliases`, `once_is_scalac_eqv`), not up to conformance.
      *
      *  A link of neither kind, or a self-rooted link that a chain holds twice, is a violation. Only targets with
      *  a this-leaf on the anchor's owner chain are at risk (`asf_eq_of_fixed`); others are not checked.
@@ -397,10 +406,16 @@ object SubstitutorInvariants {
       withoutNestedChecks {
         val res = ScSubstitutor(link)(link.target)
         // `==` first (cheap, exact); `equiv` tolerates a re-spelling of the same path (`Obj.v` as a
-        // designator or as a projection).
+        // designator or as a projection); `sameUpToAliases`, last, a re-spelling up to singleton aliases and
+        // the order and repetition of a compound's parts (`T0 with a15.I6 with v14.I6` to `T0 with k0.I6`,
+        // `a15: v14.type`, `v14: k0.type`), which `equiv` misses since it compares parts pairwise
+        // (`once_is_scalac_eqv`). It comes after the self-rooted test, so that a self-rooted link is held to
+        // occurring once.
+        implicit val context: Context = Context(link.seenFromClass)
         val kind =
-          if (res == link.target || res.equiv(link.target)(using Context(link.seenFromClass))) A1Fixed
+          if (res == link.target || res.equiv(link.target)) A1Fixed
           else if (ThisTypeSubstitution.isSelfRooted(link, res)) A1SelfRooted
+          else if (ThisTypeSubstitution.sameUpToAliases(res, link.target)) A1Fixed
           else A1Neither
         link.a1Kind = kind
         kind match {
@@ -412,7 +427,7 @@ object SubstitutorInvariants {
             val dup = link.a1Duplicate
             if (dup != null && dup.compareAndSet(false, true)) duplicated(link, dup.mintSites)
           case _ =>
-            violated(Rule.FixedTarget, s"[$link] maps its own target to $res, and its target is not rooted in ${link.seenFromClass.name}.this (minted at ${link.a1MintSite})")
+            violated(Rule.FixedTarget, s"[$link] maps its own target to $res, and its target is neither rooted in ${link.seenFromClass.name}.this nor outer-rooted (minted at ${link.a1MintSite})")
         }
       }
     }

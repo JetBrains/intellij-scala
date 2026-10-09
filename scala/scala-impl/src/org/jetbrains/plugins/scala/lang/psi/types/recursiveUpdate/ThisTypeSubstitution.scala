@@ -278,20 +278,81 @@ private object ThisTypeSubstitution {
     case _             => spineRootThis(res).exists(rootTh => isSameOrInheritor(rootTh.element, th.element))
   }
 
+  /** The this-types at the roots of the parts of `tp`, where parts are the operands of compounds and the
+   *  prefixes of projections (`T1.this` in `T1 with T1.this.M3` and in `(T1 with T1.this.M3)#M3`). The Lean's
+   *  `PartRootedAt`; `partRootedAt_iff` makes it "the class is among the this-types of `tp`" there. */
+  private def partRoots(tp: ScType): Seq[ScThisType] = tp match {
+    case th: ScThisType                                 => Seq(th)
+    case ScProjectionType(pre, _)                       => partRoots(pre)
+    case ParameterizedType(ScProjectionType(pre, _), _) => partRoots(pre)
+    case c: ScCompoundType                              => c.components.flatMap(partRoots)
+    case _                                              => Seq.empty
+  }
+
+  private def sameClass(a: PsiClass, b: PsiClass): Boolean = a == b || ScEquivalenceUtil.areClassesEquivalent(a, b)
+
   /**
-   * `SelfRooted` of the Lean model (`Chain.lean`): the link's target is a path rooted in the
-   * this-type of its anchor (or of an inheritor of it), and `res`, the link applied to its
-   * own target, grafts the target onto that root again
-   * (`UnitScanner.this.parensAnalyzer.type` to `UnitScanner.this.parensAnalyzer.parensAnalyzer.type`).
-   * Such a link is right applied once and wrong applied twice (`once_is_scalac`,
-   * `selfRooted_twice_diverges`).
+   * A link that doesn't fix its target, of a shape whose single application is scalac's result and whose
+   * second is not, so it may occur at most once in a chain. The Lean model of retronym/scala-type-system-tck#7
+   * (`Relaxations.lean`) covers three shapes:
+   *
+   *  - self-rooted (`SelfRooted`): the target is a path rooted in the this-type of the anchor (or of an
+   *    inheritor of it), and `res`, the link applied to its own target, grafts the target onto that root
+   *    again (`UnitScanner.this.parensAnalyzer.type` to `UnitScanner.this.parensAnalyzer.parensAnalyzer.type`).
+   *    `once_is_scalac`, `selfRooted_twice_diverges`;
+   *  - compound self-rooted (`PartSelfRooted`): a compound target with a part rooted in the anchor's own
+   *    this-type, the view `MixinNodes.SuperTypesData` mints for the members of a compound
+   *    (`T1.this -> T1 with T1.this.M3`). Applied to its target the link grafts the compound into that part
+   *    (`T1 with (T1 with T1.this.M3)#M3`), so it always moves its target; one pass never looks inside what it
+   *    put in place. `partRooted_once_is_scalac`, `partRooted_twice_diverges`. A part rooted in an
+   *    *inheritor*'s this-type (`T2.this -> T0 with T3.this.type with T3.this.I5`, `T3 <: T2`) is not
+   *    admitted: scalac's walk leaves `T3.this` alone, and only the plugin's superclass early exit in
+   *    `doUpdateThisTypeFromClass`, which the model leaves out, moves it;
+   *  - outer-rooted (`OuterRooted`): the target is a path rooted in `D.this` for a class `D` strictly
+   *    enclosing the anchor, through a value whose `D`-instance is another one (`I2.this -> T2.this.v12.type`
+   *    with `v12: K0#I5`, `I5 <: I2`, inner classes of `T2`). The walk takes `T2.this` to the prefix of
+   *    `v12.type`'s base type `K0#I2`. `outerRooted_once_is_scalac` holds against the model's scalac, which
+   *    substitutes that prefix directly, as the plugin does; real scalac captures an unstable prefix like `K0`
+   *    existentially, a separate difference that the TCK's group G covers.
    */
   def isSelfRooted(link: ThisTypeSubstitution, res: ScType): Boolean = link.target match {
     case _: ScThisType => false
+    case c: ScCompoundType =>
+      partRoots(c).exists(root => sameClass(root.element, link.seenFromClass))
     case target =>
+      val anchor = link.seenFromClass
       spineRootThis(target).exists { root =>
-        isSameOrInheritor(root.element, link.seenFromClass) && embedsRewrittenThis(res, root)
+        if (isSameOrInheritor(root.element, anchor)) embedsRewrittenThis(res, root)
+        else anchor.containingClass != null && SubstitutorInvariants.ownerChainContains(anchor.containingClass, root.element)
       }
+  }
+
+  /**
+   * `res` is `target` up to the equivalence of the Lean's `Eqv` (`Relaxations.lean`, retronym/scala-type-system-tck#7):
+   * paths followed to the end of their singleton aliases (`val v14: k0.type`, so `v14.I6` is `k0.I6`), and a
+   * compound's parts taken as a set (commutative, associative, idempotent). A link that gives its target back
+   * up to that equivalence is idempotent up to it (`idempotent_eqv`) and right however often it occurs
+   * (`once_is_scalac_eqv`). Nothing weaker is admitted: conformance both ways equates types `Eqv` doesn't
+   * (`A with B` and `A` for `A <: B`), and is a type-system call that an invariant check must not make.
+   *
+   * Paths are canonicalized by [[canonicalizeTarget]], the normalization substitution already applies to the
+   * targets it mints. `ScCompoundType.apply` flattens nested compounds, so parts are compared as sets one level
+   * deep. Refinements, which the model doesn't have, are compared as `equiv` compares them.
+   */
+  def sameUpToAliases(res: ScType, target: ScType)(implicit context: Context): Boolean = {
+    def same(a: ScType, b: ScType): Boolean = (a, b) match {
+      case (a: ScCompoundType, b: ScCompoundType) =>
+        def covers(xs: Seq[ScType], ys: Seq[ScType]) = xs.forall(x => ys.exists(same(x, _)))
+        def refinement(c: ScCompoundType) =
+          ScCompoundType(Seq.empty, forceRefinement = true, c.signatureMap, c.typesMap)(c.projectContext)
+        covers(a.components, b.components) && covers(b.components, a.components) &&
+          (a.signatureMap.isEmpty && a.typesMap.isEmpty && b.signatureMap.isEmpty && b.typesMap.isEmpty ||
+            refinement(a).equiv(refinement(b)))
+      case _ =>
+        val (ca, cb) = (canonicalizeTarget(a), canonicalizeTarget(b))
+        ca == cb || ca.equiv(cb)
+    }
+    same(res, target)
   }
 
   /**
