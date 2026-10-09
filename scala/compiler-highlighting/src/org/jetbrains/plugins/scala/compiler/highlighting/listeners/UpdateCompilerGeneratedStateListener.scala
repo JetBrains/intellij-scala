@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhas
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{BuildManagerSessionPhaseEvent, CompilationRequestPhaseEvent}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.compiler.highlighting.services.{ExternalHighlightersService, ProjectProgressService}
+import org.jetbrains.plugins.scala.compiler.highlighting.util.DocumentUtil
 import org.jetbrains.plugins.scala.compiler.highlighting.util.TracingUtil.endTrace
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent, CompilerEventListener}
@@ -44,7 +45,13 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
   private val Log: Logger = Logger.getInstance(classOf[UpdateCompilerGeneratedStateListener])
 
   private val tracer = Tracing(project)
-  
+
+  /**
+   * The text `file` was compiled from in `compilationId`.
+   */
+  private def textStampOf(compilationId: CompilationId, file: VirtualFile): Long =
+    compilationId.documentVersions.getOrElse(DocumentUtil.canonicalPath(file), file.getModificationStamp)
+
   private def parseEelPath(source: SerializablePath): Option[Path] =
     try {
       val pathString = FileUtil.toSystemIndependentName(SerializablePath.unsafePathAsString(source))
@@ -78,7 +85,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
       case CompilerEvent.MessageEmitted(compilationId, _, uuid, ClientMsg(MessageKind.Info, text, Some(source), _, Some(begin), Some(end), _)) if text.startsWith(CompilerPluginTypePrefix) =>
         findVirtualFile(source).foreach { virtualFile =>
           val tpe = text.substring(CompilerPluginTypePrefix.length, text.indexOf(CompilerPluginTypeSuffix).ensuring(_ != -1))
-          val fileState = FileCompilerGeneratedState(compilationId, Set.empty, Map(((begin, end), tpe)))
+          val fileState = FileCompilerGeneratedState(compilationId, textStampOf(compilationId, virtualFile), Set.empty, Map(((begin, end), tpe)))
           val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
           CompilerGeneratedStateManager.update(project, newState)
         }
@@ -130,7 +137,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
             rangeInfo = rangeInfo,
             diagnostics = msg.diagnostics
           )
-          val fileState = FileCompilerGeneratedState(compilationId, Set(highlighting), Map.empty)
+          val fileState = FileCompilerGeneratedState(compilationId, textStampOf(compilationId, virtualFile), Set(highlighting), Map.empty)
           val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
 
           CompilerGeneratedStateManager.update(project, newState)
@@ -138,7 +145,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
       case CompilerEvent.DiagnosticsCleared(compilationId, _, source) =>
         // The compiler compiled this file and found nothing wrong with it.
         findVirtualFile(source).foreach { virtualFile =>
-          val cleanState = FileCompilerGeneratedState(compilationId, Set.empty, Map.empty)
+          val cleanState = FileCompilerGeneratedState(compilationId, textStampOf(compilationId, virtualFile), Set.empty, Map.empty)
           val newState = oldState.copy(
             files = oldState.files.updated(virtualFile, cleanState),
             highlightOnCompilationFinished = oldState.highlightOnCompilationFinished + virtualFile
@@ -154,8 +161,8 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
           source <- sources
           virtualFile <- findVirtualFile(source)
         } yield virtualFile
-        val emptyState = FileCompilerGeneratedState(compilationId, Set.empty, Map.empty)
         val intermediateState = vFiles.foldLeft(oldState) { case (acc, file) =>
+          val emptyState = FileCompilerGeneratedState(compilationId, textStampOf(compilationId, file), Set.empty, Map.empty)
           replaceOrAppendFileState(acc, file, emptyState)
         }
         val toHighlight = intermediateState.highlightOnCompilationFinished

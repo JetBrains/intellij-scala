@@ -94,10 +94,17 @@ object HighlightingPhaseEvents:
 
   /** Applying the compiler's highlighting results to the open editors, ending once the affected files
    *  have been updated. Consumes the [[CompilationDurationEvent.key]] entry from the duration span. */
-  case class HighlightingEvent(compilationId: CompilationId, id: HighlightingPassId, files: Set[String] = Set.empty)
+  /**
+   * @param files the files whose editors received the results
+   * @param stale the files left as they were, because their text is no longer the one their results were
+   *              computed from
+   */
+  case class HighlightingEvent(compilationId: CompilationId, id: HighlightingPassId, files: Set[String] = Set.empty,
+                               stale: Set[String] = Set.empty)
     extends HighlightingPhaseEvent("Highlighting process", Some(CompilationDurationEvent.key(compilationId)),
       Some(id), false,
-      "Modified files" -> files.mkString(","))
+      "Modified files" -> files.mkString(","),
+      "Skipped (stale)" -> stale.mkString(","))
   object HighlightingEvent:
     val counter = AtomicLong()
     case class HighlightingPassId(passId: Long)
