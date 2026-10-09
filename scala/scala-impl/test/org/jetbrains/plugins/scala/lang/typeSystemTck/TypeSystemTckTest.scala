@@ -106,7 +106,9 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
      *    `x: global.ValDef`, ValDef -> ValOrDefDef -> Tree inside the Trees cake).
      *    Fixed: BaseTypesIterator now widens a singleton path's `designatorSingletonType`
      *    (the same widen also fixed group A's `12-singleton-literal-path/DogSingleton`
-     *    for baseTypeSeq). Empty on purpose — kept for the two-way pin structure.
+     *    for baseTypeSeq; since the widened type itself is now one of the singleton's
+     *    base types, as in scalac, that check keeps the golden's head for a singleton).
+     *    Empty on purpose — kept for the two-way pin structure.
      */
     val baseType: Set[String] = Set.empty
   }
@@ -159,12 +161,17 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
       // scalac's baseTypeSeq is reflexive (bt0 = T) and ends with scala.Any;
       // IntelliJ's `BaseTypes.get` yields only proper, class-extractable base
       // types. Compare like for like: the golden's *proper supers* = the golden
-      // minus its head (the type itself) and minus scala.Any.
+      // minus its head (the type itself) and minus scala.Any. A singleton or
+      // literal type is the exception: scalac's sequence for it is its underlying
+      // type's (`SingletonType` inherits `SubType.baseTypeSeq`), so the head is
+      // the widened type, a proper super of the singleton, and is kept.
       entry.baseTypeSeqQueries.foreach { name =>
         val tp = resolved(name)
         val actualKeys = BaseTypes.get(tp).map(render).map(normalizeKey).toSet
         val goldenOrdered = entry.goldenBaseTypeSeq.getOrElse(name, Seq.empty)
-        val properSupers = goldenOrdered.drop(1).filterNot(_ == "scala.Any").map(normalizeKey).toSet
+        val isSingleton = tp.widen.widenIfLiteral != tp
+        val properSupers = (if (isSingleton) goldenOrdered else goldenOrdered.drop(1))
+          .filterNot(_ == "scala.Any").map(normalizeKey).toSet
 
         val missing = properSupers -- actualKeys // scalac has it, PSI doesn't
         val extra = actualKeys -- properSupers    // PSI has it, scalac doesn't
