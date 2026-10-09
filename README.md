@@ -1,5 +1,5 @@
 [![official JetBrains project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
-[![Scala Plugin Build & Test](https://github.com/JetBrains/intellij-scala/actions/workflows/nightly.yml/badge.svg)](https://github.com/JetBrains/intellij-scala/actions/workflows/nightly.yml)
+[![Pull Request Build & Test](https://github.com/JetBrains/intellij-scala/actions/workflows/build.yml/badge.svg)](https://github.com/JetBrains/intellij-scala/actions/workflows/build.yml)
 [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/aUKpZzeHCK)
 
 # Scala Plugin for IntelliJ IDEA
@@ -104,8 +104,13 @@ For example:
 
 ### GitHub Actions build
 
-GitHub Actions builds the Community sources and runs the typeInference and fast tests. \
-The full test suite isn't run to avoid really long build times.
+The pull-request workflow runs for changes targeting supported release branches. It builds the
+Community sources and runs the JUnit 5 bundle, typechecker, and fast-test tiers. The full test
+suite isn't run to avoid really long build times.
+
+The nightly inspection-sanity workflow runs daily only after a recent default-branch change, or
+when started manually. It builds the Community sources and runs `GeneralInspectionSanityTest`; it
+does not repeat the pull-request or full test suite.
 
 The pull-request workflow installs JDKs 8, 11, 17, 21, and 25 so tests can
 launch the compatible runtime they need. Its final JDK entry, 25, is the
