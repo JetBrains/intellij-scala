@@ -1,7 +1,7 @@
 # Pull-request CI for changes targeting supported release branches.
 # It builds the Community plugin and runs the JUnit 5, typechecker, and fast-test tiers.
 # It intentionally does not run the full suite or trigger on direct pushes.
-name: Pull Request Build & Test
+name: Scala Plugin Build & Test (Focused Suite)
 
 on:
   pull_request:
