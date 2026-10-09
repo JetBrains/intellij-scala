@@ -154,9 +154,14 @@ final class ScProjectionType private(val projected: ScType,
             val thisSubstitutor =
               if (ScProjectionType.isRefinementMember(candidateElement)) ScSubstitutor.empty
               else ScSubstitutor(projected, ScSubstitutor.declarationAnchor(candidateElement))
+            // A member found in a compound already has its signature seen from the compound
+            // (`MixinNodes.SuperTypesData(cp, ...)` links `cp` at each base class), the same link as
+            // `thisSubstitutor`. Applied twice, a compound self-rooted one (`T1.this -> T1 with T1.this.M3`)
+            // rewrites the `T1.this` that its first copy brought in and grows the type to
+            // `T1 with (T1 with T1.this.M3)#M3` (`partRooted_twice_diverges`, retronym/scala-type-system-tck#7).
             val defaultSubstitutor =
               projected match {
-                case _: ScThisType => candidate.substitutor
+                case _: ScThisType | _: ScCompoundType => candidate.substitutor
                 case _ => thisSubstitutor.followed(candidate.substitutor)
               }
             val needSuperSubstitutor = element match {
