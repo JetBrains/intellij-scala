@@ -6,6 +6,9 @@ name: Pull Request Build & Test
 on:
   pull_request:
     branches: [ idea262.x, idea263.x ]
+  # Lets maintainers run the same PR checks from a selected branch without
+  # enabling them for every direct push.
+  workflow_dispatch:
 
 jobs:
   build_and_test:
