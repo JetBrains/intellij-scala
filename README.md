@@ -110,9 +110,10 @@ The full test suite isn't run to avoid really long build times.
 The pull-request workflow installs JDKs 8, 11, 17, 21, and 25 so tests can
 launch the compatible runtime they need. Its final JDK entry, 25, is the
 `JAVA_HOME` used to run sbt. The nightly workflow also runs sbt on JDK 25.
-Keep these workflow defaults aligned with this project's JDK requirement and
-the Scala plugin TeamCity configuration, which covers the full Community and
-Ultimate build.
+`GitHubWorkflowPolicyTest` in `ultimate-meta-tests-standalone` keeps these
+defaults aligned with this project's JDK requirement. The test is not available
+in the Community repository mirrored to GitHub; it runs as part of the Ultimate
+repository's regular test suite.
 
 ## Common problems
 1. **Error `object BuildInfo is already defined ...` during compilation of the project** \
