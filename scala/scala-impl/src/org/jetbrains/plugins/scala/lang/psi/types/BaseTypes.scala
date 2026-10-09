@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -27,7 +27,8 @@ object BaseTypes {
    * applied). For a compound / intersection type it yields the components.
    * For a type alias / type parameter / this-type / existential, `tp` is first
    * resolved to the underlying type and then that type's direct supers are
-   * returned.
+   * returned. A singleton type's direct super is its widened type, and an
+   * abstract type member's is its upper bound (neither has a class of its own).
    */
   def direct(tp: ScType)(implicit context: Context): Iterator[ScType] =
     supersOf(tp, mutable.Set.empty).iterator
@@ -243,6 +244,13 @@ object BaseTypes {
           case Right(aliased) => go(s(aliased), seen)
           case _              => Seq.empty
         }
+      case IsAbstractType(ta, s) if !seenAliases.contains(ta) =>
+        // An abstract type member `M <: U` has no class of its own, so its only direct super
+        // is `U` (in scalac, an abstract type's base type is its upper bound's). Yielding
+        // `U`'s supers instead would lose `U`'s own class. `seenAliases` stops
+        // cyclic bounds (`type A <: B; type B <: A`, rejected by scalac but seen while editing).
+        seenAliases += ta.physical
+        ta.upperBound.toOption.map(s).toSeq
       case ScThisType(clazz)                       =>
         // `X.this` also conforms to `X`'s self type, so the self type's bases are
         // bases of it too (needed by the anchored walk in ThisTypeSubstitution).
@@ -257,11 +265,15 @@ object BaseTypes {
       case ScAndType(lhs, rhs)                     => Seq(lhs, rhs)
       case SingletonUnderlying(underlying) if !seen.contains(underlying) =>
         // A singleton path type (e.g. `x.type` for `x: ValDef`) is not itself a
-        // class/object designator, so ClassType never fires for it. Widen to the
-        // declared/resolved type of the underlying value (scalac's `underlying`,
-        // used by SingleType.baseTypeSeq) so its base classes (e.g. ValDef ->
-        // ValOrDefDef -> Tree) are reachable through the singleton prefix.
-        go(underlying, seen + t)
+        // class/object designator, so ClassType never fires for it. Its direct super
+        // is the declared/resolved type of the underlying value (scalac's `underlying`,
+        // used by SingleType.baseTypeSeq and SingleType.baseType), itself rather than
+        // its supers: `x.type` has base class ValDef, not only ValOrDefDef and Tree.
+        // A chain of singletons (`x: y.type`) is followed here, guarded by `seen`.
+        underlying match {
+          case SingletonUnderlying(_) => go(underlying, seen + t)
+          case _                      => Seq(underlying)
+        }
       case ClassType(c, subst)                     => declaredSuperTypes(c, subst)
       case _                                       => Seq.empty
     }
@@ -318,6 +330,19 @@ object BaseTypes {
         val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
         val s = actualSubst.followed(genericSubst)
         Some((ta, s))
+      case _ => None
+    }
+  }
+
+  /** An abstract type member (a declaration, or a projection whose actual element is one). */
+  private object IsAbstractType {
+    def unapply(tp: ScType): Option[(ScTypeAliasDeclaration, ScSubstitutor)] = tp match {
+      case ScDesignatorType(ta: ScTypeAliasDeclaration)                         => Some((ta, ScSubstitutor.empty))
+      case ScProjectionType.withActual((ta: ScTypeAliasDeclaration, actualSubst)) => Some((ta, actualSubst))
+      case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDeclaration), args) =>
+        Some((ta, ScSubstitutor.bind(ta.typeParameters, args)))
+      case ParameterizedType(ScProjectionType.withActual(ta: ScTypeAliasDeclaration, actualSubst), args) =>
+        Some((ta, actualSubst.followed(ScSubstitutor.bind(ta.typeParameters, args))))
       case _ => None
     }
   }
