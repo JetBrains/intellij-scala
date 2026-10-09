@@ -812,6 +812,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       visitCompoundOrAndType()
       if (result != null) return
 
+      val initialConstraints = constraints
       val isSuccess = c.components.forall(comp => {
         val t = conformsInner(comp, r, HashSet.empty, constraints)
         constraints = t.constraints
@@ -822,7 +823,16 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case (_, sign) => workWithTypeAlias(sign)
       }
 
-      result = if (isSuccess) constraints else ConstraintsResult.Left
+      result =
+        if (isSuccess) constraints
+        else r match {
+          // The member check looks up members of `r` as written, so an alias of `Null` or `Nothing`
+          // (`type M = Null`, then `k.M`) finds none and fails, although `Null` itself conforms to a
+          // refinement of a type admitting null. Retry with the aliased type, as scalac dealiases.
+          case AliasType(_: ScTypeAliasDefinition, Right(aliased), _, effectivelyOpaque) if !effectivelyOpaque =>
+            conformsInner(c, aliased, visited, initialConstraints)
+          case _ => ConstraintsResult.Left
+        }
     }
 
     override def visitProjectionType(proj: ScProjectionType): Unit = {
