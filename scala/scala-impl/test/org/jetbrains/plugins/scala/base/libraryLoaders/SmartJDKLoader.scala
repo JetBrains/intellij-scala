@@ -28,6 +28,14 @@ case class HeavyJDKLoader(languageLevel: LanguageLevel = LanguageLevel.JDK_17) e
   override protected def createSdkInstance(): Sdk = SmartJDKLoader.getOrCreateJDK(languageLevel)
 }
 
+/**
+ * A [[LibraryLoader]] for tests that require a real Java SDK rather than the lightweight mock JDK
+ * used by most fixture tests.
+ *
+ * The loader creates its SDK lazily, attaches it to the test module during [[init]], and removes
+ * that same SDK during [[clean]]. Concrete subclasses select the required SDK: [[InternalJDKLoader]]
+ * uses the IntelliJ Platform runtime, while [[HeavyJDKLoader]] resolves a requested installed JDK.
+ */
 abstract class SmartJDKLoader extends LibraryLoader {
   private lazy val instance: Sdk = createSdkInstance()
 
@@ -44,6 +52,19 @@ abstract class SmartJDKLoader extends LibraryLoader {
   protected def createSdkInstance(): Sdk
 }
 
+/**
+ * Creates real Java SDKs for tests that need a particular JDK version or modules unavailable in
+ * mock JDKs.
+ *
+ * A requested JDK is resolved from explicit CI-provided homes first: TeamCity's
+ * `TC_SBT_TEST_JDK_<major>` and GitHub Actions' `JAVA_HOME_<major>_<architecture>`. It then falls
+ * back to the matching runtime JDK, legacy CI environment variables, and conventional local JDK
+ * directories. The resulting SDK is registered in the application JDK table when requested by
+ * [[getOrCreateJDK]], or kept isolated by [[createJdk]] and [[createFilteredJdk]].
+ *
+ * Most light fixture tests should use mock JDKs for faster setup. This object is for the explicit
+ * cases that need a real JDK's classes, tools, or language level.
+ */
 object SmartJDKLoader {
 
   private val jdkPaths = {
@@ -141,9 +162,12 @@ object SmartJDKLoader {
     val versionMajor = jdkVersion.ordinal().toString
     val versionStrings = Seq(s"1.$versionMajor", s"-$versionMajor", s"jdk$versionMajor")
     val fromTcSbtEnv = sys.env.get(s"TC_SBT_TEST_JDK_$versionMajor")
+    val fromGitHubActions = Seq("X64", "ARM64").view
+      .flatMap(architecture => sys.env.get(s"JAVA_HOME_${versionMajor}_$architecture"))
+      .headOption
     val fromEnv = sys.env.get(jdkVersion.toString).orElse(sys.env.get(s"${jdkVersion}_0"))
     val fromEnv64 = sys.env.get(s"${jdkVersion}_x64").orElse(sys.env.get(s"${jdkVersion}_0_x64")) // teamcity style
-    val priorityPaths = Seq(fromTcSbtEnv, currentJava(versionMajor), fromEnv.orElse(fromEnv64)).flatten.map(Path.of(_))
+    val priorityPaths = Seq(fromTcSbtEnv, fromGitHubActions, currentJava(versionMajor), fromEnv.orElse(fromEnv64)).flatten.map(Path.of(_))
 
     priorityPaths.headOption
       .orElse {
