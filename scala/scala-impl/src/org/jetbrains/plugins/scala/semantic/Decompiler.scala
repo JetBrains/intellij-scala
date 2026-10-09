@@ -28,7 +28,8 @@ object Decompiler {
    */
   def classLoader(parent: ClassLoader): ClassLoader = {
     val compiler = ("org.scala-lang" % "scala3-compiler_3" % CompilerVersion).transitive()
-    val compilerJars = DependencyManager.resolve(compiler).map(_.file)
+    val ScalaLibraryIds = Set("scala3-library_3", "scala-library")
+    val compilerJars = DependencyManager.resolve(compiler).filterNot(d => ScalaLibraryIds(d.info.artId)).map(_.file)
     val jars = compilerJars :+ ScalaPluginJars.semanticDecompiler
     new URLClassLoader(jars.map(_.toUri.toURL).toArray, parent)
   }
