@@ -1,4 +1,7 @@
-name: Nightly Build
+# Scheduled/manual CI for a narrow inspection sanity check on the default branch.
+# Scheduled runs continue only after a commit in the previous 24 hours; manual dispatch always runs.
+# It builds the Community plugin and runs GeneralInspectionSanityTest, not the PR or full test suite.
+name: Nightly Inspection Sanity Check
 
 on:
   schedule:
