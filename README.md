@@ -104,8 +104,15 @@ For example:
 
 ### GitHub Actions build
 
-The project is configured to build and run the typeInference tests and fast tests with Github Actions. \
+GitHub Actions builds the Community sources and runs the typeInference and fast tests. \
 The full test suite isn't run to avoid really long build times.
+
+The pull-request workflow installs JDKs 8, 11, 17, 21, and 25 so tests can
+launch the compatible runtime they need. Its final JDK entry, 25, is the
+`JAVA_HOME` used to run sbt. The nightly workflow also runs sbt on JDK 25.
+Keep these workflow defaults aligned with this project's JDK requirement and
+the Scala plugin TeamCity configuration, which covers the full Community and
+Ultimate build.
 
 ## Common problems
 1. **Error `object BuildInfo is already defined ...` during compilation of the project** \
