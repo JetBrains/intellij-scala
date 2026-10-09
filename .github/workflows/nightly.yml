@@ -32,12 +32,19 @@ jobs:
       JAVA_OPTS: -Xmx8192m -XX:ReservedCodeCacheSize=512m
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
+          # setup-java makes the final entry JAVA_HOME. Keep this runner JDK
+          # in sync with build.yml and the JDK requirement in README.md.
           java-version: |
             21
             25
+      - name: Verify JDK 25 build runtime
+        run: |
+          java -version
+          java_version="$(java -XshowSettings:properties -version 2>&1 | awk '/java.specification.version =/ { print $3 }')"
+          test "$java_version" = "25"
       - uses: sbt/setup-sbt@v1
       - uses: coursier/cache-action@v6
       - name: Compile and package
