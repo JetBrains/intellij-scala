@@ -177,12 +177,12 @@ private[importing] object BspResolverLogic {
 
     val idsGeneratedSources: Map[Seq[BuildTargetIdentifier], Seq[SourceEntry]] = sharedSources.values.toSeq.distinct
       .sortBy(_.size)
-      .foldRight((sharedGeneratedSources.view, Map.empty[Seq[BuildTargetIdentifier], Seq[SourceEntry]])) {
-        case (ids, (sharedGeneratedSources, result)) =>
-          val sharedGeneratedSourcesForIds = sharedGeneratedSources.filterKeys(ids.contains)
+      .foldRight((sharedGeneratedSources, Map.empty[Seq[BuildTargetIdentifier], Seq[SourceEntry]])) {
+        case (ids, (remainingGeneratedSources, result)) =>
+          val generatedSourcesForIds = remainingGeneratedSources.filter { case (id, _) => ids.contains(id) }
           (
-            sharedGeneratedSources.filterKeys(!sharedGeneratedSourcesForIds.keySet.contains(_)),
-            result + (ids.sortBy(_.getUri) -> sharedGeneratedSourcesForIds.values.flatten.toSeq)
+            remainingGeneratedSources -- generatedSourcesForIds.keys,
+            result + (ids.sortBy(_.getUri) -> generatedSourcesForIds.values.flatten.toSeq)
           )
       }._2
 
