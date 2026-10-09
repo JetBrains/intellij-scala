@@ -386,6 +386,18 @@ class ScalaFileImpl(
    */
   private[psi] var incrementModificationCounterOnSubtreeChange = true
 
+  /**
+   * IntelliJ reloads a file's PSI in place when the file changes on disk while it has no Document
+   * (`FileManagerImpl.reloadPsiAfterTextChange`). The old elements become invalid, but `subtreeChanged` isn't
+   * called, so without this `ModTracker.anyScalaPsiChange` stays put and a cache keyed on it whose value mentions
+   * this file's elements (e.g. `ThisTypeSubstitution.canonicalizeTarget`, keyed by a path in another file) keeps
+   * handing out the invalid ones.
+   */
+  override def onContentReload(): Unit = {
+    super.onContentReload()
+    ModTracker.anyScalaPsiChange.incModificationCount()
+  }
+
   override def subtreeChanged(): Unit = {
     if (incrementModificationCounterOnSubtreeChange) {
       ModTracker.anyScalaPsiChange.incModificationCount()
