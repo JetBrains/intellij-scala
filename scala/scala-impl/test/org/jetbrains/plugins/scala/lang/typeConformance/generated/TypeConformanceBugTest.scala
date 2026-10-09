@@ -145,4 +145,52 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
        |${caretMarker}val x: A#T = (??? : b.T)
        |//true
       """.stripMargin)
+
+  // Null conforms to an abstract type only through its lower bound, as in scalac.
+  def testNullDoesNotConformToAbstractTypeBoundedByClass(): Unit = doTest(
+    s"""
+       |class C
+       |trait K { type D <: C }
+       |val k: K = ???
+       |${caretMarker}val x: k.D = null
+       |//false
+      """.stripMargin)
+
+  def testNullConformsToAbstractTypeWithNullLowerBound(): Unit = doTest(
+    s"""
+       |class C
+       |trait K { type F >: Null <: C }
+       |val k: K = ???
+       |${caretMarker}val x: k.F = null
+       |//true
+      """.stripMargin)
+
+  def testNullDoesNotConformToAliasOfNothing(): Unit = doTest(
+    s"""
+       |trait K { type A = Nothing }
+       |val k: K = ???
+       |${caretMarker}val x: k.A = null
+       |//false
+      """.stripMargin)
+
+  def testNullDoesNotConformToCompoundWithAbstractPart(): Unit = doTest(
+    s"""
+       |trait T { type M }
+       |trait K
+       |${caretMarker}val x: K with T#M = null
+       |//false
+      """.stripMargin)
+
+  def testNullConformsToRefinedCompound(): Unit = doTest(
+    s"""
+       |trait K { type N }
+       |${caretMarker}val x: K with String { type N = Int } = null
+       |//true
+      """.stripMargin)
+
+  def testNullDoesNotConformToCompoundWithNothing(): Unit = doTest(
+    s"""
+       |${caretMarker}val x: Nothing with Any = null
+       |//false
+      """.stripMargin)
 }

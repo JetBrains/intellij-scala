@@ -386,12 +386,14 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
        * `new NonemptyAttachments[Pos]`). The same blind spot lived in both this `Null`
        * std-type case and the null-wide [[visitLiteralType]] arm — hence one shared rule.
        */
-      private def admitsNull: Boolean = {
-        val admittedByLowerBound = l match {
-          case AliasType(_, Right(lower), _, effectivelyOpaque) if !effectivelyOpaque => Null.conforms(lower)
-          case _                                                                      => false
-        }
-        admittedByLowerBound || l.conforms(AnyRef) && {
+      private def admitsNull: Boolean = l match {
+        // An abstract type or alias admits null iff its lower bound (for an alias: the aliased type) does,
+        // as in scalac: `type M <: C` doesn't, nor does `type M = Nothing`.
+        case AliasType(_, Right(lower), _, effectivelyOpaque) if !effectivelyOpaque => Null.conforms(lower)
+        // every part must admit null (`K with T#M` doesn't for an abstract `T#M`); refinements don't matter
+        case ScCompoundType(components, _, _) => components.forall(Null.conforms(_))
+        case _ if l.conforms(Nothing) => false
+        case _ => l.conforms(AnyRef) && {
           l.extractDesignated(expandAliases = false) match {
             case Some(el) =>
               !el.elementScope.getCachedClass("scala.NotNull")
