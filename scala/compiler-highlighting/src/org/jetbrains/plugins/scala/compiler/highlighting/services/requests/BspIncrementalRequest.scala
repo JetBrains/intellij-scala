@@ -30,7 +30,7 @@ case class BspIncrementalRequest(
   override protected def doCompile(
     scopes: Map[VirtualFile, FileCompilationScope],
     client: CompilerEventGeneratingClient,
-    docVersions: SerializableMap[CanonicalPath, Long]
+    scopeDocumentVersions: SerializableMap[CanonicalPath, Long]
   ): Unit = 
     val context = new ProjectTaskContext()
     val modules = scopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet.toArray
@@ -54,7 +54,7 @@ case class BspIncrementalRequest(
       compilationFailed(token, scopes, covered)
     }
 
-    if (!DocumentUtil.stillValid(docVersions)) {
+    if (!DocumentUtil.stillValid(scopeDocumentVersions)) {
       Tracing(project).instant(EndEvent(id, "Documents changed during BSP incremental compilation"))
       return
     }

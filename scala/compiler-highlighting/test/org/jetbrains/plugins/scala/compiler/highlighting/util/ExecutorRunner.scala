@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.compiler.highlighting.services.core.runner
+package org.jetbrains.plugins.scala.compiler.highlighting.util
 
 import com.intellij.openapi.Disposable
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.runner.TaskRunner
 
 import java.util.concurrent.ExecutorService
 
