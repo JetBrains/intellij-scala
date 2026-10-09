@@ -193,4 +193,29 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
        |${caretMarker}val x: Nothing with Any = null
        |//false
       """.stripMargin)
+
+  // An alias of Null conforms wherever Null does, including refinements whose members Null lacks.
+  def testAliasOfNullConformsToRefinement(): Unit = doTest(
+    s"""
+       |trait T { type M = Null }
+       |val k: T = ???
+       |${caretMarker}val x: AnyRef { def foo: Int } = (??? : k.M)
+       |//true
+      """.stripMargin)
+
+  def testAliasOfAliasOfNullConformsToTypeRefinement(): Unit = doTest(
+    s"""
+       |trait T { type M = Null; type N = M }
+       |val k: T = ???
+       |${caretMarker}val x: Any { type X = Int } = (??? : k.N)
+       |//true
+      """.stripMargin)
+
+  def testAliasOfStringDoesNotConformToRefinementItLacks(): Unit = doTest(
+    s"""
+       |trait T { type M = String }
+       |val k: T = ???
+       |${caretMarker}val x: AnyRef { def foo: Int } = (??? : k.M)
+       |//false
+      """.stripMargin)
 }
