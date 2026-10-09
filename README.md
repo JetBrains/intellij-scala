@@ -107,6 +107,8 @@ For example:
 The pull-request workflow runs for changes targeting supported release branches. It builds the
 Community sources and runs the JUnit 5 bundle, typechecker, and fast-test tiers. The full test
 suite isn't run to avoid really long build times.
+Maintainers can also dispatch those checks manually for a selected branch; they are not triggered
+by direct pushes.
 
 The nightly inspection-sanity workflow runs daily only after a recent default-branch change, or
 when started manually. It builds the Community sources and runs `GeneralInspectionSanityTest`; it
