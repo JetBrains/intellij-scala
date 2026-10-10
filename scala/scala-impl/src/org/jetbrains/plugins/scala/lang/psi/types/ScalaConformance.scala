@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance._
@@ -27,6 +28,11 @@ import scala.collection.immutable.HashSet
 
 trait ScalaConformance extends api.Conformance with TypeVariableUnification {
   typeSystem: api.TypeSystem =>
+
+  /** The prefix of `p`, with singleton-typed vals collapsed to the paths they denote: for a local or early-defined
+   *  `val universe: self.global.type`, the prefixes of `universe.analyzer.Typer` and `global.analyzer.Typer` are
+   *  the same path, as scalac's prefix comparison follows a val's singleton type. */
+  private def collapsedPrefix(p: ScProjectionType): ScType = ScProjectionType.collapseSingletonPath(p.projected)
 
   override protected def conformsComputable(key: Key,
                                             visited: Set[PsiClass])(implicit context: Context): Supplier[ConstraintsResult] =
@@ -175,8 +181,22 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                 return ConstraintsResult.Left
             case _ =>
               val t = lhs.equiv(rhs, constraints, falseUndef = false)
-              if (t.isLeft) return ConstraintsResult.Left
-              constraints = t.constraints
+              if (t.isRight) constraints = t.constraints
+              else {
+                // scalac checks an invariant argument by mutual `<:<` (Types.isSubArgs),
+                // not `=:=`: `Inv[Cat with Dog] <: Inv[Dog with Cat]` holds although the
+                // two arguments aren't `=:=` (refined-type parents compare in order).
+                // Only for `<:<`, and only where the two can differ: compound arguments.
+                val mutual =
+                  !checkEquivalence && (lhs.is[ScCompoundType] || rhs.is[ScCompoundType]) && {
+                    val lr = conformsInner(lhs, rhs, HashSet.empty, constraints)
+                    lr.isRight && {
+                      val rl = conformsInner(rhs, lhs, HashSet.empty, lr.constraints)
+                      rl.isRight && { constraints = rl.constraints; true }
+                    }
+                  }
+                if (!mutual) return ConstraintsResult.Left
+              }
           }
       }
     }
@@ -355,34 +375,42 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     }
 
     trait NothingNullVisitor extends ScalaTypeVisitor {
+      /**
+       * Whether `null` is a legal value of `l` — i.e. `Null <: l` — for the right-hand
+       * `Null` (and null-wide literal) cases. `null` checks `val x: T = null`: good when
+       * `T` is a reference type (`T <: AnyRef`) not tagged `scala.NotNull`, OR when `T`
+       * is an abstract type/alias whose explicit lower bound already admits null (e.g.
+       * `type Pos >: Null`): `Lo <: T` and `Null <: Lo`, so `Null <: T` — even when `T`'s
+       * upper bound is only `Any` (so `T </: AnyRef`), where the reference-type heuristic
+       * alone spuriously rejects it (SCL-21947: `val x: Pos = null`,
+       * `new NonemptyAttachments[Pos]`). The same blind spot lived in both this `Null`
+       * std-type case and the null-wide [[visitLiteralType]] arm — hence one shared rule.
+       */
+      private def admitsNull: Boolean = l match {
+        // An abstract type or alias admits null iff its lower bound (for an alias: the aliased type) does,
+        // as in scalac: `type M <: C` doesn't, nor does `type M = Nothing`.
+        case AliasType(_, Right(lower), _, effectivelyOpaque) if !effectivelyOpaque => Null.conforms(lower)
+        // every part must admit null (`K with T#M` doesn't for an abstract `T#M`); refinements don't matter
+        case ScCompoundType(components, _, _) => components.forall(Null.conforms(_))
+        case _ if l.conforms(Nothing) => false
+        case _ => l.conforms(AnyRef) && {
+          l.extractDesignated(expandAliases = false) match {
+            case Some(el) =>
+              !el.elementScope.getCachedClass("scala.NotNull")
+                .map(ScDesignatorType(_))
+                .exists(l.conforms(_)) // todo: think about constraints
+            case _ => true
+          }
+        }
+      }
+
       override def visitLiteralType(lt: ScLiteralType): Unit = {
-        if (lt.wideType.eq(Null) && l.conforms(AnyRef)) result = constraints
+        if (lt.wideType.eq(Null) && admitsNull) result = constraints
       }
 
       override def visitStdType(x: StdType): Unit = {
         if (x eq Nothing) result = constraints
-        else if (x eq Null) {
-          /*
-            this case for checking: val x: T = null
-            This is good if T class type: T <: AnyRef and !(T <: NotNull)
-           */
-          if (!l.conforms(AnyRef)) {
-            result = ConstraintsResult.Left
-            return
-          }
-          l.extractDesignated(expandAliases = false) match {
-            case Some(el) =>
-              val flag =
-                el.elementScope.getCachedClass("scala.NotNull")
-                  .map(ScDesignatorType(_))
-                  .exists(l.conforms(_))
-
-              result = // todo: think about constraints
-                if (!flag) constraints
-                else ConstraintsResult.Left
-            case _ => result = constraints
-          }
-        }
+        else if (x eq Null) result = if (admitsNull) constraints else ConstraintsResult.Left
       }
     }
 
@@ -399,7 +427,13 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           return
         }
 
-        result = t.element.getTypeWithProjections() match {
+        // Widen with `thisProjections = true` so a member projected off `this`
+        // keeps a `this`-type prefix (`Symbols.this.Symbol`) rather than a plain
+        // designator (`Symbols#Symbol`). That preserves the prefix's identity, so a
+        // subsequent same-element projection comparison sees the `this`-prefix rather
+        // than a type projection (SCL-21947: matching `Symbol.this.type` against an
+        // inherited `: Self` across the reflect cake).
+        result = t.element.getTypeWithProjections(thisProjections = true) match {
           case Right(value) => conformsInner(l, value, visited, constraints, checkWeak)
           case _            => ConstraintsResult.Left
         }
@@ -548,9 +582,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           case _ =>
             l match {
               case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
-                val projected1 = proj1.projected
-                val projected2 = proj2.projected
-                result = conformsInner(projected1, projected2, visited, constraints)
+                result = conformsInner(collapsedPrefix(proj1), collapsedPrefix(proj2), visited, constraints)
               case _ =>
                 val res = proj2.actualElement match {
                   case syntheticClass: ScSyntheticClass =>
@@ -766,12 +798,12 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       }
 
       def workWithTypeAlias(sign: TypeAliasSignature): Boolean = {
-        val singletonSubst = r match {
-          case ScDesignatorType(_: ScParameter | _: ScFieldId | _: ScBindingPattern) => ScSubstitutor(r)
-          case _                                                                     => ScSubstitutor.empty
+        val singletonPrefix = r match {
+          case ScDesignatorType(_: ScParameter | _: ScFieldId | _: ScBindingPattern) => Some(r)
+          case _                                                                     => None
         }
 
-        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, constraints, singletonSubst)
+        val processor = new CompoundTypeCheckTypeAliasProcessor(sign, constraints, singletonPrefix)
         processor.processType(r, sign.typeAlias)
         constraints = processor.getConstraints
         processor.getResult
@@ -780,6 +812,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       visitCompoundOrAndType()
       if (result != null) return
 
+      val initialConstraints = constraints
       val isSuccess = c.components.forall(comp => {
         val t = conformsInner(comp, r, HashSet.empty, constraints)
         constraints = t.constraints
@@ -790,7 +823,16 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case (_, sign) => workWithTypeAlias(sign)
       }
 
-      result = if (isSuccess) constraints else ConstraintsResult.Left
+      result =
+        if (isSuccess) constraints
+        else r match {
+          // The member check looks up members of `r` as written, so an alias of `Null` or `Nothing`
+          // (`type M = Null`, then `k.M`) finds none and fails, although `Null` itself conforms to a
+          // refinement of a type admitting null. Retry with the aliased type, as scalac dealiases.
+          case AliasType(_: ScTypeAliasDefinition, Right(aliased), _, effectivelyOpaque) if !effectivelyOpaque =>
+            conformsInner(c, aliased, visited, initialConstraints)
+          case _ => ConstraintsResult.Left
+        }
     }
 
     override def visitProjectionType(proj: ScProjectionType): Unit = {
@@ -831,14 +873,15 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
       r match {
         case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj.actualElement) =>
-          val projected1 = proj.projected
-          val projected2 = proj1.projected
-          result = conformsInner(projected1, projected2, visited, constraints)
+          result = conformsInner(collapsedPrefix(proj), collapsedPrefix(proj1), visited, constraints)
           if (result != null) return
-        case proj1: ScProjectionType if proj1.actualElement.name == proj.actualElement.name =>
-          val projected1 = proj.projected
-          val projected2 = proj1.projected
-          val t = conformsInner(projected1, projected2, visited, constraints)
+        // `proj1 <: proj` for a member of the same name: a class implementing an abstract type (`B#A <: A#A`
+        // for `class A` in `B extends A`, where A declares `type A`). Not when `proj1`'s member is an alias:
+        // scalac dealiases it first, so `K#M` with `type M = Any` from an unrelated mixin doesn't conform to
+        // `T#M` for an abstract `T#M`.
+        case proj1: ScProjectionType
+          if proj1.actualElement.name == proj.actualElement.name && !proj1.actualElement.is[ScTypeAliasDefinition] =>
+          val t = conformsInner(collapsedPrefix(proj), collapsedPrefix(proj1), visited, constraints)
           if (t.isRight) {
             result = t
             return
@@ -1363,10 +1406,47 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      result = t.element.getTypeWithProjections() match {
-        case Right(value) => conformsInner(value, r, visited, constraints, checkWeak)
+      // `C.this.type` denotes a single instance, so it must not be widened to `C` here: that would
+      // accept any `C` (`(this: C)`, another instance `other: C`) as a `C.this.type`. Besides the same
+      // this-type (`checkEquiv` above), only a singleton whose underlying type reaches `C.this.type`
+      // (`val x: C.this.type`, then `x.type`), the designator of the very same object (`O.this.type`
+      // and `O.type` denote one instance) or an intersection with such a component conforms.
+      result = r match {
+        case des: DesignatorOwner if des.element.is[ScObject] =>
+          val obj = des.element.asInstanceOf[ScObject]
+          if (!areClassesEquivalent(obj, t.element)) ConstraintsResult.Left
+          else des match {
+            // A member object `pre.O` is the instance `O.this` only when `pre` is the instance `O` is a
+            // member of: inside `class A { object O }`, `A.this.O` is, but `other.O` for `other: A` is not.
+            case ScProjectionType(pre, _) => obj.containingClass match {
+              case outer: ScTemplateDefinition => conformsToThisOf(outer, pre)
+              case _                           => constraints
+            }
+            case _ => constraints
+          }
+        case des: DesignatorOwner if des.isSingleton =>
+          des.extractDesignatorSingleton match {
+            case Some(underlying) => conformsInner(l, underlying, visited, constraints, checkWeak)
+            case None             => ConstraintsResult.Left
+          }
+        case ScCompoundType(components, _, _) =>
+          components.iterator
+            .map(conformsInner(l, _, visited, constraints, checkWeak))
+            .find(_.isRight)
+            .getOrElse(ConstraintsResult.Left)
+        case ScAndType(lhs, rhs) =>
+          val lhsResult = conformsInner(l, lhs, visited, constraints, checkWeak)
+          if (lhsResult.isRight) lhsResult else conformsInner(l, rhs, visited, constraints, checkWeak)
         case _ => ConstraintsResult.Left
       }
+    }
+
+    /** Whether the prefix `pre` denotes the instance `outer.this`. A this-type of a subclass of `outer`
+     *  qualifies too: IntelliJ may spell a cake's this-type after the self type (`SymbolTable.this`
+     *  inside `trait Definitions { self: SymbolTable => }`), and both denote the same instance there. */
+    private def conformsToThisOf(outer: ScTemplateDefinition, pre: ScType): ConstraintsResult = pre match {
+      case ScThisType(c) if areClassesEquivalent(c, outer) || c.isInheritor(outer, true) => constraints
+      case _ => conformsInner(ScThisType(outer), pre, visited, constraints, checkWeak)
     }
 
     override def visitDesignatorType(des: ScDesignatorType): Unit = {

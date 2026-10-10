@@ -27,6 +27,78 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13 // Literal types
 
+  // scalac: "an expression of type Null is ineligible for implicit conversion", so `null` is not
+  // adapted to `Int` via `Predef.Integer2int` (`Null <: java.lang.Integer`)
+  def testNullIneligibleForImplicitConversion(): Unit = assertMatches(errorsFromScalaCode(
+    """object Test {
+      |  val i: Int = null
+      |}
+      |""".stripMargin
+  )) {
+    case Error("null", "Expression of type Null doesn't conform to expected type Int") :: Nil =>
+  }
+
+  // scalac selects `x.put` through the base type of `x` at `I`, which merges all three
+  // applications to `I[_1] forSome { type _1 >: Bird with Cat with Dog <: Animal }`: an argument
+  // must have all three types
+  def testMemberOfCompoundWithThreeInvariantApplications(): Unit = assertMatches(errorsFromScalaCode(
+    """trait Animal; trait Dog extends Animal; trait Cat extends Animal; trait Bird extends Animal
+      |trait I[T] { def get: T; def put(t: T): Unit }
+      |object Test {
+      |  def f(x: I[Dog] with I[Cat] with I[Bird], all: Dog with Cat with Bird, two: Dog with Cat): Unit = {
+      |    val a: Animal = x.get
+      |    x.put(all)
+      |    x.put(two)
+      |  }
+      |}
+      |""".stripMargin
+  )) {
+    case Error("two", _) :: Nil =>
+  }
+
+  // SLS 6.5: `this` as the receiver of an operator is the prefix of a selection, so it is a `C.this.type`
+  // (scala/scala `Trees.clearType`, `Symbols.makePublic`)
+  def testThisAsOperatorReceiverIsThisType(): Unit = assertMatches(errorsFromScalaCode(
+    """abstract class Tree {
+      |  def setType(tp: Int): this.type = this
+      |  def resetFlag(f: Long): this.type = this
+      |  def clearType(): this.type = this setType 0
+      |  def makePublic: this.type = this setType 0 resetFlag 1L
+      |}
+      |""".stripMargin
+  )) {
+    case Nil =>
+  }
+
+  // A stable argument stands for its singleton type in a dependent result type (scala/scala
+  // `Trees.changeOwner`: `ChangeOwnerTraverser.apply[T <: Tree](tree: T): tree.type`)
+  def testThisArgumentOfDependentMethod(): Unit = assertMatches(errorsFromScalaCode(
+    """abstract class Tree {
+      |  def changeOwner(): this.type = new Traverser().apply(this)
+      |}
+      |class Traverser { def apply[T <: Tree](tree: T): tree.type = tree }
+      |""".stripMargin
+  )) {
+    case Nil =>
+  }
+
+  // A stable path argument stands for its singleton type in a dependent result, also when the method is
+  // overloaded (scala/scala `macros.Universe.MacroTreeDecoratorApi.updateAttachment`)
+  def testStablePathArgumentOfOverloadedDependentMethod(): Unit = assertMatches(errorsFromScalaCode(
+    """|class Tree
+      |class Symbol
+      |trait Internal {
+      |  def updateAttachment(tree: Tree, attachment: Any): tree.type
+      |  def updateAttachment(symbol: Symbol, attachment: Any): symbol.type
+      |}
+      |class Decorator[T <: Tree](val tree: T, internal: Internal) {
+      |  def updateAttachment(attachment: Any): tree.type = internal.updateAttachment(tree, attachment)
+      |}
+      |""".stripMargin
+  )) {
+    case Nil =>
+  }
+
   // Type ascription, SCL-15544
 
   // SCL-15544
@@ -329,6 +401,11 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
 
   def testTypeMismatchUnappliedEtaExpansion(): Unit = assertErrorsWithHints(
     "def f(i: Int)(s: String): Unit = (); val v = f(1) _")
+
+  // A SAM expected type eta-expands the remaining argument list, as a function type does (scala/scala's
+  // `solvedTypes(tvars, tparams, varianceInType(tp), ...)`, with a `Variance.Extractor[Symbol]` parameter).
+  def testTypeMismatchUnappliedCurryingSamExpected(): Unit = assertErrorsWithHints(
+    "trait Extractor[A] { def apply(x: A): Int }; def f(i: Int, b: Boolean = false)(s: String): Int = 1; def solve(e: Extractor[String]): Unit = (); solve(f(1))")
 
   def testTypeMismatchUnappliedImplicit(): Unit = assertErrorsWithHints(
     "def f(i: Int)(implicit s: String): Int = 1; implicit val s = \"\"; val v: String = f(2)",

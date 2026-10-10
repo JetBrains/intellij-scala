@@ -1,0 +1,73 @@
+{
+  "conformance": [
+    {
+      "lhs": "Dog",
+      "rhs": "Mammal",
+      "holds": true
+    },
+    {
+      "lhs": "Dog",
+      "rhs": "Animal",
+      "holds": true
+    },
+    {
+      "lhs": "Mammal",
+      "rhs": "Animal",
+      "holds": true
+    },
+    {
+      "lhs": "Animal",
+      "rhs": "Dog",
+      "holds": false
+    },
+    {
+      "lhs": "Dog",
+      "rhs": "Cat",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {
+    "Dog": [
+      "Dog",
+      "Mammal",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Cat": [
+      "Cat",
+      "Mammal",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Mammal": [
+      "Mammal",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "Dog": [
+      "Dog",
+      "Mammal",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Cat": [
+      "Cat",
+      "Mammal",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Mammal": [
+      "Mammal",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  }
+}

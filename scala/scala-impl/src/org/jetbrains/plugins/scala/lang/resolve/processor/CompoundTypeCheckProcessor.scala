@@ -155,10 +155,14 @@ class CompoundTypeCheckSignatureProcessor(s: TermSignature,
   }
 }
 
+/**
+ * @param singletonPrefix the singleton type checked against the refinement (`f.type <: Foo { type Bar = f.Bar }`):
+ *                        each member found is seen from it, from its own owner (scalac's `pre.memberType(sym)`).
+ */
 class CompoundTypeCheckTypeAliasProcessor(
-  sign:        TypeAliasSignature,
-  constraints: ConstraintSystem,
-  substitutor: ScSubstitutor
+  sign:            TypeAliasSignature,
+  constraints:     ConstraintSystem,
+  singletonPrefix: Option[ScType]
 ) extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(using sign.typeAlias.projectContext) {
   private val name = sign.name
 
@@ -175,8 +179,10 @@ class CompoundTypeCheckTypeAliasProcessor(
                                 (implicit state: ResolveState): Boolean = {
     implicit val context: Context = Context(namedElement)
 
-    val subst = state.substitutor.followed(substitutor)
     if (namedElement.name != name) return true
+    val subst = state.substitutor.followed(
+      singletonPrefix.fold(ScSubstitutor.empty)(ScSubstitutor(_, ScSubstitutor.declarationAnchor(namedElement)))
+    )
 
     var undef = constraints
 

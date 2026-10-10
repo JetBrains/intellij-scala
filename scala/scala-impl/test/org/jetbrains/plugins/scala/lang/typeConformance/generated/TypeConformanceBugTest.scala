@@ -123,4 +123,99 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
         |//True
       """.stripMargin)
   }
+
+  // An alias from an unrelated mixin is not the abstract member of the same name: scalac dealiases `K#M` to `Any`.
+  def testMixedInAliasDoesNotConformToAbstractMemberOfSameName(): Unit = doTest(
+    s"""
+       |trait T0 { type M }
+       |trait T1 extends T0
+       |trait T2 { type M = Any }
+       |trait K extends T1 with T2
+       |val k: K = ???
+       |${caretMarker}val x: T1#M = (??? : k.M)
+       |//false
+      """.stripMargin)
+
+  // A class implementing an abstract type member of the same name does conform to it.
+  def testClassImplementingAbstractTypeConformsToIt(): Unit = doTest(
+    s"""
+       |class A { type T <: S; class S }
+       |class B extends A { class T extends S }
+       |val b = new B
+       |${caretMarker}val x: A#T = (??? : b.T)
+       |//true
+      """.stripMargin)
+
+  // Null conforms to an abstract type only through its lower bound, as in scalac.
+  def testNullDoesNotConformToAbstractTypeBoundedByClass(): Unit = doTest(
+    s"""
+       |class C
+       |trait K { type D <: C }
+       |val k: K = ???
+       |${caretMarker}val x: k.D = null
+       |//false
+      """.stripMargin)
+
+  def testNullConformsToAbstractTypeWithNullLowerBound(): Unit = doTest(
+    s"""
+       |class C
+       |trait K { type F >: Null <: C }
+       |val k: K = ???
+       |${caretMarker}val x: k.F = null
+       |//true
+      """.stripMargin)
+
+  def testNullDoesNotConformToAliasOfNothing(): Unit = doTest(
+    s"""
+       |trait K { type A = Nothing }
+       |val k: K = ???
+       |${caretMarker}val x: k.A = null
+       |//false
+      """.stripMargin)
+
+  def testNullDoesNotConformToCompoundWithAbstractPart(): Unit = doTest(
+    s"""
+       |trait T { type M }
+       |trait K
+       |${caretMarker}val x: K with T#M = null
+       |//false
+      """.stripMargin)
+
+  def testNullConformsToRefinedCompound(): Unit = doTest(
+    s"""
+       |trait K { type N }
+       |${caretMarker}val x: K with String { type N = Int } = null
+       |//true
+      """.stripMargin)
+
+  def testNullDoesNotConformToCompoundWithNothing(): Unit = doTest(
+    s"""
+       |${caretMarker}val x: Nothing with Any = null
+       |//false
+      """.stripMargin)
+
+  // An alias of Null conforms wherever Null does, including refinements whose members Null lacks.
+  def testAliasOfNullConformsToRefinement(): Unit = doTest(
+    s"""
+       |trait T { type M = Null }
+       |val k: T = ???
+       |${caretMarker}val x: AnyRef { def foo: Int } = (??? : k.M)
+       |//true
+      """.stripMargin)
+
+  def testAliasOfAliasOfNullConformsToTypeRefinement(): Unit = doTest(
+    s"""
+       |trait T { type M = Null; type N = M }
+       |val k: T = ???
+       |${caretMarker}val x: Any { type X = Int } = (??? : k.N)
+       |//true
+      """.stripMargin)
+
+  def testAliasOfStringDoesNotConformToRefinementItLacks(): Unit = doTest(
+    s"""
+       |trait T { type M = String }
+       |val k: T = ???
+       |${caretMarker}val x: AnyRef { def foo: Int } = (??? : k.M)
+       |//false
+      """.stripMargin)
 }

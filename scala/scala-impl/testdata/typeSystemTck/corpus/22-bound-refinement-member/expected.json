@@ -1,0 +1,19 @@
+{
+  "conformance": [
+    {
+      "lhs": "BooleanSetting",
+      "rhs": "BooleanSetting1",
+      "holds": false
+    },
+    {
+      "lhs": "BooleanSetting1",
+      "rhs": "BooleanSetting",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "valViaBound": "scala.Boolean",
+    "valViaCompound": "scala.Boolean"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "description": "Invariant same-class merge in a compound type (SPEC-GAPS §3): I[Dog] with I[Cat] has an existential base type I, x.get is Animal, pick(x) infers Dog.",
+  "concepts": ["base-type-merge", "invariant", "existential", "compound-type"],
+  "types": [
+    { "name": "IDogCat", "expr": "I[Dog] with I[Cat]" },
+    { "name": "IDog", "expr": "I[Dog]" }
+  ],
+  "conformance": [
+    { "lhs": "IDogCat", "rhs": "IDog", "expect": true }
+  ],
+  "baseTypeSeq": ["IDogCat"],
+  "termTypes": [
+    { "name": "xGet", "expr": "x.get", "anchor": "inUse" },
+    { "name": "pickX", "expr": "pick(x)", "anchor": "inUse" }
+  ],
+  "baseTypes": [
+    { "name": "IDogCatAtI", "prefix": "IDogCat", "clazz": "IDog" }
+  ]
+}

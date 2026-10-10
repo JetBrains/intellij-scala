@@ -20,13 +20,13 @@ object ScOverriddenVarAnnotator extends ElementAnnotator[ScTypedDefinition] {
         None
       case p: ScClassParameter if p.isVar =>
         val supers = superValsSignatures(elem, withSelfType = true).map { s => s.namedElement.nameContext }
-        if (supers.exists(!isAbstract(_)))
+        if (supers.exists(overridesConcreteField))
           Some(ScalaBundle.message("var.cannot.be.overridden"))
         else
           None
       case _: ScVariable =>
         val supers = superValsSignatures(elem, withSelfType = true).map { s => s.namedElement.nameContext }
-        if (supers.exists(!isAbstract(_)))
+        if (supers.exists(overridesConcreteField))
           Some(ScalaBundle.message("var.cannot.be.overridden"))
         else
           None
@@ -65,6 +65,11 @@ object ScOverriddenVarAnnotator extends ElementAnnotator[ScTypedDefinition] {
       case v: ScVariable if !v.isAbstract =>
         ScalaBundle.message("var.cannot.be.overridden")
     }
+
+  // A var's getter and setter may override a concrete `def x` / `def x_=` pair, as scalac 2 allows
+  // (`override var symbol: Symbol` in scala/scala's `Trees.SymTree`); a concrete val or var may not.
+  private def overridesConcreteField(superMember: PsiElement): Boolean =
+    !isAbstract(superMember) && !superMember.isInstanceOf[ScFunction]
 
   private def isVar(elem: PsiElement): Boolean =
     elem match {

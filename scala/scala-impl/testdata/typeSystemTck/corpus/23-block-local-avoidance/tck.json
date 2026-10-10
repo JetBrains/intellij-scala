@@ -1,0 +1,10 @@
+{
+  "description": "Type avoidance: a block-local val's singleton type must not escape the enclosing definition's inferred type. `{ val X: Tree = null; X.thisTree }` has result-expr type `X.type` (from `thisTree: this.type`), but `X` is local to the block, so scalac's `packedType` widens it to `Tree`. The term probe pins `Tree`.",
+  "concepts": ["type-avoidance", "packedType", "singleton", "block", "this.type"],
+  "types": [],
+  "conformance": [],
+  "termTypes": [
+    { "name": "blockLocal", "expr": "{ val X: Tree = null; X.thisTree }", "anchor": "top" }
+  ],
+  "baseTypeSeq": []
+}

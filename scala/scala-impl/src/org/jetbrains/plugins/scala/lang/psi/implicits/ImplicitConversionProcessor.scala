@@ -39,7 +39,7 @@ final class ImplicitConversionProcessor(
   )(implicit
     state: ResolveState
   ): Unit = {
-    val subst: ScSubstitutor = state.substitutorWithThisType
+    val subst: ScSubstitutor = state.substitutorWithThisType(ScSubstitutor.declarationAnchor(namedElement))
     val elemType             = subst(namedElement.`type`().getOrAny)
 
     if (functionType.exists(elemType.conforms(_))) {
@@ -60,7 +60,7 @@ final class ImplicitConversionProcessor(
       addResult(
         new ScalaResolveResult(
           function,
-          state.substitutorWithThisType,
+          state.substitutorWithThisType(ScSubstitutor.declarationAnchor(function)),
           state.importsUsed,
           fromType          = state.fromType,
           implicitScopeType = state.implicitScopeType

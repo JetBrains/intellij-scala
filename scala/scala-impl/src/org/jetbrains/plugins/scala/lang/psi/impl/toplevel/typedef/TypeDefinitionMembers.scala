@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, NamedTupleType, ParameterizedType, StdType, TupleType, TypeParameterType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
@@ -334,9 +336,29 @@ object TypeDefinitionMembers {
     val processOnlyStable   = ProcessorUtils.shouldProcessOnlyStable(processor)
     val isImplicitProcessor = BaseProcessor.isImplicitProcessor(processor)
 
+    // Resolving on `C.this` through `C`'s self type (`BaseProcessor.processTypeImpl`): a member that `C`
+    // itself has is seen from `C.this`, as scalac's `asSeenFrom(C.this, owner)`, not from the self type it
+    // was found through. E.g. inside `trait Z { self: nme.type => }`, `Z`'s own members must not pick up
+    // `nme`'s view of `Z`'s enclosing this-types (SCL-7008: `NM.this.Name`, not `SN.this.Name`).
+    val selfTypeOwner: PsiClass = state.compoundOrThisType match {
+      case Some(ScThisType(c)) => c
+      case _                   => null
+    }
+
+    def seenFromSelfTypeOwner(signature: Signature): ScSubstitutor =
+      if (selfTypeOwner == null) signature.substitutor
+      else {
+        val own = signature match {
+          case _: TermSignature => getSignatures(selfTypeOwner).forName(signature.name).findNode(signature.namedElement)
+          case _: TypeSignature => getTypes(selfTypeOwner).forName(signature.name).findNode(signature.namedElement)
+          case _                => None
+        }
+        own.fold(signature.substitutor)(_.info.substitutor)
+      }
+
     def process(signature: Signature): Boolean =
       if (signature.namedElement.isValid) {
-        val withSubst                 = state.withSubstitutor(signature.substitutor.followed(subst))
+        val withSubst                 = state.withSubstitutor(seenFromSelfTypeOwner(signature).followed(subst))
         val withRenamed               = withSubst.withRename(signature.renamed)
         val intersectedReturnType     = signature.asOptionOf[TermSignature].flatMap(_.intersectedReturnType)
         val withIntersectedReturnType = intersectedReturnType.fold(withRenamed)(withRenamed.withIntersectedReturnType)

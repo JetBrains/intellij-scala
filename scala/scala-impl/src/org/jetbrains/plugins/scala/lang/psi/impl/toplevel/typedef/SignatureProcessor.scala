@@ -143,7 +143,7 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
         if (extensionContext.nonEmpty) true
         else {
           val accesible    = isAccessible(namedElement, place)
-          val updatedSubst = state.substitutorWithThisType.followed(subst)
+          val updatedSubst = state.substitutorWithThisType(ScSubstitutor.declarationAnchor(namedElement)).followed(subst)
           val exportedInfo = ExportedSigInfo(owner, state.fromType)
 
           if (accesible) {
@@ -228,7 +228,7 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
         val extensionSignature = extensionContext.map(ext => ExtensionSignatureInfo(ext, ext.typeParameters, ext.allClauses))
         val accesible          = isAccessible(namedElement, place)
         val renamed            = state.renamed
-        val updatedSubst       = state.substitutorWithThisType.followed(subst)
+        val updatedSubst       = state.substitutorWithThisType(ScSubstitutor.declarationAnchor(namedElement)).followed(subst)
         val exportedInfo       = ExportedSigInfo(owner, state.fromType)
 
         if (accesible) {

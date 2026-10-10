@@ -1,0 +1,48 @@
+{
+  "description": "Cake equivalence soundness: Global.this is not an arbitrary `other: Global`; Api.this and Universe.this are distinct singletons even though Api's self type is Universe.",
+  "concepts": ["this-type", "path-dependent", "self-type", "cake", "equivalence", "soundness"],
+  "types": [
+    { "name": "GlobalThis", "expr": "this.type", "anchor": "inGlobal" },
+    { "name": "GlobalThisTree", "expr": "this.Tree", "anchor": "inGlobal" },
+    { "name": "OtherType", "expr": "other.type", "anchor": "inGlobal" },
+    { "name": "OtherTree", "expr": "other.Tree", "anchor": "inGlobal" },
+    { "name": "SameType", "expr": "same.type", "anchor": "inGlobal" },
+    { "name": "SameTree", "expr": "same.Tree", "anchor": "inGlobal" },
+    { "name": "OTree", "expr": "o.Tree", "anchor": "inProbe" },
+    { "name": "PTree", "expr": "p.Tree", "anchor": "inProbe" },
+    { "name": "OOtherTree", "expr": "o.other.Tree", "anchor": "inProbe" },
+    { "name": "ApiThis", "expr": "this.type", "anchor": "inApi" },
+    { "name": "ApiThisT", "expr": "this.T", "anchor": "inApi" },
+    { "name": "UniverseThis", "expr": "this.type", "anchor": "inUniverse" },
+    { "name": "UniverseThisT", "expr": "this.T", "anchor": "inUniverse" }
+  ],
+  "conformance": [
+    { "lhs": "OtherType", "rhs": "GlobalThis", "expect": false },
+    { "lhs": "GlobalThis", "rhs": "OtherType", "expect": false },
+    { "lhs": "OtherTree", "rhs": "GlobalThisTree", "expect": false },
+    { "lhs": "GlobalThisTree", "rhs": "OtherTree", "expect": false },
+    { "lhs": "SameType", "rhs": "GlobalThis", "expect": true },
+    { "lhs": "SameTree", "rhs": "GlobalThisTree", "expect": true },
+    { "lhs": "GlobalThisTree", "rhs": "SameTree", "expect": true },
+    { "lhs": "OTree", "rhs": "PTree", "expect": false },
+    { "lhs": "OOtherTree", "rhs": "OTree", "expect": false },
+    { "lhs": "ApiThisT", "rhs": "UniverseThisT", "expect": false },
+    { "lhs": "UniverseThisT", "rhs": "ApiThisT", "expect": false },
+    { "lhs": "UniverseThis", "rhs": "ApiThis", "expect": false }
+  ],
+  "equivalence": [
+    { "lhs": "OtherType", "rhs": "GlobalThis", "expect": false },
+    { "lhs": "GlobalThis", "rhs": "OtherType", "expect": false },
+    { "lhs": "OtherTree", "rhs": "GlobalThisTree", "expect": false },
+    { "lhs": "GlobalThisTree", "rhs": "OtherTree", "expect": false },
+    { "lhs": "SameType", "rhs": "GlobalThis", "expect": true },
+    { "lhs": "SameTree", "rhs": "GlobalThisTree", "expect": true },
+    { "lhs": "OTree", "rhs": "PTree", "expect": false },
+    { "lhs": "OOtherTree", "rhs": "OTree", "expect": false },
+    { "lhs": "ApiThis", "rhs": "UniverseThis", "expect": false },
+    { "lhs": "UniverseThis", "rhs": "ApiThis", "expect": false },
+    { "lhs": "ApiThisT", "rhs": "UniverseThisT", "expect": false },
+    { "lhs": "UniverseThisT", "rhs": "ApiThisT", "expect": false }
+  ],
+  "baseTypeSeq": []
+}

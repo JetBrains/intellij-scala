@@ -47,8 +47,8 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     val prefixType = element.typeElement.getTypeNoConstructor.toOption
 
     val projSubstitutor = element.typeElement.`type`().toOption match {
-      case Some(p @ ScProjectionType(proj, _))                       => ScSubstitutor(proj).followed(p.actualSubst)
-      case Some(ParameterizedType(p @ ScProjectionType(proj, _), _)) => ScSubstitutor(proj).followed(p.actualSubst)
+      case Some(p @ ScProjectionType(proj, _))                       => ScSubstitutor(proj, ScSubstitutor.declarationAnchor(p.element)).followed(p.actualSubst)
+      case Some(ParameterizedType(p @ ScProjectionType(proj, _), _)) => ScSubstitutor(proj, ScSubstitutor.declarationAnchor(p.element)).followed(p.actualSubst)
       case _                                                         => ScSubstitutor.empty
     }
 

@@ -1,0 +1,50 @@
+{
+  "conformance": [
+    {
+      "lhs": "Num",
+      "rhs": "OrdNum",
+      "holds": true
+    },
+    {
+      "lhs": "Num",
+      "rhs": "OrdStr",
+      "holds": false
+    },
+    {
+      "lhs": "Str",
+      "rhs": "OrdStr",
+      "holds": true
+    },
+    {
+      "lhs": "OrdNum",
+      "rhs": "OrdStr",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {
+    "Num": [
+      "Num",
+      "Ord[Num]",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "OrdNum": [
+      "Ord[Num]",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "Num": [
+      "Num",
+      "Ord",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "OrdNum": [
+      "Ord",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  }
+}
