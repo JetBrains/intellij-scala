@@ -319,7 +319,7 @@ class NewScalaCliProjectWizard_ScalaWithScalaCLI extends NewScalaCliProjectWizar
       else true
 
     val expectedSemanticDbVersion = scalaVersion match {
-      case ScalaVersion.Latest.Scala_3_9 => "0.12.3"
+      case ScalaVersion.Latest.Scala_3_9 | ScalaVersion.Latest.Scala_3_10 => "0.12.3"
       case _ => "0.10.0"
     }
 
