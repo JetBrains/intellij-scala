@@ -155,6 +155,10 @@ class LocationsOfLineTest_3_9 extends LocationsOfLineTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
 }
 
+class LocationsOfLineTest_3_10 extends LocationsOfLineTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_10
+}
+
 class LocationsOfLineTest_3_RC extends LocationsOfLineTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }

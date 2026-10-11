@@ -107,11 +107,15 @@ class StepOverTest_3_9 extends StepOverTest_3 {
   }
 }
 
+class StepOverTest_3_10 extends StepOverTest_3_9 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_10
+}
+
 class StepOverTest_3_RC extends StepOverTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
-class StepOverTest_3_Next_RC extends StepOverTest_3_9 {
+class StepOverTest_3_Next_RC extends StepOverTest_3_10 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
 }
 

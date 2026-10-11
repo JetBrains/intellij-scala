@@ -21,6 +21,8 @@ class SimpleRendererTest_3_8 extends SimpleRendererTestBase(ScalaVersion.Latest.
 
 class SimpleRendererTest_3_9 extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_3_9)
 
+class SimpleRendererTest_3_10 extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_3_10)
+
 class SimpleRendererTest_3_LTS_RC extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_3_LTS_RC)
 
 class SimpleRendererTest_3_Next_RC extends SimpleRendererTestBase(ScalaVersion.Latest.Scala_3_Next_RC)
