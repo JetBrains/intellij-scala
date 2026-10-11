@@ -15,13 +15,14 @@
  */
 
 package org.scalatest.finders
+package scalatest_3_2
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
 class FlatSpecFinderSuite extends FinderSuite {
 
   test("FlatSpecFinder should find test name for tests written in test suite that extends org.scalatest.FlatSpec, using behavior of way and 'should'.") {
-    class TestingFlatSpec1 extends FlatSpec {
+    class TestingFlatSpec1 extends AnyFlatSpec {
       behavior of "A Stack"
 
       it should "pop values in last-in-first-out order" in { 
@@ -94,7 +95,7 @@ class FlatSpecFinderSuite extends FinderSuite {
   }
   
   test("FlatSpecFinder should find test name for tests written in test suite that extends org.scalatest.FlatSpec, using behavior of way and 'must'.") {
-    class TestingFlatSpec1 extends FlatSpec {
+    class TestingFlatSpec1 extends AnyFlatSpec {
       behavior of "A Stack"
 
       it must "pop values in last-in-first-out order" in { 
@@ -167,7 +168,7 @@ class FlatSpecFinderSuite extends FinderSuite {
   }
   
   test("FlatSpecFinder should find test name for tests written in test suite that extends org.scalatest.FlatSpec, using short-hand way and 'should'") {
-    class TestingFlatSpec2 extends FlatSpec {
+    class TestingFlatSpec2 extends AnyFlatSpec {
       "A Stack" should "pop values in last-in-first-out order" in { 
         println("nested")
       }
@@ -229,7 +230,7 @@ class FlatSpecFinderSuite extends FinderSuite {
   }
   
   test("FlatSpecFinder should find test name for tests written in test suite that extends org.scalatest.FlatSpec, using short-hand way and 'must'") {
-    class TestingFlatSpec2 extends FlatSpec {
+    class TestingFlatSpec2 extends AnyFlatSpec {
       "A Stack" must "pop values in last-in-first-out order" in { 
         println("nested")
       }

@@ -13,36 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.scalatest.finders
+package scalatest_3_0
 
-import org.scalatest.FunSpec
+import org.scalatest.Spec
 
-class FunSpecFinderSuite extends FinderSuite {
-  
-  test("FunSpecFinder should find test name for tests written in test suite that extends org.scalatest.Spec") {
-    
-    class TestingSpec extends FunSpec {
-      describe("A Stack") {
-        describe("whenever it is empty") {
+import scala.annotation.nowarn
+
+@nowarn("cat=deprecation")
+class SpecFinderSuite extends FinderSuite {
+
+  test("SpecFinder should find test name for tests written in test suite that extends org.scalatest.Spec") {
+    class TestingSpec extends Spec {
+      object `A Stack` {
+        object `whenever it is empty` {
           println("nested -")
-          describe("certainly ought to") {
-            it("be empty") {
+          object `certainly ought to` {
+            def `be empty`() {
         
             }
-            it("complain on peek") {
+            def `complain on peek`() {
               println("in nested")
             }
-            it("complain on pop") {
+            def `complain on pop`() {
           
             }
           }
         }
-        describe("but when full, by contrast, must") {
-          it("be full") {
+        object `but when full, by contrast, must` {
+          def `be full`() {
             
           }
-          it("complain on push") {
+          def `complain on push`() {
           
           }
         }
@@ -51,26 +53,32 @@ class FunSpecFinderSuite extends FinderSuite {
     
     val suiteClass = classOf[TestingSpec]
     val finders = LocationUtils.getFinders(suiteClass)
-    assert(finders.size == 1, "org.scalatest.FunSpec should have 1 finder, but we got: " + finders.size)
+    assert(finders.size == 1, "org.scalatest.Spec should have 1 finder, but we got: " + finders.size)
     val finder = finders.get(0)
-    assert(finder.getClass == classOf[FunSpecFinder], "Suite that uses org.scalatest.FunSpec should use FunSpecFinder.")
+    assert(finder.getClass == classOf[SpecFinder], "Suite that uses org.scalatest.Spec should use SpecFinder.")
     
-    val aStackNode: MethodInvocation = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), null, Array.empty, "describe",new StringLiteral(suiteClass.getName, null, "A Stack"))
-    val wheneverItIsEmpty = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), aStackNode, Array.empty, "describe", new StringLiteral(suiteClass.getName, null, "whenever it is empty")) 
-    val nestedDash = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "{Predef}"), wheneverItIsEmpty, Array.empty, "println", new StringLiteral(suiteClass.getName, null, "nested in"))
-    val certainlyOughtTo = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), wheneverItIsEmpty, Array.empty, "describe", new StringLiteral(suiteClass.getName, null, "certainly ought to"))
-    val beEmpty = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "it"), certainlyOughtTo, Array.empty, "apply", new StringLiteral(suiteClass.getName, null, "be empty"))
-    val complainOnPeek = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "it"), certainlyOughtTo, Array.empty, "apply", new StringLiteral(suiteClass.getName, null, "complain on peek")) 
+    val classDef = new ClassDefinition(suiteClass.getName, null, Array.empty, "TestingSpec")
+    val classDefConstructor = new ConstructorBlock(suiteClass.getName, classDef, Array.empty)
+    val aStackNodeDef = new ModuleDefinition(suiteClass.getName, classDefConstructor, Array.empty, "A Stack")
+    val aStackNodeConstructor = new ConstructorBlock(suiteClass.getName, aStackNodeDef, Array.empty)
+    val wheneverItIsEmptyDef = new ModuleDefinition(suiteClass.getName, aStackNodeConstructor, Array.empty, "whenever it is empty")
+    val wheneverItIsEmptyConstructor = new ConstructorBlock(suiteClass.getName, wheneverItIsEmptyDef, Array.empty)
+    val nestedDash = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "{Predef}"), wheneverItIsEmptyConstructor, Array.empty, "println", new StringLiteral(suiteClass.getName, null, "nested in"))
+    val certainlyOughtToDef = new ModuleDefinition(suiteClass.getName, wheneverItIsEmptyConstructor, Array.empty, "certainly ought to")
+    val certainlyOughtToConstructor = new ConstructorBlock(suiteClass.getName, certainlyOughtToDef, Array.empty)
+    val beEmpty = new MethodDefinition(suiteClass.getName, certainlyOughtToConstructor, Array.empty, "be empty")
+    val complainOnPeek = new MethodDefinition(suiteClass.getName, certainlyOughtToConstructor, Array.empty, "complain on peek") 
     val inNested = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "{Predef}"), complainOnPeek, Array.empty, "println", new StringLiteral(suiteClass.getName, null, "in nested"))
-    val complainOnPop = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "it"), certainlyOughtTo, Array.empty, "apply", new StringLiteral(suiteClass.getName, null, "complain on pop"))
-    val butWhenFullByContrastMust = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "{this}"), aStackNode, Array.empty, "describe", new StringLiteral(suiteClass.getName, null, "but when full, by contrast, must"))
-    val beFull = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "it"), butWhenFullByContrastMust, Array.empty, "apply", new StringLiteral(suiteClass.getName, null, "be full"))
-    val complainOnPush = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "it"), butWhenFullByContrastMust, Array(), "apply", new StringLiteral(suiteClass.getName, null, "complain on push"))
+    val complainOnPop = new MethodDefinition(suiteClass.getName, certainlyOughtToConstructor, Array.empty, "complain on pop")
+    val butWhenFullByContrastMustDef = new ModuleDefinition(suiteClass.getName, aStackNodeConstructor, Array.empty, "but when full, by contrast, must")
+    val butWhenFullByContrastMustConstructor = new ConstructorBlock(suiteClass.getName, butWhenFullByContrastMustDef, Array.empty)
+    val beFull = new MethodDefinition(suiteClass.getName, butWhenFullByContrastMustConstructor, Array.empty, "be full")
+    val complainOnPush = new MethodDefinition(suiteClass.getName, butWhenFullByContrastMustConstructor, Array.empty, "complain on push")
     
-    List[AstNode](aStackNode, wheneverItIsEmpty, certainlyOughtTo, beEmpty, complainOnPeek, complainOnPop, butWhenFullByContrastMust, 
-        beFull, complainOnPush).foreach(_.parent)
+    List[AstNode](classDef, classDefConstructor, aStackNodeDef, aStackNodeConstructor, wheneverItIsEmptyDef, wheneverItIsEmptyConstructor, certainlyOughtToDef, certainlyOughtToConstructor, beEmpty, complainOnPeek, complainOnPop, 
+                  butWhenFullByContrastMustDef, butWhenFullByContrastMustConstructor, beFull, complainOnPush).foreach(_.parent)
         
-    val aStackTest = finder.find(aStackNode)
+    val aStackTest = finder.find(aStackNodeDef)
     expectSelection(aStackTest, suiteClass.getName, "A Stack", Array(
       "A Stack whenever it is empty certainly ought to be empty", 
       "A Stack whenever it is empty certainly ought to complain on peek", 
@@ -79,7 +87,7 @@ class FunSpecFinderSuite extends FinderSuite {
       "A Stack but when full, by contrast, must complain on push"
     ))
     
-    val wheneverItIsEmptyTest = finder.find(wheneverItIsEmpty)
+    val wheneverItIsEmptyTest = finder.find(wheneverItIsEmptyDef)
     expectSelection(wheneverItIsEmptyTest, suiteClass.getName, "A Stack whenever it is empty", Array(
       "A Stack whenever it is empty certainly ought to be empty", 
       "A Stack whenever it is empty certainly ought to complain on peek", 
@@ -93,7 +101,7 @@ class FunSpecFinderSuite extends FinderSuite {
       "A Stack whenever it is empty certainly ought to complain on pop"
     ))
     
-    val certainlyOughtToTest = finder.find(certainlyOughtTo)
+    val certainlyOughtToTest = finder.find(certainlyOughtToDef)
     expectSelection(certainlyOughtToTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to", Array(
       "A Stack whenever it is empty certainly ought to be empty", 
       "A Stack whenever it is empty certainly ought to complain on peek", 
@@ -112,7 +120,7 @@ class FunSpecFinderSuite extends FinderSuite {
     val complainOnPopTest = finder.find(complainOnPop)
     expectSelection(complainOnPopTest, suiteClass.getName, "A Stack whenever it is empty certainly ought to complain on pop", Array("A Stack whenever it is empty certainly ought to complain on pop"))
     
-    val butWhenFullByContrastMustTest = finder.find(butWhenFullByContrastMust)
+    val butWhenFullByContrastMustTest = finder.find(butWhenFullByContrastMustDef)
     expectSelection(butWhenFullByContrastMustTest, suiteClass.getName, "A Stack but when full, by contrast, must", Array(
       "A Stack but when full, by contrast, must be full", 
       "A Stack but when full, by contrast, must complain on push"    
@@ -124,5 +132,5 @@ class FunSpecFinderSuite extends FinderSuite {
     val complainOnPushTest = finder.find(complainOnPush)
     expectSelection(complainOnPushTest, suiteClass.getName, "A Stack but when full, by contrast, must complain on push", Array("A Stack but when full, by contrast, must complain on push"))
   }
-
+  
 }

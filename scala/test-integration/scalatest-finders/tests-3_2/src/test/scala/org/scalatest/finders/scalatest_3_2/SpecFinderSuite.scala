@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package org.scalatest.finders
+package scalatest_3_2
 
 import org.scalatest.refspec.RefSpec
 
