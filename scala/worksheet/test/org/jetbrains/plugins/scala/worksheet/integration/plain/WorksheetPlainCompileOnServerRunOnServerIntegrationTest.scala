@@ -51,6 +51,7 @@ class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_LTS_AllInO
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_9,
+  TestScalaVersion.Scala_3_10,
   TestScalaVersion.Scala_3_Next_RC
 ))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))
@@ -71,6 +72,7 @@ class WorksheetPlainCompileOnServerRunOnServerIntegrationTest_Scala_3_BracelessS
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_9,
+  TestScalaVersion.Scala_3_10,
   TestScalaVersion.Scala_3_Next_RC
 ))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))

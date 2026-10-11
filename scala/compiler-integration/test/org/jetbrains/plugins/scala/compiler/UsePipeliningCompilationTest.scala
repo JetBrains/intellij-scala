@@ -102,6 +102,10 @@ class UsePipeliningCompilationTest extends SbtProjectCompilationTestBase with Sc
   }
 }
 
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Next_RC))
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_9,
+  TestScalaVersion.Scala_3_10,
+  TestScalaVersion.Scala_3_Next_RC
+))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17, TestJdkVersion.JDK_21))
 class UsePipeliningCompilationTest_Scala_Next_RC extends UsePipeliningCompilationTest

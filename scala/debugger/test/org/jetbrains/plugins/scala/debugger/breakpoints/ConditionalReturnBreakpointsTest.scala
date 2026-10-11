@@ -138,6 +138,14 @@ class ConditionalReturnBreakpointsTest_3 extends ConditionalReturnBreakpointsTes
   override def testEarlyReturnInCaseClause(): Unit = {}
 }
 
+class ConditionalReturnBreakpointsTest_3_9 extends ConditionalReturnBreakpointsTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
+}
+
+class ConditionalReturnBreakpointsTest_3_10 extends ConditionalReturnBreakpointsTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_10
+}
+
 class ConditionalReturnBreakpointsTest_3_RC extends ConditionalReturnBreakpointsTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
