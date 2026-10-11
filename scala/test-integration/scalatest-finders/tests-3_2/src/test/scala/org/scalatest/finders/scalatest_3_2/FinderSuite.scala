@@ -15,6 +15,7 @@
  */
 
 package org.scalatest.finders
+package scalatest_3_2
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers._

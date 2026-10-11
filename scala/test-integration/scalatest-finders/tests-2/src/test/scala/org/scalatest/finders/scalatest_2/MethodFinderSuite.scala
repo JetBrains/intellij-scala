@@ -15,10 +15,10 @@
  */
 
 package org.scalatest.finders
-
-import org.scalatest.Suite
+package scalatest_2
 
 import org.scalatest.Matchers._
+import org.scalatest.Suite
 
 class MethodFinderSuite extends FinderSuite {
 

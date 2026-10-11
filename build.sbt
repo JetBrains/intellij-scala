@@ -981,12 +981,16 @@ def scalatestFindersTestProject(projectName: String, projectPath: File): sbt.Pro
     )
     .settings(compilationCacheSettings)
 
+// We are intentionally running these tests against this specific old version of scalatest.
+//noinspection SbtDependencyVersionInspection
 lazy val scalatestFindersTests_2 = scalatestFindersTestProject("scalatest-finders-tests-2", scalatestFindersRootDir / "tests-2")
   .settings(
     scalaVersion := "2.11.12",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % "2.2.6" % Test)
   )
 
+// We are intentionally running these tests against this specific old version of scalatest.
+//noinspection SbtDependencyVersionInspection
 lazy val scalatestFindersTests_3_0 = scalatestFindersTestProject("scalatest-finders-tests-3_0", scalatestFindersRootDir / "tests-3_0")
   .settings(
     scalaVersion := "2.12.21",

@@ -15,6 +15,7 @@
  */
 
 package org.scalatest.finders
+package scalatest_2
 
 import org.scalatest.FlatSpec
 

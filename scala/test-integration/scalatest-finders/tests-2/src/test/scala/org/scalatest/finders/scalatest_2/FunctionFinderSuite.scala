@@ -15,9 +15,9 @@
  */
 
 package org.scalatest.finders
+package scalatest_2
 
-import org.scalatest.FunSuite
-import org.scalatest.PropSpec
+import org.scalatest.{FunSuite, PropSpec}
 
 class FunctionFinderSuite extends FinderSuite {
   test("FunctionFinder should find test name for tests written in test suite that extends org.scalatest.FunSuite") {

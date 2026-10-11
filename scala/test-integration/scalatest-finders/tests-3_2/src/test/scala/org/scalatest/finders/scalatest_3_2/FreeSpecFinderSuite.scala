@@ -15,13 +15,14 @@
  */
 
 package org.scalatest.finders
+package scalatest_3_2
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
 class FreeSpecFinderSuite extends FinderSuite {
   
   test("FreeSpecFinder should find test name for tests written in test suite that extends org.scalatest.FreeSpec") {
-    class TestingFreeSpec extends FreeSpec {
+    class TestingFreeSpec extends AnyFreeSpec {
       "A Stack" - {
         "whenever it is empty" - {
           println("nested -")
@@ -49,27 +50,31 @@ class FreeSpecFinderSuite extends FinderSuite {
         }
       }
     }
+
     val suiteClass = classOf[TestingFreeSpec]
     val finders = LocationUtils.getFinders(suiteClass)
     assert(finders.size == 1, "org.scalatest.FreeSpec should have 1 finder, but we got: " + finders.size)
     val finder = finders.get(0)
     assert(finder.getClass == classOf[FreeSpecFinder], "Suite that uses org.scalatest.FreeSpec should use FreeSpecFinder.")
-    
-    val aStackNode: MethodInvocation = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "A Stack"), null, Array.empty, "-", new ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    val wheneverItIsEmpty = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "whenever it is empty"), aStackNode, Array.empty, "-", new ToStringTarget(suiteClass.getName, null, Array.empty, "{}")) 
-    val nestedDash = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "{Predef}"), wheneverItIsEmpty, Array.empty, "println", new StringLiteral(suiteClass.getName, null, "nested in"))
-    val certainlyOughtTo = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "certainly ought to"), wheneverItIsEmpty, Array.empty, "-", new ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    val beEmpty = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "be empty"), certainlyOughtTo, Array.empty, "in", new ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    val complainOnPeek = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "complain on peek"), certainlyOughtTo, Array.empty, "in", new ToStringTarget(suiteClass.getName, null, Array.empty, "{}")) 
-    val inNested = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "{Predef}"), complainOnPeek, Array.empty, "println", new StringLiteral(suiteClass.getName, null, "in nested"))
-    val complainOnPop = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "complain on pop"), certainlyOughtTo, Array.empty, "in", new ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    val butWhenFullByContrastMust = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "but when full, by contrast, must"), aStackNode, Array.empty, "-", new ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    val beFull = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "be full"), butWhenFullByContrastMust, Array.empty, "in", new ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    val nestedIn = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "in nested"), beFull, Array.empty, "in", new ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    val complainOnPush = new MethodInvocation(suiteClass.getName, new ToStringTarget(suiteClass.getName, null, Array.empty, "complain on push"), butWhenFullByContrastMust, Array(), "in", new ToStringTarget(suiteClass.getName, null, Array.empty, "{}"))
-    
-    List[AstNode](aStackNode, wheneverItIsEmpty, certainlyOughtTo, beEmpty, complainOnPeek, complainOnPop, butWhenFullByContrastMust, 
-        beFull, complainOnPush).foreach(_.parent)
+
+    def toStringTarget(s: String): ToStringTarget = new ToStringTarget(suiteClass.getName, null, Array.empty, s)
+    def literal(value: String): StringLiteral = new StringLiteral(suiteClass.getName, null, value)
+    def braces: ToStringTarget = toStringTarget("{}")
+    def invocation(target: AstNode, parent: AstNode, name: String, args: AstNode*): MethodInvocation =
+      new MethodInvocation(suiteClass.getName, target, parent, Array.empty, name, args: _*)
+
+    val aStackNode                = invocation(toStringTarget("A Stack"), null, "-", braces)
+    val wheneverItIsEmpty         = invocation(toStringTarget("whenever it is empty"), aStackNode, "-", braces)
+    val nestedDash                = invocation(toStringTarget("{Predef}"), wheneverItIsEmpty, "println", literal("nested in"))
+    val certainlyOughtTo          = invocation(toStringTarget("certainly ought to"), wheneverItIsEmpty, "-", braces)
+    val beEmpty                   = invocation(toStringTarget("be empty"), certainlyOughtTo, "in", braces)
+    val complainOnPeek            = invocation(toStringTarget("complain on peek"), certainlyOughtTo, "in", braces)
+    val inNested                  = invocation(toStringTarget("{Predef}"), complainOnPeek, "println", literal("in nested"))
+    val complainOnPop             = invocation(toStringTarget("complain on pop"), certainlyOughtTo, "in", braces)
+    val butWhenFullByContrastMust = invocation(toStringTarget("but when full, by contrast, must"), aStackNode, "-", braces)
+    val beFull                    = invocation(toStringTarget("be full"), butWhenFullByContrastMust, "in", braces)
+    val nestedIn                  = invocation(toStringTarget("in nested"), beFull, "in", braces)
+    val complainOnPush            = invocation(toStringTarget("complain on push"), butWhenFullByContrastMust, "in", braces)
     
     val aStackTest = finder.find(aStackNode)
     expectSelection(aStackTest, suiteClass.getName, "A Stack", Array(
@@ -127,6 +132,29 @@ class FreeSpecFinderSuite extends FinderSuite {
     
     val complainOnPushTest = finder.find(complainOnPush)
     expectSelection(complainOnPushTest, suiteClass.getName, "A Stack but when full, by contrast, must complain on push", Array("A Stack but when full, by contrast, must complain on push"))
+  }
+
+  test("FreeSpecFinder should find test name for tests written in test suite that extends org.scalatest.FreeSpec for non-nested tests") {
+    class TestingFreeSpec extends AnyFreeSpec {
+      "not nested" in {
+      }
+    }
+
+    val suiteClass = classOf[TestingFreeSpec]
+    val finders = LocationUtils.getFinders(suiteClass)
+    assert(finders.size == 1, "org.scalatest.FreeSpec should have 1 finder, but we got: " + finders.size)
+    val finder = finders.get(0)
+    assert(finder.getClass == classOf[FreeSpecFinder], "Suite that uses org.scalatest.FreeSpec should use FreeSpecFinder.")
+
+    def toStringTarget(s: String): ToStringTarget = new ToStringTarget(suiteClass.getName, null, Array.empty, s)
+    def braces: ToStringTarget = toStringTarget("{}")
+    def invocation(target: AstNode, parent: AstNode, name: String, args: AstNode*): MethodInvocation =
+      new MethodInvocation(suiteClass.getName, target, parent, Array.empty, name, args: _*)
+
+    val classDef = new ClassDefinition(suiteClass.getName, null, Array.empty, suiteClass.getSimpleName)
+    val constructorBlock = new ConstructorBlock(suiteClass.getName, classDef, Array.empty)
+    val notNestedNode = invocation(toStringTarget("not nested"), constructorBlock, "in", braces)
+    expectSelection(finder.find(notNestedNode), suiteClass.getName, "not nested", Array("not nested"))
   }
   
 }
