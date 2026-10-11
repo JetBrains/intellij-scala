@@ -185,6 +185,14 @@ class ExactBreakpointsTest_3 extends ExactBreakpointsTestBase {
   override def testNestedLambdas(): Unit = {}
 }
 
+class ExactBreakpointsTest_3_9 extends ExactBreakpointsTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
+}
+
+class ExactBreakpointsTest_3_10 extends ExactBreakpointsTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_10
+}
+
 class ExactBreakpointsTest_3_RC extends ExactBreakpointsTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }

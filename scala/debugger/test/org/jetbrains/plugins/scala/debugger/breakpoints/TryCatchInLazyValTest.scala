@@ -70,11 +70,15 @@ class TryCatchInLazyValTest_3_9 extends TryCatchInLazyValTest_3 {
   override protected def reuseCompileServerProcessBetweenTests: Boolean = false
 }
 
+class TryCatchInLazyValTest_3_10 extends TryCatchInLazyValTest_3_9 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_10
+}
+
 class TryCatchInLazyValTest_3_LTS_RC extends TryCatchInLazyValTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
 
-class TryCatchInLazyValTest_3_Next_RC extends TryCatchInLazyValTest_3_9 {
+class TryCatchInLazyValTest_3_Next_RC extends TryCatchInLazyValTest_3_10 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_Next_RC
 }
 
