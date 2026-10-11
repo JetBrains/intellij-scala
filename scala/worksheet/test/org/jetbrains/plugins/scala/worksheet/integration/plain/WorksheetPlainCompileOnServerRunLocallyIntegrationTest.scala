@@ -51,6 +51,7 @@ class WorksheetPlainCompileOnServerRunLocallyIntegrationTest_Scala_3_LTS_AllInOn
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_9,
+  TestScalaVersion.Scala_3_10,
   TestScalaVersion.Scala_3_Next_RC
 ))
 @RunWithJdkVersions(Array(TestJdkVersion.JDK_17))

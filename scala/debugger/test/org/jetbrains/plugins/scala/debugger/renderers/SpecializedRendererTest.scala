@@ -19,6 +19,8 @@ class SpecializedRendererTest_3_8 extends SpecializedRendererTestBase(ScalaVersi
 
 class SpecializedRendererTest_3_9 extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_3_9)
 
+class SpecializedRendererTest_3_10 extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_3_10)
+
 class SpecializedRendererTest_3_LTS_RC extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_3_LTS_RC)
 
 class SpecializedRendererTest_3_Next_RC extends SpecializedRendererTestBase(ScalaVersion.Latest.Scala_3_Next_RC)
