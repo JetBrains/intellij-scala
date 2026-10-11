@@ -40,6 +40,14 @@ class CodeFragmentEvaluationTest_3 extends CodeFragmentEvaluationTest_2_13 {
   }
 }
 
+class CodeFragmentEvaluationTest_3_9 extends CodeFragmentEvaluationTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
+}
+
+class CodeFragmentEvaluationTest_3_10 extends CodeFragmentEvaluationTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_10
+}
+
 class CodeFragmentEvaluationTest_3_RC extends CodeFragmentEvaluationTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }

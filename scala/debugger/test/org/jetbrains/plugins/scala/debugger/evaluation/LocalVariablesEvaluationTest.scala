@@ -34,6 +34,10 @@ class LocalVariablesEvaluationTest_3_9 extends LocalVariablesEvaluationTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
 }
 
+class LocalVariablesEvaluationTest_3_10 extends LocalVariablesEvaluationTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_10
+}
+
 class LocalVariablesEvaluationTest_3_RC extends LocalVariablesEvaluationTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }

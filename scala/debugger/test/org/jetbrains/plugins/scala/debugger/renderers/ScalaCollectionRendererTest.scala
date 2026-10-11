@@ -63,6 +63,10 @@ class ScalaCollectionRendererTest_3_9 extends ScalaCollectionRendererTest_2_13 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
 }
 
+class ScalaCollectionRendererTest_3_10 extends ScalaCollectionRendererTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_10
+}
+
 class ScalaCollectionRendererTest_3_RC extends ScalaCollectionRendererTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
