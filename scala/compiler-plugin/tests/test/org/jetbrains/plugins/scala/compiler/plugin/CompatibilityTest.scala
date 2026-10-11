@@ -79,6 +79,7 @@ object CompatibilityTest {
     "3.6.2", "3.6.3", "3.6.4",
     "3.7.0", "3.7.1", "3.7.2", "3.7.3", "3.7.4",
     "3.8.0", "3.8.1", "3.8.2", "3.8.3", "3.8.4",
+    "3.9.0",
     ScalaVersion.Latest.Scala_3_LTS_RC.minor,
     ScalaVersion.Latest.Scala_3_Next_RC.minor
   )

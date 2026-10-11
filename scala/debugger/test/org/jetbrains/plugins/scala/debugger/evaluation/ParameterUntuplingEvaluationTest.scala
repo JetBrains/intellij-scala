@@ -10,6 +10,10 @@ class ParameterUntuplingEvaluationTest_3_9 extends ParameterUntuplingEvaluationT
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
 }
 
+class ParameterUntuplingEvaluationTest_3_10 extends ParameterUntuplingEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_10
+}
+
 class ParameterUntuplingEvaluationTest_3_RC extends ParameterUntuplingEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }

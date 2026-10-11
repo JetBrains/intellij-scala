@@ -442,6 +442,10 @@ class LambdaBreakpointsTest_3_9 extends LambdaBreakpointsTest_3_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
 }
 
+class LambdaBreakpointsTest_3_10 extends LambdaBreakpointsTest_3_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_10
+}
+
 class LambdaBreakpointsTest_3_RC extends LambdaBreakpointsTest_3_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_LTS_RC
 }
