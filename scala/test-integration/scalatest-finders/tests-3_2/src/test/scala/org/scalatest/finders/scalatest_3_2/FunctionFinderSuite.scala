@@ -15,13 +15,14 @@
  */
 
 package org.scalatest.finders
+package scalatest_3_2
 
-import org.scalatest.FunSuite
-import org.scalatest.PropSpec
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.propspec.AnyPropSpec
 
 class FunctionFinderSuite extends FinderSuite {
   test("FunctionFinder should find test name for tests written in test suite that extends org.scalatest.FunSuite") {
-    class TestingFunSuite extends FunSuite {
+    class TestingFunSuite extends AnyFunSuite {
       test("test 1") {
         
       }
@@ -58,7 +59,7 @@ class FunctionFinderSuite extends FinderSuite {
   }
   
   test("FunctionFinder should find test name for tests written in test suite that extends org.scalatest.PropSpec") {
-    class TestingPropSpec extends PropSpec {
+    class TestingPropSpec extends AnyPropSpec {
       property("Fraction constructor normalizes numerator and denominator.") {
         
       }

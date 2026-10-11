@@ -15,32 +15,30 @@
  */
 
 package org.scalatest.finders
+package scalatest_3_0
 
-import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.FeatureSpec
 
-import scala.annotation.nowarn
-
-@nowarn("cat=deprecation")
 class FeatureSpecFinderSuite extends FinderSuite {
   
   test("FeatureSpecFinder should find test name for tests written in test suite that extends org.scalatest.FeatureSpec") {
-    class TestingFeatureSpec extends AnyFeatureSpec {
-      Feature("feature 1") {
-        Scenario("scenario 1") {
+    class TestingFeatureSpec extends FeatureSpec {
+      feature("feature 1") {
+        scenario("scenario 1") {
           
         }
-        Scenario("scenario 2") {
-          Scenario("nested scenario") {
+        scenario("scenario 2") {
+          scenario("nested scenario") {
             
           }
         }
       }
-      Feature("feature 2") {
+      feature("feature 2") {
         println("nested feature 2")
-        Scenario("scenario 1") {
+        scenario("scenario 1") {
           
         }
-        Scenario("scenario 2") {
+        scenario("scenario 2") {
           
         }
       }

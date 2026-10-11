@@ -15,14 +15,15 @@
  */
 
 package org.scalatest.finders
+package scalatest_2
 
-import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.FunSpec
 
 class FunSpecFinderSuite extends FinderSuite {
   
   test("FunSpecFinder should find test name for tests written in test suite that extends org.scalatest.Spec") {
     
-    class TestingSpec extends AnyFunSpec {
+    class TestingSpec extends FunSpec {
       describe("A Stack") {
         describe("whenever it is empty") {
           println("nested -")
