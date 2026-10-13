@@ -166,7 +166,6 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaParserBundle.properties",
       extraUsageModules = Seq(
         ModuleInfo(scalaModDir / "scala-psi-impl"),
-        ModuleInfo(scalaModDir / "scala-impl"),
       )
     ),
     ModuleWithBundleInfo(

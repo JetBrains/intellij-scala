@@ -4,6 +4,7 @@ import com.intellij.openapi.util.text.StringUtil.isEmpty
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.EXCLUDE_PREFIX
+import org.jetbrains.plugins.scala.lang.lexer.ScalaIdentifiers
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator._
 
@@ -19,18 +20,8 @@ object ScalaNamesUtil {
   def isIdentifierPart(c: Char): Boolean =
     (c == '$') || Character.isUnicodeIdentifierPart(c)
 
-  //This method is a copy of:
-  //dotty.tools.dotc.util.Chars.isOperatorPart
-  //dotty.tools.dotc.util.Chars#isSpecial(int)
-  def isOpCharacter(character: Char): Boolean = character match {
-    case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' => true
-    case _ =>
-      import Character._
-      getType(character) match {
-        case MATH_SYMBOL | OTHER_SYMBOL => true
-        case _ => false
-      }
-  }
+  def isOpCharacter(character: Char): Boolean =
+    ScalaIdentifiers.isOpCharacter(character)
 
   def isQualifiedName(text: String): Boolean =
     !isEmpty(text) && text.split('.').forall(isIdentifier)
