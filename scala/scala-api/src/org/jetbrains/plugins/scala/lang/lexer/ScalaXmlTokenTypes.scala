@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.lexer
 
 import com.intellij.psi.tree.TokenSet
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 
 /**
  * NOTE: tokens duplicates of [[com.intellij.psi.xml.XmlTokenType]].
@@ -37,17 +36,11 @@ object ScalaXmlTokenTypes {
   val XML_ENTITY_REF_TOKEN               : ScalaXmlTokenType = ScalaXmlTokenType("XML_ENTITY_REF_TOKEN")
   val XML_TAG_CHARACTERS                 : ScalaXmlTokenType = ScalaXmlTokenType("XML_TAG_CHARACTERS")
 
-  val XML_ELEMENTS: TokenSet = TokenSet.create(
-    ScalaElementType.XML_PI,
-    ScalaElementType.XML_ATTRIBUTE,
-    ScalaElementType.XML_CD_SECT,
-    ScalaElementType.XML_COMMENT,
-    ScalaElementType.XML_ELEMENT,
-    ScalaElementType.XML_EMPTY_TAG,
-    ScalaElementType.XML_END_TAG,
-    ScalaElementType.XML_EXPR,
-    ScalaElementType.XML_PATTERN,
-    ScalaElementType.XML_START_TAG,
+  /**
+   * XML tokens produced by the lexer.
+   * See `org.jetbrains.plugins.scala.lang.TokenSets.XML_ELEMENTS` for the set that also includes XML composite element types.
+   */
+  val XML_TOKENS: TokenSet = TokenSet.create(
     ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START,
     ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END,
     this.XML_EQ,

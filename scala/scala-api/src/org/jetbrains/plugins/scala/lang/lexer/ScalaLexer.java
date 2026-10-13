@@ -437,7 +437,7 @@ public final class ScalaLexer extends Lexer {
   }
 
   private boolean isXmlTokenType(IElementType tpe) {
-    return tpe != null && ScalaXmlTokenTypes.XML_ELEMENTS().contains(tpe);
+    return tpe != null && ScalaXmlTokenTypes.XML_TOKENS().contains(tpe);
   }
 
   private static class MyState {

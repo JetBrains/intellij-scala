@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang
 
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
@@ -98,6 +99,20 @@ object TokenSets {
   val IMPORT_ALIAS_INDICATORS: TokenSet = TokenSet.create(tFUNTYPE, AsKeyword)
 
   val RBRACE_OR_END_STMT: TokenSet = TokenSet.create(tRBRACE, END_STMT)
+
+  /** XML tokens and XML composite element types */
+  val XML_ELEMENTS: TokenSet = ScalaXmlTokenTypes.XML_TOKENS ++ (
+    XML_PI,
+    XML_ATTRIBUTE,
+    XML_CD_SECT,
+    XML_COMMENT,
+    XML_ELEMENT,
+    XML_EMPTY_TAG,
+    XML_END_TAG,
+    XML_EXPR,
+    XML_PATTERN,
+    XML_START_TAG
+  )
 
   implicit class TokenSetExt(private val set: TokenSet) extends AnyVal {
     def ++ (other: TokenSet): TokenSet = TokenSet.orSet(set, other)
