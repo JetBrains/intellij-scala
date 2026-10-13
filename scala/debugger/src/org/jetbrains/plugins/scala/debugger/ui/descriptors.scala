@@ -142,7 +142,7 @@ private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: 
     val typeName = init.returnTypeName()
     node.setPresentation(AllIcons.Debugger.Value, typeName, DebuggerBundle.message("lazy.val.not.initialized"), false)
     if (showInitializeAction) {
-      node.setFullValueEvaluator(OnDemandRenderer.createFullValueEvaluator(DebuggerBundle.message("initialize.lazy.val")))
+      node.setFullValueEvaluator(OnDemandRenderer.createFullValueEvaluator(node, this, DebuggerBundle.message("initialize.lazy.val")))
     }
   }
 }
@@ -187,7 +187,7 @@ private[debugger] final class NotInitializedLocalLazyValDescriptor(project: Proj
 
   OnDemandRenderer.ON_DEMAND_CALCULATED.set(this, false)
   setOnDemandPresentationProvider { node =>
-    node.setFullValueEvaluator(OnDemandRenderer.createFullValueEvaluator(DebuggerBundle.message("initialize.lazy.val")))
+    node.setFullValueEvaluator(OnDemandRenderer.createFullValueEvaluator(node, this, DebuggerBundle.message("initialize.lazy.val")))
     node.setPresentation(icon, typeString, DebuggerBundle.message("lazy.val.not.initialized"), false)
   }
 
