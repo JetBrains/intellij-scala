@@ -11,8 +11,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 class ScMatchImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScMatch with ScBegin {
 
-  protected override def innerType: TypeResult = {
-    expressions.flatMap(_.`type`().toOption) match {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
+    val branchesTypes = clauses.flatMap { clause =>
+      clause.expr.flatMap { body =>
+        body.`type`(ExpectedTypePropagation.matchCaseClauseBody(this, clause, expectedType)).toOption
+      }
+    }
+
+    branchesTypes match {
       case Seq() => Failure("")
       case branchesTypes =>
         val branchesLub = branchesTypes.foldLeft(Nothing: ScType)(_.lub(_)) // TODO Union type in Scala 3, SCL-23806

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -73,13 +73,14 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf with 
 
   override def rightParen: Option[PsiElement] = Option(findRightParen)
 
-  override protected def innerType: TypeResult = {
+  override protected def innerType(expectedType: Option[ScType]): TypeResult = {
     (thenExpression, elseExpression) match {
-      case (Some(t), Some(e)) => for (tt <- t.`type`();
-                                      et <- e.`type`()) yield {
+      case (Some(t), Some(e)) => for (tt <- t.`type`(ExpectedTypePropagation.nested(expectedType, t));
+                                      et <- e.`type`(ExpectedTypePropagation.nested(expectedType, e))) yield {
         tt.lub(et) // TODO Union type in Scala 3, SCL-23806
       }
-      case (Some(t), None) => t.`type`().map(_.lub(Unit))
+      // without an else branch, the type is Unit, regardless of the expected type
+      case (Some(t), None) => t.`type`(expectedType = None).map(_.lub(Unit))
       case _ => Failure(ScalaBundle.message("nothing.to.type"))
     }
   }

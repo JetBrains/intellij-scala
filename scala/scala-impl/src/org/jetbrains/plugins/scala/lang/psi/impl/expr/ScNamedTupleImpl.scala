@@ -9,13 +9,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, Widening}
 
 final class ScNamedTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScNamedTuple {
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     implicit val project: Project = this.projectContext
     val stdTypes = StdTypes.instance(using project)
 
     def transformComponent(comp: ScNamedTupleExprComponent): (ScType, ScType) = {
       val exprType = comp.expr match {
-        case Some(expr) => expr.`type`().getOrNothing
+        case Some(expr) => expr.`type`(ExpectedTypePropagation.namedTupleComponent(comp, expectedType)).getOrNothing
         case None => stdTypes.Nothing
       }
       (comp.nameLiteralType.getOrNothing, exprType)
@@ -24,7 +24,6 @@ final class ScNamedTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) w
     Right(components.map(transformComponent) match {
       case Seq() => stdTypes.Unit
       case components =>
-        val expectedType = this.expectedType()
         val expectedComponents =
           expectedType match {
             case Some(NamedTupleType(comps)) => comps

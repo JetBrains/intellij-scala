@@ -437,7 +437,7 @@ object PatternTypeInference {
     val maybeSubst =
       for {
         scrutinee    <- m.expression
-        scrutineeTpe <- scrutinee.`type`().toOption
+        scrutineeTpe <- scrutinee.`type`(expectedType = None).toOption
         pattern      <- cc.pattern
       } yield PatternTypeInference.doTypeInference(pattern, scrutineeTpe)
 

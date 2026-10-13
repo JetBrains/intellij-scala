@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /**
  * A Spliced Block {{{
@@ -15,4 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
  */
 trait ScSplicedBlock extends ScBlock
   with ScTypeElement
-  with ScSpliced
+  with ScSpliced {
+
+  // as a type element, it is typed against the expected type computed from its context
+  override protected def innerType: TypeResult = innerType(defaultExpectedType)
+}

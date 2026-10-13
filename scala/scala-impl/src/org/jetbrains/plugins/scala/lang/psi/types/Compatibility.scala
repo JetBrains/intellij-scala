@@ -428,13 +428,20 @@ object Compatibility {
    * @param withImplicits            When true, try implicit conversions in case `arg.type <!:< param.type`
    * @param shapesOnly               When true, only calculate shapeTypes of argument expressions
    * @param approximateDependentsFor See [[approximateDependent()]]
+   * @param argumentExpectedTypes    The expected types to type the arguments against, if they differ from the types of
+   *                                 the corresponding parameters, which the arguments are still adapted to (by SAM conversion,
+   *                                 implicit conversions, etc.), see [[ScExpression.getTypeAdaptedTo]].
+   *                                 During overloading resolution the expected type of an argument is derived from
+   *                                 the parameter types of all the alternatives, see
+   *                                 [[org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor]].
    */
   def checkMethodApplicability(
     parameters:               Seq[Parameter],
     args:                     Seq[Expression],
     withImplicits:            Boolean,
     shapesOnly:               Boolean,
-    approximateDependentsFor: Set[ScParameter] = Set.empty
+    approximateDependentsFor: Set[ScParameter]                  = Set.empty,
+    argumentExpectedTypes:    Map[ScExpression, Option[ScType]] = Map.empty
   )(implicit context: Context): ApplicabilityCheckResult = {
 
     ProgressManager.checkCanceled()
@@ -475,15 +482,26 @@ object Compatibility {
     val matched              = Seq.newBuilder[MatchedParameter]
     var defaultParameterUsed = false
 
+    /**
+     * @param seqType the type of the sequence, if `arg` is a sequence argument (`xs: _*`)
+     */
     def processParamConformance(
-      param: Parameter,
-      pt:    ScType,
-      arg:   Expression
+      param:   Parameter,
+      pt:      ScType,
+      arg:     Expression,
+      seqType: Option[ScType] = None
     ): List[ApplicabilityProblem] = {
-      val exprTypeResult =
-        arg.getTypeAfterImplicitConversion(
-          withImplicits, shapesOnly, Option(param.expectedType)
-        )
+      val adaptTo = Option(param.expectedType)
+
+      val exprTypeResult = arg match {
+        case Expression(expr) if argumentExpectedTypes.contains(expr) =>
+          expr.getTypeAdaptedTo(adaptTo, withImplicits, shapesOnly, argumentExpectedTypes(expr))
+        case Expression(expr) if seqType.isDefined =>
+          val expectedType = seqType.map(ScParameterizedType(_, Seq(param.expectedType)))
+          expr.getTypeAdaptedTo(adaptTo, withImplicits, shapesOnly, expectedType)
+        case _ =>
+          arg.getTypeAfterImplicitConversion(withImplicits, shapesOnly, adaptTo)
+      }
 
       exprTypeResult.tr.toOption match {
         case None => Nil
@@ -546,7 +564,7 @@ object Compatibility {
               if (!param.isRepeated) problems ::= ExpansionForNonRepeatedParameter(expr)
 
               val expectedType         = ScParameterizedType(stpe, Seq(param.paramType))
-              val typeMismatchProblems = processParamConformance(param, expectedType, expr)
+              val typeMismatchProblems = processParamConformance(param, expectedType, expr, Option(stpe))
 
               if (typeMismatchProblems.nonEmpty)
                 return ApplicabilityCheckResult(
@@ -602,7 +620,7 @@ object Compatibility {
                   ScParameterizedType(seqType, Seq(param.paramType))
                 }.getOrElse(param.paramType)
 
-                problems :::= processParamConformance(param, expectedType, expr)
+                problems :::= processParamConformance(param, expectedType, expr, maybeSeqType)
               case _ =>
                 return ApplicabilityCheckResult(
                   Seq(IncompleteCallSyntax(ScalaBundle.message("assignment.missing.right.side"))),
@@ -727,14 +745,18 @@ object Compatibility {
     )
   }
 
+  /**
+   * @param argumentExpectedTypes see [[checkMethodApplicability]]
+   */
   def compatible(
-    srr:           ScalaResolveResult,
-    substitutor:   ScSubstitutor,
-    argClauses:    Seq[Seq[Expression]],
-    withImplicits: Boolean,
-    shapesOnly:    Boolean,
-    ref:           PsiElement,
-    argClauseIdx:  Int = 0
+    srr:                   ScalaResolveResult,
+    substitutor:           ScSubstitutor,
+    argClauses:            Seq[Seq[Expression]],
+    withImplicits:         Boolean,
+    shapesOnly:            Boolean,
+    ref:                   PsiElement,
+    argClauseIdx:          Int                               = 0,
+    argumentExpectedTypes: Map[ScExpression, Option[ScType]] = Map.empty
   )(implicit context: Context): ApplicabilityCheckResult = {
     val named = srr.element
     val args  = argClauses.lift(argClauseIdx).getOrElse(Seq.empty)
@@ -748,7 +770,8 @@ object Compatibility {
         args,
         withImplicits,
         shapesOnly,
-        allImplicitParameters
+        allImplicitParameters,
+        argumentExpectedTypes
       )
 
     named match {

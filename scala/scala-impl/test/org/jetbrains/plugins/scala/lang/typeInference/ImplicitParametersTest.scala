@@ -68,4 +68,28 @@ class ImplicitParametersTest extends ImplicitParametersTestBase {
        |    }
        |}
     """.stripMargin)
+
+  def testAmbiguousImplicitWithExpectedType(): Unit = {
+    checkNoImplicitParameterProblems(
+      s"""
+         |object Z {
+         |  trait Monoid[T]
+         |
+         |  case class A(a: String, b: Int)
+         |
+         |  val list: List[A] = List(A("", 1))
+         |
+         |  implicit val intMonoid: Monoid[Int] = null
+         |
+         |  implicit val doubleMonoid1: Monoid[Double] = null
+         |  implicit val doubleMonoid2: Monoid[Double] = null
+         |
+         |  implicit def intToString(i: Int): String = null
+         |
+         |  def foldMap[A, B](list: List[A])(f: A => B)(implicit m: Monoid[B]): B = f(list.head)
+         |
+         |  val x: Double = ${START}foldMap(list)(_.b)${END}
+         |
+         |}""".stripMargin)
+  }
 }

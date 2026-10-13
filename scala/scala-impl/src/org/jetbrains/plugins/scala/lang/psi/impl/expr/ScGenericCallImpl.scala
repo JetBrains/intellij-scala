@@ -47,12 +47,12 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
    * args and is not dependent on the expected type. However, with the addition of named type
    * arguments, we can now have cases like `foo[A = Int]` (where we have to infer the remaining arguments).
    */
-  private def updateWithExpected(tpe: ScType): ScType = tpe match {
+  private def updateWithExpected(tpe: ScType, expectedType: Option[ScType]): ScType = tpe match {
     case tpt: ScTypePolymorphicType =>
       InferUtil.updateAccordingToExpectedType(
         tpt,
         filterTypeParams = true,
-        this.expectedType(),
+        expectedType,
         this,
         canThrowSCE = false
       )
@@ -64,7 +64,10 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     case t                        => ScGenericCallImpl.processApplyOrUpdateMethod(this, t, isShape)
   }
 
-  private def convertReferencedType(typeResult: TypeResult, isShape: Boolean): TypeResult = {
+  /**
+   * @param expectedType the expected type of this generic call, only used when `isShape` is not set
+   */
+  private def convertReferencedType(typeResult: TypeResult, isShape: Boolean, expectedType: => Option[ScType] = None): TypeResult = {
     typeResult
       .map {
         //e.g. def foo(using A)[B]: Int = 1; foo[Int]
@@ -77,7 +80,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
               isLeadingClause = true
             )
 
-          setImplicitArguments(implicits)
+          setImplicitArguments(implicits, expectedType)
           updated
         case tpe => tpe
       }
@@ -85,7 +88,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
       .map(substPolymorphicType)
       .map(tpe =>
         if (isShape) tpe
-        else         updateWithExpected(tpe)
+        else         updateWithExpected(tpe, expectedType)
       )
   }
 
@@ -96,17 +99,18 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     }
   })
 
-  protected override def innerType: TypeResult =
+  protected override def innerType(expectedType: Option[ScType]): TypeResult =
     polymorphicLambdaType().left.flatMap { _ =>
-      val typeResult = referencedExpr.getNonValueType()
-      convertReferencedType(typeResult, isShape = false)
+      // the referenced expression has no expected type
+      val typeResult = referencedExpr.getNonValueType(expectedType = None)
+      convertReferencedType(typeResult, isShape = false, expectedType)
     }
 
   override def shapeType: TypeResult =
     polymorphicLambdaType().left.flatMap { _ =>
       val typeResult: TypeResult = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeType
-        case expr                       => expr.getNonValueType()
+        case expr                       => expr.getNonValueType(expectedType = None)
       }
       convertReferencedType(typeResult, isShape = true)
     }
@@ -116,7 +120,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeMultiType
-        case expr                       => Array(expr.getNonValueType())
+        case expr                       => Array(expr.getNonValueType(expectedType = None))
       }
       typeResult.map(convertReferencedType(_, isShape = true))
     } else Array(polyLambdaType)
@@ -134,9 +138,9 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {
         case ref: ScReferenceExpression => ref.multiType
-        case expr => Array(expr.getNonValueType())
+        case expr => Array(expr.getNonValueType(expectedType = None))
       }
-      typeResult.map(convertReferencedType(_, isShape = false))
+      typeResult.map(convertReferencedType(_, isShape = false, this.expectedType()))
     } else Array(polyLambdaType)
   }
 

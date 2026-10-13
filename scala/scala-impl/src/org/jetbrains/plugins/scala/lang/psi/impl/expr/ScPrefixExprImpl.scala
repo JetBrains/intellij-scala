@@ -20,8 +20,9 @@ class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
 
   override def toString: String = "PrefixExpression"
 
-  override protected def innerType: TypeResult = {
-    def default = getEffectiveInvokedExpr.getNonValueType()
+  override protected def innerType(expectedType: Option[ScType]): TypeResult = {
+    // neither the operation, nor the operand have expected types
+    def default = getEffectiveInvokedExpr.getNonValueType(expectedType = None)
 
     operation.bind().collect {
       case ScalaResolveResult(synth: ScSyntheticFunction, _) =>
@@ -35,7 +36,7 @@ class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with Sc
           case _ => default
         }
 
-        fold(operand.getNonValueType().toOption)
+        fold(operand.getNonValueType(expectedType = None).toOption)
     }.getOrElse(default)
   }
 

@@ -46,12 +46,13 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
       .flatMap(_.templateParents)
       .flatMap(_.firstParentClause)
 
-  override protected def updateImplicitArguments(): Unit = {
+  override protected def updateImplicitArguments(): Option[ScType] = {
     // for regular case implicits are owned by ScConstructor
     setImplicitArguments(desugaredApply.toSeq.flatMap(_.findImplicitArguments))
+    None
   }
 
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     /**
      * An anonymous class is local to the expression that creates it, so Scala 3 approximates its type
      * by one that doesn't mention the class. That approximation only keeps a member when it narrows a
@@ -67,7 +68,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
      * so `new Foo { def bar: Int = 1 }` of a `trait Foo { def bar: Int }` is just a `Foo`.
      */
     def isRefinable(overridesMemberInParent: => Boolean, narrowsMemberInParent: => Boolean): Boolean =
-      if (this.isInScala3File) definedExpectedType.nonEmpty || parentsAreSelectable || narrowsMemberInParent
+      if (this.isInScala3File) definedExpectedType(expectedType).nonEmpty || parentsAreSelectable || narrowsMemberInParent
       else                     !overridesMemberInParent || narrowsMemberInParent
 
     def filterTypeSignatures(aliases: Seq[ScTypeAlias]): Map[String, TypeAliasSignature] = {
@@ -137,7 +138,8 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
     }
 
     desugaredApply match {
-      case Some(expr) => return expr.getNonValueType()
+      // the desugared `apply` call stands for this expression, so its expected type is the same
+      case Some(expr) => return expr.getNonValueType(expectedType = expectedType)
       case _          =>
     }
 
@@ -159,7 +161,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
         case None => (ScCompoundType.signaturesFromPsi(earlyHolders), Map.empty[String, TypeAliasSignature])
       }
 
-    val pt                 = definedExpectedType
+    val pt                 = definedExpectedType(expectedType)
     val superTypeElements  = extendsBlock.templateParents.fold(Seq.empty[ScTypeElement])(_.allTypeElements)
     val declaredSuperTypes = extendsBlock.superTypes
 
@@ -182,8 +184,8 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
    *
    * See `isFullyDefined(pt, ForceDegree.none)` in `Typer.ensureNoLocalRefs` in the Scala 3 compiler.
    */
-  private def definedExpectedType: Option[ScType] =
-    this.expectedType().filterNot(_.subtypeExists {
+  private def definedExpectedType(expectedType: Option[ScType]): Option[ScType] =
+    expectedType.filterNot(_.subtypeExists {
       case _: ScAbstractType | _: api.UndefinedType | _: api.TypeParameterType => true
       case _                                                                   => false
     })

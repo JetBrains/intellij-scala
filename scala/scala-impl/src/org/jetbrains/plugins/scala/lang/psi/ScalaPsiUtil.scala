@@ -234,12 +234,15 @@ object ScalaPsiUtil {
       case Seq() => Some(Unit)
       // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
       case _ =>
-        def getType(expression: Expression): ScType =
-          expression
-            .getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
-            .tr
-            .getOrAny
-            .widenIfLiteral
+        def getType(expression: Expression): ScType = {
+          val typeResult = expression match {
+            // the expected type of an argument of the tupled invocation, which isn't known here
+            case expr: ScExpression => expr.getTypeAfterImplicitConversion()
+            case _                  => expression.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
+          }
+
+          typeResult.tr.getOrAny.widenIfLiteral
+        }
 
         TupleType(s.map(getType), context) match {
           case t if t.isNothing => None
@@ -408,8 +411,13 @@ object ScalaPsiUtil {
 
         //implicit conversions
         def addConversions(fromUnderscore: Boolean): Unit = {
-          res = res ++ expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore),
-            fromUnderscore = fromUnderscore).importsUsed
+          res = res ++ expr.getTypeAdaptedTo(
+            adaptTo        = expr.smartExpectedType(fromUnderscore),
+            checkImplicits = true,
+            isShape        = false,
+            expectedType   = expr.expectedType(fromUnderscore),
+            fromUnderscore = fromUnderscore
+          ).importsUsed
         }
 
         if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) addConversions(fromUnderscore = true)

@@ -194,12 +194,13 @@ object ImplicitConversionResolveResult {
         for {
           expressions <- methodProcessor.invocationClauses.flatMap(_.args)
           expression  <- expressions
-          typeResult   =
-            expression.getTypeAfterImplicitConversion(
-              checkImplicits = false,
-              isShape        = methodProcessor.isShapeResolve,
-              None
-            ).tr
+          typeResult   = (expression match {
+            // the expected type of an argument of the invocation, which isn't known here
+            case expr: ScExpression =>
+              expr.getTypeAfterImplicitConversion(checkImplicits = false, isShape = methodProcessor.isShapeResolve)
+            case _ =>
+              expression.getTypeAfterImplicitConversion(checkImplicits = false, isShape = methodProcessor.isShapeResolve, None)
+          }).tr
         } yield typeResult.getOrAny
       case _ => Seq.empty
     }

@@ -13,6 +13,12 @@ trait ExpectedTypes {
   def expectedExprTypes(expr: ScExpression,
                         withResolvedFunction: Boolean = false,
                         fromUnderscore: Boolean = true): Array[ParameterType]
+
+  /**
+   * The expected type of `expr`, given the expected types of it for several alternatives,
+   * e.g. the parameter types of the overloaded alternatives of the method it is an argument of.
+   */
+  def expectedTypeFromAlternatives(expr: ScExpression, alternatives: Seq[ScType]): Option[ScType]
 }
 
 object ExpectedTypes {

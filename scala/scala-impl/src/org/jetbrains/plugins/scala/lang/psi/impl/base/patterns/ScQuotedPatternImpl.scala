@@ -16,5 +16,5 @@ class ScQuotedPatternImpl(node: ASTNode)
   override def toString: String = "QuotedPattern"
 
   //TODO
-  override def `type`(): TypeResult = Failure("Quoted pattern types are not supported yet")
+  override def `type`(expectedType: Option[ScType]): TypeResult = Failure("Quoted pattern types are not supported yet")
 }

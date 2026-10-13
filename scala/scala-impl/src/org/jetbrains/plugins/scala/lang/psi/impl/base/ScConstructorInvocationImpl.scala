@@ -45,8 +45,10 @@ class ScConstructorInvocationImpl(node: ASTNode)
   override def arguments: Seq[ScArgumentExprList] =
     findChildren[ScArgumentExprList]
 
-  override protected def updateImplicitArguments(): Unit =
+  override protected def updateImplicitArguments(): Option[ScType] = {
     simpleTypeElement.foreach(_.getNonValueType(withUnnecessaryImplicitsUpdate = true))
+    None
+  }
 
   override def toString: String = "ConstructorInvocation"
 

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{IterableExt, ObjectExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.{Lambda, LambdaSymbolic}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -36,7 +36,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
 
 class ExpectedTypesImpl extends ExpectedTypes {
   /**
@@ -57,6 +56,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     filterAlternatives(types.toSeq, expr)
   }
+
+  override def expectedTypeFromAlternatives(expr: ScExpression, alternatives: Seq[ScType]): Option[ScType] =
+    filterAlternatives(alternatives.map((_, None)), expr).map(_._1)
 
   private def filterAlternatives(
     types: Seq[ParameterType],
@@ -247,70 +249,6 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     val sameInContext = expr.getDeepSameElementInContext
 
-    def fromFunction(tp: ParameterType, isContextFunction: Boolean): Array[ParameterType] = {
-      val functionLikeType = FunctionLikeType(expr)
-
-      val tpUnwrapped =
-        if (!isContextFunction) unwrapContextFunctionType(tp._1)
-        else                    tp._1
-
-      tpUnwrapped match {
-        case functionLikeType(_, retTpe, _) => Array((retTpe, None))
-        case _                              => Array.empty
-      }
-    }
-
-    def fromPolyFunction(tyParams: Seq[ScTypeParam])(tp: ParameterType): Array[ParameterType] = {
-      tp._1.removeAliasDefinitionsIn(expr) match {
-        case PolyFunctionType(sig, retType) =>
-          // match
-          //   [pParams..] => bodyType
-          //   [tyParams..] => ...
-          // so
-          // substitute bodyType[pParams.. -> tyParams..]
-          val pParams = sig.typeParams.headOption.getOrElse(Seq.empty)
-
-          val bodyType = {
-            val paramTypes = sig.substitutedTypes.head.map(_.apply())
-            FunctionType((retType, paramTypes))(using expr.elementScope, Context.Empty)
-          }
-
-          //val f2: [T, S] => T => S => Unit = [_, _] => x => y => ???
-          //Above is valid scala, which would naively be translated into
-          //scala.PolyFunction { def apply[_, _](x: _): Function1[_, Unit]
-          //which is not a valid scala snippet, so just introduce fresh names for
-          //type parameters named _ here.
-          val renameUnderscoreTypeParams =
-            tyParams.mapWithIndex {
-              case (tParam, idx) =>
-                val renamed =
-                  if (tParam.name == "_") {
-                    TypeParameterType(
-                      TypeParameter.light(
-                        s"_$$$idx",
-                        tParam.typeParameters.map(TypeParameter.apply),
-                        tParam.lowerBound.getOrNothing,
-                        tParam.upperBound.getOrAny
-                      )
-                    )
-                  } else TypeParameterType(tParam)
-                tParam -> renamed
-            }.to(Map)
-
-          val bindTypeParams = ScSubstitutor.bind(pParams, tyParams)(p => TypeParameterType(TypeParameter(p)))
-          val fullSubst = bindTypeParams.followed(ScSubstitutor.bind(tyParams)(renameUnderscoreTypeParams))
-          val result = fullSubst(bodyType)
-          Array((result, None))
-        case _ =>
-          Array.empty
-      }
-    }
-
-    val isContextFunctionExpr = expr match {
-      case fn: ScFunctionExpr if fn.isContext => true
-      case _                                  => false
-    }
-
     /**
      * Propagates the expected types of the parent expression to one of its nested expressions.
      *
@@ -325,12 +263,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
     def expectedTypesUnwrapContextFunction(e: ScExpression, fromUnderscore: Boolean): Array[ParameterType] = {
       val expectedType = e.expectedTypesEx(fromUnderscore)
       expectedType.map {
-        case pt if isContextFunctionExpr =>
-          // A context function expression is checked against the whole context-function type.
-          // Do not unwrap its own expected type.
-          pt
         case (expectedType, typeElement) =>
-          val unwrappedExpectedType = unwrapContextFunctionType(expectedType)
+          val unwrappedExpectedType = ExpectedTypePropagation.nested(expectedType, expr)
           val unwrappedTypeElement =
             // Keep the type element only when the propagated expected type is unchanged, see SCL-25481.
             // Otherwise, the type element still points at the outer declaration, not at the derived result type.
@@ -391,7 +325,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
               .map(mapResolves(_, multiType))
               .getOrElse(multiType.map((_, false, false)))
           }
-        case _ => Array((invoked.getNonValueType(), false, false))
+        case _ => Array((invoked.getNonValueType(expectedType = None), false, false))
       }
 
       val updatedWithExpected =
@@ -454,27 +388,22 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case b: ScBlockExpr if b.isInCatchBlock =>
           b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isPartialFunction =>
-          val expectedForPf    = expectedTypesUnwrapContextFunction(b, fromUnderscore = true)
-          val functionLikeType = FunctionLikeType(expr)
+          val expectedForPf = expectedTypesUnwrapContextFunction(b, fromUnderscore = true)
 
-          expectedForPf.collect {
-            case (functionLikeType(_, resTpe, paramTypes), te) =>
-
-              val subst = c.pattern.fold(ScSubstitutor.empty) { pattern =>
-                val scrutineeType =
-                  if (paramTypes.size == 1) paramTypes.head
-                  else                      TupleType(paramTypes, context = pattern)
-
-                PatternTypeInference.doTypeInference(pattern, scrutineeType)
-              }
-
-              (subst(resTpe), te)
+          expectedForPf.flatMap {
+            case (tpe, te) => ExpectedTypePropagation.partialFunctionCaseClauseBody(c, expr, tpe).map((_, te))
           }
         case _ => Array.empty
       }
       //see SLS[6.23]
-      case f: ScFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(fromFunction(_, f.isContext))
-      case f: ScPolyFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(fromPolyFunction(f.typeParameters))
+      case f: ScFunctionExpr =>
+        f.expectedTypesEx(fromUnderscore = true).flatMap {
+          case (tpe, _) => ExpectedTypePropagation.functionLiteralResult(f, expr, tpe).map((_, None))
+        }
+      case f: ScPolyFunctionExpr =>
+        f.expectedTypesEx(fromUnderscore = true).flatMap {
+          case (tpe, _) => ExpectedTypePropagation.polyFunctionBody(f, expr, tpe).map((_, None))
+        }
       case t: ScTypedExpression if t.getLastChild.is[ScSequenceArg] =>
         t.expectedTypesEx(fromUnderscore = true)
       //SLS[6.13]
@@ -525,44 +454,18 @@ class ExpectedTypesImpl extends ExpectedTypes {
       //method application
       case tuple: ScTuple if tuple.isCall => expectedTypesForArg(tuple.getContext.asInstanceOf[ScInfixExpr])
       case tuple: ScTuple =>
-        val result = Array.newBuilder[ParameterType]
         val exprs = tuple.exprs
         val index = exprs.indexOf(sameInContext)
-        @tailrec
-        def addType(aType: ScType): Unit = {
-          aType match {
-            case _: ScAbstractType => addType(aType.removeAbstracts)
-            case TupleType(comps) if comps.length == exprs.length =>
-              result += ((comps(index), None))
-            case _ =>
+
+        if (index < 0) Array.empty
+        else
+          tuple.expectedTypes().toArray.flatMap { tp =>
+            ExpectedTypePropagation.tupleComponent(tp, index, exprs.length).map((_, None))
           }
-        }
-        if (index >= 0) {
-          for (tp: ScType <- tuple.expectedTypes()) addType(tp)
-        }
-        result.result()
       case comp: ScNamedTupleExprComponent =>
-        val tuple = comp.namedTuple
-        val result = Array.newBuilder[ParameterType]
-        val components = tuple.components
-        val index = components.indexOf(comp)
-        @tailrec
-        def addType(aType: ScType): Unit = {
-          aType match {
-            case _: ScAbstractType => addType(aType.removeAbstracts)
-            case NamedTupleType(expectedComps) if expectedComps.length == components.length =>
-              expectedComps(index) match {
-                case (NamedTupleType.NameType(expectedName), expectedType) if expectedName == comp.name =>
-                  result += expectedType -> None
-                case _ =>
-              }
-            case _ =>
-          }
+        comp.namedTuple.expectedTypes().toArray.flatMap { tp =>
+          ExpectedTypePropagation.namedTupleComponent(comp, Option(tp)).map((_, None))
         }
-        if (index >= 0) {
-          for (tp: ScType <- tuple.expectedTypes()) addType(tp)
-        }
-        result.result()
       case infix@ScInfixExpr.withAssoc(_, _, `sameInContext`) if !expr.is[ScTuple] =>
         expr match {
           case p: ScParenthesisedExpr if p.innerElement.isEmpty => return Array.empty
@@ -632,15 +535,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case Some(content) => content.expectedTypesEx(fromUnderscore = fromUnderscore)
           case _ => Array.empty
         }
-      case b: ScBlock if {
-        val context = b.getContext
-        context.is[ScTry, ScCaseClause, ScFunctionExpr] ||
-          //extra null checks are needed for some broken code, in order not to throw NPEs
-          context != null && {
-            val context2 = context.getContext
-            context2 != null && context2.getContext.is[ScCatchBlock]
-          }
-      } =>
+      case b: ScBlock if ExpectedTypePropagation.isTypedAsItsContext(b) =>
         b.resultExpression match {
           case Some(e) if sameInContext == e => b.expectedTypesEx(fromUnderscore = true)
           case _ => Array.empty
@@ -660,16 +555,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
-    if (fromUnderscore && checkIsUnderscore(expr)) {
-      val res = new ArrayBuffer[ParameterType]
-      for (tp <- result) {
-        tp._1 match {
-          case FunctionType(rt: ScType, _) => res += ((rt, None))
-          case _ =>
-        }
+    if (fromUnderscore && checkIsUnderscore(expr))
+      result.flatMap {
+        case (tp, _) => ExpectedTypePropagation.underscoreFunctionBody(tp).map((_, None))
       }
-      res.toArray
-    } else result
+    else result
   }
 
   @tailrec

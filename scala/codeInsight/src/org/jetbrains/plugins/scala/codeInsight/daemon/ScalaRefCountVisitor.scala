@@ -116,7 +116,10 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
     element.asOptionOf[ScExpression]
       .foreach { expr =>
         val fromUnderscore = ScUnderScoreSectionUtil.isUnderscoreFunction(expr)
-        val importUsed = expr.getTypeAfterImplicitConversion(fromUnderscore = fromUnderscore).importsUsed
+        val importUsed = expr.getTypeAfterImplicitConversion(
+          expectedOption = expr.expectedType(fromUnderscore = fromUnderscore),
+          fromUnderscore = fromUnderscore
+        ).importsUsed
 
         registerUsedImports(element, importUsed)
       }

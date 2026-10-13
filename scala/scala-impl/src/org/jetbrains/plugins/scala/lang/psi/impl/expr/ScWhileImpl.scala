@@ -7,12 +7,12 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.types.api
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 class ScWhileImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScWhile with ScBegin {
 
-  protected override def innerType: TypeResult = Right(api.Unit)
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = Right(api.Unit)
 
   override def condition: Option[ScExpression] = {
     // note: also remember Scala3 new syntax: `while condition do body`

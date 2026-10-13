@@ -115,9 +115,8 @@ abstract class ConstructorInvocationAnnotatorTestBase extends AnnotatorSimpleTes
     assertNothing(messages("new B()"))
     assertNothing(messages("new FFF()()"))
     assertNothing(messages("new GGG()()"))
-    assertMessages(messages("new FFF()(true)"))(
-      Error("true", "Type mismatch, expected: Unit, actual: Boolean")
-    )
+    // `X` is inferred to be `Unit` from the first clause, so `true` is discarded
+    assertNothing(messages("new FFF()(true)"))
   }
 
   // TODO Don't separate the code from the expected messages (it's hard to understand such a test)

@@ -15,10 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner,
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.*
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ApplicabilityCheckResult, Expression}
+import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ApplicabilityCheckResult, Expression, MatchedParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.api.*
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.*
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.*
@@ -208,19 +208,21 @@ class MethodResolveProcessor(
 
 object MethodResolveProcessor {
   private def updateCandidateWithApplicabilityProblems(
-    place:                  PsiElement,
-    candidate:              ApplicabilityCandidate,
-    checkArgsWithImplicits: Boolean,
-    allArgumentClauses:     Seq[Seq[Expression]],
-    currentTypeArgsClause:  Seq[ScTypeArgument],
-    currentArgumentsClause: Option[Seq[Expression]],
-    prevTypeInfo:           Seq[TypeParameter],
-    expectedOption:         () => Option[ScType],
-    selfConstructorResolve: Boolean,
-    isUnderscore:           Boolean,
-    shapesOnly:             Boolean,
-    argClauseIdx:           Int,
-    isLastClause:           Boolean
+    place:                    PsiElement,
+    candidate:                ApplicabilityCandidate,
+    checkArgsWithImplicits:   Boolean,
+    allArgumentClauses:       Seq[Seq[Expression]],
+    currentTypeArgsClause:    Seq[ScTypeArgument],
+    currentArgumentsClause:   Option[Seq[Expression]],
+    prevTypeInfo:             Seq[TypeParameter],
+    expectedOption:           () => Option[ScType],
+    selfConstructorResolve:   Boolean,
+    isUnderscore:             Boolean,
+    shapesOnly:               Boolean,
+    argClauseIdx:             Int,
+    isLastClause:             Boolean,
+    argumentExpectedTypes:    Map[ScExpression, Option[ScType]],
+    recordArgumentPrototypes: Boolean
   ): ApplicabilityCandidate = {
     val srr = candidate.resolveResult
 
@@ -296,6 +298,27 @@ object MethodResolveProcessor {
 
     val allTypeParameters = previousTypeParams ++ typeParametersForIdx
 
+    /**
+     * The result type of the candidate, the expected type of the invocation is checked against,
+     * `None` if it is not checked against it.
+     */
+    lazy val resultType: Option[ScType] = element match {
+      case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
+        val bindTypeParamsSubst = ScSubstitutor.bind(td.typeParameters, cons.getConstructorTypeParameters)(TypeParameterType(_))
+        Option(substitutor(bindTypeParamsSubst(td.`type`().getOrNothing)))
+      case Constructor.ofClass(cls) =>
+        Option(substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp))))
+      case f: ScFunction if !f.isInScala3File && f.paramClauses.clauses.count(!_.isImplicit) > effectiveArgs.size =>
+        None //do not check expected types for more than one param clauses
+      case f: ScFunction          => Option(substitutor(f.returnType.getOrNothing))
+      case f: ScSyntheticFunction => Option(substitutor(f.retType))
+      case m: PsiMethod  =>
+        Option(m.getReturnType)
+          .map(rt => substitutor(rt.toScType()))
+          .orElse(Option(Nothing))
+      case _ => Option(Nothing)
+    }
+
     def addExpectedTypeProblems(): ApplicabilityCheckResult = {
       if (expectedOption().isEmpty || !isLastClause) {
         val problemsSeq = problems.result()
@@ -304,22 +327,9 @@ object MethodResolveProcessor {
 
       val expected = expectedOption().get
 
-      val retType: ScType = element match {
-        case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
-          val bindTypeParamsSubst = ScSubstitutor.bind(td.typeParameters, cons.getConstructorTypeParameters)(TypeParameterType(_))
-          substitutor(bindTypeParamsSubst(td.`type`().getOrNothing))
-        case Constructor.ofClass(cls) =>
-          substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp)))
-        case f: ScFunction if !f.isInScala3File && f.paramClauses.clauses.count(!_.isImplicit) > effectiveArgs.size =>
-          problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
-          Nothing
-        case f: ScFunction          => substitutor(f.returnType.getOrNothing)
-        case f: ScSyntheticFunction => substitutor(f.retType)
-        case m: PsiMethod  =>
-          Option(m.getReturnType)
-            .map(rt => substitutor(rt.toScType()))
-            .getOrElse(Nothing)
-        case _ => Nothing
+      val retType: ScType = resultType.getOrElse {
+        problems += ExpectedTypeMismatch
+        Nothing
       }
 
       val conformance = retType.typeSystem.conformsInner(expected, retType)
@@ -477,7 +487,8 @@ object MethodResolveProcessor {
             checkArgsWithImplicits,
             shapesOnly,
             place,
-            clauseIdx
+            clauseIdx,
+            argumentExpectedTypes
           )
 
         problems ++= argsApplicability.problems
@@ -603,11 +614,68 @@ object MethodResolveProcessor {
       if (shapesOnly) Seq.empty
       else            typeParametersForIdx
 
+    /**
+     * The types of the parameters the arguments correspond to, where the type parameters still to be inferred
+     * are replaced by their prototypes, inferred from the expected type of the invocation, just like local type
+     * inference does, see `ScTypePolymorphicType.argsProtoTypeSubst`.
+     *
+     * Unlike the parameter types the arguments are checked against, where the type parameters are replaced by
+     * the solution of the constraints from the expected type, the prototypes keep the bounds of the type parameters.
+     */
+    def argumentPrototypes(matched: Seq[MatchedParameter]): Map[ScExpression, ScType] = {
+      def isSequenceArg(expr: ScExpression): Boolean = expr match {
+        case typed: ScTypedExpression => typed.isSequenceArg
+        case _                        => false
+      }
+
+      val withParameterTypes = matched.collect {
+        case MatchedParameter(parameter, argument, _, _) if argument != null && !isSequenceArg(argument) =>
+          // the type of the parameter, before the constraints from the expected type are solved
+          val undefinedType = parameter.paramInCode.map(Compatibility.toParameter(_, substitutor).paramType)
+          (argument, parameter, undefinedType)
+      }
+
+      val undefinedTypes = withParameterTypes.flatMap(_._3)
+
+      def withTypeParameterTypes(tpe: ScType): ScType = tpe.updateLeaves {
+        case UndefinedType(typeParameter, _) => TypeParameterType(typeParameter)
+      }
+
+      lazy val prototypesSubst: ScSubstitutor = {
+        val expected =
+          if (!isLastClause || resultType.isEmpty) None
+          else expectedOption().map {
+            case ContextFunctionType(ret, _) => ret
+            case other                       => other
+          }
+
+        val methodType = ScMethodType(
+          withTypeParameterTypes(resultType.getOrElse(Nothing)),
+          undefinedTypes.zipWithIndex.map {
+            case (tpe, idx) => Parameter(withTypeParameterTypes(tpe), isRepeated = false, index = idx)
+          }
+        )(using place.elementScope)
+
+        ScTypePolymorphicType(methodType, allTypeParameters).argsProtoTypeSubst(expected)
+      }
+
+      withParameterTypes.map {
+        case (argument, _, Some(undefinedType)) =>
+          argument -> prototypesSubst(withTypeParameterTypes(undefinedType))
+        case (argument, parameter, None) =>
+          // e.g. a parameter of a synthetic or a Java method
+          argument -> withAbstractTypeParameters(parameter.paramType)
+      }.toMap
+    }
+
     val checkedCandidate = candidate.copy(
       resolveResult             = updatedSrr,
       processedTypeParams       = candidate.processedTypeParams ++ processedTypeParameters, //add type params corresponding to the current clause
       usesDefaultParameterValue = applicabilityCheckResult.defaultParameterUsed,
-      usesSAMAdaptation         = applicabilityCheckResult.matched.exists(_.samAdapted)
+      usesSAMAdaptation         = applicabilityCheckResult.matched.exists(_.samAdapted),
+      argumentPrototypes        =
+        if (recordArgumentPrototypes) argumentPrototypes(applicabilityCheckResult.matched)
+        else                          Map.empty
     )
 
     checkedCandidate
@@ -802,12 +870,19 @@ object MethodResolveProcessor {
             if (applicableToShape.isEmpty) allExpanded
             else                           applicableToShape
 
+          val argExpectedTypes =
+            argumentExpectedTypes(
+              if (applicableToShape.isEmpty) shapeChecked
+              else                           applicableToShape
+            )
+
           candidates(
             proc,
             preselected,
             argumentClauses,
             clauseIdx,
-            useExpectedType = withExpectedType
+            useExpectedType       = withExpectedType,
+            argumentExpectedTypes = argExpectedTypes
           )
         }
 
@@ -837,7 +912,7 @@ object MethodResolveProcessor {
         } else {
           //prefer candidates that do not need eta-expansion
           val noEtaExpansion =
-            applicable.filterNot(needsEtaExpansion(_, argumentClauses, clauseIdx))
+            applicable.filterNot(needsEtaExpansion(_, argumentClauses, maxArgClauseIdx))
 
           if (noEtaExpansion.nonEmpty) noEtaExpansion
           else                         applicable
@@ -855,20 +930,77 @@ object MethodResolveProcessor {
   private def needsEtaExpansion(
     cand:            ApplicabilityCandidate,
     argumentClauses: Seq[Seq[Expression]],
-    clauseIdx:       Int
+    maxClauseIdx:    Int
   ): Boolean =
     Compatibility.correspondingParamClause(
       cand.resolveResult.functionParamClauses,
       argumentClauses.drop(cand.shift) ++ Seq(Seq.empty),
-      clauseIdx + 1 - cand.shift
-    ).nonEmpty
+      maxClauseIdx + 1 - cand.shift
+    ).exists(!_.isImplicit)
+
+  /**
+   * The expected types of the arguments of the invocation, which are derived from the types of the parameters,
+   * the arguments correspond to, of all the alternatives applicable to the shapes of the arguments
+   * (just like [[ExpectedTypes.expectedExprTypes]] derives the expected type of an argument from its context).
+   *
+   * Each argument is typed against its expected type, while it is adapted to the type of the corresponding parameter
+   * of each of the alternatives, see [[Compatibility.checkMethodApplicability]].
+   * In particular, an argument of an overloaded method has no expected type, unless it is a function literal
+   * and the alternatives agree on its parameter types, see SLS 6.26.3.
+   */
+  private def argumentExpectedTypes(
+    shapeCandidates: Set[ApplicabilityCandidate]
+  ): Map[ScExpression, Option[ScType]] = {
+    val parameterTypesByArgument =
+      shapeCandidates.toSeq
+        .flatMap(_.argumentPrototypes)
+        .groupMap(_._1)(_._2)
+
+    parameterTypesByArgument.map {
+      case (argument, parameterTypes) =>
+        argument ->
+          ExpectedTypes
+            .instance()
+            .expectedTypeFromAlternatives(
+              argument,
+              parameterTypes.distinct
+            )
+    }
+  }
+
+  /**
+   * The types of the parameters of a candidate still refer to its undetermined type parameters,
+   * as [[UndefinedType]]s, which are replaced by [[ScAbstractType]]s in an expected type, see
+   * [[ScTypePolymorphicType.abstractTypeSubstitutor]].
+   */
+  private def withAbstractTypeParameters(tpe: ScType): ScType = {
+    import tpe.projectContext
+
+    def referencesTypeParameters(bound: ScType): Boolean = bound.subtypeExists {
+      case _: TypeParameterType | _: UndefinedType => true
+      case _                                       => false
+    }
+
+    tpe.updateLeaves {
+      case UndefinedType(typeParameter, _) =>
+        val lower = typeParameter.lowerType
+        val upper = typeParameter.upperType
+
+        ScAbstractType(
+          typeParameter,
+          if (referencesTypeParameters(lower)) Nothing else lower,
+          if (referencesTypeParameters(upper)) Any else upper
+        )
+    }
+  }
 
   private def candidates(
-    proc:            MethodResolveProcessor,
-    preselected:     Set[ApplicabilityCandidate],
-    argumentClauses: Seq[Seq[Expression]],
-    clauseIdx:       Int,
-    useExpectedType: Boolean
+    proc:                  MethodResolveProcessor,
+    preselected:           Set[ApplicabilityCandidate],
+    argumentClauses:       Seq[Seq[Expression]],
+    clauseIdx:             Int,
+    useExpectedType:       Boolean,
+    argumentExpectedTypes: Map[ScExpression, Option[ScType]]
   ): Set[ApplicabilityCandidate] = {
     import proc.*
 
@@ -878,10 +1010,11 @@ object MethodResolveProcessor {
     var mapped = checkResultsApplicability(
       proc,
       preselected,
-      checkWithImplicits = false,
-      useExpectedType    = useExpectedType,
-      args               = argumentClauses,
-      argClauseIdx       = clauseIdx
+      checkWithImplicits    = false,
+      useExpectedType       = useExpectedType,
+      args                  = argumentClauses,
+      argClauseIdx          = clauseIdx,
+      argumentExpectedTypes = argumentExpectedTypes
     )
 
     var filtered = applicableResults(mapped)
@@ -893,10 +1026,11 @@ object MethodResolveProcessor {
       mapped = checkResultsApplicability(
         proc,
         preselected,
-        checkWithImplicits = true,
-        useExpectedType    = useExpectedType,
-        args               = argumentClauses,
-        argClauseIdx       = clauseIdx
+        checkWithImplicits    = true,
+        useExpectedType       = useExpectedType,
+        args                  = argumentClauses,
+        argClauseIdx          = clauseIdx,
+        argumentExpectedTypes = argumentExpectedTypes
       )
 
       filtered = applicableResults(mapped)
@@ -1210,7 +1344,8 @@ object MethodResolveProcessor {
     useExpectedType:       Boolean,
     args:                  Seq[Seq[Expression]],
     argClauseIdx:          Int,
-    shapesOnly:            Boolean = false,
+    shapesOnly:            Boolean                           = false,
+    argumentExpectedTypes: Map[ScExpression, Option[ScType]] = Map.empty
   ): Set[ApplicabilityCandidate] = {
     import proc.*
 
@@ -1239,11 +1374,14 @@ object MethodResolveProcessor {
         currentClauseArgs,
         prevTypeInfo,
         if (useExpectedType) expectedOption else () => None,
-        selfConstructorResolve = selfConstructorResolve,
-        isUnderscore           = isUnderscore,
-        shapesOnly             = shapesOnly,
-        argClauseIdx           = argClauseIdx,
-        isLastClause           = isLastClause
+        selfConstructorResolve   = selfConstructorResolve,
+        isUnderscore             = isUnderscore,
+        shapesOnly               = shapesOnly,
+        argClauseIdx             = argClauseIdx,
+        isLastClause             = isLastClause,
+        argumentExpectedTypes    = argumentExpectedTypes,
+        // only needed for the full applicability check following the shape check
+        recordArgumentPrototypes = shapesOnly && !isShapeResolve
       )
 
       resultBuilder += checkedCandidate
@@ -1445,6 +1583,8 @@ object MethodResolveProcessor {
    *                                  def f(t: (Int, Int)): Unit = ...
    *                                  f(1, 2)  // auto-tupled to f((1, 2));
    *                                  }}}
+   * @param argumentPrototypes        The types the arguments of the current clause are typed against,
+   *                                  as found by the last shape check, see [[argumentExpectedTypes]].
    */
   private case class ApplicabilityCandidate(
     resolveResult:             ScalaResolveResult,
@@ -1453,7 +1593,8 @@ object MethodResolveProcessor {
     var stripTypeArgs:         Boolean                  = false,
     usesSAMAdaptation:         Boolean                  = false,
     usesDefaultParameterValue: Boolean                  = false,
-    usesAutoTupling:           Boolean                  = false
+    usesAutoTupling:           Boolean                  = false,
+    argumentPrototypes:        Map[ScExpression, ScType] = Map.empty
   ) {
     def effectiveClauseIdx(globalClauseIdx: Int): Int = globalClauseIdx - shift
 

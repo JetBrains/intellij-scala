@@ -11,7 +11,7 @@ final class ScLiteralTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
 
   // A written down literal type is never widened, simply because nothing infers it, see
   // org.jetbrains.plugins.scala.lang.psi.types.Widening
-  override protected def innerType: result.TypeResult = getLiteral.getNonValueType()
+  override protected def innerType: result.TypeResult = getLiteral.getNonValueType(expectedType = None)
 
   override def getLiteral: ScLiteral = getFirstChild.asInstanceOf[ScLiteral]
 

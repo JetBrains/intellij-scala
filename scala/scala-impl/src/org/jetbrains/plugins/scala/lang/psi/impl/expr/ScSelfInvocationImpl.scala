@@ -124,7 +124,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
    * [[org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl]] records them for
    * `new A(1)`.
    */
-  override protected def updateImplicitArguments(): Unit =
+  override protected def updateImplicitArguments(): Option[ScType] = {
     for {
       srr         <- multiResolve.headOption
       constructor <- srr.element.asOptionOf[PsiMethod]
@@ -134,6 +134,9 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
 
       setImplicitArguments(implicitArguments)
     }
+
+    None
+  }
 
   override def toString: String = "SelfInvocation"
 

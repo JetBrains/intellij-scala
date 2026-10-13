@@ -48,7 +48,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     }
   }
 
-  private def widenSingletonsInRetType(retType: ScType): ScType = {
+  private def widenSingletonsInRetType(retType: ScType, expectedType: Option[ScType]): ScType = {
     // The expected type doesn't have to be a function type, it may also be a SAM type, whose
     // abstract method is what determines the expected result type, as in
     // `((x => x): T)` for a `trait T { def apply(x: s.type): s.type }`
@@ -57,7 +57,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
       case _                                 => SAMUtil.SAMToFunctionType(expected, this)
     }
 
-    val expectedRetTpe = this.expectedType().flatMap(asFunctionType).collect {
+    val expectedRetTpe = expectedType.flatMap(asFunctionType).collect {
       // The result type is in covariant position, so an expected type that isn't fully determined
       // yet only bounds it from above
       case FunctionType(expectedRetTpe, _) => expectedRetTpe.removeVarianceAbstracts()
@@ -72,9 +72,15 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
     Widening.widenInferred(retType, expectedRetTpe)
   }
 
-  protected override def innerType: TypeResult = {
-    val paramTypes      = parameters.map(_.`type`().getOrNothing)
-    val maybeResultType = result.map(r => widenSingletonsInRetType(r.`type`().getOrAny))
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
+    // The parameter types are derived from the expected type computed from the context of this function literal,
+    // since they are shared by all the references to the parameters, see ScParameter.expectedParamType
+    val paramTypes = parameters.map(_.`type`().getOrNothing)
+
+    val maybeResultType = result.map { r =>
+      val resultType = r.`type`(ExpectedTypePropagation.functionLiteralResult(this, r, expectedType)).getOrAny
+      widenSingletonsInRetType(resultType, expectedType)
+    }
 
     val functionTypeFactory =
       if (isContext) ContextFunctionType

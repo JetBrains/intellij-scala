@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
@@ -26,13 +26,19 @@ class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry wit
 
   override def finallyBlock: Option[ScFinallyBlock] = findChild[ScFinallyBlock]
 
-  protected override def innerType: TypeResult =
-    expression.map(_.`type`().flatMap { tryBlockType =>
+  protected override def innerType(expectedType: Option[ScType]): TypeResult =
+    expression.map(e => e.`type`(ExpectedTypePropagation.nested(expectedType, e)).flatMap { tryBlockType =>
       val maybeExpression = catchBlock.flatMap(_.expression)
+
+      // the bodies of the case clauses of a catch block are typed against the expected type of the try expression
+      def handlerType(handler: ScExpression): TypeResult = handler match {
+        case block: ScBlock if block.isInCatchBlock && block.hasCaseClauses => block.catchBlockType(expectedType)
+        case _                                                             => handler.`type`(expectedType = None)
+      }
 
       val candidates = for {
         expr <- maybeExpression.toSeq
-        (tp, processor) <- expr.`type`().toOption.zip(createProcessor(expr)).toSeq
+        (tp, processor) <- handlerType(expr).toOption.zip(createProcessor(expr)).toSeq
         candidate <- {
           processor.processType(tp, expr)
           processor.candidates
