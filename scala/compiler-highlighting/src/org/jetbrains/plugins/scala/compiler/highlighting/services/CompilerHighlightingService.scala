@@ -1,45 +1,44 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services
 
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationRequestsScheduler, ConcurrentPriorityQueue, DeduplicationLogic, PriorityQueue}
-import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.CompilationRequest
+import com.intellij.openapi.util.Disposer
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.runner.{HighlightingRunner, RequestInfo}
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{RequestProvider, TracingProvider}
+import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.{CompilationRequest, HighlightingRequest}
+import org.jetbrains.plugins.scala.compiler.tracing.Tracing
+import org.jetbrains.plugins.scala.compiler.tracing.core.events.BaseEvent
 
-/**
- * Main entry point for compiler-based highlighting: it's possible to either schedule a compilation request
- * asynchronously ([[requestCompilation]]) or compile immediately ([[compile]]).
- */
-@Service(Array(Service.Level.PROJECT))
-private[highlighting] final class CompilerHighlightingService(project: Project) extends Disposable {
+import scala.language.implicitConversions
 
-  private val queue: PriorityQueue[CompilationRequest] =
-    new ConcurrentPriorityQueue[CompilationRequest]()(using CompilationRequest.compilationRequestOrdering)
+final private class CompilerHighlightingService(project: Project) extends HighlightingService:
 
-  private val scheduler: CompilationRequestsScheduler =
-    CompilationRequestsScheduler(project, queue, DeduplicationLogic(project, queue, compile))
+  private case class Provider() extends
+    RequestProvider(new HighlightingPlanRuntime(project))
+    with TracingProvider(project)
+  private val provider: RequestProvider = Provider()
 
   private val progressService: ProjectProgressService = ProjectProgressService(project)
 
-  /** Enqueues `request`; the scheduler merges/deduplicates it and executes it once it is ready. */
-  def requestCompilation(request: CompilationRequest): Unit = scheduler.schedule(request)
+  private val Log = Logger.getInstance(classOf[CompilerHighlightingService])
+  /** used to easily pass `compile` when creating the HighlightingRunner */
+  private given Conversion[RequestInfo, CompilationRequest] = r => r._1
+  
+  private val runner = HighlightingRunner(provider, compile)
+  
+  override def request(reason: String): Unit =
+    Tracing(project).instant(BaseEvent("Waking up runner", args = Map("Reason" -> reason)).closed())
+    runner.wakeUp()
+  
+  override def request(request: HighlightingRequest): Unit =
+    provider.add(request)
+    this.request(request.debugReason)
+  
+  def compile(request: CompilationRequest): Unit = if !project.isDisposed 
+    then request.execute()
+    else Log.warn(s"project disposed, skipped: $request")
 
-  /**
-   * Executes `request` right now, on the calling thread, bypassing the queue: no debouncing, no
-   * deduplication, no deadline. For instance because it must run within an already-running compilation session.
-   * Failures propagate to the caller.
-   */
-  def compile(request: CompilationRequest): Unit =
-    if (!project.isDisposed) request.execute()
-
-  override def dispose(): Unit = {
-    scheduler.dispose()
+  override def dispose(): Unit =
+    Disposer.dispose(runner)
+    Disposer.dispose(provider)
     progressService.cancel()
-  }
-}
-
-private[highlighting] object CompilerHighlightingService {
-
-  def get(project: Project): CompilerHighlightingService =
-    project.getService(classOf[CompilerHighlightingService])
-}

@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference
  * compilation has got.
  */
 @Service(Array(Service.Level.PROJECT))
-final class ProjectProgressService {
+final class ProjectProgressService:
 
   private val progressIndicator: AtomicReference[ProgressIndicator] = new AtomicReference()
 
@@ -29,22 +29,19 @@ final class ProjectProgressService {
 
   def resetCompilationProgress(): Unit = progress = ProjectProgressService.Finished
 
-  def cancel(): Unit = {
+  def cancel(): Unit = 
     val indicator = progressIndicator.get()
     if (indicator ne null) {
       indicator.cancel()
     }
-  }
-
+  
   def setIndicator(indicator: ProgressIndicator): Unit = progressIndicator.set(indicator)
 
   def clearIndicator(): Unit = progressIndicator.set(null)
-}
 
-object ProjectProgressService {
+object ProjectProgressService:
 
   private final val Finished: Double = 1.0
 
   def apply(project: Project): ProjectProgressService =
     project.getService(classOf[ProjectProgressService])
-}

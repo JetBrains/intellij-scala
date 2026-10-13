@@ -14,11 +14,14 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiManager}
 import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresReadLock}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.compiler.highlighting.core.CompilerGeneratedStateManager
-import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.HighlightingEvent
+import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.CompilationDurationEvent.HighlightingPhaseID
+import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.{CompilationDurationEvent, HighlightingEvent}
 import org.jetbrains.plugins.scala.compiler.highlighting.listeners.ExternalHighlightingAppliedListener
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{ExternalHighlightingFixProvider, ExternalHighlightingUpdater, HighlightInfoFactory, HighlightingRangeCalculator}
 import org.jetbrains.plugins.scala.compiler.highlighting.util.DocumentUtil
+import org.jetbrains.plugins.scala.compiler.highlighting.util.TracingUtil.endTrace
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
+import org.jetbrains.plugins.scala.compiler.tracing.core.events.BaseEvent
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -69,7 +72,8 @@ private[highlighting] final class ExternalHighlightersService(project: Project) 
    */
   def applyHighlightingState(virtualFiles: Set[VirtualFile], compilationId: CompilationId): Unit = {
     if (project.isDisposed) return
-    val span = tracer.begin(HighlightingEvent(compilationId))
+    val passId = HighlightingEvent.id()
+    val span = tracer.begin(HighlightingEvent(compilationId, passId))
 
     val readActionCallable: Callable[HighlightInfoData] = { () =>
       val state = CompilerGeneratedStateManager.get(project).toHighlightingState
@@ -83,7 +87,7 @@ private[highlighting] final class ExternalHighlightersService(project: Project) 
         psiFile <- Option(psiManager.findFile(virtualFile)) if ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
       } yield {
         val externalHighlights = state.externalHighlightings(virtualFile)
-        val highlightInfos = highlightInfoFactory.calculateHighlightInfos(externalHighlights, document, psiFile, compilationId)
+        val highlightInfos = highlightInfoFactory.calculateHighlightInfos(externalHighlights, document, psiFile, passId)
         HighlightingData(editor, document, psiFile, virtualFile, highlightInfos)
       }
 
@@ -132,7 +136,7 @@ private[highlighting] final class ExternalHighlightersService(project: Project) 
       files =>
         if (ended.compareAndSet(false, true)) {
           tracer.mapAndEnd(span) {
-            case event@HighlightingEvent(_, _) => Some(event.copy(files = files.map(_.toString)).closed())
+            case event@HighlightingEvent(_, _,_) => Some(event.copy(files = files.map(_.toString)).closed())
             case e => Some(e.closed())
           }
           if (isUnitTestMode) {
@@ -185,11 +189,15 @@ private[highlighting] final class ExternalHighlightersService(project: Project) 
    *
    * @return how many recorded diagnostics the files had between them
    */
-  def renderRecordedDiagnostics(files: Set[VirtualFile]): Int =
+  def renderRecordedDiagnostics(files: Set[VirtualFile], requestId: Any): Int =
     if (files.isEmpty) 0
     else {
       val recorded = CompilerGeneratedStateManager.get(project).toHighlightingState
-      applyHighlightingState(files, ExternalHighlightersService.renderOf(files))
+      val mockCompilationId = ExternalHighlightersService.renderOf(files)
+      tracer.instant(BaseEvent("Getting recorded highlightings", parentKey = Some(requestId), 
+        key = Some(HighlightingPhaseID(mockCompilationId)), closeParent = true, closeOnEnd = false))
+      applyHighlightingState(files, mockCompilationId)
+      tracer.endTrace(CompilationDurationEvent.key(mockCompilationId), "Highlighting dispatched")
       files.toSeq.map(recorded.externalHighlightings(_).size).sum
     }
 

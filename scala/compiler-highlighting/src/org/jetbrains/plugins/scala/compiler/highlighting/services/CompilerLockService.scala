@@ -4,6 +4,7 @@ import com.intellij.compiler.CompilerManagerImpl
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{CompilerLockWaitPhaseEvent, LockWaitKind, RequestId}
@@ -29,6 +30,7 @@ private[highlighting] final class CompilerLockService(project: Project) {
   }
 
   private val ready: AtomicBoolean = new AtomicBoolean(false)
+  protected val Log: Logger = Logger.getInstance(classOf[CompilerLockService])
 
   def withCompilerLock(indicator: ProgressIndicator, requestId: RequestId)(body: => Unit): Unit = {
     withPermit(projectReadySemaphore, indicator, LockWaitKind.ProjectReady, requestId) {

@@ -38,6 +38,15 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+        <projectService
+                serviceInterface="org.jetbrains.plugins.scala.compiler.highlighting.services.HighlightingService"
+                serviceImplementation="org.jetbrains.plugins.scala.compiler.highlighting.services.CompilerHighlightingService"
+                open="true"/>
+        <projectService
+                serviceInterface="org.jetbrains.plugins.scala.compiler.highlighting.services.TriggerService"
+                serviceImplementation="org.jetbrains.plugins.scala.compiler.highlighting.services.HighlightingTriggerService"
+                open="true"/>
+
         <trafficLightRendererContributor implementation="org.jetbrains.plugins.scala.compiler.highlighting.core.CustomTrafficLightRendererContributor"/>
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.compiler.highlighting.core.EraseCompilerProcessJdkOnce"/>
 
@@ -58,7 +67,7 @@
 
         <vfs.asyncListener implementation="org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingFileListener"/>
 
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.compiler.highlighting.core.CompilerHighlightingSetupActivity"/>
+        <psi.treeChangeListener implementation="org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingPsiChangeListener"/>
     </extensions>
 
     <applicationListeners>
@@ -90,5 +99,13 @@
                   class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.ToggleHighlightingModeListener$OnModuleRootChange"
                   activeInTestMode="false"
                   />
+        <listener class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.LookupGestureListener"
+                  topic="com.intellij.codeInsight.lookup.LookupManagerListener"/>
+
+        <listener class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.TemplateListener"
+                  topic="com.intellij.codeInsight.template.TemplateManagerListener"/>
+
+        <listener class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.DumbModeListener"
+                  topic="com.intellij.openapi.project.DumbService$DumbModeListener"/>
     </projectListeners>
 </idea-plugin>

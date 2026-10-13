@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.compiler.highlighting.services.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
-import org.jetbrains.plugins.scala.compiler.highlighting.services.{ExternalHighlightersService, HighlightingTriggerService}
+import org.jetbrains.plugins.scala.compiler.highlighting.services.{ExternalHighlightersService, TriggerService}
 import org.jetbrains.plugins.scala.extensions.{inReadAction, invokeAndWait}
 
 private[highlighting] object SettingsTrigger:
@@ -24,7 +24,7 @@ private[highlighting] object SettingsTrigger:
     if virtualFile eq null then return
 
     val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
-    HighlightingTriggerService(project).bypass(virtualFile, debugReason)
+    TriggerService(project).bypass(virtualFile, debugReason)
 
     // Wipe the existing visual highlighters and problem views asynchronously
     cleanHighlightings(project, virtualFile, debugReason)

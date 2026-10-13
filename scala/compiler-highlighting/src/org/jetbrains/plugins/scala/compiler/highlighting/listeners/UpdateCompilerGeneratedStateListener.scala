@@ -21,8 +21,8 @@ import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhas
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{BuildManagerSessionPhaseEvent, CompilationRequestPhaseEvent}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.compiler.highlighting.services.{ExternalHighlightersService, ProjectProgressService}
+import org.jetbrains.plugins.scala.compiler.highlighting.util.TracingUtil.endTrace
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.EndEvent
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
@@ -44,6 +44,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
   private val Log: Logger = Logger.getInstance(classOf[UpdateCompilerGeneratedStateListener])
 
   private val tracer = Tracing(project)
+  
   private def parseEelPath(source: SerializablePath): Option[Path] =
     try {
       val pathString = FileUtil.toSystemIndependentName(SerializablePath.unsafePathAsString(source))
@@ -70,8 +71,6 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
 
     event match {
       case CompilerEvent.CompilationStarted(compilationId, compilationUnitId, buildReason, jpsSessionId) =>
-        Log.info(s"[tracing] CompilationStarted received: id=$compilationId module=${compilationUnitId.map(_.moduleId)} " +
-          s"reason=$buildReason session=$jpsSessionId")
         traceCompilationStart(compilationId, compilationUnitId, buildReason, jpsSessionId)
         val newHighlightOnCompilationFinished = oldState.toHighlightingState.filesWithHighlightings
         val newState = oldState.copy(highlightOnCompilationFinished = newHighlightOnCompilationFinished)
@@ -178,6 +177,7 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
           executeOnBackgroundThreadInNotDisposed(project) {
             try {
               ExternalHighlightersService(project).applyHighlightingState(toHighlight, compilationId)
+              tracer.endTrace(CompilationDurationEvent.key(compilationId), "Highlighting dispatched")
             } catch {
               // don't know what else we can do if compilation was cancelled at this stage
               // probably just don't show updated highlightings
@@ -186,14 +186,13 @@ private class UpdateCompilerGeneratedStateListener(project: Project) extends Com
             }
           }
         } else {
-          tracer.instant(EndEvent(CompilationDurationEvent.key(compilationId), "No file to highlight"))
+          tracer.endTrace(CompilationDurationEvent.key(compilationId), "No file to highlight")
         }
       case _ =>
     }
   }
 
   private def traceCompilationFinished(compilationId: CompilationId): Unit = {
-    Log.info(s"[tracing] CompilationFinished received: $compilationId")
     tracer.mapAndEnd(compilationId) {
       // A compilation cancelled before it started still emits CompilationFinished (the JPS `finally`), so its
       // request span was never handed off. It self-removes its own compilationId context key here.

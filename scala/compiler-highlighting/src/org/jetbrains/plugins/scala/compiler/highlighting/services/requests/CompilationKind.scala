@@ -9,4 +9,3 @@ enum CompilationKind:
     case InMemoryDocument => "Document (In memory)"
     case Document => "Document"
     case Worksheet => "Worksheet"
-    case null => super.toString

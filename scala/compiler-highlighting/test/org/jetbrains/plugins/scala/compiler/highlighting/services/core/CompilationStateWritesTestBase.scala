@@ -1,13 +1,14 @@
-package org.jetbrains.plugins.scala.compiler.highlighting.compilation
+package org.jetbrains.plugins.scala.compiler.highlighting.services.core
 
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import org.jetbrains.jps.model.java.JavaResourceRootType
 import org.jetbrains.plugins.scala.compiler.highlighting.services.CompilationLogicService
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationState, ModuleKey}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.runner.ScalaFixtureTestCaseWithSourceFolder
-import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
 import org.jetbrains.plugins.scala.util.RevertableChange
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 
@@ -23,12 +24,12 @@ import scala.compiletime.uninitialized
  * Compiler-based highlighting is on, since [[CompilationLogicService]] records nothing while it is off and
  * every assertion that nothing was recorded would hold vacuously.
  */
-abstract class CompilationStateWritesTestBase extends ScalaFixtureTestCaseWithSourceFolder {
+abstract class CompilationStateWritesTestBase extends ScalaFixtureTestCaseWithSourceFolder:
 
   private var resourceRoot: VirtualFile = uninitialized
   private var outsideDir: VirtualFile = uninitialized
 
-  override protected def setUp(): Unit = {
+  override protected def setUp(): Unit =
     super.setUp()
     resourceRoot = VfsTestUtil.createDir(getBaseDir, "resources")
     outsideDir = VfsTestUtil.createDir(getBaseDir.getParent, "outside")
@@ -39,14 +40,19 @@ abstract class CompilationStateWritesTestBase extends ScalaFixtureTestCaseWithSo
       ScalaHighlightingMode.compilerHighlightingEnabledInTests = _,
       true
     ).applyChange(this)
-  }
+    // Application-wide, and some tests elsewhere switch it off without restoring it.
+    RevertableChange.withModifiedSetting[Boolean](
+      ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED,
+      ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = _,
+      true
+    ).applyChange(this)
+  
 
-  private def assertRootsAreAsExpected(): Unit = {
+  private def assertRootsAreAsExpected(): Unit =
     val fileIndex = ProjectRootManager.getInstance(getProject).getFileIndex
     assertTrue("src must be a source root", fileIndex.isInSourceContent(getSourceRootDir))
     assertTrue("resources must be in source content", fileIndex.isInSourceContent(resourceRoot))
     assertFalse("outside must be in no source content", fileIndex.isInSourceContent(outsideDir))
-  }
 
   protected def logic: CompilationLogicService = CompilationLogicService(getProject)
 
@@ -77,40 +83,34 @@ abstract class CompilationStateWritesTestBase extends ScalaFixtureTestCaseWithSo
     inWriteAction(file.setBinaryContent(text.getBytes(file.getCharset)))
 
   /** Puts `file`'s target into `compiledAt`, so that losing it is observable. */
-  protected def markTargetBuilt(file: VirtualFile): Unit = {
+  protected def markTargetBuilt(file: VirtualFile): Unit =
     val token = logic.compilationStarted(Set(file))
     ModuleKey.of(getProject, file).foreach(target =>
       logic.compilationSucceeded(token, Set(target), Set(file))
     )
-  }
 
-  protected def assertRecordsModified(files: VirtualFile*)(body: => Unit): Unit = {
+  protected def assertRecordsModified(files: VirtualFile*)(body: => Unit): Unit =
     val before = state
     body
     val after = state
     assertEquals("modified files", before.modifiedFiles ++ files, after.modifiedFiles)
     assertTrue("the change clock must advance", after.changesEpoch > before.changesEpoch)
-  }
 
-  protected def assertRecordsOnlyClock(body: => Unit): Unit = {
+  protected def assertRecordsOnlyClock(body: => Unit): Unit =
     val before = state
     body
     val after = state
     assertEquals("modified files must not grow", before.modifiedFiles, after.modifiedFiles)
     assertTrue("the change clock must advance", after.changesEpoch > before.changesEpoch)
-  }
 
-  protected def assertRecordsNothing(body: => Unit): Unit = {
+  protected def assertRecordsNothing(body: => Unit): Unit =
     val before = state
     body
     assertEquals("nothing should have been recorded", before, state)
-  }
 
-  protected def assertInvalidatesEverything(body: => Unit): Unit = {
+  protected def assertInvalidatesEverything(body: => Unit): Unit =
     val before = state
     body
     val after = state
     assertTrue("compiledAt must be cleared", after.compiledAt.isEmpty)
     assertTrue("the change clock must advance", after.changesEpoch > before.changesEpoch)
-  }
-}

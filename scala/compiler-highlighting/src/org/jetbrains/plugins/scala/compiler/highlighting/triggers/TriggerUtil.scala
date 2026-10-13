@@ -13,10 +13,13 @@ import org.jetbrains.plugins.scala.extensions.{PsiFileExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.{ScalaCompileServerSettings, ScalaHighlightingMode}
 
-private[highlighting] object TriggerUtil {
+private[highlighting] object TriggerUtil:
 
   def isHighlightingEnabled: Boolean =
     !PowerSaveMode.isEnabled && ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED
+
+  def isHighlightingEnabled(project: Project): Boolean =
+    isHighlightingEnabled && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
 
   def isHighlightingEnabledFor(psiFile: PsiFile, virtualFile: VirtualFile, project: Project): Boolean = inReadAction {
     ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile) &&
@@ -35,4 +38,3 @@ private[highlighting] object TriggerUtil {
   def fileCompilationScope(project: Project, virtualFile: VirtualFile, module: Module,
                                    document: Document, psiFile: PsiFile): FileCompilationScope =
     FileCompilationScope(virtualFile, module, sourceScopeOf(project, virtualFile), document, psiFile)
-}

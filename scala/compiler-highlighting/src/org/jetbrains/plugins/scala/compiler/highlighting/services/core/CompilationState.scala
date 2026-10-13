@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.compiler.highlighting.compilation
+package org.jetbrains.plugins.scala.compiler.highlighting.services.core
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.compiler.highlighting.compilation.CompilationDecision.{Document, Incremental, Recorded, UpToDate}
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.CompilationDecision.{Document, Incremental, Recorded, UpToDate}
 
 /**
  * Represents the current state of the build and compilation outputs.
@@ -109,7 +109,7 @@ object CompilationState:
         case (_, f) if state.isRecorded(f) => Recorded
         case (t, f) if state.isDocumentCompilable(t, f) => Document
         case (_, f) =>
-          val scope = state.incrementalScope(f)
+          val scope = state.incrementalScope(Set(f))
           if (state.isBlocked(scope)) UpToDate
           else Incremental(scope)
 
@@ -117,6 +117,16 @@ object CompilationState:
     private def isRecorded(file: VirtualFile): Boolean =
       state.lastAttemptEpoch == state.changesEpoch && state.coveredFiles.contains(file)
 
+    /**
+     * Calculates the scope for incremental compilation, excluding known unbuildable files.
+     *
+     * Takes a set because several files can be asked about at once, and the union of their scopes has to be
+     * computed here rather than by folding the single-file answers. Folding happens to give the same result
+     * today only because this formula distributes over the added files; a narrower rule, per module say,
+     * would not, and the fold would then diverge silently.
+     */
+    def incrementalScope(files: Set[VirtualFile]): Set[VirtualFile] =
+      (state.modifiedFiles -- state.failedFiles ++ files).filter(_.isValid)
     /**
      * Checks if we recently tried to compile this exact set of files and it failed,
      * and no files in the project have been modified since that attempt.
