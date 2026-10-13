@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.highlighting.compilation
+package org.jetbrains.plugins.scala.compiler.highlighting.services.core
 
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
@@ -17,7 +17,7 @@ import org.jetbrains.sbt.project.settings.DisplayModuleName
  */
 final case class ModuleKey(module: Module, sourceScope: SourceScope)
 
-object ModuleKey {
+object ModuleKey:
 
   /**
    * The build target `virtualFile` belongs to, or `None` when it belongs to no module.
@@ -48,4 +48,3 @@ object ModuleKey {
       .map(_.findRepresentativeModuleForSharedSourceModuleOrSelf)
       .map(ModuleKey(_, if (unitId.testScope) SourceScope.Test else SourceScope.Production))
   }
-}

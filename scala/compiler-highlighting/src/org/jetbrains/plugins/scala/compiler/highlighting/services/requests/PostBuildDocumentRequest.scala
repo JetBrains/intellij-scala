@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEven
 import org.jetbrains.plugins.scala.util.CanonicalPath
 
 import scala.collection.immutable.HashMap
-import scala.concurrent.duration.Deadline
 
 /**
  * A [[DocumentRequest]] issued right after a full incremental build has finished (see
@@ -17,16 +16,11 @@ import scala.concurrent.duration.Deadline
 final class PostBuildDocumentRequest(
   scope: FileCompilationScope,
   debugReason: String,
-  deadline: Deadline,
   requestId: RequestId,
-  project: Project
-) extends DocumentRequest(scope, debugReason, deadline, requestId, project) {
-
-  /**
-   * Never scheduled, so never delayed. Overridden because the inherited `copy` would return a plain
-   * [[DocumentRequest]], silently dropping the shared client and starting a compilation of its own.
-   */
-  override def delayed(newDeadline: Deadline): DocumentRequest = this
+  project: Project,
+  closeParent: Boolean = false
+) extends DocumentRequest(scope, requestId, project, closeParent) {
+  
   override protected def awaitCompletion: Boolean = false
 
   override protected def reportedDocumentVersions: SerializableMap[CanonicalPath, Long] =

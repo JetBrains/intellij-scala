@@ -1,9 +1,11 @@
-package org.jetbrains.plugins.scala.compiler.highlighting.compilation
+package org.jetbrains.plugins.scala.compiler.highlighting.services.core
 
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.compiler.highlighting.util.PsiUtil.isWorksheet
 
 /** What has to be done to obtain up-to-date diagnostics for a file. */
-enum CompilationDecision {
+enum CompilationDecision:
 
   /**
    * The file's build target is current and nothing anywhere is unbuilt, so its stored highlightings hold and
@@ -37,19 +39,27 @@ enum CompilationDecision {
    */
   case Incremental(scope: Set[VirtualFile])
 
-  /**
-   * Whether the output of the file's build target can be relied upon: false only for [[Incremental]] and [[Recorded]],
-   * the decisions that say the output is missing or behind.
-   */
-  def trustsBuildOutput: Boolean = this match {
-    case Incremental(_) | Recorded => false
-    case _ => true
-  }
-
-  override def toString: String = this match {
+  override def toString: String = this match
     case UpToDate => "up to date"
     case Recorded => "recorded"
     case Document => "document"
     case Incremental(scope) => s"incremental (${scope.map(_.getPresentableName).mkString(",")} file(s))"
-  }
-}
+
+object CompilationDecision:
+  extension(decision: CompilationDecision)
+  /**
+   * Whether the output of the file's build target can be relied upon: false only for [[Incremental]] and [[Recorded]],
+   * the decisions that say the output is missing or behind.
+   */
+    def trustsBuildOutput: Boolean = decision match
+      case Incremental(_) | Recorded => false
+      case _ => true
+
+    def servedFromStore(psi: PsiFile): Boolean = decision.servedFromStore(isWorksheet(psi))
+
+    def servedFromStore(isWorksheet: Boolean): Boolean = decision match
+      case _ if isWorksheet => false
+      case CompilationDecision.UpToDate => true
+      case CompilationDecision.Recorded => true
+      case _ => false
+

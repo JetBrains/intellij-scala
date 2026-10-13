@@ -16,17 +16,14 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.CanonicalPath
 
 import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.Deadline
 
 case class BspIncrementalRequest(
   override val fileCompilationScopes: Map[VirtualFile, FileCompilationScope],
-  override val debugReason: String,
-  override val deadline: Deadline,
   override val requestId: RequestId,
   override val project: Project,
   override val runDocumentCompiler: Boolean = true,
   override val closeRequest: Boolean = false
-) extends IncrementalRequest(fileCompilationScopes, debugReason, deadline, requestId, project, runDocumentCompiler, closeRequest) {
+) extends IncrementalRequest(fileCompilationScopes, requestId, project, runDocumentCompiler, closeRequest):
 
   override def kind: CompilationKind = CompilationKind.BSPIncremental
 
@@ -34,7 +31,7 @@ case class BspIncrementalRequest(
     scopes: Map[VirtualFile, FileCompilationScope],
     client: CompilerEventGeneratingClient,
     docVersions: SerializableMap[CanonicalPath, Long]
-  ): Unit = {
+  ): Unit = 
     val context = new ProjectTaskContext()
     val modules = scopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet.toArray
     val sourceScope = mergeSourceScope(scopes)
@@ -62,19 +59,13 @@ case class BspIncrementalRequest(
       return
     }
 
-    val handedOff = runDocumentCompiler && reporter.successful &&
+    if(runDocumentCompiler && reporter.successful) {
       DocumentCompilationTrigger.triggerDocumentCompilationInAllOpenEditors(project,
         "After BSP compilation",
         id,
         Some(client)
       )
-    if (!handedOff) {
-      Tracing(project).instant(EndEvent(id, "No document compilation followed BSP incremental compilation"))
     }
-  }
 
   /** Returns a new instance with updated file compilation scopes. */
   override def withScopes(scopes: Map[VirtualFile, FileCompilationScope]): IncrementalRequest = copy(fileCompilationScopes = scopes)
-  override def delayed(newDeadline: Deadline): BspIncrementalRequest = copy(deadline = newDeadline)
-
-}

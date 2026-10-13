@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.compiler.highlighting.services
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.compiler.highlighting.compilation.{CompilationToken, ModuleKey}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.CompilationLogicService
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationToken, ModuleKey}
 
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference
  * the end.
  */
 @Service(Array(Service.Level.PROJECT))
-final class ExternalBuildTracker(project: Project) {
+final class ExternalBuildTracker(project: Project):
 
   import ExternalBuildTracker.Session
 
@@ -32,7 +32,7 @@ final class ExternalBuildTracker(project: Project) {
     session.updateAndGet(_.map(_.withTarget(target, sources)))
 
   /**
-   * The running build is a rebuild, so it began by deleting every target's output.t
+   * The running build is a rebuild, so it began by deleting every target's output.
    * That is a change to everything the compilers read.
    */
   def rebuildStarted(): Unit = 
@@ -42,7 +42,6 @@ final class ExternalBuildTracker(project: Project) {
       session.updateAndGet(_.map(_.copy(token = logic.compilationStarted(Set.empty))))
     }
   
-
   /**
    * The build ended. Nothing is recorded unless it ended without errors: a build that failed part way still
    * reports the targets it got through, and telling them apart from the one that failed is not something the
@@ -52,20 +51,17 @@ final class ExternalBuildTracker(project: Project) {
     session.getAndSet(None).filter(_.id == id).filter(_ => successful).foreach { finished =>
       logic.compilationSucceeded(finished.token, finished.targets, finished.sources)
     }
-}
 
-object ExternalBuildTracker {
+object ExternalBuildTracker:
 
   private final case class Session(id: UUID,
                                    token: CompilationToken,
                                    targets: Set[ModuleKey] = Set.empty,
                                    sources: Set[VirtualFile] = Set.empty,
-                                   outputsWiped: Boolean = false) {
+                                   outputsWiped: Boolean = false):
 
     def withTarget(target: ModuleKey, compiled: Set[VirtualFile]): Session =
       copy(targets = targets + target, sources = sources ++ compiled)
-  }
-
+  
   def apply(project: Project): ExternalBuildTracker =
     project.getService(classOf[ExternalBuildTracker])
-}

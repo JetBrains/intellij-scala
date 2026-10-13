@@ -25,18 +25,20 @@ trait EventContext {
 object EventContext {
   private case class EventWrapper(evt: ContextTraceEvent,
                                   override val closeParent: Boolean,
-                                  override val closeOnEnd: Boolean)
+                                  override val closeOnEnd: Boolean,
+                                  moreArgs: (String, String)*)
     extends ContextTraceEvent {
     export evt.{key, parentKey, name}
     // `args` and `category` are concrete in TraceEvent, so they are already members here and cannot be
     // exported. They still have to be forwarded: a span re-applies `args` when it closes, so dropping them
     // would discard whatever was recorded on the event just before it was wrapped.
-    override def args: Map[String, String] = evt.args
+    override def args: Map[String, String] = evt.args ++ moreArgs.toMap
     override def category: Option[String] = evt.category
   }
   extension(evt: ContextTraceEvent)
     /** Marks the event so that ending its span removes the event's own `key` from the context registry.*/
-    def closed(): ContextTraceEvent = EventWrapper(evt, evt.closeParent, true)
+    def closed(reason: String = ""): ContextTraceEvent = EventWrapper(evt, evt.closeParent, true, 
+      if reason.nonEmpty then "reason" -> reason else ""-> "")
     /** Marks the event so that opening its span removes the event's `parentKey` from the context registry.*/
     def parentClosed(): ContextTraceEvent = EventWrapper(evt, true, evt.closeOnEnd)
 }

@@ -1,73 +1,68 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services
 
-import com.intellij.testFramework.PlatformTestUtil
-import org.jetbrains.plugins.scala.compiler.highlighting.compilation.CompilationStateWritesTestBase
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiDocumentManager
+import com.intellij.testFramework.ServiceContainerUtil
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.CompilationStateWritesTestBase
+import org.jetbrains.plugins.scala.compiler.highlighting.util.SpyHighlightingService
+import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.util.CompilerTestUtil.runWithErrorsFromCompiler
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.FiniteDuration
+import scala.compiletime.uninitialized
 
+
+@RunWith(classOf[JUnit4])
 class HighlightingTriggerServiceTest extends CompilationStateWritesTestBase:
 
+  private var spyCompilerService: SpyHighlightingService = uninitialized
+
+  override def setUp(): Unit =
+    super.setUp()
+
+    spyCompilerService = new SpyHighlightingService(getProject)
+    ServiceContainerUtil.replaceService(
+      getProject,
+      classOf[HighlightingService],
+      spyCompilerService,
+      getProject
+    )
+
+    assertSame(
+      "Service wasn't replaced",
+      spyCompilerService,
+      HighlightingService(getProject)
+    )
+  
   private def triggerService: HighlightingTriggerService = HighlightingTriggerService(getProject)
 
-  /**
-   * Helper to allow background threads and the ScheduledDebouncer to flush.
-   * Required because dispatchRequest uses executeOnBackgroundThreadInNotDisposed.
-   */
-  private def waitForBackgroundTasks(): Unit =
-    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
-    Thread.sleep((triggerService.DELAY + FiniteDuration(50, TimeUnit.MILLISECONDS)).toMillis) // Buffer for the 200ms debounce window
-    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
-
   @Test
-  def testSchedule_ValidFile_IsQueuedAndDispatched(): Unit =
-    val file = inSources("ValidFile.scala", "class ValidFile")
+  def testDispatch_UpToDate_ServedFromStore(): Unit = runWithErrorsFromCompiler(getProject):
+    val file = createFile("UpToDateFile.scala", "class UpToDateFile")
+    CompilationLogicService(getProject).fileModified(file)
+    markTargetBuilt(file)
 
-    triggerService.schedule(file, "test scheduling")
-    waitForBackgroundTasks()
+    triggerService.processTrigger(file, "test up-to-date")
 
-    // Assert the file remains valid and doesn't throw during dispatch.
-    assertTrue("Valid source file should remain valid", file.isValid)
-
+    assertTrue("Up-to-date file should NOT be dispatched to the compiler", spyCompilerService.dispatchedRequests.isEmpty)
+  
   @Test
-  def testBypass_SkipsDebouncer(): Unit =
-    val file = inSources("BypassFile.scala", "class BypassFile")
+  def testDispatch_OutdatedFile_DispatchesRequest(): Unit = runWithErrorsFromCompiler(getProject):
+    val file = createFile("Outdated.scala", "class Outdated")
+    triggerService.processTrigger(file, "test outdated")
 
-    triggerService.bypass(file, "test bypass")
+    // Assert that the service DID dispatch the request
+    assertEquals("Outdated file SHOULD be dispatched", 1, spyCompilerService.dispatchedRequests.size)
+    assertEquals(file, spyCompilerService.dispatchedRequests.head.file)
 
-    // We only wait for the immediate background thread dispatch, skipping the thread sleep
-    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
-
-    assertTrue("Bypassed source file should remain valid", file.isValid)
-
-  @Test
-  def testSchedule_OutsideRoots_IsIgnored(): Unit =
-    val file = outsideRoots("Outside.scala", "class Outside")
-
-    triggerService.schedule(file, "test outside roots")
-    waitForBackgroundTasks()
-
-    // canHighlight and canBeScheduled should filter this out early, preventing any compilation requests.
-    assertTrue(file.isValid)
-
-  @Test
-  def testSchedule_InvalidFile_IsIgnored(): Unit =
-    val file = inSources("DeletedFile.scala", "class DeletedFile")
-    delete(file) // Invalidates the VirtualFile
-
-    triggerService.schedule(file, "test invalid file")
-    waitForBackgroundTasks()
-
-    assertFalse("Deleted file should be invalid", file.isValid)
-
-  @Test
-  def testBypass_InvalidFile_IsIgnored(): Unit =
-    val file = inSources("DeletedBypass.scala", "class DeletedBypass")
-    delete(file)
-
-    triggerService.bypass(file, "test invalid bypass")
-    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
-
-    assertFalse("Deleted file should be invalid", file.isValid)
+  private def createFile(name: String, content:String):VirtualFile =
+    inReadAction:
+      val file = inSources(name, content)
+      val doc = FileDocumentManager.getInstance().getDocument(file)
+      PsiDocumentManager.getInstance(getProject).commitAllDocuments()
+      CompilationLogicService(getProject).fileModified(file)
+      file

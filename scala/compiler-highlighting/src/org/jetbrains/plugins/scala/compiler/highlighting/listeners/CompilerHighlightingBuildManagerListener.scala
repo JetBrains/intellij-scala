@@ -4,7 +4,7 @@ import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.JpsSessionErrorTrackerService
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents
-import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{BuildManagerSessionId, BuildManagerSessionPhaseEvent, HighlightingTriggerPhaseEvent}
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{BuildManagerSessionId, BuildManagerSessionPhaseEvent, HighlightingTriggerEvent}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.compiler.highlighting.services.{CompilerLockService, ExternalBuildTracker}
 import org.jetbrains.plugins.scala.compiler.highlighting.triggers.DocumentCompilationTrigger
@@ -47,7 +47,7 @@ private final class CompilerHighlightingBuildManagerListener extends BuildManage
         ScalaHighlightingMode.showCompilerErrorsScala3(project) &&
         !JpsSessionErrorTrackerService.instance(project).hasError(sessionId)) {
         val requestId = TriggerPhaseEvents.newRequestId()
-        tracer.instant(HighlightingTriggerPhaseEvent(requestId, "build finished",
+        tracer.instant(HighlightingTriggerEvent(requestId, "build finished",
           traceSessionId ))
         val dispatched =
           DocumentCompilationTrigger.triggerDocumentCompilationInAllOpenEditors(project, "On Build Finish", requestId)

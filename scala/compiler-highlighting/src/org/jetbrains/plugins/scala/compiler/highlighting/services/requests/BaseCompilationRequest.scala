@@ -1,47 +1,49 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services.requests
 
-import com.intellij.codeInsight.lookup.LookupManager
-import com.intellij.codeInsight.template.TemplateManager
-import com.intellij.openapi.editor.{Document, EditorFactory}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.Document
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.RequestId
 import org.jetbrains.plugins.scala.compiler.highlighting.util.DocumentUtil
 import org.jetbrains.plugins.scala.util.DocumentVersion
 
-import scala.concurrent.duration.Deadline
-
 abstract class BaseCompilationRequest(
-  final val originFiles: Map[VirtualFile, Document],
-  val deadline: Deadline,
+  project: Project,
+  val originFiles: Map[VirtualFile, Document],
   val id: RequestId
-) extends CompilationRequest {
+) extends CompilationRequest:
 
-
+  protected val Log: Logger = Logger.getInstance(classOf[CompilationRequest])
+  
   override final val documentVersions: Map[VirtualFile, DocumentVersion] =
     originFiles.map { case (vf, doc) => vf -> DocumentUtil.documentVersion(vf, doc) }
 
-   protected def isExpired: Boolean = {
+  override def isReadyForExecution: RequestState = 
+    if (isExpired) return RequestState.Expired
+    if (DumbService.isDumb(project)) return RequestState.NotReady
+      canDocumentsBeCompiled
+  
+  /**
+   * A scope is worth compiling as long as one of its files can show the result.
+   *
+   * A file with no editor is expired on its own terms, but here it is one this compilation exists to build:
+   * the scope covers everything unbuilt, and something unbuilt is very often something closed. Expiring the
+   * whole request for it would drop the compilation that was supposed to build it, leaving it unbuilt and
+   * every later scope containing it — and expiring for the same reason.
+   */
+  private def canDocumentsBeCompiled: RequestState = 
+    val states = originFiles.valuesIterator.map(canDocumentBeCompiled(project, _)).toSet
+    if (states.forall(_ == RequestState.Expired)) RequestState.Expired
+    else if (states.contains(RequestState.NotReady)) RequestState.NotReady
+    else RequestState.Ready
+  
+  private def isExpired: Boolean =
     originFiles.keys.exists(!_.isValid) ||
       documentVersions.exists { case (virtualFile, version) =>
         val document = originFiles(virtualFile)
         version.version != DocumentUtil.version(document)
       }
-  }
-  protected def canDocumentBeCompiled(project: Project, document: Document): RequestState = {
-    val editors = EditorFactory.getInstance().getEditors(document, project)
-    if (editors.isEmpty) {
-      // There are no open editors for the document. Skip the request.
-      RequestState.Expired
-    } else {
-      // If there are no active lookups or templates in the editor, it can be compiled.
-      // Otherwise, delay the request, in case the user dismisses lookups and templates without typing letters
-      // (e.g. with the Esc key)
-      val ready = editors.exists { editor =>
-        LookupManager.getActiveLookup(editor) == null &&
-          TemplateManager.getInstance(project).getActiveTemplate(editor) == null
-      }
-      if (ready) RequestState.Ready else RequestState.NotReady
-    }
-  }
-}
+      
+  protected def canDocumentBeCompiled(project: Project, document: Document): RequestState =
+    RequestState.of(project, document)

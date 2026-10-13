@@ -16,10 +16,9 @@ final case class FileCompilationScope(
   psiFile: PsiFile
 )
 
-object FileCompilationScope {
+object FileCompilationScope:
 
   /** The source scope `virtualFile` belongs to in `project`. */
   def sourceScopeOf(project: Project, virtualFile: VirtualFile): SourceScope =
     if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test
     else SourceScope.Production
-}

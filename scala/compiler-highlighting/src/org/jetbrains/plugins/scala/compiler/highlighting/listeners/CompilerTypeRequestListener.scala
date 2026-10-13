@@ -6,14 +6,13 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.compiler.highlighting.core.FileCompilationScope
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents
-import org.jetbrains.plugins.scala.compiler.highlighting.services.CompilerHighlightingService
-import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.{CompilationRequest, DocumentRequest}
+import org.jetbrains.plugins.scala.compiler.highlighting.services.HighlightingService
+import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.DocumentRequest
 import org.jetbrains.plugins.scala.lang.psi.impl.CompilerType
 import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 
 class CompilerTypeRequestListener(project: Project) extends CompilerType.Listener {
   
-  private val service = CompilerHighlightingService(project)
   def onCompilerTypeRequest(e: PsiElement): Unit = {
     if (project.isDisposed) return
 
@@ -23,9 +22,8 @@ class CompilerTypeRequestListener(project: Project) extends CompilerType.Listene
     val virtualFile = psiFile.getVirtualFile
     val scope = if (ProjectFileIndex.getInstance(project).isInSource(virtualFile)) SourceScope.Production else SourceScope.Test
     val id = TriggerPhaseEvents.newRequestId()
-    val request = DocumentRequest(FileCompilationScope(virtualFile, module, scope, document, psiFile),
-      "compiler type request", CompilationRequest.compilationDeadline, id, project)
+    val request = DocumentRequest(FileCompilationScope(virtualFile, module, scope, document, psiFile), id, project)
     // Compiled right away rather than scheduled: the caller is waiting for the compiler-provided type.
-    service.compile(request)
+    HighlightingService(project).compile(request)
   }
 }

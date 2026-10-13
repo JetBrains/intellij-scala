@@ -9,132 +9,99 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.concurrency.AppExecutorUtil
-import org.jetbrains.plugins.scala.compiler.highlighting.compilation.CompilationDecision
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents
-import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{HighlightingTriggerPhaseEvent, RecordedDiagnosticsServedEvent}
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{HighlightingTriggerEvent, RecordedDiagnosticsServedEvent}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.ScheduledDebouncer
-import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.CompilationRequest
-import org.jetbrains.plugins.scala.compiler.highlighting.services.{CompilationLogicService, CompilerHighlightingService, ExternalHighlightersService}
+import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.HighlightingRequest
 import org.jetbrains.plugins.scala.compiler.highlighting.triggers.TriggerUtil
 import org.jetbrains.plugins.scala.compiler.highlighting.util.TracingUtil.endTrace
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
-@Service(Array(Service.Level.PROJECT))
-final class HighlightingTriggerService(project: Project):
+import scala.concurrent.duration.FiniteDuration
 
-  private[highlighting] inline def DELAY = ScalaHighlightingMode.compilationDelay(project)
+/**
+ * Where every trigger arrives, and the only thing any of them does.
+ *
+ * A trigger names a file and says why. It does not decide what that file needs: that is settled later,
+ * when the scheduler asks, against the state as it is then. So this is deliberately cheap, and no trigger
+ * is more meaningful than another.
+ */
+@Service(Array(Service.Level.PROJECT))
+private final class HighlightingTriggerService(project: Project) extends TriggerService:
+
+  /**
+   * The quiet period a file needs before its trigger is handed over.
+   *
+   * This is the user's compiler highlighting delay, because this is the timer that says:
+   * how long after the last edit to react.
+   *
+   */
+  private[highlighting] def debounceDelay: FiniteDuration = ScalaHighlightingMode.compilationDelay(project)
 
   private val debouncer = new ScheduledDebouncer[VirtualFile](
-    DELAY,
+    debounceDelay,
     AppExecutorUtil.createBoundedScheduledExecutorService("HighlightingTriggerDebouncer", 1),
     project
   )
   private val logic = CompilationLogicService(project)
   private val tracer = Tracing(project)
-  private val service = CompilerHighlightingService.get(project)
   private val Log = Logger.getInstance(classOf[HighlightingTriggerService])
   private val highlighters = ExternalHighlightersService(project)
-
-  /**
-   * Enqueues a compilation request behind a debounce delay.
-   *
-   * Use for high-frequency events, such as document edits, where subsequent events
-   * rapidly invalidate the current request. The compilation is dispatched only after
-   * the event stream pauses.
-   */
-  def schedule(file: VirtualFile, reason: String): Unit =
-    // we can avoid scheduling by doing some pre-checks
-    if (!canBeScheduled(file)) return
-
-    debouncer.queue(file) {
-      dispatchRequest(file, reason)
-    }
-
-  /**
-   * Dispatches a compilation request immediately and cancels any pending scheduled requests for the file.
-   *
-   * Use for low-frequency events, such as tab switches or explicit user actions, that require
-   * an immediate decision. These events bypass the debounce window because they are unlikely
-   * to be immediately followed by newer, invalidating events.
-   */
-  def bypass(file: VirtualFile, reason: String): Unit =
-    // Try to cancel the pending scheduled trigger so we don't dispatch twice.
+  
+  def schedule(@Nullable file: VirtualFile, reason: String): Unit =
+    if file eq null then return  // end tracing here if needed
+    if canBeScheduled(file) then debouncer.queue(file)(handOver(file, reason))
+  
+  def bypass(@Nullable file: VirtualFile, reason: String): Unit =
+    if file eq null then return // end tracing here if needed
     debouncer.cancel(file)
-    dispatchRequest(file, reason)
+    if canBeScheduled(file) then handOver(file, reason)
 
+  // [services] just for testing purposes
+  private[services] def processTrigger(file: VirtualFile, reason: String): Unit = 
+    val requestId = TriggerPhaseEvents.newRequestId()
+    tracer.instant(HighlightingTriggerEvent(requestId, reason))
 
-  private def dispatchRequest(vf: VirtualFile, reason: String): Unit = executeOnBackgroundThreadInNotDisposed(project) {
-      val requestId = TriggerPhaseEvents.newRequestId()
-      tracer.instant(HighlightingTriggerPhaseEvent(requestId, reason))
+    if (!canBeScheduled(file)) {
+      tracer.endTrace(requestId, "not eligible for compilation (pre-checks failed)")
+    } else {
+      requestHighlighting(file, reason, requestId)
+    }
+  
+  private def requestHighlighting(file: VirtualFile, reason: String, requestId: TriggerPhaseEvents.RequestId): Unit =
+    inReadAction:
+      val psi = PsiManager.getInstance(project).findFile(file)
+      val doc = FileDocumentManager.getInstance().getDocument(file)
 
-      if (!canBeScheduled(vf)) {
-        tracer.endTrace(requestId, "not eligible for compilation (pre-checks failed)")
-      } else {
-        requestHighlighting(vf, reason, requestId)
-      }
-  }
-
-
-  private def requestHighlighting(vf: VirtualFile, reason: String, requestId: TriggerPhaseEvents.RequestId): Unit = {
-    inReadAction {
-      val psi = PsiManager.getInstance(project).findFile(vf)
-      val doc = FileDocumentManager.getInstance().getDocument(vf)
-
-      if canHighlight(vf, psi, doc)
-      then
-        val decision = logic.decide(vf)
-        if servedFromStore(decision, psi) then
-          // The recorded diagnostics still describe the file, so they are displayed rather than recomputed.
-          val served = highlighters.renderRecordedDiagnostics(Set(vf))
-          tracer.instant(RecordedDiagnosticsServedEvent(requestId, vf.getName, served))
-          tracer.endTrace(requestId, s"$decision: rendered the recorded diagnostics")
+      if canHighlight(file, psi, doc) then
+        Log.debug(s"decision lookup for: $reason")
+        val decision = logic.decide(file)
+        if decision.servedFromStore(psi) then
+          tracer.instant(RecordedDiagnosticsServedEvent(requestId, file.getPresentableName))
+          val served = highlighters.renderRecordedDiagnostics(Set(file), requestId)
           None
         else
-          val request = CompilationRequest.fromDecision(
-            project, vf, psi, doc, reason, requestId
-          )(decision)
-          // Tracing for when the decision resolves but the factory refuses to build a request
-          if (request.isEmpty) {
-            tracer.endTrace(requestId, "no compilation scheduled for this trigger")
-          }
-          request
+          Some(HighlightingRequest(requestId, file, reason))
       else
-        // Tracing for when the PSI/Document/HighlightingEnabledFor checks fail
         tracer.endTrace(requestId, "not eligible for compilation (PSI/Document checks failed)")
         None
-    }.foreach(service.requestCompilation)
-  }
+    .foreach(HighlightingService(project).request)
 
-  /**
-   * Whether the decision is answered out of the recorded diagnostics instead of by compiling.
-   *
-   * A worksheet is excluded from [[CompilationDecision.Recorded]]. Its highlightings are a by-product of
-   * evaluating it, and the request that evaluates it is the only thing that produces its output, so serving
-   * the previous diagnostics would leave it unevaluated. [[CompilationDecision.UpToDate]] serves them for a
-   * worksheet as it always has: there the target is current, so there is nothing to re-evaluate against.
-   */
-  private def servedFromStore(decision: CompilationDecision, psi: PsiFile): Boolean = decision match
-    case CompilationDecision.UpToDate => !isWorksheet(psi)
-    case CompilationDecision.Recorded => !isWorksheet(psi)
-    case _ => false
-
-  private def isWorksheet(psi: PsiFile): Boolean = psi match
-    case scalaFile: ScalaFile => scalaFile.isWorksheetFile
-    case _ => false
-
+  private def handOver(file: VirtualFile, reason: String): Unit = executeOnBackgroundThreadInNotDisposed(project):
+      processTrigger(file, reason)
+      
   /**
    * Cheap checks that need no read action
    */
   private def canBeScheduled(file: VirtualFile): Boolean =
     !project.isDisposed &&
+      TriggerUtil.isHighlightingEnabled(project) &&
       file.isValid &&
-      !file.isInstanceOf[VirtualFileWindow] &&
-      TriggerUtil.isHighlightingEnabled &&
-      ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
+      !file.isInstanceOf[VirtualFileWindow]
 
   /**
    *  Read action needed
@@ -142,5 +109,3 @@ final class HighlightingTriggerService(project: Project):
   private def canHighlight(virtualFile: VirtualFile, psi: PsiFile, doc: Document) =
     (psi ne null) && (doc ne null) && TriggerUtil.isHighlightingEnabledFor(psi, virtualFile, project)
 
-object HighlightingTriggerService:
-  def apply(project: Project): HighlightingTriggerService = project.getService(classOf[HighlightingTriggerService])

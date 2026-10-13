@@ -19,8 +19,8 @@ import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEven
 import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.SerializableMap
 import org.jetbrains.plugins.scala.compiler.highlighting.services.{CompilerLockService, ProjectProgressService, SaveService}
 import org.jetbrains.plugins.scala.compiler.highlighting.util.CompilerHighlightingBundle
+import org.jetbrains.plugins.scala.compiler.highlighting.util.TracingUtil.endTrace
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.EndEvent
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.CanonicalPath
@@ -43,11 +43,11 @@ object CompilationUtils {
    * @param await when `true`, blocks until the compilation completes; when `false`, the compilation is scheduled
    *              and this method returns immediately (fire-and-forget).
    */
-  def prepareCompilation(project: Project, requestId: RequestId, await: Boolean = true)(compile: => Future[Unit]): Unit = {
+  def prepareCompilation(project: Project, requestId: RequestId, closeParent: Boolean, await: Boolean = true)(compile: => Future[Unit]): Unit = {
     val tracer = Tracing(project)
     try {
       SaveService(project).saveProject()
-      tracer.trace(EnsureServerRunningPhaseEvent(requestId)) {
+      tracer.trace(EnsureServerRunningPhaseEvent(requestId, closeParent)) {
         CompileServerLauncher.ensureServerRunning(project)
       }
       if (project.isDisposed) return
@@ -57,11 +57,11 @@ object CompilationUtils {
       case _: InterruptedException =>
         // Disposing of the CompilerHighlightingService (on project close) interrupts the compilation through the
         // Java thread interruption mechanism.
-        tracer.instant(EndEvent(requestId, "Project close"))
+        tracer.endTrace(requestId, "Project close")
       case _: EOFException =>
         // Stopping the Scala Compiler Server can result EOF exceptions to be thrown when trying to read from the
         // byte communication stream.
-        tracer.instant(EndEvent(requestId, "EOF after stopping scala compiler server"))
+        tracer.endTrace(requestId, "EOF after stopping scala compiler server")
     }
   }
 

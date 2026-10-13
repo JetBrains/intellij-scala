@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.events
 
+import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.HighlightingEvent.HighlightingPassId
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.BuildManagerSessionId
 import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.CompilationKind
 import org.jetbrains.plugins.scala.compiler.tracing.core.events.BaseEvent
 import org.jetbrains.plugins.scala.util.CompilationId
 
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Phase-2 (highlighting phase) spans, defined in flow order: everything from the compile server's first
@@ -18,7 +20,7 @@ import java.util.UUID
  * open editors, with the per-problem [[RegisterQuickFixes]] / [[FindUnresolvedReferenceEvent]] markers
  * nested under it.
  */
-object HighlightingPhaseEvents {
+object HighlightingPhaseEvents:
 
   /** Phase-2 span: the server-side compilation and the highlighting that follows (see
    * [[TraceCategory.Highlighting]]). */
@@ -92,20 +94,24 @@ object HighlightingPhaseEvents {
 
   /** Applying the compiler's highlighting results to the open editors, ending once the affected files
    *  have been updated. Consumes the [[CompilationDurationEvent.key]] entry from the duration span. */
-  case class HighlightingEvent(compilationId: CompilationId, files: Set[String] = Set.empty)
+  case class HighlightingEvent(compilationId: CompilationId, id: HighlightingPassId, files: Set[String] = Set.empty)
     extends HighlightingPhaseEvent("Highlighting process", Some(CompilationDurationEvent.key(compilationId)),
-      Some(CompilationDurationEvent.key(compilationId)), true,
+      Some(id), false,
       "Modified files" -> files.mkString(","))
+  object HighlightingEvent:
+    val counter = AtomicLong()
+    case class HighlightingPassId(passId: Long)
+    def id(): HighlightingPassId = HighlightingPassId(counter.getAndIncrement())
 
   /** Registering the quick fixes offered for a highlighted problem. */
-  case class RegisterQuickFixes(compilationId: CompilationId, fixes: Set[String] = Set.empty)
-    extends HighlightingPhaseEvent("Register quick fixes", Some(CompilationDurationEvent.key(compilationId)),
+  case class RegisterQuickFixes(passId: HighlightingPassId, fixes: Set[String] = Set.empty)
+    extends HighlightingPhaseEvent("Register quick fixes", Some(passId),
       None, false,
       "Quick fixes" -> fixes.mkString(","))
 
   /** Resolving the quick fixes for an unresolved reference in a file. */
-  case class FindUnresolvedReferenceEvent(compilationId: CompilationId, file: String)
-    extends HighlightingPhaseEvent("Find unresolved reference", Some(CompilationDurationEvent.key(compilationId)),
+  case class FindUnresolvedReferenceEvent(passId: HighlightingPassId, file: String, text: String= "")
+    extends HighlightingPhaseEvent("Find unresolved reference", Some(passId),
       None, false,
-      "Modified file" -> file)
-}
+      "Modified file" -> file,
+      "text" -> text)

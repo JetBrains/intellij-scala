@@ -2,13 +2,18 @@ package org.jetbrains.plugins.scala.compiler.tracing.core
 
 import com.intellij.concurrency.JobScheduler
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compiler.tracing.core.events.{BaseEvent, ContextTraceEvent}
 
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
 
+/**
+ * Useful wrapper to detect context leaks. Do not forget to call `close()` on project dispose
+ */
 class DebugContextTracingOps[S <: TraceSpan[ContextTraceEvent]] (
   service: TracerService[ContextTraceEvent, S],
-  lifecycleRegistry: Registry[Any, TraceSpan[ContextTraceEvent]]
+  lifecycleRegistry: Registry[Any, TraceSpan[ContextTraceEvent]],
+  project: Project
 ) extends ContextTracingOps[S](
   service,
   lifecycleRegistry
@@ -30,7 +35,7 @@ class DebugContextTracingOps[S <: TraceSpan[ContextTraceEvent]] (
 
   private val scheduledLogger: ScheduledFuture[?] =
     JobScheduler.getScheduler.scheduleWithFixedDelay(() => {
-      log.warn(s"[Leak Detector] ContextRegistry state: $contextRegistry")
+      log.warn(s"[Leak Detector ${project.getName}] ContextRegistry state: $contextRegistry")
     }, 2, 2, TimeUnit.SECONDS)
 
   def close(): Unit = {

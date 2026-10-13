@@ -7,4 +7,5 @@ class BaseEvent(override val name: String = "",
                 override val closeParent: Boolean = true,
                 override val closeOnEnd: Boolean = false,
                 override val args: Map[String, String] = Map(),
-                override val category:Option[String] = Option.empty) extends ContextTraceEvent
+                override val category:Option[String] = Option.empty) extends ContextTraceEvent:
+  override def toString: String = s"($name) ${args.updated("category", category.toString).toList.mkString(",")}"

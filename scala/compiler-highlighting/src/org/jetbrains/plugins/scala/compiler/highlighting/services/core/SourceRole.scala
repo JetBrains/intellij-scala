@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.highlighting.compilation
+package org.jetbrains.plugins.scala.compiler.highlighting.services.core
 
 import com.intellij.openapi.fileTypes.{FileTypeRegistry, LanguageFileType}
 import com.intellij.openapi.project.Project
@@ -27,7 +27,6 @@ enum SourceRole:
    * gets its preparatory incremental when it needs one.
    */
   case Untracked
-
 
 object SourceRole:
 
@@ -75,6 +74,6 @@ object SourceRole:
    * extension of `index.scala.html` is `html`.
    */
   private def generatesScala(fileName: String): Boolean =
-    FileTypeRegistry.getInstance().getFileTypeByFileName(fileName) match 
+    FileTypeRegistry.getInstance().getFileTypeByFileName(fileName) match
       case languageFileType: LanguageFileType => ScalaLanguageDerivative.existsFor(languageFileType)
       case _ => false
