@@ -1784,7 +1784,7 @@ package object extensions {
 
     def stubOrPsiChildren: Array[PsiElement] = stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
 
-    def stubOrPsiChild[Psi <: PsiElement, Stub <: StubElement[Psi]](elementType: ScStubElementType[Psi]): Option[Psi] = {
+    def stubOrPsiChild[Psi <: PsiElement](elementType: ScStubElementType): Option[Psi] = {
       def findWithNode() = for {
         node         <- element.getNode.toOption
         nodeWithType <- node.findChildByType(elementType).toOption

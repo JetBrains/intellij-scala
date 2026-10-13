@@ -19,10 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Widening}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-
-final class ScVariableDefinitionImpl private[psi] (
+final class ScVariableDefinitionImpl private[lang] (
   stub:     ScPropertyStub[ScVariableDefinition],
-  nodeType: ScPropertyElementType[ScVariableDefinition],
+  nodeType: ScPropertyElementType,
   node:     ASTNode
 ) extends ScValueOrVariableImpl(stub, nodeType, node)
   with ScVariableDefinition with ScBegin {

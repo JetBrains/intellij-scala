@@ -25,8 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOb
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
-import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.ImplicitValueClassDumbMode
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.ImplicitValueClassDumbMode
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
@@ -41,7 +41,7 @@ import javax.swing.Icon
 import scala.annotation.tailrec
 
 abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateDefinitionStub[T],
-                                                               nodeType: ScTemplateDefinitionElementType[T],
+                                                               nodeType: ScTemplateDefinitionElementType,
                                                                node: ASTNode,
                                                                debugName: String)
   extends ScTemplateDefinitionImpl(stub, nodeType, node, debugName)

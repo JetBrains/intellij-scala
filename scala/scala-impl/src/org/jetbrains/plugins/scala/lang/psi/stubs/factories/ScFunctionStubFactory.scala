@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{FunctionDeclaration,
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScFunctionStub, ScGivenStub, ScImplicitStub, ScPackagingStub}
 
-abstract class ScFunctionStubFactory[Fun <: ScFunction](elementType: ScFunctionElementType[Fun])
+abstract class ScFunctionStubFactory[Fun <: ScFunction](elementType: ScFunctionElementType)
   extends ScStubSerializingElementFactory[ScFunctionStub[Fun], Fun](elementType) {
 
   override def serialize(stub: ScFunctionStub[Fun], dataStream: StubOutputStream): Unit = {

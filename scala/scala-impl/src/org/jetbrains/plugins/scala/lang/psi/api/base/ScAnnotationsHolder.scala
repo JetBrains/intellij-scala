@@ -23,7 +23,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
   def annotations: Seq[ScAnnotation] = _annotations()
 
   private val _annotations = cached("annotations", ModTracker.anyScalaPsiChange, () => {
-    this.stubOrPsiChild(ScalaElementType.ANNOTATIONS) match {
+    this.stubOrPsiChild[ScAnnotations](ScalaElementType.ANNOTATIONS) match {
       case Some(ann) => ann.getAnnotations.toSeq
       case _ => Seq.empty
     }

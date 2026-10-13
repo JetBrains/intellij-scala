@@ -21,7 +21,7 @@ trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with 
   override def getModifierList: ScModifierList = _getModifierList()
 
   private val _getModifierList = cached("getModifierList", ModTracker.anyScalaPsiChange, () => {
-    val child = this.stubOrPsiChild(ScalaElementType.MODIFIERS)
+    val child = this.stubOrPsiChild[ScModifierList](ScalaElementType.MODIFIERS)
     child.getOrElse(ScalaPsiElementFactory.createEmptyModifierList(this))
   })
 

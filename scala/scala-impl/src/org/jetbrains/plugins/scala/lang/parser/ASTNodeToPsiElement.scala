@@ -4,6 +4,7 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiUtilCore
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
@@ -11,7 +12,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.cc.{ScCaptureFilterImpl, ScCaptureRefImpl, ScCaptureSetImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterTypeImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.statements._
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScEarlyDefinitionsImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures._
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 
 object ASTNodeToPsiElement {
@@ -20,7 +29,62 @@ object ASTNodeToPsiElement {
     import ScalaElementType._
 
     node.getElementType match {
-      case creator: SelfPsiCreator => creator.createElement(node) // stub elements still implement this trait
+      /* Stub-based elements (stub support itself is registered in ScalaStubRegistryExtension) */
+      case _: ScClassParameterElementType => new ScClassParameterImpl(node)
+      case _: ScParamClauseElementType => new ScParameterClauseImpl(node)
+      case _: ScParamClausesElementType => new ScParametersImpl(node)
+      case _: ScParameterElementType => new ScParameterImpl(node)
+
+      case _: ScAccessModifierElementType => new ScAccessModifierImpl(node)
+      case _: ScAnnotationElementType => new ScAnnotationImpl(node)
+      case _: ScAnnotationsElementType => new ScAnnotationsImpl(node)
+      case _: ScReferencePatternElementType => new ScReferencePatternImpl(node)
+      case _: ScTypedPatternElementType => new ScTypedPatternImpl(node)
+      case _: ScNamingPatternElementType => new ScNamingPatternImpl(node)
+      case _: ScSeqWildcardPatternElementType => new ScSeqWildcardPatternImpl(node)
+      case _: ScDerivesClauseElementType => new ScDerivesClauseImpl(node)
+      case _: ScEarlyDefinitionsElementType => new ScEarlyDefinitionsImpl(node)
+      case _: ScEnumCasesElementType => new ScEnumCasesImpl(null, null, node)
+      case _: ScExtendsBlockElementType => new ScExtendsBlockImpl(node)
+      case _: ScExtensionBodyElementType => new ScExtensionBodyImpl(node)
+      case _: ScExtensionElementType => new ScExtensionImpl(null, node)
+      case _: ScFieldIdElementType => new ScFieldIdImpl(node)
+      case _: FunctionDeclaration => new ScFunctionDeclarationImpl[ScFunctionDeclaration](null, null, node)
+      case _: FunctionDefinition => new ScFunctionDefinitionImpl[ScFunctionDefinition](null, null, node)
+      case _: MacroDefinition => new ScMacroDefinitionImpl(null, null, node)
+      case _: GivenAliasDeclaration => new ScGivenAliasDeclarationImpl(null, null, node)
+      case _: GivenAliasDefinition => new ScGivenAliasDefinitionImpl(null, null, node)
+      case _: ScIdListElementType => new ScIdListImpl(node)
+      case _: ScImportExprElementType => new ScImportExprImpl(node)
+      case et: ScImportStmtElementType => new ScImportStmtImpl(null, null, node, et.toString)
+      case et: ScExportStmtElementType => new ScExportStmtImpl(null, null, node, et.toString)
+      case _: ScImportSelectorElementType => new ScImportSelectorImpl(node)
+      case _: ScImportSelectorsElementType => new ScImportSelectorsImpl(node)
+      case _: ScModifiersElementType => new ScModifierListImpl(node)
+      case _: ScPackagingElementType => new ScPackagingImpl(node)
+      case _: ScPatternListElementType => new ScPatternListImpl(node)
+      case _: ScPrimaryConstructorElementType => new ScPrimaryConstructorImpl(node)
+      case _: ValueDeclaration => new ScValueDeclarationImpl(null, null, node)
+      case _: ValueDefinition => new ScPatternDefinitionImpl(null, null, node)
+      case _: VariableDeclaration => new ScVariableDeclarationImpl(null, null, node)
+      case _: VariableDefinition => new ScVariableDefinitionImpl(null, null, node)
+      case _: ScSelfTypeElementElementType => new ScSelfTypeElementImpl(node)
+      case _: ScTemplateBodyElementType => new ScTemplateBodyImpl(node)
+      case et: ScClassDefinitionElementType => new ScClassImpl(null, et, node, et.toString)
+      case et: ScTraitDefinitionElementType => new ScTraitImpl(null, et, node, et.toString)
+      case et: ScObjectDefinitionElementType => new ScObjectImpl(null, et, node, et.toString)
+      case et: ScEnumDefinitionElementType => new ScEnumImpl(null, et, node, et.toString)
+      case et: ScEnumClassCaseElementType => new ScEnumClassCaseImpl(null, et, node, et.toString)
+      case et: ScEnumSingletonCaseElementType => new ScEnumSingletonCaseImpl(null, et, node, et.toString)
+      case et: ScNewTemplateElementType => new ScNewTemplateDefinitionImpl(null, et, node, et.toString)
+      case et: ScGivenDefinitionElementType => new ScGivenDefinitionImpl(null, et, node, et.toString)
+      case _: ScTemplateParentsElementType => new ScTemplateParentsImpl(node)
+      case _: ScTypeAliasDeclarationElementType => new ScTypeAliasDeclarationImpl(node)
+      case _: ScTypeAliasDefinitionElementType => new ScTypeAliasDefinitionImpl(node)
+      case _: ScTypeParamClauseElementType => new ScTypeParamClauseImpl(node)
+      case _: ScTypeParamElementType => new ScTypeParamImpl(node)
+
+      case creator: SelfPsiCreator => creator.createElement(node) // some stub elements still implement this trait
 
       case ScCodeBlockElementType.BlockExpression =>
         PsiUtilCore.NULL_PSI_ELEMENT

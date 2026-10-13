@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScClassPar
 import org.jetbrains.plugins.scala.lang.psi.stubs.factories.IndexSinkExt
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY
 
-final class ScClassParameterStubFactory(elementType: ScClassParameterElementType) extends ScParamStubFactory(elementType) {
+final class ScClassParameterStubFactory(elementType: ScClassParameterElementType) extends ScParamStubFactory[ScClassParameter](elementType) {
   override def createPsi(stub: ScParameterStub): ScClassParameter = new ScClassParameterImpl(stub)
 
   override def indexStub(stub: ScParameterStub, sink: IndexSink): Unit = {

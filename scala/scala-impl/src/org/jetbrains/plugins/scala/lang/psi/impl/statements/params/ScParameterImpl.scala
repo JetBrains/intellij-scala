@@ -23,18 +23,18 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpectedTypesUtil._
 import org.jetbrains.plugins.scala.lang.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScParamElementType
-import org.jetbrains.plugins.scala.lang.psi.types.FunctionTypeMarker.ContextFunctionN
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.FunctionTypeMarker.ContextFunctionN
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+
 import scala.annotation.tailrec
 
 class ScParameterImpl protected(
   stub: ScParameterStub,
-  nodeType: ScParamElementType[? <: ScParameter],
+  nodeType: ScParamElementType,
   node: ASTNode
 ) extends ScalaStubBasedElementImpl(
   stub,

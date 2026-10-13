@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.parser
 
-import com.intellij.lang.{ASTNode, Language}
+import com.intellij.lang.{ASTNode, Language, LanguageASTFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{ICompositeElementType, IErrorCounterReparseableElementType}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
 
 import scala.annotation.tailrec
 
@@ -18,6 +17,12 @@ abstract class ScCodeBlockElementType extends IErrorCounterReparseableElementTyp
   import IErrorCounterReparseableElementType._
 
   override final def createCompositeNode: ASTNode = createNode(null)
+
+  // The node (which is also the PSI element) is created by the language AST factory (ScalaASTFactory.createLazy),
+  // so that the element type doesn't depend on the PSI implementation.
+  // Calls the factory directly instead of ASTFactory.lazy, which would call createNode again.
+  override def createNode(text: CharSequence): ASTNode =
+    LanguageASTFactory.INSTANCE.forLanguage(getLanguage).createLazy(this, text)
 
   override final def getErrorsCount(buf: CharSequence,
                                     fileLanguage: Language,
@@ -47,8 +52,6 @@ abstract class ScCodeBlockElementType extends IErrorCounterReparseableElementTyp
 object ScCodeBlockElementType {
 
   object BlockExpression extends ScCodeBlockElementType {
-
-    override def createNode(text: CharSequence): ASTNode = new ScBlockExprImpl(this, text)
 
     override def getLanguageForParser(psi: PsiElement): Language =
       Option(psi).map(_.getLanguage) match {

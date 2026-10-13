@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.DumbService
-import com.intellij.psi.PsiReferenceList.Role
 import com.intellij.psi._
+import com.intellij.psi.PsiReferenceList.Role
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
@@ -46,7 +46,7 @@ import javax.swing.Icon
 import scala.annotation.tailrec
 
 abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
-                                               nodeType: ScFunctionElementType[F],
+                                               nodeType: ScFunctionElementType,
                                                node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
     with ScTopLevelStubBasedElement[F, ScFunctionStub[F]]

@@ -114,7 +114,7 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
   }
 
   override def selectorSet: Option[ScImportSelectors] =
-    this.stubOrPsiChild(IMPORT_SELECTORS)
+    this.stubOrPsiChild[ScImportSelectors](IMPORT_SELECTORS)
 
   override def reference: Option[ScStableCodeReference] =
     byPsiOrStub(getFirstChild.asOptionOf[ScStableCodeReference])(_.reference)

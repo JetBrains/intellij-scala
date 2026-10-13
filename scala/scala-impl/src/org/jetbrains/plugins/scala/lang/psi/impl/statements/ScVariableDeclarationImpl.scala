@@ -12,9 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-final class ScVariableDeclarationImpl private[psi] (
+final class ScVariableDeclarationImpl private[lang] (
   stub:     ScPropertyStub[ScVariableDeclaration],
-  nodeType: ScPropertyElementType[ScVariableDeclaration],
+  nodeType: ScPropertyElementType,
   node:     ASTNode
 ) extends ScValueOrVariableImpl(stub, nodeType, node)
     with ScVariableDeclaration {

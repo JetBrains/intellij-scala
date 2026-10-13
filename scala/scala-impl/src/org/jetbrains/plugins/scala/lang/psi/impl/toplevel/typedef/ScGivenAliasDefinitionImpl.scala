@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 
 class ScGivenAliasDefinitionImpl(
   stub: ScFunctionStub[ScGivenAliasDefinition],
-  nodeType: ScFunctionElementType[ScGivenAliasDefinition],
+  nodeType: ScFunctionElementType,
   node: ASTNode
 ) extends ScFunctionDefinitionImpl(stub, nodeType, node)
   with ScGivenAliasDeclarationOrDefinitionImpl

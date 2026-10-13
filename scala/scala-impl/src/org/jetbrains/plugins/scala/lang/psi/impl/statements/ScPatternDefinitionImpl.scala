@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiModifierListOwnerExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -18,11 +17,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Widening}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 
-final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternDefinition],
-                                                 nodeType: ScPropertyElementType[ScPatternDefinition],
-                                                 node: ASTNode)
+final class ScPatternDefinitionImpl private[lang](stub: ScPropertyStub[ScPatternDefinition],
+                                                  nodeType: ScPropertyElementType,
+                                                  node: ASTNode)
   extends ScValueOrVariableImpl(stub, nodeType, node) with ScPatternDefinition with ScBegin {
 
   override def toString: String = ifReadAllowed {

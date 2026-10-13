@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 
 class ScGivenAliasDeclarationImpl(
   stub:     ScFunctionStub[ScGivenAliasDeclaration],
-  nodeType: ScFunctionElementType[ScGivenAliasDeclaration],
+  nodeType: ScFunctionElementType,
   node:     ASTNode
 ) extends ScFunctionDeclarationImpl(stub, nodeType, node)
     with ScGivenAliasDeclarationOrDefinitionImpl

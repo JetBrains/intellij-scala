@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScGivenStub, ScImplicitStub, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](elementType: ScTemplateDefinitionElementType[TypeDef])
+abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](elementType: ScTemplateDefinitionElementType)
   extends ScStubSerializingElementFactory[ScTemplateDefinitionStub[TypeDef], TypeDef](elementType) {
 
   override def serialize(stub: ScTemplateDefinitionStub[TypeDef], dataStream: StubOutputStream): Unit = {
@@ -219,42 +219,42 @@ abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](
   }
 }
 
-final class ScClassDefinitionStubFactory(elementType: ScClassDefinitionElementType) extends ScTemplateDefinitionStubFactory(elementType) {
+final class ScClassDefinitionStubFactory(elementType: ScClassDefinitionElementType) extends ScTemplateDefinitionStubFactory[ScClass](elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScClass]): ScClass =
     new ScClassImpl(stub, elementType, null, elementType.toString)
 }
 
-final class ScTraitDefinitionStubFactory(elementType: ScTraitDefinitionElementType) extends ScTemplateDefinitionStubFactory(elementType) {
+final class ScTraitDefinitionStubFactory(elementType: ScTraitDefinitionElementType) extends ScTemplateDefinitionStubFactory[ScTrait](elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScTrait]): ScTrait =
     new ScTraitImpl(stub, elementType, null, elementType.toString)
 }
 
-final class ScObjectDefinitionStubFactory(elementType: ScObjectDefinitionElementType) extends ScTemplateDefinitionStubFactory(elementType) {
+final class ScObjectDefinitionStubFactory(elementType: ScObjectDefinitionElementType) extends ScTemplateDefinitionStubFactory[ScObject](elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScObject]): ScObject =
     new ScObjectImpl(stub, elementType, null, elementType.toString)
 }
 
-final class ScEnumDefinitionStubFactory(elementType: ScEnumDefinitionElementType) extends ScTemplateDefinitionStubFactory(elementType) {
+final class ScEnumDefinitionStubFactory(elementType: ScEnumDefinitionElementType) extends ScTemplateDefinitionStubFactory[ScClass](elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScClass]): ScClass =
     new ScEnumImpl(stub, elementType, null, elementType.toString)
 }
 
-final class ScEnumClassCaseStubFactory(elementType: ScEnumClassCaseElementType) extends ScTemplateDefinitionStubFactory(elementType) {
+final class ScEnumClassCaseStubFactory(elementType: ScEnumClassCaseElementType) extends ScTemplateDefinitionStubFactory[ScClass](elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScClass]): ScClass =
     new ScEnumClassCaseImpl(stub, elementType, null, elementType.toString)
 }
 
-final class ScEnumSingletonCaseStubFactory(elementType: ScEnumSingletonCaseElementType) extends ScTemplateDefinitionStubFactory(elementType) {
+final class ScEnumSingletonCaseStubFactory(elementType: ScEnumSingletonCaseElementType) extends ScTemplateDefinitionStubFactory[ScObject](elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScObject]): ScObject =
     new ScEnumSingletonCaseImpl(stub, elementType, null, elementType.toString)
 }
 
-final class ScNewTemplateDefinitionStubFactory(elementType: ScNewTemplateElementType) extends ScTemplateDefinitionStubFactory(elementType) {
+final class ScNewTemplateDefinitionStubFactory(elementType: ScNewTemplateElementType) extends ScTemplateDefinitionStubFactory[ScNewTemplateDefinition](elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScNewTemplateDefinition]): ScNewTemplateDefinition =
     new ScNewTemplateDefinitionImpl(stub, elementType, null, elementType.toString)
 }
 
-final class ScGivenDefinitionStubFactory(elementType: ScGivenDefinitionElementType) extends ScTemplateDefinitionStubFactory(elementType) {
+final class ScGivenDefinitionStubFactory(elementType: ScGivenDefinitionElementType) extends ScTemplateDefinitionStubFactory[ScGivenDefinition](elementType) {
   override def createPsi(stub: ScTemplateDefinitionStub[ScGivenDefinition]): ScGivenDefinition =
     new ScGivenDefinitionImpl(stub, elementType, null, elementType.toString)
 }

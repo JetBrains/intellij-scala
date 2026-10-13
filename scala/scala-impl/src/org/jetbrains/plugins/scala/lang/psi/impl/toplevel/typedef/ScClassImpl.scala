@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifie
 import javax.swing.Icon
 
 class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
-                  nodeType: ScTemplateDefinitionElementType[ScClass],
+                  nodeType: ScTemplateDefinitionElementType,
                   node: ASTNode,
                   debugName: String)
   extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
@@ -50,7 +50,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
     if (isCase) Some(getName() + "$") else None
 
   override def constructor: Option[ScPrimaryConstructor] =
-    this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
+    this.stubOrPsiChild[ScPrimaryConstructor](ScalaElementType.PRIMARY_CONSTRUCTOR)
 
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}

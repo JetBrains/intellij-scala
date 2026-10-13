@@ -50,7 +50,7 @@ import scala.jdk.CollectionConverters._
 
 abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl] (
   stub:      ScTemplateDefinitionStub[T],
-  nodeType:  ScTemplateDefinitionElementType[T],
+  nodeType:  ScTemplateDefinitionElementType,
   node:      ASTNode,
   debugName: String // TODO to be moved to ScalaStubBasedElementImpl eventually
 ) extends ScalaStubBasedElementImpl(stub, nodeType, node)
@@ -146,7 +146,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
   protected def addFromCompanion(companion: ScTypeDefinition): Boolean = false
 
-  override def extendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementType.EXTENDS_BLOCK).orNull
+  override def extendsBlock: ScExtendsBlock = this.stubOrPsiChild[ScExtendsBlock](ScalaElementType.EXTENDS_BLOCK).orNull
 
   override final def getAllFields: Array[PsiField] =
     PsiClassImplUtil.getAllFields(this)

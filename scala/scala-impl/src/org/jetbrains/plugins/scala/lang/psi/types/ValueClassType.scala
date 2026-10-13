@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ValType}
@@ -46,7 +47,7 @@ object ValueClassType {
   // alternative. Note that this method will return true for an implicit class that extends an arbitrary type called
   // `AnyVal`. It does not check whether this type comes from the Scala library.
   def extendsAnyValDumbMode(c: ScClass): Boolean = {
-    val extendsBlock = c.stubOrPsiChild(ScalaElementType.EXTENDS_BLOCK).collect { case eb: ScExtendsBlockImpl => eb }.toSeq
+    val extendsBlock = c.stubOrPsiChild[ScExtendsBlock](ScalaElementType.EXTENDS_BLOCK).collect { case eb: ScExtendsBlockImpl => eb }.toSeq
     val templateParents = extendsBlock.flatMap(_.templateParents.toSeq)
     val allTypeElements = templateParents.flatMap(_.allTypeElements)
     val allTypeElementStableCodeReferences = allTypeElements.collect { case s: ScSimpleTypeElement => s }.flatMap(_.reference.toSeq)

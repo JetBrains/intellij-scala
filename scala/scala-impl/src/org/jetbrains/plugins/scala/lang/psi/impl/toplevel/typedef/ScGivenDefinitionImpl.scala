@@ -28,7 +28,7 @@ import javax.swing.Icon
 
 class ScGivenDefinitionImpl(
   stub:      ScTemplateDefinitionStub[ScGivenDefinition],
-  nodeType:  ScTemplateDefinitionElementType[ScGivenDefinition],
+  nodeType:  ScTemplateDefinitionElementType,
   node:      ASTNode,
   debugName: String
 ) extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)

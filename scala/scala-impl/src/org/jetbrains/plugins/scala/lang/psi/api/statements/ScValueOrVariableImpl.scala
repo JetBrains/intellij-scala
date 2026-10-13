@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 
 abstract class ScValueOrVariableImpl[V <: ScValueOrVariable](
   stub:     ScPropertyStub[V],
-  nodeType: ScPropertyElementType[V],
+  nodeType: ScPropertyElementType,
   node:     ASTNode
 ) extends ScalaStubBasedElementImpl(stub, nodeType, node)
     with ScValueOrVariable

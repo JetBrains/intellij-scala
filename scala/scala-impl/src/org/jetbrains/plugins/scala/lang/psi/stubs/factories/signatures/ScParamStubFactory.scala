@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.factories.{ScStubSerializingEl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScImplicitStub, ScParameterStub}
 
-abstract class ScParamStubFactory[P <: ScParameter](elementType: ScParamElementType[P])
-  extends ScStubSerializingElementFactory[ScParameterStub, ScParameter](elementType) {
+abstract class ScParamStubFactory[P <: ScParameter](elementType: ScParamElementType)
+  extends ScStubSerializingElementFactory[ScParameterStub, P](elementType) {
 
   override def serialize(stub: ScParameterStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
@@ -43,7 +43,7 @@ abstract class ScParamStubFactory[P <: ScParameter](elementType: ScParamElementT
       implicitClassNames = dataStream.readNames,
     )
 
-  override def createStubImpl(parameter: ScParameter, parentStub: StubElement[? <: PsiElement]): ScParameterStub = {
+  override def createStubImpl(parameter: P, parentStub: StubElement[? <: PsiElement]): ScParameterStub = {
     val typeText = parameter.typeElement.map {
       _.getText
     }

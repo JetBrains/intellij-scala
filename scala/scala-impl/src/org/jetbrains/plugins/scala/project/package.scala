@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClsFileViewProvider.ScClsFileImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
+import org.jetbrains.plugins.scala.lang.psi.stubs.factories.ScStubSerializingElementFactory
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.LibraryExt.{guessLibraryVersionFromName, runtimeVersion}
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
@@ -692,7 +692,7 @@ package object project {
       Option(file.getVirtualFile).flatMap(vf => Option(vf.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE)).flatMap(_.get))
 
     def isMetaEnabled: Boolean =
-      !ScStubElementType.Processing.isRunning &&
+      !ScStubSerializingElementFactory.Processing.isRunning &&
         !DumbService.isDumb(file.getProject) &&
         isEnabledIn(_.isMetaEnabled)
 

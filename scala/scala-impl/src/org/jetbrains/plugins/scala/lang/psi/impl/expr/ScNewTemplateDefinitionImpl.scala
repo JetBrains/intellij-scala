@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import javax.swing.Icon
 
 final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemplateDefinition],
-                                        nodeType: ScTemplateDefinitionElementType[ScNewTemplateDefinition],
+                                        nodeType: ScTemplateDefinitionElementType,
                                         node: ASTNode,
                                         debugName: String)
   extends ScTemplateDefinitionImpl(stub, nodeType, node, debugName)

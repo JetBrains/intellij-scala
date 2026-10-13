@@ -5,6 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterIm
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParameterStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScParameterElementType
 
-final class ScParameterStubFactory(elementType: ScParameterElementType) extends ScParamStubFactory(elementType) {
+final class ScParameterStubFactory(elementType: ScParameterElementType) extends ScParamStubFactory[ScParameter](elementType) {
   override def createPsi(stub: ScParameterStub): ScParameter = new ScParameterImpl(stub)
 }

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScFunctionDeclarationImpl[S <: ScFunctionDeclaration](stub: ScFunctionStub[S],
-                                                            nodeType: ScFunctionElementType[S],
+                                                            nodeType: ScFunctionElementType,
                                                             node: ASTNode)
   extends ScFunctionImpl(stub, nodeType, node)
     with ScFunctionDeclaration {

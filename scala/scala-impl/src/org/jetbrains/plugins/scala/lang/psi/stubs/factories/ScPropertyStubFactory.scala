@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScPropertyElementTyp
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPropertyStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScPropertyStub, classNames}
 
-sealed abstract class ScPropertyStubFactory[P <: ScValueOrVariable](elementType: ScPropertyElementType[P])
+sealed abstract class ScPropertyStubFactory[P <: ScValueOrVariable](elementType: ScPropertyElementType)
   extends ScStubSerializingElementFactory[ScPropertyStub[P], P](elementType) {
 
   override final def serialize(stub: ScPropertyStub[P], dataStream: StubOutputStream): Unit = {

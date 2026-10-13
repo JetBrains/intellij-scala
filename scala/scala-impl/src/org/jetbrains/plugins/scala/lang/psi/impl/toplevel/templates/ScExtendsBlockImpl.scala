@@ -242,7 +242,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     getStubOrPsiChildren(DERIVES_CLAUSE, ScDerivesClauseFactory).headOption
 
   override def earlyDefinitions: Option[ScEarlyDefinitions] =
-    this.stubOrPsiChild(EARLY_DEFINITIONS)
+    this.stubOrPsiChild[ScEarlyDefinitions](EARLY_DEFINITIONS)
 
   override def addEarlyDefinitions(): ScEarlyDefinitions = {
     earlyDefinitions.getOrElse {

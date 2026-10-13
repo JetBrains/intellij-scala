@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-final class ScValueDeclarationImpl private[psi](stub: ScPropertyStub[ScValueDeclaration],
-                                                nodeType: ScPropertyElementType[ScValueDeclaration],
-                                                node: ASTNode)
+final class ScValueDeclarationImpl private[lang](stub: ScPropertyStub[ScValueDeclaration],
+                                                 nodeType: ScPropertyElementType,
+                                                 node: ASTNode)
   extends ScValueOrVariableImpl(stub, nodeType, node) with ScValueDeclaration {
 
   override def toString: String = "ScValueDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")

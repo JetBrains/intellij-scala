@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScBindingPatternElementType, ScNamingPatternElementType, ScReferencePatternElementType, ScSeqWildcardPatternElementType, ScTypedPatternElementType}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScBindingPatternStubImpl
 
-abstract class ScBindingPatternStubFactory[P <: ScBindingPattern](elementType: ScBindingPatternElementType[P])
+abstract class ScBindingPatternStubFactory[P <: ScBindingPattern](elementType: ScBindingPatternElementType)
   extends ScStubSerializingElementFactory[ScBindingPatternStub[P], P](elementType) {
 
   override def serialize(stub: ScBindingPatternStub[P], dataStream: StubOutputStream): Unit = {

@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiField
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.{PsiElement, ResolveState}
+import com.intellij.psi.{PsiElement, PsiField, ResolveState}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 
 final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScClass],
-                       nodeType: ScTemplateDefinitionElementType[ScClass],
+                       nodeType: ScTemplateDefinitionElementType,
                        node: ASTNode,
                        debugName: String)
   extends ScClassImpl(stub, nodeType, node, debugName) with ScEnum {

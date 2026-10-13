@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 
 final class ScEnumClassCaseImpl(
   stub:      ScTemplateDefinitionStub[ScClass],
-  nodeType:  ScTemplateDefinitionElementType[ScClass],
+  nodeType:  ScTemplateDefinitionElementType,
   node:      ASTNode,
   debugName: String
 ) extends ScClassImpl(stub, nodeType, node, debugName)

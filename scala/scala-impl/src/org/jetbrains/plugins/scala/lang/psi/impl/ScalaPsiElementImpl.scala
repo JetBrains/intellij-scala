@@ -71,7 +71,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
 }
 
 abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@Nullable stub: S,
-                                                                               nodeType: ScStubElementType[T],
+                                                                               nodeType: ScStubElementType,
                                                                                node: ASTNode)
   extends StubBasedPsiElementBase[S](stub, if (stub == null) null else nodeType, node)
     with StubBasedPsiElement[S]
@@ -154,7 +154,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
   private def assertFilterMakesSenseForStubs(filter: TokenSet): Unit = {
     if (isUnitTestMode && (filter ne TokenSet.ANY)) {
       val elementTypes = filter.getTypes
-      val nonStubTypes = elementTypes.filterNot(_.is[ScStubElementType[?]])
+      val nonStubTypes = elementTypes.filterNot(_.is[ScStubElementType])
       if (nonStubTypes.nonEmpty)
         throw new IllegalArgumentException(s"Non-stub element types (${nonStubTypes.mkString(", ")}) should not be used in getStubOrPsiChildren")
     }

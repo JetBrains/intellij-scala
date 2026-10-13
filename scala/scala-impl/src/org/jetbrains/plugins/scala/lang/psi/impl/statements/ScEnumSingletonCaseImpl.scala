@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 
 final class ScEnumSingletonCaseImpl(
   stub: ScTemplateDefinitionStub[ScObject],
-  nodeType: ScTemplateDefinitionElementType[ScObject],
+  nodeType: ScTemplateDefinitionElementType,
   node: ASTNode,
   debugName: String
 ) extends ScObjectImpl(stub, nodeType, node, debugName)

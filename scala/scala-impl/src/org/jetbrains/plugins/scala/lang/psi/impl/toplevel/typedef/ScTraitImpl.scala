@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementati
 import javax.swing.Icon
 
 final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
-                        nodeType: ScTemplateDefinitionElementType[ScTrait],
+                        nodeType: ScTemplateDefinitionElementType,
                         node: ASTNode,
                         debugName: String)
   extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
@@ -80,7 +80,7 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
   private def withImplementationClassSuffix(name: String) = name + TraitImplementationClassSuffix_211
 
   override def constructor: Option[ScPrimaryConstructor] =
-    this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
+    this.stubOrPsiChild[ScPrimaryConstructor](ScalaElementType.PRIMARY_CONSTRUCTOR)
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.TraitKeyword
 
