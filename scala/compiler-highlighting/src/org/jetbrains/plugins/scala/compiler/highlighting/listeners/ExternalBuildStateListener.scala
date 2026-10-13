@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.compiler.highlighting.listeners
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.tracing.BuildReason
-import org.jetbrains.plugins.scala.compiler.highlighting.compilation.ModuleKey
 import org.jetbrains.plugins.scala.compiler.highlighting.services.ExternalBuildTracker
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.ModuleKey
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.extensions.PathExt
 

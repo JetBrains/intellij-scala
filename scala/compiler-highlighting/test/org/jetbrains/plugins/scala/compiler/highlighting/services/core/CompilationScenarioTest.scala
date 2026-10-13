@@ -1,23 +1,24 @@
-package org.jetbrains.plugins.scala.compiler.highlighting.compilation
+package org.jetbrains.plugins.scala.compiler.highlighting.services.core
 
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.compiler.highlighting.compilation.CompilationStateTestBase.CompilerHighlightingTests
+import CompilationStateTestBase.CompilerHighlightingCoreTest
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationState, ModuleKey}
 import org.junit.jupiter.api.Assertions.{assertEquals, assertFalse, assertTrue}
 import org.junit.jupiter.api.{Nested, Tag, Test}
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-@Tag(CompilerHighlightingTests)
-class CompilationScenarioTest extends CompilationStateTestBase {
+@Tag(CompilerHighlightingCoreTest)
+class CompilationScenarioTest extends CompilationStateTestBase:
 
   private val app = module("app")
   private val domain = module("domain")
   private val util = module("util")
 
-  private val controller = file("Controller.scala", in = app)
-  private val view = file("View.scala", in = app)
-  private val service = file("Service.scala", in = domain)
-  private val strings = file("Strings.scala", in = util)
+  private val controller = app / "Controller.scala" 
+  private val view = app / "View.scala"
+  private val service = domain / "Service.scala"
+  private val strings = util / "Strings.scala"
 
   private val everything = Set(controller, view, service, strings)
 
@@ -26,7 +27,7 @@ class CompilationScenarioTest extends CompilationStateTestBase {
   private def builtProject = freshProject.compilationSucceeded(everything)
 
   @Nested
-  class OpeningFiles {
+  class OpeningFiles:
 
     @Test
     def inAProjectThatWasNeverBuiltCompilesTheFile(): Unit =
@@ -41,15 +42,12 @@ class CompilationScenarioTest extends CompilationStateTestBase {
       everything.foreach(builtProject.on(_).assertUpToDate)
 
     @Test
-    def outsideEveryModuleCompilesTheFile(): Unit = {
+    def outsideEveryModuleCompilesTheFile(): Unit = 
       val scratch = fileOutsideModules("Scratch.scala")
-
       builtProject.on(scratch).assertIncremental(scratch)
-    }
-  }
-
+  
   @Nested
-  class Editing {
+  class Editing:
 
     @Test
     def theOpenFileUsesTheDocumentCompiler(): Unit =
@@ -84,46 +82,41 @@ class CompilationScenarioTest extends CompilationStateTestBase {
         .on(controller).assertDocument
 
     @Test
-    def thenDeletingTheFileKeepsItOutOfLaterScopes(): Unit = {
+    def thenDeletingTheFileKeepsItOutOfLaterScopes(): Unit = 
       builtProject.edit(view)
       .andThen { delete(view) } 
       .on(controller).assertIncremental(controller)
-    }
-  }
-
+  
   @Nested
-  class EditingWhileACompilationRuns {
+  class EditingWhileACompilationRuns:
 
     @Test
-    def keepsTheEditTheCompilationCouldNotSee(): Unit = {
+    def keepsTheEditTheCompilationCouldNotSee(): Unit =
       compileWhileEditing(controller)
       .andThen{ assertEquals(names(controller), names(state.modifiedFiles))}
       .on(controller).assertDocument
-    }
-
+    
     @Test
     def doesNotCheckASiblingAgainstAnOutputThatMissedTheEdit(): Unit =
       compileWhileEditing(controller).edit(view).on(view).assertIncremental(controller, view)
 
     @Test
-    def inAnotherModuleDoesNotHoldBackWhatWasBuilt(): Unit = {
+    def inAnotherModuleDoesNotHoldBackWhatWasBuilt(): Unit =
       val dispatched = builtProject.edit(controller)
       val token = dispatched.startCompilation(controller)
       dispatched.edit(service)
         .succeeded(token, targetsOf(controller), Set(controller))
         .andThen { assertEquals(names(service), names(state.modifiedFiles))}
-    }
-  }
 
   /**
    *  With the current system this scenario cannot happen.
    *  We test it to verify that the state logic is correct
    */
   @Nested
-  class WhenAnIdeBuildIsRunning {
+  class WhenAnIdeBuildIsRunning:
 
     @Test
-    def itsReportDoesNotSpeakForACompilationThatFinishedDuringIt(): Unit = {
+    def itsReportDoesNotSpeakForACompilationThatFinishedDuringIt(): Unit = 
       val buildStarted = builtProject.edit(service)
       val buildToken = buildStarted.startCompilation()
 
@@ -136,11 +129,9 @@ class CompilationScenarioTest extends CompilationStateTestBase {
       assertEquals(ours.lastBuildEpoch, buildFinished.lastBuildEpoch)
       buildFinished.on(controller).assertUpToDate
       buildFinished.on(service).assertIncremental(service)
-    }
-  }
 
   @Nested
-  class WhenOneModuleFails {
+  class WhenOneModuleFails:
 
     @Test
     def itsFilesAreLeftUnbuildable(): Unit =
@@ -231,10 +222,9 @@ class CompilationScenarioTest extends CompilationStateTestBase {
         .edit(service, controller)
         .compilationFailed(service, controller, view)
         .compilationSucceeded(strings)
-  }
 
   @Nested
-  class WhenSeveralModulesFail {
+  class WhenSeveralModulesFail:
 
     @Test
     def theyDoNotBlockEachOther(): Unit =
@@ -246,8 +236,7 @@ class CompilationScenarioTest extends CompilationStateTestBase {
         .compilationFailed(controller)
         .on(controller).assertRecorded
         .on(strings).assertIncremental(strings)
-
-
+    
     @Test
     def oneRecoversWhileTheOthersStayBroken(): Unit =
       builtProject.edit(service, controller, strings)
@@ -257,10 +246,9 @@ class CompilationScenarioTest extends CompilationStateTestBase {
         .on(strings).assertUpToDate
         .on(service).assertIncremental(service)
         .on(controller).assertIncremental(controller)
-  }
 
   @Nested
-  class Invalidation {
+  class Invalidation:
 
     @Test
     def withdrawsEveryTarget(): Unit =
@@ -276,13 +264,12 @@ class CompilationScenarioTest extends CompilationStateTestBase {
         .invalidated
         .edit(controller)
         .on(controller).assertIncremental(controller)
-  }
 
   @Nested
-  class RelyingOnTheBuildOutput {
+  class RelyingOnTheBuildOutput:
 
     @Test
-    def onlyABuiltTargetsOutputCanBeReliedUpon(): Unit = {
+    def onlyABuiltTargetsOutputCanBeReliedUpon(): Unit = 
       val failed = builtProject.edit(service)
         .compilationFailed(Set(service, controller), covering = Set(service, view))
 
@@ -290,35 +277,33 @@ class CompilationScenarioTest extends CompilationStateTestBase {
       assertTrue(builtProject.edit(controller).decisionFor(controller).trustsBuildOutput)
       assertFalse(failed.decisionFor(view).trustsBuildOutput)
       assertFalse(builtProject.invalidated.decisionFor(controller).trustsBuildOutput)
-    }
-  }
 
   @Nested
-  class ALargeProject {
+  class ALargeProject:
 
     @ParameterizedTest(name = "{0} modules")
     @ValueSource(ints = Array(10, 200, 1000, 5000))
-    def isUpToDateEverywhereAfterOneBuild(moduleCount: Int): Unit = {
+    def isUpToDateEverywhereAfterOneBuild(moduleCount: Int): Unit = 
       val (_, files) = largeProject(moduleCount)
       freshProject
         .compilationSucceeded(files.toSet)
         .onAll(files).assertUpToDate
-    }
+      ()
 
     @ParameterizedTest(name = "{0} modules")
     @ValueSource(ints = Array(1, 5, 20, 40))
-    def isUnaffectedElsewhereWhenOneFileIsEdited(moduleCount: Int): Unit = {
+    def isUnaffectedElsewhereWhenOneFileIsEdited(moduleCount: Int): Unit = 
       val (_, files) = largeProject(moduleCount)
       val edited = files.head
       freshProject.compilationSucceeded(files.toSet)
         .edit(edited)
         .on(edited).assertDocument
         .onEach(files.tail).assertIncremental(Set(file, edited))
-    }
+      ()
 
     @ParameterizedTest(name = "{0} modules")
     @ValueSource(ints = Array(2, 5, 20))
-    def leavesEveryOtherModuleBehindWhenOneIsBuilt(moduleCount: Int): Unit = {
+    def leavesEveryOtherModuleBehindWhenOneIsBuilt(moduleCount: Int): Unit =
       val (modules, files) = largeProject(moduleCount)
       val (target, targetFiles) = modules.head
       val state = freshProject
@@ -329,11 +314,10 @@ class CompilationScenarioTest extends CompilationStateTestBase {
       assertEquals(Set(target), state.documentEnabledFor)
       state.onAll(targetFiles).assertUpToDate
       state.onEach(modules.tail.flatMap(_._2)).assertIncremental(Set(file))
-    }
-
+    
     @ParameterizedTest(name = "{0} modules")
     @ValueSource(ints = Array(2, 5, 20))
-    def keepsCompilingTheHealthyModuleWhenTheRestAreBroken(moduleCount: Int): Unit = {
+    def keepsCompilingTheHealthyModuleWhenTheRestAreBroken(moduleCount: Int): Unit = 
       val (modules, files) = largeProject(moduleCount)
       val broken = modules.dropRight(1).flatMap(_._2).toSet
       val healthy = modules.last._2.head
@@ -346,30 +330,22 @@ class CompilationScenarioTest extends CompilationStateTestBase {
         .compilationSucceeded(healthy)
         .on(healthy).assertUpToDate
 
-    }
-
     @ParameterizedTest(name = "{0} modules")
     @ValueSource(ints = Array(1, 5, 20))
-    def isUpToDateAgainAfterARebuildModuleByModule(moduleCount: Int): Unit = {
+    def isUpToDateAgainAfterARebuildModuleByModule(moduleCount: Int): Unit = 
       val (modules, files) = largeProject(moduleCount)
       val edited = freshProject.compilationSucceeded(files.toSet).editAll(files.toSet)
       val rebuilt = modules.foldLeft(edited)((state, m) => state.compilationSucceeded(m._2.toSet))
-
       rebuilt.onAll(files).assertUpToDate
-    }
-  }
 
-  private def compileWhileEditing(target: VirtualFile): CompilationState = {
+  private def compileWhileEditing(target: VirtualFile): CompilationState = 
     val dispatched = builtProject.edit(target)
     val token = dispatched.startCompilation(target)
     dispatched.edit(target).succeeded(token, targetsOf(target), Set(target))
-  }
 
-  private def largeProject(moduleCount: Int): (Seq[(ModuleKey, Seq[VirtualFile])], Seq[VirtualFile]) = {
+  private def largeProject(moduleCount: Int): (Seq[(ModuleKey, Seq[VirtualFile])], Seq[VirtualFile]) = 
     val modules = (1 to moduleCount).map { m =>
       val target = module(s"module-$m")
       target -> (1 to 3).map(f => file(s"Source$m-$f.scala", in = target))
     }
     (modules, modules.flatMap(_._2))
-  }
-}

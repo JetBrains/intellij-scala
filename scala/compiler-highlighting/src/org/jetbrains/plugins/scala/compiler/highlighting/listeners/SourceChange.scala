@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.compiler.highlighting.listeners
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.events.*
-import org.jetbrains.plugins.scala.compiler.highlighting.compilation.SourceRole
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.SourceRole
 
 /** What one VFS event means for one project's build. */
 private enum SourceChange {

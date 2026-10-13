@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.events
 
-import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.CompilationKind
+import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.{CompilationKind, CompilationRequest, HighlightingRequest}
 import org.jetbrains.plugins.scala.compiler.tracing.core.events.{BaseEvent, ContextTraceEvent}
 import org.jetbrains.plugins.scala.util.CompilationId
 
@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong
  * (see [[TraceCategory]]).
  *
  * The flow is:
- * [[HighlightingTriggerPhaseEvent]] (a trigger fires) → [[QueueWaitPhaseEvent]] (wait in the priority
+ * [[HighlightingTriggerEvent]] (a trigger fires) → [[HighlightingRequestEvent]] (wait in the priority
  * queue, with [[QueueRescheduledPhaseEvent]] markers) → [[DocumentSavePhaseEvent]] (save unsaved documents,
  * with [[DocumentSaveFailPhaseEvent]] markers) → [[EnsureServerRunningPhaseEvent]] (compile-server startup)
  * → [[CompilerLockWaitPhaseEvent]] (lock acquisition) → [[CompilationRequestPhaseEvent]] (request dispatched,
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong
  * [[BuildManagerSessionPhaseEvent]] that wraps their
  * per-module [[HighlightingPhaseEvents.ExternalBuildEvent]]s.
  */
-object TriggerPhaseEvents {
+object TriggerPhaseEvents:
 
   /** Phase-1 span: everything before the compile server replies (see [[TraceCategory.Trigger]]). */
   private[highlighting] class TriggerPhaseEvent(name: String, parentKey: Option[Any], key: Option[Any],
@@ -35,8 +35,8 @@ object TriggerPhaseEvents {
   def newRequestId(): RequestId = RequestId(idGenerator.getAndIncrement(),
     timestamp = System.currentTimeMillis())
 
-  def create(id: RequestId, source: String): HighlightingTriggerPhaseEvent =
-    HighlightingTriggerPhaseEvent(id, source)
+  def create(id: RequestId, source: String): HighlightingTriggerEvent =
+    HighlightingTriggerEvent(id, source)
 
   private val idGenerator = new AtomicLong(0)
 
@@ -61,7 +61,7 @@ object TriggerPhaseEvents {
    * wait and the rest of the trigger phase can nest under it (`parent` links it to a build session when the
    * trigger comes from a finished IDE build).
    */
-  case class HighlightingTriggerPhaseEvent(id: RequestId, source: String, parent: Any = null)
+  case class HighlightingTriggerEvent(id: RequestId, source: String, parent: Any = null)
     extends TriggerPhaseEvent(name = s"Trigger: $source",
       Option(parent), Some(id), false,
       args = "source" -> source)
@@ -73,9 +73,9 @@ object TriggerPhaseEvents {
    * `diagnostics` is how many were on hand. Zero is a meaningful answer rather than a miss, it says the
    * compiler last reported the file clean, which is recorded explicitly.
    */
-  case class RecordedDiagnosticsServedEvent(requestId: RequestId, file: String, diagnostics: Int)
-    extends TriggerPhaseEvent("Served from recorded state", Some(requestId), None, false,
-      "file" -> file, "diagnostics" -> diagnostics.toString)
+  case class RecordedDiagnosticsServedEvent(requestId: RequestId, file: String)
+    extends TriggerPhaseEvent("Served from recorded state", Some(requestId), Some(requestId), true,
+      "file" -> file)
 
   /**
    * The time a compilation request spends waiting in the priority queue, from the moment it is scheduled
@@ -85,34 +85,26 @@ object TriggerPhaseEvents {
    * carries only the request description and the end event additionally records how the wait ended (see the
    * call sites in `DeduplicationLogic` / `CompilationRequestsScheduler` for the possible values).
    */
-  case class QueueWaitPhaseEvent(kind: CompilationKind, compilationId: RequestId, reason: String, files: String,
-                                 outcome: Option[QueueWaitOutcome] = Option.empty)
-    extends BaseEvent("Queue wait", Some(compilationId), Some(compilationId),
+  case class HighlightingRequestEvent(request: HighlightingRequest,
+                                      outcome: Option[QueueWaitOutcome] = Option.empty,
+                                      reason: Option[String] = None)
+    extends BaseEvent("Highlighting request", Some(request.id), Some(request.id),
       true,
       // A terminal outcome (anything other than Executed) means no downstream phase span will consume this
       // wait from the context registry, so it must drop its own key when it ends. An Executed wait is instead
       // handed off to the compile pipeline (the ensure-server / lock spans consume it as their parent), so it
       // must NOT self-remove.
       outcome.exists(_ != QueueWaitOutcome.Executed),
-      args = Map("kind" -> kind.toString, "reason" -> reason, "files" -> files) ++
-        (if (outcome.nonEmpty) Map("outcome" -> outcome.get.toString) else Map())
-    ) {
-
-  }
-  object QueueWaitPhaseEvent {
-    /** Transform that records the `outcome` on a [[QueueWaitPhaseEvent]] as its span is closed. */
-    def withOutcome(outcome: QueueWaitOutcome): ContextTraceEvent => Option[ContextTraceEvent] = {
-      case e: QueueWaitPhaseEvent => Some(e.copy(outcome = Some(outcome)))
+      args = Map("file" -> request.file.getPresentableName, "reason" -> request.debugReason) ++
+        (if (outcome.nonEmpty) Map("outcome" -> outcome.get.toString, "outcomeReason" -> reason.toString) else Map())
+    ) 
+  
+  object HighlightingRequestEvent:
+    /** Transform that records the `outcome` on a [[HighlightingRequestEvent]] as its span is closed. */
+    def withOutcome(outcome: QueueWaitOutcome, reason: String = ""): ContextTraceEvent => Option[ContextTraceEvent] = 
+      case e: HighlightingRequestEvent => Some(e.copy(outcome = Some(outcome), reason = Some(reason)))
       case other => Some(other)
-    }
-  }
-
-  /**
-   * A zero-duration marker placed on an open [[QueueWaitPhaseEvent]] span each time the request is found not
-   * yet ready and is requeued with a later deadline, so the wait shows every reschedule it went through.
-   */
-  case class QueueRescheduledPhaseEvent(compilationId: RequestId, reason: String) extends
-    TriggerPhaseEvent("rescheduled", Some(compilationId), Some(compilationId), true, "reason" -> reason)
+    
 
   /**
    * The save of unsaved documents performed before an incremental compilation. `requested` is the set of
@@ -136,8 +128,8 @@ object TriggerPhaseEvents {
    * Synchronous span around `CompileServerLauncher.ensureServerRunning` — isolates compile-server startup
    * time. No args: server startup is process-wide, not per-file.
    */
-  case class EnsureServerRunningPhaseEvent(requestId: RequestId) extends
-    TriggerPhaseEvent("Ensure compile server running", Some(requestId), Some(requestId), true)
+  case class EnsureServerRunningPhaseEvent(requestId: RequestId, closeParentValue:Boolean = true) extends
+    TriggerPhaseEvent("Ensure compile server running", Some(requestId), Some(requestId), closeParentValue)
 
   /**
    * Synchronous span around acquiring a compiler-lock semaphore in `CompilerLockService.withCompilerLock`.
@@ -182,4 +174,12 @@ object TriggerPhaseEvents {
   case class BuildManagerSessionPhaseEvent(isAutomake: Boolean, id: UUID, compilationIds: List[CompilationId] = Nil)
     extends TriggerPhaseEvent("BuildManager session", None, Some(BuildManagerSessionId(id)), true,
       "isAutomake" -> isAutomake.toString)
-}
+
+  /**
+   * When a request is created and scheduled for execution.
+   * `eventName` can also be used to store the outcome of the request.
+   */
+  case class CompilationRequestEvent(fromId: RequestId, request: CompilationRequest, eventName: String)
+    extends TriggerPhaseEvent(eventName, parentKey = Some(fromId), closeParent = true, key = Some(request.id),
+      "kind" -> request.kind.toString )
+

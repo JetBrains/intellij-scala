@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaOpt
 import org.jetbrains.plugins.scala.compiler.diagnostics.Action
 import org.jetbrains.plugins.scala.compiler.highlighting.core.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.compiler.highlighting.core.{CompilerDiagnosticIntentionAction, CompilerMessages, ExternalHighlighting}
+import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.HighlightingEvent.HighlightingPassId
 import org.jetbrains.plugins.scala.compiler.highlighting.events.HighlightingPhaseEvents.{FindUnresolvedReferenceEvent, RegisterQuickFixes}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.ExternalHighlightersService.{ScalaCompilerPassId, TextRangeWithEndOfLine}
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
@@ -30,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed.UnusedImportReportedByCompilerKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.util.CompilationId
 
 import scala.annotation.tailrec
 
@@ -54,16 +54,16 @@ private[highlighting] class HighlightInfoFactory(
     externalHighlights: Set[ExternalHighlighting],
     document: Document,
     psiFile: PsiFile,
-    compilationId: CompilationId
+    passId: HighlightingPassId,
   ): Set[HighlightInfo] =
     externalHighlights.flatMap { highlighting =>
       ProgressManager.checkCanceled()
-      toHighlightInfo(highlighting, document, psiFile, compilationId)
+      toHighlightInfo(highlighting, document, psiFile, passId)
     }
 
   @RequiresReadLock
   private def toHighlightInfo(highlighting: ExternalHighlighting, document: Document, psiFile: PsiFile,
-                              compilationId: CompilationId): Option[HighlightInfo] = {
+                              passId: HighlightingPassId): Option[HighlightInfo] = {
     //NOTE: in case there is no location in the file, do not ignore/lose messages
     //instead report them in the beginning of the file
     val range = highlighting.rangeInfo.getOrElse {
@@ -134,7 +134,7 @@ private[highlighting] class HighlightInfoFactory(
 
         val argList = findArgumentList(psiFile.findElementAt(highlightRange.getStartOffset))
 
-        val span = tracer.begin(RegisterQuickFixes(compilationId))
+        val span = tracer.begin(RegisterQuickFixes(passId))
         var fixes = Set.empty[String]
         for (argList <- argList) {
           val quickfix = new AddParametersQuickfix(argList.createSmartPointer)
@@ -142,16 +142,19 @@ private[highlighting] class HighlightInfoFactory(
           fixes = fixes + quickfix.getText
         }
         tracer.mapAndEnd(span) {
-          case RegisterQuickFixes(_,_) => Some(RegisterQuickFixes(compilationId, fixes))
+          case RegisterQuickFixes(_,_) => Some(RegisterQuickFixes(passId, fixes))
         }
       }
 
       fixProvider.registerImportFixesFromMessage(highlighting.message, highlightRange, psiFile, highlightInfo)
 
-      val fixes = tracer.trace(FindUnresolvedReferenceEvent(compilationId, psiFile.toString)) {
-        fixProvider.findUnresolvedReferenceFixes(psiFile, highlightRange, highlighting.highlightType)
-      }
+      val span = tracer.begin(FindUnresolvedReferenceEvent(passId, psiFile.toString))
+      val fixes = fixProvider.findUnresolvedReferenceFixes(psiFile, highlightRange, highlighting.highlightType)
+      
       fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
+      tracer.mapAndEnd(span){
+        case e: FindUnresolvedReferenceEvent => Some(e.copy(text = fixes.map(_.getText).mkString(",")) )
+      }
       highlightInfo.create()
     }
   }

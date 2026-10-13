@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.compiler.highlighting.compilation
+package org.jetbrains.plugins.scala.compiler.highlighting.services
 
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.CompilerHighlightingTests
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationStateWritesTestBase, ModuleKey}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 import org.junit.Test
@@ -13,7 +14,7 @@ import java.util.concurrent.{CountDownLatch, Executors, TimeUnit}
 
 @Category(Array(classOf[CompilerHighlightingTests]))
 @RunWith(classOf[JUnit4])
-class CompilationLogicServiceTest extends CompilationStateWritesTestBase {
+class CompilationLogicServiceTest extends CompilationStateWritesTestBase:
 
   /**
    * The guard in `filesModified` is load-bearing: `modified` advances the clock before it looks at the
@@ -26,7 +27,6 @@ class CompilationLogicServiceTest extends CompilationStateWritesTestBase {
     markTargetBuilt(inSources("A.scala"))
     assertRecordsNothing(logic.filesModified(Set.empty))
   
-
   @Test
   def testModifyingFilesWhileCompilerHighlightingIsOffChangesNothing(): Unit = 
     val a = inSources("A.scala")
@@ -35,7 +35,6 @@ class CompilationLogicServiceTest extends CompilationStateWritesTestBase {
     ScalaHighlightingMode.compilerHighlightingEnabledInTests = false
     assertRecordsNothing(logic.filesModified(Set(a, b)))
   
-
   @Test
   def testModifyingFilesAdvancesTheClockOnce(): Unit = 
     val a = inSources("A.scala")
@@ -44,7 +43,6 @@ class CompilationLogicServiceTest extends CompilationStateWritesTestBase {
     assertRecordsModified(a, b)(logic.filesModified(Set(a, b)))
     assertEquals(before + 1, state.changesEpoch)
   
-
   @Test
   def testModifyingOneFileRecordsThatFileAlone(): Unit = 
     val a = inSources("A.scala")
@@ -52,7 +50,6 @@ class CompilationLogicServiceTest extends CompilationStateWritesTestBase {
     assertRecordsModified(a)(logic.fileModified(a))
     assertEquals(before + 1, state.changesEpoch)
   
-
   /**
    * `compilationStarted` only reads. Were it ever to write, a compilation would commit against the state as
    * it stands when it ends rather than the one it ran against, and every edit made while it ran would be
@@ -67,14 +64,12 @@ class CompilationLogicServiceTest extends CompilationStateWritesTestBase {
     assertEquals(before.changesEpoch, token.epoch)
     assertEquals(Set(a), token.files)
   
-
   @Test
   def testASucceededCompilationMakesItsTargetCurrent(): Unit = 
     val a = inSources("A.scala")
     markTargetBuilt(a)
     assertTrue("the built target must read as current", isCurrent(a))
   
-
   @Test
   def testABuildInputChangeLeavesNoTargetCurrent(): Unit = 
     val a = inSources("A.scala")
@@ -82,7 +77,6 @@ class CompilationLogicServiceTest extends CompilationStateWritesTestBase {
     assertInvalidatesEverything(logic.buildInputChanged())
     assertFalse(isCurrent(a))
   
-
   @Test
   def testInvalidatingLeavesNoTargetCurrent(): Unit = 
     val a = inSources("A.scala")
@@ -90,7 +84,6 @@ class CompilationLogicServiceTest extends CompilationStateWritesTestBase {
     assertInvalidatesEverything(logic.invalidateAll())
     assertFalse(isCurrent(a))
   
-
   @Test
   def testConcurrentModificationsAreAllRecorded(): Unit = 
     val files = (1 to 64).map(i => inSources(s"F$i.scala"))
@@ -111,7 +104,5 @@ class CompilationLogicServiceTest extends CompilationStateWritesTestBase {
     assertEquals("one advance per write, none lost", before + files.size, state.changesEpoch)
     assertTrue("every file must be recorded", files.forall(state.modifiedFiles.contains))
   
-
   private def isCurrent(file: VirtualFile): Boolean =
     ModuleKey.of(getProject, file).exists(target => state.compiledAt.get(target).contains(state.changesEpoch))
-}

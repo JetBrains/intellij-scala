@@ -5,16 +5,21 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.compiler.highlighting.core.{CompilerEventGeneratingClient, FileCompilationScope}
-import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.RequestId
-import org.jetbrains.plugins.scala.compiler.highlighting.services.CompilerHighlightingService
-import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.{CompilationRequest, PostBuildDocumentRequest, SharedClientDocumentRequest}
+import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{RequestId, newRequestId}
+import org.jetbrains.plugins.scala.compiler.highlighting.services.HighlightingService
+import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.{PostBuildDocumentRequest, SharedClientDocumentRequest}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.util.CompilationUtils.EligibleDocument
+import org.jetbrains.plugins.scala.compiler.highlighting.util.TracingUtil.endTrace
+import org.jetbrains.plugins.scala.compiler.tracing.Tracing
+import org.jetbrains.plugins.scala.compiler.tracing.core.events.BaseEvent
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-object DocumentCompilationTrigger {
+import scala.util.{Failure, Success, Try}
+
+object DocumentCompilationTrigger:
   /**
    * The Scala source files currently open in a visible editor that are eligible for document compilation.
    *
@@ -22,7 +27,7 @@ object DocumentCompilationTrigger {
    * the document compiler will not be called in modules which do not have Scala configured (or during
    * project import). The Scala language level of a module is derived from the configured SDK.
    */
-  private def eligibleOpenDocuments(project: Project): Seq[EligibleDocument] = {
+  private def eligibleOpenDocuments(project: Project): Seq[EligibleDocument] =
     val selectedFiles = FileEditorManager.getInstance(project).getSelectedFiles
     selectedFiles.toSeq.flatMap { vf =>
       val (document, module, psiFile) = inReadAction {
@@ -40,7 +45,7 @@ object DocumentCompilationTrigger {
         EligibleDocument(module, FileCompilationScope.sourceScopeOf(project, vf), document, vf, psiFile)
       }
     }
-  }
+
   /**
    * Compiles every Scala source file open in a visible editor.
    *
@@ -56,18 +61,31 @@ object DocumentCompilationTrigger {
     debugReason: String,
     requestId: RequestId,
     client: Option[CompilerEventGeneratingClient] = None
-  ): Boolean = {
+  ): Boolean =
     val eligible = eligibleOpenDocuments(project)
-    val service = CompilerHighlightingService.get(project)
-    eligible.foreach { case EligibleDocument(module, sourceScope, document, virtualFile, psiFile) =>
-      val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
-      val deadline = CompilationRequest.compilationDeadline
-      val request = client match {
-        case Some(c) => new SharedClientDocumentRequest(scope, debugReason, deadline, requestId, project, c)
-        case None => new PostBuildDocumentRequest(scope, debugReason, deadline, requestId, project)
+
+    if (eligible.isEmpty) {
+      Tracing(project).endTrace(requestId, "No document compilation needed after build")
+      false
+    } else {
+      val lastIndex = eligible.size - 1
+      eligible.zipWithIndex.foreach { case (EligibleDocument(module, sourceScope, document, virtualFile, psiFile), index) =>
+        val scope = FileCompilationScope(virtualFile, module, sourceScope, document, psiFile)
+        val isLast = index == lastIndex
+        val fileRequestId = newRequestId()
+        Tracing(project).instant(BaseEvent(s"Compiling file ${virtualFile.getPresentableName}",
+          parentKey = Some(requestId), key = Some(fileRequestId), closeParent = false, closeOnEnd = true))
+        val request = client match {
+          case Some(c) => new SharedClientDocumentRequest(scope, debugReason, fileRequestId, project, c, closeParent = true)
+          case None => new PostBuildDocumentRequest(scope, debugReason, fileRequestId, project, closeParent = true)
+        }
+
+        Try:
+          HighlightingService(project).compile(request)
+        match
+          case Failure(exception) => Tracing(project).endTrace(fileRequestId, "Compilation Failed")
+          case Success(value) => ()
       }
-      service.compile(request)
+      Tracing(project).endTrace(requestId, "Document compilations dispatched or executed")
+      true
     }
-    eligible.nonEmpty
-  }
-}

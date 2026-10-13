@@ -2,20 +2,23 @@ package org.jetbrains.plugins.scala.compiler.highlighting.services.core
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.Disposer
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.CompilationStateTestBase.CompilerHighlightingCoreTest
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.ScheduledDebouncer
-import org.junit.{After, Assert, Before, Test}
+import org.jetbrains.plugins.scala.compiler.highlighting.util.FakeScheduledExecutor
+import org.junit.jupiter.api.Assertions.{assertEquals, assertFalse, assertTrue}
+import org.junit.jupiter.api.{AfterEach, BeforeEach, Tag, Test}
 
-import java.util.concurrent.{ScheduledFuture, TimeUnit}
 import scala.compiletime.uninitialized
 import scala.concurrent.duration.*
 
+@Tag(CompilerHighlightingCoreTest)
 class ScheduledDebouncerTest:
 
   private var parentDisposable: Disposable = uninitialized
   private var fakeExecutor: FakeScheduledExecutor = uninitialized
   private var debouncer: ScheduledDebouncer[String] = uninitialized
 
-  @Before
+  @BeforeEach
   def setUp(): Unit =
     parentDisposable = Disposer.newDisposable("ScheduledDebouncerTest")
     fakeExecutor = new FakeScheduledExecutor()
@@ -25,7 +28,7 @@ class ScheduledDebouncerTest:
       parentDisposable
     )
 
-  @After
+  @AfterEach
   def tearDown(): Unit = Disposer.dispose(parentDisposable)
 
   @Test
@@ -35,12 +38,12 @@ class ScheduledDebouncerTest:
       executed = true
     }
 
-    Assert.assertEquals("Task should be scheduled, but not yet executed", 1, fakeExecutor.pendingTasks)
-    Assert.assertFalse(executed)
+    assertEquals(1, fakeExecutor.pendingTasks, "Task should be scheduled, but not yet executed")
+    assertFalse(executed)
 
     // Manually run the pending task to simulate time passing instantly
     fakeExecutor.runNextTask()
-    Assert.assertTrue("Task should have executed", executed)
+    assertTrue(executed, "Task should have executed")
 
   @Test
   def testQueue_ReplacesExistingTask_ForSameKey(): Unit =
@@ -50,10 +53,10 @@ class ScheduledDebouncerTest:
     debouncer.queue("file1.scala") { executionCount += 1 }
 
     // Only the last task should remain pending
-    Assert.assertEquals("Previous tasks for the same key should be cancelled", 1, fakeExecutor.pendingTasks)
+    assertEquals(1, fakeExecutor.pendingTasks, "Previous tasks for the same key should be cancelled")
 
     fakeExecutor.runNextTask()
-    Assert.assertEquals("Only the final queued action should execute", 1, executionCount)
+    assertEquals(1, executionCount, "Only the final queued action should execute")
 
   @Test
   def testQueue_MaintainsSeparateTasks_ForDifferentKeys(): Unit =
@@ -63,53 +66,29 @@ class ScheduledDebouncerTest:
     debouncer.queue("file1.scala") { file1Executed = true }
     debouncer.queue("file2.scala") { file2Executed = true }
 
-    Assert.assertEquals("Tasks for different keys should both be scheduled", 2, fakeExecutor.pendingTasks)
+    assertEquals(2, fakeExecutor.pendingTasks, "Tasks for different keys should both be scheduled")
 
     fakeExecutor.runAllTasks()
-    Assert.assertTrue(file1Executed)
-    Assert.assertTrue(file2Executed)
+    assertTrue(file1Executed)
+    assertTrue(file2Executed)
 
-/**
- * A minimal test double for ScheduledExecutorService to run tasks deterministically.
- */
-class FakeScheduledExecutor extends java.util.concurrent.ScheduledThreadPoolExecutor(1):
-  private val tasks = scala.collection.mutable.Queue[FakeTask]()
+  @Test
+  def testDispose_ShutsDownExecutorAndCancelsPending(): Unit =
+    var executed = false
+    debouncer.queue("file1.scala") { executed = true }
+    assertEquals(1, fakeExecutor.pendingTasks)
 
-  // Wrap the runnable in a dummy future that tracks cancellation
-  class FakeTask(val command: Runnable) extends ScheduledFuture[Any]:
-    var isCancelled = false
+    Disposer.dispose(parentDisposable)
 
-    override def cancel(mayInterruptIfRunning: Boolean): Boolean =
-      isCancelled = true
-      true
+    assertTrue(fakeExecutor.isShutdownCalled, "Executor should be shut down with the parent")
+    assertEquals(0, fakeExecutor.pendingTasks, "Pending tasks should be cancelled on dispose")
+    fakeExecutor.runAllTasks()
+    assertFalse(executed, "A cancelled task must not run")
 
-    override def isDone: Boolean = isCancelled
-    override def get(): Any = null
-    override def get(timeout: Long, unit: TimeUnit): Any = null
-    override def getDelay(unit: TimeUnit): Long = 0
-    override def compareTo(o: java.util.concurrent.Delayed): Int = 0
+  @Test
+  def testQueue_AfterDispose_SchedulesNothing(): Unit =
+    Disposer.dispose(parentDisposable)
 
-  override def schedule(command: Runnable, delay: Long, unit: TimeUnit): ScheduledFuture[?] =
-    val task = new FakeTask(command)
-    tasks.enqueue(task)
-    task
+    debouncer.queue("file1.scala") { () }
 
-  // Only count tasks that haven't been cancelled
-  def pendingTasks: Int = tasks.count(!_.isCancelled)
-
-  def runNextTask(): Unit =
-    while (tasks.nonEmpty) {
-      val task = tasks.dequeue()
-      if (!task.isCancelled) {
-        task.command.run()
-        return
-      }
-    }
-
-  def runAllTasks(): Unit =
-    while (tasks.nonEmpty) {
-      val task = tasks.dequeue()
-      if (!task.isCancelled) {
-        task.command.run()
-      }
-    }
+    assertEquals(0, fakeExecutor.pendingTasks, "Nothing should be scheduled once disposed")

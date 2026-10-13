@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.compiler.highlighting.compilation
+package org.jetbrains.plugins.scala.compiler.highlighting.services.core
 
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -12,39 +12,38 @@ import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.compiler.CompilationUnitId
 import org.jetbrains.plugins.scala.compiler.highlighting.core.FileCompilationScope
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.ModuleKey
 import org.jetbrains.plugins.scala.extensions.{inReadAction, inWriteAction}
 import org.jetbrains.plugins.scala.runner.ScalaFixtureTestCaseWithSourceFolder
 import org.jetbrains.sbt.project.settings.DisplayModuleName
 import org.junit.Assert.*
+import org.junit.Test
 
 import java.nio.file.{Files, Path}
+import scala.compiletime.uninitialized
+
 
 /**
  * Tests for [[ModuleKey]] resolution.
  *
- * The base class runs on JUnit 3 conventions: methods are picked up because they are named `test*`,
- * so no `@Test` annotations are used here (they would suggest a JUnit 4 runner, which would never
- * invoke `setUp`).
- *
  * Note on `findRepresentativeModuleForSharedSourceModuleOrSelf`: every `ModuleKey.of` overload routes
  * through it, but it only does something for modules whose type id is `SHARED_SOURCES_MODULE` and which
- * carry a shared-sources-owners workspace entity. Neither can be produced faithfully in a fixture test,
- * so that branch is covered by the sbt import tests instead; here it is always identity.
+ * carry a shared-sources-owners workspace entity. Here it is always identity.
  */
-class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
+class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder:
 
   /** Test source root of [[myModule]], created in addition to the `src` root added by the base class. */
-  private var testRoot: VirtualFile = scala.compiletime.uninitialized
+  private var testRoot: VirtualFile = uninitialized
 
-  override protected def setUp(): Unit = {
+  override protected def setUp(): Unit =
     super.setUp()
     testRoot = inWriteAction(getBaseDir.createChildDirectory(this, "testSrc"))
     PsiTestUtil.addSourceRoot(myModule, testRoot, JavaSourceRootType.TEST_SOURCE)
-  }
 
   /** Temp directory outside the project, deleted in [[tearDown]]. */
-  private var outsideTempDir: Path = scala.compiletime.uninitialized
+  private var outsideTempDir: Path = uninitialized
 
+  @Test
   override def tearDown(): Unit = try {
     if (outsideTempDir != null) {
       NioFiles.deleteRecursively(outsideTempDir)
@@ -54,11 +53,8 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
     super.tearDown()
   }
 
-  //
-  // ModuleKey.of(Project, VirtualFile)
-  //
-
-  def testOfVirtualFile_productionScope(): Unit = {
+  @Test
+  def testOfVirtualFile_productionScope(): Unit =
     val file = addFileToProjectSources("ProductionFile.scala", "class ProductionFile")
 
     assertEquals(
@@ -66,9 +62,9 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       Some(ModuleKey(myModule, SourceScope.Production)),
       ModuleKey.of(getProject, file)
     )
-  }
 
-  def testOfVirtualFile_testScope(): Unit = {
+  @Test
+  def testOfVirtualFile_testScope(): Unit =
     val file = addFileToTestSources("TestFile.scala", "class TestFile")
 
     assertEquals(
@@ -76,9 +72,9 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       Some(ModuleKey(myModule, SourceScope.Test)),
       ModuleKey.of(getProject, file)
     )
-  }
 
-  def testOfVirtualFile_inContentRootButNotInSourceRoot(): Unit = {
+  @Test
+  def testOfVirtualFile_inContentRootButNotInSourceRoot(): Unit =
     val (otherModule, otherModuleRoot) = createJavaModule("moduleWithoutSourceRoots")
     // The content root itself is not a source root, so the file is inside the module but outside any scope.
     val file = VfsTestUtil.createFile(otherModuleRoot, "Loose.scala", "class Loose")
@@ -88,17 +84,17 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       Some(ModuleKey(otherModule, SourceScope.Production)),
       ModuleKey.of(getProject, file)
     )
-  }
 
-  def testOfVirtualFile_directory(): Unit = {
+  @Test
+  def testOfVirtualFile_directory(): Unit =
     assertEquals(
       "a directory resolves the same way a file does",
       Some(ModuleKey(myModule, SourceScope.Production)),
       ModuleKey.of(getProject, getSourceRootDir)
     )
-  }
 
-  def testOfVirtualFile_outsideAnyModule_returnsNone(): Unit = {
+  @Test
+  def testOfVirtualFile_outsideAnyModule_returnsNone(): Unit =
     // A real temp directory, not `getBaseDir.getParent`: the latter is the shared test temp root and
     // leaks files between runs.
     outsideTempDir = Files.createTempDirectory("moduleKeyTest-outside")
@@ -111,14 +107,9 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       None,
       ModuleKey.of(getProject, file)
     )
-  }
 
-
-  //
-  // ModuleKey.of(FileCompilationScope)
-  //
-
-  def testOfFileCompilationScope_production(): Unit = {
+  @Test
+  def testOfFileCompilationScope_production(): Unit =
     val file = addFileToProjectSources("ProductionFile.scala", "class ProductionFile")
     val scope = fileCompilationScope(file, myModule, SourceScope.Production)
 
@@ -126,9 +117,9 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       ModuleKey(myModule, SourceScope.Production),
       ModuleKey.of(scope)
     )
-  }
 
-  def testOfFileCompilationScope_test(): Unit = {
+  @Test
+  def testOfFileCompilationScope_test(): Unit =
     val file = addFileToTestSources("TestFile.scala", "class TestFile")
     val scope = fileCompilationScope(file, myModule, SourceScope.Test)
 
@@ -137,7 +128,6 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       ModuleKey(myModule, SourceScope.Test),
       ModuleKey.of(scope)
     )
-  }
 
   /**
    * Builds a scope the way the highlighting triggers do.
@@ -146,20 +136,15 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
    * PSI file are resolved from the real file anyway so the fixture breaks if the scope shape changes.
    */
   private def fileCompilationScope(file: VirtualFile, module: Module, sourceScope: SourceScope): FileCompilationScope =
-    inReadAction {
+    inReadAction:
       val psiFile = PsiManager.getInstance(getProject).findFile(file)
       assertNotNull(s"no PSI file for ${file.getName}", psiFile)
       val document = FileDocumentManager.getInstance.getDocument(file)
       assertNotNull(s"no document for ${file.getName}", document)
       FileCompilationScope(file, module, sourceScope, document, psiFile)
-    }
 
-
-  //
-  // ModuleKey.of(Project, CompilationUnitId)
-  //
-
-  def testOfCompilationUnitId_byIntellijModuleName(): Unit = {
+  @Test
+  def testOfCompilationUnitId_byIntellijModuleName(): Unit =
     // Give the module a display name that differs from its IntelliJ name, otherwise this test would
     // resolve through the display-name branch and never reach `findModuleByName`.
     DisplayModuleName.getInstance(myModule).setName("some-unrelated-display-name")
@@ -170,9 +155,9 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       Some(ModuleKey(myModule, SourceScope.Production)),
       ModuleKey.of(getProject, unitId)
     )
-  }
 
-  def testOfCompilationUnitId_testScope(): Unit = {
+  @Test
+  def testOfCompilationUnitId_testScope(): Unit =
     val unitId = CompilationUnitId(moduleId = myModule.getName, testScope = true)
 
     assertEquals(
@@ -180,9 +165,9 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       Some(ModuleKey(myModule, SourceScope.Test)),
       ModuleKey.of(getProject, unitId)
     )
-  }
 
-  def testOfCompilationUnitId_bySbtDisplayModuleName(): Unit = {
+  @Test
+  def testOfCompilationUnitId_bySbtDisplayModuleName(): Unit =
     val (secondModule, _) = createJavaModule("secondModule")
     val sbtDisplayName = "sbt-display-name-for-module"
     DisplayModuleName.getInstance(secondModule).setName(sbtDisplayName)
@@ -194,9 +179,9 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       Some(ModuleKey(secondModule, SourceScope.Production)),
       ModuleKey.of(getProject, unitId)
     )
-  }
 
-  def testOfCompilationUnitId_displayNameWinsOverIntellijName(): Unit = {
+  @Test
+  def testOfCompilationUnitId_displayNameWinsOverIntellijName(): Unit =
     // `alpha` is displayed as `beta`, while a different module is actually *named* `beta`.
     val (alpha, _) = createJavaModule("alpha")
     val (beta, _) = createJavaModule("beta")
@@ -211,9 +196,9 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       Some(ModuleKey(alpha, SourceScope.Production)),
       ModuleKey.of(getProject, unitId)
     )
-  }
 
-  def testOfCompilationUnitId_unknownModule_returnsNone(): Unit = {
+  @Test
+  def testOfCompilationUnitId_unknownModule_returnsNone(): Unit =
     val unitId = CompilationUnitId(moduleId = "nonExistentModule", testScope = false)
 
     assertEquals(
@@ -221,17 +206,15 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       None,
       ModuleKey.of(getProject, unitId)
     )
-  }
 
+  @Test
   private def addFileToTestSources(relativePath: String, text: String): VirtualFile =
     VfsTestUtil.createFile(testRoot, relativePath, StringUtil.convertLineSeparators(text))
 
   /**
    * Creates an additional module with `moduleRoot` as its content root.
-   *
-   * No explicit disposal: the fixture creates a fresh project per test, so the module dies with it.
    */
-  private def createJavaModule(name: String): (Module, VirtualFile) = {
+  private def createJavaModule(name: String): (Module, VirtualFile) =
     val moduleRoot = inWriteAction(getBaseDir.createChildDirectory(this, name))
     val module = PsiTestUtil.addModule(
       getProject,
@@ -240,5 +223,3 @@ class ModuleKeyTest extends ScalaFixtureTestCaseWithSourceFolder {
       moduleRoot
     )
     (module, moduleRoot)
-  }
-}

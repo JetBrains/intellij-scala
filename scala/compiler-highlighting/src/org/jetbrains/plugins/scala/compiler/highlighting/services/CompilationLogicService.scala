@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services
 
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.compiler.highlighting.compilation.{CompilationDecision, CompilationState, CompilationToken, ModuleKey}
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationDecision, CompilationState, CompilationToken, ModuleKey}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 import java.util.concurrent.atomic.AtomicReference
@@ -13,11 +11,9 @@ import java.util.concurrent.atomic.AtomicReference
  * Owns what the plugin knows about the state of the build, and answers the one question the triggers ask:
  * what has to be compiled for a file.
  */
-class CompilationLogicService(project: Project) {
+class CompilationLogicService(project: Project):
 
   private val state = new AtomicReference(CompilationState.empty)
-  private val Log = Logger.getInstance(classOf[CompilationLogicService])
-
   /**
    * Records that `file`, no longer match what was built from it.
    * A deletion, a move and a rename are modifications like any other.
@@ -29,11 +25,9 @@ class CompilationLogicService(project: Project) {
    *
    * Nothing is recorded while compiler-based highlighting is off.
    */
-  def filesModified(files: Set[VirtualFile]): Unit = {
-    Log.debug(s"File modified ${files.toSeq.toString()}")
+  def filesModified(files: Set[VirtualFile]): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project) && files.nonEmpty)
       update(_.modified(files))
-  }
 
   /**
    * Records a change to a source the build compiles but no scope of ours can hold — a Kotlin source or
@@ -73,23 +67,21 @@ class CompilationLogicService(project: Project) {
     update(_.failed(token, covered))
 
   /** What has to be done to obtain up-to-date diagnostics for `file`. */
-  def decide(file: VirtualFile): CompilationDecision = {
-    val decision = state.get().decide(ModuleKey.of(project, file), file)
-    Log.debug(s"decision: $decision -> ${state.get().modifiedFiles.map(_.getPresentableName).mkString(",")}")
-    decision
-  }
+  def decide(file: VirtualFile): CompilationDecision = state.get().decide(ModuleKey.of(project, file), file)
 
   /** Whether `file` is unbuilt */
   def isModified(file: VirtualFile): Boolean = state.get().modifiedFiles.contains(file)
 
-  @TestOnly
+  /**
+   * The state to decide a whole plan against.
+   *
+   * Read once per plan rather than once per file: two files can only both answer
+   * [[CompilationDecision.Document]] if they saw different states, since that answer requires the file to
+   * be the only unbuilt one anywhere.
+   */
   private[highlighting] def snapshot: CompilationState = state.get()
 
-  private def update(transition: CompilationState => CompilationState): Unit = { 
-    val update = state.updateAndGet(transition(_))
-    Log.debug(s"Updating highlighting state: $update")
-  }
-}
+  private def update(transition: CompilationState => CompilationState): Unit = state.updateAndGet(transition(_))
 
 object CompilationLogicService :
   def apply(project: Project): CompilationLogicService =

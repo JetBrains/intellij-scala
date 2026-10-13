@@ -4,7 +4,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.compiler.highlighting.services.BackgroundExecutorService.executeOnBackgroundThreadInNotDisposed
-import org.jetbrains.plugins.scala.compiler.highlighting.services.HighlightingTriggerService
+import org.jetbrains.plugins.scala.compiler.highlighting.services.TriggerService
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 import org.jetbrains.plugins.scala.compiler.tracing.core.events.BaseEvent
 
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.compiler.tracing.core.events.BaseEvent
  */
 private[highlighting] object EditorTrigger:
   def triggerOnFile(project: Project, virtualFile: VirtualFile, debugReason: String): Unit =
-    HighlightingTriggerService(project).bypass(virtualFile, s"[${virtualFile.getName}] $debugReason")
+    TriggerService(project).bypass(virtualFile, s"[${virtualFile.getName}] $debugReason")
 
   def triggerOnSelectedEditor(project: Project, debugReason: String): Unit =
     executeOnBackgroundThreadInNotDisposed(project) {

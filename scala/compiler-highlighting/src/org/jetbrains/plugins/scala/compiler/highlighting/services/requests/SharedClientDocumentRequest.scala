@@ -5,10 +5,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.compilers.DocumentCompi
 import org.jetbrains.plugins.scala.compiler.highlighting.core.{CompilerEventGeneratingClient, FileCompilationScope}
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{CompilationRequestPhaseEvent, RequestId}
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
-import org.jetbrains.plugins.scala.compiler.tracing.core.events.EndEvent
 import org.jetbrains.plugins.scala.project.ModuleExt
-
-import scala.concurrent.duration.Deadline
 
 /**
  * A [[DocumentRequest]] that runs inside an already-running compilation, reusing its `client` so the open
@@ -23,23 +20,18 @@ import scala.concurrent.duration.Deadline
 final class SharedClientDocumentRequest(
   scope: FileCompilationScope,
   debugReason: String,
-  deadline: Deadline,
   requestId: RequestId,
   project: Project,
-  client: CompilerEventGeneratingClient
-) extends DocumentRequest(scope, debugReason, deadline, requestId, project) {
-
-  /**
-   * Never scheduled, so never delayed. Overridden because the inherited `copy` would return a plain
-   * [[DocumentRequest]], silently dropping the shared client and starting a compilation of its own.
-   */
-  override def delayed(newDeadline: Deadline): SharedClientDocumentRequest = this
-
+  client: CompilerEventGeneratingClient,
+  closeParent: Boolean = false
+) extends DocumentRequest(scope, requestId, project, closeParent) {
+  
   override private[services] def execute(): Unit = {
     val tracer = Tracing(project)
     // The ongoing compilation's request-phase span is already open; open our own for this file.
     tracer.begin(client.compilationId,
-      CompilationRequestPhaseEvent(kind, scope.virtualFile.getPath, debugReason, id, client.compilationId))
+      CompilationRequestPhaseEvent(kind, scope.virtualFile.getPath, debugReason, id, client.compilationId,
+        closeParentValue = closeParent))
     try {
       DocumentCompiler.get(project).compile(
         scope.module.findRepresentativeModuleForSharedSourceModuleOrSelf,
@@ -49,15 +41,10 @@ final class SharedClientDocumentRequest(
         client
       )
     } finally {
-      var pending = false
       tracer.mapAndEnd(client.compilationId) {
         case req: CompilationRequestPhaseEvent =>
-          pending = true
-          Some(req.closed())
+          Some(req.closed("document compilation failed"))
         case _ => Option.empty
-      }
-      if (pending) {
-        tracer.instant(EndEvent(client.compilationId, "document compilation aborted before starting"))
       }
     }
   }

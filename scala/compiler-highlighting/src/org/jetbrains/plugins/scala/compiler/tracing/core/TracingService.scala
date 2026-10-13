@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.compiler.tracing.core.otel.OtelConfig
 import java.nio.file.Path
 
 @Service(Array(Service.Level.PROJECT))
-private[tracing] final class TracingService(project: Project) extends Disposable {
+private[tracing] final class TracingService(project: Project) extends Disposable:
 
   private lazy val path: Path = TracingConfig.traceFilePath(project)
 
@@ -24,4 +24,3 @@ private[tracing] final class TracingService(project: Project) extends Disposable
    * window's worth is lost.
    */
   override def dispose(): Unit = service.close()
-}
