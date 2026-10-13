@@ -203,22 +203,32 @@ object UpdateScalacOptionsInfo {
 
   private def convertScala3Settings(settings: List[Any])
                                    (implicit classLoader: ClassLoader, langLevel: ScalaLanguageLevel): List[SbtScalacOptionInfo] = {
-    val settingsClass = loadClass("dotty.tools.dotc.config.Settings")
-
-    // Class tags used to distinguish between different options when setting values
+    // Runtime classes of the class tags used to distinguish between different options when setting values
     // see: dotty.tools.dotc.config.Settings.Setting#tryToSet
-    def tag(name: String) = settingsClass.getMethod(name).invoke(settingsClass)
+    // Since 3.10 the tags are private, so their runtime classes are compared instead,
+    // which is exactly how `ClassTag#equals` compares them
+    val BooleanClass = java.lang.Boolean.TYPE
+    val IntClass = java.lang.Integer.TYPE
+    val StringClass = classOf[String]
+    val ListClass = loadClass("scala.collection.immutable.List")
+    val ScalaVersionClass = loadClass("dotty.tools.dotc.config.ScalaVersion")
+    // `OutputTag` before 3.10, `FileContainerTag` since 3.10
+    val AbstractFileClass = loadClass("dotty.tools.io.AbstractFile")
+    // `OptionTag` before 3.10 and `OptionalFileContainerTag` since 3.10 share the same runtime class,
+    // so only one of them is present for a given language level
+    val OptionClass = loadClass("scala.Option")
+    val isScala3_10OrNewer = langLevel >= ScalaLanguageLevel.Scala_3_10
 
-    val BooleanTag = tag("BooleanTag")
-    val IntTag = tag("IntTag")
-    val StringTag = tag("StringTag")
-    val ListTag = tag("ListTag")
-    val VersionTag = tag("VersionTag")
-    val OptionTag = tag("OptionTag")
-    val OutputTag = tag("OutputTag")
+    class OptionClassTag(isPresent: Boolean) {
+      def unapply(tagClass: Any): Boolean = isPresent && tagClass == OptionClass
+    }
+
+    object OptionTag extends OptionClassTag(isPresent = !isScala3_10OrNewer)
+    object OptionalFileContainerTag extends OptionClassTag(isPresent = isScala3_10OrNewer)
 
     val settingClass = loadClass("dotty.tools.dotc.config.Settings$Setting")
     val classTagClass = loadClass("scala.reflect.ClassTag")
+    val runtimeClassMethod = classTagClass.getMethod("runtimeClass")
 
     val nameField = declaredFieldByName(settingClass, "name")
     val descriptionField = declaredFieldByName(settingClass, "description")
@@ -228,8 +238,7 @@ object UpdateScalacOptionsInfo {
     val aliasesField = declaredFieldByName(settingClass, "aliases")
     val classTagField = declaredFieldByType(settingClass, classTagClass)
 
-    val scalaVersionClass = loadClass("dotty.tools.dotc.config.ScalaVersion")
-    val scalaVersionUnparseMethod = scalaVersionClass.getMethod("unparse")
+    val scalaVersionUnparseMethod = ScalaVersionClass.getMethod("unparse")
 
     val maybeChoiceWithHelpClass = try Option(loadClass("dotty.tools.dotc.config.Settings$Setting$ChoiceWithHelp")) catch {
       case _: ClassNotFoundException => None
@@ -262,16 +271,16 @@ object UpdateScalacOptionsInfo {
       val choices = toOption(choicesField.get(setting)).fold(List.empty[Any])(iterableLikeToList(_))
       val aliases = iterableLikeToList(aliasesField.get(setting)).map(getSettingsAlias)
 
-      val tag = classTagField.get(setting)
+      val tagClass = runtimeClassMethod.invoke(classTagField.get(setting))
 
-      val (defaultValue, argType) = tag match {
-        case BooleanTag | OptionTag =>
+      val (defaultValue, argType) = tagClass match {
+        case BooleanClass | OptionTag() =>
           (None, ArgType.No)
-        case ListTag =>
+        case ListClass =>
           (None, ArgType.Multiple)
-        case VersionTag =>
+        case ScalaVersionClass =>
           (Some(defaultScalaVersionStr(setting)), ArgType.OneAfterColon)
-        case StringTag =>
+        case StringClass =>
           val prefix = prefixField.get(setting) match {
             case s: String => s
             case opt =>
@@ -283,12 +292,15 @@ object UpdateScalacOptionsInfo {
             else if (choices.nonEmpty) ArgType.OneAfterColon
             else ArgType.OneSeparate
           (nonEmptyDefault(setting), argType)
-        case IntTag | OutputTag =>
+        case IntClass | AbstractFileClass =>
           (nonEmptyDefault(setting), ArgType.OneSeparate)
+        case OptionalFileContainerTag() =>
+          // the default value is always `None`
+          (None, ArgType.OneSeparate)
       }
 
       val choicesAsStr =
-        if (tag == VersionTag) choices.map(scalaVersionToString)
+        if (tagClass == ScalaVersionClass) choices.map(scalaVersionToString)
         else choices.map(getChoiceString)
 
       createScalacOptionWithAliases(name = name, argType = argType, description = description,
