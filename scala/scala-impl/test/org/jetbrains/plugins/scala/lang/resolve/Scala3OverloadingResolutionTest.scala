@@ -235,6 +235,24 @@ class Scala3OverloadingResolutionTest extends SimpleResolveTestBase {
       |""".stripMargin
   )
 
+  def testSCL23347(): Unit = doResolveTest(
+    s"""
+       |object Focus {
+       |  trait KeywordContext
+       |}
+       |
+       |extension [From, To](from: From) {
+       |  def focus(): From = from
+       |  transparent inline def ${REFTGT}focus(inline lambda: (Focus.KeywordContext ?=> From => To)): Any = ???
+       |}
+       |
+       |case class Bar(foo: Int)
+       |
+       |val bar = Bar(1)
+       |val baz = bar.${REFSRC}focus(_.foo)
+       |""".stripMargin
+  )
+
   def testOverloadedMultiArgApply(): Unit = checkTextHasNoErrors(
     s"""
        |class Example {

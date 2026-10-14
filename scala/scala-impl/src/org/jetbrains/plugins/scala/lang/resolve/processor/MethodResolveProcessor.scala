@@ -889,19 +889,28 @@ object MethodResolveProcessor {
         else                  (shapeCheck(untupled), untupled)
       }
 
-      val applicableToShape = shapeChecked.filter(_.isApplicable(withExpectedType = withExpectedType))
+      // In Scala 3 the alternatives are narrowed by the number of the arguments first, so the only candidate taking
+      // as many arguments is chosen regardless of the shapes of the arguments, e.g. a function literal, which
+      // a context function is expected for, see `narrowBySize` in `dotty.tools.dotc.typer.Applications`
+      val takingArguments =
+        if (useScala3OverloadingRules) shapeChecked.filterNot(_.resolveResult.problems.exists(isArityProblem))
+        else                           Set.empty
+
+      val narrowedByShape =
+        if (takingArguments.size == 1) takingArguments
+        else                           shapeChecked.filter(_.isApplicable(withExpectedType = withExpectedType))
 
       // Step 3: Full applicability check (grouped by shift)
       val checkedResults =
         if (isShapeResolve) {
-          if (applicableToShape.nonEmpty) applicableToShape
-          else                            shapeChecked
+          if (narrowedByShape.nonEmpty) narrowedByShape
+          else                          shapeChecked
         } else {
           // The shape-checked candidates carry the substitution of the explicit type arguments of the clause,
           // which is only added by the shape check, see updateCandidateWithApplicabilityProblems
           val preselected =
-            if (applicableToShape.isEmpty) shapeChecked
-            else                           applicableToShape
+            if (narrowedByShape.isEmpty) shapeChecked
+            else                         narrowedByShape
 
           val argExpectedTypes = argumentExpectedTypes(preselected)
 
@@ -967,6 +976,11 @@ object MethodResolveProcessor {
       argumentClauses.drop(cand.shift) ++ Seq(Seq.empty),
       maxClauseIdx + 1 - cand.shift
     ).exists(!_.isImplicit)
+
+  private def isArityProblem(problem: ApplicabilityProblem): Boolean = problem match {
+    case DoesNotTakeParameters | _: ExcessArgument | _: MissedValueParameter | _: MissedParametersClause => true
+    case _                                                                                            => false
+  }
 
   /**
    * Parameter untupling in Scala 3: a function literal with n > 1 parameters is untupled to a function of a single
