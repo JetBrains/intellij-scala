@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgument, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 
 class ScTypeArgumentImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeArgument {
@@ -24,7 +25,7 @@ class ScTypeArgumentImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     else super.deleteChildInternal(child)
   }
 
-  override def `type`(): TypeResult = typeElement match {
+  override def `type`(expectedType: Option[ScType]): TypeResult = typeElement match {
     case Some(te) => te.`type`()
     case None     => Failure(ScalaBundle.message("no.type.element.type.arg", this.getText))
   }

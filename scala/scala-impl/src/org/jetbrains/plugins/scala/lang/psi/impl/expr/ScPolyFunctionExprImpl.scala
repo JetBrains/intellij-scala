@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.{OptionTypeExt, TypeResult}
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, TypePresentationContext, api}
 
 class ScPolyFunctionExprImpl(node: ASTNode)
   extends ScExpressionImplBase(node)
@@ -57,11 +57,11 @@ class ScPolyFunctionExprImpl(node: ASTNode)
       }
     )
 
-  private val cachedDesugaredType: () => Option[ScType] =
+  private val cachedDesugaredType: Option[ScType] => Option[ScType] =
     cached(
       "ScPolyFunctionExpr#cachedDesugaredType",
       ModTracker.anyScalaPsiChange,
-      () => {
+      (expectedType: Option[ScType]) => {
         implicit val tpc: TypePresentationContext = this
 
         val typeParamsText = typeParametersClause.fold("") { tParamClause =>
@@ -75,7 +75,7 @@ class ScPolyFunctionExprImpl(node: ASTNode)
         }
 
         val (paramsText, resultTypeText) = result match {
-          case Some(InnermostElement(fn: ScFunctionExpr)) =>
+          case Some(body @ InnermostElement(fn: ScFunctionExpr)) =>
             val text = fn.parameters.map { p =>
               val typeText = {
                 val text = p.`type`().getOrAny.presentableText
@@ -86,8 +86,16 @@ class ScPolyFunctionExprImpl(node: ASTNode)
               s"${p.name}: $typeText"
             }.mkString("(", ", ", ")")
 
+            val resultType = fn.result.map { fnResult =>
+              val bodyExpectedType = ExpectedTypePropagation.polyFunctionBody(this, body, expectedType)
+              val fnExpectedType =
+                if (body eq fn) bodyExpectedType
+                else            ExpectedTypePropagation.nested(bodyExpectedType, fn) // in parentheses
+              fnResult.`type`(ExpectedTypePropagation.functionLiteralResult(fn, fnResult, fnExpectedType))
+            }
+
             text ->
-              this.flatMapType(fn.result).getOrAny.presentableText(using this, Context.Empty)
+              resultType.fold(api.Any: ScType)(_.getOrAny).presentableText(using this, Context.Empty)
           case _ => "()" -> "scala.Any"
         }
 
@@ -101,8 +109,8 @@ class ScPolyFunctionExprImpl(node: ASTNode)
       }
     )
 
-  protected override def innerType: TypeResult =
-    cachedDesugaredType().asTypeResult
+  protected override def innerType(expectedType: Option[ScType]): TypeResult =
+    cachedDesugaredType(expectedType).asTypeResult
 
   override def controlFlowScope: Option[ScalaPsiElement] = result
 

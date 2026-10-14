@@ -14,10 +14,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScThisReference {
 
-  protected override def innerType: TypeResult =
+  protected override def innerType(expectedType: Option[ScType]): TypeResult =
     refTemplate match {
       case Some(td) =>
-        ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
+        ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this, expectedType)
       case _ =>
         Failure(ScalaBundle.message("cannot.infer.type"))
     }
@@ -38,7 +38,10 @@ class ScThisReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with
 }
 
 object ScThisReferenceImpl {
-  def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult = {
+  /**
+   * @param expectedType the expected type of `expr`
+   */
+  def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression, expectedType: => Option[ScType]): TypeResult = {
     import td.projectContext
     implicit val context: Context = Context(expr)
 
@@ -49,7 +52,7 @@ object ScThisReferenceImpl {
       case ref: ScStableCodeReference if ref.pathQualifier.contains(expr) => ScThisType(td)
       case referenceExpression: ScReferenceExpression if referenceExpression.qualifier.contains(expr) =>
         ScThisType(td)
-      case _ => expr.expectedType() match {
+      case _ => expectedType match {
         case Some(designatorOwner: DesignatorOwner) if designatorOwner.isStable =>
           ScThisType(td)
         case _ =>

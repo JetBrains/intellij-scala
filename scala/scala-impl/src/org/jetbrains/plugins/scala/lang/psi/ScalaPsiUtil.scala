@@ -58,7 +58,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt, ScalaFeatures, ScalaLanguageLevel}
@@ -234,12 +234,15 @@ object ScalaPsiUtil {
       case Seq() => Some(Unit)
       // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
       case _ =>
-        def getType(expression: Expression): ScType =
-          expression
-            .getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
-            .tr
-            .getOrAny
-            .widenIfLiteral
+        def getType(expression: Expression): ScType = {
+          val typeResult = expression match {
+            // the expected type of an argument of the tupled invocation, which isn't known here
+            case expr: ScExpression => expr.getTypeAfterImplicitConversion()
+            case _                  => expression.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)
+          }
+
+          typeResult.tr.getOrAny.widenIfLiteral
+        }
 
         TupleType(s.map(getType), context) match {
           case t if t.isNothing => None
@@ -300,12 +303,12 @@ object ScalaPsiUtil {
   def processTypeForUpdateOrApplyCandidates(
     call:          PsiElement,
     tp:            ScType,
-    shapesOnly:    Boolean,
+    mode:          ResolveMode,
     isDynamic:     Boolean,
     withImplicits: Boolean
   ): Array[ScalaResolveResult] = {
     val applyResolver = ApplyOrUpdateInvocation(call, tp, isDynamic = isDynamic)
-    applyResolver.toArray.flatMap(_.collectCandidates(shapesOnly, withImplicits))
+    applyResolver.toArray.flatMap(_.collectCandidates(mode, withImplicits))
   }
 
   /**
@@ -408,8 +411,13 @@ object ScalaPsiUtil {
 
         //implicit conversions
         def addConversions(fromUnderscore: Boolean): Unit = {
-          res = res ++ expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType(fromUnderscore),
-            fromUnderscore = fromUnderscore).importsUsed
+          res = res ++ expr.getTypeAdaptedTo(
+            adaptTo        = expr.smartExpectedType(fromUnderscore),
+            checkImplicits = true,
+            isShape        = false,
+            expectedType   = expr.expectedType(fromUnderscore),
+            fromUnderscore = fromUnderscore
+          ).importsUsed
         }
 
         if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) addConversions(fromUnderscore = true)

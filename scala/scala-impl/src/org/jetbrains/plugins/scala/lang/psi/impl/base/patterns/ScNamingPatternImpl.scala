@@ -30,7 +30,8 @@ class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], n
   override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
   // seq-wildcard patterns are handled in ScSeqWildcardPattern
-  override def `type`(): TypeResult =
+  // the parameter is ignored, patterns are typed against the expected type derived from the scrutinee, see `ScPattern.expectedType`
+  override def `type`(expectedType: Option[ScType]): TypeResult =
     this.expectedType match {
       case Some(expectedType) => named.`type`().map(expectedType.glb(_))
       case _ => named.`type`()

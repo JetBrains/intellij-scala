@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult, ScalaResolveState, StdKinds}
 
 class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSelfInvocation with ConstructorInvocationLikeImpl {
 
@@ -34,20 +34,18 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
 
   override def typeArgList: Option[ScTypeArgs] = None
 
-  override def bind: Option[PsiElement] = bindInternal(shapeResolve = false)
+  override def bind: Option[PsiElement] =
+    bindMultiInternal(ResolveMode.Full) match {
+      case Array(head) => Some(head)
+      case _           => None
+    }
 
   //@Cached(BlockModificationTracker(this), this)
   override def multiResolve: Seq[ScalaResolveResult] = {
-    multiResolveInternal(shapeResolve = false).toSeq
+    multiResolveInternal(ResolveMode.Full).toSeq
   }
 
-  private def bindInternal(shapeResolve: Boolean): Option[PsiElement] =
-    bindMultiInternal(shapeResolve) match {
-      case Array(head) => Some(head)
-      case _ => None
-    }
-
-  private def multiResolveInternal(shapeResolve: Boolean): Array[ScalaResolveResult] = {
+  private def multiResolveInternal(mode: ResolveMode): Array[ScalaResolveResult] = {
     val consOwner = PsiTreeUtil.getContextOfType(this, classOf[ScClass], classOf[ScEnum], classOf[ScTrait])
     if (consOwner == null) return Array.empty
 
@@ -68,7 +66,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
       Seq.empty /*todo: ? */,
       StdKinds.methodsOnly,
       constructorResolve     = true,
-      isShapeResolve         = shapeResolve,
+      resolveMode            = mode,
       enableTupling          = true,
       selfConstructorResolve = true
     )
@@ -85,8 +83,8 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     proc.candidates
   }
 
-  private def bindMultiInternal(shapeResolve: Boolean): Array[PsiElement] = {
-    multiResolveInternal(shapeResolve).map(_.element)
+  private def bindMultiInternal(mode: ResolveMode): Array[PsiElement] = {
+    multiResolveInternal(mode).map(_.element)
   }
 
   private def workWithBindInternal(bindInternal: Option[PsiElement], i: Int): TypeResult = {
@@ -104,17 +102,8 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     }
   }
 
-  override def shapeType(i: Int): TypeResult = {
-    val option = bindInternal(shapeResolve = true)
-    workWithBindInternal(option, i)
-  }
-
-  override def shapeMultiType(i: Int): Array[TypeResult] = {
-    bindMultiInternal(shapeResolve = true).map(pe => workWithBindInternal(Some(pe), i))
-  }
-
-  override def multiType(i: Int): Array[TypeResult] = {
-    bindMultiInternal(shapeResolve = false).map(pe => workWithBindInternal(Some(pe), i))
+  override def multiType(i: Int, mode: ResolveMode): Array[TypeResult] = {
+    bindMultiInternal(mode).map(pe => workWithBindInternal(Some(pe), i))
   }
 
   /**
@@ -124,7 +113,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
    * [[org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl]] records them for
    * `new A(1)`.
    */
-  override protected def updateImplicitArguments(): Unit =
+  override protected def updateImplicitArguments(): Option[ScType] = {
     for {
       srr         <- multiResolve.headOption
       constructor <- srr.element.asOptionOf[PsiMethod]
@@ -134,6 +123,9 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
 
       setImplicitArguments(implicitArguments)
     }
+
+    None
+  }
 
   override def toString: String = "SelfInvocation"
 

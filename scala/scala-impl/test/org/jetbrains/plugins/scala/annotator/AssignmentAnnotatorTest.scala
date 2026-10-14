@@ -173,7 +173,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
       case Nil =>
     }
 
-    Assert.assertEquals("`unary_!_=`", assignment(code).resolveAssignment.map(_.element.name).orNull)
+    Assert.assertEquals("`unary_!_=`", assignment(code).resolveAssignment().map(_.element.name).orNull)
   }
 
   def testUnaryGetterWithoutSetter(): Unit = {
@@ -224,7 +224,7 @@ class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
 
     Assert.assertEquals(
       Seq("`regular_=`", "`unary_!_=`", "`unary_~_=`"),
-      assignments(code).map(_.resolveAssignment.map(_.element.name).orNull)
+      assignments(code).map(_.resolveAssignment().map(_.element.name).orNull)
     )
   }
 

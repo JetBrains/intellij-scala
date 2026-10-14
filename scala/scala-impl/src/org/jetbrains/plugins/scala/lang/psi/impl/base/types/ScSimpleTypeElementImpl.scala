@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
 
@@ -210,10 +210,10 @@ object ScSimpleTypeElementImpl {
     appSubst(res)
   }
 
-  def calculateReferenceType(ref: ScStableCodeReference, shapesOnly: Boolean = false): TypeResult = {
+  def calculateReferenceType(ref: ScStableCodeReference, mode: ResolveMode = ResolveMode.Full): TypeResult = {
     import ref.projectContext
 
-    val (resolvedElement, fromType) = (if (!shapesOnly) {
+    val (resolvedElement, fromType) = (if (mode == ResolveMode.Full) {
       if (ref.isConstructorReference) {
         ref.resolveNoConstructor match {
           case Array(r@ScalaResolveResult(to: ScTypeParametersOwner, _: ScSubstitutor))
@@ -226,7 +226,7 @@ object ScSimpleTypeElementImpl {
         }
       } else ref.bind()
     } else {
-      ref.shapeResolve match {
+      ref.resolveWithMode(mode) match {
         case Array(r) => Option(r)
         case _        => None
       }
@@ -265,7 +265,7 @@ object ScSimpleTypeElementImpl {
               }
             }
           case _ =>
-            calculateReferenceType(qualifier, shapesOnly) match {
+            calculateReferenceType(qualifier, mode) match {
               case Right(tp)            => makeProjection(tp)
               case failure @ Failure(_) => return failure
             }

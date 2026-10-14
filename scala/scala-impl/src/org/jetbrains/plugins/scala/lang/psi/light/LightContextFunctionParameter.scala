@@ -49,7 +49,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
 
   private val lock = new ReentrantLock()
 
-  override def `type`(): TypeResult = lock.withLock {
+  override def `type`(expectedType: Option[ScType]): TypeResult = lock.withLock {
     Right(rawType.updateRecursively {
       case abs: ScAbstractType => invariantTypeParameters.getOrElse(abs, UndefinedType(abs.typeParameter))
     })

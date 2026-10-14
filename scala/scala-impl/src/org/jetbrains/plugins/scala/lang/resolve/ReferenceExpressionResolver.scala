@@ -67,8 +67,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     case _                                              => ref.getKinds(incomplete)
   }
 
-  def resolve(reference: ScReferenceExpression, shapesOnly: Boolean, incomplete: Boolean): Array[ScalaResolveResult] = {
-    val resolveWithName = this.resolveWithName(_: String, reference, shapesOnly, incomplete)
+  def resolve(reference: ScReferenceExpression, mode: ResolveMode, incomplete: Boolean): Array[ScalaResolveResult] = {
+    val resolveWithName = this.resolveWithName(_: String, reference, mode, incomplete)
     val refName         = reference.refName
     val context         = reference.getContext
 
@@ -98,7 +98,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
   private def resolveWithName(
     name:       String,
     reference:  ScReferenceExpression,
-    shapesOnly: Boolean,
+    mode:       ResolveMode,
     incomplete: Boolean
   ): Array[ScalaResolveResult] = {
     val context = reference.getContext
@@ -125,8 +125,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         kinds,
         expectedOption,
         info.isUnderscore,
-        isShapeResolve = shapesOnly,
-        enableTupling  = true
+        resolveMode   = mode,
+        enableTupling = true
       )
 
     def resolveConstructorProxies(srrs: Array[ScalaResolveResult]): Array[ScalaResolveResult] = {
@@ -215,8 +215,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           reference.refName.init,
           clauses,
           prevInfoTypeParams,
-          isShapeResolve = shapesOnly,
-          enableTupling  = true
+          resolveMode   = mode,
+          enableTupling = true
         )
 
       doResolve(reference, assignProcessor)
@@ -461,7 +461,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
             val applyResolves = mc.resolveApplyOrUpdateMethod(
               mc,
               tp,
-              shapesOnly    = false,
+              mode          = ResolveMode.Full,
               withImplicits = true
             )
 

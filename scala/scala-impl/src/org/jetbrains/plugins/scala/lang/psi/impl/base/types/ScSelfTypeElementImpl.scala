@@ -27,7 +27,7 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
 
   override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.SELF_TYPE_ID)
 
-  override def `type`(): TypeResult = {
+  override def `type`(expectedType: Option[ScType]): TypeResult = {
     val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
     assert(parent != null)
 

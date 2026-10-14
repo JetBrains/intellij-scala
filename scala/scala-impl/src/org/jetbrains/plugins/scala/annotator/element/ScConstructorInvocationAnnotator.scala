@@ -52,7 +52,7 @@ object ScConstructorInvocationAnnotator extends ElementAnnotator[ScConstructorIn
 
     val resolved = for {
       reference <- constrInvocation.reference.toList
-      resolveResult <- reference.resolveAllConstructors
+      resolveResult <- reference.resolveAllConstructors()
       element = resolveResult.element
 
       // resolveAllConstructors might return inaccessible constructors

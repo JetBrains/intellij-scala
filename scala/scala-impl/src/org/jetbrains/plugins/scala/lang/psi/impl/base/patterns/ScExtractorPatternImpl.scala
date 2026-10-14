@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 abstract class ScExtractorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScPatternImpl with ScExtractorPattern {
-  override def `type`(): TypeResult =
+  // the parameter is ignored, patterns are typed against the expected type derived from the scrutinee, see `ScPattern.expectedType`
+  override def `type`(expectedType: Option[ScType]): TypeResult =
     ref.bind() match {
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.isUnapplyMethod && fun.parameters.count(!_.isImplicit) == 1 =>
         val expectedType = this.expectedType

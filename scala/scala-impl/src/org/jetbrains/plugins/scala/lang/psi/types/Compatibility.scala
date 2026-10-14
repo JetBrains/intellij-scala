@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValueExtractor
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException, extractImplicitParameterType}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, JavaConstructor, ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor, ScalaConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, JavaConstructor, ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
@@ -22,14 +22,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementI
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, NamedTupleType, TupleType, TypeParameter, TypeParameterType, UndefinedType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, NamedTupleType, TupleType, TypeParameter, UndefinedType, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.PsiMethodTypeProviderExt
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.scalaMeta.QuasiquoteInferUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
@@ -58,6 +58,7 @@ object Compatibility {
      *                        - For a function expression `(p1: T1,…,pn: Tn) => b`: `(Any ,…, Any) => shape(b)`,<br>
      *                          where Any occurs n times in the argument type.
      *                        - For a pattern-matching anonymous function definition `{ case ... }`: `PartialFunction[Any, Nothing]`
+     *                          (since Scala 2.13)
      *                        - For a named argument `n = e`: `shape(e)`
      *                        - For all other expressions: `Nothing`
      *
@@ -428,13 +429,27 @@ object Compatibility {
    * @param withImplicits            When true, try implicit conversions in case `arg.type <!:< param.type`
    * @param shapesOnly               When true, only calculate shapeTypes of argument expressions
    * @param approximateDependentsFor See [[approximateDependent()]]
+   * @param argumentExpectedTypes    The expected types to type the arguments against, if they differ from the types of
+   *                                 the corresponding parameters, which the arguments are still adapted to (by SAM conversion,
+   *                                 implicit conversions, etc.), see [[ScExpression.getTypeAdaptedTo]].
+   *                                 During overloading resolution the expected type of an argument is derived from
+   *                                 the parameter types of all the alternatives, see
+   *                                 [[org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor]].
+   * @param deferredByShape          When true, only calculate shapeTypes of the deferred argument expressions,
+   *                                 see [[org.jetbrains.plugins.scala.lang.resolve.ResolveMode.Narrow]]
+   * @param untupledArguments        The function literals with several parameters, which are untupled to functions
+   *                                 of a single parameter, see
+   *                                 [[org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor]]
    */
   def checkMethodApplicability(
     parameters:               Seq[Parameter],
     args:                     Seq[Expression],
     withImplicits:            Boolean,
     shapesOnly:               Boolean,
-    approximateDependentsFor: Set[ScParameter] = Set.empty
+    approximateDependentsFor: Set[ScParameter]                  = Set.empty,
+    argumentExpectedTypes:    Map[ScExpression, Option[ScType]] = Map.empty,
+    deferredByShape:          Boolean                           = false,
+    untupledArguments:        Set[ScExpression]                 = Set.empty
   )(implicit context: Context): ApplicabilityCheckResult = {
 
     ProgressManager.checkCanceled()
@@ -475,15 +490,36 @@ object Compatibility {
     val matched              = Seq.newBuilder[MatchedParameter]
     var defaultParameterUsed = false
 
+    /**
+     * @param seqType the type of the sequence, if `arg` is a sequence argument (`xs: _*`)
+     */
     def processParamConformance(
-      param: Parameter,
-      pt:    ScType,
-      arg:   Expression
+      param:   Parameter,
+      pt:      ScType,
+      arg:     Expression,
+      seqType: Option[ScType] = None
     ): List[ApplicabilityProblem] = {
-      val exprTypeResult =
-        arg.getTypeAfterImplicitConversion(
-          withImplicits, shapesOnly, Option(param.expectedType)
-        )
+      val adaptTo = Option(param.expectedType)
+
+      val isShape = shapesOnly || (deferredByShape && (arg match {
+        case Expression(expr) => ResolveMode.isDeferred(expr)
+        case _                => false
+      }))
+
+      val exprTypeResult = arg match {
+        // a function literal `(p1, ..., pn) => b`, which is untupled to `x => x match { case (p1, ..., pn) => b }`,
+        // has the shape of the latter
+        case Expression(expr) if isShape && untupledArguments.contains(expr) =>
+          import expr.{elementScope, projectContext}
+          ExpressionTypeResult(Right(FunctionType((api.Nothing, Seq(api.Any)))))
+        case Expression(expr) if argumentExpectedTypes.contains(expr) =>
+          expr.getTypeAdaptedTo(adaptTo, withImplicits, isShape, argumentExpectedTypes(expr))
+        case Expression(expr) if seqType.isDefined =>
+          val expectedType = seqType.map(ScParameterizedType(_, Seq(param.expectedType)))
+          expr.getTypeAdaptedTo(adaptTo, withImplicits, isShape, expectedType)
+        case _ =>
+          arg.getTypeAfterImplicitConversion(withImplicits, isShape, adaptTo)
+      }
 
       exprTypeResult.tr.toOption match {
         case None => Nil
@@ -546,7 +582,7 @@ object Compatibility {
               if (!param.isRepeated) problems ::= ExpansionForNonRepeatedParameter(expr)
 
               val expectedType         = ScParameterizedType(stpe, Seq(param.paramType))
-              val typeMismatchProblems = processParamConformance(param, expectedType, expr)
+              val typeMismatchProblems = processParamConformance(param, expectedType, expr, Option(stpe))
 
               if (typeMismatchProblems.nonEmpty)
                 return ApplicabilityCheckResult(
@@ -602,7 +638,7 @@ object Compatibility {
                   ScParameterizedType(seqType, Seq(param.paramType))
                 }.getOrElse(param.paramType)
 
-                problems :::= processParamConformance(param, expectedType, expr)
+                problems :::= processParamConformance(param, expectedType, expr, maybeSeqType)
               case _ =>
                 return ApplicabilityCheckResult(
                   Seq(IncompleteCallSyntax(ScalaBundle.message("assignment.missing.right.side"))),
@@ -727,14 +763,22 @@ object Compatibility {
     )
   }
 
+  /**
+   * @param argumentExpectedTypes see [[checkMethodApplicability]]
+   * @param deferredByShape       see [[checkMethodApplicability]]
+   * @param untupledArguments     see [[checkMethodApplicability]]
+   */
   def compatible(
-    srr:           ScalaResolveResult,
-    substitutor:   ScSubstitutor,
-    argClauses:    Seq[Seq[Expression]],
-    withImplicits: Boolean,
-    shapesOnly:    Boolean,
-    ref:           PsiElement,
-    argClauseIdx:  Int = 0
+    srr:                   ScalaResolveResult,
+    substitutor:           ScSubstitutor,
+    argClauses:            Seq[Seq[Expression]],
+    withImplicits:         Boolean,
+    shapesOnly:            Boolean,
+    ref:                   PsiElement,
+    argClauseIdx:          Int                               = 0,
+    argumentExpectedTypes: Map[ScExpression, Option[ScType]] = Map.empty,
+    deferredByShape:       Boolean                           = false,
+    untupledArguments:     Set[ScExpression]                 = Set.empty
   )(implicit context: Context): ApplicabilityCheckResult = {
     val named = srr.element
     val args  = argClauses.lift(argClauseIdx).getOrElse(Seq.empty)
@@ -748,7 +792,10 @@ object Compatibility {
         args,
         withImplicits,
         shapesOnly,
-        allImplicitParameters
+        allImplicitParameters,
+        argumentExpectedTypes,
+        deferredByShape,
+        untupledArguments
       )
 
     named match {
@@ -1086,29 +1133,23 @@ object Compatibility {
       case _                => false
     }
 
-    val constructorTypeParameters = cons match {
-      case ScalaConstructor(cons) => cons.getConstructorTypeParameters
-      case JavaConstructor(cons)  => cons.getTypeParameters.toSeq
-      case _                      => Seq.empty
+    val javaConstructorTypeParameters = cons match {
+      case JavaConstructor(cons) => cons.getTypeParameters.toSeq
+      case _                     => Seq.empty
     }
 
-    val (typeParameters, bindSubst) = srr.getActualElement match {
-      case to: ScTypeParametersOwner if constructorTypeParameters.nonEmpty =>
-        val subst  = ScSubstitutor.bind(to.typeParameters, constructorTypeParameters)(TypeParameterType(_))
-        val params = constructorTypeParameters.map(TypeParameter(_))
-        (params, subst)
+    // the type parameters of the class, or of the type alias, the constructor is invoked via
+    val typeParameters = srr.getActualElement match {
       case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
-        val params = tp.typeParameters.map(TypeParameter(_))
-        (params, ScSubstitutor.empty)
+        tp.typeParameters.map(TypeParameter(_))
       case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
-        val params = (ptp.getTypeParameters.toSeq ++ constructorTypeParameters).map(TypeParameter(_))
-        (params, ScSubstitutor.empty)
-      case _ => (Seq.empty, ScSubstitutor.empty)
+        (ptp.getTypeParameters.toSeq ++ javaConstructorTypeParameters).map(TypeParameter(_))
+      case _ => Seq.empty
     }
 
     val typeArgs      = constrInvocation.typeArgList
     val typeArgsSubst = typeArgs.fold(ScSubstitutor.empty)(ScSubstitutor.bind(typeParameters, _))
-    val subst         = srr.substitutor.followed(bindSubst).followed(typeArgsSubst)
+    val subst         = srr.substitutor.followed(typeArgsSubst)
     val methodType    = subst(cons.methodTypeProvider(constrInvocation.elementScope).methodType())
 
     val consType =

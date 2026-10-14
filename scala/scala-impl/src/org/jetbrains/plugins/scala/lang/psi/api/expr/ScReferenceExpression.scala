@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetailsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 trait ScReferenceExpression extends ScExpression
@@ -41,17 +41,17 @@ trait ScReferenceExpression extends ScExpression
    * For example scala package, and scala package object.
    * Another usecase is when our type inference failed to decide to which method
    * we should resolve. If all methods has same result type, then we will give valid completion and resolve.
+   *
+   * @return types in the same order as [[resolveWithMode]]
    */
-  def multiType: Array[TypeResult]
+  def multiType(mode: ResolveMode = ResolveMode.Full): Array[TypeResult]
 
   /**
-   * @return types in the same order as shapeResolve
+   * @return the results of resolving this reference, with the arguments of the invocation
+   *         (if this reference is the invoked expression) checked according to `mode`.
+   *         [[ResolveMode.Full]] is the same as `multiResolveScala(incomplete = false)`.
    */
-  def shapeMultiType: Array[TypeResult]
-
-  def shapeResolve: Array[ScalaResolveResult]
-
-  def shapeType: TypeResult
+  def resolveWithMode(mode: ResolveMode): Array[ScalaResolveResult]
 
   def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement
 

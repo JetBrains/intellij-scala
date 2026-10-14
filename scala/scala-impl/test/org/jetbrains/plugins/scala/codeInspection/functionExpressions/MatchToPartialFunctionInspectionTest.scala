@@ -126,27 +126,46 @@ class MatchToPartialFunctionInspectionTest extends MatchToPartialFunctionInspect
       """.stripMargin
   )
 
-  def testInOverloadedMethod(): Unit = checkTextHasNoErrors(
-    s"""
-       |object test {
-       |  object Bar {
-       |      def bar(g: Int => Unit): Unit = {
-       |        g
-       |      }
-       |
-       |      def bar(i: Int): Unit = {}
-       |    }
-       |
-       |    Bar.bar { ${START}i => i match $END{
-       |        case int_ =>
-       |      }
-       |    }
-       |  }
-       |}
+  def testInOverloadedMethod(): Unit = testQuickFix(
+    text =
+      s"""
+         |object test {
+         |  object Bar {
+         |      def bar(g: Int => Unit): Unit = {
+         |        g
+         |      }
+         |
+         |      def bar(i: Int): Unit = {}
+         |    }
+         |
+         |    Bar.bar { ${START}i => i match $END{
+         |        case int_ =>
+         |      }
+         |    }
+         |  }
+         |}
+      """.stripMargin,
+    expected =
+      """
+        |object test {
+        |  object Bar {
+        |      def bar(g: Int => Unit): Unit = {
+        |        g
+        |      }
+        |
+        |      def bar(i: Int): Unit = {}
+        |    }
+        |
+        |    Bar.bar {
+        |      case int_ =>
+        |    }
+        |  }
+        |}
       """.stripMargin
   )
 
-  def testInOverloadedMethodInfix(): Unit = checkTextHasNoErrors(
+  def testInOverloadedMethodInfix(): Unit = testQuickFix(
+    text =
     s"""
        |object test {
        |  object Bar {
@@ -163,7 +182,24 @@ class MatchToPartialFunctionInspectionTest extends MatchToPartialFunctionInspect
        |    }
        |  }
        |}
-     """.stripMargin
+     """.stripMargin,
+    expected =
+      """
+        |object test {
+        |  object Bar {
+        |      def bar(g: Int => Unit): Unit = {
+        |        g
+        |      }
+        |
+        |      def bar(i: Int): Unit = {}
+        |    }
+        |
+        |    Bar bar {
+        |      case int_ =>
+        |    }
+        |  }
+        |}
+      """.stripMargin
   )
 }
 
@@ -277,41 +313,77 @@ class MatchToPartialFunctionInspectionTest_Scala3 extends MatchToPartialFunction
       """.stripMargin
   )
 
-  def testInOverloadedMethod(): Unit = checkTextHasNoErrors(
-    s"""
-       |object test {
-       |  object Bar {
-       |      def bar(g: Int => Unit): Unit = {
-       |        g
-       |      }
-       |
-       |      def bar(i: Int): Unit = {}
-       |    }
-       |
-       |    Bar.bar { ${START}i => i match$END
-       |        case int_ =>
-       |    }
-       |  }
-       |}
+  def testInOverloadedMethod(): Unit = testQuickFix(
+    text =
+      s"""
+         |object test {
+         |  object Bar {
+         |      def bar(g: Int => Unit): Unit = {
+         |        g
+         |      }
+         |
+         |      def bar(i: Int): Unit = {}
+         |    }
+         |
+         |    Bar.bar { ${START}i => i match$END
+         |        case int_ =>
+         |    }
+         |  }
+         |}
+      """.stripMargin,
+    expected =
+      """
+        |object test {
+        |  object Bar {
+        |      def bar(g: Int => Unit): Unit = {
+        |        g
+        |      }
+        |
+        |      def bar(i: Int): Unit = {}
+        |    }
+        |
+        |    Bar.bar {
+        |      case int_ =>
+        |    }
+        |  }
+        |}
       """.stripMargin
   )
 
-  def testInOverloadedMethodInfix(): Unit = checkTextHasNoErrors(
-    s"""
-       |object test {
-       |  object Bar {
-       |      def bar(g: Int => Unit): Unit = {
-       |        g
-       |      }
-       |
-       |      def bar(i: Int): Unit = {}
-       |    }
-       |
-       |    Bar bar { ${START}i => i match$END
-       |        case int_ =>
-       |    }
-       |  }
-       |}
-     """.stripMargin
+  def testInOverloadedMethodInfix(): Unit = testQuickFix(
+    text =
+      s"""
+         |object test {
+         |  object Bar {
+         |      def bar(g: Int => Unit): Unit = {
+         |        g
+         |      }
+         |
+         |      def bar(i: Int): Unit = {}
+         |    }
+         |
+         |    Bar bar { ${START}i => i match$END
+         |        case int_ =>
+         |    }
+         |  }
+         |}
+      """.stripMargin,
+    expected =
+      """
+        |object test {
+        |  object Bar {
+        |      def bar(g: Int => Unit): Unit = {
+        |        g
+        |      }
+        |
+        |      def bar(i: Int): Unit = {}
+        |    }
+        |
+        |    Bar bar {
+        |      case int_ =>
+        |    }
+        |  }
+        |}
+      """.stripMargin
   )
 }

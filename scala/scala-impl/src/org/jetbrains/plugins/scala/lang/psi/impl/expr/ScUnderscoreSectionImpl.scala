@@ -17,11 +17,12 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScUnderscoreSection {
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     bindingExpr match {
+      // the expression of a method value `foo _` has no expected type
       case Some(ref: ScReferenceExpression) =>
         def fun(): TypeResult =
-          ref.getNonValueType().map {
+          ref.getNonValueType(expectedType = None).map {
             case ScTypePolymorphicType(internalType, typeParameters) =>
               ScTypePolymorphicType(
                 ScMethodType(internalType, Nil),
@@ -37,12 +38,12 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
             b.nameContext match {
               case _: ScValue | _: ScVariable if b.isClassMember => fun()
               case v: ScValue if v.hasModifierPropertyScala("lazy") => fun()
-              case _ => ref.getNonValueType()
+              case _ => ref.getNonValueType(expectedType = None)
             }
           case Some(ScalaResolveResult(p: ScParameter, _)) if p.isCallByNameParameter => fun()
-          case _ => ref.getNonValueType()
+          case _ => ref.getNonValueType(expectedType = None)
         }
-      case Some(expr) => expr.getNonValueType()
+      case Some(expr) => expr.getNonValueType(expectedType = None)
       case None =>
         getContext match {
           case typed: ScTypedExpression =>
@@ -77,6 +78,9 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
               case i =>
                 val untuplingEnabled = this.isInScala3Module
 
+                // A placeholder is a parameter of the anonymous function, so, like the parameters of function
+                // literals (see ScParameter.expectedParamType), it is typed against the expected type computed
+                // from the context of the function, since it is shared by all the references to it
                 expr.expectedType(fromUnderscore = false).map(unwrapContextFunctionType(_)) match {
                   case Some(functionLikeType(_, _, params)) =>
                     val param = params match {
@@ -95,7 +99,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
                         maybeFromUndoingEtaExp.asTypeResult
                       } else Right(tpe.removeAbstracts)
                     )
-                  case _ => this.expectedType(false).asTypeResult
+                  case _ => expectedType.asTypeResult
                 }
             }
         }

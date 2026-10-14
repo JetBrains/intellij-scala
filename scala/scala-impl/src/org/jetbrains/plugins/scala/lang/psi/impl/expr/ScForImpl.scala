@@ -62,12 +62,13 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor wit
     }
   }
 
-  override protected def innerType: TypeResult = {
+  override protected def innerType(expectedType: Option[ScType]): TypeResult = {
     desugared() flatMap {
       case f: ScFunctionExpr => f.result
       case e => Some(e)
     } match {
-      case Some(newExpr) => newExpr.getNonValueType()
+      // the desugared expression stands for this for expression, so its expected type is the same
+      case Some(newExpr) => newExpr.getNonValueType(expectedType = expectedType)
       case None => Failure(ScalaBundle.message("cannot.create.expression"))
     }
   }

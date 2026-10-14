@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor._
 
 class StableCodeReferenceResolver(
   ref:                   ScStableCodeReference,
-  shapeResolve:          Boolean,
+  mode:                  ResolveMode,
   allConstructorResults: Boolean,
   noConstructorResolve:  Boolean
 ) {
@@ -38,9 +38,7 @@ class StableCodeReferenceResolver(
           case _         => return ScalaResolveResult.EMPTY_ARRAY
         }
 
-        val resolveResults =
-          if (shapeResolve) targetReference.shapeResolve
-          else              targetReference.multiResolveScala(incomplete = false)
+        val resolveResults = targetReference.resolveWithMode(mode)
 
         resolveResults match {
           case Array(srr) =>
@@ -94,7 +92,7 @@ class StableCodeReferenceResolver(
         case x      => x
       }
 
-      new ConstructorResolveProcessor(ref, refName, effectiveArgs, typeArgs, kinds, shapeResolve, allConstructorResults)
+      new ConstructorResolveProcessor(ref, refName, effectiveArgs, typeArgs, kinds, mode, allConstructorResults)
     } else ref.getContext match {
       //last ref may import many elements with the same name
       case e: ScImportExpr =>

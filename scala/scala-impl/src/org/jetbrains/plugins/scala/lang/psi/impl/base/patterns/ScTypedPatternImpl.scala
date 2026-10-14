@@ -32,7 +32,8 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
 
   override def toString: String = "TypedPattern: " + ifReadAllowed(name)("")
 
-  override def `type`(): TypeResult =
+  // the parameter is ignored, patterns are typed against the expected type derived from the scrutinee, see `ScPattern.expectedType`
+  override def `type`(expectedType: Option[ScType]): TypeResult =
     typePattern match {
       case Some(tp) =>
         //TODO: aliases, wildcards

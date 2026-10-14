@@ -123,7 +123,7 @@ class ScParameterImpl protected(
 
   override def typeElement: Option[ScTypeElement] = byPsiOrStub(paramType.flatMap(_.typeElement.toOption))(_.typeElement)
 
-  override def `type`(): TypeResult = {
+  override def `type`(expectedType: Option[ScType]): TypeResult = {
     def success(t: ScType): TypeResult = Right(t)
     //todo: this is very error prone way to calc type, when usually we need real parameter type
     getStub match {

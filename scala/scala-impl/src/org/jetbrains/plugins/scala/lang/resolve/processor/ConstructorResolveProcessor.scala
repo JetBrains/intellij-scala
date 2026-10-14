@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ResolveTargets, ScalaResolveResult}
 
 class ConstructorResolveProcessor(
   constr:          PsiElement,
@@ -17,7 +17,7 @@ class ConstructorResolveProcessor(
   args:            List[Seq[Expression]],
   typeArgs:        Seq[ScTypeArgument],
   kinds:           Set[ResolveTargets.Value],
-  shapeResolve:    Boolean,
+  mode:            ResolveMode,
   allConstructors: Boolean
 ) extends MethodResolveProcessor(
   constr,
@@ -28,7 +28,7 @@ class ConstructorResolveProcessor(
   ) +: args.tail.map(InvocationClause.argsOnly),
   Seq.empty,
   kinds,
-  isShapeResolve = shapeResolve,
+  resolveMode = mode,
   enableTupling = true
 ) {
 

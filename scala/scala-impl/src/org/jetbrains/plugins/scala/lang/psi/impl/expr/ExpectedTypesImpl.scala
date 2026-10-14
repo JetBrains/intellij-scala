@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{IterableExt, ObjectExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil.{Lambda, LambdaSymbolic}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -29,14 +29,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala_2_13, Scala_3_0}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
 
 class ExpectedTypesImpl extends ExpectedTypes {
   /**
@@ -57,6 +56,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     filterAlternatives(types.toSeq, expr)
   }
+
+  override def expectedTypeFromAlternatives(expr: ScExpression, alternatives: Seq[ScType]): Option[ScType] =
+    filterAlternatives(alternatives.map((_, None)), expr).map(_._1)
 
   private def filterAlternatives(
     types: Seq[ParameterType],
@@ -247,70 +249,6 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     val sameInContext = expr.getDeepSameElementInContext
 
-    def fromFunction(tp: ParameterType, isContextFunction: Boolean): Array[ParameterType] = {
-      val functionLikeType = FunctionLikeType(expr)
-
-      val tpUnwrapped =
-        if (!isContextFunction) unwrapContextFunctionType(tp._1)
-        else                    tp._1
-
-      tpUnwrapped match {
-        case functionLikeType(_, retTpe, _) => Array((retTpe, None))
-        case _                              => Array.empty
-      }
-    }
-
-    def fromPolyFunction(tyParams: Seq[ScTypeParam])(tp: ParameterType): Array[ParameterType] = {
-      tp._1.removeAliasDefinitionsIn(expr) match {
-        case PolyFunctionType(sig, retType) =>
-          // match
-          //   [pParams..] => bodyType
-          //   [tyParams..] => ...
-          // so
-          // substitute bodyType[pParams.. -> tyParams..]
-          val pParams = sig.typeParams.headOption.getOrElse(Seq.empty)
-
-          val bodyType = {
-            val paramTypes = sig.substitutedTypes.head.map(_.apply())
-            FunctionType((retType, paramTypes))(using expr.elementScope, Context.Empty)
-          }
-
-          //val f2: [T, S] => T => S => Unit = [_, _] => x => y => ???
-          //Above is valid scala, which would naively be translated into
-          //scala.PolyFunction { def apply[_, _](x: _): Function1[_, Unit]
-          //which is not a valid scala snippet, so just introduce fresh names for
-          //type parameters named _ here.
-          val renameUnderscoreTypeParams =
-            tyParams.mapWithIndex {
-              case (tParam, idx) =>
-                val renamed =
-                  if (tParam.name == "_") {
-                    TypeParameterType(
-                      TypeParameter.light(
-                        s"_$$$idx",
-                        tParam.typeParameters.map(TypeParameter.apply),
-                        tParam.lowerBound.getOrNothing,
-                        tParam.upperBound.getOrAny
-                      )
-                    )
-                  } else TypeParameterType(tParam)
-                tParam -> renamed
-            }.to(Map)
-
-          val bindTypeParams = ScSubstitutor.bind(pParams, tyParams)(p => TypeParameterType(TypeParameter(p)))
-          val fullSubst = bindTypeParams.followed(ScSubstitutor.bind(tyParams)(renameUnderscoreTypeParams))
-          val result = fullSubst(bodyType)
-          Array((result, None))
-        case _ =>
-          Array.empty
-      }
-    }
-
-    val isContextFunctionExpr = expr match {
-      case fn: ScFunctionExpr if fn.isContext => true
-      case _                                  => false
-    }
-
     /**
      * Propagates the expected types of the parent expression to one of its nested expressions.
      *
@@ -325,12 +263,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
     def expectedTypesUnwrapContextFunction(e: ScExpression, fromUnderscore: Boolean): Array[ParameterType] = {
       val expectedType = e.expectedTypesEx(fromUnderscore)
       expectedType.map {
-        case pt if isContextFunctionExpr =>
-          // A context function expression is checked against the whole context-function type.
-          // Do not unwrap its own expected type.
-          pt
         case (expectedType, typeElement) =>
-          val unwrappedExpectedType = unwrapContextFunctionType(expectedType)
+          val unwrappedExpectedType = ExpectedTypePropagation.nested(expectedType, expr)
           val unwrappedTypeElement =
             // Keep the type element only when the propagated expected type is unchanged, see SCL-25481.
             // Otherwise, the type element still points at the outer declaration, not at the derived result type.
@@ -341,12 +275,30 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
-    def mapResolves(resolves: Array[ScalaResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean, Boolean)] =
+    /**
+     * The mode the invoked method is resolved in, to derive the expected type of its argument `sameInContext` from.
+     *
+     * In Scala 3 the expected type of a deferred argument (a function literal with missing parameter types) is derived
+     * from the alternatives, which are applicable to the other arguments, see [[ResolveMode.Narrow]].
+     * Only deferred arguments may use it, since `Narrow` resolve types all the other arguments, which therefore
+     * mustn't use it to compute their own expected types.
+     */
+    lazy val resolveMode: ResolveMode =
+      if (withResolvedFunction)                   ResolveMode.Full
+      else if (isDeferredArgument(sameInContext)) ResolveMode.Narrow
+      else                                        ResolveMode.Shape
+
+    def mapResolves(resolves: Array[ScalaResolveResult], types: Array[TypeResult]): Array[ResolvedType] =
       resolves.zip(types).map {
         case (r, tp) =>
           val syntheticKindProjectorApplyNames = Set(Lambda, LambdaSymbolic)
 
           val actualType = r match {
+            // An apply method inserted after the leading using clause of the invoked method, whose result type
+            // may only be determined by the implicit arguments, e.g. `foo(x => x + 1)` with
+            // `def foo[A](using Foo[A]): Bar[A]` or `def foo(using f: Foo): Bar[f.T]`. The apply method is resolved
+            // after the implicit arguments are applied to the type of the invoked method, see computeExpectedParamType
+            case ScalaResolveResult.ApplyMethodInnerResolve(_) if tp.exists(hasLeadingUsingClause) => tp
             case srr @ ScalaResolveResult(fun: ScFunction, s: ScSubstitutor) if fun.name == CommonNames.Apply =>
               if (srr.innerResolveResult.exists(inner => syntheticKindProjectorApplyNames.contains(inner.name)))
                 tp
@@ -360,7 +312,12 @@ class ExpectedTypesImpl extends ExpectedTypes {
             case _                              => false
           }
 
-          (actualType, isPolymorphic, isApplyDynamicNamed(r))
+          // the constraints from the arguments typed by `Narrow` resolve, see ResolveMode.Narrow
+          val constraints =
+            if (resolveMode == ResolveMode.Narrow) r.applicabilityConstraints
+            else                                   ConstraintSystem.empty
+
+          ResolvedType(actualType, isPolymorphic, isApplyDynamicNamed(r), constraints)
       }
 
     def argIndex(argExprs: Seq[ScExpression]) =
@@ -375,45 +332,34 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
       val resolvedTypes = invoked match {
         case ref: ScReferenceExpression =>
-          if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
-          else                       mapResolves(ref.multiResolveScala(false), ref.multiType)
+          mapResolves(ref.resolveWithMode(resolveMode), ref.multiType(resolveMode))
         case gen: ScGenericCall =>
-          if (!withResolvedFunction) {
-            val multiType = gen.shapeMultiType
+          val multiType = gen.multiType(resolveMode)
 
-            gen.shapeMultiResolve
-              .map(mapResolves(_, multiType))
-              .getOrElse(multiType.map((_, false, false)))
-          } else {
-            val multiType = gen.multiType
-
-            gen.multiResolve
-              .map(mapResolves(_, multiType))
-              .getOrElse(multiType.map((_, false, false)))
-          }
-        case _ => Array((invoked.getNonValueType(), false, false))
+          gen.multiResolve(resolveMode)
+            .map(mapResolves(_, multiType))
+            .getOrElse(multiType.map(ResolvedType(_)))
+        case _ => Array(ResolvedType(invoked.getNonValueType(expectedType = None)))
       }
 
       val updatedWithExpected =
-        resolvedTypes.map {
-          case (tpe, isPolymorphic, isDynamicNamed) =>
-            (tpe.map(invocation.updateAccordingToExpectedType), isPolymorphic, isDynamicNamed)
-        }
+        resolvedTypes.map(resolved => resolved.copy(tpe = resolved.tpe.map(invocation.updateAccordingToExpectedType)))
 
       updatedWithExpected
-        .filterNot(_._1.exists(_.equiv(Nothing)))
-        .flatMap {
-          case (tpe, isPolymorphic, isDynamicNamed) =>
-            computeExpectedParamType(
-              expr,
-              tpe,
-              invoked,
-              argExprs,
-              argIndex(argExprs),
-              Option(invocation),
-              isDynamicNamed = isDynamicNamed,
-              stripTypeArgs  = isPolymorphic
-            )
+        .filterNot(_.tpe.exists(_.equiv(Nothing)))
+        .flatMap { resolvedType =>
+          computeExpectedParamType(
+            expr,
+            resolvedType.tpe,
+            invoked,
+            argExprs,
+            argIndex(argExprs),
+            Option(invocation),
+            isDynamicNamed = resolvedType.isDynamicNamed,
+            stripTypeArgs  = resolvedType.isPolymorphic,
+            constraints    = resolvedType.constraints,
+            mode           = resolveMode
+          )
         }
     }
 
@@ -454,27 +400,22 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case b: ScBlockExpr if b.isInCatchBlock =>
           b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isPartialFunction =>
-          val expectedForPf    = expectedTypesUnwrapContextFunction(b, fromUnderscore = true)
-          val functionLikeType = FunctionLikeType(expr)
+          val expectedForPf = expectedTypesUnwrapContextFunction(b, fromUnderscore = true)
 
-          expectedForPf.collect {
-            case (functionLikeType(_, resTpe, paramTypes), te) =>
-
-              val subst = c.pattern.fold(ScSubstitutor.empty) { pattern =>
-                val scrutineeType =
-                  if (paramTypes.size == 1) paramTypes.head
-                  else                      TupleType(paramTypes, context = pattern)
-
-                PatternTypeInference.doTypeInference(pattern, scrutineeType)
-              }
-
-              (subst(resTpe), te)
+          expectedForPf.flatMap {
+            case (tpe, te) => ExpectedTypePropagation.partialFunctionCaseClauseBody(c, expr, tpe).map((_, te))
           }
         case _ => Array.empty
       }
       //see SLS[6.23]
-      case f: ScFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(fromFunction(_, f.isContext))
-      case f: ScPolyFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(fromPolyFunction(f.typeParameters))
+      case f: ScFunctionExpr =>
+        f.expectedTypesEx(fromUnderscore = true).flatMap {
+          case (tpe, _) => ExpectedTypePropagation.functionLiteralResult(f, expr, tpe).map((_, None))
+        }
+      case f: ScPolyFunctionExpr =>
+        f.expectedTypesEx(fromUnderscore = true).flatMap {
+          case (tpe, _) => ExpectedTypePropagation.polyFunctionBody(f, expr, tpe).map((_, None))
+        }
       case t: ScTypedExpression if t.getLastChild.is[ScSequenceArg] =>
         t.expectedTypesEx(fromUnderscore = true)
       //SLS[6.13]
@@ -525,44 +466,18 @@ class ExpectedTypesImpl extends ExpectedTypes {
       //method application
       case tuple: ScTuple if tuple.isCall => expectedTypesForArg(tuple.getContext.asInstanceOf[ScInfixExpr])
       case tuple: ScTuple =>
-        val result = Array.newBuilder[ParameterType]
         val exprs = tuple.exprs
         val index = exprs.indexOf(sameInContext)
-        @tailrec
-        def addType(aType: ScType): Unit = {
-          aType match {
-            case _: ScAbstractType => addType(aType.removeAbstracts)
-            case TupleType(comps) if comps.length == exprs.length =>
-              result += ((comps(index), None))
-            case _ =>
+
+        if (index < 0) Array.empty
+        else
+          tuple.expectedTypes().toArray.flatMap { tp =>
+            ExpectedTypePropagation.tupleComponent(tp, index, exprs.length).map((_, None))
           }
-        }
-        if (index >= 0) {
-          for (tp: ScType <- tuple.expectedTypes()) addType(tp)
-        }
-        result.result()
       case comp: ScNamedTupleExprComponent =>
-        val tuple = comp.namedTuple
-        val result = Array.newBuilder[ParameterType]
-        val components = tuple.components
-        val index = components.indexOf(comp)
-        @tailrec
-        def addType(aType: ScType): Unit = {
-          aType match {
-            case _: ScAbstractType => addType(aType.removeAbstracts)
-            case NamedTupleType(expectedComps) if expectedComps.length == components.length =>
-              expectedComps(index) match {
-                case (NamedTupleType.NameType(expectedName), expectedType) if expectedName == comp.name =>
-                  result += expectedType -> None
-                case _ =>
-              }
-            case _ =>
-          }
+        comp.namedTuple.expectedTypes().toArray.flatMap { tp =>
+          ExpectedTypePropagation.namedTupleComponent(comp, Option(tp)).map((_, None))
         }
-        if (index >= 0) {
-          for (tp: ScType <- tuple.expectedTypes()) addType(tp)
-        }
-        result.result()
       case infix@ScInfixExpr.withAssoc(_, _, `sameInContext`) if !expr.is[ScTuple] =>
         expr match {
           case p: ScParenthesisedExpr if p.innerElement.isEmpty => return Array.empty
@@ -601,17 +516,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
             val argIdx = argIndex(argExprs)
 
             val tps = ctx match {
-              case c: ScConstructorInvocation =>
-                val clauseIdx = c.arguments.indexOf(args)
-
-                if (!withResolvedFunction) c.shapeMultiType(clauseIdx)
-                else c.multiType(clauseIdx)
-
-              case s: ScSelfInvocation =>
-                val clauseIdx = s.arguments.indexOf(args)
-
-                if (!withResolvedFunction) s.shapeMultiType(clauseIdx)
-                else s.multiType(clauseIdx)
+              case c: ScConstructorInvocation => c.multiType(c.arguments.indexOf(args), resolveMode)
+              case s: ScSelfInvocation        => s.multiType(s.arguments.indexOf(args), resolveMode)
             }
 
             tps.flatMap(
@@ -632,15 +538,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case Some(content) => content.expectedTypesEx(fromUnderscore = fromUnderscore)
           case _ => Array.empty
         }
-      case b: ScBlock if {
-        val context = b.getContext
-        context.is[ScTry, ScCaseClause, ScFunctionExpr] ||
-          //extra null checks are needed for some broken code, in order not to throw NPEs
-          context != null && {
-            val context2 = context.getContext
-            context2 != null && context2.getContext.is[ScCatchBlock]
-          }
-      } =>
+      case b: ScBlock if ExpectedTypePropagation.isTypedAsItsContext(b) =>
         b.resultExpression match {
           case Some(e) if sameInContext == e => b.expectedTypesEx(fromUnderscore = true)
           case _ => Array.empty
@@ -660,18 +558,17 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
-    if (fromUnderscore && checkIsUnderscore(expr)) {
-      val res = new ArrayBuffer[ParameterType]
-      for (tp <- result) {
-        tp._1 match {
-          case FunctionType(rt: ScType, _) => res += ((rt, None))
-          case _ =>
-        }
+    if (fromUnderscore && checkIsUnderscore(expr))
+      result.flatMap {
+        case (tp, _) => ExpectedTypePropagation.underscoreFunctionBody(tp).map((_, None))
       }
-      res.toArray
-    } else result
+    else result
   }
 
+  /**
+   * @param constraints the constraints on the type parameters of `invokedExprType`, known from the other arguments
+   * @param mode        the mode `invokedExpr` was resolved in
+   */
   @tailrec
   private def computeExpectedParamType(
     expr:            ScExpression,
@@ -682,7 +579,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
     call:            Option[MethodInvocation] = None,
     forApply:        Boolean                  = false,
     isDynamicNamed:  Boolean                  = false,
-    stripTypeArgs:   Boolean                  = false
+    stripTypeArgs:   Boolean                  = false,
+    constraints:     ConstraintSystem         = ConstraintSystem.empty,
+    mode:            ResolveMode              = ResolveMode.Shape
   ): Option[ParameterType] = {
     implicit val context: Context = Context(expr)
 
@@ -720,7 +619,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
         invokedExpr.resolveApplyOrUpdateMethod(
           invokedExpr,
           internalType,
-          shapesOnly    = true,
+          // apply methods are only resolved by shape, unless the expected type of a deferred argument is derived
+          mode          = if (mode == ResolveMode.Narrow) ResolveMode.Narrow else ResolveMode.Shape,
           withImplicits = true
         )
 
@@ -749,9 +649,27 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case _ => Seq.empty
     }
 
-    invokedExprType match {
+    /**
+     * A leading using clause, whose arguments aren't given explicitly, is applied to the implicit arguments found for it,
+     * since they may determine the type parameters, the parameter types of the following clauses depend on,
+     * e.g. `A` in `def foo[A](using Foo[A])(fn: A => Int)`, and the types, which depend on the parameters
+     * of the clause, e.g. `f.T` in `def foo(using f: Foo)(fn: f.T => Int)`.
+     *
+     * Note, that resolve doesn't take the implicit arguments into account (just as the compiler doesn't),
+     * so they are only searched for, when the expected types of the arguments are derived.
+     */
+    def applyLeadingUsingClause(tpe: ScType): ScType =
+      if (hasLeadingUsingClause(tpe) && !isExplicitUsingArgs)
+        call.fold(tpe) {
+          _.updatedWithImplicitArguments(tpe, checkExpectedType = false, updateDeep = false, isLeadingClause = true)._1
+        }
+      else tpe
+
+    // If the invoked method only has leading using clauses, its type after them is the one an apply method is
+    // inserted on, e.g. `foo(x => x + 1)` with `def foo[A](using Foo[A]): Bar[A]`, see mapResolves
+    invokedExprType.map(applyLeadingUsingClause) match {
       case Right(mt: ScMethodType) => fromMethodParams(extractParamsFromMethodType(mt))
-      case Right(t @ ScTypePolymorphicType(mt: ScMethodType, _)) =>
+      case Right(tpt @ ScTypePolymorphicType(mt: ScMethodType, _)) =>
         val callPt = call.flatMap(_.expectedType()).getOrElse(Any(using expr))
 
         val unwrappedPt = callPt match {
@@ -759,9 +677,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case _                           => callPt
         }
 
-        val params = extractParamsFromMethodType(mt)
-
-        fromMethodParams(params, t.argsProtoTypeSubst(unwrappedPt.toOption))
+        fromMethodParams(extractParamsFromMethodType(mt), tpt.argsProtoTypeSubst(unwrappedPt.toOption, constraints))
       case Right(anotherType) if !forApply =>
         tryApplyMethod(anotherType) match {
           case Some((applyInvokedType, isApplyDynamicNamed)) =>
@@ -772,7 +688,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
               argExprs,
               idx,
               forApply = true,
-              isDynamicNamed = isApplyDynamicNamed
+              isDynamicNamed = isApplyDynamicNamed,
+              mode = mode
             )
           case _ => None
         }
@@ -923,6 +840,33 @@ private object ExpectedTypesImpl {
     }
 
     case object NotAFunction extends Arity { override def matches(arity: Int): Boolean = true }
+  }
+
+  /**
+   * The type of an invoked expression, the expected types of the arguments are derived from.
+   *
+   * @param constraints the constraints on the type parameters of `tpe` from the arguments typed by
+   *                    [[org.jetbrains.plugins.scala.lang.resolve.ResolveMode.Narrow]] resolve
+   */
+  private final case class ResolvedType(
+    tpe:            TypeResult,
+    isPolymorphic:  Boolean          = false,
+    isDynamicNamed: Boolean          = false,
+    constraints:    ConstraintSystem = ConstraintSystem.empty
+  )
+
+  private def hasLeadingUsingClause(tpe: ScType): Boolean = tpe match {
+    case ScTypePolymorphicType(mt: ScMethodType, _) => mt.hasUsingKW
+    case mt: ScMethodType                           => mt.hasUsingKW
+    case _                                          => false
+  }
+
+  /**
+   * @return true, if `argument` is a deferred argument in Scala 3, see [[org.jetbrains.plugins.scala.lang.resolve.ResolveMode.Narrow]]
+   */
+  private def isDeferredArgument(argument: PsiElement): Boolean = argument match {
+    case expression: ScExpression => expression.isInScala3File && ResolveMode.isDeferred(expression)
+    case _                        => false
   }
 
   implicit class ScMethodCallEx(private val invocation: MethodInvocation) extends AnyVal {

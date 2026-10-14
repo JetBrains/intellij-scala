@@ -186,8 +186,9 @@ object MethodTypeProvider {
         s(result)
       }
 
+      // the type parameters of an auxiliary constructor are those of the class, see typeParameters
       val regularMethodResult =
-        if (functionClauses.nonEmpty)
+        if (functionClauses.nonEmpty && !element.isConstructor)
           interleavedPolymorphicType(
             functionClauses,
             returnType.getOrElse(element.returnType.getOrAny)

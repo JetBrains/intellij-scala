@@ -259,7 +259,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.StreamLayout
     //akka.stream.impl.StreamSubscriptionTimeoutSupport
     //akka.stream.impl.StreamSupervisor
-    akka.stream.impl.SubFlowImpl
+    //akka.stream.impl.SubFlowImpl
     //akka.stream.impl.SubFusingActorMaterializerImpl
     akka.stream.impl.SubReceive
     akka.stream.impl.SubscribePending

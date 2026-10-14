@@ -63,7 +63,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val maybeAssignmentResult = maybeAssignment
     maybeAssignmentResult match {
       case Some(value) =>
-        value.resolveAssignment.toArray
+        value.resolveAssignment().toArray
       case None =>
         cachedWithRecursionGuard(
           "multiResolveScala",
@@ -73,25 +73,34 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           Tuple1(incomplete)
         ) {
           Tracing.resolve(this)
-          val result = new ReferenceExpressionResolver().resolve(this, shapesOnly = false, incomplete)
+          val result = new ReferenceExpressionResolver().resolve(this, ResolveMode.Full, incomplete)
           Tracing.resolve(this, result)
           result
       }
     }
   }
 
-  override def shapeResolve: Array[ScalaResolveResult] = {
-    //micro-optimization: don't use fold to decrease chance of StackOverflowError
-    // in long method call chains or for-comprehensions
-    // this method is called many many times during resolved
-    val maybeAssignmentResult = maybeAssignment
-    maybeAssignmentResult match {
-      case Some(value) =>
-        value.shapeResolveAssignment.toArray
-      case None => cachedWithRecursionGuard("shapeResolve", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this)) {
-        new ReferenceExpressionResolver().resolve(this, shapesOnly = true, incomplete = false)
+  override def resolveWithMode(mode: ResolveMode): Array[ScalaResolveResult] = mode match {
+    case ResolveMode.Full => multiResolveScala(incomplete = false)
+    case _ =>
+      //micro-optimization: don't use fold to decrease chance of StackOverflowError
+      // in long method call chains or for-comprehensions
+      // this method is called many many times during resolved
+      val maybeAssignmentResult = maybeAssignment
+      maybeAssignmentResult match {
+        case Some(value) =>
+          value.resolveAssignment(mode).toArray
+        case None =>
+          cachedWithRecursionGuard(
+            "resolveWithMode",
+            this,
+            ScalaResolveResult.EMPTY_ARRAY,
+            BlockModificationTracker(this),
+            Tuple1(mode)
+          ) {
+            new ReferenceExpressionResolver().resolve(this, mode, incomplete = false)
+          }
       }
-    }
   }
 
   override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] =
@@ -211,42 +220,26 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
-  override def multiType: Array[TypeResult] = {
+  override def multiType(mode: ResolveMode): Array[TypeResult] = {
     val buffer = mutable.ArrayBuffer[TypeResult]()
-    val iterator = multiResolveScala(incomplete = false).iterator
+    val iterator = resolveWithMode(mode).iterator
     while (iterator.hasNext) {
-      buffer += convertBindToType(iterator.next())
+      buffer += convertBindToType(iterator.next(), this.expectedType())
     }
     buffer.toArray
   }
 
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     this.bind() match {
-      case Some(srr) => convertBindToType(srr)
+      case Some(srr) => convertBindToType(srr, expectedType)
       case _ if getContainingFile.asOptionOf[ScalaFile].exists(_.isMultipleDeclarationsAllowed) =>
         val priorDeclarations = multiResolveScala(false).filter(
           result => result.element.getContainingFile == getContainingFile && result.element.getTextOffset < getTextOffset
         )
 
-        if (priorDeclarations.nonEmpty) convertBindToType(priorDeclarations.maxBy(_.element.getTextOffset)) else resolveFailure
+        if (priorDeclarations.nonEmpty) convertBindToType(priorDeclarations.maxBy(_.element.getTextOffset), expectedType) else resolveFailure
       case _ => resolveFailure
     }
-  }
-
-  override def shapeType: TypeResult = {
-    shapeResolve match {
-      case Array(bind) if bind.isApplicable() => convertBindToType(bind)
-      case _ => resolveFailure
-    }
-  }
-
-  override def shapeMultiType: Array[TypeResult] = {
-    val buffer = mutable.ArrayBuffer[TypeResult]()
-    val iterator = shapeResolve.iterator
-    while (iterator.hasNext) {
-      buffer += convertBindToType(iterator.next())
-    }
-    buffer.toArray
   }
 
   private def isMetaInlineDefn(p: ScParameter): Boolean = {
@@ -265,8 +258,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     *      * `pt` is an abstract type with a stable type as lower bound OR
     *      *  (not in the spec, but in the impl) `pt` denotes type refinement
     */
-  private def isStableContext(t: ScType): Boolean = {
-    val expectedStable = this.expectedType() match {
+  private def isStableContext(t: ScType, expectedType: Option[ScType]): Boolean = {
+    val expectedStable = expectedType match {
       case Some(downer: DesignatorOwner) if downer.isStable => true
       case Some(t) if t eq Singleton                        => true
       case Some(other) if !t.conforms(other) =>
@@ -279,7 +272,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case _ => false
     }
 
-    val isParamToDepMethod = this.expectedTypeEx().collect {
+    // The expected type of an argument of a dependent method is the type of the corresponding parameter,
+    // which, unlike the expected type itself, is only known from the context of this expression
+    def isParamToDepMethod = expectedType.isDefined && this.expectedTypeEx().collect {
       case (_, Some(te)) =>
         (for {
           param  <- te.contexts.take(2).findByType[ScParameter] //parameter is first context for stub elements and second context for ast
@@ -318,7 +313,10 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     found
   }
 
-  private def convertBindToType(bind: ScalaResolveResult): TypeResult = {
+  /**
+   * @param expectedType the expected type of this reference
+   */
+  private def convertBindToType(bind: ScalaResolveResult, expectedType: => Option[ScType]): TypeResult = {
     val srr = bind match {
       case ScalaResolveResult.ApplyMethodInnerResolve(inner) => inner
       case _                                                 => bind
@@ -335,7 +333,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       //prevent infinite recursion for recursive pattern reference
       case ScalaResolveResult(self: ScSelfTypeElement, _) =>
         val clazz = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
-        ScThisReferenceImpl.getThisTypeForTypeDefinition(clazz, this) match {
+        ScThisReferenceImpl.getThisTypeForTypeDefinition(clazz, this, expectedType) match {
           case Right(value) => value
           case failure => return failure
         }
@@ -353,7 +351,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             val result = r.intersectedReturnType.asTypeResult.orElse(refPatt.`type`())
 
             result.map { tp =>
-              if (isStableContext(tp) && refPatt.isStable) {
+              if (isStableContext(tp, expectedType) && refPatt.isStable) {
                 r.fromType match {
                   case Some(fT) => ScProjectionType(fT, refPatt)
                   case None     => ScalaType.designator(refPatt)
@@ -370,7 +368,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         }
 
         val paramType = param.insideParamType
-        val stableTypeRequired = paramType.exists(isStableContext)
+        val stableTypeRequired = paramType.exists(isStableContext(_, expectedType))
 
         r.fromType match {
           case Some(fT) if param.isVal && stableTypeRequired => ScProjectionType(fT, param)
@@ -420,7 +418,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
           ScalaPsiUtil.getCompanionModule(obj) match {
             case Some(clazz) if clazz.isCase && (!clazz.hasTypeParameters || canEtaExpandPolymorphicCaseClass) =>
-              this.expectedType() match {
+              expectedType match {
                 case Some(tp) =>
                   if (FunctionType.isFunctionType(tp)) {
                     val tp        = tail
@@ -428,7 +426,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
                     processor.processType(tp, this)
                     val candidates = processor.candidates
                     if (candidates.length != 1) tail
-                    else convertBindToType(candidates(0)).getOrElse(tail)
+                    else convertBindToType(candidates(0), expectedType).getOrElse(tail)
                   } else tail
                 case _ => tail
               }
@@ -439,7 +437,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val result = r.intersectedReturnType.asTypeResult.orElse(f.`type`())
 
         result.map { tp =>
-          if (isStableContext(tp) && f.isStable) {
+          if (isStableContext(tp, expectedType) && f.isStable) {
             r.fromType match {
               case Some(fT) => ScProjectionType(fT, f)
               case None     => ScalaType.designator(f)
@@ -505,8 +503,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           }
 
           def convertQualifier(jlClass: PsiClass): ScType = {
+            // the qualifier has no expected type
             val maybeType = maybeReference.flatMap {
-              _.`type`().toOption
+              _.`type`(None).toOption
             }
 
             val upperBound = maybeType.flatMap {
@@ -545,7 +544,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case None => //infix, prefix and postfix
         getContext match {
           case sugar: ScSugarCallExpr if sugar.operation == this =>
-            sugar.getBaseExpr.getNonValueType() match {
+            sugar.getBaseExpr.getNonValueType(expectedType = None) match {
               case Right(ScTypePolymorphicType(_, typeParams)) =>
                 inner match {
                   case ScTypePolymorphicType(internal, typeParams2) =>
@@ -558,7 +557,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case _ => default
         }
       case Some(qualifier) =>
-        qualifier.getNonValueType() match {
+        qualifier.getNonValueType(expectedType = None) match {
           case Right(ScTypePolymorphicType(_, typeParams)) =>
             inner match {
               case ScTypePolymorphicType(internal, typeParams2) =>
@@ -588,7 +587,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
 
     maybeExpression
-      .flatMap(_.getNonValueType().toOption)
+      .flatMap(_.getNonValueType(expectedType = None).toOption)
       .collect {
         case ScTypePolymorphicType(_, parameters) => parameters
       }.getOrElse(Seq.empty)

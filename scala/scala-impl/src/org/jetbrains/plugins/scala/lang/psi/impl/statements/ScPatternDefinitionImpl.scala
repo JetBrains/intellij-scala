@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.canNotBeOverridden
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
-import org.jetbrains.plugins.scala.lang.psi.types.Widening
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Widening}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 
@@ -37,7 +37,7 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
 
   override def declaredElements: Seq[ScBindingPattern] = bindings
 
-  override def `type`(): TypeResult = typeElement match {
+  override def `type`(expectedType: Option[ScType]): TypeResult = typeElement match {
     case Some(te) => te.`type`()
     case _ =>
       expr

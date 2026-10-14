@@ -243,6 +243,23 @@ object Scala3CaseClassTest {
       |def test(w: Wrapper): Wrapper = {
       |  w.copy()
       |}
+      |""".stripMargin,
+    """
+      |// testSCL24294
+      |trait MyTc[T]
+      |
+      |case class Foo private (i: Seq[Int])
+      |
+      |object Foo {
+      |  def apply[T <: Seq[Int]: MyTc](i: T): Foo = new Foo(i)
+      |}
+      |
+      |given MyTc[List[Int]] = null
+      |
+      |object Usage {
+      |  println(Foo(List(1)))
+      |  println(Foo.apply(List(1)))
+      |}
       |""".stripMargin
   ).map(GeneratedParameterizedTestFactory.testDataFromCode)
 }

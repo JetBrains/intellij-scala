@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.canNotBeOverridden
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
-import org.jetbrains.plugins.scala.lang.psi.types.Widening
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Widening}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 
@@ -33,7 +33,7 @@ final class ScVariableDefinitionImpl private[psi] (
 
   override def isSimple: Boolean = pList.simplePatterns && bindings.size == 1
 
-  override def `type`(): TypeResult = typeElement match {
+  override def `type`(expectedType: Option[ScType]): TypeResult = typeElement match {
     case Some(te) => te.`type`()
     case None => expr match {
       case None             => Failure(ScalaBundle.message("cannot.infer.type.without.an.expression"))

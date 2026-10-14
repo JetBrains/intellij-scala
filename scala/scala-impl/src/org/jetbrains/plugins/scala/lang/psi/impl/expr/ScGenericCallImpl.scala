@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.PsiMethodTypeProviderExt
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 
 class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScGenericCall {
@@ -47,24 +47,31 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
    * args and is not dependent on the expected type. However, with the addition of named type
    * arguments, we can now have cases like `foo[A = Int]` (where we have to infer the remaining arguments).
    */
-  private def updateWithExpected(tpe: ScType): ScType = tpe match {
+  private def updateWithExpected(tpe: ScType, expectedType: Option[ScType]): ScType = tpe match {
     case tpt: ScTypePolymorphicType =>
       InferUtil.updateAccordingToExpectedType(
         tpt,
         filterTypeParams = true,
-        this.expectedType(),
+        expectedType,
         this,
         canThrowSCE = false
       )
     case _ => tpe
   }
 
-  private def processNonPolymorphic(isShape: Boolean): ScType => ScType = {
+  private def processNonPolymorphic(mode: ResolveMode): ScType => ScType = {
     case p: ScTypePolymorphicType => p
-    case t                        => ScGenericCallImpl.processApplyOrUpdateMethod(this, t, isShape)
+    case t                        => ScGenericCallImpl.processApplyOrUpdateMethod(this, t, mode)
   }
 
-  private def convertReferencedType(typeResult: TypeResult, isShape: Boolean): TypeResult = {
+  /**
+   * @param mode         the mode the referenced expression was resolved in. Leading implicit clauses are only applied,
+   *                     and the expected type is only taken into account, with [[ResolveMode.Full]]
+   * @param expectedType the expected type of this generic call, only used with [[ResolveMode.Full]]
+   */
+  private def convertReferencedType(typeResult: TypeResult, mode: ResolveMode, expectedType: => Option[ScType] = None): TypeResult = {
+    val isShape = mode != ResolveMode.Full
+
     typeResult
       .map {
         //e.g. def foo(using A)[B]: Int = 1; foo[Int]
@@ -77,15 +84,15 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
               isLeadingClause = true
             )
 
-          setImplicitArguments(implicits)
+          setImplicitArguments(implicits, expectedType)
           updated
         case tpe => tpe
       }
-      .map(processNonPolymorphic(isShape))
+      .map(processNonPolymorphic(mode))
       .map(substPolymorphicType)
       .map(tpe =>
         if (isShape) tpe
-        else         updateWithExpected(tpe)
+        else         updateWithExpected(tpe, expectedType)
       )
   }
 
@@ -96,53 +103,27 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
     }
   })
 
-  protected override def innerType: TypeResult =
+  protected override def innerType(expectedType: Option[ScType]): TypeResult =
     polymorphicLambdaType().left.flatMap { _ =>
-      val typeResult = referencedExpr.getNonValueType()
-      convertReferencedType(typeResult, isShape = false)
+      // the referenced expression has no expected type
+      val typeResult = referencedExpr.getNonValueType(expectedType = None)
+      convertReferencedType(typeResult, ResolveMode.Full, expectedType)
     }
 
-  override def shapeType: TypeResult =
-    polymorphicLambdaType().left.flatMap { _ =>
-      val typeResult: TypeResult = referencedExpr match {
-        case ref: ScReferenceExpression => ref.shapeType
-        case expr                       => expr.getNonValueType()
-      }
-      convertReferencedType(typeResult, isShape = true)
-    }
-
-  override def shapeMultiType: Array[TypeResult] = {
+  override def multiType(mode: ResolveMode): Array[TypeResult] = {
     val polyLambdaType = polymorphicLambdaType()
     if (polyLambdaType.isLeft) {
       val typeResult: Array[TypeResult] = referencedExpr match {
-        case ref: ScReferenceExpression => ref.shapeMultiType
-        case expr                       => Array(expr.getNonValueType())
+        case ref: ScReferenceExpression => ref.multiType(mode)
+        case expr                       => Array(expr.getNonValueType(expectedType = None))
       }
-      typeResult.map(convertReferencedType(_, isShape = true))
+      typeResult.map(convertReferencedType(_, mode, this.expectedType()))
     } else Array(polyLambdaType)
   }
 
-  override def shapeMultiResolve: Option[Array[ScalaResolveResult]] = {
+  override def multiResolve(mode: ResolveMode): Option[Array[ScalaResolveResult]] = {
     referencedExpr match {
-      case ref: ScReferenceExpression => Some(ref.shapeResolve)
-      case _                          => None
-    }
-  }
-
-  override def multiType: Array[TypeResult] = {
-    val polyLambdaType = polymorphicLambdaType()
-    if (polyLambdaType.isLeft) {
-      val typeResult: Array[TypeResult] = referencedExpr match {
-        case ref: ScReferenceExpression => ref.multiType
-        case expr => Array(expr.getNonValueType())
-      }
-      typeResult.map(convertReferencedType(_, isShape = false))
-    } else Array(polyLambdaType)
-  }
-
-  override def multiResolve: Option[Array[ScalaResolveResult]] = {
-    referencedExpr match {
-      case ref: ScReferenceExpression => Some(ref.multiResolveScala(false))
+      case ref: ScReferenceExpression => Some(ref.resolveWithMode(mode))
       case _                          => None
     }
   }
@@ -157,9 +138,9 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
 
 object ScGenericCallImpl {
   def processApplyOrUpdateMethod(
-    gen:        ScGenericCall,
-    tp:         ScType,
-    shapesOnly: Boolean
+    gen:  ScGenericCall,
+    tp:   ScType,
+    mode: ResolveMode
   ): ScType = {
     def workWithApplyCandidates(candidates: Array[ScalaResolveResult]): Option[ScType] = candidates match {
       case Array(srr @ ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
@@ -174,7 +155,7 @@ object ScGenericCallImpl {
     val applyCandidates = gen.resolveApplyOrUpdateMethod(
       gen.referencedExpr,
       tp,
-      shapesOnly    = shapesOnly,
+      mode          = mode,
       withImplicits = true
     )
 

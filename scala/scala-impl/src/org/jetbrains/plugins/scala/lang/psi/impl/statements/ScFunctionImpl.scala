@@ -390,7 +390,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     }
   }
 
-  override def `type`(): TypeResult = {
+  override def `type`(expectedType: Option[ScType]): TypeResult = {
     this.returnType match {
       case Right(tp) =>
         var res: TypeResult = Right(tp)

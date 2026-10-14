@@ -323,7 +323,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     ) {
       Tracing.resolve(this)
 
-      val resolver = new StableCodeReferenceResolver(ScStableCodeReferenceImpl.this, false, false, false)
+      val resolver = new StableCodeReferenceResolver(ScStableCodeReferenceImpl.this, ResolveMode.Full, false, false)
       val result = resolver.resolve()
 
       Tracing.resolve(this, result)

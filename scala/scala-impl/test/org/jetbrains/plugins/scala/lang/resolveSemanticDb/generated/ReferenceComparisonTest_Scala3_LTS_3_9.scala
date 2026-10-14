@@ -834,7 +834,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part8 extends ReferenceCompar
   def test_i5666(): Unit = doTest("i5666", true)
   def test_i5699(): Unit = doTest("i5699", true) // #unionType
   def test_i5700(): Unit = doTest("i5700", true)
-  def test_i5711(): Unit = doTest("i5711", false)
+  def test_i5711(): Unit = doTest("i5711", true)
   def test_i5720(): Unit = doTest("i5720", true) // #opaque, #typeLambda
   def test_i5750(): Unit = doTest("i5750", true)
 }
@@ -910,7 +910,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part9 extends ReferenceCompar
   def test_i6635(): Unit = doTest("i6635", false)
   def test_i6635a(): Unit = doTest("i6635a", true)
   def test_i6655(): Unit = doTest("i6655", true) // #intersectionType
-  def test_i6662(): Unit = doTest("i6662", false) // #opaque, #extension
+  def test_i6662(): Unit = doTest("i6662", true) // #opaque, #extension
   def test_i6665(): Unit = doTest("i6665", true)
   def test_i6670(): Unit = doTest("i6670", true)
   def test_i6678(): Unit = doTest("i6678", true)
@@ -1715,7 +1715,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part17 extends ReferenceCompa
   def test_i16486(): Unit = doTest("i16486", true) // #intersectionType
   def test_i16488(): Unit = doTest("i16488", true)
   def test_i16500(): Unit = doTest("i16500", true)
-  def test_i16506(): Unit = doTest("i16506", false)
+  def test_i16506(): Unit = doTest("i16506", true)
   def test_i16539(): Unit = doTest("i16539", true) // #enum, #unionType
   def test_i16539_min(): Unit = doTest("i16539.min", true) // #unionType
   def test_i16544a(): Unit = doTest("i16544a", true)
@@ -1756,7 +1756,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part17 extends ReferenceCompa
   def test_i17100a(): Unit = doTest("i17100a", false) // #extension
   def test_i17135(): Unit = doTest("i17135", true)
   def test_i17149(): Unit = doTest("i17149", true) // #matchType
-  def test_i17155(): Unit = doTest("i17155", false)
+  def test_i17155(): Unit = doTest("i17155", true)
   def test_i17186a(): Unit = doTest("i17186a", true)
   def test_i17186b(): Unit = doTest("i17186b", true)
   def test_i17192(): Unit = doTest("i17192", false) // #matchType
@@ -2285,7 +2285,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part22 extends ReferenceCompa
 final class ReferenceComparisonTest_Scala3_LTS_3_9_Part23 extends ReferenceComparisonTest_Scala3_LTS_3_9 {
   def test_infer2_pos(): Unit = doTest("infer2-pos", true)
   def test_inferbroadtype(): Unit = doTest("inferbroadtype", true)
-  def test_inferOverloaded(): Unit = doTest("inferOverloaded", false)
+  def test_inferOverloaded(): Unit = doTest("inferOverloaded", true)
   def test_inferred(): Unit = doTest("inferred", true)
   def test_infersingle(): Unit = doTest("infersingle", true)
   def test_infinite_loop_potential(): Unit = doTest("infinite-loop-potential", true)

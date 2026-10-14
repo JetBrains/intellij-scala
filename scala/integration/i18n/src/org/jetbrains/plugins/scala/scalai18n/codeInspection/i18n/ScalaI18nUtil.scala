@@ -136,7 +136,7 @@ object ScalaI18nUtil {
         checkParam(infix.matchedParameters)
       case assign: ScAssignment =>
         assign
-          .resolveAssignment
+          .resolveAssignment()
           .orElse(assign.leftExpression.asOptionOf[ScReferenceExpression].flatMap(_.bind()))
           .exists {
             case ScalaResolveResult(f: ScFunction, _) =>

@@ -9,7 +9,24 @@ import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 object result {
   trait Typeable {
-    def `type`(): TypeResult
+
+    /**
+     * @param expectedType the expected type to type this element against.
+     *                     It is only taken into account by expressions, which pass the expected types derived from it
+     *                     down to their subexpressions, other elements ignore it.
+     *
+     *                     Resolve and type inference should always pass it explicitly, as computing it from the context
+     *                     of the expression (see [[defaultExpectedType]]) may need the very types being inferred,
+     *                     e.g. when the expression is an argument of an overloaded method call.
+     *                     The default value is meant for "consumers" of types: annotators, inspections, refactorings, etc.
+     */
+    def `type`(expectedType: Option[ScType] = defaultExpectedType): TypeResult
+
+    /**
+     * The expected type of this element derived from its context,
+     * see [[org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes]].
+     */
+    protected def defaultExpectedType: Option[ScType] = None
   }
 
   object Typeable {

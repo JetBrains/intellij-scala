@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 case class ImplicitConversionResolveResult(resolveResult: ScalaResolveResult,
@@ -194,12 +194,17 @@ object ImplicitConversionResolveResult {
         for {
           expressions <- methodProcessor.invocationClauses.flatMap(_.args)
           expression  <- expressions
-          typeResult   =
-            expression.getTypeAfterImplicitConversion(
-              checkImplicits = false,
-              isShape        = methodProcessor.isShapeResolve,
-              None
-            ).tr
+          typeResult   = (expression match {
+            // the expected type of a deferred argument may only be known after the invoked method is resolved
+            // (see ResolveMode.Narrow), while its shape doesn't depend on it
+            case expr: ScExpression if methodProcessor.resolveMode == ResolveMode.Narrow && ResolveMode.isDeferred(expr) =>
+              expr.getTypeAfterImplicitConversion(checkImplicits = false, isShape = true, expectedOption = None)
+            // the expected type of an argument of the invocation, which isn't known here
+            case expr: ScExpression =>
+              expr.getTypeAfterImplicitConversion(checkImplicits = false, isShape = methodProcessor.isShapeResolve)
+            case _ =>
+              expression.getTypeAfterImplicitConversion(checkImplicits = false, isShape = methodProcessor.isShapeResolve, None)
+          }).tr
         } yield typeResult.getOrAny
       case _ => Seq.empty
     }

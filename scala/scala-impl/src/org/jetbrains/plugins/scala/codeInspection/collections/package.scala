@@ -513,7 +513,7 @@ package object collections {
     case _                => false
   }
 
-  def withoutConversions(expr: ScExpression): Typeable = () => expr.getTypeWithoutImplicits()
+  def withoutConversions(expr: ScExpression): Typeable = _ => expr.getTypeWithoutImplicits()
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",

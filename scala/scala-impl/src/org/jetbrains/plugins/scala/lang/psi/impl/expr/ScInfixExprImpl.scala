@@ -25,32 +25,38 @@ class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScI
     case expression => Seq(expression)
   }
 
-  protected override def innerType: TypeResult = {
+  protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     val ScInfixExpr(ElementText(baseText), operation, ElementText(argumentText)) = this: @unchecked
 
     import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
     operation.bind().collect {
       //this is assignment statement: x += 1 equals to x = x + 1
       case ScalaResolveResult(element, _) if element.name + "=" == operation.refName =>
+        // the desugared assignment stands for this expression, so its expected type is the same
         createExpressionWithContextFromText(s"$baseText = $baseText ${element.name} $argumentText",
-          getContext, this).`type`()
+          getContext, this).`type`(expectedType)
       case ScalaResolveResult(synth: ScSyntheticFunction, _) =>
         @tailrec
         def foldConstTypes(left: Option[ScType], right: Option[ScType]): TypeResult = (left, right) match {
           case (Some(ScLiteralType(valueLeft)), Some(ScLiteralType(valueRight))) =>
             Option(evaluateConstInfix(valueLeft.value, valueRight.value, synth.name))
-              .fold(super.innerType) { value =>
+              .fold(super.innerType(expectedType)) { value =>
                 Right(ScLiteralType(value)(using synth.getProject))
               }
           case (Some(ScProjectionType(_, element: Typeable)), _) =>
             foldConstTypes(element.`type`().toOption.filter(_.is[ScLiteralType]), right)
           case (_, Some(ScProjectionType(_, element: Typeable))) =>
             foldConstTypes(left, element.`type`().toOption.filter(_.is[ScLiteralType]))
-          case _ => super.innerType
+          case _ => super.innerType(expectedType)
         }
 
-        foldConstTypes(left.getNonValueType().toOption, right.getNonValueType().toOption)
-    }.getOrElse(super.innerType)
+        // Only literal types of the operands matter here, and the expected types of the operands
+        // (if any, since the synthetic operators are mostly overloaded) are never literal types
+        foldConstTypes(
+          left.getNonValueType(expectedType = None).toOption,
+          right.getNonValueType(expectedType = None).toOption
+        )
+    }.getOrElse(super.innerType(expectedType))
   }
 
   override def toString: String = "InfixExpression"

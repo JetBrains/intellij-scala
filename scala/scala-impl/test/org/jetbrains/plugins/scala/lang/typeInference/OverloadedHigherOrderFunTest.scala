@@ -233,4 +233,358 @@ class OverloadedHigherOrderFunTest extends ScalaLightCodeInsightFixtureTestCase 
       |}
       |""".stripMargin
   )
+
+  def testSCL24556(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  def foo1(f: Function1[(Int, Int), Unit]): Unit = {}
+      |  def foo1(f: Unit): Unit = {}
+      |  foo1 { t => t._1 + t._2 }
+      |  foo1 { case (a, b) => a + b }
+      |
+      |  def foo2(f: Function2[Int, Int, Unit]): Unit = {}
+      |  def foo2(f: Unit): Unit = {}
+      |  foo2 { (a, b) => a + b }
+      |}
+      |""".stripMargin
+  )
+
+  // no parameter untupling in Scala 2
+  def testSCL24556NoUntupling(): Unit = checkHasErrorAroundCaret(
+    """
+      |object A {
+      |  def foo1(f: Function1[(Int, Int), Unit]): Unit = {}
+      |  def foo1(f: Unit): Unit = {}
+      |  foo1 { (a, b) => () }
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL22050(): Unit = checkTextHasNoErrors(
+    """
+      |class Foo[A] {
+      |  def test(f: A => String): Option[A] = None
+      |
+      |  def test(i: Int): Option[Unit] = None
+      |}
+      |
+      |object Example {
+      |  val foo: Foo[(Int, Double)] = new Foo
+      |  foo.test({ case (int, double) =>
+      |    int.toDouble.toString + double.toInt.toString
+      |  })
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL22050ByNameAlternative(): Unit = checkTextHasNoErrors(
+    """
+      |class Bar[A]
+      |
+      |class Foo[A] {
+      |  def -->(f: A => String): Bar[A] = new Bar
+      |  def -->(f: => String): Bar[Unit] = new Bar
+      |}
+      |
+      |object Example {
+      |  val foo: Foo[(Int, Double)] = new Foo
+      |  val bar: Bar[(Int, Double)] = foo --> { case (int, double) =>
+      |    int.toDouble.toString + double.toInt.toString
+      |  }
+      |}
+      |""".stripMargin
+  )
+}
+
+@Category(Array(classOf[TypecheckerTests]))
+class OverloadedHigherOrderFunScala3Test extends ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+
+  def testOverloadDisambiguatedByNonFunctionArgInLaterClause(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int)(tag: Int, f: Int => Long): Long = ???
+      |  def foo(x: Int)(tag: String, f: String => Int): Int = ???
+      |
+      |  val result1: Long = foo(1)(2, i => i * 10L)
+      |  val result2: Int = foo(1)("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedAfterApplyExpansion(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  class Bar {
+      |    def apply(tag: String, f: String => Int): Int = ???
+      |  }
+      |  def foo(x: Int): Bar = ???
+      |  def foo(x: Int)(tag: Int, f: Int => Long): Long = ???
+      |
+      |  val result1: Long = foo(1)(2, i => i * 10L)
+      |  val result2: Int = foo(1)("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgContextFunction(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int ?=> Long): Int = ???
+      |  def foo(x: String, f: String ?=> Int): Double = ???
+      |
+      |  val result1 = foo(1, (i: Int) ?=> i * 10L)
+      |  val result2 = foo("hello", (s: String) ?=> s.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArg(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, i => i * 10L)
+      |  val result2 = foo("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgUnderscore(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, _ * 10L)
+      |  val result2 = foo("hello", _.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgBlock(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, { i => i * 10L })
+      |  val result2 = foo("hello", { s => s.length })
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgPartialFunction(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, { case i => i * 10L })
+      |  val result2 = foo("hello", { case s => s.length })
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgPartialFunctionType(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: PartialFunction[Int, Long]): Int = ???
+      |  def foo(x: String, f: PartialFunction[String, Int]): Double = ???
+      |
+      |  val result1 = foo(1, { case i => i * 10L })
+      |  val result2 = foo("hello", { case s => s.length })
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgNamed(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(f = i => i * 10L, x = 1)
+      |  val result2 = foo(f = s => s.length, x = "hello")
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgTypeArgs(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo[T](x: Int, f: Int => T): T = ???
+      |  def foo[T](x: String, f: String => T): T = ???
+      |
+      |  val result1: Long = foo[Long](1, i => i * 10L)
+      |  val result2: Int = foo[Int]("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadedConstructorDisambiguatedByNonFunctionArg(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  class Foo(x: Int, f: Int => Long) {
+      |    def this(x: String, f: String => Int) = this(x.length, _.toLong)
+      |  }
+      |
+      |  val foo1 = new Foo(1, i => i * 10L)
+      |  val foo2 = new Foo("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadedConstructorProxyDisambiguatedByNonFunctionArg(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  class Foo(x: Int, f: Int => Long) {
+      |    def this(x: String, f: String => Int) = this(x.length, _.toLong)
+      |  }
+      |
+      |  val foo1 = Foo(1, i => i * 10L)
+      |  val foo2 = Foo("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  // the alternatives applicable to the non-function argument disagree on the parameter type of the function literal
+  def testOverloadNotDisambiguatedByNonFunctionArg(): Unit = checkHasErrorAroundCaret(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: Int, f: String => Int): Double = ???
+      |
+      |  val result = foo(1, i => i.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testTypeParameterDeterminedByNonFunctionArg(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo[A](a: A, f: A => Int): Int = ???
+      |
+      |  val result = foo("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL23347(): Unit = checkTextHasNoErrors(
+    """
+      |case class User(name: Int)
+      |
+      |extension [From, To](from: From)
+      |  def extension1(lambda: String ?=> From => To): Int = 42
+      |
+      |  def extension2(): Int = 42
+      |  def extension2(lambda: String ?=> From => To): Int = 42
+      |
+      |def test(user: User): Unit = {
+      |  user.extension1(_.name)
+      |  user.extension2(_.name)
+      |}
+      |""".stripMargin
+  )
+
+  def testContextFunctionParameterOfOverloadedExtensionLambda(): Unit = checkTextHasNoErrors(
+    """
+      |case class User(name: Int)
+      |
+      |extension [From, To](from: From)
+      |  def extension2(): Int = 42
+      |  def extension2(lambda: String ?=> From => To): Int = 42
+      |
+      |def test(user: User): Unit = {
+      |  user.extension2(u => u.name)
+      |}
+      |""".stripMargin
+  )
+
+  def testContextFunctionParameterOfOverloadedMethod(): Unit = checkTextHasNoErrors(
+    """
+      |case class User(name: Int)
+      |
+      |object Test {
+      |  def foo[From, To](from: From)(): Int = 42
+      |  def foo[From, To](from: From)(lambda: String ?=> From => To): Int = 42
+      |
+      |  def test(user: User): Unit = foo(user)(_.name)
+      |}
+      |""".stripMargin
+  )
+
+  def testContextFunctionParameterOfOverloadedNonGenericMethod(): Unit = checkTextHasNoErrors(
+    """
+      |case class User(name: Int)
+      |
+      |object Test {
+      |  def bar(): Int = 42
+      |  def bar(lambda: String ?=> User => Int): Int = 42
+      |
+      |  def test(user: User): Unit = bar(_.name)
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL22050(): Unit = checkTextHasNoErrors(
+    """
+      |class Foo[A] {
+      |  def test(f: A => String): Option[A] = None
+      |
+      |  def test(i: Int): Option[Unit] = None
+      |}
+      |
+      |object Example {
+      |  val foo: Foo[(Int, Double)] = new Foo
+      |  foo.test({ case (int, double) =>
+      |    int.toDouble.toString + double.toInt.toString
+      |  })
+      |  foo.test({ (int, double) =>
+      |    int.toDouble.toString + double.toInt.toString
+      |  })
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL22050ByNameAlternative(): Unit = checkTextHasNoErrors(
+    """
+      |class Bar[A]
+      |
+      |class Foo[A] {
+      |  def -->(f: A => String): Bar[A] = new Bar
+      |  def -->(f: => String): Bar[Unit] = new Bar
+      |}
+      |
+      |object Example {
+      |  val foo: Foo[(Int, Double)] = new Foo
+      |  val bar1: Bar[(Int, Double)] = foo --> { (int, double) =>
+      |    int.toDouble.toString + double.toInt.toString
+      |  }
+      |  val bar2: Bar[(Int, Double)] = foo --> { case (int, double) =>
+      |    int.toDouble.toString + double.toInt.toString
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL22050ExplicitTypeArguments(): Unit = checkTextHasNoErrors(
+    """
+      |class Foo {
+      |  def test[A](f: A => String): String = ???
+      |  def test[B](i: Int): String = ???
+      |}
+      |
+      |object Example {
+      |  val foo: Foo = new Foo
+      |  foo.test[(Int, Double)]({ case (int, double) =>
+      |    int.toDouble.toString + double.toInt.toString
+      |  })
+      |  foo.test[(Int, Double)]({ (int, double) =>
+      |    int.toDouble.toString + double.toInt.toString
+      |  })
+      |}
+      |""".stripMargin
+  )
 }

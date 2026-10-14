@@ -28,7 +28,8 @@ class ScSeqWildcardPatternImpl private(stub: ScBindingPatternStub[ScSeqWildcardP
   override def toString: String = "SequenceWildcardPattern: " + ifReadAllowed(name)("")
 
 
-  override def `type`(): TypeResult =
+  // the parameter is ignored, patterns are typed against the expected type derived from the scrutinee, see `ScPattern.expectedType`
+  override def `type`(expectedType: Option[ScType]): TypeResult =
     this.expectedType match {
       case Some(x) => Right(x)
       case _ =>  Failure(ScalaBundle.message("no.expected.type.for.wildcard.naming"))
