@@ -29,6 +29,24 @@ class MatchableConformanceTest extends TypeConformanceTestBase {
   def testIntersectionWithAny(): Unit = check("Int & Any", expected = true)
 
   def testAny(): Unit = check("Any", expected = false)
+  def testProduct(): Unit = check("Product", expected = false)
+  def testSerializable(): Unit = check("java.io.Serializable", expected = false)
+
+  def testUniversalTrait(): Unit =
+    doTest(
+      """trait U extends Any
+        |val x: U = ???
+        |val m: Matchable = x
+        |//false
+        |""".stripMargin)
+
+  def testValueClass(): Unit =
+    doTest(
+      """class V(val x: Int) extends AnyVal
+        |val x: V = ???
+        |val m: Matchable = x
+        |//true
+        |""".stripMargin)
   def testUnionWithAny(): Unit = check("Int | Any", expected = false)
 
   def testTypeParameterBoundedByAny(): Unit =
