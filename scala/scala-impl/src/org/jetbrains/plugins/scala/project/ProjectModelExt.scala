@@ -156,6 +156,9 @@ implicit class ModuleProjectModelExt(private val module: Module) extends AnyVal 
   def findRepresentativeModuleForSharedSourceModuleOrSelf: Module =
     findRepresentativeModuleForSharedSourceModule.getOrElse(module)
 
+  def externalSystemId: Option[String] =
+    module.scalaModuleSettings.flatMap(_ => Option(ExternalSystemModulePropertyManager.getInstance(module).getExternalSystemId))
+
   def configureScalaCompilerSettingsFrom(
     source: String,
     options: collection.Seq[String],

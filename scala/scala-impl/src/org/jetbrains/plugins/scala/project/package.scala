@@ -250,9 +250,6 @@ package object project {
 
     def customDefaultImports: Option[Seq[String]] =
       scalaModuleSettings.flatMap(_.customDefaultImports)
-
-    def externalSystemId: Option[String] =
-      scalaModuleSettings.flatMap(_.externalSystemId)
   }
 
 
