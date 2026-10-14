@@ -6,7 +6,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -86,9 +87,53 @@ trait ScBlock extends ScExpression
     Right(inner)
   }
 
+  private def avoidLocals(tpe: ScType): ScType = ScBlock.avoidLocals(tpe, this)
+
+
+  @tailrec
+  private def extractExpectedTypeParams(pt: ScType): Option[(Seq[ScType], Boolean)] = pt match {
+    case FunctionType(_, params)       => Option(params -> false)
+    case PartialFunctionType(_, param) => Option(Seq(param) -> true)
+    case ContextFunctionType(ret, _)   => extractExpectedTypeParams(ret)
+    case _                             => None
+  }
+
+  def hasCaseClauses: Boolean = false
+  def isInCatchBlock: Boolean = getContext.is[ScCatchBlock]
+  def isPartialFunction: Boolean = hasCaseClauses && !isInCatchBlock
+
+  def exprs: Seq[ScExpression] = findChildren[ScExpression]
+  def statements: Seq[ScBlockStatement] = findChildren[ScBlockStatement]
+
+  def hasRBrace: Boolean = getRBrace.isDefined
+  def hasLBrace: Boolean = getLBrace.isDefined
+
+  def resultExpression: Option[ScExpression] = lastStatement.flatMap(_.asOptionOf[ScExpression])
+  def lastStatement: Option[ScBlockStatement] = findLastChild[ScBlockStatement]
+
+  def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
+    getNode.addChild(decl.getNode,before.getNode)
+    getNode.addChild(createNewLineNode(), before.getNode)
+    true
+  }
+
+  override def processDeclarations(processor: PsiScopeProcessor,
+      state : ResolveState,
+      lastParent: PsiElement,
+      place: PsiElement): Boolean =
+    super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place) &&
+      processDeclarationsFromImports(processor, state, lastParent, place)
+
+  def needCheckExpectedType = true
+}
+
+object ScBlock {
+  def unapplySeq(block: ScBlock): Option[Seq[ScBlockStatement]] = Option(block.statements)
+
   /**
-   * Type avoidance at the block boundary (scalac's `packedType`, SLS §6.11): a
-   * definition local to this block must not appear in the block's type. Each
+   * Type avoidance at the boundary of `scope` (scalac's `packedType`, SLS §6.11): a
+   * definition local to `scope` (a block, or a function literal and its parameters)
+   * must not appear in its type. Each
    * occurrence is abstracted existentially, as `T forSome { Q }` over the local
    * definitions, then simplified as SLS §3.2.12 does: a covariant occurrence becomes
    * its upper bound, a contravariant one its lower bound (`Nothing`), and an invariant
@@ -99,8 +144,9 @@ trait ScBlock extends ScExpression
    *    is a `Base`, and `new Ref(new C)` a `Ref[_1] forSome { type _1 <: Base }`.
    * Iterated, because a bound may mention another local definition.
    */
-  private def avoidLocals(tpe: ScType): ScType = {
-    def isLocal(e: PsiElement): Boolean = PsiTreeUtil.isAncestor(this, e, /*strict*/ true)
+  def avoidLocals(tpe: ScType, scope: ScalaPsiElement): ScType = {
+    implicit val projectContext: ProjectContext = scope.projectContext
+    def isLocal(e: PsiElement): Boolean = PsiTreeUtil.isAncestor(scope, e, /*strict*/ true)
 
     // (covariant replacement, upper bound of the existential) for a local occurrence
     def local(t: ScType): Option[(ScType, ScType)] = t match {
@@ -152,49 +198,9 @@ trait ScBlock extends ScExpression
   }
 
   /** The parents of a template, as one type: `Base`, or `Base with T`. */
-  private def parentsOf(td: ScTemplateDefinition): ScType = td.superTypes match {
+  private def parentsOf(td: ScTemplateDefinition)(implicit projectContext: ProjectContext): ScType = td.superTypes match {
     case Seq()       => AnyRef
     case Seq(single) => single
     case several     => ScCompoundType(several)
   }
-
-  @tailrec
-  private def extractExpectedTypeParams(pt: ScType): Option[(Seq[ScType], Boolean)] = pt match {
-    case FunctionType(_, params)       => Option(params -> false)
-    case PartialFunctionType(_, param) => Option(Seq(param) -> true)
-    case ContextFunctionType(ret, _)   => extractExpectedTypeParams(ret)
-    case _                             => None
-  }
-
-  def hasCaseClauses: Boolean = false
-  def isInCatchBlock: Boolean = getContext.is[ScCatchBlock]
-  def isPartialFunction: Boolean = hasCaseClauses && !isInCatchBlock
-
-  def exprs: Seq[ScExpression] = findChildren[ScExpression]
-  def statements: Seq[ScBlockStatement] = findChildren[ScBlockStatement]
-
-  def hasRBrace: Boolean = getRBrace.isDefined
-  def hasLBrace: Boolean = getLBrace.isDefined
-
-  def resultExpression: Option[ScExpression] = lastStatement.flatMap(_.asOptionOf[ScExpression])
-  def lastStatement: Option[ScBlockStatement] = findLastChild[ScBlockStatement]
-
-  def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
-    getNode.addChild(decl.getNode,before.getNode)
-    getNode.addChild(createNewLineNode(), before.getNode)
-    true
-  }
-
-  override def processDeclarations(processor: PsiScopeProcessor,
-      state : ResolveState,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean =
-    super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place) &&
-      processDeclarationsFromImports(processor, state, lastParent, place)
-
-  def needCheckExpectedType = true
-}
-
-object ScBlock {
-  def unapplySeq(block: ScBlock): Option[Seq[ScBlockStatement]] = Option(block.statements)
 }
