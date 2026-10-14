@@ -294,6 +294,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
           val syntheticKindProjectorApplyNames = Set(Lambda, LambdaSymbolic)
 
           val actualType = r match {
+            // An apply method inserted after the leading using clause of the invoked method, whose result type
+            // may only be determined by the implicit arguments, e.g. `foo(x => x + 1)` with
+            // `def foo[A](using Foo[A]): Bar[A]` or `def foo(using f: Foo): Bar[f.T]`. The apply method is resolved
+            // after the implicit arguments are applied to the type of the invoked method, see computeExpectedParamType
+            case ScalaResolveResult.ApplyMethodInnerResolve(_) if tp.exists(hasLeadingUsingClause) => tp
             case srr @ ScalaResolveResult(fun: ScFunction, s: ScSubstitutor) if fun.name == CommonNames.Apply =>
               if (srr.innerResolveResult.exists(inner => syntheticKindProjectorApplyNames.contains(inner.name)))
                 tp
@@ -647,22 +652,24 @@ class ExpectedTypesImpl extends ExpectedTypes {
     /**
      * A leading using clause, whose arguments aren't given explicitly, is applied to the implicit arguments found for it,
      * since they may determine the type parameters, the parameter types of the following clauses depend on,
-     * e.g. `A` in `def foo[A](using Foo[A])(fn: A => Int)`.
+     * e.g. `A` in `def foo[A](using Foo[A])(fn: A => Int)`, and the types, which depend on the parameters
+     * of the clause, e.g. `f.T` in `def foo(using f: Foo)(fn: f.T => Int)`.
      *
      * Note, that resolve doesn't take the implicit arguments into account (just as the compiler doesn't),
      * so they are only searched for, when the expected types of the arguments are derived.
      */
-    def applyLeadingUsingClause(tpe: ScTypePolymorphicType): ScType = tpe.internalType match {
-      case mt: ScMethodType if mt.hasUsingKW && !isExplicitUsingArgs =>
-        call.fold(tpe: ScType) {
+    def applyLeadingUsingClause(tpe: ScType): ScType =
+      if (hasLeadingUsingClause(tpe) && !isExplicitUsingArgs)
+        call.fold(tpe) {
           _.updatedWithImplicitArguments(tpe, checkExpectedType = false, updateDeep = false, isLeadingClause = true)._1
         }
-      case _ => tpe
-    }
+      else tpe
 
-    invokedExprType match {
+    // If the invoked method only has leading using clauses, its type after them is the one an apply method is
+    // inserted on, e.g. `foo(x => x + 1)` with `def foo[A](using Foo[A]): Bar[A]`, see mapResolves
+    invokedExprType.map(applyLeadingUsingClause) match {
       case Right(mt: ScMethodType) => fromMethodParams(extractParamsFromMethodType(mt))
-      case Right(t @ ScTypePolymorphicType(_: ScMethodType, _)) =>
+      case Right(tpt @ ScTypePolymorphicType(mt: ScMethodType, _)) =>
         val callPt = call.flatMap(_.expectedType()).getOrElse(Any(using expr))
 
         val unwrappedPt = callPt match {
@@ -670,13 +677,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case _                           => callPt
         }
 
-        applyLeadingUsingClause(t) match {
-          case tpt @ ScTypePolymorphicType(mt: ScMethodType, _) =>
-            fromMethodParams(extractParamsFromMethodType(mt), tpt.argsProtoTypeSubst(unwrappedPt.toOption, constraints))
-          case mt: ScMethodType =>
-            fromMethodParams(extractParamsFromMethodType(mt))
-          case _ => None
-        }
+        fromMethodParams(extractParamsFromMethodType(mt), tpt.argsProtoTypeSubst(unwrappedPt.toOption, constraints))
       case Right(anotherType) if !forApply =>
         tryApplyMethod(anotherType) match {
           case Some((applyInvokedType, isApplyDynamicNamed)) =>
@@ -853,6 +854,12 @@ private object ExpectedTypesImpl {
     isDynamicNamed: Boolean          = false,
     constraints:    ConstraintSystem = ConstraintSystem.empty
   )
+
+  private def hasLeadingUsingClause(tpe: ScType): Boolean = tpe match {
+    case ScTypePolymorphicType(mt: ScMethodType, _) => mt.hasUsingKW
+    case mt: ScMethodType                           => mt.hasUsingKW
+    case _                                          => false
+  }
 
   /**
    * @return true, if `argument` is a deferred argument in Scala 3, see [[org.jetbrains.plugins.scala.lang.resolve.ResolveMode.Narrow]]

@@ -47,6 +47,21 @@ final class RandomZioHighlightingBugs_Scala3 extends RandomZioHighlightingBugsBa
       |    value1.outErrors[String].apply(value2, value2)
       |""".stripMargin
   )
+
+  def testSCL22568(): Unit = checkTextHasNoErrors(
+    """import zio.*
+      |
+      |object MainApp extends ZIOAppDefault {
+      |  def run =
+      |    for
+      |      _ <- ZIO.attempt(Some("test")).retryOrElse(
+      |        Schedule.fixed(1.minutes) && Schedule.recurs(3),
+      |        (error, _) => ZIO.logError("error happend!")
+      |      )
+      |    yield ()
+      |}
+      |""".stripMargin
+  )
 }
 
 @Category(Array(classOf[TypecheckerTests]))
