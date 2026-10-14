@@ -851,6 +851,18 @@ object ScExpression {
     }
   }
 
+  /**
+   * Whether a function literal with several parameters is untupled to a function of a single tuple parameter,
+   * when it is typed against `pt`, see `untupleFunction`
+   */
+  def isUntupledTo(literal: ScExpression, pt: ScType): Boolean = {
+    implicit val context: Context = Context(literal)
+
+    shape(literal).exists { shapeType =>
+      shapeType.untupleFunction(isAnonymousExpression(literal)._2, Option(pt)) ne shapeType
+    }
+  }
+
   private def shape(expression: ScExpression, ignoreAssign: Boolean = false): Option[ScType] = {
     import expression.{elementScope, projectContext}
     implicit val context: Context = Context(expression)
@@ -862,6 +874,10 @@ object ScExpression {
     expression match {
       case assign: ScAssignment if !ignoreAssign && assign.referenceName.isDefined =>
         shapeIgnoringAssign(assign.rightExpression)
+      // the shape of a pattern-matching anonymous function `{ case ... }` is `PartialFunction[Any, Nothing]` since Scala 2.13,
+      // see `scala.tools.nsc.typechecker.Typers.shapeType` and `dotty.tools.dotc.typer.Applications.typeShape`
+      case block: ScBlockExpr if block.isPartialFunction && expression.scalaLanguageLevelOrDefault >= Scala_2_13 =>
+        Some(PartialFunctionType((Nothing, Any)))
       case _ =>
         val arityAndResultType = Option(isAnonymousExpression(expression)).filter {
           case (-1, _) => false

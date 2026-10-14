@@ -234,7 +234,8 @@ object MethodResolveProcessor {
     isLastClause:             Boolean,
     argumentExpectedTypes:    Map[ScExpression, Option[ScType]],
     recordArgumentPrototypes: Boolean,
-    deferredByShape:          Boolean
+    deferredByShape:          Boolean,
+    untupledArguments:        Set[ScExpression]
   ): ApplicabilityCandidate = {
     val srr = candidate.resolveResult
 
@@ -492,7 +493,8 @@ object MethodResolveProcessor {
             place,
             clauseIdx,
             argumentExpectedTypes,
-            deferredByShape
+            deferredByShape,
+            untupledArguments
           )
 
         problems ++= argsApplicability.problems
@@ -672,14 +674,25 @@ object MethodResolveProcessor {
       }.toMap
     }
 
+    // the shape of a function literal with several parameters is the type of a function with as many parameters
+    def functionLiteralParameterTypes(matched: Seq[MatchedParameter]): Map[ScExpression, ScType] =
+      matched.collect {
+        case MatchedParameter(parameter, argument, FunctionType(_, shapeParameters), _)
+          if argument != null && shapeParameters.size > 1 =>
+          argument -> parameter.paramType
+      }.toMap
+
     val checkedCandidate = candidate.copy(
-      resolveResult             = updatedSrr,
-      processedTypeParams       = candidate.processedTypeParams ++ processedTypeParameters, //add type params corresponding to the current clause
-      usesDefaultParameterValue = applicabilityCheckResult.defaultParameterUsed,
-      usesSAMAdaptation         = applicabilityCheckResult.matched.exists(_.samAdapted),
-      argumentPrototypes        =
+      resolveResult                 = updatedSrr,
+      processedTypeParams           = candidate.processedTypeParams ++ processedTypeParameters, //add type params corresponding to the current clause
+      usesDefaultParameterValue     = applicabilityCheckResult.defaultParameterUsed,
+      usesSAMAdaptation             = applicabilityCheckResult.matched.exists(_.samAdapted),
+      argumentPrototypes            =
         if (recordArgumentPrototypes) argumentPrototypes(applicabilityCheckResult.matched)
-        else                          Map.empty
+        else                          Map.empty,
+      functionLiteralParameterTypes =
+        if (shapesOnly) functionLiteralParameterTypes(applicabilityCheckResult.matched)
+        else            Map.empty
     )
 
     checkedCandidate
@@ -855,7 +868,7 @@ object MethodResolveProcessor {
           }
 
       // Step 2: Shape check all candidates (grouped by shift for correct arg indexing)
-      val shapeChecked =
+      def shapeCheck(untupledArguments: Set[ScExpression]): Set[ApplicabilityCandidate] =
         checkResultsApplicability(
           proc,
           allExpanded,
@@ -864,7 +877,17 @@ object MethodResolveProcessor {
           args                  = argumentClauses,
           argClauseIdx          = clauseIdx,
           shapesOnly            = true,
+          untupledArguments     = untupledArguments
         )
+
+      // the function literals untupled by the parameter types of all the candidates are checked by their new shapes
+      val (shapeChecked, untupledArguments) = {
+        val checked  = shapeCheck(Set.empty)
+        val untupled = untupledFunctionLiterals(checked)(using Context(ref))
+
+        if (untupled.isEmpty) (checked, untupled)
+        else                  (shapeCheck(untupled), untupled)
+      }
 
       val applicableToShape = shapeChecked.filter(_.isApplicable(withExpectedType = withExpectedType))
 
@@ -888,7 +911,8 @@ object MethodResolveProcessor {
             argumentClauses,
             clauseIdx,
             useExpectedType       = withExpectedType,
-            argumentExpectedTypes = argExpectedTypes
+            argumentExpectedTypes = argExpectedTypes,
+            untupledArguments     = untupledArguments
           )
         }
 
@@ -943,6 +967,43 @@ object MethodResolveProcessor {
       argumentClauses.drop(cand.shift) ++ Seq(Seq.empty),
       maxClauseIdx + 1 - cand.shift
     ).exists(!_.isImplicit)
+
+  /**
+   * Parameter untupling in Scala 3: a function literal with n > 1 parameters is untupled to a function of a single
+   * tuple parameter, if none of the alternatives expects a function with n parameters for it, but some of them expect
+   * a function it can be untupled to, e.g. `(a, b) => a + b` in `foo((a, b) => a + b)` with
+   * `def foo(f: ((Int, Int)) => Int)` and `def foo(u: Unit)`.
+   *
+   * Unlike the type of a function literal, which is untupled, if it is typed against a function of a tuple parameter,
+   * see [[ScExpression.isUntupledTo]], the shape of a function literal is untupled for all the alternatives at once.
+   *
+   * @see `dotty.tools.dotc.typer.Applications.normArg`
+   */
+  private def untupledFunctionLiterals(
+    shapeCandidates: Set[ApplicabilityCandidate]
+  )(implicit context: Context): Set[ScExpression] = {
+    val parameterTypesByLiteral =
+      shapeCandidates.toSeq
+        .flatMap(_.functionLiteralParameterTypes)
+        .groupMap(_._1)(_._2)
+
+    def isUntupled(literal: ScExpression, parameterTypes: Seq[ScType]): Boolean = {
+      val arity = ScalaPsiUtil.isAnonymousExpression(literal)._1
+
+      def isFunctionOfSameArity(tpe: ScType): Boolean = tpe.removeAliasDefinitions() match {
+        case FunctionType(_, parameters)        => parameters.size == arity
+        case ContextFunctionType(_, parameters) => parameters.size == arity
+        case _                                  => false
+      }
+
+      !parameterTypes.exists(isFunctionOfSameArity) &&
+        parameterTypes.exists(ScExpression.isUntupledTo(literal, _))
+    }
+
+    parameterTypesByLiteral.collect {
+      case (literal, parameterTypes) if isUntupled(literal, parameterTypes) => literal
+    }.toSet
+  }
 
   /**
    * The expected types of the arguments of the invocation, which are derived from the types of the parameters,
@@ -1006,7 +1067,8 @@ object MethodResolveProcessor {
     argumentClauses:       Seq[Seq[Expression]],
     clauseIdx:             Int,
     useExpectedType:       Boolean,
-    argumentExpectedTypes: Map[ScExpression, Option[ScType]]
+    argumentExpectedTypes: Map[ScExpression, Option[ScType]],
+    untupledArguments:     Set[ScExpression]
   ): Set[ApplicabilityCandidate] = {
     import proc.*
 
@@ -1020,7 +1082,8 @@ object MethodResolveProcessor {
       useExpectedType       = useExpectedType,
       args                  = argumentClauses,
       argClauseIdx          = clauseIdx,
-      argumentExpectedTypes = argumentExpectedTypes
+      argumentExpectedTypes = argumentExpectedTypes,
+      untupledArguments     = untupledArguments
     )
 
     var filtered = applicableResults(mapped)
@@ -1036,7 +1099,8 @@ object MethodResolveProcessor {
         useExpectedType       = useExpectedType,
         args                  = argumentClauses,
         argClauseIdx          = clauseIdx,
-        argumentExpectedTypes = argumentExpectedTypes
+        argumentExpectedTypes = argumentExpectedTypes,
+        untupledArguments     = untupledArguments
       )
 
       filtered = applicableResults(mapped)
@@ -1359,7 +1423,8 @@ object MethodResolveProcessor {
     args:                  Seq[Seq[Expression]],
     argClauseIdx:          Int,
     shapesOnly:            Boolean                           = false,
-    argumentExpectedTypes: Map[ScExpression, Option[ScType]] = Map.empty
+    argumentExpectedTypes: Map[ScExpression, Option[ScType]] = Map.empty,
+    untupledArguments:     Set[ScExpression]                 = Set.empty
   ): Set[ApplicabilityCandidate] = {
     import proc.*
 
@@ -1396,7 +1461,8 @@ object MethodResolveProcessor {
         argumentExpectedTypes    = argumentExpectedTypes,
         // only needed for the full applicability check following the shape check
         recordArgumentPrototypes = shapesOnly && !isShapeResolve,
-        deferredByShape          = !shapesOnly && resolveMode == ResolveMode.Narrow
+        deferredByShape          = !shapesOnly && resolveMode == ResolveMode.Narrow,
+        untupledArguments        = untupledArguments
       )
 
       resultBuilder += checkedCandidate
@@ -1600,16 +1666,20 @@ object MethodResolveProcessor {
    *                                  }}}
    * @param argumentPrototypes        The types the arguments of the current clause are typed against,
    *                                  as found by the last shape check, see [[argumentExpectedTypes]].
+   * @param functionLiteralParameterTypes The types of the parameters, the function literals with several parameters
+   *                                  of the current clause correspond to, as found by the last shape check,
+   *                                  see [[untupledFunctionLiterals]].
    */
   private case class ApplicabilityCandidate(
-    resolveResult:             ScalaResolveResult,
-    processedTypeParams:       Seq[TypeParameter]       = Seq.empty,
-    shift:                     Int                      = 0,
-    var stripTypeArgs:         Boolean                  = false,
-    usesSAMAdaptation:         Boolean                  = false,
-    usesDefaultParameterValue: Boolean                  = false,
-    usesAutoTupling:           Boolean                  = false,
-    argumentPrototypes:        Map[ScExpression, ScType] = Map.empty
+    resolveResult:                 ScalaResolveResult,
+    processedTypeParams:           Seq[TypeParameter]        = Seq.empty,
+    shift:                         Int                       = 0,
+    var stripTypeArgs:             Boolean                   = false,
+    usesSAMAdaptation:             Boolean                   = false,
+    usesDefaultParameterValue:     Boolean                   = false,
+    usesAutoTupling:               Boolean                   = false,
+    argumentPrototypes:            Map[ScExpression, ScType] = Map.empty,
+    functionLiteralParameterTypes: Map[ScExpression, ScType] = Map.empty
   ) {
     def effectiveClauseIdx(globalClauseIdx: Int): Int = globalClauseIdx - shift
 

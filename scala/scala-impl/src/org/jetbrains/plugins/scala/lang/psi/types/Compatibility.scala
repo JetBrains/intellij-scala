@@ -58,6 +58,7 @@ object Compatibility {
      *                        - For a function expression `(p1: T1,…,pn: Tn) => b`: `(Any ,…, Any) => shape(b)`,<br>
      *                          where Any occurs n times in the argument type.
      *                        - For a pattern-matching anonymous function definition `{ case ... }`: `PartialFunction[Any, Nothing]`
+     *                          (since Scala 2.13)
      *                        - For a named argument `n = e`: `shape(e)`
      *                        - For all other expressions: `Nothing`
      *
@@ -436,6 +437,9 @@ object Compatibility {
    *                                 [[org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor]].
    * @param deferredByShape          When true, only calculate shapeTypes of the deferred argument expressions,
    *                                 see [[org.jetbrains.plugins.scala.lang.resolve.ResolveMode.Narrow]]
+   * @param untupledArguments        The function literals with several parameters, which are untupled to functions
+   *                                 of a single parameter, see
+   *                                 [[org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor]]
    */
   def checkMethodApplicability(
     parameters:               Seq[Parameter],
@@ -444,7 +448,8 @@ object Compatibility {
     shapesOnly:               Boolean,
     approximateDependentsFor: Set[ScParameter]                  = Set.empty,
     argumentExpectedTypes:    Map[ScExpression, Option[ScType]] = Map.empty,
-    deferredByShape:          Boolean                           = false
+    deferredByShape:          Boolean                           = false,
+    untupledArguments:        Set[ScExpression]                 = Set.empty
   )(implicit context: Context): ApplicabilityCheckResult = {
 
     ProgressManager.checkCanceled()
@@ -502,6 +507,11 @@ object Compatibility {
       }))
 
       val exprTypeResult = arg match {
+        // a function literal `(p1, ..., pn) => b`, which is untupled to `x => x match { case (p1, ..., pn) => b }`,
+        // has the shape of the latter
+        case Expression(expr) if isShape && untupledArguments.contains(expr) =>
+          import expr.{elementScope, projectContext}
+          ExpressionTypeResult(Right(FunctionType((api.Nothing, Seq(api.Any)))))
         case Expression(expr) if argumentExpectedTypes.contains(expr) =>
           expr.getTypeAdaptedTo(adaptTo, withImplicits, isShape, argumentExpectedTypes(expr))
         case Expression(expr) if seqType.isDefined =>
@@ -756,6 +766,7 @@ object Compatibility {
   /**
    * @param argumentExpectedTypes see [[checkMethodApplicability]]
    * @param deferredByShape       see [[checkMethodApplicability]]
+   * @param untupledArguments     see [[checkMethodApplicability]]
    */
   def compatible(
     srr:                   ScalaResolveResult,
@@ -766,7 +777,8 @@ object Compatibility {
     ref:                   PsiElement,
     argClauseIdx:          Int                               = 0,
     argumentExpectedTypes: Map[ScExpression, Option[ScType]] = Map.empty,
-    deferredByShape:       Boolean                           = false
+    deferredByShape:       Boolean                           = false,
+    untupledArguments:     Set[ScExpression]                 = Set.empty
   )(implicit context: Context): ApplicabilityCheckResult = {
     val named = srr.element
     val args  = argClauses.lift(argClauseIdx).getOrElse(Seq.empty)
@@ -782,7 +794,8 @@ object Compatibility {
         shapesOnly,
         allImplicitParameters,
         argumentExpectedTypes,
-        deferredByShape
+        deferredByShape,
+        untupledArguments
       )
 
     named match {

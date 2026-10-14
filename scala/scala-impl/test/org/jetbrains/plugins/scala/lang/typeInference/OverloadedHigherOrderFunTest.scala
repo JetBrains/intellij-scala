@@ -233,6 +233,32 @@ class OverloadedHigherOrderFunTest extends ScalaLightCodeInsightFixtureTestCase 
       |}
       |""".stripMargin
   )
+
+  def testSCL24556(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  def foo1(f: Function1[(Int, Int), Unit]): Unit = {}
+      |  def foo1(f: Unit): Unit = {}
+      |  foo1 { t => t._1 + t._2 }
+      |  foo1 { case (a, b) => a + b }
+      |
+      |  def foo2(f: Function2[Int, Int, Unit]): Unit = {}
+      |  def foo2(f: Unit): Unit = {}
+      |  foo2 { (a, b) => a + b }
+      |}
+      |""".stripMargin
+  )
+
+  // no parameter untupling in Scala 2
+  def testSCL24556NoUntupling(): Unit = checkHasErrorAroundCaret(
+    """
+      |object A {
+      |  def foo1(f: Function1[(Int, Int), Unit]): Unit = {}
+      |  def foo1(f: Unit): Unit = {}
+      |  foo1 { (a, b) => () }
+      |}
+      |""".stripMargin
+  )
 }
 
 @Category(Array(classOf[TypecheckerTests]))
