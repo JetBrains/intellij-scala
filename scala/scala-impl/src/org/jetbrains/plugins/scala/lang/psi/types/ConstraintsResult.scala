@@ -392,8 +392,11 @@ private final case class ConstraintSystemImpl(
           break(owner.typeParamId)
         } else false
 
+      // Only undefined types depend on the type parameters being inferred. A type parameter type is rigid, even if
+      // it is one of them, e.g. `K` in `new AnyRefMap(k)` with `k: K` inside `class AnyRefMap[K <: AnyRef](k: K)`,
+      // so the case below is disabled, see ConstructorTypeParametersTest.testOverloadedConstructorsInsideClass
       `type`.visitRecursively {
-        case tpt: TypeParameterType if innerBreak(tpt)(t => additionalIds.contains(t.typeParamId)) => return false
+//        case tpt: TypeParameterType if innerBreak(tpt)(t => additionalIds.contains(t.typeParamId)) => return false
         case UndefinedType(tp, _) if innerBreak(tp)(isApplicable)                                  => return false
         case _                                                                                     => ()
       }

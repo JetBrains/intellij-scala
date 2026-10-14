@@ -260,9 +260,15 @@ object MethodResolveProcessor {
     val element              = srr.element
     val candidateSubstitutor = srr.substitutor
 
+    // The substitutor of a constructor invoked via a type alias is formulated in terms of the type parameters of the alias
+    val typeParamElement = srr.getActualElement match {
+      case alias: ScTypeAliasDefinition => alias
+      case _                            => element
+    }
+
     val typeParametersForIdx =
       typeParametersForArgClause(
-        element,
+        typeParamElement,
         clauseIdx,
         srr.isExtensionCall,
         srr.exportedInExtension,
@@ -271,23 +277,9 @@ object MethodResolveProcessor {
 
     val typeParamsSize = typeParametersForIdx.size
 
-    //This dichotomy between class type parameters and getConstructorTypeParameters can be somewhat hard to follow:
-    //1. The initial ScalaResolveResult (and subsequently its substitutor) is formulated in terms of class type parameters
-    //2. This becomes somewhat problematic when we call constructor from inside the class which defines it, e.g.
-    //   `class Foo[A <: Bar](a: A) { def foo: Foo[A] = new Foo[A](???)`, here we would have to solve for A <: (Bar, A) >: A
-    //3. So to avoid that, let's operate here entirely in terms of synthetic constructor type parameters
-    //Also, the order of substitutors matter. Should be srr.substitutor -> bindConstructorTypeParams -> everything else.
-    val bindConstructorTypeParamsSubst = element match {
-      case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
-        val maybeAlias = srr.parentElement.collect { case alias: ScTypeAliasDefinition => alias }
-        val typeParams = maybeAlias.fold(td.typeParameters)(_.typeParameters)
-        ScSubstitutor.bind(typeParams, cons.getConstructorTypeParameters)(TypeParameterType(_))
-      case _ => ScSubstitutor.empty
-    }
-
     val currentClauseTypeParamsSubst =
       undefinedOrTypeArgsSubstitutor(
-        candidateSubstitutor.followed(bindConstructorTypeParamsSubst),
+        candidateSubstitutor,
         selfConstructorResolve,
         typeParametersForIdx,
         currentTypeArgsClause
@@ -315,9 +307,8 @@ object MethodResolveProcessor {
      * `None` if it is not checked against it.
      */
     lazy val resultType: Option[ScType] = element match {
-      case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
-        val bindTypeParamsSubst = ScSubstitutor.bind(td.typeParameters, cons.getConstructorTypeParameters)(TypeParameterType(_))
-        Option(substitutor(bindTypeParamsSubst(td.`type`().getOrNothing)))
+      case ScalaConstructor.in(td: ScTypeDefinition) =>
+        Option(substitutor(td.`type`().getOrNothing))
       case Constructor.ofClass(cls) =>
         Option(substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp))))
       case f: ScFunction if !f.isInScala3File && f.paramClauses.clauses.count(!_.isImplicit) > effectiveArgs.size =>
@@ -730,9 +721,13 @@ object MethodResolveProcessor {
       }
 
     element match {
-      case ScalaConstructor(cons) =>
+      case alias: ScTypeAliasDefinition =>
         Option.when(argClauseIdx == 0)(
-          cons.getConstructorTypeParameters.map(TypeParameter(_))
+          alias.typeParameters.map(TypeParameter(_))
+        )
+      case ScalaConstructor.in(td) =>
+        Option.when(argClauseIdx == 0)(
+          td.getTypeParameters.instantiate
         )
       case cons @ Constructor.ofClass(cls) =>
         Option.when(argClauseIdx == 0)(

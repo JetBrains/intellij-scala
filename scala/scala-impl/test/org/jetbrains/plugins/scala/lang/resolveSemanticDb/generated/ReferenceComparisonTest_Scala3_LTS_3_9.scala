@@ -910,7 +910,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part9 extends ReferenceCompar
   def test_i6635(): Unit = doTest("i6635", false)
   def test_i6635a(): Unit = doTest("i6635a", true)
   def test_i6655(): Unit = doTest("i6655", true) // #intersectionType
-  def test_i6662(): Unit = doTest("i6662", false) // #opaque, #extension
+  def test_i6662(): Unit = doTest("i6662", true) // #opaque, #extension
   def test_i6665(): Unit = doTest("i6665", true)
   def test_i6670(): Unit = doTest("i6670", true)
   def test_i6678(): Unit = doTest("i6678", true)

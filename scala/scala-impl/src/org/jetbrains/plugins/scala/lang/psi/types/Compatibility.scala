@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValueExtractor
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException, extractImplicitParameterType}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, JavaConstructor, ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor, ScalaConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, JavaConstructor, ScConstructorInvocation, ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementI
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, NamedTupleType, TupleType, TypeParameter, TypeParameterType, UndefinedType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, NamedTupleType, TupleType, TypeParameter, UndefinedType, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -1120,29 +1120,23 @@ object Compatibility {
       case _                => false
     }
 
-    val constructorTypeParameters = cons match {
-      case ScalaConstructor(cons) => cons.getConstructorTypeParameters
-      case JavaConstructor(cons)  => cons.getTypeParameters.toSeq
-      case _                      => Seq.empty
+    val javaConstructorTypeParameters = cons match {
+      case JavaConstructor(cons) => cons.getTypeParameters.toSeq
+      case _                     => Seq.empty
     }
 
-    val (typeParameters, bindSubst) = srr.getActualElement match {
-      case to: ScTypeParametersOwner if constructorTypeParameters.nonEmpty =>
-        val subst  = ScSubstitutor.bind(to.typeParameters, constructorTypeParameters)(TypeParameterType(_))
-        val params = constructorTypeParameters.map(TypeParameter(_))
-        (params, subst)
+    // the type parameters of the class, or of the type alias, the constructor is invoked via
+    val typeParameters = srr.getActualElement match {
       case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
-        val params = tp.typeParameters.map(TypeParameter(_))
-        (params, ScSubstitutor.empty)
+        tp.typeParameters.map(TypeParameter(_))
       case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
-        val params = (ptp.getTypeParameters.toSeq ++ constructorTypeParameters).map(TypeParameter(_))
-        (params, ScSubstitutor.empty)
-      case _ => (Seq.empty, ScSubstitutor.empty)
+        (ptp.getTypeParameters.toSeq ++ javaConstructorTypeParameters).map(TypeParameter(_))
+      case _ => Seq.empty
     }
 
     val typeArgs      = constrInvocation.typeArgList
     val typeArgsSubst = typeArgs.fold(ScSubstitutor.empty)(ScSubstitutor.bind(typeParameters, _))
-    val subst         = srr.substitutor.followed(bindSubst).followed(typeArgsSubst)
+    val subst         = srr.substitutor.followed(typeArgsSubst)
     val methodType    = subst(cons.methodTypeProvider(constrInvocation.elementScope).methodType())
 
     val consType =
