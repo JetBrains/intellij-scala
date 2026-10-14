@@ -50,8 +50,6 @@ final class ImportImplicitInstanceFix private (notFoundImplicitParams: () => Seq
   }
 }
 
-case class FoundImplicit(instance: GlobalImplicitInstance, path: Seq[ScalaResolveResult], scType: ScType)
-
 object ImportImplicitInstanceFix {
   private case class TypeToSearch(path: Seq[ScalaResolveResult], scType: ScType)
 

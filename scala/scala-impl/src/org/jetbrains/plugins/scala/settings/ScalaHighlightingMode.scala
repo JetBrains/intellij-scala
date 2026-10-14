@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.settings
 
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightingSettingsPerFile}
-import com.intellij.openapi.application.ApplicationManager
-//noinspection ApiStatus
 import com.intellij.ide.trustedProjects.TrustedProjects
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.{PsiFile, PsiJavaFile}
-import org.jetbrains.annotations.TestOnly
+import org.jetbrains.annotations.{Nullable, TestOnly}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
@@ -80,6 +79,18 @@ object ScalaHighlightingMode {
 
   private def isShowErrorsFromCompilerEnabled(javaFile: PsiJavaFile): Boolean =
     showCompilerErrorsScala3(javaFile.getProject) && javaFile.isInScala3Module
+
+  def isBuiltInHighlightingDisabled(project: Project): Boolean = {
+    val settings = ScalaProjectSettings.in(project)
+    def isCompilerHighlightingOnly = (settings.isCompilerHighlightingScala2 || !project.hasScala2) && (settings.isCompilerHighlightingScala3 || !project.hasScala3)
+    settings.isDisableInspections && isCompilerHighlightingOnly
+  }
+
+  /** Incremental highlighting (SCL-23216) is off until the current highlighting pass finishes */
+  private[scala] var incrementalHighlightingSuppressed: Boolean = false
+
+  def isIncrementalHighlightingEnabled(@Nullable project: Project): Boolean =
+    !incrementalHighlightingSuppressed && project != null && ScalaProjectSettings.in(project).isIncrementalHighlighting
 
   private def nonNegativeDuration(key: String): FiniteDuration =
     math.max(Registry.intValue(key), 0).millis

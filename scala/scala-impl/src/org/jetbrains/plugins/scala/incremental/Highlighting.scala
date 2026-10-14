@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala
 package incremental
 
-import settings.ScalaProjectSettings
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 // SCL-23216
 object Highlighting {
@@ -18,16 +17,13 @@ object Highlighting {
 
   private[incremental] var editor: Editor = scala.compiletime.uninitialized
 
-  private[incremental] var suppress: Boolean = false
+  private[incremental] def suppress: Boolean = ScalaHighlightingMode.incrementalHighlightingSuppressed
 
-  def builtInHighlightingDisabledIn(project: Project): Boolean = {
-    val settings = ScalaProjectSettings.in(project)
-    def isCompilerHighlightingOnly = (settings.isCompilerHighlightingScala2 || !project.hasScala2) && (settings.isCompilerHighlightingScala3 || !project.hasScala3)
-    settings.isDisableInspections && isCompilerHighlightingOnly
-  }
+  private[incremental] def suppress_=(value: Boolean): Unit = ScalaHighlightingMode.incrementalHighlightingSuppressed = value
 
-  def enabledIn(@Nullable project: Project): Boolean =
-    !suppress && project != null && ScalaProjectSettings.in(project).isIncrementalHighlighting
+  def builtInHighlightingDisabledIn(project: Project): Boolean = ScalaHighlightingMode.isBuiltInHighlightingDisabled(project)
+
+  def enabledIn(@Nullable project: Project): Boolean = ScalaHighlightingMode.isIncrementalHighlightingEnabled(project)
 
   def update(enabled: Boolean, project: Project): Unit = {
     if (enabled) {

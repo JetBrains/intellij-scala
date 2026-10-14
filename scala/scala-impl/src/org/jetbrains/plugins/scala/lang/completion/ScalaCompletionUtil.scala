@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.lang.completion
 
-import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, PrefixMatcher}
 import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
-import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cachedInUserData}
+import org.jetbrains.plugins.scala.autoImport.GlobalMember
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
@@ -17,11 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
 
 import java.util.regex.{Matcher, Pattern}
 
@@ -229,46 +226,17 @@ object ScalaCompletionUtil {
     false
   }
 
-  //find objects which may be used to import this member
-  //select a single one if possible
-  def findInheritorObjectsForOwner(member: ScMember): Set[ScObject] = {
-    val allObjects = findAllInheritorObjectsForOwner(member)
-    if (allObjects.isEmpty || member.containingClass.hasTypeParameters) {
-      allObjects
-    } else {
-      //if `clazz` is not generic, members in all objects are the same, so we return one with the shortest qualified name
-      Set(allObjects.minBy(o => (o.isDeprecated, o.qualifiedName.length, o.qualifiedName)))
-    }
-  }
+  def findInheritorObjectsForOwner(member: ScMember): Set[ScObject] =
+    GlobalMember.findInheritorObjectsForOwner(member)
 
-  //find objects which may be used to import this member
   def findAllInheritorObjectsForOwner(member: ScMember): Set[ScObject] =
-    member.containingClass match {
-      case null => Set.empty
-      case clazz =>
-        val inheritorObjectsInProject: Set[ScObject] = cachedInUserData("findAllInheritorObjectsForOwner.inheritorObjectsInProject", clazz, BlockModificationTracker(clazz), Tuple1(clazz)) {
-          ScalaInheritors.allInheritorObjects(clazz)
-        }
-
-        val inheritorObjectsInLibraries: Set[ScObject] = cachedInUserData("findAllInheritorObjectsForOwner.inheritorObjectsInLibraries", clazz, ModTracker.libraryAware(clazz), Tuple1(clazz)) {
-          ScalaInheritors.allInheritorObjects(clazz)
-        }
-
-        (inheritorObjectsInLibraries ++ inheritorObjectsInProject).filterNot(o => isInExcludedPackage(o.qualifiedName, member.getProject))
-    }
+    GlobalMember.findAllInheritorObjectsForOwner(member)
 
   def findPackageForTopLevelMember(member: ScMember): Option[ScPackaging] =
-    if (member.containingClass == null) {
-      member match {
-        case fn: ScFunction if fn.isExtensionMethod =>
-          fn.extensionMethodOwner.flatMap(_.getContext.asOptionOf[ScPackaging])
-        case _ =>
-          member.getContext.asOptionOf[ScPackaging]
-      }
-    } else None
+    GlobalMember.findPackageForTopLevelMember(member)
 
   def isInExcludedPackage(qualifiedName: String, project: Project): Boolean =
-    JavaProjectCodeInsightSettings.getSettings(project).isExcluded(qualifiedName)
+    GlobalMember.isInExcludedPackage(qualifiedName, project)
 
   private[completion] def isAfterEmptyLine(leaf: PsiElement): Boolean =
     leaf.prevLeafs.takeWhile(_.is[PsiComment, PsiWhiteSpace])
