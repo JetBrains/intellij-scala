@@ -163,6 +163,8 @@ trait ScExpression extends ScBlockStatement
         this.scalaLanguageLevelOrDefault >= Scala_2_11 &&
           ScalaPsiUtil.isJavaReflectPolymorphicSignature(this)
 
+      def isNullType(tp: ScType) = tp.widen.removeAliasDefinitions().isNull
+
       val initialType =
         if (isShape)
           Right(shape(this).getOrElse(Nothing))
@@ -187,8 +189,10 @@ trait ScExpression extends ScBlockStatement
                 if (isJavaReflectPolymorphic)        ExpressionTypeResult(Right(expType))
                 else if (!checkImplicits || isShape) ExpressionTypeResult(initialType)
                 // "an expression of type Null is ineligible for implicit conversion" (scalac), e.g.
-                // `val i: Int = null` must not be adapted via `Predef.Integer2int`
-                else if (tp eq Null)                 ExpressionTypeResult(initialType)
+                // `val i: Int = null` must not be adapted via `Predef.Integer2int`. scalac tests
+                // `typeSymbol == NullClass`, which sees through aliases and singletons: `(null: N)` and
+                // `b` for `type N = Null; val b: N` are ineligible too.
+                else if (isNullType(tp))             ExpressionTypeResult(initialType)
                 else                                 this.updateTypeWithImplicitConversion(tp, expType)
             }
           case _ => ExpressionTypeResult(initialType)
