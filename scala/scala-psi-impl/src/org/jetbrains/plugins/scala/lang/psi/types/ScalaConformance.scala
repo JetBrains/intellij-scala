@@ -643,6 +643,16 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         return
       }
 
+      // Scala 3: `AnyVal` and `AnyRef` (and so `Null`) extend `Matchable`, `Any` does not.
+      // Unions, intersections, type parameters and literal types were already split or widened above.
+      if (x eq StdTypes.instance.Matchable) {
+        result = conformsInner(AnyRef, r, visited, constraints) match {
+          case ConstraintsResult.Left => conformsInner(AnyVal, r, visited, constraints)
+          case cs                     => cs
+        }
+        return
+      }
+
       if (x eq AnyRef) {
         if (r eq Any) {
           result = ConstraintsResult.Left
