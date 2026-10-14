@@ -22,9 +22,6 @@ object OperationOnCollectionInspectionBase {
   val inspectionId: String = ScalaInspectionBundle.message("operation.on.collection.id")
   val inspectionName: String = ScalaInspectionBundle.message("operation.on.collection.name")
 
-  val likeOptionClassesDefault: Array[String] = Array("scala.Option", "scala.Some", "scala.None")
-  val likeCollectionClassesDefault: Array[String] = Array("scala.collection._", "scala.Array", "scala.Option", "scala.Some", "scala.None", "java.lang.String")
-
   private val likeOptionKey = "operation.on.collection.like.option"
   private val likeCollectionKey = "operation.on.collection.like.collection"
 

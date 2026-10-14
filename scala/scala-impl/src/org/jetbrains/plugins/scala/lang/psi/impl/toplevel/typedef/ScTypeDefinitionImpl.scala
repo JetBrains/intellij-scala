@@ -31,9 +31,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.util.FileDefinitions
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.BacktickedName.stripBackticks
-import org.jetbrains.plugins.scala.projectView.FileKind
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.{PackageObjectClassName, PackageObjectClassPackageSuffix, PackageObjectSingletonClassPackageSuffix}
 
@@ -368,8 +368,8 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     val containingFile = getContainingFile
     val deleteWholeFile = isTopLevel && (containingFile match {
       case scalaFile: ScalaFile =>
-        val fileKind = FileKind.getForFile(scalaFile)
-        fileKind.isDefined
+        val definitions = FileDefinitions.getForFile(scalaFile)
+        definitions.isDefined
       case _ =>
         false
     })

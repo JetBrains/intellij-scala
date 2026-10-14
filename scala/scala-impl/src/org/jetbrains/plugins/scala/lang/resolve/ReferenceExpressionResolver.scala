@@ -5,7 +5,6 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dependency.Dependency.DependencyProcessor
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -347,10 +346,9 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       val context = ref.getContext
 
       val contextElement = (context, proc) match {
-        case (x: ScAssignment, _) if x.leftExpression == ref => Some(context)
-        case (_, _: DependencyProcessor)                     => None
-        case (_, _: CompletionProcessor)                     => Some(ref)
-        case _                                               => None
+        case (x: ScAssignment, _) if x.leftExpression == ref                           => Some(context)
+        case (_, completion: CompletionProcessor) if completion.includeNamedParameters => Some(ref)
+        case _                                                                         => None
       }
 
       contextElement.foreach(processAssignment)

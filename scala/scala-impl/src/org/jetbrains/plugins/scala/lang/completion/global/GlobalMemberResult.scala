@@ -5,8 +5,8 @@ import com.intellij.codeInsight.completion.{InsertHandler, JavaCompletionUtil}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
-import org.jetbrains.plugins.scala.lang.completion.LookupElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.completion.{LookupElementExt, ScalaResolveResultLookupExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 

@@ -4,7 +4,6 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ArrayFactory
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.ImplicitArgumentsClause
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -16,13 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportE
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.{ImplicitResult, ImplicitState, NoResult}
 import org.jetbrains.plugins.scala.lang.psi.types.Signature.ExportedSigInfo
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
@@ -515,87 +512,6 @@ object ScalaResolveResult {
 
   implicit val arrayFactory: ArrayFactory[ScalaResolveResult] = (count: Int) =>
     if (count == 0) EMPTY_ARRAY else new Array[ScalaResolveResult](count)
-
-  implicit class ScalaResolveResultExt(private val resolveResult: ScalaResolveResult) extends AnyVal {
-
-    def createLookupElement(qualifierType: Option[ScType] = None,
-                            isClassName: Boolean = false,
-                            isInImport: Boolean = false,
-                            shouldImport: Boolean = false,
-                            isInStableCodeReference: Boolean = false,
-                            containingClass: Option[PsiClass] = None,
-                            isLocalVariable: Boolean = false,
-                            isInSimpleString: Boolean = false,
-                            isInInterpolatedString: Boolean = false,
-                            isInStableElementPattern: Boolean = false)(implicit context: Context): ScalaLookupItem = {
-      val ScalaResolveResult(element, substitutor) = resolveResult: @unchecked
-      if (!element.isValid) {
-        throw new IllegalArgumentException(s"`$element` is supposed to be valid (please consider using ${classOf[com.intellij.openapi.application.ReadAction].getName})")
-      }
-
-      val isCurrentClassMember: Boolean = {
-        val classExtractedFromType: Option[PsiClass] = {
-          val fromType = resolveResult.fromType
-
-          def isPredef = fromType.exists(_.presentableText(using TypePresentationContext.emptyContext, Context.Empty) == "Predef.type")
-
-          import resolveResult.projectContext
-          val maybeType = qualifierType.orElse(fromType).map(_.widen)
-          maybeType.getOrElse(api.Nothing) match {
-            case qualType if !isPredef && resolveResult.importsUsed.isEmpty =>
-              qualType.extractDesignated(expandAliases = true).flatMap {
-                case clazz: PsiClass => Some(clazz)
-                case Typeable(tp) => tp.extractClass
-                case _ => None
-              }
-            case _ => None
-          }
-        }
-
-        val clazz = classExtractedFromType.orElse(containingClass)
-        clazz.exists { expectedClass =>
-          element.nameContext match {
-            case m: PsiMember =>
-              m.containingClass match {
-                //allow boldness only if current class is package object, not element available from package object
-                case packageObject: ScObject if packageObject.isPackageObject && packageObject == expectedClass =>
-                  containingClass.contains(packageObject)
-                case clazz => clazz == expectedClass
-              }
-            case _ => false
-          }
-        }
-      }
-
-      val Setter = """(.*)_=""".r
-      val isRenamed = resolveResult.isRenamed.filter(element.name != _)
-      val (name, isAssignment) = isRenamed.getOrElse(element.name) match {
-        case Setter(string) if !element.is[FakePsiMethod] => // if the element is a fake psi method, then the setter's already been generated from var
-          (string, true)
-        case string =>
-          (string, false)
-      }
-
-      val result = new ScalaLookupItem(element, name, containingClass)
-      result.isClassName = isClassName
-      result.isNamedParameter = resolveResult.isNamedParameter
-      result.isRenamed = isRenamed
-      result.isUnderlined = resolveResult.implicitFunction.isDefined
-      result.isAssignment = isAssignment
-      result.isInImport = isInImport
-      result.bold = isCurrentClassMember
-      result.shouldImport = shouldImport
-      result.isInStableCodeReference = isInStableCodeReference
-      result.substitutor = substitutor
-      result.prefixCompletion = resolveResult.prefixCompletion
-      result.isLocalVariable = isLocalVariable
-      result.isInSimpleString = isInSimpleString
-      result.isInInterpolatedString = isInInterpolatedString
-      result.isInStableElementPattern = isInStableElementPattern
-
-      result
-    }
-  }
 
   private def toStringRepresentation(result: ScalaResolveResult): String = {
     def defaultForTypeAlias(t: ScTypeAlias): String = {

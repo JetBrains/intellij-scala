@@ -81,6 +81,9 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
   val includePrefixImports: Boolean = true
 
+  /** Whether a reference in an argument position is also resolved to the named parameters of the invoked method */
+  val includeNamedParameters: Boolean = true
+
   protected val forName: Option[String] = None
   protected val forNameRespectRenamed: Boolean = false
 

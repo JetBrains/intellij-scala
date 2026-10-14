@@ -167,6 +167,10 @@
 
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.incremental.Listener"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.incremental.Tracing$StartupActivity"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.lang.resolve.ReferenceVariants"
+                            serviceImplementation="org.jetbrains.plugins.scala.lang.completion.ScalaReferenceVariants"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.ElementTracer"
+                            serviceImplementation="org.jetbrains.plugins.scala.incremental.Tracing$EditorTracer"/>
         <registryKey key="scala.highlighting.tracing" defaultValue="false" description="Trace resolve and type inference"/>
         <registryKey key="scala.highlighting.tracing.in.editor" defaultValue="true" description="Also trace resolve and type inference in editor"/>
         <registryKey key="scala.incremental.highlighting.lookaround" defaultValue="15" description="Number of lines to highlight beyond the visible area"/>

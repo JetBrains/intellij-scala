@@ -32,6 +32,11 @@ object Tracing {
 
   private val MultipleSpaces = new Regex(" {2,}")
 
+  final class EditorTracer extends ElementTracer {
+    override def trace(element: PsiElement, reason: String, start: Boolean): Unit =
+      Tracing.trace(element, reason, start)
+  }
+
   class StartupActivity extends ProjectActivity {
     override def execute(project: Project): Unit = {
       val connection = project.getMessageBus.connect(project.unloadAwareDisposable)
@@ -49,7 +54,7 @@ object Tracing {
 
   private def lighter(color: Color): Color = if (StartupUiUtil.INSTANCE.isDarkTheme) color.darker() else color.brighter()
 
-  private def isHighlightingTracingEnabled: Boolean = Registry.is("scala.highlighting.tracing")
+  private def isHighlightingTracingEnabled: Boolean = org.jetbrains.plugins.scala.Tracing.isHighlightingTracingEnabled
 
   private def isHighlightingTracingInEditorEnabled: Boolean = Registry.is("scala.highlighting.tracing.in.editor")
 

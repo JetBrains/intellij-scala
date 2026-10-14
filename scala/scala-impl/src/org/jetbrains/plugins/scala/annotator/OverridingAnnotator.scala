@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TermSignature, TypePresentationContext}
 import org.jetbrains.plugins.scala.statistics.ScalaAnnotatorUsagesCollector
 
@@ -366,9 +365,9 @@ trait OverridingAnnotator {
 
       if (!isMismatchedExtension) {
         for {
-          overridingType <- typeForSigElement(namedElement)
+          overridingType <- TermSignature.typeForSigElement(namedElement)
           superSig       <- superSignatures.filterByType[TermSignature]
-          baseType       <- typeForSigElement(superSig.namedElement)
+          baseType       <- TermSignature.typeForSigElement(superSig.namedElement)
           if !overrideTypeMatchesBase(baseType, overridingType, superSig, superSig.namedElement.name)
         } {
           holder.createErrorAnnotation(
@@ -386,13 +385,6 @@ trait OverridingAnnotator {
 }
 
 object OverridingAnnotator {
-  def typeForSigElement(named: PsiNamedElement): Option[ScType] =
-    named match {
-      case cp: ScClassParameter => cp.outsideParamType.toOption
-      case t: Typeable          => t.`type`().toOption
-      case _                    => None
-    }
-
   /**
    * Like the Scala 3 compiler, a parameterless method can still override a method with an empty parameter list
    * that is defined in Scala 2, i.e. in a Scala 2 module, in a library compiled by Scala 2 (which, unlike one compiled

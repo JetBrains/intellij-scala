@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala.projectView
 
 import com.intellij.ide.projectView.ViewSettings
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.io.FileUtilRt.getNameWithoutExtension
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
+import org.jetbrains.plugins.scala.lang.psi.util.FileDefinitions
 
 sealed trait FileKind {
   protected val delegate: ScTypeDefinitionLike
@@ -20,37 +17,13 @@ sealed trait FileKind {
 }
 
 object FileKind {
-  import org.jetbrains.plugins.scala.extensions._
 
-  def getForFile(file: ScalaFile): Option[FileKind] = {
-    val fileName = clean(getNameWithoutExtension(file.name))
-
-    def matchesFileName(definition: ScNamedElement): Boolean =
-      clean(definition.name) == fileName
-
-    def bothMatchFileName(first: ScNamedElement, second: ScNamedElement): Boolean =
-      first.name == second.name && clean(first.name) == fileName
-
-    val members = file.members
-    val typeDefinitions = members.collect {
-      case td: ScTypeDefinitionLike if td.canHaveCompanion => td
+  def getForFile(file: ScalaFile): Option[FileKind] =
+    FileDefinitions.getForFile(file).map {
+      case FileDefinitions.PackageObject(definition)               => PackageObject(definition)
+      case FileDefinitions.TypeDefinition(definition)              => TypeDefinition(definition)
+      case FileDefinitions.Companions(definition, companionObject) => CompanionsFileKind(definition, companionObject)
     }
-    val hasTopLevelNonTypeDefinitions = typeDefinitions.size != members.size
-    if (hasTopLevelNonTypeDefinitions)
-      None
-    else
-      typeDefinitions.toList match {
-        case (definition: ScObject) :: Nil if definition.isPackageObject =>
-          Some(PackageObject(definition))
-        case (definition: ScTypeDefinitionLike) :: Nil if matchesFileName(definition) && definition.canHaveCompanion =>
-          Some(TypeDefinition(definition))
-        case (first@(_: ScClass | _: ScTrait | _: ScEnum | _: ScTypeAlias)) :: (second: ScObject) :: Nil if bothMatchFileName(first, second) =>
-          Some(CompanionsFileKind(first, second))
-        case (first: ScObject) :: (second@(_: ScClass | _: ScTrait | _: ScEnum | _: ScTypeAlias)) :: Nil if bothMatchFileName(first, second) =>
-          Some(CompanionsFileKind(second, first))
-        case _ => None
-      }
-  }
 
   private case class PackageObject(
     override protected val delegate: ScObject

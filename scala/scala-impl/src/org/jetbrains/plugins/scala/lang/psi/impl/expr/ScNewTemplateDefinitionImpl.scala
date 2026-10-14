@@ -7,7 +7,6 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.OverridingAnnotator
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -120,7 +119,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
       def resultType(named: PsiNamedElement): Option[ScType] = named match {
         case function: ScFunction => function.returnType.toOption
         case method: PsiMethod    => Option(method.getReturnType).map(_.toScType())
-        case named                => OverridingAnnotator.typeForSigElement(named)
+        case named                => TermSignature.typeForSigElement(named)
       }
 
       resultType(member).exists { memberType =>

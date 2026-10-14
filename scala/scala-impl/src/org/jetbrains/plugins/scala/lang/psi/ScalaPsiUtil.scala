@@ -23,7 +23,6 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
 import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Binding
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -121,7 +120,7 @@ object ScalaPsiUtil {
 
   def functionArrow(implicit project: ProjectContext): String = {
     val useUnicode = project.project != null && ScalaCodeStyleSettings.getInstance(project).REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
-    if (useUnicode) ScalaTypedHandler.unicodeCaseArrow else "=>"
+    if (useUnicode) "⇒" else "=>"
   }
 
   def contextFunctionArrow(implicit project: ProjectContext): String =

@@ -6,7 +6,6 @@ import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase;
 
 @State(
         name = "ScalaApplicationSettings",
@@ -90,8 +89,8 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean ASK_USE_LATEST_PLUGIN_BUILDS = true;
   public enum pluginBranch {Release, EAP, Nightly}
 
-  private String[] INSPECTION_LIKE_OPTION_CLASSES = OperationOnCollectionInspectionBase.likeOptionClassesDefault();
-  private String[] INSPECTION_LIKE_COLLECTION_CLASSES = OperationOnCollectionInspectionBase.likeCollectionClassesDefault();
+  private String[] INSPECTION_LIKE_OPTION_CLASSES = {"scala.Option", "scala.Some", "scala.None"};
+  private String[] INSPECTION_LIKE_COLLECTION_CLASSES = {"scala.collection._", "scala.Array", "scala.Option", "scala.Some", "scala.None", "java.lang.String"};
 
   public boolean SUGGEST_AUTOBRACE_INSERTION = true;
 

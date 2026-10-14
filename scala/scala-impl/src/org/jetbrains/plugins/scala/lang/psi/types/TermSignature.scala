@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.methodName
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScMethodLike}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScParameters, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScFunctionExt, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
@@ -326,6 +326,14 @@ class TermSignature(
 }
 
 object TermSignature {
+
+  /** The type of the [[TermSignature.namedElement named element]] of a term signature, if it has one */
+  def typeForSigElement(named: PsiNamedElement): Option[ScType] =
+    named match {
+      case cp: ScClassParameter => cp.outsideParamType.toOption
+      case t: Typeable          => t.`type`().toOption
+      case _                    => None
+    }
 
   def apply(
     name:         String,

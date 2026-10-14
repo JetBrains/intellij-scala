@@ -3,10 +3,12 @@ package org.jetbrains.plugins.scala
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DaemonListener
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.{BulkAwareDocumentListener, DocumentEvent}
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.{PsiElement, PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions._
@@ -55,26 +57,34 @@ object Tracing {
   }
 
   def resolve(reference: ScReference): Unit = {
-    incremental.Tracing.trace(reference, "Resolve", start = true)
+    traceInEditor(reference, "Resolve", start = true)
   }
 
   def resolve(reference: ScReference, result: Array[ScalaResolveResult]): Unit = {
     if (parameters.resolve) {
       trace("Resolve: " + reference.asText + " → " + result.map(_.asText).mkString(", "))
     }
-    incremental.Tracing.trace(reference, "Resolve")
+    traceInEditor(reference, "Resolve")
   }
 
   def inference(expression: ScExpression): Unit = {
-    incremental.Tracing.trace(expression, "Inference", start = true)
+    traceInEditor(expression, "Inference", start = true)
   }
 
   def inference(expression: ScExpression, result: ExpressionTypeResult): Unit = {
     if (parameters.inference) {
       trace("Inference: " + expression.asText + " → " + result.asText)
     }
-    incremental.Tracing.trace(expression, "Inference")
+    traceInEditor(expression, "Inference")
   }
+
+  /** Whether resolve and type inference are traced in the editor, see [[ElementTracer]] */
+  def isHighlightingTracingEnabled: Boolean = Registry.is("scala.highlighting.tracing")
+
+  private def traceInEditor(element: PsiElement, reason: String, start: Boolean = false): Unit =
+    if (isHighlightingTracingEnabled) {
+      ElementTracer.instance.trace(element, reason, start)
+    }
 
   def equivalence(left: ScType, right: ScType, result: ConstraintsResult): Unit = {
     if (parameters.equivalence) {
@@ -227,4 +237,17 @@ object Tracing {
         filter = ""
       )
   }
+}
+
+/**
+ * Shows traced resolve and type inference in the editor.
+ * Its implementation, [[incremental.Tracing.EditorTracer]], is editor code, so the core knows only this interface.
+ */
+@ApiStatus.Internal
+trait ElementTracer {
+  def trace(element: PsiElement, reason: String, start: Boolean): Unit
+}
+
+object ElementTracer {
+  def instance: ElementTracer = ApplicationManager.getApplication.getService(classOf[ElementTracer])
 }
