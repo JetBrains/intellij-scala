@@ -72,7 +72,7 @@ object ScalaLibraryType {
   def apply() =
     LibraryType.findByKind(Kind).asInstanceOf[ScalaLibraryType]
 
-  object Kind extends PersistentLibraryKind[ScalaLibraryProperties]("Scala") {
+  object Kind extends PersistentLibraryKind[ScalaLibraryProperties](LibraryExt.ScalaLibraryKindId) {
 
     override def createDefaultProperties() = ScalaLibraryProperties()
   }

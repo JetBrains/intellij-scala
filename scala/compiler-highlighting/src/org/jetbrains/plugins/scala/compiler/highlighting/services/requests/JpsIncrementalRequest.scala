@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.triggers.DocumentCompil
 import org.jetbrains.plugins.scala.compiler.highlighting.util.DocumentUtil
 import org.jetbrains.plugins.scala.compiler.highlighting.util.TracingUtil.endTrace
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ModuleProjectModelExt
 import org.jetbrains.plugins.scala.util.CanonicalPath
 
 case class JpsIncrementalRequest(
@@ -20,14 +20,14 @@ case class JpsIncrementalRequest(
   override val runDocumentCompiler: Boolean = true,
   override val closeRequest: Boolean = false
 ) extends IncrementalRequest(fileCompilationScopes, requestId, project, runDocumentCompiler, closeRequest):
-  
+
   override val kind: CompilationKind = CompilationKind.JPSIncremental
 
   override protected def doCompile(
     scopes: Map[VirtualFile, FileCompilationScope],
     client: CompilerEventGeneratingClient,
     scopeDocumentVersions: SerializableMap[CanonicalPath, Long]
-  ): Unit = 
+  ): Unit =
     val modules = scopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet
     val sourceScope = mergeSourceScope(scopes)
     val token = compilationStarted(scopes)
@@ -51,7 +51,7 @@ case class JpsIncrementalRequest(
     if (runDocumentCompiler && client.successful) {
           DocumentCompilationTrigger.triggerDocumentCompilationInAllOpenEditors(project, "After JPS compilation", id, Some(client))
     }
-  
+
   /** Returns a new instance with updated file compilation scopes. */
   override def withScopes(scopes: Map[VirtualFile, FileCompilationScope]): IncrementalRequest =
     copy(fileCompilationScopes = scopes)

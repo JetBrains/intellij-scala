@@ -8,7 +8,7 @@ import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.compiler.CompilationUnitId
 import org.jetbrains.plugins.scala.compiler.highlighting.core.FileCompilationScope
 import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ModuleProjectModelExt
 import org.jetbrains.sbt.project.settings.DisplayModuleName
 
 /**

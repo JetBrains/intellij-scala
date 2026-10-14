@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.core.CompilerOptions
 import org.jetbrains.plugins.scala.compiler.{CompilerManagerUtil, EelPathTranslator, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel, VirtualFileExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ModuleProjectModelExt, ScalaLanguageLevel, VirtualFileExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 

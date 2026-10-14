@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.javaHighlighting
 
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType}
-import com.intellij.psi.{PsiFile, PsiNamedElement}
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiFile, PsiNamedElement}
 import com.intellij.testFramework.{IndexingTestUtil, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassElementFinder
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ModuleProjectModelExt
 import org.junit.Assert
 
 class JavaHighlightingKotlinWithoutScalaSdkTest extends JavaHighlightingTestBase {

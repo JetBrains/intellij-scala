@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.compiler.data._
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PathExt}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectContext, VirtualFileExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ModuleProjectModelExt, ProjectContext, VirtualFileExt}
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
 import java.nio.file.Path

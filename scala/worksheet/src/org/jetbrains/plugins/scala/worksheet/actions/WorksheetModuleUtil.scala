@@ -4,7 +4,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.SlowOperations
-import org.jetbrains.plugins.scala.project.{ModuleExt, UserDataKeys}
+import org.jetbrains.plugins.scala.project.{ModuleProjectModelExt, UserDataKeys}
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 import scala.ref.WeakReference

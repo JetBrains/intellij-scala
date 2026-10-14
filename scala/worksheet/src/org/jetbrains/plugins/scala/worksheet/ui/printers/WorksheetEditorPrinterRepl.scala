@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.project
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ModuleProjectModelExt
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner

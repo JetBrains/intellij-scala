@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.core.FileCompilationSco
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{CompilationRequestPhaseEvent, RequestId}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.util.CompilationUtils
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ModuleProjectModelExt
 import org.jetbrains.plugins.scala.util.{CanonicalPath, DocumentVersion}
 
 import scala.collection.immutable.HashMap

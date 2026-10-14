@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ModuleProjectModelExt
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo.{AllInPackage, ClassWithTestName}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata._

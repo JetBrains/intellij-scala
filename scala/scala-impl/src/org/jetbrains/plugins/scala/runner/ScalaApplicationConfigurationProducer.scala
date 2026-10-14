@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ModuleProjectModelExt, ProjectPsiElementExt}
 
 import java.lang.Boolean.TRUE
 

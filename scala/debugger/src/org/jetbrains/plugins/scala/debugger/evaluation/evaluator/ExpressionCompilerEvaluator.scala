@@ -22,8 +22,8 @@ import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ExpressionCompi
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ExpressionCompilerResolverListener}
 import org.jetbrains.plugins.scala.debugger.{DebuggerBundle, ScalaPositionManager}
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
+import org.jetbrains.plugins.scala.project.{ModuleExt, ModuleProjectModelExt}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 
 import java.io.IOException

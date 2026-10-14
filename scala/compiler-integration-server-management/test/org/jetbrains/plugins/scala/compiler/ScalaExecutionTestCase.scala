@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.base.{ScalaSdkOwner, SourceRootTestUtil}
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ModuleProjectModelExt
 import org.jetbrains.plugins.scala.util.CompilerTestUtil.{applyEnabledCompileServerSettings, withModifiedCompileServerSettings}
 import org.jetbrains.plugins.scala.util.TestUtils
 

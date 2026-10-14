@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.ResolveScopeEnlarger
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import org.jetbrains.annotations.ApiStatus
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ModuleProjectModelExt
 
 @ApiStatus.Internal
 final class ScalaSharedSourcesResolveScopeEnlarger extends ResolveScopeEnlarger {

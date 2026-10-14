@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.compilers.DocumentCompi
 import org.jetbrains.plugins.scala.compiler.highlighting.core.{CompilerEventGeneratingClient, FileCompilationScope}
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{CompilationRequestPhaseEvent, RequestId}
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ModuleProjectModelExt
 
 /**
  * A [[DocumentRequest]] that runs inside an already-running compilation, reusing its `client` so the open
@@ -25,7 +25,7 @@ final class SharedClientDocumentRequest(
   client: CompilerEventGeneratingClient,
   closeParent: Boolean = false
 ) extends DocumentRequest(scope, requestId, project, closeParent) {
-  
+
   override private[services] def execute(): Unit = {
     val tracer = Tracing(project)
     // The ongoing compilation's request-phase span is already open; open our own for this file.

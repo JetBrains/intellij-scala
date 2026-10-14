@@ -14,7 +14,7 @@ import junit.framework.TestCase.assertEquals
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
 import org.jetbrains.plugins.scala.extensions.{PathExt, inReadAction, inWriteAction}
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ModuleProjectModelExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.{ExternalSystemImportingTestCaseProxy, SbtCachesSetupUtil, SbtProjectSystem}

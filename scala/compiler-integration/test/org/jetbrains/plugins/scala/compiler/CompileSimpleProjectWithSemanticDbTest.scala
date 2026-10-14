@@ -6,7 +6,7 @@ import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compiler.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ModuleProjectModelExt, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.util.{CompilerTestUtil, RevertableChange, TestUtils}
 import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt

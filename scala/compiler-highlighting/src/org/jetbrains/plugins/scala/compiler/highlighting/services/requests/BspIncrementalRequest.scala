@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.triggers.DocumentCompil
 import org.jetbrains.plugins.scala.compiler.highlighting.util.{CompilerHighlightingBundle, DocumentUtil}
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 import org.jetbrains.plugins.scala.compiler.tracing.core.events.EndEvent
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.ModuleProjectModelExt
 import org.jetbrains.plugins.scala.util.CanonicalPath
 
 import java.util.concurrent.TimeUnit
