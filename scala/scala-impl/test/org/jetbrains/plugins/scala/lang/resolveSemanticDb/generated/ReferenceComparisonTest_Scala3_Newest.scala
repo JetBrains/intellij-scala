@@ -2319,7 +2319,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part23 extends ReferenceCompar
   def test_infer1(): Unit = doTest("infer1", true)
   def test_infer2_pos(): Unit = doTest("infer2-pos", true)
   def test_inferbroadtype(): Unit = doTest("inferbroadtype", true)
-  def test_inferOverloaded(): Unit = doTest("inferOverloaded", false)
+  def test_inferOverloaded(): Unit = doTest("inferOverloaded", true)
   def test_inferred(): Unit = doTest("inferred", true)
   def test_infersingle(): Unit = doTest("infersingle", true)
   def test_infinite_loop_potential(): Unit = doTest("infinite-loop-potential", true) // #unionType
