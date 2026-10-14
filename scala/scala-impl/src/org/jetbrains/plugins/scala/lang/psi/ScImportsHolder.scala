@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingSettings
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -102,7 +102,7 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
 
       val project = getProject
 
-      if (!ScalaHighlightingMode.isBuiltInHighlightingDisabled(project) && !ScalaHighlightingMode.isIncrementalHighlightingEnabled(project)) {
+      if (!ScalaHighlightingSettings.isBuiltInHighlightingDisabled(project) && !ScalaHighlightingSettings.isIncrementalHighlightingEnabled(project)) {
         //Resolve all references in previous import expressions in direct order to avoid SOE
         prevImports.foreach { importStmt =>
           ProgressManager.checkCanceled()

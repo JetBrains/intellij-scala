@@ -173,6 +173,10 @@
                             serviceImplementation="org.jetbrains.plugins.scala.incremental.Tracing$EditorTracer"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.lang.psi.ImportInserter"
                             serviceImplementation="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportInserter"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.util.UIFreezingWatcher"
+                            serviceImplementation="org.jetbrains.plugins.scala.util.IdeUIFreezingWatcher"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.autoImport.ImportExclusions"
+                            serviceImplementation="org.jetbrains.plugins.scala.autoImport.JavaImportExclusions"/>
         <registryKey key="scala.highlighting.tracing" defaultValue="false" description="Trace resolve and type inference"/>
         <registryKey key="scala.highlighting.tracing.in.editor" defaultValue="true" description="Also trace resolve and type inference in editor"/>
         <registryKey key="scala.incremental.highlighting.lookaround" defaultValue="15" description="Number of lines to highlight beyond the visible area"/>
@@ -2172,7 +2176,7 @@
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.util.UIFreezingGuardActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierProjectActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.RegisterSyntheticClassesProjectActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>

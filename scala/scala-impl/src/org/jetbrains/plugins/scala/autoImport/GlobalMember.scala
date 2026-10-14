@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.autoImport
 
-import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cachedInUserData}
@@ -110,5 +109,5 @@ object GlobalMember {
     } else None
 
   def isInExcludedPackage(qualifiedName: String, project: Project): Boolean =
-    JavaProjectCodeInsightSettings.getSettings(project).isExcluded(qualifiedName)
+    ImportExclusions.instance.isExcluded(qualifiedName, project)
 }

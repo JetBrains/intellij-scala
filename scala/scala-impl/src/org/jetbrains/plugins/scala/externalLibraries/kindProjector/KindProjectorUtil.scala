@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.externalLibraries.kindProjector
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jetbrains.plugins.scala.caches.{ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -68,7 +67,7 @@ object KindProjectorUtil {
 
   def apply(project: Project): KindProjectorUtil = project.getService(classOf[KindProjectorUtil])
 
-  private val newSyntaxVersion = new ComparableVersion("0.10.0")
+  private val newSyntaxVersion = Version("0.10.0")
   private val VersionPattern   = "(?:.+?)(?:-(\\d.*?))?\\.jar".r
 
   def placeholderSymbolFor(e: PsiElement): String = {
@@ -89,7 +88,7 @@ object KindProjectorUtil {
     }
 
   private def isQuestionMarkSyntaxDeprecatedFor(version: String): Boolean =
-    new ComparableVersion(version).compareTo(newSyntaxVersion) >= 0
+    Version(version) >= newSyntaxVersion
 
   /**
    * Creates synthetic companion object used in value-level polymorphic lambdas

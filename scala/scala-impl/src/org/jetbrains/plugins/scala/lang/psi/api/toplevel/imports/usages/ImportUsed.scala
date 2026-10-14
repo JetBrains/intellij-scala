@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingSettings
 
 // TODO 1: choose better naming, import used sounds like the import is actually used in the file
 //  but in practice it's just a pointer to a import psi element, it can be practically unused in the file
@@ -39,7 +39,7 @@ sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[Psi
     val isScala3 = Option(element).exists(_.isInScala3Module)
     qualName.exists(settings.isAlwaysUsedImport) ||
       isLanguageFeatureImport ||
-      (ScalaHighlightingMode.showCompilerErrorsScala3(project) && isScala3 && !markedAsUnusedByCompiler)
+      (ScalaHighlightingSettings.showCompilerErrorsScala3(project) && isScala3 && !markedAsUnusedByCompiler)
   }
 
   def markedAsUnusedByCompiler: Boolean =

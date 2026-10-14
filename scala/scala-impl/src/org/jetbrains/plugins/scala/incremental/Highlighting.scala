@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.settings.ScalaHighlightingSettings
 
 // SCL-23216
 object Highlighting {
@@ -17,13 +17,13 @@ object Highlighting {
 
   private[incremental] var editor: Editor = scala.compiletime.uninitialized
 
-  private[incremental] def suppress: Boolean = ScalaHighlightingMode.incrementalHighlightingSuppressed
+  private[incremental] def suppress: Boolean = ScalaHighlightingSettings.incrementalHighlightingSuppressed
 
-  private[incremental] def suppress_=(value: Boolean): Unit = ScalaHighlightingMode.incrementalHighlightingSuppressed = value
+  private[incremental] def suppress_=(value: Boolean): Unit = ScalaHighlightingSettings.incrementalHighlightingSuppressed = value
 
-  def builtInHighlightingDisabledIn(project: Project): Boolean = ScalaHighlightingMode.isBuiltInHighlightingDisabled(project)
+  def builtInHighlightingDisabledIn(project: Project): Boolean = ScalaHighlightingSettings.isBuiltInHighlightingDisabled(project)
 
-  def enabledIn(@Nullable project: Project): Boolean = ScalaHighlightingMode.isIncrementalHighlightingEnabled(project)
+  def enabledIn(@Nullable project: Project): Boolean = ScalaHighlightingSettings.isIncrementalHighlightingEnabled(project)
 
   def update(enabled: Boolean, project: Project): Unit = {
     if (enabled) {
