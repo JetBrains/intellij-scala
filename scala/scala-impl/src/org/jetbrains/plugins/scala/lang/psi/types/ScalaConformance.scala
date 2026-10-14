@@ -34,6 +34,12 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
    *  the same path, as scalac's prefix comparison follows a val's singleton type. */
   private def collapsedPrefix(p: ScProjectionType): ScType = ScProjectionType.collapseSingletonPath(p.projected)
 
+  private def isStablePrefix(t: ScType): Boolean = t match {
+    case _: ScThisType      => true
+    case d: DesignatorOwner => d.isStable
+    case _                  => false
+  }
+
   override protected def conformsComputable(key: Key,
                                             visited: Set[PsiClass])(implicit context: Context): Supplier[ConstraintsResult] =
     new Supplier[ConstraintsResult] {
@@ -875,12 +881,15 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj.actualElement) =>
           result = conformsInner(collapsedPrefix(proj), collapsedPrefix(proj1), visited, constraints)
           if (result != null) return
-        // `proj1 <: proj` for a member of the same name: a class implementing an abstract type (`B#A <: A#A`
-        // for `class A` in `B extends A`, where A declares `type A`). Not when `proj1`'s member is an alias:
-        // scalac dealiases it first, so `K#M` with `type M = Any` from an unrelated mixin doesn't conform to
-        // `T#M` for an abstract `T#M`.
+        // `proj1 <: proj` for a member of the same name whose prefixes conform: scalac's
+        // `sym2.isAbstractType && isSubPre(pre1, pre2, sym2)`. It covers a class implementing an abstract type
+        // (`b.T <: A#T` for `class T` in `B extends A`, where A declares `type T`) and an alias doing the same
+        // (`k.M <: T1#M` where `K` mixes in `type M = Any` next to `T1`'s abstract `M`; `G1.Edge <: Graph#Edge`).
+        // An alias seen through a prefix that isn't stable (`G2#Edge`) is expanded by scalac's asSeenFrom
+        // (existentially bound prefix, then dealiased), so it only conforms through its right-hand side.
         case proj1: ScProjectionType
-          if proj1.actualElement.name == proj.actualElement.name && !proj1.actualElement.is[ScTypeAliasDefinition] =>
+          if proj1.actualElement.name == proj.actualElement.name &&
+            !(proj1.actualElement.is[ScTypeAliasDefinition] && !isStablePrefix(proj1.projected)) =>
           val t = conformsInner(collapsedPrefix(proj), collapsedPrefix(proj1), visited, constraints)
           if (t.isRight) {
             result = t
