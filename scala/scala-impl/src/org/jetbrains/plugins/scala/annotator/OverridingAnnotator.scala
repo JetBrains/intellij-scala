@@ -4,6 +4,7 @@ package annotator
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.quickfix.PullUpQuickFix
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -139,8 +140,38 @@ trait OverridingAnnotator {
         Function.const(false),
         "Type"
       )
+      checkAliasOverridesEquivalentAlias(alias)
     case _ =>
   }
+
+  /**
+   * A (non-final) type alias may be overridden by an alias, but only by an equivalent one: scalac
+   * "incompatible type in overriding ... (Equivalent type required when overriding a type alias.)".
+   * The overridden alias is seen from the overriding member's class. Aliases with type parameters
+   * are not checked.
+   */
+  private def checkAliasOverridesEquivalentAlias(alias: ScTypeAlias)(implicit holder: ScalaAnnotationHolder): Unit =
+    alias match {
+      case own: ScTypeAliasDefinition if own.typeParameters.isEmpty =>
+        implicit val context: Context = Context(alias)
+        for {
+          signature <- ScalaPsiUtil.superTypeSignatures(alias)
+          overridden <- signature.namedElement.asOptionOf[ScTypeAliasDefinition]
+          if overridden.typeParameters.isEmpty && !overridden.hasFinalModifier
+          ownType <- own.aliasedType.toOption
+          overriddenType <- overridden.aliasedType.toOption.map(signature.substitutor)
+          if !ownType.equiv(overriddenType)
+        } holder.createErrorAnnotation(
+          own.nameId,
+          ScalaBundle.message(
+            "type.alias.overrides.incompatible.alias",
+            own.name,
+            overriddenType.presentableText(using TypePresentationContext(alias), context),
+            Option(overridden.containingClass).map(_.name).getOrElse("")
+          )
+        )
+      case _ =>
+    }
 
   private def checkOverrideMembers[Res](
     namedElement:                ScNamedElement,
