@@ -19,7 +19,7 @@ object ResolvableStableCodeReference {
         BlockModificationTracker(stableRef),
         Tuple1(incomplete)
       ) {
-        val importResolverNoMethods = new StableCodeReferenceResolver(stableRef, false, false, false) {
+        val importResolverNoMethods = new StableCodeReferenceResolver(stableRef, ResolveMode.Full, false, false) {
           override protected def getKindsFor(ref: ScStableCodeReference): Set[ResolveTargets.Value] =
             ref.getKinds(incomplete = false).diff(StdKinds.methodRef)
         }
@@ -34,7 +34,7 @@ object ResolvableStableCodeReference {
         BlockModificationTracker(stableRef),
         Tuple1(incomplete)
       ) {
-        val importResolverNoTypes = new StableCodeReferenceResolver(stableRef, false, false, false) {
+        val importResolverNoTypes = new StableCodeReferenceResolver(stableRef, ResolveMode.Full, false, false) {
           override protected def getKindsFor(ref: ScStableCodeReference): Set[ResolveTargets.Value] =
             ref.getKinds(incomplete = false).diff(StdKinds.stableClass)
         }
@@ -50,44 +50,44 @@ object ResolvableStableCodeReference {
         BlockModificationTracker(stableRef)
       ) {
         ProgressManager.checkCanceled()
-        val noConstructorResolver = new StableCodeReferenceResolver(stableRef, false, false, true)
+        val noConstructorResolver = new StableCodeReferenceResolver(stableRef, ResolveMode.Full, false, true)
         noConstructorResolver.resolve()
       }
 
-    def resolveAllConstructors: Array[ScalaResolveResult] =
+    /**
+     * @param mode how the arguments of the constructor invocation are checked, see [[ResolveMode]]
+     */
+    def resolveAllConstructors(mode: ResolveMode = ResolveMode.Full): Array[ScalaResolveResult] =
       cachedWithRecursionGuard(
         "ResolveAllConstructors",
         stableRef,
         ScalaResolveResult.EMPTY_ARRAY,
-        BlockModificationTracker(stableRef)
+        BlockModificationTracker(stableRef),
+        Tuple1(mode)
       ) {
         ProgressManager.checkCanceled()
-        val resolverAllConstructors = new StableCodeReferenceResolver(stableRef, false, true, false)
+        val resolverAllConstructors = new StableCodeReferenceResolver(stableRef, mode, true, false)
         resolverAllConstructors.resolve()
       }
 
-    def shapeResolve: Array[ScalaResolveResult] =
-      cachedWithRecursionGuard(
-        "shapeResolve",
-        stableRef,
-        ScalaResolveResult.EMPTY_ARRAY,
-        BlockModificationTracker(stableRef)
-      ) {
-        ProgressManager.checkCanceled()
-        val shapesResolver = new StableCodeReferenceResolver(stableRef, true, false, false)
-        shapesResolver.resolve()
-      }
-
-    def shapeResolveConstr: Array[ScalaResolveResult] =
-      cachedWithRecursionGuard(
-        "shareResolveConstr",
-        stableRef,
-        ScalaResolveResult.EMPTY_ARRAY,
-        BlockModificationTracker(stableRef)
-      ) {
-        ProgressManager.checkCanceled()
-        val shapesResolverAllConstructors = new StableCodeReferenceResolver(stableRef, true, true, false)
-        shapesResolverAllConstructors.resolve()
-      }
+    /**
+     * @param mode how the arguments of the constructor invocation (if any) are checked, see [[ResolveMode]].
+     *             [[ResolveMode.Full]] is the same as `multiResolveScala(incomplete = false)`
+     */
+    def resolveWithMode(mode: ResolveMode): Array[ScalaResolveResult] = mode match {
+      case ResolveMode.Full => stableRef.multiResolveScala(incomplete = false)
+      case _ =>
+        cachedWithRecursionGuard(
+          "ResolvableStableCodeReference.Ext.resolveWithMode",
+          stableRef,
+          ScalaResolveResult.EMPTY_ARRAY,
+          BlockModificationTracker(stableRef),
+          Tuple1(mode)
+        ) {
+          ProgressManager.checkCanceled()
+          val resolver = new StableCodeReferenceResolver(stableRef, mode, false, false)
+          resolver.resolve()
+        }
+    }
   }
 }

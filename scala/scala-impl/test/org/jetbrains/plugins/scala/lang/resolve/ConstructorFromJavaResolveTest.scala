@@ -15,7 +15,7 @@ class ConstructorFromJavaResolveTest extends ScalaResolveTestCase {
   def testScl8083(): Unit = {
     findReferenceAtCaret() match {
       case st: ScStableCodeReference =>
-        val variants = st.resolveAllConstructors
+        val variants = st.resolveAllConstructors()
         assertTrue("Single resolve expected", variants.length == 1)
     }
   }

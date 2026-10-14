@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, Func
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -129,7 +129,7 @@ private[psi] object InvocationDetailsImpl {
               generic.referencedExpr
                 .getNonValueType().toOption.toSeq
                 .flatMap { tpe =>
-                  generic.resolveApplyOrUpdateMethod(generic.referencedExpr, tpe, shapesOnly = false, withImplicits = true)
+                  generic.resolveApplyOrUpdateMethod(generic.referencedExpr, tpe, ResolveMode.Full, withImplicits = true)
                 }
                 .headOption
                 .map(_.mostInnerResolveResult)
@@ -146,7 +146,7 @@ private[psi] object InvocationDetailsImpl {
               .orElse(invocation.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression].flatMap(_.bind()))
               .orElse(prepared.current.flatMap(_.resultType).flatMap { tpe =>
                 invocation.getInvokedExpr.resolveApplyOrUpdateMethod(
-                  invocation.getInvokedExpr, tpe, shapesOnly = false, withImplicits = true
+                  invocation.getInvokedExpr, tpe, ResolveMode.Full, withImplicits = true
                 ) match {
                   case Array(target) => Some(target.mostInnerResolveResult)
                   case _ => None
@@ -187,7 +187,7 @@ private[psi] object InvocationDetailsImpl {
             visit(invocation)
               .mapCurrent(call => call.copy(details = call.details.copy(origin = assignment)))
           case reference: ScReferenceExpression =>
-            val call = assignment.resolveAssignment.filter(_.element.is[PsiMethod]).map { target =>
+            val call = assignment.resolveAssignment().filter(_.element.is[PsiMethod]).map { target =>
               val call = start(assignment, Some(target), reference.qualifier, reference)
                 .omittedBefore(isType = false, isUsing = false)
               val applied = call.nextValue.fold(call) { signature =>

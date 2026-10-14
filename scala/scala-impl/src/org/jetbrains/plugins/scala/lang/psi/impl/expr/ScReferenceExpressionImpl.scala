@@ -63,7 +63,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val maybeAssignmentResult = maybeAssignment
     maybeAssignmentResult match {
       case Some(value) =>
-        value.resolveAssignment.toArray
+        value.resolveAssignment().toArray
       case None =>
         cachedWithRecursionGuard(
           "multiResolveScala",
@@ -73,25 +73,34 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           Tuple1(incomplete)
         ) {
           Tracing.resolve(this)
-          val result = new ReferenceExpressionResolver().resolve(this, shapesOnly = false, incomplete)
+          val result = new ReferenceExpressionResolver().resolve(this, ResolveMode.Full, incomplete)
           Tracing.resolve(this, result)
           result
       }
     }
   }
 
-  override def shapeResolve: Array[ScalaResolveResult] = {
-    //micro-optimization: don't use fold to decrease chance of StackOverflowError
-    // in long method call chains or for-comprehensions
-    // this method is called many many times during resolved
-    val maybeAssignmentResult = maybeAssignment
-    maybeAssignmentResult match {
-      case Some(value) =>
-        value.shapeResolveAssignment.toArray
-      case None => cachedWithRecursionGuard("shapeResolve", this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this)) {
-        new ReferenceExpressionResolver().resolve(this, shapesOnly = true, incomplete = false)
+  override def resolveWithMode(mode: ResolveMode): Array[ScalaResolveResult] = mode match {
+    case ResolveMode.Full => multiResolveScala(incomplete = false)
+    case _ =>
+      //micro-optimization: don't use fold to decrease chance of StackOverflowError
+      // in long method call chains or for-comprehensions
+      // this method is called many many times during resolved
+      val maybeAssignmentResult = maybeAssignment
+      maybeAssignmentResult match {
+        case Some(value) =>
+          value.resolveAssignment(mode).toArray
+        case None =>
+          cachedWithRecursionGuard(
+            "resolveWithMode",
+            this,
+            ScalaResolveResult.EMPTY_ARRAY,
+            BlockModificationTracker(this),
+            Tuple1(mode)
+          ) {
+            new ReferenceExpressionResolver().resolve(this, mode, incomplete = false)
+          }
       }
-    }
   }
 
   override def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult] =
@@ -211,9 +220,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }
   }
 
-  override def multiType: Array[TypeResult] = {
+  override def multiType(mode: ResolveMode): Array[TypeResult] = {
     val buffer = mutable.ArrayBuffer[TypeResult]()
-    val iterator = multiResolveScala(incomplete = false).iterator
+    val iterator = resolveWithMode(mode).iterator
     while (iterator.hasNext) {
       buffer += convertBindToType(iterator.next(), this.expectedType())
     }
@@ -231,22 +240,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         if (priorDeclarations.nonEmpty) convertBindToType(priorDeclarations.maxBy(_.element.getTextOffset), expectedType) else resolveFailure
       case _ => resolveFailure
     }
-  }
-
-  override def shapeType: TypeResult = {
-    shapeResolve match {
-      case Array(bind) if bind.isApplicable() => convertBindToType(bind, this.expectedType())
-      case _ => resolveFailure
-    }
-  }
-
-  override def shapeMultiType: Array[TypeResult] = {
-    val buffer = mutable.ArrayBuffer[TypeResult]()
-    val iterator = shapeResolve.iterator
-    while (iterator.hasNext) {
-      buffer += convertBindToType(iterator.next(), this.expectedType())
-    }
-    buffer.toArray
   }
 
   private def isMetaInlineDefn(p: ScParameter): Boolean = {

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScParameterizedType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.resolve.ResolveMode
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class DerevoInjector extends SyntheticMembersInjector {
@@ -126,7 +127,7 @@ class DerevoInjector extends SyntheticMembersInjector {
 
     expr match {
       case r: ScReferenceExpression =>
-        val resolvedShapes = r.shapeResolve
+        val resolvedShapes = r.resolveWithMode(ResolveMode.Shape)
 
         if (resolvedShapes.length > 0) {
           resolvedShapes(0).element match {

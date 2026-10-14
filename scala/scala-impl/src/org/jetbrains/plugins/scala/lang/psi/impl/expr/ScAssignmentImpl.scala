@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult, ScalaResolveState, StdKinds}
 
 class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScAssignment {
 
@@ -23,7 +23,7 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
     leftExpression match {
       case call: ScMethodCall => call.`type`(expectedType = None)
       case _ =>
-        resolveAssignment match {
+        resolveAssignment() match {
           case Some(_) =>
             mirrorMethodCall match {
               // the setter call stands for this assignment, so its expected type is the same
@@ -35,16 +35,10 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
     }
   }
 
-  override def resolveAssignment: Option[ScalaResolveResult] = _resolveAssignment()
+  override def resolveAssignment(mode: ResolveMode): Option[ScalaResolveResult] = _resolveAssignment(mode)
 
-  private val _resolveAssignment = cached("resolveAssignment", BlockModificationTracker(this), () => {
-    resolveAssignmentInner(shapeResolve = false)
-  })
-
-  override def shapeResolveAssignment: Option[ScalaResolveResult] = _shapeResolveAssignment()
-
-  private val _shapeResolveAssignment = cached("shareResolveAssignment", BlockModificationTracker(this), () => {
-    resolveAssignmentInner(shapeResolve = true)
+  private val _resolveAssignment = cached("resolveAssignment", BlockModificationTracker(this), (mode: ResolveMode) => {
+    resolveAssignmentInner(mode)
   })
 
   override def mirrorMethodCall: Option[ScMethodCall] = _mirrorMethodCall()
@@ -109,7 +103,7 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
         element.getText
     }
 
-  private def resolveAssignmentInner(shapeResolve: Boolean): Option[ScalaResolveResult] = {
+  private def resolveAssignmentInner(mode: ResolveMode): Option[ScalaResolveResult] = {
     def resolveSetter(ref: ScReferenceExpression): Option[ScalaResolveResult] =
       ref.bind() match {
         case Some(r) =>
@@ -126,8 +120,8 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
                 ScalaNamesUtil.clean(fun.name) + "_=",
                 clauses,
                 ref.getPrevTypeInfoParams,
-                isShapeResolve = shapeResolve,
-                kinds          = StdKinds.methodsOnly
+                resolveMode = mode,
+                kinds       = StdKinds.methodsOnly
               )
 
               r.fromType match {

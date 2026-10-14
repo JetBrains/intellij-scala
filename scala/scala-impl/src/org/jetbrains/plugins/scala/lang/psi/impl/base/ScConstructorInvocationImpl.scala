@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 
 import scala.collection.mutable
 
@@ -91,17 +91,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
     else
       ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
 
-  override def shapeType(i: Int): TypeResult = {
-    val seq = shapeMultiType(i)
-    if (seq.length == 1) seq.head
-    else Failure(ScalaBundle.message("can.t.resolve.type"))
-  }
-
-  override def shapeMultiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = true)
-
-  override def multiType(i: Int): Array[TypeResult] = innerMultiType(i, isShape = false)
-
-  private def innerMultiType(i: Int, isShape: Boolean): Array[TypeResult] = {
+  override def multiType(i: Int, mode: ResolveMode): Array[TypeResult] = {
     def FAILURE = Failure(ScalaBundle.message("can.t.resolve.type"))
 
     def workWithResolveResult(
@@ -117,7 +107,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
         case ta: ScTypeAliasDefinition if !ta.isEffectivelyOpaque => subst(ta.aliasedType.getOrElse(return FAILURE))
         case _ =>
           parameterize(
-            ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = true).getOrElse(return FAILURE),
+            ScSimpleTypeElementImpl.calculateReferenceType(ref, ResolveMode.Shape).getOrElse(return FAILURE),
             clazz)
       }
 
@@ -204,7 +194,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
       s.reference match {
         case Some(ref) =>
           val builder = mutable.ArrayBuilder.make[TypeResult]
-          val resolve = if (isShape) ref.shapeResolveConstr else ref.resolveAllConstructors
+          val resolve = ref.resolveAllConstructors(mode)
 
           resolve.foreach {
             case r @ ScalaResolveResult(constr: PsiMethod, subst) =>

@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.*
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor.InvocationClause
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveResultUtils, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ResolveTargets, ScalaResolveResult, ScalaResolveResultUtils, StdKinds}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
@@ -39,7 +39,7 @@ class MethodResolveProcessor(
   override val kinds:         Set[ResolveTargets.Value] = StdKinds.methodRef,
   val expectedOption:         () => Option[ScType]      = () => None,
   val isUnderscore:           Boolean                   = false,
-  var isShapeResolve:         Boolean                   = false,
+  val resolveMode:            ResolveMode               = ResolveMode.Full,
   val constructorResolve:     Boolean                   = false,
   val enableTupling:          Boolean                   = false,
   val noImplicitsForArgs:     Boolean                   = false,
@@ -67,7 +67,7 @@ class MethodResolveProcessor(
     kinds:                  Set[ResolveTargets.Value] = kinds,
     expectedOption:         () => Option[ScType]      = expectedOption,
     isUnderscore:           Boolean                   = isUnderscore,
-    isShapeResolve:         Boolean                   = isShapeResolve,
+    resolveMode:            ResolveMode               = resolveMode,
     constructorResolve:     Boolean                   = constructorResolve,
     enableTupling:          Boolean                   = enableTupling,
     noImplicitsForArgs:     Boolean                   = noImplicitsForArgs,
@@ -81,7 +81,7 @@ class MethodResolveProcessor(
     kinds,
     expectedOption,
     isUnderscore,
-    isShapeResolve,
+    resolveMode,
     constructorResolve,
     enableTupling,
     noImplicitsForArgs,
@@ -91,6 +91,17 @@ class MethodResolveProcessor(
 
   private def isDynamic: Boolean                 = nameArgForDynamic.nonEmpty
   private def useScala3OverloadingRules: Boolean = ref.isInScala3File
+
+  def isShapeResolve: Boolean = resolveMode == ResolveMode.Shape
+
+  /**
+   * @return true, if `argument` is only checked by its shape, see [[ResolveMode]]
+   */
+  def checksByShape(argument: ScExpression): Boolean = resolveMode match {
+    case ResolveMode.Shape  => true
+    case ResolveMode.Narrow => ResolveMode.isDeferred(argument)
+    case ResolveMode.Full   => false
+  }
 
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
@@ -222,7 +233,8 @@ object MethodResolveProcessor {
     argClauseIdx:             Int,
     isLastClause:             Boolean,
     argumentExpectedTypes:    Map[ScExpression, Option[ScType]],
-    recordArgumentPrototypes: Boolean
+    recordArgumentPrototypes: Boolean,
+    deferredByShape:          Boolean
   ): ApplicabilityCandidate = {
     val srr = candidate.resolveResult
 
@@ -488,7 +500,8 @@ object MethodResolveProcessor {
             shapesOnly,
             place,
             clauseIdx,
-            argumentExpectedTypes
+            argumentExpectedTypes,
+            deferredByShape
           )
 
         problems ++= argsApplicability.problems
@@ -866,15 +879,13 @@ object MethodResolveProcessor {
           if (applicableToShape.nonEmpty) applicableToShape
           else                            shapeChecked
         } else {
+          // The shape-checked candidates carry the substitution of the explicit type arguments of the clause,
+          // which is only added by the shape check, see updateCandidateWithApplicabilityProblems
           val preselected =
-            if (applicableToShape.isEmpty) allExpanded
+            if (applicableToShape.isEmpty) shapeChecked
             else                           applicableToShape
 
-          val argExpectedTypes =
-            argumentExpectedTypes(
-              if (applicableToShape.isEmpty) shapeChecked
-              else                           applicableToShape
-            )
+          val argExpectedTypes = argumentExpectedTypes(preselected)
 
           candidates(
             proc,
@@ -1052,11 +1063,19 @@ object MethodResolveProcessor {
       if (nonSAM.nonEmpty) filtered = nonSAM
     }
 
+    // auto-tupling types the arguments (see ScalaPsiUtil.tupled), so it isn't tried, if some of them are only
+    // checked by their shapes, which may be typed only after the invoked method is resolved, see ResolveMode.Narrow
+    def checksSomeArgumentByShape: Boolean = argumentClauses.head.exists {
+      case Expression(argument) => checksByShape(argument)
+      case _                    => false
+    }
+
     if (
       filtered.isEmpty &&
         !useExpectedType &&
         enableTupling &&
-        argumentClauses.nonEmpty
+        argumentClauses.nonEmpty &&
+        !checksSomeArgumentByShape
     ) {
       /**
        * If everything else failed, try auto-tupling
@@ -1214,7 +1233,7 @@ object MethodResolveProcessor {
         callCtx.resolveApplyOrUpdateMethod(
           callCtx,
           tp,
-          shapesOnly    = isShapeResolve,
+          mode          = resolveMode,
           withImplicits = false
         )
 
@@ -1273,7 +1292,7 @@ object MethodResolveProcessor {
         e.resolveApplyOrUpdateMethod(
           e,
           subst(tp),
-          shapesOnly    = isShapeResolve,
+          mode          = resolveMode,
           withImplicits = false
         )
       )
@@ -1381,7 +1400,8 @@ object MethodResolveProcessor {
         isLastClause             = isLastClause,
         argumentExpectedTypes    = argumentExpectedTypes,
         // only needed for the full applicability check following the shape check
-        recordArgumentPrototypes = shapesOnly && !isShapeResolve
+        recordArgumentPrototypes = shapesOnly && !isShapeResolve,
+        deferredByShape          = !shapesOnly && resolveMode == ResolveMode.Narrow
       )
 
       resultBuilder += checkedCandidate

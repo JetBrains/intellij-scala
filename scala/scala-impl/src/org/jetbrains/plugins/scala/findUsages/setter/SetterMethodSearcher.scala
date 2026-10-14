@@ -51,7 +51,7 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
       override def execute(elem: PsiElement, offsetInElement: Int): Boolean = {
         inReadAction {
           elem match {
-            case Parent(Parent(assign: ScAssignment)) => assign.resolveAssignment match {
+            case Parent(Parent(assign: ScAssignment)) => assign.resolveAssignment() match {
               case Some(res) if res.element.getNavigationElement == element =>
                 Option(assign.leftExpression).foreach {
                   case ref: ScReference => if (!consumer.process(ref)) return false

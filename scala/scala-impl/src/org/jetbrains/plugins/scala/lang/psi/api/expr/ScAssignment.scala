@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.{InvocationDetailsOwner, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 
 trait ScAssignment extends ScExpression with InvocationDetailsOwner {
@@ -41,9 +41,7 @@ trait ScAssignment extends ScExpression with InvocationDetailsOwner {
     *
     * @return parameterless function setter, or None otherwise
     */
-  def resolveAssignment: Option[ScalaResolveResult]
-
-  def shapeResolveAssignment: Option[ScalaResolveResult]
+  def resolveAssignment(mode: ResolveMode = ResolveMode.Full): Option[ScalaResolveResult]
 
   /**
     * @return element to which equals sign should navigate
@@ -55,7 +53,7 @@ trait ScAssignment extends ScExpression with InvocationDetailsOwner {
           case Some(r) => r.getActualElement
           case None => null
         }
-      case left => resolveAssignment match {
+      case left => resolveAssignment() match {
         case Some(ScalaResolveResult(elem, _)) => elem
         case _ => left match {
           case ref: ScReferenceExpression => ref.resolve() match {
@@ -108,7 +106,7 @@ object ScAssignment {
   }
 
   object resolvesTo {
-    def unapply(st: ScAssignment): Option[PsiNamedElement] = st.resolveAssignment.map(_.element)
+    def unapply(st: ScAssignment): Option[PsiNamedElement] = st.resolveAssignment().map(_.element)
   }
 
   implicit class ScAssignmentExt(private val target: ScAssignment) extends AnyVal {

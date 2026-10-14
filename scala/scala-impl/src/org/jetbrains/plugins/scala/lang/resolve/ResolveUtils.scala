@@ -436,7 +436,7 @@ object ResolveUtils {
     def resolveApplyOrUpdateMethod(
       call:          PsiElement,
       tp:            ScType,
-      shapesOnly:    Boolean,
+      mode:          ResolveMode,
       withImplicits: Boolean
     ): Array[ScalaResolveResult] =
       cachedWithRecursionGuard(
@@ -444,7 +444,7 @@ object ResolveUtils {
         expr,
         Array.empty[ScalaResolveResult],
         BlockModificationTracker(expr),
-        (call, tp, shapesOnly, withImplicits)
+        (call, tp, mode, withImplicits)
       ) {
         implicit val context: Context = Context(call)
 
@@ -452,7 +452,7 @@ object ResolveUtils {
           ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(
             call,
             tp,
-            shapesOnly    = shapesOnly,
+            mode          = mode,
             isDynamic     = false,
             withImplicits = withImplicits
           )
@@ -461,7 +461,7 @@ object ResolveUtils {
           ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(
             call,
             tp,
-            shapesOnly    = shapesOnly,
+            mode          = mode,
             isDynamic     = true,
             withImplicits = withImplicits
           )

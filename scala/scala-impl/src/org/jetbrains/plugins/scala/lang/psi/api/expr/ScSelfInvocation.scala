@@ -4,7 +4,7 @@ import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 
 trait ScSelfInvocation extends ScalaPsiElement with PsiReference with ConstructorInvocationLike {
   def args: Option[ScArgumentExprList]
@@ -15,11 +15,11 @@ trait ScSelfInvocation extends ScalaPsiElement with PsiReference with Constructo
 
   def multiResolve: Seq[ScalaResolveResult]
 
-  def shapeType(i: Int): TypeResult
-
-  def shapeMultiType(i: Int): Array[TypeResult]
-
-  def multiType(i: Int): Array[TypeResult]
+  /**
+   * @return the types of the constructors this invocation may resolve to (with the arguments checked according to `mode`),
+   *         applied to the first `i` argument clauses
+   */
+  def multiType(i: Int, mode: ResolveMode = ResolveMode.Full): Array[TypeResult]
 
   def thisElement: PsiElement = getFirstChild
 

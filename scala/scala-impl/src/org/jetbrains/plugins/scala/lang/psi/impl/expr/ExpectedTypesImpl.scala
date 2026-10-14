@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala_2_13, Scala_3_0}
@@ -275,7 +275,20 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
-    def mapResolves(resolves: Array[ScalaResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean, Boolean)] =
+    /**
+     * The mode the invoked method is resolved in, to derive the expected type of its argument `sameInContext` from.
+     *
+     * In Scala 3 the expected type of a deferred argument (a function literal with missing parameter types) is derived
+     * from the alternatives, which are applicable to the other arguments, see [[ResolveMode.Narrow]].
+     * Only deferred arguments may use it, since `Narrow` resolve types all the other arguments, which therefore
+     * mustn't use it to compute their own expected types.
+     */
+    lazy val resolveMode: ResolveMode =
+      if (withResolvedFunction)                   ResolveMode.Full
+      else if (isDeferredArgument(sameInContext)) ResolveMode.Narrow
+      else                                        ResolveMode.Shape
+
+    def mapResolves(resolves: Array[ScalaResolveResult], types: Array[TypeResult]): Array[ResolvedType] =
       resolves.zip(types).map {
         case (r, tp) =>
           val syntheticKindProjectorApplyNames = Set(Lambda, LambdaSymbolic)
@@ -294,7 +307,12 @@ class ExpectedTypesImpl extends ExpectedTypes {
             case _                              => false
           }
 
-          (actualType, isPolymorphic, isApplyDynamicNamed(r))
+          // the constraints from the arguments typed by `Narrow` resolve, see ResolveMode.Narrow
+          val constraints =
+            if (resolveMode == ResolveMode.Narrow) r.applicabilityConstraints
+            else                                   ConstraintSystem.empty
+
+          ResolvedType(actualType, isPolymorphic, isApplyDynamicNamed(r), constraints)
       }
 
     def argIndex(argExprs: Seq[ScExpression]) =
@@ -309,45 +327,34 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
       val resolvedTypes = invoked match {
         case ref: ScReferenceExpression =>
-          if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
-          else                       mapResolves(ref.multiResolveScala(false), ref.multiType)
+          mapResolves(ref.resolveWithMode(resolveMode), ref.multiType(resolveMode))
         case gen: ScGenericCall =>
-          if (!withResolvedFunction) {
-            val multiType = gen.shapeMultiType
+          val multiType = gen.multiType(resolveMode)
 
-            gen.shapeMultiResolve
-              .map(mapResolves(_, multiType))
-              .getOrElse(multiType.map((_, false, false)))
-          } else {
-            val multiType = gen.multiType
-
-            gen.multiResolve
-              .map(mapResolves(_, multiType))
-              .getOrElse(multiType.map((_, false, false)))
-          }
-        case _ => Array((invoked.getNonValueType(expectedType = None), false, false))
+          gen.multiResolve(resolveMode)
+            .map(mapResolves(_, multiType))
+            .getOrElse(multiType.map(ResolvedType(_)))
+        case _ => Array(ResolvedType(invoked.getNonValueType(expectedType = None)))
       }
 
       val updatedWithExpected =
-        resolvedTypes.map {
-          case (tpe, isPolymorphic, isDynamicNamed) =>
-            (tpe.map(invocation.updateAccordingToExpectedType), isPolymorphic, isDynamicNamed)
-        }
+        resolvedTypes.map(resolved => resolved.copy(tpe = resolved.tpe.map(invocation.updateAccordingToExpectedType)))
 
       updatedWithExpected
-        .filterNot(_._1.exists(_.equiv(Nothing)))
-        .flatMap {
-          case (tpe, isPolymorphic, isDynamicNamed) =>
-            computeExpectedParamType(
-              expr,
-              tpe,
-              invoked,
-              argExprs,
-              argIndex(argExprs),
-              Option(invocation),
-              isDynamicNamed = isDynamicNamed,
-              stripTypeArgs  = isPolymorphic
-            )
+        .filterNot(_.tpe.exists(_.equiv(Nothing)))
+        .flatMap { resolvedType =>
+          computeExpectedParamType(
+            expr,
+            resolvedType.tpe,
+            invoked,
+            argExprs,
+            argIndex(argExprs),
+            Option(invocation),
+            isDynamicNamed = resolvedType.isDynamicNamed,
+            stripTypeArgs  = resolvedType.isPolymorphic,
+            constraints    = resolvedType.constraints,
+            mode           = resolveMode
+          )
         }
     }
 
@@ -504,17 +511,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
             val argIdx = argIndex(argExprs)
 
             val tps = ctx match {
-              case c: ScConstructorInvocation =>
-                val clauseIdx = c.arguments.indexOf(args)
-
-                if (!withResolvedFunction) c.shapeMultiType(clauseIdx)
-                else c.multiType(clauseIdx)
-
-              case s: ScSelfInvocation =>
-                val clauseIdx = s.arguments.indexOf(args)
-
-                if (!withResolvedFunction) s.shapeMultiType(clauseIdx)
-                else s.multiType(clauseIdx)
+              case c: ScConstructorInvocation => c.multiType(c.arguments.indexOf(args), resolveMode)
+              case s: ScSelfInvocation        => s.multiType(s.arguments.indexOf(args), resolveMode)
             }
 
             tps.flatMap(
@@ -562,6 +560,10 @@ class ExpectedTypesImpl extends ExpectedTypes {
     else result
   }
 
+  /**
+   * @param constraints the constraints on the type parameters of `invokedExprType`, known from the other arguments
+   * @param mode        the mode `invokedExpr` was resolved in
+   */
   @tailrec
   private def computeExpectedParamType(
     expr:            ScExpression,
@@ -572,7 +574,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
     call:            Option[MethodInvocation] = None,
     forApply:        Boolean                  = false,
     isDynamicNamed:  Boolean                  = false,
-    stripTypeArgs:   Boolean                  = false
+    stripTypeArgs:   Boolean                  = false,
+    constraints:     ConstraintSystem         = ConstraintSystem.empty,
+    mode:            ResolveMode              = ResolveMode.Shape
   ): Option[ParameterType] = {
     implicit val context: Context = Context(expr)
 
@@ -610,7 +614,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
         invokedExpr.resolveApplyOrUpdateMethod(
           invokedExpr,
           internalType,
-          shapesOnly    = true,
+          // apply methods are only resolved by shape, unless the expected type of a deferred argument is derived
+          mode          = if (mode == ResolveMode.Narrow) ResolveMode.Narrow else ResolveMode.Shape,
           withImplicits = true
         )
 
@@ -639,9 +644,25 @@ class ExpectedTypesImpl extends ExpectedTypes {
       case _ => Seq.empty
     }
 
+    /**
+     * A leading using clause, whose arguments aren't given explicitly, is applied to the implicit arguments found for it,
+     * since they may determine the type parameters, the parameter types of the following clauses depend on,
+     * e.g. `A` in `def foo[A](using Foo[A])(fn: A => Int)`.
+     *
+     * Note, that resolve doesn't take the implicit arguments into account (just as the compiler doesn't),
+     * so they are only searched for, when the expected types of the arguments are derived.
+     */
+    def applyLeadingUsingClause(tpe: ScTypePolymorphicType): ScType = tpe.internalType match {
+      case mt: ScMethodType if mt.hasUsingKW && !isExplicitUsingArgs =>
+        call.fold(tpe: ScType) {
+          _.updatedWithImplicitArguments(tpe, checkExpectedType = false, updateDeep = false, isLeadingClause = true)._1
+        }
+      case _ => tpe
+    }
+
     invokedExprType match {
       case Right(mt: ScMethodType) => fromMethodParams(extractParamsFromMethodType(mt))
-      case Right(t @ ScTypePolymorphicType(mt: ScMethodType, _)) =>
+      case Right(t @ ScTypePolymorphicType(_: ScMethodType, _)) =>
         val callPt = call.flatMap(_.expectedType()).getOrElse(Any(using expr))
 
         val unwrappedPt = callPt match {
@@ -649,9 +670,13 @@ class ExpectedTypesImpl extends ExpectedTypes {
           case _                           => callPt
         }
 
-        val params = extractParamsFromMethodType(mt)
-
-        fromMethodParams(params, t.argsProtoTypeSubst(unwrappedPt.toOption))
+        applyLeadingUsingClause(t) match {
+          case tpt @ ScTypePolymorphicType(mt: ScMethodType, _) =>
+            fromMethodParams(extractParamsFromMethodType(mt), tpt.argsProtoTypeSubst(unwrappedPt.toOption, constraints))
+          case mt: ScMethodType =>
+            fromMethodParams(extractParamsFromMethodType(mt))
+          case _ => None
+        }
       case Right(anotherType) if !forApply =>
         tryApplyMethod(anotherType) match {
           case Some((applyInvokedType, isApplyDynamicNamed)) =>
@@ -662,7 +687,8 @@ class ExpectedTypesImpl extends ExpectedTypes {
               argExprs,
               idx,
               forApply = true,
-              isDynamicNamed = isApplyDynamicNamed
+              isDynamicNamed = isApplyDynamicNamed,
+              mode = mode
             )
           case _ => None
         }
@@ -813,6 +839,27 @@ private object ExpectedTypesImpl {
     }
 
     case object NotAFunction extends Arity { override def matches(arity: Int): Boolean = true }
+  }
+
+  /**
+   * The type of an invoked expression, the expected types of the arguments are derived from.
+   *
+   * @param constraints the constraints on the type parameters of `tpe` from the arguments typed by
+   *                    [[org.jetbrains.plugins.scala.lang.resolve.ResolveMode.Narrow]] resolve
+   */
+  private final case class ResolvedType(
+    tpe:            TypeResult,
+    isPolymorphic:  Boolean          = false,
+    isDynamicNamed: Boolean          = false,
+    constraints:    ConstraintSystem = ConstraintSystem.empty
+  )
+
+  /**
+   * @return true, if `argument` is a deferred argument in Scala 3, see [[org.jetbrains.plugins.scala.lang.resolve.ResolveMode.Narrow]]
+   */
+  private def isDeferredArgument(argument: PsiElement): Boolean = argument match {
+    case expression: ScExpression => expression.isInScala3File && ResolveMode.isDeferred(expression)
+    case _                        => false
   }
 
   implicit class ScMethodCallEx(private val invocation: MethodInvocation) extends AnyVal {

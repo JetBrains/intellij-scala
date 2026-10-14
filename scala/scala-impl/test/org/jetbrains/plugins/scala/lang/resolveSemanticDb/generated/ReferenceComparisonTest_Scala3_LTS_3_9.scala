@@ -834,7 +834,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part8 extends ReferenceCompar
   def test_i5666(): Unit = doTest("i5666", true)
   def test_i5699(): Unit = doTest("i5699", true) // #unionType
   def test_i5700(): Unit = doTest("i5700", true)
-  def test_i5711(): Unit = doTest("i5711", false)
+  def test_i5711(): Unit = doTest("i5711", true)
   def test_i5720(): Unit = doTest("i5720", true) // #opaque, #typeLambda
   def test_i5750(): Unit = doTest("i5750", true)
 }
@@ -1715,7 +1715,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part17 extends ReferenceCompa
   def test_i16486(): Unit = doTest("i16486", true) // #intersectionType
   def test_i16488(): Unit = doTest("i16488", true)
   def test_i16500(): Unit = doTest("i16500", true)
-  def test_i16506(): Unit = doTest("i16506", false)
+  def test_i16506(): Unit = doTest("i16506", true)
   def test_i16539(): Unit = doTest("i16539", true) // #enum, #unionType
   def test_i16539_min(): Unit = doTest("i16539.min", true) // #unionType
   def test_i16544a(): Unit = doTest("i16544a", true)
@@ -1756,7 +1756,7 @@ final class ReferenceComparisonTest_Scala3_LTS_3_9_Part17 extends ReferenceCompa
   def test_i17100a(): Unit = doTest("i17100a", false) // #extension
   def test_i17135(): Unit = doTest("i17135", true)
   def test_i17149(): Unit = doTest("i17149", true) // #matchType
-  def test_i17155(): Unit = doTest("i17155", false)
+  def test_i17155(): Unit = doTest("i17155", true)
   def test_i17186a(): Unit = doTest("i17186a", true)
   def test_i17186b(): Unit = doTest("i17186b", true)
   def test_i17192(): Unit = doTest("i17192", false) // #matchType

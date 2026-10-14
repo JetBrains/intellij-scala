@@ -20,7 +20,7 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
     implicit val ctx: ProjectContext = element
 
     def annotateAssignmentResolve(): Unit =
-      element.resolveAssignment match {
+      element.resolveAssignment() match {
         case Some(ra) =>
           ra.problems.foreach {
             case TypeMismatch(_, _) => // Handled by ScExpressionAnnotator

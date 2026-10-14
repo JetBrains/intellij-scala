@@ -867,14 +867,17 @@ object ScExpression {
           case (-1, _) => false
           case _ => true
         }.map {
-          case (i, expr: ScFunctionExpr) => (i, shapeIgnoringAssign(expr.result))
-          case (i, _) => (i, None)
+          case (i, expr: ScFunctionExpr) => (i, shapeIgnoringAssign(expr.result), expr.isContext)
+          case (i, _) => (i, None, false)
         }
 
         arityAndResultType.map {
-          case (i, tp) => (Seq.fill(i)(Any), tp)
+          case (i, tp, isContext) => (Seq.fill(i)(Any), tp, isContext)
         }.map {
-          case (argumentsTypes, maybeResultType) =>
+          // the shape of a context function literal `(x1, ..., xn) ?=> e` is `(Any, ..., Any) ?=> shape(e)`
+          case (argumentsTypes, maybeResultType, true) =>
+            ContextFunctionType(maybeResultType.getOrElse(Nothing), argumentsTypes)
+          case (argumentsTypes, maybeResultType, false) =>
             FunctionType(maybeResultType.getOrElse(Nothing), argumentsTypes)
         }
     }

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveR
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, TypePresentationContext, TypeVariableUnification}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult, ScalaResolveState}
 
 object DerivesUtil {
 
@@ -329,7 +329,7 @@ object DerivesUtil {
       "derived",
       List.empty,
       Seq.empty,
-      isShapeResolve = false,
+      resolveMode = ResolveMode.Full,
     )
 
     val companionType = companion.`type`().getOrAny

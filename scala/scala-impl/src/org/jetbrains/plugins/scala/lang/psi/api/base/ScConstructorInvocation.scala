@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 
 trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocationLike {
   def typeElement: ScTypeElement
@@ -28,11 +28,11 @@ trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocation
 
   def newTemplate: Option[ScNewTemplateDefinition]
 
-  def shapeType(i: Int): TypeResult
-
-  def shapeMultiType(i: Int): Array[TypeResult]
-
-  def multiType(i: Int): Array[TypeResult]
+  /**
+   * @return the types of the constructors this invocation may resolve to (with the arguments checked according to `mode`),
+   *         applied to the first `i` argument clauses
+   */
+  def multiType(i: Int, mode: ResolveMode = ResolveMode.Full): Array[TypeResult]
 
   def reference: Option[ScStableCodeReference]
 

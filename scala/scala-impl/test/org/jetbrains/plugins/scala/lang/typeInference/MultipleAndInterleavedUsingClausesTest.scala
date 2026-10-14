@@ -176,4 +176,59 @@ class MultipleAndInterleavedUsingClausesTest extends SimpleResolveTestBase {
       |""".stripMargin
   )
 
+  def testUsingDependentFunctionLiteralParam(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait Foo[A]
+      |  given Foo[String] = ???
+      |  def foo[A](using Foo[A])(fn: A => Int): Int = ???
+      |  foo(x => x.toInt)
+      |}
+      |""".stripMargin
+  )
+
+  def testUsingDependentUnderscoreSection(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait Foo[A]
+      |  given Foo[String] = ???
+      |  def foo[A](using Foo[A])(fn: A => Int): Int = ???
+      |  foo(_.toInt)
+      |}
+      |""".stripMargin
+  )
+
+  def testUsingDependentBlockFunctionLiteral(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait Foo[A]
+      |  given Foo[String] = ???
+      |  def foo[A](using Foo[A])(fn: A => Int): Int = ???
+      |  foo { x => x.toInt }
+      |}
+      |""".stripMargin
+  )
+
+  def testUsingDependentPartialFunction(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait Foo[A]
+      |  given Foo[String] = ???
+      |  def foo[A](using Foo[A])(fn: A => Int): Int = ???
+      |  foo { case x => x.toInt }
+      |}
+      |""".stripMargin
+  )
+
+  def testUsingDependentFunctionLiteralParamWithOtherArgs(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait Foo[A]
+      |  given Foo[String] = ???
+      |  def foo[A](using Foo[A])(i: Int, fn: A => Int): Int = ???
+      |  foo(1, x => x.toInt)
+      |}
+      |""".stripMargin
+  )
+
 }

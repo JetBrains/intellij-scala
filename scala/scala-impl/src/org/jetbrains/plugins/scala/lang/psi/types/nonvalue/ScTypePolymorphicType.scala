@@ -59,8 +59,14 @@ final case class ScTypePolymorphicType(
 
   /**
     * See [[scala.tools.nsc.typechecker.Infer.Inferencer#protoTypeArgs]]
+    *
+    * @param constraints the constraints on the type parameters, which are known in addition to those
+    *                    from the expected type `pt`, e.g. from the arguments typed already
     */
-  def argsProtoTypeSubst(pt: Option[ScType])(implicit context: Context): ScSubstitutor = {
+  def argsProtoTypeSubst(
+    pt:          Option[ScType],
+    constraints: ConstraintSystem = ConstraintSystem.empty
+  )(implicit context: Context): ScSubstitutor = {
     val maybeTypeParts = internalType match {
       case ScMethodType(retTpe, params, _) => Option((retTpe, params.map(_.paramType)))
       case FunctionType(retTpe, params)    => Option((retTpe, params))
@@ -76,9 +82,16 @@ final case class ScTypePolymorphicType(
           case None      => ConstraintSystem.empty
         }
 
-        if (retTpeConformance.isLeft) abstractTypeSubstitutor
+        // the expected type is disregarded, if the result type doesn't conform to it
+        val allConstraints: ConstraintsResult = retTpeConformance match {
+          case cs: ConstraintSystem     => cs + constraints
+          case _ if constraints.isEmpty => retTpeConformance
+          case _                        => constraints
+        }
+
+        if (allConstraints.isLeft) abstractTypeSubstitutor
         else
-          retTpeConformance.constraints.substitutionBounds(canThrowSCE = false) match {
+          allConstraints.constraints.substitutionBounds(canThrowSCE = false) match {
             case Some(SubstitutionBounds(_, lowerMap, upperMap)) =>
               ScSubstitutor.bind(typeParameters) { tp =>
                 val varianceInParams = paramTypes.foldLeft(Variance.Bivariant) {

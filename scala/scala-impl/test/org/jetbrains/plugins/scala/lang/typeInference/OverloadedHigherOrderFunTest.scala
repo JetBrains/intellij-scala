@@ -277,4 +277,136 @@ class OverloadedHigherOrderFunScala3Test extends ScalaLightCodeInsightFixtureTes
       |}
       |""".stripMargin
   )
+
+  def testOverloadDisambiguatedByNonFunctionArg(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, i => i * 10L)
+      |  val result2 = foo("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgUnderscore(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, _ * 10L)
+      |  val result2 = foo("hello", _.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgBlock(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, { i => i * 10L })
+      |  val result2 = foo("hello", { s => s.length })
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgPartialFunction(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(1, { case i => i * 10L })
+      |  val result2 = foo("hello", { case s => s.length })
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgPartialFunctionType(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: PartialFunction[Int, Long]): Int = ???
+      |  def foo(x: String, f: PartialFunction[String, Int]): Double = ???
+      |
+      |  val result1 = foo(1, { case i => i * 10L })
+      |  val result2 = foo("hello", { case s => s.length })
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgNamed(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: String, f: String => Int): Double = ???
+      |
+      |  val result1 = foo(f = i => i * 10L, x = 1)
+      |  val result2 = foo(f = s => s.length, x = "hello")
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadDisambiguatedByNonFunctionArgTypeArgs(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo[T](x: Int, f: Int => T): T = ???
+      |  def foo[T](x: String, f: String => T): T = ???
+      |
+      |  val result1: Long = foo[Long](1, i => i * 10L)
+      |  val result2: Int = foo[Int]("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadedConstructorDisambiguatedByNonFunctionArg(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  class Foo(x: Int, f: Int => Long) {
+      |    def this(x: String, f: String => Int) = this(x.length, _.toLong)
+      |  }
+      |
+      |  val foo1 = new Foo(1, i => i * 10L)
+      |  val foo2 = new Foo("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testOverloadedConstructorProxyDisambiguatedByNonFunctionArg(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  class Foo(x: Int, f: Int => Long) {
+      |    def this(x: String, f: String => Int) = this(x.length, _.toLong)
+      |  }
+      |
+      |  val foo1 = Foo(1, i => i * 10L)
+      |  val foo2 = Foo("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
+
+  // the alternatives applicable to the non-function argument disagree on the parameter type of the function literal
+  def testOverloadNotDisambiguatedByNonFunctionArg(): Unit = checkHasErrorAroundCaret(
+    """
+      |object Test {
+      |  def foo(x: Int, f: Int => Long): Int = ???
+      |  def foo(x: Int, f: String => Int): Double = ???
+      |
+      |  val result = foo(1, i => i.length)
+      |}
+      |""".stripMargin
+  )
+
+  def testTypeParameterDeterminedByNonFunctionArg(): Unit = checkTextHasNoErrors(
+    """
+      |object Test {
+      |  def foo[A](a: A, f: A => Int): Int = ???
+      |
+      |  val result = foo("hello", s => s.length)
+      |}
+      |""".stripMargin
+  )
 }

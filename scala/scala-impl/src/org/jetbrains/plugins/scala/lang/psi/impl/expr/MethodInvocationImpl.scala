@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.PsiElementForExpectedTypesEx
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveResultUtils}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult, ScalaResolveResultUtils}
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
@@ -272,7 +272,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
             val applyOrUpdateCands = anchor.resolveApplyOrUpdateMethod(
               anchor,
               withoutLeadingImplicitClauses,
-              shapesOnly    = false,
+              mode          = ResolveMode.Full,
               withImplicits = true
             )
 

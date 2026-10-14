@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider.PsiMethodTypeProviderExt
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.scalaMeta.QuasiquoteInferUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.{getInstance => ScalaApplicationSettings}
@@ -434,6 +434,8 @@ object Compatibility {
    *                                 During overloading resolution the expected type of an argument is derived from
    *                                 the parameter types of all the alternatives, see
    *                                 [[org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor]].
+   * @param deferredByShape          When true, only calculate shapeTypes of the deferred argument expressions,
+   *                                 see [[org.jetbrains.plugins.scala.lang.resolve.ResolveMode.Narrow]]
    */
   def checkMethodApplicability(
     parameters:               Seq[Parameter],
@@ -441,7 +443,8 @@ object Compatibility {
     withImplicits:            Boolean,
     shapesOnly:               Boolean,
     approximateDependentsFor: Set[ScParameter]                  = Set.empty,
-    argumentExpectedTypes:    Map[ScExpression, Option[ScType]] = Map.empty
+    argumentExpectedTypes:    Map[ScExpression, Option[ScType]] = Map.empty,
+    deferredByShape:          Boolean                           = false
   )(implicit context: Context): ApplicabilityCheckResult = {
 
     ProgressManager.checkCanceled()
@@ -493,14 +496,19 @@ object Compatibility {
     ): List[ApplicabilityProblem] = {
       val adaptTo = Option(param.expectedType)
 
+      val isShape = shapesOnly || (deferredByShape && (arg match {
+        case Expression(expr) => ResolveMode.isDeferred(expr)
+        case _                => false
+      }))
+
       val exprTypeResult = arg match {
         case Expression(expr) if argumentExpectedTypes.contains(expr) =>
-          expr.getTypeAdaptedTo(adaptTo, withImplicits, shapesOnly, argumentExpectedTypes(expr))
+          expr.getTypeAdaptedTo(adaptTo, withImplicits, isShape, argumentExpectedTypes(expr))
         case Expression(expr) if seqType.isDefined =>
           val expectedType = seqType.map(ScParameterizedType(_, Seq(param.expectedType)))
-          expr.getTypeAdaptedTo(adaptTo, withImplicits, shapesOnly, expectedType)
+          expr.getTypeAdaptedTo(adaptTo, withImplicits, isShape, expectedType)
         case _ =>
-          arg.getTypeAfterImplicitConversion(withImplicits, shapesOnly, adaptTo)
+          arg.getTypeAfterImplicitConversion(withImplicits, isShape, adaptTo)
       }
 
       exprTypeResult.tr.toOption match {
@@ -747,6 +755,7 @@ object Compatibility {
 
   /**
    * @param argumentExpectedTypes see [[checkMethodApplicability]]
+   * @param deferredByShape       see [[checkMethodApplicability]]
    */
   def compatible(
     srr:                   ScalaResolveResult,
@@ -756,7 +765,8 @@ object Compatibility {
     shapesOnly:            Boolean,
     ref:                   PsiElement,
     argClauseIdx:          Int                               = 0,
-    argumentExpectedTypes: Map[ScExpression, Option[ScType]] = Map.empty
+    argumentExpectedTypes: Map[ScExpression, Option[ScType]] = Map.empty,
+    deferredByShape:       Boolean                           = false
   )(implicit context: Context): ApplicabilityCheckResult = {
     val named = srr.element
     val args  = argClauses.lift(argClauseIdx).getOrElse(Seq.empty)
@@ -771,7 +781,8 @@ object Compatibility {
         withImplicits,
         shapesOnly,
         allImplicitParameters,
-        argumentExpectedTypes
+        argumentExpectedTypes,
+        deferredByShape
       )
 
     named match {
