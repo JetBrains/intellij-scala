@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
-import org.jetbrains.plugins.scala.project.{ScalaFeaturePusher, ScalaFeatures}
+import org.jetbrains.plugins.scala.project.{ScalaFeatures, ScalaFileFeatures}
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.plugins.scalaDirective.ScalaDirectiveLanguage
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage
@@ -87,7 +87,7 @@ object ScalaSyntaxHighlighterFactory {
       null
 
     if (psiFile != null)
-      ScalaFeaturePusher.getFeatures(psiFile)
+      ScalaFileFeatures.instance.fileFeatures(psiFile)
     else
        None
   }

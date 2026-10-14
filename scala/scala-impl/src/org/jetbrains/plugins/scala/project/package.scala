@@ -453,10 +453,12 @@ package object project {
   }
 
   object ProjectPsiFileExt {
-    // TODO: this is a dirty hack to suppress skipping features check in unit tests
-    //  ideally we shouldn't check for `isUnitTestMode`, we should fix expected test data in all affected tests
+    /** @see [[ScalaFileFeatures.enableFeaturesCheckInTests]] */
     @TestOnly
-    var enableFeaturesCheckInTests = false
+    def enableFeaturesCheckInTests: Boolean = ScalaFileFeatures.enableFeaturesCheckInTests
+
+    @TestOnly
+    def enableFeaturesCheckInTests_=(value: Boolean): Unit = ScalaFileFeatures.enableFeaturesCheckInTests = value
   }
 
   // TODO The same as ScalaFeatures (Scala versions, isSource3Enabled vs hasSource3Flag, etc.), SCL-20935

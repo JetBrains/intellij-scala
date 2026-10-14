@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.builder
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
-import org.jetbrains.plugins.scala.project.ProjectPsiFileExt.enableFeaturesCheckInTests
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.{ScalaFeatures, ScalaFileFeatures}
 import org.jetbrains.plugins.scala.{ScalaVersion, isUnitTestMode}
 
 object ScalaPsiBuilderFactory {
@@ -26,16 +25,15 @@ object ScalaPsiBuilderFactory {
 
       containingFile
         .flatMap { file =>
-          val fileModule = file.module
-          val moduleFeatures = fileModule.map(_.features)
-          moduleFeatures.orElse(ScalaFeaturePusher.getFeatures(file))
+          val fileFeatures = ScalaFileFeatures.instance
+          fileFeatures.moduleFeatures(file).orElse(fileFeatures.fileFeatures(file))
         }
         .getOrElse(featuresByVersion)
     }
 
-    lazy val isStrictMode: Boolean = containingFile.exists(_.isCompilerStrictMode)
+    lazy val isStrictMode: Boolean = containingFile.exists(ScalaFileFeatures.instance.isCompilerStrictMode)
 
-    val allowTrailingCommaByDefault: Boolean = isUnitTestMode && !enableFeaturesCheckInTests
+    val allowTrailingCommaByDefault: Boolean = isUnitTestMode && !ScalaFileFeatures.enableFeaturesCheckInTests
   }
 
   def settings(

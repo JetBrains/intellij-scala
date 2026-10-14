@@ -16,7 +16,7 @@ object ScalaFeaturesProvider {
       else None
 
     attached
-      .orElse(file.module.map(_.features))
+      .orElse(ScalaFileFeatures.instance.moduleFeatures(file))
       .getOrElse(if (file.isScala3File) ScalaFeatures.defaultScala3 else ScalaFeatures.default)
   }
 
