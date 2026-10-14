@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala.caches
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.Tracing.{Parameters, tracing}
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
+import org.jetbrains.plugins.scala.Tracing.Parameters
+import org.jetbrains.plugins.scala.TracingSession.tracing
 import org.jetbrains.plugins.scala.annotator.Message.Error
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteCommandAction}
-import org.junit.Assert._
+import org.junit.Assert.*
 
 class CachingTest extends ScalaFixtureTestCase {
   override protected def supportedIn(version: ScalaVersion) = version == ScalaVersion.default

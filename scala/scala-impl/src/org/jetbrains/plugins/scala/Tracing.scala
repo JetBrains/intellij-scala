@@ -1,15 +1,9 @@
 package org.jetbrains.plugins.scala
 
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DaemonListener
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.event.{BulkAwareDocumentListener, DocumentEvent}
-import com.intellij.openapi.fileEditor.FileEditor
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.psi.{PsiElement, PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
+import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -22,8 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintsResult, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-import java.util as ju
-import scala.annotation.nowarn
 import scala.collection.mutable.ListBuffer
 
 @ApiStatus.Internal
@@ -98,69 +90,30 @@ object Tracing {
     }
   }
 
-  private val psiTreeChangeListener = new PsiTreeChangeAdapter {
-    override def childAdded(event: PsiTreeChangeEvent): Unit = if (parameters.psi) {
-      trace(s"PSI added: ${event.getChild.asText}")
-    }
-
-    override def childRemoved(event: PsiTreeChangeEvent): Unit = if (parameters.psi) {
-      trace(s"PSI removed: ${event.getChild.asText}")
-    }
-
-    override def childReplaced(event: PsiTreeChangeEvent): Unit = if (parameters.psi) {
-      trace(s"PSI change: ${event.getOldChild.asText} → ${event.getNewChild.asText}")
-    }
-  }
-
-  private val documentListener = new BulkAwareDocumentListener {
-    override def documentChanged(event: DocumentEvent): Unit = if (parameters.document) {
-      trace(s"Document change: ${event.getOldFragment.showWhitespaces} → ${event.getNewFragment.showWhitespaces}")
-    }
-  }
-
-  private val daemonListener = new DaemonListener {
-    override def daemonStarting(fileEditors: ju.Collection[? <: FileEditor]): Unit = if (parameters.annotator) {
-      trace("Highlighting started")
-      annotatedElements = ListBuffer.empty[PsiElement]
-    }
-
-    override def daemonFinished(fileEditors: ju.Collection[? <: FileEditor]): Unit = if (parameters.annotator) {
-      trace(s"Annotated: ${annotatedElements.map(_.asText).mkString(" ")}")
-      trace("Highlighting finished")
-    }
-  }
-
   private var parameters: Parameters = Parameters.Empty
 
   private var lines = ListBuffer.empty[String]
 
   private var annotatedElements = ListBuffer.empty[PsiElement]
 
-  def tracing(project: Project, parameters: Parameters)(action: => Unit): String = {
-    val psiManager = PsiManager.getInstance(project)
-    val eventMulticaster = EditorFactory.getInstance.getEventMulticaster
-    val connection = project.getMessageBus.connect(project)
+  /** The parameters of the current [[TracingSession]] */
+  private[scala] def currentParameters: Parameters = parameters
 
-    psiManager.addPsiTreeChangeListener(psiTreeChangeListener, project)
-    eventMulticaster.addDocumentListener(documentListener, project)
-    connection.subscribe(DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC, daemonListener)
-
+  private[scala] def startSession(parameters: Parameters): Unit = {
     lines = ListBuffer.empty[String]
-
     this.parameters = parameters
+  }
 
-    try {
-      action
-    } finally {
-      this.parameters = Parameters.Empty
-
-      psiManager.removePsiTreeChangeListener(psiTreeChangeListener): @nowarn("cat=deprecation")
-      eventMulticaster.removeDocumentListener(documentListener)
-      connection.disconnect()
-    }
-
+  /** @return the traced lines */
+  private[scala] def stopSession(): String = {
+    this.parameters = Parameters.Empty
     lines.mkString("\n")
   }
+
+  private[scala] def startAnnotating(): Unit =
+    annotatedElements = ListBuffer.empty[PsiElement]
+
+  private[scala] def annotated: Seq[PsiElement] = annotatedElements.toSeq
 
   def trace(s: String): Unit = synchronized {
     if (s.contains(parameters.filter) && (!parameters.coalesce || !lines.lastOption.contains(s))) {
@@ -168,7 +121,7 @@ object Tracing {
     }
   }
 
-  private implicit class PsiElementExt(private val that: PsiElement) {
+  private[scala] implicit class PsiElementExt(private val that: PsiElement) {
     def asText: String = that.getText.showWhitespaces
   }
 
@@ -176,7 +129,7 @@ object Tracing {
     def asText: String = that.getText.showWhitespaces
   }
 
-  private implicit class CharSequenceExt(private val that: CharSequence) {
+  private[scala] implicit class CharSequenceExt(private val that: CharSequence) {
     def showWhitespaces: String = that.toString.replace(' ', '·').replace('\n', '↵')
   }
 

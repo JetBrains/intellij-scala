@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
-import com.intellij.lang.{ASTNode, LanguageNamesValidation}
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaIdentifiers
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -95,13 +96,8 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
   private def referenceText: String = firstNode.getText
 
-  private def isValidIdentifier(name: String) = {
-    val validation = LanguageNamesValidation.INSTANCE.forLanguage(getLanguage)
-    val project = getProject
-
-    !validation.isKeyword(name, project) &&
-      validation.isIdentifier(name, project)
-  }
+  private def isValidIdentifier(name: String) =
+    !ScalaIdentifiers.isKeyword(name) && ScalaIdentifiers.isIdentifier(name)
 
   override def updateText(text: String): ScStringLiteralImpl = try {
     val newStringLiteral = ScalaPsiElementFactory.createStringLiteralFromText(text, this.features).asInstanceOf[ScStringLiteralImpl]

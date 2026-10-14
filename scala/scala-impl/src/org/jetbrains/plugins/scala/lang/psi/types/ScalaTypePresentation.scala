@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorSimplifyTypeProjectionInspection
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorSyntax
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -10,8 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.operatorAssociat
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.DummyLightTypeParam
@@ -317,7 +316,7 @@ trait ScalaTypePresentation extends TypePresentation {
           proj.projected match {
             case ScCompoundType(comps, sigs, aliases) if
               comps == Seq(projectContext.stdTypes.AnyRef) && sigs.isEmpty && aliases.contains(alias.name) =>
-              Option(KindProjectorSimplifyTypeProjectionInspection.convertToKindProjectorSyntax(alias))
+              Option(KindProjectorSyntax.convertToKindProjectorSyntax(alias))
             case _ => None
           }
         case _ => None

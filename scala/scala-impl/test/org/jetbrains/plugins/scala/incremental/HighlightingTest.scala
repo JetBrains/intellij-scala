@@ -6,7 +6,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.Tracing.{Parameters, tracing}
+import org.jetbrains.plugins.scala.Tracing.Parameters
+import org.jetbrains.plugins.scala.TracingSession.tracing
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.junit.Assert

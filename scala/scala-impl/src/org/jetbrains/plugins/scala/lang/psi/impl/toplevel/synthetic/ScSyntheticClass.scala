@@ -5,7 +5,7 @@ import com.intellij.openapi.application.{ApplicationManager, ReadAction}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
-import com.intellij.openapi.project.{Project, ProjectManagerListener}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
@@ -732,10 +732,4 @@ object SyntheticClasses {
   def get(project: Project): SyntheticClasses = project.getService(classOf[SyntheticClasses])
 
   val TypeParameter = "TypeParameterForSyntheticFunction"
-}
-
-class DeregisterSyntheticClassesListener extends ProjectManagerListener {
-  override def projectClosing(project: Project): Unit = {
-    SyntheticClasses.get(project).clear()
-  }
 }
