@@ -115,6 +115,38 @@ class OverridingAnnotatorTest_Scala2 extends OverridingAnnotatorTestBase {
     )
   }
 
+  // ... but only by an equivalent one: scalac "incompatible type in overriding type T = Int"
+  def testOverrideTypeAliasWithIncompatibleAlias(): Unit = {
+    assertMessagesText(
+      """
+        |trait Base { type T = Int; type L = List[Int] }
+        |trait Derived extends Base { override type T = String; override type L = List[String] }
+        |""".stripMargin,
+      """Error(T,Incompatible type in overriding type T = Int (defined in Base): equivalent type required when overriding a type alias)
+        |Error(L,Incompatible type in overriding type L = List[Int] (defined in Base): equivalent type required when overriding a type alias)""".stripMargin
+    )
+  }
+
+  // equivalence is checked with the overridden alias seen from the overriding class, and through aliases
+  def testOverrideTypeAliasWithEquivalentAliasAsSeenFromSubclass(): Unit = {
+    assertNoErrors(
+      """
+        |trait Base[X] { type P = X; type L = List[X] }
+        |trait Derived extends Base[Int] { type I = Int; override type P = Int; override type L = List[I] }
+        |""".stripMargin
+    )
+  }
+
+  def testOverrideTypeAliasWithAliasIncompatibleAsSeenFromSubclass(): Unit = {
+    assertMessagesText(
+      """
+        |trait Base[X] { type P = X }
+        |trait Derived extends Base[Int] { override type P = String }
+        |""".stripMargin,
+      """Error(P,Incompatible type in overriding type P = Int (defined in Base): equivalent type required when overriding a type alias)"""
+    )
+  }
+
   def testOverrideFinalTypeAlias(): Unit = {
     assertMessagesText(
       """
