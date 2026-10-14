@@ -38,6 +38,20 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     case Error("null", "Expression of type Null doesn't conform to expected type Int") :: Nil =>
   }
 
+  // also through an alias of Null, and a val typed by one (scalac tests `typeSymbol == NullClass`)
+  def testNullAliasIneligibleForImplicitConversion(): Unit = assertMatches(errorsFromScalaCode(
+    """object Test {
+      |  type N = Null
+      |  val b: N = null
+      |  val i: Int = b
+      |  def g: N = null
+      |  val j: Int = g
+      |}
+      |""".stripMargin
+  )) {
+    case Error("b", _) :: Error("g", _) :: Nil =>
+  }
+
   // scalac selects `x.put` through the base type of `x` at `I`, which merges all three
   // applications to `I[_1] forSome { type _1 >: Bird with Cat with Dog <: Animal }`: an argument
   // must have all three types
