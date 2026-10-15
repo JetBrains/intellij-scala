@@ -44,7 +44,7 @@ jobs:
       - name: Compile and package
         run: sbt clean packageArtifact Test/compile
       - name: Run internationalization bundle tests
-        run: sbt runJUnit5Tests
+        run: sbt runBundleSortingTests
       - name: Run typechecker tests
         run: sbt runTypeInferenceTests
       - name: Run assorted tests
