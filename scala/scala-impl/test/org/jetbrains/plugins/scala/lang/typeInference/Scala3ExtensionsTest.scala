@@ -1223,4 +1223,23 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |}
       """.stripMargin
   )
+
+  def testSCL26118(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  import scala.Conversion.into
+      |
+      |  final class Route[T]
+      |  object Route:
+      |    given Conversion[String, Route[EmptyTuple]] = _ => Route()
+      |
+      |  object Id
+      |
+      |  extension [T <: Tuple](route: into[Route[T]])
+      |    def /?[P](param: P): Route[Tuple.Append[T, P]] = Route()
+      |
+      |  val query: Route[Tuple1[Id.type]] = "users" /? Id // scalac: Route[Id.type *: EmptyTuple]
+      |}
+      |""".stripMargin
+  )
 }
