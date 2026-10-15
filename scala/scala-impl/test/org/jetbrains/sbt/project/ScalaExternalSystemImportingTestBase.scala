@@ -109,7 +109,7 @@ abstract class ScalaExternalSystemImportingTestBase extends ExternalSystemImport
     setMyTestFixture(fixture)
   }
 
-  final protected def createProjectFixture(): IdeaProjectTestFixture = {
+  protected def createProjectFixture(): IdeaProjectTestFixture = {
     IdeaProjectFixtureFactory.createProjectFixture(
       testName = getName,
       testProjectPath = getTestProjectPath,

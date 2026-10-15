@@ -1,11 +1,19 @@
 package org.jetbrains.sbt.project
 
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.configurationStore.StoreUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.project.TestProjectManager
+import com.intellij.testFramework.{OpenProjectTaskBuilder, PlatformTestUtil, TestApplicationManager}
+import com.intellij.testFramework.fixtures.IdeaProjectTestFixture
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
@@ -14,17 +22,22 @@ import org.jetbrains.plugins.scala.compiler.data.CompileOrder
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.{CommonScalaRevertableChanges, RevertableChange}
 import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.ProjectStructureTestUtils.expectedScalaSdkLibraryFromCoursier
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.{IdeaProjectFixtureOptions, TestProjectCopyOptions}
 import org.jetbrains.sbt.project.structure.SbtStructureDumper
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.{Sbt, SbtVersion}
-import org.junit.Assert.{assertEquals, assertTrue}
+import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 import org.junit.Test
 
 import java.net.URI
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 import java.util.UUID
+
+import scala.compiletime.uninitialized
 
 class SbtProjectStructureImportingTestCase_Simple extends SbtProjectStructureImportingTestCase:
   @Test
@@ -44,6 +57,137 @@ class SbtProjectStructureImportingTestCase_Simple_Scala3 extends SbtProjectStruc
   def simple_Scala3(): Unit =
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
     runSimpleTest("simple-scala3", "3.0.2", scalaLibraries, DefaultSbtContentRootsScala3, DefaultMainSbtContentRootsScala3, DefaultTestSbtContentRootsScala3)
+
+class SbtProjectStructureImportingTestCase_DefaultProjectHighlightingModeSettings extends SbtProjectStructureImportingTestCase:
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+    super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
+
+  override protected def getIdeaProjectFixtureOptions: IdeaProjectFixtureOptions =
+    super.getIdeaProjectFixtureOptions.copy(useTestProjectAsIdeaProjectRoot = true)
+
+  private lazy val defaultProjectHighlightingModeSettings: RevertableChange =
+    RevertableChange.combine(Seq(
+      CommonScalaRevertableChanges.withModifiedScalaProjectSettings(
+        ProjectManager.getInstance.getDefaultProject,
+        _.isCompilerHighlightingScala2,
+        (settings, value) => settings.setCompilerHighlightingScala2(value),
+        true
+      ),
+      CommonScalaRevertableChanges.withModifiedScalaProjectSettings(
+        ProjectManager.getInstance.getDefaultProject,
+        _.isCompilerHighlightingScala3,
+        (settings, value) => settings.setCompilerHighlightingScala3(value),
+        false
+      )
+    ))
+
+  private def saveDefaultProjectSettings(): Unit = {
+    val defaultProject = ProjectManager.getInstance.getDefaultProject
+    StoreUtil.saveSettings(defaultProject, true)
+  }
+
+  override protected def createProjectFixture(): IdeaProjectTestFixture =
+    new DefaultProjectTemplateFixture(getTestProjectPath)
+
+  override protected def setUpFixtures(): Unit =
+    TestApplicationManager.getInstance()
+    try
+      defaultProjectHighlightingModeSettings.applyChange()
+      saveDefaultProjectSettings()
+      super.setUpFixtures()
+    catch
+      case throwable: Throwable =>
+        defaultProjectHighlightingModeSettings.revertChange()
+        saveDefaultProjectSettings()
+        throw throwable
+
+  override def tearDown(): Unit =
+    try
+      defaultProjectHighlightingModeSettings.revertChange()
+      saveDefaultProjectSettings()
+    finally super.tearDown()
+
+  @Test
+  def simple(): Unit =
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+    runSimpleTest("simple", "2.13", scalaLibraries)
+    assertImportedProjectSettings(hasScala2 = true, hasScala3 = false)
+
+  @Test
+  def simple_Scala3(): Unit =
+    val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
+    runSimpleTest("simple-scala3", "3.0.2", scalaLibraries, DefaultSbtContentRootsScala3, DefaultMainSbtContentRootsScala3, DefaultTestSbtContentRootsScala3)
+    assertImportedProjectSettings(hasScala2 = false, hasScala3 = true)
+
+  @Test
+  def mixedScala2Scala3(): Unit =
+    val projectName = "mixedScala2Scala3"
+    val scala2Libraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+    val scala3Libraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
+
+    runTest(
+      new project(projectName) {
+        libraries := scala2Libraries ++ scala3Libraries
+        modules := Seq(
+          new module(projectName),
+          new module(s"$projectName.main") {
+            libraryDependencies := scala2Libraries
+          },
+          new module(s"$projectName.test") {
+            libraryDependencies := scala2Libraries
+          },
+          new module(s"$projectName.scala2"),
+          new module(s"$projectName.scala2.main") {
+            libraryDependencies := scala2Libraries
+          },
+          new module(s"$projectName.scala2.test") {
+            libraryDependencies := scala2Libraries
+          },
+          new module(s"$projectName.scala3"),
+          new module(s"$projectName.scala3.main") {
+            libraryDependencies := scala3Libraries
+          },
+          new module(s"$projectName.scala3.test") {
+            libraryDependencies := scala3Libraries
+          }
+        )
+      }
+    )
+    assertImportedProjectSettings(hasScala2 = true, hasScala3 = true)
+
+  private def assertImportedProjectSettings(hasScala2: Boolean, hasScala3: Boolean): Unit = {
+    assertEquals("Unexpected Scala 2 availability after import", hasScala2, getMyProject.hasScala2)
+    assertEquals("Unexpected Scala 3 availability after import", hasScala3, getMyProject.hasScala3)
+
+    val importedSettings = ScalaProjectSettings.getInstance(getMyProject)
+    assertTrue("Scala 2 should inherit Compiler highlighting from the Default Project", importedSettings.isCompilerHighlightingScala2)
+    assertFalse("Scala 3 should inherit Built-in highlighting from the Default Project", importedSettings.isCompilerHighlightingScala3)
+  }
+
+private final class DefaultProjectTemplateFixture(projectPath: Path) extends IdeaProjectTestFixture:
+  private var actualProject: Project = uninitialized
+
+  override def getProject: Project = actualProject
+
+  override def getModule: Module = actualProject.modules.headOption.orNull
+
+  override def setUp(): Unit = {
+    TestApplicationManager.getInstance.setDataProvider(null)
+
+    // The standard heavy fixture explicitly disables the Default Project template.
+    val projectTask = new OpenProjectTaskBuilder().build().asNewProject()
+
+    val projectManager = ProjectManagerEx.getInstanceEx.asInstanceOf[TestProjectManager]
+    actualProject = projectManager.newProject(projectPath, projectTask)
+    assertTrue(s"Failed to open project $projectPath", actualProject != null)
+
+    PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
+  }
+
+  override def tearDown(): Unit = {
+    TestApplicationManager.tearDownProjectAndApp(actualProject)
+    actualProject = null
+  }
 
 class SbtProjectStructureImportingTestCase_NoRootModule extends SbtProjectStructureImportingTestCase:
   @Test
