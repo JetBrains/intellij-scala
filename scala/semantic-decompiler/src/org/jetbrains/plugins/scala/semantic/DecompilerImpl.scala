@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.semantic
 
-import dotty.tools.backend.jvm.DottyBackendInterface.requiredModule
 import dotty.tools.dotc
 import dotty.tools.dotc.ast.Positioned
 import dotty.tools.dotc.core.*
@@ -62,7 +61,7 @@ class DecompilerImpl(classpath: Array[String]) extends dotc.Driver {
     val run = decompiler.newRun(using myInitCtx.fresh.setReporter(reporter))
     inContext(run.runContext) {
       // Add `internal` for `@scala.caps.internal.consume` in 3.8, SCL-26070
-      val caps = requiredModule("scala.caps").moduleClass.asClass
+      val caps = Symbols.requiredModule("scala.caps").moduleClass.asClass
       if (!caps.info.decl(Names.termName("internal")).symbol.exists) {
         Symbols.newCompleteModuleSymbol(caps, Names.termName("internal"), Synthetic, Synthetic, List(), newScope).entered
       }
