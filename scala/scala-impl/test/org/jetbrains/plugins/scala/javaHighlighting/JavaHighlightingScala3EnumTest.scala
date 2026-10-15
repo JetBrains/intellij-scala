@@ -4,6 +4,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiEnumConstant, PsiModifier}
 import com.intellij.testFramework.UsefulTestCase.assertInstanceOf
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.annotator.Message.Error
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumSingletonCase
 import org.junit.Assert.{assertEquals, assertFalse, assertNotNull, assertTrue, fail}
 
@@ -26,6 +27,20 @@ class JavaHighlightingScala3EnumTest extends JavaHighlightingTestBase {
     )
   }
 
+  def testOrdinaryEnumCannotBeExtendedFromJava(): Unit = {
+    val errors = errorsFromJavaCode(
+      """enum TestEnum:
+        |  case One, Two
+        |""".stripMargin,
+      "abstract class JavaSubclass extends TestEnum {}",
+      "JavaSubclass"
+    )
+    assertTrue("Java classes must not be allowed to extend Scala enums", errors.exists {
+      case Error("TestEnum", message) => message.startsWith("Cannot inherit from")
+      case _ => false
+    })
+  }
+
   def testMixedEnumCases_ExposesOnlyFromOrdinalToJava(): Unit = {
     assertErrorsTextInJava(
       """enum TestEnum:
@@ -44,6 +59,7 @@ class JavaHighlightingScala3EnumTest extends JavaHighlightingTestBase {
     )
 
     val enumClass = findPsiClass("TestEnum")
+    assertEnumClassProperties(enumClass)
     assertSingleMethodCanBeFoundInClass(enumClass, "fromOrdinal")
     assertNoMethodFoundInClass(enumClass, "values")
     assertNoMethodFoundInClass(enumClass, "valueOf")
@@ -87,7 +103,7 @@ class JavaHighlightingScala3EnumTest extends JavaHighlightingTestBase {
     )
 
     val enumClass = findPsiClass("TestEnum")
-    assertTrue("Java view of Scala java-compatible enum class should be a Java enum as well", enumClass.isEnum)
+    assertEnumClassProperties(enumClass)
 
     assertEnumConstantProperties(enumClass, "One")
     assertEnumConstantProperties(enumClass, "Two")
@@ -105,7 +121,7 @@ class JavaHighlightingScala3EnumTest extends JavaHighlightingTestBase {
     assertEquals(name, navigationElement.name)
   }
 
-  def testOrdinaryScalaEnumIsNotJavaEnumAndHasNoCaseFields(): Unit = {
+  def testOrdinaryScalaEnumIsEnumAndHasNoCaseFields(): Unit = {
     myFixture.addFileToProject(
       "OrdinaryEnum.scala",
       //language=Scala 3
@@ -115,7 +131,7 @@ class JavaHighlightingScala3EnumTest extends JavaHighlightingTestBase {
     )
 
     val enumClass = findPsiClass("OrdinaryEnum")
-    assertFalse("Java view of Scala NON-java-compatible enum class should not be a Java enum", enumClass.isEnum)
+    assertEnumClassProperties(enumClass)
     val classFieldNames = enumClass.getFields.iterator.map(_.getName)
     val matchingClassFieldNames = classFieldNames.filter(Set("One", "Two")).toSeq
     assertEquals("Java view of Scala NON-java-compatible enum class should not contain fields with Scala enum cases names", Seq.empty, matchingClassFieldNames)
@@ -134,8 +150,14 @@ class JavaHighlightingScala3EnumTest extends JavaHighlightingTestBase {
     )
 
     val enumClass = findPsiClass("WrongJavaEnum")
-    assertFalse("Java view of an invalid Scala java-compatible enum class should not be a Java enum", enumClass.isEnum)
+    assertEnumClassProperties(enumClass)
     assertEquals(0, enumClass.getFields.count(_.getName == "Value"))
+  }
+
+  private def assertEnumClassProperties(enumClass: PsiClass): Unit = {
+    assertTrue("Scala enum classes must report their JVM enum flag", enumClass.isEnum)
+    assertTrue("Scala enum classes are abstract", enumClass.hasModifierProperty(PsiModifier.ABSTRACT))
+    assertFalse("Scala enum cases extend the enum class", enumClass.hasModifierProperty(PsiModifier.FINAL))
   }
 
   private def findPsiClass(qualifiedName: String): PsiClass = {

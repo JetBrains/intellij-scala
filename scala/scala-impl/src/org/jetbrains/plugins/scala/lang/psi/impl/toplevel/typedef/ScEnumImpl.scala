@@ -27,11 +27,12 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScClass],
   override def cases: Seq[ScEnumCase] =
     extendsBlock.cases.flatMap(_.declaredElements)
 
-  override def isEnum: Boolean = ScEnum.isJavaCompatible(this)
+  // Scala emits ACC_ENUM even for enums that do not extend java.lang.Enum.
+  override def isEnum: Boolean = true
 
   private val getJavaEnumConstants: () => Array[PsiField] =
     cached("getJavaEnumConstants", BlockModificationTracker(this), () => {
-      if (isEnum) {
+      if (ScEnum.isJavaCompatible(this)) {
         val singletons = cases.collect {
           case singletonCase: ScEnumSingletonCase => new ScLightEnumConstant(singletonCase, this)
         }
@@ -53,7 +54,7 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScClass],
   }
 
   override def hasModifierProperty(name: String): Boolean =
-    name == "final" || name == "abstract" || super.hasModifierProperty(name)
+    name == "abstract" || super.hasModifierProperty(name)
 
   override def hasModifierPropertyScala(name: String): Boolean =
     name == "sealed" || name == "abstract" || super.hasModifierPropertyScala(name)
