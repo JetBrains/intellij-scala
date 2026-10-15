@@ -6,6 +6,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiMethod, PsiPackage}
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -57,6 +58,10 @@ trait ScalaClassLookup {
 
   /** The top-level packages of the current Java package migration (Refactor | Migrate), if one runs */
   def migrationRootPackages: Seq[PsiPackage]
+
+  def getPackagingsByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScPackaging]
+
+  def getPackageObjectsByFqn(fqn: String, scope: GlobalSearchScope): Iterable[PsiClass]
 
   def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias]
 
@@ -118,6 +123,10 @@ object ScalaClassLookup {
     override def originalClass(psiClass: PsiClass): PsiClass = psiClass
 
     override def migrationRootPackages: Seq[PsiPackage] = Seq.empty
+
+    override def getPackagingsByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScPackaging] = Iterable.empty
+
+    override def getPackageObjectsByFqn(fqn: String, scope: GlobalSearchScope): Iterable[PsiClass] = Iterable.empty
 
     override def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = None
 

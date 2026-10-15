@@ -235,6 +235,12 @@ class ScalaPsiManager(override implicit val project: Project) extends ScalaClass
       case migration => migration.getMigrationPackages("").asScala.toSeq
     }
 
+  override def getPackagingsByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScPackaging] =
+    ScPackagingFqnIndex.instance.getElements(fqn, project, scope).asScala
+
+  override def getPackageObjectsByFqn(fqn: String, scope: GlobalSearchScope): Iterable[PsiClass] =
+    ScPackageObjectFqnIndex.instance.getElements(fqn, project, scope).asScala
+
   def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     if (DumbService.getInstance(project).isDumb) Iterable.empty
     else TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope)
