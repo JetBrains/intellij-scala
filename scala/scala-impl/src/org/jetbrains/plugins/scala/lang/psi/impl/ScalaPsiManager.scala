@@ -220,6 +220,12 @@ class ScalaPsiManager(override implicit val project: Project) extends ScalaClass
       }
     )
 
+  override def findPackageObjectByName(fqn: String, scope: GlobalSearchScope): Option[ScObject] =
+    ScalaShortNamesCacheManager.getInstance(using project).findPackageObjectByName(fqn, scope)
+
+  override def methodsByName(name: String)(implicit scope: GlobalSearchScope): Iterable[PsiMethod] =
+    ScalaShortNamesCacheManager.getInstance(using project).methodsByName(name)
+
   def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     if (DumbService.getInstance(project).isDumb) Iterable.empty
     else TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope)

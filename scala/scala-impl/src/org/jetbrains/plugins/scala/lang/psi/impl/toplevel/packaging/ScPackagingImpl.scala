@@ -10,7 +10,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ToNullSafe}
 import org.jetbrains.plugins.scala.lang.TokenSets.{MEMBERS, TYPE_DEFINITIONS}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -23,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder, ScalaClassLookup, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 final class ScPackagingImpl private(stub: ScPackagingStub,
@@ -124,8 +123,7 @@ final class ScPackagingImpl private(stub: ScPackagingStub,
   }
 
   override def findPackageObject(scope: GlobalSearchScope): Option[ScObject] =
-    ScalaShortNamesCacheManager.getInstance(using getProject)
-      .findPackageObjectByName(fullPackageName, scope)
+    ScalaClassLookup.instance(getProject).findPackageObjectByName(fullPackageName, scope)
 
   override def fqn: String = fullPackageName
 

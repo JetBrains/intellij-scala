@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import com.intellij.psi.search.LocalSearchScope
-import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaClassLookup, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaClassLookup, ScalaInheritorsFinder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTypeDefinition}
@@ -18,8 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames
-
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 object SyntheticImplicitInstances {
   val ClassManifest = "scala.reflect.ClassManifest"
@@ -293,24 +289,20 @@ object SyntheticImplicitInstances {
         }
       case tdef: ScTypeDefinition if tdef.isSealed =>
         val inheritorsDescriptors =
-          ClassInheritorsSearch.search(
-            tdef,
-            new LocalSearchScope(tdef.getContainingFile),
-            true
-          ).mapping { cls =>
+          ScalaInheritorsFinder.instance.inheritorsInFile(tdef)
+            .toSeq
+            .map { cls =>
               val tdef           = cls.asInstanceOf[ScTypeDefinition]
               val designatorType = tdef.`type`().getOrElse(return None)
               val clsDescriptor  = mirrorDescriptorFor(designatorType)
 
               if (clsDescriptor.isEmpty) return None
               else                       (tdef, designatorType)
-            }.findAll()
-            .asScala
-            .toSeq
+            }
             .sortBy { case (tdef, _) =>
               //This is later stored in a tuple, so order matters
               //(must be consistent with order of declaration in file).
-              //ClassInheritorsSearch gives no such guarantee.
+              //ScalaInheritorsFinder gives no such guarantee.
               tdef.getTextOffset
             }
 

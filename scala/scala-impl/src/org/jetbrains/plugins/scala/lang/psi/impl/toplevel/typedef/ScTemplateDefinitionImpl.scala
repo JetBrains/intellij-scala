@@ -15,11 +15,12 @@ import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.caches.{ModTracker, ScalaShortNamesCacheManager, cached, cachedInUserData}
+import org.jetbrains.plugins.scala.caches.{ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets.RBRACE_OR_END_STMT
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.ScalaClassLookup
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -173,7 +174,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       }.asJava
 
       val scope = GlobalSearchScope.filesScope(getProject, files)
-      val inBaseClasses = ScalaShortNamesCacheManager.getInstance(using getProject)
+      val inBaseClasses = ScalaClassLookup.instance(getProject)
         .methodsByName(name)(using scope)
         .filter { method =>
           isInheritor(method.containingClass, checkDeep = true)

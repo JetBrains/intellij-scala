@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScExtendsBlockElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtendsBlockStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaDirectSupers
 
 import scala.collection.immutable.ArraySeq
 
@@ -21,7 +21,7 @@ final class ScExtendsBlockStubFactory(elementType: ScExtendsBlockElementType) ex
     new ScExtendsBlockStubImpl(parentStub, elementType, baseClasses = ArraySeq.unsafeWrapArray(dataStream.readNames))
 
   override def createStubImpl(psi: ScExtendsBlock, parentStub: StubElement[? <: PsiElement]): ScExtendsBlockStub =
-    new ScExtendsBlockStubImpl(parentStub, elementType, baseClasses = ScalaInheritors.directSupersNames(psi))
+    new ScExtendsBlockStubImpl(parentStub, elementType, baseClasses = ScalaDirectSupers.directSupersNames(psi))
 
   override def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = new ScExtendsBlockImpl(stub)
 

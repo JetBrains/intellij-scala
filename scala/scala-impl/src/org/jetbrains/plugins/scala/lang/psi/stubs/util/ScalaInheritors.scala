@@ -11,8 +11,6 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUse
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCaptureTypeElement, ScDesugarizableTypeElement, ScInfixTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -20,58 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.{ALIASED_
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
 object ScalaInheritors {
-  private val defaultParents   : Array[String] = Array("AnyRef")
-  private val caseClassDefaults: Array[String] = defaultParents :+ "Product" :+ "Serializable"
-
-  def directSupersNames(extBlock: ScExtendsBlock): ArraySeq[String] = {
-    def default = if (extBlock.isUnderCaseClass) caseClassDefaults else defaultParents
-
-    collectForDirectSuperReferences(extBlock, _.refName) ++ default
-  }
-
-  private def directSuperReferenceTexts(extendsBlock: ScExtendsBlock): ArraySeq[String] = {
-    collectForDirectSuperReferences(extendsBlock, _.getText)
-  }
-
-  private def collectForDirectSuperReferences(extBlock: ScExtendsBlock,
-                                              function: ScStableCodeReference => String): ArraySeq[String] = {
-    @tailrec
-    def extractReference(te: ScTypeElement): Option[ScStableCodeReference] =
-      te match {
-        case simpleType: ScSimpleTypeElement => simpleType.reference
-        case infixType: ScInfixTypeElement => Option(infixType.operation)
-        case x: ScParameterizedTypeElement => extractReference(x.typeElement)
-        case x: ScParenthesisedTypeElement =>
-          x.innerElement match {
-            case Some(e) => extractReference(e)
-            case _ => None
-          }
-        case x: ScCaptureTypeElement => extractReference(x.innerElement)
-        case x: ScDesugarizableTypeElement => extractReference(x.typeElementFromText(x.desugarizedText))
-        case _ => None
-      }
-
-    extBlock.templateParents match {
-      case None => ArraySeq.empty
-      case Some(parents) =>
-        val parentElements = parents.typeElements.iterator
-        val builder = ArraySeq.newBuilder[String]
-        while (parentElements.hasNext) {
-          extractReference(parentElements.next()) match {
-            case Some(value) =>
-              builder += function(value)
-            case _ =>
-          }
-        }
-        builder.result()
-    }
-  }
+  def directSupersNames(extBlock: ScExtendsBlock): ArraySeq[String] = ScalaDirectSupers.directSupersNames(extBlock)
 
   def directInheritorCandidates(clazz: PsiClass, scope: SearchScope): Seq[ScTemplateDefinition] =
     scope match {

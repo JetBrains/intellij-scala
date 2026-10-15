@@ -8,11 +8,10 @@ import com.intellij.psi._
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaClassLookup, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
@@ -180,8 +179,8 @@ object ScImportOrExportImpl {
         case p: PsiPackage =>
           if (!checkPackageObject) None
           else
-            ScalaShortNamesCacheManager
-              .getInstance(using project)
+            ScalaClassLookup
+              .instance(project)
               //NOTE: note sure whether we need to take resolveScope from importsStmt and can't take it from importExpr
               .findPackageObjectByName(p.getQualifiedName, importOrExportStmt.resolveScope)
               .flatMap(_.`type`().toOption)

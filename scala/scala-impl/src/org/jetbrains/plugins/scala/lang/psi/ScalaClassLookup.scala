@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{PsiClass, PsiPackage}
+import com.intellij.psi.{PsiClass, PsiMethod, PsiPackage}
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
@@ -47,6 +47,10 @@ trait ScalaClassLookup {
   def getTopLevelDefinitionsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScMember]
 
   def getTopLevelExportsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScExportStmt]
+
+  def findPackageObjectByName(fqn: String, scope: GlobalSearchScope): Option[ScObject]
+
+  def methodsByName(name: String)(implicit scope: GlobalSearchScope): Iterable[PsiMethod]
 
   def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias]
 
@@ -100,6 +104,10 @@ object ScalaClassLookup {
     override def getTopLevelDefinitionsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScMember] = Iterable.empty
 
     override def getTopLevelExportsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScExportStmt] = Iterable.empty
+
+    override def findPackageObjectByName(fqn: String, scope: GlobalSearchScope): Option[ScObject] = None
+
+    override def methodsByName(name: String)(implicit scope: GlobalSearchScope): Iterable[PsiMethod] = Iterable.empty
 
     override def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = None
 
