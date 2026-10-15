@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{FileViewProvider, PsiFile, PsiFileFactory, PsiManager, SingleRootFileViewProvider, compiled, stubs}
 import com.intellij.util.indexing.FileContent
 import org.jetbrains.plugins.scala.lang.parser.{Scala3ParserDefinition, ScalaParserDefinition}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 import org.jetbrains.plugins.scala.tasty.TastyFileType
 
@@ -39,7 +40,7 @@ object ScClassFileDecompiler {
 
   object ScClsStubBuilder extends compiled.ClsStubBuilder {
 
-    override val getStubVersion = 486
+    override val getStubVersion: Int = ScStubFileElementType.DecompiledStubVersion
 
     override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[? <: PsiFile] = {
       val psiFile = decompiledScalaFile(content)

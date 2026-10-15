@@ -15,7 +15,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaLowerCase
 import org.jetbrains.plugins.scala.caches.{CleanupScheduler, ScalaShortNamesCacheManager, ValueWrapper, cachedWithoutModificationCount}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaClassLookup}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaClassLookup, ScalaPsiImplementationHelper}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
@@ -225,6 +225,8 @@ class ScalaPsiManager(override implicit val project: Project) extends ScalaClass
 
   override def methodsByName(name: String)(implicit scope: GlobalSearchScope): Iterable[PsiMethod] =
     ScalaShortNamesCacheManager.getInstance(using project).methodsByName(name)
+
+  override def originalClass(psiClass: PsiClass): PsiClass = ScalaPsiImplementationHelper.getOriginalClass(psiClass)
 
   def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     if (DumbService.getInstance(project).isDumb) Iterable.empty

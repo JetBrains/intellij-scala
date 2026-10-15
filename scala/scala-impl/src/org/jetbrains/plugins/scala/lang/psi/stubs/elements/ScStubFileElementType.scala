@@ -9,7 +9,6 @@ import com.intellij.psi.{PsiClass, PsiFile}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 
 /**
@@ -28,7 +27,7 @@ class ScStubFileElementType(debugName: String, language: Language)
    * Stub serialization format version for this language
    */
   def stubVersion: Int =
-    ScStubFileElementType.getStubVersion(language) + ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
+    ScStubFileElementType.getStubVersion(language) + ScStubFileElementType.DecompiledStubVersion
 
   def shouldBuildStubFor(file: VirtualFile): Boolean =
     file.getFileSystem.getProtocol != StandardFileSystems.JAR_PROTOCOL
@@ -87,4 +86,10 @@ object ScStubFileElementType {
    * element serialization/deserialization changes)
    */
   private val BaseStubVersion = 2
+
+  /**
+   * Version of the stubs that [[org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler.ScClsStubBuilder]]
+   * builds for compiled Scala files. It is here, and not in the decompiler (backend), because [[stubVersion]] includes it.
+   */
+  val DecompiledStubVersion = 486
 }

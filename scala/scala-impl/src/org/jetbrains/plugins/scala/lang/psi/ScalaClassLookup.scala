@@ -52,6 +52,9 @@ trait ScalaClassLookup {
 
   def methodsByName(name: String)(implicit scope: GlobalSearchScope): Iterable[PsiMethod]
 
+  /** For a class in library sources, the compiled class of the same library; otherwise the class itself */
+  def originalClass(psiClass: PsiClass): PsiClass
+
   def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias]
 
   def scalaNamedTupleAlias(scope: GlobalSearchScope): Option[ScTypeAlias]
@@ -108,6 +111,8 @@ object ScalaClassLookup {
     override def findPackageObjectByName(fqn: String, scope: GlobalSearchScope): Option[ScObject] = None
 
     override def methodsByName(name: String)(implicit scope: GlobalSearchScope): Iterable[PsiMethod] = Iterable.empty
+
+    override def originalClass(psiClass: PsiClass): PsiClass = psiClass
 
     override def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = None
 

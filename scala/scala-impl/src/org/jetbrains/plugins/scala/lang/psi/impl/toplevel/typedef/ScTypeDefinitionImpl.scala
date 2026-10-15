@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cached, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiImplementationHelper
+import org.jetbrains.plugins.scala.lang.psi.ScalaClassLookup
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.stubOrPsiNextSibling
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
@@ -414,7 +414,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   }
 
   override def getOriginalElement: PsiElement =
-    ScalaPsiImplementationHelper.getOriginalClass(this)
+    ScalaClassLookup.instance(getProject).originalClass(this)
 
   override def syntheticTypeDefinitions: Seq[ScTypeDefinition] =
     cachedWithRecursionGuard("syntheticTypeDefinitions", this, Seq.empty[ScTypeDefinition], BlockModificationTracker(this)) {
