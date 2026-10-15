@@ -110,3 +110,49 @@ class OptimizeImportsWithScalafmtFormatterRenamedImportsSource3 extends Optimize
     doTest()
   }
 }
+
+/** Uses the same test data as the tests above, but with scalafmt 3.11.5 configurations */
+final class OptimizeImportsWithScalafmtFormatter_3_11 extends OptimizeImportsWithScalafmtFormatterBase {
+  override protected def scalafmtVersion: String = "3.11.5"
+
+  override protected def scalafmtConfigsBasePath: Path = super.scalafmtConfigsBasePath / "3_11_5"
+
+  def testWithMaxColumn(): Unit = {
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
+    doTest()
+
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = true
+    doTest()
+  }
+
+  def testSCL21765(): Unit = {
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
+    doTest()
+
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = true
+    doTest()
+  }
+
+  def testSCL21765_LocalImports(): Unit = {
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
+    doTest()
+
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = true
+    doTest()
+  }
+
+  def testSCL23689_NoChange(): Unit = runSCL23689Test()
+
+  def testSCL23689_Optimize(): Unit = runSCL23689Test()
+
+  private def runSCL23689Test(): Unit = CommonScalaRevertableChanges.withCompilerSettingsModified(
+    getModule,
+    s => s.copy(additionalCompilerOptions = s.additionalCompilerOptions :+ "-Xsource:3")
+  ) {
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
+    doTest()
+
+    scalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = true
+    doTest()
+  }
+}

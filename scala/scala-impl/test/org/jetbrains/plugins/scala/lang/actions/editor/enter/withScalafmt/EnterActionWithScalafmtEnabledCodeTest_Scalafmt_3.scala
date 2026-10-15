@@ -5,16 +5,25 @@ import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.TypeText
 import org.jetbrains.plugins.scala.lang.formatter.scalafmt.ScalaFmtForTestsSetupOps
 import org.scalafmt.dynamic.ScalafmtVersion
 
-class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_3_8 extends EnterActionWithScalafmtEnabledTestBase {
+class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_3_8 extends EnterActionWithScalafmtEnabledCodeTest_Scalafmt_3_Base {
+  override protected def scalafmtVersion: String = "3.8.1"
+}
+
+class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_3_11 extends EnterActionWithScalafmtEnabledCodeTest_Scalafmt_3_Base {
+  override protected def scalafmtVersion: String = "3.11.5"
+}
+
+abstract class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_3_Base extends EnterActionWithScalafmtEnabledTestBase {
+
+  protected def scalafmtVersion: String
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_3_0
 
   override def setUp(): Unit = {
     super.setUp()
-    val version = "3.8.1"
-    ScalaFmtForTestsSetupOps.ensureDownloaded(ScalafmtVersion.parse(version).get)
-    setScalafmtConfig(s"$version.conf")
+    ScalaFmtForTestsSetupOps.ensureDownloaded(ScalafmtVersion.parse(scalafmtVersion).get)
+    setScalafmtConfig(s"$scalafmtVersion.conf")
   }
 
   def testAfterIncompleteFunctionDefinition(): Unit = {

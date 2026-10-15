@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScExtractorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -574,7 +574,9 @@ object ScalaFmtPreFormatProcessor {
 
     (element match {
       case block: ScBlockImpl =>
-        block.getFirstChild.elementType == ScalaTokenTypes.tLBRACE &&
+        // an empty block (e.g. the body of `case _ =>`) has no children
+        block.getFirstChild != null &&
+          block.getFirstChild.elementType == ScalaTokenTypes.tLBRACE &&
           block.getLastChild.elementType == ScalaTokenTypes.tRBRACE
       case block: ScBlockExpr     =>
         !block.getParent.is[ScInterpolatedStringLiteral] && // enclose whole string, instead of injected block
@@ -662,12 +664,25 @@ object ScalaFmtPreFormatProcessor {
       withRewrite
     } else if (element.is[ScInfixExpr]) { // just run the tests...
       element :: withRewrite
-    } else if (range.contains(element.getTextRange) && isProperUpperLevelPsi(element)) {
+    } else if (range.contains(element.getTextRange) && isProperUpperLevelPsi(element) && canBeWrappedSeparately(element)) {
       element :: withRewrite
     } else {
       val children = element.children.toList
       children.foldLeft(withRewrite) { case (acc, child) => maybeRewriteElements(child, range, acc) }
     }
+  }
+
+  /**
+   * [[wrap]] surrounds the element with new lines and marker comments, which keeps the code valid
+   * only if the element is a statement or the body of a definition.
+   * Otherwise, e.g. for `foo` in `foo { ... }`, `x` in `x match { ... }` or the name of a definition,
+   * the element is cut off from the rest of its parent, and replacing it with the formatted code breaks the code.
+   */
+  private def canBeWrappedSeparately(element: PsiElement): Boolean = element.getParent match {
+    case _: ScBlock | _: ScTemplateBody | _: ScalaFile | _: ScPackaging => true
+    case definition: ScFunctionDefinition => definition.body.contains(element)
+    case definition: ScValueOrVariableDefinition => definition.expr.contains(element)
+    case _ => false
   }
 
   private def unwrapPsiFromFormattedFile(
