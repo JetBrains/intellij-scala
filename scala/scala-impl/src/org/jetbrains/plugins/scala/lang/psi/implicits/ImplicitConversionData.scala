@@ -12,12 +12,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, StdTypes}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ScParameterizedType, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaClassLookup, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
@@ -132,7 +131,7 @@ object ImplicitConversionData {
         val scope = expr.resolveScope
         (for {
           qName    <- withSuperClasses
-          function <- ImplicitConversionIndex.conversionCandidatesForFqn(qName, scope)(using expr.getProject)
+          function <- ScalaClassLookup.instance(expr.getProject).implicitConversionCandidates(qName, scope)
 
           if ImplicitConversionProcessor.applicable(function, expr)
 

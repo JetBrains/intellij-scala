@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.autoImport
 
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.{&, ObjectExt, Parent}
@@ -8,10 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunct
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.StableValIndex
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withAllInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.{ScalaClassLookup, ScalaInheritorsFinder, ScalaPsiUtil}
 
 abstract class GlobalMember[M <: ScMember](val owner: GlobalMemberOwner,
                                            val pathToOwner: String,
@@ -51,8 +50,8 @@ object GlobalMember {
         .toSet
 
       val fromInheritors = for {
-        clazz            <- withAllInheritors(member.containingClass)
-        valueOfClassType <- StableValIndex.findValuesOfClassType(clazz, scope)
+        clazz            <- ScalaInheritorsFinder.instance.allInheritors(member.containingClass)
+        valueOfClassType <- ScalaClassLookup.instance(clazz.getProject).findValuesOfClassType(clazz, scope)
         named            <- valueOfClassType.declaredElements
         containingObject <- findAllInheritorObjectsForOwner(valueOfClassType)
       } yield constructor(GlobalMemberOwner.TypedDefinition(named), containingObject.qualifiedName + "." + named.name, member)
@@ -88,14 +87,19 @@ object GlobalMember {
       case null => Set.empty
       case clazz =>
         val inheritorObjectsInProject: Set[ScObject] = cachedInUserData("findAllInheritorObjectsForOwner.inheritorObjectsInProject", clazz, BlockModificationTracker(clazz), Tuple1(clazz)) {
-          ScalaInheritors.allInheritorObjects(clazz)
+          allInheritorObjects(clazz)
         }
 
         val inheritorObjectsInLibraries: Set[ScObject] = cachedInUserData("findAllInheritorObjectsForOwner.inheritorObjectsInLibraries", clazz, ModTracker.libraryAware(clazz), Tuple1(clazz)) {
-          ScalaInheritors.allInheritorObjects(clazz)
+          allInheritorObjects(clazz)
         }
 
         (inheritorObjectsInLibraries ++ inheritorObjectsInProject).filterNot(o => isInExcludedPackage(o.qualifiedName, member.getProject))
+    }
+
+  private def allInheritorObjects(clazz: PsiClass): Set[ScObject] =
+    ScalaInheritorsFinder.instance.allInheritors(clazz).collect {
+      case o: ScObject if ScalaPsiUtil.hasStablePath(o) => o
     }
 
   def findPackageForTopLevelMember(member: ScMember): Option[ScPackaging] =

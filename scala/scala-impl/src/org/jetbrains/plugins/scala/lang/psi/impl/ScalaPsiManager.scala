@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.ScalaLowerCase
 import org.jetbrains.plugins.scala.caches.{CleanupScheduler, ScalaShortNamesCacheManager, ValueWrapper, cachedWithoutModificationCount}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaClassLookup, ScalaPsiImplementationHelper}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScTypeAlias, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScPackageObjectFqnIndex, ScPackagingFqnIndex, ScStableTypeAliasFqnIndex, ScalaIndexKeys}
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ExtensionIndex, ImplicitConversionIndex, ScPackageObjectFqnIndex, ScPackagingFqnIndex, ScStableTypeAliasFqnIndex, ScalaIndexKeys, StableValIndex}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
@@ -240,6 +240,15 @@ class ScalaPsiManager(override implicit val project: Project) extends ScalaClass
 
   override def getPackageObjectsByFqn(fqn: String, scope: GlobalSearchScope): Iterable[PsiClass] =
     ScPackageObjectFqnIndex.instance.getElements(fqn, project, scope).asScala
+
+  override def findValuesOfClassType(clazz: PsiClass, scope: GlobalSearchScope): Set[ScValue] =
+    StableValIndex.findValuesOfClassType(clazz, scope)
+
+  override def implicitConversionCandidates(classFqn: String, scope: GlobalSearchScope): Iterable[ScFunction] =
+    ImplicitConversionIndex.conversionCandidatesForFqn(classFqn, scope)
+
+  override def extensionMethodCandidates(classFqn: String, scope: GlobalSearchScope): Iterable[ScFunction] =
+    ExtensionIndex.extensionMethodCandidatesForFqn(classFqn, scope)
 
   def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     if (DumbService.getInstance(project).isDumb) Iterable.empty

@@ -13,11 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ExtensionIndex
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, Context, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaClassLookup, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
@@ -126,7 +125,7 @@ object ExtensionMethodData {
           implicit val project: Project = expr.getProject
           (for {
             qName <- withSuperClasses
-            extensionMethodCandidate <- ExtensionIndex.extensionMethodCandidatesForFqn(qName, scope)
+            extensionMethodCandidate <- ScalaClassLookup.instance(project).extensionMethodCandidates(qName, scope)
 
             if ImplicitProcessor.isAccessible(extensionMethodCandidate, expr)
 

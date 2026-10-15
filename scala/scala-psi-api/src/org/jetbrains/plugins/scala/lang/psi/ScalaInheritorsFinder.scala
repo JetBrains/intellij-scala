@@ -15,6 +15,9 @@ trait ScalaInheritorsFinder {
 
   /** The inheritors of a class in its own file, direct and indirect (e.g. the cases of a sealed class) */
   def inheritorsInFile(clazz: PsiClass): Iterable[PsiClass]
+
+  /** The class and its inheritors, direct and indirect, in its resolve scope; only inheritors of Scala classes are searched */
+  def allInheritors(clazz: PsiClass): Set[PsiClass]
 }
 
 object ScalaInheritorsFinder {
@@ -27,5 +30,7 @@ object ScalaInheritorsFinder {
 
   private object NoInheritorsFinder extends ScalaInheritorsFinder {
     override def inheritorsInFile(clazz: PsiClass): Iterable[PsiClass] = Iterable.empty
+
+    override def allInheritors(clazz: PsiClass): Set[PsiClass] = Option(clazz).toSet
   }
 }

@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiMethod, PsiPackage}
 import org.jetbrains.annotations.ApiStatus
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition, ScMember, ScObject}
@@ -62,6 +62,12 @@ trait ScalaClassLookup {
   def getPackagingsByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScPackaging]
 
   def getPackageObjectsByFqn(fqn: String, scope: GlobalSearchScope): Iterable[PsiClass]
+
+  def findValuesOfClassType(clazz: PsiClass, scope: GlobalSearchScope): Set[ScValue]
+
+  def implicitConversionCandidates(classFqn: String, scope: GlobalSearchScope): Iterable[ScFunction]
+
+  def extensionMethodCandidates(classFqn: String, scope: GlobalSearchScope): Iterable[ScFunction]
 
   def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias]
 
@@ -127,6 +133,12 @@ object ScalaClassLookup {
     override def getPackagingsByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScPackaging] = Iterable.empty
 
     override def getPackageObjectsByFqn(fqn: String, scope: GlobalSearchScope): Iterable[PsiClass] = Iterable.empty
+
+    override def findValuesOfClassType(clazz: PsiClass, scope: GlobalSearchScope): Set[ScValue] = Set.empty
+
+    override def implicitConversionCandidates(classFqn: String, scope: GlobalSearchScope): Iterable[ScFunction] = Iterable.empty
+
+    override def extensionMethodCandidates(classFqn: String, scope: GlobalSearchScope): Iterable[ScFunction] = Iterable.empty
 
     override def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = None
 
