@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
+import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.{ResolveAffectingOptions, UsingOptionsDirective}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.ReferenceComparisonTestConfig
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.junit.Assert.fail
 
 import java.nio.charset.StandardCharsets
@@ -30,11 +33,38 @@ abstract class ComparisonTestBase(config: ReferenceComparisonTestConfig) extends
       fail(s"Couldn't find any tests for testName '$testName'")
     }
 
-    for (source <- sources; filePath <- allPathsIn(source)) yield {
-      myFixture.addFileToProject(
-        config.sourcePath.relativize(filePath).toString,
-        Files.readString(filePath, StandardCharsets.UTF_8)
-      )
+    val files = for (source <- sources; filePath <- allPathsIn(source)) yield {
+      (config.sourcePath.relativize(filePath).toString, Files.readString(filePath, StandardCharsets.UTF_8))
+    }
+
+    addCompilerOptionsFrom(files.map(_._2))
+
+    for ((path, text) <- files) yield {
+      myFixture.addFileToProject(path, text)
+    }
+  }
+
+  /**
+   * Adds the options of `//> using options` directives that affect resolve,
+   * as semanticdb is produced by compiling the files with them.
+   */
+  private def addCompilerOptionsFrom(texts: Seq[String]): Unit = {
+    val options = texts
+      .flatMap(_.linesIterator)
+      .map(_.trim)
+      .filter(_.startsWith(UsingOptionsDirective))
+      .flatMap(_.stripPrefix(UsingOptionsDirective).trim.split("\\s+"))
+      .filter(option => ResolveAffectingOptions.exists(option.startsWith))
+      .distinct
+
+    if (options.nonEmpty) {
+      val module = getModule
+      val configuration = ScalaCompilerConfiguration.instanceIn(getProject)
+      val Seq(settings) = configuration.settingsForHighlighting(module)
+      val newSettings = settings.copy(additionalCompilerOptions = settings.additionalCompilerOptions ++ options)
+      configuration.configureSettingsForModule(module, "unit tests", newSettings)
+      // the light project is shared between the tests
+      Disposer.register(getTestRootDisposable, () => configuration.configureSettingsForModule(module, "unit tests", settings))
     }
   }
 
@@ -46,4 +76,10 @@ abstract class ComparisonTestBase(config: ReferenceComparisonTestConfig) extends
 
   private def realOsPathFileName(path: Path): String =
     path.toRealPath().getFileName.toString
+}
+
+object ComparisonTestBase {
+  private val UsingOptionsDirective = "//> using options"
+
+  private val ResolveAffectingOptions = Seq("-Yimports:", "-Yno-imports", "-Yno-predef", "-Ykind-projector", "-Xkind-projector")
 }

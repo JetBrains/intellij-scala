@@ -93,6 +93,13 @@ package object parser {
     def markWithSoftKeyRollback(): PsiBuilder.Marker =
       new SoftKeywordRollbackMarker(repr, repr.getTokenType)
 
+    /** Whether the current token is `*` of a vararg splice, e.g. `Seq(a, as*)` or `Seq(a, as*,)` with a trailing comma */
+    def isVarargSpliceStar: Boolean =
+      repr.features.`Scala 3 vararg splice syntax` &&
+        repr.getTokenText == "*" &&
+        (repr.lookAhead(1, ScalaTokenTypes.tRPARENTHESIS) ||
+          repr.lookAhead(1, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tRPARENTHESIS))
+
     def consumeTrailingComma(expectedBrace: IElementType): Boolean = {
       val result = repr.isTrailingComma &&
         repr.predict {

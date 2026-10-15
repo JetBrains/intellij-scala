@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -17,10 +17,7 @@ object PostfixExpr extends ParsingRule {
       return false
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER if
-          builder.features.`Scala 3 vararg splice syntax` &&
-          builder.getTokenText == "*" &&
-          builder.lookAhead(1) == ScalaTokenTypes.tRPARENTHESIS =>
+      case ScalaTokenTypes.tIDENTIFIER if builder.isVarargSpliceStar =>
         // Seq(a, ax*)
         postfixMarker.drop()
       case ScalaTokenTypes.tIDENTIFIER if !builder.newlineBeforeCurrentToken =>

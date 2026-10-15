@@ -2,30 +2,33 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.{PsiClassOwner, PsiElement, PsiFile, PsiNamedElement}
+import com.intellij.psi.{PsiClassOwner, PsiElement, PsiField, PsiFile, PsiModifier, PsiNamedElement}
 import com.intellij.testFramework.TestLoggerKt
 import com.jetbrains.rd.util.threading.CompoundThrowable
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScMatchTypeElement, ScTypeElement, ScTypeLambdaTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScModifierList, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScInfixTypeElement, ScMatchTypeElement, ScParameterizedTypeElement, ScSelfTypeElement, ScTypeElement, ScTypeLambdaTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScModifierList, ScPrimaryConstructor, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScQuoted, ScSpliced}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumClassCase, ScExtension, ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportOrExportStmt, ScImportSelector, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.RefInfo.{assignmentTarget, opaqueTarget, physicalRefTarget}
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.RefInfo.{assignmentTarget, classParameterTarget, opaqueTarget, physicalRefTarget, selfTypeTarget}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.Symbol._
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.ReferenceComparisonTestConfig
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.junit.Assert
 
 import scala.collection.mutable.ArrayBuffer
@@ -72,6 +75,7 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
       val references = file
         .depthFirst(!_.is[ScImportStmt]) // don't look into ScImportStmt, some weird stuff is going on in semanticdb
         .filterByType[ScReference]
+        .filterNot(isKindProjectorLambdaBinder)
         .toSeq
 
       val implicitParameterOwners = file
@@ -105,6 +109,8 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
               // ignore locals and implicits involving ClassTag
               ref.pointsToLocal ||
                 ref.symbol.contains("ClassTag") ||
+                // `new Array[T](n)` with a generic `T` is expanded to this call, which both `Array` and `T` then refer to
+                ref.symbol == "scala/runtime/Arrays.newGenericArray()." ||
                 // there are lots of edge cases related to resolving type parameters
                 // (e.g. context bounds that have no reference in source code, but do have it in compiler expanded ast)
                 // on the other hand, I think it's safe to assume we resolve references to type parameters correctly,
@@ -116,10 +122,11 @@ abstract class ReferenceComparisonTestBase(config: ReferenceComparisonTestConfig
 //              assertResolves(semanticDbRef.symbol, ref.targets.map(_.element))
               val semanticDbTargetPos = semanticDbRef.targetPosition
               val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.symbol)
+              val semanticDbTargetSymbols = ComparisonSymbol.fromSemanticDbWithAlternatives(semanticDbRef.symbol)
 
               def fits(target: RefTarget): Boolean =
                 semanticDbTargetPos.contains(target.adjustedPosition) ||
-                  (target.hasComparableSymbol && target.symbol == semanticDbTargetSymbol)
+                  (target.hasComparableSymbol && semanticDbTargetSymbols.contains(target.symbol))
 
               val targetFits = ref.targets.exists(fits)
               // for a refinement member, pointing to one of the parent members it overrides is fine
@@ -259,6 +266,25 @@ object ReferenceComparisonTestBase {
 
   private def isByNameImplicit(p: ScParameter) = p.isImplicit && p.isCallByNameParameter
 
+  /**
+   * Whether `ref` is a binder of a kind-projector type lambda or its usage, e.g. both `x` in `λ[x => Either[Int, x]]`.
+   * We don't resolve them, because the type is computed from the desugared `({type Λ$[x] = Either[Int, x]})#Λ$`,
+   * and semanticdb doesn't record them either.
+   */
+  private def isKindProjectorLambdaBinder(ref: ScReference): Boolean = {
+    def binderName(ref: ScReference): String =
+      ref.refName.stripPrefix("`").stripSuffix("`").stripPrefix("+").stripPrefix("-")
+
+    ref.kindProjectorEnabled && ref.parentsInFile.exists {
+      case ScParameterizedTypeElement(lambda, Seq(function: ScFunctionalTypeElement))
+        if lambda.textMatches(KindProjectorUtil.Lambda) || lambda.textMatches(KindProjectorUtil.LambdaSymbolic) =>
+        val binders = function.paramTypeElement
+        binders.isAncestorOf(ref) ||
+          binders.depthFirst().filterByType[ScReference].exists(binderName(_) == binderName(ref))
+      case _ => false
+    }
+  }
+
   trait RefTarget {
     def element: PsiNamedElement
     lazy val symbol: String = ComparisonSymbol.fromPsi(element)
@@ -283,6 +309,14 @@ object ReferenceComparisonTestBase {
   case class ExportedRefTarget(originalElement: PsiNamedElement, stringRepr: String) extends RefTarget {
     override lazy val symbol: String = stringRepr
     override def element: PsiNamedElement = originalElement
+  }
+
+  /**
+   * A class parameter is both a parameter of the primary constructor, which semanticdb refers to, e.g., in named arguments,
+   * and a field of the class, which an inline accessor accesses even if the parameter is not a member.
+   */
+  case class ClassParameterRefTarget(element: ScClassParameter, stringRepr: String) extends RefTarget {
+    override lazy val symbol: String = stringRepr
   }
 
   case class AssignmentRefTarget(element: PsiNamedElement) extends RefTarget {
@@ -310,16 +344,17 @@ object ReferenceComparisonTestBase {
     lazy val targets: Seq[RefTarget] = resolved.flatMap(targetsForResolveResult)
 
     private def targetsForResolveResult(resolveResult: ScalaResolveResult): Seq[RefTarget] = {
-      val exportedForwarderSymbol = RefInfo.exportedForwarderSymbol(resolveResult)
+      val exportedForwarderSymbols = RefInfo.exportedForwarderSymbols(resolveResult)
 
       (Seq(resolveResult.element) ++ resolveResult.parentElement ++ resolveResult.innerResolveResult.map(_.element))
         .filterByType[PsiNamedElement]
         .flatMap { named =>
-          val exportedTarget =
-            if (named eq resolveResult.element) exportedForwarderSymbol.map(ExportedRefTarget(named, _))
-            else                                None
+          val exportedTargets =
+            if (named eq resolveResult.element) exportedForwarderSymbols.map(ExportedRefTarget(named, _))
+            else                                Seq.empty
 
-          physicalRefTarget(named) ++ assignmentTarget(named) ++ opaqueTarget(named) ++ exportedTarget
+          physicalRefTarget(named) ++ assignmentTarget(named) ++ opaqueTarget(named) ++ selfTypeTarget(named) ++
+            classParameterTarget(named) ++ exportedTargets
         }
     }
 
@@ -387,11 +422,36 @@ object ReferenceComparisonTestBase {
       case param: ScClassParameter if param.isVar =>
         Some(AssignmentRefTarget(param))
       case fun: ScFunction if fun.isParameterless && hasSetter(fun) => Some(AssignmentRefTarget(fun))
+      // semanticdb refers to a setter even for a Java field
+      case field: PsiField if !field.hasModifierProperty(PsiModifier.FINAL) =>
+        Some(AssignmentRefTarget(field))
       case _ => None
     }
 
-    private def hasSetter(fun: ScFunction): Boolean = Option(fun.containingClass).exists {
-      _.allFunctionsByName(fun.name + "_=").nonEmpty
+    private def hasSetter(fun: ScFunction): Boolean = {
+      val setterName = fun.name + "_="
+      // a toplevel extension has no containing class
+      fun.extensionMethodOwner.exists(_.extensionMethods.exists(_.name == setterName)) ||
+        Option(fun.containingClass).exists(_.allFunctionsByName(setterName).nonEmpty)
+    }
+
+    // semanticdb attributes a reference to a self alias to the class that declares it
+    private def selfTypeTarget(resolved: PsiNamedElement): Option[PhysicalRefTarget] = resolved match {
+      case self: ScSelfTypeElement => self.parentOfType[ScTemplateDefinition].map(PhysicalRefTarget(_))
+      case _ => None
+    }
+
+    private def classParameterTarget(resolved: PsiNamedElement): Option[ClassParameterRefTarget] = resolved match {
+      case param: ScClassParameter =>
+        val name = ComparisonSymbol.escapedName(param.name)
+        param.owner match {
+          case constructor: ScPrimaryConstructor if param.isClassMember =>
+            Some(ClassParameterRefTarget(param, ComparisonSymbol.fromPsi(constructor) + s"($name)"))
+          case _: ScPrimaryConstructor =>
+            Some(ClassParameterRefTarget(param, ComparisonSymbol.fromPsi(param.containingClass) + s"$name."))
+          case _ => None
+        }
+      case _ => None
     }
 
     private def opaqueTarget(resolved: PsiNamedElement)(implicit context: Context): Option[PhysicalRefTarget] = resolved match {
@@ -401,21 +461,25 @@ object ReferenceComparisonTestBase {
       case _ => None
     }
 
-    private def exportedForwarderSymbol(resolveResult: ScalaResolveResult): Option[String] = {
-      for {
+    private def exportedForwarderSymbols(resolveResult: ScalaResolveResult): Seq[String] = {
+      val symbols = for {
         exportedInfo         <- resolveResult.exportedInfo
         forwarderOwnerSymbol <- exportOwnerSymbol(exportedInfo.exportedIn)
       } yield {
         val renamedMemberPart = resolveResult.renamed
         val name              = ComparisonSymbol.escapedName(renamedMemberPart.getOrElse(resolveResult.name))
 
-        val suffix = resolveResult.element match {
-          case _: ScClass | _: ScTypeAlias => "#"
-          case _                           => "()."
+        // a forwarder of a value or an object is a value before Scala 3.9, and a method since then
+        val suffixes = resolveResult.element match {
+          case _: ScObject                             => Seq(".", "().")
+          case _: ScTypeDefinition | _: ScTypeAlias    => Seq("#")
+          case typed: ScTypedDefinition if typed.isVal => Seq(".", "().")
+          case _                                       => Seq("().")
         }
 
-        forwarderOwnerSymbol + name + suffix
+        suffixes.map(forwarderOwnerSymbol + name + _)
       }
+      symbols.getOrElse(Seq.empty)
     }
 
 

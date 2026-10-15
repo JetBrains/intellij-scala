@@ -5,7 +5,7 @@ import com.intellij.psi.impl.source.PsiAnnotationMethodImpl
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -28,6 +28,21 @@ object ComparisonSymbol {
     stripBases(
       s.replaceAll(raw"[^#./()]+\$$package.", "") // ignore package object path part
     )
+
+  // An accessor that the compiler generates for a member accessed by an inline method, e.g. `A.inline$x().` or `A#A$$inline$x().`
+  private val InlineAccessor = """(.*[#./])(`?)(?:[^#./()`]*\$\$)?inline\$([^#./()`]+)(`?)(\(\+?\d*\)\.)""".r
+
+  /**
+   * Like [[fromSemanticDb]], but also includes the symbols that are equivalent to it for our purposes,
+   * e.g. the accessed member for an inline accessor (which is a method, even if the member is a value).
+   */
+  def fromSemanticDbWithAlternatives(s: String): Set[String] = fromSemanticDb(s) match {
+    case symbol@InlineAccessor(owner, openingTick, name, closingTick, signature) =>
+      val member = owner + openingTick + name + closingTick
+      Set(symbol, member + signature, member + ".")
+    case symbol =>
+      Set(symbol)
+  }
 
   def escapedName(s: String): String = {
     def isStart(c: Char): Boolean = c.isUnicodeIdentifierStart || c == '_' || c == '$'
@@ -79,6 +94,15 @@ object ComparisonSymbol {
           }
         case (p: ScClassParameter, _) if p.isClassMember =>
           addSymName(p.containingClass)
+          return
+        case (p: ScParameter, _) if p.owner.is[ScGivenDefinition] =>
+          // the parameters of a class-like given are the parameters of its constructor
+          addSymName(p.owner.asInstanceOf[ScGivenDefinition])
+          add("`<init>`().")
+          return
+        case (f: ScFunction, _) if f.syntheticCaseClass.isDefined =>
+          // synthetic `apply` and `unapply` of a case class are members of its companion object
+          addSymName(f.syntheticContainingClass)
           return
         case (_: ScBlockStatement | _: ScTypeAlias, ctx: ScPackaging) =>
           // this is for toplevel statements
@@ -133,6 +157,7 @@ object ComparisonSymbol {
           val qualName = c.qualifiedName
           if (qualName == null) addName(c.name)
           else addFqn(qualName)
+        case m: PsiMethod if m.isConstructor => add("`<init>`")
         case _ => addName(e.name)
       }
 
@@ -141,7 +166,7 @@ object ComparisonSymbol {
         case o: ScObject if o.isPackageObject => add("/package.")
         case _: ScObject => add(".")
         case _: PsiEnumConstant => add(".")
-        case f: PsiField if f.hasModifierProperty(PsiModifier.FINAL) => add(".")
+        case _: PsiField => add(".")
         //case c: PsiClass if c.isInterface && isInImport => add(".")
         case _: PsiClass | _: PsiType | _: ScTypeAlias | _: ScSyntheticClass => add("#")
         case e @ (_: PsiField | _ : ScSyntheticFunction | _: PsiMethod | _: ScValueOrVariable) =>
@@ -187,7 +212,8 @@ object ComparisonSymbol {
 
     case f: ScSyntheticFunction => f.getContainingSyntheticClass match {
       case sc: ScSyntheticClass =>
-        val offset = if (sc.qualifiedName == "scala.Int" && f.name == "+") 1 else 0 // No def +(x: String): String
+        // No def +(x: String): String, because synthetic methods returning String are not registered
+        val offset = if (f.name == "+" && NumericTypes(sc.qualifiedName)) 1 else 0
         val overloads = sc.syntheticMethods.get(f.name).asScala.toSeq
         offset + overloads.indexOf(f)
       case null =>
@@ -226,6 +252,8 @@ object ComparisonSymbol {
 
     case _ => throw new java.lang.AssertionError(e)
   }
+
+  private val NumericTypes = Set("scala.Byte", "scala.Short", "scala.Char", "scala.Int", "scala.Long", "scala.Float", "scala.Double")
 
   private def functionsIn(members: Seq[ScMember]): Seq[ScFunction] = members.flatMap {
     case f: ScFunction => Seq(f)

@@ -360,7 +360,7 @@ ScalaFile
               IntegerLiteral
                 PsiElement(integer)('1')
               PsiElement(,)(',')
-              PostfixExpression
+              TypedExpression
                 MethodCall
                   ReferenceExpression: List
                     PsiElement(identifier)('List')
@@ -373,7 +373,7 @@ ScalaFile
                     IntegerLiteral
                       PsiElement(integer)('3')
                     PsiElement())(')')
-                ReferenceExpression: *
+                SequenceArgumentType
                   PsiElement(identifier)('*')
               PsiElement(,)(',')
               PsiWhiteSpace('\n  ')
