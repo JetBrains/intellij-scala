@@ -406,6 +406,7 @@ lazy val scalaImpl: sbt.Project =
       compilerSettingsDefinition,
       scalaApi,
       scalaLanguageUtils,
+      scalafmtDynamicShim,
       sbtApi,
       decompiler % "test->test;compile->compile",
       tastyReader % "test->test;compile->compile",
@@ -504,6 +505,17 @@ lazy val kotlinUtils: sbt.Project =
 lazy val scalaLanguageUtils: sbt.Project =
   newPlainScalaProject("scala-utils-language", file("scala/scala-utils-language"))
     .settings(
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
+    )
+
+/**
+ * Accesses `private[dynamic]` members of scalafmt-dynamic-core from its `org.scalafmt.dynamic` package.
+ * Unlike reflection, this breaks the compilation if they change when we update the library.
+ */
+lazy val scalafmtDynamicShim: sbt.Project =
+  newPlainScalaProject("scalafmt-dynamic-shim", file("scala/scalafmt-dynamic-shim"))
+    .settings(
+      libraryDependencies += Dependencies.scalafmtDynamicCore,
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
 
