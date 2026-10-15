@@ -7,7 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.util.concurrency.annotations.{RequiresBackgroundThread, RequiresReadLock}
-import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.extensions.PathVirtualFileExt
 
 import java.nio.file.Path
 import scala.jdk.CollectionConverters.*

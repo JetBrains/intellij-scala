@@ -9,7 +9,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiModifier.STATIC
@@ -60,7 +59,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt, ScalaFeatures, ScalaFeaturesProvider, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt, ScalaFeatures, ScalaFeaturesProvider, ScalaFileLocation, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 
 import java.{util => ju}
@@ -376,8 +375,7 @@ object ScalaPsiUtil {
     element.getContainingFile.getVirtualFile match {
       case null => null
       case vFile =>
-        val index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
-        index.getModuleForFile(vFile)
+        ScalaFileLocation.instance.module(vFile, element.getProject).orNull
     }
 
   def parentPackage(packageFqn: String, project: Project): Option[ScPackageImpl] = {

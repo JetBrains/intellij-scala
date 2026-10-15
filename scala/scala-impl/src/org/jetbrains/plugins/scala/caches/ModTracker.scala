@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.ScalaFileLocation
 
 object ModTracker {
 
@@ -28,7 +29,7 @@ object ModTracker {
   def libraryAware(element: PsiElement): ModificationTracker = {
     val rootManager = ProjectRootManager.getInstance(element.getProject)
     element.getContainingFile match {
-      case file: ScalaFile if file.isCompiled && rootManager.getFileIndex.isInLibrary(file.getVirtualFile) => rootManager
+      case file: ScalaFile if file.isCompiled && ScalaFileLocation.instance.isInLibrary(file.getVirtualFile, element.getProject) => rootManager
       case _: ClsFileImpl => rootManager
       case _ => BlockModificationTracker(element)
     }

@@ -405,7 +405,7 @@ package object project {
         inReadAction { // assuming that most of the time it will be read from cache
           val module = {
             val virtualFile = if (file.getVirtualFile != null) file.getVirtualFile else file.getOriginalFile.getVirtualFile
-            val isFileInLibrary = virtualFile != null && ProjectFileIndex.getInstance(file.getProject).isInLibrary(virtualFile)
+            val isFileInLibrary = virtualFile != null && ScalaFileLocation.instance.isInLibrary(virtualFile, file.getProject)
             if (isFileInLibrary)
               null // We do not search for the containing module of library sources in this method implementation.
             else
@@ -524,7 +524,7 @@ package object project {
       case Some(file: ScalaFile) if file.isCompiled => // a compiled file (ScClsFileImpl)
         file.compilerOptions
       case Some(file: ScalaFile) if file.getVirtualFile != null =>
-        if (ProjectFileIndex.getInstance(file.getProject).isInLibrarySource(file.getVirtualFile)) {
+        if (ScalaFileLocation.instance.isInLibrarySource(file.getVirtualFile, file.getProject)) {
           val containingClass = element.contexts.findByType[ScTypeDefinition]
           val fqn = containingClass.map(_.qualifiedName)
           val compiledClass = fqn.flatMap(name => ScalaPsiManager.instance(element.getProject).getCachedClass(element.getResolveScope, name))

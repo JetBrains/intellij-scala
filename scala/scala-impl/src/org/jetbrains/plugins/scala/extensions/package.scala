@@ -14,14 +14,13 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util._
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiImplUtil
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.impl.source.tree.{FileElement, SharedImplUtil}
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
-import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
@@ -1107,15 +1106,6 @@ package object extensions {
     )
 
   implicit class PsiClassExt(val clazz: PsiClass) extends AnyVal {
-    def directInheritorsOfSealed: Iterable[PsiClass] =
-      if (!isSealed) Iterable.empty
-      else
-        ClassInheritorsSearch.search(
-          clazz,
-          new LocalSearchScope(clazz.getContainingFile),
-          true
-        ).findAll().asScala
-
     def isSealed: Boolean = clazz match {
       case _: ScClass | _: ScTrait =>
         clazz.asInstanceOf[ScModifierListOwner].hasModifierPropertyScala("sealed")
@@ -1958,9 +1948,6 @@ package object extensions {
       new String(Files.readAllBytes(path), charset)
 
     def toCanonicalPath: Path = path.toAbsolutePath.normalize()
-
-    def toVirtualFile: Option[VirtualFile] =
-      VirtualFileManager.getInstance().findFileByNioPath(path).toOption
 
     def walk(): JStream[Path] = Files.walk(path)
   }

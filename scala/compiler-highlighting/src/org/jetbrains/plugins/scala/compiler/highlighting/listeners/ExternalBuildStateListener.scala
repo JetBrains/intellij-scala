@@ -6,7 +6,7 @@ import org.jetbrains.jps.incremental.scala.tracing.BuildReason
 import org.jetbrains.plugins.scala.compiler.highlighting.services.ExternalBuildTracker
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.ModuleKey
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
-import org.jetbrains.plugins.scala.extensions.PathExt
+import org.jetbrains.plugins.scala.extensions.PathVirtualFileExt
 
 /**
  * Feeds the per-target reports of an IDE build to [[ExternalBuildTracker]].
@@ -36,4 +36,3 @@ private final class ExternalBuildStateListener(project: Project) extends Compile
         case None => logger.warn(s"No module resolves ${unitId.moduleId}" +
           s"${if unitId.testScope then " (test)" else ""}, so what this build compiled is not recorded")
     case _ => ()
-
