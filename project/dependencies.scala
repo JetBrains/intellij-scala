@@ -173,8 +173,6 @@ object Dependencies {
   )
   val scalapbRuntime: ModuleID = "com.thesamet.scalapb" % "scalapb-runtime_2.13" % "0.11.11" % Test exclude("com.google.protobuf", "protobuf-java") // A dependency of scalameta, only used in tests.
 
-  val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.19"
-
   // has to be in the compiler process classpath along with spray-json
   // when updating the version, do not forget to:
   //  1. update version in the sbt-idea-compiler indices plugin too
@@ -194,7 +192,7 @@ object Dependencies {
   // "provided" danger: we statically depend on a single version, but need to support all the version
   // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
   object provided {
-    val scalaTest = scalaTestNotSpecified % Provided
+    val scalaTest = "org.scalatest" %% "scalatest" % "3.2.20" % Provided
     val utest = "com.lihaoyi" %% "utest" % "0.9.5" % Provided
     val specs2_2x = "org.specs2" % "specs2-core_2.12" % "2.5" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
     val specs2_4x = "org.specs2" % "specs2-core_2.13" % "4.18.0" % Provided excludeAll ExclusionRule(organization = "org.ow2.asm")
