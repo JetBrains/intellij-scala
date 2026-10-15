@@ -27,6 +27,9 @@ trait ScalaFileLocation {
   def isInLibraryClasses(file: VirtualFile, project: Project): Boolean
 
   def isInSourceContent(file: VirtualFile, project: Project): Boolean
+
+  /** Whether the file is under a source or test source root; unlike [[isInSourceContent]], not under a resource root */
+  def isUnderSourceRoot(file: VirtualFile, project: Project): Boolean
 }
 
 object ScalaFileLocation {
@@ -47,5 +50,7 @@ object ScalaFileLocation {
     override def isInLibraryClasses(file: VirtualFile, project: Project): Boolean = false
 
     override def isInSourceContent(file: VirtualFile, project: Project): Boolean = false
+
+    override def isUnderSourceRoot(file: VirtualFile, project: Project): Boolean = false
   }
 }

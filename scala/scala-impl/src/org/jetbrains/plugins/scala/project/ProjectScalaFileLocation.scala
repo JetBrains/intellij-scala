@@ -4,6 +4,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 
 /** [[ScalaFileLocation]] from the project file index */
 final class ProjectScalaFileLocation extends ScalaFileLocation {
@@ -22,4 +23,7 @@ final class ProjectScalaFileLocation extends ScalaFileLocation {
 
   override def isInSourceContent(file: VirtualFile, project: Project): Boolean =
     ProjectFileIndex.getInstance(project).isInSourceContent(file)
+
+  override def isUnderSourceRoot(file: VirtualFile, project: Project): Boolean =
+    ProjectFileIndex.getInstance(project).isUnderSourceRootOfType(file, JavaModuleSourceRootTypes.SOURCES)
 }
