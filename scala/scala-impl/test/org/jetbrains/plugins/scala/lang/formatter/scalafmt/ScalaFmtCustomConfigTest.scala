@@ -1,6 +1,94 @@
 package org.jetbrains.plugins.scala.lang.formatter.scalafmt
 
-class ScalaFmtCustomConfigTest extends ScalaFmtTestBase {
+import org.jetbrains.plugins.scala.extensions.PathExt
+
+import java.nio.file.Path
+
+class ScalaFmtCustomConfigTest extends ScalaFmtCustomConfigTestBase {
+
+  def testShouldNotFailToParseConfigWithAllParametersPresent_2_7_5(): Unit = {
+    setScalafmtConfig("all_parameters_2_7_5.conf")
+    doTextTest(
+      raw"""class X {
+           |  42
+           |}
+           |""".stripMargin,
+    )
+  }
+}
+
+/** Uses the same configurations as [[ScalaFmtCustomConfigTest]], but for scalafmt 3.11.5 */
+class ScalaFmtCustomConfigTest_3_11 extends ScalaFmtCustomConfigTestBase {
+
+  override protected def scalafmtConfigsBasePath: Path =
+    super.scalafmtConfigsBasePath / "3_11_5"
+
+  // Unlike older versions, scalafmt 3.11 parses top-level definitions, so the file is formatted as a whole
+  override def testIncompleteFileWithRewriteRules_1(): Unit = {
+    setScalafmtConfig("redundantBraces.conf")
+    val before =
+      s"""trait X {
+         |     def foo = 42
+         |}
+         |def zoo(): Int = 42""".stripMargin
+    val after =
+      s"""trait X {
+         |  def foo = 42
+         |}
+         |def zoo(): Int = 42
+         |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  override def testIncompleteFileWithRewriteRules_2(): Unit = {
+    setScalafmtConfig("redundantBraces.conf")
+    val before =
+      s"""trait X {
+         |def foo = 42
+         |}
+         |def zoo(): Int = 42""".stripMargin
+    val after =
+      s"""trait X {
+         |  def foo = 42
+         |}
+         |def zoo(): Int = 42
+         |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  // scalafmt 3 puts the closing parenthesis of definitions on a separate line by default (`danglingParentheses.defnSite`)
+  override def testConfigWithIncludes(): Unit = {
+    setScalafmtConfig("config_root.conf")
+    doTextTest(ConfigWithIncludesBefore, ConfigWithIncludesAfter)
+  }
+
+  override def testConfigWithIncludes_WithoutExtension(): Unit = {
+    setScalafmtConfig("config_root_include_without_extension.conf")
+    doTextTest(ConfigWithIncludesBefore, ConfigWithIncludesAfter)
+  }
+
+  private val ConfigWithIncludesBefore =
+    """class A {
+      |  def foo(parameterName: Int): Unit = {
+      |    val x = 42
+      |    val xxxxxxxx = 23
+      |  }
+      |}
+      |""".stripMargin
+
+  private val ConfigWithIncludesAfter =
+    """class A {
+      |  def foo(
+      |      parameterName: Int
+      |  ): Unit = {
+      |    val x        = 42
+      |    val xxxxxxxx = 23
+      |  }
+      |}
+      |""".stripMargin
+}
+
+trait ScalaFmtCustomConfigTestBase extends ScalaFmtTestBase {
 
   def testIncompleteFileWithRewriteRules_1(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
@@ -130,15 +218,5 @@ class ScalaFmtCustomConfigTest extends ScalaFmtTestBase {
       s"""import foo.{bar, sand, Random, Zilch}
          |""".stripMargin
     doTextTest(before, after)
-  }
-
-  def testShouldNotFailToParseConfigWithAllParametersPresent_2_7_5(): Unit = {
-    setScalafmtConfig("all_parameters_2_7_5.conf")
-    doTextTest(
-      raw"""class X {
-           |  42
-           |}
-           |""".stripMargin,
-    )
   }
 }

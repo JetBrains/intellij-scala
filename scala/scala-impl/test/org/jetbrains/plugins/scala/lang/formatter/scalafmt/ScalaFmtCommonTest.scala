@@ -88,6 +88,125 @@ class ScalaFmtCommonTest_2_7 extends ScalaFmtCommonTestBase with UseConfig_2_7 {
   }
 }
 
+/**
+ * Unlike 2.7, scalafmt 3.11 parses files with top-level definitions and expressions.
+ * Such files are formatted as a whole instead of being wrapped, so the leading empty line is removed.
+ */
+class ScalaFmtCommonTest_3_11 extends ScalaFmtCommonTestBase with UseConfig_3_11 {
+
+  override def testCompleteFile(): Unit = {
+    val before =
+      """class T {
+        |  def foo(a: Int, b: Int): Int = 42
+        |  foo(
+        |        42,
+        |        43
+        |  )
+        |}
+        |""".stripMargin
+    val after =
+      """class T {
+        |  def foo(a: Int, b: Int): Int = 42
+        |  foo(
+        |    42,
+        |    43
+        |  )
+        |}
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  override def testIncompleteFile(): Unit = {
+    val before =
+      """
+        |def foo(a: Int, b: Int): Int = 42
+        |foo(
+        |        42,
+        |        43
+        |  )
+        |""".stripMargin
+    val after =
+      """def foo(a: Int, b: Int): Int = 42
+        |foo(
+        |  42,
+        |  43
+        |)
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  override def testIncompleteFile_1(): Unit = {
+    val before =
+      """
+        |  def foo(a: Int, b: Int): Int = 42
+        |  foo(
+        |        42,
+        |        43
+        |  )
+        |""".stripMargin
+    val after =
+      """def foo(a: Int, b: Int): Int = 42
+        |foo(
+        |  42,
+        |  43
+        |)
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  override def testIncompleteFile_2(): Unit = {
+    val before =
+      """
+        |def foo(a: Int, b: Int): Int = 42
+        | foo(
+        |   42,
+        |   43
+        | )
+        |""".stripMargin
+    val after =
+      """def foo(a: Int, b: Int): Int = 42
+        |foo(
+        |  42,
+        |  43
+        |)
+        |""".stripMargin
+    doTextTest(before, after)
+  }
+
+  override def testBug(): Unit =
+    doTextTest(
+      """
+        |1
+        |def foo(): Int = 3
+        |""".stripMargin,
+      """1
+        |def foo(): Int = 3
+        |""".stripMargin
+    )
+
+  override def testBug1(): Unit =
+    doTextTest(
+      """
+        |        1
+        |    def foo(): Int = 3
+        |""".stripMargin,
+      """1
+        |def foo(): Int = 3
+        |""".stripMargin
+    )
+
+  override def testScl14133(): Unit =
+    doTextTest(
+      """
+        |def x  =  42
+        |//
+        |""".stripMargin,
+      """def x = 42
+        |//
+        |""".stripMargin
+    )
+}
+
 trait ScalaFmtCommonTestBase extends ScalaFmtTestBase {
 
   def testAddSpace(): Unit = {

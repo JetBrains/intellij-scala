@@ -25,6 +25,7 @@ trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase with ScalaFmtForTe
     super.setUp()
     ScalaFmtForTestsSetupOps.ensureDownloaded(
       DefaultVersion,
+      ScalafmtVersion.parse("3.11.5").get,
       ScalafmtVersion.parse("3.8.3").get,
       ScalafmtVersion(2, 7, 5),
       ScalafmtVersion(2, 5, 3)

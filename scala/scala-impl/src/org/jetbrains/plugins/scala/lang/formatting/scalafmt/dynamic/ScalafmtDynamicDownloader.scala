@@ -5,7 +5,8 @@ import org.apache.ivy.util.{AbstractMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
-import org.scalafmt.dynamic.{Dependency, ScalafmtVersion}
+import org.scalafmt.dynamic.ScalafmtVersion
+import org.scalafmt.interfaces.RepositoryPackage
 
 import java.net.URL
 import java.nio.file.Path
@@ -18,8 +19,7 @@ class ScalafmtDynamicDownloader(
 
   def download(version: ScalafmtVersion): Either[DownloadFailure, DownloadSuccess] =
     try {
-      val dependencies = Dependency.dependencies(version)
-        .map(x => (x.group % x.artifact % x.version).transitive())
+      val dependencies = scalafmtCoreDependencies(version)
       val resolver = new ScalafmtDependencyResolver(extraResolvers, progressListener)
       val resolvedDependencies = resolver.resolve(dependencies*)
       val jars: Seq[Path] = resolvedDependencies.map(_.file)
@@ -46,6 +46,39 @@ object ScalafmtDynamicDownloader {
 
   object DownloadProgressListener {
     val NoopProgressListener: DownloadProgressListener = _ => {}
+  }
+
+  private final val LegacyScala213Version = "2.13.11"
+
+  /**
+   * Calls `org.scalafmt.dynamic.Dependency.dependencies` reflectively, because it is `private[dynamic]` since scalafmt 3.11.0.
+   *
+   * @note `Dependency` adds `scala-reflect` of the Scala 2.13 version scalafmt-dynamic is built with,
+   *       which also bumps `scala-library`, but old scalafmt versions break on newer standard libraries
+   *       (e.g. 2.7.5 fails with `NoSuchElementException` in `scala.meta.tokens.Tokens.last` since Scala 2.13.12).
+   *       So for scalafmt 3.8.0 and older (built with Scala 2.13.11 and older),
+   *       we keep 2.13.11, which scalafmt-dynamic 3.7.17 used.
+   */
+  private def scalafmtCoreDependencies(version: ScalafmtVersion): Seq[DependencyDescription] = {
+    val (_, packages) = Class.forName("org.scalafmt.dynamic.Dependency")
+      .getMethod("dependencies", classOf[ScalafmtVersion])
+      .invoke(null, version)
+      .asInstanceOf[(String, Seq[RepositoryPackage])]
+
+    def isScalaReflect213(p: RepositoryPackage): Boolean =
+      p.group == "org.scala-lang" && p.artifact == "scala-reflect" && p.version.startsWith("2.13.")
+
+    def createDep(p: RepositoryPackage, packageVersion: String): DependencyDescription =
+      (p.group % p.artifact % packageVersion).transitive()
+
+    packages.map {
+      case p if isScalaReflect213(p) =>
+        val useLegacy = version < ScalafmtVersion(3, 8, 1)
+        val packageVersion = if useLegacy then LegacyScala213Version else p.version
+        createDep(p, packageVersion)
+      case p =>
+        createDep(p, p.version)
+    }
   }
 
   private class ScalafmtDependencyResolver(
