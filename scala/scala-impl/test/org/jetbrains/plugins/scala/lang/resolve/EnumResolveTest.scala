@@ -95,6 +95,18 @@ class EnumResolveTest extends SimpleResolveTestBase {
          |""".stripMargin
     )
 
+  def testEnumInstanceHasNoValuesMethod(): Unit = checkHasErrorAroundCaret(
+    s"""enum Color { case Red, Green }
+       |def test(color: Color) = color.v${CARET}alues
+       |""".stripMargin
+  )
+
+  def testEnumWithClassCaseHasNoValuesMethod(): Unit = checkHasErrorAroundCaret(
+    s"""enum Color { case Red; case Custom(value: Int) }
+       |val colors = Color.v${CARET}alues
+       |""".stripMargin
+  )
+
   def testClassCaseConstructor(): Unit =
     doResolveTest(
       s"""
