@@ -461,6 +461,9 @@ object TypeDefinitionMembers {
   }
 
   def processEnum(clazz: PsiClass, process: PsiMethod => Boolean): Boolean = {
+    // Scala enum methods are synthesized in the companion; class cases have no values/valueOf.
+    if (clazz.is[ScEnum]) return true
+
     var containsValues = false
     if (clazz.isEnum && !clazz.is[ScTemplateDefinition]) {
       containsValues = clazz.getMethods.exists {
