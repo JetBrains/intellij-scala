@@ -1453,7 +1453,10 @@ def runFastTestsCommand(name: String, glob: String): Command = runTestCategoryCo
   description = "",
   includeCategories = Seq.empty,
   excludeCategories = categoriesToExclude,
-  glob = glob
+  // `runInputTask` receives only the text after the task key. Keep the
+  // whitespace that the former `testOnly $glob` command supplied before a
+  // non-empty test selector.
+  glob = if (glob.isEmpty) "" else s" $glob"
 )
 
 Global / commands ++= Seq(
