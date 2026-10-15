@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtensionBody, ScFunction, ScPatternDefinition, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -185,7 +185,7 @@ object ImplicitProcessor {
     projectContext: ProjectContext,
     context: Context
   ): Seq[ScType] = {
-    val implicitObjectsCache = ScalaPsiManager.instance.collectImplicitObjectsCache
+    val implicitObjectsCache = ScalaPsiCaches.instance.collectImplicitObjectsCache
     val cacheKey             = (`type`, scope, includePackagePrefix)
 
     implicitObjectsCache.get(cacheKey) match {

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScBooleanLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
@@ -389,7 +389,7 @@ package object types {
 
   implicit class ScalaSeqExt(private val context: PsiElement) {
     //TODO: move to org.jetbrains.plugins.scala.util.CommonQualifiedNames and reuse
-    def scalaSeqFqn: String = cachedInUserData("scalaSeqFqn", context, ScalaPsiManager.instance(context.getProject).TopLevelModificationTracker) {
+    def scalaSeqFqn: String = cachedInUserData("scalaSeqFqn", context, ScalaPsiCaches.instance(context.getProject).TopLevelModificationTracker) {
       if (context.newCollectionsFramework) CommonQualifiedNames.CollectionImmutableSeq
       else CommonQualifiedNames.CollectionSeq
     }

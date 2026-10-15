@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGiven, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
@@ -37,7 +37,7 @@ import scala.util.Using
 
 object ImplicitCollector {
   def cache(project: Project): ImplicitCollectorCache =
-    ScalaPsiManager.instance(project).implicitCollectorCache
+    ScalaPsiCaches.instance(project).implicitCollectorCache
 
   sealed trait ImplicitResult
 

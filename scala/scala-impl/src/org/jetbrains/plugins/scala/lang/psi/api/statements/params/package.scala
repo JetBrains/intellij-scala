@@ -17,7 +17,7 @@ package object params {
 
   private val paramToIdMap = ContainerUtil.createConcurrentWeakMap[PsiNamedElement, Long]()
 
-  //for better debugging, cleared by ScalaPsiManager on every change
+  //for better debugging, cleared by ScalaPsiCaches on every change
   val idToName: ConcurrentLongObjectMap[String] =
     ConcurrentCollectionFactory.createConcurrentLongObjectMap()
 

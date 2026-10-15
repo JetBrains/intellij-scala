@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -140,11 +140,11 @@ object SAMUtil {
   }
 
   implicit class PsiClassToSAMExt(private val cls: PsiClass) extends AnyVal {
-    def isSAMable: Boolean = cachedInUserData("isSAMable", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker) {
+    def isSAMable: Boolean = cachedInUserData("isSAMable", cls, ScalaPsiCaches.instance(cls.getProject).TopLevelModificationTracker) {
       hasValidConstructorAndSelfType(cls) && singleAbstractMethod(cls).isDefined
     }
 
-    private[SAMUtil] def singleAbstractMethodWithSubstitutor: Option[(PsiMethod, ScSubstitutor)] = cachedInUserData("singleAbstractMethodWithSubstitutor", cls, ScalaPsiManager.instance(cls.getProject).TopLevelModificationTracker) {
+    private[SAMUtil] def singleAbstractMethodWithSubstitutor: Option[(PsiMethod, ScSubstitutor)] = cachedInUserData("singleAbstractMethodWithSubstitutor", cls, ScalaPsiCaches.instance(cls.getProject).TopLevelModificationTracker) {
       val abstractMembers = TypeDefinitionMembers.getSignatures(cls).allSignatures.filter(_.isAbstract).toSeq
       abstractMembers match {
         case Seq(PhysicalMethodSignature(m: PsiMethod, subst))

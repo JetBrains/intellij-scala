@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches
 import org.jetbrains.plugins.scala.lang.psi.light.DummyLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
@@ -78,8 +78,7 @@ object TypeParameter {
     Some(tp.psiTypeParameter, tp.typeParameters, tp.lowerType, tp.upperType)
 
   def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {
-    val manager = ScalaPsiManager.instance(typeParameter.getProject)
-    manager.javaPsiTypeParameterUpperType(typeParameter)
+    ScalaPsiCaches.instance(typeParameter.getProject).javaPsiTypeParameterUpperType(typeParameter)
   }
 
   private case class StrictTp(override val psiTypeParameter: PsiTypeParameter,

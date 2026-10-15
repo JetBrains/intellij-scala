@@ -4,9 +4,10 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaClassLookup
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinitionLike}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
@@ -90,12 +91,12 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
       }
 
       val scope = getResolveScope
-      val manager = ScalaPsiManager.instance
+      val classLookup = ScalaClassLookup.instance
       val topLevelResults = nonEmptyOr(
-        searchThrough(manager.getCachedClass(scope, "scala.Predef")),
+        searchThrough(classLookup.getCachedClass(scope, "scala.Predef")),
         nonEmptyOr(
-          searchThrough(manager.getCachedPackage("scala").map(ScPackageImpl.apply)),
-          searchThrough(manager.emptyNamePackage)
+          searchThrough(classLookup.getCachedPackage("scala").map(ScPackageImpl.apply)),
+          searchThrough(classLookup.emptyNamePackage)
         )
       )
 

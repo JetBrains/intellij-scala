@@ -10,7 +10,7 @@ final class ScalaPsiChangeListener(project: Project) extends PsiTreeChangeAdapte
 
   private val filters = ScalaPsiEventFilter.defaultFilters
 
-  private lazy val psiManager = ScalaPsiManager.instance(project)
+  private lazy val caches = ScalaPsiCaches.instance(project)
 
   private def onPsiChangeEvent(event: PsiTreeChangeEvent,
                                eventType: EventType): Unit = {
@@ -23,10 +23,10 @@ final class ScalaPsiChangeListener(project: Project) extends PsiTreeChangeAdapte
 
     if (validElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
       if (!filters.exists(_.shouldSkip(newElement, oldElement))) {
-        psiManager.clearOnScalaElementChange(validElement)
+        caches.clearOnScalaElementChange(validElement)
       }
     }
-    else psiManager.clearOnNonScalaChange()
+    else caches.clearOnNonScalaChange()
   }
 
   override def childRemoved(event: PsiTreeChangeEvent): Unit = onPsiChangeEvent(event, ChildRemoved)
@@ -34,7 +34,7 @@ final class ScalaPsiChangeListener(project: Project) extends PsiTreeChangeAdapte
   override def childAdded(event: PsiTreeChangeEvent): Unit = onPsiChangeEvent(event, ChildAdded)
   override def childrenChanged(event: PsiTreeChangeEvent): Unit = onPsiChangeEvent(event, ChildrenChanged)
   override def childMoved(event: PsiTreeChangeEvent): Unit = onPsiChangeEvent(event, ChildMoved)
-  override def propertyChanged(event: PsiTreeChangeEvent): Unit = psiManager.clearOnNonScalaChange()
+  override def propertyChanged(event: PsiTreeChangeEvent): Unit = caches.clearOnNonScalaChange()
 }
 
 object ScalaPsiChangeListener {

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -287,8 +287,7 @@ object ScProjectionType {
     val simple = new ScProjectionType(projected, element)
     simple.actualElement match {
       case td: ScTypeAliasDefinition if td.typeParameters.isEmpty =>
-        val manager = ScalaPsiManager.instance(element.getProject)
-        manager.simpleAliasProjectionCached(simple).nullSafe.getOrElse(simple)
+        ScalaPsiCaches.instance(element.getProject).simpleAliasProjectionCached(simple).nullSafe.getOrElse(simple)
       case _ => simple
     }
   }

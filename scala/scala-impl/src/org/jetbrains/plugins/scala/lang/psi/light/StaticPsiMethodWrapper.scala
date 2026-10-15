@@ -4,7 +4,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.light.{LightMethod, LightModifierList}
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches
 
 import _root_.scala.collection.immutable.HashMap
 
@@ -58,7 +58,7 @@ object StaticPsiMethodWrapper {
       data = new HashMap()
       method.putUserData(KEY, data)
     }
-    val count = ScalaPsiManager.instance(method.getProject).TopLevelModificationTracker.getModificationCount
+    val count = ScalaPsiCaches.instance(method.getProject).TopLevelModificationTracker.getModificationCount
     var res = data.getOrElse(containingClass, null)
     if (res != null && res._2 == count) return res._1
     res = (new StaticPsiMethodWrapper(method, containingClass), count)

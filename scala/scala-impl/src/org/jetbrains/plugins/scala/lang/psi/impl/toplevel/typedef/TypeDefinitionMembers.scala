@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiCaches, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, NamedTupleType, ParameterizedType, StdType, TupleType, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -69,35 +69,34 @@ object TypeDefinitionMembers {
     getTypes(clazz, withSupers = true)
 
   private def ifValid[T <: Signature](clazz: PsiClass)
-                                     (cache: ScalaPsiManager => MixinNodes[T]#Map): MixinNodes[T]#Map = {
+                                     (cache: ScalaPsiCaches => MixinNodes[T]#Map): MixinNodes[T]#Map = {
     clazz match {
       case Valid(c) =>
-        val manager = ScalaPsiManager.instance(c.getProject)
-        cache(manager)
+        cache(ScalaPsiCaches.instance(c.getProject))
       case _ => MixinNodes.emptyMap
     }
   }
 
   def getStableSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): StableNodes.Map = {
-    ScalaPsiManager.instance(tp.projectContext).getStableSignatures(tp, compoundTypeThisType)
+    ScalaPsiCaches.instance(tp.projectContext).getStableSignatures(tp, compoundTypeThisType)
   }
 
   def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TypeNodes.Map = {
-    ScalaPsiManager.instance(tp.projectContext).getTypes(tp, compoundTypeThisType)
+    ScalaPsiCaches.instance(tp.projectContext).getTypes(tp, compoundTypeThisType)
   }
 
   def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TermNodes.Map = {
-    ScalaPsiManager.instance(tp.projectContext).getSignatures(tp, compoundTypeThisType)
+    ScalaPsiCaches.instance(tp.projectContext).getSignatures(tp, compoundTypeThisType)
   }
 
   def getStableSignatures(tp: ScAndType): StableNodes.Map =
-    ScalaPsiManager.instance(tp.projectContext).getStableSignatures(tp)
+    ScalaPsiCaches.instance(tp.projectContext).getStableSignatures(tp)
 
   def getTypes(tp: ScAndType): TypeNodes.Map =
-    ScalaPsiManager.instance(tp.projectContext).getTypes(tp)
+    ScalaPsiCaches.instance(tp.projectContext).getTypes(tp)
 
   def getSignatures(tp: ScAndType): TermNodes.Map =
-    ScalaPsiManager.instance(tp.projectContext).getSignatures(tp)
+    ScalaPsiCaches.instance(tp.projectContext).getSignatures(tp)
 
   def getSelfTypeSignatures(clazz: PsiClass)(implicit context: Context): TermNodes.Map = {
     @annotation.tailrec

@@ -399,7 +399,7 @@ class ScalaFileImpl(
     cachedInUserData(
       "shouldNotProcessDefaultImport",
       this,
-      ScalaPsiManager.instance(getProject).TopLevelModificationTracker,
+      ScalaPsiCaches.instance(getProject).TopLevelModificationTracker,
       Tuple1(fqn)
     ) {
     typeDefinitions match {

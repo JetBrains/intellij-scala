@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
  *   - processing stage:<br>
  *     [[impl.toplevel.typedef.TypeDefinitionMembers]] iterates resulting maps and executes resolve processors using data carried by [[Signature]]
  *   - cache stage:<br>
- *     maps keyed by these signatures are cached by [[impl.ScalaPsiManager]]
+ *     maps keyed by these signatures are cached by [[impl.ScalaPsiCaches]]
  *
  * @see [[impl.toplevel.typedef.MixinNodes.Node]]:<br>
  *      inheritance-graph wrapper around a signature; see Node ScalaDoc for details.
