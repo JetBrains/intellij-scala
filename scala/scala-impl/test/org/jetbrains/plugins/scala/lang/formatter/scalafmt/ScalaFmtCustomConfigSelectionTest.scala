@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatter.scalafmt
 
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.Markers
-import org.junit.{Ignore, Test}
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -685,7 +685,6 @@ abstract class ScalaFmtCustomConfigSelectionTestBase extends ScalaFmtSelectionTe
   }
 
   @Test
-  @Ignore("SCL-23253")
   def typeDefinitionFormat_IfRewriteRulesExist_3(): Unit = {
     setScalafmtConfig("redundantBraces.conf")
 
