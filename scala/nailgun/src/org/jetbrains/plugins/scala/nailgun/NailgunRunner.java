@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.nailgun;
 
 import com.facebook.nailgun.Alias;
+import com.facebook.nailgun.AliasManager;
 import com.facebook.nailgun.NGConstants;
 import com.facebook.nailgun.NGServer;
 
@@ -11,6 +12,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -124,6 +126,7 @@ public class NailgunRunner {
     return urlString.contains("repl-interface.jar");
   }
 
+  @SuppressWarnings("unchecked")
   private static NGServer createServer(
           InetAddress address,
           String id,
@@ -140,6 +143,17 @@ public class NailgunRunner {
     );
 
     server.setAllowNailsByClassName(false);
+
+    // Nailgun's AliasManager auto-registers its built-in commands (ng-alias, ng-cp,
+    // ng-stop, ng-stats, ng-version) from builtins.properties. They are dispatched
+    // before the token check (which lives in the Scala nail, not the dispatcher) is
+    // ever reached, and ng-alias can load and run an arbitrary class. Strip the table
+    // before registering our own commands so only our commands are reachable.
+    AliasManager manager = server.getAliasManager();
+    //noinspection unchecked
+    for (Alias alias : (Set<Alias>) manager.getAliases()) {
+      manager.removeAlias(alias.getName());
+    }
 
     Class<?> mainNailClass = Utils.loadAndSetupServerMainNailClass(classLoader, scalaCompileServerSystemDir, jpsBuildSystemDir);
     Utils.setupServerShutdownTimer(mainNailClass, server);
