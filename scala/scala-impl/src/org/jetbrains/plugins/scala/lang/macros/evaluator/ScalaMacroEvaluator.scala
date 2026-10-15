@@ -19,7 +19,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.caches.cached
-import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager
+import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensions
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.impl._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -31,16 +31,16 @@ import scala.reflect.ClassTag
 class ScalaMacroEvaluator(project: Project) {
   import ScalaMacroEvaluator._
 
-  private val typingRules = cached("typingRules", LibraryExtensionsManager.MOD_TRACKER, () => {
+  private val typingRules = cached("typingRules", LibraryExtensions.ModTracker, () => {
     loadRules(defaultTypeProviders)
   })
 
-  private val expansionRules = cached("expansionRules", LibraryExtensionsManager.MOD_TRACKER, () => {
+  private val expansionRules = cached("expansionRules", LibraryExtensions.ModTracker, () => {
     loadRules(defaultExprProviders)
   })
 
   private def loadRules[T <: ScalaMacroBound](defaults: Seq[T])(implicit tag: ClassTag[T]) : Map[MacroImpl, T] = {
-    val external = LibraryExtensionsManager.getInstance(project).getExtensions[T]
+    val external = LibraryExtensions.instance(project).getExtensions[T]
     defaults.flatMap(p => p.boundMacro.map(_ -> p)).toMap ++
       external.flatMap(p => p.boundMacro.map(_ -> p)).toMap
   }
@@ -93,4 +93,3 @@ object ScalaMacroEvaluator {
     ShapelessProductArgs
   )
 }
-

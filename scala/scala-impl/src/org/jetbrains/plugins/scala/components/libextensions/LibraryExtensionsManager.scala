@@ -11,7 +11,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.libraries.{Library, LibraryTable, LibraryTablesRegistrar}
-import com.intellij.openapi.util.ModificationTracker
+import com.intellij.openapi.util.SimpleModificationTracker
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.util.lang.UrlClassLoader
 import com.intellij.util.messages.Topic
@@ -40,7 +40,7 @@ import scala.xml.factory.XMLLoader
 import scala.xml.{Elem, SAXParser}
 
 @Service(Array(Service.Level.PROJECT))
-final class LibraryExtensionsManager(project: Project) {
+final class LibraryExtensionsManager(project: Project) extends LibraryExtensions {
   import LibraryExtensionsManager._
 
   private val EXT_JARS_KEY = "extensionJars"
@@ -95,7 +95,7 @@ final class LibraryExtensionsManager(project: Project) {
   def setEnabled(value: Boolean): Unit = {
     myExtensionInstances.clear()
     myLoadedLibraries.clear()
-    MOD_TRACKER.incModCount()
+    MOD_TRACKER.incModificationCount()
     try   { if (value) loadCachedExtensions() }
     catch { case e: Exception => LOG.error(s"Failed to load cached extensions", e) }
   }
@@ -149,7 +149,7 @@ final class LibraryExtensionsManager(project: Project) {
       case Some(Failure(exception)) => throw new BadManifestException(resolved, exception)
       case None                     => throw new NoManifestInExtensionJarException(resolved)
     }
-    MOD_TRACKER.incModCount()
+    MOD_TRACKER.incModificationCount()
   }
 
   private def processResolvedExtensionWithLogging(resolved: Path): Unit = try {
@@ -204,7 +204,7 @@ final class LibraryExtensionsManager(project: Project) {
     }
   }
 
-  def getExtensions[T](implicit tag: ClassTag[T]): Seq[T] = {
+  override def getExtensions[T](implicit tag: ClassTag[T]): Seq[T] = {
     myExtensionInstances.get(tag.runtimeClass).fold(Seq.empty[T])(_.to(ArraySeq).asInstanceOf[Seq[T]])
   }
 
@@ -243,12 +243,12 @@ object LibraryExtensionsManager {
   def getInstance(project: Project): LibraryExtensionsManager =
     project.getService(classOf[LibraryExtensionsManager])
 
-  class MyModificationTracker extends ModificationTracker {
-    private var modCount = 0L
-    def incModCount(): Unit = modCount += 1
-    override def getModificationCount: Long = modCount
+  /** Same as [[LibraryExtensions.ModTracker]] */
+  val MOD_TRACKER: SimpleModificationTracker = LibraryExtensions.ModTracker
+
+  final class ExtensionsProvider extends LibraryExtensions.Provider {
+    override def extensions(project: Project): LibraryExtensions = getInstance(project)
   }
-  val MOD_TRACKER = new MyModificationTracker()
 
   implicit class LibraryDescriptorExt(private val ld: LibraryDescriptor) extends AnyVal {
     import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version

@@ -185,6 +185,8 @@
                             serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.search.SearchScalaInheritorsFinder"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.lang.psi.ScalaClassLookup$Provider"
                             serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager$ClassLookupProvider"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensions$Provider"
+                            serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager$ExtensionsProvider"/>
         <registryKey key="scala.highlighting.tracing" defaultValue="false" description="Trace resolve and type inference"/>
         <registryKey key="scala.highlighting.tracing.in.editor" defaultValue="true" description="Also trace resolve and type inference in editor"/>
         <registryKey key="scala.incremental.highlighting.lookaround" defaultValue="15" description="Number of lines to highlight beyond the visible area"/>
