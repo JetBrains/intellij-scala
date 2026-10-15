@@ -56,6 +56,24 @@ import scala.util.matching.Regex
 
 class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
 
+  /**
+   * After formatting a range with scalafmt, [[process]] returns an empty range, so that the IntelliJ formatter does nothing.
+   * However, when formatter tags are enabled (the default), the platform keeps the start of the original range
+   * and only shrinks its length. The IntelliJ formatter then still formats the whitespace ending at or containing
+   * that offset, e.g. it adds blank lines after a package clause or changes the indentation (SCL-23253).
+   *
+   * Starting the range at the beginning of that whitespace leaves no whitespace for the IntelliJ formatter to format.
+   * The whitespace is formatted with scalafmt anyway, see [[ScalaFmtPreFormatProcessor.fixRangeStartingOnPsiElement]].
+   */
+  //noinspection ApiStatus,UnstableApiUsage
+  override def adjustRange(element: ASTNode, range: TextRange): TextRange =
+    containingFile(element) match {
+      case psiFile: ScalaFile if !range.isEmpty && isFormattedWithScalafmt(psiFile, range) =>
+        fixRangeStartingOnPsiElement(psiFile, range)
+      case _ =>
+        range
+    }
+
   override def process(element: ASTNode, range: TextRange): TextRange = {
     val psiFile = containingFile(element) match {
       case file: ScalaFile => file
@@ -66,36 +84,37 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
     if (range.isEmpty)
       return TextRange.EMPTY_RANGE
 
-    val useScalafmt = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER
-    if (!useScalafmt)
+    if (!isFormattedWithScalafmt(psiFile, range))
       return range
 
     // NOTE: without this line ScalaFmtCommonTestBase.testBug1 is failing
     rangesDeltaCache.remove(psiFile)
 
-    val isSubrangeFormatting = range != psiFile.getTextRange
-    val skip = isSubrangeFormatting && getScalaSettings(psiFile).SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT && !ForceScalaFmtRangeFormatting.get()
-    if (skip)
-      range
-    else {
-      try {
-        val typeAdjuster = new TypeAdjuster()
-        formatIfRequired(psiFile, shiftRange(psiFile, range), typeAdjuster)
-        typeAdjuster.adjustTypes()
-      } catch {
-        case NonFatal(ex) =>
-          val configVersion = configVersionForScalaFile(psiFile)
-          reportUnknownError(ex, configVersion)
-          throw ex
-      }
-      TextRange.EMPTY_RANGE
+    try {
+      val typeAdjuster = new TypeAdjuster()
+      formatIfRequired(psiFile, shiftRange(psiFile, range), typeAdjuster)
+      typeAdjuster.adjustTypes()
+    } catch {
+      case NonFatal(ex) =>
+        val configVersion = configVersionForScalaFile(psiFile)
+        reportUnknownError(ex, configVersion)
+        throw ex
     }
+    TextRange.EMPTY_RANGE
   }
 
   private def containingFile(element: ASTNode): PsiFile = {
     val psi = element.getPsi
     if (psi == null) return null
     psi.getContainingFile
+  }
+
+  /** @return false if the range should be formatted with the IntelliJ formatter instead */
+  private def isFormattedWithScalafmt(psiFile: ScalaFile, range: TextRange): Boolean = {
+    val useScalafmt = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER
+    val isSubrangeFormatting = range != psiFile.getTextRange
+    val useIntellijFormatter = isSubrangeFormatting && getScalaSettings(psiFile).SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT && !ForceScalaFmtRangeFormatting.get()
+    useScalafmt && !useIntellijFormatter
   }
 
   override def changesWhitespacesOnly(): Boolean = false

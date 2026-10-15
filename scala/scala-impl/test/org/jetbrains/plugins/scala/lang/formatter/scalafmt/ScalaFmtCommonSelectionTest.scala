@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatter.scalafmt
 
 import org.jetbrains.plugins.scala.util.Markers
-import org.junit.{Ignore, Test}
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -402,7 +402,6 @@ abstract class ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase
   }
 
   @Test
-  @Ignore("SCL-23253")
   def SCL13939(): Unit = {
     val before =
       s"""
@@ -509,7 +508,6 @@ abstract class ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase
   }
 
   @Test
-  @Ignore("SCL-23253")
   def objectPartialSelection(): Unit = {
     val before =
       s"""
@@ -580,7 +578,6 @@ abstract class ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase
   }
 
   @Test
-  @Ignore("SCL-23253")
   def SCL14031(): Unit = {
     val before =
       s"""
@@ -658,7 +655,6 @@ abstract class ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase
   }
 
   @Test
-  @Ignore("SCL-23253")
   def SCL14856_patternMatchInsideMethodDefinition_3(): Unit =
     doAllRangesTextTest(
       """class TestClass {
