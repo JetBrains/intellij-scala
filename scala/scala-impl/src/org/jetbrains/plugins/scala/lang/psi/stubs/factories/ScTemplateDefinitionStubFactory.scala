@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScEnumClassCaseImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScClassImpl, ScEnumImpl, ScGivenDefinitionImpl, ScObjectImpl, ScTraitImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScClassDefinitionElementType, ScEnumClassCaseElementType, ScEnumDefinitionElementType, ScEnumSingletonCaseElementType, ScGivenDefinitionElementType, ScNewTemplateElementType, ScObjectDefinitionElementType, ScTemplateDefinitionElementType, ScTraitDefinitionElementType}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScGivenStub, ScImplicitStub, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -152,7 +152,7 @@ abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](
   }
 
   override def indexStub(stub: ScTemplateDefinitionStub[TypeDef], sink: IndexSink): Unit = {
-    import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
+    import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys._
 
     val scalaName = stub.getName
     val javaName = stub.javaName
@@ -161,20 +161,20 @@ abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](
       if (stub.isVisibleInJava) {
         sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, javaName)
       }
-      sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, javaName)
+      sink.occurrence(ScalaStubIndexKeys.ALL_CLASS_NAMES, javaName)
     }
 
     if (scalaName != null) {
-      sink.occurrence(ScalaIndexKeys.SHORT_NAME_KEY, scalaName)
+      sink.occurrence(ScalaStubIndexKeys.SHORT_NAME_KEY, scalaName)
 
       if (scalaName != javaName || !stub.isVisibleInJava) {
-        sink.occurrence(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, scalaName)
+        sink.occurrence(ScalaStubIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, scalaName)
       }
     }
 
     val additionalNames = stub.additionalJavaName
     for (name <- additionalNames) {
-      sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, name)
+      sink.occurrence(ScalaStubIndexKeys.ALL_CLASS_NAMES, name)
     }
     val javaFqn = stub.javaQualifiedName
     if (javaFqn != null && !stub.isLocal && stub.isVisibleInJava) {
@@ -183,7 +183,7 @@ abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](
       val pack =
         if (i == -1) ""
         else javaFqn.substring(0, i)
-      sink.occurrence(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, pack)
+      sink.occurrence(ScalaStubIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, pack)
     }
 
     val fqn = ScalaNamesUtil.cleanFqn(stub.getQualifiedName)
@@ -193,15 +193,15 @@ abstract class ScTemplateDefinitionStubFactory[TypeDef <: ScTemplateDefinition](
       val pack =
         if (i == -1) ""
         else fqn.substring(0, i)
-      sink.occurrence(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, pack)
-      if (stub.isImplicitObject) sink.occurrence(ScalaIndexKeys.IMPLICIT_OBJECT_KEY, pack)
+      sink.occurrence(ScalaStubIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, pack)
+      if (stub.isImplicitObject) sink.occurrence(ScalaStubIndexKeys.IMPLICIT_OBJECT_KEY, pack)
 
       if (stub.isTopLevel) {
         if (stub.implicitConversionParameterClass.nonEmpty)
-          sink.occurrence(ScalaIndexKeys.TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY, pack)
+          sink.occurrence(ScalaStubIndexKeys.TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY, pack)
 
         if (stub.isGiven)
-          sink.occurrence(ScalaIndexKeys.TOP_LEVEL_GIVEN_DEFINITIONS_BY_PKG_KEY, pack)
+          sink.occurrence(ScalaStubIndexKeys.TOP_LEVEL_GIVEN_DEFINITIONS_BY_PKG_KEY, pack)
       }
 
       stub.indexImplicits(sink)

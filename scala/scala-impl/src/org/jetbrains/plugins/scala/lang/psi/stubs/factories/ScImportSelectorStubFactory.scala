@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportSelect
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScImportSelectorElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportSelectorStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys
 
 final class ScImportSelectorStubFactory(elementType: ScImportSelectorElementType)
   extends ScStubSerializingElementFactory[ScImportSelectorStub, ScImportSelector](elementType) {
@@ -48,6 +48,6 @@ final class ScImportSelectorStubFactory(elementType: ScImportSelectorElementType
 
   override def indexStub(stub: ScImportSelectorStub, sink: IndexSink): Unit =
     stub.referenceText.foreach {
-      sink.occurrence(ScalaIndexKeys.ALIASED_IMPORT_KEY, _)
+      sink.occurrence(ScalaStubIndexKeys.ALIASED_IMPORT_KEY, _)
     }
 }

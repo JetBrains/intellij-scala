@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTypeAliasElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeAliasStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScTypeAliasStub, classNames}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -103,30 +103,30 @@ abstract class ScTypeAliasStubFactory(elementType: ScTypeAliasElementType)
 
   override def indexStub(stub: ScTypeAliasStub, sink: IndexSink): Unit = {
     val name = stub.getName
-    sink.occurrence(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name)
+    sink.occurrence(ScalaStubIndexKeys.TYPE_ALIAS_NAME_KEY, name)
 
     if (stub.isTopLevel) {
-      sink.occurrence(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, name)
+      sink.occurrence(ScalaStubIndexKeys.STABLE_ALIAS_NAME_KEY, name)
 
       stub.topLevelQualifier.foreach(
-        sink.fqnOccurence(ScalaIndexKeys.TOP_LEVEL_TYPE_ALIAS_BY_PKG_KEY, _)
+        sink.fqnOccurence(ScalaStubIndexKeys.TOP_LEVEL_TYPE_ALIAS_BY_PKG_KEY, _)
       )
     }
 
     if (stub.isStableQualifier) {
-      sink.occurrence(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, name)
+      sink.occurrence(ScalaStubIndexKeys.STABLE_ALIAS_NAME_KEY, name)
 
       stub.stableQualifier.foreach(
         fqn =>
           sink.occurrence[ScTypeAlias, CharSequence](
-            ScalaIndexKeys.STABLE_ALIAS_FQN_KEY,
+            ScalaStubIndexKeys.STABLE_ALIAS_FQN_KEY,
             ScalaNamesUtil.cleanFqn(fqn)
           )
       )
     }
 
     stub.classType.foreach {
-      sink.occurrence(ScalaIndexKeys.ALIASED_CLASS_NAME_KEY, _)
+      sink.occurrence(ScalaStubIndexKeys.ALIASED_CLASS_NAME_KEY, _)
     }
   }
 

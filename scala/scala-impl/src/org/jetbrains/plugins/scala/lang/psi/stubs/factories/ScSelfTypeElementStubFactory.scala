@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSelfTypeElementImp
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScSelfTypeElementStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScSelfTypeElementElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScSelfTypeElementStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys
 
 final class ScSelfTypeElementStubFactory(elementType: ScSelfTypeElementElementType)
   extends ScStubSerializingElementFactory[ScSelfTypeElementStub, ScSelfTypeElement](elementType) {
@@ -37,7 +37,7 @@ final class ScSelfTypeElementStubFactory(elementType: ScSelfTypeElementElementTy
     )
 
   override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit = {
-    sink.occurrences(ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY, stub.classNames.toSeq*)
+    sink.occurrences(ScalaStubIndexKeys.SELF_TYPE_CLASS_NAME_KEY, stub.classNames.toSeq*)
   }
 
   override def createPsi(stub: ScSelfTypeElementStub): ScSelfTypeElement = new ScSelfTypeElementImpl(stub)

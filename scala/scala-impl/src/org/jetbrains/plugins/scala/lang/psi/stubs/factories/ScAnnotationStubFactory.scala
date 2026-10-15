@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScAnnotationElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys
 
 final class ScAnnotationStubFactory(elementType: ScAnnotationElementType)
   extends ScStubSerializingElementFactory[ScAnnotationStub, ScAnnotation](elementType) {
@@ -29,6 +29,6 @@ final class ScAnnotationStubFactory(elementType: ScAnnotationElementType)
   override def createPsi(stub: ScAnnotationStub): ScAnnotation = new ScAnnotationImpl(stub)
 
   override def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
-    sink.occurrences(ScalaIndexKeys.ANNOTATED_MEMBER_KEY, stub.name.toSeq*)
+    sink.occurrences(ScalaStubIndexKeys.ANNOTATED_MEMBER_KEY, stub.name.toSeq*)
   }
 }

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScExtendsBlockElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtendsBlockStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaDirectSupers
 
 import scala.collection.immutable.ArraySeq
@@ -26,6 +26,6 @@ final class ScExtendsBlockStubFactory(elementType: ScExtendsBlockElementType) ex
   override def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = new ScExtendsBlockImpl(stub)
 
   override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit = {
-    sink.occurrences(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, stub.baseClasses*)
+    sink.occurrences(ScalaStubIndexKeys.SUPER_CLASS_NAME_KEY, stub.baseClasses*)
   }
 }

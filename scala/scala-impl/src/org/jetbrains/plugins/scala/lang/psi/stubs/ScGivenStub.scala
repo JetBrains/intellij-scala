@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import com.intellij.psi.stubs.IndexSink
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenAlias, ScGivenDefinition}
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScGivenIndex
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys.GIVEN_KEY
 
 trait ScGivenStub {
   def isGiven: Boolean
 
   def givenClassNames: Array[String]
 
-  def indexGivens(sink: IndexSink): Unit = ScGivenIndex.occurrences(sink, givenClassNames)
+  def indexGivens(sink: IndexSink): Unit = givenClassNames.foreach(sink.occurrence(GIVEN_KEY, _))
 }
 
 object ScGivenStub {

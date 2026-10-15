@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParameterStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScClassParameterElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.factories.IndexSinkExt
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys.CLASS_PARAMETER_NAME_KEY
 
 final class ScClassParameterStubFactory(elementType: ScClassParameterElementType) extends ScParamStubFactory[ScClassParameter](elementType) {
   override def createPsi(stub: ScParameterStub): ScClassParameter = new ScClassParameterImpl(stub)

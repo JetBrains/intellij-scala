@@ -39,7 +39,7 @@ final class ScPackagingStubFactory(elementType: ScPackagingElementType)
   override def createPsi(stub: ScPackagingStub): ScPackaging = new ScPackagingImpl(stub)
 
   override def indexStub(stub: ScPackagingStub, sink: IndexSink): Unit = {
-    import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.PACKAGE_FQN_KEY
+    import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys.PACKAGE_FQN_KEY
 
     val prefix = stub.parentPackageName
     var ownNamePart = stub.packageName

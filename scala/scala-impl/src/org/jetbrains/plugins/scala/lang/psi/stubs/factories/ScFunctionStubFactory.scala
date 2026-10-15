@@ -109,7 +109,7 @@ abstract class ScFunctionStubFactory[Fun <: ScFunction](elementType: ScFunctionE
   }
 
   override def indexStub(stub: ScFunctionStub[Fun], sink: IndexSink): Unit = {
-    import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
+    import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys._
 
     val functionName = stub.getName
     sink.occurrences(METHOD_NAME_KEY, functionName)

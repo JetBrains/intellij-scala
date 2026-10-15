@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypeParametersOwner}
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ImplicitConversionIndex, ImplicitInstanceIndex}
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys.{IMPLICIT_CONVERSION_KEY, IMPLICIT_INSTANCE_KEY}
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 
 import scala.annotation.tailrec
@@ -26,8 +26,8 @@ trait ScImplicitStub[T <: PsiElement] extends ScStubElement[T] {
   def implicitConversionParameterClass: Option[String] = None
 
   def indexImplicits(sink: IndexSink): Unit = implicitConversionParameterClass match {
-    case Some(paramClass) => ImplicitConversionIndex.occurrence(sink, paramClass)
-    case _                => ImplicitInstanceIndex.occurrences(sink, implicitClassNames)
+    case Some(paramClass) => sink.occurrence(IMPLICIT_CONVERSION_KEY, paramClass)
+    case _                => implicitClassNames.foreach(sink.occurrence(IMPLICIT_INSTANCE_KEY, _))
   }
 }
 

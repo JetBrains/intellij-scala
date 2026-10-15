@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScExportStmtIm
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExportStmtStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScExportStmtElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExportStmtStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.TOP_LEVEL_EXPORT_BY_PKG_KEY
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys.TOP_LEVEL_EXPORT_BY_PKG_KEY
 
 final class ScExportStmtStubFactory(elementType: ScExportStmtElementType)
   extends ScStubSerializingElementFactory[ScExportStmtStub, ScExportStmt](elementType) {

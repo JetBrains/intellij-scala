@@ -6,8 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScExtensionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScExtensionElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtensionStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ExtensionIndex
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.TOP_LEVEL_EXTENSION_BY_PKG_KEY
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaStubIndexKeys.{EXTENSION_KEY, TOP_LEVEL_EXTENSION_BY_PKG_KEY}
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExtensionStub, ScImplicitStub}
 
 final class ScExtensionStubFactory(elementType: ScExtensionElementType) extends ScStubSerializingElementFactory[ScExtensionStub, ScExtension](elementType) {
@@ -44,6 +43,6 @@ final class ScExtensionStubFactory(elementType: ScExtensionElementType) extends 
       }
     }
 
-    stub.extensionTargetClass.foreach(ExtensionIndex.occurrence(sink, _))
+    stub.extensionTargetClass.foreach(sink.occurrence(EXTENSION_KEY, _))
   }
 }
