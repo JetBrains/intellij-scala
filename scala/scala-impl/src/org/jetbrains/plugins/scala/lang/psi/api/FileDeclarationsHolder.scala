@@ -3,10 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.api
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.impl.migration.PsiMigrationManager
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
@@ -23,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExpo
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFileLocation}
 
 trait FileDeclarationsHolder
   extends ScDeclarationSequenceHolder
@@ -111,10 +109,9 @@ trait FileDeclarationsHolder
               if (!processPackages(packages))
                 return false
 
-              val migration = PsiMigrationManager.getInstance(getProject).getCurrentMigration
-              if (migration != null) {
-                val list = migration.getMigrationPackages("")
-                val packages = list.toArray(new Array[PsiPackage](list.size)).map(ScPackageImpl(_))
+              val migrationPackages = classLookup.migrationRootPackages
+              if (migrationPackages.nonEmpty) {
+                val packages = migrationPackages.map(ScPackageImpl(_)).toArray
                 if (!processPackages(packages))
                   return false
               }
@@ -240,9 +237,9 @@ object FileDeclarationsHolder {
    * @return true for scratch file or just some external isolated scala file
    */
   private def isExternalFile(project: Project, vFile: VirtualFile) = {
-    val index = ProjectRootManager.getInstance(project).getFileIndex
-    val isInSources = index.isInSourceContent(vFile)
-    val isInLibraries = index.isInLibraryClasses(vFile)
+    val location = ScalaFileLocation.instance
+    val isInSources = location.isInSourceContent(vFile, project)
+    val isInLibraries = location.isInLibraryClasses(vFile, project)
     !(isInSources || isInLibraries)
   }
 }

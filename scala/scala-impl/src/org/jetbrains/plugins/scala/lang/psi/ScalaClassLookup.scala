@@ -55,6 +55,9 @@ trait ScalaClassLookup {
   /** For a class in library sources, the compiled class of the same library; otherwise the class itself */
   def originalClass(psiClass: PsiClass): PsiClass
 
+  /** The top-level packages of the current Java package migration (Refactor | Migrate), if one runs */
+  def migrationRootPackages: Seq[PsiPackage]
+
   def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias]
 
   def scalaNamedTupleAlias(scope: GlobalSearchScope): Option[ScTypeAlias]
@@ -113,6 +116,8 @@ object ScalaClassLookup {
     override def methodsByName(name: String)(implicit scope: GlobalSearchScope): Iterable[PsiMethod] = Iterable.empty
 
     override def originalClass(psiClass: PsiClass): PsiClass = psiClass
+
+    override def migrationRootPackages: Seq[PsiPackage] = Seq.empty
 
     override def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = None
 

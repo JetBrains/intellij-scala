@@ -7,6 +7,7 @@ import com.intellij.openapi.util.{ModificationTracker, SimpleModificationTracker
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.JavaPsiFacadeImpl
+import com.intellij.psi.impl.migration.PsiMigrationManager
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.util.PsiClassUtil
 import com.intellij.util.ObjectUtils
@@ -227,6 +228,12 @@ class ScalaPsiManager(override implicit val project: Project) extends ScalaClass
     ScalaShortNamesCacheManager.getInstance(using project).methodsByName(name)
 
   override def originalClass(psiClass: PsiClass): PsiClass = ScalaPsiImplementationHelper.getOriginalClass(psiClass)
+
+  override def migrationRootPackages: Seq[PsiPackage] =
+    PsiMigrationManager.getInstance(project).getCurrentMigration match {
+      case null      => Seq.empty
+      case migration => migration.getMigrationPackages("").asScala.toSeq
+    }
 
   def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     if (DumbService.getInstance(project).isDumb) Iterable.empty

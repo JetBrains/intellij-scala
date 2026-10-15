@@ -23,6 +23,10 @@ trait ScalaFileLocation {
   def isInLibrary(file: VirtualFile, project: Project): Boolean
 
   def isInLibrarySource(file: VirtualFile, project: Project): Boolean
+
+  def isInLibraryClasses(file: VirtualFile, project: Project): Boolean
+
+  def isInSourceContent(file: VirtualFile, project: Project): Boolean
 }
 
 object ScalaFileLocation {
@@ -39,5 +43,9 @@ object ScalaFileLocation {
     override def isInLibrary(file: VirtualFile, project: Project): Boolean = false
 
     override def isInLibrarySource(file: VirtualFile, project: Project): Boolean = false
+
+    override def isInLibraryClasses(file: VirtualFile, project: Project): Boolean = false
+
+    override def isInSourceContent(file: VirtualFile, project: Project): Boolean = false
   }
 }

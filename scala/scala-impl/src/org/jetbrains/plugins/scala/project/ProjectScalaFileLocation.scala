@@ -16,4 +16,10 @@ final class ProjectScalaFileLocation extends ScalaFileLocation {
 
   override def isInLibrarySource(file: VirtualFile, project: Project): Boolean =
     ProjectFileIndex.getInstance(project).isInLibrarySource(file)
+
+  override def isInLibraryClasses(file: VirtualFile, project: Project): Boolean =
+    ProjectFileIndex.getInstance(project).isInLibraryClasses(file)
+
+  override def isInSourceContent(file: VirtualFile, project: Project): Boolean =
+    ProjectFileIndex.getInstance(project).isInSourceContent(file)
 }
