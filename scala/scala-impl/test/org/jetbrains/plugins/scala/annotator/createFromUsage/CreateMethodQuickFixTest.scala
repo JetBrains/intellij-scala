@@ -240,6 +240,7 @@ class CreateMethodQuickFixWithScalafmtTest
     getScalaCodeStyleSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
 
     //NOTE: we use non-standard indentation to ensure that the scalafmt configuration is used
+    //NOTE: there is no blank line before the created method: scalafmt keeps the single new line inserted by the quick fix
     doTest(
       s"""object test {
          |     def outer(): Unit = {
@@ -259,7 +260,6 @@ class CreateMethodQuickFixWithScalafmtTest
          |                    b <- foo(a, 2)
          |               } yield b
          |     }
-         |
          |     private def foo(a: Int, i: Int) = ???
          |}
          |""".stripMargin
