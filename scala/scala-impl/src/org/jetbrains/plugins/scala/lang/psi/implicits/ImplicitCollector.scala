@@ -1275,7 +1275,13 @@ class ImplicitCollector(
               if (isImplicitConversion) {
                 val pt = maskTypeParametersInExtensions(tp, cand)
                 if (cand.isExtensionCall)
-                  checkExtensionConformance(place, undefined, pt, allowExtensionReceiverConversions)
+                  checkExtensionConformance(
+                    cand,
+                    place,
+                    undefined,
+                    pt,
+                    allowExtensionReceiverConversions
+                  )
                 else
                   checkWeakConformance(place, undefined, pt)
               } else undefined.conforms(tp, ConstraintSystem.empty)
@@ -1360,6 +1366,7 @@ class ImplicitCollector(
    *         conversion is found, or a failed result otherwise
    */
   private def checkExtensionConformance(
+    cand:                    ScalaResolveResult,
     place:                   PsiElement,
     tpe:                     ScType,
     pt:                      ScType,
@@ -1394,8 +1401,24 @@ class ImplicitCollector(
 
           val conversionCandidates = implicitCollector.collect()
           conversionCandidates match {
-            case Seq(_) => ConstraintSystem.empty
-            case _      => ConstraintsResult.Left
+            case Seq(conv) =>
+              val subst = conv.substitutor
+
+              val extensionOption = cand.element match {
+                case fun: ScFunction => fun.extensionMethodOwner.orElse(cand.exportedInExtension)
+                case _               => None
+              }
+
+              val typeParams = extensionOption.fold(Seq.empty[ScTypeParam])(_.typeParameters)
+
+              typeParams.foldLeft(ConstraintSystem.empty) { case (acc, tparam) =>
+                if (subst.isApplicableToTypeParam(tparam)) {
+                  val instantiation = subst(TypeParameterType(tparam))
+                  acc.withLower(tparam, instantiation).withUpper(tparam, instantiation)
+                }
+                else acc
+              }
+            case _ => ConstraintsResult.Left
           }
         } else ConstraintsResult.Left
       }
