@@ -302,7 +302,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
             case srr @ ScalaResolveResult(fun: ScFunction, s: ScSubstitutor) if fun.name == CommonNames.Apply =>
               if (srr.innerResolveResult.exists(inner => syntheticKindProjectorApplyNames.contains(inner.name)))
                 tp
-              else Right(fun.polymorphicType(s))
+              else Right(fun.polymorphicType(s, dropExtensionClauses = r.isExtensionCall))
             case _ => tp
           }
 

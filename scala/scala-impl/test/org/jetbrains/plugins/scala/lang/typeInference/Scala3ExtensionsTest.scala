@@ -1201,4 +1201,26 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
 
       |""".stripMargin
   )
+
+  def testSCL25083(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait Test1[T] {
+      |    def apply(t: T => Unit): Unit = ???
+      |  }
+      |  trait Test2[T]
+      |  extension [T](test2: Test2[T]) def apply(t: T => Unit): Unit = ???
+      |
+      |  val test1: Test1[Int] = ???
+      |  val test2: Test2[Int] = ???
+      |
+      |  test1 { x => // x is Int
+      |    println(x + 1)
+      |  }
+      |  test2 { x => // x is Any/Nothing
+      |    println(x + 1)
+      |  }
+      |}
+      """.stripMargin
+  )
 }
