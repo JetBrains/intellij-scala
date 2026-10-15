@@ -1,12 +1,126 @@
 package org.jetbrains.plugins.scala.lang.formatter.scalafmt
 
+import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.util.Markers
 import org.junit.{Ignore, Test}
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+import java.nio.file.Path
+
+class ScalaFmtCustomConfigSelectionTest extends ScalaFmtCustomConfigSelectionTestBase {
+
+  @Test
+  def EA244817_WithRewriteRules_2_7_5(): Unit = {
+    setScalafmtConfig("EA-244817_2_7_5.conf")
+    doTextTest(
+      raw"""class X {
+           |${start}val foo = 1 +
+           |2 -
+           |2 *
+           |3 \
+           |4$end
+           |}
+           |""".stripMargin,
+      raw"""class X {
+           |  ${start}val foo = 1 +
+           |    2 -
+           |    2 *
+           |    3 \
+           |    4$end
+           |}
+           |""".stripMargin
+    )
+  }
+
+  @Test
+  def EA244817_WithRewriteRules_2_5_3(): Unit = {
+    setScalafmtConfig("EA-244817_2_5_3.conf")
+    // NOTE: 2.5.3 doesn't support unindentTopLevelOperators, but we ensure it doesn't fail
+    doTextTest(
+      raw"""class X {
+           |${start}val foo = 1 +
+           |2 -
+           |2 *
+           |3 \
+           |4$end
+           |}
+           |""".stripMargin,
+      raw"""class X {
+           |  ${start}val foo = 1 +
+           |        2 -
+           |        2 *
+           |            3 \
+           |                4$end
+           |}
+           |""".stripMargin
+    )
+  }
+
+  @Test
+  def shouldNotFailToParseConfigWithAllParametersPresent_WithSelectionFormat_2_7_5(): Unit = {
+    setScalafmtConfig("all_parameters_2_7_5.conf")
+    doTextTest(
+      raw"""class X {
+           |  ${start}42$end
+           |}
+           |""".stripMargin,
+    )
+  }
+
+  @Test
+  def withDocStringsOneLine_Unfold(): Unit = {
+    setScalafmtConfig("docstrings_oneline_unfold_2_7_5.conf")
+    doTextTest(
+      s"""class A {
+         |  ${start}2 + 2$end
+         |}""".stripMargin
+    )
+  }
+}
+
+/** Uses the same configurations as [[ScalaFmtCustomConfigSelectionTest]], but for scalafmt 3.11.5 */
+class ScalaFmtCustomConfigSelectionTest_3_11 extends ScalaFmtCustomConfigSelectionTestBase {
+
+  override protected def scalafmtConfigsBasePath: Path =
+    super.scalafmtConfigsBasePath / "3_11_5"
+
+  @Test
+  def EA244817_WithRewriteRules(): Unit = {
+    setScalafmtConfig("EA-244817.conf")
+    doTextTest(
+      raw"""class X {
+           |${start}val foo = 1 +
+           |2 -
+           |2 *
+           |3 \
+           |4$end
+           |}
+           |""".stripMargin,
+      raw"""class X {
+           |  ${start}val foo = 1 +
+           |    2 -
+           |    2 *
+           |    3 \
+           |    4$end
+           |}
+           |""".stripMargin
+    )
+  }
+
+  @Test
+  def withDocStringsOneLine_Unfold(): Unit = {
+    setScalafmtConfig("docstrings_oneline_unfold.conf")
+    doTextTest(
+      s"""class A {
+         |  ${start}2 + 2$end
+         |}""".stripMargin
+    )
+  }
+}
+
 @RunWith(classOf[JUnit4])
-class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with Markers {
+abstract class ScalaFmtCustomConfigSelectionTestBase extends ScalaFmtSelectionTestBase with Markers {
 
   @Test
   def SCL14129_avoidInfix(): Unit = {
@@ -653,73 +767,5 @@ class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with M
          |  }
          |}""".stripMargin
     doTextTest(before, after)
-  }
-
-  @Test
-  def EA244817_WithRewriteRules_2_7_5(): Unit = {
-    setScalafmtConfig("EA-244817_2_7_5.conf")
-    doTextTest(
-      raw"""class X {
-           |${start}val foo = 1 +
-           |2 -
-           |2 *
-           |3 \
-           |4$end
-           |}
-           |""".stripMargin,
-      raw"""class X {
-           |  ${start}val foo = 1 +
-           |    2 -
-           |    2 *
-           |    3 \
-           |    4$end
-           |}
-           |""".stripMargin
-    )
-  }
-
-  @Test
-  def EA244817_WithRewriteRules_2_5_3(): Unit = {
-    setScalafmtConfig("EA-244817_2_5_3.conf")
-    // NOTE: 2.5.3 doesn't support unindentTopLevelOperators, but we ensure it doesn't fail
-    doTextTest(
-      raw"""class X {
-           |${start}val foo = 1 +
-           |2 -
-           |2 *
-           |3 \
-           |4$end
-           |}
-           |""".stripMargin,
-      raw"""class X {
-           |  ${start}val foo = 1 +
-           |        2 -
-           |        2 *
-           |            3 \
-           |                4$end
-           |}
-           |""".stripMargin
-    )
-  }
-
-  @Test
-  def shouldNotFailToParseConfigWithAllParametersPresent_WithSelectionFormat_2_7_5(): Unit = {
-    setScalafmtConfig("all_parameters_2_7_5.conf")
-    doTextTest(
-      raw"""class X {
-           |  ${start}42$end
-           |}
-           |""".stripMargin,
-    )
-  }
-
-  @Test
-  def withDocStringsOneLine_Unfold(): Unit = {
-    setScalafmtConfig("docstrings_oneline_unfold_2_7_5.conf")
-    doTextTest(
-      s"""class A {
-         |  ${start}2 + 2$end
-         |}""".stripMargin
-    )
   }
 }

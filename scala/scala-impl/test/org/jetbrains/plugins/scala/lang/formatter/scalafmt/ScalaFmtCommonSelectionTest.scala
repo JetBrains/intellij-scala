@@ -9,6 +9,25 @@ class ScalaFmtCommonSelectionTest extends ScalaFmtCommonSelectionTestBase
 
 class ScalaFmtCommonSelectionTest_2_7 extends ScalaFmtCommonSelectionTestBase with UseConfig_2_7
 
+/**
+ * Unlike 2.7, scalafmt 3.11 parses files with top-level definitions.
+ * Such files are formatted as a whole instead of being wrapped, so a trailing new line is added.
+ */
+class ScalaFmtCommonSelectionTest_3_11 extends ScalaFmtCommonSelectionTestBase with UseConfig_3_11 {
+
+  @Test
+  override def formatTypeDef(): Unit =
+    doTextTest(s" ${startMarker}type T    =   String$endMarker", "type T = String\n")
+
+  @Test
+  override def formatValDef(): Unit =
+    doTextTest(s" ${startMarker}val x=42$endMarker", "val x = 42\n")
+
+  @Test
+  override def formatFunDef(): Unit =
+    doTextTest(s" ${startMarker}def foo= 42$endMarker", "def foo = 42\n")
+}
+
 //noinspection RedundantBlock
 @RunWith(classOf[JUnit4])
 abstract class ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Markers {

@@ -164,8 +164,9 @@ object Dependencies {
   val scalaCollectionCompat: ModuleID = "org.scala-lang.modules" % "scala-collection-compat_2.13" % "2.5.0"
   val scalastyle: ModuleID = "com.beautiful-scala" % "scalastyle_2.13" % "1.5.1"
 
-  // We exclude "coursier interface" because we depend on an up-to-date version below.
-  val scalafmtDynamic = "org.scalameta" % "scalafmt-dynamic_2.13" % "3.7.17" exclude("io.get-coursier", "interface")
+  // We exclude "scalafmt-sysops" because only `ScalafmtDynamicSession` uses it, and we don't use that class.
+  val scalafmtDynamicCore = "org.scalameta" %% "scalafmt-dynamic-core" % "3.11.5" excludeAll("org.scalameta" %% "scalafmt-sysops")
+
   val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.13" % "4.5.13" excludeAll(
     ExclusionRule(organization = "com.thesamet.scalapb"),
     ExclusionRule(organization = "org.scala-lang")
@@ -249,7 +250,7 @@ object DependencyGroups {
     coursierPaths,
     ivy2,
     compilerIndicesProtocol,
-    scalafmtDynamic
+    scalafmtDynamicCore
   )
 
   //These libraries are already included in IDEA platform

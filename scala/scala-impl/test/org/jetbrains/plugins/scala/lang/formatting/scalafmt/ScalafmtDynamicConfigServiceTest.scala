@@ -12,10 +12,20 @@ import org.scalafmt.dynamic.ScalafmtReflectConfig
 
 import java.nio.file.{Files, Path}
 
-class ScalafmtDynamicConfigServiceTest extends ScalaFmtTestBase {
+class ScalafmtDynamicConfigServiceTest extends ScalafmtDynamicConfigServiceTestBase {
+  override protected def configurationsDirName: String = "config_service_test_data"
+}
 
-  private val originalScalafmtConfigurationsDir: Path =
-    Path.of(TestUtils.getTestDataPath, "formatter", "scalafmt", "config_service_test_data")
+class ScalafmtDynamicConfigServiceTest_3_11 extends ScalafmtDynamicConfigServiceTestBase {
+  override protected def configurationsDirName: String = "config_service_test_data_3_11_5"
+}
+
+abstract class ScalafmtDynamicConfigServiceTestBase extends ScalaFmtTestBase {
+
+  protected def configurationsDirName: String
+
+  private def originalScalafmtConfigurationsDir: Path =
+    Path.of(TestUtils.getTestDataPath, "formatter", "scalafmt", configurationsDirName)
 
   private var tempConfigurationsDir: Path = scala.compiletime.uninitialized
 
