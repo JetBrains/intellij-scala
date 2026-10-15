@@ -113,7 +113,7 @@ class ScalaFmtPreFormatProcessor extends PreFormatProcessor {
   private def isFormattedWithScalafmt(psiFile: ScalaFile, range: TextRange): Boolean = {
     val useScalafmt = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings]).USE_SCALAFMT_FORMATTER
     val isSubrangeFormatting = range != psiFile.getTextRange
-    val useIntellijFormatter = isSubrangeFormatting && getScalaSettings(psiFile).SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT && !ForceScalaFmtRangeFormatting.get()
+    val useIntellijFormatter = isSubrangeFormatting && getScalaSettings(psiFile).SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT && !isScalaFmtRangeFormattingForced
     useScalafmt && !useIntellijFormatter
   }
 
@@ -1124,7 +1124,7 @@ object ScalaFmtPreFormatProcessor {
         .toEither.left.map(x => ScalafmtFormatError(ReflectionException.flatten(x)))
   }
 
-  private val ForceScalaFmtRangeFormatting: ThreadLocal[Boolean] = ThreadLocal.withInitial(() => false)
+  private val ForceScalaFmtRangeFormatting: ScopedValue[Boolean] = ScopedValue.newInstance()
 
   /**
    * Ensures that scalafmt is used for range formatting regardless of the value of [[ScalaCodeStyleSettings#SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT]] setting.
@@ -1132,14 +1132,10 @@ object ScalaFmtPreFormatProcessor {
    * Use this method with care as in general scalafmt is not designed for range formatting.
    *
    * @note It only works if the underlying formatting is executed in the current thread.
-   *       This is because it uses [[java.lang.ThreadLocal]] under the hood.
+   *       This is because it uses [[java.lang.ScopedValue]] under the hood.
    */
-  def enforcingScalaFmtRangeFormatting[T](body: => T): T = {
-    try {
-      ForceScalaFmtRangeFormatting.set(true)
-      body
-    } finally {
-      ForceScalaFmtRangeFormatting.set(false)
-    }
-  }
+  def enforcingScalaFmtRangeFormatting[T](body: => T): T =
+    ScopedValue.where(ForceScalaFmtRangeFormatting, true).call(() => body)
+
+  private def isScalaFmtRangeFormattingForced: Boolean = ForceScalaFmtRangeFormatting.orElse(false)
 }
