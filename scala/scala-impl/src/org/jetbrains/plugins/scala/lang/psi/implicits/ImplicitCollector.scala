@@ -520,7 +520,14 @@ class ImplicitCollector(
     c.element match {
       case fun: ScFunction =>
         val exportedInExtension = c.exportedInExtension
-        val typeParams = fun.typeParametersWithExtension(exportedInExtension)
+
+        val typeParams =
+          if (c.isExtensionCall) {
+            //Type parameters on the actual extension method are not out concern here
+            //while we are just trying to construct an extension.
+            val extensionOwner = exportedInExtension.orElse(fun.extensionMethodOwner)
+            extensionOwner.fold(Seq.empty[ScTypeParam])(_.typeParameters)
+          } else fun.typeParameters
 
         //Discard extension candidates if we are searching for implicit parameters/implicit conversions for args
         if (!forCompletion && c.isExtensionCall && extensionData.forall(_.refName.isEmpty))

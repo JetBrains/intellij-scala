@@ -1176,4 +1176,29 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
         |""".stripMargin
     )
   }
+
+  def testSCL26117(): Unit = checkTextHasNoErrors(
+    """
+      |abstract class Part[V](val name: String)
+      |object Id extends Part[Long]("id")
+      |
+      |final class Fixed
+      |final class Dynamic[P]
+      |
+      |extension (s: String)
+      |  def /(segment: String): Fixed = Fixed()
+      |  def /[P <: Part[?]](part: P): Dynamic[P] = Dynamic()
+      |
+      |val dynamic = "a" / Id  // scalac: Dynamic[Id.type]
+      |val fixed   = "a" / "b" // scalac: Fixed
+      |
+      |// The same two overloads as members of a class are resolved correctly
+      |final class Holder:
+      |  def /(segment: String): Fixed = Fixed()
+      |  def /[P <: Part[?]](part: P): Dynamic[P] = Dynamic()
+      |
+      |val member = Holder() / Id // scalac: Dynamic[Id.type]
+
+      |""".stripMargin
+  )
 }
