@@ -99,20 +99,21 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         setUpTypeChecker(typeCheckerScala2, typeCheckerScala2Help);
         setUpTypeChecker(typeCheckerScala3, typeCheckerScala3Help);
 
-        final var hasScala2 = ScalaProjectUtil.hasScala2(project);
-        final var hasScala3 = ScalaProjectUtil.hasScala3(project);
+        // Settings for New Projects use the default project, where both modes must be configurable (SCL-26133).
+        final var showScala2Setting = project.isDefault() || ScalaProjectUtil.hasScala2(project);
+        final var showScala3Setting = project.isDefault() || ScalaProjectUtil.hasScala3(project);
 
         // The error highlighting section should not be visible at all in non-Scala projects.
-        errorHighlightingSection.setVisible(hasScala2 || hasScala3);
+        errorHighlightingSection.setVisible(showScala2Setting || showScala3Setting);
 
         // The Scala 2: and Scala 3: labels should only be visible if both versions of the language are configured
         // in the project.
-        typeCheckerScala2Label.setVisible(hasScala2 && hasScala3);
-        typeCheckerScala3Label.setVisible(hasScala2 && hasScala3);
+        typeCheckerScala2Label.setVisible(showScala2Setting && showScala3Setting);
+        typeCheckerScala3Label.setVisible(showScala2Setting && showScala3Setting);
 
         // Only the corresponding section should be visible.
-        typeCheckerScala2Section.setVisible(hasScala2);
-        typeCheckerScala3Section.setVisible(hasScala3);
+        typeCheckerScala2Section.setVisible(showScala2Setting);
+        typeCheckerScala3Section.setVisible(showScala3Setting);
 
         compilerHighlightingDelay.setDefaultValue(DEFAULT_COMPILER_HIGHLIGHTING_DELAY);
 
@@ -182,8 +183,11 @@ public class EditorSettingsSectionPanel extends SettingsSectionPanel {
         boolean modeScala2 = typeCheckerScala2.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler;
         boolean modeScala3 = typeCheckerScala3.getSelectedItem() == ScalaProjectSettings.TypeChecker.Compiler;
 
-        boolean modesDiffer = ScalaProjectUtil.hasScala2(myProject) && ScalaProjectUtil.hasScala3(myProject) && modeScala2 != modeScala3;
-        boolean mode = ScalaProjectUtil.hasScala2(myProject) ? modeScala2 : modeScala3;
+        // Keep the options layout consistent with the default-project visibility above (SCL-26133).
+        boolean showScala2Setting = myProject.isDefault() || ScalaProjectUtil.hasScala2(myProject);
+        boolean showScala3Setting = myProject.isDefault() || ScalaProjectUtil.hasScala3(myProject);
+        boolean modesDiffer = showScala2Setting && showScala3Setting && modeScala2 != modeScala3;
+        boolean mode = showScala2Setting ? modeScala2 : modeScala3;
 
         boolean hasBultInHighlighting = modesDiffer || !mode;
         boolean isCompilerHighlightingOnly = !hasBultInHighlighting;
