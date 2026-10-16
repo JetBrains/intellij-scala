@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.stream.IntStream
+import scala.annotation.static
 import scala.jdk.CollectionConverters.SetHasAsScala
 
 class CompileServerTokenTest:
@@ -67,4 +68,5 @@ class CompileServerTokenTest:
     assertFalse(tokenFilePath.exists, "The token file should have been removed")
 
 private object CompileServerTokenTest:
+  @static
   def ports(): IntStream = IntStream.of(3200, 6400, 10501, 50005, 55055)

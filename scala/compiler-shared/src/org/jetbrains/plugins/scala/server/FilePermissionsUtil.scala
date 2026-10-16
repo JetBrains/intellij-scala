@@ -12,6 +12,10 @@ object FilePermissionsUtil:
     if !Files.exists(directory) then
       Files.createDirectories(directory)
 
+    // The file may already exist from a previous run, possibly with wider permissions.
+    // Remove it first so that it is always recreated with the owner-only permissions below.
+    Files.deleteIfExists(path)
+
     val isPosix = path.getFileSystem.supportedFileAttributeViews().contains("posix")
     if isPosix then
       import java.nio.file.attribute.PosixFilePermission.{OWNER_READ, OWNER_WRITE}
