@@ -1242,4 +1242,50 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |}
       |""".stripMargin
   )
+
+  def testExtensionPropertySetter(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  case class Foo(var foo: String)
+      |
+      |  object fooExt {
+      |    extension (thisFoo: Foo) def fooExt: String = thisFoo.foo
+      |    extension (thisFoo: Foo) def fooExt_=(value: String): Unit = thisFoo.foo = value
+      |  }
+      |
+      |  import fooExt.*
+      |  val foo = Foo("initVal")
+      |  foo.fooExt = "updatedVal"
+      |}
+      |""".stripMargin
+  )
+
+  def testExtensionPropertySetter_SameExtension(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  class D[T](var a: T)
+      |
+      |  extension [T](d: D[T])
+      |    def foo: T = d.a
+      |    def foo_=(a: T): Unit = d.a = a
+      |
+      |  val d = D(10)
+      |  d.foo = 11
+      |}
+      |""".stripMargin
+  )
+
+  def testExtensionPropertyWithoutSetter(): Unit = checkHasErrorAroundCaret(
+    s"""
+      |object A {
+      |  class D(var a: Int)
+      |
+      |  extension (d: D)
+      |    def foo: Int = d.a
+      |
+      |  val d = D(10)
+      |  d.f${CARET}oo = 11
+      |}
+      |""".stripMargin
+  )
 }

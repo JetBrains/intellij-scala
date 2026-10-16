@@ -124,17 +124,24 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
                 kinds       = StdKinds.methodsOnly
               )
 
-              r.fromType match {
-                case Some(tp) => processor.processType(tp, ref)
-                case None =>
-                  fun.getContext match {
-                    case d: ScDeclarationSequenceHolder =>
-                      d.processDeclarations(processor, ScalaResolveState.empty, fun, ref)
-                    case _ =>
+              val candidates =
+                if (fun.isExtensionMethod) {
+                  // the setter of an extension property is another extension method, possibly of another extension,
+                  // so it's looked up the same way as the getter
+                  ref.doResolve(processor).toSeq
+                } else {
+                  r.fromType match {
+                    case Some(tp) => processor.processType(tp, ref)
+                    case None =>
+                      fun.getContext match {
+                        case d: ScDeclarationSequenceHolder =>
+                          d.processDeclarations(processor, ScalaResolveState.empty, fun, ref)
+                        case _ =>
+                      }
                   }
-              }
-              val candidates = processor.candidatesS
-              if (candidates.size == 1) Some(candidates.toArray.apply(0))
+                  processor.candidatesS.toSeq
+                }
+              if (candidates.size == 1) candidates.headOption
               else None
             case _ => None
           }
