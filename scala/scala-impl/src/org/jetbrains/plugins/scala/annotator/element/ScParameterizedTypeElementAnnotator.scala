@@ -8,7 +8,8 @@ import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQui
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotationHolder, TypeConstructorDiff, tooltipForDiffTrees}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeArgument, ScTypeElement, ScTypeVariableTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScMatchTypeCase, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeArgument, ScTypeElement, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
@@ -61,18 +62,35 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     prefixType.foreach { tpe =>
       val typeParams = extractTypeParameters(tpe)
 
-      if (!isKindProjectorLambda) {
+      if (!isKindProjectorLambda && !isTypeVariable(element.typeElement)) {
         annotateTypeArgs[ScTypeArgument](
           typeParams,
           element.typeArgList.typeArguments,
           element.typeArgList.getTextRange,
           projSubstitutor,
           tpe.presentableText,
-          _.`type`()
+          _.`type`(),
+          checkArgBounds = !(element.isInScala3File && isInPatternOrMatchTypeCase(element))
         )
       }
     }
   }
+
+  /**
+   * The kind of a type variable bound in a pattern is inferred from where it's bound,
+   * e.g. `f` in `case Box[f] => f[Int]` takes a type argument if `Box` is `Box[F[_]]`.
+   */
+  private def isTypeVariable(typeElement: ScTypeElement): Boolean = typeElement match {
+    case simple: ScSimpleTypeElement => simple.reference.flatMap(_.bind()).exists(_.element.is[ScTypeVariableTypeElement])
+    case _                           => false
+  }
+
+  /**
+   * Like the Scala 3 compiler, we don't check the bounds of type arguments in patterns,
+   * and in match type cases, where they might hold only for the narrowed scrutinee type.
+   */
+  private def isInPatternOrMatchTypeCase(element: ScParameterizedTypeElement): Boolean =
+    element.parentsInFile.exists(_.is[ScPattern, ScMatchTypeCase])
 
   def annotateDuplicatedNamedTypeArguments(typeArgs: ScTypeArgs)(implicit holder: ScalaAnnotationHolder): Unit = {
     val (_, duplicatedNames) = typeArgs.namedTypeArgs.foldLeft(List.empty[String] -> List.empty[(ScTypeArgument, String)]) {
@@ -102,7 +120,8 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     contextSubstitutor:     ScSubstitutor,
     renderedTypeParamOwner: String,
     getType:                T => TypeResult,
-    isForContextBound:      Boolean = false
+    isForContextBound:      Boolean = false,
+    checkArgBounds:         Boolean = true
   )(implicit
     tpc:    TypePresentationContext,
     holder: ScalaAnnotationHolder,
@@ -201,7 +220,9 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
         !argIsDesignatedToTypeVariable(arg) &&
         !KindProjectorUtil.syntaxIdsFor(arg).contains(arg.getText)
     } {
-      checkBounds(range, argTy, param, substitute)
+      if (checkArgBounds) {
+        checkBounds(range, argTy, param, substitute)
+      }
       checkHigherKindedType(range, argTy, param, substitute)
     }
   }

@@ -71,7 +71,7 @@ class ScalacticSemanticTest extends SemanticTestBase("org.scalactic" %% "scalact
     org.scalactic.SimpleMacroBool
     org.scalactic.SizeLimit
     org.scalactic.Snapshot
-    //org.scalactic.SnapshotSeq
+    org.scalactic.SnapshotSeq
     //org.scalactic.Snapshots
     //org.scalactic.SnapshotsMacro
     //org.scalactic.StringDiffer

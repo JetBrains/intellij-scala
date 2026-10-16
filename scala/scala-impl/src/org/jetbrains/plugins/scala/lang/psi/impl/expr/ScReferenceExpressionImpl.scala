@@ -262,6 +262,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val expectedStable = expectedType match {
       case Some(downer: DesignatorOwner) if downer.isStable => true
       case Some(t) if t eq Singleton                        => true
+      // e.g. `AnyRef with Singleton`
+      case Some(t @ (_: ScAndType | _: ScCompoundType)) if Widening.isSingletonBounded(t) => true
       case Some(other) if !t.conforms(other) =>
         other match {
           case AliasType(_, Right(lower: DesignatorOwner), _, _)                                                         => lower.isStable

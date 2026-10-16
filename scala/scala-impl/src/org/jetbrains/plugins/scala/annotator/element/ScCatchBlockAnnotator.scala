@@ -98,7 +98,10 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
             }
           }
         }
-        checkMember("isDefinedAt", checkReturnTypeIsBoolean = true)
+        // in Scala 3, `catch handler` stands for `catch { case e => handler(e) }`, so a function is fine too
+        if (!element.isInScala3File) {
+          checkMember("isDefinedAt", checkReturnTypeIsBoolean = true)
+        }
         checkMember("apply", checkReturnTypeIsBoolean = false)
       case _ =>
     }

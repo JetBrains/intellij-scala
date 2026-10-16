@@ -104,3 +104,25 @@ class ValueClassAnnotatorTest extends SimpleTestCase with ScalaHighlightingTestL
   val RedefineEqualsHashCode = ContainsPattern("Value classes cannot redefine equals and hashCode")
   val ValueClassCanNotHaveFields = ContainsPattern("Field definitions are not allowed in value classes")
 }
+
+@Category(Array(classOf[TypecheckerTests]))
+class ValueClassAnnotatorTest_Scala3 extends ScalaHighlightingTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3
+
+  // any class parameter is a field in Scala 3, only a `var` is not allowed
+  def testPrimaryConstructorParameters(): Unit = assertErrorsText(
+    """final class A1(a1: Double) extends AnyVal
+      |final class A2(private val a2: Double) extends AnyVal
+      |final class A3(val a3: Double) extends AnyVal
+      |final class A4(var a4: Double) extends AnyVal
+      |final class A5(a5: Double, anotherParam: Int) extends AnyVal
+      |
+      |final case class B1(b1: Double) extends AnyVal
+      |final case class B2(var b2: Double) extends AnyVal
+      |""".stripMargin,
+    """Error(var a4: Double,Value classes can have only one non-private val parameter)
+      |Error(A5,Value classes can have only one parameter)
+      |Error(var b2: Double,Value classes can have only one non-private val parameter)
+      |""".stripMargin
+  )
+}

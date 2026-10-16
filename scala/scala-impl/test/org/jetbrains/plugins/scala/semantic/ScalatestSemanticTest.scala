@@ -346,7 +346,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.matchers.LazyArg
     org.scalatest.matchers.LazyMessage
     //org.scalatest.matchers.MatchFailed
-    //org.scalatest.matchers.MatchPatternHelper
+    org.scalatest.matchers.MatchPatternHelper
     //org.scalatest.matchers.MatchPatternMacro
     //org.scalatest.matchers.MatchResult
     //org.scalatest.matchers.MatchSucceeded
@@ -365,7 +365,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.matchers.dsl.DefinedWord
     org.scalatest.matchers.dsl.EmptyWord
     //org.scalatest.matchers.dsl.EndWithWord
-    //org.scalatest.matchers.dsl.ExistWord
+    org.scalatest.matchers.dsl.ExistWord
     //org.scalatest.matchers.dsl.FullyMatchWord
     //org.scalatest.matchers.dsl.HaveWord
     //org.scalatest.matchers.dsl.IncludeWord

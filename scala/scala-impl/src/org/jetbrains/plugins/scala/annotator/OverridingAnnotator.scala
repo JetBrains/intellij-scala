@@ -4,7 +4,7 @@ package annotator
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.quickfix.PullUpQuickFix
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
+import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
@@ -346,7 +346,8 @@ trait OverridingAnnotator {
 
         actualType.conforms(actualBase) || ((actualBase, actualType, namedElement) match {
           /* 5.1.3.3 M defines a parameterless method and M′ defines a method with an empty parameter list () or vice versa. */
-          case (ParameterizedType(des, args), _, _: ScFunction) if des.canonicalText == "_root_.scala.Function0" && !isInScala3 =>
+          case (ParameterizedType(des, args), _, _: ScFunction)
+            if des.canonicalText == "_root_.scala.Function0" && (!isInScala3 || isDefinedInScala2(s.namedElement)) =>
             actualType.conforms(args.head)
           case (aType, ParameterizedType(des, args), _: ScFunction) if des.canonicalText == "_root_.scala.Function0" =>
             aType.conforms(args.head)
@@ -391,6 +392,21 @@ object OverridingAnnotator {
       case t: Typeable          => t.`type`().toOption
       case _                    => None
     }
+
+  /**
+   * Like the Scala 3 compiler, a parameterless method can still override a method with an empty parameter list
+   * that is defined in Scala 2, i.e. in a Scala 2 module, in a library compiled by Scala 2 (which, unlike one compiled
+   * from TASTy, is a Scala 2 file), or in the standard library, compiled by Scala 3 since 3.8, e.g. `Iterator.next()`.
+   */
+  private def isDefinedInScala2(member: PsiElement): Boolean = member.getContainingFile match {
+    case file: ScalaFile => !file.isScala3File || file.isCompiled && isInStandardLibraryPackage(file)
+    case _               => false
+  }
+
+  private def isInStandardLibraryPackage(file: ScalaFile): Boolean = {
+    val packageName = file.getPackageName
+    packageName == "scala" || packageName.startsWith("scala.")
+  }
 
   private def isInAnyVal(body: ScTemplateBody) = body.getParent match {
     case e: ScExtendsBlock =>

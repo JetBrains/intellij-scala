@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParenthesisedTypeElement.InnermostTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScPolyFunctionTypeElement, ScTupleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScParenthesisedTypeElement, ScPolyFunctionTypeElement, ScTupleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 
 class ScPolyFunctionTypeElementImpl(node: ASTNode)
@@ -26,6 +26,9 @@ class ScPolyFunctionTypeElementImpl(node: ASTNode)
             tuple.components.mapWithIndex { case (p, idx) =>
               s"x$idx: ${p.getText}"
             }.mkString("(", ", ", ")") -> returnTypeText
+          // no parameters in `() => R`
+          case parenthesised: ScParenthesisedTypeElement =>
+            parenthesised.innerElement.map(p => s"x: ${p.getText}").mkString("(", "", ")") -> returnTypeText
           case other => s"(x: ${other.getText})" -> returnTypeText
         }
       case _ => "()" -> "scala.Any"

@@ -105,8 +105,13 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
       }
     }
 
+    // unlike Scala 2, Scala 3 can test for AnyVal at runtime
+    val untestableTypes =
+      if (pattern.isInScala3File) Seq(Nothing, Null)
+      else                        Seq(Nothing, Null, AnyVal)
+
     pattern match {
-      case _: ScTypedPatternLike if Seq(Nothing, Null, AnyVal) contains patType =>
+      case _: ScTypedPatternLike if untestableTypes contains patType =>
         val message = ScalaBundle.message("type.cannot.be.used.in.type.pattern", patType.presentableText)
         holder.createErrorAnnotation(pattern, message)
       case _: ScTypedPatternLike if exTp.isFinalType && freeTypeParams.isEmpty && !exTpMatchesPattp =>

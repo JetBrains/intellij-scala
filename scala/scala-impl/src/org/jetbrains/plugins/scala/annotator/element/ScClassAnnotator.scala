@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator.element
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValueDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
@@ -94,7 +95,10 @@ object ScClassAnnotator extends ElementAnnotator[ScClass] {
         val parameters = c.parameters
         parameters match {
           case Seq(param)  =>
-            val ignoreParameter = !param.isPrivateThis && param.isValEffectively
+            // in Scala 3, any class parameter is a field, so only a `var` is not allowed
+            val ignoreParameter =
+              if (valueClass.isInScala3File) !param.isVar
+              else !param.isPrivateThis && param.isValEffectively
             if (!ignoreParameter) {
               holder.createErrorAnnotation(param, ScalaBundle.message("value.class.can.have.only.val.parameter"))
             }

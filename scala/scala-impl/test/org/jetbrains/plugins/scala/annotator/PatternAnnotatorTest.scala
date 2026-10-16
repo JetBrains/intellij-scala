@@ -911,6 +911,38 @@ class PatternAnnotatorTest extends PatternAnnotatorTestBase {
 }
 
 
+class PatternAnnotatorTest_Scala3 extends PatternAnnotatorTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3
+
+  def testCannotBeUsed(): Unit = {
+    assertNoErrors(
+      """
+        |1 match {
+        |  case _: AnyVal =>
+        |}
+        |""".stripMargin
+    )
+    assertError(
+      """
+        |2 match {
+        |  case n: Null =>
+        |}
+        |""".stripMargin,
+      "n: Null",
+      cannotBeUsed("Null")
+    )
+    assertError(
+      """
+        |3 match {
+        |  case n: Nothing =>
+        |}
+        |""".stripMargin,
+      "n: Nothing",
+      cannotBeUsed("Nothing")
+    )
+  }
+}
+
 class PatternAnnotatorTest_Scala3_4 extends PatternAnnotatorTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_4
 

@@ -6,8 +6,7 @@ import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement.InnermostElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScPolyFunctionExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPolyFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -74,8 +73,10 @@ class ScPolyFunctionExprImpl(node: ASTNode)
           }.mkString("[", ", ", "]")
         }
 
-        val (paramsText, resultTypeText) = result match {
-          case Some(body @ InnermostElement(fn: ScFunctionExpr)) =>
+        val bodyAndFunctionLiteral = result.flatMap(body => ScPolyFunctionExpr.functionLiteral(body).map(body -> _))
+
+        val (paramsText, resultTypeText) = bodyAndFunctionLiteral match {
+          case Some((body, fn)) =>
             val text = fn.parameters.map { p =>
               val typeText = {
                 val text = p.`type`().getOrAny.presentableText
@@ -90,7 +91,7 @@ class ScPolyFunctionExprImpl(node: ASTNode)
               val bodyExpectedType = ExpectedTypePropagation.polyFunctionBody(this, body, expectedType)
               val fnExpectedType =
                 if (body eq fn) bodyExpectedType
-                else            ExpectedTypePropagation.nested(bodyExpectedType, fn) // in parentheses
+                else            ExpectedTypePropagation.nested(bodyExpectedType, fn) // in parentheses or a block
               fnResult.`type`(ExpectedTypePropagation.functionLiteralResult(fn, fnResult, fnExpectedType))
             }
 
