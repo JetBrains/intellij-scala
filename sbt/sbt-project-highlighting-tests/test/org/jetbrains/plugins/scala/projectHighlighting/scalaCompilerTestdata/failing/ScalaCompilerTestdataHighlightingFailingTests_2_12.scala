@@ -62,8 +62,6 @@ class ScalaCompilerTestdataHighlightingFailingTests_2_12 extends ScalaCompilerTe
 
   def test_t7228(): Unit = doTestForFileOrDirectory()
 
-  def test_t7520(): Unit = doTestForFileOrDirectory()
-
   def test_t7668(): Unit = doTestForFileOrDirectory()
 
   def `test_t8002-nested-scope`(): Unit = doTestForFileOrDirectory()
