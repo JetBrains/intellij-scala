@@ -32,4 +32,8 @@ object CompileServerPort {
       .toOption
       .flatMap(_.toIntOption)
   }
+
+  def writePortFile(compileServerSystemDir: Path, port: Int): Unit =
+    val path = portFilePath(compileServerSystemDir)
+    FilePermissionsUtil.writeContentsToFileWithOwnerOnlyPermissions(path, port.toString)
 }

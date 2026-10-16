@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.nailgun;
 
 import com.facebook.nailgun.Alias;
+import com.facebook.nailgun.AliasManager;
 import com.facebook.nailgun.NGConstants;
 import com.facebook.nailgun.NGServer;
 
@@ -11,6 +12,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -31,27 +33,23 @@ public class NailgunRunner {
   };
   private static final String SERVER_DESCRIPTION = "Scala compile server";
 
-  private static final String STOP_ALIAS_START = "stop_";
-  private static final String STOP_CLASS_NAME = "com.facebook.nailgun.builtins.NGStop";
-
   private static final String JPS_COMPILATION_MAX_THREADS_KEY = "compile.parallel.max.threads";
 
   /**
    * An alternative to default nailgun main {@link com.facebook.nailgun.NGServer#main(java.lang.String[])}
    */
   public static void main(String[] args) throws Exception {
-    if (args.length != 4)
-      throw new IllegalArgumentException("Usage: NailgunRunner [id] [classpath] [system-dir-path]");
+    if (args.length != 3)
+      throw new IllegalArgumentException("Usage: NailgunRunner [classpath] [scala-compile-server-system-dir] [jps-build-system-dir]");
 
-    String id = args[0];
-    String classpath = args[1];
-    Path scalaCompileServerSystemDir = Paths.get(args[2]);
-    Path jpsBuildSystemDir = Paths.get(args[3]);
+    String classpath = args[0];
+    Path scalaCompileServerSystemDir = Paths.get(args[1]);
+    Path jpsBuildSystemDir = Paths.get(args[2]);
 
     URLClassLoader classLoader = constructClassLoader(classpath);
 
     InetAddress address = InetAddress.getByName(null);
-    NGServer server = createServer(address, id, scalaCompileServerSystemDir, jpsBuildSystemDir, classLoader);
+    NGServer server = createServer(address, scalaCompileServerSystemDir, jpsBuildSystemDir, classLoader);
 
     Thread thread = new Thread(server);
     thread.setName("Scala Compile Server NGServer");
@@ -124,9 +122,9 @@ public class NailgunRunner {
     return urlString.contains("repl-interface.jar");
   }
 
+  @SuppressWarnings("unchecked")
   private static NGServer createServer(
           InetAddress address,
-          String id,
           Path scalaCompileServerSystemDir,
           Path jpsBuildSystemDir,
           URLClassLoader classLoader
@@ -141,16 +139,22 @@ public class NailgunRunner {
 
     server.setAllowNailsByClassName(false);
 
+    // Nailgun's AliasManager auto-registers its built-in commands (ng-alias, ng-cp,
+    // ng-stop, ng-stats, ng-version) from builtins.properties. They are dispatched
+    // before the token check (which lives in the Scala nail, not the dispatcher) is
+    // ever reached, and ng-alias can load and run an arbitrary class. Strip the table
+    // before registering our own commands so only our commands are reachable.
+    AliasManager manager = server.getAliasManager();
+    //noinspection unchecked
+    for (Alias alias : (Set<Alias>) manager.getAliases()) {
+      manager.removeAlias(alias.getName());
+    }
+
     Class<?> mainNailClass = Utils.loadAndSetupServerMainNailClass(classLoader, scalaCompileServerSystemDir, jpsBuildSystemDir);
     Utils.setupServerShutdownTimer(mainNailClass, server);
     for (String command : COMMANDS) {
       server.getAliasManager().addAlias(new Alias(command, SERVER_DESCRIPTION, mainNailClass));
     }
-
-    // TODO: token should be checked
-    Class<?> stopClass = classLoader.loadClass(STOP_CLASS_NAME);
-    String stopAlias = STOP_ALIAS_START + id;
-    server.getAliasManager().addAlias(new Alias(stopAlias, "", stopClass));
 
     return server;
   }

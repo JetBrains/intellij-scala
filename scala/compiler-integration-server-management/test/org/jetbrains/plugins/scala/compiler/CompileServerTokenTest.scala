@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compiler
 
+import org.jetbrains.plugins.scala.compiler.FilePermissionsTestUtil.assertOwnerOnlyPermissions
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.server.CompileServerToken
 import org.junit.jupiter.api.Assertions.{assertEquals, assertFalse, assertTrue}
@@ -10,7 +11,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.stream.IntStream
-import scala.jdk.CollectionConverters.SetHasAsScala
+import scala.annotation.static
 
 class CompileServerTokenTest:
 
@@ -42,17 +43,8 @@ class CompileServerTokenTest:
   def generateAndWriteTokenForPort(port: Int, @TempDir temporaryDirectory: Path): Unit =
     val sysDir = systemDir(temporaryDirectory)
     val tokenFilePath = CompileServerToken.generateAndWriteTokenFor(sysDir, port)
-
     assertTrue(tokenFilePath.exists, "The token file was not created")
-
-    val isPosix = tokenFilePath.getFileSystem.supportedFileAttributeViews().contains("posix")
-    if isPosix then
-      import java.nio.file.attribute.PosixFilePermission.{OWNER_READ, OWNER_WRITE}
-      val permissions = Files.getPosixFilePermissions(tokenFilePath).asScala.toSet
-      assertEquals(Set(OWNER_READ, OWNER_WRITE), permissions, "The token file was created with wrong posix filesystem permissions")
-    else
-      assertTrue(Files.isReadable(tokenFilePath), "The token file on Windows must be readable")
-      assertTrue(Files.isWritable(tokenFilePath), "The token file on Windows must be writable")
+    assertOwnerOnlyPermissions(tokenFilePath, fileType = "token")
 
   @ParameterizedTest(name = "port = {0}")
   @MethodSource(Array("ports"))
@@ -67,4 +59,5 @@ class CompileServerTokenTest:
     assertFalse(tokenFilePath.exists, "The token file should have been removed")
 
 private object CompileServerTokenTest:
+  @static
   def ports(): IntStream = IntStream.of(3200, 6400, 10501, 50005, 55055)

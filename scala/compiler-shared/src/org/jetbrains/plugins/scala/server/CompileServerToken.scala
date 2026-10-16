@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.server
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.attribute.PosixFilePermissions
 import java.nio.file.{Files, Path}
 import java.util.UUID
-import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.util.control.NonFatal
 
 object CompileServerToken {
@@ -29,30 +27,8 @@ object CompileServerToken {
     writeTokenTo(path, UUID.randomUUID())
   }
 
-  private def writeTokenTo(path: Path, uuid: UUID): Path = {
-    val directory = path.getParent
-
-    if (!Files.exists(directory)) {
-      Files.createDirectories(directory)
-    }
-
-    val isPosix = path.getFileSystem.supportedFileAttributeViews().contains("posix")
-    if (isPosix) {
-      import java.nio.file.attribute.PosixFilePermission.{OWNER_READ, OWNER_WRITE}
-      Files.createFile(path, PosixFilePermissions.asFileAttribute(Set(OWNER_READ, OWNER_WRITE).asJava))
-    } else {
-      // Windows
-      // Using `java.io.File` here is unavoidable, as Windows is not compatible with `PosixFilePermission`
-      // and throws exceptions at runtime.
-      val file = path.toFile
-      file.createNewFile()
-      file.setReadable(/* readable */ true, /* ownerOnly */ true)
-      file.setWritable(/* writable */ true, /* ownerOnly */ true)
-    }
-
-    import java.nio.file.StandardOpenOption.{TRUNCATE_EXISTING, CREATE}
-    Files.write(path, uuid.toString.getBytes(StandardCharsets.UTF_8), TRUNCATE_EXISTING, CREATE)
-  }
+  private def writeTokenTo(path: Path, uuid: UUID): Path =
+    FilePermissionsUtil.writeContentsToFileWithOwnerOnlyPermissions(path, uuid.toString)
 
   def removeTokenFileForPort(scalaCompileServerSystemDir: Path, port: Int): Unit = {
     val path = tokenPathForPort(scalaCompileServerSystemDir, port)
