@@ -703,6 +703,30 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       checkEquiv()
       if (result != null) return
 
+      def conformsToComponent: ConstraintsResult =
+        conformsInner(t.lhs, r, visited, constraints) match {
+          case ConstraintsResult.Left => conformsInner(t.rhs, r, visited, constraints)
+          case cs: ConstraintSystem   => cs
+        }
+
+      // unless `r` is a union, which is split first, or an alias, which is expanded first, the components are tried
+      // before the upper bound of `r`, which might not conform even though `r` itself does, e.g. in `B <: A | B`
+      val isExpandableAlias = r match {
+        case AliasType(_: ScTypeAliasDefinition, _, _, effectivelyOpaque) => !effectivelyOpaque
+        case _                                                            => false
+      }
+
+      val componentsFirst = !r.is[ScOrType] && !isExpandableAlias
+
+      if (componentsFirst) {
+        conformsToComponent match {
+          case cs: ConstraintSystem =>
+            result = cs
+            return
+          case ConstraintsResult.Left =>
+        }
+      }
+
       rightVisitor = new ExistentialSimplification with ExistentialArgumentVisitor
         with ParameterizedExistentialArgumentVisitor with OtherNonvalueTypesVisitor with NothingNullVisitor
         with TypeParameterTypeVisitor with OrTypeVisitor {}
@@ -713,10 +737,9 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      conformsInner(t.lhs, r, visited, constraints) match {
-        case ConstraintsResult.Left => result = conformsInner(t.rhs, r, visited, constraints)
-        case cs: ConstraintSystem   => result = cs
-      }
+      result =
+        if (componentsFirst) ConstraintsResult.Left
+        else                 conformsToComponent
     }
 
     private def visitCompoundOrAndType(): Unit = {
