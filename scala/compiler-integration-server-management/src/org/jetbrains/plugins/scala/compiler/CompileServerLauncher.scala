@@ -144,8 +144,6 @@ object CompileServerLauncher {
           transferWorksheetReplInterfaceImpls(project, eelDescriptor)
         }
 
-        val id = settings.COMPILE_SERVER_ID
-
         val compileServerSystemDir = scalaCompileServerSystemDir(project)
 
         val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY * 60
@@ -222,7 +220,6 @@ object CompileServerLauncher {
             vmOptions ++:
             loggingParameters ++:
             NailgunRunnerFQN +:
-            id +:
             classpath +:
             asTargetLocalPathString(compileServerSystemDir, eelDescriptor) +:
             asTargetLocalPathString(jpsBuildSystemDir, eelDescriptor) +:
