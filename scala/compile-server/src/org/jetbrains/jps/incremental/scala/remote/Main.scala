@@ -21,7 +21,7 @@ import java.util.{Timer, TimerTask}
 import scala.annotation.unused
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters._
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 /**
  * Nailgun Nail, used in:
@@ -136,22 +136,20 @@ object Main {
     try {
       def traceStep(message: String): Unit =
         client.internalTrace(s"[main nail]: $message")
-      traceStep("parsing arguments")
 
-      val argsParsed = parseArgs(commandId, argsEncoded) match {
-        case Success(result) =>
-          result
-        case Failure(error) =>
-          client.trace(error)
+      // The token is the first argument and is validated before anything else is done with the request
+      traceStep("validating token")
+      val (token, commandArgs) = argsEncoded.map(normalizeArgument) match {
+        case Seq(token, other@_*) => (token, other)
+        case _ =>
+          client.trace(IllegalArgumentException("arguments are empty"))
           return
       }
-
-      traceStep("validating token")
       // Don't check token in non-server mode
       if (port != -1) {
         try {
           val tokenPath = CompileServerToken.tokenPathForPort(scalaCompileServerSystemDir, port)
-          validateToken(tokenPath, argsParsed.token)
+          validateToken(tokenPath, token)
         } catch {
           // We must abort the process on _any_ error
           case e: Throwable =>
@@ -160,8 +158,17 @@ object Main {
         }
       }
 
+      traceStep("parsing arguments")
+      val command = CompileServerCommandParser.parse(commandId, commandArgs) match {
+        case Success(result) =>
+          result
+        case Failure(error) =>
+          client.trace(error)
+          return
+      }
+
       traceStep(s"handling command: $commandId")
-      handleCommand(argsParsed.command, client)
+      handleCommand(command, client)
       traceStep(s"done")
     } catch {
       case e: Throwable =>
@@ -306,14 +313,6 @@ object Main {
     client.metrics(metrics)
   }
 
-  private def parseArgs(command: String, argsRaw: Seq[String]): Try[ArgsParsed] = {
-    val args = argsRaw.map(normalizeArgument)
-    args match {
-      case Seq(token, other@_*) => CompileServerCommandParser.parse(command, other).map(ArgsParsed(token, _))
-      case _                    => Failure(new IllegalArgumentException(s"arguments are empty"))
-    }
-  }
-
   private def normalizeArgument(arg: String): String =
     if (arg == SerializationUtils.EmptyArgumentStub) "" else arg
 
@@ -367,6 +366,4 @@ object Main {
 
   private def shutdownDelay: Option[FiniteDuration] =
     Option(System.getProperty("shutdown.delay.seconds")).map(_.toInt.seconds)
-
-  final case class ArgsParsed(token: String, command: CompileServerCommand)
 }
