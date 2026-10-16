@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compiler
 
+import org.jetbrains.plugins.scala.compiler.FilePermissionsTestUtil.{assertOwnerOnlyPermissions, isPosix}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.server.CompileServerPort
 import org.junit.jupiter.api.Assertions.{assertEquals, assertTrue}
@@ -13,7 +14,6 @@ import java.nio.file.attribute.PosixFilePermissions
 import java.nio.file.{Files, Path}
 import java.util.stream.IntStream
 import scala.annotation.static
-import scala.jdk.CollectionConverters.SetHasAsScala
 
 class CompileServerPortTest:
 
@@ -47,7 +47,7 @@ class CompileServerPortTest:
 
     assertTrue(portFilePath.exists, "The port file was not created")
     assertEquals(Some(port), CompileServerPort.readPortFile(sysDir))
-    assertOwnerOnlyPermissions(portFilePath)
+    assertOwnerOnlyPermissions(portFilePath, fileType = "port")
 
   @Test
   def writePortFileOverwritesExistingPortFile(@TempDir temporaryDirectory: Path): Unit =
@@ -56,7 +56,7 @@ class CompileServerPortTest:
     CompileServerPort.writePortFile(sysDir, 6400)
 
     assertEquals(Some(6400), CompileServerPort.readPortFile(sysDir))
-    assertOwnerOnlyPermissions(CompileServerPort.portFilePath(sysDir))
+    assertOwnerOnlyPermissions(CompileServerPort.portFilePath(sysDir), fileType = "port")
 
   @Test
   def writePortFileReplacesPortFileWithWiderPermissions(@TempDir temporaryDirectory: Path): Unit =
@@ -71,19 +71,7 @@ class CompileServerPortTest:
     CompileServerPort.writePortFile(sysDir, 6400)
 
     assertEquals(Some(6400), CompileServerPort.readPortFile(sysDir))
-    assertOwnerOnlyPermissions(portFilePath)
-
-  private def isPosix(path: Path): Boolean =
-    path.getFileSystem.supportedFileAttributeViews().contains("posix")
-
-  private def assertOwnerOnlyPermissions(path: Path): Unit =
-    if isPosix(path) then
-      import java.nio.file.attribute.PosixFilePermission.{OWNER_READ, OWNER_WRITE}
-      val permissions = Files.getPosixFilePermissions(path).asScala.toSet
-      assertEquals(Set(OWNER_READ, OWNER_WRITE), permissions, "The port file was created with wrong posix filesystem permissions")
-    else
-      assertTrue(Files.isReadable(path), "The port file on Windows must be readable")
-      assertTrue(Files.isWritable(path), "The port file on Windows must be writable")
+    assertOwnerOnlyPermissions(portFilePath, fileType = "port")
 
 private object CompileServerPortTest:
   @static
