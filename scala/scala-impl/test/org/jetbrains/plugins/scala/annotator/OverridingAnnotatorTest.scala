@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.base.{MultiScalaModulesInsightFixtureTestCase, ScalaLightCodeInsightFixtureTestCase}
 
 abstract class OverridingAnnotatorTestBase extends ScalaLightCodeInsightFixtureTestCase with ScalaHighlightingTestLike
 
@@ -632,6 +632,16 @@ class OverridingAnnotatorTest_Scala3 extends OverridingAnnotatorTest_Scala2 {
       "Error(url,Overriding type Seq[String] does not conform to base type () => Seq[String])"
     )
 
+  // unlike a method defined in Scala 3, one from the standard library can be overridden without the empty parameter list
+  def testParameterlessOverridesEmptyParenMethodOfStandardLibrary(): Unit =
+    assertNoErrors(
+      """class Tokens extends Iterator[String] {
+        |  def hasNext: Boolean = false
+        |  def next: String = ""
+        |}
+        |""".stripMargin
+    )
+
   def testGivenInstances(): Unit = {
     assertMessagesText(
       """trait MyTrait
@@ -705,4 +715,27 @@ class OverridingAnnotatorTest_Scala3 extends OverridingAnnotatorTest_Scala2 {
         |""".stripMargin
     )
   }
+}
+
+class OverridingAnnotatorTest_Scala3DependingOnScala2 extends MultiScalaModulesInsightFixtureTestCase.Scala3LTSDependingOnScala2 {
+
+  // unlike a method defined in Scala 3, one from a Scala 2 module can be overridden without the empty parameter list
+  def testParameterlessOverridesEmptyParenMethodOfScala2Module(): Unit = doSimpleHighlightingTest(
+    """trait Resource {
+      |  def url(): String
+      |}
+      |""".stripMargin,
+    """trait Scala3Resource {
+      |  def url(): String
+      |}
+      |
+      |class MyResource extends Resource {
+      |  def url: String = ""
+      |}
+      |
+      |class MyScala3Resource extends Scala3Resource {
+      |  def <error descr="Overriding type String does not conform to base type () => String">url</error>: String = ""
+      |}
+      |""".stripMargin
+  )
 }
