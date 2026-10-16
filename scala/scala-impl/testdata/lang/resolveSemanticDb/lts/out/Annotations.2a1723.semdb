@@ -1,4 +1,4 @@
-Document tests/pos/Annotations.scala
+Document tests/pos/Annotations.2a1723.scala
 (1:9..1:12) foo/
 (3:23..3:33) scala/annotation/
 (3:34..3:44) scala/annotation/Annotation#
