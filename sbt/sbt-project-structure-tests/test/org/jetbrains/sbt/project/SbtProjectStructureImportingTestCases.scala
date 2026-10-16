@@ -58,14 +58,16 @@ class SbtProjectStructureImportingTestCase_Simple_Scala3 extends SbtProjectStruc
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
     runSimpleTest("simple-scala3", "3.0.2", scalaLibraries, DefaultSbtContentRootsScala3, DefaultMainSbtContentRootsScala3, DefaultTestSbtContentRootsScala3)
 
-class SbtProjectStructureImportingTestCase_DefaultProjectHighlightingModeSettings extends SbtProjectStructureImportingTestCase:
-  override protected def getTestProjectCopyOptions: TestProjectCopyOptions =
+class SbtProjectStructureImportingTestCase_DefaultProjectHighlightingModeSettings extends SbtProjectStructureImportingTestCase {
+  override protected def getTestProjectCopyOptions: TestProjectCopyOptions = {
     super.getTestProjectCopyOptions.copy(copyToTemporaryDir = true)
+  }
 
-  override protected def getIdeaProjectFixtureOptions: IdeaProjectFixtureOptions =
+  override protected def getIdeaProjectFixtureOptions: IdeaProjectFixtureOptions = {
     super.getIdeaProjectFixtureOptions.copy(useTestProjectAsIdeaProjectRoot = true)
+  }
 
-  private lazy val defaultProjectHighlightingModeSettings: RevertableChange =
+  private lazy val defaultProjectHighlightingModeSettings: RevertableChange = {
     RevertableChange.combine(Seq(
       CommonScalaRevertableChanges.withModifiedScalaProjectSettings(
         ProjectManager.getInstance.getDefaultProject,
@@ -80,47 +82,56 @@ class SbtProjectStructureImportingTestCase_DefaultProjectHighlightingModeSetting
         false
       )
     ))
+  }
 
   private def saveDefaultProjectSettings(): Unit = {
     val defaultProject = ProjectManager.getInstance.getDefaultProject
     StoreUtil.saveSettings(defaultProject, true)
   }
 
-  override protected def createProjectFixture(): IdeaProjectTestFixture =
+  override protected def createProjectFixture(): IdeaProjectTestFixture = {
     new DefaultProjectTemplateFixture(getTestProjectPath)
+  }
 
-  override protected def setUpFixtures(): Unit =
+  override protected def setUpFixtures(): Unit = {
     TestApplicationManager.getInstance()
-    try
+    try {
       defaultProjectHighlightingModeSettings.applyChange()
       saveDefaultProjectSettings()
       super.setUpFixtures()
-    catch
+    } catch {
       case throwable: Throwable =>
         defaultProjectHighlightingModeSettings.revertChange()
         saveDefaultProjectSettings()
         throw throwable
+    }
+  }
 
-  override def tearDown(): Unit =
-    try
+  override def tearDown(): Unit = {
+    try {
       defaultProjectHighlightingModeSettings.revertChange()
       saveDefaultProjectSettings()
-    finally super.tearDown()
+    } finally {
+      super.tearDown()
+    }
+  }
 
   @Test
-  def simple(): Unit =
+  def simple(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     runSimpleTest("simple", "2.13", scalaLibraries)
     assertImportedProjectSettings(hasScala2 = true, hasScala3 = false)
+  }
 
   @Test
-  def simple_Scala3(): Unit =
+  def simple_Scala3(): Unit = {
     val scalaLibraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
     runSimpleTest("simple-scala3", "3.0.2", scalaLibraries, DefaultSbtContentRootsScala3, DefaultMainSbtContentRootsScala3, DefaultTestSbtContentRootsScala3)
     assertImportedProjectSettings(hasScala2 = false, hasScala3 = true)
+  }
 
   @Test
-  def mixedScala2Scala3(): Unit =
+  def mixedScala2Scala3(): Unit = {
     val projectName = "mixedScala2Scala3"
     val scala2Libraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
     val scala3Libraries = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("3.0.2")
@@ -154,6 +165,7 @@ class SbtProjectStructureImportingTestCase_DefaultProjectHighlightingModeSetting
       }
     )
     assertImportedProjectSettings(hasScala2 = true, hasScala3 = true)
+  }
 
   private def assertImportedProjectSettings(hasScala2: Boolean, hasScala3: Boolean): Unit = {
     assertEquals("Unexpected Scala 2 availability after import", hasScala2, getMyProject.hasScala2)
@@ -163,8 +175,9 @@ class SbtProjectStructureImportingTestCase_DefaultProjectHighlightingModeSetting
     assertTrue("Scala 2 should inherit Compiler highlighting from the Default Project", importedSettings.isCompilerHighlightingScala2)
     assertFalse("Scala 3 should inherit Built-in highlighting from the Default Project", importedSettings.isCompilerHighlightingScala3)
   }
+}
 
-private final class DefaultProjectTemplateFixture(projectPath: Path) extends IdeaProjectTestFixture:
+private final class DefaultProjectTemplateFixture(projectPath: Path) extends IdeaProjectTestFixture {
   private var actualProject: Project = uninitialized
 
   override def getProject: Project = actualProject
@@ -188,6 +201,7 @@ private final class DefaultProjectTemplateFixture(projectPath: Path) extends Ide
     TestApplicationManager.tearDownProjectAndApp(actualProject)
     actualProject = null
   }
+}
 
 class SbtProjectStructureImportingTestCase_NoRootModule extends SbtProjectStructureImportingTestCase:
   @Test
