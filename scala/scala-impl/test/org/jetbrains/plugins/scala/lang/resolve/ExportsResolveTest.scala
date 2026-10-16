@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.Assert.assertNotNull
 
 class ExportsResolveTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
@@ -397,7 +400,21 @@ class ExportsResolveTest extends SimpleResolveTestBase {
        |""".stripMargin
   )
 
-  def testSCL22266(): Unit = checkTextHasNoErrors(
+  def testSCL22266(): Unit = checkTextHasNoErrors(scl22266Text)
+
+  def testSCL22266ExportFirst(): Unit = checkSCL22266ReferenceFirst("ops.blub")
+
+  def testSCL22266ExportQualifierFirst(): Unit = checkSCL22266ReferenceFirst("ops")
+
+  private def checkSCL22266ReferenceFirst(text: String): Unit = {
+    val file = configureScalaFromFileText(scl22266Text)
+    val ref = file.depthFirst().filterByType[ScStableCodeReference].find(_.getText == text).get
+    // Force the resolution order instead of relying on which reference highlighting visits first.
+    assertNotNull(ref.resolve())
+    myFixture.testHighlighting(false, false, false)
+  }
+
+  private def scl22266Text: String =
     """
       |object A {
       |  class Ops(i: Int):
@@ -418,7 +435,6 @@ class ExportsResolveTest extends SimpleResolveTestBase {
       |  val x = blub(42)
       |}
       |""".stripMargin
-  )
 
   def testSCL22266TypeParameters(): Unit = checkTextHasNoErrors(
     """
