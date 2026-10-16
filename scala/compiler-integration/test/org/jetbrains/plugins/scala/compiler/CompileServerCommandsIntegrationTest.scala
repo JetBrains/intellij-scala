@@ -57,16 +57,14 @@ class CompileServerCommandsIntegrationTest extends ScalaCompilerTestBase:
       assertEquals(s"Command `$command` must not be registered in the Scala Compile Server", ExitNoSuchCommand, response.exitCode)
 
     // Every compile server command must be registered. Sent with a wrong token, each of them reaches the nail,
-    // which rejects the request, instead of being reported as an unknown command.
+    // which rejects the request before doing anything else with it, instead of being reported as an unknown command.
     for command <- CompileServerCommands do
       val response = sender.execute(command, Seq(WrongToken))
       assertNotEquals(s"Command `$command` must be registered in the Scala Compile Server", ExitNoSuchCommand, response.exitCode)
-
-    val wrongTokenResponse = sender.execute(CommandIds.GetMetrics, Seq(WrongToken))
-    assertTrue(
-      s"A wrong token must be rejected by the Scala Compile Server, but got: ${wrongTokenResponse.messages}",
-      wrongTokenResponse.errors.exists(_.startsWith("Token is incorrect"))
-    )
+      assertTrue(
+        s"Command `$command` sent with a wrong token must be rejected by the Scala Compile Server, but got: ${response.messages}",
+        response.errors.exists(_.startsWith("Token is incorrect"))
+      )
 
     // The server is still running and serves requests with the correct token after all of the above.
     val metrics = CompileServerClient.get(getProject).getMetrics()
