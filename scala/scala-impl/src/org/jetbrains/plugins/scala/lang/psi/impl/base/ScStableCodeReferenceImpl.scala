@@ -386,6 +386,16 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               if processor.kinds.contains(ResolveTargets.ANNOTATION) && PsiTreeUtil.isContextAncestor(p, this, true) =>
                 treeWalkUp(place.getContext, place, state)
             case exportStmt: ScExportStmt =>
+              exportStmt.getContext match {
+                case body: ScExtensionBody =>
+                  // An extension export's qualifier refers to a method in the same extension clause.
+                  // Resolve it directly: collecting the enclosing class's signatures would resolve this
+                  // export again and could cache an incomplete member map when the recursion guard fires.
+                  if (!body.functions.forall(processor.execute(_, state)) || !processor.changedLevel)
+                    return
+                case _ =>
+              }
+
               val clsContext = PsiTreeUtil.getContextOfType(exportStmt, classOf[PsiClass])
               val nodes      = MixinNodes.currentlyProcessedSigs.value.get(clsContext)
 
