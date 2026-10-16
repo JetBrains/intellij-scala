@@ -272,6 +272,10 @@ object ScopeAnnotator extends ScopeAnnotator {
           parameterless = e :: parameterless,
           fieldLike = e :: fieldLike,
         )
+      // Scala 3 ignores Scala 2 macros, which are therefore allowed alongside their Scala 3 counterparts with the same
+      // signature, for Scala 2 code that reads the library from TASTy. Resolve doesn't choose between the two
+      // depending on the place of the reference yet, see Scala2MacroWithScala3CounterpartResolveTest
+      case e: ScMacroDefinition if e.isInScala3File => this
       case e: ScFunction  =>
         if (e.typeParameters.isEmpty) { //generic functions are not supported
           copy(

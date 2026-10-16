@@ -863,4 +863,17 @@ class ScopeAnnotatorTest_3 extends ScopeAnnotatorTest_213 {
         |""".stripMargin
     )
   }
+
+  def testScala2MacroAlongsideDefinitionWithSameSignature(): Unit = {
+    assertFine(
+      """object Macros {
+        |  def lineNumber: Int = macro lineNumberImpl
+        |  inline def lineNumber: Int = 4
+        |
+        |  def foo(x: Int): Int = macro fooImpl
+        |  def foo(x: Int): Int = ???
+        |}
+        |""".stripMargin
+    )
+  }
 }
