@@ -137,6 +137,67 @@ class Scala3DocumentationProviderTest_Markdown
       HtmlSpacesComparisonMode.DontIgnore,
     )
 
+  // SCL-25455
+  def testIndentedCodeBlockInNote(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""/**
+         | * Example: {{{
+         | *   2 + 2
+         | * }}}
+         | *
+         | * @note Example: {{{
+         | *       2 + 2
+         | *       }}}
+         | *
+         | * After the example.
+         | */
+         |class ${|}A
+         |""".stripMargin,
+      """<div class='content'><p>Example:</p><pre><code>
+        |<span style="color:#0000ff">2</span> + <span style="color:#0000ff">2</span></code></pre></div><table class='sections'><tr><td valign='top' class='section'><p>Note:</td><td valign='top'><span><span></span>Example:<pre><code>
+        |<span style="color:#0000ff">2</span> + <span style="color:#0000ff">2</span></code></pre><p>After the example.</p></span></td></table>
+        |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+
+  def testOldCodeBlockRemovesCommonIndent(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""/**
+         | * {{{
+         | *     outer {
+         | *       inner
+         | *
+         | *       inner
+         | *     }
+         | * }}}
+         | */
+         |class ${|}A
+         |""".stripMargin,
+      """<div class='content'><pre><code>
+        |outer {
+        |  inner
+        |
+        |  inner
+        |}</code></pre></div>
+        |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+
+  def testMarkdownCodeBlockPreservesIndent(): Unit =
+    doGenerateRenderedDocBodyTest(
+      s"""/**
+         | * ```
+         | *   code
+         | * ```
+         | */
+         |class ${|}A
+         |""".stripMargin,
+      """<div class='content'><pre><code>
+        |  code</code></pre></div>
+        |""".stripMargin,
+      HtmlSpacesComparisonMode.DontIgnore,
+    )
+
   def testHeaderOnly(): Unit =
     doGenerateRenderedDocBodyTest(
       s"""
