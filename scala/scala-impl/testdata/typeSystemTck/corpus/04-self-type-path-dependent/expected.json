@@ -1,0 +1,84 @@
+{
+  "conformance": [
+    {
+      "lhs": "BoxThis",
+      "rhs": "Box",
+      "holds": true
+    },
+    {
+      "lhs": "BoxThisT",
+      "rhs": "BoxThisT",
+      "holds": true
+    },
+    {
+      "lhs": "AnimalBoxThis",
+      "rhs": "AnimalBox",
+      "holds": true
+    },
+    {
+      "lhs": "AnimalBoxThis",
+      "rhs": "Animal",
+      "holds": true
+    },
+    {
+      "lhs": "AnimalBox",
+      "rhs": "Animal",
+      "holds": false
+    },
+    {
+      "lhs": "Box",
+      "rhs": "BoxThis",
+      "holds": false
+    },
+    {
+      "lhs": "AnimalBox",
+      "rhs": "AnimalBoxThis",
+      "holds": false
+    }
+  ],
+  "equivalence": [
+    {
+      "lhs": "BoxThis",
+      "rhs": "Box",
+      "holds": false
+    },
+    {
+      "lhs": "AnimalBoxThis",
+      "rhs": "AnimalBox",
+      "holds": false
+    },
+    {
+      "lhs": "BoxThisT",
+      "rhs": "BoxThisT",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {
+    "AnimalBoxThis": [
+      "AnimalBox with Animal",
+      "Animal",
+      "AnimalBox",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "BoxThis": [
+      "Box",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "AnimalBoxThis": [
+      "<refinement>",
+      "Animal",
+      "AnimalBox",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "BoxThis": [
+      "Box",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  }
+}

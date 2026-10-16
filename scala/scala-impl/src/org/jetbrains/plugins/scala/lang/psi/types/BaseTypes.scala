@@ -1,13 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
@@ -22,7 +27,8 @@ object BaseTypes {
    * applied). For a compound / intersection type it yields the components.
    * For a type alias / type parameter / this-type / existential, `tp` is first
    * resolved to the underlying type and then that type's direct supers are
-   * returned.
+   * returned. A singleton type's direct super is its widened type, and an
+   * abstract type member's is its upper bound (neither has a class of its own).
    */
   def direct(tp: ScType)(implicit context: Context): Iterator[ScType] =
     supersOf(tp, mutable.Set.empty).iterator
@@ -119,6 +125,104 @@ object BaseTypes {
   def get(t: ScType)(implicit context: Context): Seq[ScType] = reduce(dfs(t))
 
   /**
+   * The base type of `t` at class `clazz`, the analogue of scalac's `t baseType clazz`
+   * (used by `AsSeenFromMap`). When `t` reaches `clazz` through several parents with
+   * different arguments, the contributions are merged ([[mergeSameClass]]), so the
+   * result is deterministic, unlike `iterator(t).find(_.extractClass.contains(clazz))`.
+   */
+  def baseType(t: ScType, clazz: PsiClass)(implicit context: Context): Option[ScType] = {
+    val key             = BaseTypeKey(t, clazz)
+    val cache           = baseTypeCache(t.projectContext.project)
+    val resultInContext = Option(cache.get(key)).getOrElse(new ContextDependent[Option[ScType]]())
+    resultInContext.get.getOrElse {
+      // A re-entrant query for the same key is a cyclic base-type graph: no base type, as
+      // conformance answers `Left`. The guard also keeps the enclosing results out of caches.
+      baseTypeGuard.doPreventingRecursion(key) {
+        val stackStamp              = RecursionManager.markStack()
+        val (value, valueInContext) = resultInContext.updatedUsing(ctx => baseTypeUncached(t, clazz)(using ctx))
+        if (stackStamp.mayCacheNow() && isCacheable(t)) cache.put(key, valueInContext)
+        value
+      }.flatten
+    }
+  }
+
+  private def baseTypeUncached(t: ScType, clazz: PsiClass)(implicit context: Context): Option[ScType] = {
+    val sameClass = (Iterator(t) ++ iterator(t)).filter(_.extractClass.contains(clazz)).toList
+    if (sameClass.isEmpty) None
+    else Some(mergeSameClass(sameClass, clazz))
+  }
+
+  private final case class BaseTypeKey(t: ScType, clazz: PsiClass)
+
+  private val baseTypeGuard = RecursionManager.RecursionGuard[BaseTypeKey, Option[ScType]]("BaseTypes.baseType.guard")
+
+  /** Inference variables aren't cached (checked on a miss only: no cached key contains one): they are per inference session, and `ScAbstractType`'s equality ignores its bounds. */
+  private def isCacheable(t: ScType): Boolean =
+    !t.subtypeExists {
+      case _: UndefinedType | _: ScAbstractType => true
+      case _                                    => false
+    }
+
+  private def baseTypeCache(project: Project): ConcurrentMap[BaseTypeKey, ContextDependent[Option[ScType]]] =
+    project.getService(classOf[BaseTypeCacheService]).cache
+
+  /** Cleared with the conformance cache, by [[org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager]]. */
+  def clearCache(project: Project): Unit = baseTypeCache(project).clear()
+
+  @Service(Array(Service.Level.PROJECT))
+  private final class BaseTypeCacheService {
+    val cache: ConcurrentMap[BaseTypeKey, ContextDependent[Option[ScType]]] = new ConcurrentHashMap()
+  }
+
+  /**
+   * Merge several base types of the same class into one — scalac's
+   * `mergePrefixAndArgs`: combine arguments per position by the class's variance
+   * (covariant -> glb, contravariant -> lub, invariant -> kept when equivalent, else
+   * an existential bounded by their glb and lub: `I[Dog] with I[Cat]` has base type
+   * `I[_1] forSome { type _1 >: Cat with Dog <: Animal }`). IntelliJ's plain
+   * `glb` does NOT do this — for incomparable args it yields the intersection of
+   * the applied types (`Box[Dog] with Box[Cat]`) rather than the merge
+   * (`Box[Dog with Cat]`), so we do it explicitly.
+   */
+  private def mergeSameClass(types: Seq[ScType], clazz: PsiClass)(implicit context: Context): ScType = {
+    val distinct = types.distinct
+    if (distinct.lengthCompare(1) <= 0) distinct.head
+    else clazz match {
+      case owner: ScTypeParametersOwner =>
+        val variances = owner.typeParameters.map(_.variance)
+        // Merge all applications of `clazz` at once, position by position: a pairwise reduce would
+        // turn the first merge into an existential, which no longer matches the next application.
+        val (applied, other) = distinct.partitionMap {
+          case p: ParameterizedType if p.typeArguments.sizeCompare(variances) == 0 => Left(p)
+          case t                                                                   => Right(t)
+        }
+        val merged = applied match {
+          case Seq()       => None
+          case Seq(single) => Some(single)
+          case several =>
+            val wildcards = List.newBuilder[ScExistentialArgument]
+            val args = variances.indices.map { i =>
+              val v  = variances(i)
+              val ts = several.map(_.typeArguments(i))
+              if (v.isCovariant) ts.reduce(_ glb _)
+              else if (v.isContravariant) ts.reduce(_ lub _)
+              else if (ts.tail.forall(_.equiv(ts.head))) ts.head
+              else {
+                val w = ScExistentialArgument(s"_$$${i + 1}", Nil, ts.reduce(_ glb _), ts.reduce(_ lub _))
+                wildcards += w
+                w
+              }
+            }
+            val app = ScParameterizedType(several.head.designator, args)
+            val ws  = wildcards.result()
+            Some(if (ws.isEmpty) app else ScExistentialType(app, Some(ws)))
+        }
+        (merged.toSeq ++ other).reduce(_ glb _)
+      case _ => distinct.reduce(_ glb _)
+    }
+  }
+
+  /**
    * Returns the direct super types of `tp` in declaration order, resolving
    * aliases / type parameters / this-types / existentials to their underlying
    * types first. `seenAliases` tracks aliases already unwrapped to break
@@ -130,25 +234,50 @@ object BaseTypes {
    */
   private def supersOf(tp: ScType, seenAliases: mutable.Set[ScTypeAlias])
                       (implicit context: Context): Seq[ScType] = {
+    // `seen` breaks singleton-widening cycles (e.g. an object whose
+    // designatorSingletonType is its own type): a repeat falls back to ClassType.
     @tailrec
-    def go(t: ScType): Seq[ScType] = t match {
+    def go(t: ScType, seen: Set[ScType]): Seq[ScType] = t match {
       case IsTypeAlias(ta, s) if !ta.isEffectivelyOpaque && !seenAliases.contains(ta) =>
         seenAliases += ta.physical
         ta.aliasedType match {
-          case Right(aliased) => go(s(aliased))
+          case Right(aliased) => go(s(aliased), seen)
           case _              => Seq.empty
         }
-      case ScThisType(clazz)                       => clazz.`type`().toOption match {
-        case Some(inner) => go(inner)
-        case None        => Seq.empty
-      }
+      case IsAbstractType(ta, s) if !seenAliases.contains(ta) =>
+        // An abstract type member `M <: U` has no class of its own, so its only direct super
+        // is `U` (in scalac, an abstract type's base type is its upper bound's). Yielding
+        // `U`'s supers instead would lose `U`'s own class. `seenAliases` stops
+        // cyclic bounds (`type A <: B; type B <: A`, rejected by scalac but seen while editing).
+        seenAliases += ta.physical
+        ta.upperBound.toOption.map(s).toSeq
+      case ScThisType(clazz)                       =>
+        // `X.this` also conforms to `X`'s self type, so the self type's bases are
+        // bases of it too (needed by the anchored walk in ThisTypeSubstitution).
+        (clazz.`type`().toOption, clazz.selfType) match {
+          case (Some(ct), Some(st)) => go(ScCompoundType(Seq(ct, st))(using tp.projectContext), seen)
+          case (Some(ct), None)     => go(ct, seen)
+          case (None, Some(st))     => go(st, seen)
+          case (None, None)         => Seq.empty
+        }
       case JavaArrayType(_)                        => Seq(tp.projectContext.stdTypes.Any)
       case ScCompoundType(comps, _, _)             => comps
       case ScAndType(lhs, rhs)                     => Seq(lhs, rhs)
+      case SingletonUnderlying(underlying) if !seen.contains(underlying) =>
+        // A singleton path type (e.g. `x.type` for `x: ValDef`) is not itself a
+        // class/object designator, so ClassType never fires for it. Its direct super
+        // is the declared/resolved type of the underlying value (scalac's `underlying`,
+        // used by SingleType.baseTypeSeq and SingleType.baseType), itself rather than
+        // its supers: `x.type` has base class ValDef, not only ValOrDefDef and Tree.
+        // A chain of singletons (`x: y.type`) is followed here, guarded by `seen`.
+        underlying match {
+          case SingletonUnderlying(_) => go(underlying, seen + t)
+          case _                      => Seq(underlying)
+        }
       case ClassType(c, subst)                     => declaredSuperTypes(c, subst)
       case _                                       => Seq.empty
     }
-    go(tp)
+    go(tp, Set.empty)
   }
 
   private def declaredSuperTypes(c: PsiClass, subst: ScSubstitutor): Seq[ScType] = c match {
@@ -172,25 +301,22 @@ object BaseTypes {
       .reverseIterator
   }
 
+  // One base type per class. Same-class contributions are *merged*
+  // (mergeSameClass) rather than the previous "keep the most specific arm", so a
+  // class reached via several paths with different arguments yields the variance
+  // merge (e.g. Box[Dog with Cat]) instead of a single arm (Box[Dog] or Box[Cat]).
+  // Classes keep the order in which the walk first reaches them.
   private def reduce(typesIt: Iterator[ScType])(implicit context: Context): Seq[ScType] = {
-    val res = mutable.HashMap.empty[PsiClass, ScType]
-    val all = mutable.HashMap.empty[PsiClass, mutable.Set[ScType]]
-    while (typesIt.hasNext) {
-      val t = typesIt.next()
-      t.extractClass match {
-        case Some(c) =>
-          val isBest = all.get(c) match {
-            case None => true
-            case Some(ts) => !ts.exists(t.conforms(_))
-          }
-          if (isBest) {
-            res += c -> t
-          }
-          all.getOrElseUpdate(c, mutable.Set.empty) += t
-        case None => //not a class type
-      }
+    val byClass = mutable.LinkedHashMap.empty[PsiClass, mutable.ArrayBuffer[ScType]]
+    typesIt.foreach(t => t.extractClass.foreach(c => byClass.getOrElseUpdate(c, mutable.ArrayBuffer.empty) += t))
+    byClass.iterator.map { case (clazz, ts) => mergeSameClass(ts.toSeq, clazz) }.toList
+  }
+
+  private object SingletonUnderlying {
+    def unapply(tp: ScType): Option[ScType] = tp match {
+      case owner: DesignatorOwner => owner.designatorSingletonType
+      case _                      => None
     }
-    res.values.toList
   }
 
   private object IsTypeAlias {
@@ -204,6 +330,19 @@ object BaseTypes {
         val genericSubst = ScSubstitutor.bind(ta.typeParameters, args)
         val s = actualSubst.followed(genericSubst)
         Some((ta, s))
+      case _ => None
+    }
+  }
+
+  /** An abstract type member (a declaration, or a projection whose actual element is one). */
+  private object IsAbstractType {
+    def unapply(tp: ScType): Option[(ScTypeAliasDeclaration, ScSubstitutor)] = tp match {
+      case ScDesignatorType(ta: ScTypeAliasDeclaration)                         => Some((ta, ScSubstitutor.empty))
+      case ScProjectionType.withActual((ta: ScTypeAliasDeclaration, actualSubst)) => Some((ta, actualSubst))
+      case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDeclaration), args) =>
+        Some((ta, ScSubstitutor.bind(ta.typeParameters, args)))
+      case ParameterizedType(ScProjectionType.withActual(ta: ScTypeAliasDeclaration, actualSubst), args) =>
+        Some((ta, actualSubst.followed(ScSubstitutor.bind(ta.typeParameters, args))))
       case _ => None
     }
   }

@@ -1,0 +1,10 @@
+{
+  "conformance": [],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "implThis": "Impl with Api",
+    "defsThis": "SymbolTable",
+    "sym": "Definitions.this.Symbol",
+    "foo": "Definitions.this.Type"
+  }
+}

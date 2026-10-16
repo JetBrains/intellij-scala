@@ -1,0 +1,90 @@
+{
+  "conformance": [
+    {
+      "lhs": "Nothing",
+      "rhs": "Dog",
+      "holds": true
+    },
+    {
+      "lhs": "Nothing",
+      "rhs": "Int",
+      "holds": true
+    },
+    {
+      "lhs": "Null",
+      "rhs": "Dog",
+      "holds": true
+    },
+    {
+      "lhs": "Null",
+      "rhs": "Int",
+      "holds": false
+    },
+    {
+      "lhs": "Dog",
+      "rhs": "AnyRef",
+      "holds": true
+    },
+    {
+      "lhs": "Dog",
+      "rhs": "Any",
+      "holds": true
+    },
+    {
+      "lhs": "Int",
+      "rhs": "AnyVal",
+      "holds": true
+    },
+    {
+      "lhs": "Int",
+      "rhs": "AnyRef",
+      "holds": false
+    },
+    {
+      "lhs": "Meters",
+      "rhs": "AnyVal",
+      "holds": true
+    },
+    {
+      "lhs": "Dog",
+      "rhs": "AnyVal",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {
+    "Int": [
+      "scala.Int",
+      "scala.AnyVal",
+      "scala.Any"
+    ],
+    "Dog": [
+      "Dog",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Meters": [
+      "Meters",
+      "scala.AnyVal",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "Int": [
+      "scala.Int",
+      "scala.AnyVal",
+      "scala.Any"
+    ],
+    "Dog": [
+      "Dog",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Meters": [
+      "Meters",
+      "scala.AnyVal",
+      "scala.Any"
+    ]
+  }
+}

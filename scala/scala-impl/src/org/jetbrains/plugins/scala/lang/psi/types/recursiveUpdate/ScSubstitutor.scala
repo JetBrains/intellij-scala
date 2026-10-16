@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.extensions.ArrayExt
+import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.{ArrayExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeArgument, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, TypeParamId, TypeParamIdOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -112,16 +113,23 @@ final class ScSubstitutor private(_substitutions: Array[Update],   //Array is us
       substitutions.copyToArray(newArray, 0)
       other.substitutions.copyToArray(newArray, thisLength)
 
-      new ScSubstitutor(newArray)
+      val combined = new ScSubstitutor(newArray)
+      SubstitutorInvariants.wellAnchored(this, other, combined)
+      SubstitutorInvariants.selfRootedOnce(this, other)
+      combined
     }
-  }
-
-  def followUpdateThisType(tp: ScType): ScSubstitutor = {
-    ScSubstitutor(tp).followed(this)
   }
 
   def followUpdateThisType(tp: ScType, seenFromClass: PsiClass): ScSubstitutor = {
     ScSubstitutor(tp, seenFromClass).followed(this)
+  }
+
+  /** This substitutor without its this-type links: the bindings alone. */
+  def withoutThisTypeSubstitutions: ScSubstitutor = {
+    assertFullSubstitutor()
+
+    if (!substitutions.exists(_.isInstanceOf[ThisTypeSubstitution])) this
+    else new ScSubstitutor(substitutions.filterNot(_.isInstanceOf[ThisTypeSubstitution]))
   }
 
   def withBindings(from: Iterable[TypeParameter], target: Iterable[TypeParameter]): ScSubstitutor = {
@@ -200,11 +208,27 @@ object ScSubstitutor {
     else ScSubstitutor(TypeParamSubstitution(tvMap))
   }
 
-  def apply(updateThisType: ScType): ScSubstitutor =
-    ScSubstitutor(ThisTypeSubstitution(updateThisType, null))
+  /**
+   * `tp.asSeenFrom(updateThisType, seenFromClass)`: the this-types on `seenFromClass`'s owner chain
+   * re-anchored onto the prefix `updateThisType`. With no class (`null`: a top-level, local, synthetic
+   * or refinement member) there is no owner chain to climb and the prefix contributes nothing, as in
+   * scalac; the former anchorless walk, which narrowed by inheritance alone, is gone.
+   */
+  def apply(updateThisType: ScType, @Nullable seenFromClass: PsiClass): ScSubstitutor =
+    if (seenFromClass == null) ScSubstitutor.empty
+    else {
+      val link  = ThisTypeSubstitution(ThisTypeSubstitution.canonicalizeTarget(updateThisType), seenFromClass)
+      SubstitutorInvariants.fixedTarget(link)
+      ScSubstitutor(link)
+    }
 
-  def apply(updateThisType: ScType, seenFromClass: PsiClass): ScSubstitutor =
-    ScSubstitutor(ThisTypeSubstitution(updateThisType, seenFromClass))
+  /** The `seenFromClass` for viewing `member`'s type from a prefix: its containing class,
+   *  scalac's `sym.owner` in `sym.info.asSeenFrom(pre, sym.owner)`. `null` when there is
+   *  none (top-level, local or synthetic members). */
+  def declarationAnchor(member: PsiNamedElement): PsiClass = member.nameContext match {
+    case m: PsiMember => m.getContainingClass
+    case _            => null
+  }
 
   def paramToExprType(parameters: Seq[Parameter], expressions: Seq[Expression], useExpected: Boolean = true): ScSubstitutor =
     ScSubstitutor(ParamsToExprs(parameters, expressions, useExpected))

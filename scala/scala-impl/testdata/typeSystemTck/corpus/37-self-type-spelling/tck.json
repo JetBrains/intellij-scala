@@ -1,0 +1,13 @@
+{
+  "description": "Self-type spelling (SPEC-GAPS §7): members seen through a self type are spelled after the using class (Definitions.this.Symbol); this is Impl with Api, or SymbolTable when the self type already extends the class.",
+  "concepts": ["self-type", "this-type", "spelling", "cake", "glb"],
+  "types": [],
+  "conformance": [],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "implThis", "expr": "this", "anchor": "inImpl" },
+    { "name": "defsThis", "expr": "this", "anchor": "inDefinitions" },
+    { "name": "sym", "expr": "sym", "anchor": "inDefinitions" },
+    { "name": "foo", "expr": "foo", "anchor": "inDefinitions" }
+  ]
+}

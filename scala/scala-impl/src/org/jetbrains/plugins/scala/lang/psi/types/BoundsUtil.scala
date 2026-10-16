@@ -83,6 +83,13 @@ trait BoundsUtil {
 
   protected class BaseClassInfo(rawType: ScType)(implicit context: Context) {
     private val nonSingletonType = rawType match {
+      // Keep the prefix. `type()` of the designated element is the type as seen from its
+      // own declaration, so `global.Symbol` would become `Symbols.this.Symbol`, and the lub
+      // of `global.AliasTypeSymbol` and `global.AbstractTypeSymbol` would be computed over
+      // base classes that no longer conform to `global.Symbol` (scalac computes it over
+      // base type sequences as seen from `global`).
+      case d: DesignatorOwner if d.isSingleton     => d.widen
+      case DesignatorOwner(_: PsiClass)            => rawType
       case DesignatorOwner(Typeable(nonSingleton)) => nonSingleton
       case ex: ScExistentialType                   => ex.quantified
       case lit: ScLiteralType                      => lit.wideType
@@ -97,6 +104,9 @@ trait BoundsUtil {
     def isEmpty: Boolean = typeNamedElement.isEmpty
 
     private val projectionOption: Option[ScType] = projectionOptionImpl(nonSingletonType, Set.empty)
+
+    /** The path this class is selected from (`a` in `a.Tree`), if any. */
+    def prefix: Option[ScType] = projectionOption
 
     @tailrec
     private def projectionOptionImpl(tp: ScType, visited: Set[ScType]): Option[ScType] = {
@@ -125,9 +135,18 @@ trait BoundsUtil {
       }
     }
 
-    def getSuperClasses: Seq[BaseClassInfo] = {
+    // Computed once per instance: the lub walk and `allBaseClasses` both revisit the same infos.
+    lazy val getSuperClasses: Seq[BaseClassInfo] = {
+      // asSeenFrom anchor for this class's OWN superTypes list is the class itself
+      // (scalac's `sym.info.asSeenFrom(pre, sym)`, not `sym.owner` as for a member) -
+      // getNamedElement IS the class whose supertypes are being viewed, except when
+      // it's a type-alias/type-param, which anchors at its declaring class instead.
+      val anchor: PsiClass = getNamedElement match {
+        case cls: PsiClass => cls
+        case other         => ScSubstitutor.declarationAnchor(other)
+      }
       val subst = this.projectionOption match {
-        case Some(proj) => ScSubstitutor(proj)
+        case Some(proj) => ScSubstitutor(proj, anchor)
         case None       => ScSubstitutor.empty
       }
 
@@ -142,6 +161,19 @@ trait BoundsUtil {
         case p: PsiClass =>
           p.getSupers.toSeq.map(cl => new BaseClassInfo(toType(cl))).filter(!_.isEmpty)
       }
+    }
+
+    /** This class and its base classes, each class once, in depth-first pre-order. */
+    lazy val allBaseClasses: Seq[BaseClassInfo] = {
+      val visited = mutable.HashSet.empty[PsiNamedElement]
+      val out     = mutable.ArrayBuffer.empty[BaseClassInfo]
+      def go(i: BaseClassInfo): Unit =
+        if (!i.isEmpty && visited.add(i.getNamedElement)) {
+          out += i
+          i.getSuperClasses.foreach(go)
+        }
+      go(this)
+      out.toSeq
     }
 
     private def toType(cls: PsiClass): ScType =
@@ -298,6 +330,26 @@ trait BoundsUtil {
       }
     }
 
+  /**
+   * The designator of the common base class `baseClass` (found among `clazz1`'s base
+   * classes). scalac's `mergePrefixAndArgs` lubs the prefixes under which each operand
+   * reaches the class, so the lub of `a.Tree` and `b.Tree` for distinct paths `a`, `b`
+   * of type `G` is `G#Tree`. Taking `baseClass`'s own prefix would give `a.Tree`, which
+   * `b.Tree` does not conform to.
+   */
+  private def mergedBaseDesignator(baseClass: BaseClassInfo, clazz2: BaseClassInfo)(implicit context: Context): ScType = {
+    val fromLeft = baseClass.baseDesignator
+    (baseClass.prefix, findBaseClass(clazz2, baseClass.getNamedElement).flatMap(_.prefix)) match {
+      case (Some(p1), Some(p2)) if !p1.equiv(p2) => ScProjectionType(lub(p1, p2, checkWeak = false), baseClass.getNamedElement)
+      case _                                     => fromLeft
+    }
+  }
+
+  /** `info` itself or the base class of it that designates `target`. `allBaseClasses` is
+   *  built once per `info`, so the lookups for each common base class of a lub share one walk. */
+  private def findBaseClass(info: BaseClassInfo, target: PsiNamedElement): Option[BaseClassInfo] =
+    info.allBaseClasses.find(i => smartEquivalence(i.getNamedElement, target))
+
   protected def mergeSuperClassTypes(
     clazz1:               BaseClassInfo,
     clazz2:               BaseClassInfo,
@@ -306,7 +358,7 @@ trait BoundsUtil {
     checkWeak:            Boolean,
     stopAddingUpperBound: Boolean
   )(implicit context: Context): ScType = {
-    val baseClassDesignator = baseClass.baseDesignator
+    val baseClassDesignator = mergedBaseDesignator(baseClass, clazz2)
     val baseClassTps        = baseClass.getTypeParameters
 
     if (baseClassTps.isEmpty) return baseClassDesignator

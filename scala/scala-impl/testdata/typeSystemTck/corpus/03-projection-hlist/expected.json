@@ -1,0 +1,57 @@
+{
+  "conformance": [
+    {
+      "lhs": "LHead",
+      "rhs": "Dog",
+      "holds": true
+    },
+    {
+      "lhs": "LHead",
+      "rhs": "Animal",
+      "holds": true
+    },
+    {
+      "lhs": "Dog",
+      "rhs": "LHead",
+      "holds": true
+    },
+    {
+      "lhs": "LTail",
+      "rhs": "HNil",
+      "holds": true
+    },
+    {
+      "lhs": "LTailHead",
+      "rhs": "HNil",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {
+    "L": [
+      "HCons[Dog, HNil]",
+      "HList",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Dog": [
+      "Dog",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "L": [
+      "HCons",
+      "HList",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "Dog": [
+      "Dog",
+      "Animal",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  }
+}

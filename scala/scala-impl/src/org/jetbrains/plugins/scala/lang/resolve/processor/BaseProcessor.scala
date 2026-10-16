@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSynthetic
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -164,7 +164,15 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case _ =>
     }
 
-    if (place.isInScala3File && kinds.contains(ResolveTargets.METHOD)) {
+    // A singleton path `x.type` is processed again via its underlying type below, which handles
+    // `Selectable` there; handling it here too (its base types include `Selectable` since `BaseTypes`
+    // widens singletons) would contribute every field twice, making the selection ambiguous.
+    // (Objects are never dereferenced, so only singletons with an underlying type are skipped.)
+    val isSingletonPath = t match {
+      case des: DesignatorOwner => des.isSingleton && des.extractDesignatorSingleton.isDefined
+      case _                    => false
+    }
+    if (place.isInScala3File && kinds.contains(ResolveTargets.METHOD) && !isSingletonPath) {
       if (!processSelectable(t, place, state, execute)) {
         return false
       }
@@ -185,10 +193,17 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             val clazzType = clazz.getTypeWithProjections().getOrElse(return true)
 
             if (selfType.conforms(clazzType)) {
+              // The members found here come with the signature substitutors of the self type's class `S`,
+              // which put their types into `S`'s view (`S.this`, and `S`'s outer this-types as seen from
+              // `S`). So the rewrite onto `clazz.this` is anchored at `S`, not at `clazz`: inside
+              // `trait TreeMakerWarnings { self: MatchTranslator => }` (nested in `trait MatchWarnings`),
+              // `MatchTranslation.this`, `MatchTranslator`'s outer, is reached through the self type's
+              // prefix `MatchWarnings.this.MatchTranslator`, as scalac's `asSeenFrom(clazz.this, S)` does.
+              val selfTypeClass = selfType.extractClass.getOrElse(clazz)
               val newState =
                 state
                   .withCompoundOrSelfType(t)
-                  .withSubstitutor(ScSubstitutor(ScThisType(clazz)))
+                  .withSubstitutor(ScSubstitutor(ScThisType(clazz), selfTypeClass))
 
               processTypeImpl(selfType, place, newState)
             } else if (clazzType.conforms(selfType)) {
@@ -255,12 +270,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         val cont = designator match {
           case tpt: TypeParameterType =>
             if (recState.visitedTypeParameter.contains(tpt)) return true
-            val newState = state.withSubstitutor(ScSubstitutor(p))
             val upper    = tpt.upperType
 
             val substedType =
               if (upper.isAny || upper.isAnyRef) upper
               else                               p.substitutor(ParameterizedType(tpt.upperType, typeArgs))
+            // The bound's members are seen from `T[A]`, each from the bound's class.
+            val newState = state.withSubstitutor(ScSubstitutor(p, substedType.extractClass.orNull))
 
             processTypeImpl(substedType, place, newState)(using recState.add(tpt))
           case _ =>
@@ -282,15 +298,28 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
               return true
 
             elem match {
+              // `withActual` is scalac's `pre.memberType(sym)`: an abstract `type Symbol` realized by a
+              // `class Symbol` on the prefix already resolves to the class here.
               case alias: ScTypeAlias =>
                 val upper = alias.upperBound.getOrElse(return true)
                 processTypeImpl(s(upper), place, state.withSubstitutor(ScSubstitutor.empty))(using recState.add(alias))
-              case elem =>
+              // A class designated by the projection (`pre.C` as a type) sees its own `C.this` as `pre.C`.
+              case cls: PsiClass =>
                 val subst =
-                  if (updateWithProjectionSubst) ScSubstitutor(proj).followed(s)
+                  if (updateWithProjectionSubst) ScSubstitutor(proj, ScSubstitutor.declarationAnchor(cls)).followed(s)
                   else                           s
 
-                processElement(elem, subst, place, state)(using recState.add(elem))
+                processElement(cls, subst, place, state)(using recState.add(cls))
+              // The members of a value designated by the projection (`pre.v`) are seen from `pre.v`, each from
+              // its own owner (scalac's `pre.v.type.memberType(sym)`, `sym.owner`): the processors anchor that
+              // at the member they find, given `pre.v` as the `fromType`. `v`'s own type is `s`, as seen from
+              // `pre`. One substitution onto `pre.v` anchored at `v`'s owner instead rewrote that owner's
+              // this-types onto `v`: inside `class StandardImporter { val from: SymbolTable }`,
+              // `Importers.this` onto `from`, so the enclosing universe's types became `from`'s.
+              case elem if updateWithProjectionSubst =>
+                processElement(elem, s, place, state.withFromType(proj))(using recState.add(elem))
+              case elem =>
+                processElement(elem, s, place, state)(using recState.add(elem))
             }
         }
       case lit: ScLiteralType => processType(lit.wideType, place, state, updateWithProjectionSubst)
@@ -318,7 +347,11 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           }
         }
         true
-      case comp: ScCompoundType   => processDeclarations(comp, this, state, null, place)
+      case comp: ScCompoundType   =>
+        mergeSameClassComponents(comp) match {
+          case Some(merged) => processTypeImpl(merged, place, state, updateWithProjectionSubst)
+          case None         => processDeclarations(comp, this, state, null, place)
+        }
       case and: ScAndType         => processDeclarations(and, this, state, null, place)
       case or: ScOrType           => processTypeImpl(or.join, place, state, updateWithProjectionSubst)
       case matchType: ScMatchType =>
@@ -329,6 +362,38 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case ScExistentialArgument(_, _, _, upper) =>
         processTypeImpl(upper, place, state)
       case _ => true
+    }
+  }
+
+  /**
+   * scalac's `memberType` selects a member through the qualifier's base type at the
+   * member's class, which merges a class reached through several components:
+   * `x.get` for `x: I[Dog] with I[Cat]` is seen from
+   * `I[_1] forSome { type _1 >: Cat with Dog <: Animal }`, so it is an `Animal`.
+   * Signatures of a compound otherwise come from the first component that has the
+   * member (`Dog`). Replace same-class components that differ by their merged base
+   * type (`BaseTypes.baseType`), quantifying any existential over the whole compound.
+   */
+  private def mergeSameClassComponents(comp: ScCompoundType)(implicit context: Context): Option[ScType] = {
+    val byClass = comp.components.zipWithIndex.collect {
+      case (p @ ParameterizedType(_, _), i) if p.extractClass.isDefined => (p.extractClass.get, p, i)
+    }.groupBy(_._1).values.filter(_.sizeIs > 1)
+    val toMerge = byClass.filter(group => group.exists(!_._2.equiv(group.head._2)))
+    if (toMerge.isEmpty) None
+    else {
+      val replaced  = toMerge.flatMap(_.map(_._3)).toSet
+      val wildcards = List.newBuilder[ScExistentialArgument]
+      val merged = toMerge.toSeq.flatMap { group =>
+        BaseTypes.baseType(comp, group.head._1).map {
+          case ex: ScExistentialType => wildcards ++= ex.wildcards; ex.quantified
+          case other                 => other
+        }
+      }
+      if (merged.sizeIs != toMerge.size) return None
+      val kept     = comp.components.zipWithIndex.collect { case (c, i) if !replaced(i) => c }
+      val compound = ScCompoundType(kept ++ merged, comp.signatureMap, comp.typesMap)
+      val ws       = wildcards.result()
+      Some(if (ws.isEmpty) compound else ScExistentialType(compound, Some(ws)))
     }
   }
 

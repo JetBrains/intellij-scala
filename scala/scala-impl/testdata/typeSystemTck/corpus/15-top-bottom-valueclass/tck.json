@@ -1,0 +1,27 @@
+{
+  "description": "Top/bottom lattice: Any/AnyRef/AnyVal split, Nothing/Null bottoms, value classes.",
+  "concepts": ["top-types", "bottom-types", "value-class"],
+  "types": [
+    { "name": "Any", "expr": "Any" },
+    { "name": "AnyRef", "expr": "AnyRef" },
+    { "name": "AnyVal", "expr": "AnyVal" },
+    { "name": "Nothing", "expr": "Nothing" },
+    { "name": "Null", "expr": "Null" },
+    { "name": "Int", "expr": "Int" },
+    { "name": "Dog", "expr": "Dog" },
+    { "name": "Meters", "expr": "Meters" }
+  ],
+  "conformance": [
+    { "lhs": "Nothing", "rhs": "Dog", "expect": true },
+    { "lhs": "Nothing", "rhs": "Int", "expect": true },
+    { "lhs": "Null", "rhs": "Dog", "expect": true },
+    { "lhs": "Null", "rhs": "Int", "expect": false },
+    { "lhs": "Dog", "rhs": "AnyRef", "expect": true },
+    { "lhs": "Dog", "rhs": "Any", "expect": true },
+    { "lhs": "Int", "rhs": "AnyVal", "expect": true },
+    { "lhs": "Int", "rhs": "AnyRef", "expect": false },
+    { "lhs": "Meters", "rhs": "AnyVal", "expect": true },
+    { "lhs": "Dog", "rhs": "AnyVal", "expect": false }
+  ],
+  "baseTypeSeq": ["Int", "Dog", "Meters"]
+}
