@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTestConfig, Scala3ImportedParserTest_Move_Fixed_Tests_LTS, Scala3ImportedParserTest_Move_Fixed_Tests_LTS_3_9, Scala3ImportedParserTest_Move_Fixed_Tests_Newest}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.*
-import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.disambiguatedStoreFileNameForUppercaseNames
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.configurations.*
 import org.jetbrains.plugins.scala.util.{Annotations, TestUtils}
 import org.jetbrains.sbt.lang.completion.UpdateScalacOptionsInfo
@@ -18,7 +17,7 @@ import org.junit.{FixMethodOrder, Ignore, Test}
 
 import java.io.PrintWriter
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, StandardCopyOption}
+import java.nio.file.{Files, Path, StandardCopyOption, StandardOpenOption}
 import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.jdk.StreamConverters.StreamHasToScala
 import scala.sys.process.Process
@@ -592,6 +591,8 @@ object AfterUpdateDottyVersionScript {
 
       patchTestBlacklist(repo)
 
+      disambiguateCaseInsensitiveTestNames(repo)
+
       runSbt(s"$sbtTestModule/testCompilation --from-tasty pos", repo.path)
 
       copyRecursively(repo.path.resolve("tests/pos"), config.sourcePath)
@@ -599,29 +600,77 @@ object AfterUpdateDottyVersionScript {
       val posOutDir = repo.path.resolve("out/posTestFromTasty/pos")
       assert(Files.isDirectory(posOutDir))
 
-      val allOutputDirs = posOutDir.children()
-      val duplicatedLowercaseNames = allOutputDirs
-        .map(_.getFileName.toString.toLowerCase)
-        .groupBy(identity)
-        .flatMap {
-          case (_, Seq(_)) => None
-          case (name, _) => Some(name)
-        }
-        .toSet
-
-      for (testOutPath <- allOutputDirs) {
-        val dirName = testOutPath.getFileName.toString
-        val disambiguatedName =
-          if (duplicatedLowercaseNames.contains(dirName.toLowerCase)) {
-            disambiguatedStoreFileNameForUppercaseNames(dirName)
-          } else None
-        val storeName = disambiguatedName.getOrElse(dirName + ".semdb")
-        val storePath = config.outPath.resolve(storeName)
+      for (testOutPath <- posOutDir.children()) {
+        val storePath = config.outPath.resolve(testOutPath.getFileName.toString + ".semdb")
         val store = SemanticDbFromScalaMeta.fromSemanticDbPath(testOutPath)
 
         if (store.files.nonEmpty)
           Files.writeString(storePath, store.serialized)
       }
+    }
+
+    /**
+     * The name of a test in `tests/pos` is the name of its directory, or the name of its file without the extension.
+     * Vulpix compiles each test into `out/posTestFromTasty/pos/<testName>`, which we then store as `<testName>.semdb`.
+     * Test names that differ only in case (e.g. `Annotations.scala` and `annotations/` in Scala 3.3.x) therefore end up
+     * in the same output directory on case-insensitive file systems (macOS, Windows), and one of them silently wins.
+     *
+     * To get the same test names on every OS, the entries of such a group whose name contains an uppercase letter
+     * are renamed to `<testName>.<hash>` (e.g. `Annotations.2a1723.scala`) before the tests are compiled and copied.
+     * The hash is derived from the original name, so the test names are stable across script runs.
+     *
+     * Entries with exactly the same name (e.g. `annotations.scala` and `annotations/`) are left alone on purpose:
+     * vulpix compiles them into the same output directory and we treat them as a single test,
+     * see [[ComparisonTestBase.setupFiles]].
+     */
+    private def disambiguateCaseInsensitiveTestNames(repo: ScalaRepository): Unit = {
+      val testsDir = repo.path.resolve("tests/pos")
+
+      def testName(entry: Path): String = {
+        val fileName = entry.getFileName.toString
+        val extensionIdx = if (entry.isDirectory) -1 else fileName.lastIndexOf('.')
+        if (extensionIdx == -1) fileName else fileName.substring(0, extensionIdx)
+      }
+
+      // e.g. Annotations -> Annotations.2a1723
+      def disambiguated(name: String): String = {
+        val hash = f"${name.hashCode}%08x".take(6)
+        s"$name.$hash"
+      }
+
+      val entries = testsDir.children()
+      val collidingTestNames = entries.map(testName).distinct
+        .groupBy(_.toLowerCase)
+        .values
+        .filter(_.sizeIs > 1)
+        .flatten
+        .toSet
+
+      val renamed = for {
+        entry <- entries
+        name = testName(entry)
+        if collidingTestNames(name) && name.exists(_.isUpper)
+      } yield {
+        val oldFileName = entry.getFileName.toString
+        val newFileName = disambiguated(name) + oldFileName.stripPrefix(name)
+        println(s"$oldFileName -> $newFileName (test name differs only in case from another test)")
+        Files.move(entry, entry.resolveSibling(newFileName))
+        oldFileName -> newFileName
+      }
+
+      // the blacklist refers to tests by their file/directory name
+      val blacklist = loadBlacklist(repo)
+      val renamedBlacklisted = renamed.collect { case (oldFileName, newFileName) if blacklist(oldFileName) => newFileName }
+      if (renamedBlacklisted.nonEmpty) {
+        val lines = renamedBlacklisted.mkString("\n# renamed by AfterUpdateDottyVersionScript\n", "\n", "\n")
+        Files.writeString(repo.`pos-from-tasty.blacklist`, lines, StandardCharsets.UTF_8, StandardOpenOption.APPEND)
+      }
+
+      val testNames = testsDir.children().map(testName).distinct
+      assert(
+        testNames.size == testNames.map(_.toLowerCase).distinct.size,
+        s"Test names in $testsDir still clash on case-insensitive file systems"
+      )
     }
   }
 
