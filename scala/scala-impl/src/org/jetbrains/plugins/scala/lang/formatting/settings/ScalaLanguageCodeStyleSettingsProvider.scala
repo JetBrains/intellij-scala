@@ -257,8 +257,14 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
       import WrappingAndBracesCustomGroupNames._
       val ExtendsWithList = appMessage("wrapping.extends.implements.list")
-      opt("ALIGN_EXTENDS_WITH", appMessage("wrapping.align.when.multiline"), ExtendsWithList,
-        ScalaCodeStyleSettings.EXTENDS_ALIGN_STRING zip ScalaCodeStyleSettings.EXTENDS_ALIGN_VALUES)
+      opt("ALIGN_EXTENDS_WITH", appMessage("wrapping.align.when.multiline"), ExtendsWithList, {
+        import ScalaCodeStyleSettings._
+        Array(
+          ScalaBundle.message("wrapping.and.braces.panel.extends.do.not.align") -> DO_NOT_ALIGN,
+          ScalaBundle.message("wrapping.and.braces.panel.extends.on.first.token") -> ON_FIRST_TOKEN,
+          ScalaBundle.message("wrapping.and.braces.panel.extends.align.to.extends") -> ALIGN_TO_EXTENDS,
+        )
+      })
       opt("WRAP_BEFORE_WITH_KEYWORD", ScalaBundle.message("wrapping.and.braces.panel.wrap.before.with.keyword"), ExtendsWithList)
       opt("ALIGN_IF_ELSE", ScalaBundle.message("wrapping.and.braces.panel.align.if.else.statements"), appMessage("wrapping.if.statement"))
       opt("METHOD_BRACE_FORCE", ScalaBundle.message("wrapping.and.braces.panel.force.braces"), METHOD_DEFINITION, BRACE_OPTION_AND_VALUES)

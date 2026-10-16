@@ -11,7 +11,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorOpenRequest, OpenFileDescriptor}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -32,9 +32,8 @@ import com.intellij.util.{ArrayFactory, Processor}
 import org.jetbrains.annotations.{Nls, NonNls, Nullable}
 import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
-import org.jetbrains.plugins.scala.internal.ScalaDynamicPluginManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaIdentifiers, ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScFieldId}
@@ -54,7 +53,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt, TermSignature}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.{areClassesEquivalent, couldBeTupleNTupleHListCompatibility}
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
@@ -537,7 +535,7 @@ package object extensions {
       else string.updated(0, string.charAt(0).toLower)
 
     def escapeNonIdentifiers: String = {
-      import ScalaNamesValidator.{isIdentifier, isKeyword}
+      import ScalaIdentifiers.{isIdentifier, isKeyword}
       if (!isIdentifier(string) || isKeyword(string) || string == "=") "`" + string + "`"
       else string
     }
@@ -1659,15 +1657,6 @@ package object extensions {
 
   def invokeAndWaitInTransaction(body: => Unit): Unit = {
     TransactionGuard.getInstance().submitTransactionAndWait(() => body): @nowarn("cat=deprecation")
-  }
-
-  def invokeWhenSmart(project: Project)(body: => Unit): Unit = {
-    // We need to check for unloading here, because when the scala plugin tries to unload,
-    // it is not in smart mode, which means tasks might get scheduled but will not be executed until after
-    // the plugin is unloaded, which will fail, because the scheduled tasks prevent it from doing so.
-    if (!ScalaDynamicPluginManager.isScalaPluginUnloading) {
-      DumbService.getInstance(project).runWhenSmart(() => body)
-    }
   }
 
   def invokeOnDispose(parentDisposable: Disposable)(body: => Unit): Unit =

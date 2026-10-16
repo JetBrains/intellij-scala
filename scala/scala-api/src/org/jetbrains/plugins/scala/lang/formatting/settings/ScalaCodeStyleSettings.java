@@ -13,7 +13,6 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import scala.collection.immutable.ArraySeq;
 
@@ -41,16 +40,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public static final int ON_FIRST_TOKEN = 1;
   public static final int ON_FIRST_ANCESTOR = 2;
   public static final int ALIGN_TO_EXTENDS = 3;
-  public static final int[] EXTENDS_ALIGN_VALUES = new int[]{
-      DO_NOT_ALIGN,
-      ON_FIRST_TOKEN,
-      ALIGN_TO_EXTENDS
-  };
-  public static final String[] EXTENDS_ALIGN_STRING = new String[]{
-      ScalaBundle.message("wrapping.and.braces.panel.extends.do.not.align"),
-      ScalaBundle.message("wrapping.and.braces.panel.extends.on.first.token"),
-      ScalaBundle.message("wrapping.and.braces.panel.extends.align.to.extends")
-  };
   public int ALIGN_EXTENDS_WITH = DO_NOT_ALIGN;
 
   //indents
