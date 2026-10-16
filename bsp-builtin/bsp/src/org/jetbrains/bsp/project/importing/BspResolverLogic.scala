@@ -179,9 +179,9 @@ private[importing] object BspResolverLogic {
       .sortBy(_.size)
       .foldRight((sharedGeneratedSources, Map.empty[Seq[BuildTargetIdentifier], Seq[SourceEntry]])) {
         case (ids, (remainingGeneratedSources, result)) =>
-          val generatedSourcesForIds = remainingGeneratedSources.filter { case (id, _) => ids.contains(id) }
+          val (generatedSourcesForIds, otherGeneratedSources) = remainingGeneratedSources.partition { case (id, _) => ids.contains(id) }
           (
-            remainingGeneratedSources -- generatedSourcesForIds.keys,
+            otherGeneratedSources,
             result + (ids.sortBy(_.getUri) -> generatedSourcesForIds.values.flatten.toSeq)
           )
       }._2
