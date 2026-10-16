@@ -261,7 +261,7 @@ object CompileServerLauncher {
               }
             }
 
-            writePortFile(compileServerSystemDir, port.forToken)
+            CompileServerPort.writePortFile(compileServerSystemDir, port.forToken)
 
             val watcher = new ProcessWatcher(process, "scalaCompileServer", local)
             // ATTENTION: this stack trace captures only the synchronous process-creation path.
@@ -870,12 +870,6 @@ object CompileServerLauncher {
   private val java9rtExportString: String = "java9-rt-export"
 
   private val scalaExtDirsParameterString: String = "-Dscala.ext.dirs"
-
-  private def writePortFile(compileServerSystemDir: Path, port: Int): Unit = {
-    import java.nio.file.StandardOpenOption.{CREATE, TRUNCATE_EXISTING}
-    val path = CompileServerPort.portFilePath(compileServerSystemDir)
-    Files.writeString(path, port.toString, StandardCharsets.UTF_8, TRUNCATE_EXISTING, CREATE)
-  }
 
   private[compiler] val compileServerJvmAddOpensExtraParams: Seq[String] =
     Seq(
