@@ -45,7 +45,6 @@ class SbtCompiler(javaTools: JavaTools, scalac: ScalaCompiler, fileToStore: Path
 
     val incOptions = IncOptions.of()
       .withExternalHooks(IntelljExternalHooks(intellijLookup, intellijClassfileManager))
-      .withRecompileOnMacroDef(Optional.of(boolean2Boolean(false)))
       .withTransitiveStep(5) // Default 3 was not enough for us
 
     val compilers = incrementalCompiler.compilers(javaTools, scalac)
