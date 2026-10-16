@@ -62,4 +62,24 @@ class SingletonConformance_3 extends ScalaLightCodeInsightFixtureTestCase {
       |}
       |""".stripMargin
   )
+
+  def testSingletonBoundedExpectedType(): Unit = checkTextHasNoErrors(
+    """object Test {
+      |  def f1(x: AnyRef with Singleton): AnyRef with Singleton = x
+      |  def narrow1(x: AnyRef): AnyRef with Singleton = x
+      |  def narrow2[T <: AnyRef](x: T): AnyRef & Singleton = x
+      |}
+      |
+      |class A {
+      |  val x: Singleton with this.type = this
+      |  val y: this.type = x
+      |}
+      |
+      |class B {
+      |  val x = ""
+      |  val xs: x.type with Singleton = x
+      |  val y: x.type = xs
+      |}
+      |""".stripMargin
+  )
 }

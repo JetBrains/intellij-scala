@@ -55,6 +55,9 @@ object ScThisReferenceImpl {
       case _ => expectedType match {
         case Some(designatorOwner: DesignatorOwner) if designatorOwner.isStable =>
           ScThisType(td)
+        // e.g. `Singleton & C.this.type`
+        case Some(tpe @ (_: ScAndType | _: ScCompoundType)) if Widening.isSingletonBounded(tpe) =>
+          ScThisType(td)
         case _ =>
           td.getTypeWithProjections(thisProjections = true)
             .map(scType => td.selfType.map(scType.glb(_))
