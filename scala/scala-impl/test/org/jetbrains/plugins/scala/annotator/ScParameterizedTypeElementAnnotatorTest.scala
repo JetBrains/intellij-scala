@@ -445,6 +445,50 @@ class ScParameterizedTypeElementAnnotatorTest_Highlighting_scala_3 extends Scala
       |}
       |""".stripMargin
   ))
+
+  def testHigherKindedTypeVariable(): Unit = assertNothing(errorsFromScala3Code(
+    """
+      |type Foo[F[_]]
+      |type Bar[T] = T match {
+      |  case Foo[f] => f[Int]
+      |}
+      |
+      |class Box[F[_]]
+      |def test(x: Any) = x match {
+      |  case _: Box[f] =>
+      |    type T[X] = f[X]
+      |    23
+      |}
+      |""".stripMargin
+  ))
+
+  def testBoundsAreNotCheckedInPatternsAndMatchTypeCases(): Unit = assertNothing(errorsFromScala3Code(
+    """
+      |type IncT[A <: Tuple, O <: Boolean] <: Tuple = O match {
+      |  case false => A
+      |  case true  => A
+      |}
+      |type Plus[A <: Tuple, O] <: Tuple = A match {
+      |  case EmptyTuple => IncT[A, O]
+      |}
+      |
+      |class X[+A <: AnyRef]
+      |def test(x: X[? <: AnyRef]) = x match {
+      |  case _: X[Any] => 1
+      |}
+      |""".stripMargin
+  ))
+
+  def testBoundsAreCheckedOutsideOfMatchTypeCases(): Unit = assertMessages(errorsFromScala3Code(
+    """
+      |type IncT[A <: Tuple, O <: Boolean] <: Tuple = O match {
+      |  case false => A
+      |}
+      |type Plus[A <: Tuple, O] = IncT[A, O]
+      |""".stripMargin
+  ))(
+    Message.Error("O", "Type O does not conform to upper bound Boolean of type parameter O")
+  )
 }
 
 @Category(Array(classOf[TypecheckerTests]))
