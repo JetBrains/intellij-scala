@@ -127,7 +127,7 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaI18nBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = sbtModDir / "sbt-api",
+      rootPath = sbtModDir / "sbt-core",
       bundleMessagesRelativePath = "SbtApiBundle.properties"
     ),
     ModuleWithBundleInfo(

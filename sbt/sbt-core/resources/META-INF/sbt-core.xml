@@ -1,0 +1,11 @@
+<idea-plugin>
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.sbt.sbtVersionProvider" interface="org.jetbrains.sbt.project.SbtVersionProvider" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.module.SbtModuleType"/>
+
+        <iconMapper mappingFile="SbtIconMappings.json"/>
+    </extensions>
+</idea-plugin>

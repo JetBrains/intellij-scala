@@ -251,9 +251,13 @@ lazy val sbtKotlinIjPluginInterop =
       }
     )
 
+lazy val sbtCore = newProject("sbt-core", file("sbt/sbt-core"))
+  .dependsOn(scalaApi)
+
 lazy val sbtApi =
   newProject("sbt-api", file("sbt/sbt-api"))
     .dependsOn(
+      sbtCore,
       scalaApi,
       compilerShared,
       workspaceEntities,
