@@ -33,27 +33,23 @@ public class NailgunRunner {
   };
   private static final String SERVER_DESCRIPTION = "Scala compile server";
 
-  private static final String STOP_ALIAS_START = "stop_";
-  private static final String STOP_CLASS_NAME = "com.facebook.nailgun.builtins.NGStop";
-
   private static final String JPS_COMPILATION_MAX_THREADS_KEY = "compile.parallel.max.threads";
 
   /**
    * An alternative to default nailgun main {@link com.facebook.nailgun.NGServer#main(java.lang.String[])}
    */
   public static void main(String[] args) throws Exception {
-    if (args.length != 4)
-      throw new IllegalArgumentException("Usage: NailgunRunner [id] [classpath] [system-dir-path]");
+    if (args.length != 3)
+      throw new IllegalArgumentException("Usage: NailgunRunner [classpath] [scala-compile-server-system-dir] [jps-build-system-dir]");
 
-    String id = args[0];
-    String classpath = args[1];
-    Path scalaCompileServerSystemDir = Paths.get(args[2]);
-    Path jpsBuildSystemDir = Paths.get(args[3]);
+    String classpath = args[0];
+    Path scalaCompileServerSystemDir = Paths.get(args[1]);
+    Path jpsBuildSystemDir = Paths.get(args[2]);
 
     URLClassLoader classLoader = constructClassLoader(classpath);
 
     InetAddress address = InetAddress.getByName(null);
-    NGServer server = createServer(address, id, scalaCompileServerSystemDir, jpsBuildSystemDir, classLoader);
+    NGServer server = createServer(address, scalaCompileServerSystemDir, jpsBuildSystemDir, classLoader);
 
     Thread thread = new Thread(server);
     thread.setName("Scala Compile Server NGServer");
@@ -129,7 +125,6 @@ public class NailgunRunner {
   @SuppressWarnings("unchecked")
   private static NGServer createServer(
           InetAddress address,
-          String id,
           Path scalaCompileServerSystemDir,
           Path jpsBuildSystemDir,
           URLClassLoader classLoader
@@ -160,11 +155,6 @@ public class NailgunRunner {
     for (String command : COMMANDS) {
       server.getAliasManager().addAlias(new Alias(command, SERVER_DESCRIPTION, mainNailClass));
     }
-
-    // TODO: token should be checked
-    Class<?> stopClass = classLoader.loadClass(STOP_CLASS_NAME);
-    String stopAlias = STOP_ALIAS_START + id;
-    server.getAliasManager().addAlias(new Alias(stopAlias, "", stopClass));
 
     return server;
   }
