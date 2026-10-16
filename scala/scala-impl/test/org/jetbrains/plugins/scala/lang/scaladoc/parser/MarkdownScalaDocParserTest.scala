@@ -304,17 +304,17 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
   )
 
   // Code blocks with {{{ and }}} fences
-  def test_code_block_fences(): Unit = checkTree(
-    """
+  def test_code_block_fences(): Unit = for (closingIndent <- Seq("", "      ", "\t")) checkTree(
+    s"""
       |/**
       | * Code block example:
       | * {{{
       | * val x = 42
       | * println(x)
-      | * }}}
+      | * ${closingIndent}}}}
       | */
       |""".stripMargin,
-    """ScalaFile
+    raw"""ScalaFile
       |  PsiWhiteSpace('\n')
       |  DocComment
       |    ScPsiDocToken(DOC_COMMENT_START)('/**')
@@ -336,7 +336,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_INNER_CODE)(' println(x)')
       |      ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
-      |      ScPsiDocToken(DOC_INNER_CODE)(' ')
+      |      ScPsiDocToken(DOC_INNER_CODE)(' ${closingIndent.replace("\t", "\\t")}')
       |      ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)('}}}')
       |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')

@@ -8,9 +8,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.HtmlChunk
 import org.intellij.markdown.ast.{ASTNode, ASTUtilKt}
 import org.intellij.markdown.flavours.gfm.{GFMElementTypes, GFMFlavourDescriptor, GFMTokenTypes, StrikeThroughDelimiterParser}
-import org.intellij.markdown.html._
+import org.intellij.markdown.html.*
 import org.intellij.markdown.lexer.MarkdownLexer
-import org.intellij.markdown.parser.sequentialparsers.impl._
+import org.intellij.markdown.parser.sequentialparsers.impl.*
 import org.intellij.markdown.parser.sequentialparsers.{EmphasisLikeParser, SequentialParser, SequentialParserManager}
 import org.intellij.markdown.parser.{LinkMap, LookaheadText, MarkerProcessorFactory, ProductionHolder}
 import org.intellij.markdown.{IElementType, MarkdownElementTypes, MarkdownTokenTypes}
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsin
 
 import java.net.URI
 import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ScalaDocMarkdownFlavour extends GFMFlavourDescriptor {
   override def getMarkerProcessorFactory: MarkerProcessorFactory =
@@ -134,11 +134,31 @@ object ScalaDocMarkdownFlavour {
   class WithScalaSyntaxHighlighting(project: Project) extends ScalaDocMarkdownFlavour {
     override def createHtmlGeneratingProviders(linkMap: LinkMap, uri: URI): java.util.Map[IElementType, GeneratingProvider] = {
       val parent = super.createHtmlGeneratingProviders(linkMap, uri)
-      val highlighter = new ScalaHtmlSyntaxHighlighter(project)
-      parent.put(MarkdownElementTypes.CODE_FENCE, new CodeFenceSyntaxHighlighterGeneratingProvider(highlighter))
+      parent.put(MarkdownElementTypes.CODE_FENCE, new ScalaDocCodeFenceSyntaxHighlighterGeneratingProvider(project))
       parent
     }
   }
+
+  private final class ScalaDocCodeFenceSyntaxHighlighterGeneratingProvider(project: Project) extends GeneratingProvider {
+    private val markdownProvider = new CodeFenceSyntaxHighlighterGeneratingProvider(new ScalaHtmlSyntaxHighlighter(project))
+    private val wikiDocProvider = new CodeFenceSyntaxHighlighterGeneratingProvider((language: String, rawContent: String) => {
+      // Match wiki ScalaDoc rendering while preserving relative indentation and blank lines.
+      val lines = rawContent.stripLineEnd.split("\n", -1)
+      val commonIndent = lines.iterator.filterNot(_.isBlank).map(_.prefixLength(_.isWhitespace)).minOption.getOrElse(0)
+      val code = lines.map(_.drop(commonIndent)).mkString("\n")
+      HtmlSyntaxHighlighterCompanionProxy.colorHtmlChunk(project, Scala3Language.INSTANCE, code)
+    })
+
+    override def processNode(visitor: HtmlGenerator#HtmlGeneratingVisitor, text: String, node: ASTNode): Unit = {
+      val isWikiDocFence = node.getChildren.asScala.exists { child =>
+        child.getType == MarkdownTokenTypes.CODE_FENCE_START &&
+          ASTUtilKt.getTextInNode(child, text).toString.trim == "{{{"
+      }
+      val provider = if (isWikiDocFence) wikiDocProvider else markdownProvider
+      provider.processNode(visitor, text, node)
+    }
+  }
+
 
   /**
    * Information about a tag on a line. All positions are relative to the start of the line.
