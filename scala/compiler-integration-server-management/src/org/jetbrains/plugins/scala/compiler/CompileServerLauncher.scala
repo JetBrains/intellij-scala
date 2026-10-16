@@ -26,24 +26,23 @@ import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.plugins.scala.compiler.EelCompilerUtils.asTargetLocalPathString
 import org.jetbrains.plugins.scala.compiler.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.eel.tunnels.EelTunnels
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.server.{CompileServerPort, CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
-import org.jetbrains.plugins.scala.util._
+import org.jetbrains.plugins.scala.util.*
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
 import java.io.{BufferedReader, IOException, InputStream, InputStreamReader}
-import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedQueue, CopyOnWriteArrayList}
 import kotlinx.coroutines.CoroutineScope
 import scala.collection.mutable
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.io.Source
-import scala.jdk.CollectionConverters._
-import scala.util.control.Exception._
+import scala.jdk.CollectionConverters.*
+import scala.util.control.Exception.*
 import scala.util.matching.Regex
 import scala.util.{Try, Using}
 
@@ -260,7 +259,7 @@ object CompileServerLauncher {
                 CompileServerPort.Remote(forwardedLocalPort, portReportedByServer)
               }
 
-            writePortFile(compileServerSystemDir, port.forToken)
+            CompileServerPort.writePortFile(compileServerSystemDir, port.forToken)
 
             val watcher = new ProcessWatcher(process, "scalaCompileServer", local)
             // ATTENTION: this stack trace captures only the synchronous process-creation path.
@@ -869,12 +868,6 @@ object CompileServerLauncher {
   private val java9rtExportString: String = "java9-rt-export"
 
   private val scalaExtDirsParameterString: String = "-Dscala.ext.dirs"
-
-  private def writePortFile(compileServerSystemDir: Path, port: Int): Unit = {
-    import java.nio.file.StandardOpenOption.{CREATE, TRUNCATE_EXISTING}
-    val path = CompileServerPort.portFilePath(compileServerSystemDir)
-    Files.writeString(path, port.toString, StandardCharsets.UTF_8, TRUNCATE_EXISTING, CREATE)
-  }
 
   private[compiler] val compileServerJvmAddOpensExtraParams: Seq[String] =
     Seq(
