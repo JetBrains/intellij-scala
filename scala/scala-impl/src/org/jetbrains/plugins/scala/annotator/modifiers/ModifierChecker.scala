@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.annotator.modifiers
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle}
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.quickfix.ModifierQuickFix
 import org.jetbrains.plugins.scala.extensions._
@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{
   ScDeclaration,
   ScExtensionBody,
+  ScFunction,
   ScPatternDefinition,
   ScTypeAlias,
   ScTypeAliasDefinition,
@@ -347,6 +348,8 @@ private[annotator] object ModifierChecker {
                       false
                     } else true
                   case givenElement: ScGiven if givenElement.parameters.isEmpty         => true
+                  // erased methods were dropped in Scala 3.7.3 in favour of inline ones
+                  case _: ScFunction => owner.scalaMinorVersion.exists(_ < LatestScalaVersions.Scala_3_7.withMinor(3))
                   case _: ScVariableDeclaration | _: ScVariableDefinition => false
                   case _: ScObject                                        => false
                   case _                                                  => false

@@ -440,3 +440,32 @@ class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
       illegalCombinationPairedErrors("lazy", "erased")*
     )
 }
+
+@Category(Array(classOf[TypecheckerTests]))
+class ErasedDefModifierTest_Scala_3_3 extends ScalaHighlightingTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_3
+
+  def testErasedDefIsAllowed(): Unit = assertNoErrors(
+    """import scala.language.experimental.erasedDefinitions
+      |
+      |erased def foo: Int = 1
+      |
+      |object A {
+      |  erased def bar(x: Int): Int = x
+      |}
+      |""".stripMargin
+  )
+}
+
+@Category(Array(classOf[TypecheckerTests]))
+class ErasedDefModifierTest_Scala_3_8 extends ScalaHighlightingTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_8
+
+  def testErasedDefIsNotAllowed(): Unit = assertErrorsText(
+    """import scala.language.experimental.erasedDefinitions
+      |
+      |erased def foo: Int = 1
+      |""".stripMargin,
+    "Error(erased,'erased' modifier is not allowed here)"
+  )
+}
