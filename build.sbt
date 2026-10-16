@@ -112,7 +112,6 @@ lazy val scalaCommunity: sbt.Project =
       compilerHighlighting % "test->test;compile->compile",
       compilerTestUtils % "test->test",
       compilerIntegrationServerManagement % "test->test;compile->compile",
-      compilerIntegrationServerManagementTests % "test->test",
       scalaCompilerPluginTests % "test->test;compile->compile",
       debugger % "test->test;compile->compile",
       testingSupport % "test->test;compile->compile",
@@ -718,13 +717,6 @@ lazy val compilerIntegrationServerManagement =
     .settings(
       // It's fine to merge it into the same module
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration-server-management")
-    )
-
-lazy val compilerIntegrationServerManagementTests =
-  newProject("compiler-integration-server-management-tests", file("scala/compiler-integration-server-management-tests"))
-    .projectWithTestsOnly
-    .dependsOn(
-      compilerIntegrationServerManagement % "test->test;compile->compile"
     )
 
 lazy val debugger =
