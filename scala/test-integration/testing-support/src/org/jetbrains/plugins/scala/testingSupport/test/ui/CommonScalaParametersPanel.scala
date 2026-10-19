@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.test.ui
 
 import com.intellij.execution.ExecutionBundle
 import com.intellij.execution.ui.CommonProgramParametersPanel
-import com.intellij.ide.`macro`.MacrosDialog
+import com.intellij.ide.`macro`.CommonMacroFilters
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.ui.RawCommandLineEditor
@@ -43,9 +43,9 @@ class CommonScalaParametersPanel(project: Project) extends CommonProgramParamete
   /** @see [[org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommandLineState.VariablesExpander]] */
   override protected def initMacroSupport(): Unit = {
     updatePathMacros()
-    addMacroSupport(myProgramParametersComponent.getComponent.getEditorField, MacrosDialog.Filters.ALL)
-    addMacroSupport(myWorkingDirectoryField.getTextField.asInstanceOf[ExtendableTextField], MacrosDialog.Filters.DIRECTORY_PATH)
-    addMacroSupport(myVMParametersComponent.getComponent.getEditorField, MacrosDialog.Filters.ALL)
+    addMacroSupport(myProgramParametersComponent.getComponent.getEditorField, CommonMacroFilters.ALL)
+    addMacroSupport(myWorkingDirectoryField.getTextField.asInstanceOf[ExtendableTextField], CommonMacroFilters.DIRECTORY_PATH)
+    addMacroSupport(myVMParametersComponent.getComponent.getEditorField, CommonMacroFilters.ALL)
   }
 
   def getVMParameters: String = myVMParametersComponent.getComponent.getText
