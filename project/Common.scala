@@ -150,7 +150,7 @@ object Common {
     KotlinAnalysisApiIdeSourcesDependencies.map(_ % Provided)
 
   private val NewProjectBaseSettings: Seq[Setting[?]] = Seq(
-    scalaVersion := Versions.scala3Version,
+    scalaVersion := Versions.Scala.scala3Version,
     (Compile / javacOptions) := globalJavacOptions,
     (Compile / scalacOptions) := globalScala3ScalacOptions,
     updateOptions := updateOptions.value.withCachedResolution(true),
@@ -284,9 +284,15 @@ object Common {
      */
     def withJpsClasspath: Project = withIntellijSubsetDependency(IntellijSdkSubsetInfo.Jps)
 
+    /**
+     * Configures a Java-8-compatible external-process module.
+     *
+     * These modules deliberately use the Compile Server Scala 3 LTS version and are outside the Open Community Build
+     * candidate-compiler surface.
+     */
     def withOutOfIDEAProcessSettings: Project =
       project.settings(
-        scalaVersion := Versions.compileServerScala3Version,
+        scalaVersion := Versions.Scala.Compatibility.CompileServer.compilerVersion,
         Compile / scalacOptions := outOfIDEAProcessScala3ScalacOptions,
         Compile / javacOptions  := outOfIDEAProcessJavacOptions,
       )

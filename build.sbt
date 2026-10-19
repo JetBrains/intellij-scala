@@ -45,7 +45,7 @@ ThisBuild / resolvers := {
 
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
-ThisBuild / scalaVersion := Versions.scala3Version
+ThisBuild / scalaVersion := Versions.Scala.scala3Version
 ThisBuild / scalacOptions := globalScala3ScalacOptions
 ThisBuild / javacOptions := globalJavacOptions
 
@@ -359,7 +359,7 @@ lazy val repl = newProject("repl", file("scala/repl"))
     scalaImpl % "test->test;compile->compile",
   )
   .settings(
-    scalaVersion := Versions.scala3Version,
+    scalaVersion := Versions.Scala.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.repl"),
   )
@@ -373,7 +373,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     idePackagePrefix := Some("org.jetbrains.plugins.scala.tasty.reader"),
     intellijMainJars := Seq.empty,
     intellijTestJars := Seq.empty,
-    scalaVersion := Versions.scala3Version,
+    scalaVersion := Versions.Scala.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
     libraryDependencies += Dependencies.tastyCore,
     (Compile / scalacOptions) := Seq("-deprecation"),
@@ -390,7 +390,7 @@ lazy val semanticDecompiler = Project("semantic-decompiler", file("scala/semanti
     name := "semantic-decompiler",
     intellijMainJars := Seq.empty,
     intellijTestJars := Seq.empty,
-    scalaVersion := Versions.scala3Version,
+    scalaVersion := Versions.Scala.scala3Version,
     Compile / scalacOptions := globalScala3ScalacOptions,
     libraryDependencies += Dependencies.scala3Compiler % Provided,
     packageMethod := PackagingMethod.Standalone("lib/semantic/decompiler.jar", static = true),
@@ -779,7 +779,7 @@ lazy val scalaCompilerPlugin_2_12: sbt.Project =
   compilerPluginProject(
     projectName = "compiler-plugin-2_12",
     projectPath = file("scala/compiler-plugin/scala-2.12"),
-    scalaCompilerVersion = "2.12.20",
+    scalaCompilerVersion = Versions.Scala.Compatibility.CompilerPlugins.scala212Version,
     extraScalacOptions = Seq("-deprecation"),
     packagingOutputPath = "lib/jps/compiler-plugin-2.12.jar"
   )
@@ -788,7 +788,7 @@ lazy val scalaCompilerPlugin_2_13: sbt.Project =
   compilerPluginProject(
     projectName = "compiler-plugin-2_13",
     projectPath = file("scala/compiler-plugin/scala-2.13"),
-    scalaCompilerVersion = "2.13.15",
+    scalaCompilerVersion = Versions.Scala.Compatibility.CompilerPlugins.scala213Version,
     extraScalacOptions = Seq("-deprecation"),
     packagingOutputPath = "lib/jps/compiler-plugin-2.13.jar"
   )
@@ -797,7 +797,7 @@ lazy val scalaCompilerPlugin_3_3: sbt.Project =
   compilerPluginProject(
     projectName = "compiler-plugin-3_3",
     projectPath = file("scala/compiler-plugin/scala-3.3"),
-    scalaCompilerVersion = "3.3.6",
+    scalaCompilerVersion = Versions.Scala.Compatibility.CompilerPlugins.scala33Version,
     extraScalacOptions = Seq.empty,
     packagingOutputPath = "lib/jps/compiler-plugin-3.3.jar"
   )
@@ -989,7 +989,7 @@ def scalatestFindersTestProject(projectName: String, projectPath: File): sbt.Pro
 //noinspection SbtDependencyVersionInspection
 lazy val scalatestFindersTests_2 = scalatestFindersTestProject("scalatest-finders-tests-2", scalatestFindersRootDir / "tests-2")
   .settings(
-    scalaVersion := "2.11.12",
+    scalaVersion := Versions.Scala.Compatibility.ScalatestFinders.scala211Version,
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % "2.2.6" % Test)
   )
 
@@ -997,13 +997,13 @@ lazy val scalatestFindersTests_2 = scalatestFindersTestProject("scalatest-finder
 //noinspection SbtDependencyVersionInspection
 lazy val scalatestFindersTests_3_0 = scalatestFindersTestProject("scalatest-finders-tests-3_0", scalatestFindersRootDir / "tests-3_0")
   .settings(
-    scalaVersion := "2.12.21",
+    scalaVersion := Versions.Scala.Compatibility.ScalatestFinders.scala212Version,
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % "3.0.9" % Test)
   )
 
 lazy val scalatestFindersTests_3_2 = scalatestFindersTestProject("scalatest-finders-tests-3_2", scalatestFindersRootDir / "tests-3_2")
   .settings(
-    scalaVersion := Versions.scala2Version,
+    scalaVersion := Versions.Scala.Compatibility.ScalatestFinders.scala213Version,
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % "3.2.20" % Test)
   )
 
@@ -1291,8 +1291,8 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
     packageMethod := PackagingMethod.DepsOnly(),
     dynamicDependencies := Seq(
       // Package a Java 8 compatible standard library specifically for the code running in the Scala Compile Server
-      binaryDep("org.scala-lang", "scala-library", Versions.scala2Version) -> "lib/jps/compile-server-scala-library.jar",
-      binaryDep("org.scala-lang", "scala3-library_3", Versions.compileServerScala3Version) -> "lib/jps/compile-server-scala3-library_3.jar",
+      binaryDep("org.scala-lang", "scala-library", Versions.Scala.Compatibility.scala2Version) -> "lib/jps/compile-server-scala-library.jar",
+      binaryDep("org.scala-lang", "scala3-library_3", Versions.Scala.Compatibility.CompileServer.compilerVersion) -> "lib/jps/compile-server-scala3-library_3.jar",
 
       binaryDep("org.scala-sbt", "sbt-launch", Versions.sbtVersion) -> "launcher/sbt-launch.jar",
       binaryDep("org.scala-sbt", "util-interface", Versions.sbtVersion) -> "lib/jps/sbt-interface.jar",
@@ -1481,4 +1481,3 @@ addCommandAlias("runCompilerPluginTests-2_12", "compiler-plugin-2_12/testOnly --
 addCommandAlias("runCompilerPluginTests-2_13", "compiler-plugin-2_13/testOnly -- -v -s -a +c +q")
 addCommandAlias("runCompilerPluginTests-3_3", "compiler-plugin-3_3/testOnly -- -v -s -a +c +q")
 addCommandAlias("runCompilerPluginTests", "runCompilerPluginTests-2_12; runCompilerPluginTests-2_13; runCompilerPluginTests-3_3; runScalatestFindersTests")
-
