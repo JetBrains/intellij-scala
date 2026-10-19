@@ -6,12 +6,40 @@ import org.jetbrains.sbtidea.download.idea.IntellijVersionUtils
 import sbt.*
 
 object Versions {
-  val scala3Version: String = "3.9.0"
+  object Scala {
+    /**
+     * Compiler version for the normal Community plugin source surface.
+     *
+     * This is the only Scala compiler version Open Community Build is expected to replace with a candidate release.
+     */
+    val scala3Version: String = "3.9.0"
 
-  // Code running in the compile server must run on Java 8; use the Scala 3.3 LTS line. The version should be compatible
-  // with `scala2Version` because earlier versions of Scala 3 reused the Scala 2 standard library.
-  val compileServerScala3Version: String = "3.3.8"
-  val scala2Version: String = "2.13.18"
+    object Compatibility {
+      /** Scala 2.13 artifacts retained for binary compatibility with IntelliJ Platform and external processes. */
+      val scala2Version: String = "2.13.18"
+
+      object CompileServer {
+        /**
+         * Scala 3 LTS compiler and standard library for code executed outside the IDE on Java 8.
+         *
+         * Projects using this version are compatibility targets, not Open Community Build candidate-compiler coverage.
+         */
+        val compilerVersion: String = "3.3.8"
+      }
+
+      object CompilerPlugins {
+        val scala212Version: String = "2.12.20"
+        val scala213Version: String = "2.13.15"
+        val scala33Version: String = "3.3.6"
+      }
+
+      object ScalatestFinders {
+        val scala211Version: String = "2.11.12"
+        val scala212Version: String = "2.12.21"
+        val scala213Version: String = scala2Version
+      }
+    }
+  }
 
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
   // NOTE: sbt-launch won't be fetched on refresh.
@@ -121,12 +149,12 @@ object Dependencies {
   import Versions.*
 
   // Since Scala 3.8 the unified standard library uses the Scala 3 version.
-  val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scala3Version
-  val scala3Library: ModuleID = "org.scala-lang" % "scala3-library_3" % scala3Version
-  val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scala2Version
-  val scala3Compiler: ModuleID = "org.scala-lang" % "scala3-compiler_3" % scala3Version
+  val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % Scala.scala3Version
+  val scala3Library: ModuleID = "org.scala-lang" % "scala3-library_3" % Scala.scala3Version
+  val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % Scala.Compatibility.scala2Version
+  val scala3Compiler: ModuleID = "org.scala-lang" % "scala3-compiler_3" % Scala.scala3Version
   val scalaXml: ModuleID = "org.scala-lang.modules" % "scala-xml_2.13" % "2.5.0"
-  val tastyCore: ModuleID = "org.scala-lang" % "tasty-core_3" % Versions.scala3Version
+  val tastyCore: ModuleID = "org.scala-lang" % "tasty-core_3" % Scala.scala3Version
   // Version 0.2.0 has no Scala 3 artifact; keep the Scala 2.13 artifact for packageLibraryMappings too.
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" % "scala-parallel-collections_2.13" % "0.2.0"
   // this actually needs the explicit version because something in packager breaks otherwise (???)

@@ -12,7 +12,7 @@ trait Decompiler {
 }
 
 object Decompiler {
-  // Keep in sync with Versions.scala3Version in community/project/dependencies.scala: the compiler reads the bundled library's TASTy.
+  // Keep in sync with Versions.Scala.scala3Version in project/dependencies.scala: the compiler reads the bundled library's TASTy.
   private val CompilerVersion = "3.9.0"
 
   def apply(classpath: Seq[String], classLoader: ClassLoader): Decompiler = {
