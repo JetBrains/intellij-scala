@@ -945,7 +945,7 @@ object MethodResolveProcessor {
           else                                   applicableWithoutExpected
         } else checkedResults
       } else if (useScala3OverloadingRules && applicable.size > 1) {
-        if (clauseIdx < maxArgClauseIdx) {
+        val scala3Results = if (clauseIdx < maxArgClauseIdx) {
           applicable.foreach(_.resetTypeArgsFlag())
           candidatesForArgClause(applicable, clauseIdx + 1, withExpectedType)
         } else {
@@ -956,6 +956,13 @@ object MethodResolveProcessor {
           if (noEtaExpansion.nonEmpty) noEtaExpansion
           else                         applicable
         }
+        // There might be multiple equivalent top-level methods from different JARs, SCL-26165
+        val areApplicableTopLevelMethodsInDifferentFiles = {
+          val elements = scala3Results.map(_.resolveResult.element)
+          elements.forall { case f: ScFunctionDefinition => f.isTopLevel; case _ => false } &&
+            elements.map(_.containingFile).size == elements.size // In different files
+        }
+        if (areApplicableTopLevelMethodsInDifferentFiles) scala3Results.take(1) else scala3Results
       } else applicable
     }
 

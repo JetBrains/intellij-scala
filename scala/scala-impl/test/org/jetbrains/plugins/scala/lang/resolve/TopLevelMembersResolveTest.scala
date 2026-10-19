@@ -257,6 +257,38 @@ class TopLevelMembersResolveTest extends SimpleResolveTestBase {
     )
   }
 
+  // There might be multiple equivalent top-level methods from different JARs, SCL-26165
+  // The two methods cannot be actually defined in the same module but they should be resolved uniformly.
+  def testMultipleEquivalentTopLevelMethods(): Unit = {
+    addFileToProject(
+      """
+        |package foo
+        |
+        |def bar(): Int = 123
+        |""".stripMargin,
+      "toplevel1.scala"
+    )
+
+    addFileToProject(
+      """
+        |package foo
+        |
+        |def bar(): Int = 123
+        |""".stripMargin,
+      "toplevel2.scala"
+    )
+
+    doResolveTest(
+      s"""
+         |package foo
+         |
+         |object A {
+         |  val a = b${REFSRC}ar()
+         |}
+         |""".stripMargin
+    )
+  }
+
   private def addFileToProject(text: String, name: String): Unit =
     myFixture.addFileToProject(name, text)
 }
