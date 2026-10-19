@@ -136,7 +136,7 @@ object StringToMultilineStringIntention {
         // each new line character ('\n') of multiline string is replaced with a new line sequence ("\\n")
         // after converting to regular string
         val shiftNewLines = textBeforeCaret.count(_ == '\n')
-        val shiftQuotes = -2.min(caretShiftFromQuotesStart)
+        val shiftQuotes = (-2).min(caretShiftFromQuotesStart)
         val shiftStrippedMargins: Int = literal match {
           case WithStrippedMargin(_, marginChar) =>
             val allMarginsLength = textBeforeCaret.length - textBeforeCaret.stripMargin(marginChar).length
