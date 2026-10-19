@@ -49,7 +49,7 @@ private[bsp] final class GenerateBspConfig(project: Project, workspace: Path) {
     }
 
     val projectJdk = BspJdkUtil.findOrCreateBestJdkForProject(project)
-    val (configSetupOpt, sdkOpt): (Option[ConfigSetup], Option[Sdk]) = if (configSetups.size > 1 || projectJdk.isEmpty) {
+    val (configSetupOpt, sdkOpt) = if (configSetups.size > 1 || projectJdk.isEmpty) {
       val generateBspConfigDialog = new GenerateBspConfigDialog(configSetups, project, projectJdk.isEmpty)
       val ok = generateBspConfigDialog.showAndGet()
       if (ok) {
