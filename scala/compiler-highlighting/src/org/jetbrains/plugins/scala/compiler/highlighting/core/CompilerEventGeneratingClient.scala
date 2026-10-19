@@ -21,12 +21,12 @@ private[highlighting] class CompilerEventGeneratingClient(
   indicator: ProgressIndicator,
   log: Logger,
   refreshVfs: Boolean,
-  documentVersions: SerializableMap[CanonicalPath, Long]
+  compiledTextVersions: SerializableMap[CanonicalPath, Long]
 ) extends DummyClient {
 
   override def pathTranslator: PathTranslator = EelPathTranslator
 
-  final val compilationId = CompilationId(timestamp = System.nanoTime(), documentVersions = documentVersions)
+  final val compilationId = CompilationId(timestamp = System.nanoTime(), documentVersions = compiledTextVersions)
 
   private var hasErrors: Boolean = false
 

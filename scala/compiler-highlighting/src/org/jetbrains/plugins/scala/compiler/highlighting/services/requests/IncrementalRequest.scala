@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services.requests
 
 import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.bsp.BspUtil
@@ -10,6 +11,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEven
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationToken, ModuleKey}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.util.CompilationUtils
 import org.jetbrains.plugins.scala.compiler.highlighting.services.{CompilationLogicService, SaveService}
+import org.jetbrains.plugins.scala.compiler.highlighting.util.DocumentUtil
 import org.jetbrains.plugins.scala.compiler.highlighting.util.TracingUtil.endTrace
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 import org.jetbrains.plugins.scala.extensions.*
@@ -42,9 +44,14 @@ abstract class IncrementalRequest(
       invokeLater(ModalityState.nonModal()) {
         val future = if (project.isDisposed) scala.concurrent.Future.unit else {
           SaveService(project).saveDocuments(id)
+          // The compiler reads the disk, so the text it compiles is the file's, whether or not every save above
+          // went through
+          val compiledTexts = DocumentUtil.diskVersions(fileCompilationScopes.keySet ++ FileEditorManager.getInstance(project).getOpenFiles)
+          // The scope's documents as they were when this request was built, before the save: they tell whether the
+          // user has edited one of them since, which a document stamp shows even if the edit is never saved.
+          val scopeDocumentVersions: SerializableMap[CanonicalPath, Long] = serializableDocumentVersions
           // Perform the rest of the execution of this incremental compilation on a background thread.
-          val docVersions: SerializableMap[CanonicalPath, Long] = documentVersionsFor(fileCompilationScopes)
-          CompilationUtils.performCompilation(project, id, docVersions, delayIndicator = false, refreshVfs = true) { client =>
+          CompilationUtils.performCompilation(project, id, compiledTexts, delayIndicator = false, refreshVfs = true) { client =>
             val compilationId = client.compilationId
             val incrementalFiles = fileCompilationScopes.keys.map(_.getPath).mkString(", ")
             var threw = true
@@ -54,7 +61,7 @@ abstract class IncrementalRequest(
                 CompilationRequestPhaseEvent(kind, incrementalFiles, "",
                   id, compilationId, closeParentValue = false, closeOnEndValue = closeRequest))
 
-              doCompile(fileCompilationScopes, client, docVersions)
+              doCompile(fileCompilationScopes, client, scopeDocumentVersions)
               threw = false
             } finally {
               if (threw) {
@@ -74,10 +81,14 @@ abstract class IncrementalRequest(
     }
   }
 
+  /**
+   * @param scopeDocumentVersions the document stamps of this request's scope when it was built. Once the build ends,
+   *                              a scope document that no longer has its stamp has been edited since.
+   */
   protected def doCompile(
     scopes: Map[VirtualFile, FileCompilationScope],
     client: CompilerEventGeneratingClient,
-    docVersions: SerializableMap[CanonicalPath, Long]
+    scopeDocumentVersions: SerializableMap[CanonicalPath, Long]
   ): Unit
   
 
@@ -127,8 +138,8 @@ abstract class IncrementalRequest(
   protected def coveredFiles(paths: Set[java.nio.file.Path]): Set[VirtualFile] =
     paths.flatMap(_.toVirtualFile).filter(_.isValid)
 
-  private def documentVersionsFor(scopes: Map[VirtualFile, FileCompilationScope]): SerializableMap[CanonicalPath, Long] =
-    documentVersions.map { case (vf, DocumentVersion(path, version)) =>
+  private def serializableDocumentVersions: SerializableMap[CanonicalPath, Long] =
+    documentVersions.map { case (_, DocumentVersion(path, version)) =>
       path -> version
     }.to(immutable.HashMap.mapFactory[CanonicalPath, Long])
 }

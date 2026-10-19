@@ -4,6 +4,7 @@ import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.util.CompilationId
 
 case class FileCompilerGeneratedState(compilationId: CompilationId,
+                                      textStamp: Long,
                                       highlightings: Set[ExternalHighlighting],
                                       types: Map[(PosInfo, PosInfo), String]) {
 
