@@ -107,7 +107,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
       val markers = session.asInstanceOf[XDebugSessionImpl].getValueMarkers
       val markupMap = if (markers != null) markers.getAllMarkers.asScala.toMap else null
       if (markupMap != null && markupMap.nonEmpty) {
-        val (variablesText, reverseMap): (String, Map[String, Value]) = markupVariablesText(markupMap)
+        val (variablesText, reverseMap) = markupVariablesText(markupMap)
         val offset: Int = variablesText.length - 1
         val textWithImports: TextWithImportsImpl = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, variablesText, "", getFileType)
         val codeFragment: JavaCodeFragment = createCodeFragmentInner(textWithImports, context)
