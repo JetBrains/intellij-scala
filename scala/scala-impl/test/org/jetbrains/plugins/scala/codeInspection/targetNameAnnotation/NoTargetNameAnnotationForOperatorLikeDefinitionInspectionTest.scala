@@ -4,8 +4,11 @@ import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 import org.jetbrains.plugins.scala.extensions.{StringExt, executeWriteActionCommand}
+import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert.{assertEquals, assertNotNull}
+
+import scala.concurrent.duration.DurationInt
 
 class NoTargetNameAnnotationForOperatorLikeDefinitionInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection = classOf[NoTargetNameAnnotationForOperatorLikeDefinitionInspection]
@@ -26,7 +29,15 @@ class NoTargetNameAnnotationForOperatorLikeDefinitionInspectionTest extends Scal
                                        expectedAfterQuickFix: String,
                                        textToTypeWithTemplate: String,
                                        expectedAfterTemplateFinished: String): Unit = {
-    testQuickFix(code, expectedAfterQuickFix, hint)
+    val action = doFindQuickFixes(code, hint).head
+
+    executeWriteActionCommand() {
+      action.invoke(getProject, getEditor, getFile)
+    }(using getProject)
+    AwaitTestUtils.waitForConditionDispatchingEdtEventsOrFail(5.seconds, "Live template was not started") { () =>
+      TemplateManagerImpl.getTemplateState(getEditor) != null
+    }
+    myFixture.checkResult(expectedAfterQuickFix.replace(CARET, "").withNormalizedSeparator.trim, true)
 
     val templateState = TemplateManagerImpl.getTemplateState(getEditor)
     assertNotNull("Template state should not be null", templateState)
@@ -36,8 +47,8 @@ class NoTargetNameAnnotationForOperatorLikeDefinitionInspectionTest extends Scal
     assertEquals("Expected one template segment", templateState.getSegmentsCount, 1)
     assertEquals(templateState.getSegmentRange(0), TextRange.from(caretPosition, 0))
 
+    myFixture.`type`(textToTypeWithTemplate)
     executeWriteActionCommand() {
-      myFixture.`type`(textToTypeWithTemplate)
       templateState.gotoEnd(false)
     }(using getProject)
 
