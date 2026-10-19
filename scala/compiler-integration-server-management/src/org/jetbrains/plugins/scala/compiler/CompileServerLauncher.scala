@@ -491,6 +491,7 @@ object CompileServerLauncher {
     IntellijPlatformJars.fastUtilJar,
     IntellijPlatformJars.asmJar,
     LibraryJars.scalaParserCombinators,
+    LibraryJars.scalaXml, // excluded from incremental-compiler.jar together with scala-parser-combinators, see Dependencies.zinc
     ScalaPluginJars.compileServerScalaLibraryJar,
     ScalaPluginJars.compileServerScala3LibraryJar,
     ScalaPluginJars.scalaReflectJar,

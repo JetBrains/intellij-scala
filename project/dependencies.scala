@@ -127,8 +127,6 @@ object Dependencies {
   val scala3Compiler: ModuleID = "org.scala-lang" % "scala3-compiler_3" % scala3Version
   val scalaXml: ModuleID = "org.scala-lang.modules" % "scala-xml_2.13" % "2.5.0"
   val tastyCore: ModuleID = "org.scala-lang" % "tasty-core_3" % Versions.scala3Version
-  // Version 0.2.0 has no Scala 3 artifact; keep the Scala 2.13 artifact for packageLibraryMappings too.
-  val scalaParallelCollections: ModuleID = "org.scala-lang.modules" % "scala-parallel-collections_2.13" % "0.2.0"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
   val coursierPaths: ModuleID = "io.get-coursier" % "coursier-paths" % "2.1.26"
@@ -160,6 +158,8 @@ object Dependencies {
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.6.0"
 
   // Transitive dependencies of scalastyle. Keep their Scala 2.13 artifacts and versions for compatibility.
+  // They are declared and mapped in scala-impl: `packageLibraryMappings +=` in the scalastyle project itself does not
+  // work reliably for org.scala-lang.modules libraries (sbt-idea-plugin matches them against its regex defaults).
   val scalaParserCombinators: ModuleID = "org.scala-lang.modules" % "scala-parser-combinators_2.13" % "1.1.2"
   val scalaCollectionCompat: ModuleID = "org.scala-lang.modules" % "scala-collection-compat_2.13" % "2.5.0"
   val scalastyle: ModuleID = "com.beautiful-scala" % "scalastyle_2.13" % "1.5.1"
@@ -184,7 +184,27 @@ object Dependencies {
 
   val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % nailgunVersion
 
-  val zinc = "org.scala-sbt" % "zinc_2.13" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
+  // Zinc is assembled together with its transitive dependencies into lib/jps/incremental-compiler.jar
+  // (see the repackagedZinc project). The exclusions keep out of the assembly what is either never loaded
+  // by the Scala Compile Server or already shipped as a separate jar.
+  val zinc = "org.scala-sbt" % "zinc_2.13" % zincVersion excludeAll(
+    ExclusionRule(organization = "org.apache.logging.log4j"),
+    // The Scala Compile Server ships its own standard library (lib/jps/compile-server-scala-library.jar,
+    // lib/jps/compile-server-scala3-library_3.jar, lib/scala-reflect.jar) and loads the project's Scala compiler
+    // through xsbti.compile.ScalaInstance. Excluding scala-compiler also drops its transitive org.jline:jline bundle
+    // and java-diff-utils.
+    ExclusionRule(organization = "org.scala-lang"),
+    // Compiler bridges are compiled from compiler-bridge-sources_*.jar, the precompiled bridge is never used.
+    ExclusionRule("org.scala-sbt", "compiler-bridge_2.13"),
+    // Only used by the excluded log4j.
+    ExclusionRule("com.lmax", "disruptor"),
+    // Shipped as separate jars: lib/jps/compiler-interface.jar and lib/jps/sbt-interface.jar (see the compileServer
+    // project), lib/scala-xml.jar and lib/scala-parser-combinators.jar.
+    ExclusionRule("org.scala-sbt", "compiler-interface"),
+    ExclusionRule("org.scala-sbt", "util-interface"),
+    ExclusionRule("org.scala-lang.modules", "scala-xml_2.13"),
+    ExclusionRule("org.scala-lang.modules", "scala-parser-combinators_2.13"),
+  )
   val compilerInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
   val sbtInterface = "org.scala-sbt" % "util-interface" % sbtVersion
 
@@ -244,6 +264,7 @@ object DependencyGroups {
     scalaReflect,
     scalaXml,
     scalaParserCombinators,
+    scalaCollectionCompat,
     coursierPaths,
     ivy2,
     compilerIndicesProtocol,
