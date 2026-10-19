@@ -27,8 +27,8 @@ class SbtUnlinkedProjectAware extends ExternalSystemUnlinkedProjectAware {
       SbtUnlinkedProjectAwareHelper.isLinkedProject(project, externalProjectPath)
   }
 
-  override def linkAndLoadProjectAsync(project: Project, externalProjectPath: String, $completion: Continuation[? >: kotlin.Unit]): AnyRef =
-    new SbtOpenProjectProvider().linkToExistingProjectAsync(externalProjectPath, project, $completion)
+  override def linkAndLoadProjectAsync(project: Project, externalProjectPath: String, completion: Continuation[? >: kotlin.Unit]): AnyRef =
+    new SbtOpenProjectProvider().linkToExistingProjectAsync(externalProjectPath, project, completion)
 
   override def subscribe(project: Project,
                          listener: ExternalSystemProjectLinkListener,
