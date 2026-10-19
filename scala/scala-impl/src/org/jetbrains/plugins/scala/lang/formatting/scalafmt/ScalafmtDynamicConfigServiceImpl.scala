@@ -4,7 +4,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager}
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, FileEditorOpenRequest}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.PsiFile
@@ -318,7 +318,7 @@ object ScalafmtDynamicConfigServiceImpl {
           val vFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(file)
           if (openInEditor)
             invokeLater {
-              FileEditorManager.getInstance(project).openFile(vFile, true)
+              FileEditorManager.getInstance(project).requestOpenFile(vFile, FileEditorOpenRequest.withFocus(true))
             }
           vFile
         }

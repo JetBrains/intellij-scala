@@ -4,7 +4,7 @@ import com.intellij.diff.requests.SimpleDiffRequest
 import com.intellij.diff.{DiffContentFactory, DiffManager}
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorOpenRequest}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.{CompilerModuleExtension, LibraryOrderEntry, ModuleRootManager, ProjectFileIndex}
 import com.intellij.openapi.vfs.VfsUtil
@@ -90,7 +90,7 @@ object DesugarCodeAction {
 
     if (!isScala3) {
       val file = new LightVirtualFile(s"${cls.name} (desugared)", psiFile.getFileType, pluginText)
-      FileEditorManager.getInstance(project).openFile(file, true)
+      FileEditorManager.getInstance(project).requestOpenFile(file, FileEditorOpenRequest.withFocus(true))
     } else {
       val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3FileType)
       val right = DiffContentFactory.getInstance.create(project, pluginText, Scala3FileType)

@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -59,10 +59,14 @@ package object targetNameAnnotation {
       val annotation = addAnnotation(element, annotationText)
 
       if (extName.isEmpty) {
-        for {
-          templateContainerElement <- annotation.annotationExpr.getAnnotationParameters.headOption
-          editor <- templateContainerElement.openTextEditor
-        } runTemplate(editor, templateContainerElement)
+        annotation.annotationExpr.getAnnotationParameters.headOption.foreach { templateContainerElement =>
+          templateContainerElement.requestOpenTextEditor.thenAccept {
+            // EditorOpenFuture invokes continuations after the quick-fix command has completed.
+            case Some(editor) =>
+              executeWriteActionCommand()(runTemplate(editor, templateContainerElement))
+            case None =>
+          }
+        }
       }
     }
 

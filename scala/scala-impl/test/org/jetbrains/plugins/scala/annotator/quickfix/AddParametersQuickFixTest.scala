@@ -1,12 +1,70 @@
 package org.jetbrains.plugins.scala.annotator.quickfix
 
+import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
+import org.jetbrains.plugins.scala.extensions.{StringExt, executeWriteActionCommand}
+import org.jetbrains.plugins.scala.ui.AwaitTestUtils
+import org.junit.Assert.assertNotNull
+
+import scala.concurrent.duration.DurationInt
 
 class AddParametersQuickFixTest extends ScalaAnnotatorQuickFixTestBase {
 
   override protected def description: String = ""
 
   override protected def descriptionMatches(s: String): Boolean = s.startsWith("Too many arguments")
+
+  override protected def testQuickFix(text: String, expected: String, hint: String): Unit = {
+    val action = doFindQuickFixes(text, hint).head
+    val expectedText = expected.withNormalizedSeparator.trim.replace(CARET, "")
+
+    executeWriteActionCommand() {
+      action.invoke(getProject, getEditor, getFile)
+    }(using getProject)
+    AwaitTestUtils.waitForConditionDispatchingEdtEventsOrFail(5.seconds, "Quick fix did not finish opening the editor") { () =>
+      getFile.getText.withNormalizedSeparator.trim == expectedText
+    }
+
+    myFixture.checkResult(expected.withNormalizedSeparator.trim, true)
+  }
+
+  def testStartsTemplateAfterOpeningEditor(): Unit = {
+    TemplateManagerImpl.setTemplateTesting(myFixture.getTestRootDisposable)
+
+    val action = doFindQuickFixes(
+      s"""
+         |object Foo {
+         |  def doSomething(flag: Boolean) {}
+         |
+         |  doSomething(true,$CARET false)
+         |}
+    """.stripMargin,
+      "Add parameter to method 'doSomething'"
+    ).head
+
+    executeWriteActionCommand() {
+      action.invoke(getProject, getEditor, getFile)
+    }(using getProject)
+    AwaitTestUtils.waitForConditionDispatchingEdtEventsOrFail(5.seconds, "Live template was not started") { () =>
+      TemplateManagerImpl.getTemplateState(getEditor) != null
+    }
+
+    val templateState = TemplateManagerImpl.getTemplateState(getEditor)
+    assertNotNull("Template state should not be null", templateState)
+
+    myFixture.`type`("enabled")
+    executeWriteActionCommand() {
+      templateState.gotoEnd(false)
+    }(using getProject)
+
+    myFixture.checkResult(
+      """object Foo {
+        |  def doSomething(flag: Boolean, enabled: Boolean) {}
+        |
+        |  doSomething(true, false)
+        |}""".stripMargin
+    )
+  }
 
   def test1ArgToMuch(): Unit = testQuickFix(
     s"""
