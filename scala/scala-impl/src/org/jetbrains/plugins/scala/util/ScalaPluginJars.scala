@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions.{PathExt, invokeLater}
 
 import java.nio.file.Path
 import scala.util.parsing.combinator.RegexParsers
+import scala.xml.Node
 
 object ScalaPluginJars {
 
@@ -103,4 +104,5 @@ object IntellijPlatformJars {
 
 object LibraryJars {
   val scalaParserCombinators: Path = Path.of(getJarPathForClass(classOf[RegexParsers]))
+  val scalaXml: Path = Path.of(getJarPathForClass(classOf[Node]))
 }
