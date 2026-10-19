@@ -63,8 +63,8 @@ class BspUnlinkedProjectAware extends ExternalSystemUnlinkedProjectAware {
     settings.subscribe(new UnlinkedProjectAwareSettingsListener[BspProjectSettings](listener), disposable)
   }
 
-  override def linkAndLoadProjectAsync(project: Project, externalProjectPath: String, $completion: Continuation[? >: kotlin.Unit]): AnyRef =
-    new BspOpenProjectProvider().linkToExistingProjectAsync(externalProjectPath, project, $completion)
+  override def linkAndLoadProjectAsync(project: Project, externalProjectPath: String, completion: Continuation[? >: kotlin.Unit]): AnyRef =
+    new BspOpenProjectProvider().linkToExistingProjectAsync(externalProjectPath, project, completion)
 
   override def unlinkProject(project: Project, s: String, continuation: Continuation[? >: kotlin.Unit]): AnyRef =
     JavaCoroutines.suspendJava[kotlin.Unit](cont => cont.resume(kotlin.Unit.INSTANCE), continuation)
