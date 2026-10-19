@@ -196,6 +196,8 @@ object Common {
       Dependencies.scalaReflect   -> Some("lib/scala-reflect.jar"),
       Dependencies.scalaXml       -> Some("lib/scala-xml.jar"),
     ),
+    // Not part of `packageArtifact` on purpose, it is meant to be run explicitly on CI after packaging.
+    verifyPackagedPlugin := verifyPackagedPluginTask.value,
     intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
     intellijExtraRuntimePluginsInTests := Seq(
       //Below are some other useful plugins which you might be interested to inspect
@@ -442,6 +444,22 @@ object Common {
     val projects = structure.allProjectRefs(build)
     val scopeFilter = ScopeFilter(inProjects(projects*), inAnyConfiguration)
     clean.all(scopeFilter).map(_ => ())
+  }
+
+  lazy val verifyPackagedPlugin: TaskKey[Unit] =
+    taskKey("Verify the assembled plugin (the packageArtifact output): no duplicated classes, complete and consistent JPS classpath")
+
+  def verifyPackagedPluginTask: Def.Initialize[Task[Unit]] = Def.task {
+    verifyPackagedPluginOrFail(packageOutputDir.value, streams.value.log)
+  }
+
+  def verifyPackagedPluginOrFail(outputDir: File, log: Logger): Unit = {
+    val result = PackagedPluginVerifier.verify(outputDir)
+    if (result.hasProblems)
+      sys.error(("Packaged plugin verification failed." +: result.problemSections).mkString("\n\n"))
+    else
+      log.info(s"Packaged plugin OK: scanned ${result.scannedClasses} classes in ${result.scannedJars} jars, " +
+        s"${result.jpsClasspath.size} compileServer.plugin classpath entries.")
   }
 
   lazy val verifyJpsSdkSubsetBytecode: TaskKey[Unit] =
