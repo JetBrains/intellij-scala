@@ -90,20 +90,7 @@ private class ScaladocMarkdownParsing private (builder: MkBuilder, content: Stri
       case MarkdownTokenTypes.CODE_FENCE_CONTENT =>
         // just make everything code content, including the initial ws
         ensureBuilderInPosition(treeIt.currentEndOffset, elementTy)
-      case MarkdownTokenTypes.BLOCK_QUOTE =>
-        // For some reason the blockquote token not only eats the > but also the preceding and following whitespaces
-        // We can't do anything about the preceding ws, because they also belong to the token in the lexer...
-        // The following ws, though, is its own token, so split that at least off
-        //ensureBuilderInPosition(treeIt.currentStartOffset)
-        assert(builder.getTokenType == ScalaDocTokenType.DOC_BLOCKQUOTE)
-        builder.advanceLexer()
-        def nextTreeElementIsWsOrEOLOrHandlesWs = treeIt.peek().exists { e =>
-          val ty = e.getType
-          ty == MarkdownTokenTypes.EOL || ty == MarkdownTokenTypes.WHITE_SPACE || elementsHandlingPrevWs.contains(ty)
-        }
-        if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE && !nextTreeElementIsWsOrEOLOrHandlesWs) {
-          builder.advanceLexer()
-        }
+      case MarkdownTokenTypes.BLOCK_QUOTE => visitBlockQuoteToken(treeIt)
       case MarkdownTokenTypes.WHITE_SPACE =>
         // We will arrive here when the whitespace is either following the asterisk at the beginning of the line
         // or the whitespace will actually be a blockquote token that the Markdown parser produces to pad already opened quotes
@@ -151,6 +138,28 @@ private class ScaladocMarkdownParsing private (builder: MkBuilder, content: Stri
         visitRest(treeIt.startIterateCurrentChildren())
         ensureBuilderInPosition(endOffset)
         marker.done(elementTy)
+    }
+  }
+
+  private def visitBlockQuoteToken(treeIt: MkTreeIt): Unit = {
+    // Lists leave the whitespace after the leading asterisk for their children to consume.
+    if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE &&
+      builder.rawLookup(1) == ScalaDocTokenType.DOC_BLOCKQUOTE) {
+      builder.advanceLexer()
+    }
+
+    if (builder.getTokenType != ScalaDocTokenType.DOC_BLOCKQUOTE) return
+
+    builder.advanceLexer()
+
+    // The Markdown token includes trailing whitespace, but the lexer keeps it separate.
+    // Leave it for the following node if that node handles whitespace itself.
+    def nextTreeElementIsWsOrEOLOrHandlesWs = treeIt.peek().exists { e =>
+      val ty = e.getType
+      ty == MarkdownTokenTypes.EOL || ty == MarkdownTokenTypes.WHITE_SPACE || elementsHandlingPrevWs.contains(ty)
+    }
+    if (builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE && !nextTreeElementIsWsOrEOLOrHandlesWs) {
+      builder.advanceLexer()
     }
   }
 
@@ -318,17 +327,16 @@ private class ScaladocMarkdownParsing private (builder: MkBuilder, content: Stri
       if (childIt.currentNodeType == MarkdownTokenTypes.CODE_FENCE_END) {
         splitWsFromFenceBorder(ScalaDocTokenType.DOC_INNER_CODE)
         ensureBuilderInPosition(childIt.currentEndOffset, ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG)
-      } else if (childIt.currentNodeType == MarkdownTokenTypes.WHITE_SPACE) {
-        // this is a special handling for the initial whitespaces in a quoted code block
-        // Before fence content, the Markdown parser will produce a whitespace token that contains a quote followed by a whitespace
-        // before the next token is the actual content.
-        // We want the last whitespace to belong to the code content not the quote token.
+      } else if (childIt.currentNodeType == MarkdownTokenTypes.WHITE_SPACE || childIt.currentNodeType == MarkdownTokenTypes.BLOCK_QUOTE) {
+        // Quote prefixes may be represented as whitespace or explicit quote tokens.
+        // Leave the final whitespace for the code content, and preserve any literal > beyond the prefix.
         def isQuoteOrWsAndNextIsQuote = {
           val ty = builder.getTokenType
           ty == ScalaDocTokenType.DOC_BLOCKQUOTE ||
             ty == ScalaDocTokenType.DOC_WHITESPACE && builder.rawLookup(1) == ScalaDocTokenType.DOC_BLOCKQUOTE
         }
-        while (isQuoteOrWsAndNextIsQuote) {
+        while (isQuoteOrWsAndNextIsQuote &&
+          builder.currentPositionInContent + builder.getTokenText.length <= childIt.currentEndOffset) {
           builder.advanceLexer()
         }
       } else {
@@ -458,7 +466,7 @@ private class ScaladocMarkdownParsing private (builder: MkBuilder, content: Stri
       // Tokens
       //case MarkdownTokenTypes.EMPH => ScalaDocTokenType.DOC_ITALIC_TAG
       //case MarkdownTokenTypes.BACKTICK => ScalaDocTokenType.DOC_MONOSPACE_TAG
-      case MarkdownTokenTypes.BLOCK_QUOTE if builder.getTokenType == ScalaDocTokenType.DOC_BLOCKQUOTE => ScalaDocTokenType.DOC_BLOCKQUOTE
+      case MarkdownTokenTypes.BLOCK_QUOTE => ScalaDocTokenType.DOC_BLOCKQUOTE
       case MarkdownTokenTypes.WHITE_SPACE if builder.getTokenType == ScalaDocTokenType.DOC_BLOCKQUOTE && isBlockquoteWhitespace(treeIt.current) =>
         ScalaDocTokenType.DOC_WHITESPACE
       case MarkdownTokenTypes.WHITE_SPACE if afterLeadingAsteriskOrBlockquote(builder.rawLookup(-1)) =>
