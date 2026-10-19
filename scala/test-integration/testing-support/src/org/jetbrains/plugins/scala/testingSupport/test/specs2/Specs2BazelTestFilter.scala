@@ -72,7 +72,7 @@ object Specs2BazelTestFilter {
    *         with a static name; `None` if no usable name (e.g. interpolated string).
    */
   def getTestFilter(testClass: ScTypeDefinition, element: PsiElement): Option[String] = {
-    val (rawName, suffix): (Option[String], String) =
+    val (rawName, suffix) =
       if (TestNodeProvider.isSpecs2TestExpr(element))
         (getSpecs2ScopedTestName(element.asInstanceOf[ScInfixExpr]), "$")
       else if (TestNodeProvider.isSpecs2ScopeExpr(element))
