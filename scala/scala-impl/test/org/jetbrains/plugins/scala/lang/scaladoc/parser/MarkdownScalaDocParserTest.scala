@@ -636,7 +636,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |          ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_BLOCKQUOTE)('>')
       |        ScPsiDocToken(DOC_BLOCKQUOTE)(' >')
-      |    ScPsiDocToken(DOC_WHITESPACE)('\n ')
+      |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
       |  PsiWhiteSpace('\n\n')
       |  DocComment
@@ -676,8 +676,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_BLOCKQUOTE)('>')
-      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScDocParagraph
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_COMMENT_DATA)('d')
       |        ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
@@ -700,8 +700,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_BLOCKQUOTE)('>')
       |        ScPsiDocToken(DOC_BLOCKQUOTE)(' >')
-      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScDocParagraph
+      |          ScPsiDocToken(DOC_WHITESPACE)(' ')
       |          ScPsiDocToken(DOC_COMMENT_DATA)('f')
       |          ScPsiDocToken(DOC_WHITESPACE)('\n ')
       |    ScPsiDocToken(DOC_COMMENT_END)('*/')
@@ -1865,8 +1865,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_BLOCKQUOTE)('>')
-      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScDocParagraph
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        DocSyntaxElement 2
       |          ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
       |          ScPsiDocToken(DOC_COMMENT_DATA)('quoted italic')
@@ -1987,8 +1987,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |      ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
       |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScPsiDocToken(DOC_BLOCKQUOTE)('>')
-      |      ScPsiDocToken(DOC_WHITESPACE)(' ')
       |      ScDocParagraph
+      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        DocSyntaxElement 8
       |          ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
       |          ScPsiDocToken(DOC_COMMENT_DATA)('code')
@@ -2155,8 +2155,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_BLOCKQUOTE)('>')
       |        ScPsiDocToken(DOC_BLOCKQUOTE)(' >')
-      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScDocParagraph
+      |          ScPsiDocToken(DOC_WHITESPACE)(' ')
       |          DocSyntaxElement 2
       |            ScPsiDocToken(DOC_ITALIC_TAG 2)('*')
       |            ScPsiDocToken(DOC_COMMENT_DATA)('quoted italic')
@@ -2301,8 +2301,8 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScPsiDocToken(DOC_BLOCKQUOTE)('>')
       |        ScPsiDocToken(DOC_BLOCKQUOTE)(' >')
-      |        ScPsiDocToken(DOC_WHITESPACE)(' ')
       |        ScDocParagraph
+      |          ScPsiDocToken(DOC_WHITESPACE)(' ')
       |          DocSyntaxElement 8
       |            ScPsiDocToken(DOC_MONOSPACE_TAG 8)('`')
       |            ScPsiDocToken(DOC_COMMENT_DATA)('code')
@@ -2409,6 +2409,42 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_quoted_code_fences_preserve_literal_quotes(): Unit = {
+    for ((startFence, endFence) <- Seq("```" -> "```", "{{{" -> "}}}")) {
+      checkTree(
+        s"""/**
+           | * > $startFence
+           | * > > literal
+           | * > $endFence
+           | */""".stripMargin,
+        s"""ScalaFile
+           |  DocComment
+           |    ScPsiDocToken(DOC_COMMENT_START)('/**')
+           |    ScPsiDocToken(DOC_WHITESPACE)('\\n ')
+           |    ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+           |    ScPsiDocToken(DOC_WHITESPACE)(' ')
+           |    ScDocQuote
+           |      ScPsiDocToken(DOC_BLOCKQUOTE)('>')
+           |      ScPsiDocToken(DOC_WHITESPACE)(' ')
+           |      InnerCodeElement
+           |        ScPsiDocToken(DOC_INNER_CODE_TAG)('$startFence')
+           |        ScPsiDocToken(DOC_WHITESPACE)('\\n ')
+           |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+           |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+           |        ScPsiDocToken(DOC_BLOCKQUOTE)('>')
+           |        ScPsiDocToken(DOC_INNER_CODE)(' > literal')
+           |        ScPsiDocToken(DOC_WHITESPACE)('\\n ')
+           |        ScPsiDocToken(DOC_COMMENT_LEADING_ASTERISKS)('*')
+           |        ScPsiDocToken(DOC_WHITESPACE)(' ')
+           |        ScPsiDocToken(DOC_BLOCKQUOTE)('>')
+           |        ScPsiDocToken(DOC_INNER_CODE)(' ')
+           |        ScPsiDocToken(DOC_INNER_CLOSE_CODE_TAG)('$endFence')
+           |    ScPsiDocToken(DOC_WHITESPACE)('\\n ')
+           |    ScPsiDocToken(DOC_COMMENT_END)('*/')""".stripMargin
+      )
+    }
+  }
 
   def test_ref_link(): Unit = checkTree(
     """
