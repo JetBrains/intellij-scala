@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.core.{CompilerEventGene
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{RequestId, newRequestId}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.{PostBuildDocumentRequest, SharedClientDocumentRequest}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.util.CompilationUtils.EligibleDocument
-import org.jetbrains.plugins.scala.compiler.highlighting.services.{CompilerHighlightingService, HighlightingService}
+import org.jetbrains.plugins.scala.compiler.highlighting.services.HighlightingService
 import org.jetbrains.plugins.scala.compiler.highlighting.util.TracingUtil.endTrace
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
 import org.jetbrains.plugins.scala.compiler.tracing.core.events.BaseEvent
