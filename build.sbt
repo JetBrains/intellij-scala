@@ -469,6 +469,7 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.scalaXml               -> Some("lib/scala-xml.jar"),
         Dependencies.scalaReflect           -> Some("lib/scala-reflect.jar"),
         Dependencies.scalaParserCombinators -> Some("lib/scala-parser-combinators.jar"),
+        Dependencies.scalaCollectionCompat  -> Some("lib/scala-collection-compat.jar"),
         Dependencies.scalaLibrary           -> None,
         Dependencies.scala3Library          -> None
       )
@@ -737,8 +738,14 @@ lazy val compileServer =
     .withCompileServerClasspath
     .settings(
       packageMethod := PackagingMethod.Standalone("lib/jps/compile-server.jar", static = true),
-      libraryDependencies += Dependencies.nailgun,
-      packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar")
+      // compiler-interface and util-interface are excluded from the zinc assembly (see Dependencies.zinc)
+      // and shipped as separate jars instead
+      libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.compilerInterface, Dependencies.sbtInterface),
+      packageLibraryMappings ++= Seq(
+        Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
+        Dependencies.compilerInterface -> Some("lib/jps/compiler-interface.jar"),
+        Dependencies.sbtInterface -> Some("lib/jps/sbt-interface.jar")
+      )
     )
 
 // Compiler plugins
@@ -816,33 +823,22 @@ lazy val compilerJps =
     .withJpsClasspath
     .settings(
       packageMethod := PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
-      libraryDependencies ++= Seq(Dependencies.scalaParallelCollections),
-      packageLibraryMappings ++= Seq(
-        Dependencies.scalaParallelCollections -> Some("lib/jps/scala-parallel-collections.jar")
-      ),
     )
 
+// Assembles zinc and its transitive dependencies into a single jar.
+// The classpath of this project is exactly what ends up in the jar: everything that must not be assembled is
+// excluded in Dependencies.zinc, and the default sbt-idea-plugin mappings for the Scala libraries are not relied
+// upon (there is no Scala library on the classpath to begin with).
 lazy val repackagedZinc =
   newProject("repackagedZinc", file("target/tools/zinc"))
     .withOutOfIDEAProcessSettings
     .settings(NoSourceDirectories)
     .settings(
-      packageOutputDir := baseDirectory.value / "plugin",
-      packageAssembleLibraries := true,
-      shadePatterns += ShadePattern("com.google.protobuf.**", "zinc.protobuf.@1"),
       packageMethod := PackagingMethod.DepsOnly("lib/jps/incremental-compiler.jar"),
-      libraryDependencies ++= Seq(
-        Dependencies.zinc,
-        Dependencies.compilerInterface,
-        Dependencies.sbtInterface
-      ),
-      // We package and ship these jars separately. They are also transitive dependencies of `zinc`.
-      // These mappings ensure that the transitive dependencies are not packaged into the assembled
-      // `incremental-compiler.jar`, which leads to a bloated classpath with repeated classes.
-      packageLibraryMappings ++= Seq(
-        Dependencies.compilerInterface -> None,
-        Dependencies.sbtInterface -> None
-      )
+      packageAssembleLibraries := true,
+      packageLibraryMappings := Seq.empty,
+      autoScalaLibrary := false,
+      libraryDependencies += Dependencies.zinc
     )
 
 lazy val compilerShared =
@@ -1221,8 +1217,7 @@ lazy val javaDecompilerIntegration =
 lazy val scalastyleIntegration = newProject("scalastyle", file("scala/integration/scalastyle"))
   .dependsOn(scalaImpl)
   .settings(
-    libraryDependencies += Dependencies.scalastyle,
-    packageLibraryMappings += (Dependencies.scalaCollectionCompat -> Some("lib/scala-collection-compat.jar"))
+    libraryDependencies += Dependencies.scalastyle
   )
 
 //Integration with:
@@ -1295,8 +1290,6 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
       binaryDep("org.scala-lang", "scala3-library_3", Versions.compileServerScala3Version) -> "lib/jps/compile-server-scala3-library_3.jar",
 
       binaryDep("org.scala-sbt", "sbt-launch", Versions.sbtVersion) -> "launcher/sbt-launch.jar",
-      binaryDep("org.scala-sbt", "util-interface", Versions.sbtVersion) -> "lib/jps/sbt-interface.jar",
-      binaryDep("org.scala-sbt", "compiler-interface", Versions.zincVersion) -> "lib/jps/compiler-interface.jar",
 
       sourceDep("org.scala-sbt", "compiler-bridge", "2.10", Versions.zincVersion) -> "lib/jps/compiler-bridge-sources_2.10.jar",
       sourceDep("org.scala-sbt", "compiler-bridge", "2.11", Versions.zincVersion) -> "lib/jps/compiler-bridge-sources_2.11.jar",
