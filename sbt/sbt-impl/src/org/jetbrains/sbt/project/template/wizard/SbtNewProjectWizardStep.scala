@@ -10,8 +10,7 @@ import com.intellij.openapi.projectRoots.{JavaSdkVersion, Sdk}
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.{DialogValidationRequestor, RequestorsKt}
 import com.intellij.ui.components.JBCheckBox
-import com.intellij.ui.dsl.builder.{BottomGap, Panel, Row, RowLayout}
-import com.intellij.ui.dsl.gridLayout.HorizontalAlign
+import com.intellij.ui.dsl.builder.{AlignX, BottomGap, Panel, Row, RowLayout}
 import com.intellij.util.lang.JavaVersion
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.*
@@ -23,12 +22,11 @@ import org.jetbrains.sbt.project.template.wizard.kotlin_interop.KotlinInteropUti
 import org.jetbrains.sbt.{SbtBundle, SbtVersion}
 
 import java.lang
+import java.util.List as JList
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.Unit.INSTANCE as KUnit
-import java.util.{List => JList}
 import kotlin.jvm.functions
-import scala.annotation.nowarn
 import scala.collection.immutable.ListSet
 import scala.jdk.CollectionConverters.*
 
@@ -70,7 +68,7 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
     panel.row(SbtBundle.message("sbt.settings.sbt"), (row: Row) => {
       row.layout(RowLayout.PARENT_GRID)
 
-      val sbtVersionComboBoxCell = row.cell(sbtVersionComboBox).horizontalAlign(HorizontalAlign.FILL): @nowarn("cat=deprecation")
+      val sbtVersionComboBoxCell = row.cell(sbtVersionComboBox).align(AlignX.FILL.INSTANCE)
       sbtVersionComboBoxCell
         .validationRequestor(new DialogValidationRequestor() {
           // Initiate one-time validation when the build system panel is shown

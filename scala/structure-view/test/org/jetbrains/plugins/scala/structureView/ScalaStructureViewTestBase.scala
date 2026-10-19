@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.ElementBase
-import com.intellij.testFramework.{PlatformTestUtil, UsefulTestCase}
+import com.intellij.testFramework.{PlatformTestUtil, StructureViewComponentTestUtil, UsefulTestCase}
 import com.intellij.ui.{IconManager, PlatformIcons}
 import com.intellij.util.ui.tree.TreeUtil
 import org.intellij.lang.annotations.Language
@@ -106,7 +106,7 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
   protected def checkNavigationFromSource(@Language("Scala") code: String,
                                           expectedNodes: Node*): Unit = {
     configureFromFileText(code)
-    myFixture.testStructureView { structureViewComponent =>
+    StructureViewComponentTestUtil.testStructureView(myFixture, { structureViewComponent =>
       PlatformTestUtil.expandAll(structureViewComponent.getTree)
       val caretModel = getEditor.getCaretModel
 
@@ -130,7 +130,7 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
       UsefulTestCase.assertOrderedEquals(
         actualNodePresentations.asJava,
         expectedNodes.map(_.presentation()).asJava)
-    }
+    })
   }
 }
 

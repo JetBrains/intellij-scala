@@ -241,6 +241,7 @@ object Dependencies {
   val intellijMavenTestFramework: ModuleID = ("com.jetbrains.intellij.maven" % "maven-test-framework" % IntellijTestFrameworkVersion).notTransitive()
   val intellijEelJavaTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-eel-java" % IntellijTestFrameworkVersion).notTransitive()
   val intellijExternalSystemTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "external-system-test-framework" % IntellijTestFrameworkVersion).notTransitive()
+  val intellijStructureViewTestFramework: ModuleID = ("com.jetbrains.intellij.platform" % "test-framework-structure-view" % IntellijTestFrameworkVersion).notTransitive()
 
   // The uast-test-framework can currently only be resolved from the SNAPSHOTS repository. It is not being published for every intellijVersion yet.
   // This will hopefully change soon.
