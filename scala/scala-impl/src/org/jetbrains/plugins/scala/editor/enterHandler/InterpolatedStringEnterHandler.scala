@@ -76,8 +76,8 @@ class InterpolatedStringEnterHandler extends EnterHandlerDelegateAdapter {
       caretOffset.set(caretOffset.get + moveOn)
     }
 
-    val isInside$$Escape = element.getNode.getElementType == tINTERPOLATED_STRING_ESCAPE && caretOffset.get - element.getTextOffset == 1
-    if (isInside$$Escape) {
+    val isInsideEscapedDollar = element.getNode.getElementType == tINTERPOLATED_STRING_ESCAPE && caretOffset.get - element.getTextOffset == 1
+    if (isInsideEscapedDollar) {
       // If the caret is inside `s"$$"` (s"$caret$"), just shift the caret 1 character, not to break the escaping of $
       modifyOffset(1)
     } else if (isMultilineString(element.getParent)) {

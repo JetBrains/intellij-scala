@@ -80,25 +80,25 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
       case e: ScEnum => Some(e) // TODO Is this required?
     }
 
-    val classesWithout$ = classesWoSuffix("$")
-    val x$: Seq[Option[PsiClass]] = classesWithout$.collect {
+    val classesWithoutModuleSuffix = classesWoSuffix("$")
+    val companionModules: Seq[Option[PsiClass]] = classesWithoutModuleSuffix.collect {
       case c: ScTypeDefinition =>
         c.fakeCompanionModule
     }
 
-    val classesWithout$class = classesWoSuffix(TraitImplementationClassSuffix_211)
-    val x$class: Seq[Option[PsiClass]] = classesWithout$class.collect {
+    val classesWithoutTraitImplementationSuffix = classesWoSuffix(TraitImplementationClassSuffix_211)
+    val companionClasses: Seq[Option[PsiClass]] = classesWithoutTraitImplementationSuffix.collect {
       case c: ScTrait =>
         Option(c.fakeCompanionClass)
     }
 
-    val src$packageObject: Option[PsiClass] =
+    val packageObjectSource: Option[PsiClass] =
       if (qualifiedName.contains(TopLevelDefinitionsClassNameSuffix)) {
         val targetFile = TopLevelMembers.findFileWithTopLevelMembers(project, scope, qualifiedName, TopLevelDefinitionsClassNameSuffix)
         targetFile.flatMap(_.topLevelWrapperObject)
       } else None
 
-    val result = (x ++ x$ ++ x$class :+ src$packageObject).flatten.toArray
+    val result = (x ++ companionModules ++ companionClasses :+ packageObjectSource).flatten.toArray
     result
   }
 
