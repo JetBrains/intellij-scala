@@ -4,7 +4,7 @@ package actions
 
 import com.intellij.ide.scratch.ScratchRootType
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnAction, AnActionEvent, CommonDataKeys}
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorOpenRequest}
 import com.intellij.openapi.util.text.StringUtil.notNullize
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil.enableAndShowIfInScalaFile
 import org.jetbrains.plugins.scala.worksheet.ScalaScratchFileCreationHelper.worksheetScratchFileType
@@ -30,7 +30,7 @@ final class CreateLightWorksheetAction extends AnAction(
       notNullize(text)
     )
     if (file != null) {
-      FileEditorManager.getInstance(project).openFile(file, true)
+      FileEditorManager.getInstance(project).requestOpenFile(file, FileEditorOpenRequest.withFocus(true))
     }
   }
 

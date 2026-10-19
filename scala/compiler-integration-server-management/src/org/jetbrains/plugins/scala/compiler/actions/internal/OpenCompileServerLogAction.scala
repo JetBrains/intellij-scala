@@ -5,17 +5,18 @@ import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.ScrollType
-import com.intellij.openapi.fileEditor.{FileEditorManager, TextEditor}
+import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorOpenRequest, TextEditor}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import com.intellij.openapi.util.{Condition, NlsSafe}
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ServerManagementBundle}
-import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.server.CompileServerLog
 
 import java.io.IOException
 import scala.annotation.nowarn
+import scala.jdk.CollectionConverters._
 
 /**
  * Similar to [[com.intellij.internal.OpenLogAction]].
@@ -44,11 +45,18 @@ final class OpenCompileServerLogAction extends DumbAwareAction {
     if (file != null) {
       VfsUtil.markDirtyAndRefresh(true, false, false, file)
       invokeLater {
-        val editors = FileEditorManager.getInstance(project).openFile(file, true)
-        editors match {
-          case Array(te: TextEditor, _*) => scrollToLastIDEStart(te)
-          case _ => PsiNavigationSupport.getInstance.createNavigatable(project, file, -1).navigate(true)
-        }
+        FileEditorManager.getInstance(project)
+          .requestOpenFile(file, FileEditorOpenRequest.withFocus(true))
+          .thenAccept { composite =>
+            composite.getAllEditors.asScala.filterByType[TextEditor].headOption match {
+              case Some(editor) =>
+                FileEditorManager.getInstance(project).runWhenLoaded(editor.getEditor, () => {
+                  scrollToLastIDEStart(editor)
+                })
+              case _ =>
+                PsiNavigationSupport.getInstance.createNavigatable(project, file, -1).navigate(true)
+            }
+          }
       }
     } else {
       @NlsSafe val title = s"Cannot find '$logFilePath'"

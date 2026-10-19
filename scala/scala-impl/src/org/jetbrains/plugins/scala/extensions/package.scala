@@ -9,7 +9,7 @@ import com.intellij.openapi.application.{ApplicationManager, ModalityState, Tran
 import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy, WriteCommandAction}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, RangeMarker}
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
+import com.intellij.openapi.fileEditor.{FileEditorManager, FileEditorOpenRequest, OpenFileDescriptor}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util._
@@ -27,6 +27,7 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.CommonProcessors.CollectUniquesProcessor
 import com.intellij.util.concurrency.AppExecutorUtil
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.text.CharArrayUtil
 import com.intellij.util.{ArrayFactory, Processor}
 import org.jetbrains.annotations.{Nls, NonNls, Nullable}
@@ -64,7 +65,7 @@ import java.lang.reflect.InvocationTargetException
 import java.nio.charset.Charset
 import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
+import java.util.concurrent.{Callable, CompletableFuture, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
 import java.util.regex.Pattern
 import java.util.stream.{Stream => JStream}
 import java.util.{Arrays, Set => JSet}
@@ -988,13 +989,18 @@ package object extensions {
       file != null && file.isScala3File
     }
 
-    /** Must be called from <a href="https://docs.oracle.com/javase/tutorial/uiswing/concurrency/dispatch.html">EDT</a>. */
-    def openTextEditor(implicit project: Project): Option[Editor] = for {
-      virtualFile <- element.containingVirtualFile
-      descriptor = new OpenFileDescriptor(project, virtualFile)
-      fileEditorManager = FileEditorManager.getInstance(project)
-      editor <- fileEditorManager.openTextEditor(descriptor, true).toOption
-    } yield editor
+    /** The future completes with `None` when the element has no virtual file or no text editor can be opened. */
+    @RequiresEdt
+    def requestOpenTextEditor(implicit project: Project): CompletableFuture[Option[Editor]] =
+      element.containingVirtualFile match {
+        case Some(virtualFile) =>
+          val descriptor = new OpenFileDescriptor(project, virtualFile)
+          FileEditorManager.getInstance(project)
+            .requestOpenTextEditor(descriptor, FileEditorOpenRequest.withFocus(true))
+            .thenApply(editor => Option(editor))
+        case None =>
+          CompletableFuture.completedFuture(Option.empty[Editor])
+      }
 
     def getLineNumber: Int =
       PsiDocumentManager.getInstance(element.getProject)
