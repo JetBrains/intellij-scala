@@ -1808,13 +1808,13 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       | * > 1. aaa
       | * >    a2a2
       | * > 2. bbb
-      | * >    3. bxbxbx
+      | * >    1. bxbxbx
       | * >       bx2bx2
       | * >
       | * > - ccc
       | * >   c2c2
       | * > - ddd
-      | * >    3. dxdxdx
+      | * >    1. dxdxdx
       | * >       dx2dx2
       | * >
       | * > # Header
@@ -1907,7 +1907,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |          ScPsiDocToken(DOC_WHITESPACE)('    ')
       |          ScDocList
       |            ScDocListItem
-      |              ScPsiDocToken(DOC_LIST_ITEM_HEAD)('3. ')
+      |              ScPsiDocToken(DOC_LIST_ITEM_HEAD)('1. ')
       |              ScDocParagraph
       |                ScPsiDocToken(DOC_COMMENT_DATA)('bxbxbx')
       |                ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -1952,7 +1952,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |          ScPsiDocToken(DOC_WHITESPACE)('    ')
       |          ScDocList
       |            ScDocListItem
-      |              ScPsiDocToken(DOC_LIST_ITEM_HEAD)('3. ')
+      |              ScPsiDocToken(DOC_LIST_ITEM_HEAD)('1. ')
       |              ScDocParagraph
       |                ScPsiDocToken(DOC_COMMENT_DATA)('dxdxdx')
       |                ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -2093,13 +2093,13 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       | * > > 1. aaa
       | * > >    a2a2
       | * > > 2. bbb
-      | * > >    3. bxbxbx
+      | * > >    1. bxbxbx
       | * > >       bx2bx2
       | * > >
       | * > > - ccc
       | * > >   c2c2
       | * > > - ddd
-      | * > >    3. dxdxdx
+      | * > >    1. dxdxdx
       | * > >       dx2dx2
       | * > >
       | * > > # Header
@@ -2209,7 +2209,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |            ScPsiDocToken(DOC_WHITESPACE)('    ')
       |            ScDocList
       |              ScDocListItem
-      |                ScPsiDocToken(DOC_LIST_ITEM_HEAD)('3. ')
+      |                ScPsiDocToken(DOC_LIST_ITEM_HEAD)('1. ')
       |                ScDocParagraph
       |                  ScPsiDocToken(DOC_COMMENT_DATA)('bxbxbx')
       |                  ScPsiDocToken(DOC_WHITESPACE)('\n ')
@@ -2260,7 +2260,7 @@ class MarkdownScalaDocParserTest extends SimpleScala3ParserTestBase {
       |            ScPsiDocToken(DOC_WHITESPACE)('    ')
       |            ScDocList
       |              ScDocListItem
-      |                ScPsiDocToken(DOC_LIST_ITEM_HEAD)('3. ')
+      |                ScPsiDocToken(DOC_LIST_ITEM_HEAD)('1. ')
       |                ScDocParagraph
       |                  ScPsiDocToken(DOC_COMMENT_DATA)('dxdxdx')
       |                  ScPsiDocToken(DOC_WHITESPACE)('\n ')
