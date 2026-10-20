@@ -1,5 +1,5 @@
 class Bug372Names;
-class Bug372Symbols { self: Bug372Symbols with Bug372Names => }
+class Bug372Symbols { self: Bug372Symbols & Bug372Names => }
 -----
 ScalaFile
   ScClass: Bug372Names
@@ -45,12 +45,13 @@ ScalaFile
           PsiElement(identifier)('self')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: Bug372Symbols with Bug372Names
+          InfixType: Bug372Symbols & Bug372Names
             SimpleType: Bug372Symbols
               CodeReferenceElement: Bug372Symbols
                 PsiElement(identifier)('Bug372Symbols')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: Bug372Names
               CodeReferenceElement: Bug372Names

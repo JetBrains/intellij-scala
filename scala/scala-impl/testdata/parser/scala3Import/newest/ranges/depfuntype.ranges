@@ -78,7 +78,7 @@
 [487,489]: Ident
 [497,499]: Ident
 [503,528]: TypeDef
-[514,528]: Function
+[514,528]: FunctionWithMods
 [515,519]: ValDef
 [518,519]: Ident
 [525,528]: Select

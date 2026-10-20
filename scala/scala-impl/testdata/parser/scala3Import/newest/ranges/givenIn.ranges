@@ -16,7 +16,7 @@
 [94,94]: TypeBoundsTree
 [97,117]: ValDef
 [101,117]: ByNameTypeTree
-[104,117]: Function
+[104,117]: FunctionWithMods
 [104,111]: Ident
 [116,117]: Ident
 [118,118]: TypeTree

@@ -1,0 +1,8 @@
+Document tests/pos/i25801/Lib_1.scala
+(4:17..4:18) i25801/B# -> 8:7
+(8:17..8:18) i25801/A# -> 4:7
+
+Document tests/pos/i25801/Use_2.scala
+(4:10..4:11) i25801/B# -> 8:7
+(4:14..4:17) scala/Predef.`???`().
+

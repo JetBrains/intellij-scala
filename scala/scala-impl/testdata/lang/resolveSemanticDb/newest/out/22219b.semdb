@@ -13,18 +13,18 @@ Document tests/pos/22219b.scala
 (5:3..5:7) scala/package.List.
 (5:9..5:15) scala/Predef.String#
 (5:17..5:28) _empty_/`22219b$package`.MonthNumber# -> 1:6
-(6:17..6:19) scala/Predef.ArrowAssoc#`->`().
-(7:18..7:20) scala/Predef.ArrowAssoc#`->`().
-(8:15..8:17) scala/Predef.ArrowAssoc#`->`().
-(9:15..9:17) scala/Predef.ArrowAssoc#`->`().
-(10:13..10:15) scala/Predef.ArrowAssoc#`->`().
-(11:13..11:15) scala/Predef.ArrowAssoc#`->`().
-(12:14..12:16) scala/Predef.ArrowAssoc#`->`().
-(13:16..13:18) scala/Predef.ArrowAssoc#`->`().
-(14:19..14:21) scala/Predef.ArrowAssoc#`->`().
-(15:17..15:19) scala/Predef.ArrowAssoc#`->`().
-(16:18..16:20) scala/Predef.ArrowAssoc#`->`().
-(17:18..17:20) scala/Predef.ArrowAssoc#`->`().
+(6:17..6:19) scala/Predef.`->`().
+(7:18..7:20) scala/Predef.`->`().
+(8:15..8:17) scala/Predef.`->`().
+(9:15..9:17) scala/Predef.`->`().
+(10:13..10:15) scala/Predef.`->`().
+(11:13..11:15) scala/Predef.`->`().
+(12:14..12:16) scala/Predef.`->`().
+(13:16..13:18) scala/Predef.`->`().
+(14:19..14:21) scala/Predef.`->`().
+(15:17..15:19) scala/Predef.`->`().
+(16:18..16:20) scala/Predef.`->`().
+(17:18..17:20) scala/Predef.`->`().
 (18:7..18:14) scala/collection/immutable/List#foreach().
 (19:7..19:13) scala/Predef.summon().
 (19:14..19:20) local2 -> 18:24

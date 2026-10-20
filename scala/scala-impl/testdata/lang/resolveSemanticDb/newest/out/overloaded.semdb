@@ -41,7 +41,7 @@ Document tests/pos/overloaded.scala
 (26:38..26:41) scala/Predef.`???`().
 (27:12..27:15) _empty_/overloaded.map(). -> 25:7
 (27:21..27:22) local4 -> 27:16
-(27:23..27:30) scala/runtime/RichChar#toUpper().
+(27:23..27:30) scala/Char.toUpper().
 (28:11..28:17) scala/Predef.String#
 (28:20..28:22) _empty_/overloaded.r1. -> 27:7
 (29:12..29:15) _empty_/overloaded.map(+1). -> 26:7
@@ -52,7 +52,7 @@ Document tests/pos/overloaded.scala
 (30:22..30:24) _empty_/overloaded.r2. -> 29:7
 (32:13..32:16) _empty_/overloaded.map(). -> 25:7
 (32:29..32:30) local7 -> 32:24
-(32:31..32:38) scala/runtime/RichChar#toUpper().
+(32:31..32:38) scala/Char.toUpper().
 (33:12..33:18) scala/Predef.String#
 (33:21..33:24) _empty_/overloaded.rp1. -> 32:7
 (34:13..34:16) _empty_/overloaded.map(+1). -> 26:7

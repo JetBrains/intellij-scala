@@ -1,0 +1,13 @@
+Document tests/pos/inline-trait-body-def-extension-method.scala
+(3:19..3:20) _empty_/A#foo().[T] -> 3:13
+(4:17..4:18) _empty_/A#foo().[U] -> 4:11
+(4:23..4:24) _empty_/A#foo().[T] -> 3:13
+(4:28..4:29) _empty_/A#foo().[T] -> 3:13
+(4:31..4:32) _empty_/A#foo().[U] -> 4:11
+(4:34..4:35) _empty_/A#foo().[T] -> 3:13
+(4:40..4:41) _empty_/A#foo().(x) -> 3:16
+(4:43..4:44) _empty_/A#foo().(y) -> 4:14
+(4:46..4:47) _empty_/A#foo().(z) -> 4:20
+(6:17..6:18) _empty_/A# -> 2:14
+(7:12..7:15) _empty_/A#foo(). -> 4:7
+

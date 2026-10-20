@@ -1,0 +1,32 @@
+Document tests/pos/i26340/DFVal_1.scala
+(5:10..5:16) dfhdl/DFXInt. -> 11:8
+(5:17..5:20) dfhdl/DFXInt.Ops. -> 12:10
+
+Document tests/pos/i26340/Defs_1.scala
+(3:8..3:13) dfhdl/DFVal. -> 4:8
+(3:14..3:17) dfhdl/DFVal.Ops. -> 6:10
+(9:12..9:18) dfhdl/DFXInt. -> 11:8
+(9:19..9:22) dfhdl/DFXInt.Ops. -> 12:10
+(13:15..13:26) dfhdl/ExactOp2Aux# -> 5:7
+(13:27..13:34) dfhdl/DFVal.Ops.CarryOp# -> 7:10
+(13:38..13:41) scala/Predef.`???`().
+
+Document tests/pos/i26340/Defs_2.scala
+(3:8..3:13) dfhdl/DFVal. -> 4:8
+(3:14..3:17) dfhdl/DFVal.Ops. -> 6:10
+(9:12..9:18) dfhdl/DFXInt. -> 11:8
+(9:19..9:22) dfhdl/DFXInt.Ops. -> 12:10
+(13:15..13:26) dfhdl/ExactOp2Aux# -> 5:7
+(13:27..13:34) dfhdl/DFVal.Ops.CarryOp# -> 7:10
+(13:38..13:41) scala/Predef.`???`().
+
+Document tests/pos/i26340/Exports_1.scala
+(4:10..4:19) dfhdl/DFDecimal. -> 7:8
+(4:20..4:23) dfhdl/DFDecimal.Ops. -> 8:10
+(6:8..6:11) dfhdl/hdl. -> 3:8
+
+Document tests/pos/i26340/Exports_2.scala
+(4:10..4:19) dfhdl/DFDecimal. -> 7:8
+(4:20..4:23) dfhdl/DFDecimal.Ops. -> 8:10
+(6:8..6:11) dfhdl/hdl. -> 3:8
+

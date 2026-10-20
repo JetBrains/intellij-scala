@@ -1,5 +1,5 @@
 class Bar(val i: Int) {
-  self: Any with AnyRef =>
+  self: Any & AnyRef =>
   def this() = this(0)
 }
 -----
@@ -44,12 +44,13 @@ ScalaFile
           PsiElement(identifier)('self')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: Any with AnyRef
+          InfixType: Any & AnyRef
             SimpleType: Any
               CodeReferenceElement: Any
                 PsiElement(identifier)('Any')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: AnyRef
               CodeReferenceElement: AnyRef

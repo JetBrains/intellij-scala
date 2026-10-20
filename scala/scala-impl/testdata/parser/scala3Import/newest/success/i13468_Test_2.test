@@ -1,0 +1,60 @@
+// https://github.com/scala/scala3/issues/13468
+// First compilation round: `container` is defined (this is the state of the
+// reporter's `Test.scala` while the `summon` line is still commented out).
+val myOpaque: MyOpaque[8] = ???
+val container = myOpaque.getContainer
+-----
+ScalaFile
+  ScPatternDefinition: myOpaque
+    PsiComment(comment)('// https://github.com/scala/scala3/issues/13468')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// First compilation round: `container` is defined (this is the state of the')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// reporter's `Test.scala` while the `summon` line is still commented out).')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: myOpaque
+        PsiElement(identifier)('myOpaque')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: MyOpaque[8]
+      SimpleType: MyOpaque
+        CodeReferenceElement: MyOpaque
+          PsiElement(identifier)('MyOpaque')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          LiteralType: 8
+            IntegerLiteral
+              PsiElement(integer)('8')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: container
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: container
+        PsiElement(identifier)('container')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: myOpaque.getContainer
+      ReferenceExpression: myOpaque
+        PsiElement(identifier)('myOpaque')
+      PsiElement(.)('.')
+      PsiElement(identifier)('getContainer')

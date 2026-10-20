@@ -1,6 +1,6 @@
 // minimized facade
 object Object {
-  def assign[T, U](target: T, source: U): T with U = js.native
+  def assign[T, U](target: T, source: U): T & U = js.native
 }
 -----
 ScalaFile
@@ -68,12 +68,13 @@ ScalaFile
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: T with U
+          InfixType: T & U
             SimpleType: T
               CodeReferenceElement: T
                 PsiElement(identifier)('T')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: U
               CodeReferenceElement: U

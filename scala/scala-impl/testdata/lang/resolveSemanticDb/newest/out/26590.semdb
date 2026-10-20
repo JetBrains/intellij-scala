@@ -1,0 +1,15 @@
+Document tests/pos/26590.scala
+(1:19..1:20) _empty_/`26590$package`.Unapply#[A] -> 1:14
+(2:8..2:12) scala/Unit#
+(2:16..2:23) scala/Boolean#
+(3:8..3:9) scala/Any#
+(3:16..3:22) scala/Option#
+(3:23..3:24) _empty_/`26590$package`.Unapply#[A] -> 1:14
+(7:18..7:24) scala/Predef.String#
+(7:27..7:34) _empty_/`26590$package`.Unapply# -> 1:6
+(7:35..7:36) _empty_/Extractor#[A] -> 6:17
+(7:40..7:43) scala/Predef.`???`().
+(10:2..10:6) scala/main#
+(12:29..12:33) scala/Unit#
+(14:10..14:19) local0 -> 12:7
+

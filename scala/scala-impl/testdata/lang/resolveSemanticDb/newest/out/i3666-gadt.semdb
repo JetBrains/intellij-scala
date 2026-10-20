@@ -89,7 +89,7 @@ Document tests/pos/i3666-gadt.scala
 (34:55..34:58) _empty_/i3666.Test.eval().(env) -> 30:28
 (34:59..34:60) _empty_/i3666.Env#`+`(). -> 13:9
 (34:62..34:63) local19 -> 34:19
-(34:64..34:66) scala/Predef.ArrowAssoc#`->`().
+(34:64..34:66) scala/Predef.`->`().
 (34:67..34:68) local21 -> 34:38
 (35:12..35:15) _empty_/i3666.App.
 (35:25..35:29) _empty_/i3666.Test.eval(). -> 30:9

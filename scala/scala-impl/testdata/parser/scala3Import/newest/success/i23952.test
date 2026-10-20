@@ -1,0 +1,702 @@
+trait Typeclass[I]
+
+sealed trait Enumm:
+  type Insider
+
+object Enumm:
+  case object Enumm1 extends Enumm:
+    case class Insider()
+
+    object Insider:
+      given t: Typeclass[Insider] = new Typeclass[Insider] {}
+
+class Foo
+implicit val f: Foo = new Foo
+
+def pathDependentTypeDefaultParam(tpe: Enumm)(i: tpe.Insider, p: Int = 0)(using t: Typeclass[tpe.Insider]): Int = p
+def defaultParamNotPDT(tpe: Enumm)(i: tpe.Insider, p: Int = 0)(using t: Foo): Int = p
+def pathDependentTypeDefaultParamOwnList(tpe: Enumm)(i: tpe.Insider)(p: Int = 0)(using t: Typeclass[tpe.Insider]): Int = p
+
+def main =
+  pathDependentTypeDefaultParam(Enumm.Enumm1)(Enumm.Enumm1.Insider())
+  pathDependentTypeDefaultParam(Enumm.Enumm1)(Enumm.Enumm1.Insider(), p = 0)
+  defaultParamNotPDT(Enumm.Enumm1)(Enumm.Enumm1.Insider())
+  pathDependentTypeDefaultParamOwnList(Enumm.Enumm1)(Enumm.Enumm1.Insider())()
+  pathDependentTypeDefaultParamOwnList(Enumm.Enumm1)(Enumm.Enumm1.Insider())(p = 0)
+-----
+ScalaFile
+  ScTrait: Typeclass
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Typeclass')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: I
+        PsiElement(identifier)('I')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n\n')
+  ScTrait: Enumm
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Enumm')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Insider
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Insider')
+  PsiWhiteSpace('\n\n')
+  ScObject: Enumm
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Enumm')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScObject: Enumm1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Enumm1')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Enumm
+                  CodeReferenceElement: Enumm
+                    PsiElement(identifier)('Enumm')
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScClass: Insider
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                PsiElement(class)('class')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Insider')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                ExtendsBlock
+                  <empty list>
+              PsiWhiteSpace('\n\n    ')
+              ScObject: Insider
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(object)('object')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Insider')
+                ExtendsBlock
+                  ScTemplateBody
+                    PsiElement(:)(':')
+                    PsiWhiteSpace('\n      ')
+                    ScGivenAliasDefinition: t
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(given)('given')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('t')
+                      PsiElement(:)(':')
+                      Parameters
+                        <empty list>
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Typeclass[Insider]
+                        SimpleType: Typeclass
+                          CodeReferenceElement: Typeclass
+                            PsiElement(identifier)('Typeclass')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: Insider
+                              CodeReferenceElement: Insider
+                                PsiElement(identifier)('Insider')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              ParametrizedType: Typeclass[Insider]
+                                SimpleType: Typeclass
+                                  CodeReferenceElement: Typeclass
+                                    PsiElement(identifier)('Typeclass')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: Insider
+                                      CodeReferenceElement: Insider
+                                        PsiElement(identifier)('Insider')
+                                  PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          ScTemplateBody
+                            PsiElement({)('{')
+                            PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScClass: Foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Foo')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      <empty list>
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(implicit)('implicit')
+    PsiWhiteSpace(' ')
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f
+        PsiElement(identifier)('f')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Foo
+      CodeReferenceElement: Foo
+        PsiElement(identifier)('Foo')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ScNewTemplateDefinition: <anonymous>
+      PsiElement(new)('new')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        TemplateParents
+          ConstructorInvocation
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: pathDependentTypeDefaultParam
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('pathDependentTypeDefaultParam')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: tpe
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('tpe')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Enumm
+              CodeReferenceElement: Enumm
+                PsiElement(identifier)('Enumm')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: i
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('i')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: tpe.Insider
+              CodeReferenceElement: tpe.Insider
+                CodeReferenceElement: tpe
+                  PsiElement(identifier)('tpe')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Insider')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: p
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('p')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('t')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Typeclass[tpe.Insider]
+              SimpleType: Typeclass
+                CodeReferenceElement: Typeclass
+                  PsiElement(identifier)('Typeclass')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: tpe.Insider
+                    CodeReferenceElement: tpe.Insider
+                      CodeReferenceElement: tpe
+                        PsiElement(identifier)('tpe')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Insider')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: p
+      PsiElement(identifier)('p')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: defaultParamNotPDT
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('defaultParamNotPDT')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: tpe
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('tpe')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Enumm
+              CodeReferenceElement: Enumm
+                PsiElement(identifier)('Enumm')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: i
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('i')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: tpe.Insider
+              CodeReferenceElement: tpe.Insider
+                CodeReferenceElement: tpe
+                  PsiElement(identifier)('tpe')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Insider')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: p
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('p')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('t')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Foo
+              CodeReferenceElement: Foo
+                PsiElement(identifier)('Foo')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: p
+      PsiElement(identifier)('p')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: pathDependentTypeDefaultParamOwnList
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('pathDependentTypeDefaultParamOwnList')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: tpe
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('tpe')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Enumm
+              CodeReferenceElement: Enumm
+                PsiElement(identifier)('Enumm')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: i
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('i')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: tpe.Insider
+              CodeReferenceElement: tpe.Insider
+                CodeReferenceElement: tpe
+                  PsiElement(identifier)('tpe')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Insider')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: p
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('p')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: Int
+              CodeReferenceElement: Int
+                PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('0')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: t
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('t')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Typeclass[tpe.Insider]
+              SimpleType: Typeclass
+                CodeReferenceElement: Typeclass
+                  PsiElement(identifier)('Typeclass')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: tpe.Insider
+                    CodeReferenceElement: tpe.Insider
+                      CodeReferenceElement: tpe
+                        PsiElement(identifier)('tpe')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Insider')
+                PsiElement(])(']')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Int
+      CodeReferenceElement: Int
+        PsiElement(identifier)('Int')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: p
+      PsiElement(identifier)('p')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        MethodCall
+          ReferenceExpression: pathDependentTypeDefaultParam
+            PsiElement(identifier)('pathDependentTypeDefaultParam')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: Enumm.Enumm1
+              ReferenceExpression: Enumm
+                PsiElement(identifier)('Enumm')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Enumm1')
+            PsiElement())(')')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: Enumm.Enumm1.Insider
+              ReferenceExpression: Enumm.Enumm1
+                ReferenceExpression: Enumm
+                  PsiElement(identifier)('Enumm')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Enumm1')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Insider')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        MethodCall
+          ReferenceExpression: pathDependentTypeDefaultParam
+            PsiElement(identifier)('pathDependentTypeDefaultParam')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: Enumm.Enumm1
+              ReferenceExpression: Enumm
+                PsiElement(identifier)('Enumm')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Enumm1')
+            PsiElement())(')')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: Enumm.Enumm1.Insider
+              ReferenceExpression: Enumm.Enumm1
+                ReferenceExpression: Enumm
+                  PsiElement(identifier)('Enumm')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Enumm1')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Insider')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          AssignStatement
+            ReferenceExpression: p
+              PsiElement(identifier)('p')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('0')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        MethodCall
+          ReferenceExpression: defaultParamNotPDT
+            PsiElement(identifier)('defaultParamNotPDT')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: Enumm.Enumm1
+              ReferenceExpression: Enumm
+                PsiElement(identifier)('Enumm')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Enumm1')
+            PsiElement())(')')
+        ArgumentList
+          PsiElement(()('(')
+          MethodCall
+            ReferenceExpression: Enumm.Enumm1.Insider
+              ReferenceExpression: Enumm.Enumm1
+                ReferenceExpression: Enumm
+                  PsiElement(identifier)('Enumm')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Enumm1')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Insider')
+            ArgumentList
+              PsiElement(()('(')
+              PsiElement())(')')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        MethodCall
+          MethodCall
+            ReferenceExpression: pathDependentTypeDefaultParamOwnList
+              PsiElement(identifier)('pathDependentTypeDefaultParamOwnList')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: Enumm.Enumm1
+                ReferenceExpression: Enumm
+                  PsiElement(identifier)('Enumm')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Enumm1')
+              PsiElement())(')')
+          ArgumentList
+            PsiElement(()('(')
+            MethodCall
+              ReferenceExpression: Enumm.Enumm1.Insider
+                ReferenceExpression: Enumm.Enumm1
+                  ReferenceExpression: Enumm
+                    PsiElement(identifier)('Enumm')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Enumm1')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Insider')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement())(')')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        MethodCall
+          MethodCall
+            ReferenceExpression: pathDependentTypeDefaultParamOwnList
+              PsiElement(identifier)('pathDependentTypeDefaultParamOwnList')
+            ArgumentList
+              PsiElement(()('(')
+              ReferenceExpression: Enumm.Enumm1
+                ReferenceExpression: Enumm
+                  PsiElement(identifier)('Enumm')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Enumm1')
+              PsiElement())(')')
+          ArgumentList
+            PsiElement(()('(')
+            MethodCall
+              ReferenceExpression: Enumm.Enumm1.Insider
+                ReferenceExpression: Enumm.Enumm1
+                  ReferenceExpression: Enumm
+                    PsiElement(identifier)('Enumm')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Enumm1')
+                PsiElement(.)('.')
+                PsiElement(identifier)('Insider')
+              ArgumentList
+                PsiElement(()('(')
+                PsiElement())(')')
+            PsiElement())(')')
+        ArgumentList
+          PsiElement(()('(')
+          AssignStatement
+            ReferenceExpression: p
+              PsiElement(identifier)('p')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('0')
+          PsiElement())(')')

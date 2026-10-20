@@ -9,14 +9,14 @@
 [72,74]: Number
 [77,104]: DefDef
 [85,99]: ValDef
-[88,99]: Function
+[88,99]: FunctionWithMods
 [88,91]: Ident
 [96,99]: Ident
 [100,100]: TypeTree
 [103,104]: Ident
 [107,137]: DefDef
 [115,132]: ValDef
-[118,132]: Function
+[118,132]: FunctionWithMods
 [118,121]: Ident
 [126,132]: Ident
 [133,133]: TypeTree

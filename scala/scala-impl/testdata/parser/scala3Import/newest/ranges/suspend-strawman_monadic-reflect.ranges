@@ -136,7 +136,7 @@
 [1254,1255]: TypeDef
 [1254,1254]: TypeBoundsTree
 [1257,1282]: ValDef
-[1263,1282]: Function
+[1263,1282]: FunctionWithMods
 [1263,1276]: AppliedTypeTree
 [1263,1273]: Ident
 [1274,1275]: Ident

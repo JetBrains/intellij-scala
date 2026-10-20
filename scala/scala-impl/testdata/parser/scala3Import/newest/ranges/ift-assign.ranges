@@ -9,7 +9,7 @@
 [31,31]: DefDef
 [31,31]: TypeTree
 [31,69]: ValDef
-[38,56]: Function
+[38,56]: FunctionWithMods
 [38,45]: Ident
 [50,56]: Ident
 [59,69]: Parens

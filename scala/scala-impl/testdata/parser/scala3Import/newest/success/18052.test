@@ -1,0 +1,1633 @@
+import scala.util.Try
+import scala.reflect.TypeTest
+
+trait RDF:
+  rdf =>
+
+  type R = rdf.type
+  type Node <: Matchable
+  type URI <: Node 
+  type BNode <: Node 
+
+  given rops: ROps[R]
+end RDF
+
+object RDF:
+  type Node[R <: RDF] = R match
+    case GetNode[n] => Matchable //n & rNode[R]
+
+  type URI[R <: RDF] <: Node[R] = R match
+    case GetURI[u] => u & Node[R] 
+
+  type BNode[R <: RDF] <: Node[R] = R match
+    case GetBNode[b] => b & Node[R] 
+
+  type Subject[R <: RDF] = URI[R] | BNode[R]  
+
+  private type GetNode[N] = RDF { type Node = N }
+  private type GetURI[U] = RDF { type URI = U }
+  private type GetBNode[B] = RDF { type BNode = B }
+end RDF
+
+trait ROps[R <: RDF]:
+  def mkUri(str: String): Try[RDF.URI[R]]
+  def auth(uri: RDF.URI[R]): Try[String]
+  given subjToURITT: TypeTest[RDF.Subject[R], RDF.URI[R]]
+
+object TraitTypes:
+  trait Node:
+    def value: String
+
+  trait Uri extends Node
+  trait BNode extends Node
+  
+  def mkUri(u: String): Uri =
+    new Uri { def value = u }
+
+object TraitRDF extends RDF:
+  import TraitTypes as tz
+
+  override opaque type Node <: Matchable = tz.Node
+  override opaque type URI <: Node = tz.Uri
+
+  given rops: ROps[R] with
+    override def mkUri(str: String): Try[RDF.URI[R]] = Try(tz.mkUri(str))
+    override def auth(uri: RDF.URI[R]): Try[String] =
+      Try(java.net.URI.create(uri.value).getAuthority())
+
+    given subjToURITT: TypeTest[RDF.Subject[R], RDF.URI[R]] with
+       override def unapply(s: RDF.Subject[R]): Option[s.type & URI] =
+         s match
+           case x: (s.type & RDF.URI[R]) => Some(x)
+           case _                        => None
+  
+end TraitRDF
+
+class Test[R <: RDF](using rops: ROps[R]):
+  import rops.given
+  lazy val uriT: Try[RDF.URI[R]] = rops.mkUri("https://bblfish.net/#i")
+  lazy val x: String = "uri authority=" + uriT.map(u => rops.auth(u))
+
+@main def run =
+  val test = Test[TraitRDF.type]
+  println(test.x)
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.util.Try
+        CodeReferenceElement: scala.util
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('util')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Try')
+  PsiWhiteSpace('\n')
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.reflect.TypeTest
+        CodeReferenceElement: scala.reflect
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('reflect')
+        PsiElement(.)('.')
+        PsiElement(identifier)('TypeTest')
+  PsiWhiteSpace('\n\n')
+  ScTrait: RDF
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('RDF')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        SelfType: rdf
+          PsiElement(identifier)('rdf')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: R
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('R')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: rdf.type
+            CodeReferenceElement: rdf
+              PsiElement(identifier)('rdf')
+            PsiElement(.)('.')
+            PsiElement(type)('type')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: Node
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Node')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Matchable
+            CodeReferenceElement: Matchable
+              PsiElement(identifier)('Matchable')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDeclaration: URI
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('URI')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Node
+            CodeReferenceElement: Node
+              PsiElement(identifier)('Node')
+        PsiWhiteSpace(' \n  ')
+        ScTypeAliasDeclaration: BNode
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('BNode')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Node
+            CodeReferenceElement: Node
+              PsiElement(identifier)('Node')
+        PsiWhiteSpace(' \n\n  ')
+        ScGivenAliasDeclaration: rops
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('rops')
+          PsiElement(:)(':')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ParametrizedType: ROps[R]
+            SimpleType: ROps
+              CodeReferenceElement: ROps
+                PsiElement(identifier)('ROps')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        End: RDF
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('RDF')
+  PsiWhiteSpace('\n\n')
+  ScObject: RDF
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('RDF')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: Node
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Node')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: RDF
+                CodeReferenceElement: RDF
+                  PsiElement(identifier)('RDF')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: R match
+    case GetNode[n] => Matchable
+            SimpleType: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: GetNode[n]
+                  SimpleType: GetNode
+                    CodeReferenceElement: GetNode
+                      PsiElement(identifier)('GetNode')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: n
+                        PsiElement(identifier)('n')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                SimpleType: Matchable
+                  CodeReferenceElement: Matchable
+                    PsiElement(identifier)('Matchable')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('//n & rNode[R]')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: URI
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('URI')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: RDF
+                CodeReferenceElement: RDF
+                  PsiElement(identifier)('RDF')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Node[R]
+            SimpleType: Node
+              CodeReferenceElement: Node
+                PsiElement(identifier)('Node')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: R match
+    case GetURI[u] => u & Node[R]
+            SimpleType: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: GetURI[u]
+                  SimpleType: GetURI
+                    CodeReferenceElement: GetURI
+                      PsiElement(identifier)('GetURI')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: u
+                        PsiElement(identifier)('u')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: u & Node[R]
+                  SimpleType: u
+                    CodeReferenceElement: u
+                      PsiElement(identifier)('u')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Node[R]
+                    SimpleType: Node
+                      CodeReferenceElement: Node
+                        PsiElement(identifier)('Node')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(])(']')
+        PsiWhiteSpace(' \n\n  ')
+        ScTypeAliasDefinition: BNode
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('BNode')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: RDF
+                CodeReferenceElement: RDF
+                  PsiElement(identifier)('RDF')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Node[R]
+            SimpleType: Node
+              CodeReferenceElement: Node
+                PsiElement(identifier)('Node')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: R
+                  CodeReferenceElement: R
+                    PsiElement(identifier)('R')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MatchType: R match
+    case GetBNode[b] => b & Node[R]
+            SimpleType: R
+              CodeReferenceElement: R
+                PsiElement(identifier)('R')
+            PsiWhiteSpace(' ')
+            PsiElement(match)('match')
+            PsiWhiteSpace('\n    ')
+            ScMatchTypeCasesImpl(match type cases)
+              ScMatchTypeCaseImpl(match type case)
+                PsiElement(case)('case')
+                PsiWhiteSpace(' ')
+                ParametrizedType: GetBNode[b]
+                  SimpleType: GetBNode
+                    CodeReferenceElement: GetBNode
+                      PsiElement(identifier)('GetBNode')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      TypeVariable: b
+                        PsiElement(identifier)('b')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=>)('=>')
+                PsiWhiteSpace(' ')
+                InfixType: b & Node[R]
+                  SimpleType: b
+                    CodeReferenceElement: b
+                      PsiElement(identifier)('b')
+                  PsiWhiteSpace(' ')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: Node[R]
+                    SimpleType: Node
+                      CodeReferenceElement: Node
+                        PsiElement(identifier)('Node')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(])(']')
+        PsiWhiteSpace(' \n\n  ')
+        ScTypeAliasDefinition: Subject
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Subject')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: R
+              PsiElement(identifier)('R')
+              PsiWhiteSpace(' ')
+              PsiElement(<:)('<:')
+              PsiWhiteSpace(' ')
+              SimpleType: RDF
+                CodeReferenceElement: RDF
+                  PsiElement(identifier)('RDF')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixType: URI[R] | BNode[R]
+            ParametrizedType: URI[R]
+              SimpleType: URI
+                CodeReferenceElement: URI
+                  PsiElement(identifier)('URI')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            CodeReferenceElement: |
+              PsiElement(identifier)('|')
+            PsiWhiteSpace(' ')
+            ParametrizedType: BNode[R]
+              SimpleType: BNode
+                CodeReferenceElement: BNode
+                  PsiElement(identifier)('BNode')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: R
+                    CodeReferenceElement: R
+                      PsiElement(identifier)('R')
+                PsiElement(])(']')
+        PsiWhiteSpace('  \n\n  ')
+        ScTypeAliasDefinition: GetNode
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('GetNode')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: N
+              PsiElement(identifier)('N')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: RDF { type Node = N }
+            SimpleType: RDF
+              CodeReferenceElement: RDF
+                PsiElement(identifier)('RDF')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: Node
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Node')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: N
+                  CodeReferenceElement: N
+                    PsiElement(identifier)('N')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: GetURI
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('GetURI')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: U
+              PsiElement(identifier)('U')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: RDF { type URI = U }
+            SimpleType: RDF
+              CodeReferenceElement: RDF
+                PsiElement(identifier)('RDF')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: URI
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('URI')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: U
+                  CodeReferenceElement: U
+                    PsiElement(identifier)('U')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: GetBNode
+          AnnotationsList
+            <empty list>
+          Modifiers
+            AccessModifier
+              PsiElement(private)('private')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('GetBNode')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: B
+              PsiElement(identifier)('B')
+            PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          CompoundType: RDF { type BNode = B }
+            SimpleType: RDF
+              CodeReferenceElement: RDF
+                PsiElement(identifier)('RDF')
+            PsiWhiteSpace(' ')
+            Refinement
+              PsiElement({)('{')
+              PsiWhiteSpace(' ')
+              ScTypeAliasDefinition: BNode
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('BNode')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                SimpleType: B
+                  CodeReferenceElement: B
+                    PsiElement(identifier)('B')
+              PsiWhiteSpace(' ')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n')
+        End: RDF
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('RDF')
+  PsiWhiteSpace('\n\n')
+  ScTrait: ROps
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ROps')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: RDF
+          CodeReferenceElement: RDF
+            PsiElement(identifier)('RDF')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: mkUri
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('mkUri')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: str
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('str')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Try[RDF.URI[R]]
+            SimpleType: Try
+              CodeReferenceElement: Try
+                PsiElement(identifier)('Try')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: RDF.URI[R]
+                  SimpleType: RDF.URI
+                    CodeReferenceElement: RDF.URI
+                      CodeReferenceElement: RDF
+                        PsiElement(identifier)('RDF')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('URI')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: auth
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('auth')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: uri
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('uri')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  ParametrizedType: RDF.URI[R]
+                    SimpleType: RDF.URI
+                      CodeReferenceElement: RDF.URI
+                        CodeReferenceElement: RDF
+                          PsiElement(identifier)('RDF')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('URI')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: R
+                          CodeReferenceElement: R
+                            PsiElement(identifier)('R')
+                      PsiElement(])(']')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Try[String]
+            SimpleType: Try
+              CodeReferenceElement: Try
+                PsiElement(identifier)('Try')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n  ')
+        ScGivenAliasDeclaration: subjToURITT
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('subjToURITT')
+          PsiElement(:)(':')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ParametrizedType: TypeTest[RDF.Subject[R], RDF.URI[R]]
+            SimpleType: TypeTest
+              CodeReferenceElement: TypeTest
+                PsiElement(identifier)('TypeTest')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: RDF.Subject[R]
+                  SimpleType: RDF.Subject
+                    CodeReferenceElement: RDF.Subject
+                      CodeReferenceElement: RDF
+                        PsiElement(identifier)('RDF')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Subject')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(])(']')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              TypeArgument
+                ParametrizedType: RDF.URI[R]
+                  SimpleType: RDF.URI
+                    CodeReferenceElement: RDF.URI
+                      CodeReferenceElement: RDF
+                        PsiElement(identifier)('RDF')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('URI')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  ScObject: TraitTypes
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TraitTypes')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Node
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Node')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDeclaration: value
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('value')
+                Parameters
+                  <empty list>
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: String
+                  CodeReferenceElement: String
+                    PsiElement(identifier)('String')
+        PsiWhiteSpace('\n\n  ')
+        ScTrait: Uri
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Uri')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Node
+                  CodeReferenceElement: Node
+                    PsiElement(identifier)('Node')
+        PsiWhiteSpace('\n  ')
+        ScTrait: BNode
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('BNode')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            PsiElement(extends)('extends')
+            PsiWhiteSpace(' ')
+            TemplateParents
+              ConstructorInvocation
+                SimpleType: Node
+                  CodeReferenceElement: Node
+                    PsiElement(identifier)('Node')
+        PsiWhiteSpace('\n  \n  ')
+        ScFunctionDefinition: mkUri
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('mkUri')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: u
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('u')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: String
+                    CodeReferenceElement: String
+                      PsiElement(identifier)('String')
+              PsiElement())(')')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Uri
+            CodeReferenceElement: Uri
+              PsiElement(identifier)('Uri')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace('\n    ')
+          ScNewTemplateDefinition: <anonymous>
+            PsiElement(new)('new')
+            PsiWhiteSpace(' ')
+            ExtendsBlock
+              TemplateParents
+                ConstructorInvocation
+                  SimpleType: Uri
+                    CodeReferenceElement: Uri
+                      PsiElement(identifier)('Uri')
+              PsiWhiteSpace(' ')
+              ScTemplateBody
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                ScFunctionDefinition: value
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(def)('def')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('value')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: u
+                    PsiElement(identifier)('u')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+  PsiWhiteSpace('\n\n')
+  ScObject: TraitRDF
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('TraitRDF')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: RDF
+            CodeReferenceElement: RDF
+              PsiElement(identifier)('RDF')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            ImportSelectors
+              ImportSelector
+                CodeReferenceElement: TraitTypes
+                  PsiElement(identifier)('TraitTypes')
+                PsiWhiteSpace(' ')
+                PsiElement(as)('as')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('tz')
+        PsiWhiteSpace('\n\n  ')
+        ScTypeAliasDefinition: Node
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+            PsiWhiteSpace(' ')
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Node')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Matchable
+            CodeReferenceElement: Matchable
+              PsiElement(identifier)('Matchable')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: tz.Node
+            CodeReferenceElement: tz.Node
+              CodeReferenceElement: tz
+                PsiElement(identifier)('tz')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Node')
+        PsiWhiteSpace('\n  ')
+        ScTypeAliasDefinition: URI
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(override)('override')
+            PsiWhiteSpace(' ')
+            PsiElement(opaque)('opaque')
+          PsiWhiteSpace(' ')
+          PsiElement(type)('type')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('URI')
+          PsiWhiteSpace(' ')
+          PsiElement(<:)('<:')
+          PsiWhiteSpace(' ')
+          SimpleType: Node
+            CodeReferenceElement: Node
+              PsiElement(identifier)('Node')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          SimpleType: tz.Uri
+            CodeReferenceElement: tz.Uri
+              CodeReferenceElement: tz
+                PsiElement(identifier)('tz')
+              PsiElement(.)('.')
+              PsiElement(identifier)('Uri')
+        PsiWhiteSpace('\n\n  ')
+        ScGivenDefinition: rops
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(given)('given')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('rops')
+          PsiElement(:)(':')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            TemplateParents
+              ConstructorInvocation
+                ParametrizedType: ROps[R]
+                  SimpleType: ROps
+                    CodeReferenceElement: ROps
+                      PsiElement(identifier)('ROps')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(])(']')
+            PsiWhiteSpace(' ')
+            PsiElement(with)('with')
+            PsiWhiteSpace('\n    ')
+            ScTemplateBody
+              ScFunctionDefinition: mkUri
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('mkUri')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: str
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('str')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: String
+                          CodeReferenceElement: String
+                            PsiElement(identifier)('String')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Try[RDF.URI[R]]
+                  SimpleType: Try
+                    CodeReferenceElement: Try
+                      PsiElement(identifier)('Try')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      ParametrizedType: RDF.URI[R]
+                        SimpleType: RDF.URI
+                          CodeReferenceElement: RDF.URI
+                            CodeReferenceElement: RDF
+                              PsiElement(identifier)('RDF')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('URI')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            SimpleType: R
+                              CodeReferenceElement: R
+                                PsiElement(identifier)('R')
+                          PsiElement(])(']')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: Try
+                    PsiElement(identifier)('Try')
+                  ArgumentList
+                    PsiElement(()('(')
+                    MethodCall
+                      ReferenceExpression: tz.mkUri
+                        ReferenceExpression: tz
+                          PsiElement(identifier)('tz')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('mkUri')
+                      ArgumentList
+                        PsiElement(()('(')
+                        ReferenceExpression: str
+                          PsiElement(identifier)('str')
+                        PsiElement())(')')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n    ')
+              ScFunctionDefinition: auth
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  PsiElement(override)('override')
+                PsiWhiteSpace(' ')
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('auth')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: uri
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('uri')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: RDF.URI[R]
+                          SimpleType: RDF.URI
+                            CodeReferenceElement: RDF.URI
+                              CodeReferenceElement: RDF
+                                PsiElement(identifier)('RDF')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('URI')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: R
+                                CodeReferenceElement: R
+                                  PsiElement(identifier)('R')
+                            PsiElement(])(']')
+                    PsiElement())(')')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Try[String]
+                  SimpleType: Try
+                    CodeReferenceElement: Try
+                      PsiElement(identifier)('Try')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: String
+                        CodeReferenceElement: String
+                          PsiElement(identifier)('String')
+                    PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace('\n      ')
+                MethodCall
+                  ReferenceExpression: Try
+                    PsiElement(identifier)('Try')
+                  ArgumentList
+                    PsiElement(()('(')
+                    MethodCall
+                      ReferenceExpression: java.net.URI.create(uri.value).getAuthority
+                        MethodCall
+                          ReferenceExpression: java.net.URI.create
+                            ReferenceExpression: java.net.URI
+                              ReferenceExpression: java.net
+                                ReferenceExpression: java
+                                  PsiElement(identifier)('java')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('net')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('URI')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('create')
+                          ArgumentList
+                            PsiElement(()('(')
+                            ReferenceExpression: uri.value
+                              ReferenceExpression: uri
+                                PsiElement(identifier)('uri')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('value')
+                            PsiElement())(')')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('getAuthority')
+                      ArgumentList
+                        PsiElement(()('(')
+                        PsiElement())(')')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n\n    ')
+              ScGivenDefinition: subjToURITT
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(given)('given')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('subjToURITT')
+                PsiElement(:)(':')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  TemplateParents
+                    ConstructorInvocation
+                      ParametrizedType: TypeTest[RDF.Subject[R], RDF.URI[R]]
+                        SimpleType: TypeTest
+                          CodeReferenceElement: TypeTest
+                            PsiElement(identifier)('TypeTest')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            ParametrizedType: RDF.Subject[R]
+                              SimpleType: RDF.Subject
+                                CodeReferenceElement: RDF.Subject
+                                  CodeReferenceElement: RDF
+                                    PsiElement(identifier)('RDF')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Subject')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(])(']')
+                          PsiElement(,)(',')
+                          PsiWhiteSpace(' ')
+                          TypeArgument
+                            ParametrizedType: RDF.URI[R]
+                              SimpleType: RDF.URI
+                                CodeReferenceElement: RDF.URI
+                                  CodeReferenceElement: RDF
+                                    PsiElement(identifier)('RDF')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('URI')
+                              TypeArgumentsList
+                                PsiElement([)('[')
+                                TypeArgument
+                                  SimpleType: R
+                                    CodeReferenceElement: R
+                                      PsiElement(identifier)('R')
+                                PsiElement(])(']')
+                          PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(with)('with')
+                  PsiWhiteSpace('\n       ')
+                  ScTemplateBody
+                    ScFunctionDefinition: unapply
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        PsiElement(override)('override')
+                      PsiWhiteSpace(' ')
+                      PsiElement(def)('def')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('unapply')
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: s
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('s')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              ParametrizedType: RDF.Subject[R]
+                                SimpleType: RDF.Subject
+                                  CodeReferenceElement: RDF.Subject
+                                    CodeReferenceElement: RDF
+                                      PsiElement(identifier)('RDF')
+                                    PsiElement(.)('.')
+                                    PsiElement(identifier)('Subject')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: R
+                                      CodeReferenceElement: R
+                                        PsiElement(identifier)('R')
+                                  PsiElement(])(']')
+                          PsiElement())(')')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParametrizedType: Option[s.type & URI]
+                        SimpleType: Option
+                          CodeReferenceElement: Option
+                            PsiElement(identifier)('Option')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            InfixType: s.type & URI
+                              SimpleType: s.type
+                                CodeReferenceElement: s
+                                  PsiElement(identifier)('s')
+                                PsiElement(.)('.')
+                                PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              CodeReferenceElement: &
+                                PsiElement(identifier)('&')
+                              PsiWhiteSpace(' ')
+                              SimpleType: URI
+                                CodeReferenceElement: URI
+                                  PsiElement(identifier)('URI')
+                          PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace('\n         ')
+                      MatchStatement
+                        ReferenceExpression: s
+                          PsiElement(identifier)('s')
+                        PsiWhiteSpace(' ')
+                        PsiElement(match)('match')
+                        PsiWhiteSpace('\n           ')
+                        CaseClauses
+                          CaseClause
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            Scala3 TypedPattern
+                              ReferencePattern: x
+                                PsiElement(identifier)('x')
+                              PsiElement(:)(':')
+                              PsiWhiteSpace(' ')
+                              TypePattern
+                                TypeInParenthesis: (s.type & RDF.URI[R])
+                                  PsiElement(()('(')
+                                  InfixType: s.type & RDF.URI[R]
+                                    SimpleType: s.type
+                                      CodeReferenceElement: s
+                                        PsiElement(identifier)('s')
+                                      PsiElement(.)('.')
+                                      PsiElement(type)('type')
+                                    PsiWhiteSpace(' ')
+                                    CodeReferenceElement: &
+                                      PsiElement(identifier)('&')
+                                    PsiWhiteSpace(' ')
+                                    ParametrizedType: RDF.URI[R]
+                                      SimpleType: RDF.URI
+                                        CodeReferenceElement: RDF.URI
+                                          CodeReferenceElement: RDF
+                                            PsiElement(identifier)('RDF')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('URI')
+                                      TypeArgumentsList
+                                        PsiElement([)('[')
+                                        TypeArgument
+                                          SimpleType: R
+                                            CodeReferenceElement: R
+                                              PsiElement(identifier)('R')
+                                        PsiElement(])(']')
+                                  PsiElement())(')')
+                            PsiWhiteSpace(' ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            BlockOfExpressions
+                              MethodCall
+                                ReferenceExpression: Some
+                                  PsiElement(identifier)('Some')
+                                ArgumentList
+                                  PsiElement(()('(')
+                                  ReferenceExpression: x
+                                    PsiElement(identifier)('x')
+                                  PsiElement())(')')
+                          PsiWhiteSpace('\n           ')
+                          CaseClause
+                            PsiElement(case)('case')
+                            PsiWhiteSpace(' ')
+                            WildcardPattern
+                              PsiElement(_)('_')
+                            PsiWhiteSpace('                        ')
+                            PsiElement(=>)('=>')
+                            PsiWhiteSpace(' ')
+                            BlockOfExpressions
+                              ReferenceExpression: None
+                                PsiElement(identifier)('None')
+        PsiWhiteSpace('\n  \n')
+        End: TraitRDF
+          PsiElement(end)('end')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('TraitRDF')
+  PsiWhiteSpace('\n\n')
+  ScClass: Test
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+        PsiWhiteSpace(' ')
+        PsiElement(<:)('<:')
+        PsiWhiteSpace(' ')
+        SimpleType: RDF
+          CodeReferenceElement: RDF
+            PsiElement(identifier)('RDF')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          PsiElement(using)('using')
+          PsiWhiteSpace(' ')
+          ClassParameter: rops
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(identifier)('rops')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: ROps[R]
+                SimpleType: ROps
+                  CodeReferenceElement: ROps
+                    PsiElement(identifier)('ROps')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: rops
+              PsiElement(identifier)('rops')
+            PsiElement(.)('.')
+            ImportSelectors
+              ImportSelector
+                PsiElement(given)('given')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: uriT
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(lazy)('lazy')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: uriT
+              PsiElement(identifier)('uriT')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Try[RDF.URI[R]]
+            SimpleType: Try
+              CodeReferenceElement: Try
+                PsiElement(identifier)('Try')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                ParametrizedType: RDF.URI[R]
+                  SimpleType: RDF.URI
+                    CodeReferenceElement: RDF.URI
+                      CodeReferenceElement: RDF
+                        PsiElement(identifier)('RDF')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('URI')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: R
+                        CodeReferenceElement: R
+                          PsiElement(identifier)('R')
+                    PsiElement(])(']')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: rops.mkUri
+              ReferenceExpression: rops
+                PsiElement(identifier)('rops')
+              PsiElement(.)('.')
+              PsiElement(identifier)('mkUri')
+            ArgumentList
+              PsiElement(()('(')
+              StringLiteral
+                PsiElement(string content)('"https://bblfish.net/#i"')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: x
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(lazy)('lazy')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: x
+              PsiElement(identifier)('x')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: String
+            CodeReferenceElement: String
+              PsiElement(identifier)('String')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          InfixExpression
+            StringLiteral
+              PsiElement(string content)('"uri authority="')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: uriT.map
+                ReferenceExpression: uriT
+                  PsiElement(identifier)('uriT')
+                PsiElement(.)('.')
+                PsiElement(identifier)('map')
+              ArgumentList
+                PsiElement(()('(')
+                FunctionExpression
+                  Parameters
+                    ParametersClause
+                      Parameter: u
+                        PsiElement(identifier)('u')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  MethodCall
+                    ReferenceExpression: rops.auth
+                      ReferenceExpression: rops
+                        PsiElement(identifier)('rops')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('auth')
+                    ArgumentList
+                      PsiElement(()('(')
+                      ReferenceExpression: u
+                        PsiElement(identifier)('u')
+                      PsiElement())(')')
+                PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: run
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('run')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScPatternDefinition: test
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        PsiElement(val)('val')
+        PsiWhiteSpace(' ')
+        ListOfPatterns
+          ReferencePattern: test
+            PsiElement(identifier)('test')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: Test
+            PsiElement(identifier)('Test')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: TraitRDF.type
+                CodeReferenceElement: TraitRDF
+                  PsiElement(identifier)('TraitRDF')
+                PsiElement(.)('.')
+                PsiElement(type)('type')
+            PsiElement(])(']')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: println
+          PsiElement(identifier)('println')
+        ArgumentList
+          PsiElement(()('(')
+          ReferenceExpression: test.x
+            ReferenceExpression: test
+              PsiElement(identifier)('test')
+            PsiElement(.)('.')
+            PsiElement(identifier)('x')
+          PsiElement())(')')

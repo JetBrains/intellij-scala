@@ -5,7 +5,7 @@
 [14,14]: DefDef
 [14,14]: TypeTree
 [14,66]: DefDef
-[23,37]: Function
+[23,37]: FunctionWithMods
 [23,29]: Ident
 [34,37]: Ident
 [45,66]: Select

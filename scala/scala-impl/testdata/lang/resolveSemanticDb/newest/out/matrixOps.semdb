@@ -23,10 +23,10 @@ Document tests/pos/matrixOps.scala
 (10:63..10:64) local0 -> 10:56
 (10:66..10:67) _empty_/Test.col().(j) -> 10:13
 (12:19..12:25) _empty_/Test.Matrix# -> 3:8
-(14:14..14:19) scala/runtime/RichInt#until().
+(14:14..14:19) scala/Int.until().
 (14:20..14:21) _empty_/Test.pairwise().(m) -> 12:16
 (14:22..14:27) _empty_/Test.nRows(). -> 7:9
-(15:14..15:19) scala/runtime/RichInt#until().
+(15:14..15:19) scala/Int.until().
 (15:20..15:21) _empty_/Test.pairwise().(m) -> 12:16
 (15:22..15:27) _empty_/Test.nCols(). -> 8:9
 (17:7..17:8) _empty_/Test.pairwise().(m) -> 12:16

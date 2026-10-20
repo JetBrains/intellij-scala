@@ -1,9 +1,9 @@
 trait Wrapper[K]
 trait Has0[T]
 
-def test[R](v: Wrapper[Has0[String] with R]):R = ???
+def test[R](v: Wrapper[Has0[String] & R]):R = ???
 
-val zz:Wrapper[Has0[String] with Has0[Int]] = ???
+val zz:Wrapper[Has0[String] & Has0[Int]] = ???
 val _ = test(zz)
 -----
 ScalaFile
@@ -78,14 +78,14 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ParameterType
-            ParametrizedType: Wrapper[Has0[String] with R]
+            ParametrizedType: Wrapper[Has0[String] & R]
               SimpleType: Wrapper
                 CodeReferenceElement: Wrapper
                   PsiElement(identifier)('Wrapper')
               TypeArgumentsList
                 PsiElement([)('[')
                 TypeArgument
-                  CompoundType: Has0[String] with R
+                  InfixType: Has0[String] & R
                     ParametrizedType: Has0[String]
                       SimpleType: Has0
                         CodeReferenceElement: Has0
@@ -98,7 +98,8 @@ ScalaFile
                               PsiElement(identifier)('String')
                         PsiElement(])(']')
                     PsiWhiteSpace(' ')
-                    PsiElement(with)('with')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
                     PsiWhiteSpace(' ')
                     SimpleType: R
                       CodeReferenceElement: R
@@ -126,14 +127,14 @@ ScalaFile
       ReferencePattern: zz
         PsiElement(identifier)('zz')
     PsiElement(:)(':')
-    ParametrizedType: Wrapper[Has0[String] with Has0[Int]]
+    ParametrizedType: Wrapper[Has0[String] & Has0[Int]]
       SimpleType: Wrapper
         CodeReferenceElement: Wrapper
           PsiElement(identifier)('Wrapper')
       TypeArgumentsList
         PsiElement([)('[')
         TypeArgument
-          CompoundType: Has0[String] with Has0[Int]
+          InfixType: Has0[String] & Has0[Int]
             ParametrizedType: Has0[String]
               SimpleType: Has0
                 CodeReferenceElement: Has0
@@ -146,7 +147,8 @@ ScalaFile
                       PsiElement(identifier)('String')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             ParametrizedType: Has0[Int]
               SimpleType: Has0

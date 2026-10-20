@@ -7,8 +7,9 @@ Document tests/pos/i1401.scala
 (7:31..7:41) i1401/BufferLike# -> 7:7
 (7:42..7:44) i1401/BufferLike#[BA] -> 7:18
 (7:46..7:50) i1401/BufferLike#[This] -> 7:23
-(7:57..7:63) i1401/Buffer# -> 22:7
-(7:64..7:66) i1401/BufferLike#[BA] -> 7:18
+(7:52..7:53) scala/`&`#
+(7:54..7:60) i1401/Buffer# -> 22:7
+(7:61..7:63) i1401/BufferLike#[BA] -> 7:18
 (8:25..8:37) i1401/Subtractable# -> 3:7
 (8:38..8:40) i1401/BufferLike#[BA] -> 7:18
 (8:42..8:46) i1401/BufferLike#[This] -> 7:23

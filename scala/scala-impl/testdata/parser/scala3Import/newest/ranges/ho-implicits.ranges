@@ -5,7 +5,7 @@
 [18,18]: DefDef
 [18,18]: TypeTree
 [18,84]: DefDef
-[36,50]: Function
+[36,50]: FunctionWithMods
 [36,39]: Ident
 [44,50]: Ident
 [53,84]: InterpolatedString
@@ -20,7 +20,7 @@
 [105,108]: Ident
 [111,113]: Number
 [117,166]: DefDef
-[124,138]: Function
+[124,138]: FunctionWithMods
 [124,130]: Ident
 [135,138]: Ident
 [141,166]: Select

@@ -10,7 +10,7 @@
 [26,26]: TypeBoundsTree
 [29,30]: TypeDef
 [29,29]: TypeBoundsTree
-[34,41]: Function
+[34,41]: FunctionWithMods
 [34,35]: Ident
 [40,41]: Ident
 [45,107]: ModuleDef
@@ -23,7 +23,7 @@
 [75,76]: TypeDef
 [75,75]: TypeBoundsTree
 [78,89]: ValDef
-[82,89]: Function
+[82,89]: FunctionWithMods
 [82,83]: Ident
 [88,89]: Ident
 [92,102]: AppliedTypeTree

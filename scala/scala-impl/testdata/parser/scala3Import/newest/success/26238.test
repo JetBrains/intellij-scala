@@ -1,0 +1,767 @@
+object toplevel {
+
+import util.ChainingOps.{*, given}
+
+object S {
+
+trait AllocatedNodeTypeFamily:
+  type Node
+
+trait Parser[+A] private[S] () :
+  type SpcNd
+
+type OutliningParser[+A, +Node]
+= Parser[A] { type SpcNd <: Node }
+
+extension [R1] (g1: Parser[R1] )
+              (using pfmoIspcndi: ParserFlatMapOp.ISpcNdInvariant = new ParserFlatMapOp.ISpcNdInvariant {}.asInstanceOf[ParserFlatMapOp.ISpcNdInvariant { type SpcNdObj = g1.SpcNd } ] )
+
+            def     map[R2] (m: R1 => (       R2  ) ): OutliningParser[R2, g1.SpcNd] = new Parser[Any] {}.asInstanceOf
+            def flatMap[R2] (m: R1 => (Parser[R2] ) ): OutliningParser[R2, g1.SpcNd] = new Parser[Any] {}.asInstanceOf
+
+object ParserFlatMapOp {
+
+  given given_ISpcNdInvariant_PModAllocatedNodeTypeFamily
+  : (x: AllocatedNodeTypeFamily ) => (ISpcNdInvariant { type SpcNdObj = x.Node })
+  = new ISpcNdInvariant {}.asInstanceOf
+
+  trait ISpcNdInvariant :
+    type SpcNdObj
+
+} // ParserFlatMapOp.
+
+def defaultIntParser
+  : Parser[Int]
+= new Parser[Any] {}.asInstanceOf
+
+} // S.
+
+locally :
+  locally :
+    for
+      r1 <- S.defaultIntParser
+      r2 <- S.defaultIntParser
+    yield { 5 }
+  .toString()
+
+}
+-----
+ScalaFile
+  ScObject: toplevel
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('toplevel')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n\n')
+        ScImportStatement
+          PsiElement(import)('import')
+          PsiWhiteSpace(' ')
+          ImportExpression
+            CodeReferenceElement: util.ChainingOps
+              CodeReferenceElement: util
+                PsiElement(identifier)('util')
+              PsiElement(.)('.')
+              PsiElement(identifier)('ChainingOps')
+            PsiElement(.)('.')
+            ImportSelectors
+              PsiElement({)('{')
+              ImportSelector
+                PsiElement(*)('*')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ImportSelector
+                PsiElement(given)('given')
+              PsiElement(})('}')
+        PsiWhiteSpace('\n\n')
+        ScObject: S
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(object)('object')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('S')
+          PsiWhiteSpace(' ')
+          ExtendsBlock
+            ScTemplateBody
+              PsiElement({)('{')
+              PsiWhiteSpace('\n\n')
+              ScTrait: AllocatedNodeTypeFamily
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('AllocatedNodeTypeFamily')
+                ExtendsBlock
+                  ScTemplateBody
+                    PsiElement(:)(':')
+                    PsiWhiteSpace('\n  ')
+                    ScTypeAliasDeclaration: Node
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('Node')
+              PsiWhiteSpace('\n\n')
+              ScTrait: Parser
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(trait)('trait')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('Parser')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: A
+                    PsiElement(identifier)('+')
+                    PsiElement(identifier)('A')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                PrimaryConstructor
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    AccessModifier
+                      PsiElement(private)('private')
+                      PsiElement([)('[')
+                      PsiElement(identifier)('S')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  Parameters
+                    ParametersClause
+                      PsiElement(()('(')
+                      PsiElement())(')')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  ScTemplateBody
+                    PsiElement(:)(':')
+                    PsiWhiteSpace('\n  ')
+                    ScTypeAliasDeclaration: SpcNd
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('SpcNd')
+              PsiWhiteSpace('\n\n')
+              ScTypeAliasDefinition: OutliningParser
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(type)('type')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('OutliningParser')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: A
+                    PsiElement(identifier)('+')
+                    PsiElement(identifier)('A')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  TypeParameter: Node
+                    PsiElement(identifier)('+')
+                    PsiElement(identifier)('Node')
+                  PsiElement(])(']')
+                PsiWhiteSpace('\n')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                CompoundType: Parser[A] { type SpcNd <: Node }
+                  ParametrizedType: Parser[A]
+                    SimpleType: Parser
+                      CodeReferenceElement: Parser
+                        PsiElement(identifier)('Parser')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: A
+                          CodeReferenceElement: A
+                            PsiElement(identifier)('A')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  Refinement
+                    PsiElement({)('{')
+                    PsiWhiteSpace(' ')
+                    ScTypeAliasDeclaration: SpcNd
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(type)('type')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('SpcNd')
+                      PsiWhiteSpace(' ')
+                      PsiElement(<:)('<:')
+                      PsiWhiteSpace(' ')
+                      SimpleType: Node
+                        CodeReferenceElement: Node
+                          PsiElement(identifier)('Node')
+                    PsiWhiteSpace(' ')
+                    PsiElement(})('}')
+              PsiWhiteSpace('\n\n')
+              Extension on Parser[R1]
+                PsiElement(extension)('extension')
+                PsiWhiteSpace(' ')
+                TypeParameterClause
+                  PsiElement([)('[')
+                  TypeParameter: R1
+                    PsiElement(identifier)('R1')
+                  PsiElement(])(']')
+                PsiWhiteSpace(' ')
+                Parameters
+                  ParametersClause
+                    PsiElement(()('(')
+                    Parameter: g1
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('g1')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        ParametrizedType: Parser[R1]
+                          SimpleType: Parser
+                            CodeReferenceElement: Parser
+                              PsiElement(identifier)('Parser')
+                          TypeArgumentsList
+                            PsiElement([)('[')
+                            TypeArgument
+                              SimpleType: R1
+                                CodeReferenceElement: R1
+                                  PsiElement(identifier)('R1')
+                            PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement())(')')
+                  PsiWhiteSpace('\n              ')
+                  ParametersClause
+                    PsiElement(()('(')
+                    PsiElement(using)('using')
+                    PsiWhiteSpace(' ')
+                    Parameter: pfmoIspcndi
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(identifier)('pfmoIspcndi')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      ParameterType
+                        SimpleType: ParserFlatMapOp.ISpcNdInvariant
+                          CodeReferenceElement: ParserFlatMapOp.ISpcNdInvariant
+                            CodeReferenceElement: ParserFlatMapOp
+                              PsiElement(identifier)('ParserFlatMapOp')
+                            PsiElement(.)('.')
+                            PsiElement(identifier)('ISpcNdInvariant')
+                      PsiWhiteSpace(' ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      GenericCall
+                        ReferenceExpression: new ParserFlatMapOp.ISpcNdInvariant {}.asInstanceOf
+                          ScNewTemplateDefinition: <anonymous>
+                            PsiElement(new)('new')
+                            PsiWhiteSpace(' ')
+                            ExtendsBlock
+                              TemplateParents
+                                ConstructorInvocation
+                                  SimpleType: ParserFlatMapOp.ISpcNdInvariant
+                                    CodeReferenceElement: ParserFlatMapOp.ISpcNdInvariant
+                                      CodeReferenceElement: ParserFlatMapOp
+                                        PsiElement(identifier)('ParserFlatMapOp')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('ISpcNdInvariant')
+                              PsiWhiteSpace(' ')
+                              ScTemplateBody
+                                PsiElement({)('{')
+                                PsiElement(})('}')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('asInstanceOf')
+                        TypeArgumentsList
+                          PsiElement([)('[')
+                          TypeArgument
+                            CompoundType: ParserFlatMapOp.ISpcNdInvariant { type SpcNdObj = g1.SpcNd }
+                              SimpleType: ParserFlatMapOp.ISpcNdInvariant
+                                CodeReferenceElement: ParserFlatMapOp.ISpcNdInvariant
+                                  CodeReferenceElement: ParserFlatMapOp
+                                    PsiElement(identifier)('ParserFlatMapOp')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('ISpcNdInvariant')
+                              PsiWhiteSpace(' ')
+                              Refinement
+                                PsiElement({)('{')
+                                PsiWhiteSpace(' ')
+                                ScTypeAliasDefinition: SpcNdObj
+                                  AnnotationsList
+                                    <empty list>
+                                  Modifiers
+                                    <empty list>
+                                  PsiElement(type)('type')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(identifier)('SpcNdObj')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=)('=')
+                                  PsiWhiteSpace(' ')
+                                  SimpleType: g1.SpcNd
+                                    CodeReferenceElement: g1.SpcNd
+                                      CodeReferenceElement: g1
+                                        PsiElement(identifier)('g1')
+                                      PsiElement(.)('.')
+                                      PsiElement(identifier)('SpcNd')
+                                PsiWhiteSpace(' ')
+                                PsiElement(})('}')
+                          PsiWhiteSpace(' ')
+                          PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement())(')')
+                PsiWhiteSpace('\n\n            ')
+                ScExtensionBody
+                  ScFunctionDefinition: map
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace('     ')
+                    PsiElement(identifier)('map')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: R2
+                        PsiElement(identifier)('R2')
+                      PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: m
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('m')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            FunctionalType: R1 => (       R2  )
+                              SimpleType: R1
+                                CodeReferenceElement: R1
+                                  PsiElement(identifier)('R1')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              TypeInParenthesis: (       R2  )
+                                PsiElement(()('(')
+                                PsiWhiteSpace('       ')
+                                SimpleType: R2
+                                  CodeReferenceElement: R2
+                                    PsiElement(identifier)('R2')
+                                PsiWhiteSpace('  ')
+                                PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: OutliningParser[R2, g1.SpcNd]
+                      SimpleType: OutliningParser
+                        CodeReferenceElement: OutliningParser
+                          PsiElement(identifier)('OutliningParser')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: R2
+                            CodeReferenceElement: R2
+                              PsiElement(identifier)('R2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: g1.SpcNd
+                            CodeReferenceElement: g1.SpcNd
+                              CodeReferenceElement: g1
+                                PsiElement(identifier)('g1')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('SpcNd')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: new Parser[Any] {}.asInstanceOf
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              ParametrizedType: Parser[Any]
+                                SimpleType: Parser
+                                  CodeReferenceElement: Parser
+                                    PsiElement(identifier)('Parser')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: Any
+                                      CodeReferenceElement: Any
+                                        PsiElement(identifier)('Any')
+                                  PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          ScTemplateBody
+                            PsiElement({)('{')
+                            PsiElement(})('}')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('asInstanceOf')
+                  PsiWhiteSpace('\n            ')
+                  ScFunctionDefinition: flatMap
+                    AnnotationsList
+                      <empty list>
+                    Modifiers
+                      <empty list>
+                    PsiElement(def)('def')
+                    PsiWhiteSpace(' ')
+                    PsiElement(identifier)('flatMap')
+                    TypeParameterClause
+                      PsiElement([)('[')
+                      TypeParameter: R2
+                        PsiElement(identifier)('R2')
+                      PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    Parameters
+                      ParametersClause
+                        PsiElement(()('(')
+                        Parameter: m
+                          AnnotationsList
+                            <empty list>
+                          Modifiers
+                            <empty list>
+                          PsiElement(identifier)('m')
+                          PsiElement(:)(':')
+                          PsiWhiteSpace(' ')
+                          ParameterType
+                            FunctionalType: R1 => (Parser[R2] )
+                              SimpleType: R1
+                                CodeReferenceElement: R1
+                                  PsiElement(identifier)('R1')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=>)('=>')
+                              PsiWhiteSpace(' ')
+                              TypeInParenthesis: (Parser[R2] )
+                                PsiElement(()('(')
+                                ParametrizedType: Parser[R2]
+                                  SimpleType: Parser
+                                    CodeReferenceElement: Parser
+                                      PsiElement(identifier)('Parser')
+                                  TypeArgumentsList
+                                    PsiElement([)('[')
+                                    TypeArgument
+                                      SimpleType: R2
+                                        CodeReferenceElement: R2
+                                          PsiElement(identifier)('R2')
+                                    PsiElement(])(']')
+                                PsiWhiteSpace(' ')
+                                PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement())(')')
+                    PsiElement(:)(':')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: OutliningParser[R2, g1.SpcNd]
+                      SimpleType: OutliningParser
+                        CodeReferenceElement: OutliningParser
+                          PsiElement(identifier)('OutliningParser')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: R2
+                            CodeReferenceElement: R2
+                              PsiElement(identifier)('R2')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        TypeArgument
+                          SimpleType: g1.SpcNd
+                            CodeReferenceElement: g1.SpcNd
+                              CodeReferenceElement: g1
+                                PsiElement(identifier)('g1')
+                              PsiElement(.)('.')
+                              PsiElement(identifier)('SpcNd')
+                        PsiElement(])(']')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=)('=')
+                    PsiWhiteSpace(' ')
+                    ReferenceExpression: new Parser[Any] {}.asInstanceOf
+                      ScNewTemplateDefinition: <anonymous>
+                        PsiElement(new)('new')
+                        PsiWhiteSpace(' ')
+                        ExtendsBlock
+                          TemplateParents
+                            ConstructorInvocation
+                              ParametrizedType: Parser[Any]
+                                SimpleType: Parser
+                                  CodeReferenceElement: Parser
+                                    PsiElement(identifier)('Parser')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  TypeArgument
+                                    SimpleType: Any
+                                      CodeReferenceElement: Any
+                                        PsiElement(identifier)('Any')
+                                  PsiElement(])(']')
+                          PsiWhiteSpace(' ')
+                          ScTemplateBody
+                            PsiElement({)('{')
+                            PsiElement(})('}')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('asInstanceOf')
+              PsiWhiteSpace('\n\n')
+              ScObject: ParserFlatMapOp
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(object)('object')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('ParserFlatMapOp')
+                PsiWhiteSpace(' ')
+                ExtendsBlock
+                  ScTemplateBody
+                    PsiElement({)('{')
+                    PsiWhiteSpace('\n\n  ')
+                    ScGivenAliasDefinition: given_ISpcNdInvariant_PModAllocatedNodeTypeFamily
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(given)('given')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('given_ISpcNdInvariant_PModAllocatedNodeTypeFamily')
+                      PsiWhiteSpace('\n  ')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      Parameters
+                        ParametersClause
+                          PsiElement(()('(')
+                          Parameter: x
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(identifier)('x')
+                            PsiElement(:)(':')
+                            PsiWhiteSpace(' ')
+                            ParameterType
+                              SimpleType: AllocatedNodeTypeFamily
+                                CodeReferenceElement: AllocatedNodeTypeFamily
+                                  PsiElement(identifier)('AllocatedNodeTypeFamily')
+                          PsiWhiteSpace(' ')
+                          PsiElement())(')')
+                        PsiWhiteSpace(' ')
+                        PsiElement(=>)('=>')
+                      PsiWhiteSpace(' ')
+                      TypeInParenthesis: (ISpcNdInvariant { type SpcNdObj = x.Node })
+                        PsiElement(()('(')
+                        CompoundType: ISpcNdInvariant { type SpcNdObj = x.Node }
+                          SimpleType: ISpcNdInvariant
+                            CodeReferenceElement: ISpcNdInvariant
+                              PsiElement(identifier)('ISpcNdInvariant')
+                          PsiWhiteSpace(' ')
+                          Refinement
+                            PsiElement({)('{')
+                            PsiWhiteSpace(' ')
+                            ScTypeAliasDefinition: SpcNdObj
+                              AnnotationsList
+                                <empty list>
+                              Modifiers
+                                <empty list>
+                              PsiElement(type)('type')
+                              PsiWhiteSpace(' ')
+                              PsiElement(identifier)('SpcNdObj')
+                              PsiWhiteSpace(' ')
+                              PsiElement(=)('=')
+                              PsiWhiteSpace(' ')
+                              SimpleType: x.Node
+                                CodeReferenceElement: x.Node
+                                  CodeReferenceElement: x
+                                    PsiElement(identifier)('x')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('Node')
+                            PsiWhiteSpace(' ')
+                            PsiElement(})('}')
+                        PsiElement())(')')
+                      PsiWhiteSpace('\n  ')
+                      PsiElement(=)('=')
+                      PsiWhiteSpace(' ')
+                      ReferenceExpression: new ISpcNdInvariant {}.asInstanceOf
+                        ScNewTemplateDefinition: <anonymous>
+                          PsiElement(new)('new')
+                          PsiWhiteSpace(' ')
+                          ExtendsBlock
+                            TemplateParents
+                              ConstructorInvocation
+                                SimpleType: ISpcNdInvariant
+                                  CodeReferenceElement: ISpcNdInvariant
+                                    PsiElement(identifier)('ISpcNdInvariant')
+                            PsiWhiteSpace(' ')
+                            ScTemplateBody
+                              PsiElement({)('{')
+                              PsiElement(})('}')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('asInstanceOf')
+                    PsiWhiteSpace('\n\n  ')
+                    ScTrait: ISpcNdInvariant
+                      AnnotationsList
+                        <empty list>
+                      Modifiers
+                        <empty list>
+                      PsiElement(trait)('trait')
+                      PsiWhiteSpace(' ')
+                      PsiElement(identifier)('ISpcNdInvariant')
+                      PsiWhiteSpace(' ')
+                      ExtendsBlock
+                        ScTemplateBody
+                          PsiElement(:)(':')
+                          PsiWhiteSpace('\n    ')
+                          ScTypeAliasDeclaration: SpcNdObj
+                            AnnotationsList
+                              <empty list>
+                            Modifiers
+                              <empty list>
+                            PsiElement(type)('type')
+                            PsiWhiteSpace(' ')
+                            PsiElement(identifier)('SpcNdObj')
+                    PsiWhiteSpace('\n\n')
+                    PsiElement(})('}')
+              PsiWhiteSpace(' ')
+              PsiComment(comment)('// ParserFlatMapOp.')
+              PsiWhiteSpace('\n\n')
+              ScFunctionDefinition: defaultIntParser
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(def)('def')
+                PsiWhiteSpace(' ')
+                PsiElement(identifier)('defaultIntParser')
+                Parameters
+                  <empty list>
+                PsiWhiteSpace('\n  ')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParametrizedType: Parser[Int]
+                  SimpleType: Parser
+                    CodeReferenceElement: Parser
+                      PsiElement(identifier)('Parser')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    TypeArgument
+                      SimpleType: Int
+                        CodeReferenceElement: Int
+                          PsiElement(identifier)('Int')
+                    PsiElement(])(']')
+                PsiWhiteSpace('\n')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: new Parser[Any] {}.asInstanceOf
+                  ScNewTemplateDefinition: <anonymous>
+                    PsiElement(new)('new')
+                    PsiWhiteSpace(' ')
+                    ExtendsBlock
+                      TemplateParents
+                        ConstructorInvocation
+                          ParametrizedType: Parser[Any]
+                            SimpleType: Parser
+                              CodeReferenceElement: Parser
+                                PsiElement(identifier)('Parser')
+                            TypeArgumentsList
+                              PsiElement([)('[')
+                              TypeArgument
+                                SimpleType: Any
+                                  CodeReferenceElement: Any
+                                    PsiElement(identifier)('Any')
+                              PsiElement(])(']')
+                      PsiWhiteSpace(' ')
+                      ScTemplateBody
+                        PsiElement({)('{')
+                        PsiElement(})('}')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('asInstanceOf')
+              PsiWhiteSpace('\n\n')
+              PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiComment(comment)('// S.')
+        PsiWhiteSpace('\n\n')
+        MethodCall
+          ReferenceExpression: locally
+            PsiElement(identifier)('locally')
+          PsiWhiteSpace(' ')
+          ArgumentList
+            BlockExpression
+              PsiElement(:)(':')
+              PsiWhiteSpace('\n  ')
+              MethodCall
+                ReferenceExpression: locally :
+    for
+      r1 <- S.defaultIntParser
+      r2 <- S.defaultIntParser
+    yield { 5 }
+  .toString
+                  MethodCall
+                    ReferenceExpression: locally
+                      PsiElement(identifier)('locally')
+                    PsiWhiteSpace(' ')
+                    ArgumentList
+                      BlockExpression
+                        PsiElement(:)(':')
+                        PsiWhiteSpace('\n    ')
+                        ForStatement
+                          PsiElement(for)('for')
+                          PsiWhiteSpace('\n      ')
+                          Enumerators
+                            Generator
+                              ReferencePattern: r1
+                                PsiElement(identifier)('r1')
+                              PsiWhiteSpace(' ')
+                              PsiElement(<-)('<-')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: S.defaultIntParser
+                                ReferenceExpression: S
+                                  PsiElement(identifier)('S')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('defaultIntParser')
+                            PsiWhiteSpace('\n      ')
+                            Generator
+                              ReferencePattern: r2
+                                PsiElement(identifier)('r2')
+                              PsiWhiteSpace(' ')
+                              PsiElement(<-)('<-')
+                              PsiWhiteSpace(' ')
+                              ReferenceExpression: S.defaultIntParser
+                                ReferenceExpression: S
+                                  PsiElement(identifier)('S')
+                                PsiElement(.)('.')
+                                PsiElement(identifier)('defaultIntParser')
+                          PsiWhiteSpace('\n    ')
+                          PsiElement(yield)('yield')
+                          PsiWhiteSpace(' ')
+                          BlockExpression
+                            PsiElement({)('{')
+                            PsiWhiteSpace(' ')
+                            IntegerLiteral
+                              PsiElement(integer)('5')
+                            PsiWhiteSpace(' ')
+                            PsiElement(})('}')
+                  PsiWhiteSpace('\n  ')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('toString')
+                ArgumentList
+                  PsiElement(()('(')
+                  PsiElement())(')')
+        PsiWhiteSpace('\n\n')
+        PsiElement(})('}')

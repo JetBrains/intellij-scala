@@ -11,7 +11,7 @@ class TreeSet[A]
 
 class Test {
   def optionSequence1[CCos[X] <: IterableOps[X, CCos, _], A](xs: CCos[Option[A]]): Option[CCos[A]] = ???
-  def optionSequence1[CC[X] <: SortedSet[X] with SortedSetOps[X, CC, CC[X]], A : Ordering](xs: CC[Option[A]]): Option[CC[A]] = ???
+  def optionSequence1[CC[X] <: SortedSet[X] & SortedSetOps[X, CC, CC[X]], A : Ordering](xs: CC[Option[A]]): Option[CC[A]] = ???
 
   def test(xs2: TreeSet[Option[String]]) = {
     optionSequence1(xs2)
@@ -487,7 +487,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(<:)('<:')
               PsiWhiteSpace(' ')
-              CompoundType: SortedSet[X] with SortedSetOps[X, CC, CC[X]]
+              InfixType: SortedSet[X] & SortedSetOps[X, CC, CC[X]]
                 ParametrizedType: SortedSet[X]
                   SimpleType: SortedSet
                     CodeReferenceElement: SortedSet
@@ -500,7 +500,8 @@ ScalaFile
                           PsiElement(identifier)('X')
                     PsiElement(])(']')
                 PsiWhiteSpace(' ')
-                PsiElement(with)('with')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
                 PsiWhiteSpace(' ')
                 ParametrizedType: SortedSetOps[X, CC, CC[X]]
                   SimpleType: SortedSetOps

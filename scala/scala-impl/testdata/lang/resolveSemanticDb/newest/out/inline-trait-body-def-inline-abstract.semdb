@@ -1,0 +1,5 @@
+Document tests/pos/inline-trait-body-def-inline-abstract.scala
+(3:17..3:20) scala/Int#
+(5:17..5:18) _empty_/A# -> 2:14
+(7:11..7:12) _empty_/B#x(). -> 6:14
+

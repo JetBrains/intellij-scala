@@ -1,0 +1,64 @@
+Document tests/pos/i23134.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:38) scala/compiletime/package$package.summonInline().
+(6:21..6:24) scala/Int#
+(8:12..8:13) _empty_/i23134.A# -> 5:9
+(9:30..9:33) scala/Int#
+(11:3..11:9) scala/Predef.summon().
+(11:10..11:11) _empty_/i23134.A# -> 5:9
+(11:13..11:16) _empty_/i23134.a.foo(). -> 9:25
+(13:29..13:32) scala/Int#
+(13:35..13:47) scala/compiletime/package$package.summonInline().
+(13:48..13:49) _empty_/i23134.A# -> 5:9
+(13:51..13:54) _empty_/i23134.A#foo(). -> 6:16
+(15:3..15:16) _empty_/i23134.summonAAndFoo(). -> 13:14
+(19:23..19:26) scala/Int#
+(19:29..19:32) scala/Int#
+(21:12..21:13) _empty_/i23134_overloaded.A# -> 18:9
+(22:32..22:35) scala/Int#
+(22:38..22:41) scala/Int#
+(22:44..22:45) _empty_/i23134_overloaded.a.foo().(x) -> 22:29
+(22:46..22:47) scala/Int#`+`(+4).
+(23:23..23:29) scala/Predef.String#
+(23:32..23:38) scala/Predef.String#
+(23:41..23:42) _empty_/i23134_overloaded.a.foo(+1).(x) -> 23:20
+(25:29..25:32) scala/Int#
+(25:35..25:47) scala/compiletime/package$package.summonInline().
+(25:48..25:49) _empty_/i23134_overloaded.A# -> 18:9
+(25:51..25:54) _empty_/i23134_overloaded.A#foo(). -> 19:16
+(27:3..27:16) _empty_/i23134_overloaded.summonAAndFoo(). -> 25:14
+(31:17..31:20) scala/Int#
+(32:21..32:24) _empty_/i23134_refined.A#Out# -> 31:10
+(34:14..34:15) _empty_/i23134_refined.A# -> 30:9
+(36:12..36:13) _empty_/i23134_refined.A# -> 30:9
+(40:33..40:45) scala/compiletime/package$package.summonInline().
+(40:46..40:49) _empty_/i23134_refined.Aux# -> 34:8
+(40:51..40:54) _empty_/i23134_refined.A#foo(). -> 32:16
+(42:3..42:16) _empty_/i23134_refined.summonAAndFoo(). -> 40:14
+(46:21..46:24) scala/Any#
+(48:12..48:13) _empty_/i23134_precise_return.A# -> 45:9
+(49:30..49:36) scala/Predef.String#
+(51:11..51:17) scala/Predef.String#
+(51:20..51:26) scala/Predef.summon().
+(51:27..51:28) _empty_/i23134_precise_return.A# -> 45:9
+(51:30..51:33) _empty_/i23134_precise_return.a.foo(). -> 49:25
+(52:11..52:17) scala/Predef.String#
+(52:36..52:39) _empty_/i23134_precise_return.a.foo(). -> 49:25
+(57:21..57:24) _empty_/i23134_literal_out.TC#Out# -> 56:10
+(59:13..59:15) _empty_/i23134_literal_out.TC# -> 55:9
+(63:18..63:24) scala/Predef.summon().
+(63:25..63:27) _empty_/i23134_literal_out.TC# -> 55:9
+(63:29..63:32) _empty_/i23134_literal_out.tc.out(). -> 61:25
+(64:35..64:38) _empty_/i23134_literal_out.tc.out(). -> 61:25
+(69:23..69:26) _empty_/i23134_int_out.A#Out# -> 68:10
+(71:12..71:13) _empty_/i23134_int_out.A# -> 67:9
+(72:16..72:19) scala/Int#
+(73:32..73:35) scala/Int#
+(75:11..75:14) scala/Int#
+(75:17..75:23) scala/Predef.summon().
+(75:24..75:25) _empty_/i23134_int_out.A# -> 67:9
+(75:27..75:32) _empty_/i23134_int_out.a.value(). -> 73:25
+(76:11..76:14) scala/Int#
+(76:33..76:38) _empty_/i23134_int_out.a.value(). -> 73:25
+

@@ -30,12 +30,12 @@ Document tests/pos/spec-funs.scala
 (21:32..21:33) local3 -> 21:17
 (21:34..21:35) scala/Int#`*`(+3).
 (21:36..21:37) local3 -> 21:17
-(23:17..23:22) scala/runtime/RichInt#until().
+(23:17..23:22) scala/Int.until().
 (23:23..23:29) _empty_/IntTest#niters. -> 7:7
 (24:7..24:13) _empty_/IntTest#transF(). -> 9:7
 (24:14..24:16) local2 -> 19:9
 (24:18..24:19) local7 -> 20:9
-(27:17..27:22) scala/runtime/RichInt#until().
+(27:17..27:22) scala/Int.until().
 (27:23..27:25) local2 -> 19:9
 (27:26..27:32) scala/Array#length().
 (27:34..27:37) local9 -> 26:9
@@ -62,14 +62,14 @@ Document tests/pos/spec-funs.scala
 (45:14..45:18) scala/Unit#
 (46:18..46:23) scala/Array#
 (46:24..46:27) scala/Int#
-(48:17..48:22) scala/runtime/RichInt#until().
+(48:17..48:22) scala/Int.until().
 (48:23..48:29) _empty_/ClosureTest#niters. -> 34:7
 (49:7..49:13) _empty_/ClosureTest#transF(). -> 36:7
 (49:14..49:16) local13 -> 46:9
 (49:23..49:24) local15 -> 49:18
 (49:25..49:26) scala/Int#`*`(+3).
 (49:27..49:28) local15 -> 49:18
-(52:17..52:22) scala/runtime/RichInt#until().
+(52:17..52:22) scala/Int.until().
 (52:23..52:25) local13 -> 46:9
 (52:26..52:32) scala/Array#length().
 (52:34..52:37) local16 -> 51:9

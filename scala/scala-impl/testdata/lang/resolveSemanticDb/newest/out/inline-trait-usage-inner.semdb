@@ -1,0 +1,7 @@
+Document tests/pos/inline-trait-usage-inner.scala
+(4:12..4:13) _empty_/O.A#[T] -> 3:18
+(4:16..4:19) scala/Predef.`???`().
+(6:17..6:18) _empty_/O. -> 2:8
+(6:19..6:20) _empty_/O.A# -> 3:16
+(6:21..6:24) scala/Int#
+

@@ -26,12 +26,12 @@ Document tests/pos/phantom-Eq.scala
 (21:41..21:44) scala/Any#
 (23:20..23:21) _empty_/EqUtil.`===`().[T] -> 23:14
 (24:19..24:20) _empty_/EqUtil.`===`().[U] -> 24:13
-(24:35..24:44) _empty_/EqUtil.PhantomEq# -> 19:9
-(24:45..24:46) _empty_/EqUtil.`===`().[T] -> 23:14
-(24:48..24:49) _empty_/EqUtil.`===`().[U] -> 24:13
-(24:54..24:55) _empty_/EqUtil.`===`().(x) -> 23:17
-(24:56..24:62) scala/Any#equals().
-(24:63..24:64) _empty_/EqUtil.`===`().(y) -> 24:16
+(24:39..24:48) _empty_/EqUtil.PhantomEq# -> 19:9
+(24:49..24:50) _empty_/EqUtil.`===`().[T] -> 23:14
+(24:52..24:53) _empty_/EqUtil.`===`().[U] -> 24:13
+(24:58..24:59) _empty_/EqUtil.`===`().(x) -> 23:17
+(24:60..24:66) scala/Any#equals().
+(24:67..24:68) _empty_/EqUtil.`===`().(y) -> 24:16
 (26:26..26:37) _empty_/EqUtil.PhantomEqEq# -> 20:8
 (26:38..26:44) scala/Predef.String#
 (26:48..26:57) _empty_/EqUtil.phantomEq. -> 21:14
@@ -49,13 +49,13 @@ Document tests/pos/phantom-Eq.scala
 (31:37..31:43) java/lang/Number#
 (31:45..31:49) scala/Byte#
 (31:53..31:62) _empty_/EqUtil.phantomEq. -> 21:14
-(33:41..33:50) _empty_/EqUtil.PhantomEq# -> 19:9
-(33:51..33:52) _empty_/EqUtil.eqSeq().[T] -> 33:24
-(33:54..33:55) _empty_/EqUtil.eqSeq().[U] -> 33:27
-(33:61..33:70) _empty_/EqUtil.PhantomEq# -> 19:9
-(33:71..33:74) scala/package.Seq#
-(33:75..33:76) _empty_/EqUtil.eqSeq().[T] -> 33:24
-(33:79..33:82) scala/package.Seq#
-(33:83..33:84) _empty_/EqUtil.eqSeq().[U] -> 33:27
-(33:89..33:98) _empty_/EqUtil.phantomEq. -> 21:14
+(33:45..33:54) _empty_/EqUtil.PhantomEq# -> 19:9
+(33:55..33:56) _empty_/EqUtil.eqSeq().[T] -> 33:24
+(33:58..33:59) _empty_/EqUtil.eqSeq().[U] -> 33:27
+(33:65..33:74) _empty_/EqUtil.PhantomEq# -> 19:9
+(33:75..33:78) scala/package.Seq#
+(33:79..33:80) _empty_/EqUtil.eqSeq().[T] -> 33:24
+(33:83..33:86) scala/package.Seq#
+(33:87..33:88) _empty_/EqUtil.eqSeq().[U] -> 33:27
+(33:93..33:102) _empty_/EqUtil.phantomEq. -> 21:14
 

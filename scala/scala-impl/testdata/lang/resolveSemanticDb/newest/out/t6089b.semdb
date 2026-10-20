@@ -9,9 +9,9 @@ Document tests/pos/t6089b.scala
 (9:9..9:11) scala/Int#`==`(+3).
 (9:14..9:16) scala/Boolean#`||`().
 (9:19..9:22) scala/Predef.Map.
-(9:25..9:27) scala/Predef.ArrowAssoc#`->`().
-(9:36..9:38) scala/Predef.ArrowAssoc#`->`().
-(9:46..9:48) scala/Predef.ArrowAssoc#`->`().
+(9:25..9:27) scala/Predef.`->`().
+(9:36..9:38) scala/Predef.`->`().
+(9:46..9:48) scala/Predef.`->`().
 (9:55..9:58) scala/collection/MapOps#get().
 (9:59..9:60) local2 -> 8:11
 (10:14..10:18) scala/None.

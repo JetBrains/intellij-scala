@@ -1,0 +1,5 @@
+Document tests/pos/inline-trait-body-setter.scala
+(4:15..4:18) scala/Int#
+(4:22..4:25) scala/Predef.`???`().
+(7:17..7:18) _empty_/A# -> 2:14
+

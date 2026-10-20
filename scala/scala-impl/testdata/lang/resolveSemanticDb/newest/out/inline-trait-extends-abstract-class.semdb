@@ -1,0 +1,7 @@
+Document tests/pos/inline-trait-extends-abstract-class.scala
+(3:14..3:17) scala/Int#
+(5:19..5:22) scala/Int#
+(5:32..5:33) _empty_/A# -> 2:16
+(6:13..6:14) _empty_/B#x. -> 5:16
+(9:17..9:18) _empty_/B# -> 5:14
+

@@ -1,0 +1,34 @@
+// https://github.com/scala/scala3/issues/25801
+package i25801
+
+def foo: B = ???
+-----
+ScalaFile
+  PsiComment(comment)('// https://github.com/scala/scala3/issues/25801')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: i25801
+      PsiElement(identifier)('i25801')
+    PsiWhiteSpace('\n\n')
+    ScFunctionDefinition: foo
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(def)('def')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('foo')
+      Parameters
+        <empty list>
+      PsiElement(:)(':')
+      PsiWhiteSpace(' ')
+      SimpleType: B
+        CodeReferenceElement: B
+          PsiElement(identifier)('B')
+      PsiWhiteSpace(' ')
+      PsiElement(=)('=')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: ???
+        PsiElement(identifier)('???')

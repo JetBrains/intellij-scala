@@ -80,9 +80,9 @@ Document tests/pos/implicitFuns.scala
 (39:40..39:42) cm2/Test.p2(). -> 35:7
 (39:45..39:48) scala/Predef.Map.
 (39:49..39:51) cm2/Test.p1(). -> 34:7
-(39:52..39:54) scala/Predef.ArrowAssoc#`->`().
+(39:52..39:54) scala/Predef.`->`().
 (39:58..39:60) cm2/Test.p2(). -> 35:7
-(39:61..39:63) scala/Predef.ArrowAssoc#`->`().
+(39:61..39:63) scala/Predef.`->`().
 (41:3..41:10) scala/Predef.println(+1).
 (41:11..41:13) cm2/Test.cm. -> 39:7
 (41:14..41:26) cm2/ConfManagement#viewRankings(). -> 24:7

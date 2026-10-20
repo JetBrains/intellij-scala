@@ -17,16 +17,17 @@ Document tests/pos/i3965a.scala
 (7:43..7:44) _empty_/TreeSet#[A] -> 5:15
 (10:32..10:41) _empty_/SortedSet# -> 1:7
 (10:42..10:43) _empty_/Test#optionSequence1().[CC][X] -> 10:26
-(10:50..10:62) _empty_/SortedSetOps# -> 3:7
-(10:63..10:64) _empty_/Test#optionSequence1().[CC][X] -> 10:26
-(10:66..10:68) _empty_/Test#optionSequence1().[CC] -> 10:23
-(10:70..10:72) _empty_/Test#optionSequence1().[CC] -> 10:23
-(10:73..10:74) _empty_/Test#optionSequence1().[CC][X] -> 10:26
-(10:82..10:90) _empty_/Test#optionSequence1().[A] -> 10:78
-(10:82..10:90) scala/package.Ordering#
-(10:96..10:98) _empty_/Test#optionSequence1().[CC] -> 10:23
-(10:99..10:100) _empty_/Test#optionSequence1().[A] -> 10:78
-(10:104..10:108) scala/Unit#
+(10:45..10:46) scala/`&`#
+(10:47..10:59) _empty_/SortedSetOps# -> 3:7
+(10:60..10:61) _empty_/Test#optionSequence1().[CC][X] -> 10:26
+(10:63..10:65) _empty_/Test#optionSequence1().[CC] -> 10:23
+(10:67..10:69) _empty_/Test#optionSequence1().[CC] -> 10:23
+(10:70..10:71) _empty_/Test#optionSequence1().[CC][X] -> 10:26
+(10:79..10:87) _empty_/Test#optionSequence1().[A] -> 10:75
+(10:79..10:87) scala/package.Ordering#
+(10:93..10:95) _empty_/Test#optionSequence1().[CC] -> 10:23
+(10:96..10:97) _empty_/Test#optionSequence1().[A] -> 10:75
+(10:101..10:105) scala/Unit#
 (12:17..12:24) _empty_/TreeSet# -> 5:7
 (12:25..12:31) scala/Predef.String#
 (13:5..13:20) _empty_/Test#optionSequence1(). -> 10:7

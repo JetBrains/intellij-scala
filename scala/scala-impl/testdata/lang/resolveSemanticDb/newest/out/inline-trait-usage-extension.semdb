@@ -1,0 +1,3 @@
+Document tests/pos/inline-trait-usage-extension.scala
+(4:17..4:18) _empty_/A# -> 2:14
+

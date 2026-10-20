@@ -1,7 +1,7 @@
 Document tests/pos/dep-poly-class.scala
 (4:19..4:20) _empty_/A# -> 1:7
 (4:25..4:26) _empty_/CCPoly#[T] -> 4:14
-(4:31..4:32) _empty_/CCPoly#`<init>`().(a)
+(4:31..4:32) _empty_/CCPoly#`<init>`().(a) -> 4:22
 (4:33..4:34) _empty_/A#B# -> 2:8
 (7:15..7:19) scala/Unit#
 (8:13..8:14) _empty_/A# -> 1:7

@@ -1,0 +1,35 @@
+Document tests/pos/i25866c.scala
+(1:18..1:24) scala/Predef.String#
+(1:28..1:29) _empty_/i25866c$package.Decode#[S] -> 1:13
+(2:15..2:21) scala/Predef.String#
+(3:15..3:22) scala/Boolean#
+(5:23..5:29) scala/Predef.String#
+(5:33..5:39) _empty_/i25866c$package.Decode# -> 1:6
+(5:40..5:41) _empty_/i25866c$package.DecodeAlias#[S] -> 5:18
+(6:24..6:30) scala/Predef.String#
+(6:34..6:45) _empty_/i25866c$package.DecodeAlias# -> 5:6
+(6:46..6:47) _empty_/i25866c$package.DecodeAlias2#[S] -> 6:19
+(8:14..8:20) scala/Predef.String#
+(8:27..8:38) _empty_/i25866c$package.DecodeAlias# -> 5:6
+(8:39..8:40) _empty_/C#[S] -> 8:9
+(8:51..8:55) scala/package.List#
+(8:56..8:57) _empty_/C#[T] -> 8:22
+(9:12..9:16) scala/package.List#
+(9:22..9:33) _empty_/i25866c$package.DecodeAlias# -> 5:6
+(9:39..9:45) scala/Predef.String#
+(9:50..9:52) _empty_/C#ts. -> 8:47
+(11:22..11:28) scala/Predef.String#
+(11:35..11:46) _empty_/i25866c$package.DecodeAlias# -> 5:6
+(11:47..11:48) _empty_/Coll#[S] -> 11:17
+(11:55..11:59) scala/package.List#
+(11:60..11:61) _empty_/Coll#[T] -> 11:30
+(13:14..13:20) scala/Predef.String#
+(13:27..13:39) _empty_/i25866c$package.DecodeAlias2# -> 6:6
+(13:40..13:41) _empty_/D#[S] -> 13:9
+(13:52..13:56) scala/package.List#
+(13:57..13:58) _empty_/D#[T] -> 13:22
+(14:12..14:16) scala/package.List#
+(14:22..14:34) _empty_/i25866c$package.DecodeAlias2# -> 6:6
+(14:40..14:46) scala/Predef.String#
+(14:51..14:53) _empty_/D#ts. -> 13:48
+

@@ -45,29 +45,29 @@ Document tests/pos/nameddefaults.scala
 (40:7..40:8) _empty_/nameddefaults.C# -> 36:9
 (42:7..42:8) _empty_/nameddefaults.C# -> 36:9
 (46:7..46:8) _empty_/nameddefaults.C# -> 36:9
-(46:9..46:14) _empty_/nameddefaults.C#`<init>`().(first)
-(46:20..46:26) _empty_/nameddefaults.C#`<init>`().(second)
+(46:9..46:14) _empty_/nameddefaults.C#`<init>`().(first) -> 36:11
+(46:20..46:26) _empty_/nameddefaults.C#`<init>`().(second) -> 36:23
 (48:7..48:8) _empty_/nameddefaults.C# -> 36:9
-(48:9..48:15) _empty_/nameddefaults.C#`<init>`().(second)
-(48:21..48:26) _empty_/nameddefaults.C#`<init>`().(first)
+(48:9..48:15) _empty_/nameddefaults.C#`<init>`().(second) -> 36:23
+(48:21..48:26) _empty_/nameddefaults.C#`<init>`().(first) -> 36:11
 (50:7..50:8) _empty_/nameddefaults.C# -> 36:9
-(50:9..50:14) _empty_/nameddefaults.C#`<init>`().(first)
-(50:20..50:25) _empty_/nameddefaults.C#`<init>`().(third)
+(50:9..50:14) _empty_/nameddefaults.C#`<init>`().(first) -> 36:11
+(50:20..50:25) _empty_/nameddefaults.C#`<init>`().(third) -> 36:40
 (52:7..52:8) _empty_/nameddefaults.C# -> 36:9
-(52:12..52:17) _empty_/nameddefaults.C#`<init>`().(third)
+(52:12..52:17) _empty_/nameddefaults.C#`<init>`().(third) -> 36:40
 (56:7..56:8) _empty_/nameddefaults.C# -> 36:9
-(56:9..56:14) _empty_/nameddefaults.C#`<init>`().(first)
+(56:9..56:14) _empty_/nameddefaults.C#`<init>`().(first) -> 36:11
 (56:17..56:18) _empty_/nameddefaults.x(). -> 5:7
-(56:20..56:26) _empty_/nameddefaults.C#`<init>`().(second)
+(56:20..56:26) _empty_/nameddefaults.C#`<init>`().(second) -> 36:23
 (56:29..56:30) _empty_/nameddefaults.y(). -> 6:7
 (58:7..58:8) _empty_/nameddefaults.C# -> 36:9
-(58:9..58:15) _empty_/nameddefaults.C#`<init>`().(second)
+(58:9..58:15) _empty_/nameddefaults.C#`<init>`().(second) -> 36:23
 (58:18..58:19) _empty_/nameddefaults.x(). -> 5:7
-(58:21..58:26) _empty_/nameddefaults.C#`<init>`().(first)
+(58:21..58:26) _empty_/nameddefaults.C#`<init>`().(first) -> 36:11
 (58:29..58:30) _empty_/nameddefaults.y(). -> 6:7
 (60:7..60:8) _empty_/nameddefaults.C# -> 36:9
-(60:9..60:14) _empty_/nameddefaults.C#`<init>`().(first)
+(60:9..60:14) _empty_/nameddefaults.C#`<init>`().(first) -> 36:11
 (60:17..60:18) _empty_/nameddefaults.x(). -> 5:7
-(60:20..60:25) _empty_/nameddefaults.C#`<init>`().(third)
+(60:20..60:25) _empty_/nameddefaults.C#`<init>`().(third) -> 36:40
 (60:28..60:29) _empty_/nameddefaults.y(). -> 6:7
 

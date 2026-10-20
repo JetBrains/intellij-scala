@@ -1,23 +1,23 @@
 Document tests/pos/into-separate/Test_2.scala
 (5:9..5:19) scala/Conversion#
 (5:20..5:23) scala/Int#
-(5:25..5:26) test/C# -> 6:7
-(5:30..5:31) test/C# -> 6:7
-(7:12..7:13) test/T# -> 5:12
+(5:25..5:26) test/C# -> 4:7
+(5:30..5:31) test/C# -> 4:7
+(7:12..7:13) test/T# -> 3:12
 (8:3..8:4) test/Test.f(). -> 7:7
 (10:26..10:36) scala/Conversion#
 (10:37..10:43) scala/Predef.String#
-(10:45..10:52) test/Keyword# -> 8:12
-(10:56..10:63) test/Keyword# -> 8:12
+(10:45..10:52) test/Keyword# -> 6:12
+(10:56..10:63) test/Keyword# -> 6:12
 (12:21..12:24) scala/Predef.Set.
-(12:25..12:32) test/Keyword# -> 8:12
+(12:25..12:32) test/Keyword# -> 6:12
 (13:18..13:29) test/Test.dclKeywords. -> 12:7
 (13:30..13:31) scala/collection/immutable/SetOps#`+`().
 (13:37..13:38) scala/collection/immutable/SetOps#`+`().
 (13:46..13:47) scala/collection/immutable/SetOps#`+`().
 
 Document tests/pos/into-separate/classes_1.scala
-(6:12..6:15) scala/Int#
-(6:25..6:26) test/T# -> 5:12
-(8:25..8:31) scala/Predef.String#
+(4:12..4:15) scala/Int#
+(4:25..4:26) test/T# -> 3:12
+(6:25..6:31) scala/Predef.String#
 

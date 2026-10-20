@@ -22,9 +22,10 @@ Document tests/pos/i4884.scala
 (17:31..17:32) _empty_/Test.TestConstructor4#TestConstructor5#[E] -> 16:28
 (17:42..17:46) _empty_/Test.TestConstructor4#TestConstructor5#MSet# -> 18:13
 (17:47..17:48) _empty_/Test.TestConstructor4#TestConstructor5#MSetLike#[X] -> 17:22
-(17:55..17:63) _empty_/Test.TestConstructor4#TestConstructor5#MSetLike# -> 17:13
-(17:64..17:65) _empty_/Test.TestConstructor4#TestConstructor5#MSetLike#[X] -> 17:22
-(17:67..17:71) _empty_/Test.TestConstructor4#TestConstructor5#MSetLike#[This] -> 17:34
+(17:50..17:51) scala/`&`#
+(17:52..17:60) _empty_/Test.TestConstructor4#TestConstructor5#MSetLike# -> 17:13
+(17:61..17:62) _empty_/Test.TestConstructor4#TestConstructor5#MSetLike#[X] -> 17:22
+(17:64..17:68) _empty_/Test.TestConstructor4#TestConstructor5#MSetLike#[This] -> 17:34
 (18:23..18:24) _empty_/Test.TestConstructor4#[D] -> 15:26
 (18:25..18:26) scala/`&`#
 (18:27..18:28) _empty_/Test.TestConstructor4#TestConstructor5#[E] -> 16:28

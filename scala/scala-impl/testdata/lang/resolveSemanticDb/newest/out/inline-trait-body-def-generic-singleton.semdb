@@ -1,0 +1,8 @@
+Document tests/pos/inline-trait-body-def-generic-singleton.scala
+(4:17..4:18) _empty_/A#bar().[T] -> 4:11
+(4:21..4:22) _empty_/A#bar().[T] -> 4:11
+(4:25..4:26) _empty_/A#bar().(x) -> 4:14
+(6:17..6:18) _empty_/A# -> 2:14
+(7:16..7:19) _empty_/A#bar(). -> 4:7
+(8:14..8:17) _empty_/A#foo(). -> 3:7
+

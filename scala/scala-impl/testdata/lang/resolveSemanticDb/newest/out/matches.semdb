@@ -1,5 +1,5 @@
 Document tests/pos/matches.scala
-(3:5..3:8) scala/runtime/RichInt#min().
+(3:5..3:8) scala/Int.min().
 (8:27..8:41) java/lang/AssertionError#
 (11:8..11:9) scala/Int#`<`(+3).
 (12:6..12:8) scala/Boolean#`||`().

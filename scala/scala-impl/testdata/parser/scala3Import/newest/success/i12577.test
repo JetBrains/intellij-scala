@@ -1,0 +1,325 @@
+import compiletime.constValueOpt
+transparent inline def foo[L, R]: Boolean =
+  inline (constValueOpt[L], constValueOpt[R]) match
+    case (Some(l), Some(r)) => true
+    case _                  => false
+transparent inline def fooWorks[L, R]: Boolean =
+  inline constValueOpt[L] match
+    case Some(l) =>
+      inline constValueOpt[R] match
+        case Some(l) => true
+        case _       => false
+    case _ => false
+
+val f: true = foo[1, 2] //error here
+val fWorks: true = fooWorks[1, 2]
+-----
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: compiletime.constValueOpt
+        CodeReferenceElement: compiletime
+          PsiElement(identifier)('compiletime')
+        PsiElement(.)('.')
+        PsiElement(identifier)('constValueOpt')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: foo
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: L
+        PsiElement(identifier)('L')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Boolean
+      CodeReferenceElement: Boolean
+        PsiElement(identifier)('Boolean')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      Tuple
+        PsiElement(()('(')
+        GenericCall
+          ReferenceExpression: constValueOpt
+            PsiElement(identifier)('constValueOpt')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: L
+                CodeReferenceElement: L
+                  PsiElement(identifier)('L')
+            PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        GenericCall
+          ReferenceExpression: constValueOpt
+            PsiElement(identifier)('constValueOpt')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              SimpleType: R
+                CodeReferenceElement: R
+                  PsiElement(identifier)('R')
+            PsiElement(])(']')
+        PsiElement())(')')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n    ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          TuplePattern
+            PsiElement(()('(')
+            ArgumentPatterns
+              ConstructorPattern
+                CodeReferenceElement: Some
+                  PsiElement(identifier)('Some')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: l
+                    PsiElement(identifier)('l')
+                  PsiElement())(')')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              ConstructorPattern
+                CodeReferenceElement: Some
+                  PsiElement(identifier)('Some')
+                Pattern Argument List
+                  PsiElement(()('(')
+                  ReferencePattern: r
+                    PsiElement(identifier)('r')
+                  PsiElement())(')')
+            PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            BooleanLiteral
+              PsiElement(true)('true')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace('                  ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            BooleanLiteral
+              PsiElement(false)('false')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: fooWorks
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(transparent)('transparent')
+      PsiWhiteSpace(' ')
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('fooWorks')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: L
+        PsiElement(identifier)('L')
+      PsiElement(,)(',')
+      PsiWhiteSpace(' ')
+      TypeParameter: R
+        PsiElement(identifier)('R')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Boolean
+      CodeReferenceElement: Boolean
+        PsiElement(identifier)('Boolean')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    MatchStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      GenericCall
+        ReferenceExpression: constValueOpt
+          PsiElement(identifier)('constValueOpt')
+        TypeArgumentsList
+          PsiElement([)('[')
+          TypeArgument
+            SimpleType: L
+              CodeReferenceElement: L
+                PsiElement(identifier)('L')
+          PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      PsiElement(match)('match')
+      PsiWhiteSpace('\n    ')
+      CaseClauses
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          ConstructorPattern
+            CodeReferenceElement: Some
+              PsiElement(identifier)('Some')
+            Pattern Argument List
+              PsiElement(()('(')
+              ReferencePattern: l
+                PsiElement(identifier)('l')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace('\n      ')
+          BlockOfExpressions
+            MatchStatement
+              PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              GenericCall
+                ReferenceExpression: constValueOpt
+                  PsiElement(identifier)('constValueOpt')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: R
+                      CodeReferenceElement: R
+                        PsiElement(identifier)('R')
+                  PsiElement(])(']')
+              PsiWhiteSpace(' ')
+              PsiElement(match)('match')
+              PsiWhiteSpace('\n        ')
+              CaseClauses
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  ConstructorPattern
+                    CodeReferenceElement: Some
+                      PsiElement(identifier)('Some')
+                    Pattern Argument List
+                      PsiElement(()('(')
+                      ReferencePattern: l
+                        PsiElement(identifier)('l')
+                      PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    BooleanLiteral
+                      PsiElement(true)('true')
+                PsiWhiteSpace('\n        ')
+                CaseClause
+                  PsiElement(case)('case')
+                  PsiWhiteSpace(' ')
+                  WildcardPattern
+                    PsiElement(_)('_')
+                  PsiWhiteSpace('       ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  BlockOfExpressions
+                    BooleanLiteral
+                      PsiElement(false)('false')
+        PsiWhiteSpace('\n    ')
+        CaseClause
+          PsiElement(case)('case')
+          PsiWhiteSpace(' ')
+          WildcardPattern
+            PsiElement(_)('_')
+          PsiWhiteSpace(' ')
+          PsiElement(=>)('=>')
+          PsiWhiteSpace(' ')
+          BlockOfExpressions
+            BooleanLiteral
+              PsiElement(false)('false')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition: f
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f
+        PsiElement(identifier)('f')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    LiteralType: true
+      BooleanLiteral
+        PsiElement(true)('true')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: foo
+        PsiElement(identifier)('foo')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          LiteralType: 1
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          LiteralType: 2
+            IntegerLiteral
+              PsiElement(integer)('2')
+        PsiElement(])(']')
+  PsiWhiteSpace(' ')
+  PsiComment(comment)('//error here')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition: fWorks
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: fWorks
+        PsiElement(identifier)('fWorks')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    LiteralType: true
+      BooleanLiteral
+        PsiElement(true)('true')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: fooWorks
+        PsiElement(identifier)('fooWorks')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          LiteralType: 1
+            IntegerLiteral
+              PsiElement(integer)('1')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        TypeArgument
+          LiteralType: 2
+            IntegerLiteral
+              PsiElement(integer)('2')
+        PsiElement(])(']')

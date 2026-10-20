@@ -43,7 +43,7 @@ Document tests/pos/infer-tracked-parsercombinators-expanded.scala
 (33:25..33:26) _empty_/test.combine#[A] -> 32:17
 (34:14..34:24) _empty_/Combinator# -> 7:7
 (34:25..34:26) _empty_/test.combine#[B] -> 32:20
-(34:45..34:46) _empty_/test.combine#`<init>`().(f)
+(34:45..34:46) _empty_/test.combine#`<init>`().(f) -> 33:11
 (34:47..34:54) _empty_/Combinator#Context# -> 10:8
 (35:13..35:23) _empty_/Combinator# -> 7:7
 (35:24..35:31) _empty_/Combine# -> 20:18
@@ -86,7 +86,7 @@ Document tests/pos/infer-tracked-parsercombinators-expanded.scala
 (50:41..50:47) scala/collection/mutable/ListBuffer#remove().
 (52:4..52:8) scala/main#
 (52:20..52:24) scala/Unit#
-(53:21..53:23) scala/runtime/RichInt#to().
+(53:21..53:23) scala/Int.to().
 (53:28..53:34) scala/collection/IterableOnceOps#toList().
 (54:18..54:24) local5 -> 53:9
 (54:25..54:27) scala/collection/IterableOnceOps#to().

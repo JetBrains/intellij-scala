@@ -1,0 +1,15 @@
+Document tests/pos/i11253.scala
+(3:14..3:18) java/lang/Enum#
+(3:19..3:20) _empty_/U#[E] -> 3:9
+(3:31..3:35) java/lang/Enum#
+(3:36..3:37) _empty_/U#[E] -> 3:9
+(4:22..4:26) java/lang/Enum#
+(4:27..4:29) _empty_/E9# -> 8:6
+(6:17..6:21) java/lang/Enum#
+(6:22..6:24) _empty_/E4# -> 6:6
+(8:17..8:21) java/lang/Enum#
+(8:22..8:24) _empty_/E9# -> 8:6
+(8:31..8:37) _empty_/TValid# -> 4:7
+(10:18..10:19) _empty_/U# -> 3:7
+(10:20..10:23) _empty_/E10# -> 10:6
+

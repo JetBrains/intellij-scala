@@ -1,7 +1,7 @@
 Document tests/pos/i19576.scala
 (3:11..3:14) scala/package.Seq.
-(3:17..3:19) scala/Predef.ArrowAssoc#`->`().
-(3:25..3:27) scala/Predef.ArrowAssoc#`->`().
+(3:17..3:19) scala/Predef.`->`().
+(3:25..3:27) scala/Predef.`->`().
 (3:31..3:38) scala/collection/Iterable#lazyZip().
 (3:39..3:42) scala/package.Seq.
 (4:31..4:32) _empty_/Test.z. -> 3:7

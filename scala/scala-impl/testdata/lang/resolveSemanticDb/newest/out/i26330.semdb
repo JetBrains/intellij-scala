@@ -1,0 +1,25 @@
+Document tests/pos/i26330.scala
+(8:22..8:23) _empty_/Inv#[A] -> 8:16
+(10:15..10:21) scala/Tuple1#
+(10:22..10:25) _empty_/Foo# -> 3:6
+(10:30..10:31) _empty_/i26330$package.tuple1().(x) -> 10:12
+(11:8..11:14) scala/Tuple1.
+(11:15..11:18) _empty_/Foo.
+(11:19..11:22) _empty_/Foo.Bar# -> 4:8
+(11:24..11:33) scala/unchecked#
+(12:8..12:14) scala/Tuple1.
+(12:15..12:18) _empty_/Foo.
+(12:19..12:22) _empty_/Foo.Qux# -> 5:8
+(12:24..12:33) scala/unchecked#
+(15:12..15:15) _empty_/Inv# -> 8:12
+(15:16..15:19) _empty_/Foo# -> 3:6
+(15:24..15:25) _empty_/i26330$package.inv().(x) -> 15:9
+(16:8..16:11) _empty_/Inv.
+(16:12..16:15) _empty_/Foo.
+(16:16..16:19) _empty_/Foo.Bar# -> 4:8
+(16:21..16:30) scala/unchecked#
+(17:8..17:11) _empty_/Inv.
+(17:12..17:15) _empty_/Foo.
+(17:16..17:19) _empty_/Foo.Qux# -> 5:8
+(17:21..17:30) scala/unchecked#
+

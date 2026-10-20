@@ -1,0 +1,57 @@
+
+package q
+
+object Y:
+  val test = 42.isInstanceOf[p.X.T]
+-----
+ScalaFile
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: q
+      PsiElement(identifier)('q')
+    PsiWhiteSpace('\n\n')
+    ScObject: Y
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('Y')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScPatternDefinition: test
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            ListOfPatterns
+              ReferencePattern: test
+                PsiElement(identifier)('test')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            GenericCall
+              ReferenceExpression: 42.isInstanceOf
+                IntegerLiteral
+                  PsiElement(integer)('42')
+                PsiElement(.)('.')
+                PsiElement(identifier)('isInstanceOf')
+              TypeArgumentsList
+                PsiElement([)('[')
+                TypeArgument
+                  SimpleType: p.X.T
+                    CodeReferenceElement: p.X.T
+                      CodeReferenceElement: p.X
+                        CodeReferenceElement: p
+                          PsiElement(identifier)('p')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('X')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('T')
+                PsiElement(])(']')

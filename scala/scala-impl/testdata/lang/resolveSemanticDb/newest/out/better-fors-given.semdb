@@ -3,7 +3,7 @@ Document tests/pos/better-fors-given.scala
 (1:17..1:21) scala/Unit#
 (3:5..3:6) local0 -> 3:5
 (3:10..3:16) scala/Option.
-(3:20..3:22) scala/Predef.ArrowAssoc#`->`().
+(3:20..3:22) scala/Predef.`->`().
 (4:16..4:19) scala/Int#
 (4:31..4:37) scala/Predef.String#
 (4:41..4:42) local0 -> 3:5
@@ -14,7 +14,7 @@ Document tests/pos/better-fors-given.scala
 (7:24..7:26) scala/Int#`==`(+3).
 (10:5..10:6) local5 -> 10:5
 (10:10..10:16) scala/Option.
-(10:26..10:28) scala/Predef.ArrowAssoc#`->`().
+(10:26..10:28) scala/Predef.`->`().
 (11:20..11:23) scala/Int#
 (11:35..11:41) scala/Predef.String#
 (11:46..11:47) local5 -> 10:5
@@ -26,7 +26,7 @@ Document tests/pos/better-fors-given.scala
 (17:5..17:6) local10 -> 17:5
 (17:10..17:16) scala/Option.
 (17:17..17:21) scala/Some.
-(17:25..17:27) scala/Predef.ArrowAssoc#`->`().
+(17:25..17:27) scala/Predef.`->`().
 (18:5..18:9) scala/Some.
 (18:20..18:23) scala/Int#
 (18:35..18:41) scala/Predef.String#

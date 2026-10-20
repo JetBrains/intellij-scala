@@ -1,0 +1,17 @@
+Document tests/pos/specialized-trait-inlining-causes-implementation-required-loop-bad-manual-no-usage.scala
+(5:19..5:30) _empty_/C#[S] -> 5:16
+(5:19..5:30) scala/specialize/Specialized#
+(6:13..6:14) _empty_/C#[S] -> 5:16
+(6:17..6:18) _empty_/C#[S] -> 5:16
+(6:21..6:22) _empty_/C#v().(x) -> 6:10
+(7:11..7:15) scala/Unit#
+(8:23..8:24) _empty_/C# -> 5:14
+(8:25..8:26) _empty_/C#[S] -> 5:16
+(9:7..9:14) scala/Predef.println(+1).
+(11:19..11:30) _empty_/A#[T] -> 11:16
+(11:19..11:30) scala/specialize/Specialized#
+(12:13..12:14) _empty_/C# -> 5:14
+(12:15..12:16) _empty_/A#[T] -> 11:16
+(12:20..12:24) scala/Unit#
+(12:27..12:34) scala/Predef.println(+1).
+

@@ -1,0 +1,3 @@
+Document tests/pos/inline-trait-private-this-nowarn.scala
+(2:54..2:55) _empty_/CellSpecialized#[T] -> 2:30
+

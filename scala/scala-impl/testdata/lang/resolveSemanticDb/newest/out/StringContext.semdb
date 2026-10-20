@@ -253,7 +253,7 @@ Document tests/pos/StringContext.scala
 (350:31..350:32) scala/Int#`+`(+4).
 (350:33..350:39) local30 -> 338:14
 (351:19..351:21) local35 -> 350:15
-(351:22..351:29) scala/runtime/RichChar#asDigit().
+(351:22..351:29) scala/Char.asDigit().
 (352:14..352:15) local36 -> 351:15
 (352:16..352:18) scala/Int#`>=`(+3).
 (352:21..352:23) scala/Boolean#`&&`().

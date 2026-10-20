@@ -12,7 +12,7 @@
 [45,55]: ValDef
 [48,51]: Ident
 [54,55]: Number
-[58,72]: Function
+[58,72]: FunctionWithMods
 [58,61]: Ident
 [66,72]: Ident
 [75,77]: Literal

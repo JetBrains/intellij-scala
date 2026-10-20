@@ -1,0 +1,91 @@
+Document tests/pos/i25726.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:53) scala/language.experimental.erasedDefinitions.
+(6:27..6:29) _empty_/Ev# -> 3:7
+(6:34..6:35) _empty_/Svc#[A] -> 5:11
+(6:38..6:44) scala/Predef.String#
+(7:20..7:23) _empty_/Svc# -> 5:7
+(7:24..7:27) scala/Int#
+(8:27..8:29) _empty_/Ev# -> 3:7
+(8:34..8:37) scala/Int#
+(8:40..8:46) scala/Predef.String#
+(8:49..8:50) _empty_/ISvc#run().(a) -> 8:31
+(8:51..8:59) scala/Any#toString().
+(13:27..13:32) _empty_/Token# -> 11:7
+(13:39..13:45) scala/Predef.String#
+(13:54..13:55) _empty_/Store#[A] -> 12:13
+(13:58..13:64) scala/Predef.String#
+(14:24..14:29) _empty_/Store# -> 12:7
+(14:30..14:33) scala/Int#
+(15:27..15:32) _empty_/Token# -> 11:7
+(15:39..15:45) scala/Predef.String#
+(15:54..15:57) scala/Int#
+(15:60..15:66) scala/Predef.String#
+(15:69..15:70) scala/StringContext#s().
+(15:72..15:75) _empty_/IntStore#put().(key) -> 15:34
+(15:77..15:82) _empty_/IntStore#put().(value) -> 15:47
+(19:13..19:14) _empty_/Trail#[A] -> 18:13
+(19:32..19:34) _empty_/Ev# -> 3:7
+(19:37..19:38) _empty_/Trail#[A] -> 18:13
+(20:24..20:29) _empty_/Trail# -> 18:7
+(20:30..20:33) scala/Int#
+(21:13..21:16) scala/Int#
+(21:34..21:36) _empty_/Ev# -> 3:7
+(21:39..21:42) scala/Int#
+(21:45..21:46) _empty_/IntTrail#id().(a) -> 21:10
+(25:21..25:23) _empty_/Ev# -> 3:7
+(25:28..25:29) _empty_/Single#[A] -> 24:14
+(25:32..25:38) scala/Predef.String#
+(26:25..26:31) _empty_/Single# -> 24:7
+(26:32..26:35) scala/Int#
+(27:21..27:23) _empty_/Ev# -> 3:7
+(27:28..27:31) scala/Int#
+(27:34..27:40) scala/Predef.String#
+(27:43..27:44) _empty_/IntSingle#run().(b) -> 27:25
+(27:45..27:53) scala/Any#toString().
+(31:21..31:23) _empty_/Ev# -> 3:7
+(31:28..31:29) _empty_/Mixed#[A] -> 30:13
+(31:34..31:37) scala/Int#
+(31:40..31:46) scala/Predef.String#
+(32:24..32:29) _empty_/Mixed# -> 30:7
+(32:30..32:33) scala/Int#
+(33:21..33:23) _empty_/Ev# -> 3:7
+(33:28..33:31) scala/Int#
+(33:36..33:39) scala/Int#
+(33:42..33:48) scala/Predef.String#
+(33:51..33:52) scala/StringContext#s().
+(33:54..33:55) _empty_/IntMixed#run().(a) -> 33:25
+(33:57..33:58) _empty_/IntMixed#run().(b) -> 33:33
+(36:27..36:29) _empty_/Ev# -> 3:7
+(36:34..36:35) _empty_/IntMixed#Eta#[A] -> 35:13
+(36:38..36:44) scala/Predef.String#
+(36:49..36:52) scala/Int#
+(38:24..38:27) _empty_/IntMixed#Eta# -> 35:9
+(38:28..38:31) scala/Int#
+(39:27..39:29) _empty_/Ev# -> 3:7
+(39:34..39:37) scala/Int#
+(39:40..39:46) scala/Predef.String#
+(39:51..39:54) scala/Int#
+(39:57..39:58) _empty_/IntMixed#IntEta#f().(a) -> 39:31
+(39:59..39:60) scala/Int#`+`(+4).
+(39:61..39:67) scala/Predef.summon().
+(39:68..39:74) scala/Predef.String#
+(39:76..39:82) java/lang/String#length().
+(46:25..46:27) _empty_/Ev# -> 3:7
+(46:32..46:33) _empty_/Closure#[A] -> 45:15
+(46:36..46:42) scala/Predef.String#
+(46:47..46:50) scala/Int#
+(47:26..47:33) _empty_/Closure# -> 45:7
+(47:34..47:37) scala/Int#
+(48:25..48:27) _empty_/Ev# -> 3:7
+(48:32..48:35) scala/Int#
+(48:38..48:44) scala/Predef.String#
+(48:49..48:52) scala/Int#
+(48:55..48:56) _empty_/IntClosure#f().(a) -> 48:29
+(48:57..48:58) scala/Int#`+`(+4).
+(48:59..48:65) scala/Predef.summon().
+(48:66..48:72) scala/Predef.String#
+(48:74..48:80) java/lang/String#length().
+

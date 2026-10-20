@@ -1,9 +1,9 @@
 // cf. pos/t8300-patmat-b.scala
 trait Universe {
-  type Name >: Null <: AnyRef with NameApi
+  type Name >: Null <: AnyRef & NameApi
   trait NameApi
 
-  type TermName >: Null <: Name with TermNameApi
+  type TermName >: Null <: Name & TermNameApi
   trait TermNameApi extends NameApi
 }
 
@@ -52,12 +52,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          CompoundType: AnyRef with NameApi
+          InfixType: AnyRef & NameApi
             SimpleType: AnyRef
               CodeReferenceElement: AnyRef
                 PsiElement(identifier)('AnyRef')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: NameApi
               CodeReferenceElement: NameApi
@@ -91,12 +92,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          CompoundType: Name with TermNameApi
+          InfixType: Name & TermNameApi
             SimpleType: Name
               CodeReferenceElement: Name
                 PsiElement(identifier)('Name')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: TermNameApi
               CodeReferenceElement: TermNameApi

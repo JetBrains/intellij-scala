@@ -1,0 +1,97 @@
+class BitNumWrapper(val value: 0 | 1) extends AnyVal
+def positive(w: BitNumWrapper): Boolean = w.value > 0
+-----
+ScalaFile
+  ScClass: BitNumWrapper
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('BitNumWrapper')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: value
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('value')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              InfixType: 0 | 1
+                LiteralType: 0
+                  IntegerLiteral
+                    PsiElement(integer)('0')
+                PsiWhiteSpace(' ')
+                CodeReferenceElement: |
+                  PsiElement(identifier)('|')
+                PsiWhiteSpace(' ')
+                LiteralType: 1
+                  IntegerLiteral
+                    PsiElement(integer)('1')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: AnyVal
+            CodeReferenceElement: AnyVal
+              PsiElement(identifier)('AnyVal')
+  PsiWhiteSpace('\n')
+  ScFunctionDefinition: positive
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('positive')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: w
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('w')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: BitNumWrapper
+              CodeReferenceElement: BitNumWrapper
+                PsiElement(identifier)('BitNumWrapper')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    SimpleType: Boolean
+      CodeReferenceElement: Boolean
+        PsiElement(identifier)('Boolean')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    InfixExpression
+      ReferenceExpression: w.value
+        ReferenceExpression: w
+          PsiElement(identifier)('w')
+        PsiElement(.)('.')
+        PsiElement(identifier)('value')
+      PsiWhiteSpace(' ')
+      ReferenceExpression: >
+        PsiElement(identifier)('>')
+      PsiWhiteSpace(' ')
+      IntegerLiteral
+        PsiElement(integer)('0')

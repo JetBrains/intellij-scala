@@ -1,0 +1,65 @@
+Document tests/pos/coverage-constructor-underlying-leak.scala
+(1:9..1:14) scala/
+(3:8..3:13) scala/
+(3:14..3:22) scala/language.
+(3:23..3:35) scala/language.experimental.
+(3:36..3:51) scala/language.experimental.captureChecking.
+(6:17..6:25) scala/collection/Iterator#
+(6:26..6:27) scala/collection/SeqView#[A] -> 5:16
+(7:19..7:20) scala/collection/SeqView#[A] -> 5:16
+(7:36..7:44) scala/package.Ordering#
+(7:45..7:46) scala/collection/SeqView#sorted().[B] -> 7:14
+(7:50..7:57) scala/collection/SeqView# -> 5:7
+(7:58..7:59) scala/collection/SeqView#[A] -> 5:16
+(10:33..10:39) scala/collection/SeqOps#
+(10:40..10:41) scala/collection/SeqView.SomeSeqOps#[A] -> 10:28
+(10:43..10:52) scala/collection/package.AnyConstr#
+(12:30..12:31) scala/collection/SeqView.Sorted#[A] -> 12:22
+(13:19..13:29) scala/collection/SeqView.SomeSeqOps# -> 10:16
+(13:30..13:31) scala/collection/SeqView.Sorted#[A] -> 12:22
+(14:22..14:25) scala/Int#
+(15:22..15:30) scala/package.Ordering#
+(15:31..15:32) scala/collection/SeqView.Sorted#[B] -> 12:25
+(16:13..16:20) scala/collection/SeqView# -> 5:7
+(16:21..16:22) scala/collection/SeqView.Sorted#[A] -> 12:22
+(17:12..17:18) scala/collection/SeqView.Sorted# -> 12:15
+(17:19..17:20) scala/collection/SeqView.Sorted#[A] -> 12:22
+(17:22..17:23) scala/collection/SeqView.Sorted#[B] -> 12:25
+(19:30..19:41) scala/collection/SeqView.Sorted#underlying_. -> 13:5
+(21:26..21:36) scala/collection/SeqView.SomeSeqOps# -> 10:16
+(21:37..21:38) scala/collection/SeqView.Sorted#[A] -> 12:22
+(21:47..21:55) scala/package.Ordering#
+(21:56..21:57) scala/collection/SeqView.Sorted#[B] -> 12:25
+(22:12..22:22) scala/collection/SeqView.Sorted#`<init>`(+1).(underlying) -> 21:14
+(22:24..22:34) scala/collection/SeqView.Sorted#`<init>`(+1).(underlying) -> 21:14
+(22:35..22:41) scala/collection/SeqOps#length().
+(22:43..22:46) scala/collection/SeqView.Sorted#`<init>`(+1).(ord) -> 21:42
+(24:19..24:27) scala/collection/Iterator#
+(24:28..24:29) scala/collection/SeqView.Sorted#[A] -> 12:22
+(24:40..24:50) scala/collection/SeqView.Sorted#underlying(). -> 19:17
+(24:51..24:59) scala/collection/IterableOnce#iterator().
+(26:24..26:34) scala/collection/SeqView.SomeSeqOps# -> 10:16
+(26:35..26:36) scala/collection/SeqView.Sorted#[A] -> 12:22
+(26:47..26:57) scala/collection/SeqView.Sorted#underlying(). -> 19:17
+(28:47..28:54) scala/collection/SeqView# -> 5:7
+(28:55..28:56) scala/collection/SeqView.Sorted#[A] -> 12:22
+(29:21..29:29) scala/collection/Iterator#
+(29:30..29:31) scala/collection/SeqView.Sorted#[A] -> 12:22
+(29:42..29:52) scala/collection/SeqView.Sorted#underlying(). -> 19:17
+(29:53..29:61) scala/collection/IterableOnce#iterator().
+(31:33..31:34) scala/collection/SeqView.Sorted#[A] -> 12:22
+(31:51..31:59) scala/package.Ordering#
+(31:60..31:62) scala/collection/SeqView.Sorted#ReverseSorted#sorted().[B1] -> 31:27
+(31:66..31:73) scala/collection/SeqView# -> 5:7
+(31:74..31:75) scala/collection/SeqView.Sorted#[A] -> 12:22
+(32:12..32:16) scala/collection/SeqView.Sorted#ReverseSorted#sorted().(ord1) -> 31:45
+(32:17..32:19) scala/Any#`==`().
+(32:32..32:35) scala/collection/SeqView.Sorted#ord. -> 15:17
+(32:41..32:46) scala/collection/SeqView.Sorted# -> 12:15
+(33:17..33:21) scala/collection/SeqView.Sorted#ReverseSorted#sorted().(ord1) -> 31:45
+(33:22..33:33) scala/math/Ordering#isReverseOf().
+(33:46..33:49) scala/collection/SeqView.Sorted#ord. -> 15:17
+(34:25..34:30) scala/collection/SeqView.Sorted#elems(). -> 26:17
+(34:32..34:35) scala/collection/SeqView.Sorted#len. -> 14:17
+(34:37..34:41) scala/collection/SeqView.Sorted#ReverseSorted#sorted().(ord1) -> 31:45
+

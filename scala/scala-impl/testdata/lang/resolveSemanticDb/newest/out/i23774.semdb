@@ -1,0 +1,78 @@
+Document tests/pos/i23774.scala
+(4:21..4:29) _empty_/Iterable# -> 1:7
+(4:30..4:31) _empty_/Expr.Case#[T] -> 4:13
+(7:11..7:17) scala/Predef.summon().
+(7:18..7:23) scala/
+(7:24..7:32) scala/deriving/
+(7:33..7:39) scala/deriving/Mirror.
+(7:40..7:45) scala/deriving/Mirror.SumOf#
+(7:46..7:50) _empty_/Expr# -> 3:6
+(8:3..8:9) scala/Predef.summon().
+(8:10..8:11) _empty_/Expr.m. -> 7:7
+(8:30..8:33) scala/`=:=`#
+(8:34..8:38) _empty_/Expr. -> 6:8
+(8:39..8:43) _empty_/Expr.Case# -> 4:8
+(8:44..8:47) scala/Any#
+(8:49..8:57) _empty_/Iterable# -> 1:7
+(8:58..8:61) scala/Any#
+(8:64..8:66) scala/`*:`#
+(8:67..8:77) scala/Tuple$package.EmptyTuple#
+(12:29..12:33) _empty_/Trait.Upcast#[Base] -> 12:15
+(16:11..16:17) scala/Predef.summon().
+(16:18..16:23) scala/
+(16:24..16:32) scala/deriving/
+(16:33..16:39) scala/deriving/Mirror.
+(16:40..16:45) scala/deriving/Mirror.SumOf#
+(16:46..16:51) _empty_/Trait# -> 11:6
+(17:3..17:9) scala/Predef.summon().
+(17:10..17:11) _empty_/Trait.m. -> 16:7
+(17:30..17:33) scala/`=:=`#
+(17:34..17:39) _empty_/Trait. -> 15:8
+(17:40..17:46) _empty_/Trait.Upcast# -> 12:8
+(17:47..17:50) scala/Any#
+(17:52..17:55) scala/Any#
+(17:57..17:59) scala/`*:`#
+(17:60..17:70) scala/Tuple$package.EmptyTuple#
+(21:21..21:29) _empty_/Iterable# -> 1:7
+(21:30..21:31) _empty_/MoreDeps.Case#[T] -> 21:13
+(21:39..21:47) _empty_/Iterable# -> 1:7
+(21:48..21:49) _empty_/MoreDeps.Case#[C] -> 21:16
+(24:11..24:17) scala/Predef.summon().
+(24:18..24:23) scala/
+(24:24..24:32) scala/deriving/
+(24:33..24:39) scala/deriving/Mirror.
+(24:40..24:45) scala/deriving/Mirror.SumOf#
+(24:46..24:54) _empty_/MoreDeps# -> 20:6
+(25:3..25:9) scala/Predef.summon().
+(25:10..25:11) _empty_/MoreDeps.m. -> 24:7
+(25:30..25:33) scala/`=:=`#
+(25:34..25:42) _empty_/MoreDeps. -> 23:8
+(25:43..25:47) _empty_/MoreDeps.Case# -> 21:8
+(25:48..25:51) scala/Any#
+(25:53..25:61) _empty_/Iterable# -> 1:7
+(25:62..25:65) scala/Any#
+(25:68..25:76) _empty_/Iterable# -> 1:7
+(25:77..25:85) _empty_/Iterable# -> 1:7
+(25:86..25:89) scala/Any#
+(25:93..25:95) scala/`*:`#
+(25:96..25:106) scala/Tuple$package.EmptyTuple#
+(29:18..29:26) _empty_/Iterable# -> 1:7
+(29:27..29:28) _empty_/Circular.Case#[D] -> 29:31
+(29:36..29:37) _empty_/Circular.Case#[C] -> 29:13
+(32:11..32:17) scala/Predef.summon().
+(32:18..32:23) scala/
+(32:24..32:32) scala/deriving/
+(32:33..32:39) scala/deriving/Mirror.
+(32:40..32:45) scala/deriving/Mirror.SumOf#
+(32:46..32:54) _empty_/Circular# -> 28:6
+(33:3..33:9) scala/Predef.summon().
+(33:10..33:11) _empty_/Circular.m. -> 32:7
+(33:30..33:33) scala/`=:=`#
+(33:34..33:42) _empty_/Circular. -> 31:8
+(33:43..33:47) _empty_/Circular.Case# -> 29:8
+(33:48..33:56) _empty_/Iterable# -> 1:7
+(33:57..33:64) scala/Nothing#
+(33:67..33:74) scala/Nothing#
+(33:76..33:78) scala/`*:`#
+(33:79..33:89) scala/Tuple$package.EmptyTuple#
+

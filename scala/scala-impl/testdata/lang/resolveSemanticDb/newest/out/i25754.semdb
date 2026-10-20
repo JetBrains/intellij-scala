@@ -1,0 +1,15 @@
+Document tests/pos/i25754.scala
+(2:26..2:27) _empty_/Tag.`@@`#[A] -> 2:18
+(3:55..3:56) local4 -> 3:50
+(6:8..6:11) _empty_/Tag. -> 1:8
+(8:24..8:27) scala/Int#
+(8:28..8:30) _empty_/Tag.`@@`# -> 2:15
+(8:31..8:35) scala/Unit#
+(8:40..8:41) _empty_/i25754$package.test().[A] -> 8:17
+(8:44..8:45) _empty_/i25754$package.test().[A] -> 8:17
+(8:48..8:49) _empty_/i25754$package.test().(f) -> 8:20
+(8:50..8:53) _empty_/Tag.tag(). -> 3:14
+(8:54..8:58) scala/Unit#
+(10:9..10:13) _empty_/i25754$package.test(). -> 8:12
+(10:14..10:22) scala/Predef.identity().
+

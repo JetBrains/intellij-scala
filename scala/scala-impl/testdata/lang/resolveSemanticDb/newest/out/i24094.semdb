@@ -10,7 +10,7 @@ Document tests/pos/i24094.scala
 (5:28..5:29) _empty_/TyreCompiler#Loop#[T] -> 4:35
 (5:30..5:32) scala/`*:`#
 (5:33..5:35) _empty_/TyreCompiler#Loop#[IS] -> 4:22
-(6:23..6:30) _empty_/TyreCompiler#Loop#`<init>`().(context)
+(6:23..6:30) _empty_/TyreCompiler#Loop#`<init>`().(context) -> 5:11
 (6:31..6:40) _empty_/Context#Automaton# -> 45:9
 (6:41..6:43) _empty_/TyreCompiler#Loop#[IS] -> 4:22
 (8:37..8:41) scala/package.List#

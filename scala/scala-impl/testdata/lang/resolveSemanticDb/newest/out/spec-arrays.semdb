@@ -184,7 +184,7 @@ Document tests/pos/spec-arrays.scala
 (47:17..47:20) scala/Int#
 (47:23..47:27) scala/Unit#
 (48:14..48:18) scala/Unit#
-(50:17..50:19) scala/runtime/RichInt#to().
+(50:17..50:19) scala/Int.to().
 (51:7..51:8) local0 -> 49:9
 (51:12..51:15) _empty_/Test#sum(). -> 46:7
 (52:7..52:13) _empty_/Test#modify(). -> 47:7
@@ -304,7 +304,7 @@ Document tests/pos/spec-arrays.scala
 (119:21..119:28) java/lang/Integer#
 (119:49..119:54) scala/Array#
 (119:55..119:62) java/lang/Integer#
-(120:15..120:20) scala/runtime/RichInt#until().
+(120:15..120:20) scala/Int.until().
 (120:21..120:24) _empty_/ScalaGenTest#arr. -> 119:7
 (120:25..120:31) _empty_/AbsArray#length(). -> 4:7
 (120:33..120:36) _empty_/ScalaGenTest#arr. -> 119:7

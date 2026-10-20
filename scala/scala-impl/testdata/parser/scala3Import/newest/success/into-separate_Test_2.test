@@ -1,4 +1,4 @@
-//> using options -feature -preview
+//> using options -feature
 package test
 
 object Test:
@@ -11,8 +11,6 @@ object Test:
 
   val dclKeywords = Set[Keyword]("def", "val") // ok
   val keywords = dclKeywords + "if" + "then" + "else" // ok
-
-
 -----
 ScalaFile
   PsiElement(SCALA_DIRECTIVE)
@@ -23,8 +21,6 @@ ScalaFile
     ScDirectiveToken(tDIRECTIVE_KEY)('options')
     PsiWhiteSpace(' ')
     ScDirectiveToken(tDIRECTIVE_VALUE)('-feature')
-    PsiWhiteSpace(' ')
-    ScDirectiveToken(tDIRECTIVE_VALUE)('-preview')
   PsiWhiteSpace('\n')
   ScPackaging
     PsiElement(package)('package')

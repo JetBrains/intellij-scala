@@ -1,6 +1,6 @@
 object Test {
   def foo[T <: Singleton](x: T): T = x
-  def bar[T <: Int with Singleton](x: T): T = x
+  def bar[T <: Int & Singleton](x: T): T = x
 
   val a: 1 = foo(1)
   val b: 1 = bar(1)
@@ -81,12 +81,13 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(<:)('<:')
               PsiWhiteSpace(' ')
-              CompoundType: Int with Singleton
+              InfixType: Int & Singleton
                 SimpleType: Int
                   CodeReferenceElement: Int
                     PsiElement(identifier)('Int')
                 PsiWhiteSpace(' ')
-                PsiElement(with)('with')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
                 PsiWhiteSpace(' ')
                 SimpleType: Singleton
                   CodeReferenceElement: Singleton

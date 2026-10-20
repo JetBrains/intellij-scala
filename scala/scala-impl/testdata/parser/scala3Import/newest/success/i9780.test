@@ -2,7 +2,7 @@ import java.awt.event.WindowEvent
 import java.awt.Window as AWTWindow
 
 abstract class Window {
-  def peer: AWTWindow with InterfaceMixin
+  def peer: AWTWindow & InterfaceMixin
 
   protected trait InterfaceMixin extends javax.swing.RootPaneContainer
 
@@ -86,12 +86,13 @@ ScalaFile
             <empty list>
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: AWTWindow with InterfaceMixin
+          InfixType: AWTWindow & InterfaceMixin
             SimpleType: AWTWindow
               CodeReferenceElement: AWTWindow
                 PsiElement(identifier)('AWTWindow')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: InterfaceMixin
               CodeReferenceElement: InterfaceMixin

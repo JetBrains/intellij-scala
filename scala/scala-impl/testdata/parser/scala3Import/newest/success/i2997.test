@@ -1,4 +1,4 @@
-case class Foo[T <: Int with Singleton](t : T)
+case class Foo[T <: Int & Singleton](t : T)
 
 object Test {
   val one = 1
@@ -25,12 +25,13 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(<:)('<:')
         PsiWhiteSpace(' ')
-        CompoundType: Int with Singleton
+        InfixType: Int & Singleton
           SimpleType: Int
             CodeReferenceElement: Int
               PsiElement(identifier)('Int')
           PsiWhiteSpace(' ')
-          PsiElement(with)('with')
+          CodeReferenceElement: &
+            PsiElement(identifier)('&')
           PsiWhiteSpace(' ')
           SimpleType: Singleton
             CodeReferenceElement: Singleton
