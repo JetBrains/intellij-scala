@@ -1352,9 +1352,9 @@ import Common.TestCategory.*
 /**
  * Runs regular, special, and fast category commands with optional test-class bucketing.
  *
- * Category/tag selection and bucketing apply at different levels. The framework-specific
- * Tests.Argument options below let JUnit 4 apply category inclusion/exclusion and Jupiter
- * apply tag inclusion/exclusion, including rules on individual test methods. The optional
+ * Category/tag selection and bucketing apply at different levels. JUnitTestCommands.categoryOptions
+ * supplies framework-specific Tests.Argument options for JUnit 4 category inclusion/exclusion
+ * and Jupiter tag inclusion/exclusion, including rules on individual test methods. The optional
  * Tests.Filter selects whole discovered test classes by name before framework execution,
  * so all methods of a class stay in the same bucket regardless of their categories/tags.
  * sbt intersects this filter with the testOnly glob and any existing user class filters;
@@ -1370,9 +1370,9 @@ import Common.TestCategory.*
  * configuration fails before test execution. Class assignment uses the same name-hash
  * algorithm as Ultimate's runTestBucket, without invoking its TeamCity retry filtering.
  *
- * The appended options are temporary: execute with newState, then return the incoming
- * state so category/tag arguments and bucket filters cannot affect later commands while
- * existing user session settings are preserved.
+ * JUnitTestCommands.runTestOnlyWithTemporarySettings executes with the appended options and
+ * returns the incoming state so category/tag arguments and bucket filters cannot affect
+ * later commands while existing user session settings are preserved.
  */
 def runTestCategoryCommand(
   name: String,
@@ -1382,30 +1382,14 @@ def runTestCategoryCommand(
   glob: String
 ): Command =
   Command.args(name, description) { (state, _) =>
-    import com.github.sbt.junit.jupiter.sbt.Import.jupiterTestFramework
-
     val bucket = TestBucketing.fromEnvironment(sys.env).fold(sys.error, identity)
+    val frameworkOptions = JUnitTestCommands.frameworkOptions
+    val categoryOptions = JUnitTestCommands.categoryOptions(includeCategories, excludeCategories)
+    val classFilter = bucket.map(b => Tests.Filter(b.matches))
 
-    def args(keyword: String): Seq[String] = {
-      val common = Seq("-v", "-s", "-a", "+c", "+q")
-
-      def handle(verb: String, categories: Seq[String]): Seq[String] =
-        if (categories.isEmpty) Seq.empty
-        else Seq(categories.mkString(start = s"--$verb-$keyword=", sep = ",", end = ""))
-
-      common ++ handle(verb = "include", categories = includeCategories) ++ handle(verb = "exclude", categories = excludeCategories)
-    }
-
-    val newState = state.appendWithSession(Seq(
-      Test / testOptions ++= Seq(
-        Tests.Argument(TestFrameworks.JUnit, args(keyword = "categories"): _*),
-        Tests.Argument(jupiterTestFramework, args(keyword = "tags"): _*)
-      ) ++ bucket.map(b => Tests.Filter(b.matches)).toSeq
+    JUnitTestCommands.runTestOnlyWithTemporarySettings(state, glob, Seq(
+      Test / testOptions ++= frameworkOptions ++ categoryOptions ++ classFilter.toSeq
     ))
-
-    Project.extract(newState).runInputTask(Test / testOnly, glob, newState)
-    // Keep category arguments and bucketing local to this command.
-    state
   }
 
 def runRegularTestCategoryCommand(name: String, category: String): Command = runTestCategoryCommand(
