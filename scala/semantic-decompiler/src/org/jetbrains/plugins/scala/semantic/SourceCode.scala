@@ -145,6 +145,7 @@ object SourceCode {
 
       case cdef @ ClassDef(name, constr @ DefDef(_, paramss, _, _), parents, self, stats) =>
         val isAnonymous = name == "$anon"
+        def isValueClass = cdef.symbol.typeRef.derivesFrom(defn.AnyValClass)
 
         printDefAnnotations(cdef)
 
@@ -152,7 +153,7 @@ object SourceCode {
         if (cdef.symbol.flags.is(Flags.Override) || cdef.symbol.allOverriddenSymbols.nonEmpty) this += highlightKeyword("override ")
         printProtectedOrPrivate(cdef)
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
-        if (flags.is(Flags.Final) && !flags.is(Flags.Module) && !isAnonymous) this += highlightKeyword("final ")
+        if (flags.is(Flags.Final) && !flags.is(Flags.Module) && !isAnonymous && !isValueClass) this += highlightKeyword("final ")
         if (flags.is(Flags.Sealed)) this += highlightKeyword("sealed ")
         if (flags.is(Flags.Open)) this += highlightKeyword("open ")
         if (flags.is(Flags.Abstract) && !flags.is(Flags.Trait)) this += highlightKeyword("abstract ")
