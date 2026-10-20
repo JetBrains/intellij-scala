@@ -27,6 +27,9 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
   private var myState          : Int          = 0
   private var myTokenType      : IElementType = scala.compiletime.uninitialized
 
+  private var isTwirlDocComment: Boolean = false
+  private var contentEndOffset: Int = 0
+
   private var isAfterLineBreak: Boolean = false
   private var isInLeadingSpace: Boolean = false
 
@@ -40,7 +43,18 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
     myBufferEndOffset = endOffset
     myTokenType = null
     myTokenEndOffset = startOffset
-    myFlex.reset(myBuffer, startOffset, endOffset, initialState)
+    isTwirlDocComment = endOffset >= 3 && buffer.charAt(0) == '@' && buffer.charAt(1) == '*' && buffer.charAt(2) == '*'
+    contentEndOffset =
+      if (isTwirlDocComment && endOffset >= 5 && buffer.charAt(endOffset - 2) == '*' && buffer.charAt(endOffset - 1) == '@') endOffset - 2
+      else endOffset
+    isAfterLineBreak = false
+    isInLeadingSpace = false
+    needItalic = false
+    needCorrectAfterItalic = false
+    hasPreviousBold = false
+    myState = initialState
+    val flexState = if (isTwirlDocComment && initialState == 0) _ScalaDocLexer.COMMENT_DATA_START else initialState
+    myFlex.reset(myBuffer, startOffset, contentEndOffset, flexState)
   }
 
   override def getState: Int = myState
@@ -83,6 +97,21 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
     }
 
     myBufferIndex = myTokenEndOffset
+
+    // Keep Twirl delimiters outside the Scala lexer so *@ also terminates incomplete
+    // tags, links and code blocks, while */ remains ordinary comment content.
+    if (isTwirlDocComment) {
+      if (myBufferIndex == 0) {
+        myTokenType = DOC_COMMENT_START
+        myTokenEndOffset = 3
+        return
+      }
+      if (myBufferIndex == contentEndOffset) {
+        myTokenType = DOC_COMMENT_END
+        myTokenEndOffset = myBufferEndOffset
+        return
+      }
+    }
 
     if (isAfterLineBreak) {
       isAfterLineBreak = false
@@ -129,6 +158,18 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
     myFlex.goTo(myBufferIndex)
     myTokenType = myFlex.advance
     myTokenEndOffset = myFlex.getTokenEnd
+
+    if (isTwirlDocComment) {
+      // Scala comment delimiters inside Twirl comments are ordinary content.
+      if (myTokenType == DOC_COMMENT_END) {
+        myTokenType = DOC_COMMENT_DATA
+        myFlex.yybegin(_ScalaDocLexer.COMMENT_DATA)
+      } else if (myTokenType == DOC_COMMENT_DATA &&
+        CharArrayUtil.isEmptyOrSpaces(myBuffer, myBufferIndex, myTokenEndOffset)) {
+        // Keep whitespace separate so the template formatter can use real PSI blocks.
+        myTokenType = DOC_WHITESPACE
+      }
+    }
 
     if (
       myTokenType == DOC_BOLD_TAG &&
