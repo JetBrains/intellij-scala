@@ -547,10 +547,11 @@ object ScaladocMarkdownParsing {
   private val contentAfterStar = raw"\*( )+\S".r
   private def splitContext(input: CharSequence): (String, Seq[Int]) = {
     val text = input.toString
-    val initialOffset = if (text.startsWith("/*")) 2 else 0
+    val isTwirlDocComment = text.startsWith("@**")
+    val initialOffset = if (isTwirlDocComment || text.startsWith("/*")) 2 else 0
     val content = text.substring(
       initialOffset,
-      if (text.endsWith("*/")) text.length - 2 else text.length
+      if (text.endsWith(if (isTwirlDocComment) "*@" else "*/")) text.length - 2 else text.length
     )
     val startsOnFirstLine = contentAfterStar.findPrefixOf(content).isDefined
 
