@@ -230,7 +230,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.PushNotUsed
     //akka.stream.impl.QueueSink
     //akka.stream.impl.QueueSource
-    //akka.stream.impl.ReactiveStreamsCompliance
+    akka.stream.impl.ReactiveStreamsCompliance
     akka.stream.impl.ReducerState
     //akka.stream.impl.RejectAdditionalSubscribers
     akka.stream.impl.RequestMore
@@ -352,7 +352,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.io.TLSActor
     //akka.stream.impl.io.TcpConnectionStage
     //akka.stream.impl.io.TcpIdleTimeout
-    //akka.stream.impl.io.TlsModule
+    akka.stream.impl.io.TlsModule
     //akka.stream.impl.io.TlsUtils
     //akka.stream.impl.io.compression.CompressionUtils
     akka.stream.impl.io.compression.Compressor

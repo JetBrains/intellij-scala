@@ -33,7 +33,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     zio.Duration
     zio.DurationModule
     //zio.DurationOps
-    //zio.DurationSyntax
+    zio.DurationSyntax
     zio.EitherCompat
     //zio.Enqueue
     zio.ExecutionStrategy

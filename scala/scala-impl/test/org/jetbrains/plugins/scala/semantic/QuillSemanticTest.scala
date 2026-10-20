@@ -102,13 +102,13 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.SchemaMeta
     //io.getquill.SnakeCase
     //io.getquill.SpliceDate
-    //io.getquill.SpliceDouble
-    //io.getquill.SpliceFloat
-    //io.getquill.SpliceInt
+    io.getquill.SpliceDouble
+    io.getquill.SpliceFloat
+    io.getquill.SpliceInt
     //io.getquill.SpliceLocalDate
     //io.getquill.SpliceLocalDateTime
-    //io.getquill.SpliceLong
-    //io.getquill.SpliceShort
+    io.getquill.SpliceLong
+    io.getquill.SpliceShort
     //io.getquill.SpliceString
     //io.getquill.SqlInfixInterpolator
     io.getquill.SqlMirrorContext
@@ -446,7 +446,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.context.sql.norm.FlattenGroupByAggregation
     io.getquill.context.sql.norm.SimplifyFilterTrue
     //io.getquill.context.sql.norm.SqlNormalize
-    //io.getquill.context.sql.norm.nested.Elements
+    io.getquill.context.sql.norm.nested.Elements
     //io.getquill.context.sql.norm.nested.FindUnexpressedInfixes
     //io.getquill.dsl.DateOps
     //io.getquill.dsl.InfixDsl
