@@ -850,7 +850,7 @@ lazy val compilerShared =
     .settings(
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true),
       libraryDependencies += Dependencies.sprayJson,
-      packageLibraryMappings += Dependencies.sprayJson -> Some(s"lib/spray-json_2.13-${Versions.sprayJsonVersion}.jar")
+      packageLibraryMappings += Dependencies.sprayJson -> Some(s"lib/spray-json_3-${Versions.sprayJsonVersion}.jar")
     )
     .settings(
       buildInfoPackage := "org.jetbrains.plugins.scala.compiler.buildinfo",
@@ -869,7 +869,7 @@ lazy val jps =
     .settings(
       packageMethod := PackagingMethod.Standalone("lib/scala-jps.jar", static = true),
       libraryDependencies += Dependencies.compilerIndicesProtocol,
-      packageLibraryMappings += Dependencies.compilerIndicesProtocol -> Some(s"lib/scala-compiler-indices-protocol_2.13-${Versions.compilerIndicesVersion}.jar")
+      packageLibraryMappings += Dependencies.compilerIndicesProtocol -> Some(s"lib/scala-compiler-indices-protocol_3-${Versions.compilerIndicesVersion}.jar")
     )
 
 lazy val runners: Project =
