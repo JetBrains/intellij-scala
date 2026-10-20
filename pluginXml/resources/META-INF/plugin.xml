@@ -50,6 +50,7 @@
         <module name="intellij.libraries.commons.text"/>
         <module name="intellij.libraries.jna"/>
         <module name="intellij.platform.vcs.impl"/> <!-- IJPL-247623. Ideally, it should be registered as a dependency of corresponding V2 modules -->
+        <module name="intellij.platform.ide.updateChecker"/> <!-- IJPL-250764. Should be in scala-impl after migration to v2. Related files: ScalaPluginUpdater, UpdateSettingsSectionPanel -->
     </dependencies>
 
     <content namespace="jetbrains">
