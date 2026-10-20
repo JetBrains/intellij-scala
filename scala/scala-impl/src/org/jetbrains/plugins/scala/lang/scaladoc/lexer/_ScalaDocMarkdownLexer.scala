@@ -10,6 +10,8 @@ class _ScalaDocMarkdownLexer extends LexerBase {
   private var originalBuffer: CharSequence = scala.compiletime.uninitialized
   private var originalStartOffset: Int = scala.compiletime.uninitialized
   private var originalEndOffset: Int = scala.compiletime.uninitialized
+  private var isTwirlDocComment = false
+  private var contentEndOffset = 0
 
   private val delegate = (new ScalaDocMarkdownFlavour).createInlinesLexer()
   private var delegateState = 0
@@ -24,8 +26,12 @@ class _ScalaDocMarkdownLexer extends LexerBase {
     originalBuffer = buffer
     originalStartOffset = startOffset
     originalEndOffset = endOffset
+    isTwirlDocComment = endOffset >= 3 && buffer.charAt(0) == '@' && buffer.charAt(1) == '*' && buffer.charAt(2) == '*'
+    contentEndOffset =
+      if (isTwirlDocComment && endOffset >= 5 && buffer.charAt(endOffset - 2) == '*' && buffer.charAt(endOffset - 1) == '@') endOffset - 2
+      else endOffset
 
-    delegate.start(buffer, startOffset, endOffset, initialState >> STATE_WIDTH)
+    delegate.start(buffer, startOffset, contentEndOffset, initialState >> STATE_WIDTH)
     myState = initialState & ((1 << STATE_WIDTH) - 1)
 
     offset = originalStartOffset
@@ -59,7 +65,7 @@ class _ScalaDocMarkdownLexer extends LexerBase {
 
   private def unpauseDelegate(): Unit = {
     myState = _ScalaDocMarkdownLexer.DELEGATE
-    delegate.start(originalBuffer, offset, originalEndOffset, delegateState)
+    delegate.start(originalBuffer, offset, contentEndOffset, delegateState)
     // Note that we skipped past the previous token without adjusting the state.
     // Luckily for us, the state after a newline (which is the only time we switch to the paused mode)
     // is completely reset. So... this is mostly fine.
@@ -102,7 +108,7 @@ class _ScalaDocMarkdownLexer extends LexerBase {
       case _ScalaDocMarkdownLexer.LEADING_ASTERISK =>
         offset + 1
       case _ScalaDocMarkdownLexer.START =>
-        offset + 3 // /** is always 3 characters
+        offset + 3 // /** and @** are both 3 characters
       case _ScalaDocMarkdownLexer.END =>
         offset + 2 // "*/" is always 2 characters
       case x if _ScalaDocMarkdownLexer.isWhitespaceState(x) =>
@@ -114,7 +120,7 @@ class _ScalaDocMarkdownLexer extends LexerBase {
 
   override def advance(): Unit = {
     if (tokenEnd == originalEndOffset - 2 &&
-      originalBuffer.subSequence(tokenEnd, originalEndOffset).toString == "*/") {
+      originalBuffer.subSequence(tokenEnd, originalEndOffset).toString == (if (isTwirlDocComment) "*@" else "*/")) {
       myState = _ScalaDocMarkdownLexer.END
       offset = tokenEnd
 

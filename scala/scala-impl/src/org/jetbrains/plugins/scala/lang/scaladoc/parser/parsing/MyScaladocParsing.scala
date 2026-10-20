@@ -55,23 +55,12 @@ class MyScaladocParsing(private val builder: PsiBuilder,
   def parse(root: IElementType): Unit = {
     val rootMarker = builder.mark()
 
-    /**
-     * TODO: This is a very dirty hack.
-     * For some reason Play2Template comments are parsed as an ordinary ScalaDoc comment.
-     * [[org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes#SCALA_DOC_COMMENT]]
-     * with all inner token types as DOC_COMMENT_BAD_CHARACTER.
-     * Play2Templates should have a dedicated PSI element for a template comment with own parsing rules (simple, though)
-     * NOTE: this was so before implementing ScalaDoc paragraphs, I've just added more assertions...)
-     */
-    val isPlay2TemplateComment = builder.getTokenType == DOC_COMMENT_BAD_CHARACTER
-    if (!isPlay2TemplateComment) {
-      assert(builder.getTokenType == DOC_COMMENT_START)
-      builder.advanceLexer()
-      updateLineBreakFlagAfterAsterisks()
+    assert(builder.getTokenType == DOC_COMMENT_START)
+    builder.advanceLexer()
+    updateLineBreakFlagAfterAsterisks()
 
-      parseDescription()
-      parseTags()
-    }
+    parseDescription()
+    parseTags()
 
     while (!builder.eof())
       builder.advanceLexer()
