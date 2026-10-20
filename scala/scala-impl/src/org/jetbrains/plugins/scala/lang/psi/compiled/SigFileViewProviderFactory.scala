@@ -8,7 +8,7 @@ import com.intellij.psi.{FileViewProvider, FileViewProviderFactory, PsiManager}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
-import javax.swing._
+import javax.swing.Icon
 
 /**
  * Scala signatures which are usually stored in .class files, as a separate files

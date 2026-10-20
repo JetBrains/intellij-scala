@@ -169,6 +169,10 @@ object ScalaBundleSorting {
       )
     ),
     ModuleWithBundleInfo(
+      rootPath = scalaModDir / "scala-psi-impl",
+      bundleMessagesRelativePath = "ScalaPsiBundle.properties",
+    ),
+    ModuleWithBundleInfo(
       rootPath = scalaModDir / "structure-view",
       bundleMessagesRelativePath = "ScalaStructureViewBundle.properties"
     ),

@@ -185,7 +185,13 @@ lazy val scalaPsiApi = newProject("scala-psi-api", file("scala/scala-psi-api"))
   .dependsOn(scalaApi)
 
 lazy val scalaPsiImpl = newProject("scala-psi-impl", file("scala/scala-psi-impl"))
-  .dependsOn(scalaPsiApi)
+  .dependsOn(
+    compilerShared,
+    sbtCore,
+    scalaLanguageUtils,
+    scalaPsiApi,
+    tastyReader % "test->test;compile->compile",
+  )
   .settings(
     Compile / scalacOptions ++= Seq(
       "-no-indent",
