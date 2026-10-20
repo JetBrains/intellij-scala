@@ -1350,6 +1350,31 @@ lazy val runtimeDependencies = project.in(file("target/tools/runtime-dependencie
 // Test category commands.
 import Common.TestCategory.*
 
+/**
+ * Runs regular, special, and fast category commands with optional test-class bucketing.
+ *
+ * Category/tag selection and bucketing apply at different levels. The framework-specific
+ * Tests.Argument options below let JUnit 4 apply category inclusion/exclusion and Jupiter
+ * apply tag inclusion/exclusion, including rules on individual test methods. The optional
+ * Tests.Filter selects whole discovered test classes by name before framework execution,
+ * so all methods of a class stay in the same bucket regardless of their categories/tags.
+ * sbt intersects this filter with the testOnly glob and any existing user class filters;
+ * the frameworks then apply the category/tag rules within the surviving classes.
+ *
+ * The filter belongs to the current project's Test / testOptions, where testOnly runs.
+ * When a root project collects dependency projects' Test / definedTests, those classes
+ * are filtered here too; this does not rely on testOnly task aggregation.
+ *
+ * TestBucketing validates TC_SBT_TEST_BUCKETS_TOTAL and TC_SBT_TEST_BUCKETS_CURRENT once
+ * per invocation. Both absent means no bucket filter; otherwise both must be integers
+ * with a positive total and a zero-based current index smaller than the total. Invalid
+ * configuration fails before test execution. Class assignment uses the same name-hash
+ * algorithm as Ultimate's runTestBucket, without invoking its TeamCity retry filtering.
+ *
+ * The appended options are temporary: execute with newState, then return the incoming
+ * state so category/tag arguments and bucket filters cannot affect later commands while
+ * existing user session settings are preserved.
+ */
 def runTestCategoryCommand(
   name: String,
   description: String,
@@ -1359,6 +1384,8 @@ def runTestCategoryCommand(
 ): Command =
   Command.args(name, description) { (state, _) =>
     import com.github.sbt.junit.jupiter.sbt.Import.jupiterTestFramework
+
+    val bucket = TestBucketing.fromEnvironment(sys.env).fold(sys.error, identity)
 
     def args(keyword: String): Seq[String] = {
       val common = Seq("-v", "-s", "-a", "+c", "+q")
@@ -1374,10 +1401,12 @@ def runTestCategoryCommand(
       Test / testOptions ++= Seq(
         Tests.Argument(TestFrameworks.JUnit, args(keyword = "categories"): _*),
         Tests.Argument(jupiterTestFramework, args(keyword = "tags"): _*)
-      )
+      ) ++ bucket.map(b => Tests.Filter(b.matches)).toSeq
     ))
 
-    Project.extract(newState).runInputTask(Test / testOnly, glob, newState)._1
+    Project.extract(newState).runInputTask(Test / testOnly, glob, newState)
+    // Keep category arguments and bucketing local to this command.
+    state
   }
 
 def runRegularTestCategoryCommand(name: String, category: String): Command = runTestCategoryCommand(
