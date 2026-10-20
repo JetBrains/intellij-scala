@@ -142,7 +142,7 @@ object Main {
       val (token, commandArgs) = argsEncoded.map(normalizeArgument) match {
         case Seq(token, other@_*) => (token, other)
         case _ =>
-          client.trace(IllegalArgumentException("arguments are empty"))
+          client.trace(new IllegalArgumentException("arguments are empty"))
           return
       }
       // Don't check token in non-server mode
