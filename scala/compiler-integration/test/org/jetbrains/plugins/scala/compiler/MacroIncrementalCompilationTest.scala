@@ -18,7 +18,7 @@ import org.junit.runners.JUnit4
  * @see [[https://youtrack.jetbrains.com/issue/SCL-26126 SCL-26126]]
  */
 @RunWith(classOf[JUnit4])
-abstract class MacroIncrementalCompilationTestBase(scalaVersion: ScalaVersion) extends IncrementalCompilationTestFixture:
+abstract class MacroIncrementalCompilationTestBase(scalaVersion: ScalaVersion) extends IncrementalCompilationTestFixture {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == scalaVersion
 
@@ -29,7 +29,7 @@ abstract class MacroIncrementalCompilationTestBase(scalaVersion: ScalaVersion) e
   override protected def useCompileServer: Boolean = true
 
   @Test
-  def testRecompileUsersOfChangedMacro(): Unit =
+  def testRecompileUsersOfChangedMacro(): Unit = {
     val sources = initBuildProject(
       new SourceFile(
         name = "Answer",
@@ -72,15 +72,15 @@ abstract class MacroIncrementalCompilationTestBase(scalaVersion: ScalaVersion) e
 
     assertThat("Answer hasn't been recompiled", answerTsAfter, everyValueGreaterThanIn(answerTsBefore))
     assertThat("User hasn't been recompiled", userTsAfter, everyValueGreaterThanIn(userTsBefore))
-  end testRecompileUsersOfChangedMacro
+  }
 
-  private def targetTimestamps(sources: Seq[SourceFile]): (answerTs: Map[String, Long], userTs: Map[String, Long]) =
+  private def targetTimestamps(sources: Seq[SourceFile]): (Map[String, Long], Map[String, Long]) = {
     assertEquals(2, sources.size)
     val first = sources.head.targetTimestamps
     val second = sources(1).targetTimestamps
     (first, second)
-
-end MacroIncrementalCompilationTestBase
+  }
+}
 
 class MacroIncrementalCompilationTest_Scala_3_3 extends MacroIncrementalCompilationTestBase(ScalaVersion.Latest.Scala_3_3)
 
