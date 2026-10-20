@@ -743,7 +743,7 @@
         org.jetbrains.plugins.scala.compiler.CompileServerLauncher.compileServerJars
         This line was moved from scalaCommunity.compiler-integration.xml
         -->
-        <compileServer.plugin classpath="jps/compile-server-scala-library.jar;jps/compile-server-scala3-library_3.jar;compiler-shared.jar;scala-jps.jar;utils_rt.jar;jps/nailgun.jar;jps/compile-server.jar;jps/compiler-jps.jar;jps/compiler-interface.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;scala-parser-combinators.jar;scala-xml.jar;spray-json_2.13-1.3.6.jar;scala-compiler-indices-protocol_2.13-1.0.16.jar"/>
+        <compileServer.plugin classpath="jps/compile-server-scala-library.jar;jps/compile-server-scala3-library_3.jar;compiler-shared.jar;scala-jps.jar;utils_rt.jar;jps/nailgun.jar;jps/compile-server.jar;jps/compiler-jps.jar;jps/compiler-interface.jar;jps/sbt-interface.jar;jps/incremental-compiler.jar;scala-parser-combinators.jar;scala-xml.jar;spray-json_3-1.3.6.jar;scala-compiler-indices-protocol_3-1.0.17.jar"/>
 
         <fileType name="SIG" extensions="sig"
                   implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileType$"
