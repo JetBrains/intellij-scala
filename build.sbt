@@ -351,6 +351,7 @@ lazy val structureView = newProject("structure-view", file("scala/structure-view
       "com.intellij.structureView".toPlugin,
       "com.intellij.navbar".toPlugin
     ),
+    libraryDependencies += Dependencies.intellijStructureViewTestFramework % Test,
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.structure-view"),
   )
 

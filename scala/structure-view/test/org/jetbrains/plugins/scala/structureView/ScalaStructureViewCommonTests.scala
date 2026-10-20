@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.structureView.newStructureView.StructureViewComponent
-import com.intellij.testFramework.{PlatformTestUtil, UsefulTestCase}
+import com.intellij.testFramework.{PlatformTestUtil, StructureViewComponentTestUtil, UsefulTestCase}
 import com.intellij.ui.{IconManager, PlatformIcons}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.icons.Icons.*
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.*
 import org.jetbrains.plugins.scala.structureView.filter.ScalaPublicElementsFilter
 import org.jetbrains.plugins.scala.structureView.grouper.ScalaSuperTypesGrouper
@@ -1166,26 +1166,26 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
 
     myFixture.configureByText(s"${getTestName(false)}.scala", code)
 
-    myFixture.testStructureView { svc =>
+    StructureViewComponentTestUtil.testStructureView(myFixture, { svc =>
       val tree = svc.getTree
 
       svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
 
       PlatformTestUtil.expandAll(tree)
       PlatformTestUtil.assertTreeEqual(tree, expectedStructureWithAnonymousEnabled)
-    }
+    })
   }
 
   private def checkAnonymousClassesInDefinitions(code: String, expectedStructure: String): Unit = {
     myFixture.configureByText("ScalaStructureTest.scala", code)
-    myFixture.testStructureView { svc =>
+    StructureViewComponentTestUtil.testStructureView(myFixture, { svc =>
       val tree = svc.getTree
 
       svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
 
       PlatformTestUtil.expandAll(tree)
       PlatformTestUtil.assertTreeEqual(tree, expectedStructure)
-    }
+    })
   }
 
   private def assertCheckThrows(exceptionClass: Class[? <: Throwable],
@@ -1288,7 +1288,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     //NOTE: our common test code from `ScalaStructureViewTestBase` can't test
     // nodes coming from com.intellij.ide.util.FileStructureNodeProvider
     //In IntelliJ tests they test it using this fixture method
-    myFixture.testStructureView((svc: StructureViewComponent) => {
+    StructureViewComponentTestUtil.testStructureView(myFixture, (svc: StructureViewComponent) => {
       val tree = svc.getTree
 
       PlatformTestUtil.expandAll(tree)
@@ -1387,7 +1387,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     //NOTE: our common test code from `ScalaStructureViewTestBase` can't test
     // nodes coming from com.intellij.ide.util.FileStructureNodeProvider
     //In IntelliJ tests they test it using this fixture method
-    myFixture.testStructureView((svc: StructureViewComponent) => {
+    StructureViewComponentTestUtil.testStructureView(myFixture, (svc: StructureViewComponent) => {
       val tree = svc.getTree
 
       svc.setActionActive(ScalaAnonymousClassesNodeProvider.ID, true)
@@ -1474,7 +1474,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         |wait(Long): Unit
         |wait(Long, Int): Unit""".stripMargin.linesIterator.map(" " * indent + _).mkString(System.lineSeparator())
 
-    myFixture.testStructureView { svc =>
+    StructureViewComponentTestUtil.testStructureView(myFixture, { svc =>
       svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
       svc.setActionActive(ScalaAlphaSorter.ID, true)
       PlatformTestUtil.expandAll(svc.getTree)
@@ -1584,7 +1584,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |    ${inheritedFromObject(indent = 4)}
            |""".stripMargin
       )
-    }
+    })
   }
 
   def testInheritedMembersFromJava(): Unit = {
@@ -1621,7 +1621,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
         |""".stripMargin
     configureFromFileText(derivedClass)
 
-    myFixture.testStructureView { svc =>
+    StructureViewComponentTestUtil.testStructureView(myFixture, { svc =>
       svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
       svc.setActionActive(ScalaAlphaSorter.ID, true)
       PlatformTestUtil.expandAll(svc.getTree)
@@ -1676,14 +1676,14 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |   wait(Long, Int): Unit
            |""".stripMargin
       )
-    }
+    })
   }
 
   def testOrderingByVisibility(): Unit = {
     myFixture.addFileToProject("tests/Base.scala", BaseInterfaceAndClass)
     configureFromFileText(DerivedClass)
 
-    myFixture.testStructureView { svc =>
+    StructureViewComponentTestUtil.testStructureView(myFixture, { svc =>
       svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
       PlatformTestUtil.expandAll(svc.getTree)
       PlatformTestUtil.assertTreeEqual(svc.getTree,
@@ -1765,14 +1765,14 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
           """  setZ(Int): Unit
             |""".stripMargin
       )
-    }
+    })
   }
 
   def testHideNonPublic(): Unit = {
     myFixture.addFileToProject("tests/Base.scala", BaseInterfaceAndClass)
     configureFromFileText(DerivedClass)
 
-    myFixture.testStructureView { svc =>
+    StructureViewComponentTestUtil.testStructureView(myFixture, { svc =>
       svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
       svc.setActionActive(ScalaAlphaSorter.ID, true)
       svc.setActionActive(ScalaPublicElementsFilter.ID, true)
@@ -1802,7 +1802,7 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
            |  wait(Long, Int): Unit
            |""".stripMargin
       )
-    }
+    })
   }
 
   @Language("Scala")

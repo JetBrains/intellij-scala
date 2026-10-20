@@ -49,8 +49,8 @@ class ScalaDocMarkdownConstraints(indents: Array[Int], types: Array[Char], isExp
     else super.applyToNextLine(pos)
   }
 
-  override def addModifierIfNeeded(pos: LookaheadText#Position): CommonMarkdownConstraints =
-    Option(super.addModifierIfNeeded(pos)).getOrElse(tryAddTag(pos))
+  override def addModifierIfNeeded(pos: LookaheadText#Position, interruptsParagraph: Boolean): CommonMarkdownConstraints =
+    Option(super.addModifierIfNeeded(pos, interruptsParagraph)).getOrElse(tryAddTag(pos))
 
   private def tryAddTag(pos: LookaheadText#Position): ScalaDocMarkdownConstraints = {
     // Tags need to be the first modifier of the line.

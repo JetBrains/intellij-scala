@@ -14,7 +14,6 @@ import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.dsl.builder.*
-import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.ui.{DocumentAdapter, UIBundle}
 import org.jetbrains.annotations.TestOnly
@@ -32,7 +31,6 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.atomic.AtomicReference
 import javax.swing.JLabel
 import kotlin.Unit.INSTANCE as KUnit
-import scala.annotation.nowarn
 import scala.collection.immutable.ListSet
 
 //noinspection ApiStatus,UnstableApiUsage
@@ -144,9 +142,9 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardMultiStep)
             validateModuleName(builder, field)
           }
           TextFieldKt.bindText(row.textField, moduleNameProperty: com.intellij.openapi.observable.properties.ObservableMutableProperty[String])
-            .horizontalAlign(HorizontalAlign.FILL)
+            .align(AlignX.FILL.INSTANCE)
             .validationOnInput(validator)
-            .validationOnApply(validator): @nowarn("cat=deprecation")
+            .validationOnApply(validator)
           KUnit
         })
       }

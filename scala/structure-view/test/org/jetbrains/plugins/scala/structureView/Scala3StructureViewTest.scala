@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.structureView
 
-import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.testFramework.{PlatformTestUtil, StructureViewComponentTestUtil}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.icons.Icons.*
@@ -401,7 +401,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
         |""".stripMargin
     configureFromFileText(derivedClass)
 
-    myFixture.testStructureView { svc =>
+    StructureViewComponentTestUtil.testStructureView(myFixture, { svc =>
       svc.setActionActive(ScalaInheritedMembersNodeProvider.ID, true)
       svc.setActionActive(ScalaAlphaSorter.ID, true)
       PlatformTestUtil.expandAll(svc.getTree)
@@ -525,7 +525,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
            |   wait(Long, Int): Unit
            |""".stripMargin
       )
-    }
+    })
   }
 
   def testNavigationFromSourceScala3(): Unit = checkNavigationFromSource(
