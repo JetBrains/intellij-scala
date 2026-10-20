@@ -41,7 +41,7 @@ class AkkaClusterSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     //akka.cluster.GossipEnvelope
     //akka.cluster.GossipOverview
     //akka.cluster.GossipStats
-    //akka.cluster.GossipStatus
+    akka.cluster.GossipStatus
     //akka.cluster.GossipTargetSelector
     //akka.cluster.HeartbeatNodeRing
     akka.cluster.InternalClusterAction

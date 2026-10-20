@@ -1089,7 +1089,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.std.TupleInstances1
     //scalaz.std.TupleInstances2
     //scalaz.std.TupleInstances3
-    //scalaz.std.TypeConstraintInstances
+    scalaz.std.TypeConstraintInstances
     //scalaz.std.VectorEqual
     //scalaz.std.VectorFunctions
     //scalaz.std.VectorInstances
@@ -1458,7 +1458,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.syntax.WriterOps
     //scalaz.syntax.ZipOps
     //scalaz.syntax.ZipSyntax
-    //scalaz.syntax.std.BooleanOps
+    scalaz.syntax.std.BooleanOps
     //scalaz.syntax.std.BooleanOps2
     scalaz.syntax.std.EitherOps
     //scalaz.syntax.std.Function1Ops
