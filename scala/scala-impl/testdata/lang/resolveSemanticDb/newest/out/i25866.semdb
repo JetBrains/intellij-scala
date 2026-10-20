@@ -1,0 +1,16 @@
+Document tests/pos/i25866.scala
+(1:18..1:24) scala/Predef.String#
+(1:28..1:29) _empty_/i25866$package.Decode#[S] -> 1:13
+(2:15..2:21) scala/Predef.String#
+(3:15..3:22) scala/Boolean#
+(5:28..5:34) scala/Predef.String#
+(5:41..5:47) _empty_/i25866$package.Decode# -> 1:6
+(5:48..5:49) _empty_/Collection#[S] -> 5:23
+(6:7..6:11) scala/package.List#
+(6:12..6:13) _empty_/Collection#[T] -> 5:36
+(9:29..9:35) scala/Predef.String#
+(9:42..9:48) _empty_/i25866$package.Decode# -> 1:6
+(9:49..9:50) _empty_/ClassyCollection#[S] -> 9:24
+(10:11..10:15) scala/package.List#
+(10:16..10:17) _empty_/ClassyCollection#[T] -> 9:37
+

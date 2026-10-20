@@ -1,0 +1,9 @@
+Document tests/pos/i26550.scala
+(1:34..1:35) scala/`|`#
+(1:47..1:53) scala/AnyVal#
+(2:17..2:30) _empty_/BitNumWrapper# -> 1:7
+(2:33..2:40) scala/Boolean#
+(2:43..2:44) _empty_/i26550$package.positive().(w) -> 2:14
+(2:45..2:50) _empty_/BitNumWrapper#value. -> 1:25
+(2:51..2:52) scala/Int#`>`(+3).
+

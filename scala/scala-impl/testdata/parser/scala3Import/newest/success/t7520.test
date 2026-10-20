@@ -1,11 +1,11 @@
 class A {
-  val x: Singleton with this.type = this
+  val x: Singleton & this.type = this
   val y: this.type = x
 }
 
 class B {
   val x = ""
-  val xs: x.type with Singleton = x
+  val xs: x.type & Singleton = x
   val y: x.type = xs
 }
 -----
@@ -42,12 +42,13 @@ ScalaFile
               PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: Singleton with this.type
+          InfixType: Singleton & this.type
             SimpleType: Singleton
               CodeReferenceElement: Singleton
                 PsiElement(identifier)('Singleton')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: this.type
               ThisReference
@@ -133,14 +134,15 @@ ScalaFile
               PsiElement(identifier)('xs')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: x.type with Singleton
+          InfixType: x.type & Singleton
             SimpleType: x.type
               CodeReferenceElement: x
                 PsiElement(identifier)('x')
               PsiElement(.)('.')
               PsiElement(type)('type')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: Singleton
               CodeReferenceElement: Singleton

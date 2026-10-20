@@ -20,10 +20,10 @@ Document tests/pos/i8397.scala
 (19:44..19:49) _empty_/i8397$package.`given_Lub_|`#[Right] -> 18:14
 (19:44..19:49) _empty_/i8397$package.`given_Lub_|`().[Right] -> 18:14
 (20:15..20:19) _empty_/Lub2# -> 6:7
-(20:20..20:27) _empty_/i8397$package.`given_Lub_|`#`<init>`().(lubLeft)
+(20:20..20:27) _empty_/i8397$package.`given_Lub_|`#`<init>`().(lubLeft) -> 19:9
 (20:20..20:27) _empty_/i8397$package.`given_Lub_|`().(lubLeft) -> 19:9
 (20:28..20:34) _empty_/Lub#Output# -> 13:8
-(20:36..20:44) _empty_/i8397$package.`given_Lub_|`#`<init>`().(lubRight)
+(20:36..20:44) _empty_/i8397$package.`given_Lub_|`#`<init>`().(lubRight) -> 19:30
 (20:36..20:44) _empty_/i8397$package.`given_Lub_|`().(lubRight) -> 19:30
 (20:45..20:51) _empty_/Lub#Output# -> 13:8
 (21:8..21:11) _empty_/Lub# -> 12:7

@@ -1,9 +1,9 @@
 trait Test {
   type A <: Any { type T }
   type B <: Any { type T }
-  type C <: A with B { type T }
+  type C <: A & B { type T }
 
-  type D <: List[A] with List[B] { type T }
+  type D <: List[A] & List[B] { type T }
 }
 -----
 ScalaFile
@@ -91,30 +91,32 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          CompoundType: A with B { type T }
+          InfixType: A & B { type T }
             SimpleType: A
               CodeReferenceElement: A
                 PsiElement(identifier)('A')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
-            SimpleType: B
-              CodeReferenceElement: B
-                PsiElement(identifier)('B')
-            PsiWhiteSpace(' ')
-            Refinement
-              PsiElement({)('{')
+            CompoundType: B { type T }
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
               PsiWhiteSpace(' ')
-              ScTypeAliasDeclaration: T
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(type)('type')
+              Refinement
+                PsiElement({)('{')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('T')
-              PsiWhiteSpace(' ')
-              PsiElement(})('}')
+                ScTypeAliasDeclaration: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
         PsiWhiteSpace('\n\n  ')
         ScTypeAliasDeclaration: D
           AnnotationsList
@@ -127,7 +129,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          CompoundType: List[A] with List[B] { type T }
+          InfixType: List[A] & List[B] { type T }
             ParametrizedType: List[A]
               SimpleType: List
                 CodeReferenceElement: List
@@ -140,32 +142,34 @@ ScalaFile
                       PsiElement(identifier)('A')
                 PsiElement(])(']')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
-            ParametrizedType: List[B]
-              SimpleType: List
-                CodeReferenceElement: List
-                  PsiElement(identifier)('List')
-              TypeArgumentsList
-                PsiElement([)('[')
-                TypeArgument
-                  SimpleType: B
-                    CodeReferenceElement: B
-                      PsiElement(identifier)('B')
-                PsiElement(])(']')
-            PsiWhiteSpace(' ')
-            Refinement
-              PsiElement({)('{')
+            CompoundType: List[B] { type T }
+              ParametrizedType: List[B]
+                SimpleType: List
+                  CodeReferenceElement: List
+                    PsiElement(identifier)('List')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: B
+                      CodeReferenceElement: B
+                        PsiElement(identifier)('B')
+                  PsiElement(])(']')
               PsiWhiteSpace(' ')
-              ScTypeAliasDeclaration: T
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(type)('type')
+              Refinement
+                PsiElement({)('{')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('T')
-              PsiWhiteSpace(' ')
-              PsiElement(})('}')
+                ScTypeAliasDeclaration: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

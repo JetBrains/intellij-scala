@@ -19,10 +19,12 @@ Document tests/pos/i8031.scala
 (14:28..14:33) _empty_/Example.ZLayer#`++`().[ROut2] -> 13:43
 (15:8..15:14) _empty_/Example.ZLayer# -> 12:9
 (15:15..15:18) _empty_/Example.ZLayer#[RIn] -> 12:17
-(15:24..15:28) _empty_/Example.ZLayer#`++`().[RIn2] -> 13:12
-(15:30..15:35) _empty_/Example.ZLayer#`++`().[ROut1] -> 13:18
-(15:41..15:46) _empty_/Example.ZLayer#`++`().[ROut2] -> 13:43
-(15:50..15:53) scala/Predef.`???`().
+(15:19..15:20) scala/`&`#
+(15:21..15:25) _empty_/Example.ZLayer#`++`().[RIn2] -> 13:12
+(15:27..15:32) _empty_/Example.ZLayer#`++`().[ROut1] -> 13:18
+(15:33..15:34) scala/`&`#
+(15:35..15:40) _empty_/Example.ZLayer#`++`().[ROut2] -> 13:43
+(15:44..15:47) scala/Predef.`???`().
 (21:17..21:20) _empty_/Example.Has# -> 3:9
 (21:21..21:34) _empty_/Example.RandomService# -> 18:9
 (22:16..22:19) _empty_/Example.Has# -> 3:9
@@ -37,8 +39,9 @@ Document tests/pos/i8031.scala
 (25:35..25:38) scala/Predef.`???`().
 (27:17..27:20) _empty_/Example.ZIO# -> 5:9
 (27:21..27:27) _empty_/Example.Random# -> 21:8
-(27:33..27:38) _empty_/Example.Sized# -> 22:8
-(27:42..27:45) scala/Predef.`???`().
+(27:28..27:29) scala/`&`#
+(27:30..27:35) _empty_/Example.Sized# -> 22:8
+(27:39..27:42) scala/Predef.`???`().
 (30:24..30:27) _empty_/Example.ZIO# -> 5:9
 (30:28..30:34) _empty_/Example.Random# -> 21:8
 (31:5..31:8) _empty_/Example.zio. -> 27:12
@@ -52,9 +55,10 @@ Document tests/pos/i8031.scala
 (35:9..35:21) _empty_/Example.ZIO#provideLayer(). -> 6:9
 (35:22..35:28) _empty_/Example.Random# -> 21:8
 (35:30..35:36) _empty_/Example.Random# -> 21:8
-(35:42..35:47) _empty_/Example.Sized# -> 22:8
-(35:49..35:55) _empty_/Example.random(). -> 24:7
-(35:56..35:58) _empty_/Example.ZLayer#`++`(). -> 13:9
-(35:59..35:64) _empty_/Example.sized(). -> 25:7
+(35:37..35:38) scala/`&`#
+(35:39..35:44) _empty_/Example.Sized# -> 22:8
+(35:46..35:52) _empty_/Example.random(). -> 24:7
+(35:53..35:55) _empty_/Example.ZLayer#`++`(). -> 13:9
+(35:56..35:61) _empty_/Example.sized(). -> 25:7
 (37:3..37:10) scala/Predef.println(+1).
 

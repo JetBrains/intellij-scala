@@ -210,9 +210,9 @@ Document tests/pos/13491.scala
 (95:19..95:25) scala/Predef.String#
 (95:27..95:30) scala/Int#
 (95:34..95:37) scala/Predef.Map.
-(95:44..95:46) scala/Predef.ArrowAssoc#`->`().
-(95:58..95:60) scala/Predef.ArrowAssoc#`->`().
-(95:71..95:73) scala/Predef.ArrowAssoc#`->`().
+(95:44..95:46) scala/Predef.`->`().
+(95:58..95:60) scala/Predef.`->`().
+(95:71..95:73) scala/Predef.`->`().
 (96:12..96:17) _empty_/Rule.Rule0# -> 85:8
 (96:19..96:22) scala/Predef.`???`().
 (97:11..97:15) _empty_/Rule.rule(). -> 88:7

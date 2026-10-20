@@ -9,8 +9,9 @@ Document tests/pos/t6022b.scala
 (10:14..10:16) _empty_/AB# -> 4:7
 (10:20..10:27) scala/Predef.println(+1).
 (11:15..11:16) _empty_/A# -> 1:7
-(11:22..11:23) _empty_/B# -> 2:7
-(11:28..11:35) scala/Predef.println(+1).
+(11:17..11:18) scala/`&`#
+(11:19..11:20) _empty_/B# -> 2:7
+(11:25..11:32) scala/Predef.println(+1).
 (12:14..12:15) _empty_/B# -> 2:7
 (12:20..12:27) scala/Predef.println(+1).
 (13:14..13:15) _empty_/A# -> 1:7

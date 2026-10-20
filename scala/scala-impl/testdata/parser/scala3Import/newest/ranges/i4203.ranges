@@ -16,7 +16,7 @@
 [53,72]: ValDef
 [56,72]: AppliedTypeTree
 [56,59]: Ident
-[60,71]: Function
+[60,71]: FunctionWithMods
 [60,63]: Ident
 [68,71]: Ident
 [75,78]: Ident

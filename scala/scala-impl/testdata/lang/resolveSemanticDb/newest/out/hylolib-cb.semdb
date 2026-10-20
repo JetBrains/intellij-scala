@@ -45,13 +45,13 @@ Document tests/pos/hylolib-cb/AnyCollection.scala
 (36:9..36:22) hylo/AnyCollection# -> 7:13
 (36:23..36:24) hylo/AnyCollection.apply().(b) -> 17:33
 (36:25..36:32) hylo/Collection#Element# -> 8:8
-(37:7..37:13) hylo/AnyCollection#`<init>`().(_start)
+(37:7..37:13) hylo/AnyCollection#`<init>`().(_start) -> 8:9
 (37:16..37:21) local1 -> 36:11
-(38:7..38:11) hylo/AnyCollection#`<init>`().(_end)
+(38:7..38:11) hylo/AnyCollection#`<init>`().(_end) -> 9:9
 (38:14..38:17) local2 -> 37:11
-(39:7..39:13) hylo/AnyCollection#`<init>`().(_after)
+(39:7..39:13) hylo/AnyCollection#`<init>`().(_after) -> 10:9
 (39:16..39:21) local4 -> 54:9
-(40:7..40:10) hylo/AnyCollection#`<init>`().(_at)
+(40:7..40:10) hylo/AnyCollection#`<init>`().(_at) -> 11:9
 (40:13..40:15) local6 -> 88:11
 (45:38..45:43) hylo/AnyCollection$package.anyCollectionIsCollection#[T] -> 45:35
 (45:38..45:43) hylo/AnyCollection$package.anyCollectionIsCollection().[T] -> 45:35
@@ -371,7 +371,7 @@ Document tests/pos/hylolib-cb/BitArray.scala
 (137:16..137:21) hylo/BitArray#count(). -> 16:7
 (137:22..137:23) scala/Int#`-`(+3).
 (137:27..137:29) scala/Int#`>>`().
-(139:18..139:23) scala/runtime/RichInt#until().
+(139:18..139:23) scala/Int.until().
 (139:24..139:25) local19 -> 117:9
 (140:9..140:15) local17 -> 117:14
 (140:16..140:21) hylo/BitArray#_bits(). -> 7:17
@@ -1481,7 +1481,7 @@ Document tests/pos/hylolib-cb/Slice.scala
 (4:25..4:35) hylo/Slice#[Base] -> 4:19
 (5:15..5:19) hylo/Slice#[Base] -> 4:19
 (6:17..6:22) hylo/Range# -> 4:13
-(6:23..6:24) hylo/Slice#`<init>`().(b)
+(6:23..6:24) hylo/Slice#`<init>`().(b) -> 4:39
 (6:25..6:33) hylo/Collection#Position# -> 11:8
 (10:16..10:23) scala/Boolean#
 (11:5..11:11) hylo/Slice#bounds. -> 6:9

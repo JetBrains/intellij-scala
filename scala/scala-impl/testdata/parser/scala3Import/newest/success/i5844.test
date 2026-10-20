@@ -16,7 +16,7 @@ package p2 {
   trait B[X]{
     def m(): X
   }
-  trait C[X] extends B[X with A]
+  trait C[X] extends B[X & A]
 
   object O{
     def m(c: C[_]) = {
@@ -312,19 +312,20 @@ ScalaFile
         PsiWhiteSpace(' ')
         TemplateParents
           ConstructorInvocation
-            ParametrizedType: B[X with A]
+            ParametrizedType: B[X & A]
               SimpleType: B
                 CodeReferenceElement: B
                   PsiElement(identifier)('B')
               TypeArgumentsList
                 PsiElement([)('[')
                 TypeArgument
-                  CompoundType: X with A
+                  InfixType: X & A
                     SimpleType: X
                       CodeReferenceElement: X
                         PsiElement(identifier)('X')
                     PsiWhiteSpace(' ')
-                    PsiElement(with)('with')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
                     PsiWhiteSpace(' ')
                     SimpleType: A
                       CodeReferenceElement: A

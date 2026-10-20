@@ -67,7 +67,7 @@
 [236,236]: TypeBoundsTree
 [242,265]: Function
 [242,243]: Ident
-[247,265]: Function
+[247,265]: FunctionWithMods
 [247,253]: AppliedTypeTree
 [247,250]: Ident
 [251,252]: Ident
@@ -160,7 +160,7 @@
 [569,570]: Ident
 [571,572]: Number
 [574,616]: TypeDef
-[596,616]: Function
+[596,616]: FunctionWithMods
 [596,604]: AppliedTypeTree
 [596,599]: Ident
 [600,603]: Ident
@@ -174,7 +174,7 @@
 [647,648]: Ident
 [650,654]: ValDef
 [653,654]: Ident
-[659,677]: Function
+[659,677]: FunctionWithMods
 [659,665]: AppliedTypeTree
 [659,662]: Ident
 [663,664]: Ident

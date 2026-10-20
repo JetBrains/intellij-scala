@@ -1,0 +1,8 @@
+Document tests/pos/i26646-c-separate/Test_2.scala
+(2:10..2:37) _empty_/CyclicSignature_JAVA_ONLY_1#
+(2:38..2:44) _empty_/CyclicSignature_JAVA_ONLY_1#Actual#
+(2:45..2:52) scala/Nothing#
+(2:56..2:59) scala/Predef.`???`().
+(3:13..3:14) _empty_/Test.a. -> 2:7
+(3:15..3:19) _empty_/CyclicSignature_JAVA_ONLY_1#Actual#test().
+

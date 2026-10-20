@@ -94,7 +94,7 @@ Document tests/pos/tcpoly_infer_ticket1864.scala
 (39:82..39:85) scala/Int#
 (40:19..40:30) scala/collection/mutable/ArrayBuffer#
 (40:31..40:34) scala/Int#
-(41:8..41:10) scala/runtime/RichInt#to().
+(41:8..41:10) scala/Int.to().
 (41:14..41:21) scala/collection/immutable/Range#foreach().
 (41:22..41:25) local10 -> 40:9
 (41:26..41:28) scala/collection/mutable/Growable#`+=`().

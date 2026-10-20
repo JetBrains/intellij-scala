@@ -1,0 +1,4 @@
+Document tests/pos/inline-val-short.scala
+(4:23..4:28) scala/Short#
+(6:26..6:41) _empty_/InlineConstants# -> 3:7
+

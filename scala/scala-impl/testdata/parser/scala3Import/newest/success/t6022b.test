@@ -8,7 +8,7 @@ object Test extends App {
   def foo(x: Any) = x match {
     case _ : C  => println("C")
     case _ : AB => println("AB")
-    case _ : (A with B) => println("AB'")
+    case _ : (A & B) => println("AB'")
     case _ : B  => println("B")
     case _ : A  => println("A")
   }
@@ -199,14 +199,15 @@ ScalaFile
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   TypePattern
-                    TypeInParenthesis: (A with B)
+                    TypeInParenthesis: (A & B)
                       PsiElement(()('(')
-                      CompoundType: A with B
+                      InfixType: A & B
                         SimpleType: A
                           CodeReferenceElement: A
                             PsiElement(identifier)('A')
                         PsiWhiteSpace(' ')
-                        PsiElement(with)('with')
+                        CodeReferenceElement: &
+                          PsiElement(identifier)('&')
                         PsiWhiteSpace(' ')
                         SimpleType: B
                           CodeReferenceElement: B

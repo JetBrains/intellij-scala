@@ -25,9 +25,10 @@ Document tests/pos/annot.scala
 (16:26..16:29) scala/Predef.`???`().
 (23:10..23:11) _empty_/Test#A# -> 20:9
 (23:13..23:30) scala/annotation/unchecked/uncheckedVariance#
-(23:36..23:37) _empty_/Test#B# -> 21:9
-(23:39..23:56) scala/annotation/unchecked/uncheckedVariance#
-(23:59..23:62) scala/Predef.`???`().
+(23:31..23:32) scala/`&`#
+(23:33..23:34) _empty_/Test#B# -> 21:9
+(23:36..23:53) scala/annotation/unchecked/uncheckedVariance#
+(23:56..23:59) scala/Predef.`???`().
 (25:19..25:20) _empty_/Test#A# -> 20:9
 (25:22..25:39) scala/annotation/unchecked/uncheckedVariance#
 (25:48..25:49) _empty_/Test#B# -> 21:9

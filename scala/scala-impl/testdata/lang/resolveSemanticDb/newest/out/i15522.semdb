@@ -26,9 +26,9 @@ Document tests/pos/i15522.scala
 (13:26..13:31) _empty_/Range.
 (13:44..13:54) _empty_/Test.mkCoverage(). -> 7:7
 (13:55..13:57) local2 -> 13:17
-(13:58..13:61) scala/runtime/RichDouble#max().
+(13:58..13:61) scala/Double.max().
 (13:62..13:64) local4 -> 13:32
 (13:66..13:68) local3 -> 13:21
-(13:69..13:72) scala/runtime/RichDouble#min().
+(13:69..13:72) scala/Double.min().
 (13:73..13:75) local5 -> 13:36
 

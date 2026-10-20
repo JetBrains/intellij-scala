@@ -1,0 +1,288 @@
+
+
+inline def f1() =
+  inline if 2 + 2 == 4 then true else false
+
+inline def f2() =
+  inline if {2 + 2 == 4} then true else false
+
+inline def f3() =
+  inline if {2 + (2: Int) == 4} then true else false
+
+inline def f4() =
+  inline if {2 + (2: Byte) == 4} then true else false
+
+@main def Test =
+  f1()
+  f2()
+  f3()
+  f4()
+-----
+ScalaFile
+  ScFunctionDefinition: f1
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f1')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    IfStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      PsiElement(if)('if')
+      PsiWhiteSpace(' ')
+      InfixExpression
+        InfixExpression
+          IntegerLiteral
+            PsiElement(integer)('2')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: +
+            PsiElement(identifier)('+')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('2')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: ==
+          PsiElement(identifier)('==')
+        PsiWhiteSpace(' ')
+        IntegerLiteral
+          PsiElement(integer)('4')
+      PsiWhiteSpace(' ')
+      PsiElement(then)('then')
+      PsiWhiteSpace(' ')
+      BooleanLiteral
+        PsiElement(true)('true')
+      PsiWhiteSpace(' ')
+      PsiElement(else)('else')
+      PsiWhiteSpace(' ')
+      BooleanLiteral
+        PsiElement(false)('false')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f2
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f2')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    IfStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      PsiElement(if)('if')
+      PsiWhiteSpace(' ')
+      BlockExpression
+        PsiElement({)('{')
+        InfixExpression
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            IntegerLiteral
+              PsiElement(integer)('2')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ==
+            PsiElement(identifier)('==')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('4')
+        PsiElement(})('}')
+      PsiWhiteSpace(' ')
+      PsiElement(then)('then')
+      PsiWhiteSpace(' ')
+      BooleanLiteral
+        PsiElement(true)('true')
+      PsiWhiteSpace(' ')
+      PsiElement(else)('else')
+      PsiWhiteSpace(' ')
+      BooleanLiteral
+        PsiElement(false)('false')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f3
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f3')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    IfStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      PsiElement(if)('if')
+      PsiWhiteSpace(' ')
+      BlockExpression
+        PsiElement({)('{')
+        InfixExpression
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              TypedExpression
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Int
+                  CodeReferenceElement: Int
+                    PsiElement(identifier)('Int')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ==
+            PsiElement(identifier)('==')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('4')
+        PsiElement(})('}')
+      PsiWhiteSpace(' ')
+      PsiElement(then)('then')
+      PsiWhiteSpace(' ')
+      BooleanLiteral
+        PsiElement(true)('true')
+      PsiWhiteSpace(' ')
+      PsiElement(else)('else')
+      PsiWhiteSpace(' ')
+      BooleanLiteral
+        PsiElement(false)('false')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: f4
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(inline)('inline')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('f4')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n  ')
+    IfStatement
+      PsiElement(inline)('inline')
+      PsiWhiteSpace(' ')
+      PsiElement(if)('if')
+      PsiWhiteSpace(' ')
+      BlockExpression
+        PsiElement({)('{')
+        InfixExpression
+          InfixExpression
+            IntegerLiteral
+              PsiElement(integer)('2')
+            PsiWhiteSpace(' ')
+            ReferenceExpression: +
+              PsiElement(identifier)('+')
+            PsiWhiteSpace(' ')
+            ExpressionInParenthesis
+              PsiElement(()('(')
+              TypedExpression
+                IntegerLiteral
+                  PsiElement(integer)('2')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                SimpleType: Byte
+                  CodeReferenceElement: Byte
+                    PsiElement(identifier)('Byte')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ==
+            PsiElement(identifier)('==')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('4')
+        PsiElement(})('}')
+      PsiWhiteSpace(' ')
+      PsiElement(then)('then')
+      PsiWhiteSpace(' ')
+      BooleanLiteral
+        PsiElement(true)('true')
+      PsiWhiteSpace(' ')
+      PsiElement(else)('else')
+      PsiWhiteSpace(' ')
+      BooleanLiteral
+        PsiElement(false)('false')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: Test
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          ConstructorInvocation
+            SimpleType: main
+              CodeReferenceElement: main
+                PsiElement(identifier)('main')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Test')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: f1
+          PsiElement(identifier)('f1')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: f2
+          PsiElement(identifier)('f2')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: f3
+          PsiElement(identifier)('f3')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')
+      PsiWhiteSpace('\n  ')
+      MethodCall
+        ReferenceExpression: f4
+          PsiElement(identifier)('f4')
+        ArgumentList
+          PsiElement(()('(')
+          PsiElement())(')')

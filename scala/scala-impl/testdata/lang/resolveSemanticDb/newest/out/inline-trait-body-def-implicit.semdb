@@ -1,0 +1,10 @@
+Document tests/pos/inline-trait-body-def-implicit.scala
+(3:19..3:25) scala/Predef.String#
+(4:23..4:29) scala/Predef.String#
+(4:32..4:38) scala/Predef.String#
+(4:41..4:42) _empty_/A#foo().(s) -> 4:20
+(4:43..4:44) java/lang/String#`+`().
+(4:45..4:46) _empty_/A#foo().(s) -> 4:20
+(6:17..6:18) _empty_/A# -> 2:14
+(7:11..7:14) _empty_/A#foo(). -> 4:7
+

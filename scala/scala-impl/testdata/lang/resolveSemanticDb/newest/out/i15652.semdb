@@ -17,7 +17,7 @@ Document tests/pos/i15652.scala
 (8:11..8:14) local1 -> 7:32
 (8:16..8:19) scala/Option#map().
 (9:7..9:10) local1 -> 7:32
-(9:11..9:13) scala/Predef.ArrowAssoc#`->`().
+(9:11..9:13) scala/Predef.`->`().
 (9:21..9:27) local2 -> 7:37
 (9:28..9:32) local3 -> 8:22
 (12:3..12:11) local4 -> 7:7

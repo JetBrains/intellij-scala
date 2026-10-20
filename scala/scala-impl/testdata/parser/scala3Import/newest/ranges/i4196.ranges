@@ -6,10 +6,10 @@
 [16,16]: TypeTree
 [16,128]: DefDef
 [46,61]: ValDef
-[49,61]: Function
+[49,61]: FunctionWithMods
 [49,53]: Ident
 [58,61]: Ident
-[64,76]: Function
+[64,76]: FunctionWithMods
 [64,68]: Ident
 [73,76]: Ident
 [83,128]: If

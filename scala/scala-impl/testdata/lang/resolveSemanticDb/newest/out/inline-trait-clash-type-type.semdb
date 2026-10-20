@@ -1,0 +1,6 @@
+Document tests/pos/inline-trait-clash-type-type.scala
+(3:19..3:22) _empty_/One# -> 2:7
+(6:13..6:16) _empty_/One# -> 2:7
+(8:17..8:18) _empty_/A# -> 5:14
+(9:12..9:15) _empty_/Two# -> 3:7
+

@@ -6,7 +6,7 @@
 [25,28]: Ident
 [35,36]: Number
 [38,77]: DefDef
-[55,69]: Function
+[55,69]: FunctionWithMods
 [55,58]: Ident
 [63,69]: Ident
 [72,77]: Literal

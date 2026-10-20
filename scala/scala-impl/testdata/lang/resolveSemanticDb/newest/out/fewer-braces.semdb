@@ -13,7 +13,7 @@ Document tests/pos/fewer-braces.scala
 (19:16..19:19) scala/Int#
 (19:27..19:31) scala/Unit#
 (19:34..19:38) scala/Unit#
-(20:8..20:10) scala/runtime/RichInt#to().
+(20:8..20:10) scala/Int.to().
 (20:11..20:12) local3 -> 19:13
 (20:14..20:21) scala/collection/immutable/Range#foreach().
 (20:27..20:28) local4 -> 19:21

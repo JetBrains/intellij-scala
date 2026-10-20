@@ -1,0 +1,5 @@
+Document tests/pos/inline-trait-body-def-local-val.scala
+(5:5..5:8) local0 -> 4:9
+(7:17..7:18) _empty_/A# -> 2:14
+(8:11..8:12) _empty_/A#f(). -> 3:7
+

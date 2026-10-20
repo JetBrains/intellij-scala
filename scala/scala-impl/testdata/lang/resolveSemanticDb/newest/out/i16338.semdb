@@ -5,8 +5,9 @@ Document tests/pos/i16338.scala
 (3:14..3:24) scala/collection/
 (5:33..5:34) de/sciss/kollflitz/i16338$package.Tagged#[U] -> 5:13
 (6:19..6:20) de/sciss/kollflitz/i16338$package.`@@`#[T] -> 6:11
-(6:26..6:32) de/sciss/kollflitz/i16338$package.Tagged# -> 5:6
-(6:33..6:34) de/sciss/kollflitz/i16338$package.`@@`#[U] -> 6:14
+(6:21..6:22) scala/`&`#
+(6:23..6:29) de/sciss/kollflitz/i16338$package.Tagged# -> 5:6
+(6:30..6:31) de/sciss/kollflitz/i16338$package.`@@`#[U] -> 6:14
 (7:29..7:35) de/sciss/kollflitz/Tagger# -> 8:13
 (7:36..7:39) scala/Any#
 (8:31..8:40) de/sciss/kollflitz/ -> 1:18

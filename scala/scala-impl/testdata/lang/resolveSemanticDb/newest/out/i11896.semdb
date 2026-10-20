@@ -7,8 +7,8 @@ Document tests/pos/i11896.scala
 (4:19..4:23) scala/caps/
 (4:24..4:30) scala/caps/unsafe.
 (4:31..4:48) scala/caps/unsafe.unsafeErasedValue().
-(6:22..6:23) _empty_/i11896$package.X# -> 3:6
-(6:26..6:30) scala/Unit#
+(6:25..6:26) _empty_/i11896$package.X# -> 3:6
+(6:29..6:33) scala/Unit#
 (8:11..8:15) scala/Unit#
 (8:18..8:21) _empty_/i11896$package.foo(). -> 6:5
 (8:28..8:29) _empty_/i11896$package.x(). -> 4:12

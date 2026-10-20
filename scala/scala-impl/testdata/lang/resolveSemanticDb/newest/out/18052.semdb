@@ -1,0 +1,155 @@
+Document tests/pos/18052.scala
+(1:8..1:13) scala/
+(1:14..1:18) scala/util/
+(1:19..1:22) scala/util/Try#
+(1:19..1:22) scala/util/Try.
+(2:8..2:13) scala/
+(2:14..2:21) scala/reflect/
+(2:22..2:30) scala/reflect/TypeTest#
+(2:22..2:30) scala/reflect/TypeTest.
+(7:12..7:15) _empty_/RDF# -> 4:7
+(8:16..8:25) scala/Matchable#
+(9:15..9:19) _empty_/RDF#Node# -> 8:8
+(10:17..10:21) _empty_/RDF#Node# -> 8:8
+(12:15..12:19) _empty_/ROps# -> 32:7
+(12:20..12:21) _empty_/RDF#R# -> 7:8
+(13:5..13:8) _empty_/RDF# -> 4:7
+(16:18..16:21) _empty_/RDF# -> 4:7
+(16:25..16:26) _empty_/RDF.Node#[R] -> 16:13
+(17:10..17:17) _empty_/RDF.GetNode# -> 27:16
+(17:24..17:33) scala/Matchable#
+(19:17..19:20) _empty_/RDF# -> 4:7
+(19:25..19:29) _empty_/RDF.Node# -> 16:8
+(19:30..19:31) _empty_/RDF.URI#[R] -> 19:12
+(19:35..19:36) _empty_/RDF.URI#[R] -> 19:12
+(20:10..20:16) _empty_/RDF.GetURI# -> 28:16
+(20:23..20:24) local4 -> 20:17
+(20:25..20:26) scala/`&`#
+(20:27..20:31) _empty_/RDF.Node# -> 16:8
+(20:32..20:33) _empty_/RDF.URI#[R] -> 19:12
+(22:19..22:22) _empty_/RDF# -> 4:7
+(22:27..22:31) _empty_/RDF.Node# -> 16:8
+(22:32..22:33) _empty_/RDF.BNode#[R] -> 22:14
+(22:37..22:38) _empty_/RDF.BNode#[R] -> 22:14
+(23:10..23:18) _empty_/RDF.GetBNode# -> 29:16
+(23:25..23:26) local7 -> 23:19
+(23:27..23:28) scala/`&`#
+(23:29..23:33) _empty_/RDF.Node# -> 16:8
+(23:34..23:35) _empty_/RDF.BNode#[R] -> 22:14
+(25:21..25:24) _empty_/RDF# -> 4:7
+(25:28..25:31) _empty_/RDF.URI# -> 19:8
+(25:32..25:33) _empty_/RDF.Subject#[R] -> 25:16
+(25:35..25:36) scala/`|`#
+(25:37..25:42) _empty_/RDF.BNode# -> 22:8
+(25:43..25:44) _empty_/RDF.Subject#[R] -> 25:16
+(27:29..27:32) _empty_/RDF# -> 4:7
+(27:47..27:48) _empty_/RDF.GetNode#[N] -> 27:24
+(28:28..28:31) _empty_/RDF# -> 4:7
+(28:45..28:46) _empty_/RDF.GetURI#[U] -> 28:23
+(29:30..29:33) _empty_/RDF# -> 4:7
+(29:49..29:50) _empty_/RDF.GetBNode#[B] -> 29:25
+(30:5..30:8) _empty_/RDF. -> 15:8
+(32:17..32:20) _empty_/RDF# -> 4:7
+(33:18..33:24) scala/Predef.String#
+(33:27..33:30) scala/util/Try#
+(33:31..33:34) _empty_/RDF. -> 15:8
+(33:35..33:38) _empty_/RDF.URI# -> 19:8
+(33:39..33:40) _empty_/ROps#[R] -> 32:12
+(34:17..34:20) _empty_/RDF. -> 15:8
+(34:21..34:24) _empty_/RDF.URI# -> 19:8
+(34:25..34:26) _empty_/ROps#[R] -> 32:12
+(34:30..34:33) scala/util/Try#
+(34:34..34:40) scala/Predef.String#
+(35:22..35:30) scala/reflect/TypeTest#
+(35:31..35:34) _empty_/RDF. -> 15:8
+(35:35..35:42) _empty_/RDF.Subject# -> 25:8
+(35:43..35:44) _empty_/ROps#[R] -> 32:12
+(35:47..35:50) _empty_/RDF. -> 15:8
+(35:51..35:54) _empty_/RDF.URI# -> 19:8
+(35:55..35:56) _empty_/ROps#[R] -> 32:12
+(39:16..39:22) scala/Predef.String#
+(41:21..41:25) _empty_/TraitTypes.Node# -> 38:9
+(42:23..42:27) _empty_/TraitTypes.Node# -> 38:9
+(44:16..44:22) scala/Predef.String#
+(44:25..44:28) _empty_/TraitTypes.Uri# -> 41:9
+(45:9..45:12) _empty_/TraitTypes.Uri# -> 41:9
+(45:27..45:28) _empty_/TraitTypes.mkUri().(u) -> 44:13
+(47:25..47:28) _empty_/RDF# -> 4:7
+(48:10..48:20) _empty_/TraitTypes. -> 37:8
+(50:32..50:41) scala/Matchable#
+(50:44..50:46) _empty_/TraitTypes. -> 37:8
+(50:47..50:51) _empty_/TraitTypes.Node# -> 38:9
+(51:31..51:35) _empty_/TraitRDF.Node# -> 50:24
+(51:38..51:40) _empty_/TraitTypes. -> 37:8
+(51:41..51:44) _empty_/TraitTypes.Uri# -> 41:9
+(53:15..53:19) _empty_/ROps# -> 32:7
+(53:20..53:21) _empty_/RDF#R# -> 7:8
+(54:29..54:35) scala/Predef.String#
+(54:38..54:41) scala/util/Try#
+(54:42..54:45) _empty_/RDF. -> 15:8
+(54:46..54:49) _empty_/RDF.URI# -> 19:8
+(54:50..54:51) _empty_/RDF#R# -> 7:8
+(54:56..54:59) scala/util/Try.
+(54:60..54:62) _empty_/TraitTypes. -> 37:8
+(54:63..54:68) _empty_/TraitTypes.mkUri(). -> 44:7
+(54:69..54:72) _empty_/TraitRDF.rops.mkUri().(str) -> 54:24
+(55:28..55:31) _empty_/RDF. -> 15:8
+(55:32..55:35) _empty_/RDF.URI# -> 19:8
+(55:36..55:37) _empty_/RDF#R# -> 7:8
+(55:41..55:44) scala/util/Try#
+(55:45..55:51) scala/Predef.String#
+(56:7..56:10) scala/util/Try.
+(56:11..56:15) java/
+(56:16..56:19) java/net/
+(56:20..56:23) java/net/URI#
+(56:24..56:30) java/net/URI#create().
+(56:31..56:34) _empty_/TraitRDF.rops.auth().(uri) -> 55:23
+(56:35..56:40) _empty_/TraitTypes.Node#value(). -> 39:9
+(56:42..56:54) java/net/URI#getAuthority().
+(58:24..58:32) scala/reflect/TypeTest#
+(58:33..58:36) _empty_/RDF. -> 15:8
+(58:37..58:44) _empty_/RDF.Subject# -> 25:8
+(58:45..58:46) _empty_/RDF#R# -> 7:8
+(58:49..58:52) _empty_/RDF. -> 15:8
+(58:53..58:56) _empty_/RDF.URI# -> 19:8
+(58:57..58:58) _empty_/RDF#R# -> 7:8
+(59:32..59:35) _empty_/RDF. -> 15:8
+(59:36..59:43) _empty_/RDF.Subject# -> 25:8
+(59:44..59:45) _empty_/RDF#R# -> 7:8
+(59:49..59:55) scala/Option#
+(59:56..59:57) _empty_/TraitRDF.rops.subjToURITT.unapply().(s) -> 59:29
+(59:63..59:64) scala/`&`#
+(59:65..59:68) _empty_/TraitRDF.URI# -> 51:24
+(60:10..60:11) _empty_/TraitRDF.rops.subjToURITT.unapply().(s) -> 59:29
+(61:21..61:22) _empty_/TraitRDF.rops.subjToURITT.unapply().(s) -> 59:29
+(61:28..61:29) scala/`&`#
+(61:30..61:33) _empty_/RDF. -> 15:8
+(61:34..61:37) _empty_/RDF.URI# -> 19:8
+(61:38..61:39) _empty_/RDF#R# -> 7:8
+(61:45..61:49) scala/Some.
+(61:50..61:51) local13 -> 61:17
+(62:45..62:49) scala/None.
+(64:5..64:13) _empty_/TraitRDF. -> 47:8
+(66:17..66:20) _empty_/RDF# -> 4:7
+(66:34..66:38) _empty_/ROps# -> 32:7
+(66:39..66:40) _empty_/Test#[R] -> 66:12
+(67:10..67:14) _empty_/Test#rops. -> 66:28
+(68:18..68:21) scala/util/Try#
+(68:22..68:25) _empty_/RDF. -> 15:8
+(68:26..68:29) _empty_/RDF.URI# -> 19:8
+(68:30..68:31) _empty_/Test#[R] -> 66:12
+(68:36..68:40) _empty_/Test#rops. -> 66:28
+(68:41..68:46) _empty_/ROps#mkUri(). -> 33:7
+(69:15..69:21) scala/Predef.String#
+(69:41..69:42) java/lang/String#`+`().
+(69:43..69:47) _empty_/Test#uriT. -> 68:12
+(69:48..69:51) scala/util/Try#map().
+(69:57..69:61) _empty_/Test#rops. -> 66:28
+(69:62..69:66) _empty_/ROps#auth(). -> 34:7
+(69:67..69:68) local14 -> 69:52
+(71:2..71:6) scala/main#
+(72:19..72:27) _empty_/TraitRDF. -> 47:8
+(73:3..73:10) scala/Predef.println(+1).
+(73:11..73:15) local15 -> 72:7
+(73:16..73:17) _empty_/Test#x. -> 69:12
+

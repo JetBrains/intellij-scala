@@ -1,0 +1,30 @@
+Document tests/pos/sub-cases-reachability.scala
+(2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:35) scala/language.experimental.
+(2:36..2:44) scala/language.experimental.subCases.
+(7:26..7:31) _empty_/Color# -> 4:6
+(7:39..7:46) scala/Boolean#
+(7:49..7:55) scala/Predef.String#
+(7:58..7:59) _empty_/`sub-cases-reachability$package`.guardMakesPartial().(c) -> 7:23
+(8:14..8:18) _empty_/`sub-cases-reachability$package`.guardMakesPartial().(flag) -> 7:33
+(8:22..8:24) local0 -> 8:8
+(9:10..9:15) _empty_/Color.
+(9:16..9:19) _empty_/Color.Red. -> 5:8
+(10:10..10:15) _empty_/Color.
+(10:16..10:21) _empty_/Color.Green. -> 5:13
+(11:10..11:15) _empty_/Color.
+(11:16..11:20) _empty_/Color.Blue. -> 5:20
+(14:24..14:27) scala/Int#
+(14:30..14:36) scala/Predef.String#
+(14:39..14:40) _empty_/`sub-cases-reachability$package`.literalFallback().(n) -> 14:21
+(15:13..15:14) local1 -> 15:8
+(24:30..24:37) _empty_/Version# -> 20:6
+(26:27..26:35) _empty_/Document# -> 24:12
+(26:38..26:44) scala/Predef.String#
+(26:47..26:48) _empty_/`sub-cases-reachability$package`.partialFieldAccess().(d) -> 26:24
+(27:13..27:14) local2 -> 27:8
+(27:15..27:22) _empty_/Document#version. -> 24:21
+(28:10..28:17) _empty_/Version.
+(28:18..28:24) _empty_/Version.Legacy. -> 21:8
+

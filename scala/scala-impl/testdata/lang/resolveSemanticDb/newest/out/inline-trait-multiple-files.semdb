@@ -1,0 +1,6 @@
+Document tests/pos/inline-trait-multiple-files/A.scala
+(4:10..4:13) scala/Int#
+
+Document tests/pos/inline-trait-multiple-files/B.scala
+(3:17..3:18) _empty_/A# -> 3:14
+

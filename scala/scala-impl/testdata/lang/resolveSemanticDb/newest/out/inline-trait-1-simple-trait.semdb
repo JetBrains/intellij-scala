@@ -1,0 +1,22 @@
+Document tests/pos/inline-trait-1-simple-trait.scala
+(3:12..3:18) scala/Predef.String#
+(5:10..5:13) scala/Int#
+(6:10..6:13) scala/Int#
+(6:16..6:17) _empty_/A#x. -> 5:7
+(6:18..6:19) scala/Int#`+`(+4).
+(6:20..6:21) _empty_/A#z. -> 7:15
+(7:18..7:21) scala/Int#
+(9:10..9:13) scala/Int#
+(9:16..9:17) _empty_/A#g(). -> 13:15
+(10:12..10:15) scala/Int#
+(10:18..10:21) scala/Int#
+(10:24..10:25) _empty_/A#f(+1).(x) -> 10:9
+(11:15..11:16) _empty_/A#f(+2).[T] -> 11:9
+(11:19..11:22) scala/Int#
+(17:11..17:12) _empty_/A#X# -> 3:8
+(17:21..17:33) scala/Any#asInstanceOf().
+(17:34..17:35) _empty_/A#X# -> 3:8
+(18:5..18:6) _empty_/A# -> 2:14
+(20:17..20:18) _empty_/A# -> 2:14
+(37:5..37:6) _empty_/B# -> 20:7
+

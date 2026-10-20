@@ -1,0 +1,62 @@
+// https://github.com/scala/scala3/issues/26340
+package dfhdl
+
+object DFVal:
+  export DFXInt.Ops.c1
+  object Ops:
+    type CarryOp
+-----
+ScalaFile
+  PsiComment(comment)('// https://github.com/scala/scala3/issues/26340')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: dfhdl
+      PsiElement(identifier)('dfhdl')
+    PsiWhiteSpace('\n\n')
+    ScObject: DFVal
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFVal')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScExportStatement
+            PsiElement(export)('export')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: DFXInt.Ops.c1
+                CodeReferenceElement: DFXInt.Ops
+                  CodeReferenceElement: DFXInt
+                    PsiElement(identifier)('DFXInt')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('Ops')
+                PsiElement(.)('.')
+                PsiElement(identifier)('c1')
+          PsiWhiteSpace('\n  ')
+          ScObject: Ops
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Ops')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                ScTypeAliasDeclaration: CarryOp
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('CarryOp')

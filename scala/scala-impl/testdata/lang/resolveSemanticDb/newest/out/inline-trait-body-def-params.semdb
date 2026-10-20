@@ -1,0 +1,8 @@
+Document tests/pos/inline-trait-body-def-params.scala
+(3:14..3:17) scala/Int#
+(3:24..3:28) scala/Unit#
+(4:5..4:8) _empty_/A#x().(bar) -> 3:19
+(5:5..5:8) _empty_/A#x().(foo) -> 3:9
+(7:17..7:18) _empty_/A# -> 2:14
+(8:11..8:12) _empty_/A#x(). -> 3:7
+

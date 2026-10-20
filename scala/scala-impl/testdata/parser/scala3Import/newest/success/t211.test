@@ -1,6 +1,6 @@
 trait A;
 trait B;
-class Foo extends A with B { self: A with B => }
+class Foo extends A with B { self: A & B => }
 object Test extends App {
   new Foo();
   Console.println("t211 completed");
@@ -71,12 +71,13 @@ ScalaFile
           PsiElement(identifier)('self')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: A with B
+          InfixType: A & B
             SimpleType: A
               CodeReferenceElement: A
                 PsiElement(identifier)('A')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: B
               CodeReferenceElement: B

@@ -4,9 +4,9 @@ Document tests/pos/CanThrow.scala
 (2:30..2:47) scala/language.experimental.erasedDefinitions.
 (4:21..4:30) scala/package.Exception#
 (6:27..6:36) scala/package.Exception#
-(6:48..6:56) canThrowStrawman/CanThrow# -> 4:7
-(6:57..6:58) canThrowStrawman/CanThrow$package.throws#[E] -> 6:22
-(6:65..6:66) canThrowStrawman/CanThrow$package.throws#[R] -> 6:19
+(6:52..6:60) canThrowStrawman/CanThrow# -> 4:7
+(6:61..6:62) canThrowStrawman/CanThrow$package.throws#[E] -> 6:22
+(6:69..6:70) canThrowStrawman/CanThrow$package.throws#[R] -> 6:19
 (8:20..8:29) scala/package.Exception#
 (10:16..10:25) scala/package.Exception#
 (10:30..10:31) canThrowStrawman/CanThrow$package.raise().[E] -> 10:11

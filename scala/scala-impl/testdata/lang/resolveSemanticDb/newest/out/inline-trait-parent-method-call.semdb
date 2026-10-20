@@ -1,0 +1,7 @@
+Document tests/pos/inline-trait-parent-method-call.scala
+(3:19..3:22) scala/Int#
+(3:26..3:27) _empty_/A#generate().(x) -> 3:16
+(3:28..3:29) scala/Int#`+`(+4).
+(5:17..5:18) _empty_/A# -> 2:14
+(6:11..6:19) _empty_/A#generate(). -> 3:7
+

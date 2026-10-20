@@ -7,7 +7,7 @@ trait C
 trait ZLayer[-RIn, +E, +ROut]
 
 object ZLayer {
-  def fromServices[A0, A1, B](f: (A0, A1) => B): ZLayer[Has[A0] with Has[A1], Nothing, Has[B]] =
+  def fromServices[A0, A1, B](f: (A0, A1) => B): ZLayer[Has[A0] & Has[A1], Nothing, Has[B]] =
     ???
 }
 
@@ -175,14 +175,14 @@ ScalaFile
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          ParametrizedType: ZLayer[Has[A0] with Has[A1], Nothing, Has[B]]
+          ParametrizedType: ZLayer[Has[A0] & Has[A1], Nothing, Has[B]]
             SimpleType: ZLayer
               CodeReferenceElement: ZLayer
                 PsiElement(identifier)('ZLayer')
             TypeArgumentsList
               PsiElement([)('[')
               TypeArgument
-                CompoundType: Has[A0] with Has[A1]
+                InfixType: Has[A0] & Has[A1]
                   ParametrizedType: Has[A0]
                     SimpleType: Has
                       CodeReferenceElement: Has
@@ -195,7 +195,8 @@ ScalaFile
                             PsiElement(identifier)('A0')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
-                  PsiElement(with)('with')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
                   PsiWhiteSpace(' ')
                   ParametrizedType: Has[A1]
                     SimpleType: Has

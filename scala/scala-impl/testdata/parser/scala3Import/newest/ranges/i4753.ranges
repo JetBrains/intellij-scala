@@ -9,7 +9,7 @@
 [23,23]: DefDef
 [23,23]: TypeTree
 [23,41]: DefDef
-[32,41]: Function
+[32,41]: FunctionWithMods
 [32,33]: Ident
 [38,41]: Ident
 [45,72]: TypeDef
@@ -27,7 +27,7 @@
 [93,93]: TypeTree
 [93,96]: Ident
 [101,123]: DefDef
-[110,119]: Function
+[110,119]: FunctionWithMods
 [110,111]: Ident
 [116,119]: Ident
 [122,123]: Number

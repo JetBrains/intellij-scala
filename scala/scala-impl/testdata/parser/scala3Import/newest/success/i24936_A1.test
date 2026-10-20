@@ -1,0 +1,80 @@
+// https://github.com/scala/scala3/issues/24936
+package example
+
+trait A1 { self: O1.type =>
+  import O2.someKey
+  def taskImpl: Unit = println(someKey)
+}
+-----
+ScalaFile
+  PsiComment(comment)('// https://github.com/scala/scala3/issues/24936')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: example
+      PsiElement(identifier)('example')
+    PsiWhiteSpace('\n\n')
+    ScTrait: A1
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('A1')
+      PsiWhiteSpace(' ')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement({)('{')
+          PsiWhiteSpace(' ')
+          SelfType: self
+            PsiElement(identifier)('self')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: O1.type
+              CodeReferenceElement: O1
+                PsiElement(identifier)('O1')
+              PsiElement(.)('.')
+              PsiElement(type)('type')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+          PsiWhiteSpace('\n  ')
+          ScImportStatement
+            PsiElement(import)('import')
+            PsiWhiteSpace(' ')
+            ImportExpression
+              CodeReferenceElement: O2.someKey
+                CodeReferenceElement: O2
+                  PsiElement(identifier)('O2')
+                PsiElement(.)('.')
+                PsiElement(identifier)('someKey')
+          PsiWhiteSpace('\n  ')
+          ScFunctionDefinition: taskImpl
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('taskImpl')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            SimpleType: Unit
+              CodeReferenceElement: Unit
+                PsiElement(identifier)('Unit')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: println
+                PsiElement(identifier)('println')
+              ArgumentList
+                PsiElement(()('(')
+                ReferenceExpression: someKey
+                  PsiElement(identifier)('someKey')
+                PsiElement())(')')
+          PsiWhiteSpace('\n')
+          PsiElement(})('}')

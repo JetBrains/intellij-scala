@@ -1,0 +1,10 @@
+Document tests/pos/inline-trait-signature-generic-variant.scala
+(3:10..3:11) _empty_/Cov#[T] -> 2:19
+(3:14..3:17) scala/Predef.`???`().
+(6:12..6:13) _empty_/Contr#[T] -> 5:21
+(6:17..6:20) scala/Predef.`???`().
+(8:17..8:20) _empty_/Cov# -> 2:14
+(8:21..8:27) scala/AnyVal#
+(9:17..9:22) _empty_/Contr# -> 5:14
+(9:23..9:26) scala/Int#
+

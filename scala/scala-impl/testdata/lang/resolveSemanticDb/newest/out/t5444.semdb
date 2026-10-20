@@ -12,7 +12,7 @@ Document tests/pos/t5444.scala
 (29:50..29:51) scala/Int#`+`(+4).
 (29:52..29:54) local15 -> 24:11
 (29:57..29:58) scala/Int#`+`(+4).
-(29:62..29:64) scala/runtime/RichInt#to().
+(29:62..29:64) scala/Int.to().
 (29:70..29:72) local11 -> 19:13
 (29:78..29:80) local10 -> 20:13
 (29:84..29:87) scala/collection/immutable/Range#map().

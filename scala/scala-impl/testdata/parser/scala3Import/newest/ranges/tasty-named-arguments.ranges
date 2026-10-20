@@ -90,7 +90,7 @@
 [362,362]: TypeTree
 [365,367]: Number
 [373,409]: ValDef
-[380,399]: Function
+[380,399]: FunctionWithMods
 [381,387]: ValDef
 [384,387]: Ident
 [393,399]: SingletonTypeTree

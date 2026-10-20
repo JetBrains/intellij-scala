@@ -6,7 +6,7 @@ object _main { // don't do this at home
 
   trait ColorImpl extends Impl { def color = "red" }
 
-  type Both = SizeImpl with ColorImpl
+  type Both = SizeImpl & ColorImpl
 
   def info(x:Impl) = x match {
     case x:Both      => "size  " + x.size +" color "+ x.color // you wish
@@ -16,7 +16,7 @@ object _main { // don't do this at home
   }
 
   def info2(x:Impl) = x match {
-    case x:SizeImpl with ColorImpl  => "size  " + x.size +" color "+ x.color // you wish
+    case x:(SizeImpl & ColorImpl)  => "size  " + x.size +" color "+ x.color // you wish
     case x:SizeImpl  => "size  " + x.size
     case x:ColorImpl => "color " + x.color
     case _           => "n.a."
@@ -147,12 +147,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          CompoundType: SizeImpl with ColorImpl
+          InfixType: SizeImpl & ColorImpl
             SimpleType: SizeImpl
               CodeReferenceElement: SizeImpl
                 PsiElement(identifier)('SizeImpl')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: ColorImpl
               CodeReferenceElement: ColorImpl
@@ -351,16 +352,20 @@ ScalaFile
                     PsiElement(identifier)('x')
                   PsiElement(:)(':')
                   TypePattern
-                    CompoundType: SizeImpl with ColorImpl
-                      SimpleType: SizeImpl
-                        CodeReferenceElement: SizeImpl
-                          PsiElement(identifier)('SizeImpl')
-                      PsiWhiteSpace(' ')
-                      PsiElement(with)('with')
-                      PsiWhiteSpace(' ')
-                      SimpleType: ColorImpl
-                        CodeReferenceElement: ColorImpl
-                          PsiElement(identifier)('ColorImpl')
+                    TypeInParenthesis: (SizeImpl & ColorImpl)
+                      PsiElement(()('(')
+                      InfixType: SizeImpl & ColorImpl
+                        SimpleType: SizeImpl
+                          CodeReferenceElement: SizeImpl
+                            PsiElement(identifier)('SizeImpl')
+                        PsiWhiteSpace(' ')
+                        CodeReferenceElement: &
+                          PsiElement(identifier)('&')
+                        PsiWhiteSpace(' ')
+                        SimpleType: ColorImpl
+                          CodeReferenceElement: ColorImpl
+                            PsiElement(identifier)('ColorImpl')
+                      PsiElement())(')')
                 PsiWhiteSpace('  ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')

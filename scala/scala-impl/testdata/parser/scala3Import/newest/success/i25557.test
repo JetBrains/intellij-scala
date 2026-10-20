@@ -1,0 +1,241 @@
+sealed trait Parent:
+  sealed trait Inner[T]
+object ConcreteParent extends Parent:
+  val myInner: Inner[Boolean] = ???
+  def foo(parent: Parent, isFoo: Boolean)(f: parent.type => parent.Inner[Boolean]) = ???
+  foo(parent = ConcreteParent, isFoo = true)(_.myInner)
+  foo(isFoo = true, parent = ConcreteParent)(_.myInner)
+-----
+ScalaFile
+  ScTrait: Parent
+    AnnotationsList
+      <empty list>
+    Modifiers
+      PsiElement(sealed)('sealed')
+    PsiWhiteSpace(' ')
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Parent')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScTrait: Inner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(sealed)('sealed')
+          PsiWhiteSpace(' ')
+          PsiElement(trait)('trait')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('Inner')
+          TypeParameterClause
+            PsiElement([)('[')
+            TypeParameter: T
+              PsiElement(identifier)('T')
+            PsiElement(])(']')
+          PrimaryConstructor
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            Parameters
+              <empty list>
+          ExtendsBlock
+            <empty list>
+  PsiWhiteSpace('\n')
+  ScObject: ConcreteParent
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('ConcreteParent')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: Parent
+            CodeReferenceElement: Parent
+              PsiElement(identifier)('Parent')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: myInner
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: myInner
+              PsiElement(identifier)('myInner')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: Inner[Boolean]
+            SimpleType: Inner
+              CodeReferenceElement: Inner
+                PsiElement(identifier)('Inner')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Boolean
+                  CodeReferenceElement: Boolean
+                    PsiElement(identifier)('Boolean')
+              PsiElement(])(']')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: parent
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('parent')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Parent
+                    CodeReferenceElement: Parent
+                      PsiElement(identifier)('Parent')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              Parameter: isFoo
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('isFoo')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Boolean
+                    CodeReferenceElement: Boolean
+                      PsiElement(identifier)('Boolean')
+              PsiElement())(')')
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: f
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('f')
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  FunctionalType: parent.type => parent.Inner[Boolean]
+                    SimpleType: parent.type
+                      CodeReferenceElement: parent
+                        PsiElement(identifier)('parent')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiWhiteSpace(' ')
+                    PsiElement(=>)('=>')
+                    PsiWhiteSpace(' ')
+                    ParametrizedType: parent.Inner[Boolean]
+                      SimpleType: parent.Inner
+                        CodeReferenceElement: parent.Inner
+                          CodeReferenceElement: parent
+                            PsiElement(identifier)('parent')
+                          PsiElement(.)('.')
+                          PsiElement(identifier)('Inner')
+                      TypeArgumentsList
+                        PsiElement([)('[')
+                        TypeArgument
+                          SimpleType: Boolean
+                            CodeReferenceElement: Boolean
+                              PsiElement(identifier)('Boolean')
+                        PsiElement(])(']')
+              PsiElement())(')')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          MethodCall
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            ArgumentList
+              PsiElement(()('(')
+              AssignStatement
+                ReferenceExpression: parent
+                  PsiElement(identifier)('parent')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ConcreteParent
+                  PsiElement(identifier)('ConcreteParent')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              AssignStatement
+                ReferenceExpression: isFoo
+                  PsiElement(identifier)('isFoo')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BooleanLiteral
+                  PsiElement(true)('true')
+              PsiElement())(')')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: _.myInner
+              UnderscoreSection
+                PsiElement(_)('_')
+              PsiElement(.)('.')
+              PsiElement(identifier)('myInner')
+            PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        MethodCall
+          MethodCall
+            ReferenceExpression: foo
+              PsiElement(identifier)('foo')
+            ArgumentList
+              PsiElement(()('(')
+              AssignStatement
+                ReferenceExpression: isFoo
+                  PsiElement(identifier)('isFoo')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                BooleanLiteral
+                  PsiElement(true)('true')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              AssignStatement
+                ReferenceExpression: parent
+                  PsiElement(identifier)('parent')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                ReferenceExpression: ConcreteParent
+                  PsiElement(identifier)('ConcreteParent')
+              PsiElement())(')')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: _.myInner
+              UnderscoreSection
+                PsiElement(_)('_')
+              PsiElement(.)('.')
+              PsiElement(identifier)('myInner')
+            PsiElement())(')')

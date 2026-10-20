@@ -3,14 +3,13 @@ Document tests/pos/i22593a.scala
 (1:14..1:20) scala/quoted/
 (5:48..5:57) jam/JamCoreDsl#JamConfig# -> 7:11
 (6:11..6:20) jam/JamCoreDsl#JamConfig# -> 7:11
-(6:21..6:33) jam/JamCoreDsl#JamConfig#`<init>`().(brewRecRegex)
+(6:21..6:33) jam/JamCoreDsl#JamConfig#`<init>`().(brewRecRegex) -> 7:25
 (7:39..7:45) scala/Predef.String#
 (8:45..8:54) jam/JamCoreDsl#JamConfig# -> 7:11
 (8:57..8:61) scala/Unit#
 (8:64..8:67) scala/Predef.`???`().
-(10:35..10:45) jam/JamCoreDsl# -> 4:9
-(11:10..11:18) jam/i22593a$package.inline$internal().
-(11:10..11:18) jam/internal. -> 10:18
+(10:27..10:37) jam/JamCoreDsl# -> 4:9
+(11:10..11:18) jam/internal. -> 10:10
 (15:3..15:6) jam/ -> 3:9
 (15:7..15:11) jam/i22593a$package.brew().
 

@@ -1,10 +1,12 @@
 Document tests/pos/t8301b.scala
 (3:16..3:20) scala/Null#
 (3:24..3:30) scala/AnyRef#
-(3:36..3:43) _empty_/Universe#NameApi# -> 4:9
+(3:31..3:32) scala/`&`#
+(3:33..3:40) _empty_/Universe#NameApi# -> 4:9
 (6:20..6:24) scala/Null#
 (6:28..6:39) _empty_/Universe#TermNameApi# -> 7:9
-(6:45..6:49) _empty_/Universe#Name# -> 3:8
+(6:40..6:41) scala/`&`#
+(6:42..6:46) _empty_/Universe#Name# -> 3:8
 (7:29..7:36) _empty_/Universe#NameApi# -> 4:9
 (10:21..10:24) scala/App#
 (11:10..11:18) _empty_/Universe# -> 2:7

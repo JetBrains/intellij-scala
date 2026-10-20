@@ -1,0 +1,147 @@
+// https://github.com/scala/scala3/issues/26340
+package dfhdl
+import DFVal.Ops.CarryOp
+
+trait ExactOp2Aux[Op]
+
+object DFDecimal:
+  object Ops:
+    export DFXInt.Ops.*
+
+object DFXInt:
+  object Ops:
+    given c1: ExactOp2Aux[CarryOp] = ???
+-----
+ScalaFile
+  PsiComment(comment)('// https://github.com/scala/scala3/issues/26340')
+  PsiWhiteSpace('\n')
+  ScPackaging
+    PsiElement(package)('package')
+    PsiWhiteSpace(' ')
+    CodeReferenceElement: dfhdl
+      PsiElement(identifier)('dfhdl')
+    PsiWhiteSpace('\n')
+    ScImportStatement
+      PsiElement(import)('import')
+      PsiWhiteSpace(' ')
+      ImportExpression
+        CodeReferenceElement: DFVal.Ops.CarryOp
+          CodeReferenceElement: DFVal.Ops
+            CodeReferenceElement: DFVal
+              PsiElement(identifier)('DFVal')
+            PsiElement(.)('.')
+            PsiElement(identifier)('Ops')
+          PsiElement(.)('.')
+          PsiElement(identifier)('CarryOp')
+    PsiWhiteSpace('\n\n')
+    ScTrait: ExactOp2Aux
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(trait)('trait')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('ExactOp2Aux')
+      TypeParameterClause
+        PsiElement([)('[')
+        TypeParameter: Op
+          PsiElement(identifier)('Op')
+        PsiElement(])(']')
+      PrimaryConstructor
+        AnnotationsList
+          <empty list>
+        Modifiers
+          <empty list>
+        Parameters
+          <empty list>
+      ExtendsBlock
+        <empty list>
+    PsiWhiteSpace('\n\n')
+    ScObject: DFDecimal
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFDecimal')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScObject: Ops
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Ops')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                ScExportStatement
+                  PsiElement(export)('export')
+                  PsiWhiteSpace(' ')
+                  ImportExpression
+                    CodeReferenceElement: DFXInt.Ops
+                      CodeReferenceElement: DFXInt
+                        PsiElement(identifier)('DFXInt')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Ops')
+                    PsiElement(.)('.')
+                    PsiElement(*)('*')
+    PsiWhiteSpace('\n\n')
+    ScObject: DFXInt
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      PsiElement(object)('object')
+      PsiWhiteSpace(' ')
+      PsiElement(identifier)('DFXInt')
+      ExtendsBlock
+        ScTemplateBody
+          PsiElement(:)(':')
+          PsiWhiteSpace('\n  ')
+          ScObject: Ops
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(object)('object')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('Ops')
+            ExtendsBlock
+              ScTemplateBody
+                PsiElement(:)(':')
+                PsiWhiteSpace('\n    ')
+                ScGivenAliasDefinition: c1
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(given)('given')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('c1')
+                  PsiElement(:)(':')
+                  Parameters
+                    <empty list>
+                  PsiWhiteSpace(' ')
+                  ParametrizedType: ExactOp2Aux[CarryOp]
+                    SimpleType: ExactOp2Aux
+                      CodeReferenceElement: ExactOp2Aux
+                        PsiElement(identifier)('ExactOp2Aux')
+                    TypeArgumentsList
+                      PsiElement([)('[')
+                      TypeArgument
+                        SimpleType: CarryOp
+                          CodeReferenceElement: CarryOp
+                            PsiElement(identifier)('CarryOp')
+                      PsiElement(])(']')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=)('=')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: ???
+                    PsiElement(identifier)('???')

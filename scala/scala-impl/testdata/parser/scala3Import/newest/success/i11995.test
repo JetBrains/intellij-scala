@@ -10,11 +10,11 @@ trait Has[A]
 trait Console
 trait Clock
 
-type ConsoleWithClock = Has[Console] with Has[Clock]
+type ConsoleWithClock = Has[Console] & Has[Clock]
 
 class Spec[R <: Has[_]]
 
-object MySpec1 extends Spec[Has[Console] with Has[Clock]] // does not compile
+object MySpec1 extends Spec[Has[Console] & Has[Clock]] // does not compile
 object MySpec2 extends Spec[ConsoleWithClock] // okay
 -----
 ScalaFile
@@ -192,7 +192,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     PsiElement(=)('=')
     PsiWhiteSpace(' ')
-    CompoundType: Has[Console] with Has[Clock]
+    InfixType: Has[Console] & Has[Clock]
       ParametrizedType: Has[Console]
         SimpleType: Has
           CodeReferenceElement: Has
@@ -205,7 +205,8 @@ ScalaFile
                 PsiElement(identifier)('Console')
           PsiElement(])(']')
       PsiWhiteSpace(' ')
-      PsiElement(with)('with')
+      CodeReferenceElement: &
+        PsiElement(identifier)('&')
       PsiWhiteSpace(' ')
       ParametrizedType: Has[Clock]
         SimpleType: Has
@@ -269,14 +270,14 @@ ScalaFile
       PsiWhiteSpace(' ')
       TemplateParents
         ConstructorInvocation
-          ParametrizedType: Spec[Has[Console] with Has[Clock]]
+          ParametrizedType: Spec[Has[Console] & Has[Clock]]
             SimpleType: Spec
               CodeReferenceElement: Spec
                 PsiElement(identifier)('Spec')
             TypeArgumentsList
               PsiElement([)('[')
               TypeArgument
-                CompoundType: Has[Console] with Has[Clock]
+                InfixType: Has[Console] & Has[Clock]
                   ParametrizedType: Has[Console]
                     SimpleType: Has
                       CodeReferenceElement: Has
@@ -289,7 +290,8 @@ ScalaFile
                             PsiElement(identifier)('Console')
                       PsiElement(])(']')
                   PsiWhiteSpace(' ')
-                  PsiElement(with)('with')
+                  CodeReferenceElement: &
+                    PsiElement(identifier)('&')
                   PsiWhiteSpace(' ')
                   ParametrizedType: Has[Clock]
                     SimpleType: Has

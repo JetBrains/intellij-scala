@@ -2,7 +2,7 @@ object Test {
   sealed trait Base[-X]
   case class Child[X]() extends Base[X]
 
-  def apply[A, B](r: Base[A with B]): Unit = {
+  def apply[A, B](r: Base[A & B]): Unit = {
     r match {
       case Child() => ()
     }
@@ -118,19 +118,20 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  ParametrizedType: Base[A with B]
+                  ParametrizedType: Base[A & B]
                     SimpleType: Base
                       CodeReferenceElement: Base
                         PsiElement(identifier)('Base')
                     TypeArgumentsList
                       PsiElement([)('[')
                       TypeArgument
-                        CompoundType: A with B
+                        InfixType: A & B
                           SimpleType: A
                             CodeReferenceElement: A
                               PsiElement(identifier)('A')
                           PsiWhiteSpace(' ')
-                          PsiElement(with)('with')
+                          CodeReferenceElement: &
+                            PsiElement(identifier)('&')
                           PsiWhiteSpace(' ')
                           SimpleType: B
                             CodeReferenceElement: B

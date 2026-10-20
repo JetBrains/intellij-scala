@@ -24,7 +24,7 @@ Document tests/pos/indent.scala
 (31:41..31:42) local5 -> 31:16
 (31:43..31:44) scala/Int#`>`(+3).
 (31:45..31:46) local6 -> 31:31
-(33:14..33:17) scala/runtime/RichInt#max().
+(33:14..33:17) scala/Int.max().
 (33:21..33:23) local7 -> 31:28
 (39:15..39:22) scala/Predef.println(+1).
 (41:5..41:6) _empty_/Test.f().(x) -> 13:9
@@ -111,17 +111,17 @@ Document tests/pos/indent.scala
 (114:25..114:31) scala/Predef.String#
 (117:5..117:12) scala/Predef.println().
 (118:7..118:10) _empty_/Coder#Foo# -> 116:9
-(122:6..122:8) scala/Predef.ArrowAssoc#`->`().
+(122:6..122:8) scala/Predef.`->`().
 (122:37..122:39) scala/Predef.ArrowAssoc#`->`().
 (124:27..124:30) scala/Predef.Map.
-(125:11..125:13) scala/Predef.ArrowAssoc#`->`().
-(125:25..125:27) scala/Predef.ArrowAssoc#`->`().
-(125:39..125:41) scala/Predef.ArrowAssoc#`->`().
-(125:53..125:55) scala/Predef.ArrowAssoc#`->`().
-(126:11..126:13) scala/Predef.ArrowAssoc#`->`().
-(126:25..126:27) scala/Predef.ArrowAssoc#`->`().
-(126:40..126:42) scala/Predef.ArrowAssoc#`->`().
-(126:54..126:56) scala/Predef.ArrowAssoc#`->`().
+(125:11..125:13) scala/Predef.`->`().
+(125:25..125:27) scala/Predef.`->`().
+(125:39..125:41) scala/Predef.`->`().
+(125:53..125:55) scala/Predef.`->`().
+(126:11..126:13) scala/Predef.`->`().
+(126:25..126:27) scala/Predef.`->`().
+(126:40..126:42) scala/Predef.`->`().
+(126:54..126:56) scala/Predef.`->`().
 (136:7..136:11) scala/package.List.
 (137:10..137:12) scala/package.`::`.
 (137:19..137:26) scala/Predef.println(+1).
@@ -144,7 +144,7 @@ Document tests/pos/indent.scala
 (153:30..153:33) local41 -> 153:22
 (153:34..153:37) scala/collection/StringOps#map().
 (153:46..153:49) local42 -> 153:39
-(153:50..153:52) scala/Predef.ArrowAssoc#`->`().
+(153:50..153:52) scala/Predef.`->`().
 (153:53..153:58) local40 -> 153:15
 (155:5..155:10) _empty_/Coder# -> 114:7
 (158:12..158:15) scala/Int#

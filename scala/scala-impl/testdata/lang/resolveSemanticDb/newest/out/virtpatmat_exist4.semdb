@@ -11,7 +11,8 @@ Document tests/pos/virtpatmat_exist4.scala
 (15:26..15:30) scala/package.List#
 (15:31..15:37) _empty_/Global#Symbol# -> 3:9
 (20:13..20:18) _empty_/IMain# -> 6:7
-(20:24..20:38) _empty_/MemberHandlers# -> 11:7
+(20:19..20:20) scala/`&`#
+(20:21..20:35) _empty_/MemberHandlers# -> 11:7
 (22:18..22:22) _empty_/Test.intp(). -> 20:7
 (22:23..22:31) _empty_/IMain#handlers(). -> 8:7
 (23:3..23:11) _empty_/Test.handlers. -> 22:7

@@ -3,18 +3,18 @@ Document tests/pos/t2094.scala
 (3:3..3:6) scala/Predef.Map.
 (3:7..3:10) scala/Int#
 (3:12..3:17) _empty_/Value# -> 19:14
-(4:7..4:9) scala/Predef.ArrowAssoc#`->`().
+(4:7..4:9) scala/Predef.`->`().
 (4:10..4:19) _empty_/KnownType.
 (4:20..4:27) scala/Predef.classOf().
 (4:28..4:34) java/lang/Object#
-(5:7..5:9) scala/Predef.ArrowAssoc#`->`().
+(5:7..5:9) scala/Predef.`->`().
 (5:10..5:22) _empty_/UnknownValue.
 (8:3..8:6) scala/Predef.Map.
-(9:7..9:9) scala/Predef.ArrowAssoc#`->`().
+(9:7..9:9) scala/Predef.`->`().
 (9:10..9:19) _empty_/KnownType.
 (9:20..9:27) scala/Predef.classOf().
 (9:28..9:34) java/lang/Object#
-(10:7..10:9) scala/Predef.ArrowAssoc#`->`().
+(10:7..10:9) scala/Predef.`->`().
 (10:10..10:22) _empty_/UnknownValue.
 (20:16..20:22) scala/Option#
 (20:23..20:28) scala/Predef.Class#

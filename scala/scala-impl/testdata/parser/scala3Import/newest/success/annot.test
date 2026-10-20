@@ -20,7 +20,7 @@ class Test {
   class A
   trait B
 
-  val x: A @uncheckedVariance with B @uncheckedVariance = ???
+  val x: A @uncheckedVariance & B @uncheckedVariance = ???
 
   class C extends A @uncheckedVariance () with B @uncheckedVariance { val x = 10 }
 
@@ -292,7 +292,7 @@ ScalaFile
               PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: A @uncheckedVariance with B @uncheckedVariance
+          InfixType: A @uncheckedVariance & B @uncheckedVariance
             TypeWithAnnotation: A @uncheckedVariance
               SimpleType: A
                 CodeReferenceElement: A
@@ -307,7 +307,8 @@ ScalaFile
                         CodeReferenceElement: uncheckedVariance
                           PsiElement(identifier)('uncheckedVariance')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             TypeWithAnnotation: B @uncheckedVariance
               SimpleType: B

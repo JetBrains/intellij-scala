@@ -7,8 +7,8 @@ trait TypeSub {
     type c[+y] = f[y] => f[l]
     castSub[c]{ (fl : f[l]) => fl }(fu)
   }
-  def castValue[t](lt : l with t) : u with t = {
-    type c[+y] = y with t
+  def castValue[t](lt : l & t) : u & t = {
+    type c[+y] = y & t
     castSub[c](lt)
   }
 }
@@ -296,12 +296,13 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  CompoundType: l with t
+                  InfixType: l & t
                     SimpleType: l
                       CodeReferenceElement: l
                         PsiElement(identifier)('l')
                     PsiWhiteSpace(' ')
-                    PsiElement(with)('with')
+                    CodeReferenceElement: &
+                      PsiElement(identifier)('&')
                     PsiWhiteSpace(' ')
                     SimpleType: t
                       CodeReferenceElement: t
@@ -310,12 +311,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: u with t
+          InfixType: u & t
             SimpleType: u
               CodeReferenceElement: u
                 PsiElement(identifier)('u')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: t
               CodeReferenceElement: t
@@ -343,12 +345,13 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(=)('=')
               PsiWhiteSpace(' ')
-              CompoundType: y with t
+              InfixType: y & t
                 SimpleType: y
                   CodeReferenceElement: y
                     PsiElement(identifier)('y')
                 PsiWhiteSpace(' ')
-                PsiElement(with)('with')
+                CodeReferenceElement: &
+                  PsiElement(identifier)('&')
                 PsiWhiteSpace(' ')
                 SimpleType: t
                   CodeReferenceElement: t

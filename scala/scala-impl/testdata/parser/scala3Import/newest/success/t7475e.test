@@ -1,6 +1,6 @@
 trait U {
   private val priv = 0
-  type TT = U with T // should allow `priv`
+  type TT = U & T // should allow `priv`
   (??? : TT).priv
 }
 
@@ -55,12 +55,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          CompoundType: U with T
+          InfixType: U & T
             SimpleType: U
               CodeReferenceElement: U
                 PsiElement(identifier)('U')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: T
               CodeReferenceElement: T

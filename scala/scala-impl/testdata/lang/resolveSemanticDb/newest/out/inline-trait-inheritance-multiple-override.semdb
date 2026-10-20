@@ -1,0 +1,32 @@
+Document tests/pos/inline-trait-inheritance-multiple-override.scala
+(3:10..3:13) scala/Int#
+(4:15..4:16) _empty_/IT1#f().[T] -> 4:9
+(4:19..4:20) _empty_/IT1#f().[T] -> 4:9
+(4:23..4:24) _empty_/IT1#f().(x) -> 4:12
+(7:10..7:16) scala/Predef.String#
+(8:12..8:15) scala/Int#
+(8:18..8:24) scala/Predef.String#
+(8:27..8:28) _empty_/IT2#g().(x) -> 8:9
+(8:29..8:37) scala/Any#toString().
+(11:10..11:14) scala/package.List#
+(11:15..11:22) scala/Nothing#
+(12:12..12:15) scala/Int#
+(12:20..12:26) scala/Double#
+(12:29..12:35) scala/Double#
+(12:38..12:39) _empty_/T#h().(x) -> 12:9
+(12:40..12:41) scala/Int#`+`(+7).
+(12:42..12:43) _empty_/T#h().(y) -> 12:17
+(14:18..14:21) _empty_/IT1# -> 2:14
+(14:23..14:24) _empty_/T# -> 10:7
+(15:19..15:22) scala/Int#
+(16:11..16:14) scala/package.Nil.
+(17:21..17:24) scala/Int#
+(17:29..17:35) scala/Double#
+(17:38..17:44) scala/Double#
+(19:18..19:21) _empty_/IT1# -> 2:14
+(19:23..19:26) _empty_/IT2# -> 6:14
+(20:19..20:22) scala/Int#
+(21:24..21:25) _empty_/C2#f().[T] -> 21:18
+(21:28..21:29) _empty_/C2#f().[T] -> 21:18
+(21:32..21:35) scala/Predef.`???`().
+

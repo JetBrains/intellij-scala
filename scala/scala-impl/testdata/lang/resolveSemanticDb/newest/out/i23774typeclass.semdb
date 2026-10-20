@@ -1,0 +1,235 @@
+Document tests/pos/i23774typeclass.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:27..1:38) scala/compiletime/package$package.erasedValue().
+(1:40..1:52) scala/compiletime/package$package.summonInline().
+(2:8..2:13) scala/
+(2:14..2:22) scala/deriving/
+(2:23..2:29) scala/deriving/Mirror#
+(2:23..2:29) scala/deriving/Mirror.
+(5:33..5:41) scala/package.Iterable#
+(5:42..5:43) _empty_/Expr.UpcastToIterable#[T] -> 5:25
+(5:49..5:53) _empty_/Expr# -> 4:6
+(5:54..5:55) _empty_/Expr.UpcastToIterable#[C] -> 5:28
+(5:66..5:70) _empty_/Expr# -> 4:6
+(5:71..5:79) scala/package.Iterable#
+(5:80..5:81) _empty_/Expr.UpcastToIterable#[T] -> 5:25
+(6:25..6:29) _empty_/Expr# -> 4:6
+(6:30..6:31) _empty_/Expr.Seq#[T] -> 6:12
+(6:43..6:47) _empty_/Expr# -> 4:6
+(6:48..6:53) scala/
+(6:54..6:57) scala/package.Seq#
+(6:58..6:59) _empty_/Expr.Seq#[T] -> 6:12
+(7:21..7:22) _empty_/Expr.Const#[T]
+(10:23..10:26) _empty_/Fold#apply().[Acc] -> 10:13
+(10:34..10:35) _empty_/Fold#[E] -> 9:12
+(10:71..10:74) _empty_/Fold#apply().[Acc] -> 10:13
+(13:41..13:46) scala/Tuple#
+(13:49..13:53) scala/package.List#
+(13:54..13:58) _empty_/Fold# -> 9:7
+(14:12..14:23) scala/compiletime/package$package.erasedValue().
+(14:24..14:29) _empty_/Fold.summonAll().[Elems] -> 13:32
+(15:18..15:20) scala/`*:`#
+(15:30..15:42) scala/compiletime/package$package.summonInline().
+(15:43..15:47) _empty_/Fold# -> 9:7
+(15:48..15:49) local4 -> 15:16
+(15:55..15:64) _empty_/Fold.summonAll(). -> 13:22
+(15:65..15:69) local5 -> 15:21
+(16:15..16:25) scala/Tuple$package.EmptyTuple#
+(16:29..16:32) scala/package.Nil.
+(18:31..18:35) _empty_/Fold# -> 9:7
+(18:36..18:37) _empty_/Fold.Leaf#[E] -> 18:20
+(19:25..19:28) _empty_/Fold.Leaf#apply().[Acc] -> 19:15
+(19:36..19:37) _empty_/Fold.Leaf#[E] -> 18:20
+(19:73..19:76) _empty_/Fold.Leaf#apply().[Acc] -> 19:15
+(19:79..19:82) _empty_/Fold.Leaf#apply().(acc) -> 19:20
+(21:13..21:17) _empty_/Fold# -> 9:7
+(21:13..21:17) _empty_/Fold.given_Fold_Seq().[T] -> 21:10
+(21:30..21:34) _empty_/Fold# -> 9:7
+(21:35..21:38) scala/package.Seq#
+(21:39..21:40) _empty_/Fold.given_Fold_Seq().[T] -> 21:10
+(21:49..21:53) _empty_/Fold# -> 9:7
+(21:54..21:57) scala/package.Seq#
+(21:58..21:59) _empty_/Fold.given_Fold_Seq().[T] -> 21:10
+(22:25..22:28) local10 -> 22:15
+(22:36..22:39) scala/package.Seq#
+(22:40..22:41) _empty_/Fold.given_Fold_Seq().[T] -> 21:10
+(22:78..22:81) local10 -> 22:15
+(23:7..23:11) local12 -> 22:30
+(23:12..23:20) scala/collection/IterableOnceOps#foldLeft().
+(23:21..23:24) local11 -> 22:20
+(23:36..23:40) _empty_/Fold.given_Fold_Seq().(fold) -> 21:21
+(23:41..23:42) local18 -> 23:27
+(23:44..23:45) local19 -> 23:30
+(23:47..23:48) local17 -> 22:44
+(26:9..26:13) _empty_/Fold# -> 9:7
+(26:14..26:24) scala/Tuple$package.EmptyTuple#
+(26:32..26:36) _empty_/Fold# -> 9:7
+(26:37..26:47) scala/Tuple$package.EmptyTuple#
+(27:25..27:28) local23 -> 27:15
+(27:36..27:46) scala/Tuple$package.EmptyTuple#
+(27:82..27:85) local23 -> 27:15
+(27:88..27:91) local24 -> 27:20
+(29:13..29:17) _empty_/Fold# -> 9:7
+(29:13..29:17) _empty_/Fold.`given_Fold_*:`().[H] -> 29:10
+(29:29..29:34) scala/Tuple#
+(29:36..29:40) _empty_/Fold# -> 9:7
+(29:36..29:40) _empty_/Fold.`given_Fold_*:`().[T] -> 29:24
+(29:50..29:54) _empty_/Fold# -> 9:7
+(29:55..29:56) _empty_/Fold.`given_Fold_*:`().[H] -> 29:10
+(29:57..29:59) scala/`*:`#
+(29:60..29:61) _empty_/Fold.`given_Fold_*:`().[T] -> 29:24
+(30:9..30:13) _empty_/Fold# -> 9:7
+(30:14..30:15) _empty_/Fold.`given_Fold_*:`().[H] -> 29:10
+(30:16..30:18) scala/`*:`#
+(30:19..30:20) _empty_/Fold.`given_Fold_*:`().[T] -> 29:24
+(31:27..31:30) local34 -> 31:17
+(31:38..31:39) _empty_/Fold.`given_Fold_*:`().[H] -> 29:10
+(31:40..31:42) scala/`*:`#
+(31:43..31:44) _empty_/Fold.`given_Fold_*:`().[T] -> 29:24
+(31:80..31:83) local34 -> 31:17
+(32:20..32:21) _empty_/Fold.`given_Fold_*:`().(h) -> 29:21
+(32:22..32:25) local35 -> 31:22
+(32:27..32:31) local36 -> 31:32
+(32:32..32:36) scala/Tuple#head().
+(32:38..32:39) local41 -> 31:46
+(33:9..33:10) _empty_/Fold.`given_Fold_*:`().(t) -> 29:44
+(33:11..33:15) local42 -> 32:13
+(33:17..33:21) local36 -> 31:32
+(33:22..33:26) scala/Tuple#tail().
+(33:28..33:29) local41 -> 31:46
+(35:29..35:35) scala/deriving/Mirror.
+(35:36..35:45) scala/deriving/Mirror.ProductOf#
+(35:46..35:47) _empty_/Fold.product().[E] -> 35:23
+(35:61..35:65) _empty_/Fold# -> 9:7
+(35:66..35:67) _empty_/Fold.product().(m) -> 35:26
+(35:89..35:93) _empty_/Fold# -> 9:7
+(35:94..35:95) _empty_/Fold.product().[E] -> 35:23
+(36:9..36:13) _empty_/Fold# -> 9:7
+(36:14..36:15) _empty_/Fold.product().[E] -> 35:23
+(37:27..37:30) local46 -> 37:17
+(37:38..37:39) _empty_/Fold.product().[E] -> 35:23
+(37:75..37:78) local46 -> 37:17
+(39:9..39:18) _empty_/Fold.product().(tupleFold) -> 35:50
+(39:19..39:22) local47 -> 37:22
+(39:24..39:29) scala/Tuple.
+(39:30..39:41) scala/Tuple.fromProduct().
+(39:42..39:46) local48 -> 37:32
+(39:47..39:59) scala/Any#asInstanceOf().
+(39:60..39:67) scala/Product#
+(39:70..39:82) scala/Any#asInstanceOf().
+(39:83..39:84) _empty_/Fold.product().(m) -> 35:26
+(39:105..39:106) local53 -> 37:41
+(41:25..41:31) scala/deriving/Mirror.
+(41:32..41:37) scala/deriving/Mirror.SumOf#
+(41:38..41:39) _empty_/Fold.sum().[E] -> 41:19
+(41:56..41:60) scala/package.List#
+(41:61..41:65) _empty_/Fold# -> 9:7
+(41:72..41:76) _empty_/Fold# -> 9:7
+(41:77..41:78) _empty_/Fold.sum().[E] -> 41:19
+(42:9..42:13) _empty_/Fold# -> 9:7
+(42:14..42:15) _empty_/Fold.sum().[E] -> 41:19
+(43:24..43:30) _empty_/Fold.sum().(cases0) -> 41:42
+(44:27..44:30) local58 -> 44:17
+(44:38..44:39) _empty_/Fold.sum().[E] -> 41:19
+(44:75..44:78) local58 -> 44:17
+(45:19..45:20) _empty_/Fold.sum().(m) -> 41:22
+(45:21..45:28) scala/deriving/Mirror.Sum#ordinal().
+(45:29..45:33) local60 -> 44:32
+(46:24..46:29) local57 -> 43:16
+(46:30..46:35) scala/collection/LinearSeqOps#apply().
+(46:36..46:39) local66 -> 45:13
+(47:9..47:17) local67 -> 46:13
+(47:18..47:23) _empty_/Fold#apply(). -> 10:7
+(47:24..47:27) local59 -> 44:22
+(47:29..47:33) local60 -> 44:32
+(47:34..47:46) scala/Any#asInstanceOf().
+(47:48..47:49) local65 -> 44:41
+(49:36..49:42) scala/deriving/Mirror.
+(49:43..49:45) scala/deriving/Mirror.Of#
+(49:46..49:47) _empty_/Fold.derived().[E] -> 49:24
+(49:51..49:55) _empty_/Fold# -> 9:7
+(49:56..49:57) _empty_/Fold.derived().[E] -> 49:24
+(50:12..50:13) _empty_/Fold.derived().(m) -> 49:33
+(51:15..51:21) scala/deriving/Mirror.
+(51:22..51:27) scala/deriving/Mirror.SumOf#
+(51:28..51:29) _empty_/Fold.derived().[E] -> 49:24
+(51:34..51:37) _empty_/Fold.inline$sum().
+(51:38..51:39) local71 -> 51:12
+(51:47..51:56) _empty_/Fold.summonAll(). -> 13:22
+(51:57..51:58) local71 -> 51:12
+(52:15..52:21) scala/deriving/Mirror.
+(52:22..52:31) scala/deriving/Mirror.ProductOf#
+(52:32..52:33) _empty_/Fold.derived().[E] -> 49:24
+(52:38..52:45) _empty_/Fold.inline$product().
+(52:46..52:47) _empty_/Fold.derived().[E] -> 49:24
+(52:49..52:50) local72 -> 52:12
+(52:52..52:64) scala/compiletime/package$package.summonInline().
+(52:65..52:69) _empty_/Fold# -> 9:7
+(52:70..52:71) local72 -> 52:12
+(54:16..54:20) _empty_/Fold# -> 9:7
+(54:21..54:25) _empty_/Expr.
+(54:26..54:31) _empty_/Expr.Const# -> 7:8
+(54:32..54:33) _empty_/Fold.given_Fold_Const().[T] -> 54:10
+(55:9..55:13) _empty_/Fold# -> 9:7
+(55:14..55:18) _empty_/Expr.
+(55:19..55:35) _empty_/Expr.UpcastToIterable# -> 5:8
+(55:36..55:39) scala/Any#
+(55:41..55:49) scala/package.Iterable#
+(55:50..55:53) scala/Any#
+(55:59..55:66) _empty_/Fold.derived(). -> 49:16
+(56:16..56:20) _empty_/Fold# -> 9:7
+(56:21..56:25) _empty_/Expr# -> 4:6
+(56:26..56:27) _empty_/Fold.given_Fold_Expr().[T] -> 56:10
+(56:36..56:40) _empty_/Fold# -> 9:7
+(56:41..56:45) _empty_/Expr# -> 4:6
+(56:46..56:47) _empty_/Fold.given_Fold_Expr().[T] -> 56:10
+(57:19..57:26) _empty_/Fold.derived(). -> 49:16
+(57:27..57:31) _empty_/Expr# -> 4:6
+(57:32..57:33) _empty_/Fold.given_Fold_Expr().[T] -> 56:10
+(58:25..58:28) local74 -> 58:15
+(58:36..58:40) _empty_/Expr# -> 4:6
+(58:41..58:42) _empty_/Fold.given_Fold_Expr().[T] -> 56:10
+(58:79..58:82) local74 -> 58:15
+(59:7..59:14) local73 -> 57:9
+(59:15..59:16) local81 -> 58:45
+(59:17..59:20) local75 -> 58:20
+(59:22..59:26) local76 -> 58:30
+(59:29..59:33) local76 -> 58:30
+(59:35..59:36) local81 -> 58:45
+(61:2..61:6) scala/main#
+(61:19..61:23) scala/Unit#
+(62:22..62:26) _empty_/Expr# -> 4:6
+(62:27..62:28) local85 -> 62:13
+(62:73..62:77) _empty_/Fold# -> 9:7
+(62:78..62:82) _empty_/Expr# -> 4:6
+(62:83..62:84) local85 -> 62:13
+(62:89..62:92) scala/Int#
+(63:5..63:9) local91 -> 62:67
+(63:13..63:17) local86 -> 62:16
+(63:41..63:42) local90 -> 62:31
+(63:43..63:44) local94 -> 63:32
+(63:51..63:54) local93 -> 63:27
+(63:55..63:56) scala/Int#`+`(+4).
+(63:64..63:67) local93 -> 63:27
+(65:12..65:16) _empty_/Expr# -> 4:6
+(65:17..65:25) scala/package.Iterable#
+(65:26..65:29) scala/Int#
+(65:34..65:38) _empty_/Expr.
+(65:39..65:55) _empty_/Expr.UpcastToIterable.
+(65:56..65:60) _empty_/Expr.
+(65:61..65:64) _empty_/Expr.Seq.
+(65:65..65:69) _empty_/Expr.
+(65:70..65:75) _empty_/Expr.Const.
+(65:80..65:84) _empty_/Expr.
+(65:85..65:90) _empty_/Expr.Const.
+(65:95..65:99) _empty_/Expr.
+(65:100..65:105) _empty_/Expr.Const.
+(66:20..66:25) local95 -> 62:7
+(67:5..67:8) local96 -> 65:7
+(70:14..70:18) _empty_/Expr.
+(70:19..70:24) _empty_/Expr.Const.
+(74:3..74:10) scala/Predef.println(+1).
+(74:11..74:12) scala/StringContext#s().
+(74:37..74:47) local98 -> 66:7
+

@@ -6,15 +6,15 @@ Document tests/pos/i9213.scala
 (4:12..4:18) scala/Predef.String#
 (4:23..4:26) scala/Int#
 (7:3..7:4) _empty_/C# -> 4:7
-(7:5..7:6) _empty_/C#`<init>`().(b)
-(7:12..7:13) _empty_/C#`<init>`().(a)
+(7:5..7:6) _empty_/C#`<init>`().(b) -> 4:20
+(7:12..7:13) _empty_/C#`<init>`().(a) -> 4:9
 (7:16..7:22) java/lang/String#
 (8:3..8:4) _empty_/A# -> 1:7
-(8:5..8:6) _empty_/A#`<init>`().(b)
-(8:12..8:13) _empty_/A#`<init>`().(a)
+(8:5..8:6) _empty_/A#`<init>`().(b) -> 1:17
+(8:12..8:13) _empty_/A#`<init>`().(a) -> 1:9
 (8:16..8:22) java/lang/String#
 (9:3..9:4) _empty_/B# -> 2:7
-(9:5..9:6) _empty_/B#`<init>`().(b)
-(9:12..9:13) _empty_/B#`<init>`().(a)
+(9:5..9:6) _empty_/B#`<init>`().(b) -> 2:17
+(9:12..9:13) _empty_/B#`<init>`().(a) -> 2:9
 (9:16..9:22) java/lang/String#
 

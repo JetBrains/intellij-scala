@@ -1,0 +1,58 @@
+Document tests/pos/i20448.scala
+(6:20..6:27) _empty_/Generic# -> 1:7
+(6:28..6:29) _empty_/Generic.Aux#[T] -> 6:12
+(6:45..6:46) _empty_/Generic.Aux#[R] -> 6:15
+(8:22..8:29) scala/Product#
+(9:14..9:19) scala/
+(9:20..9:28) scala/deriving/
+(9:29..9:35) scala/deriving/Mirror.
+(9:36..9:45) scala/deriving/Mirror.ProductOf#
+(9:46..9:47) _empty_/Generic.given_Aux_T_MirroredElemTypes().[T] -> 8:17
+(10:6..10:13) _empty_/Generic. -> 5:8
+(10:14..10:17) _empty_/Generic.Aux# -> 6:8
+(10:18..10:19) _empty_/Generic.given_Aux_T_MirroredElemTypes().[T] -> 8:17
+(10:21..10:22) _empty_/Generic.given_Aux_T_MirroredElemTypes().(m) -> 9:11
+(10:44..10:47) scala/Predef.`???`().
+(18:24..18:29) _empty_/Delta# -> 13:7
+(18:30..18:32) _empty_/Delta.Aux#[In] -> 18:12
+(18:47..18:51) _empty_/Delta.Aux#[Out0] -> 18:16
+(20:27..20:32) _empty_/Delta# -> 13:7
+(20:33..20:34) _empty_/Delta.given_Aux_Option_Out().[T] -> 20:10
+(20:38..20:43) _empty_/Delta. -> 17:8
+(20:44..20:47) _empty_/Delta.Aux# -> 18:8
+(20:48..20:54) scala/Option#
+(20:55..20:56) _empty_/Delta.given_Aux_Option_Out().[T] -> 20:10
+(20:59..20:65) _empty_/Delta.given_Aux_Option_Out().(deltaT) -> 20:19
+(20:66..20:69) _empty_/Delta#Out# -> 14:8
+(20:73..20:76) scala/Predef.`???`().
+(22:18..22:23) scala/Tuple#
+(22:46..22:51) _empty_/Delta. -> 17:8
+(22:52..22:55) _empty_/Delta.Aux# -> 18:8
+(22:56..22:57) _empty_/Delta.`given_Aux_*:_H`().[H] -> 22:10
+(22:59..22:61) _empty_/Delta.`given_Aux_*:_H`().[HO] -> 22:25
+(22:65..22:70) _empty_/Delta. -> 17:8
+(22:71..22:74) _empty_/Delta.Aux# -> 18:8
+(22:75..22:76) _empty_/Delta.`given_Aux_*:_H`().[H] -> 22:10
+(22:77..22:79) scala/`*:`#
+(22:80..22:81) _empty_/Delta.`given_Aux_*:_H`().[T] -> 22:13
+(22:83..22:84) _empty_/Delta.`given_Aux_*:_H`().[H] -> 22:10
+(22:88..22:91) scala/Predef.`???`().
+(24:31..24:38) _empty_/Generic. -> 5:8
+(24:39..24:42) _empty_/Generic.Aux# -> 6:8
+(24:43..24:44) _empty_/Delta.given_Aux_F_O().[F] -> 24:10
+(24:46..24:47) _empty_/Delta.given_Aux_F_O().[G] -> 24:13
+(24:60..24:65) _empty_/Delta. -> 17:8
+(24:66..24:69) _empty_/Delta.Aux# -> 18:8
+(24:70..24:71) _empty_/Delta.given_Aux_F_O().[G] -> 24:13
+(24:73..24:74) _empty_/Delta.given_Aux_F_O().[O] -> 24:16
+(24:78..24:83) _empty_/Delta. -> 17:8
+(24:84..24:87) _empty_/Delta.Aux# -> 18:8
+(24:88..24:89) _empty_/Delta.given_Aux_F_O().[F] -> 24:10
+(24:91..24:92) _empty_/Delta.given_Aux_F_O().[O] -> 24:16
+(24:96..24:99) scala/Predef.`???`().
+(28:22..28:28) scala/Option#
+(28:29..28:32) _empty_/Test.Bar# -> 28:14
+(30:3..30:9) scala/Predef.summon().
+(30:10..30:15) _empty_/Delta# -> 13:7
+(30:16..30:19) _empty_/Test.Bar# -> 28:14
+

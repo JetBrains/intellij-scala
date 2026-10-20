@@ -1,0 +1,4 @@
+Document tests/pos/inline-trait-signature-simple.scala
+(3:10..3:13) scala/Int#
+(5:17..5:18) _empty_/A# -> 2:14
+

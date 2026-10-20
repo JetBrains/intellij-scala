@@ -1,0 +1,77 @@
+// Example in docs/_docs/reference/metaprogramming/inline.md
+
+trait InlineConstants:
+  inline val myShort: Short
+
+object Constants extends InlineConstants:
+  inline val myShort/*: (4 : Short)*/ = 4
+-----
+ScalaFile
+  PsiComment(comment)('// Example in docs/_docs/reference/metaprogramming/inline.md')
+  PsiWhiteSpace('\n\n')
+  ScTrait: InlineConstants
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('InlineConstants')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScValueDeclaration: myShort
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfIdentifiers
+            Field identifier: myShort
+              PsiElement(identifier)('myShort')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Short
+            CodeReferenceElement: Short
+              PsiElement(identifier)('Short')
+  PsiWhiteSpace('\n\n')
+  ScObject: Constants
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Constants')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          SimpleType: InlineConstants
+            CodeReferenceElement: InlineConstants
+              PsiElement(identifier)('InlineConstants')
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScPatternDefinition: myShort
+          AnnotationsList
+            <empty list>
+          Modifiers
+            PsiElement(inline)('inline')
+          PsiWhiteSpace(' ')
+          PsiElement(val)('val')
+          PsiWhiteSpace(' ')
+          ListOfPatterns
+            ReferencePattern: myShort
+              PsiElement(identifier)('myShort')
+          PsiComment(BlockComment)('/*: (4 : Short)*/')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          IntegerLiteral
+            PsiElement(integer)('4')

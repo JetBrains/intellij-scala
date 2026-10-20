@@ -1,8 +1,8 @@
 trait Universe {
-  type Symbol >: Null <: AnyRef with SymbolApi
+  type Symbol >: Null <: AnyRef & SymbolApi
   trait SymbolApi
 
-  type TypeSymbol >: Null <: TypeSymbolApi with Symbol
+  type TypeSymbol >: Null <: TypeSymbolApi & Symbol
   trait TypeSymbolApi
 
   implicit class CompatibleSymbol(sym: Symbol) {
@@ -49,12 +49,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          CompoundType: AnyRef with SymbolApi
+          InfixType: AnyRef & SymbolApi
             SimpleType: AnyRef
               CodeReferenceElement: AnyRef
                 PsiElement(identifier)('AnyRef')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: SymbolApi
               CodeReferenceElement: SymbolApi
@@ -88,12 +89,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          CompoundType: TypeSymbolApi with Symbol
+          InfixType: TypeSymbolApi & Symbol
             SimpleType: TypeSymbolApi
               CodeReferenceElement: TypeSymbolApi
                 PsiElement(identifier)('TypeSymbolApi')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
             SimpleType: Symbol
               CodeReferenceElement: Symbol

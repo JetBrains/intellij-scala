@@ -3,14 +3,14 @@ abstract class A { type T }
 abstract class B { val xz: Any }
 
 abstract class Test {
-  var yy: A with B { type T; val xz: T } = null;
-  var xx: A with B { type T; val xz: T } = null;
+  var yy: A & B { type T; val xz: T } = null;
+  var xx: A & B { type T; val xz: T } = null;
   xx = yy;
 }
 
 abstract class Test2 {
-  var yy: A with B { type T; val xz: T } = null;
-  val xx: A with B { type T; val xz: T } = yy
+  var yy: A & B { type T; val xz: T } = null;
+  val xx: A & B { type T; val xz: T } = yy
 }
 -----
 ScalaFile
@@ -118,47 +118,49 @@ ScalaFile
               PsiElement(identifier)('yy')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: A with B { type T; val xz: T }
+          InfixType: A & B { type T; val xz: T }
             SimpleType: A
               CodeReferenceElement: A
                 PsiElement(identifier)('A')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
-            SimpleType: B
-              CodeReferenceElement: B
-                PsiElement(identifier)('B')
-            PsiWhiteSpace(' ')
-            Refinement
-              PsiElement({)('{')
+            CompoundType: B { type T; val xz: T }
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
               PsiWhiteSpace(' ')
-              ScTypeAliasDeclaration: T
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(type)('type')
+              Refinement
+                PsiElement({)('{')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('T')
-              PsiElement(;)(';')
-              PsiWhiteSpace(' ')
-              ScValueDeclaration: xz
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(val)('val')
+                ScTypeAliasDeclaration: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                PsiElement(;)(';')
                 PsiWhiteSpace(' ')
-                ListOfIdentifiers
-                  Field identifier: xz
-                    PsiElement(identifier)('xz')
-                PsiElement(:)(':')
+                ScValueDeclaration: xz
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfIdentifiers
+                    Field identifier: xz
+                      PsiElement(identifier)('xz')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
-              PsiWhiteSpace(' ')
-              PsiElement(})('}')
+                PsiElement(})('}')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -178,47 +180,49 @@ ScalaFile
               PsiElement(identifier)('xx')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: A with B { type T; val xz: T }
+          InfixType: A & B { type T; val xz: T }
             SimpleType: A
               CodeReferenceElement: A
                 PsiElement(identifier)('A')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
-            SimpleType: B
-              CodeReferenceElement: B
-                PsiElement(identifier)('B')
-            PsiWhiteSpace(' ')
-            Refinement
-              PsiElement({)('{')
+            CompoundType: B { type T; val xz: T }
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
               PsiWhiteSpace(' ')
-              ScTypeAliasDeclaration: T
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(type)('type')
+              Refinement
+                PsiElement({)('{')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('T')
-              PsiElement(;)(';')
-              PsiWhiteSpace(' ')
-              ScValueDeclaration: xz
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(val)('val')
+                ScTypeAliasDeclaration: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                PsiElement(;)(';')
                 PsiWhiteSpace(' ')
-                ListOfIdentifiers
-                  Field identifier: xz
-                    PsiElement(identifier)('xz')
-                PsiElement(:)(':')
+                ScValueDeclaration: xz
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfIdentifiers
+                    Field identifier: xz
+                      PsiElement(identifier)('xz')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
-              PsiWhiteSpace(' ')
-              PsiElement(})('}')
+                PsiElement(})('}')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -271,47 +275,49 @@ ScalaFile
               PsiElement(identifier)('yy')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: A with B { type T; val xz: T }
+          InfixType: A & B { type T; val xz: T }
             SimpleType: A
               CodeReferenceElement: A
                 PsiElement(identifier)('A')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
-            SimpleType: B
-              CodeReferenceElement: B
-                PsiElement(identifier)('B')
-            PsiWhiteSpace(' ')
-            Refinement
-              PsiElement({)('{')
+            CompoundType: B { type T; val xz: T }
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
               PsiWhiteSpace(' ')
-              ScTypeAliasDeclaration: T
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(type)('type')
+              Refinement
+                PsiElement({)('{')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('T')
-              PsiElement(;)(';')
-              PsiWhiteSpace(' ')
-              ScValueDeclaration: xz
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(val)('val')
+                ScTypeAliasDeclaration: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                PsiElement(;)(';')
                 PsiWhiteSpace(' ')
-                ListOfIdentifiers
-                  Field identifier: xz
-                    PsiElement(identifier)('xz')
-                PsiElement(:)(':')
+                ScValueDeclaration: xz
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfIdentifiers
+                    Field identifier: xz
+                      PsiElement(identifier)('xz')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
-              PsiWhiteSpace(' ')
-              PsiElement(})('}')
+                PsiElement(})('}')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
@@ -331,47 +337,49 @@ ScalaFile
               PsiElement(identifier)('xx')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          CompoundType: A with B { type T; val xz: T }
+          InfixType: A & B { type T; val xz: T }
             SimpleType: A
               CodeReferenceElement: A
                 PsiElement(identifier)('A')
             PsiWhiteSpace(' ')
-            PsiElement(with)('with')
+            CodeReferenceElement: &
+              PsiElement(identifier)('&')
             PsiWhiteSpace(' ')
-            SimpleType: B
-              CodeReferenceElement: B
-                PsiElement(identifier)('B')
-            PsiWhiteSpace(' ')
-            Refinement
-              PsiElement({)('{')
+            CompoundType: B { type T; val xz: T }
+              SimpleType: B
+                CodeReferenceElement: B
+                  PsiElement(identifier)('B')
               PsiWhiteSpace(' ')
-              ScTypeAliasDeclaration: T
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(type)('type')
+              Refinement
+                PsiElement({)('{')
                 PsiWhiteSpace(' ')
-                PsiElement(identifier)('T')
-              PsiElement(;)(';')
-              PsiWhiteSpace(' ')
-              ScValueDeclaration: xz
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(val)('val')
+                ScTypeAliasDeclaration: T
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(type)('type')
+                  PsiWhiteSpace(' ')
+                  PsiElement(identifier)('T')
+                PsiElement(;)(';')
                 PsiWhiteSpace(' ')
-                ListOfIdentifiers
-                  Field identifier: xz
-                    PsiElement(identifier)('xz')
-                PsiElement(:)(':')
+                ScValueDeclaration: xz
+                  AnnotationsList
+                    <empty list>
+                  Modifiers
+                    <empty list>
+                  PsiElement(val)('val')
+                  PsiWhiteSpace(' ')
+                  ListOfIdentifiers
+                    Field identifier: xz
+                      PsiElement(identifier)('xz')
+                  PsiElement(:)(':')
+                  PsiWhiteSpace(' ')
+                  SimpleType: T
+                    CodeReferenceElement: T
+                      PsiElement(identifier)('T')
                 PsiWhiteSpace(' ')
-                SimpleType: T
-                  CodeReferenceElement: T
-                    PsiElement(identifier)('T')
-              PsiWhiteSpace(' ')
-              PsiElement(})('}')
+                PsiElement(})('}')
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
