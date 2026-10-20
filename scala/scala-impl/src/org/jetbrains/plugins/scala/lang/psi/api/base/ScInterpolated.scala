@@ -4,8 +4,9 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase.*
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedExpressionPrefix, ScInterpolatedPatternPrefix}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.getInstance as ScalaApplicationSettings
 
 trait ScInterpolated extends ScalaPsiElement {
 
@@ -18,7 +19,10 @@ trait ScInterpolated extends ScalaPsiElement {
            _: ScInterpolatedPatternPrefix => false
       case _: ScReferenceExpression => true
       case _ => false
-    }.asInstanceOf[Seq[ScExpression]]
+    }.asInstanceOf[Seq[ScExpression]].map {
+      case ScBlockExpr.Expressions(single) if ScalaApplicationSettings.PRECISE_TEXT => single
+      case e => e
+    }
 
   def getStringParts: Seq[String] = for {
     child <- getNode.getChildren(null).toSeq
