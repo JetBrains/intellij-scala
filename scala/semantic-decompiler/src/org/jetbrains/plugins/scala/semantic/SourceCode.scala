@@ -312,7 +312,8 @@ object SourceCode {
         else this += highlightKeyword("val ")
 
         val name1 = splicedName(vdef.symbol).getOrElse(name)
-        this += highlightDefinition(name1) += ": "
+        this += highlightDefinition(name1)
+        this += (if (dotty.tools.dotc.util.Chars.isOperatorPart(sb.last)) " : " else ": ")
         printTypeTree(tpt)
         rhs match {
           case Some(tree) =>
@@ -369,7 +370,7 @@ object SourceCode {
             case TermParamClause(params) => printMethdArgsDefs(params, n, contextBounds, containingClass); n += params.length
             case TypeParamClause(params) => if (!isConstructor) printTargsDefs(params.zip(params), contextBounds)
         if (!isConstructor) {
-          this += ": "
+          this += (if (dotty.tools.dotc.util.Chars.isOperatorPart(sb.last)) " : " else ": ")
           printTypeTree(tpt)
         }
         rhs match {
