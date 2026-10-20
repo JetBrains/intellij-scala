@@ -9,8 +9,9 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.Associations
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaNamesUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
 import org.jetbrains.plugins.scala.statistics.ScalaRefactoringUsagesCollector
 
 import java.{util => ju}
@@ -119,7 +120,7 @@ object MoveScalaClassHandler {
 
   private def classCanBeAdded(file: PsiFile, clazz: PsiClass): Boolean = {
     val allClasses = PsiTreeUtil.findChildrenOfType(file, classOf[ScTypeDefinition])
-    val className = ScalaNamesUtil.scalaName(clazz)
+    val className = ScalaPsiNamesUtil.scalaName(clazz)
     val withSameName = allClasses.asScala.filter {
       _.name == className
     }.toList

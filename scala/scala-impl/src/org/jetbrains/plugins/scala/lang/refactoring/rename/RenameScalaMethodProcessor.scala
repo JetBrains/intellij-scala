@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil
 
 import java.awt.{BorderLayout, GridLayout}
 import java.util
@@ -107,7 +107,7 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
         }
         import scala.jdk.CollectionConverters._
         for (elem <- allRenames.keySet.asScala ++ buff) {
-          val oldName = ScalaNamesUtil.scalaName(elem)
+          val oldName = ScalaPsiNamesUtil.scalaName(elem)
           allRenames.put(elem, nameWithSetterSuffix(oldName, newName))
         }
       }
@@ -163,4 +163,3 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
     }
   }
 }
-

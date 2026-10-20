@@ -12,9 +12,9 @@ import com.intellij.psi.search.SearchScope;
 import com.intellij.refactoring.RefactoringActionHandler;
 import com.intellij.refactoring.rename.inplace.VariableInplaceRenamer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$;
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,12 +38,12 @@ public class ScalaLocalInplaceRenamer extends VariableInplaceRenamer {
 
     public ScalaLocalInplaceRenamer(@NotNull PsiNamedElement elementToRename, Editor editor) {
         this(elementToRename, editor, elementToRename.getProject(),
-                ScalaNamesUtil.scalaName(elementToRename), ScalaNamesUtil.scalaName(elementToRename));
+                ScalaPsiNamesUtil.scalaName(elementToRename), ScalaPsiNamesUtil.scalaName(elementToRename));
     }
 
     @Override
     public void collectAdditionalElementsToRename(List<? super Pair<PsiElement, TextRange>> stringUsages) {
-        String stringToSearch = ScalaNamesUtil.scalaName(elementToRename);
+        String stringToSearch = ScalaPsiNamesUtil.scalaName(elementToRename);
         if (stringToSearch == null) return;
 
         PsiFile file = currentFile();

@@ -8,6 +8,7 @@ import com.intellij.util.indexing.DumbModeAccessType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -61,7 +62,7 @@ class ScalaGoToSymbolContributor extends GotoClassContributor with PossiblyDumbA
           for (elem <- elems) {
             elem match {
               case item: NavigationItem =>
-                val navigationItemName: String = ScalaNamesUtil.scalaName(elem)
+                val navigationItemName: String = ScalaPsiNamesUtil.scalaName(elem)
                 if (ScalaNamesUtil.equivalentFqn(name, navigationItemName))
                   items += item
               case _ =>
@@ -71,7 +72,7 @@ class ScalaGoToSymbolContributor extends GotoClassContributor with PossiblyDumbA
       }
       for (clazz <- NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY.elements(cleanName, scope)) {
         if (isNonLocal(clazz) || searchAll) {
-          val navigationItemName: String = ScalaNamesUtil.scalaName(clazz)
+          val navigationItemName: String = ScalaPsiNamesUtil.scalaName(clazz)
           if (ScalaNamesUtil.equivalentFqn(name, navigationItemName))
             items += clazz
         }

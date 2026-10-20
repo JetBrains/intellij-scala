@@ -483,7 +483,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   }
 
   //TODO: if decide to i18 be careful to separate view value from persisted value
-  public static final String EXCLUDE_PREFIX = "exclude:";
+  public static final String EXCLUDE_PREFIX = ScalaNamesUtil.EXCLUDE_PREFIX();
 
   public static final String BLANK_LINE = "_______ blank line _______";
   public static final String BASE_PACKAGE_IMPORTS = "base package imports";

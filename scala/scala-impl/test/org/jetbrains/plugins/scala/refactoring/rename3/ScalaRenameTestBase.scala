@@ -13,7 +13,7 @@ import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
 import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PathExt
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil
 import org.jetbrains.plugins.scala.refactoring.refactoringCommonTestDataRoot
 import org.jetbrains.plugins.scala.util.WriteCommandActionEx
 
@@ -127,7 +127,7 @@ abstract class ScalaRenameTestBase extends ScalaLightCodeInsightFixtureTestCase 
 
     val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditor)
     if (subst != null) {
-      oldName = ScalaNamesUtil.scalaName(subst)
+      oldName = ScalaPsiNamesUtil.scalaName(subst)
       val renameRefactoring = RefactoringFactory.getInstance(getProject).createRename(subst, newName, searchInComments, false)
       if (withAutoRenames) {
         renameRefactoring.respectEnabledAutomaticRenames()

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil
 
 package object global {
 
@@ -39,7 +39,7 @@ package object global {
         val maybePath = Option(containingPackage.fqn)
           .filter(_.nonEmpty)
           .map(_ + "." + elementToImport.name)
-          .orElse(ScalaNamesUtil.qualifiedName(elementToImport))
+          .orElse(ScalaPsiNamesUtil.qualifiedName(elementToImport))
 
         maybePath.foreach(ScImportsHolder(reference).addImportForPath(_))
       }

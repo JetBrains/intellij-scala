@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{MixinNodes, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, Signature}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil
 import org.jetbrains.plugins.scala.project.{ScalaFeaturesProvider, UserDataHolderExt}
 
 import java.util
@@ -112,7 +112,7 @@ object RenameSuperMembersUtil {
     val renameAllText = ScalaBundle.message("rename.all.base.members")
     val renameBase = ScalaBundle.message("rename.base.member")
     val renameOnlyCurrent = ScalaBundle.message("rename.only.current.member")
-    val name = ScalaNamesUtil.scalaName(superMembers.last)
+    val name = ScalaPsiNamesUtil.scalaName(superMembers.last)
     @Nls
     val title =
       if (oneSuperClass) {
@@ -140,7 +140,7 @@ object RenameSuperMembersUtil {
         }
         if (clazz == classes.last) renameOnlyCurrent
         else if (oneSuperClass) renameBase
-        else ScalaBundle.message("rename.only.in", classKind, ScalaNamesUtil.scalaName(clazz))
+        else ScalaBundle.message("rename.only.in", classKind, ScalaPsiNamesUtil.scalaName(clazz))
       }
 
       override def getContainerText(clazz: PsiClass): String =

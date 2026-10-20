@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions.PsiReferenceEx.resolve
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil
 
 class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.import.all.members")
@@ -37,7 +37,7 @@ class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
       case named: PsiNamedElement =>
         val importHolder = ScImportsHolder(element)(using project)
         val usages = ReferencesSearch.search(named, new LocalSearchScope(importHolder)).findAll()
-        val pathWithWildcard = ScalaNamesUtil.qualifiedName(named).getOrElse(return) + "._"
+        val pathWithWildcard = ScalaPsiNamesUtil.qualifiedName(named).getOrElse(return) + "._"
 
         val sortedUsages = sorted(usages, isQualifier = true).collect {
           case isQualifierFor(ref@resolve(resolved: PsiNamedElement)) if !isInImport(ref) => RefWithUsage(ref, resolved)

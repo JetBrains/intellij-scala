@@ -18,8 +18,8 @@ import com.intellij.refactoring.rename.RenamePsiElementProcessor;
 import com.intellij.refactoring.rename.inplace.MemberInplaceRenamer;
 import com.intellij.refactoring.rename.inplace.VariableInplaceRenamer;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import scala.collection.immutable.Seq;
 
@@ -49,7 +49,7 @@ public class ScalaMemberInplaceRenamer extends MemberInplaceRenamer {
     }
 
     public ScalaMemberInplaceRenamer(PsiNamedElement elementToRename, PsiElement substituted, Editor editor) {
-        this(elementToRename, substituted, editor, ScalaNamesUtil.scalaName(substituted));
+        this(elementToRename, substituted, editor, ScalaPsiNamesUtil.scalaName(substituted));
     }
 
     public ScalaMemberInplaceRenamer(PsiNamedElement elementToRename, PsiNamedElement substituted, Editor editor,
@@ -132,7 +132,7 @@ public class ScalaMemberInplaceRenamer extends MemberInplaceRenamer {
         PsiNamedElement variable = super.getVariable();
         if (variable != null) return variable;
         return myElementToRename != null && myElementToRename.isValid()
-                && Objects.equals(oldName, ScalaNamesUtil.scalaName(myElementToRename)) ? myElementToRename : null;
+                && Objects.equals(oldName, ScalaPsiNamesUtil.scalaName(myElementToRename)) ? myElementToRename : null;
     }
 
     @Override

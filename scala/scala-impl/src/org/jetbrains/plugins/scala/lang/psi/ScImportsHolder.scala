@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scalaDirective.psi.api.ScDirective
@@ -212,7 +213,7 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     if (needImport) {
       val maybeQualifiedName = maybeClass match {
         case Some(clazz) => Option(clazz.qualifiedName).map(_ + "." + named.name)
-        case _ => ScalaNamesUtil.qualifiedName(named)
+        case _ => ScalaPsiNamesUtil.qualifiedName(named)
       }
 
       maybeQualifiedName.foreach {

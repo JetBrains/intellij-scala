@@ -29,7 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator, ValidationReporter}
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations._
@@ -64,7 +65,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
   private val myBalloonPanel: JPanel = new JPanel()
   private var nameIsValid: Boolean = true
   private val isForBinding: Boolean = newDeclaration.exists(_.is[ScForBinding])
-  private val initialName = ScalaNamesUtil.scalaName(namedElement)
+  private val initialName = ScalaPsiNamesUtil.scalaName(namedElement)
 
   private val myLabel = new JLabel()
   private val myLabelPanel = new JPanel()

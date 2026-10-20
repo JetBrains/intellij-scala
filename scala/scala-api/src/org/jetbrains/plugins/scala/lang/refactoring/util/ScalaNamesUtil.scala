@@ -1,16 +1,20 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.openapi.util.text.StringUtil.isEmpty
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.EXCLUDE_PREFIX
 import org.jetbrains.plugins.scala.lang.lexer.ScalaIdentifiers
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaIdentifiers.{isIdentifier, isKeyword}
 
 import scala.reflect.NameTransformer
 
+/**
+ * String-level utilities for Scala names, independent of PSI.
+ *
+ * @see [[org.jetbrains.plugins.scala.lang.psi.util.ScalaPsiNamesUtil]] for PSI-based ones
+ */
 object ScalaNamesUtil {
+
+  /** Prefix of an excluding pattern, see [[nameFitToPatterns]] */
+  final val EXCLUDE_PREFIX = "exclude:"
 
   /** Can character start an alphanumeric Scala identifier? */
   def isIdentifierStart(c: Char): Boolean =
@@ -31,31 +35,6 @@ object ScalaNamesUtil {
   // See `dotty.tools.dotc.parsing.Scanners.TokenData#isOperator` in
   // https://github.com/lampepfl/dotty/blob/590e15920eecf93a1a15ae328cb94e0be666ec2a/compiler/src/dotty/tools/dotc/parsing/Scanners.scala#L89<br>
   def isOperatorName(text: String): Boolean = isIdentifier(text) && isOpCharacter(text(0))
-
-  def scalaName(element: PsiElement): String = element match {
-    case scNamed: ScNamedElement => scNamed.name
-    case psiNamed: PsiNamedElement => psiNamed.getName
-  }
-
-  def qualifiedName(named: PsiNamedElement): Option[String] =
-    named.nameContext match {
-      case pack: PsiPackage => Some(pack.getQualifiedName)
-      case ClassQualifiedName(qualifiedName) => Some(qualifiedName)
-      case member: PsiMember if !member.hasModifierProperty(PsiModifier.STATIC) => None
-      case ContainingClass(ClassQualifiedName(qualifiedName)) =>
-        ScalaNamesUtil.qualifiedName(named, qualifiedName)
-      case TopLevelMember(_, packaging) =>
-        qualifiedName(named, packaging.fqn)
-      case _ => None
-    }
-
-  private def qualifiedName(named: PsiNamedElement, ownerFqn: String): Option[String] =
-    Option.when(ownerFqn.nonEmpty) {
-      named.name match {
-        case null | "" => ownerFqn
-        case name => ownerFqn + "." + name
-      }
-    }
 
   object BacktickedName {
     val BackTick = "`"
