@@ -493,7 +493,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.Tuple2KOrder
     //cats.data.Tuple2KSemigroupK
     //cats.data.Tuple2KSemigroupal
-    //cats.data.Tuple2KShow
+    cats.data.Tuple2KShow
     //cats.data.Tuple2KTraverse
     //cats.data.Validated
     //cats.data.ValidatedApplicative

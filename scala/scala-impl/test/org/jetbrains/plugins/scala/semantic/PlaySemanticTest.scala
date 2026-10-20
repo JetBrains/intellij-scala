@@ -84,7 +84,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.http.AcceptEncoding
     //play.api.http.ActionCompositionConfiguration
     //play.api.http.ActionCreator
-    //play.api.http.ContentEncoding
+    play.api.http.ContentEncoding
     play.api.http.ContentTypeOf
     //play.api.http.ContentTypes
     //play.api.http.CookiesConfiguration
@@ -115,7 +115,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.http.HttpRequestHandler
     play.api.http.HttpVerbs
     //play.api.http.JWTConfiguration
-    //play.api.http.JWTConfigurationParser
+    play.api.http.JWTConfigurationParser
     //play.api.http.JavaCompatibleHttpRequestHandler
     //play.api.http.JavaHttpErrorHandlerDelegate
     //play.api.http.JavaHttpFiltersAdapter
@@ -516,7 +516,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.core.system.RequestIdProvider
     play.core.utils.AsciiBitSet
     play.core.utils.AsciiChar
-    //play.core.utils.AsciiRange
+    play.core.utils.AsciiRange
     //play.core.utils.AsciiSet
     play.core.utils.AsciiUnion
     play.core.utils.CaseInsensitiveOrdered
