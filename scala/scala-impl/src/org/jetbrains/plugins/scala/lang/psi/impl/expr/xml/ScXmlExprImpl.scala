@@ -3,9 +3,10 @@ package xml
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.psi.ScalaClassLookup
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
@@ -15,7 +16,7 @@ class ScXmlExprImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXml
 
   protected override def innerType(expectedType: Option[ScType]): TypeResult = {
     def getType(s: String): ScType = {
-      val typez = ScalaPsiManager.instance(getProject).getCachedClasses(getResolveScope, s).filter(!_.isInstanceOf[ScObject])
+      val typez = ScalaClassLookup.instance(getProject).getCachedClasses(getResolveScope, s).filter(!_.isInstanceOf[ScObject])
       if (typez.length != 0) ScalaType.designator(typez(0))
       else Nothing
     }

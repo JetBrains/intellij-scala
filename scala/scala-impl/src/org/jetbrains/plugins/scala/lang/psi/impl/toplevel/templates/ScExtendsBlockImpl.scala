@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker,
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
+import org.jetbrains.plugins.scala.lang.psi.ScalaClassLookup
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -16,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager, ScalaStubBasedElementImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -147,7 +148,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   }
 
   private def cachedClass(name: String): Option[PsiClass] =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, name)
+    ScalaClassLookup.instance(getProject).getCachedClass(getResolveScope, name)
 
   private def scalaProductClass: Option[PsiClass] = cachedClass(CommonQualifiedNames.ProductFqn)
   private def scala3TupleConsClass: Option[PsiClass] = TupleType.TupleHList.consClass

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.{Nullable, TestOnly}
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.ScalaClassLookup
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -27,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitProcessor
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -99,7 +100,7 @@ object SyntheticNamedElement {
     project: Project,
     scalaLibraryRepresentativeClass: String
   ): Option[PsiDirectory] = {
-    val classFromStdLib = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), scalaLibraryRepresentativeClass)
+    val classFromStdLib = ScalaClassLookup.instance(project).getCachedClass(GlobalSearchScope.allScope(project), scalaLibraryRepresentativeClass)
     classFromStdLib.map { clazz =>
       //.../scala-library-2.13.11-sources.jar!/scala/Array.scala
       val navigationFile = clazz.getContainingFile.getNavigationElement.asInstanceOf[ScalaFile]

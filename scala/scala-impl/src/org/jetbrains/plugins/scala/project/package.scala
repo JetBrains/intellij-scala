@@ -15,9 +15,10 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.ScalaClassLookup
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.factories.ScStubSerializingElementFactory
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
 import org.jetbrains.plugins.scala.project.ScalaFeatures.SerializableScalaFeatures
@@ -527,7 +528,7 @@ package object project {
         if (ScalaFileLocation.instance.isInLibrarySource(file.getVirtualFile, file.getProject)) {
           val containingClass = element.contexts.findByType[ScTypeDefinition]
           val fqn = containingClass.map(_.qualifiedName)
-          val compiledClass = fqn.flatMap(name => ScalaPsiManager.instance(element.getProject).getCachedClass(element.getResolveScope, name))
+          val compiledClass = fqn.flatMap(name => ScalaClassLookup.instance(element.getProject).getCachedClass(element.getResolveScope, name))
           val options = compiledClass.flatMap(compilerOptionsFor)
           options
         } else {

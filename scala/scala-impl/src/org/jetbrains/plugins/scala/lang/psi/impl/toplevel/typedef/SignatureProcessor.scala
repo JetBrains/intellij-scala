@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScExportsHolder
+import org.jetbrains.plugins.scala.lang.psi.{ScExportsHolder, ScalaClassLookup}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunct
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.Signature.ExportedSigInfo
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
@@ -349,7 +348,7 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
 
   private def addAnyValObjectMethods(template: ScTemplateDefinition, addSignature: TermSignature => Unit): Unit = {
     //some methods of java.lang.Object are available for value classes
-    val javaObject = ScalaPsiManager.instance(template.projectContext)
+    val javaObject = ScalaClassLookup.instance(template.projectContext)
       .getCachedClass(template.resolveScope, "java.lang.Object")
 
     for (obj <- javaObject; method <- obj.getMethods) {

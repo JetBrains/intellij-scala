@@ -7,12 +7,11 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaClassLookup, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
@@ -29,7 +28,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
             case comment: PsiComment =>
               val commentText = comment.getText
               val path = commentText.substring(2, commentText.length - 2)
-              val classes = ScalaPsiManager.instance(getProject).getCachedClasses(getResolveScope, path)
+              val classes = ScalaClassLookup.instance(getProject).getCachedClasses(getResolveScope, path)
               if (classes.length == 1) {
                 drvTemplate.exists(td => !ScalaPsiUtil.isInheritorDeep(td, classes(0)))
               } else {
@@ -114,7 +113,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
               case comment: PsiComment =>
                 val commentText = comment.getText
                 val path = commentText.substring(2, commentText.length - 2)
-                val classes = ScalaPsiManager.instance(getProject).getCachedClasses(getResolveScope, path)
+                val classes = ScalaClassLookup.instance(getProject).getCachedClasses(getResolveScope, path)
                 if (classes.length == 1) classes(0)
                 else classes.find(!_.isInstanceOf[ScObject]).getOrElse(resolveNoHack)
               case _ => resolveNoHack

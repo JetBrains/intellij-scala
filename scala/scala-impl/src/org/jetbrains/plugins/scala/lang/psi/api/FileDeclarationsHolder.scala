@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl._
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder}
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder, ScalaClassLookup}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
@@ -64,9 +64,9 @@ trait FileDeclarationsHolder
     }
 
     implicit val scope: GlobalSearchScope = place.resolveScope
-    implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
+    implicit val classLookup: ScalaClassLookup = ScalaClassLookup.instance(getProject)
 
-    val defaultPackage = manager.noNamePackage
+    val defaultPackage = classLookup.emptyNamePackage.orNull
     if (defaultPackage != null) {
       place match {
         case ref: ScReference if ref.refName == "_root_" && ref.qualifier.isEmpty =>
@@ -119,7 +119,7 @@ trait FileDeclarationsHolder
                   return false
               }
             } else {
-              val cachedPackage = manager.getCachedPackageInScope(name)
+              val cachedPackage = classLookup.getCachedPackageInScope(name)
               val scPackageImpl = cachedPackage.map(ScPackageImpl(_))
               scPackageImpl.foreach { scPackage =>
                 if (!processor.execute(scPackage, state))
@@ -159,7 +159,7 @@ trait FileDeclarationsHolder
     processor: PsiScopeProcessor,
     state: ResolveState,
     place: PsiElement
-  )(implicit manager: ScalaPsiManager, scope: GlobalSearchScope): Boolean = {
+  )(implicit classLookup: ScalaClassLookup, scope: GlobalSearchScope): Boolean = {
     val precedenceTypes = PrecedenceTypes.forElement(this)
     val importedFqns = precedenceTypes.defaultImportsWithPrecedence
 
@@ -168,7 +168,7 @@ trait FileDeclarationsHolder
       if (!shouldNotProcessDefaultImport(fqn)) {
 
         updateProcessor(processor, precedence) {
-          val cachedClasses = manager.getCachedClasses(scope, fqn)
+          val cachedClasses = classLookup.getCachedClasses(scope, fqn)
           val scObjectOpt = cachedClasses.findByType[ScObject]
           scObjectOpt.foreach { scObject =>
             if (!processPackageObject(scObject)(processor, state, null, place))

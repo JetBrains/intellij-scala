@@ -181,6 +181,8 @@
                             serviceImplementation="org.jetbrains.plugins.scala.project.ModuleScalaFileFeatures"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.project.ScalaFileLocation"
                             serviceImplementation="org.jetbrains.plugins.scala.project.ProjectScalaFileLocation"/>
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.lang.psi.ScalaClassLookup$Provider"
+                            serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager$ClassLookupProvider"/>
         <registryKey key="scala.highlighting.tracing" defaultValue="false" description="Trace resolve and type inference"/>
         <registryKey key="scala.highlighting.tracing.in.editor" defaultValue="true" description="Also trace resolve and type inference in editor"/>
         <registryKey key="scala.incremental.highlighting.lookaround" defaultValue="15" description="Number of lines to highlight beyond the visible area"/>

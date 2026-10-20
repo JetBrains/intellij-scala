@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.ScalaLowerCase
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaModificationTracker, ScalaShortNamesCacheManager, ValueWrapper, cachedInUserData, cachedWithoutModificationCount}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaClassLookup}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
@@ -52,7 +52,7 @@ import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class ScalaPsiManager(implicit val project: Project) extends Disposable {
+class ScalaPsiManager(override implicit val project: Project) extends Disposable with ScalaClassLookup {
 
   private val inJavaPsiFacade: UnloadableThreadLocal[Boolean] = new UnloadableThreadLocal(false)
 
@@ -156,15 +156,15 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       (projection: ScProjectionType) => ScProjectionType.simpleAliasProjection(projection)
     )
 
-  def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] =
+  override def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] =
     if (DumbService.getInstance(project).isDumb) Seq.empty
     else getPackageImplicitObjectsCached(fqn, scope).toSeq
 
-  def getTopLevelImplicitClassesByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScClass] =
+  override def getTopLevelImplicitClassesByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScClass] =
     if (DumbService.getInstance(project).isDumb) Seq.empty
     else getTopLevelImplicitClassesByPackageCached(fqn, scope).toSeq
 
-  def getTopLevelGivenDefinitionsByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScGivenDefinition] =
+  override def getTopLevelGivenDefinitionsByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScGivenDefinition] =
     if (DumbService.getInstance(project).isDumb) Seq.empty
     else getTopLevelGivenDefinitionsByPackageCached(fqn, scope).toSeq
 
@@ -206,7 +206,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       (fqn: String, scope: GlobalSearchScope) => TOP_LEVEL_EXTENSION_BY_PKG_KEY.elements(cleanFqn(fqn), scope)
     )
 
-  def getCachedPackage(inFqn: String): Option[PsiPackage] = _getCachedPackage(inFqn)
+  override def getCachedPackage(inFqn: String): Option[PsiPackage] = _getCachedPackage(inFqn)
 
   private val _getCachedPackage =
     cachedWithoutModificationCount(
@@ -220,7 +220,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       }
     )
 
-  def emptyNamePackage: Option[ScPackageImpl] = _noNamePackage()
+  override def emptyNamePackage: Option[ScPackageImpl] = _noNamePackage()
   private[psi] def noNamePackage: ScPackageImpl = _noNamePackage().orNull
 
   private val _noNamePackage: () => Option[ScPackageImpl] =
@@ -246,7 +246,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       ScPackageObjectFqnIndex.instance.hasElement(fqn, project, scope, classOf[PsiClass])
   }
 
-  def getCachedPackageInScope(
+  override def getCachedPackageInScope(
     fqn: String
   )(
     implicit
@@ -268,7 +268,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
         }
     )
 
-  def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] =
+  override def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] =
     if (DumbService.getInstance(project).isDumb) None
     else _getCachedClass(scope, fqn)
 
@@ -308,7 +308,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
     )
 
 
-  def getTopLevelDefinitionsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScMember] =
+  override def getTopLevelDefinitionsByPackage(pkgFqn: String, scope: GlobalSearchScope): Iterable[ScMember] =
     if (DumbService.getInstance(project).isDumb) Iterable.empty
     else _getTopLevelDefinitionsByPackage(pkgFqn, scope)
 
@@ -355,7 +355,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       builder.result()
     }
 
-  def getClasses(
+  override def getClasses(
     `package`: PsiPackage
   )(
     implicit
@@ -418,7 +418,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
       .flatMap(getCachedClasses(scope, _))
   }
 
-  def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = _getCachedClasses(scope, fqn)
+  override def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = _getCachedClasses(scope, fqn)
 
   private val _getCachedClasses = cachedWithoutModificationCount(
     "getCachedClasses",
@@ -462,7 +462,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
     }
   )
 
-  def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] = _cachedFunction1Type(elementScope)
+  override def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] = _cachedFunction1Type(elementScope)
 
   private val _cachedFunction1Type = cachedWithoutModificationCount(
     "cachedFunction1Type",
@@ -471,7 +471,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
     (elementScope: ElementScope) => elementScope.function1Type()
   )
 
-  def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = _scalaSeqAlias(scope)
+  override def scalaSeqAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = _scalaSeqAlias(scope)
 
   private val _scalaSeqAlias = cachedWithoutModificationCount(
     "scalaSeqAlias",
@@ -480,7 +480,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
     (scope: GlobalSearchScope) => getStableAliasesByFqn("scala.Seq", scope).headOption
   )
 
-  def scalaNamedTupleAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = _scalaNamedTupleAlias(scope)
+  override def scalaNamedTupleAlias(scope: GlobalSearchScope): Option[ScTypeAlias] = _scalaNamedTupleAlias(scope)
 
   private val _scalaNamedTupleAlias = cachedWithoutModificationCount(
     "scalaNamedTupleAlias",
@@ -511,7 +511,7 @@ class ScalaPsiManager(implicit val project: Project) extends Disposable {
     }
   )
 
-  def getScalaPackageClassNames(
+  override def getScalaPackageClassNames(
     implicit
     scope: GlobalSearchScope
   ): Set[String] =
@@ -718,6 +718,10 @@ object ScalaPsiManager {
 
   def instance(project: Project): ScalaPsiManager =
     project.getService(classOf[ScalaPsiManager])
+
+  final class ClassLookupProvider extends ScalaClassLookup.Provider {
+    override def lookup(project: Project): ScalaClassLookup = instance(project)
+  }
 
   implicit val ImplicitCollectorCacheCapabilities: CacheCapabilities[ImplicitCollectorCache] =
     new CacheCapabilities[ImplicitCollectorCache] {

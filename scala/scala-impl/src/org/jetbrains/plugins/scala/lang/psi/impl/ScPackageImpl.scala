@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScalaClassLookup, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState}
 import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaLowerCase}
@@ -34,7 +34,7 @@ final class ScPackageImpl private (val pack: PsiPackage)
     place:      PsiElement
   ): Boolean = {
     val isInScalaContext = place.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
-    implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
+    implicit val classLookup: ScalaClassLookup = ScalaClassLookup.instance(getProject)
 
     def processPackageObject(`object`: ScObject): Boolean =
       ScPackageLike.processPackageObject(`object`)(processor, state, lastParent, place)
@@ -48,7 +48,7 @@ final class ScPackageImpl private (val pack: PsiPackage)
         processScalaPackage(processor)
       }
 
-      val cachedClasses = manager.getCachedClasses(scope, ScalaLowerCase)
+      val cachedClasses = classLookup.getCachedClasses(scope, ScalaLowerCase)
       val scObject = cachedClasses.findByType[ScObject]
       scObject.forall(processPackageObject)
     }
@@ -122,15 +122,15 @@ object ScPackageImpl {
   }
 
   def findPackage(project: Project, packageName: String): Option[ScPackageImpl] =
-    findPackage(packageName)(using ScalaPsiManager.instance(project))
+    findPackage(packageName)(using ScalaClassLookup.instance(project))
 
   def findPackage(
     packageName: String
   )(
     implicit
-    manager: ScalaPsiManager
+    classLookup: ScalaClassLookup
   ): Option[ScPackageImpl] =
-    manager
+    classLookup
       .getCachedPackage(packageName)
       .map(apply)
 
@@ -149,17 +149,17 @@ object ScPackageImpl {
     state:     ResolveState = ScalaResolveState.empty
   )(
     implicit
-    manager: ScalaPsiManager,
+    classLookup: ScalaClassLookup,
     scope:   GlobalSearchScope
   ): Boolean = {
-    val namesSet = manager.getScalaPackageClassNames
+    val namesSet = classLookup.getScalaPackageClassNames
 
     val shouldProcessScala3Definitions = processor match {
       case proc: ResolveProcessor => proc.ref.isInScala3File
       case _                      => false
     }
 
-    val syntheticClasses = SyntheticClasses.get(manager.project)
+    val syntheticClasses = SyntheticClasses.get(classLookup.project)
     val syntheticElements = syntheticClasses.allElements(shouldProcessScala3Definitions)
     for {
       syntheticElement <- syntheticElements
@@ -184,19 +184,19 @@ object ScPackageImpl {
     place:      PsiElement
   )(
     implicit
-    manager: ScalaPsiManager
+    classLookup: ScalaClassLookup
   ): Boolean = processor match {
     case b: BaseProcessor if b.isImplicitProcessor =>
       val pkgFqn = `package`.getQualifiedName
       val scope = place.resolveScope
 
       val topLevelImplicits =
-        manager.getPackageImplicitObjects(pkgFqn, scope).iterator ++
-          manager
+        classLookup.getPackageImplicitObjects(pkgFqn, scope).iterator ++
+          classLookup
             .getTopLevelImplicitClassesByPackage(pkgFqn, scope)
             .iterator
             .flatMap(_.getSyntheticImplicitMethod) ++
-          manager
+          classLookup
             .getTopLevelGivenDefinitionsByPackage(pkgFqn, scope)
             .iterator
             .flatMap(_.desugaredDefinitions)
@@ -229,7 +229,7 @@ object ScPackageImpl {
                 case _                   => place.resolveScope
               }
 
-              val classes = manager.getCachedClasses(scope, fqn).iterator
+              val classes = classLookup.getCachedClasses(scope, fqn).iterator
               var stop = false
               while (classes.hasNext && !stop) {
                 val clazz = classes.next()
@@ -256,7 +256,7 @@ object ScPackageImpl {
             }
             val qName: String = psiPack.getQualifiedName
             val subpackageQName: String = if (qName.isEmpty) name else qName + "." + name
-            manager.getCachedPackageInScope(subpackageQName)(using place.getResolveScope).foreach { `package` =>
+            classLookup.getCachedPackageInScope(subpackageQName)(using place.getResolveScope).foreach { `package` =>
               if (!processor.execute(`package`, state)) return false
             }
             true
@@ -270,7 +270,7 @@ object ScPackageImpl {
               case r: ResolveProcessor => r.getResolveScope
               case _                   => place.resolveScope
             }
-            val classes = manager.getClasses(`package`)(using scope)
+            val classes = classLookup.getClasses(`package`)(using scope)
             val iterator = classes.iterator
             while (iterator.hasNext) {
               val clazz = iterator.next()

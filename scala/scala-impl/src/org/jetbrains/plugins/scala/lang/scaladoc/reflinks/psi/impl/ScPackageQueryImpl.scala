@@ -4,9 +4,10 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaClassLookup
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementImpl}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.psi.ScPackageQuery
 
@@ -20,7 +21,7 @@ class ScPackageQueryImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     resolvePackage().iterator.map(new ScalaResolveResult(_)).toArray
 
   override def resolvePackage(): Option[ScPackage] =
-    this.parentOfType[ScPackaging].flatMap(p => ScPackageImpl.findPackage(p.fqn)(using ScalaPsiManager.instance))
+    this.parentOfType[ScPackaging].flatMap(p => ScPackageImpl.findPackage(p.fqn)(using ScalaClassLookup.instance))
 
   override def resolve(): ScPackage = resolvePackage().orNull
 

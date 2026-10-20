@@ -31,11 +31,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDe
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScPackage, ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInference, ScReferenceImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
-import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
-import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaClassLookup, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
@@ -656,9 +656,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     if (refText == "_root_" || refText.startsWith("_root_.")) {
       // TODO # type projections
       val fqn = if (refText == "_root_") "" else refText.stripPrefix("_root_.")
-      val manager = ScalaPsiManager.instance(getProject)
-      val classes = manager.getCachedClasses(getResolveScope, fqn)
-      val pack    = manager.getCachedPackage(fqn)
+      val classLookup = ScalaClassLookup.instance(getProject)
+      val classes     = classLookup.getCachedClasses(getResolveScope, fqn)
+      val pack        = classLookup.getCachedPackage(fqn)
 
       ScalaPsiUtil.fileContext(this) match {
         case file: ScFile if file.isCompiled =>

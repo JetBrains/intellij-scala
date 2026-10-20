@@ -4,12 +4,12 @@ package patterns
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaClassLookup
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -62,7 +62,7 @@ object ScPattern {
 
     // TODO Don't use the return keyword
     private def _expectedType: Option[ScType] = {
-      val psiManager = ScalaPsiManager.instance
+      val classLookup = ScalaClassLookup.instance
 
       pattern.getContext match {
         case list: ScPatternList =>
@@ -107,7 +107,7 @@ object ScPattern {
 
             tuple.expectedType.flatMap(handleTupleSubpatternExpectedType)
           case _: ScXmlPattern =>
-            val nodeClass: Option[PsiClass] = psiManager.getCachedClass(elementScope.scope, "scala.xml.Node")
+            val nodeClass: Option[PsiClass] = classLookup.getCachedClass(elementScope.scope, "scala.xml.Node")
             nodeClass.flatMap { nodeClass =>
               pattern match {
                 case SeqExpectingPattern() =>
@@ -139,7 +139,7 @@ object ScPattern {
             case _       => None
           }
           case b: ScBlockExpr if b.getContext.is[ScCatchBlock] =>
-            val thr = psiManager.getCachedClass(elementScope.scope, "java.lang.Throwable")
+            val thr = classLookup.getCachedClass(elementScope.scope, "java.lang.Throwable")
             thr.map(ScalaType.designator(_))
           case b: ScBlockExpr =>
             val functionLikeType = FunctionLikeType(b)

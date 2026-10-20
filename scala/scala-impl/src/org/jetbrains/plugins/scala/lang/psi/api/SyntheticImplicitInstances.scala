@@ -4,11 +4,11 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaClassLookup, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.SmartSuperTypeUtil.TraverseSupers
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
@@ -179,7 +179,7 @@ object SyntheticImplicitInstances {
         }
 
         maybeEntry.flatMap { case (fqn, _) =>
-          ScalaPsiManager
+          ScalaClassLookup
             .instance(place.getProject)
             .getCachedClass(place.getResolveScope, fqn)
         }

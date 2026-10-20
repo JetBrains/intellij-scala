@@ -4,13 +4,12 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.ScExportsHolder
+import org.jetbrains.plugins.scala.lang.psi.{ScExportsHolder, ScalaClassLookup}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike.{canProcessExport, withReentrancyGuard}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.ProcessorUtils
@@ -77,7 +76,7 @@ trait ScPackageLike extends PsiElement {
 
   private def getTopLevelDefs(place: PsiElement): Iterable[ScMember] = {
     val scope = place.resolveScope
-    ScalaPsiManager.instance(getProject).getTopLevelDefinitionsByPackage(fqn, scope)
+    ScalaClassLookup.instance(getProject).getTopLevelDefinitionsByPackage(fqn, scope)
   }
 
   private def processTopLevelExports(
@@ -87,8 +86,8 @@ trait ScPackageLike extends PsiElement {
     lastParent: PsiElement,
     place:      PsiElement
   ): Boolean = {
-    val psiManager             = ScalaPsiManager.instance(getProject)
-    val topLevelExports        = psiManager.getTopLevelExportsByPackage(fqn, scope)
+    val classLookup            = ScalaClassLookup.instance(getProject)
+    val topLevelExports        = classLookup.getTopLevelExportsByPackage(fqn, scope)
     val topLevelExportsHolders = topLevelExports.groupBy(_.getContext).keys.iterator
     var shouldStop             = false
 

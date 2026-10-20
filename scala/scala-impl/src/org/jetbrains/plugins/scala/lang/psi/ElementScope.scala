@@ -6,7 +6,6 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{ArrayExt, ObjectExt, OptionExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScalaType}
@@ -24,7 +23,7 @@ case class ElementScope(project: Project, scope: GlobalSearchScope) {
     getCachedClasses(fqn).findByType[ScObject]
 
   def cachedFunction1Type: Option[ScParameterizedType] =
-    manager.cachedFunction1Type(this)
+    classLookup.cachedFunction1Type(this)
 
   def getFunctionTrait(parametersCount: Int = 1): Option[ScTrait] =
     getCachedClass(FunctionType.TypeName + parametersCount).filterByType[ScTrait]
@@ -39,16 +38,16 @@ case class ElementScope(project: Project, scope: GlobalSearchScope) {
     }.filterByType[ScParameterizedType]
 
   def getCachedClasses(fqn: String): Array[PsiClass] =
-    manager.getCachedClasses(scope, fqn)
+    classLookup.getCachedClasses(scope, fqn)
 
   def scalaSeqType: Option[ScType] =
-    manager.scalaSeqAlias(scope).map(ScDesignatorType.apply)
+    classLookup.scalaSeqAlias(scope).map(ScDesignatorType.apply)
 
   def scalaNamedTupleType: Option[ScTypeAlias] =
-    manager.scalaNamedTupleAlias(scope)
+    classLookup.scalaNamedTupleAlias(scope)
 
-  private lazy val manager =
-    ScalaPsiManager.instance(project)
+  private lazy val classLookup =
+    ScalaClassLookup.instance(project)
 }
 
 object ElementScope {

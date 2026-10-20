@@ -10,13 +10,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScOptionalBracesOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLineNode
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypePropagation
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaClassLookup, ScalaPsiUtil}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -79,10 +78,10 @@ trait ScBlock extends ScExpression
 
     val clausesLubType = caseClausesLubType((_, _) => tryExpectedType)
 
-    val manager = ScalaPsiManager.instance
-    val funs = manager.getCachedClasses(resolveScope, PartialFunctionType.TypeName)
+    val classLookup = ScalaClassLookup.instance
+    val funs = classLookup.getCachedClasses(resolveScope, PartialFunctionType.TypeName)
     val fun = funs.find(_.is[ScTrait]).getOrElse(return Failure(ScalaBundle.message("cannot.find.partialfunction.class")))
-    val throwable = manager.getCachedClass(resolveScope, "java.lang.Throwable").orNull
+    val throwable = classLookup.getCachedClass(resolveScope, "java.lang.Throwable").orNull
     if (throwable == null) return Failure(ScalaBundle.message("cannot.find.throwable.class"))
     Right(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)))
   }

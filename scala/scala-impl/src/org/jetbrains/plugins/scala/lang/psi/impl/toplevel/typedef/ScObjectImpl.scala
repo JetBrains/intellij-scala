@@ -11,13 +11,13 @@ import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cached}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaClassLookup, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl.LegacyPackageObjectNameInBackticks
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper, ScLightField}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -109,7 +109,7 @@ class ScObjectImpl(
         case pack =>
           val newState = state.withFromType(None)
 
-          ScPackageImpl.packageProcessDeclarations(pack)(processor, newState, lastParent, place)(using ScalaPsiManager.instance)
+          ScPackageImpl.packageProcessDeclarations(pack)(processor, newState, lastParent, place)(using ScalaClassLookup.instance)
       }
     } else true
 
