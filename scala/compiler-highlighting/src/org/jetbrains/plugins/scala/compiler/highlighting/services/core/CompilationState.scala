@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.compiler.highlighting.services.core.Compilati
  * @param failedFiles      Files that failed during a recent compilation attempt.
  * @param failedTargets    Module targets that deterministically failed during a 1-target compilation.
  * @param coveredFiles     Files reached and processed during the last compilation attempt.
+ * @param blocked          Targets whose last failed compilation stopped at errors in other targets.
  */
 final case class CompilationState(
   changesEpoch: Long,
@@ -26,7 +27,8 @@ final case class CompilationState(
   modifiedAt: Map[VirtualFile, Long],
   failedFiles: Set[VirtualFile],
   failedTargets: Set[ModuleKey],
-  coveredFiles: Set[VirtualFile]
+  coveredFiles: Set[VirtualFile],
+  blocked: BlockedTargets
 ):
   /** The set of modified files that have not yet been successfully built. */
   def modifiedFiles: Set[VirtualFile] = modifiedAt.keySet
@@ -37,18 +39,22 @@ final case class CompilationState(
     s"\n modifiedAt: ${modifiedAt.map((f, at) => s"${f.getPresentableName}@$at").mkString(",")}" +
     s"\n failedFiles: ${failedFiles.map(_.getPresentableName).mkString(",")}" +
     s"\n failedTargets: $failedTargets" +
-    s"\n coveredFiles: ${coveredFiles.map(_.getPresentableName).mkString(",")}"
+    s"\n coveredFiles: ${coveredFiles.map(_.getPresentableName).mkString(",")}" +
+    s"\n blocked: $blocked"
 
 object CompilationState:
 
   /** The initial state where no files are built or relied upon. */
-  val empty: CompilationState = CompilationState(0L, 0L, 0L, Map.empty, Map.empty, Set.empty, Set.empty, Set.empty)
+  val empty: CompilationState = CompilationState(0L, 0L, 0L, Map.empty, Map.empty, Set.empty, Set.empty, Set.empty,
+    BlockedTargets.empty)
 
   extension (state: CompilationState)
 
     /**
      * Records modifications to the specified files, advancing the change epoch and marking them as unbuilt.
      * Clears any previous file failure status and immediately lifts the module quarantine.
+     *
+     * What is known about blocked targets is kept: an edit says nothing new about what blocked them.
      */
     def modified(files: Set[VirtualFile]): CompilationState =
       val epoch = state.changesEpoch + 1
@@ -65,7 +71,18 @@ object CompilationState:
      */
     def invalidated: CompilationState =
       state.copy(changesEpoch = state.changesEpoch + 1, compiledAt = Map.empty,
-        modifiedAt = Map.empty, failedFiles = Set.empty, failedTargets = Set.empty, coveredFiles = Set.empty)
+        modifiedAt = Map.empty, failedFiles = Set.empty, failedTargets = Set.empty, coveredFiles = Set.empty,
+        blocked = BlockedTargets.empty)
+
+    /**
+     * Records that a build outside of ours failed, e.g. an IDE Build or automake.
+     *
+     * It does not say which target failed, so it is not a [[failed]] attempt and nothing else is touched. It only
+     * makes what was known about blocked targets unknown: a newer build failed somewhere, and the blocker named
+     * before may well have been fixed.
+     */
+    def externalBuildFailed: CompilationState =
+      state.copy(blocked = BlockedTargets.empty)
 
     /**
      * Records a successful compilation attempt.
@@ -82,7 +99,8 @@ object CompilationState:
         modifiedAt = state.modifiedAt.filter((file, at) => at > token.epoch && file.isValid),
         failedFiles = Set.empty,
         failedTargets = Set.empty,
-        coveredFiles = covered.filter(_.isValid)
+        coveredFiles = covered.filter(_.isValid),
+        blocked = state.blocked.succeeded(targets)
       )
 
     /**
@@ -93,8 +111,12 @@ object CompilationState:
      * A failure speaks only for the sources as they were when it was dispatched, as a success does. A file
      * modified since then is not marked failed, because the edit may well be the fix, and nothing is quarantined
      * once anything has changed, because the quarantine holds only while the same request would fail the same way.
+     *
+     * Which targets were blocked by errors in others is recorded whatever changed since dispatch: it is a fact
+     * about the compilation that ran, see [[BlockedTargets.failed]].
      */
-    def failed(token: CompilationToken, targets: Set[ModuleKey], covered: Set[VirtualFile]): CompilationState =
+    def failed(token: CompilationToken, failure: FailedCompilation): CompilationState =
+      val targets = failure.requestedTargets
       val unchangedSinceDispatch = token.epoch == state.changesEpoch
       val newFailedTargets =
         if (unchangedSinceDispatch && targets.size == 1) state.failedTargets ++ targets else state.failedTargets
@@ -103,8 +125,33 @@ object CompilationState:
         failedFiles = (state.failedFiles ++ failedAsDispatched).filter(_.isValid),
         failedTargets = newFailedTargets,
         lastAttemptEpoch = token.epoch,
-        coveredFiles = covered.filter(_.isValid)
+        coveredFiles = failure.covered.filter(_.isValid),
+        blocked = state.blocked.failed(token, failure)
       )
+
+    /**
+     * The targets that blocked the last failed compilation of `target` and may still be blocking it, which is
+     * what is shown to the user: a blocker with a file edited since is left out, as the edit may be the fix.
+     *
+     */
+    def currentBlockersOf(target: Option[ModuleKey], targetOf: VirtualFile => Option[ModuleKey]): Set[ModuleKey] =
+      state.blocked.currentBlockersOf(target, epoch =>
+        state.modifiedAt.iterator.collect { case (file, at) if at > epoch => file }.flatMap(targetOf).toSet
+      )
+
+    /**
+     * What is shown to the user: each target with blockers that may still be blocking it, as
+     * [[currentBlockersOf]] answers. A target whose blockers were all edited since is left out, as one that was
+     * never blocked is: nothing is shown for either.
+     *
+     * Two states with the same answer look the same to the user, which is what tells whether a change has to
+     * be published. Free while nothing is blocked; otherwise only files edited after a block was found are resolved.
+     */
+    def shownBlocks(targetOf: VirtualFile => Option[ModuleKey]): Map[ModuleKey, Set[ModuleKey]] =
+      state.blocked.byTarget.keysIterator
+        .map(target => target -> state.currentBlockersOf(Some(target), targetOf))
+        .filter((_, blockers) => blockers.nonEmpty)
+        .toMap
 
     /** Creates a snapshot token for a compilation request spanning the specified files. */
     def tokenFor(files: Set[VirtualFile]): CompilationToken =

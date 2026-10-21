@@ -53,7 +53,7 @@ case class BspIncrementalRequest(
     } else if (reporter.successful && client.successful) {
       compilationSucceeded(token, scopes, covered)
     } else {
-      compilationFailed(token, scopes, covered)
+      compilationFailed(token, scopes, covered, coveredFiles(reporter.erroredFiles))
     }
 
     if (!DocumentUtil.stillValid(scopeDocumentVersions)) {
