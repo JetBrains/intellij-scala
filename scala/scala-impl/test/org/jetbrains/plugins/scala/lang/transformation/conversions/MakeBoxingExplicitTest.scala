@@ -30,6 +30,11 @@ class MakeBoxingExplicitTest extends TransformerTest(new MakeBoxingExplicit()) {
     after = "val v: AnyVal = 1.asInstanceOf[AnyVal]"
   )()
 
+  def testLiteralToLiteral(): Unit = check(
+    before = "val v: 1 = 1",
+    after = "val v: 1 = 1"
+  )()
+
   def testObjectToAny(): Unit = check(
     before = "val v: Any = A",
     after = "val v: Any = A"
