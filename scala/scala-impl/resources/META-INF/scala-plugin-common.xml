@@ -199,7 +199,6 @@
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>
         <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
         <codeBlockSupportHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBlockSupportHandler"/>
-        <lang.parserDefinition language="ScalaDoc" implementationClass="org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition"/>
         <lang.ast.factory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
         <lang.ast.factory language="ScalaDoc" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
         <lang.ast.factory language="ScalaDirective" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
