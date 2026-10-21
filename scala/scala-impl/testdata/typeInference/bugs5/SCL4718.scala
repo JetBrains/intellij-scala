@@ -7,5 +7,5 @@ def allMatches() = {
 }
 /*
 TraversableOnce[String]
-[Scala_2_13]IterableOnce[String] with IterableOnceOps[String, IterableOnce[A] with IterableOnceOps[A, IterableOnce[Any] with IterableOnceOps[Any, Any, Any], IterableOnce[Any] with IterableOnceOps[Any, Any, Any]], IterableOnce[String] with IterableOnceOps[String, IterableOnce[Any] with IterableOnceOps[Any, Any, Any], IterableOnce[Any] with IterableOnceOps[Any, Any, Any]]]
+[Scala_2_13]IterableOnce[String] with IterableOnceOps[String, [A] IterableOnce[A] with IterableOnceOps[A, [A] IterableOnce[Any] with IterableOnceOps[Any, Any, Any], IterableOnce[Any] with IterableOnceOps[Any, Any, Any]], IterableOnce[String] with IterableOnceOps[String, [A] IterableOnce[Any] with IterableOnceOps[Any, Any, Any], IterableOnce[Any] with IterableOnceOps[Any, Any, Any]]]
 */
