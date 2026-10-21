@@ -2167,7 +2167,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part21 extends ReferenceCompar
   def test_i24007(): Unit = doTest("i24007", true) // #intersectionType
   def test_i24038a(): Unit = doTest("i24038a", false) // #matchType, #transparentInline
   def test_i24038b(): Unit = doTest("i24038b", false) // #matchType
-  def test_i24056(): Unit = doTest("i24056", false)
+  def test_i24056(): Unit = doTest("i24056", true)
   def test_i24074(): Unit = doTest("i24074", true)
   def test_i24076(): Unit = doTest("i24076", true) // #transparentInline
   def test_i24094(): Unit = doTest("i24094", true)
@@ -2497,7 +2497,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part24 extends ReferenceCompar
   def test_localmodules(): Unit = doTest("localmodules", true)
   def test_lookuprefined(): Unit = doTest("lookuprefined", false)
   def test_lookupswitch(): Unit = doTest("lookupswitch", true)
-  def test_looping_givens(): Unit = doTest("looping-givens", true)
+  def test_looping_givens(): Unit = doTest("looping-givens", true) // #unionType
   def test_looping_jsig(): Unit = doTest("looping-jsig", true)
   def test_macro(): Unit = doTest("macro", true)
   def test_macro_deprecate_dont_touch_backquotedidents(): Unit = doTest("macro-deprecate-dont-touch-backquotedidents", true)
