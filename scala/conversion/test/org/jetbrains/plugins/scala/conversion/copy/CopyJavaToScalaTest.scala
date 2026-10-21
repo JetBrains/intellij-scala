@@ -486,6 +486,26 @@ class CopyJavaToScalaTest extends CopyPasteTestBase {
         |""".stripMargin
     )
   }
+
+  def testPasteJavaCodeWithPackageLocalClassInSamePackage(): Unit = doTest(
+    s"""package org.example;
+       |$Start
+       |class UsesNested {
+       |  Holder.Nested value;
+       |}
+       |$End
+       |class Holder {
+       |  static class Nested {}
+       |}
+       |""".stripMargin,
+    s"package org.example\n$CARET",
+    """package org.example
+      |
+      |class UsesNested {
+      |  private[example] val value: Holder.Nested = null
+      |}
+      |""".stripMargin
+  )
 }
 
 class CopyJavaToScalaTest_Scala3 extends CopyJavaToScalaTest {

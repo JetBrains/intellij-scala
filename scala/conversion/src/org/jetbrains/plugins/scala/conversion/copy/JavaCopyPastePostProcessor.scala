@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.editor.copy.Scala3IndentationBasedSyntaxCopyP
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring._
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings._
 
@@ -134,7 +135,12 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
         }
       }
 
-      scalaProcessor.processTransferableData(bounds, caretOffset, ref, Associations(shiftedAssociations.toArray))
+      val accessibleAssociations = shiftedAssociations.filter { association =>
+        val target = JavaPsiFacade.getInstance(project).findClass(association.path.entity, file.getResolveScope)
+        val place = Option(file.findElementAt(bounds.getStartOffset + association.range.getStartOffset)).getOrElse(file)
+        target == null || ResolveUtils.isAccessible(target, place)
+      }
+      scalaProcessor.processTransferableData(bounds, caretOffset, ref, Associations(accessibleAssociations.toArray))
 
       inWriteAction {
         cleanCode(file, project, bounds.getStartOffset, bounds.getEndOffset, editor)
