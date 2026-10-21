@@ -53,9 +53,9 @@ private final class CompilerHighlightingFileListener extends AsyncFileListener {
     // Deletions/Relocations drop their Module mapping.
     // Outdated (Kotlin/Twirl) files change the API, but we can't drain them cleanly.
     // For all of these, strictly invalidate to guarantee correct JPS rebuilds.
-    // If memory becomes a problem we could also invalidate if the number
-    // of changes is greater than a threshold
-    val requiresInvalidation = changes.exists {
+    // A burst of changes is invalidated too: every recorded file joins the next incremental scope,
+    // which resolves each one, while after an invalidation JPS finds the changed files itself.
+    val requiresInvalidation = changes.sizeIs > CompilerHighlightingFileListener.MaxRecordedChanges || changes.exists {
       case _: SourceChange.Deleted | _: SourceChange.Relocated |
            SourceChange.Restructured | SourceChange.Outdated => true
       case _ => false
@@ -87,4 +87,10 @@ private final class CompilerHighlightingFileListener extends AsyncFileListener {
       }
     }
   }
+}
+
+private object CompilerHighlightingFileListener {
+
+  /** The most source changes one VFS batch may carry and still be recorded file by file, instead of invalidating. */
+  val MaxRecordedChanges = 10
 }

@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.listeners
 
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.CompilationStateWritesTestBase
 import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeAndWait}
-import org.junit.Assert.assertTrue
+import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+
+import java.nio.file.Files
 
 /**
  * Drives real VFS operations and asserts what [[CompilerHighlightingFileListener]] recorded, which is the
@@ -104,3 +107,23 @@ class CompilerHighlightingFileListenerTest extends CompilationStateWritesTestBas
     assertRecordsNothing(outsideRoots("nested/Detached.scala"))
   
 
+  @Test
+  def testABurstOfCreatedSourcesInvalidatesEverything(): Unit =
+    markTargetBuilt(inSources("Anchor.scala"))
+    assertInvalidatesEverything(createExternallyInOneBatch(CompilerHighlightingFileListener.MaxRecordedChanges + 1))
+
+  @Test
+  def testABatchOfCreatedSourcesAtTheLimitRecordsThem(): Unit =
+    val before = state
+    createExternallyInOneBatch(CompilerHighlightingFileListener.MaxRecordedChanges)
+    assertEquals(before.modifiedFiles.size + CompilerHighlightingFileListener.MaxRecordedChanges, state.modifiedFiles.size)
+
+  /**
+   * Writes `count` sources to disk, then refreshes the source root once, so the listener gets them in one batch.
+   *
+   * They go straight into the source root: a new directory would be a restructuring, which invalidates by itself.
+   */
+  private def createExternallyInOneBatch(count: Int): Unit =
+    val root = getSourceRootDir
+    (1 to count).foreach(i => Files.writeString(root.toNioPath.resolve(s"Burst$i.scala"), s"class Burst$i"))
+    VfsUtil.markDirtyAndRefresh(false, false, true, root)

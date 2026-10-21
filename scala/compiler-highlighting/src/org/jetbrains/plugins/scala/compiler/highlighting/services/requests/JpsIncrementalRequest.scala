@@ -40,7 +40,7 @@ case class JpsIncrementalRequest(
     if (client.successful) {
       compilationSucceeded(token, scopes, covered)
     } else {
-      compilationFailed(token, scopes, covered)
+      compilationFailed(token, scopes, covered, coveredFiles(client.erroredSources))
     }
 
     if (!DocumentUtil.stillValid(scopeDocumentVersions)) {

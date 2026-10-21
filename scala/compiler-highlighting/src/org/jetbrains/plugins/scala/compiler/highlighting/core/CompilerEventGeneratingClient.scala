@@ -34,6 +34,8 @@ private[highlighting] class CompilerEventGeneratingClient(
 
   private var reported: Set[Path] = Set.empty
 
+  private var errored: Set[Path] = Set.empty
+
   private var started: Boolean = false
 
   private var ended: Boolean = false
@@ -60,7 +62,9 @@ private[highlighting] class CompilerEventGeneratingClient(
     }
 
     msg.kind match {
-      case MessageKind.Error | MessageKind.InternalBuilderError => hasErrors = true
+      case MessageKind.Error | MessageKind.InternalBuilderError =>
+        hasErrors = true
+        msg.source.foreach(source => errored += source.toPath)
       case _ =>
     }
     // Recorded here rather than at `compilationEnd` so that it matches exactly what the store takes from
@@ -96,6 +100,11 @@ private[highlighting] class CompilerEventGeneratingClient(
     log.error(s"[${project.getName}] ${exception.getMessage}", exception)
 
   def successful: Boolean = !hasErrors
+
+  /**
+   * The sources the compiler reported an error against.
+   */
+  def erroredSources: Set[Path] = errored
 
   /**
    * Ends a compilation that started but never ended, and returns whether it had to.

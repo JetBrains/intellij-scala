@@ -8,7 +8,7 @@ import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.CompilationDecision.{Document, Incremental, Recorded, UpToDate}
-import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationDecision, CompilationState, CompilationToken, ModuleKey}
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationDecision, CompilationState, CompilationToken, FailedCompilation, ModuleKey}
 import org.junit.jupiter.api.Assertions.{assertEquals, fail}
 import org.junit.jupiter.api.{AfterEach, Test}
 
@@ -78,7 +78,25 @@ trait CompilationStateTestBase:
       state.compilationFailed(scope, covering = scope)
 
     def compilationFailed(scope: Set[VirtualFile], covering: Set[VirtualFile]): CompilationState =
-      state.failed(state.startCompilation(scope.toSeq*), targetsOf(scope.toSeq *), covering)
+      state.failedOn(state.startCompilation(scope.toSeq*), targetsOf(scope.toSeq *), covering)
+
+    /**
+     * A failure of a compilation of `scope` dispatched at `token`, whose errors were all reported against
+     * `erroredIn`, having reached `covering`.
+     */
+    def failedWithErrorsIn(token: CompilationToken,
+                           scope: Set[VirtualFile],
+                           erroredIn: Set[ModuleKey],
+                           covering: Set[VirtualFile] = Set.empty): CompilationState =
+      state.failed(token, FailedCompilation(covering, targetsOf(scope.toSeq *), erroredIn, targetsOf(covering.toSeq *)))
+
+    /** As [[failedWithErrorsIn]], dispatched against this state. */
+    def compilationFailedWithErrorsIn(scope: VirtualFile*)(erroredIn: ModuleKey*): CompilationState =
+      state.failedWithErrorsIn(state.startCompilation(scope *), scope.toSet, erroredIn.toSet)
+
+    /** A failure the compiler reported no errors in other targets for, so it blocks nothing. */
+    def failedOn(token: CompilationToken, targets: Set[ModuleKey], covered: Set[VirtualFile]): CompilationState =
+      state.failed(token, FailedCompilation(covered, targets, erroredTargets = Set.empty, coveredTargets = Set.empty))
 
     /** Snapshots the state a compilation over `files` runs against, as the request path does. */
     def startCompilation(files: VirtualFile*): CompilationToken = state.tokenFor(files.toSet)
@@ -151,10 +169,10 @@ trait CompilationStateTestBase:
       empty.compilationSucceeded(Set(f1), Set(f1,f2))
     )
     // compilation failed
-    assertEquals(empty.failed(empty.tokenFor(Set(f1, f2)), Set(m1, m2), Set(f1, f2)),
+    assertEquals(empty.failedOn(empty.tokenFor(Set(f1, f2)), Set(m1, m2), Set(f1, f2)),
       empty.compilationFailed(f1, f2)
     )
-    assertEquals(empty.failed(empty.tokenFor(Set(f1)), Set(m1), Set(f1, f2)),
+    assertEquals(empty.failedOn(empty.tokenFor(Set(f1)), Set(m1), Set(f1, f2)),
       empty.compilationFailed(Set(f1), Set(f1, f2))
     )
     // decision

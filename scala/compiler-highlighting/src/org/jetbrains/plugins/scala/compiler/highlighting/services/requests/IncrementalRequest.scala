@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services.requests
 
-import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.application.{ModalityState, ReadAction}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -8,7 +8,7 @@ import org.jetbrains.bsp.BspUtil
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.compiler.highlighting.core.{CompilerEventGeneratingClient, FileCompilationScope}
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.{CompilationRequestPhaseEvent, RequestId}
-import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationToken, ModuleKey}
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationToken, FailedCompilation, ModuleKey}
 import org.jetbrains.plugins.scala.compiler.highlighting.services.util.CompilationUtils
 import org.jetbrains.plugins.scala.compiler.highlighting.services.{CompilationLogicService, SaveService}
 import org.jetbrains.plugins.scala.compiler.highlighting.util.DocumentUtil
@@ -124,10 +124,30 @@ abstract class IncrementalRequest(
    * Only for errors the compiler reported. A compilation that throws — a dead compile server, a cancellation
    * — says nothing about whether the sources build, and marking its scope would stop retrying files that were
    * never attempted.
+   *
+   * `errored` is the files the compiler reported an error against. With the targets of `covered`, it tells a
+   * target that was blocked by errors in another from one that failed on its own.
+   *
+   * The targets are resolved in a non-blocking read action, so a write action waiting meanwhile is not held up,
+   * but synchronously: the failure has to be recorded before the compiler lock this runs under is released.
    */
-  protected def compilationFailed(token: CompilationToken, scopes: Map[VirtualFile, FileCompilationScope], covered: Set[VirtualFile]): Unit =
+  protected def compilationFailed(token: CompilationToken,
+                                  scopes: Map[VirtualFile, FileCompilationScope],
+                                  covered: Set[VirtualFile],
+                                  errored: Set[VirtualFile]): Unit =
     if (Log.isDebugEnabled) Log.debug(s"Compilation failed for files: ${covered.map(_.getPresentableName)}")
-    logic.compilationFailed(token, scopes.values.map(ModuleKey.of).toSet, covered)
+    val failure = ReadAction
+      .nonBlocking[FailedCompilation](() =>
+        FailedCompilation(
+          covered = covered,
+          requestedTargets = scopes.values.map(ModuleKey.of).toSet,
+          erroredTargets = errored.flatMap(ModuleKey.of(project, _)),
+          coveredTargets = covered.flatMap(ModuleKey.of(project, _))
+        )
+      )
+      .expireWhen(() => project.isDisposed)
+      .executeSynchronously()
+    logic.compilationFailed(token, failure)
 
   /**
    * The sources a compilation reported compiling, as virtual files.

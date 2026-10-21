@@ -46,10 +46,12 @@ final class ExternalBuildTracker(project: Project):
    * The build ended. Nothing is recorded unless it ended without errors: a build that failed part way still
    * reports the targets it got through, and telling them apart from the one that failed is not something the
    * per-target reports currently support.
+   *
    */
   def buildFinished(id: UUID, successful: Boolean): Unit =
-    session.getAndSet(None).filter(_.id == id).filter(_ => successful).foreach { finished =>
-      logic.compilationSucceeded(finished.token, finished.targets, finished.sources)
+    session.getAndSet(None).filter(_.id == id).foreach { finished =>
+      if (successful) logic.compilationSucceeded(finished.token, finished.targets, finished.sources)
+      else logic.externalBuildFailed()
     }
 
 object ExternalBuildTracker:

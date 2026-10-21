@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.compiler.highlighting.services
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationDecision, CompilationState, CompilationToken, ModuleKey}
+import org.jetbrains.plugins.scala.compiler.highlighting.core.BlockedTargetsListener
+import org.jetbrains.plugins.scala.compiler.highlighting.services.core.{CompilationDecision, CompilationState, CompilationToken, FailedCompilation, ModuleKey}
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 import java.util.concurrent.atomic.AtomicReference
@@ -60,11 +61,25 @@ class CompilationLogicService(project: Project):
    * Records that the compiler reported errors for the compilation dispatched at `token`, so its scope is not
    * currently buildable.
    *
-   * `covered` is the files the compiler reached before giving up, which is the part of the failure that is
-   * still informative: the rest of the scope was never looked at.
+   * `failure.covered` is the files the compiler reached before giving up, which is the part of the failure that
+   * is still informative: the rest of the scope was never looked at.
    */
-  def compilationFailed(token: CompilationToken, targets: Set[ModuleKey], covered: Set[VirtualFile]): Unit =
-    update(_.failed(token, targets, covered))
+  def compilationFailed(token: CompilationToken, failure: FailedCompilation): Unit =
+    update(_.failed(token, failure))
+
+  /**
+   * Records that a build outside of ours, an IDE Build or automake, reported errors.
+   *
+   * Such a build does not say which of its targets failed, so it is not recorded as a failed attempt.
+   */
+  def externalBuildFailed(): Unit = update(_.externalBuildFailed)
+
+  /**
+   * The targets whose errors stopped the last failed compilation of `target` and may still be blocking it: a
+   * blocker edited since is left out, so that what is shown does not outlive a fix waiting for its build.
+   */
+  def blockersOf(target: Option[ModuleKey]): Set[ModuleKey] =
+    state.get().currentBlockersOf(target, ModuleKey.of(project, _))
 
   /** What has to be done to obtain up-to-date diagnostics for `file`. */
   def decide(file: VirtualFile): CompilationDecision = state.get().decide(ModuleKey.of(project, file), file)
@@ -81,7 +96,19 @@ class CompilationLogicService(project: Project):
    */
   private[highlighting] def snapshot: CompilationState = state.get()
 
-  private def update(transition: CompilationState => CompilationState): Unit = state.updateAndGet(transition(_))
+  private def update(transition: CompilationState => CompilationState): Unit =
+    // The pair the winning attempt saw: a retried attempt overwrites both.
+    var before, after = CompilationState.empty
+    state.updateAndGet { current =>
+      before = current
+      after = transition(current)
+      after
+    }
+    // Only when what the user sees changed: a compilation result, or an edit to a blocker, which may be the fix.
+    // Typing anywhere else publishes nothing.
+    val targetOf: VirtualFile => Option[ModuleKey] = ModuleKey.of(project, _)
+    if (before.shownBlocks(targetOf) != after.shownBlocks(targetOf) && !project.isDisposed)
+      project.getMessageBus.syncPublisher(BlockedTargetsListener.topic).blockedChanged()
 
 object CompilationLogicService :
   def apply(project: Project): CompilationLogicService =
