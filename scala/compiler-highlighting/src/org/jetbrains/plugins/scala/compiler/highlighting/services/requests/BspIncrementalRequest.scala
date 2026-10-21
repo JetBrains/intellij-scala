@@ -35,20 +35,22 @@ case class BspIncrementalRequest(
     val context = new ProjectTaskContext()
     val modules = scopes.values.map(_.module.findRepresentativeModuleForSharedSourceModuleOrSelf).toSet.toArray
     val sourceScope = mergeSourceScope(scopes)
-    val task = ProjectTaskManager.getInstance(project)
-      .createModulesBuildTask(modules, true, true, false, sourceScope == SourceScope.Test)
+    val tasks = modules.map { module =>
+      ProjectTaskManager.getInstance(project)
+        .createModulesBuildTask(Array(module), true, true, false, sourceScope == SourceScope.Test)
+    }
     val reporter = new CompilerEventReporter(project, client.compilationId)
     val arguments = CustomTaskArguments(CompilerHighlightingBundle.message("highlighting.compilation"), reporter)
     val taskRunner = new BspProjectTaskRunner(Some(arguments))
     val token = compilationStarted(scopes)
-    val promise = taskRunner.run(project, context, task)
-    promise.blockingGet(1, TimeUnit.DAYS)
-    // BSP reports through `reporter`, so `client` never sees a `compilationEnd` and contributes no compiled
-    // sources. The reporter's own set stands in for it: the server publishes diagnostics per file as it
-    // compiles them, and an empty, resetting set for a file it found clean, so every file it compiled is
-    // named there and nothing else is.
+    val promise = taskRunner.run(project, context, tasks.toSeq*)
+    val result = promise.blockingGet(1, TimeUnit.DAYS)
     val covered = coveredFiles(reporter.coveredFiles)
-    if (reporter.successful && client.successful) {
+    if ((result eq null) || (result.hasErrors && reporter.successful && client.successful)) {
+      // The runner failed with nothing reported against the sources, e.g. no target was found for the modules:
+      // that says nothing about whether they build, so nothing is recorded.
+      if (Log.isDebugEnabled) Log.debug(s"BSP build of modules ${modules.map(_.getName).mkString(", ")} did not run")
+    } else if (reporter.successful && client.successful) {
       compilationSucceeded(token, scopes, covered)
     } else {
       compilationFailed(token, scopes, covered)
