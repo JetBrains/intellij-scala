@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services
 
 import com.intellij.injected.editor.VirtualFileWindow
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
@@ -18,7 +19,6 @@ import org.jetbrains.plugins.scala.compiler.highlighting.services.requests.Highl
 import org.jetbrains.plugins.scala.compiler.highlighting.triggers.TriggerUtil
 import org.jetbrains.plugins.scala.compiler.highlighting.util.TracingUtil.endTrace
 import org.jetbrains.plugins.scala.compiler.tracing.Tracing
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 import scala.concurrent.duration.FiniteDuration
@@ -72,24 +72,29 @@ private final class HighlightingTriggerService(project: Project) extends Trigger
       requestHighlighting(file, reason, requestId)
     }
   
+  /**
+   * Looks the file up in a non-blocking read action, which a write action interrupts and restarts. So it only
+   * reads: what follows from the answer, tracing, rendering and dispatching, happens after it, once.
+   */
   private def requestHighlighting(file: VirtualFile, reason: String, requestId: TriggerPhaseEvents.RequestId): Unit =
-    inReadAction:
+    Log.debug(s"decision lookup for: $reason")
+    // Whether the file is served from the store; None when it cannot be highlighted.
+    val servedFromStore = ReadAction.nonBlocking[Option[Boolean]](() =>
       val psi = PsiManager.getInstance(project).findFile(file)
       val doc = FileDocumentManager.getInstance().getDocument(file)
+      Option.when(canHighlight(file, psi, doc))(logic.decide(file).servedFromStore(psi))
+    )
+      .expireWhen(() => project.isDisposed)
+      .executeSynchronously()
 
-      if canHighlight(file, psi, doc) then
-        Log.debug(s"decision lookup for: $reason")
-        val decision = logic.decide(file)
-        if decision.servedFromStore(psi) then
-          tracer.instant(RecordedDiagnosticsServedEvent(requestId, file.getPresentableName))
-          val served = highlighters.renderRecordedDiagnostics(Set(file), requestId)
-          None
-        else
-          Some(HighlightingRequest(requestId, file, reason))
-      else
+    servedFromStore match
+      case Some(true) =>
+        tracer.instant(RecordedDiagnosticsServedEvent(requestId, file.getPresentableName))
+        highlighters.renderRecordedDiagnostics(Set(file), requestId)
+      case Some(false) =>
+        HighlightingService(project).request(HighlightingRequest(requestId, file, reason))
+      case None =>
         tracer.endTrace(requestId, "not eligible for compilation (PSI/Document checks failed)")
-        None
-    .foreach(HighlightingService(project).request)
 
   private def handOver(file: VirtualFile, reason: String): Unit = executeOnBackgroundThreadInNotDisposed(project):
       processTrigger(file, reason)

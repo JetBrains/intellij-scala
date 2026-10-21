@@ -217,7 +217,7 @@ class CompilationStateTest extends CompilationStateTestBase:
     def dropsFilesThatNoLongerExist(): Unit = 
       val token = empty.startCompilation(a, b)
       delete(b)
-      val state = empty.failed(token, targetsOf(a,b), Set(a, b))
+      val state = empty.failedOn(token, targetsOf(a,b), Set(a, b))
 
       assertEquals(names(a), names(state.failedFiles))
       assertEquals(names(a), names(state.coveredFiles))
@@ -232,7 +232,7 @@ class CompilationStateTest extends CompilationStateTestBase:
     def quarantinesNothingAfterAnEditSinceDispatch(): Unit =
       val dispatched = empty.edit(a)
       val token = dispatched.startCompilation(a)
-      val state = dispatched.edit(b).failed(token, Set(main), Set(a))
+      val state = dispatched.edit(b).failedOn(token, Set(main), Set(a))
 
       assertEquals(Set.empty, state.failedTargets)
 
@@ -240,7 +240,7 @@ class CompilationStateTest extends CompilationStateTestBase:
     def doesNotMarkAFileEditedSinceDispatchAsFailed(): Unit =
       val dispatched = empty.edit(a, b)
       val token = dispatched.startCompilation(a, b)
-      val state = dispatched.edit(b).failed(token, Set(main), Set(a, b))
+      val state = dispatched.edit(b).failedOn(token, Set(main), Set(a, b))
 
       assertEquals(names(a), names(state.failedFiles))
 
@@ -254,7 +254,7 @@ class CompilationStateTest extends CompilationStateTestBase:
       val dispatched = empty.edit(a).compilationFailed(a).edit(b)
       val token = dispatched.startCompilation(b)
 
-      dispatched.edit(a).failed(token, Set(main), Set(a, b))
+      dispatched.edit(a).failedOn(token, Set(main), Set(a, b))
         .on(a).assertIncremental(a)
 
     @Test
@@ -288,6 +288,193 @@ class CompilationStateTest extends CompilationStateTestBase:
         () => assertEquals(2L, state.changesEpoch)
       )
   
+  /**
+   * `root` depends on `lib`, which has an error; `other` is a third, broken target. A compilation of `root`
+   * stops at `lib` and never reaches `root`.
+   */
+  @Nested
+  class Blocked:
+
+    private val root = module("root")
+    private val lib = module("lib")
+    private val other = module("other")
+
+    private val cat = root / "Cat.scala"
+    private val dog = root / "Dog.scala"
+    private val failing = lib / "Failing.scala"
+    private val broken = other / "Broken.scala"
+
+    private def blockersOf(state: CompilationState): Set[ModuleKey] = state.blocked.blockersOf(Some(root))
+
+    private val blockedByLib: CompilationState = empty.edit(cat).compilationFailedWithErrorsIn(cat)(lib)
+
+    @Test
+    def aFailureWithErrorsOnlyInADependencyBlocksTheTarget(): Unit =
+      assertEquals(Set(lib), blockersOf(blockedByLib))
+
+    @Test
+    def aFailureWithErrorsInTheTargetDoesNotBlockIt(): Unit =
+      assertTrue(blockersOf(empty.edit(cat).compilationFailedWithErrorsIn(cat)(root, lib)).isEmpty)
+
+    @Test
+    def aTargetReachedByTheCompilationIsNotBlocked(): Unit =
+      val dispatched = empty.edit(cat)
+      val state = dispatched.failedWithErrorsIn(dispatched.startCompilation(cat), Set(cat), Set(lib), covering = Set(dog))
+
+      assertTrue(blockersOf(state).isEmpty)
+
+    @Test
+    def aFailureOfSeveralTargetsBlocksNone(): Unit =
+      val state = blockedByLib.edit(broken).compilationFailedWithErrorsIn(cat, broken)(lib)
+
+      assertEquals(BlockedTargets.empty, state.blocked)
+
+    /**
+     * The multi-target failure strips its files from the next scope, so asking about `root` again compiles it
+     * alone, and that failure is the one that can tell `root` was blocked.
+     */
+    @Test
+    def aFailureOfSeveralTargetsNarrowsToOneThatRecordsTheBlock(): Unit =
+      val several = empty.edit(cat, broken).compilationFailedWithErrorsIn(cat, broken)(lib)
+
+      several.on(dog).assertIncremental(dog)
+      assertEquals(Set(lib), blockersOf(several.compilationFailedWithErrorsIn(dog)(lib)))
+
+    @Test
+    def anEditKeepsTheBlock(): Unit =
+      assertEquals(Set(lib), blockersOf(blockedByLib.edit(cat)))
+
+    @Test
+    def anEditToTheTargetDuringTheCompilationStillRecordsTheBlock(): Unit =
+      val dispatched = empty.edit(cat)
+      val token = dispatched.startCompilation(cat)
+      val state = dispatched.edit(cat).failedWithErrorsIn(token, Set(cat), Set(lib))
+
+      assertEquals(Set(lib), blockersOf(state))
+
+    @Test
+    def anEditToTheBlockerDuringTheCompilationIsClearedByTheBlockersBuild(): Unit =
+      val dispatched = empty.edit(cat)
+      val token = dispatched.startCompilation(cat)
+      val state = dispatched.edit(failing).failedWithErrorsIn(token, Set(cat), Set(lib))
+
+      assertEquals(Set(lib), blockersOf(state))
+      assertTrue(blockersOf(state.compilationSucceeded(failing)).isEmpty)
+
+    /**
+     * A build of `lib` succeeding while a compilation of `root` dispatched before it is still running, with that
+     * failure arriving last, is not guarded against: it cannot happen today. Our compilations hold the JPS
+     * compilation semaphore from dispatch to recording their result, as does an IDE build, and automake replaces
+     * our incremental compilations rather than running beside them. Were that to change, this would fail.
+     */
+    @Test
+    def aLateFailureAfterANewerBuildOfTheBlockerStillRecordsTheBlock(): Unit =
+      val dispatched = empty.edit(cat)
+      val older = dispatched.startCompilation(cat)
+      val state = dispatched.compilationSucceeded(failing).failedWithErrorsIn(older, Set(cat), Set(lib))
+
+      assertEquals(Set(lib), blockersOf(state))
+
+    private def shownFor(state: CompilationState): Set[ModuleKey] = state.currentBlockersOf(Some(root), targetOf)
+
+    @Test
+    def aBlockIsShownWhileNothingIsEdited(): Unit =
+      assertEquals(Set(lib), shownFor(blockedByLib))
+
+    /**
+     * The user fixes `lib` and goes back to `root`: the block is still recorded until `root` builds, but must not
+     * be shown in the meantime, or the traffic light shows it blocked before that build clears it.
+     */
+    @Test
+    def anEditToTheBlockerHidesTheBlockWithoutClearingIt(): Unit =
+      val fixed = blockedByLib.edit(failing)
+
+      assertTrue(shownFor(fixed).isEmpty)
+      assertEquals(Set(lib), blockersOf(fixed))
+
+    @Test
+    def anEditToTheTargetKeepsTheBlockShown(): Unit =
+      assertEquals(Set(lib), shownFor(blockedByLib.edit(dog)))
+
+    @Test
+    def anEditToTheBlockerDuringTheCompilationHidesTheBlockAtOnce(): Unit =
+      val dispatched = empty.edit(cat)
+      val token = dispatched.startCompilation(cat)
+      val state = dispatched.edit(failing).failedWithErrorsIn(token, Set(cat), Set(lib))
+
+      assertTrue(shownFor(state).isEmpty)
+
+    @Test
+    def aFixThatDidNotWorkShowsTheBlockAgainOnTheNextFailure(): Unit =
+      val stillBroken = blockedByLib.edit(failing)
+        .compilationFailedWithErrorsIn(cat, failing)(lib)
+        .compilationFailedWithErrorsIn(cat)(lib)
+
+      assertEquals(Set(lib), shownFor(stillBroken))
+
+    private def shownBlocks(state: CompilationState): Map[ModuleKey, Set[ModuleKey]] = state.shownBlocks(targetOf)
+
+    @Test
+    def nothingIsShownWhileNothingIsBlocked(): Unit =
+      assertTrue(shownBlocks(empty.edit(cat)).isEmpty)
+
+    @Test
+    def aBlockIsShownWithItsBlockers(): Unit =
+      assertEquals(Map(root -> Set(lib)), shownBlocks(blockedByLib))
+
+    /** What lets typing in the blocked file publish nothing. */
+    @Test
+    def anEditToTheTargetChangesNothingShown(): Unit =
+      assertEquals(shownBlocks(blockedByLib), shownBlocks(blockedByLib.edit(dog)))
+
+    @Test
+    def anEditToTheBlockerChangesWhatIsShown(): Unit =
+      assertTrue(shownBlocks(blockedByLib.edit(failing)).isEmpty)
+
+    /** A block already hidden by an edit to its blocker goes without anything to repaint. */
+    @Test
+    def clearingAHiddenBlockChangesNothingShown(): Unit =
+      val hidden = blockedByLib.edit(failing)
+      val cleared = hidden.compilationSucceeded(cat)
+
+      assertTrue(blockersOf(cleared).isEmpty)
+      assertEquals(shownBlocks(hidden), shownBlocks(cleared))
+
+    @Test
+    def buildingTheTargetUnblocksIt(): Unit =
+      assertTrue(blockersOf(blockedByLib.compilationSucceeded(cat, dog)).isEmpty)
+
+    @Test
+    def buildingTheBlockerUnblocksTheTarget(): Unit =
+      assertEquals(BlockedTargets.empty, blockedByLib.compilationSucceeded(failing).blocked)
+
+    @Test
+    def invalidatingForgetsTheBlock(): Unit =
+      assertEquals(BlockedTargets.empty, blockedByLib.invalidated.blocked)
+
+    @Test
+    def aFailedExternalBuildForgetsTheBlockAndNothingElse(): Unit =
+      assertEquals(blockedByLib.copy(blocked = BlockedTargets.empty), blockedByLib.externalBuildFailed)
+
+    /**
+     * `lib` is fixed and the IDE build then fails on `other`. Keeping "blocked by lib" would be false; a later
+     * compilation of `root` names what blocks it now.
+     *
+     * The fix leaves `Failing.scala` unbuilt, so the first compilation asked for `Cat.scala` covers `lib` too and
+     * can say nothing. It strips both files from later scopes, so the next one is of `root` alone.
+     */
+    @Test
+    def aFailedExternalBuildAfterAFixLetsALaterFailureNameTheNewBlocker(): Unit =
+      val state = blockedByLib.edit(failing).externalBuildFailed
+      assertTrue(blockersOf(state).isEmpty)
+
+      state.on(cat).assertIncremental(cat, failing)
+      val bothTargets = state.compilationFailedWithErrorsIn(cat, failing)(other)
+      assertTrue(blockersOf(bothTargets).isEmpty)
+
+      bothTargets.on(cat).assertIncremental(cat)
+      assertEquals(Set(other), blockersOf(bothTargets.compilationFailedWithErrorsIn(cat)(other)))
+
   @Nested
   class DerivedValues:
 

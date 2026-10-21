@@ -32,6 +32,8 @@ class CompilerEventReporter(project: Project,
 
   private var hasErrors: Boolean = false
 
+  private val errored = mutable.Set[Path]()
+
   private def publish(kind: MessageKind, @Nls text: String, position: Option[FilePosition]): Unit =
     position.foreach { pos =>
       // com.intellij.build.FilePosition contains 0-based line and column information, PosInfo expects 1-based indices.
@@ -92,6 +94,7 @@ class CompilerEventReporter(project: Project,
 
   override def error(@Nls message: String, position: Option[FilePosition]): Unit = {
     publish(MessageKind.Error, message, position)
+    position.foreach(pos => errored.add(pos.getPath))
     hasErrors = true
   }
 
@@ -118,4 +121,7 @@ class CompilerEventReporter(project: Project,
    * withholds the clean files leaves them out, costing them a compilation rather than a wrong answer.
    */
   private[scala] def coveredFiles: Set[Path] = files.toSet
+
+  /** The files the server reported an error against. */
+  private[scala] def erroredFiles: Set[Path] = errored.toSet
 }

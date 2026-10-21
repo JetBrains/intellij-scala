@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.compiler.highlighting.services.requests
 
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
+import org.jetbrains.plugins.scala.compiler.highlighting.core.FileCompilationScope
 import org.jetbrains.plugins.scala.compiler.highlighting.events.TriggerPhaseEvents.RequestId
 import org.jetbrains.plugins.scala.compiler.highlighting.triggers.TriggerUtil.{fileCompilationScope, moduleFor}
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.util.DocumentVersion
 
 /**
@@ -38,11 +40,15 @@ object CompilationRequest:
    * Every file is resolved on its own rather than reusing anything from the file the decision was asked
    * about, since the scope holds other files by construction. A file with no module, document or PSI file
    * is dropped instead of failing the request, and a scope that resolves to nothing produces no request.
+   *
+   * The scope can hold every unbuilt file of the project, so it is resolved in a non-blocking read action,
+   * checking for cancellation per file: a write action interrupts it and it starts over, rather than waiting.
    */
   def incremental(project: Project, scope: Set[VirtualFile],
                   requestId: RequestId): Option[CompilationRequest] = 
-    val scopes = inReadAction {
+    val scopes = ReadAction.nonBlocking[Map[VirtualFile, FileCompilationScope]](() =>
       scope.iterator.flatMap { file =>
+        ProgressManager.checkCanceled()
         val module = moduleFor(project, file)
         if (module == null) None
         else {
@@ -53,6 +59,8 @@ object CompilationRequest:
           else None
         }
       }.toMap
-    }
+    )
+      .expireWhen(() => project.isDisposed)
+      .executeSynchronously()
     if (scopes.isEmpty) None
     else Some(IncrementalRequest(scopes, requestId, project))

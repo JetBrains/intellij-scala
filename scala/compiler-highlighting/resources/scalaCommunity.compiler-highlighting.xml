@@ -17,6 +17,7 @@
         <module name="intellij.platform.editor.ui"/>
         <module name="intellij.platform.eel.provider"/>
         <module name="intellij.platform.execution"/>
+        <module name="intellij.platform.ide"/>
         <module name="intellij.platform.ide.core"/>
         <module name="intellij.platform.ide.impl"/>
         <module name="intellij.platform.jps.build"/>
@@ -84,6 +85,9 @@
 
         <listener topic="org.jetbrains.plugins.scala.compiler.CompilerEventListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.ExternalBuildStateListener"/>
+
+        <listener topic="org.jetbrains.plugins.scala.compiler.highlighting.core.BlockedTargetsListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.core.CustomTrafficLightRendererContributor$Repainter"/>
 
         <listener topic="org.jetbrains.plugins.scala.lang.psi.impl.CompilerType$Listener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerTypeRequestListener"/>
