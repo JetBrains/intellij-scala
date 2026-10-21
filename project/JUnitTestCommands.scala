@@ -126,10 +126,10 @@ object JUnitTestCommands {
     additionalSettings: Seq[Setting[?]] = Seq.empty
   ): State = {
     val bucket = TestBucketing.fromEnvironment(sys.env).fold(sys.error, identity)
-    val frameworkOptions = JUnitTestCommands.frameworkOptions
+    val testFrameworkOptions = JUnitTestCommands.frameworkOptions
     val categoryOptions = JUnitTestCommands.categoryOptions(includeCategories, excludeCategories)
     val classFilter = JUnitTestCommands.classFilter(bucket, additionalFilter)
-    val options = frameworkOptions ++ categoryOptions ++ classFilter.toSeq
+    val options = testFrameworkOptions ++ categoryOptions ++ classFilter.toSeq
     val settings = Seq(
       Test / testOptions ++= options
     ) ++ additionalSettings
