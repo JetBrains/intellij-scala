@@ -3,6 +3,7 @@ package org.jetbrains.bsp.project
 import com.intellij.compiler.impl.{CompileContextImpl, ProjectCompileScope}
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.openapi.compiler.CompilerTopics
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil => ES}
@@ -15,7 +16,7 @@ import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.project.BspTask.BspTarget
 import org.jetbrains.bsp.project.test.BspTestRunConfiguration
 import org.jetbrains.bsp.{BSP, BspBundle, BspUtil}
-import org.jetbrains.concurrency.{AsyncPromise, Promise}
+import org.jetbrains.concurrency.{AsyncPromise, Promise, Promises}
 import org.jetbrains.plugins.scala.build.BuildMessages
 import org.jetbrains.plugins.scala.extensions
 
@@ -75,6 +76,12 @@ class BspProjectTaskRunner(arguments: Option[CustomTaskArguments]) extends Proje
     val targets = targetsAndRebuild.map(_._1)
     val targetsToClean = targetsAndRebuild.filter(_._2).map(_._1)
 
+    // Asked to build modules, but no target found for any: running it would complete as a success that built nothing.
+    if (validTasks.nonEmpty && targets.isEmpty) {
+      BspProjectTaskRunner.Log.warn(s"No BSP target found for the tasks $tasks; nothing was built")
+      return Promises.resolvedPromise(TaskRunnerResults.FAILURE)
+    }
+
     if (arguments.isEmpty) {
       // TODO save only documents in affected targets?
       extensions.invokeAndWait {
@@ -116,4 +123,8 @@ class BspProjectTaskRunner(arguments: Option[CustomTaskArguments]) extends Proje
 
     promiseResult
   }
+}
+
+object BspProjectTaskRunner {
+  private val Log = Logger.getInstance(classOf[BspProjectTaskRunner])
 }
