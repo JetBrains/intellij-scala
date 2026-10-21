@@ -107,6 +107,8 @@ final case class Scala2Bounds()(implicit val projectContext: ProjectContext)
             arg.copyWithBounds(glb(lower, r, checkWeak), lubInner(upper, t2, depth - 1, checkWeak))
           case (_: ValType, _: ValType) => AnyVal
           case (lit1: ScLiteralType, lit2: ScLiteralType) => lubInner(lit1.wideType, lit2.wideType, depth, checkWeak = true)
+          case (lit: ScLiteralType, other) => lubInner(lit.wideType, other, depth, checkWeak)
+          case (other, lit: ScLiteralType) => lubInner(other, lit.wideType, depth, checkWeak)
           case (JavaArrayType(arg1), JavaArrayType(arg2)) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, checkWeak, stopAddingUpperBound)
             ex match {
