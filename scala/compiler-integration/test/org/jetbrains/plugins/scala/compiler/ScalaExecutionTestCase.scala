@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.base.{ScalaSdkOwner, SourceRootTestUtil}
 import org.jetbrains.plugins.scala.compiler.testUtils.CompileServerTestUtil
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.util.CompilerTestUtil.{applyEnabledCompileServerSettings, withModifiedCompileServerSettings}
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.io.{ObjectInputStream, ObjectOutputStream}
@@ -93,6 +94,17 @@ trait ScalaExecutionTestCase extends ExecutionTestCase with ScalaSdkOwner {
   override protected def setUpProject(): Unit = {
     super.setUpProject()
     inWriteAction(ProjectRootManager.getInstance(getProject).setProjectSdk(getTestProjectJdk))
+    // All test classes run in one JVM in CI and the compile server process is reused between them, so without an
+    // explicit choice the server keeps whatever JDK the previous test class selected (e.g. JDK 8 from a worksheet
+    // test), on which the Scala 3.8+ compiler cannot even be loaded. Pin the compile server to the JDK of this test,
+    // as ScalaCompilerTestBase does; the settings are reverted together with the test root disposable.
+    if (usesManagedSourcesAndCompilation) {
+      withModifiedCompileServerSettings { settings =>
+        applyEnabledCompileServerSettings(settings, enable = true)
+        settings.USE_DEFAULT_SDK = false
+        settings.COMPILE_SERVER_SDK = getTestProjectJdk.getName
+      }.applyChange(getTestRootDisposable)
+    }
   }
 
   override protected def setUpModule(): Unit = {
