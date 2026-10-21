@@ -208,8 +208,7 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestCase with ScalaP
       |      ImportSelectors
       |        PsiElement({)('{')
       |        ImportSelector
-      |          CodeReferenceElement: *
-      |            PsiElement(identifier)('*')
+      |          PsiElement(*)('*')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
       |        ImportSelector
@@ -230,8 +229,7 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestCase with ScalaP
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
       |        ImportSelector
-      |          CodeReferenceElement: *
-      |            PsiElement(identifier)('*')
+      |          PsiElement(*)('*')
       |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |  ScImportStatement
