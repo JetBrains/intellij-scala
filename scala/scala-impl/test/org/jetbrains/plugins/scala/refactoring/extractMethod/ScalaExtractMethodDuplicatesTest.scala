@@ -9,6 +9,7 @@ class ScalaExtractMethodDuplicatesTest extends ScalaExtractMethodTestBase {
   override def folderPath: Path = super.folderPath / "duplicates"
 
   def testSimpleDuplicate(): Unit = doTest()
+  def testLiteralParameter(): Unit = doTest()
   def testSeveralDuplicates(): Unit = doTest()
   def testWithDefinition(): Unit = doTest()
   def testNoSearchGeneric(): Unit = doTest()

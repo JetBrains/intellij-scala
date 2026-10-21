@@ -62,7 +62,8 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
       case (ref: ScReferenceExpression, expr: ScExpression) if pattern.paramOccurences.contains(ref) =>
         val p = pattern.paramOccurences(ref)
         val paramValue = parameterValues.getOrElseUpdate(p, expr)
-        PsiEquivalenceUtil.areElementsEquivalent(paramValue, expr) && typesEquiv(ref, expr)
+        implicit val context: Context = Context(expr)
+        PsiEquivalenceUtil.areElementsEquivalent(paramValue, expr) && expr.`type`().exists(_.conforms(p.tp))
       case &(
       (ref1: ScReferenceExpression, ref2: ScReferenceExpression),
       (ResolvesTo(td1: ScTypedDefinition), ResolvesTo(td2: ScTypedDefinition)))
