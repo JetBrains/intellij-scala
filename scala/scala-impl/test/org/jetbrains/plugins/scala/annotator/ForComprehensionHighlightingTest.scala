@@ -472,9 +472,9 @@ class ForComprehensionHighlightingTest_with_filter extends ForComprehensionHighl
   }
 }
 
-class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehensionHighlightingTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_2_12 && version < LatestScalaVersions.Scala_3_0
+abstract class ForComprehensionHighlightingTest_with_BetterMonadicForBase extends ForComprehensionHighlightingTestBase {
+  protected def catsVersion: String
+  protected def catsEffectVersion: String
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -488,7 +488,7 @@ class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehe
 
   override def librariesLoaders: Seq[LibraryLoader] =
     super.librariesLoaders :+
-      IvyManagedLoader("org.typelevel" %% "cats-core" % "1.5.0", "org.typelevel" %% "cats-effect" % "1.1.0")
+      IvyManagedLoader("org.typelevel" %% "cats-core" % catsVersion, "org.typelevel" %% "cats-effect" % catsEffectVersion)
 
   def test_SCL14801(): Unit = {
     val code =
@@ -503,6 +503,18 @@ class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehe
 
     assertNoErrors(code)
   }
+}
+
+class ForComprehensionHighlightingTest_with_BetterMonadicFor extends ForComprehensionHighlightingTest_with_BetterMonadicForBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def catsVersion: String = "1.5.0"
+  override protected def catsEffectVersion: String = "1.1.0"
+}
+
+class ForComprehensionHighlightingTest_with_BetterMonadicFor_2_13 extends ForComprehensionHighlightingTest_with_BetterMonadicForBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def catsVersion: String = "2.0.0"
+  override protected def catsEffectVersion: String = "2.0.0"
 }
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)

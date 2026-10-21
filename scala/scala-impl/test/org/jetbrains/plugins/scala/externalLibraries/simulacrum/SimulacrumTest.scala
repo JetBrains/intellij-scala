@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.externalLibraries.simulacrum
 
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
@@ -8,11 +9,13 @@ import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.macros.SynteticInjectorsTestUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 
-class SimulacrumTest extends ScalaLightCodeInsightFixtureTestCase {
+abstract class SimulacrumTestBase extends ScalaLightCodeInsightFixtureTestCase {
+  protected def simulacrumVersion: String
+
   private val caret = "<caret>"
 
   override def additionalLibraries: Seq[LibraryLoader] =
-    Seq(IvyManagedLoader("com.github.mpilquist" %% "simulacrum" % "0.14.0"))
+    Seq(IvyManagedLoader("com.github.mpilquist" %% "simulacrum" % simulacrumVersion))
 
   private def getSourceElement(text: String): ScObject = {
     val normalized = text.withNormalizedSeparator.trim
@@ -294,4 +297,14 @@ class SimulacrumTest extends ScalaLightCodeInsightFixtureTestCase {
 
     fooObject mustBeLike syntheticStructure
   }
+}
+
+class SimulacrumTest extends SimulacrumTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def simulacrumVersion: String = "0.14.0"
+}
+
+class SimulacrumTest_2_13 extends SimulacrumTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def simulacrumVersion: String = "0.19.0"
 }

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.externalLibraries.monocle
 
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
@@ -13,15 +14,17 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
 
-class MonocleLensesTest extends ScalaLightCodeInsightFixtureTestCase {
+abstract class MonocleLensesTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
-  protected val (monocleOrg, monocleVer) = ("com.github.julien-truffaut", "1.5.0")
+  protected def monocleVersion: String
+
+  private val monocleOrg = "com.github.julien-truffaut"
 
   override protected def additionalLibraries: Seq[LibraryLoader] =
     IvyManagedLoader(
-      monocleOrg %% "monocle-core"    % monocleVer,
-      monocleOrg %% "monocle-macro"   % monocleVer,
-      monocleOrg %% "monocle-generic" % monocleVer
+      monocleOrg %% "monocle-core"    % monocleVersion,
+      monocleOrg %% "monocle-macro"   % monocleVersion,
+      monocleOrg %% "monocle-generic" % monocleVersion
     ) :: Nil
 
   protected def folderPath: String = TestUtils.getTestDataPath
@@ -137,4 +140,13 @@ class MonocleLensesTest extends ScalaLightCodeInsightFixtureTestCase {
 
     doTest(fileText, "s", "monocle.Lens[Main.A, Main.A.B]")
   }
+}
+class MonocleLensesTest extends MonocleLensesTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+  override protected def monocleVersion: String = "1.5.0"
+}
+
+class MonocleLensesTest_2_13 extends MonocleLensesTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+  override protected def monocleVersion: String = "1.6.0"
 }
