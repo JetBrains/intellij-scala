@@ -1,2 +1,5 @@
 /*start*/'symbol/*end*/
-//Symbol
+/*
+Symbol
+[Scala_2_13]'symbol
+*/

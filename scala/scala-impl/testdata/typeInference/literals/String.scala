@@ -1,2 +1,5 @@
 /*start*/"""string"""/*end*/
-//String
+/*
+String
+[Scala_2_13]"string"
+*/

@@ -146,8 +146,8 @@ class ScFunctionExprAnnotatorTest extends ScalaHighlightingTestBase {
 
   def testTypeMismatchSamResultTypeMimatch(): Unit = assertErrorsWithHints(
     "trait SAM { def testF(s: String): Int }; val v: SAM = s => false",
-    Hint("s => false", "("), Hint("s => false", "): String => Boolean"),
-    Error("s => false", "Expression of type String => Boolean doesn't conform to expected type SAM"))
+    Hint("s => false", "("), Hint("s => false", "): String => false"),
+    Error("s => false", "Expression of type String => false doesn't conform to expected type SAM"))
 
   // Missing parameter type, SCL-16904
 
@@ -189,28 +189,28 @@ class ScFunctionExprAnnotatorTest extends ScalaHighlightingTestBase {
   // When block expression is multiline, and the problem is with the result type (but not parameters), highlight the whole literal.
   def testInBlockExpressionResultTypeMismatchNewLine1(): Unit = assertErrorsWithHints(
     "val v: Int => String = { i => 2\n}",
-    Hint("}", ": Int => Int"),
-    Error("}", "Expression of type Int => Int doesn't conform to expected type Int => String"))
+    Hint("}", ": Int => 2"),
+    Error("}", "Expression of type Int => 2 doesn't conform to expected type Int => String"))
 
   def testInBlockExpressionResultTypeMismatchNewLine2(): Unit = assertErrorsWithHints(
     "def f(x: Int => String): Int = 1; f { i => 2\n}",
-    Hint("}", ": Int => Int"),
-    Error("}", "Expression of type Int => Int doesn't conform to expected type Int => String"))
+    Hint("}", ": Int => 2"),
+    Error("}", "Expression of type Int => 2 doesn't conform to expected type Int => String"))
 
   def testInBlockExpressionResultTypeMismatchNewLine3(): Unit = assertErrorsWithHints(
     "def f(x: Int => String): Int = 1; f { i =>\n2 }",
-    Hint("}", ": Int => Int"),
-    Error("}", "Expression of type Int => Int doesn't conform to expected type Int => String"))
+    Hint("}", ": Int => 2"),
+    Error("}", "Expression of type Int => 2 doesn't conform to expected type Int => String"))
 
   // Function literal with type ascription
 
   def testResutlTypeMismatchAndTypeAscription(): Unit = assertErrorsWithHints(
     "((i: Int) => false): Int => String",
-    Error("String", "Cannot upcast Int => Boolean to Int => String"))
+    Error("String", "Cannot upcast Int => false to Int => String"))
 
   def testResutlTypeMismatchAndTypeAscriptionBlock(): Unit = assertErrorsWithHints(
     "{ (i: Int) => false }: Int => String",
-    Error("String", "Cannot upcast Int => Boolean to Int => String"))
+    Error("String", "Cannot upcast Int => false to Int => String"))
 
   // Implicit conversion
 

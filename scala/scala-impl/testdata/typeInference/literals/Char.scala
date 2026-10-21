@@ -1,2 +1,5 @@
 /*start*/'c'/*end*/
-//Char
+/*
+Char
+[Scala_2_13]'c'
+*/

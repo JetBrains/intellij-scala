@@ -1,2 +1,5 @@
 /*start*/1L/*end*/
-//Long
+/*
+Long
+[Scala_2_13]1L
+*/

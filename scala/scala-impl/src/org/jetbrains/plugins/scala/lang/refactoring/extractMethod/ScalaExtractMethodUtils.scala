@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScTypedPatternLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
@@ -234,6 +235,9 @@ object ScalaExtractMethodUtils {
       case fun: ScFunction if fun.paramClauses.clauses.isEmpty =>
         implicit val elementScope: ElementScope = definition.elementScope
         FunctionType(retType, Seq.empty)
+      // Widen literals inferred from a match scrutinee, preserving explicitly typed patterns and parameters.
+      case binding: ScBindingPattern if binding.nameContext.is[ScCaseClause] && !binding.getParent.is[ScTypedPatternLike] =>
+        retType.widenIfLiteral
       case _ => retType
     }
     new ScalaVariableData(definition, isInside, tp)

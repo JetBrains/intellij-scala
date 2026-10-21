@@ -1,2 +1,5 @@
 /*start*/1 == 1/*end*/
-//Boolean
+/*
+Boolean
+[Scala_2_13]true
+*/

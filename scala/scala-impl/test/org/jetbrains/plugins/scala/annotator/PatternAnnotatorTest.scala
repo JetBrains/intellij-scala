@@ -365,7 +365,7 @@ class PatternAnnotatorTest extends PatternAnnotatorTestBase {
         |  case class appliedTo2(name: String, arg1: String, arg2: String)
         |}
       """.stripMargin
-    assertError(code, "foo appliedTo2 (\"1\", \"2\")", patternTypeIncompatible("Bar.appliedTo2", "Int"))
+    assertError(code, "foo appliedTo2 (\"1\", \"2\")", patternTypeIncompatible("Bar.appliedTo2", "1"))
     assertNoWarnings(code)
   }
 

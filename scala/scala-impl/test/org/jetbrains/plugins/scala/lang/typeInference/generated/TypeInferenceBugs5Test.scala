@@ -1345,7 +1345,10 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
          |def foo1[T]: Z[T] = new Z[T]
          |def goo1[T](x: Z[T]): B[T] = new B[T]
          |goo1(foo1) foo ${START}1$END
-         |//Int
+         |/*
+         |Int
+         |[Scala_2_13]1
+         |*/
       """.stripMargin)
   }
 

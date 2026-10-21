@@ -66,7 +66,7 @@ class CopyTypeActionTest extends ScalaLightCodeInsightFixtureTestCase {
 
   def testLiteral(): Unit = doTest(
     s"val a = ${CARET}1",
-    "Int"
+    "1"
   )
 
   def testTuple(): Unit = doTest(

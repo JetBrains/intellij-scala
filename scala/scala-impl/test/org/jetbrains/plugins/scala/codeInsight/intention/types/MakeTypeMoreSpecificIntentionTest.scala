@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 class MakeTypeMoreSpecificIntentionTest extends ScalaIntentionTestBase {
@@ -19,7 +20,7 @@ class MakeTypeMoreSpecificIntentionTest extends ScalaIntentionTestBase {
       Some(message("make.type.more.specific"))
     )
 
-    checkIntentionIsNotAvailable("var test: Int = 3")
+    checkIntentionIsNotAvailable(s"var te${CARET}st: Int = 3")
   }
 
   def test_make_val_type(): Unit = {
@@ -33,7 +34,7 @@ class MakeTypeMoreSpecificIntentionTest extends ScalaIntentionTestBase {
       Some(message("make.type.more.specific"))
     )
 
-    checkIntentionIsNotAvailable("val test: Int = 3")
+    checkIntentionIsNotAvailable(s"val te${CARET}st: Int = 3")
   }
 
   def test_make_def_type(): Unit = {
@@ -47,7 +48,7 @@ class MakeTypeMoreSpecificIntentionTest extends ScalaIntentionTestBase {
       Some(message("make.type.more.specific.fun"))
     )
 
-    checkIntentionIsNotAvailable("def test(): Int = 3")
+    checkIntentionIsNotAvailable(s"def te${CARET}st(): Int = 3")
   }
 
   def testOnlyOneMoreSpecificType(): Unit = {
@@ -61,4 +62,8 @@ class MakeTypeMoreSpecificIntentionTest extends ScalaIntentionTestBase {
       Some(message("make.type.more.specific"))
     )
   }
+}
+
+class MakeTypeMoreSpecificIntentionTest_Scala2_12 extends MakeTypeMoreSpecificIntentionTest {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }

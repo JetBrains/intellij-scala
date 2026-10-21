@@ -33,7 +33,10 @@ class BoundsTest extends TypeInferenceTestBase {
          |    case StringExample => $START"string"$END
          |  }
          |}
-         |//String""".stripMargin
+         |/*
+         |String
+         |[Scala_2_13]"string"
+         |*/""".stripMargin
     doTest(text)
   }
 }

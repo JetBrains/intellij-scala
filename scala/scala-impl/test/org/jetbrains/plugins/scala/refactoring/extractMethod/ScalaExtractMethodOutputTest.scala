@@ -16,6 +16,8 @@ class ScalaExtractMethodOutputTest extends ScalaExtractMethodTestBase {
 
   def testNoReturnUnitOutput(): Unit = doTest()
 
+  def testLiteralExpectedType(): Unit = doTest()
+
   def testReturnNoOutput(): Unit = doTest()
 
   def testReturnSeveralOutput1(): Unit = doTest()

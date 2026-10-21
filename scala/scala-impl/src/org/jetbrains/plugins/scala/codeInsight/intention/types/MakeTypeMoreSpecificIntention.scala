@@ -121,7 +121,8 @@ object MakeTypeMoreSpecificIntention {
     message("make.type.more.specific")
 
   private def computeBaseTypes(declaredType: ScType, dynamicType: ScType)(implicit context: Context): Seq[ScType] = {
-    val baseTypes = dynamicType +: BaseTypes.get(dynamicType)
+    val widenedType = dynamicType.widenIfLiteral
+    val baseTypes = widenedType +: BaseTypes.get(widenedType)
     baseTypes.filter(_.conforms(declaredType))
       .filter(!_.equiv(declaredType))
   }

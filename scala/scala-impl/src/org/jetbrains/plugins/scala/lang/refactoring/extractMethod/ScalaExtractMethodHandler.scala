@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefinitionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createTemplateDefinitionFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
@@ -95,7 +95,12 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     }
 
     val (lastReturn, lastExprType) = elements.reverse.collectFirst {
-      case expr: ScExpression => (checkLastReturn(expr), Some(expr.`type`().getOrAny))
+      case expr: ScExpression =>
+        implicit val context: Context = Context(expr)
+        val tpe = expr.`type`().getOrAny
+        val widened = tpe.widenIfLiteral
+        val resultType = if (expr.expectedType().forall(widened.conforms(_))) widened else tpe
+        (checkLastReturn(expr), Some(resultType))
     }.getOrElse((false, None))
 
     val hasReturn: Option[ScType] = returnType
