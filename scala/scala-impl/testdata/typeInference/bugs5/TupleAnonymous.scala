@@ -5,5 +5,4 @@ object TupleAnonymous {
 }
 /*
 Option[(String, String)]
-[Scala_2_13]Option[(String, "AAA")]
 */
