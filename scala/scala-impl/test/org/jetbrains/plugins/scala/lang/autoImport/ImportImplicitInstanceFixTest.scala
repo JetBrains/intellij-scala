@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.autoImport
 
+import org.jetbrains.plugins.scala.LatestScalaVersions
 import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
@@ -69,14 +70,16 @@ final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestB
     }
 
   @Test
-  def testSeqDerivedOrdering(): Unit = checkElementsToImport(
+  def testSeqOrdering(): Unit = checkElementsToImport(
     s"""
        |object Test {
        |  Seq(Seq(1)).${CARET}sorted
        |}
        |""".stripMargin,
 
-    "scala.math.Ordering.Implicits.seqDerivedOrdering"
+    if version <= LatestScalaVersions.Scala_2_12
+    then "scala.math.Ordering.Implicits.seqDerivedOrdering"
+    else "scala.math.Ordering.Implicits.seqOrdering"
   )
 
   @Test
@@ -109,7 +112,7 @@ final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestB
   @Test
   def testNotSuggestVisible(): Unit = checkElementsToImport(
     s"""
-       |import scala.math.Ordering.Implicits.seqDerivedOrdering
+       |import scala.math.Ordering.Implicits.seqOrdering
        |
        |class MyClass
        |object implicits {
