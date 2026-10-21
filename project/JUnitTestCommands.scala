@@ -49,6 +49,29 @@ object JUnitTestCommands {
   }
 
   /**
+   * Combines optional class bucketing with an additional per-class condition.
+   * Returns None when both are absent, so unbucketed category commands add no filter.
+   * An absent bucket or additional condition imposes no restriction on class selection.
+   *
+   * Bucket membership is checked first. The additional condition is evaluated only for
+   * classes that pass that check. Pass lazily initialized predicates through a wrapper
+   * lambda so constructing the filter does not trigger their initialization, such as a
+   * TeamCity retry lookup.
+   *
+   * @param bucket validated bucket selection, or None for all buckets
+   * @param additionalFilter optional condition, defaulting to no additional restriction
+   * @return a combined class filter, or None when no restrictions were supplied
+   */
+  def classFilter(
+    bucket: Option[TestBucketing.Bucket],
+    additionalFilter: Option[String => Boolean] = None
+  ): Option[Tests.Filter] =
+    if (bucket.isEmpty && additionalFilter.isEmpty) None
+    else Some(Tests.Filter(testName =>
+      bucket.forall(_.matches(testName)) && additionalFilter.forall(_(testName))
+    ))
+
+  /**
    * Runs the current project's testOnly with command-specific settings and the supplied glob.
    * appendWithSession preserves user session settings; returning the incoming state after
    * execution keeps the appended options from affecting later commands. Failures propagate
