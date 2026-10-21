@@ -78,6 +78,7 @@ abstract class PatternAnnotatorTestBase extends ScalaLightCodeInsightFixtureTest
 }
 
 class PatternAnnotatorTest extends PatternAnnotatorTestBase {
+  override def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_2_13
 
   def testSomeConstructor(): Unit = {
     val code: String = "val Some(x) = None"
@@ -85,17 +86,15 @@ class PatternAnnotatorTest extends PatternAnnotatorTestBase {
     assertNoWarnings(code)
   }
 
-  def testVectorNil(): Unit = {
-    val code: String = "val Vector(a) = Nil"
-    assertError(code, "Vector(a)", constructorCannotBeInstantiated("Vector[A]", "Nil.type"))
-    assertNoWarnings(code)
-  }
+  def testVectorNil(): Unit = assertMessages(
+    "val Vector(a) = Nil",
+    List(Warning("Vector(a)", fruitless("Nil.type", "Vector[A]")))
+  )
 
-  def testListToPattern(): Unit = {
-    val code: String = "val Vector(a) = List(1)"
-    assertError(code, "Vector(a)", constructorCannotBeInstantiated("Vector[A]", "List[Int]"))
-    assertNoWarnings(code)
-  }
+  def testListToPattern(): Unit = assertMessages(
+    "val Vector(a) = List(1)",
+    List(Warning("Vector(a)", fruitless("List[Int]", "Vector[A]")))
+  )
 
   def testSeqToListNoMessages(): Unit = {
     assertNoMessages("val Seq(a) = List(1)")
@@ -1018,4 +1017,20 @@ class PatternAnnotatorTest_Scala3_2 extends PatternAnnotatorTestBase {
       Warning("RangeLimits(yyMin, yyMax)", "Pattern RangeLimits(yyMin, yyMax) is not irrefutable for Range")
     )
   )
+}
+
+class PatternAnnotatorTest_Scala2_12 extends PatternAnnotatorTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
+
+  def testVectorNil(): Unit = {
+    val code: String = "val Vector(a) = Nil"
+    assertError(code, "Vector(a)", constructorCannotBeInstantiated("Vector[A]", "Nil.type"))
+    assertNoWarnings(code)
+  }
+
+  def testListToPattern(): Unit = {
+    val code: String = "val Vector(a) = List(1)"
+    assertError(code, "Vector(a)", constructorCannotBeInstantiated("Vector[A]", "List[Int]"))
+    assertNoWarnings(code)
+  }
 }
