@@ -26,7 +26,7 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
       val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
-      verifyInvokedElement(invocationInfo, "IterableLike#head")
+      verifyInvokedElement(invocationInfo, "IterableOps#head")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "myList")

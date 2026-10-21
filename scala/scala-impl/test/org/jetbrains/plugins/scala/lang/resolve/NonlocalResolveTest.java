@@ -35,7 +35,7 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunction);
     ScFunction function = (ScFunction) resolved;
-    assertEquals("ArrayBuffer", function.containingClass().getName());
+    assertEquals("Growable", function.containingClass().getName());
   }
 
   public void testMathSimple() {

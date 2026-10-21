@@ -24,7 +24,7 @@ class RightAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
 
       val expectedArgCount = 1 + 1
       val expectedProperArgsInText = List("element")
-      val expectedMappedParamNames = List("x")
+      val expectedMappedParamNames = List("elem")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
       val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
@@ -91,7 +91,7 @@ class RightAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
 
       val expectedArgCount = 1 + 1
       val expectedProperArgsInText = List("el1")
-      val expectedMappedParamNames = List("x")
+      val expectedMappedParamNames = List("elem")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
       val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 

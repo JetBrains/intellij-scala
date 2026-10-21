@@ -142,7 +142,7 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |21: POP
       |22: PUSH s1.grades
       |23: PUSH_VAL 5
-      |24: CALL LinearSeqOptimized#apply
+      |24: CALL LinearSeqOps#apply
       |25: POP
       |26: FINISH BlockExpression
       |27: RETURN

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.navigation
 
 import com.intellij.psi.{PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames.Apply
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -242,7 +242,7 @@ class GoToDeclarationTest extends GoToDeclarationTestBase {
     s"""object TestLibraryTypeAlias {
        |  val traversable: ${CARET}Traversable[Int] = ???
        |}""".stripMargin,
-    (is[ScTrait], "scala.collection.Traversable")
+    (is[ScTypeAliasDefinition], "Traversable")
   )
 
   def testLibraryVal(): Unit = doTestFromLibrarySource(

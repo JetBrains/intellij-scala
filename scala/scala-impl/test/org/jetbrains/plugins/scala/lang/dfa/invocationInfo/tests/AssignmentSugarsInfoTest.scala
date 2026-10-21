@@ -101,11 +101,11 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
 
       val expectedArgCount = 1 + 2
       val expectedProperArgsInText = List("3", "15 + 2 * 9")
-      val expectedMappedParamNames = List("idx", "elem")
+      val expectedMappedParamNames = List("index", "elem")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
       val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
-      verifyInvokedElement(invocationInfo, "ResizableArray#update")
+      verifyInvokedElement(invocationInfo, "ArrayBuffer#update")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "someMutableArray")

@@ -3054,7 +3054,7 @@ class InvocationDetailsTest_Scala2 extends InvocationDetailsTestBase {
       |  props:    apply
       |  target:   apply
       |  thisExpr: x
-      |  (idx = 3) (explicit, after `x`)
+      |  (i = 3) (explicit, after `x`)
       |x
       |  no call
       |"""
