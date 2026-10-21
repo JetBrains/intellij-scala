@@ -16,6 +16,10 @@
         <lang.parserDefinition language="ScalaDoc" implementationClass="org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition"/>
         <lang.parserDefinition language="ScalaDirective" implementationClass="org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveParserDefinition"/>
         <lang.parserDefinition language="ScalaDocRefLink" implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.reflinks.ScalaDocRefLinkParserDefinition"/>
+        <lang.ast.factory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
+        <lang.ast.factory language="ScalaDoc" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
+        <lang.ast.factory language="ScalaDirective" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
+        <lang.ast.factory language="ScalaDocRefLink" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
 
         <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassElementFinder"/>
 
