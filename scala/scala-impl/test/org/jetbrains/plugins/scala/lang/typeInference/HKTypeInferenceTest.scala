@@ -21,7 +21,7 @@ abstract class HKTypeInferenceTestFactory(
   val testData: Seq[SimpleTestData] = _testData.map(GeneratedParameterizedTestFactory.testDataFromCode)
 }
 
-class HKTypeInferenceTest_Scala2_without_PartialUnification extends HKTypeInferenceTestBase(HKTypeInferenceTest_Scala2_with_PartialUnification)
+class HKTypeInferenceTest_Scala2_without_PartialUnification extends HKTypeInferenceTestBase(HKTypeInferenceTest_Scala2_without_PartialUnification)
 
 object HKTypeInferenceTest_Scala2_without_PartialUnification extends HKTypeInferenceTestFactory(
   ScalaVersion.Latest.Scala_2_12,

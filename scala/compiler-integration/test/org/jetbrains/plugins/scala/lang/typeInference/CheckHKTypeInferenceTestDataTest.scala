@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.CheckTestDataTestBase
+import org.jetbrains.plugins.scala.{CheckTestDataTestBase, ScalaVersion}
 
-abstract class CheckHKTypeInferenceTestDataTestBase(factory : HKTypeInferenceTestFactory) extends CheckTestDataTestBase(factory.testData, factory.version)
+abstract class CheckHKTypeInferenceTestDataTestBase(factory: HKTypeInferenceTestFactory) extends CheckTestDataTestBase(factory.testData, factory.version) {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == factory.version
+}
 
 final class CheckHKTypeInferenceTestDataTest_Scala2_without_PartialUnification extends CheckHKTypeInferenceTestDataTestBase(HKTypeInferenceTest_Scala2_without_PartialUnification)
 final class CheckHKTypeInferenceTestDataTest_Scala2_with_PartialUnification extends CheckHKTypeInferenceTestDataTestBase(HKTypeInferenceTest_Scala2_with_PartialUnification)

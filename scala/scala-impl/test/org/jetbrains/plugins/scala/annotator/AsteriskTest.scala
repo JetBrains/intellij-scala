@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 
-class AsteriskTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+
+class AsteriskTest_Scala2_12 extends AnnotatorLightCodeInsightFixtureTestAdapter {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   def testSCL13015(): Unit = {
     checkTextHasNoErrors(
@@ -24,6 +27,13 @@ class AsteriskTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
       """.stripMargin)
   }
 
+}
+
+class AsteriskTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
+  def testRepeatedFunctionParameterIsRejected(): Unit = checkHasErrorAroundCaret(
+    "val f: (In<caret>t*) => Unit = ???"
+  )
+
   def testSCL13018(): Unit = {
     checkTextHasNoErrors(
       """
@@ -35,4 +45,3 @@ class AsteriskTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
       """.stripMargin)
   }
 }
-
