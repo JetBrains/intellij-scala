@@ -23,6 +23,8 @@
     </projectListeners>
 
     <extensions defaultExtensionNs="com.intellij">
+        <externalExecutionAware id="sbt" key="SBT" implementationClass="org.jetbrains.sbt.project.execution.SbtExecutionAware" />
+
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
         <lang.parserDefinition language="sbt Scala 3" implementationClass="org.jetbrains.sbt.language.SbtParserDefinitionScala3"/>
         <lang.substitutor language="sbt" implementationClass="org.jetbrains.sbt.language.SbtLanguageSubstitutor"/>

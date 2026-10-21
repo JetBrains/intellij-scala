@@ -50,7 +50,6 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <externalExecutionAware id="sbt" key="SBT" implementationClass="org.jetbrains.sbt.project.execution.SbtExecutionAware" />
         <webHelpProvider implementation="org.jetbrains.plugins.scala.help.ScalaWebHelpProvider"/>
 
         <statistics.counterUsagesCollector implementationClass="org.jetbrains.plugins.scala.statistics.ScalaActionUsagesCollector"/>
