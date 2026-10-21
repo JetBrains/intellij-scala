@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
+import com.intellij.codeInsight.daemon.ProblemHighlightFilter
+import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.icons.AllIcons
 import com.intellij.ide.HelpTooltip
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
@@ -131,9 +133,13 @@ class XRayModeWidgetActionProvider extends InspectionWidgetActionProvider {
         def inLibrarySource = Option(CommonDataKeys.EDITOR.getData(e.getDataContext)).exists { editor =>
           Option(editor.getVirtualFile).exists(file => ProjectFileIndex.getInstance(editor.getProject).isInLibrarySource(file))
         }
+        def shouldHighlight = Option(CommonDataKeys.PSI_FILE.getData(e.getDataContext)).exists { psiFile =>
+          HighlightingLevelManager.getInstance(project).shouldHighlight(psiFile) &&
+            ProblemHighlightFilter.shouldHighlightFile(psiFile)
+        }
         val visible = ScalaApplicationSettings.XRAY_WIDGET_MODE match {
-          case XRayWidgetMode.ALWAYS => !inLibrarySource
-          case XRayWidgetMode.WHEN_ACTIVE => ScalaHintsSettings.xRayMode && !inLibrarySource
+          case XRayWidgetMode.ALWAYS => !inLibrarySource && shouldHighlight
+          case XRayWidgetMode.WHEN_ACTIVE => ScalaHintsSettings.xRayMode && !inLibrarySource && shouldHighlight
           case XRayWidgetMode.NEVER => false
         }
         e.getPresentation.setEnabledAndVisible(visible)
