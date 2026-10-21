@@ -1126,7 +1126,10 @@ lazy val devKitIntegration =
 
 lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(
+      scalaPsiImpl,
+      scalaImpl % "test->test",
+    )
     .settings(
       intellijPlugins += "com.intellij.copyright".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.copyright"),
@@ -1238,7 +1241,10 @@ lazy val propertiesIntegration =
 
 lazy val javaDecompilerIntegration =
   newProject("java-decompiler", file("scala/integration/java-decompiler"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(
+      scalaPsiImpl,
+      scalaImpl % "test->test",
+    )
     .settings(
       intellijPlugins += "org.jetbrains.java.decompiler".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.javaDecompiler")
@@ -1295,7 +1301,7 @@ lazy val textAnalysisTestFramework =
 lazy val featuresTrainerIntegration =
   newProject("features-trainer", file("scala/integration/features-trainer"))
     .dependsOn(
-      scalaImpl % "test->test;compile->compile",
+      scalaPsiImpl,
     )
     .settings(
       intellijPlugins += "training".toPlugin,
