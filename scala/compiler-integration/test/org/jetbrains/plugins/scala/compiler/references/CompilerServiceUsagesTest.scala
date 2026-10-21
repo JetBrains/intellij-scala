@@ -210,7 +210,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
          |}
        """.stripMargin
     )("UsageFromLibrary.scala" -> Seq(4)) {
-      val aClass = myFixture.findClass("scala.collection.convert.Decorators.AsJava")
+      val aClass = myFixture.findClass("scala.collection.JavaConverters.AsJava")
       aClass.getMethods.find(_.getName == "asJava").get
     }
 
