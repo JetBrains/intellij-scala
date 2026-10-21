@@ -11,8 +11,6 @@ class PartialFunctionTest extends TypeInferenceTestBase {
 
   override def folderPath: Path = super.folderPath / "bugs5"
 
-  def testSCL6716(): Unit = doTest()  // require PartialFunction, not function
-
   def testSCL10242(): Unit = doTest {
     """
       |class cl {

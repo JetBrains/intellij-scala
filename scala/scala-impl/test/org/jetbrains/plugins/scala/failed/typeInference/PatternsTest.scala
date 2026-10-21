@@ -35,5 +35,4 @@ class PatternsTest extends TypeInferenceTestBase {
       """.stripMargin)
   }
 
-  def testSCL9094(): Unit = doTest()
 }

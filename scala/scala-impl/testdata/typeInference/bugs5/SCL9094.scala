@@ -12,4 +12,4 @@ object SCL9094 {
     }/*end*/
   }
 }
-//PartialFunction[String, NotInferedB]
+//PartialFunction[String, Boolean]
