@@ -13,4 +13,14 @@ class CurriedTypeInferenceTest extends ScalaLightCodeInsightFixtureTestCase {
       |val foo1 = new Foo(1, identity[Int] _)({ case f => f(2) })
       |val foo2 = new Foo(1, identity[Int] _)(f => f(2))
     """.stripMargin)
+
+  def testExplicitLiteralTypeArgument(): Unit = checkTextHasNoErrors(
+    """class Foo[A](a: A)(f: A => A)
+      |val foo = new Foo[1](1)({ case a => a: 1 })
+      |""".stripMargin)
+
+  def testSingletonBound(): Unit = checkTextHasNoErrors(
+    """class Foo[A <: Singleton](a: A)(f: A => A)
+      |val foo = new Foo(1)({ case a => a: 1 })
+      |""".stripMargin)
 }

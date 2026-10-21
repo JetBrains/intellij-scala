@@ -176,10 +176,9 @@ class ScConstructorInvocationImpl(node: ASTNode)
                   shapesOnly    = false
                 )
 
-              val maybeSubstitutor = extRes.constraints match {
-                case ConstraintSystem(substitutor) => Some(substitutor)
-                case _ => None
-              }
+              val maybeSubstitutor = extRes.constraints
+                .substitutionBounds(canThrowSCE = true, widenInferredTypeArguments = true)
+                .map(_.substitutor)
               val result = maybeSubstitutor.fold(nonValueType: ScType) {
                 _.apply(nonValueType)
               }
