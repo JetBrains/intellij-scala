@@ -54,9 +54,9 @@ object JUnitTestCommands {
    * An absent bucket or additional condition imposes no restriction on class selection.
    *
    * Bucket membership is checked first. The additional condition is evaluated only for
-   * classes that pass that check. Pass lazily initialized predicates through a wrapper
-   * lambda so constructing the filter does not trigger their initialization, such as a
-   * TeamCity retry lookup.
+   * classes that pass that check. Wrap lazily initialized function values in a lambda to
+   * defer initialization until evaluation. Method references can be passed directly when
+   * their implementation defers initialization until invocation, as the TeamCity retry helper does.
    *
    * @param bucket validated bucket selection, or None for all buckets
    * @param additionalFilter optional condition, defaulting to no additional restriction
@@ -86,8 +86,9 @@ object JUnitTestCommands {
    *
    * Bucket membership is checked before additionalFilter, so a rejected class cannot trigger
    * an additional condition such as a TeamCity retry lookup. The default adds no condition.
-   * Wrap lazily initialized predicates in a lambda at the call site to defer initialization
-   * until an accepted class is evaluated. This helper itself has no TeamCity dependency.
+   * The TeamCity retry method defers its lookup until invocation and can be passed directly.
+   * Other lazily initialized function values need a wrapper lambda to defer initialization.
+   * This helper itself has no TeamCity dependency.
    *
    * Options belong to the current project's Test / testOptions, where testOnly runs.
    * A root project's collected dependency Test / definedTests are filtered here as well;
@@ -105,9 +106,9 @@ object JUnitTestCommands {
    *                  TestClassSelection.Matching("com.intellij.*")
    *                  }}}
    * @param additionalFilter optional per-class condition, evaluated after bucket membership
-   *                         Example (the wrapper defers the lazy TeamCity lookup):
+   *                         Example (the retry method defers TeamCity lookup until invocation):
    *                         {{{
-   *                         Some(testName => TeamCityTestRetryFiltering.shouldRunTestInRerun(testName))
+   *                         Some(TeamCityTestRetryFiltering.shouldRunTestInRerun)
    *                         }}}
    * @param additionalSettings command-specific sbt settings, empty by default
    *                           Example (Ultimate's plugin setup for this test run):
