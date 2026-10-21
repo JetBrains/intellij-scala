@@ -362,7 +362,7 @@ class CompilerServiceUsagesTest extends ScalaCompilerReferenceServiceFixture {
            |  } yield bi1 + ai._1
            |}
        """.stripMargin,
-    )("WithFilter.scala" -> Seq(14, 15))()
+    )("WithFilter.scala" -> Seq(13, 15))()
 
   def testSAMLambda(): Unit =
     runInheritorsTest(
