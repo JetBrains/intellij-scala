@@ -72,6 +72,69 @@ object JUnitTestCommands {
     ))
 
   /**
+   * Runs JUnit 4 and Jupiter tests with category/tag selection and optional class bucketing.
+   * Call this from a command callback: bucket configuration is read and validated once
+   * per invocation, before test discovery or execution. TC_SBT_TEST_BUCKETS_TOTAL and
+   * TC_SBT_TEST_BUCKETS_CURRENT must either both be absent (no bucketing), or be integers
+   * with a positive total and a zero-based current index smaller than the total.
+   *
+   * Selection happens at two levels. sbt intersects the optional class filter with the
+   * testOnly glob and any existing user class filters before framework execution. All
+   * methods of a class therefore stay in the same bucket. JUnit 4 then applies category
+   * inclusion/exclusion and Jupiter applies the equivalent tag rules within those classes,
+   * including rules on individual methods. Empty inclusion/exclusion lists add no restriction.
+   *
+   * Bucket membership is checked before additionalFilter, so a rejected class cannot trigger
+   * an additional condition such as a TeamCity retry lookup. The default adds no condition.
+   * Wrap lazily initialized predicates in a lambda at the call site to defer initialization
+   * until an accepted class is evaluated. This helper itself has no TeamCity dependency.
+   *
+   * Options belong to the current project's Test / testOptions, where testOnly runs.
+   * A root project's collected dependency Test / definedTests are filtered here as well;
+   * this does not rely on testOnly task aggregation. additionalSettings are appended after
+   * the generated test options, allowing command-specific setup in the same temporary state.
+   * User session settings are preserved, and command-owned settings do not affect subsequent
+   * commands, including after a failed test run.
+   *
+   * @param glob testOnly input, including leading whitespace before a non-empty selector
+   *             Examples:
+   *             {{{
+   *             ""                 // All otherwise-selected classes.
+   *             " com.intellij.*"  // Only classes matching this package glob.
+   *             }}}
+   * @param additionalFilter optional per-class condition, evaluated after bucket membership
+   *                         Example (the wrapper defers the lazy TeamCity lookup):
+   *                         {{{
+   *                         Some(testName => TeamCityTestRetryFiltering.shouldRunTestInRerun(testName))
+   *                         }}}
+   * @param additionalSettings command-specific sbt settings, empty by default
+   *                           Example (Ultimate's plugin setup for this test run):
+   *                           {{{
+   *                           Seq(disablePluginsBeforeRunningTests())
+   *                           }}}
+   * @return the incoming state after successful execution; test failures propagate to sbt
+   */
+  def runTestOnly(
+    state: State,
+    glob: String,
+    includeCategories: Seq[String],
+    excludeCategories: Seq[String],
+    additionalFilter: Option[String => Boolean] = None,
+    additionalSettings: Seq[Setting[?]] = Seq.empty
+  ): State = {
+    val bucket = TestBucketing.fromEnvironment(sys.env).fold(sys.error, identity)
+    val frameworkOptions = JUnitTestCommands.frameworkOptions
+    val categoryOptions = JUnitTestCommands.categoryOptions(includeCategories, excludeCategories)
+    val classFilter = JUnitTestCommands.classFilter(bucket, additionalFilter)
+    val options = frameworkOptions ++ categoryOptions ++ classFilter.toSeq
+    val settings = Seq(
+      Test / testOptions ++= options
+    ) ++ additionalSettings
+
+    runTestOnlyWithTemporarySettings(state, glob, settings)
+  }
+
+  /**
    * Runs the current project's testOnly with command-specific settings and the supplied glob.
    * appendWithSession preserves user session settings; returning the incoming state after
    * execution keeps the appended options from affecting later commands. Failures propagate
