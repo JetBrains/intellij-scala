@@ -1089,7 +1089,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.std.TupleInstances1
     //scalaz.std.TupleInstances2
     //scalaz.std.TupleInstances3
-    //scalaz.std.TypeConstraintInstances
+    scalaz.std.TypeConstraintInstances
     //scalaz.std.VectorEqual
     //scalaz.std.VectorFunctions
     //scalaz.std.VectorInstances
@@ -1181,8 +1181,8 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.syntax.ComonadSyntax
     //scalaz.syntax.ComposeOps
     //scalaz.syntax.ComposeSyntax
-    //scalaz.syntax.ConstOps
-    //scalaz.syntax.ContTOps
+    scalaz.syntax.ConstOps
+    scalaz.syntax.ContTOps
     //scalaz.syntax.ContravariantOps
     //scalaz.syntax.ContravariantSyntax
     //scalaz.syntax.CozipOps
@@ -1195,8 +1195,8 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.syntax.DivideSyntax
     //scalaz.syntax.DivisibleOps
     //scalaz.syntax.DivisibleSyntax
-    //scalaz.syntax.EitherOps
-    //scalaz.syntax.EitherTOps
+    scalaz.syntax.EitherOps
+    scalaz.syntax.EitherTOps
     //scalaz.syntax.EnumOps
     //scalaz.syntax.EnumSyntax
     //scalaz.syntax.EqualOps
@@ -1207,7 +1207,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.syntax.FoldableSyntax
     //scalaz.syntax.FunctorOps
     //scalaz.syntax.FunctorSyntax
-    //scalaz.syntax.IdOps
+    scalaz.syntax.IdOps
     //scalaz.syntax.InvariantAltOps
     //scalaz.syntax.InvariantAltSyntax
     //scalaz.syntax.InvariantApplicativeOps
@@ -1222,8 +1222,8 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.syntax.IsEmptySyntax
     //scalaz.syntax.KleisliFAOps
     //scalaz.syntax.KleisliIdOps
-    //scalaz.syntax.MaybeOps
-    //scalaz.syntax.MonadErrorIdOps
+    scalaz.syntax.MaybeOps
+    scalaz.syntax.MonadErrorIdOps
     //scalaz.syntax.MonadErrorOps
     //scalaz.syntax.MonadErrorSyntax
     //scalaz.syntax.MonadListenOps
@@ -1237,7 +1237,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.syntax.MonadTransGFGA
     //scalaz.syntax.MonoidOps
     //scalaz.syntax.MonoidSyntax
-    //scalaz.syntax.NelOps
+    scalaz.syntax.NelOps
     //scalaz.syntax.NondeterminismOps
     //scalaz.syntax.NondeterminismSyntax
     scalaz.syntax.Ops
@@ -1253,7 +1253,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.syntax.ProChoiceSyntax
     //scalaz.syntax.ProfunctorOps
     //scalaz.syntax.ProfunctorSyntax
-    //scalaz.syntax.ReducerOps
+    scalaz.syntax.ReducerOps
     //scalaz.syntax.SemiLatticeOps
     //scalaz.syntax.SemiLatticeSyntax
     //scalaz.syntax.SemigroupOps
@@ -1262,14 +1262,14 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.syntax.ShowSyntax
     //scalaz.syntax.SplitOps
     //scalaz.syntax.SplitSyntax
-    //scalaz.syntax.StateOps
-    //scalaz.syntax.StrictTreeOps
+    scalaz.syntax.StateOps
+    scalaz.syntax.StrictTreeOps
     //scalaz.syntax.StrongOps
     //scalaz.syntax.StrongSyntax
     //scalaz.syntax.Syntaxes
     //scalaz.syntax.TagOps
     //scalaz.syntax.TheseOps
-    //scalaz.syntax.ThesePairOps
+    scalaz.syntax.ThesePairOps
     //scalaz.syntax.ToAlignOps
     //scalaz.syntax.ToAlignOps0
     //scalaz.syntax.ToAlignOpsU
@@ -1451,27 +1451,27 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.syntax.Traverse1Syntax
     //scalaz.syntax.TraverseOps
     //scalaz.syntax.TraverseSyntax
-    //scalaz.syntax.TreeOps
+    scalaz.syntax.TreeOps
     //scalaz.syntax.UnzipOps
     //scalaz.syntax.UnzipSyntax
     //scalaz.syntax.ValidationOps
-    //scalaz.syntax.WriterOps
+    scalaz.syntax.WriterOps
     //scalaz.syntax.ZipOps
     //scalaz.syntax.ZipSyntax
-    //scalaz.syntax.std.BooleanOps
+    scalaz.syntax.std.BooleanOps
     //scalaz.syntax.std.BooleanOps2
-    //scalaz.syntax.std.EitherOps
+    scalaz.syntax.std.EitherOps
     //scalaz.syntax.std.Function1Ops
     //scalaz.syntax.std.Function2Ops
-    //scalaz.syntax.std.LazyListOps
-    //scalaz.syntax.std.ListOps
-    //scalaz.syntax.std.MapOps
-    //scalaz.syntax.std.OptionIdOps
+    scalaz.syntax.std.LazyListOps
+    scalaz.syntax.std.ListOps
+    scalaz.syntax.std.MapOps
+    scalaz.syntax.std.OptionIdOps
     //scalaz.syntax.std.OptionOps
     //scalaz.syntax.std.OptionOps2
-    //scalaz.syntax.std.SortedMapOps
-    //scalaz.syntax.std.StreamOps
-    //scalaz.syntax.std.StringOps
+    scalaz.syntax.std.SortedMapOps
+    scalaz.syntax.std.StreamOps
+    scalaz.syntax.std.StringOps
     scalaz.syntax.std.ToAllStdOps
     scalaz.syntax.std.ToBooleanOps
     scalaz.syntax.std.ToEitherOps
@@ -1500,7 +1500,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.syntax.std.Tuple7Ops
     //scalaz.syntax.std.Tuple8Ops
     //scalaz.syntax.std.Tuple9Ops
-    //scalaz.syntax.std.VectorOps
+    scalaz.syntax.std.VectorOps
     //scalaz.syntax.std.`try`
     scalaz.syntax.std.all
     scalaz.syntax.std.boolean

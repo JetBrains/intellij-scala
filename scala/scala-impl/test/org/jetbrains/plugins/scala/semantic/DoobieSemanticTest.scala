@@ -23,7 +23,7 @@ class DoobieSemanticTest extends SemanticTestBase("org.tpolecat" %% "doobie-core
     //doobie.enumerated.ParameterNullable
     //doobie.enumerated.ResultSetConcurrency
     //doobie.enumerated.ResultSetType
-    //doobie.enumerated.SqlState
+    doobie.enumerated.SqlState
     //doobie.enumerated.TransactionIsolation
     doobie.free.Embeddable
     //doobie.free.Embedded

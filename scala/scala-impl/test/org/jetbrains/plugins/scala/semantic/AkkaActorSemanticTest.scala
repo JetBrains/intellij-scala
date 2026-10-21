@@ -267,9 +267,9 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.dispatch.japi
     akka.dispatch.sysmsg.Create
     akka.dispatch.sysmsg.DeathWatchNotification
-    //akka.dispatch.sysmsg.EarliestFirstSystemMessageList
+    akka.dispatch.sysmsg.EarliestFirstSystemMessageList
     akka.dispatch.sysmsg.Failed
-    //akka.dispatch.sysmsg.LatestFirstSystemMessageList
+    akka.dispatch.sysmsg.LatestFirstSystemMessageList
     akka.dispatch.sysmsg.NoMessage
     akka.dispatch.sysmsg.Recreate
     akka.dispatch.sysmsg.Resume
@@ -636,7 +636,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.util.MessageBufferMap
     akka.util.NanoClock
     akka.util.NanoTimeTokenBucket
-    //akka.util.OptionVal
+    akka.util.OptionVal
     //akka.util.PrettyByteString
     //akka.util.PrettyDuration
     //akka.util.PriorityQueueStabilizer

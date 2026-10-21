@@ -67,13 +67,13 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     akka.actor.typed.internal.Create
     akka.actor.typed.internal.DeathWatchNotification
     akka.actor.typed.internal.DeliveryFlightRecorder
-    //akka.actor.typed.internal.EarliestFirstSystemMessageList
+    akka.actor.typed.internal.EarliestFirstSystemMessageList
     //akka.actor.typed.internal.EventStreamExtension
     //akka.actor.typed.internal.ExtensionsImpl
     //akka.actor.typed.internal.InterceptorImpl
     akka.actor.typed.internal.InternalMessage
     akka.actor.typed.internal.InternalRecipientRef
-    //akka.actor.typed.internal.LatestFirstSystemMessageList
+    akka.actor.typed.internal.LatestFirstSystemMessageList
     //akka.actor.typed.internal.LogMessagesInterceptor
     //akka.actor.typed.internal.LoggerClass
     //akka.actor.typed.internal.MiscMessageSerializer

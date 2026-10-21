@@ -493,7 +493,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.Tuple2KOrder
     //cats.data.Tuple2KSemigroupK
     //cats.data.Tuple2KSemigroupal
-    //cats.data.Tuple2KShow
+    cats.data.Tuple2KShow
     //cats.data.Tuple2KTraverse
     //cats.data.Validated
     //cats.data.ValidatedApplicative
@@ -972,30 +972,30 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.syntax.AllSyntaxBinCompat6
     cats.syntax.AllSyntaxBinCompat7
     cats.syntax.AlternativeSyntax
-    //cats.syntax.ApplicativeByNameOps
-    //cats.syntax.ApplicativeByValueOps
+    cats.syntax.ApplicativeByNameOps
+    cats.syntax.ApplicativeByValueOps
     cats.syntax.ApplicativeErrorExtension
     cats.syntax.ApplicativeErrorExtensionOps
-    //cats.syntax.ApplicativeErrorFUnitOps
-    //cats.syntax.ApplicativeErrorIdOps
+    cats.syntax.ApplicativeErrorFUnitOps
+    cats.syntax.ApplicativeErrorIdOps
     //cats.syntax.ApplicativeErrorOps
     cats.syntax.ApplicativeErrorSyntax
-    //cats.syntax.ApplicativeIdOps
-    //cats.syntax.ApplicativeOps
+    cats.syntax.ApplicativeIdOps
+    cats.syntax.ApplicativeOps
     cats.syntax.ApplicativeSyntax
-    //cats.syntax.ApplyFABCOps
-    //cats.syntax.ApplyFABOps
-    //cats.syntax.ApplyOps
+    cats.syntax.ApplyFABCOps
+    cats.syntax.ApplyFABOps
+    cats.syntax.ApplyOps
     cats.syntax.ApplySyntax
     cats.syntax.ApplySyntaxBinCompat0
     cats.syntax.ArrowChoiceSyntax
     cats.syntax.ArrowSyntax
     cats.syntax.BifoldableSyntax
     cats.syntax.BifunctorSyntax
-    //cats.syntax.BinestedIdOps
+    cats.syntax.BinestedIdOps
     cats.syntax.BinestedSyntax
-    //cats.syntax.BitraverseOps
-    //cats.syntax.BitraverseOpsBinCompat0
+    cats.syntax.BitraverseOps
+    cats.syntax.BitraverseOpsBinCompat0
     cats.syntax.BitraverseSyntax
     cats.syntax.BitraverseSyntax1
     cats.syntax.BitraverseSyntaxBinCompat0
@@ -1007,29 +1007,29 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.syntax.ContravariantMonoidalSyntax
     cats.syntax.ContravariantSemigroupalSyntax
     cats.syntax.ContravariantSyntax
-    //cats.syntax.DistributiveOps
+    cats.syntax.DistributiveOps
     cats.syntax.DistributiveSyntax
-    //cats.syntax.EitherIdOps
-    //cats.syntax.EitherIdOpsBinCompat0
-    //cats.syntax.EitherKOps
+    cats.syntax.EitherIdOps
+    cats.syntax.EitherIdOpsBinCompat0
+    cats.syntax.EitherKOps
     cats.syntax.EitherKSyntax
-    //cats.syntax.EitherObjectOps
+    cats.syntax.EitherObjectOps
     //cats.syntax.EitherOps
-    //cats.syntax.EitherOpsBinCompat0
+    cats.syntax.EitherOpsBinCompat0
     //cats.syntax.EitherSyntax
     cats.syntax.EitherSyntaxBinCompat0
     cats.syntax.EitherUtil
     //cats.syntax.EqOps
     cats.syntax.EqSyntax
-    //cats.syntax.FlatMapIdOps
+    cats.syntax.FlatMapIdOps
     //cats.syntax.FlatMapOps
-    //cats.syntax.FlatMapOptionOps
+    cats.syntax.FlatMapOptionOps
     cats.syntax.FlatMapOptionSyntax
     cats.syntax.FlatMapSyntax
-    //cats.syntax.FlattenOps
+    cats.syntax.FlattenOps
     //cats.syntax.FoldableOps
-    //cats.syntax.FoldableOps0
-    //cats.syntax.FoldableOps1
+    cats.syntax.FoldableOps0
+    cats.syntax.FoldableOps1
     cats.syntax.FoldableSyntax
     cats.syntax.FoldableSyntaxBinCompat0
     cats.syntax.FoldableSyntaxBinCompat1
@@ -1043,7 +1043,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.syntax.Function17ApplyOps
     //cats.syntax.Function18ApplyOps
     //cats.syntax.Function19ApplyOps
-    //cats.syntax.Function1ApplyOps
+    cats.syntax.Function1ApplyOps
     //cats.syntax.Function1Syntax
     //cats.syntax.Function20ApplyOps
     //cats.syntax.Function21ApplyOps
@@ -1059,111 +1059,111 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.syntax.FunctionApplySyntax
     cats.syntax.FunctorFilterSyntax
     cats.syntax.FunctorSyntax
-    //cats.syntax.FunctorTuple2Ops
+    cats.syntax.FunctorTuple2Ops
     //cats.syntax.GroupOps
     cats.syntax.GroupSyntax
-    //cats.syntax.GuardOps
+    cats.syntax.GuardOps
     //cats.syntax.HashOps
     cats.syntax.HashSyntax
-    //cats.syntax.IfApplyOps
-    //cats.syntax.IfFOps
-    //cats.syntax.IfMOps
-    //cats.syntax.IndexOps
+    cats.syntax.IfApplyOps
+    cats.syntax.IfFOps
+    cats.syntax.IfMOps
+    cats.syntax.IndexOps
     cats.syntax.InvariantSyntax
-    //cats.syntax.IorIdOps
+    cats.syntax.IorIdOps
     cats.syntax.IorSyntax
-    //cats.syntax.LeftNestedBitraverseOps
-    //cats.syntax.LeftOps
+    cats.syntax.LeftNestedBitraverseOps
+    cats.syntax.LeftOps
     //cats.syntax.ListOps
-    //cats.syntax.ListOpsBinCompat0
+    cats.syntax.ListOpsBinCompat0
     cats.syntax.ListSyntax
     cats.syntax.ListSyntaxBinCompat0
     //cats.syntax.MonadErrorOps
     //cats.syntax.MonadErrorRethrowOps
     cats.syntax.MonadErrorSyntax
-    //cats.syntax.MonadIdOps
-    //cats.syntax.MonadOps
+    cats.syntax.MonadIdOps
+    cats.syntax.MonadOps
     cats.syntax.MonadSyntax
-    //cats.syntax.MonoidOps
+    cats.syntax.MonoidOps
     cats.syntax.MonoidSyntax
-    //cats.syntax.NestedBitraverseOps
+    cats.syntax.NestedBitraverseOps
     //cats.syntax.NestedFoldableOps
-    //cats.syntax.NestedIdOps
-    //cats.syntax.NestedReducibleOps
+    cats.syntax.NestedIdOps
+    cats.syntax.NestedReducibleOps
     cats.syntax.NestedSyntax
     //cats.syntax.NonEmptyAlternativeOps
     cats.syntax.NonEmptyAlternativeSyntax
-    //cats.syntax.NonEmptyParallelApOps
-    //cats.syntax.NonEmptyParallelApplyOps
+    cats.syntax.NonEmptyParallelApOps
+    cats.syntax.NonEmptyParallelApplyOps
     cats.syntax.NonEmptyTraverseSyntax
-    //cats.syntax.OptionIdOps
+    cats.syntax.OptionIdOps
     //cats.syntax.OptionOps
     cats.syntax.OptionSyntax
     //cats.syntax.OrderOps
     cats.syntax.OrderSyntax
-    //cats.syntax.ParallelApOps
-    //cats.syntax.ParallelApOps1
-    //cats.syntax.ParallelApplyOps
+    cats.syntax.ParallelApOps
+    cats.syntax.ParallelApOps1
+    cats.syntax.ParallelApplyOps
     cats.syntax.ParallelApplySyntax
-    //cats.syntax.ParallelBisequenceOps
-    //cats.syntax.ParallelBitraverseOps
+    cats.syntax.ParallelBisequenceOps
+    cats.syntax.ParallelBitraverseOps
     cats.syntax.ParallelBitraverseSyntax
-    //cats.syntax.ParallelFlatSequenceOps
-    //cats.syntax.ParallelFlatSequenceOps1
+    cats.syntax.ParallelFlatSequenceOps
+    cats.syntax.ParallelFlatSequenceOps1
     cats.syntax.ParallelFlatSyntax
-    //cats.syntax.ParallelFlatTraversableOps
-    //cats.syntax.ParallelFlatTraversableOps1
-    //cats.syntax.ParallelFoldMapAOps
+    cats.syntax.ParallelFlatTraversableOps
+    cats.syntax.ParallelFlatTraversableOps1
+    cats.syntax.ParallelFoldMapAOps
     cats.syntax.ParallelFoldMapASyntax
-    //cats.syntax.ParallelLeftSequenceOps
-    //cats.syntax.ParallelLeftTraverseOps
-    //cats.syntax.ParallelReduceMapAOps
+    cats.syntax.ParallelLeftSequenceOps
+    cats.syntax.ParallelLeftTraverseOps
+    cats.syntax.ParallelReduceMapAOps
     cats.syntax.ParallelReduceMapASyntax
-    //cats.syntax.ParallelSequenceFilterOps
-    //cats.syntax.ParallelSequenceOps
-    //cats.syntax.ParallelSequenceOps1
+    cats.syntax.ParallelSequenceFilterOps
+    cats.syntax.ParallelSequenceOps
+    cats.syntax.ParallelSequenceOps1
     //cats.syntax.ParallelSequence_Ops
     cats.syntax.ParallelSyntax
-    //cats.syntax.ParallelTraversableOps
-    //cats.syntax.ParallelTraversableOps1
-    //cats.syntax.ParallelTraversable_Ops
-    //cats.syntax.ParallelTraverseFilterOps
+    cats.syntax.ParallelTraversableOps
+    cats.syntax.ParallelTraversableOps1
+    cats.syntax.ParallelTraversable_Ops
+    cats.syntax.ParallelTraverseFilterOps
     cats.syntax.ParallelTraverseFilterSyntax
     cats.syntax.ParallelTraverseSyntax
-    //cats.syntax.ParallelUnorderedFlatSequenceOps
-    //cats.syntax.ParallelUnorderedSequenceOps
-    //cats.syntax.ParallelUnorderedTraverseOps
+    cats.syntax.ParallelUnorderedFlatSequenceOps
+    cats.syntax.ParallelUnorderedSequenceOps
+    cats.syntax.ParallelUnorderedTraverseOps
     cats.syntax.ParallelUnorderedTraverseSyntax
     cats.syntax.PartialOrderOps
     cats.syntax.PartialOrderSyntax
     cats.syntax.ProfunctorSyntax
-    //cats.syntax.ReducibleOps0
+    cats.syntax.ReducibleOps0
     cats.syntax.ReducibleSyntax
     cats.syntax.ReducibleSyntaxBinCompat0
     cats.syntax.RepresentableSyntax
-    //cats.syntax.RightOps
+    cats.syntax.RightOps
     cats.syntax.SemigroupKSyntax
     //cats.syntax.SemigroupOps
     cats.syntax.SemigroupSyntax
     cats.syntax.SemigroupalBuilder
     cats.syntax.SemigroupalOps
-    //cats.syntax.SemigroupalOps2
+    cats.syntax.SemigroupalOps2
     cats.syntax.SemigroupalSyntax
-    //cats.syntax.SeparateOps
+    cats.syntax.SeparateOps
     //cats.syntax.SeparateOpsBinCompat0
-    //cats.syntax.SeqOps
+    cats.syntax.SeqOps
     cats.syntax.SeqSyntax
-    //cats.syntax.SequenceFilterOps
-    //cats.syntax.SetOps
+    cats.syntax.SequenceFilterOps
+    cats.syntax.SetOps
     cats.syntax.SetSyntax
     cats.syntax.ShowSyntax
     cats.syntax.StrongSyntax
-    //cats.syntax.TabulateOps
-    //cats.syntax.TraverseFilterOps
+    cats.syntax.TabulateOps
+    cats.syntax.TraverseFilterOps
     cats.syntax.TraverseFilterSyntax
     cats.syntax.TraverseFilterSyntaxBinCompat0
     cats.syntax.TraverseSyntax
-    //cats.syntax.TryOps
+    cats.syntax.TryOps
     cats.syntax.TrySyntax
     cats.syntax.Tuple10ParallelOps
     cats.syntax.Tuple10SemigroupalOps
@@ -1211,20 +1211,20 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.syntax.Tuple9SemigroupalOps
     //cats.syntax.TupleParallelSyntax
     //cats.syntax.TupleSemigroupalSyntax
-    //cats.syntax.UniteOps
+    cats.syntax.UniteOps
     //cats.syntax.UniteOpsBinCompat0
-    //cats.syntax.UnorderedFoldableOps
+    cats.syntax.UnorderedFoldableOps
     cats.syntax.UnorderedFoldableSyntax
     cats.syntax.UnorderedTraverseSyntax
-    //cats.syntax.ValidatedExtension
+    cats.syntax.ValidatedExtension
     cats.syntax.ValidatedExtensionSyntax
-    //cats.syntax.ValidatedIdOpsBinCompat0
-    //cats.syntax.ValidatedIdSyntax
+    cats.syntax.ValidatedIdOpsBinCompat0
+    cats.syntax.ValidatedIdSyntax
     cats.syntax.ValidatedSyntax
     cats.syntax.ValidatedSyntaxBincompat0
     //cats.syntax.VectorOps
     cats.syntax.VectorSyntax
-    //cats.syntax.WriterIdSyntax
+    cats.syntax.WriterIdSyntax
     cats.syntax.WriterSyntax
   """)
 }
