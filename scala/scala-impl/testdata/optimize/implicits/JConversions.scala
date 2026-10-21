@@ -1,35 +1,35 @@
 // Notification message: Removed 1 import, added 1 import
-import collection.JavaConversions
+import collection.JavaConverters
 import java.util.ArrayList
 
 object JConversions {
   def foo1 {
-    import JavaConversions._
+    import JavaConverters._
     val a: ArrayList[Int] = new ArrayList[Int]
-    a.foreach(p => p)
+    a.asScala.foreach(p => p)
   }
 
   def foo2 {
-    import JavaConversions._
+    import JavaConverters._
     val a: ArrayList[Int] = new ArrayList[Int]
-    for (z <- a) {}
+    for (z <- a.asScala) {}
   }
 }
 /*
 import java.util.ArrayList
-import scala.collection.JavaConversions
+import scala.collection.JavaConverters
 
 object JConversions {
   def foo1 {
-    import JavaConversions._
+    import JavaConverters._
     val a: ArrayList[Int] = new ArrayList[Int]
-    a.foreach(p => p)
+    a.asScala.foreach(p => p)
   }
 
   def foo2 {
-    import JavaConversions._
+    import JavaConverters._
     val a: ArrayList[Int] = new ArrayList[Int]
-    for (z <- a) {}
+    for (z <- a.asScala) {}
   }
 }
 */

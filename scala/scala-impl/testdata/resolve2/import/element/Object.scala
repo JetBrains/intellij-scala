@@ -1,4 +1,4 @@
-import collection.JavaConversions
+import collection.JavaConverters
 
-println(/* path: scala.collection.JavaConversions, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject  */ JavaConversions.getClass)
-println(classOf[/* resolved: false  */ JavaConversions])
+println(/* path: scala.collection.JavaConverters, type: org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject  */ JavaConverters.getClass)
+println(classOf[/* resolved: false  */ JavaConverters])

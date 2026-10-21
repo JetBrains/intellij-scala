@@ -6,8 +6,6 @@ class DecompilerHighlightingTest extends DecompilerHighlightingTestBase {
 
   def testSettings(): Unit = doTest("Settings.class")
 
-  def testCommandLine(): Unit = doTest("CommandLine.class")
-
   def testDefaultMacroCompiler(): Unit = doTest("DefaultMacroCompiler.class")
 
   def testFormatInterpolator(): Unit = doTest("FormatInterpolator.class")
@@ -15,8 +13,6 @@ class DecompilerHighlightingTest extends DecompilerHighlightingTestBase {
   def testContext(): Unit = doTest("Context.class")
 
   def testSymbolicXmlBuilder(): Unit = doTest("SymbolicXMLBuilder.class")
-
-  def testSocketServer(): Unit = doTest("SocketServer.class")
 
   def testStdTags(): Unit = doTest("StdTags.class")
 }
@@ -38,4 +34,13 @@ class DecompilerHighlightingTest_Scala2_11 extends DecompilerHighlightingTestBas
   def testDirectoryFileLookup(): Unit = doTest("DirectoryFileLookup.class")
 
   def testJavaParsers(): Unit = doTest("JavaParsers.class")
+}
+
+/** These compiler fixtures reference CommandLineConfig and CompileOutputCommon, removed in Scala 2.13. */
+class DecompilerHighlightingTest_Scala2_12 extends DecompilerHighlightingTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
+
+  def testCommandLine(): Unit = doTest("CommandLine.class")
+
+  def testSocketServer(): Unit = doTest("SocketServer.class")
 }

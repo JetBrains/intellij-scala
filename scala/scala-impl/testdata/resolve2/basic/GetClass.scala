@@ -11,5 +11,5 @@ class A {
   val z: Any = 1
   z./* resolved: true */getClass
 
-  collection.JavaConversions./* */getClass
+  collection.JavaConverters./* */getClass
 }

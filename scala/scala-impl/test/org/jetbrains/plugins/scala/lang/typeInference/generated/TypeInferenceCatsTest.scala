@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.typeInference.generated
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SlowTests}
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
@@ -11,6 +11,8 @@ import java.nio.file.Path
 
 @Category(Array(classOf[SlowTests]))
 class TypeInferenceCatsTest extends TypeInferenceTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 
   override protected def folderPath: Path = super.folderPath / "cats"
 

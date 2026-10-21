@@ -349,7 +349,7 @@ abstract class ScalaHighlightImplicitUsagesHandlerTestBase extends ScalaHighligh
 }
 
 class ScalaHighlightImplicitUsagesHandlerTest extends ScalaHighlightImplicitUsagesHandlerTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2_12
 
   def testApplyFromConversion(): Unit = {
     val code =
@@ -366,6 +366,12 @@ class ScalaHighlightImplicitUsagesHandlerTest extends ScalaHighlightImplicitUsag
 
     doTest(code, Seq("mapAsScalaMap", "env", "env"))
   }
+
+}
+
+
+class ScalaHighlightImplicitUsagesHandlerTest_Scala2_13 extends ScalaHighlightImplicitUsagesHandlerTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
 }
 
