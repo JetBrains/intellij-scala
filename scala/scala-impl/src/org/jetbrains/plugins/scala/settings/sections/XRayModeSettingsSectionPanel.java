@@ -48,9 +48,9 @@ public class XRayModeSettingsSectionPanel extends SettingsSectionPanel {
         myPressAndHoldCheckbox.setText(ScalaBundle.message("scala.project.settings.form.xray.press.and.hold", key));
 
         Map<XRayWidgetMode, String> modes = new HashMap<>();
-        modes.put(XRayWidgetMode.ALWAYS, "Always");
-        modes.put(XRayWidgetMode.WHEN_ACTIVE, "When active");
-        modes.put(XRayWidgetMode.NEVER, "Never");
+        modes.put(XRayWidgetMode.ALWAYS, ScalaBundle.message("scala.project.settings.form.xray.widget.display.always"));
+        modes.put(XRayWidgetMode.WHEN_ACTIVE, ScalaBundle.message("scala.project.settings.form.xray.widget.display.when.active"));
+        modes.put(XRayWidgetMode.NEVER, ScalaBundle.message("scala.project.settings.form.xray.widget.display.never"));
         myWidgetModeCombobox.setModel(new DefaultComboBoxModel<>(XRayWidgetMode.values()));
         myWidgetModeCombobox.setRenderer(new SimpleMappingListCellRenderer<>(modes));
         myShowParameterHintsCheckbox.addItemListener(e -> updateParameterHintCheckboxes());
