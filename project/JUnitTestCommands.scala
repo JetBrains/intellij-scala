@@ -62,7 +62,7 @@ object JUnitTestCommands {
    * @param additionalFilter optional condition, defaulting to no additional restriction
    * @return a combined class filter, or None when no restrictions were supplied
    */
-  def classFilter(
+  private def classFilter(
     bucket: Option[TestBucketing.Bucket],
     additionalFilter: Option[String => Boolean] = None
   ): Option[Tests.Filter] =
@@ -150,7 +150,7 @@ object JUnitTestCommands {
    * runInputTask does not aggregate tasks. A root project's collected Test / definedTests
    * are still selected and executed through that root project's Test / testOptions.
    */
-  def runTestOnlyWithTemporarySettings(state: State, selection: TestClassSelection, settings: Seq[Setting[?]]): State = {
+  private def runTestOnlyWithTemporarySettings(state: State, selection: TestClassSelection, settings: Seq[Setting[?]]): State = {
     val newState = state.appendWithSession(settings)
     val testOnlyInput = selection match {
       case TestClassSelection.All => ""
