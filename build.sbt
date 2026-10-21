@@ -1385,7 +1385,7 @@ def runTestCategoryCommand(
     val bucket = TestBucketing.fromEnvironment(sys.env).fold(sys.error, identity)
     val frameworkOptions = JUnitTestCommands.frameworkOptions
     val categoryOptions = JUnitTestCommands.categoryOptions(includeCategories, excludeCategories)
-    val classFilter = bucket.map(b => Tests.Filter(b.matches))
+    val classFilter = JUnitTestCommands.classFilter(bucket)
 
     JUnitTestCommands.runTestOnlyWithTemporarySettings(state, glob, Seq(
       Test / testOptions ++= frameworkOptions ++ categoryOptions ++ classFilter.toSeq
