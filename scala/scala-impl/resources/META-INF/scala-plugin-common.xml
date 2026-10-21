@@ -2147,8 +2147,6 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
 
-        <iconMapper mappingFile="ScalaIconMappings.json" />
-
         <generalTroubleInfoCollector implementation="org.jetbrains.plugins.scala.internal.ScalaGeneralTroubleInfoCollector"/>
         <aboutPopupDescriptionProvider implementation="org.jetbrains.plugins.scala.internal.ScalaPluginAboutPopupDescriptionProvider"/>
 

@@ -12,5 +12,7 @@
         <!-- TODO Research whether it's possible to use only the following: -->
         <!--<fileType name="TASTy" extensions="tasty" implementationClass="com.intellij.ide.highlighter.JavaClassFileType"/>-->
         <fileType name="TASTy" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
+
+        <iconMapper mappingFile="ScalaIconMappings.json"/>
     </extensions>
 </idea-plugin>
