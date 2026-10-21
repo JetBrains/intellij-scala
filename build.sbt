@@ -1352,28 +1352,9 @@ import Common.TestCategory.*
 
 /**
  * Runs regular, special, and fast category commands with optional test-class bucketing.
- *
- * Category/tag selection and bucketing apply at different levels. JUnitTestCommands.categoryOptions
- * supplies framework-specific Tests.Argument options for JUnit 4 category inclusion/exclusion
- * and Jupiter tag inclusion/exclusion, including rules on individual test methods. The optional
- * Tests.Filter selects whole discovered test classes by name before framework execution,
- * so all methods of a class stay in the same bucket regardless of their categories/tags.
- * sbt intersects this filter with the testOnly glob and any existing user class filters;
- * the frameworks then apply the category/tag rules within the surviving classes.
- *
- * The filter belongs to the current project's Test / testOptions, where testOnly runs.
- * When a root project collects dependency projects' Test / definedTests, those classes
- * are filtered here too; this does not rely on testOnly task aggregation.
- *
- * TestBucketing validates TC_SBT_TEST_BUCKETS_TOTAL and TC_SBT_TEST_BUCKETS_CURRENT once
- * per invocation. Both absent means no bucket filter; otherwise both must be integers
- * with a positive total and a zero-based current index smaller than the total. Invalid
- * configuration fails before test execution. Class assignment uses the same name-hash
- * algorithm as Ultimate's runTestBucket, without invoking its TeamCity retry filtering.
- *
- * JUnitTestCommands.runTestOnlyWithTemporarySettings executes with the appended options and
- * returns the incoming state so category/tag arguments and bucket filters cannot affect
- * later commands while existing user session settings are preserved.
+ * JUnitTestCommands.runTestOnly documents the shared environment validation, category/tag
+ * and class-filter composition, dependency-test discovery, and temporary settings lifecycle.
+ * Category commands supply only their selection rules; they do not invoke TeamCity retry filtering.
  */
 def runTestCategoryCommand(
   name: String,
@@ -1383,14 +1364,7 @@ def runTestCategoryCommand(
   glob: String
 ): Command =
   Command.args(name, description) { (state, _) =>
-    val bucket = TestBucketing.fromEnvironment(sys.env).fold(sys.error, identity)
-    val frameworkOptions = JUnitTestCommands.frameworkOptions
-    val categoryOptions = JUnitTestCommands.categoryOptions(includeCategories, excludeCategories)
-    val classFilter = JUnitTestCommands.classFilter(bucket)
-
-    JUnitTestCommands.runTestOnlyWithTemporarySettings(state, glob, Seq(
-      Test / testOptions ++= frameworkOptions ++ categoryOptions ++ classFilter.toSeq
-    ))
+    JUnitTestCommands.runTestOnly(state, glob, includeCategories, excludeCategories)
   }
 
 def runRegularTestCategoryCommand(name: String, category: String): Command = runTestCategoryCommand(
