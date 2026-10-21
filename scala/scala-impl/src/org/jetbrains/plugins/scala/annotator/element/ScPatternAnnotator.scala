@@ -63,7 +63,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
 
     val dealiased = ScalaType.expandAliases(exprType).getOrElse(exprType)
     val exTp      = widen(dealiased)
-    val patType   = _patType.removeAliasDefinitions()
+    val patType   = _patType.removeAliasDefinitions().widenIfLiteral
 
     def freeTypeParams = freeTypeParamsOfTerms(dealiased)
 
