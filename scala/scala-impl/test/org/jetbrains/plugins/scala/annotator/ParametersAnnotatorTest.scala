@@ -6,6 +6,7 @@ import com.intellij.testFramework.TestIndexingModeSupporter.IndexingMode
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.{ScParameterAnnotator, ScParametersAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 
 @WithIndexingMode(mode = IndexingMode.DUMB_EMPTY_INDEX)
@@ -106,7 +107,7 @@ class ParametersAnnotatorTest extends ParametersAnnotatorTestBase {
 class ParametersAnnotatorTest_without_callByName_implicit_parameter extends ParametersAnnotatorTestBase {
   import Message._
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.languageLevel < ScalaLanguageLevel.Scala_2_13
 
   def testByName_ImplicitParam(): Unit = {
     assertMatches(messages("def f(a: A)(implicit b: => B) {}")) {

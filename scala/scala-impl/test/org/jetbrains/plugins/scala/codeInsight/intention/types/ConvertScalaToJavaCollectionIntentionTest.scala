@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.types
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 abstract class ConvertScalaToJavaCollectionIntentionBaseTest(protected val converters: String) extends ScalaIntentionTestBase {
 
@@ -190,13 +191,13 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(protected val conve
 class ConvertScalaToJavaCollectionIntentionTest
   extends ConvertScalaToJavaCollectionIntentionBaseTest("scala.collection.JavaConverters._") {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version < LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.languageLevel < ScalaLanguageLevel.Scala_2_13
 }
 
 class ConvertScalaToJavaCollectionIntention_2_13Test
   extends ConvertScalaToJavaCollectionIntentionBaseTest("scala.jdk.CollectionConverters._") {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.languageLevel >= ScalaLanguageLevel.Scala_2_13
 }
 
 class ConvertScalaToJavaCollectionIntention_3Test
