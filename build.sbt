@@ -1360,10 +1360,10 @@ def runTestCategoryCommand(
   description: String,
   includeCategories: Seq[String],
   excludeCategories: Seq[String],
-  glob: String
+  selection: TestClassSelection
 ): Command =
   Command.args(name, description) { (state, _) =>
-    JUnitTestCommands.runTestOnly(state, glob, includeCategories, excludeCategories)
+    JUnitTestCommands.runTestOnly(state, selection, includeCategories, excludeCategories)
   }
 
 def runRegularTestCategoryCommand(name: String, category: String): Command = runTestCategoryCommand(
@@ -1371,7 +1371,7 @@ def runRegularTestCategoryCommand(name: String, category: String): Command = run
   description = s"Run the $category test category",
   includeCategories = Seq(category),
   excludeCategories = specialCategories,
-  glob = ""
+  selection = TestClassSelection.All
 )
 
 Global / commands ++= Seq(
@@ -1403,7 +1403,7 @@ def runSpecialTestCategoryCommand(name: String, displayName: String, category: S
     description = s"Run the $displayName test category",
     includeCategories = catSeq,
     excludeCategories = specialCategories.diff(catSeq),
-    glob = ""
+    selection = TestClassSelection.All
   )
 }
 
@@ -1435,22 +1435,19 @@ lazy val categoriesToExclude = List(
   flakyTests,
 )
 
-def runFastTestsCommand(name: String, glob: String): Command = runTestCategoryCommand(
+def runFastTestsCommand(name: String, selection: TestClassSelection): Command = runTestCategoryCommand(
   name = name,
   description = "",
   includeCategories = Seq.empty,
   excludeCategories = categoriesToExclude,
-  // `runInputTask` receives only the text after the task key. Keep the
-  // whitespace that the former `testOnly $glob` command supplied before a
-  // non-empty test selector.
-  glob = if (glob.isEmpty) "" else s" $glob"
+  selection = selection
 )
 
 Global / commands ++= Seq(
-  ("runFastTests", "*"),
-  ("runFastTestsComIntelliJ", "com.intellij.*"),
-  ("runFastTestsOrgJetbrains", "org.jetbrains.*"),
-  ("runFastTestsScala", "scala.*")
+  ("runFastTests", TestClassSelection.All),
+  ("runFastTestsComIntelliJ", TestClassSelection.Matching("com.intellij.*")),
+  ("runFastTestsOrgJetbrains", TestClassSelection.Matching("org.jetbrains.*")),
+  ("runFastTestsScala", TestClassSelection.Matching("scala.*"))
 ).map((runFastTestsCommand _).tupled)
 
 // Scalatest finders tests command definitions.

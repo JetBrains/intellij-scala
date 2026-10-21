@@ -79,7 +79,7 @@ object JUnitTestCommands {
    * with a positive total and a zero-based current index smaller than the total.
    *
    * Selection happens at two levels. sbt intersects the optional class filter with the
-   * testOnly glob and any existing user class filters before framework execution. All
+   * test-class selection and any existing user class filters before framework execution. All
    * methods of a class therefore stay in the same bucket. JUnit 4 then applies category
    * inclusion/exclusion and Jupiter applies the equivalent tag rules within those classes,
    * including rules on individual methods. Empty inclusion/exclusion lists add no restriction.
@@ -96,12 +96,14 @@ object JUnitTestCommands {
    * User session settings are preserved, and command-owned settings do not affect subsequent
    * commands, including after a failed test run.
    *
-   * @param glob testOnly input, including leading whitespace before a non-empty selector
-   *             Examples:
-   *             {{{
-   *             ""                 // All otherwise-selected classes.
-   *             " com.intellij.*"  // Only classes matching this package glob.
-   *             }}}
+   * @param selection all class names or one nonempty glob without whitespace; the runner
+   *                  supplies sbt's input formatting. Category/tag rules and class filters
+   *                  still apply in either case.
+   *                  Examples:
+   *                  {{{
+   *                  TestClassSelection.All
+   *                  TestClassSelection.Matching("com.intellij.*")
+   *                  }}}
    * @param additionalFilter optional per-class condition, evaluated after bucket membership
    *                         Example (the wrapper defers the lazy TeamCity lookup):
    *                         {{{
@@ -116,7 +118,7 @@ object JUnitTestCommands {
    */
   def runTestOnly(
     state: State,
-    glob: String,
+    selection: TestClassSelection,
     includeCategories: Seq[String],
     excludeCategories: Seq[String],
     additionalFilter: Option[String => Boolean] = None,
@@ -131,11 +133,15 @@ object JUnitTestCommands {
       Test / testOptions ++= options
     ) ++ additionalSettings
 
-    runTestOnlyWithTemporarySettings(state, glob, settings)
+    runTestOnlyWithTemporarySettings(state, selection, settings)
   }
 
   /**
-   * Runs the current project's testOnly with command-specific settings and the supplied glob.
+   * Runs the current project's testOnly with command-specific settings and class selection.
+   * This is the sbt input boundary: All becomes empty input, while Matching adds the
+   * leading whitespace required by runInputTask before its ordinary glob. Callers never
+   * construct raw testOnly input or need to know about this parser requirement.
+   *
    * appendWithSession preserves user session settings; returning the incoming state after
    * execution keeps the appended options from affecting later commands. Failures propagate
    * to sbt's command handler, which retains that incoming command state as well.
@@ -143,9 +149,13 @@ object JUnitTestCommands {
    * runInputTask does not aggregate tasks. A root project's collected Test / definedTests
    * are still selected and executed through that root project's Test / testOptions.
    */
-  def runTestOnlyWithTemporarySettings(state: State, glob: String, settings: Seq[Setting[?]]): State = {
+  def runTestOnlyWithTemporarySettings(state: State, selection: TestClassSelection, settings: Seq[Setting[?]]): State = {
     val newState = state.appendWithSession(settings)
-    Project.extract(newState).runInputTask(Test / testOnly, glob, newState)
+    val testOnlyInput = selection match {
+      case TestClassSelection.All => ""
+      case TestClassSelection.Matching(glob) => s" $glob"
+    }
+    Project.extract(newState).runInputTask(Test / testOnly, testOnlyInput, newState)
     state
   }
 }
