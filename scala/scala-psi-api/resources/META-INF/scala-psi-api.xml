@@ -1,0 +1,9 @@
+<idea-plugin>
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.scala.memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementType$"/>
+    </extensions>
+</idea-plugin>

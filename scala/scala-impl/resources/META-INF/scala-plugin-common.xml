@@ -4,19 +4,11 @@
     <extensionPoints>
         <extensionPoint qualifiedName="org.intellij.scala.scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.dependencyAwareInjectionSettings" interface="org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.finder.ScalaLanguageDerivative" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.scalaSyntheticClassProducer" interface="org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.parameterInfoEnhancer" interface="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaParameterInfoEnhancer" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.genericTypeNamesProvider" interface="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.GenericTypeNamesProvider" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.unresolvedReferenceFixProvider" interface="org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider" dynamic="true"/>
-        <extensionPoint qualifiedName="org.intellij.scala.fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsContributor" dynamic="true"/>
-
-        <extensionPoint qualifiedName="org.intellij.scala.compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
 
         <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalReferenceSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalReferenceSearcher" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.findUsages.externalInheritorsSearcher" interface="org.jetbrains.plugins.scala.findUsages.ExternalInheritorsSearcher" dynamic="true"/>
@@ -101,7 +93,6 @@
         <moveLeftRightHandler language="Scala"
                               implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaMoveLeftRightHandler"/>
         <editorTabTitleProvider implementation="org.jetbrains.plugins.scala.editor.PackageObjectEditorTabTitleProvider"/>
-        <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
         <iconProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaIconProvider"/>
         <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
@@ -162,9 +153,6 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.CompilerIndicesSettings"/>
 
         <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
-        <fileType name="Scala" language="Scala" extensions="scala;mill"
-                  implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE" />
-
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.incremental.Listener"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.incremental.Tracing$StartupActivity"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.lang.resolve.ReferenceVariants"
@@ -212,13 +200,7 @@
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>
         <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
         <codeBlockSupportHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBlockSupportHandler"/>
-        <lang.fileViewProviderFactory language="Scala"
-                                      implementationClass="org.jetbrains.plugins.scala.lang.psi.ScFileViewProviderFactory"/>
-        <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
-        <lang.parserDefinition language="Scala 3" implementationClass="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition"/>
         <lang.parserDefinition language="ScalaDoc" implementationClass="org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition"/>
-        <lang.parserDefinition language="ScalaDirective" implementationClass="org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveParserDefinition"/>
-        <lang.parserDefinition language="ScalaDocRefLink" implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.reflinks.ScalaDocRefLinkParserDefinition"/>
         <lang.ast.factory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
         <lang.ast.factory language="ScalaDoc" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
         <lang.ast.factory language="ScalaDirective" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory"/>
@@ -637,7 +619,6 @@
         <vcs.codeVisionLanguageContext language="Scala"
                                        implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.codeVision.ScalaVcsCodeVisionContext"/>
 
-        <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassElementFinder"/>
         <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder"/>
         <java.elementFinder implementation="org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClassFinder"/>
         <java.shortNamesCache implementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCache"/>
@@ -667,14 +648,6 @@
 
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer" order="first"/>
         <runConfigurationExtension implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationExtension"/>
-
-        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementType$"/>
-        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition$"/>
-        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition$"/>
-
-        <languageStubDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.stubs.ScalaLanguageStubDefinition"/>
-        <languageStubDefinition language="Scala 3" implementationClass="org.jetbrains.plugins.scala.lang.psi.stubs.Scala3LanguageStubDefinition"/>
-        <stubElementRegistryExtension implementation="org.jetbrains.plugins.scala.lang.psi.stubs.ScalaStubRegistryExtension"/>
 
         <!-- Stub indices -->
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAllClassNamesIndex"/>
@@ -726,20 +699,10 @@
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigServiceImpl"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
 
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
-                            serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ApplicationCodeStyleSettingsMigrationService"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
                             serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettingsImpl"/>
@@ -779,9 +742,6 @@
         <filetype.stubBuilder filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileStubBuilder"/>
         <filetype.decompiler filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileDecompiler"/>
 
-        <!-- TODO Research whether it's possible to use only the following: -->
-        <!--<fileType name="TASTy" extensions="tasty" implementationClass="com.intellij.ide.highlighter.JavaClassFileType"/>-->
-        <fileType name="TASTy" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
         <fileType.fileViewProviderFactory filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileViewProviderFactory"/>
         <filetype.stubBuilder filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileStubBuilder"/>
         <filetype.decompiler filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyDecompiler"/>
@@ -2197,8 +2157,6 @@
 
         <generalTroubleInfoCollector implementation="org.jetbrains.plugins.scala.internal.ScalaGeneralTroubleInfoCollector"/>
         <aboutPopupDescriptionProvider implementation="org.jetbrains.plugins.scala.internal.ScalaPluginAboutPopupDescriptionProvider"/>
-
-        <psi.treeChangeListener implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiChangeListener" />
 
         <ide.dynamicPluginVetoer implementation="org.jetbrains.plugins.scala.internal.ScalaDynamicPluginVetoer" />
    </extensions>

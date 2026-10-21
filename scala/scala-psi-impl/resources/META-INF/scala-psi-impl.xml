@@ -1,0 +1,42 @@
+<idea-plugin>
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.scala.syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsContributor" dynamic="true"/>
+
+        <extensionPoint qualifiedName="org.intellij.scala.compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
+
+        <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
+        <lang.parserDefinition language="Scala 3" implementationClass="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition"/>
+        <lang.parserDefinition language="ScalaDirective" implementationClass="org.jetbrains.plugins.scalaDirective.lang.parser.ScalaDirectiveParserDefinition"/>
+        <lang.parserDefinition language="ScalaDocRefLink" implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.reflinks.ScalaDocRefLinkParserDefinition"/>
+
+        <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassElementFinder"/>
+
+        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition$"/>
+        <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition$"/>
+
+        <languageStubDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.stubs.ScalaLanguageStubDefinition"/>
+        <languageStubDefinition language="Scala 3" implementationClass="org.jetbrains.plugins.scala.lang.psi.stubs.Scala3LanguageStubDefinition"/>
+        <stubElementRegistryExtension implementation="org.jetbrains.plugins.scala.lang.psi.stubs.ScalaStubRegistryExtension"/>
+
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
+
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.expr.ExpectedTypesImpl"
+                            serviceInterface="org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes"/>
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
+
+        <psi.treeChangeListener implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiChangeListener" />
+    </extensions>
+</idea-plugin>

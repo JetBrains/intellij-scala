@@ -90,6 +90,9 @@
 
     <xi:include href="/META-INF/sbt-api.xml"/>
     <xi:include href="/META-INF/sbt-core.xml"/>
+    <xi:include href="/META-INF/scala-api.xml"/>
+    <xi:include href="/META-INF/scala-psi-api.xml"/>
+    <xi:include href="/META-INF/scala-psi-impl.xml"/>
     <xi:include href="/META-INF/scala-plugin-common.xml"/>
     <xi:include href="/META-INF/sbt.xml"/>
     <xi:include href="/META-INF/codeInsight.xml"/>

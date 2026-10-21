@@ -1,0 +1,16 @@
+<idea-plugin>
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.scala.scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.finder.ScalaLanguageDerivative" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType name="Scala" language="Scala" extensions="scala;mill"
+                  implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE" />
+        <lang.fileViewProviderFactory language="Scala"
+                                      implementationClass="org.jetbrains.plugins.scala.lang.psi.ScFileViewProviderFactory"/>
+
+        <!-- TODO Research whether it's possible to use only the following: -->
+        <!--<fileType name="TASTy" extensions="tasty" implementationClass="com.intellij.ide.highlighter.JavaClassFileType"/>-->
+        <fileType name="TASTy" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
+    </extensions>
+</idea-plugin>
