@@ -39,9 +39,9 @@ private object ScalaEvaluatorBuilder {
         val simple = new ScalaEvaluatorBuilder(codeFragment, position).getEvaluator
         val evaluator =
           if (codeFragment.getLanguage.is(Scala3Language.INSTANCE)) {
+            val compiled = new ExpressionCompilerEvaluator(codeFragment, position)
             val shim: Evaluator = new Evaluator {
-              override def evaluate(context: EvaluationContextImpl): AnyRef =
-                new ExpressionCompilerEvaluator(codeFragment, position).evaluate(context)
+              override def evaluate(context: EvaluationContextImpl): AnyRef = compiled.evaluate(context)
             }
             ScalaDuplexEvaluator(simple, shim)
           } else simple
