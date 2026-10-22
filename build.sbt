@@ -273,6 +273,7 @@ lazy val sbtApi =
     .dependsOn(
       sbtCore,
       scalaApi,
+      scalaPsiImpl,
       compilerShared,
       workspaceEntities,
       workspaceEntitiesGen,

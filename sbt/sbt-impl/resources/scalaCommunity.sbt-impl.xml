@@ -13,7 +13,6 @@
         <module name="intellij.java.execution.impl"/>
         <module name="intellij.java.frontback.psi"/>
         <module name="intellij.java.frontback.psi.impl"/>
-        <module name="intellij.java.indexing"/>
         <module name="intellij.java.psi"/>
         <module name="intellij.java.psi.impl"/>
         <module name="intellij.java.syntax"/>
@@ -95,13 +94,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <externalExecutionAware id="sbt" key="SBT" implementationClass="org.jetbrains.sbt.project.execution.SbtExecutionAware" />
 
-        <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
-        <lang.parserDefinition language="sbt Scala 3" implementationClass="org.jetbrains.sbt.language.SbtParserDefinitionScala3"/>
+        <!-- the sbt file type, its parser definitions and file view provider are in scalaCommunity.sbt-api (shared) -->
         <lang.substitutor language="sbt" implementationClass="org.jetbrains.sbt.language.SbtLanguageSubstitutor"/>
-        <lang.fileViewProviderFactory language="sbt"
-                                      implementationClass="org.jetbrains.sbt.language.SbtFileViewProviderFactory"/>
-        <fileType name="sbt" language="sbt" extensions="sbt"
-                  implementationClass="org.jetbrains.sbt.language.SbtFileType$" fieldName="MODULE$"/>
         <fileType name="sbtShell" language="sbtShell" extensions="sbts"
                   implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition$SbtShellFileType$"
                   fieldName="MODULE$"/>

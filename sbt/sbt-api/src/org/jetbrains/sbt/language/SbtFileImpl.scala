@@ -8,9 +8,9 @@ import com.intellij.psi.search.{GlobalSearchScope, searches}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.caches.{ModTracker, cached, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
-import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.*
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScalaClassLookup}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.sbt.project.module.SbtModule.Imports
 
@@ -21,7 +21,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
     with SbtFile
     with ScDeclarationSequenceHolder {
 
-  import SbtFileImpl._
+  import SbtFileImpl.*
 
   override def typeDefinitions: Seq[ScTypeDefinition] = Seq.empty
 
@@ -38,7 +38,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
       }
 
   private val syntheticFile = cached("syntheticFile", ModTracker.physicalPsiChange(getProject), () => {
-    implicit val manager: ScalaPsiManager = ScalaPsiManager.instance(getProject)
+    implicit val classLookup: ScalaClassLookup = ScalaClassLookup.instance(getProject)
     @NonNls val imports = importsFor(targetModule).map {
       // TODO this is a workaround, we need to find out why references stopped resolving via the chained imports
       case "Keys._" => "sbt.Keys._"
@@ -105,14 +105,14 @@ object SbtFileImpl {
                                         moduleWithDependenciesAndLibrariesScope: GlobalSearchScope) extends TargetModule
 
   private def importsFor(module: TargetModule)
-                        (implicit manager: ScalaPsiManager): Seq[String] = module match {
+                        (implicit classLookup: ScalaClassLookup): Seq[String] = module match {
     case ModuleLess => Seq.empty
     case DefinitionModule(module) => Imports(module)
     case SbtModuleWithScope(module, moduleWithDependenciesAndLibrariesScope) =>
       val moduleScope = module.getModuleScope
       val localObjectsWithDefinitions = for {
         fqn <- Sbt.DefinitionHolderClasses
-        aClass <- manager.getCachedClasses(moduleWithDependenciesAndLibrariesScope, fqn)
+        aClass <- classLookup.getCachedClasses(moduleWithDependenciesAndLibrariesScope, fqn)
 
         inheritor <- searches.ClassInheritorsSearch
           .search(aClass, moduleScope, true)
