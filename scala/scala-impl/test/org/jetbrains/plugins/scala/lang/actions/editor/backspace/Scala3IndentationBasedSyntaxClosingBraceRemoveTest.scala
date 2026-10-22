@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.util.RevertableChange
 
 class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
 
@@ -11,7 +12,11 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
 
   override def setUp(): Unit = {
     super.setUp()
-    ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
+
+    RevertableChange.withModifiedSetting(ScalaCompileServerSettings.getInstance)(false)(
+      _.COMPILE_SERVER_ENABLED, _.COMPILE_SERVER_ENABLED = _
+    ).applyChange(this)
+
     getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
   }
 
