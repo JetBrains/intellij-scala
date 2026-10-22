@@ -19,7 +19,11 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{NonNls, VisibleForTesting}
 import org.jetbrains.jps.incremental.scala.remote.SerializablePath
 import org.jetbrains.jps.model.java.JdkVersionDetector
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.{PathExt, invokeAndWait}
+import org.jetbrains.plugins.scala.lang.parser.ScCodeBlockElementType
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.util.{CommonQualifiedNames, ScalaPluginJars}
 import org.jetbrains.sbt.SbtUtil.{defaultLauncherPath, detectSbtVersion}
 import org.jetbrains.sbt.process.options.SbtProcessOptionsResolver
 import org.jetbrains.sbt.project.settings.*
@@ -37,7 +41,19 @@ class SbtExternalSystemManager
   override def enhanceRemoteProcessing(parameters: SimpleJavaParameters): Unit = {
     val classpath = parameters.getClassPath
 
-    classpath.add(jarWith[this.type])
+    // the jars of the plugin projects the resolver runs on: the plugin is split into content modules with their own
+    // jars (lib/modules/<module>.jar), each one is found by a class it contains
+    Seq(
+      jarWith[this.type],                       // sbt-impl
+      jarWith[SbtProjectSettings],              // sbt-api
+      jarWith[module.SbtModuleType],            // sbt-core
+      jarWith[ScalaPluginJars.type],            // scala-impl
+      jarWith[ScalaPsiUtil.type],               // scala-psi-impl
+      jarWith[ScCodeBlockElementType],          // scala-psi-api
+      jarWith[ScalaLanguage],                   // scala-core
+      jarWith[CommonQualifiedNames.type],       // the main jar (scala-utils-language, workspace entities, ...)
+      jarWith[SerializablePath],                // compiler-shared
+    ).distinct.foreach(classpath.add)
     //    classpath.add(jarWith[org.jetbrains.sbt.structure.XmlSerializer[?]].toCanonicalPath.toString)
     classpath.add(jarWith[scala.Specializable])
     classpath.add(jarWith[scala.xml.Node])
