@@ -24,7 +24,7 @@ import scala.annotation.tailrec
 private[evaluator] case class GeneratedClass(syntheticFile: PsiFile, newContext: PsiElement, generatedClassName: String) {
   import GeneratedClass._
 
-  private val module: Module = inReadAction {
+  private val module: Module = {
     val originalFile = syntheticFile.getUserData(AnonymousFunction.originalFileKey)
     Option(originalFile).map(findModuleForPsiElement).orNull
   }
