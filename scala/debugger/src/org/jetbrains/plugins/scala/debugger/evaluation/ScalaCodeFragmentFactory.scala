@@ -7,7 +7,6 @@ import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.util.concurrency.Semaphore
@@ -29,7 +28,7 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 class ScalaCodeFragmentFactory extends CodeFragmentFactory {
-  override def createPsiCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
+  override def createPsiCodeFragment(item: TextWithImports, context: PsiElement, project: Project): ScalaCodeFragment = {
     implicit val p: Project = project
     val fragment = createCodeFragmentInner(item, wrapContext(context))
 
@@ -85,7 +84,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
     fragment
   }
 
-  override def createPresentationPsiCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
+  override def createPresentationPsiCodeFragment(item: TextWithImports, context: PsiElement, project: Project): ScalaCodeFragment = {
     createPsiCodeFragment(item, context, project)
   }
 
@@ -100,10 +99,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
 
   override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 
-  override def getEvaluatorBuilder: EvaluatorBuilder = {
-    val lazyResolveEnabled = Registry.is("scala.debugger.expression.evaluator.lazy.resolve.enabled")
-    if (lazyResolveEnabled) ScalaLazyResolveEvaluatorBuilder else ScalaEvaluatorBuilder
-  }
+  override def getEvaluatorBuilder: EvaluatorBuilder = ScalaLazyResolveEvaluatorBuilder
 
   private def wrapContext(originalContext: PsiElement)
                          (implicit project: Project): PsiElement = {
