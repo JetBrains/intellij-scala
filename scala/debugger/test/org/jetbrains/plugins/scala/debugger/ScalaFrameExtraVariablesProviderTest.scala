@@ -36,6 +36,10 @@ abstract class ScalaFrameExtraVariablesProviderTestBase extends ExpressionEvalua
        |    Seq(20).foreach { case x =>
        |      println(x + outer) $breakpoint
        |    }
+       |    def local(): Unit = {
+       |      println(outer) $breakpoint
+       |    }
+       |    local()
        |  }
        |}""".stripMargin.trim)
 
@@ -43,7 +47,8 @@ abstract class ScalaFrameExtraVariablesProviderTestBase extends ExpressionEvalua
   def variablesFromOuterScopes(): Unit =
     expressionEvaluationTest("OuterScopeVariables")(
       implicit ctx => assertEquals(Set("outer"), extraVariables(alreadyCollected = Set("x"))),
-      implicit ctx => assertEquals(Set("outer"), extraVariables(alreadyCollected = Set("x")))
+      implicit ctx => assertEquals(Set("outer"), extraVariables(alreadyCollected = Set("x"))),
+      implicit ctx => assertEquals(Set("outer"), extraVariables(alreadyCollected = Set.empty))
     )
 
   private def extraVariables(alreadyCollected: Set[String])(implicit ctx: SuspendContextImpl): Set[String] =
