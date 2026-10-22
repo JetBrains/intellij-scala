@@ -8,6 +8,8 @@ import com.intellij.testFramework.{CompilerTester, EdtTestUtil}
 import junit.framework.TestCase.assertEquals
 import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.compiler.{CompilerMessagesUtil, JdkVersionParameters, SbtProjectCompilationTestBase}
+import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.util.RevertableChange
 import org.jetbrains.plugins.scala.util.runners.TestJdkVersion
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
@@ -36,6 +38,11 @@ class TestSourcesInScratchWorksheetTest(jdkVersion: TestJdkVersion) extends SbtP
   override def setUp(): Unit = {
     EdtTestUtil.runInEdtAndWait { () =>
       super.setUp()
+
+      RevertableChange.withModifiedSetting(ScalaCompileServerSettings.getInstance)(true)(
+        _.COMPILE_SERVER_ENABLED, _.COMPILE_SERVER_ENABLED = _
+      ).applyChange(this)
+
       createProjectSubDirs("project", "src/main/scala", "src/test/scala")
       createProjectSubFile("project/build.properties", "sbt.version=1.10.5")
       createProjectSubFile("src/main/scala/Person.scala",
