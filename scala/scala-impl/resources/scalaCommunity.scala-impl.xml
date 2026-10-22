@@ -261,8 +261,6 @@
                             serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager$ClassLookupProvider"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensions$Provider"
                             serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager$ExtensionsProvider"/>
-        <registryKey key="scala.highlighting.tracing" defaultValue="false" description="Trace resolve and type inference"/>
-        <registryKey key="scala.highlighting.tracing.in.editor" defaultValue="true" description="Also trace resolve and type inference in editor"/>
         <registryKey key="scala.incremental.highlighting.lookaround" defaultValue="15" description="Number of lines to highlight beyond the visible area"/>
 
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaLocalVarCouldBeValPassFactory"/>
@@ -851,9 +849,6 @@
 
         <registryKey key="scala.advanced.onboarding.tips" defaultValue="false"  restartRequired="false"
                      description="If enabled, New Project Wizard will generate additional onboarding tips files if 'onboarding tips' are set"/>
-
-        <registryKey key="scala.enable.match.type.intrinsics" defaultValue="true"  restartRequired="false"
-                     description="If enabled, certain match types are reduced via special case intrinsics, rather than through general compiler algorithm"/>
 
         <registryKey key="scala.type.presentation.debug.type.param.id" defaultValue="false" restartRequired="false"
                      description="If enabled, type text rendering includes `typeParamId` suffix for type-parameter-backed types (debug only)"/>

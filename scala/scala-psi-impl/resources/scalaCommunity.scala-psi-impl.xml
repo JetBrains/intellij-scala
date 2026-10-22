@@ -73,5 +73,11 @@
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
 
         <psi.treeChangeListener implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiChangeListener" />
+
+        <!-- read by the shared code, so they are registered in a shared module -->
+        <registryKey key="scala.highlighting.tracing" defaultValue="false" description="Trace resolve and type inference"/>
+        <registryKey key="scala.highlighting.tracing.in.editor" defaultValue="true" description="Also trace resolve and type inference in editor"/>
+        <registryKey key="scala.enable.match.type.intrinsics" defaultValue="true"  restartRequired="false"
+                     description="If enabled, certain match types are reduced via special case intrinsics, rather than through general compiler algorithm"/>
     </extensions>
 </idea-plugin>
