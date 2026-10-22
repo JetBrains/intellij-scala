@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.debugger.evaluation
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression._
-import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
@@ -26,26 +25,18 @@ import org.jetbrains.plugins.scala.util.AnonymousFunction
 import org.jetbrains.plugins.scala.{NlsString, Scala3Language}
 
 /**
- * Resolves the expression while building, which can take seconds; build through ScalaLazyResolveEvaluatorBuilder,
- * which does this in a non-blocking read action at evaluation time, instead of calling this directly
+ * Resolves the expression while building, which can take seconds; [[ScalaLazyResolveEvaluatorBuilder]] does this in a
+ * non-blocking read action at evaluation time, which is why everything builds through it instead of calling this directly
  */
-private object ScalaEvaluatorBuilder extends EvaluatorBuilder {
-  override def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
-    if (codeFragment.getLanguage.is(JavaLanguage.INSTANCE))
-      return EvaluatorBuilderImpl.getInstance().build(codeFragment, position) //java builder (e.g. SCL-6117)
-
-    val scalaFragment = codeFragment match {
-      case sf: ScalaCodeFragment => sf
-      case _ => throw new IllegalArgumentException("Non-scala code fragment in scala evaluator builder")
-    }
-
+private object ScalaEvaluatorBuilder {
+  def build(codeFragment: ScalaCodeFragment, position: SourcePosition): ExpressionEvaluator = {
     val project = codeFragment.getProject
 
-    val cached = cachedEvaluator(project, position, scalaFragment)
+    val cached = cachedEvaluator(project, position, codeFragment)
 
     def buildSimpleEvaluator: Evaluator = {
       cached.getOrElse {
-        val simple = new ScalaEvaluatorBuilder(scalaFragment, position).getEvaluator
+        val simple = new ScalaEvaluatorBuilder(codeFragment, position).getEvaluator
         val evaluator =
           if (codeFragment.getLanguage.is(Scala3Language.INSTANCE)) {
             val shim: Evaluator = new Evaluator {
@@ -55,14 +46,14 @@ private object ScalaEvaluatorBuilder extends EvaluatorBuilder {
             ScalaDuplexEvaluator(simple, shim)
           } else simple
 
-        cacheEvaluator(project, position, scalaFragment, evaluator)
+        cacheEvaluator(project, position, codeFragment, evaluator)
         evaluator
       }
     }
 
     def buildCompilingEvaluator: ScalaCompilingEvaluator = {
-      val compilingEvaluator = new ScalaCompilingEvaluator(position.getElementAt, scalaFragment)
-      cacheEvaluator(project, position, scalaFragment, compilingEvaluator)
+      val compilingEvaluator = new ScalaCompilingEvaluator(position.getElementAt, codeFragment)
+      cacheEvaluator(project, position, codeFragment, compilingEvaluator)
       compilingEvaluator
     }
 
