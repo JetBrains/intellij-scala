@@ -26,6 +26,9 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
   val methodName: String = DebuggerUtil.withoutBackticks(_methodName)
   private val localMethod = localMethodIndex > 0
   private val localMethodName = methodName + "$" + localMethodIndex
+  // The source lines of the method, computed here under the read action the evaluator is built in; evaluate() must
+  // not touch PSI. None when the lines cannot be determined, which counts as "any line" below.
+  private val methodLines: Option[Set[Int]] = Try(methodPosition.map(_.getLine)).toOption
 
   private var prevProcess: DebugProcess = scala.compiletime.uninitialized
   private val jdiMethodsCache = mutable.HashMap[ReferenceType, Option[Method]]()
@@ -121,11 +124,8 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
               case _: AbsentInformationException => true
             }
           }
-          def linesIntersects(m: Method): Boolean = inReadAction {
-            Try {
-              val lines = methodPosition.map(_.getLine)
-              m.allLineLocations().asScala.exists(l => lines.contains(ScalaPositionManager.checkedLineNumber(l)))
-            }.getOrElse(true)
+          def linesIntersects(m: Method): Boolean = methodLines.forall { lines =>
+            Try(m.allLineLocations().asScala.exists(l => lines.contains(ScalaPositionManager.checkedLineNumber(l)))).getOrElse(true)
           }
 
           if (sortedMethodCandidates.length > 1) {
