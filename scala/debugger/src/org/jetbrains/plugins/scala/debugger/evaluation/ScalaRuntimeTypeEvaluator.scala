@@ -5,9 +5,8 @@ import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator
 import com.intellij.debugger.engine.ContextUtil
 import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
-import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluateException, EvaluationContextImpl, TextWithImportsImpl}
+import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluationContextImpl, TextWithImportsImpl}
 import com.intellij.debugger.impl.DebuggerContextImpl
-import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
@@ -15,11 +14,11 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiImmediateClassType
 import com.sun.jdi.{ClassType, ReferenceType, Value}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.debugger.evaluation.ReadActions.inNonBlockingReadAction
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 
-import java.util.concurrent.{Callable, ExecutionException}
 import scala.jdk.CollectionConverters._
 
 abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: PsiElement, context: DebuggerContextImpl, indicator: ProgressIndicator)
@@ -34,23 +33,9 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
     // action that makes every write action (e.g. typing in the editor) wait until it is done (SCL-26185).
     // A non-blocking read action is cancelled and restarted when a write action is pending, and the indicator lets
     // the requester drop the computation once it is no longer interested in the result.
-    def inNonBlockingReadAction[T](body: => T): T = {
-      val callable: Callable[T] = () => body
-      try {
-        ReadAction.nonBlocking(callable)
-          .wrapProgress(indicator)
-          .expireWhen(() => !process.isAttached)
-          .executeSynchronously()
-      } catch {
-        // checked exceptions from the computation are rethrown wrapped, RuntimeTypeEvaluator expects them bare
-        case e: ExecutionException => e.getCause match {
-          case evaluateException: EvaluateException => throw evaluateException
-          case _ => throw e
-        }
-      }
-    }
+    def nonBlocking[T](body: => T): T = inNonBlockingReadAction(expireWhen = () => !process.isAttached, Some(indicator))(body)
 
-    val evaluator: ExpressionEvaluator = inNonBlockingReadAction {
+    val evaluator: ExpressionEvaluator = nonBlocking {
       val textWithImports = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, expression.getText)
       val codeFragment = new ScalaCodeFragmentFactory().createPsiCodeFragment(textWithImports, expression, project)
       ScalaEvaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(evaluationContext))
@@ -60,7 +45,7 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
 
     // talk to the debuggee first, so that only the PSI lookup runs under the read lock
     val candidates = castableTypeCandidates(value)
-    inNonBlockingReadAction {
+    nonBlocking {
       val elementScope = ElementScope(project, process.getSearchScope)
       candidates.iterator
         .flatMap(DebuggerUtil.findPsiClassByQName(_, elementScope))

@@ -6,7 +6,6 @@ import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
@@ -81,7 +80,6 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
   }
 
   private def cachedEvaluator(project: Project, position: SourcePosition, codeFragment: ScalaCodeFragment): Option[Evaluator] = {
-    if (lazyResolveEnabled) return None
     val cache = ScalaEvaluatorCache.getInstance(project)
     try cache.get(position, codeFragment)
     catch {
@@ -93,12 +91,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
   }
 
   private def cacheEvaluator(project: Project, position: SourcePosition, codeFragment: ScalaCodeFragment, evaluator: Evaluator): Unit = {
-    if (lazyResolveEnabled) return
     val cache = ScalaEvaluatorCache.getInstance(project)
     cache.add(position, codeFragment, evaluator)
   }
-
-  private def lazyResolveEnabled: Boolean = Registry.is("scala.debugger.expression.evaluator.lazy.resolve.enabled")
 }
 
 private[evaluation] class NeedCompilationException(@Nls message: String) extends EvaluateException(message)
