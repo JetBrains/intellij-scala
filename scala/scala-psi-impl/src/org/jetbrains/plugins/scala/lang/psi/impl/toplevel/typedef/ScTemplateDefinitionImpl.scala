@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel
 package typedef
 
-import com.intellij.execution.junit.JUnitUtil
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
@@ -165,7 +164,9 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
     PsiClassImplUtil.findMethodsBySignature(this, patternMethod, checkBases)
 
   override final def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = name match {
-    case "main" | JUnitUtil.SUITE_METHOD_NAME => // these methods may be searched from EDT, search them without building a whole type hierarchy
+    // these methods may be searched from EDT, search them without building a whole type hierarchy
+    // ("suite" is `JUnitUtil.SUITE_METHOD_NAME`, inlined: its module intellij.java.execution.impl is absent on the frontend)
+    case "main" | "suite" =>
 
       val inThisClass = allFunctionsByName(name)
 
