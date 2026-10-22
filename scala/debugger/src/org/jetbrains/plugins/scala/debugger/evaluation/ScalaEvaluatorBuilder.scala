@@ -6,7 +6,6 @@ import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
@@ -26,12 +25,14 @@ import org.jetbrains.plugins.scala.statistics.ScalaDebuggerUsagesCollector
 import org.jetbrains.plugins.scala.util.AnonymousFunction
 import org.jetbrains.plugins.scala.{NlsString, Scala3Language}
 
-object ScalaEvaluatorBuilder extends EvaluatorBuilder {
+/**
+ * Resolves the expression while building, which can take seconds; build through ScalaLazyResolveEvaluatorBuilder,
+ * which does this in a non-blocking read action at evaluation time, instead of calling this directly
+ */
+private object ScalaEvaluatorBuilder extends EvaluatorBuilder {
   override def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
     if (codeFragment.getLanguage.is(JavaLanguage.INSTANCE))
       return EvaluatorBuilderImpl.getInstance().build(codeFragment, position) //java builder (e.g. SCL-6117)
-
-    ScalaDebuggerUsagesCollector.logEvaluator(codeFragment.getProject)
 
     val scalaFragment = codeFragment match {
       case sf: ScalaCodeFragment => sf
@@ -80,8 +81,15 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     }
   }
 
+  /**
+   * Builds an evaluator that interprets the expression itself and fails (with a `NeedCompilationException`) where
+   * [[build]] would fall back to compiling it, for callers that evaluate speculatively and must stay cheap. The result
+   * is not cached, so that it is not mistaken for the complete evaluator of the same expression later.
+   */
+  private[evaluation] def buildWithoutCompilation(codeFragment: ScalaCodeFragment, position: SourcePosition): ExpressionEvaluator =
+    ExpressionEvaluatorImpl(ScalaEvaluatorBuilder(codeFragment, position).getEvaluator)
+
   private def cachedEvaluator(project: Project, position: SourcePosition, codeFragment: ScalaCodeFragment): Option[Evaluator] = {
-    if (lazyResolveEnabled) return None
     val cache = ScalaEvaluatorCache.getInstance(project)
     try cache.get(position, codeFragment)
     catch {
@@ -93,12 +101,9 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
   }
 
   private def cacheEvaluator(project: Project, position: SourcePosition, codeFragment: ScalaCodeFragment, evaluator: Evaluator): Unit = {
-    if (lazyResolveEnabled) return
     val cache = ScalaEvaluatorCache.getInstance(project)
     cache.add(position, codeFragment, evaluator)
   }
-
-  private def lazyResolveEnabled: Boolean = Registry.is("scala.debugger.expression.evaluator.lazy.resolve.enabled")
 }
 
 private[evaluation] class NeedCompilationException(@Nls message: String) extends EvaluateException(message)

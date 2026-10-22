@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger
 
+import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, TextWithImportsImpl}
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.breakpoints.{Breakpoint, BreakpointManager, JavaLineBreakpointType}
 import com.intellij.debugger.{BreakpointComment, DebuggerInvocationUtil, DebuggerTestCase}
@@ -107,6 +108,9 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
             val xbp = inWriteAction(breakpointManager.addLineBreakpoint(bpType, virtualFile.getUrl, lineNumber, props))
             val javaBp = BreakpointManager.getJavaBreakpoint(xbp)
               .asInstanceOf[Breakpoint[? <: JavaLineBreakpointProperties]]
+            Option(comment.readValue(conditionString)).foreach { expression =>
+              inWriteAction(javaBp.setCondition(new TextWithImportsImpl(CodeFragmentKind.EXPRESSION, expression)))
+            }
             BreakpointManager.addBreakpoint(javaBp)
           }
         }
@@ -183,6 +187,11 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaExecutio
   /** Marks a breakpoint as the conditional (early) return variant, rather than a plain line breakpoint. */
   protected def conditionalReturn: String =
     lambdaOrdinal(JavaLineBreakpointProperties.encodeInlinePosition(JavaLineBreakpointProperties.NO_LAMBDA, true))
+
+  private val conditionString: String = "Condition"
+
+  /** Makes the breakpoint stop only when `expression` evaluates to true in the debuggee. */
+  protected def condition(expression: String): String = s"$conditionString($expression)"
 }
 
 private object ScalaDebuggerTestCase {
