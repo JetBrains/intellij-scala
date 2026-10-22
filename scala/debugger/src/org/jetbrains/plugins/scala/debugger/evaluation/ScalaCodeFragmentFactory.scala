@@ -5,7 +5,7 @@ import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
 import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.openapi.fileTypes.LanguageFileType
-import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.text.StringUtil
@@ -40,7 +40,8 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
         val semaphore: Semaphore = new Semaphore
         semaphore.down()
         val nameRef = new AtomicReference[PsiClass]
-        val worker = new ScalaRuntimeTypeEvaluator(null, expr, debuggerContext, ProgressManager.getInstance.getProgressIndicator) {
+        val indicator = new EmptyProgressIndicator()
+        val worker = new ScalaRuntimeTypeEvaluator(null, expr, debuggerContext, indicator) {
           override def typeCalculationFinished(psiType: PsiType): Unit = {
             val psiClass = psiType match {
               case tp: PsiClassType =>
@@ -53,10 +54,16 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
           }
         }
         debuggerContext.getDebugProcess.getManagerThread.schedule(worker)
-        var i: Int = 0
-        while (i < 50 && !semaphore.waitFor(20)) {
-          ProgressManager.checkCanceled()
-          i += 1
+        try {
+          var i: Int = 0
+          while (i < 50 && !semaphore.waitFor(20)) {
+            ProgressManager.checkCanceled()
+            i += 1
+          }
+        } finally {
+          // whether we got the result, gave up waiting or the completion was cancelled, the evaluation on the debugger
+          // thread must not keep running (and holding the read lock) for a result nobody is going to read
+          indicator.cancel()
         }
         val psiClass: PsiClass = nameRef.get
         if (psiClass != null) {
