@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala
 package base
 
+import com.intellij.openapi.application.impl.TestOnlyThreading
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import com.intellij.testFramework.fixtures._
-import com.intellij.testFramework.{LightProjectDescriptor, UsefulTestCase}
+import com.intellij.testFramework.{LightProjectDescriptor, PlatformTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertionsExt
 
@@ -20,6 +22,33 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertionsExt w
     super.setUp()
     fixture = createFixture()
     fixture.setUp()
+    waitForSyntheticClasses()
+  }
+
+  /**
+   * The post-startup activity can enqueue registration after the fixture has finished waiting for indexing.
+   *
+   * A production fix would register synthetic classes synchronously in
+   * [[com.intellij.openapi.startup.StartupActivity.RequiredForSmartMode]], using the
+   * `requiredForSmartModeStartupActivity` extension point, guaranteeing registration before smart mode.
+   * We use this test-only wait because earlier experiments found that approach slowed project startup;
+   * see [[org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.RegisterSyntheticClassesProjectActivity]] for the measurements.
+   *
+   * This fixes sporadic test failures
+   */
+  private def waitForSyntheticClasses(): Unit = {
+    val syntheticClasses = SyntheticClasses.get(fixture.getProject)
+    if (!syntheticClasses.isClassesRegistered) {
+      invokeAndWait {
+        TestOnlyThreading.releaseTheAcquiredWriteIntentLockThenExecuteActionAndTakeWriteIntentLockBack(() =>
+          PlatformTestUtil.waitWithEventsDispatching(
+            "Scala synthetic classes were not registered",
+            () => syntheticClasses.isClassesRegistered,
+            30
+          )
+        )
+      }
+    }
   }
 
   protected def createFixture(): CodeInsightTestFixture = {
