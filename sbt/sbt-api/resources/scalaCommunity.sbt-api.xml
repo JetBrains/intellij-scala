@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin visibility="public">
     <dependencies>
-        <module name="intellij.java.indexing"/>
         <module name="intellij.java.psi"/>
         <module name="intellij.libraries.kotlinx.coroutines.core"/>
         <module name="intellij.platform.backend.workspace"/>
         <module name="intellij.platform.core"/>
         <module name="intellij.platform.core.impl"/>
-        <module name="intellij.platform.execution"/>
         <module name="intellij.platform.externalSystem"/>
         <module name="intellij.platform.ide"/>
         <module name="intellij.platform.ide.core"/>

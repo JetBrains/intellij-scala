@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.PsiClass
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.ApiStatus
 
 /**
@@ -18,6 +19,9 @@ trait ScalaInheritorsFinder {
 
   /** The class and its inheritors, direct and indirect, in its resolve scope; only inheritors of Scala classes are searched */
   def allInheritors(clazz: PsiClass): Set[PsiClass]
+
+  /** The inheritors of a class in the scope, direct and indirect */
+  def inheritors(clazz: PsiClass, scope: GlobalSearchScope): Iterable[PsiClass]
 }
 
 object ScalaInheritorsFinder {
@@ -32,5 +36,7 @@ object ScalaInheritorsFinder {
     override def inheritorsInFile(clazz: PsiClass): Iterable[PsiClass] = Iterable.empty
 
     override def allInheritors(clazz: PsiClass): Set[PsiClass] = Option(clazz).toSet
+
+    override def inheritors(clazz: PsiClass, scope: GlobalSearchScope): Iterable[PsiClass] = Iterable.empty
   }
 }
