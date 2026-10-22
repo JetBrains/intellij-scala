@@ -28,6 +28,9 @@ private object CompilerPlugin:
   // To delimit the subsequent position text (see MessageRendering.messageAndPos)
   private final val TypeSuffix = "</type>"
 
+  // Skip foo.SourceFile$package.bar (valid for compiler but not PSI)
+  private val SourceFilePackage = """\.\w+\$package\.""".r
+
   private class IntelliJTyper extends PluginPhase:
     override def phaseName: String = "intellij-typer"
 
@@ -45,10 +48,13 @@ private object CompilerPlugin:
         // Handle possible ErrorType("Type mismatch"), e.g. val x: Foo = bar()
         // tpe is binary-incompatible with 3.2, but compiles
         val tpe = if (tree.tpe.isError) tree.expansion.tpe else tree.tpe
-        val s = TextCompat.mkString(printer.toText(tpe), Int.MaxValue)
-          .replace("<root>.this.", "_root_.")
-          .replace("<empty>.this.", "_root_.")
-          .replace("$.this.", ".")
+        val s = {
+          val s = TextCompat.mkString(printer.toText(tpe), Int.MaxValue)
+            .replace("<root>.this.", "_root_.")
+            .replace("<empty>.this.", "_root_.")
+            .replace("$.this.", ".")
+          SourceFilePackage.replaceAllIn(s, ".")
+        }
         // Echo doesn't require the -verbose option
         // Use -Yshow-suppressed-errors to print the type even if there's an error at the same position (see HideNonSensicalMessages)
         report.echo(TypePrefix + s + TypeSuffix, tree.srcPos)(using ctx.fresh.setSetting(ctx.settings.YshowSuppressedErrors, true))

@@ -59,6 +59,10 @@ class CompilerPluginTest_3_3 {
     "val _ = id(Set(1, 2, 3))")(
     info("id(Set(1, 2, 3))", tpe("_root_.scala.collection.immutable.Set[_root_.scala.Int]")))
 
+  @Test def scalaSourceFilePackage(): Unit = assertMessagesAre(Id,
+    "val _ = id(IArray(1, 2, 3))")(
+    info("id(IArray(1, 2, 3))", tpe("_root_.scala.IArray[_root_.scala.Int]")))
+
   // Expected type
 
   @Test def expectedType(): Unit = assertMessagesAre(Id,
