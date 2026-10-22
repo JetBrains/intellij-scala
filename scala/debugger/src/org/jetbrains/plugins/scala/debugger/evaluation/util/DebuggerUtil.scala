@@ -7,7 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.sun.jdi.{Field, ObjectReference, ReferenceType}
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.caches.{ModTracker, ScalaShortNamesCacheManager, cachedInUserData}
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -338,7 +338,18 @@ object DebuggerUtil {
       .orElse(refType.fieldByName("_value").toOption)
   }
 
-  def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
+  // Collecting the captured values resolves every reference in the body and in the local functions it calls, which
+  // can take seconds in a large method. The result of a top-level call (the recursive ones share `visited` and are
+  // not complete on their own) is therefore cached, both between evaluations and between the places that need it
+  // during one evaluation.
+  def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] =
+    if (isMemberOrTopLevel(fun)) Seq.empty
+    else if (visited.nonEmpty) computeLocalParamsForFunDef(fun, visited)
+    else cachedInUserData("localParamsForFunDef", fun, ModTracker.physicalPsiChange(fun.getProject)) {
+      computeLocalParamsForFunDef(fun, visited)
+    }
+
+  private def computeLocalParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.Set[PsiElement]): Seq[ScTypedDefinition] = {
     val container = ScalaEvaluatorBuilderUtil.getContextClass(fun)
     fun.body match { //to exclude references from default parameters
       case Some(b) => localParams(b, fun, container, visited)
@@ -346,11 +357,24 @@ object DebuggerUtil {
     }
   }
 
-  def localParamsForConstructor(cl: ScClass, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
+  def localParamsForConstructor(cl: ScClass, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] =
+    if (isMemberOrTopLevel(cl)) Seq.empty
+    else if (visited.nonEmpty) computeLocalParamsForConstructor(cl, visited)
+    else cachedInUserData("localParamsForConstructor", cl, ModTracker.physicalPsiChange(cl.getProject)) {
+      computeLocalParamsForConstructor(cl, visited)
+    }
+
+  private def computeLocalParamsForConstructor(cl: ScClass, visited: mutable.Set[PsiElement]): Seq[ScTypedDefinition] = {
     val container = ScalaEvaluatorBuilderUtil.getContextClass(cl)
     val extendsBlock = cl.extendsBlock //to exclude references from default parameters
     localParams(extendsBlock, cl, container, visited)
   }
+
+  // Only a definition nested in a block can capture local values. For a member of a template or a top-level
+  // definition everything in scope outside of it is a member too, so there is nothing to collect and walking (and
+  // resolving) its whole body would be wasted work.
+  private def isMemberOrTopLevel(definition: PsiElement): Boolean =
+    definition.getContext.is[ScTemplateBody, ScalaFile, ScPackaging]
 
   def localParamsForDefaultParam(param: ScParameter, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
     val owner = param.owner
