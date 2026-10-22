@@ -4,7 +4,7 @@ import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveMode, ScalaResolveResult, ScalaResolveSupport}
 
 trait ScSelfInvocation extends ScalaPsiElement with PsiReference with ConstructorInvocationLike {
   def args: Option[ScArgumentExprList]
@@ -23,7 +23,7 @@ trait ScSelfInvocation extends ScalaPsiElement with PsiReference with Constructo
 
   def thisElement: PsiElement = getFirstChild
 
-  override def getReference: PsiReference = this
+  override def getReference: PsiReference = ScalaResolveSupport.getInstance.getReference(this)
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitSelfInvocation(this)

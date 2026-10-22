@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 trait ScReference extends ScalaPsiElement with ScPolyResolvable {
-  override def getReference: ScReference = this
+  override def getReference: ScReference = ScalaResolveSupport.getInstance.getReference(this)
 
   def nameId: PsiElement
 

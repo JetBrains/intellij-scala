@@ -45,7 +45,6 @@
         <plugin id="com.intellij.java"/>
         <plugin id="com.intellij.platform.testRunner"/>
         <plugin id="org.intellij.intelliLang"/>
-        <module name="intellij.java.backend"/>
         <module name="intellij.libraries.jna"/>
     </dependencies>
 

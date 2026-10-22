@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiBundle, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveSupport
 
 import javax.swing.Icon
 
@@ -57,9 +58,7 @@ class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePatte
         super.getIcon(flags)
     }
 
-  override def getReferences: Array[PsiReference] = {
-    PsiReferenceService.getService.getContributedReferences(this)
-  }
+  override def getReferences: Array[PsiReference] = ScalaResolveSupport.getInstance.getReferences(this)
 
   override def getNavigationElement: PsiElement =
     ScReferencePatternImpl.getNavigationElementForValOrVarId(this).getOrElse(this)

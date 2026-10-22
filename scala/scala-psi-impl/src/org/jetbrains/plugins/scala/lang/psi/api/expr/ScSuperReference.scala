@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPathElement, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 trait ScSuperReference extends ScExpression with ScPathElement {
   /**
@@ -21,6 +22,8 @@ trait ScSuperReference extends ScExpression with ScPathElement {
   def drvTemplate: Option[ScTemplateDefinition]
 
   def reference: Option[ScStableCodeReference] = findChild[ScStableCodeReference]
+
+  def identifier: Option[PsiElement]
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitSuperReference(this)

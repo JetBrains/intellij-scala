@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScEndImpl.Name
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiElementImpl}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveSupport
 import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
 
 class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd {
@@ -24,7 +25,7 @@ class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd {
     tag.replace(ScalaPsiElementFactory.createIdentifier(name).getPsi)
   }
 
-  override def getReference: PsiReference = this
+  override def getReference: PsiReference = ScalaResolveSupport.getInstance.getReference(this)
 
   override def getElement: PsiElement = this
 

@@ -6,8 +6,9 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScEnumerator.withDesugared
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScEnumerator.withDesugared
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveSupport
 
 trait ScEnumeratorImpl extends ScEnumerator {
 
@@ -19,7 +20,9 @@ trait ScEnumeratorImpl extends ScEnumerator {
     _.desugarEnumerator(this)
   }
 
-  override def getReference: PsiReference = if(enumeratorToken.isDefined) this else null
+  override def getReference: PsiReference =
+    if (enumeratorToken.isDefined) ScalaResolveSupport.getInstance.getReference(this)
+    else null
 
   override def getElement: PsiElement = this
 

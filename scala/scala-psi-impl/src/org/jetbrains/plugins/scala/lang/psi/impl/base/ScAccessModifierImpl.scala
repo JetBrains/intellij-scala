@@ -4,6 +4,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -13,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAccessModifierStub
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveSupport
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -45,13 +47,12 @@ final class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNo
     findChildByType(kTHIS) != null
   }
 
-  override def getReference: PsiReference =
-    idText.map(new AccessModifierReference(_))
-      .orNull
+  override def getReference: PsiReference = ScalaResolveSupport.getInstance.getReference(this)
 
   private def findId = findChildByType[PsiElement](tIDENTIFIER)
 
-  private class AccessModifierReference(private val text: String) extends PsiReference {
+  @ApiStatus.Internal
+  private[lang] class AccessModifierReference(private val text: String) extends PsiReference {
 
     override def getElement: ScAccessModifier = ScAccessModifierImpl.this
 

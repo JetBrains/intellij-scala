@@ -10,6 +10,7 @@ import com.intellij.ui.{IconManager, PlatformIcons}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedInUserData}
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveSupport
 
 import javax.swing.Icon
 
@@ -79,7 +80,8 @@ object ScalaElementPresentationUtil {
    * however we can't use the method as is because it can not handle the case when trait/enum have companion object with main method
    */
   private def getScalaClassKindImpl(clazz: ScTypeDefinition): ScalaClassKind = {
-    if (DumbService.getInstance(clazz.getProject).isDumb)
+    // the kind needs resolve, which isn't available on the frontend of Remote Development
+    if (DumbService.getInstance(clazz.getProject).isDumb || !ScalaResolveSupport.isAvailable)
       return ScalaClassKind.Simple
 
     if (ScalaMainMethodUtil.hasMainMethodFromProvidersOnly(clazz))
