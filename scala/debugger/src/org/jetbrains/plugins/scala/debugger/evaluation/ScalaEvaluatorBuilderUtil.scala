@@ -540,10 +540,15 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     fun match {
       case funDef: ScFunctionDefinition =>
         def paramIndex(fun: ScFunctionDefinition, elem: PsiElement): Int = {
-          val locIndex = DebuggerUtil.localParamsForFunDef(fun).indexOf(elem)
           val funParams = fun.effectiveParameterClauses.flatMap(_.effectiveParameters)
-          if (locIndex < 0) funParams.indexOf(elem)
-          else locIndex + funParams.size
+          val index = funParams.indexOf(elem)
+          // only a value captured from an enclosing scope needs the (expensive) list of captured values,
+          // a parameter of the function itself is never among them
+          if (index >= 0) index
+          else {
+            val locIndex = DebuggerUtil.localParamsForFunDef(fun).indexOf(elem)
+            if (locIndex < 0) -1 else locIndex + funParams.size
+          }
         }
         val pIndex = paramIndex(funDef, resolve)
         new ScalaLocalVariableEvaluator(
