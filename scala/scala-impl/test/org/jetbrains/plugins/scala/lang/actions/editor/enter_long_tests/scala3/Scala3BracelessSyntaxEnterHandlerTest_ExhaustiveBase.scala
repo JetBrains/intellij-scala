@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.FileSetTests
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.DoEditorStateTestOps
 import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3BracelessSyntaxEnterHandlerTest_ExhaustiveGenerator.TestData
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.util.RevertableChange
 import org.jetbrains.plugins.scala.util.runners.WithIndexingMode
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -35,7 +36,11 @@ abstract class Scala3BracelessSyntaxEnterHandlerTest_ExhaustiveBase extends DoEd
 
   override protected def setUp(): Unit = {
     super.setUp()
-    ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED = false
+
+    RevertableChange.withModifiedSetting(ScalaCompileServerSettings.getInstance)(false)(
+      _.COMPILE_SERVER_ENABLED, _.COMPILE_SERVER_ENABLED = _
+    ).applyChange(this)
+
     getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
   }
 

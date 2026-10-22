@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.util.RevertableChange
 
 /** @see [[org.jetbrains.plugins.scala.lang.actions.editor.ClosingBraceInsertTest]] */
 class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
@@ -8,7 +9,11 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
   // copied from Scala3BracelessSyntaxEnterExhaustiveTest
   override def setUp(): Unit = {
     super.setUp()
-    ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
+
+    RevertableChange.withModifiedSetting(ScalaCompileServerSettings.getInstance)(false)(
+      _.COMPILE_SERVER_ENABLED, _.COMPILE_SERVER_ENABLED = _
+    ).applyChange(this)
+
     getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
   }
 

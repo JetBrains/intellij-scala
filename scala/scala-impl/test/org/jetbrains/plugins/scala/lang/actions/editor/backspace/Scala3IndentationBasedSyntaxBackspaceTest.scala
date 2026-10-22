@@ -5,6 +5,7 @@ import com.intellij.codeInsight.editorActions.SmartBackspaceMode
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.actions.editor.enter_long_tests.scala3.Scala3TestDataBracelessCode.WrapperCodeContexts
 import org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.util.RevertableChange
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -18,7 +19,11 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
   // copied from Scala3BracelessSyntaxEnterExhaustiveTest
   override def setUp(): Unit = {
     super.setUp()
-    ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
+
+    RevertableChange.withModifiedSetting(ScalaCompileServerSettings.getInstance)(false)(
+      _.COMPILE_SERVER_ENABLED, _.COMPILE_SERVER_ENABLED = _
+    ).applyChange(this)
+
     getScalaCodeStyleSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
   }
 
