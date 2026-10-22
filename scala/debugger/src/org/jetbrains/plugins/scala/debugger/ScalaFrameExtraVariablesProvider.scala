@@ -9,8 +9,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingExpressionEvaluator
-import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaCodeFragmentFactory, ScalaEvaluatorBuilder, ScalaEvaluatorBuilderUtil}
+import org.jetbrains.plugins.scala.debugger.evaluation.ReadActions.inNonBlockingReadAction
+import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaCodeFragmentFactory, ScalaEvaluatorBuilderUtil, ScalaLazyResolveEvaluatorBuilder}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.ScalaParameterNameAdjuster
 import org.jetbrains.plugins.scala.extensions._
@@ -101,17 +101,16 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
 
   private def canEvaluateLong(srr: ScalaResolveResult, place: PsiElement, evaluationContext: EvaluationContext) = {
     def tryEvaluate(name: String, place: PsiElement, evaluationContext: EvaluationContext): Try[AnyRef] = {
+      val process = evaluationContext.getDebugProcess
       Try {
-        val evaluator = inReadAction {
+        val location = evaluationContext.getFrameProxy.location()
+        val evaluator = inNonBlockingReadAction(expireWhen = () => !process.isAttached) {
           val twi = toTextWithImports(name)
           val codeFragment = new ScalaCodeFragmentFactory().createPsiCodeFragment(twi, place, evaluationContext.getProject)
-          val location = evaluationContext.getFrameProxy.location()
-          val sourcePosition = ScalaPositionManager.instance(evaluationContext.getDebugProcess).map(_.getSourcePosition(location))
+          val sourcePosition = ScalaPositionManager.instance(process).map(_.getSourcePosition(location))
           if (sourcePosition.isEmpty) throw EvaluationException(DebuggerBundle.message("debug.process.is.detached"))
-          ScalaEvaluatorBuilder.build(codeFragment, sourcePosition.get) match {
-            case _: ScalaCompilingExpressionEvaluator => throw new RuntimeException("Don't use compiling evaluator here")
-            case e => e
-          }
+          // a variable that can only be evaluated by compiling the expression is not worth the time it takes to find out
+          ScalaLazyResolveEvaluatorBuilder.buildWithoutCompilation(codeFragment, sourcePosition.get)
         }
         evaluator.evaluate(evaluationContext)
       }

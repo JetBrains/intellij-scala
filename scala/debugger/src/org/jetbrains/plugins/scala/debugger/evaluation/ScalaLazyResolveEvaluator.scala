@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 
 private final class ScalaLazyResolveEvaluator(
   codeFragment: ScalaCodeFragment,
-  position: SourcePosition
+  position: SourcePosition,
+  compileIfNeeded: Boolean = true
 ) extends Evaluator {
   // The evaluator built from the code fragment together with the PSI modification count it was built at. The platform
   // evaluates the same instance repeatedly (every hit of a conditional breakpoint, retries), and resolving the fragment
@@ -42,7 +43,8 @@ private final class ScalaLazyResolveEvaluator(
   private def createEvaluator(context: EvaluationContextImpl): ExpressionEvaluator = {
     val process = context.getDebugProcess
     inNonBlockingReadAction(expireWhen = () => !process.isAttached) {
-      ScalaEvaluatorBuilder.build(codeFragment, position)
+      if (compileIfNeeded) ScalaEvaluatorBuilder.build(codeFragment, position)
+      else ScalaEvaluatorBuilder.buildWithoutCompilation(codeFragment, position)
     }
   }
 }
