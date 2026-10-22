@@ -731,6 +731,12 @@
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer" order="first"/>
         <runConfigurationExtension implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationExtension"/>
 
+        <!-- Stubs exist only on the backend (IJPL-A-964): the element types and their holders are in the shared
+             scala-psi-impl, the stub support is associated with them here -->
+        <languageStubDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.stubs.ScalaLanguageStubDefinition"/>
+        <languageStubDefinition language="Scala 3" implementationClass="org.jetbrains.plugins.scala.lang.psi.stubs.Scala3LanguageStubDefinition"/>
+        <stubElementRegistryExtension implementation="org.jetbrains.plugins.scala.lang.psi.stubs.ScalaStubRegistryExtension"/>
+
         <!-- Stub indices -->
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAllClassNamesIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortClassNameIndex"/>
