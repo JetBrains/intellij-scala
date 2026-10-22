@@ -22,6 +22,18 @@ public class ScalaLanguage extends Language implements JvmLanguage {
 
     public static final ScalaLanguage INSTANCE = new ScalaLanguage();
 
+    /**
+     * Registers the Scala 3 dialect together with Scala ({@link Language#findLanguageByID} finds only instantiated languages).
+     * <p>
+     * Scala 3 has no file type of its own, it's a language substitution of Scala files. In Remote Development the backend
+     * sends the substituted language by its id, and on the frontend nothing else instantiates the dialect, so the files
+     * of Scala 3 modules would be parsed as plain text (ThinClientLanguage).
+     * <p>
+     * Only the reference is kept: if Scala3Language is initialized first, it initializes this class and reads null here.
+     */
+    @SuppressWarnings("unused")
+    private static final Language SCALA_3 = Scala3Language.INSTANCE;
+
     private ScalaLanguage() {
         super("Scala");
     }
