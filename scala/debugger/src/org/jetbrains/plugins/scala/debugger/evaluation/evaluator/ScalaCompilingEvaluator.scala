@@ -12,7 +12,6 @@ import com.intellij.psi.PsiElement
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation._
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.compiling._
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 
 import java.util
@@ -23,7 +22,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
 
   import ScalaCompilingEvaluator._
 
-  private val project = inReadAction(fragment.getProject)
+  private val project = fragment.getProject
   private val generatedClass = GeneratedClass(fragment, psiContext)
   private var classLoader: ClassLoaderReference = null
 
