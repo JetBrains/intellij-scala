@@ -1,9 +1,14 @@
+import java.io.File
+
 /**
- * Pure class bucketing shared by the Community and Ultimate build definitions.
+ * Class bucketing shared by the Community and Ultimate build definitions.
  */
 object TestBucketing {
   private val TotalVariable = "TC_SBT_TEST_BUCKETS_TOTAL"
   private val CurrentVariable = "TC_SBT_TEST_BUCKETS_CURRENT"
+
+  private lazy val allocation: Either[String, TestBucketAllocation] =
+    TestBucketAllocation.load(TestBucketAllocation.fileIn(new File(".")))
 
   /**
    * A validated bucket in a partition of test classes.
@@ -16,17 +21,33 @@ object TestBucketing {
     require(currentBucket >= 0 && currentBucket < totalBuckets,
       s"$CurrentVariable must be between 0 (inclusive) and $TotalVariable=$totalBuckets (exclusive), got $currentBucket.")
 
+    private lazy val bucketAllocation: Option[TestBucketAllocation] = allocation match {
+      case Right(allocation) if allocation.bucketCount != totalBuckets =>
+        println(s"[warn] Ignoring ${TestBucketAllocation.FileName}: it contains ${allocation.bucketCount} buckets, " +
+          s"but this build uses $totalBuckets. Falling back to name hashes.")
+        None
+      case Right(allocation) =>
+        println(s"[info] Using test bucket allocation (${allocation.bucketCount} buckets, ${allocation.assignments.size} tests)")
+        Some(allocation)
+      case Left(err) =>
+        println(s"[warn] Ignoring test bucket allocation: $err")
+        None
+    }
+
     /**
-     * Selects classes using the same normalized name-hash remainder as TeamCity.
+     * Selects classes using recorded allocations, falling back to normalized name hashes.
      *
      * @param testClassName fully qualified name of the discovered test class
      * @return whether the class belongs to this bucket
      */
     def matches(testClassName: String): Boolean = {
-      val hash = testClassName.##
-      val modulo = hash % totalBuckets
-      val positive = if (modulo < 0) modulo + totalBuckets else modulo
-      positive == currentBucket
+      val bucket = bucketAllocation
+        .flatMap(_.bucket(testClassName, totalBuckets))
+        .getOrElse {
+          val hash = testClassName.##
+          Math.floorMod(hash, totalBuckets)
+        }
+      bucket == currentBucket
     }
   }
 
