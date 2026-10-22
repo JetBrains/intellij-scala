@@ -489,6 +489,8 @@
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <gotoTargetPresentationProvider order="first" implementation="org.jetbrains.plugins.scala.codeInsight.navigation.ScalaGotoTargetPresentationProvider"/>
         <lang.documentationProvider id="ScalaDocumentationProvider" language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider"/>
+        <!-- Java's stub provider also accepts Scala doc comment owners (SCL-26195). -->
+        <lang.documentationStubProvider order="first" implementation="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationStubProvider"/>
         <!-- Putting our provider first as a workaround for WEB-67867 -->
         <platform.backend.documentation.psiTargetProvider order="first" implementation="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaPsiDocumentationTargetProvider"/>
         <!-- Java's inline documentation lookup also accepts Scala doc comments (SCL-25937). -->
