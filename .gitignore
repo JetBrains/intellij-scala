@@ -28,12 +28,13 @@ target/
 compilation-cache/
 
 scala/scala-impl/testdata/debugger
-scala/scala-impl/testdata/projectsForHighlightingTests/downloaded
-scala/scala-impl/testdata/projectsForHighlightingTests/.ivy_cache
-scala/scala-impl/testdata/projectsForHighlightingTests/.coursier_cache
 scala/scala-impl/testdata/testingSupport
 
 tools/lexer/lib/
 
 scala/decompiler/testdata/**/*.tree
 scala/tasty-reader/testdata/**/*.tree
+
+sbt/sbt-project-highlighting-tests/testdata/projectsForHighlightingTests/downloaded
+sbt/sbt-project-highlighting-tests/testdata/projectsForHighlightingTests/.ivy_cache
+sbt/sbt-project-highlighting-tests/testdata/projectsForHighlightingTests/.coursier_cache
