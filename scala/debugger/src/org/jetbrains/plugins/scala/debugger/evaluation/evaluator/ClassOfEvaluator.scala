@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{ClassObjectEvaluator, Evaluator, FieldEvaluator, TypeEvaluator}
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
-import com.intellij.util.concurrency.annotations.RequiresReadLock
+import com.intellij.util.concurrency.annotations.{RequiresReadLock, RequiresReadLockAbsence}
 import com.sun.jdi.ClassObjectReference
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
@@ -18,6 +18,8 @@ class ClassOfEvaluator @RequiresReadLock (rawType: ScType) extends Evaluator {
   // evaluate() only talks to the debuggee
   private val classObject: EvaluationContextImpl => ClassObjectReference = prepareEvaluator(rawType.removeAliasDefinitions())
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): ClassObjectReference = classObject(context)
 
   private def prepareEvaluator(tpe: ScType): EvaluationContextImpl => ClassObjectReference = {

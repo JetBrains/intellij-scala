@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.Evaluator
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi.{ClassType, ObjectReference, Value}
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
@@ -12,6 +13,8 @@ import scala.util.Try
 
 private[debugger] final class NewValueClassInstanceEvaluator(typeEvaluator: ScalaTypeEvaluator, param: Evaluator) extends Evaluator {
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): ObjectReference = {
     val debugProcess = context.getDebugProcess
     val ct = typeEvaluator.evaluate(context) match {
