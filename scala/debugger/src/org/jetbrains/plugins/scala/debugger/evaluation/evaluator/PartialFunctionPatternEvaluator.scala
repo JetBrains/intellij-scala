@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.Evaluator
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi.{ClassType, Value}
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
@@ -14,6 +15,8 @@ import scala.util.matching.Regex
  * broken down in a pattern match. This can be a single value if there is only one parameter, or a tuple.
  */
 private[evaluation] class PartialFunctionPatternEvaluator extends Evaluator {
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): Value = {
     if (inPartialFunctionApplyOrElse(context)) {
       // In an actual PartialFunction#applyOrElse, always return the first argument of the method.

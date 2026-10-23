@@ -7,6 +7,7 @@ import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, Evaluatio
 import com.intellij.debugger.ui.impl.watch.ArrayElementDescriptorImpl
 import com.intellij.debugger.ui.tree.NodeDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi._
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaArrayAccessEvaluator.MyModifier
@@ -16,7 +17,9 @@ import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaArrayAcces
  */
 class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluator: Evaluator) extends ModifiableEvaluator {
 
+  //noinspection ApiStatus,UnstableApiUsage
   @NotNull
+  @RequiresReadLockAbsence
   override def evaluateModifiable(context: EvaluationContextImpl): ModifiableValue = {
     arrayReferenceEvaluator.evaluate(context) match {
       case evaluatedArrayReference: ArrayReference =>

@@ -4,6 +4,7 @@ package evaluation
 package evaluator
 
 import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, expression}
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi.Value
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, ScTypeExt, api}
@@ -14,6 +15,8 @@ final class ScalaLiteralEvaluator private[evaluator] (value: AnyRef,
                                           `type`: ScType)
   extends expression.Evaluator {
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): Value = value match {
     case null => null
     case _ =>

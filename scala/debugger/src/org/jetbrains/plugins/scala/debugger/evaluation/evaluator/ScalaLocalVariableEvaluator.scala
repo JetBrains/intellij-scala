@@ -8,6 +8,7 @@ import com.intellij.debugger.ui.impl.watch.LocalVariableDescriptorImpl
 import com.intellij.debugger.ui.tree.NodeDescriptor
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaLocalVariableEvaluator.{EvaluationResult, MyModifier}
@@ -34,6 +35,8 @@ class ScalaLocalVariableEvaluator(
       case _: AbsentInformationException => ""
     }
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluateModifiable(context: EvaluationContextImpl): ModifiableValue = {
 
     def proxyAndValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl): EvaluationResult = {

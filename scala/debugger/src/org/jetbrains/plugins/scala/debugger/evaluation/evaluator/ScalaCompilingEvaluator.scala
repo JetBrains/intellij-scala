@@ -9,7 +9,7 @@ import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Expression
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
-import com.intellij.util.concurrency.annotations.RequiresReadLock
+import com.intellij.util.concurrency.annotations.{RequiresReadLock, RequiresReadLockAbsence}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation._
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.compiling._
@@ -27,6 +27,8 @@ class ScalaCompilingEvaluator @RequiresReadLock (psiContext: PsiElement, fragmen
   private val generatedClass = GeneratedClass(fragment, psiContext)
   private var classLoader: ClassLoaderReference = null
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): Value = {
     val process: DebugProcess = context.getDebugProcess
 

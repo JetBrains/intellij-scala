@@ -5,7 +5,7 @@ import com.intellij.debugger.engine.JVMName
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.intellij.debugger.impl.DebuggerUtilsImpl
-import com.intellij.util.concurrency.annotations.RequiresReadLock
+import com.intellij.util.concurrency.annotations.{RequiresReadLock, RequiresReadLockAbsence}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
@@ -22,6 +22,8 @@ class AsInstanceOfEvaluator @RequiresReadLock (operandEvaluator: Evaluator, rawT
   private val jvmName: JVMName = DebuggerUtil.getJVMQualifiedName(tpe)
   private val classOfEvaluator: ClassOfEvaluator = new ClassOfEvaluator(tpe)
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): Value = {
     val proxy = context.getDebugProcess.getVirtualMachineProxy
 

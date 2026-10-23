@@ -6,6 +6,7 @@ import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifiable
 import com.intellij.debugger.ui.impl.watch.FieldDescriptorImpl
 import com.intellij.debugger.ui.tree.NodeDescriptor
 import com.intellij.openapi.project.Project
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi._
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
@@ -65,6 +66,8 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
   }
 
   @NotNull
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluateModifiable(context: EvaluationContextImpl): ModifiableValue = {
     val obj: AnyRef = DebuggerUtil.unwrapScalaRuntimeRef {
       objectEvaluator.evaluate(context)

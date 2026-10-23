@@ -4,6 +4,7 @@ import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ModifiableValue}
 import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi.Value
 import org.jetbrains.plugins.scala.debugger.evaluation.ReadActions.inNonBlockingReadAction
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
@@ -19,9 +20,13 @@ private final class ScalaLazyResolveEvaluator(
   // costs no more than an extra build.
   @volatile private var cached: Option[(modCount: Long, evaluator: ExpressionEvaluator)] = None
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): Value =
     evaluatorFor(context).evaluate(context)
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluateModifiable(context: EvaluationContextImpl): ModifiableValue = {
     val evaluator = evaluatorFor(context)
     val value = evaluator.evaluate(context)

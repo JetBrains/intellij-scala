@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.JVMName
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, TypeEvaluator}
-import com.intellij.util.concurrency.annotations.RequiresReadLock
+import com.intellij.util.concurrency.annotations.{RequiresReadLock, RequiresReadLockAbsence}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -24,6 +24,8 @@ class IsInstanceOfEvaluator @RequiresReadLock (operandEvaluator: Evaluator, rawT
   }
   private val jvmName: JVMName = DebuggerUtil.getJVMQualifiedName(tpe)
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): BooleanValue = {
 
     def booleanValue(b: Boolean): BooleanValue =
