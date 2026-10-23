@@ -6,6 +6,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.sun.jdi.{Field, ObjectReference, ReferenceType}
 import org.jetbrains.plugins.scala.caches.{ModTracker, ScalaShortNamesCacheManager, cachedInUserData}
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
@@ -227,7 +228,7 @@ object DebuggerUtil {
       JVMNameUtil.getSourcePositionClassDisplayName(debugProcess, sourcePosition)
   }
 
-  class JVMConstructorSignature(clazz: PsiClass) extends JVMName {
+  class JVMConstructorSignature @RequiresReadLock (clazz: PsiClass) extends JVMName {
     val position: SourcePosition = SourcePosition.createFromElement(clazz)
     private val qualifiedName: String = clazz.qualifiedName
 

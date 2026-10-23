@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.JVMName
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, TypeEvaluator}
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 
 import scala.jdk.CollectionConverters._
 
-class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extends Evaluator {
+class IsInstanceOfEvaluator @RequiresReadLock (operandEvaluator: Evaluator, rawType: ScType) extends Evaluator {
 
   // Everything derived from the type is computed here, under the read action the evaluator is built in;
   // evaluate() only talks to the debuggee
