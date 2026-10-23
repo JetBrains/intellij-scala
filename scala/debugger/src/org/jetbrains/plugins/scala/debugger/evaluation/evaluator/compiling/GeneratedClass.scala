@@ -7,6 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleUtilCore.findModuleForPsiElement
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, EvaluatorCompileHelper, ScalaEvaluatorCompileHelper}
 import org.jetbrains.plugins.scala.extensions._
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.util.{AnonymousFunction, IndentUtil}
 
 import scala.annotation.tailrec
 
-private[evaluator] case class GeneratedClass(syntheticFile: PsiFile, newContext: PsiElement, generatedClassName: String) {
+private[evaluator] case class GeneratedClass @RequiresReadLock (syntheticFile: PsiFile, newContext: PsiElement, generatedClassName: String) {
   import GeneratedClass._
 
   private val module: Module = {
@@ -50,6 +51,7 @@ private[evaluator] object GeneratedClass {
   var counter = 0
   val generatedMethodName: String = "invoke"
 
+  @RequiresReadLock
   def apply(fragment: ScalaCodeFragment, context: PsiElement): GeneratedClass = {
     counter += 1
 

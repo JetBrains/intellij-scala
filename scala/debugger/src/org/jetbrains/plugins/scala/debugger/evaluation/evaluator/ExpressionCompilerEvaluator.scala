@@ -11,6 +11,7 @@ import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.psi.PsiElement
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.sun.jdi.{ArrayType, ClassLoaderReference, ClassType, ObjectReference, Value}
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
@@ -32,7 +33,7 @@ import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
-private[evaluation] final class ExpressionCompilerEvaluator(codeFragment: PsiElement, position: SourcePosition) extends ExpressionEvaluator {
+private[evaluation] final class ExpressionCompilerEvaluator @RequiresReadLock (codeFragment: PsiElement, position: SourcePosition) extends ExpressionEvaluator {
 
   // Everything derived from PSI is computed here, under the read action the evaluator is built in; evaluate() only
   // talks to the compile server and the debuggee
