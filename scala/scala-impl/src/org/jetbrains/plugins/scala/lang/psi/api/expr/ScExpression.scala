@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
@@ -244,6 +245,8 @@ trait ScExpression extends ScBlockStatement
 }
 
 object ScExpression {
+  private val log = Logger.getInstance(classOf[ScExpression])
+
   final case class ExpressionTypeResult(
     tr:                 TypeResult,
     importsUsed:        Set[ImportUsed]            = Set.empty,
@@ -403,7 +406,13 @@ object ScExpression {
           case Some(s) =>
             val settings = ScalaProjectSettings.getInstance(expr.getProject)
             if (settings.isCompilerHighlightingScala3 && settings.isUseCompilerTypes) {
-              Right(ScalaPsiElementFactory.createTypeFromText(s, expr, null).get)
+              scTypeFrom(s, expr) match {
+                case Right(tpe) => Right(tpe)
+                case Left(error) =>
+                  log.error(error)
+                  CompilerType(expr) = None
+                  getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore, expectedType)
+              }
             } else {
               CompilerType(expr) = None
               getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore, expectedType)
@@ -412,6 +421,21 @@ object ScExpression {
             getTypeWithoutImplicits0(ignoreBaseType, fromUnderscore, expectedType)
         }
       }
+
+    private def scTypeFrom(typeText: String, context: ScExpression): Either[String, ScType] = {
+      val typeElement = ScalaPsiElementFactory.createTypeElementFromText(typeText, context, null)
+
+      typeElement.elements.filterByType[PsiErrorElement].toSeq match {
+        case Seq() => typeElement.elements.filterByType[ScReference].filter(_.resolve() == null).toSeq match {
+          case Seq() => typeElement.`type`() match {
+            case Right(tpe) => Right(tpe)
+            case Failure(cause) => Left(s"Compiler type $typeText: cannot interpret: $cause")
+          }
+          case unresolvedReferences => Left(s"Compiler type $typeText: cannot resolve: ${unresolvedReferences.map(_.getText).mkString(", ")}")
+        }
+        case errorElements => Left(s"Compiler type $typeText: cannot parse: ${errorElements.map(_.getErrorDescription).mkString(", ")}")
+      }
+    }
 
     private def getTypeWithoutImplicits0(
       ignoreBaseType: Boolean,
