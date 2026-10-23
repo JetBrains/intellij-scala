@@ -1,17 +1,29 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.JavaDebuggerBundle
+import com.intellij.debugger.engine.JVMName
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.intellij.debugger.impl.DebuggerUtilsImpl
+import com.intellij.util.concurrency.annotations.{RequiresReadLock, RequiresReadLockAbsence}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 
-class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extends Evaluator {
+class AsInstanceOfEvaluator @RequiresReadLock (operandEvaluator: Evaluator, rawType: ScType) extends Evaluator {
+
+  // Everything derived from the type is computed here, under the read action the evaluator is built in;
+  // evaluate() only talks to the debuggee
+  private val tpe: ScType = rawType.removeAliasDefinitions().widenIfLiteral
+  private val isPrimitive: Boolean = tpe.isPrimitive
+  private val canonicalText: String = tpe.canonicalText
+  private val jvmName: JVMName = DebuggerUtil.getJVMQualifiedName(tpe)
+  private val classOfEvaluator: ClassOfEvaluator = new ClassOfEvaluator(tpe)
+
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): Value = {
     val proxy = context.getDebugProcess.getVirtualMachineProxy
 
@@ -32,7 +44,6 @@ class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
       }
     }
 
-    val tpe = inReadAction(rawType.removeAliasDefinitions().widenIfLiteral)
     val stdTypes = tpe.projectContext.stdTypes
     import stdTypes._
 
@@ -60,7 +71,7 @@ class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
         case Int => "Int"
         case Long => "Long"
         case Short => "Short"
-        case _ => inReadAction(DebuggerUtil.getJVMQualifiedName(tpe).getDisplayName(context.getDebugProcess))
+        case _ => jvmName.getDisplayName(context.getDebugProcess)
       }
 
       DebuggerBundle.message("error.cannot.cast.value.to.type", valueType, castType)
@@ -68,8 +79,8 @@ class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
 
     (value, tpe) match {
       case (_, _: ScCompoundType) => value
-      case (null, _) if tpe.isPrimitive =>
-        throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.cannot.cast.null", tpe.canonicalText))
+      case (null, _) if isPrimitive =>
+        throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.cannot.cast.null", canonicalText))
       case (null, _) => null
       case (b: BooleanValue, Boolean) => b
       case (b: ByteValue, NumericType(fn)) => fn(b)
@@ -83,7 +94,7 @@ class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
         throw EvaluationException(message)
       case (o: ObjectReference, _) =>
         val valueType = o.referenceType()
-        val castType = new ClassOfEvaluator(tpe).evaluate(context).reflectedType()
+        val castType = classOfEvaluator.evaluate(context).reflectedType()
         if (DebuggerUtilsImpl.instanceOf(valueType, castType)) o
         else throw EvaluationException(message)
       case x =>

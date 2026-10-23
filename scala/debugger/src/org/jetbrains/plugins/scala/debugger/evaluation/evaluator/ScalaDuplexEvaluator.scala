@@ -3,12 +3,15 @@ package debugger.evaluation.evaluator
 
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ModifiableEvaluator, ModifiableValue}
 import com.intellij.debugger.engine.evaluation.{EvaluateExceptionUtil, EvaluationContextImpl}
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 
 /**
  * Tries to use first evaluator first. If gets exception or null, uses second one.
  */
 case class ScalaDuplexEvaluator(first: Evaluator, second: Evaluator) extends ModifiableEvaluator {
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluateModifiable(context: EvaluationContextImpl): ModifiableValue = {
     try first.evaluateModifiable(context)
     catch {

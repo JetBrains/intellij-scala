@@ -4,6 +4,7 @@ import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator}
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, DebuggerUtils, JVMName}
 import com.intellij.debugger.{JavaDebuggerBundle, SourcePosition}
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -26,6 +27,9 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
   val methodName: String = DebuggerUtil.withoutBackticks(_methodName)
   private val localMethod = localMethodIndex > 0
   private val localMethodName = methodName + "$" + localMethodIndex
+  // The source lines of the method, computed here under the read action the evaluator is built in; evaluate() must
+  // not touch PSI. None when the lines cannot be determined, which counts as "any line" below.
+  private val methodLines: Option[Set[Int]] = Try(methodPosition.map(_.getLine)).toOption
 
   private var prevProcess: DebugProcess = scala.compiletime.uninitialized
   private val jdiMethodsCache = mutable.HashMap[ReferenceType, Option[Method]]()
@@ -37,6 +41,8 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
     }
   }
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): AnyRef = {
     val debugProcess: DebugProcessImpl = context.getDebugProcess
     if (!debugProcess.isAttached) return null
@@ -121,11 +127,8 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
               case _: AbsentInformationException => true
             }
           }
-          def linesIntersects(m: Method): Boolean = inReadAction {
-            Try {
-              val lines = methodPosition.map(_.getLine)
-              m.allLineLocations().asScala.exists(l => lines.contains(ScalaPositionManager.checkedLineNumber(l)))
-            }.getOrElse(true)
+          def linesIntersects(m: Method): Boolean = methodLines.forall { lines =>
+            Try(m.allLineLocations().asScala.exists(l => lines.contains(ScalaPositionManager.checkedLineNumber(l)))).getOrElse(true)
           }
 
           if (sortedMethodCandidates.length > 1) {

@@ -3,23 +3,26 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{ClassObjectEvaluator, Evaluator, FieldEvaluator, TypeEvaluator}
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
+import com.intellij.util.concurrency.annotations.{RequiresReadLock, RequiresReadLockAbsence}
 import com.sun.jdi.ClassObjectReference
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, ScTypeExt}
 
-class ClassOfEvaluator(tpe: ScType) extends Evaluator {
+class ClassOfEvaluator @RequiresReadLock (rawType: ScType) extends Evaluator {
 
   import ClassOfEvaluator._
 
-  override def evaluate(context: EvaluationContextImpl): ClassObjectReference =
-    prepareEvaluator(tpe)(context)
+  // Everything derived from the type is computed here, under the read action the evaluator is built in;
+  // evaluate() only talks to the debuggee
+  private val classObject: EvaluationContextImpl => ClassObjectReference = prepareEvaluator(rawType.removeAliasDefinitions())
 
-  private def prepareEvaluator(raw: ScType): EvaluationContextImpl => ClassObjectReference = {
-    val tpe = inReadAction(raw.removeAliasDefinitions())
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
+  override def evaluate(context: EvaluationContextImpl): ClassObjectReference = classObject(context)
 
+  private def prepareEvaluator(tpe: ScType): EvaluationContextImpl => ClassObjectReference = {
     val stdTypes = tpe.projectContext.stdTypes
     import stdTypes._
 
@@ -39,11 +42,10 @@ class ClassOfEvaluator(tpe: ScType) extends Evaluator {
       case lt: ScLiteralType =>
         val v = lt.value.value
         val vs = if (v.isInstanceOf[String]) s""""$v"""" else v
-        val t = inReadAction(lt.removeAliasDefinitions().widenIfLiteral)
+        val t = lt.removeAliasDefinitions().widenIfLiteral
         throw EvaluationException(DebuggerBundle.message("error.literal.type.is.not.class.type", vs, t))
       case _ =>
-        val jvmName = inReadAction(DebuggerUtil.getJVMQualifiedName(tpe))
-        classObjectEvaluator(jvmName)
+        classObjectEvaluator(DebuggerUtil.getJVMQualifiedName(tpe))
     }
   }
 

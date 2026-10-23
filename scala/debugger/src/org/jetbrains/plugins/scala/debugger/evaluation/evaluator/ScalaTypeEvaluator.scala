@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.evaluation.expression.TypeEvaluator
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi.ReferenceType
 import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementationClassSuffix_211
 
@@ -12,6 +13,8 @@ import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.TraitImplementati
  * we build append "$class" for all scala versions, even though it's actual only for 2.11 and earlier.
  */
 class ScalaTypeEvaluator(jvmName: JVMName) extends TypeEvaluator(jvmName) {
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): ReferenceType = {
     try super.evaluate(context)
     catch {

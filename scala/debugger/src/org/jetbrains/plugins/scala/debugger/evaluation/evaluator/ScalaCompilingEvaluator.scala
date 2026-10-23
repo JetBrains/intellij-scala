@@ -9,24 +9,26 @@ import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Expression
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
+import com.intellij.util.concurrency.annotations.{RequiresReadLock, RequiresReadLockAbsence}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation._
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.compiling._
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 
 import java.util
 import scala.jdk.CollectionConverters._
 
-class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragment)
+class ScalaCompilingEvaluator @RequiresReadLock (psiContext: PsiElement, fragment: ScalaCodeFragment)
         extends Evaluator {
 
   import ScalaCompilingEvaluator._
 
-  private val project = inReadAction(fragment.getProject)
+  private val project = fragment.getProject
   private val generatedClass = GeneratedClass(fragment, psiContext)
   private var classLoader: ClassLoaderReference = null
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): Value = {
     val process: DebugProcess = context.getDebugProcess
 

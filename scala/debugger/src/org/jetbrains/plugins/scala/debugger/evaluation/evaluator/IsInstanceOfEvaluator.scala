@@ -1,18 +1,31 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
+import com.intellij.debugger.engine.JVMName
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, TypeEvaluator}
+import com.intellij.util.concurrency.annotations.{RequiresReadLock, RequiresReadLockAbsence}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScLiteralType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
-import org.jetbrains.plugins.scala.extensions.inReadAction
 
 import scala.jdk.CollectionConverters._
 
-class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extends Evaluator {
+class IsInstanceOfEvaluator @RequiresReadLock (operandEvaluator: Evaluator, rawType: ScType) extends Evaluator {
 
+  // Everything derived from the type is computed here, under the read action the evaluator is built in;
+  // evaluate() only talks to the debuggee
+  private val tpe: ScType = rawType.removeAliasDefinitions()
+  private val typeText: String = tpe.toString
+  private val literalEvaluator: Option[Evaluator] = tpe match {
+    case lt: ScLiteralType => Some(new ScalaLiteralEvaluator(lt.value.value.asInstanceOf[AnyRef], lt.wideType))
+    case _ => None
+  }
+  private val jvmName: JVMName = DebuggerUtil.getJVMQualifiedName(tpe)
+
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): BooleanValue = {
 
     def booleanValue(b: Boolean): BooleanValue =
@@ -29,12 +42,12 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
       case _: ShortValue => classOf[Short]
     }
 
-    def throwCannotTestReferenceException(valueType: String, tpe: ScType) =
+    def throwCannotTestReferenceException(valueType: String): Nothing =
       throw EvaluationException(
-        DebuggerBundle.message("error.value.isinstanceof.reference", valueType, tpe))
+        DebuggerBundle.message("error.value.isinstanceof.reference", valueType, typeText))
 
-    def throwTypeCannotBeUsedInIsInstanceOfException(kind: String, tpe: ScType) =
-      throw EvaluationException(DebuggerBundle.message("error.type.cannot.be.used.in.isinstanceof", kind, tpe))
+    def throwTypeCannotBeUsedInIsInstanceOfException(kind: String): Nothing =
+      throw EvaluationException(DebuggerBundle.message("error.type.cannot.be.used.in.isinstanceof", kind, typeText))
 
     object Primitive {
       def unapply(tpe: ScType): Option[Class[?]] = {
@@ -56,13 +69,7 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
     }
 
     object Literal {
-      def unapply(tpe: ScType): Option[Value] = tpe match {
-        case lt: ScLiteralType =>
-          val lv = lt.value.value.asInstanceOf[AnyRef]
-          val wt = inReadAction(lt.wideType)
-          Some(new ScalaLiteralEvaluator(lv, wt).evaluate(context))
-        case _ => None
-      }
+      def unapply(tpe: ScType): Option[Value] = literalEvaluator.map(_.evaluate(context).asInstanceOf[Value])
     }
 
     def evaluateEqualsOnPrimitiveValues(x: PrimitiveValue, y: PrimitiveValue): Boolean =
@@ -79,7 +86,6 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
       }
 
     val lhs = operandEvaluator.evaluate(context).asInstanceOf[Value]
-    val tpe = inReadAction(rawType.removeAliasDefinitions())
     val stdTypes = tpe.projectContext.stdTypes
     import stdTypes._
 
@@ -90,7 +96,7 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
       case (_, AnyVal | Null | Nothing | Singleton) =>
         // scalac compiler error "type AnyVal cannot be used in a type patter or isInstanceOf test"
         val kind = if (tpe == Singleton) "trait" else "class"
-        throwTypeCannotBeUsedInIsInstanceOfException(kind, tpe)
+        throwTypeCannotBeUsedInIsInstanceOfException(kind)
 
       case (_, _: ScCompoundType) =>
         throw EvaluationException(DebuggerBundle.message("error.isinstanceof.structural.type"))
@@ -124,7 +130,7 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
           case _: LongValue => "Long"
           case _: ShortValue => "Short"
         }
-        throwCannotTestReferenceException(valueType, tpe)
+        throwCannotTestReferenceException(valueType)
 
       case (_: ObjectReference, Primitive(_)) =>
         // case: "abc".isInstanceOf[Int]
@@ -150,8 +156,7 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
       case (lhs: ObjectReference, _) =>
         // case: "abc".isInstanceOf[String]
         try {
-          val name = inReadAction(DebuggerUtil.getJVMQualifiedName(tpe))
-          val typeEvaluator = new TypeEvaluator(name)
+          val typeEvaluator = new TypeEvaluator(jvmName)
           val refType = typeEvaluator.evaluate(context)
           val classObject = refType.classObject()
           val classRefType = classObject.referenceType().asInstanceOf[ClassType]
