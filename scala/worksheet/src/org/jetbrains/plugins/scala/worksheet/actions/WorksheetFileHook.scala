@@ -215,6 +215,10 @@ object WorksheetFileHook {
       //      Here we fetch the corresponding VirtualFile instance for the obtained document.
       //   3. Finally, the ReadAction.nonBlocking machinery automatically shifts the computation back to the UI thread
       //      where we do the UI modification work (which must be done on the UI thread anyways).
+      //
+      // If the project becomes dumb again before step 2 gets to run, 'inSmartMode' keeps the submission pending until
+      // the next 'exitDumbMode' call, which schedules yet another one. 'coalesceBy' cancels the pending submission for
+      // the same document, so rapid dumb mode toggling (e.g. repeated indexing) cannot pile up submissions.
 
       val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
       if (editor == null) {
@@ -227,6 +231,7 @@ object WorksheetFileHook {
         .nonBlocking[VirtualFile](() => virtualFileForDocument(document))
         .finishOnUiThread(ModalityState.nonModal(), initializeButtons)
         .inSmartMode(project)
+        .coalesceBy(this, document)
         .submit(AppExecutorUtil.getAppExecutorService)
     }
 
