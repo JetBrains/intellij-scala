@@ -11,7 +11,7 @@ import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.platform.eel.provider.utils.EelPathUtils
 import com.intellij.psi.PsiElement
-import com.intellij.util.concurrency.annotations.RequiresReadLock
+import com.intellij.util.concurrency.annotations.{RequiresReadLock, RequiresReadLockAbsence}
 import com.sun.jdi.{ArrayType, ClassLoaderReference, ClassType, ObjectReference, Value}
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient, MessageKind}
@@ -45,6 +45,8 @@ private[evaluation] final class ExpressionCompilerEvaluator @RequiresReadLock (c
 
   override def getModifier: Modifier = null
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContext): Value = withCompileServer(context.getProject) {
     if (moduleForPsiElement eq null) {
       throw EvaluationException(DebuggerBundle.message("could.not.find.module.for.code.fragment", codeFragmentText))

@@ -12,6 +12,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiImmediateClassType
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi.{ClassType, ReferenceType, Value}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.evaluation.ReadActions.inNonBlockingReadAction
@@ -24,6 +25,8 @@ import scala.jdk.CollectionConverters._
 abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: PsiElement, context: DebuggerContextImpl, indicator: ProgressIndicator)
         extends RuntimeTypeEvaluator(editor, expression, context, indicator) {
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(evaluationContext: EvaluationContextImpl): PsiType = {
     val project: Project = evaluationContext.getProject
     val process = context.getDebugProcess

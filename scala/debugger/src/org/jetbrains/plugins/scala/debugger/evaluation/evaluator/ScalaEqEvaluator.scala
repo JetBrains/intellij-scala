@@ -5,11 +5,14 @@ import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.intellij.debugger.impl.DebuggerUtilsEx
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
 class ScalaEqEvaluator(left: Evaluator, right: Evaluator) extends Evaluator {
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): AnyRef = {
     val leftResult = left.evaluate(context).asInstanceOf[Value]
     val rightResult = right.evaluate(context).asInstanceOf[Value]

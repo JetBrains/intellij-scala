@@ -4,6 +4,7 @@ import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator}
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, DebuggerUtils, JVMName}
 import com.intellij.debugger.{JavaDebuggerBundle, SourcePosition}
+import com.intellij.util.concurrency.annotations.RequiresReadLockAbsence
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -40,6 +41,8 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
     }
   }
 
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   override def evaluate(context: EvaluationContextImpl): AnyRef = {
     val debugProcess: DebugProcessImpl = context.getDebugProcess
     if (!debugProcess.isAttached) return null
