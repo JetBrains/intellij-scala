@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{ClassObjectEvaluator, Evaluator, FieldEvaluator, TypeEvaluator}
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.sun.jdi.ClassObjectReference
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, ScTypeExt}
 
-class ClassOfEvaluator(rawType: ScType) extends Evaluator {
+class ClassOfEvaluator @RequiresReadLock (rawType: ScType) extends Evaluator {
 
   import ClassOfEvaluator._
 
