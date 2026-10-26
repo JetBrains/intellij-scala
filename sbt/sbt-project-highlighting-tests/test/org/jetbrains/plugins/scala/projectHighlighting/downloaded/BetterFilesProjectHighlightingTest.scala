@@ -5,11 +5,9 @@ import org.jetbrains.plugins.scala.projectHighlighting.base.GithubRepositoryWith
 
 class BetterFilesProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
 
-  //NOTE: doesn't work with JDK 11 due to bug in sbt 0.13.8 used in the this project at this revision
-  //see https://github.com/sbt/sbt/issues/1593
-  override def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
+  override def projectJdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_17
 
-  //v.3.0.0
+  //v.3.9.2
   override protected def githubRepositoryWithRevision: GithubRepositoryWithRevision =
-    GithubRepositoryWithRevision("pathikrit", "better-files", "eb7a357713c083534de9eeaee771750582c8ad31")
+    GithubRepositoryWithRevision("pathikrit", "better-files", "6f2e3f1328b1b18eddce973510db71bc6c14fadb")
 }
