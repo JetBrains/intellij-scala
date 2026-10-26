@@ -411,12 +411,14 @@ object Common {
     val flakyTests: String = cat("FlakyTests")
     val bundleSortingTests: String = cat("BundleSortingTests")
     val semanticTestsCategory: String = cat("SemanticTests")
+    val projectHighlightingTests: String = cat("ProjectHighlightingTests")
 
     // Test categories that run as their own test jobs in the CI.
     val specialCategories: Seq[String] = Seq(
       randomTypingTests,
       flakyTests,
-      semanticTestsCategory
+      semanticTestsCategory,
+      projectHighlightingTests
     )
   }
 
