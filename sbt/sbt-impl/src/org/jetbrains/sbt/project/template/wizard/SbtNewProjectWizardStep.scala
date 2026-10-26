@@ -22,12 +22,13 @@ import org.jetbrains.sbt.project.template.wizard.kotlin_interop.KotlinInteropUti
 import org.jetbrains.sbt.{SbtBundle, SbtVersion}
 
 import java.lang
-import java.util.List as JList
+import javax.swing.JComponent
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.Unit.INSTANCE as KUnit
 import kotlin.jvm.functions
 import scala.collection.immutable.ListSet
+import java.util.{List => JList}
 import scala.jdk.CollectionConverters.*
 
 abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
@@ -77,7 +78,10 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
         })
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(sbtVersionProperty))
         .validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(jdkIntentProperty))
-        .validationOnInput(() => sbtWithJdkValidation())
+      extraSbtVersionValidationTriggers.foreach { property =>
+        sbtVersionComboBoxCell.validationRequestor(RequestorsKt.getWHEN_PROPERTY_CHANGED.invoke(property))
+      }
+      sbtVersionComboBoxCell.validationOnInput(() => sbtVersionValidation())
       val downloadSbtSourcesCheckboxCell = row.cell(downloadSbtSourcesCheckbox)
 
       KotlinInteropUtils.bindItem(sbtVersionComboBoxCell, sbtVersionProperty)
@@ -214,17 +218,34 @@ abstract class SbtNewProjectWizardStep(parent: NewProjectWizardStep)
     }
   }
 
+  /** An extra warning for the selected sbt version, added by a subclass. `None` means no warning. */
+  protected def extraSbtVersionValidationMessage: Option[String] = None
+
+  /** Properties that, when changed, re-run the sbt version validation in addition to the sbt and JDK properties. */
+  protected def extraSbtVersionValidationTriggers: Seq[GraphProperty[?]] = Nil
+
+  /** Validates the selected sbt version against the JDK and against [[extraSbtVersionValidationMessage]]. */
   @Nullable
-  private def sbtWithJdkValidation(): ValidationInfo = {
-    val jdkVersion = getExpectedJavaSdkVersion.orNull
-    if (jdkVersion == null) return null
-    val sbtVersion = sbtVersionProperty.get()
-    val javaVersion = JavaVersion.compose(jdkVersion.getMaxLanguageLevel.feature())
-    val minimumCompatibleSbt = JdkSbtCompatibilityChecker.getMinimumSbtToJdkCompatibleVersion(javaVersion, sbtVersion)
-    minimumCompatibleSbt.map { version =>
-      new ValidationInfo(SbtBundle.message("jdk.sbt.incompatible.versions.message", javaVersion.feature, version.minor), sbtVersionComboBox).asWarning()
-    }.orNull
-  }
+  private def sbtVersionValidation(): ValidationInfo =
+    joinedWarning(sbtWithJdkValidationMessage.toSeq ++ extraSbtVersionValidationMessage, sbtVersionComboBox)
+
+  /**
+   * Joins several warning texts into one warning for `component`, one line per text.
+   * Returns `null` when there is nothing to warn about.
+   */
+  @Nullable
+  protected final def joinedWarning(messages: Seq[String], component: JComponent): ValidationInfo =
+    if messages.isEmpty then null
+    else
+      val text = if messages.sizeIs == 1 then messages.head else messages.mkString("<html>", "<br>", "</html>")
+      new ValidationInfo(text, component).asWarning()
+
+  private def sbtWithJdkValidationMessage: Option[String] =
+    for
+      jdkVersion <- getExpectedJavaSdkVersion
+      javaVersion = JavaVersion.compose(jdkVersion.getMaxLanguageLevel.feature())
+      minimumCompatibleSbt <- JdkSbtCompatibilityChecker.getMinimumSbtToJdkCompatibleVersion(javaVersion, sbtVersionProperty.get())
+    yield SbtBundle.message("jdk.sbt.incompatible.versions.message", javaVersion.feature, minimumCompatibleSbt.minor)
 
   protected def getExpectedJavaSdkVersion: Option[JavaSdkVersion] =
     for {
