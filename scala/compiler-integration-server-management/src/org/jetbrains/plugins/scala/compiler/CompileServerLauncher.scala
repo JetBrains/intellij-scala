@@ -11,6 +11,7 @@ import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager, Pa
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.options.advanced.AdvancedSettings
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.{Project, ProjectManager, ProjectUtil}
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.Disposer
@@ -43,6 +44,7 @@ import scala.concurrent.duration.*
 import scala.io.Source
 import scala.jdk.CollectionConverters.*
 import scala.util.control.Exception.*
+import scala.util.control.NonFatal
 import scala.util.matching.Regex
 import scala.util.{Try, Using}
 
@@ -157,14 +159,35 @@ object CompileServerLauncher {
           // Duplicated --add-opens parameters are inherited from this extension point
           // through ScalaBuildProcessParametersProvider. This filtering also helps to not
           // pass --add-opens parameters to JDK 8 and lower.
-          val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala.iterator
-            .flatMap(_.getVMArguments.asScala).toSeq.diff(compileServerJvmAddOpensExtraParams)
+          val providers = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala.toSeq
+          val buildProcessParameters = providers
+            .flatMap(_.getVMArguments.asScala).diff(compileServerJvmAddOpensExtraParams)
+
+          // Path-valued options, such as the Kotlin plugin's `-Djps.kotlin.home=`, without which its JPS builder
+          // aborts. The IDE's build process reads them too (`BuildManager.launchBuildProcess`), mapping each path to
+          // the machine the process runs on, as is done for the classpath above.
+          // The compile server also compiles for IDE builds, so a provider that fails (the Kotlin one throws when its
+          // distribution cannot be downloaded) only loses its own options instead of preventing the start.
+          val buildProcessPathParameters = providers
+            .flatMap { provider =>
+              try provider.getPathParameters.asScala
+              catch {
+                case e: ProcessCanceledException => throw e
+                case NonFatal(e) =>
+                  LOG.warn(s"Path parameters of ${provider.getClass.getName} are not passed to the compile server", e)
+                  Nil
+              }
+            }
+            .map { parameter =>
+              val path = transferredRemotePath(parameter.getSecond, project, eelDescriptor)
+              parameter.getFirst + asTargetLocalPathString(path, eelDescriptor)
+            }
 
           val jpsOptions =
             if (jpsUseUnifiedIC) Seq(s"-D${GlobalOptions.DEPENDENCY_GRAPH_ENABLED}=true")
             else Seq.empty
 
-          buildProcessParameters ++ jpsOptions
+          buildProcessParameters ++ buildProcessPathParameters ++ jpsOptions
         }
 
         // SCL-18193
