@@ -1463,3 +1463,5 @@ addCommandAlias("runCompilerPluginTests-2_13", "compiler-plugin-2_13/testOnly --
 addCommandAlias("runCompilerPluginTests-3_3", "compiler-plugin-3_3/testOnly -- -v -s -a +c +q")
 addCommandAlias("runCompilerPluginTests", "runCompilerPluginTests-2_12; runCompilerPluginTests-2_13; runCompilerPluginTests-3_3; runScalatestFindersTests")
 
+// Tests that run in separate projects outside the main plugin test run.
+addCommandAlias("runStandaloneTestsCommunity", "runCompilerPluginTests")
