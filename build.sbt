@@ -1410,7 +1410,8 @@ def runSpecialTestCategoryCommand(name: String, displayName: String, category: S
 Global / commands ++= Seq(
   ("runNightlyTests", "NightlyTests", randomTypingTests),
   ("runFlakyTests", "FlakyTests", flakyTests),
-  ("runSemanticTests", "SemanticTests", semanticTestsCategory)
+  ("runSemanticTests", "SemanticTests", semanticTestsCategory),
+  ("runProjectHighlightingTests", "ProjectHighlightingTests", projectHighlightingTests)
 ).map((runSpecialTestCategoryCommand _).tupled)
 
 lazy val categoriesToExclude = List(
@@ -1429,11 +1430,8 @@ lazy val categoriesToExclude = List(
   testingSupportTests,
   textToTextTests,
   highlightingTests,
-  worksheetEvaluationTests,
-  semanticTestsCategory,
-  randomTypingTests,
-  flakyTests,
-)
+  worksheetEvaluationTests
+) ++ specialCategories
 
 def runFastTestsCommand(name: String, selection: TestClassSelection): Command = runTestCategoryCommand(
   name = name,
