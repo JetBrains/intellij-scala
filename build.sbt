@@ -299,6 +299,7 @@ lazy val worksheet =
       worksheetReplInterface,
       repl % "test->test;compile->compile", //do we indeed need this dependency on Scala REPL? can we get rid of it?
     ).settings(
+      intellijPlugins += "com.intellij.scratch".toPlugin,
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.worksheet")
     )
 
@@ -459,6 +460,7 @@ lazy val scalaImpl: sbt.Project =
       intellijPlugins ++= Seq(
         "JUnit".toPlugin,
         "com.intellij.platform.vcs".toPlugin,
+        "com.intellij.scratch".toPlugin,
         "com.intellij.xml".toPlugin,
       ),
       intellijPluginJars := intellijPluginJars.value.map { case PluginJars(descriptor, root, cp) =>
