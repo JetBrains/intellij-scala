@@ -2,7 +2,11 @@ import java.io.File
 import java.nio.file.Files
 import scala.io.Source
 
-/** Shared by both meta-builds and the tools build; keep compatible with Scala 2.12. */
+/**
+ * Keep community/project/TestBucketAllocation.scala and tools/src/main/testbucketing/TestBucketAllocation.scala
+ * identical except for the tools copy's package declaration.
+ * RepoIntegrityTest checks the copies. The sbt build definitions require Scala 2.12 compatibility.
+ */
 final case class TestBucketAllocation(bucketCount: Int, assignments: Map[String, Int]) {
   require(bucketCount > 0, "The number of test buckets must be positive")
   require(assignments.keys.forall(name => name.nonEmpty && !name.exists(_.isWhitespace)), "Invalid test class name")
