@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{EmptyProgressIndicator, ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.scale.JBUIScale
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 import org.jetbrains.plugins.scala.project.template.SearchingListCellRenderer
 import org.jetbrains.sbt.project.template.SComboBox
 
@@ -32,7 +33,13 @@ trait AsynchronousVersionsDownloading {
     registerChildDisposable(disposable, indicator)
     val onComplete: Try[V] => Unit = { result =>
       result match {
-        case Success(x) => successCallback(x)
+        case Success(x) =>
+          // The task runs on a pooled thread, but the callback updates combo boxes of the wizard and triggers their
+          // validation, so it has to run on the EDT. The download starts while the wizard UI is built, before the
+          // dialog becomes modal, so the indicator's modality state is NON_MODAL and would delay the callback until the wizard is closed.
+          invokeLater(ModalityState.any) {
+            if !indicator.isCanceled then successCallback(x)
+          }
         case Failure(exception) if !exception.is[ProcessCanceledException] => Log.debug(s"Exception during downloading of $versionType versions", exception)
         case _ =>
       }
