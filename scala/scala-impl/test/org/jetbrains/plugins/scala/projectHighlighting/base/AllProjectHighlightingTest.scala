@@ -62,6 +62,11 @@ trait AllProjectHighlightingTest {
     val javaFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, scope).asScala
 
     val allFilesSorted = (scalaFiles ++ javaFiles).sortBy(_.getPath)
+    assertTrue(
+      """No files to highlight were found in the test project.
+        |Probably the project was imported from the wrong directory, so the test would pass without highlighting anything.""".stripMargin,
+      allFilesSorted.nonEmpty
+    )
 
     LocalFileSystem.getInstance().refreshFiles(allFilesSorted.asJava)
 

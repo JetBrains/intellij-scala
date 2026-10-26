@@ -4,6 +4,7 @@ import com.intellij.lang.javascript.boilerplate.GithubDownloadUtil
 import com.intellij.platform.templates.github.ZipUtil
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.SbtTestDataUtils
+import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.ExternalSystemImportRootOptions
 import org.junit.Assert
 
 import java.nio.file.{Files, Path}
@@ -20,6 +21,18 @@ abstract class SbtProjectHighlightingDownloadingFromGithubTestBase extends SbtPr
   override protected def projectName: String = githubRepositoryWithRevision.repositoryName
 
   protected def githubRepositoryWithRevision: GithubRepositoryWithRevision
+
+  /**
+   * The directory of the sbt build inside the downloaded repository, relative to the repository root.
+   * Use it when the build doesn't live in the repository root, e.g. for a single sample of a samples repository.
+   *
+   * Don't override [[getTestDataProjectPath]] for this: the repository is extracted into that directory, so the build
+   * would end up one level below the import root and sbt would import an empty project.
+   */
+  protected def buildDirectoryInRepository: Option[String] = None
+
+  override protected def getExternalSystemImportRootOptions: ExternalSystemImportRootOptions =
+    super.getExternalSystemImportRootOptions.copy(relativePath = buildDirectoryInRepository)
 
   override def setUp(): Unit = {
     downloadAndExtractProject()
