@@ -6,8 +6,8 @@ import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil, GlobalOptions}
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl, ProjectDescriptor}
 import org.jetbrains.jps.incremental.fs.BuildFSState
-import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage, ProgressMessage}
-import org.jetbrains.jps.incremental.scala.{BuildParameters, Client, ScalaResourceBuilderEnabler}
+import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, CustomBuilderMessage, ProgressMessage}
+import org.jetbrains.jps.incremental.scala.{BuildParameters, Client, MessageKind, ScalaResourceBuilderEnabler}
 import org.jetbrains.jps.incremental.{MessageHandler, Utils}
 import org.jetbrains.plugins.scala.compiler.CompilerEvent.BuilderId
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventType}
@@ -48,11 +48,17 @@ final class JpsFacadeImpl extends JpsFacade {
         ).asJava
       )
       var compiledFiles = Set.empty[Path]
+      // Whether an error reached the client through the Scala builders' own events.
+      var errorForwarded = false
+      // The first error any builder reported as a plain CompilerMessage, Scala's included.
+      var firstBuildError = Option.empty[CompilerMessage]
       val messageHandler = new MessageHandler {
         override def processMessage(msg: BuildMessage): Unit = msg match {
           case customMessage: CustomBuilderMessage =>
             fromCustomMessage(customMessage).foreach {
-              case CompilerEvent.MessageEmitted(_, _, _, msg) => client.message(msg)
+              case CompilerEvent.MessageEmitted(_, _, _, msg) =>
+                if (msg.kind == MessageKind.Error || msg.kind == MessageKind.InternalBuilderError) errorForwarded = true
+                client.message(msg)
               case CompilerEvent.CompilationFinished(_, _, sources) => compiledFiles ++= sources.map(_.toPath)
                 // Forwarded for tracing only
               case CompilerEvent.CompilationPhase(_, _, name) => client.compilationPhase(name)
@@ -62,6 +68,8 @@ final class JpsFacadeImpl extends JpsFacade {
             val text = Option(progressMessage.getMessageText).getOrElse("")
             val done = Option(progressMessage.getDone).filter(_ >= 0.0)
             client.progress(text, done)
+          case compilerMessage: CompilerMessage if isError(compilerMessage) =>
+            if (firstBuildError.isEmpty) firstBuildError = Some(compilerMessage)
           case _ =>
             ()
         }
@@ -96,6 +104,7 @@ final class JpsFacadeImpl extends JpsFacade {
       } finally {
         // Save the FS state data to disk, so that we do not corrupt the IDEA JPS process expected data.
         saveData(fsState, descriptor, descriptor.dataManager.getDataPaths.getDataStorageDir)
+        reportBuildFailure(client, errorForwarded, firstBuildError)
         client.compilationEnd(compiledFiles)
         removeScalaResourceBuilderEnablersForBuild(customBuildId)
       }
@@ -103,6 +112,29 @@ final class JpsFacadeImpl extends JpsFacade {
       lock.unlock()
     }
   }
+
+  private def isError(message: CompilerMessage): Boolean =
+    message.getKind == BuildMessage.Kind.ERROR || message.getKind == BuildMessage.Kind.INTERNAL_BUILDER_ERROR
+
+  /**
+   * Tells the client that the build failed when only builders other than Scala's said so.
+   *
+   * The client learns about errors only from the Scala builders' events. Every other builder (Kotlin, Java, JPS
+   * itself) reports through plain `CompilerMessage`s, which carry no Scala diagnostic. When one of them fails, JPS
+   * stops before the remaining chunks, so the build must not be reported as successful: the document compiler
+   * would then run against outputs that were never rebuilt.
+   *
+   * The failure is sent as one error without a source file. It flips the client's outcome without adding a
+   * diagnostic to any file: what those builders report about their own files is not highlighted by CBH.
+   * When a Scala error already reached the client, the outcome is already a failure and nothing is sent. The
+   * Scala builders send every error both ways, so this also keeps Scala errors from being counted twice.
+   */
+  private def reportBuildFailure(client: Client, errorForwarded: Boolean, firstBuildError: Option[CompilerMessage]): Unit =
+    if (!errorForwarded) firstBuildError.foreach { message =>
+      val compilerName = message.getCompilerName
+      val text = if (compilerName.trim.isEmpty) message.getMessageText else s"$compilerName: ${message.getMessageText}"
+      client.error(text)
+    }
 
   private def saveData(fsState: BuildFSState, descriptor: ProjectDescriptor, dataStorageRoot: Path): Unit = {
     try saveFsState(dataStorageRoot, fsState)
