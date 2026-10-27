@@ -26,4 +26,3 @@ abstract class LanguageFileTypeBase(language: Language) extends LanguageFileType
     FileTypeManager.getInstance.getFileTypeByExtension(ext) == this
   }
 }
-
