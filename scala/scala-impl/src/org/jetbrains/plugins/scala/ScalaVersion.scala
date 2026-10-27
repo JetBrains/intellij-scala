@@ -132,7 +132,7 @@ object LatestScalaVersions {
   val Scala_3_LTS_RC: ScalaVersion = new ScalaVersion(ScalaLanguageLevel.Scala_3_3, "9-RC2")
 
   // Scala Next RC
-  val Scala_3_Next_RC: ScalaVersion = Scala_3_10
+  val Scala_3_Next_RC: ScalaVersion = new ScalaVersion(ScalaLanguageLevel.Scala_3_10, "1-RC1")
 
   val allScala2: Seq[ScalaVersion] = Seq(
     Scala_2_9,
