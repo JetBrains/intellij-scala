@@ -1,0 +1,9 @@
+Document tests/pos/26987/a_use.scala
+(3:9..3:10) a/ -> 1:9
+(4:17..4:23) scala/Option#
+(4:24..4:26) a/b/package.VC# -> 2:26
+
+Document tests/pos/26987/b_pkg.scala
+(2:37..2:43) scala/Predef.String#
+(2:53..2:59) scala/AnyVal#
+

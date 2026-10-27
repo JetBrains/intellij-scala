@@ -1,0 +1,7 @@
+Document tests/pos/wildcard-null-pattern.scala
+(2:10..2:16) scala/Predef.String#
+(2:17..2:18) scala/`|`#
+(2:19..2:23) scala/Null#
+(2:27..2:28) _empty_/`wildcard-null-pattern$package`.f().(x) -> 2:7
+(3:11..3:17) scala/Predef.String#
+
