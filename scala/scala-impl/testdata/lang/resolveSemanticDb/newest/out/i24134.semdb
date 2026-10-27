@@ -1,0 +1,36 @@
+Document tests/pos/i24134/JavaPartialFunction.scala
+(2:22..2:37) scala/PartialFunction#
+(2:38..2:41) _empty_/Flow#[Out] -> 1:22
+(2:43..2:44) _empty_/Flow#collect().[T] -> 2:15
+(2:48..2:52) _empty_/Flow# -> 1:13
+(2:53..2:55) _empty_/Flow#[In] -> 1:18
+(2:57..2:58) _empty_/Flow#collect().[T] -> 2:15
+(2:62..2:65) scala/Predef.`???`().
+(5:20..5:24) _empty_/Flow# -> 1:13
+(5:25..5:26) _empty_/Flow.create().[T] -> 5:14
+(5:28..5:29) _empty_/Flow.create().[T] -> 5:14
+(5:33..5:36) scala/Predef.`???`().
+(9:22..9:33) _empty_/TextMessage# -> 11:16
+(11:36..11:43) _empty_/Message# -> 8:16
+(13:50..13:65) scala/PartialFunction#
+(13:66..13:67) _empty_/JavaPartialFunction#[A] -> 13:36
+(13:69..13:70) _empty_/JavaPartialFunction#[B] -> 13:39
+(14:11..14:18) scala/Predef.classOf().
+(14:19..14:28) scala/package.Exception#
+(15:16..15:17) _empty_/JavaPartialFunction#[A] -> 13:36
+(15:28..15:35) scala/Boolean#
+(15:38..15:39) _empty_/JavaPartialFunction#[B] -> 13:39
+(17:28..17:29) _empty_/JavaPartialFunction#[A] -> 13:36
+(17:32..17:39) scala/Boolean#
+(17:42..17:45) scala/Predef.`???`().
+(18:31..18:32) _empty_/JavaPartialFunction#[A] -> 13:36
+(18:35..18:36) _empty_/JavaPartialFunction#[B] -> 13:39
+(18:39..18:42) scala/Predef.`???`().
+(19:40..19:41) _empty_/JavaPartialFunction#[A] -> 13:36
+(19:49..19:50) _empty_/JavaPartialFunction#[B] -> 13:39
+(19:55..19:57) _empty_/JavaPartialFunction#applyOrElse().[A1] -> 19:34
+(19:68..19:70) _empty_/JavaPartialFunction#applyOrElse().[A1] -> 19:34
+(19:74..19:76) _empty_/JavaPartialFunction#applyOrElse().[B1] -> 19:43
+(19:79..19:81) _empty_/JavaPartialFunction#applyOrElse().[B1] -> 19:43
+(19:84..19:87) scala/Predef.`???`().
+

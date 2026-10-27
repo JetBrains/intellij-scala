@@ -1,0 +1,9 @@
+Document tests/pos/deprecatedName-symbol.scala
+(2:4..2:18) scala/deprecatedName#
+(2:19..2:25) scala/Symbol.
+(2:35..2:38) scala/Int#
+(3:4..3:18) scala/deprecatedName#
+(3:19..3:25) scala/Symbol.
+(3:35..3:38) scala/Int#
+(4:4..4:8) scala/Unit#
+

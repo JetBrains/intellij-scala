@@ -1,0 +1,81 @@
+class C[+T](val head: T, val tail: L[T]) extends L[T]
+-----
+ScalaFile
+  ScClass: C
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('C')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        ParametersClause
+          PsiElement(()('(')
+          ClassParameter: head
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('head')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              SimpleType: T
+                CodeReferenceElement: T
+                  PsiElement(identifier)('T')
+          PsiElement(,)(',')
+          PsiWhiteSpace(' ')
+          ClassParameter: tail
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(val)('val')
+            PsiWhiteSpace(' ')
+            PsiElement(identifier)('tail')
+            PsiElement(:)(':')
+            PsiWhiteSpace(' ')
+            ParameterType
+              ParametrizedType: L[T]
+                SimpleType: L
+                  CodeReferenceElement: L
+                    PsiElement(identifier)('L')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: T
+                      CodeReferenceElement: T
+                        PsiElement(identifier)('T')
+                  PsiElement(])(']')
+          PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: L[T]
+            SimpleType: L
+              CodeReferenceElement: L
+                PsiElement(identifier)('L')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
