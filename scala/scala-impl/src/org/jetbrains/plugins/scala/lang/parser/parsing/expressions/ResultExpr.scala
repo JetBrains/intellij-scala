@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
 
 import scala.util.chaining.scalaUtilChainingOps
 
@@ -25,8 +25,13 @@ object ResultExpr {
     val resultMarker = builder.mark()
     val backupMarker = builder.mark()
 
-    def parseFunctionContent(elementType: IElementType): Boolean =
-      Block.Braceless(stopOnOutdent, needNode = true).tap { parsedBlock =>
+    def parseFunctionContent(elementType: IElementType): Boolean = {
+      val indentationRegion =
+        if (builder.isScala3IndentationBasedSyntaxEnabled) builder.newBracelessIndentationRegionHere
+        else None
+      builder.withIndentationRegion(indentationRegion) {
+        Block.Braceless(stopOnOutdent, needNode = true)
+      }.tap { parsedBlock =>
         if (parsedBlock) {
           backupMarker.drop()
           resultMarker.done(elementType)
@@ -35,6 +40,7 @@ object ResultExpr {
           backupMarker.rollbackTo()
         }
       }
+    }
 
     def parseFunctionEnd(): Boolean = builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>

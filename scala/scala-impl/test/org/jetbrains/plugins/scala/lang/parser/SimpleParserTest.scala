@@ -6,6 +6,14 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 class SimpleParserTest extends SimpleScalaParserTestBase {
+  def test_outdented_match_in_lambda_body(): Unit = checkParseErrors(
+    """{
+      |  x =>
+      |    x
+      |  match { case _ => 1 }
+      |}""".stripMargin
+  )
+
   def testSCL25035_shebangIsAComment(): Unit = {
     val shebang = "#!/usr/bin/env -S scala-cli shebang -q"
     val code = s"$shebang\nobject Main"

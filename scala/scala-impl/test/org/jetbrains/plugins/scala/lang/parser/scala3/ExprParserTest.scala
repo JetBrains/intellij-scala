@@ -2,6 +2,89 @@ package org.jetbrains.plugins.scala.lang.parser.scala3
 
 class ExprParserTest extends SimpleScala3ParserTestBase {
 
+  def test_tuple_result_in_indented_lambda_body(): Unit = checkTree(
+    """{
+      |  x =>
+      |    clear()
+      |    (x, x)
+      |}""".stripMargin,
+    """ScalaFile
+      |  BlockExpression
+      |    PsiElement({)('{')
+      |    PsiWhiteSpace('\n  ')
+      |    FunctionExpression
+      |      Parameters
+      |        ParametersClause
+      |          Parameter: x
+      |            PsiElement(identifier)('x')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=>)('=>')
+      |      PsiWhiteSpace('\n    ')
+      |      BlockOfExpressions
+      |        MethodCall
+      |          ReferenceExpression: clear
+      |            PsiElement(identifier)('clear')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            PsiElement())(')')
+      |        PsiWhiteSpace('\n    ')
+      |        Tuple
+      |          PsiElement(()('(')
+      |          ReferenceExpression: x
+      |            PsiElement(identifier)('x')
+      |          PsiElement(,)(',')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: x
+      |            PsiElement(identifier)('x')
+      |          PsiElement())(')')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(})('}')
+      |""".stripMargin
+  )
+
+  def test_indented_argument_list_in_indented_lambda_body(): Unit = checkTree(
+    """{
+      |  x =>
+      |    f(x)
+      |      (x, x)
+      |}""".stripMargin,
+    """ScalaFile
+      |  BlockExpression
+      |    PsiElement({)('{')
+      |    PsiWhiteSpace('\n  ')
+      |    FunctionExpression
+      |      Parameters
+      |        ParametersClause
+      |          Parameter: x
+      |            PsiElement(identifier)('x')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=>)('=>')
+      |      PsiWhiteSpace('\n    ')
+      |      BlockOfExpressions
+      |        MethodCall
+      |          MethodCall
+      |            ReferenceExpression: f
+      |              PsiElement(identifier)('f')
+      |            ArgumentList
+      |              PsiElement(()('(')
+      |              ReferenceExpression: x
+      |                PsiElement(identifier)('x')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace('\n      ')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            ReferenceExpression: x
+      |              PsiElement(identifier)('x')
+      |            PsiElement(,)(',')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: x
+      |              PsiElement(identifier)('x')
+      |            PsiElement())(')')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(})('}')
+      |""".stripMargin
+  )
+
   def test_if_then_else(): Unit = checkTree(
     """
       |if a then b else c

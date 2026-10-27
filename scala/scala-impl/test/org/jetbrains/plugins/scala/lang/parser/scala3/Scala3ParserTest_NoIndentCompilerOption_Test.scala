@@ -21,6 +21,14 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
     myFixture.configureByText("a.scala", text.withNormalizedSeparator).asInstanceOf[ScalaFile]
   }
 
+  def testOutdentedMatchInLambdaBody(): Unit = checkParseErrors(
+    """{
+      |  x =>
+      |    x
+      |  match { case _ => 1 }
+      |}""".stripMargin
+  )
+
   def testTemplateDef(): Unit = checkTree(
     """trait A:
       |   def f: Int
