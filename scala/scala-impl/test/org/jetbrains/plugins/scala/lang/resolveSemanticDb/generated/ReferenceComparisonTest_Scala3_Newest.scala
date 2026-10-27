@@ -746,205 +746,106 @@ final class ReferenceComparisonTest_Scala3_Newest_Part7 extends ReferenceCompari
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part8 extends ReferenceComparisonTest_Scala3_Newest {
   def test_i4180(): Unit = doTest("i4180", true)
-
   def test_i4184(): Unit = doTest("i4184", true)
-
   def test_i4185(): Unit = doTest("i4185", true)
-
   def test_i4188(): Unit = doTest("i4188", true)
-
   def test_i4196(): Unit = doTest("i4196", true)
-
   def test_i4198(): Unit = doTest("i4198", true)
-
   def test_i4203(): Unit = doTest("i4203", true)
-
   def test_i4316(): Unit = doTest("i4316", true)
-
   def test_i4318(): Unit = doTest("i4318", true)
-
   def test_i4322(): Unit = doTest("i4322", false)
-
   def test_i4328(): Unit = doTest("i4328", true)
-
   def test_i4375(): Unit = doTest("i4375", true)
-
   def test_i4395(): Unit = doTest("i4395", true)
-
   def test_i4395b(): Unit = doTest("i4395b", true)
-
   def test_i4419(): Unit = doTest("i4419", true)
-
   def test_i4430(): Unit = doTest("i4430", true)
-
   def test_i4449(): Unit = doTest("i4449", true)
-
   def test_i4466a(): Unit = doTest("i4466a", true)
-
   def test_i4466b(): Unit = doTest("i4466b", true)
-
   def test_i4471_gadt(): Unit = doTest("i4471-gadt", true)
-
   def test_i4509(): Unit = doTest("i4509", true)
-
   def test_i4526_2(): Unit = doTest("i4526-2", true)
-
   def test_i4526a(): Unit = doTest("i4526a", true)
-
   def test_i4526b(): Unit = doTest("i4526b", true)
-
   def test_i4557(): Unit = doTest("i4557", true)
-
   def test_i4557a(): Unit = doTest("i4557a", true)
-
   def test_i4561(): Unit = doTest("i4561", true)
-
   def test_i4564(): Unit = doTest("i4564", false)
-
   def test_i4582(): Unit = doTest("i4582", true) // #traitParameters
-
   def test_i4586(): Unit = doTest("i4586", true)
-
   def test_i4588(): Unit = doTest("i4588", true)
-
   def test_i4590(): Unit = doTest("i4590", false)
-
   def test_i4623(): Unit = doTest("i4623", true) // #unionType
-
   def test_i4659c(): Unit = doTest("i4659c", true)
-
   def test_i4674(): Unit = doTest("i4674", true)
-
   def test_i4678(): Unit = doTest("i4678", true)
-
   def test_i4720(): Unit = doTest("i4720", true)
-
   def test_i4725(): Unit = doTest("i4725", false)
-
   def test_i4742(): Unit = doTest("i4742", true)
-
   def test_i4753(): Unit = doTest("i4753", true)
-
   def test_i4753b(): Unit = doTest("i4753b", true)
-
   def test_i4758(): Unit = doTest("i4758", true)
-
   def test_i4785(): Unit = doTest("i4785", true)
-
   def test_i4811(): Unit = doTest("i4811", true)
-
   def test_i4819(): Unit = doTest("i4819", true)
-
   def test_i4820(): Unit = doTest("i4820", true)
-
   def test_i4820b(): Unit = doTest("i4820b", true)
-
   def test_i4837(): Unit = doTest("i4837", true) // #traitParameters
-
   def test_i4854(): Unit = doTest("i4854", true)
-
   def test_i4863(): Unit = doTest("i4863", true)
-
   def test_i4867(): Unit = doTest("i4867", true) // #intersectionType
-
   def test_i4884(): Unit = doTest("i4884", true) // #unionType, #intersectionType, #typeLambda
-
   def test_i4906(): Unit = doTest("i4906", true) // #unionType, #typeLambda
-
   def test_i4984(): Unit = doTest("i4984", true)
-
   def test_i4987(): Unit = doTest("i4987", true)
-
   def test_i4988(): Unit = doTest("i4988", true)
-
   def test_i4996(): Unit = doTest("i4996", true)
-
   def test_i4999(): Unit = doTest("i4999", true)
-
   def test_i5001(): Unit = doTest("i5001", true)
-
   def test_i5006(): Unit = doTest("i5006", true)
-
   def test_i5033b(): Unit = doTest("i5033b", true)
-
   def test_i5036(): Unit = doTest("i5036", true)
-
   def test_i5039(): Unit = doTest("i5039", true)
-
   def test_i5068_gadt(): Unit = doTest("i5068-gadt", true)
-
   def test_i5090(): Unit = doTest("i5090", true)
-
   def test_i5107(): Unit = doTest("i5107", true)
-
   def test_i5139(): Unit = doTest("i5139", true) // #unionType
-
   def test_i5140(): Unit = doTest("i5140", true)
-
   def test_i5145(): Unit = doTest("i5145", true)
-
   def test_i5188(): Unit = doTest("i5188", true)
-
   def test_i5271(): Unit = doTest("i5271", true)
-
   def test_i5288(): Unit = doTest("i5288", false) // #intersectionType
-
   def test_i5295(): Unit = doTest("i5295", true)
-
   def test_i5309(): Unit = doTest("i5309", true)
-
   def test_i5328(): Unit = doTest("i5328", true)
-
   def test_i5338(): Unit = doTest("i5338", true)
-
   def test_i5402(): Unit = doTest("i5402", true)
-
   def test_i5411(): Unit = doTest("i5411", true) // #unionType
-
   def test_i5413_a(): Unit = doTest("i5413-a", true)
-
   def test_i5413_b(): Unit = doTest("i5413-b", true)
-
   def test_i5418(): Unit = doTest("i5418", true)
-
   def test_i5427(): Unit = doTest("i5427", false)
-
   def test_i5481(): Unit = doTest("i5481", true) // #opaque
-
   def test_i5492(): Unit = doTest("i5492", false)
-
   def test_i5498_postfixOps(): Unit = doTest("i5498-postfixOps", true)
-
   def test_i5526a(): Unit = doTest("i5526a", true)
-
   def test_i5526b(): Unit = doTest("i5526b", true)
-
   def test_i5572(): Unit = doTest("i5572", true) // #transparentInline
-
   def test_i5574(): Unit = doTest("i5574", true) // #transparentInline
-
   def test_i5588a(): Unit = doTest("i5588a", true) // #extension
-
   def test_i5588b(): Unit = doTest("i5588b", true) // #extension
-
   def test_i5592(): Unit = doTest("i5592", true) // #typeLambda
-
   def test_i5625(): Unit = doTest("i5625", true) // #matchType
-
   def test_i5625b(): Unit = doTest("i5625b", true) // #matchType
-
   def test_i5650(): Unit = doTest("i5650", true) // #matchType
-
   def test_i5655(): Unit = doTest("i5655", true)
-
   def test_i5666(): Unit = doTest("i5666", true)
-
   def test_i5699(): Unit = doTest("i5699", true) // #unionType
-
   def test_i5700(): Unit = doTest("i5700", true)
-
   def test_i5711(): Unit = doTest("i5711", true)
-  }
+}
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part9 extends ReferenceComparisonTest_Scala3_Newest {
@@ -1774,8 +1675,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part16 extends ReferenceCompar
   def test_i15976(): Unit = doTest("i15976", true)
   def test_i15983a(): Unit = doTest("i15983a", true)
   def test_i15983b(): Unit = doTest("i15983b", true)
-  def test_i15991: Unit = doTest("i15991", true)
-
+  def test_i15991(): Unit = doTest("i15991", true)
   def test_i15991_abstract(): Unit = doTest("i15991.abstract", true)
 }
 
@@ -2277,9 +2177,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part21 extends ReferenceCompar
   def test_i24076(): Unit = doTest("i24076", true) // #transparentInline
   def test_i24094(): Unit = doTest("i24094", true)
   def test_i24097_a(): Unit = doTest("i24097-a", false) // #extension, #unionType, #typeLambda, #intersectionType
-
   def test_i24097_b(): Unit = doTest("i24097-b", false) // #unionType
-
   def test_i24134(): Unit = doTest("i24134", true)
   def test_i24134_nested(): Unit = doTest("i24134-nested", true)
   def test_i24192(): Unit = doTest("i24192", true) // #traitParameters
@@ -3337,9 +3235,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part31 extends ReferenceCompar
   def test_t2712_6(): Unit = doTest("t2712-6", true)
   def test_t2712_7(): Unit = doTest("t2712-7", true)
   def test_t2712_8(): Unit = doTest("t2712-8", true)
-
   def test_t2726(): Unit = doTest("t2726", true)
-
   def test_t2741(): Unit = doTest("t2741", true)
 }
 
