@@ -1,0 +1,208 @@
+def UNINITIALIZED[T] = null.asInstanceOf[T]
+
+extension [A](self: A) inline def pipe[B](inline f: (self.type) => B): B = f(self)
+
+def main() =
+    summon[deriving.Mirror.Of[(Int, Int)]]
+    .pipe: c =>
+        UNINITIALIZED[c.MirroredMonoType]
+-----
+ScalaFile
+  ScFunctionDefinition: UNINITIALIZED
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('UNINITIALIZED')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    Parameters
+      <empty list>
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    GenericCall
+      ReferenceExpression: null.asInstanceOf
+        NullLiteral
+          PsiElement(null)('null')
+        PsiElement(.)('.')
+        PsiElement(identifier)('asInstanceOf')
+      TypeArgumentsList
+        PsiElement([)('[')
+        TypeArgument
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+        PsiElement(])(']')
+  PsiWhiteSpace('\n\n')
+  Extension on A
+    PsiElement(extension)('extension')
+    PsiWhiteSpace(' ')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: A
+        PsiElement(identifier)('A')
+      PsiElement(])(']')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: self
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('self')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            SimpleType: A
+              CodeReferenceElement: A
+                PsiElement(identifier)('A')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    ScExtensionBody
+      ScFunctionDefinition: pipe
+        AnnotationsList
+          <empty list>
+        Modifiers
+          PsiElement(inline)('inline')
+        PsiWhiteSpace(' ')
+        PsiElement(def)('def')
+        PsiWhiteSpace(' ')
+        PsiElement(identifier)('pipe')
+        TypeParameterClause
+          PsiElement([)('[')
+          TypeParameter: B
+            PsiElement(identifier)('B')
+          PsiElement(])(']')
+        Parameters
+          ParametersClause
+            PsiElement(()('(')
+            Parameter: f
+              AnnotationsList
+                <empty list>
+              Modifiers
+                PsiElement(inline)('inline')
+              PsiWhiteSpace(' ')
+              PsiElement(identifier)('f')
+              PsiElement(:)(':')
+              PsiWhiteSpace(' ')
+              ParameterType
+                FunctionalType: (self.type) => B
+                  TypeInParenthesis: (self.type)
+                    PsiElement(()('(')
+                    SimpleType: self.type
+                      CodeReferenceElement: self
+                        PsiElement(identifier)('self')
+                      PsiElement(.)('.')
+                      PsiElement(type)('type')
+                    PsiElement())(')')
+                  PsiWhiteSpace(' ')
+                  PsiElement(=>)('=>')
+                  PsiWhiteSpace(' ')
+                  SimpleType: B
+                    CodeReferenceElement: B
+                      PsiElement(identifier)('B')
+            PsiElement())(')')
+        PsiElement(:)(':')
+        PsiWhiteSpace(' ')
+        SimpleType: B
+          CodeReferenceElement: B
+            PsiElement(identifier)('B')
+        PsiWhiteSpace(' ')
+        PsiElement(=)('=')
+        PsiWhiteSpace(' ')
+        MethodCall
+          ReferenceExpression: f
+            PsiElement(identifier)('f')
+          ArgumentList
+            PsiElement(()('(')
+            ReferenceExpression: self
+              PsiElement(identifier)('self')
+            PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: main
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('main')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace('\n    ')
+    MethodCall
+      ReferenceExpression: summon[deriving.Mirror.Of[(Int, Int)]]
+    .pipe
+        GenericCall
+          ReferenceExpression: summon
+            PsiElement(identifier)('summon')
+          TypeArgumentsList
+            PsiElement([)('[')
+            TypeArgument
+              ParametrizedType: deriving.Mirror.Of[(Int, Int)]
+                SimpleType: deriving.Mirror.Of
+                  CodeReferenceElement: deriving.Mirror.Of
+                    CodeReferenceElement: deriving.Mirror
+                      CodeReferenceElement: deriving
+                        PsiElement(identifier)('deriving')
+                      PsiElement(.)('.')
+                      PsiElement(identifier)('Mirror')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('Of')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    TupleType: (Int, Int)
+                      PsiElement(()('(')
+                      TypesList
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                        PsiElement(,)(',')
+                        PsiWhiteSpace(' ')
+                        SimpleType: Int
+                          CodeReferenceElement: Int
+                            PsiElement(identifier)('Int')
+                      PsiElement())(')')
+                  PsiElement(])(']')
+            PsiElement(])(']')
+        PsiWhiteSpace('\n    ')
+        PsiElement(.)('.')
+        PsiElement(identifier)('pipe')
+      ArgumentList
+        BlockExpression
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          FunctionExpression
+            Parameters
+              ParametersClause
+                Parameter: c
+                  PsiElement(identifier)('c')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace('\n        ')
+            BlockOfExpressions
+              GenericCall
+                ReferenceExpression: UNINITIALIZED
+                  PsiElement(identifier)('UNINITIALIZED')
+                TypeArgumentsList
+                  PsiElement([)('[')
+                  TypeArgument
+                    SimpleType: c.MirroredMonoType
+                      CodeReferenceElement: c.MirroredMonoType
+                        CodeReferenceElement: c
+                          PsiElement(identifier)('c')
+                        PsiElement(.)('.')
+                        PsiElement(identifier)('MirroredMonoType')
+                  PsiElement(])(']')
