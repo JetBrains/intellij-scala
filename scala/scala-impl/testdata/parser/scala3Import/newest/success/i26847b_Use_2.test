@@ -1,0 +1,91 @@
+// Inlining `g` and `use` retypes their bodies, in which the applications of
+// the leading implicit parameter sections appear as regular applications
+// since ApplyKind attachments are not pickled. The retyper must not
+// auto-tuple the implicit arguments against the following explicit
+// parameter section.
+object Use:
+  def test1: Int = Lib.g(1)
+  def test2: Int = Debug.use(1)
+-----
+ScalaFile
+  ScObject: Use
+    PsiComment(comment)('// Inlining `g` and `use` retypes their bodies, in which the applications of')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// the leading implicit parameter sections appear as regular applications')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// since ApplyKind attachments are not pickled. The retyper must not')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// auto-tuple the implicit arguments against the following explicit')
+    PsiWhiteSpace('\n')
+    PsiComment(comment)('// parameter section.')
+    PsiWhiteSpace('\n')
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('Use')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement(:)(':')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test1
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test1')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Lib.g
+              ReferenceExpression: Lib
+                PsiElement(identifier)('Lib')
+              PsiElement(.)('.')
+              PsiElement(identifier)('g')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement())(')')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: test2
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('test2')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: Int
+            CodeReferenceElement: Int
+              PsiElement(identifier)('Int')
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          MethodCall
+            ReferenceExpression: Debug.use
+              ReferenceExpression: Debug
+                PsiElement(identifier)('Debug')
+              PsiElement(.)('.')
+              PsiElement(identifier)('use')
+            ArgumentList
+              PsiElement(()('(')
+              IntegerLiteral
+                PsiElement(integer)('1')
+              PsiElement())(')')

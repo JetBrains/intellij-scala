@@ -1,0 +1,73 @@
+trait L[+T] {
+  def head: T
+  def tail: L[T]
+}
+-----
+ScalaFile
+  ScTrait: L
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(trait)('trait')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('L')
+    TypeParameterClause
+      PsiElement([)('[')
+      TypeParameter: T
+        PsiElement(identifier)('+')
+        PsiElement(identifier)('T')
+      PsiElement(])(']')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: head
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('head')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          SimpleType: T
+            CodeReferenceElement: T
+              PsiElement(identifier)('T')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: tail
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tail')
+          Parameters
+            <empty list>
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParametrizedType: L[T]
+            SimpleType: L
+              CodeReferenceElement: L
+                PsiElement(identifier)('L')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: T
+                  CodeReferenceElement: T
+                    PsiElement(identifier)('T')
+              PsiElement(])(']')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

@@ -1,0 +1,85 @@
+Document tests/pos/method-block-end-markers.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:35) scala/language.experimental.
+(1:36..1:57) scala/language.experimental.methodBlockEndMarkers.
+(4:18..4:24) scala/Predef.String#
+(4:35..4:39) scala/Unit#
+(4:42..4:46) scala/Unit#
+(5:5..5:12) scala/Predef.println(+1).
+(5:13..5:14) scala/StringContext#s().
+(5:30..5:34) _empty_/Test.test().(name) -> 4:12
+(6:5..6:9) _empty_/Test.test().(body) -> 4:26
+(8:16..8:19) scala/Int#
+(8:31..8:35) scala/Unit#
+(8:38..8:42) scala/Unit#
+(8:45..8:50) _empty_/Test.foo().(block) -> 8:21
+(10:18..10:23) scala/Array#
+(10:24..10:30) scala/Predef.String#
+(10:34..10:38) scala/Unit#
+(12:5..12:9) _empty_/Test.test(). -> 4:7
+(14:7..14:13) scala/Predef.assert(+1).
+(14:14..14:15) local0 -> 13:11
+(14:16..14:17) scala/Int#`>`(+3).
+(15:9..15:13) _empty_/Test.test(). -> 4:7
+(17:5..17:8) _empty_/Test.foo(). -> 8:7
+(18:23..18:24) scala/Int#`*`(+3).
+(19:7..19:14) scala/Predef.println(+1).
+(19:15..19:16) scala/StringContext#s().
+(19:26..19:32) local1 -> 18:11
+(20:9..20:12) _empty_/Test.foo(). -> 8:7
+(23:5..23:9) _empty_/Test.test(). -> 4:7
+(24:7..24:14) scala/Predef.locally().
+(26:9..26:16) scala/Predef.println(+1).
+(26:17..26:22) local2 -> 25:13
+(29:7..29:13) scala/Predef.assert(+1).
+(30:9..30:13) _empty_/Test.test(). -> 4:7
+(33:20..33:24) scala/package.List.
+(34:5..34:13) local3 -> 33:9
+(34:14..34:21) scala/collection/immutable/List#foreach().
+(36:9..36:16) scala/Predef.println(+1).
+(36:17..36:18) scala/StringContext#s().
+(36:29..36:33) local4 -> 35:7
+(41:27..41:31) scala/Unit#
+(41:34..41:38) scala/Unit#
+(41:41..41:46) local5 -> 41:17
+(43:5..43:8) local8
+(43:9..43:14) local6 -> 41:11
+(44:7..44:14) scala/Predef.println(+1).
+(45:9..45:14) local6 -> 41:11
+(48:5..48:8) local8
+(49:7..49:14) scala/Predef.println(+1).
+(54:27..54:31) scala/Unit#
+(54:34..54:38) scala/Unit#
+(54:41..54:46) local10 -> 54:17
+(56:19..56:22) local12 -> 53:11
+(57:5..57:8) local14 -> 56:9
+(58:7..58:14) scala/Predef.println(+1).
+(62:25..62:31) scala/Predef.String#
+(62:38..62:44) scala/Predef.String#
+(62:47..62:51) scala/Unit#
+(63:7..63:14) scala/Predef.println(+1).
+(63:15..63:16) scala/StringContext#s().
+(63:18..63:21) local15 -> 62:20
+(63:27..63:30) local16 -> 62:33
+(65:5..65:15) local17 -> 62:9
+(67:9..67:19) local17 -> 62:9
+(70:27..70:33) scala/Predef.String#
+(71:22..71:28) scala/Predef.String#
+(71:31..71:35) scala/Unit#
+(72:9..72:16) scala/Predef.println(+1).
+(72:17..72:18) scala/StringContext#s().
+(72:20..72:23) local18 -> 70:22
+(72:29..72:32) local19 -> 71:17
+(74:31..74:37) scala/Predef.String#
+(74:41..74:51) local21 -> 70:11
+(74:52..74:55) local23 -> 74:26
+(75:5..75:21) local24 -> 74:9
+(80:19..80:25) scala/Predef.String#
+(81:30..81:36) scala/Predef.String#
+(81:39..81:45) scala/Predef.String#
+(81:48..81:49) scala/StringContext#s().
+(81:51..81:57) local26 -> 81:22
+(81:58..81:59) local25 -> 80:16
+(83:13..83:23) local27 -> 81:11
+

@@ -1,0 +1,68 @@
+object N extends L[Nothing] {
+  def head = ???
+  def tail = ???
+}
+-----
+ScalaFile
+  ScObject: N
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(object)('object')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('N')
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      PsiElement(extends)('extends')
+      PsiWhiteSpace(' ')
+      TemplateParents
+        ConstructorInvocation
+          ParametrizedType: L[Nothing]
+            SimpleType: L
+              CodeReferenceElement: L
+                PsiElement(identifier)('L')
+            TypeArgumentsList
+              PsiElement([)('[')
+              TypeArgument
+                SimpleType: Nothing
+                  CodeReferenceElement: Nothing
+                    PsiElement(identifier)('Nothing')
+              PsiElement(])(']')
+      PsiWhiteSpace(' ')
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: head
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('head')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDefinition: tail
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('tail')
+          Parameters
+            <empty list>
+          PsiWhiteSpace(' ')
+          PsiElement(=)('=')
+          PsiWhiteSpace(' ')
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')

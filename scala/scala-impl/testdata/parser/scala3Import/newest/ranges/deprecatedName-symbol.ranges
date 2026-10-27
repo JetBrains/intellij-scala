@@ -1,0 +1,9 @@
+[0,96]: PackageDef
+[0,0]: Ident
+[0,96]: DefDef
+[9,44]: ValDef
+[41,44]: Ident
+[48,83]: ValDef
+[80,83]: Ident
+[87,91]: Ident
+[94,96]: Tuple
