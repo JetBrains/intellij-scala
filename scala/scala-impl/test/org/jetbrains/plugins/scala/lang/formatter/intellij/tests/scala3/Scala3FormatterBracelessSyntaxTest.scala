@@ -2,6 +2,18 @@ package org.jetbrains.plugins.scala.lang.formatter.intellij.tests.scala3
 
 class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
 
+  def testTupleResultInIndentedLambdaBody(): Unit = doTextTest(
+    """object Repro:
+      |  def f(xs: Seq[Int]): Seq[(Int, Int)] =
+      |    val sb = new StringBuilder
+      |    xs.map {
+      |      x =>
+      |        sb.clear()
+      |        (x, x)
+      |    }
+      |""".stripMargin
+  )
+
   // TODO: rename (replace 'L' with `l`)
   private def doTextTestForALlDefTypes(codeWithDefDef: String): Unit = {
     val codeWithValDef = codeWithDefDef.replaceFirst("def", "val")
