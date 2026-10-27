@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 package template
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
@@ -9,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaPsiBuilderExt}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) extends ParsingRule {
 
@@ -54,7 +53,7 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
           case _ =>
             val endsWithEndMarker = End()
             if (!endsWithEndMarker && generateIndentedDefinitionsExpectedError) {
-              builder.error(ScalaBundle.message("indented.definitions.expected"))
+              builder.error(ScalaParserBundle.message("indented.definitions.expected"))
             }
             marker.done(ScalaElementType.TEMPLATE_BODY)
             builder.restoreNewlinesState()

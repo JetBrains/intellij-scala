@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.patterns
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tCOLON
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 /**
  * Scala 2
@@ -26,7 +25,7 @@ object Pattern1 extends ParsingRule {
     if (pattern2Parsed && builder.getTokenType == tCOLON) {
       builder.advanceLexer() //Ate :
       if (!TypePattern()) {
-        builder.error(ScalaBundle.message("wrong.type"))
+        builder.error(ScalaParserBundle.message("wrong.type"))
       }
       pattern1Marker.done(ScalaElementType.SCALA3_TYPED_PATTERN)
       true
@@ -43,7 +42,7 @@ object Pattern1 extends ParsingRule {
         case `tCOLON` =>
           builder.advanceLexer() //Ate :
           if (!TypePattern()) {
-            builder.error(ScalaBundle.message("wrong.type"))
+            builder.error(ScalaParserBundle.message("wrong.type"))
           }
           pattern1Marker.done(ScalaElementType.TYPED_PATTERN)
           return true

@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 /**
  * [[TypedFunParam]] ::= id ‘:’ [[Type]]
@@ -28,7 +27,7 @@ object TypedFunParam extends ParsingRule {
           false
         } else {
           builder.advanceLexer()
-          if (!ParamType()) builder.error(ScalaBundle.message("wrong.type"))
+          if (!ParamType()) builder.error(ScalaParserBundle.message("wrong.type"))
           marker.done(ScalaElementType.PARAM)
           true
         }

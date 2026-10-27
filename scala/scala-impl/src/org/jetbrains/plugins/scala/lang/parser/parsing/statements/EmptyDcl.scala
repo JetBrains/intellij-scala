@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
@@ -18,7 +18,7 @@ object EmptyDcl {
       case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR |
            ScalaTokenTypes.kTYPE =>
         builder.advanceLexer()
-        builder.error(ScalaBundle.message("identifier.expected"))
+        builder.error(ScalaParserBundle.message("identifier.expected"))
         dclMarker.drop()
         true
       case _ =>

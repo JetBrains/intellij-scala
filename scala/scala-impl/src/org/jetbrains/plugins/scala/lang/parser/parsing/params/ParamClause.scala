@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.params
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 /*
  * ParamClause ::= [nl] '(' [Params] ')'
@@ -37,10 +36,10 @@ object ParamClause {
     if (builder.isScala3 && builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)) {
         if (!TypesAsParams()) {
           val hasAtLeastOneParam = Params()
-          if (!hasAtLeastOneParam) builder.error(ScalaBundle.message("identifier.expected"))
+          if (!hasAtLeastOneParam) builder.error(ScalaParserBundle.message("identifier.expected"))
         }
     } else {
-      if (mustBeUsing) builder.error(ScalaBundle.message("using.parameter.clause.expected"))
+      if (mustBeUsing) builder.error(ScalaParserBundle.message("using.parameter.clause.expected"))
       else             Params()
     }
 
@@ -49,7 +48,7 @@ object ParamClause {
       case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )
       case _ =>
-        builder.error(ScalaBundle.message("rparenthesis.expected"))
+        builder.error(ScalaParserBundle.message("rparenthesis.expected"))
     }
     builder.restoreNewlinesState()
     paramMarker.done(ScalaElementType.PARAM_CLAUSE)

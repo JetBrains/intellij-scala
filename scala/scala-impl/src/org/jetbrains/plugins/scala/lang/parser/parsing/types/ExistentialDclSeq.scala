@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, EmptyDcl}
@@ -32,7 +32,7 @@ object ExistentialDclSeq extends ParsingRule {
             EmptyDcl(isMod = false)
           }
         case _ =>
-          builder.error(ScalaBundle.message("wrong.existential.declaration"))
+          builder.error(ScalaParserBundle.message("wrong.existential.declaration"))
           builder.advanceLexer()
       }
     }

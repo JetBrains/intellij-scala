@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 import scala.annotation.tailrec
 
@@ -23,7 +22,7 @@ object Derives extends ParsingRule {
   @tailrec
   private def parseNext()(implicit builder: ScalaPsiBuilder): Unit = {
     if (!QualId()) {
-      builder.error(ScalaBundle.message("identifier.expected"))
+      builder.error(ScalaParserBundle.message("identifier.expected"))
     }
 
     if (builder.getTokenType == ScalaTokenTypes.tCOMMA) {

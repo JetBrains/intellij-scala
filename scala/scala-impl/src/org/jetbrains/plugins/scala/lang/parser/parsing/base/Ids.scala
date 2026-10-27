@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.base
 
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -46,7 +46,7 @@ object Ids extends ParsingRule {
         if (parseId()) {
           parseIds()
         } else {
-          builder.error(ScalaBundle.message("identifier.expected"))
+          builder.error(ScalaParserBundle.message("identifier.expected"))
         }
       case _ =>
     }

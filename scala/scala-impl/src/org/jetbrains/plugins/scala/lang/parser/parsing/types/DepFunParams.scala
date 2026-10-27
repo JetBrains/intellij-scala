@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 /**
  * [[DepFunParams]] ::= '(' [[TypedFunParam]], { [[TypedFunParam]] } ')'
@@ -32,7 +31,7 @@ object DepFunParams extends ParsingRule {
 
       builder.getTokenType match {
         case ScalaTokenTypes.tRPARENTHESIS => builder.advanceLexer()
-        case _                             => builder.error(ScalaBundle.message("rparenthesis.expected"))
+        case _                             => builder.error(ScalaParserBundle.message("rparenthesis.expected"))
       }
 
       marker.done(ScalaElementType.PARAM_CLAUSE)

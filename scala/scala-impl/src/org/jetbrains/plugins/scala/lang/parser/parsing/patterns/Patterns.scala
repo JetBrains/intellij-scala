@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.patterns
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType, ScalaParserBundle}
 
 object Patterns extends ParsingRule {
 
@@ -16,7 +15,7 @@ object Patterns extends ParsingRule {
         val error = builder.mark()
         builder.advanceLexer()
         builder.advanceLexer()
-        error.error(ScalaBundle.message("all.components.of.a.named.tuple.pattern.must.be.named"))
+        error.error(ScalaParserBundle.message("all.components.of.a.named.tuple.pattern.must.be.named"))
       }
       Pattern()
     }

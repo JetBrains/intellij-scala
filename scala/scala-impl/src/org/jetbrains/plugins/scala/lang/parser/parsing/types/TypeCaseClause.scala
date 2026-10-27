@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 /**
  * TypeCaseClause ::= ‘case’ InfixType ‘=>’ Type [nl]
@@ -21,7 +20,7 @@ object TypeCaseClause extends ParsingRule {
         return false
     }
 
-    if (!InfixType(isPattern = true, typeVariables = true)) builder.error(ScalaBundle.message("wrong.type"))
+    if (!InfixType(isPattern = true, typeVariables = true)) builder.error(ScalaParserBundle.message("wrong.type"))
 
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
@@ -29,12 +28,12 @@ object TypeCaseClause extends ParsingRule {
         builder.restoreNewlinesState()
       case _ =>
         builder.restoreNewlinesState()
-        builder.error(ScalaBundle.message("fun.sign.expected"))
+        builder.error(ScalaParserBundle.message("fun.sign.expected"))
         marker.done(ScalaElementType.TYPE_CASE_CLAUSE)
         return true
     }
 
-    if (!Type()) builder.error(ScalaBundle.message("wrong.type"))
+    if (!Type()) builder.error(ScalaParserBundle.message("wrong.type"))
     marker.done(ScalaElementType.TYPE_CASE_CLAUSE)
     true
   }

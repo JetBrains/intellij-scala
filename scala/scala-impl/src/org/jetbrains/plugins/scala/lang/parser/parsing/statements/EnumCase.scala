@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.parser.ScalaTokenBinders
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.EnumCaseConstr
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TypeDefinitionParents
+import org.jetbrains.plugins.scala.lang.parser.{ScalaParserBundle, ScalaTokenBinders}
 
 /**
  * {{{
@@ -45,7 +44,7 @@ object EnumCase extends ParsingRule {
               builder.disableNewlines()
               while (builder.getTokenType == tCOMMA) {
                 builder.advanceLexer() // consume ,
-                if (!parseSingletonCase()) builder.error(ScalaBundle.message("identifier.expected"))
+                if (!parseSingletonCase()) builder.error(ScalaParserBundle.message("identifier.expected"))
               }
               builder.restoreNewlinesState()
             } else {

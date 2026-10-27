@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
+import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 /*
  * Expr ::=  (Bindings | [‘implicit’] id | ‘_’) ‘=>’ Expr
@@ -94,7 +93,7 @@ object Expr extends ParsingRule {
             exprMarker.done(ScalaElementType.POLY_FUNCTION_EXPR)
             return true
           case _ =>
-            builder.error(ScalaBundle.message("fun.sign.expected"))
+            builder.error(ScalaParserBundle.message("fun.sign.expected"))
             // Even though we couldn't even parse the =>,
             // we still create a PolyFunctionExpr.
             // We do that to give the parsed TypeParams a valid parent node

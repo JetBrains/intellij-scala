@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types.cc
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 object CaptureSet extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
@@ -25,7 +24,7 @@ object CaptureSet extends ParsingRule {
               true
             } else {
               if (nextToken != ScalaTokenTypes.tRBRACE) {
-                builder.error(ScalaBundle.message("comma.or.rbrace.expected"))
+                builder.error(ScalaParserBundle.message("comma.or.rbrace.expected"))
 
                 if (nextToken == null || nextToken == ScalaTokenTypes.tLBRACE) {
                   // if we find a '{' let parseLoopUntilRBrace handle it

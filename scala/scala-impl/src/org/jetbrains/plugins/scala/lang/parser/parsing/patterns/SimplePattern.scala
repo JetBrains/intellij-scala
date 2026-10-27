@@ -1,14 +1,13 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.patterns
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Literal, Quoted}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{CompoundType, StableId}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.pattern.XmlPattern
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaParserBundle}
 
 /*
  * Scala 2.x
@@ -67,7 +66,7 @@ object SimplePattern extends ParsingRule {
           if (builder.getTokenType == ScalaTokenTypes.tRPARENTHESIS) {
             builder.advanceLexer()
           } else {
-            builder.error(ScalaBundle.message("rparenthesis.expected"))
+            builder.error(ScalaParserBundle.message("rparenthesis.expected"))
           }
           builder.restoreNewlinesState()
           simplePatternMarker.done(ScalaElementType.NAMED_TUPLE_PATTERN)
@@ -81,7 +80,7 @@ object SimplePattern extends ParsingRule {
               simplePatternMarker.done(ScalaElementType.TUPLE_PATTERN)
               return true
             case _ =>
-              builder.error(ScalaBundle.message("rparenthesis.expected"))
+              builder.error(ScalaParserBundle.message("rparenthesis.expected"))
               builder.restoreNewlinesState()
               simplePatternMarker.done(ScalaElementType.TUPLE_PATTERN)
               return true
@@ -92,7 +91,7 @@ object SimplePattern extends ParsingRule {
             case ScalaTokenTypes.tRPARENTHESIS =>
               builder.advanceLexer() //Ate )
             case _ =>
-              builder.error(ScalaBundle.message("rparenthesis.expected"))
+              builder.error(ScalaParserBundle.message("rparenthesis.expected"))
           }
           builder.restoreNewlinesState()
           simplePatternMarker.done(ScalaElementType.PATTERN_IN_PARENTHESIS)
@@ -104,7 +103,7 @@ object SimplePattern extends ParsingRule {
         val hasTypeElement = CompoundType(isPattern = true)
 
         if (!hasTypeElement) {
-          builder.error(ScalaBundle.message("type.expected"))
+          builder.error(ScalaParserBundle.message("type.expected"))
           simplePatternMarker.drop()
           return false
         } else {
@@ -294,13 +293,13 @@ object SimplePattern extends ParsingRule {
       if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
         builder.advanceLexer()
       } else {
-        builder.error(ScalaBundle.message("identifier.expected"))
+        builder.error(ScalaParserBundle.message("identifier.expected"))
       }
 
       if (builder.getTokenType == ScalaTokenTypes.tASSIGN) {
         builder.advanceLexer()
       } else {
-        builder.error(ScalaBundle.message("assignment.expected"))
+        builder.error(ScalaParserBundle.message("assignment.expected"))
       }
 
       try Pattern()

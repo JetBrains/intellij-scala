@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Ascription, ExprInIndentationRegion}
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2InForDef
+import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType, ScalaParserBundle}
 
 /*
  * Scala 2.12
@@ -31,9 +30,9 @@ object PatDef extends ParsingRule {
           // do some error recovery
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA =>
-              builder.error(ScalaBundle.message("expected.another.pattern"))
+              builder.error(ScalaParserBundle.message("expected.another.pattern"))
             case ScalaTokenTypes.tCOLON | ScalaTokenTypes.tASSIGN =>
-              builder.error(ScalaBundle.message("expected.another.pattern"))
+              builder.error(ScalaParserBundle.message("expected.another.pattern"))
               return true
             case _ =>
               return false

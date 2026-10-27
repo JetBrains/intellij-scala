@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.params
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 /*
  * TypeParamClause ::= '[' VariantTypeParam {',' VariantTypeParam} ']'
@@ -28,14 +27,14 @@ object TypeParamClause {
     }
 
     if (!parseTypeParam()) {
-      builder.error(ScalaBundle.message("wrong.parameter"))
+      builder.error(ScalaParserBundle.message("wrong.parameter"))
     }
 
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA &&
            !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
       builder.advanceLexer() //Ate
       if (!parseTypeParam()) {
-        builder.error(ScalaBundle.message("wrong.parameter"))
+        builder.error(ScalaParserBundle.message("wrong.parameter"))
       }
     }
 
@@ -43,7 +42,7 @@ object TypeParamClause {
       case ScalaTokenTypes.tRSQBRACKET =>
         builder.advanceLexer() //Ate ]
       case _ =>
-        builder.error(ScalaBundle.message("rsqbracket.expected"))
+        builder.error(ScalaParserBundle.message("rsqbracket.expected"))
     }
     builder.restoreNewlinesState()
     typeMarker.done(ScalaElementType.TYPE_PARAM_CLAUSE)

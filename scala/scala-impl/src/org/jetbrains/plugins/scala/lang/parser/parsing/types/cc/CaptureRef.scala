@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types.cc
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 import scala.annotation.tailrec
 
@@ -23,7 +22,7 @@ object CaptureRef extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     if (!parseSimpleRef()) {
-      builder.error(ScalaBundle.message("capture.reference.expected"))
+      builder.error(ScalaParserBundle.message("capture.reference.expected"))
       if (builder.getTokenType != ScalaTokenTypes.tDOT) {
         marker.drop()
         return false
@@ -128,7 +127,7 @@ object CaptureRef extends ParsingRule {
     }
 
     if (builder.getTokenType != ScalaTokenTypes.tLSQBRACKET) {
-      builder.error(ScalaBundle.message("lsqbracket.expected"))
+      builder.error(ScalaParserBundle.message("lsqbracket.expected"))
       marker.drop()
       return true
     }
@@ -143,7 +142,7 @@ object CaptureRef extends ParsingRule {
       // only give an error for missing rsqbracket if the qual didn't have a problem
       // so: .as[a.b  <- give error
       //     .as[a.b. <- don't give error, QualId already added an error
-      builder.error(ScalaBundle.message("rsqbracket.expected"))
+      builder.error(ScalaParserBundle.message("rsqbracket.expected"))
     }
 
     // only create a CaptureFilter if the id was parsed
@@ -164,9 +163,9 @@ object CaptureRef extends ParsingRule {
 
     if (!builder.tryParseSoftKeyword(ScalaTokenType.ReadOnlyCapabilityKeyword)) {
       if (parsedAs) {
-        builder.error(ScalaBundle.message("rd.expected"))
+        builder.error(ScalaParserBundle.message("rd.expected"))
       } else {
-        builder.error(ScalaBundle.message("as.or.rd.expected"))
+        builder.error(ScalaParserBundle.message("as.or.rd.expected"))
       }
     }
   }

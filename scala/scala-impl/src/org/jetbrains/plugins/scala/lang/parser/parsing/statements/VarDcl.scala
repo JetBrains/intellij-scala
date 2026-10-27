@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -32,23 +32,23 @@ object VarDcl extends ParsingRule {
               returnMarker.drop()
             }
             else {
-              builder.error(ScalaBundle.message("wrong.type"))
+              builder.error(ScalaParserBundle.message("wrong.type"))
               returnMarker.drop()
             }
           case _ =>
-            builder.error(ScalaBundle.message("wrong.var.declaration"))
+            builder.error(ScalaParserBundle.message("wrong.var.declaration"))
             returnMarker.drop()
         }
 
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer()
-            builder.error(ScalaBundle.message("expression.expected"))
+            builder.error(ScalaParserBundle.message("expression.expected"))
           case _ =>
         }
         true
       case _ =>
-        builder.error(ScalaBundle.message("identifier.expected"))
+        builder.error(ScalaParserBundle.message("identifier.expected"))
         returnMarker.drop()
         false
     }

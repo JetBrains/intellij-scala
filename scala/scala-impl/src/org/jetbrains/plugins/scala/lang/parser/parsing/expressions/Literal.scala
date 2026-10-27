@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.annotations.{Nls, Nullable}
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.CommonUtils.remapRawStringTokens
 import org.jetbrains.plugins.scala.lang.parser.parsing.{CommonUtils, ParsingRule}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -78,7 +78,7 @@ object Literal extends ParsingRule {
            `tMULTILINE_STRING` =>
         advanceAndMarkDone(StringLiteral)
       case `tWRONG_STRING` =>
-        advanceAndMarkDone(StringLiteral, ScalaBundle.message("wrong.string.literal"))
+        advanceAndMarkDone(StringLiteral, ScalaParserBundle.message("wrong.string.literal"))
       //case `tWRONG_LINE_BREAK_IN_STRING` => TODO: it's currently not added in non-interpolated string literals (see TODOs in scala.flex)
       case tokenType =>
         matchNumber(tokenType)

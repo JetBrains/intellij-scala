@@ -3,7 +3,6 @@ package template
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, End}
@@ -11,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ExprInIndentationRegion
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClause, ParamClauses, TypeParamClause, TypesAsParams}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{AnnotType, InfixType}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 import scala.annotation.tailrec
 
@@ -128,7 +127,7 @@ object NewGivenSig {
       if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
         builder.advanceLexer() // ate =>
       } else {
-        builder.error(ScalaBundle.message("fun.sign.expected"))
+        builder.error(ScalaParserBundle.message("fun.sign.expected"))
       }
     }
 
@@ -171,7 +170,7 @@ object NewGivenSig {
           // Parsing `()` or `(x: Int)` etc cannot be the beginning of a GivenImpl,
           // so we know it was supposed to be a GivenConditional
           rollbackMarker.drop()
-          builder.error(ScalaBundle.message("fun.sign.expected"))
+          builder.error(ScalaParserBundle.message("fun.sign.expected"))
           true
         } else {
           // after parsing `(Int, Int)` (or more importantly `(Int)`) or `Int`, we don't know whether that was supposed to
@@ -209,7 +208,7 @@ object NewGivenSig {
       case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )
       case _ =>
-        builder.error(ScalaBundle.message("rparenthesis.expected"))
+        builder.error(ScalaParserBundle.message("rparenthesis.expected"))
     }
 
     parameterClause.done(ScalaElementType.PARAM_CLAUSE)
@@ -288,7 +287,7 @@ object NewGivenImpl {
     val extendsBlockMarker = builder.mark()
     builder.getProductions
     if (builder.getTokenType == ScalaTokenTypes.kWITH) {
-      builder.error(ScalaBundle.message("type.expected"))
+      builder.error(ScalaParserBundle.message("type.expected"))
       builder.advanceLexer()
     }
 
@@ -300,7 +299,7 @@ object NewGivenImpl {
     }
 
     if (builder.getTokenType == ScalaTokenTypes.kWITH) {
-      builder.error(ScalaBundle.message("expected.more.types"))
+      builder.error(ScalaParserBundle.message("expected.more.types"))
       builder.advanceLexer()
     }
 
@@ -316,7 +315,7 @@ object GivenType extends InfixType {
                                      (implicit builder: ScalaPsiBuilder): Boolean =
     AnnotType(isPattern = false)
 
-  override protected def errorMessage: String = ScalaBundle.message("type.expected")
+  override protected def errorMessage: String = ScalaParserBundle.message("type.expected")
 
   override protected def `allow 'as' operator`: Boolean = true
 }
@@ -335,7 +334,7 @@ object OldGivenDef {
 
     if (sigMarker.nonEmpty && builder.newlineBeforeCurrentToken) {
       sigMarker.foreach(_.drop())
-      builder.error(ScalaBundle.message("type.expected"))
+      builder.error(ScalaParserBundle.message("type.expected"))
       return Some(ScalaElementType.GIVEN_ALIAS_DECLARATION)
     }
 
@@ -366,7 +365,7 @@ object OldGivenDef {
       if (hasSignature && isGivenAlias) {
         //parse incomplete given alias definition during typing:
         //given value: <Caret> =
-        builder.error(ScalaBundle.message("type.expected"))
+        builder.error(ScalaParserBundle.message("type.expected"))
       } else {
         aliasMarker.rollbackTo()
         return None
@@ -379,7 +378,7 @@ object OldGivenDef {
           builder.advanceLexer() // ate =
 
           if (!ExprInIndentationRegion())
-            builder.error(ScalaBundle.message("expression.expected"))
+            builder.error(ScalaParserBundle.message("expression.expected"))
 
           End()
           ScalaElementType.GIVEN_ALIAS_DEFINITION
@@ -404,13 +403,13 @@ object OldGivenDef {
       if (builder.getTokenType == ScalaTokenTypes.kWITH) {
         //parse incomplete given structural instance during typing:
         //given value: <CARET> with MyTrait with {}
-        builder.error(ScalaBundle.message("type.expected"))
+        builder.error(ScalaParserBundle.message("type.expected"))
       }
       else {
         templateParents.drop()
         extendsBlockMarker.drop()
         sigMarker.foreach(_.drop())
-        builder.error(ScalaBundle.message("identifier.expected"))
+        builder.error(ScalaParserBundle.message("identifier.expected"))
         return Some(ScalaElementType.GIVEN_ALIAS_DECLARATION)
       }
     }
@@ -448,7 +447,7 @@ object OldGivenDef {
     }
 
     if (canParseBody && !GivenTemplateBody()) {
-      builder.error(ScalaBundle.message("lbrace.expected"))
+      builder.error(ScalaParserBundle.message("lbrace.expected"))
     }
 
     extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
@@ -509,7 +508,7 @@ object OldGivenSig extends ParsingRule {
       addEmptyParamClausesIfNecessary()
       true
     } else if (isSignatureForSure) {
-      builder.error(ScalaBundle.message("colon.expected"))
+      builder.error(ScalaParserBundle.message("colon.expected"))
       givenSigMarker.drop()
       addEmptyParamClausesIfNecessary()
       true

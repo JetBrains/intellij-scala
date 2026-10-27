@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 import scala.annotation.tailrec
 
@@ -27,7 +26,7 @@ object Annotation {
     builder.advanceLexer() //Ate @
 
     if (!AnnotationExpr(forConstructor)) {
-      builder.error(ScalaBundle.message("wrong.annotation.expression"))
+      builder.error(ScalaParserBundle.message("wrong.annotation.expression"))
       annotMarker.drop()
     } else {
       annotMarker.done(ScalaElementType.ANNOTATION)

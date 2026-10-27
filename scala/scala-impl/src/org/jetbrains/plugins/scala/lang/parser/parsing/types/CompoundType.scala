@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
 import com.intellij.psi.tree.TokenSet
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.cc.CaptureSet
+import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 /*
  *  CompoundType ::= AnnotType {with AnnotType} [Refinement]
@@ -36,7 +35,7 @@ object CompoundType extends Type {
             isCompound = true
             builder.advanceLexer() //Ate with or & (only in -Xsource:3)
             if (!AnnotType(isPattern)) {
-              builder.error(ScalaBundle.message("wrong.type"))
+              builder.error(ScalaParserBundle.message("wrong.type"))
             }
           }
           val hasRefinement = Refinement()

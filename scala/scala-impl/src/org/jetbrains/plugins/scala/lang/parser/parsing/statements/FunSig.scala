@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{FunTypeParamClause, ParamClauses}
@@ -16,7 +16,7 @@ object FunSig extends ParsingRule {
       ParamClauses(allowInterleavingTypeParamClauses = builder.isScala3)
       true
     } else {
-      builder.error(ScalaBundle.message("identifier.expected"))
+      builder.error(ScalaParserBundle.message("identifier.expected"))
       false
     }
 

@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 /** may consider unifying with [[org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Spliced]] in future */
 object SplicedPatternExpr extends ParsingRule {
@@ -32,7 +31,7 @@ object SplicedPatternExpr extends ParsingRule {
   //if we consumed opening '{' we need consume everything until the closing '}'
   private def consumeEverythingUntilClosingBrace()(implicit builder: ScalaPsiBuilder): Unit = {
     if (builder.getTokenType != ScalaTokenTypes.tRBRACE) {
-      builder.error(ScalaBundle.message("pattern.expected"))
+      builder.error(ScalaParserBundle.message("pattern.expected"))
       //eat all until {
       while (!builder.eof() && builder.getTokenType != ScalaTokenTypes.tRBRACE) {
         builder.advanceLexer()

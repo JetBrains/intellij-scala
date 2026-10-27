@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 /*
  * ExistentialClause ::= 'forSome' '{' ExistentialDcl {semi ExistentialDcl} '}'
@@ -26,7 +25,7 @@ object ExistentialClause extends ParsingRule {
         builder.advanceLexer() //Ate {
         builder.enableNewlines()
       case _ =>
-        builder.error(ScalaBundle.message("existential.block.expected"))
+        builder.error(ScalaParserBundle.message("existential.block.expected"))
         existMarker.done(ScalaElementType.EXISTENTIAL_CLAUSE)
         return true
     }

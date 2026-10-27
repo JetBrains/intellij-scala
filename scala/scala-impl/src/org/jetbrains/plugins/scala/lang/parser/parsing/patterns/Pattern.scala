@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.patterns
 
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 /*
  * Patern ::= Pattern1 {'|' Pattern1}
@@ -20,7 +19,7 @@ object Pattern extends ParsingRule {
       isComposite = true
       builder.advanceLexer() //Ate |
       if (!Pattern1()) {
-        builder.error(ScalaBundle.message("wrong.pattern"))
+        builder.error(ScalaParserBundle.message("wrong.pattern"))
       }
     }
     if (isComposite) patternMarker.done(ScalaElementType.PATTERN)

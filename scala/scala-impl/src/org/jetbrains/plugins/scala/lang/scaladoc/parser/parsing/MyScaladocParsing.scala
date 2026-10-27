@@ -6,10 +6,9 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
-import org.jetbrains.plugins.scala.lang.parser.PsiBuilderExt
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
+import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaParserBundle}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
@@ -222,10 +221,10 @@ class MyScaladocParsing(private val builder: PsiBuilder,
     val tokenType = builder.getTokenType
     tokenType match {
       case DOC_LINK_CLOSE_TAG =>
-        scaladocError(builder, ScalaBundle.message("scaladoc.parsing.closing.link.tag.before.opening"))
+        scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.closing.link.tag.before.opening"))
         builder.advanceLexer()
       case DOC_INNER_CLOSE_CODE_TAG =>
-        scaladocError(builder, ScalaBundle.message("scaladoc.parsing.closing.code.tag.before.opening"))
+        scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.closing.code.tag.before.opening"))
         builder.advanceLexer()
       case DOC_INNER_CODE_TAG =>
         parseInnerCode()
@@ -243,7 +242,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
         builder.advanceLexer()
       case _: ScalaDocSyntaxElementType => // will be handle later
       case badToken@_ =>
-        System.out.println(ScalaBundle.message("scaladoc.parsing.error.bad.token", badToken))
+        System.out.println(ScalaParserBundle.message("scaladoc.parsing.error.bad.token", badToken))
         builder.advanceLexer()
     }
 
@@ -280,11 +279,11 @@ class MyScaladocParsing(private val builder: PsiBuilder,
       builder.advanceLexer()
 
     def closedByNewParagraph(): Unit =
-      closedBy(ScalaBundle.message("scaladoc.parsing.wiki.syntax.closed.by.new.paragraph"))
+      closedBy(ScalaParserBundle.message("scaladoc.parsing.wiki.syntax.closed.by.new.paragraph"))
 
     def closedBy(@Nls message: String): Unit = {
       marker.done(syntaxElementType)
-      scaladocError(builder, ScalaBundle.message("scaladoc.parsing.wiki.syntax.element.closed.by.message", message))
+      scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.wiki.syntax.element.closed.by.message", message))
       clearFlag(syntaxElementType.getFlagConst)
     }
 
@@ -305,7 +304,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
       }
 
       if (isEndOfComment)
-        builder.error(ScalaBundle.message("scaladoc.parsing.open.syntax.element"))
+        builder.error(ScalaParserBundle.message("scaladoc.parsing.open.syntax.element"))
       else
         builder.advanceLexer()
     }
@@ -339,7 +338,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
         // example:
         //   [[ref
         //   [[ref this would be a new link
-        scaladocError(builder, ScalaBundle.message("scaladoc.parsing.expected.description.or.closing.link.tag"))
+        scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.expected.description.or.closing.link.tag"))
         clearFlag(syntaxElementType.getFlagConst)
         marker.done(syntaxElementType)
         return true
@@ -360,7 +359,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
             parseWikiSyntax()
           } else {
             if (tokenText.length > builder.getTokenText.length) {
-              scaladocError(builder, ScalaBundle.message("scaladoc.parsing.header.closed.by.opening.new.one"))
+              scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.header.closed.by.opening.new.one"))
             } else {
               builder.advanceLexer()
             }
@@ -384,7 +383,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
             marker.done(syntaxElementType)
             return true
           } else {
-            scaladocError(builder, ScalaBundle.message("scaladoc.parsing.closing.link.tag.before.opening"))
+            scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.closing.link.tag.before.opening"))
           }
         case a: ScalaDocSyntaxElementType if a == DOC_MONOSPACE_TAG || syntaxElementType != DOC_MONOSPACE_TAG =>
           if (syntaxElementType == a) { //
@@ -394,7 +393,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
             return true
           } else if (isSetFlag(a.getFlagConst)) {
             builder.advanceLexer()
-            scaladocError(builder, ScalaBundle.message("scaladoc.parsing.cross.tags"))
+            scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.cross.tags"))
           } else {
             parseWikiSyntax()
             if (hasClosingElementsInWikiSyntax) {
@@ -403,7 +402,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
             }
           }
         case DOC_INNER_CODE_TAG if canHaveTags =>
-          closedBy(ScalaBundle.message("scaladoc.parsing.wiki.syntax.closed.by.inner.code.tag"))
+          closedBy(ScalaParserBundle.message("scaladoc.parsing.wiki.syntax.closed.by.inner.code.tag"))
           return true
         case DOC_INLINE_TAG_START
           if builder.lookAhead(1, DOC_TAG_NAME) && canHaveTags =>
@@ -420,7 +419,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
           }
         case DOC_TAG_NAME if canHaveTags =>
           hasClosingElementsInWikiSyntax = true
-          closedBy(ScalaBundle.message("scaladoc.parsing.wiki.syntax.closed.by.tag"))
+          closedBy(ScalaParserBundle.message("scaladoc.parsing.wiki.syntax.closed.by.tag"))
           return true
         case DOC_COMMENT_LEADING_ASTERISKS =>
           builder.advanceLexer()
@@ -440,7 +439,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
     }
 
     if (!canClose(builder.getTokenType)) {
-      scaladocError(builder, ScalaBundle.message("scaladoc.parsing.no.closing.element"))
+      scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.no.closing.element"))
     }
     marker.done(syntaxElementType)
     true
@@ -452,7 +451,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
   private def parseInnerCode(): Boolean = {
     val marker = builder.mark()
     if (isEndOfComment) {
-      scaladocError(builder, ScalaBundle.message("scaladoc.parsing.unclosed.code.tag"))
+      scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.unclosed.code.tag"))
       marker.done(DOC_INNER_CODE_TAG)
       return true
     }
@@ -462,7 +461,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
       builder.advanceLexer()
     }
     if (isEndOfComment) {
-      scaladocError(builder, ScalaBundle.message("scaladoc.parsing.unclosed.code.tag"))
+      scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.unclosed.code.tag"))
     } else {
       builder.advanceLexer()
     }
@@ -484,9 +483,9 @@ class MyScaladocParsing(private val builder: PsiBuilder,
     if (!isEndOfComment)
       builder.advanceLexer()
     else
-      scaladocError(builder, ScalaBundle.message("scaladoc.parsing.unexpected.end.of.tag.body"))
+      scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.unexpected.end.of.tag.body"))
 
-    scaladocError(builder, ScalaBundle.message("scaladoc.parsing.inline.tag"))
+    scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.inline.tag"))
     val tagName = tagText.substring(1) //drop @
     tagName match {
       case TagNames.JavaLink | TagNames.JavaLinkPlain =>
@@ -531,7 +530,7 @@ class MyScaladocParsing(private val builder: PsiBuilder,
     if (!isEndOfComment)
       builder.advanceLexer()
     else
-      scaladocError(builder, ScalaBundle.message("scaladoc.parsing.unexpected.end.of.tag.body"))
+      scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.unexpected.end.of.tag.body"))
 
     val tagName = tagText.substring(1) //drop @
     tagName match {
@@ -545,12 +544,12 @@ class MyScaladocParsing(private val builder: PsiBuilder,
           builder.advanceLexer() // ate space
           parseTagValue()
         } else {
-          scaladocError(builder, ScalaBundle.message("scaladoc.parsing.missing.tag.param"))
+          scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.missing.tag.param"))
         }
       case _ if TagNames.AllTagNames.contains(tagName) => //do nothing
       case _ =>
         //Q: do we really need to generate a parser error?
-        scaladocError(builder, ScalaBundle.message("scaladoc.parsing.unknown.tag", tagText))
+        scaladocError(builder, ScalaParserBundle.message("scaladoc.parsing.unknown.tag", tagText))
     }
 
     parseDescription()

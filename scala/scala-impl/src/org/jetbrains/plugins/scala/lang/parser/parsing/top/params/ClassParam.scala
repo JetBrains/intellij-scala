@@ -1,14 +1,13 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 package params
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotations, Expr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 /**
  * [[ClassParam]] ::= [[Annotations]] [{Modifier} ('val' | 'var')] id ':' ParamType ['=' Expr]
@@ -42,7 +41,7 @@ object ClassParam extends ParsingRule {
         builder.advanceLexer() //Let's ate this!
       case _ =>
         if (isModifier) {
-          builder.error(ScalaBundle.message("val.var.expected"))
+          builder.error(ScalaParserBundle.message("val.var.expected"))
         }
     }
     //Look for identifier
@@ -65,11 +64,11 @@ object ClassParam extends ParsingRule {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate ':'
         if (!ParamType()) {
-          builder.error(ScalaBundle.message("parameter.type.expected"))
+          builder.error(ScalaParserBundle.message("parameter.type.expected"))
           hasError = true
         }
       case _ =>
-        builder.error(ScalaBundle.message("colon.expected"))
+        builder.error(ScalaParserBundle.message("colon.expected"))
         hasError = true
     }
 

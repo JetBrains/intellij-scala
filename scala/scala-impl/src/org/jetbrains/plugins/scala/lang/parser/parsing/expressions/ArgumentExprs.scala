@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 /**
  * Scala 2: {{{
@@ -52,7 +51,7 @@ object ArgumentExprs extends ParsingRule {
           case ScalaTokenTypes.tRPARENTHESIS =>
             builder.advanceLexer() //Ate )
           case _ =>
-            builder.error(ScalaBundle.message("rparenthesis.expected"))
+            builder.error(ScalaParserBundle.message("rparenthesis.expected"))
         }
         builder.restoreNewlinesState()
         argMarker.done(ScalaElementType.ARG_EXPRS)

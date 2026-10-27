@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.PatVarDef
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 import scala.annotation.tailrec
 
@@ -22,7 +21,7 @@ object EarlyDef extends ParsingRule {
         builder.advanceLexer() //Ate {
         builder.enableNewlines()
       case _ =>
-        builder.error(ScalaBundle.message("unreachable.error"))
+        builder.error(ScalaParserBundle.message("unreachable.error"))
         earlyMarker.drop()
         return false
     }
@@ -57,7 +56,7 @@ object EarlyDef extends ParsingRule {
     }
     if (!parseSub()) {
       builder.restoreNewlinesState()
-      builder.error(ScalaBundle.message("unreachable.error"))
+      builder.error(ScalaParserBundle.message("unreachable.error"))
       earlyMarker.rollbackTo()
       return false
     }
@@ -69,7 +68,7 @@ object EarlyDef extends ParsingRule {
         builder.advanceLexer() //Ate with
         true
       case _ =>
-        builder.error(ScalaBundle.message("unreachable.error"))
+        builder.error(ScalaParserBundle.message("unreachable.error"))
         earlyMarker.rollbackTo()
         false
     }

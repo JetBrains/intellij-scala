@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -10,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.NewTemplateBlock
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Path, TypeArgs}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.XmlExpr
 import org.jetbrains.plugins.scala.lang.parser.util.{InBracelessScala3, ParserUtils}
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 import scala.annotation.tailrec
 
@@ -116,7 +115,7 @@ object SimpleExpr extends ParsingRule {
                     if (builder.getTokenType == tASSIGN) {
                       builder.advanceLexer()
                     } else {
-                      builder.error(ScalaBundle.message("assignment.expected"))
+                      builder.error(ScalaParserBundle.message("assignment.expected"))
                     }
                   case token =>
                     builder.error(ErrMsg("identifier.expected"))
@@ -224,7 +223,7 @@ object SimpleExpr extends ParsingRule {
               Expr1.parseMatch(marker)
               subparse(tMarker)
             case _ =>
-              builder.error(ScalaBundle.message("identifier.expected"))
+              builder.error(ScalaParserBundle.message("identifier.expected"))
               marker.drop()
           }
         case `tLPARENTHESIS` | `tLBRACE` if ArgumentExprs.canContinueWithArgumentExprs =>

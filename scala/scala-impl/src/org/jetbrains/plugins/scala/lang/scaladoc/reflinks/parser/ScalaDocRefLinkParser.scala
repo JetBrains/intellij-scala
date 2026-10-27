@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.lang.scaladoc.reflinks.parser
 
 import com.intellij.lang.{LightPsiParser, PsiBuilder, PsiParser}
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.ScalaDocRefLinkElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.reflinks.ScalaDocRefLinkElementTypes.STRICT_MEMBER_ID
 
@@ -33,7 +33,7 @@ class ScalaDocRefLinkParser extends PsiParser with LightPsiParser {
       if (builder.getTokenType == tIDENTIFIER) {
         builder.advanceLexer() // consume identifier
       } else {
-        builder.error(ScalaBundle.message("identifier.expected"))
+        builder.error(ScalaParserBundle.message("identifier.expected"))
       }
       marker.done(STRICT_MEMBER_ID)
     } else {
@@ -44,7 +44,7 @@ class ScalaDocRefLinkParser extends PsiParser with LightPsiParser {
       case null | ScalaTokenTypes.tLSQBRACKET | ScalaTokenTypes.tLPARENTHESIS =>
         // this is fine
       case _ =>
-        builder.error(ScalaBundle.message("expected.scaladoc.tokens.or.whitespace"))
+        builder.error(ScalaParserBundle.message("expected.scaladoc.tokens.or.whitespace"))
     }
 
     // rest is just unused tokens
@@ -75,7 +75,7 @@ class ScalaDocRefLinkParser extends PsiParser with LightPsiParser {
           }
           finally builder.advanceLexer()
         case _ =>
-          builder.error(ScalaBundle.message("identifier.this.or.package.expected"))
+          builder.error(ScalaParserBundle.message("identifier.this.or.package.expected"))
           ScalaDocRefLinkElementTypes.QUERY_SEGMENT
       }
     marker.done(segmentType)
@@ -97,7 +97,7 @@ class ScalaDocRefLinkParser extends PsiParser with LightPsiParser {
       case `kTHIS` | `kPACKAGE` | `tIDENTIFIER` =>
         builder.advanceLexer()
       case _ =>
-        builder.error(ScalaBundle.message("identifier.this.or.package.expected"))
+        builder.error(ScalaParserBundle.message("identifier.this.or.package.expected"))
     }
   }
 }

@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 object CommonUtils {
 
@@ -37,9 +36,9 @@ object CommonUtils {
           else if (builder.getTokenType == ScalaTokenTypes.tLBRACE) {
             builder.advanceLexer()
             if (!Pattern())
-              builder.error(ScalaBundle.message("wrong.pattern"))
+              builder.error(ScalaParserBundle.message("wrong.pattern"))
             else if (builder.getTokenType != ScalaTokenTypes.tRBRACE) {
-              builder.error(ScalaBundle.message("right.brace.expected"))
+              builder.error(ScalaParserBundle.message("right.brace.expected"))
               ParserUtils.parseLoopUntilRBrace(braceReported = true) {}
             }
             else
@@ -58,16 +57,16 @@ object CommonUtils {
             literalMarker.done(ScalaElementType.THIS_REFERENCE)
           }
           else if (!builder.getTokenText.startsWith("$"))
-            builder.error(ScalaBundle.message("bad.interpolated.string.injection"))
+            builder.error(ScalaParserBundle.message("bad.interpolated.string.injection"))
         }
       }
       else {
         // TODO: are these 2 dead branches? they are not triggered by tests
         builder.getTokenType match {
           case ScalaTokenTypes.tWRONG_STRING =>
-            builder.error(ScalaBundle.message("wrong.string.literal"))
+            builder.error(ScalaParserBundle.message("wrong.string.literal"))
           case ScalaTokenTypes.tWRONG_LINE_BREAK_IN_STRING =>
-            builder.error(ScalaBundle.message("wrong.string.literal"))
+            builder.error(ScalaParserBundle.message("wrong.string.literal"))
           case _ =>
         }
 
@@ -81,7 +80,7 @@ object CommonUtils {
     // FIXME: non-interpolated strings behave a little differently
     //  e.g. unclosed string literal s"\" vs "\"
     if (builder.eof() || builder.getTokenType == ScalaTokenTypes.tWRONG_LINE_BREAK_IN_STRING) {
-      builder.error(ScalaBundle.message("end.of.string.expected"))
+      builder.error(ScalaParserBundle.message("end.of.string.expected"))
     }
 
     if (!builder.eof())

@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.patterns
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaParserBundle}
 
 /*
  * Pattern3 ::= SimplePattern
@@ -51,12 +50,12 @@ object Pattern3 extends ParsingRule {
       builder.advanceLexer() //Ate id
       idMarker.done(ScalaElementType.REFERENCE)
       if (builder.twoNewlinesBeforeCurrentToken) {
-        builder.error(ScalaBundle.message("simple.pattern.expected"))
+        builder.error(ScalaParserBundle.message("simple.pattern.expected"))
       }
       backupMarker.drop()
       backupMarker = builder.mark()
       if (!SimplePattern()) {
-        builder.error(ScalaBundle.message("simple.pattern.expected"))
+        builder.error(ScalaParserBundle.message("simple.pattern.expected"))
       }
     }
     backupMarker.drop()

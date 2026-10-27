@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
@@ -23,7 +23,7 @@ object TypeDef extends ParsingRule {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer() //Ate identifier
       case _ =>
-        builder.error(ScalaBundle.message("identifier.expected"))
+        builder.error(ScalaParserBundle.message("identifier.expected"))
         faultMarker.rollbackTo()
         return false
     }
@@ -42,7 +42,7 @@ object TypeDef extends ParsingRule {
         }
         else {
           faultMarker.drop()
-          builder.error(ScalaBundle.message("wrong.type"))
+          builder.error(ScalaParserBundle.message("wrong.type"))
           false
         }
       case _ =>

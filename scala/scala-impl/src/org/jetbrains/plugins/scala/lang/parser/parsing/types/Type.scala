@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type.parseWildcardStartToken
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 /**
  * {{{
@@ -82,7 +81,7 @@ trait Type {
         val funMarker = typeMarker.precede()
         builder.advanceLexer() //Ate =>
         if (!Type(isPattern = isPattern)) {
-          builder.error(ScalaBundle.message("wrong.type"))
+          builder.error(ScalaParserBundle.message("wrong.type"))
         }
         funMarker.done(ScalaElementType.TYPE)
       case _ =>

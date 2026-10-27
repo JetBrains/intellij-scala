@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaPsiBuilderExt
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaParserBundle, ScalaPsiBuilderExt}
 
 /*
  * TopStatSeq ::= TopStat {semi TopStat}
@@ -28,13 +27,13 @@ object TopStatSeq {
         case _ if builder.isOutdentHere =>
           continueLoop = false
         case _ if semicolonOrNewLineExpected && !builder.newlineBeforeCurrentToken =>
-          builder.error(ScalaBundle.message("semi.expected"))
+          builder.error(ScalaParserBundle.message("semi.expected"))
           continueLoop = false
         case _ =>
           semicolonOrNewLineExpected = false
           val topStatParsed = TopStat.parse()(using builder)
           if (!topStatParsed) {
-            builder.error(ScalaBundle.message("wrong.top.statement.declaration"))
+            builder.error(ScalaParserBundle.message("wrong.top.statement.declaration"))
             builder.advanceLexer()
           }
           else {

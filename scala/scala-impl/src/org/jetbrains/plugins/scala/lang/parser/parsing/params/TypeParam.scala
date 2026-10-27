@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.params
 
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, ContextBounds}
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 /*
  * TypeParam ::= {Annotation} (id | '_') [TypeParamClause] ['>:' Type] ['<:'Type] {'<%' Type} {':' Type}
@@ -34,7 +34,7 @@ object TypeParam {
       case "+" | "-" =>
         val varianceMarker = builder.mark()
         builder.advanceLexer()
-        if (!mayHaveVariance) varianceMarker.error(ScalaBundle.message("variance.annotation.not.allowed"))
+        if (!mayHaveVariance) varianceMarker.error(ScalaParserBundle.message("variance.annotation.not.allowed"))
         else                  varianceMarker.drop()
       case _ =>
     }
@@ -59,13 +59,13 @@ object TypeParam {
 
     while (Bounds(Bounds.VIEW)) {
       if (!parsedViewBounds && !mayHaveViewBounds)
-        errorMessageBuilder += ScalaBundle.message("view.bounds.not.allowed")
+        errorMessageBuilder += ScalaParserBundle.message("view.bounds.not.allowed")
       parsedViewBounds = true
     }
 
     if (ContextBounds()) {
       if (!mayHaveContextBounds)
-        errorMessageBuilder += ScalaBundle.message("context.bounds.not.allowed")
+        errorMessageBuilder += ScalaParserBundle.message("context.bounds.not.allowed")
     }
 
     val errors = errorMessageBuilder.result()

@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.End
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaPsiBuilderExt}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 /*
  * Packaging := 'package' QualId [nl] '{' TopStatSeq '}'
@@ -35,7 +34,7 @@ object Packaging extends ParsingRule {
           case InScala3(ScalaTokenTypes.tCOLON) =>
             if (!builder.isScala3IndentationBasedSyntaxEnabled) {
               // we add the error but continue to parse
-              builder.error(ScalaBundle.message("lbrace.expected"))
+              builder.error(ScalaParserBundle.message("lbrace.expected"))
             }
 
             builder.advanceLexer() // Ate :
@@ -52,7 +51,7 @@ object Packaging extends ParsingRule {
                 return true
             }
           case _ =>
-            builder.error(ScalaBundle.message("lbrace.expected"))
+            builder.error(ScalaParserBundle.message("lbrace.expected"))
             packMarker.done(ScalaElementType.PACKAGING)
             return true
         }
@@ -71,7 +70,7 @@ object Packaging extends ParsingRule {
         true
       case _ =>
         //this code shouldn't be reachable, if it is, this is unexpected error
-        builder.error(ScalaBundle.message("unreachable.error"))
+        builder.error(ScalaParserBundle.message("unreachable.error"))
         packMarker.drop()
         false
     }

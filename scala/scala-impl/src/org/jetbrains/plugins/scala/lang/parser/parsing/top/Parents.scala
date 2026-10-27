@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{kWITH, tCOMMA}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 import scala.annotation.tailrec
 
@@ -53,7 +52,7 @@ sealed abstract class Parents(
     val result = Constructor()
 
     if (!result && !allowEmptyParents) {
-      builder.error(ScalaBundle.message("type.expected"))
+      builder.error(ScalaParserBundle.message("type.expected"))
     }
 
     result

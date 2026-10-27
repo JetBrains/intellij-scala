@@ -7,13 +7,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.TokenSet
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 /**
  * This code assume that Scala files don't have semicolon at the end of line at all and
@@ -28,8 +29,8 @@ private object PlainTextCopyUtil {
   )
 
   private val ScalaAllowedErrors = Set(
-    ScalaBundle.message("rbrace.expected"),
-    ScalaBundle.message("semi.expected")
+    ScalaParserBundle.message("rbrace.expected"),
+    ScalaParserBundle.message("semi.expected")
   )
 
   /**

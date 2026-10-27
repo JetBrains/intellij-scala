@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
 import com.intellij.lang.PsiBuilder
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 import scala.annotation.tailrec
 
@@ -39,7 +38,7 @@ object QualId extends ParsingRule {
             true
         }
       case _ =>
-        builder.error(ScalaBundle.message("wrong.qual.identifier"))
+        builder.error(ScalaParserBundle.message("wrong.qual.identifier"))
         qualMarker.drop()
         hadOneRef
     }

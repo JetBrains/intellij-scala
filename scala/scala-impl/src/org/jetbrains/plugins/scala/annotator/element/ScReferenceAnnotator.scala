@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScExtractorPattern, ScInfixPattern, ScPattern, ScReferencePattern}
@@ -417,7 +418,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   // foo.bar.
   private def isInIncompleteCode(e: ScalaPsiElement) = e.lastChild.flatMap(e2 => e2.prevSibling.map((_, e2))).exists {
-    case (e1: LeafPsiElement, e2: PsiErrorElement) => e1.textMatches(".") && e2.getErrorDescription == ScalaBundle.message("identifier.expected")
+    case (e1: LeafPsiElement, e2: PsiErrorElement) => e1.textMatches(".") && e2.getErrorDescription == ScalaParserBundle.message("identifier.expected")
     case _ => false
   }
 

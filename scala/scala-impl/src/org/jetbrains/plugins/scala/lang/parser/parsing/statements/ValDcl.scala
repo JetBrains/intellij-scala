@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ErrMsg
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaParserBundle}
 
 /*
  * ValDcl ::= ids ':' Type
@@ -44,7 +43,7 @@ object ValDcl extends ParsingRule {
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer()
-            builder.error(ScalaBundle.message("expression.expected"))
+            builder.error(ScalaParserBundle.message("expression.expected"))
           case _ =>
         }
         true

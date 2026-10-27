@@ -3,13 +3,12 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.types
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.PureFunctionArrow
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.PrecedenceClimbingInfixParsingRule
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 /*
  * InfixType ::= CompoundType {id [nl] CompoundType}
@@ -18,7 +17,7 @@ object InfixType extends InfixType {
   override protected def parseSubType(star: Boolean, isPattern: Boolean, typeVariables: Boolean)
                                      (implicit builder: ScalaPsiBuilder): Boolean =
     CompoundType(star, isPattern)
-  override protected def errorMessage: String = ScalaBundle.message("compound.type.expected")
+  override protected def errorMessage: String = ScalaParserBundle.message("compound.type.expected")
 
   override protected def `allow 'as' operator`: Boolean = true
 }
@@ -83,14 +82,14 @@ trait InfixType {
         case ':' =>
           assoc match {
             case Associativity.NoAssociativity  => assoc = Associativity.Right
-            case Associativity.Left  => builder.error(ScalaBundle.message("wrong.type.associativity"))
+            case Associativity.Left  => builder.error(ScalaParserBundle.message("wrong.type.associativity"))
             case Associativity.Right =>
           }
         case _ =>
           assoc match {
             case Associativity.NoAssociativity  => assoc = Associativity.Left
             case Associativity.Left  =>
-            case Associativity.Right => builder.error(ScalaBundle.message("wrong.type.associativity"))
+            case Associativity.Right => builder.error(ScalaParserBundle.message("wrong.type.associativity"))
           }
       }
       parseId()

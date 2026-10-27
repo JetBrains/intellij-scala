@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.PureFunctionArrow
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.cc.CaptureSet
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
+import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType, ScalaParserBundle}
 
 /**
  * [[InfixTypePrefix]] ::= [[InfixType]] ( ((‘=>’ | '?=>' | '->' | '?->') [[Type]])
@@ -50,7 +49,7 @@ object InfixTypePrefix {
       if (isImplicitFunctionType) {
         if (builder.getTokenType == ScalaTokenTypes.tRPARENTHESIS)
           builder.advanceLexer()
-        else builder.error(ScalaBundle.message("rparenthesis.expected"))
+        else builder.error(ScalaParserBundle.message("rparenthesis.expected"))
         givenMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
       }
 
@@ -59,7 +58,7 @@ object InfixTypePrefix {
         case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow | ScalaTokenType.PureFunctionArrow | ScalaTokenType.ImplicitPureFunctionArrow =>
           builder.advanceLexer() //Ate => or ?=> or -> os ?->
           CaptureSet()
-          if (!Type(star, isPattern)) builder.error(ScalaBundle.message("wrong.type"))
+          if (!Type(star, isPattern)) builder.error(ScalaParserBundle.message("wrong.type"))
           marker.done(ScalaElementType.TYPE)
         case ScalaTokenTypes.kFOR_SOME =>
           ExistentialClause()

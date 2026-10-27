@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 import scala.annotation.tailrec
 
@@ -23,11 +22,11 @@ object TupleOrNamedTupleOrParenthesizedType {
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS =>
         if (hadTrailingComma && !contentType.allowsTrailingComma) {
-          builder.error(ScalaBundle.message("identifier.expected.comma.found"))
+          builder.error(ScalaParserBundle.message("identifier.expected.comma.found"))
         }
         builder.advanceLexer() //Ate )
       case _ =>
-        builder.error(ScalaBundle.message("rparenthesis.expected"))
+        builder.error(ScalaParserBundle.message("rparenthesis.expected"))
     }
     tupleMarker.done(contentType.elementType)
   }

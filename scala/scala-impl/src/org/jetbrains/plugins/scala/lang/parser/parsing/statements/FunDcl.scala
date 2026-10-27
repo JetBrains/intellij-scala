@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.statements
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
@@ -32,7 +32,7 @@ object FunDcl extends ParsingRule {
           true
         }
         else {
-          builder.error(ScalaBundle.message("wrong.type"))
+          builder.error(ScalaParserBundle.message("wrong.type"))
           //returnMarker.drop
           true
         }

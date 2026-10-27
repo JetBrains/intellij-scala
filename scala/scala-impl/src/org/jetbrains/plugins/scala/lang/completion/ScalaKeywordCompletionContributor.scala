@@ -8,9 +8,9 @@ import com.intellij.psi.filters.{AndFilter, ElementFilter, NotFilter, OrFilter}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiWhiteSpace}
 import com.intellij.util.ProcessingContext
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.completion.filters.toplevel.IsTopLevelElementInProductionScalaFileFilter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 
 final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor with DumbAware {
 
@@ -185,13 +185,13 @@ object ScalaKeywordCompletionContributor {
 
   // example: don't allow completing anything after `package org.example <caret>`
   private object AfterSemicolonOrNewLineExpectedErrorFilter
-    extends AfterErrorFilter(ScalaBundle.message("semi.expected")) {
+    extends AfterErrorFilter(ScalaParserBundle.message("semi.expected")) {
     override def toString: String = "AfterSemicolonOrNewLineExpectedErrorFilter"
   }
 
   // example: don't allow completing anything after `import Foo.{bar <caret>}`
   private object AfterRightBraceExpectedErrorFilter
-    extends AfterErrorFilter(ScalaBundle.message("right.brace.expected")) {
+    extends AfterErrorFilter(ScalaParserBundle.message("right.brace.expected")) {
     override def toString: String = "AfterRightBraceExpectedErrorFilter"
   }
 

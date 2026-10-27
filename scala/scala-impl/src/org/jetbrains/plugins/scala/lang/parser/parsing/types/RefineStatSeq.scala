@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -20,14 +20,14 @@ object RefineStatSeq extends ParsingRule {
         //otherwise parse TopStat
         case _ =>
           if (!RefineStat()) {
-            builder.error(ScalaBundle.message("wrong.top.statement.declaration"))
+            builder.error(ScalaParserBundle.message("wrong.top.statement.declaration"))
             return
           }
           else {
             builder.getTokenType match {
               case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer() //it is good
               case null | ScalaTokenTypes.tRBRACE => return
-              case _ if !builder.newlineBeforeCurrentToken => builder.error(ScalaBundle.message("semi.expected"))
+              case _ if !builder.newlineBeforeCurrentToken => builder.error(ScalaParserBundle.message("semi.expected"))
               case _ =>
             }
           }

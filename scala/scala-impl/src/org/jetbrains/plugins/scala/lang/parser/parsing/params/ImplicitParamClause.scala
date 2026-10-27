@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.params
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 /*
  * ImplicitParamClause ::= [nl] '(' 'implicit' Params ')'
@@ -33,13 +32,13 @@ object ImplicitParamClause extends ParsingRule {
         return false
     }
     if (!Params()) {
-      builder.error(ScalaBundle.message("implicit.params.excepted"))
+      builder.error(ScalaParserBundle.message("implicit.params.excepted"))
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )
       case _ =>
-        builder.error(ScalaBundle.message("rparenthesis.expected"))
+        builder.error(ScalaParserBundle.message("rparenthesis.expected"))
     }
     builder.restoreNewlinesState()
     paramMarker.done(ScalaElementType.PARAM_CLAUSE)

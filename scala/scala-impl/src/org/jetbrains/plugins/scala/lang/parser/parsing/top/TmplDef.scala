@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.top
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.parser.ScalaTokenBinders
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{End, Modifier}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.GivenDef
+import org.jetbrains.plugins.scala.lang.parser.{ScalaParserBundle, ScalaTokenBinders}
 
 /**
  * [[TmplDef]] ::= {{{
@@ -98,7 +97,7 @@ object TmplDef extends ParsingRule {
         builder.getTokenType match {
           case TraitKeyword =>
             caseMarker.rollbackTo()
-            builder.error(ScalaBundle.message("wrong.case.modifier"))
+            builder.error(ScalaParserBundle.message("wrong.case.modifier"))
             builder.advanceLexer() // Ate case
           case _ =>
             caseMarker.drop()
@@ -111,4 +110,3 @@ object TmplDef extends ParsingRule {
     }
   }
 }
-

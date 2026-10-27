@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
+import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 /*
  * Scala2:
@@ -49,7 +48,7 @@ object Ascription extends ParsingRule {
       }
       annotationsMarker.done(ScalaElementType.ANNOTATIONS)
       if (x == 0) {
-        builder.error(ScalaBundle.message("annotation.or.type.expected"))
+        builder.error(ScalaParserBundle.message("annotation.or.type.expected"))
       }
     }
 

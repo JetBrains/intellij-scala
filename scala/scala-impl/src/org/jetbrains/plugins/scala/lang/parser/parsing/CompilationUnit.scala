@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
+import org.jetbrains.plugins.scala.lang.parser.{PsiBuilderExt, ScalaElementType, ScalaParserBundle}
 
 import scala.annotation.tailrec
 
@@ -41,7 +40,7 @@ object CompilationUnit {
           case _ =>
             // Mark error
             if (!completed && !builder.newlineBeforeCurrentToken) {
-              builder.error(ScalaBundle.message("semi.expected"))
+              builder.error(ScalaParserBundle.message("semi.expected"))
             }
 
             builder.getTokenType match {
@@ -67,7 +66,7 @@ object CompilationUnit {
                         }
                     }
                   case _ =>
-                    builder.error(ScalaBundle.message("package.qualID.expected"))
+                    builder.error(ScalaParserBundle.message("package.qualID.expected"))
                     newMarker.drop()
                     parsePackageSequence(completed = true)(parsePackage)
                 }
@@ -84,7 +83,7 @@ object CompilationUnit {
     }
 
     while (!builder.eof()) {
-      builder.error(ScalaBundle.message("out.of.compilation.unit"))
+      builder.error(ScalaParserBundle.message("out.of.compilation.unit"))
       builder.advanceLexer()
     }
   }

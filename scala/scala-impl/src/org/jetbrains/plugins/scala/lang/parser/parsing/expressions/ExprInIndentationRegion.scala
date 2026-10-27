@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType, ScalaPsiBuilderExt, ScalaTokenBinders}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Extension
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{ConstrBlock, Def}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
+import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt, ScalaTokenBinders}
 
 import scala.annotation.tailrec
 
@@ -47,7 +46,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
         }
 
         val errorMarker = builder.mark()
-        errorMarker.error(ScalaBundle.message("line.is.indented.too.far.to.the.left"))
+        errorMarker.error(ScalaParserBundle.message("line.is.indented.too.far.to.the.left"))
         val parsed = exprParser()
         if (!parsed) {
           // we do not want to show the error if we do not have valid expression,
@@ -90,7 +89,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
               } else if (builder.eof() || isFollowSetIfIndented(builder.getTokenType)) {
                 isBlock
               } else if (!ResultExpr(stopOnOutdent = true) && !BlockStat()) {
-                builder.error(ScalaBundle.message("unexpected.token"))
+                builder.error(ScalaParserBundle.message("unexpected.token"))
                 builder.advanceLexer() // ate something
                 parseRest(isBlock = true)
               } else {

@@ -4,10 +4,10 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiErrorElement, SyntaxTraverser}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
 import org.jetbrains.plugins.scala.editor.smartEnter.fixers.ScalaForStatementFixerBase.mapping
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFor}
 
 abstract class ScalaForStatementFixerBase extends ScalaFixer {
@@ -41,7 +41,7 @@ abstract class ScalaForStatementFixerBase extends ScalaFixer {
   }
 
   private def isRightBraceExpectedErrorAfter(@Nullable element: PsiElement, offset: Int): Boolean = element match {
-    case error: PsiErrorElement if error.startOffset > offset => error.getErrorDescription == ScalaBundle.message("rbrace.expected")
+    case error: PsiErrorElement if error.startOffset > offset => error.getErrorDescription == ScalaParserBundle.message("rbrace.expected")
     case _ => false
   }
 }

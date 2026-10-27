@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaPsiBuilderExt
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
+import org.jetbrains.plugins.scala.lang.parser.{ScalaParserBundle, ScalaPsiBuilderExt}
 
 /**
  * [[MatchTypeSuffix]] ::= [[InfixType]] `match` [[TypeCaseClauses]]
@@ -19,17 +18,17 @@ object MatchTypeSuffix extends ParsingRule {
         builder.withIndentationRegion(builder.newBracedIndentationRegionHere) {
           ParserUtils.parseLoopUntilRBrace() {
             if (!TypeCaseClauses())
-              builder.error(ScalaBundle.message("match.type.cases.expected"))
+              builder.error(ScalaParserBundle.message("match.type.cases.expected"))
           }
         }
         builder.restoreNewlinesState()
       case InScala3(ScalaTokenTypes.kCASE) =>
 
         if (!TypeCaseClausesInIndentationRegion()) {
-          builder.error(ScalaBundle.message("expected.case.on.a.new.line"))
+          builder.error(ScalaParserBundle.message("expected.case.on.a.new.line"))
         }
       case _ =>
-        builder.error(ScalaBundle.message("match.type.cases.expected"))
+        builder.error(ScalaParserBundle.message("match.type.cases.expected"))
     }
     true
   }

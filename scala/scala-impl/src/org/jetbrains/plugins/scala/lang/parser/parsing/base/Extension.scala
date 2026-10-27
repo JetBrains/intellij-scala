@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.base
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{ExtensionKeyword, InlineKeyword}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
@@ -9,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{Param, ParamClause, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{FunDcl, FunDef}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaPsiBuilderExt, ScalaTokenBinders}
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt, ScalaTokenBinders}
 
 /*
  * Extension  ::=  ‘extension’ [DefTypeParamClause] ‘(’ DefParam ‘)’
@@ -74,7 +73,7 @@ object ExtMethods extends ParsingRule {
             }
           case None =>
             if (hasColon) {
-              builder.error(ScalaBundle.message("expected.new.line.after.colon"))
+              builder.error(ScalaParserBundle.message("expected.new.line.after.colon"))
               End()
               extDefinitionsMarker.done(ScalaElementType.EXTENSION_BODY)
               return true
@@ -153,7 +152,7 @@ object ExtensionParameterClauses extends ParsingRule {
 
       builder.getTokenType match {
         case ScalaTokenTypes.kIMPLICIT =>
-          builder.error(ScalaBundle.message("parameter.expected"))
+          builder.error(ScalaParserBundle.message("parameter.expected"))
           paramMarker.rollbackTo()
           builder.restoreNewlinesState()
           return false
@@ -166,13 +165,13 @@ object ExtensionParameterClauses extends ParsingRule {
         case _ => ()
       }
 
-      if (!Param()) builder.error(ScalaBundle.message("parameter.expected"))
+      if (!Param()) builder.error(ScalaParserBundle.message("parameter.expected"))
 
       builder.getTokenType match {
         case ScalaTokenTypes.tRPARENTHESIS =>
           builder.advanceLexer() //Ate )
         case _ =>
-          builder.error(ScalaBundle.message("rparenthesis.expected"))
+          builder.error(ScalaParserBundle.message("rparenthesis.expected"))
       }
       builder.restoreNewlinesState()
       paramMarker.done(ScalaElementType.PARAM_CLAUSE)

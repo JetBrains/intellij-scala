@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaPsiBuilderExt}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, PsiBuilderExt, ScalaElementType, ScalaParserBundle, ScalaPsiBuilderExt}
 
 /*
  *  typeArgs ::= '[' Types ']'
@@ -58,7 +57,7 @@ trait TypeArgs {
             parsedTypeArg
           }
 
-          val mixedTypeArgsError = ScalaBundle.message("named.and.positional.type.arguments.cannot.be.mixed")
+          val mixedTypeArgsError = ScalaParserBundle.message("named.and.positional.type.arguments.cannot.be.mixed")
 
           def parseNamedTypeArg(): Boolean =
             if (builder.lookAhead(ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tASSIGN)) {
@@ -67,7 +66,7 @@ trait TypeArgs {
               builder.advanceLexer() // Ate id
               namedRefMarker.done(ScalaElementType.REFERENCE)
               builder.advanceLexer() // Ate =
-              if (!parseTypeArg()) builder.error(ScalaBundle.message("wrong.type"))
+              if (!parseTypeArg()) builder.error(ScalaParserBundle.message("wrong.type"))
               typeArgMarker.done(ScalaElementType.TYPE_ARG)
               true
             } else {
@@ -93,7 +92,7 @@ trait TypeArgs {
             if (parseNamedArgs) parseNamedTypeArg()
             else parsePositionalTypeArg()
 
-          if (!parsedType) builder.error(ScalaBundle.message("wrong.type"))
+          if (!parsedType) builder.error(ScalaParserBundle.message("wrong.type"))
 
           while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType &&
             !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
@@ -109,13 +108,13 @@ trait TypeArgs {
                 parsedNamedTypeArg
               } else parsePositionalTypeArg()
 
-            if (!parsedType) builder.error(ScalaBundle.message("wrong.type"))
+            if (!parsedType) builder.error(ScalaParserBundle.message("wrong.type"))
           }
 
           builder.getTokenType match {
             case ScalaTokenTypes.tRSQBRACKET =>
               builder.advanceLexer() //Ate ]
-            case _ => builder.error(ScalaBundle.message("rsqbracket.expected"))
+            case _ => builder.error(ScalaParserBundle.message("rsqbracket.expected"))
           }
           builder.restoreNewlinesState()
           true
