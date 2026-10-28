@@ -4,7 +4,7 @@ import com.intellij.codeInsight.daemon.impl.*
 import com.intellij.codeInsight.daemon.impl.TrafficLightRenderer.DaemonCodeAnalyzerStatus
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.editor.markup.{AnalyzerStatus, AnalyzingType, InspectionsLevel, InspectionsState, LanguageHighlightLevel, PassWrapper, StatusItem, UIController}
+import com.intellij.openapi.editor.markup.{AnalyzerStatus, InspectionsLevel, InspectionsState, LanguageHighlightLevel, PassWrapper, StatusItem, UIController}
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 import java.awt.event.ActionListener
 import java.awt.{Container, GridBagConstraints}
 import java.util
+import javax.swing.Icon
 import scala.jdk.CollectionConverters.*
 
 /**
@@ -30,6 +31,7 @@ import scala.jdk.CollectionConverters.*
  */
 @ApiStatus.Internal
 final class CustomTrafficLightRendererContributor extends TrafficLightRendererContributor {
+  import CustomTrafficLightRendererContributor.{BlockedIcon, BlockedItemIcon}
 
   override def createRenderer(editor: Editor, file: PsiFile): TrafficLightRenderer = {
     val project = editor.getProject
@@ -90,40 +92,42 @@ final class CustomTrafficLightRendererContributor extends TrafficLightRendererCo
      * other targets.
      *
      * Without it the traffic light shows the check of a file with no problems, for a file nothing was compiled
-     * for. Problems found by other passes are still shown, next to a pause icon; the title says that the
-     * compiler's are missing.
+     * for. "Highlighting Blocked" leads the traffic light, before any problems other passes found; the popup
+     * names the blockers and says what unblocks it.
+     *
+     * The analyzing type is left as it was, so the blocked item is not dimmed like the counts of an unfinished
+     * analysis.
      */
     private def blockedStatus(status: AnalyzerStatus): Option[AnalyzerStatus] =
       if (file eq null) None
       else {
         val blockers = CompilationLogicService(project).blockersOf(ModuleKey.of(project, file))
         Option.when(blockers.nonEmpty) {
-          val names = BlockedTargetsPresentation.blockerNames(blockers)
-          val title = CompilerHighlightingBundle.message("highlighting.blocked.status.title")
-          val details = CompilerHighlightingBundle.message("highlighting.blocked.status.details", names, BlockedTargetsPresentation.blockerCount(blockers))
+          val title = CompilerHighlightingBundle.message("highlighting.blocked.status.title",
+            BlockedTargetsPresentation.blockerNames(blockers))
+          val details = CompilerHighlightingBundle.message("highlighting.blocked.status.details")
+          // An item rather than a text status, which would show the text without the icon.
+          val blocked = new StatusItem(CompilerHighlightingBundle.message("highlighting.blocked.status.text"), BlockedItemIcon, details)
+          val controller = new BlockedUIController(status.getController)
           if (status.getShowNavigation) {
-            // Other passes found problems: keep their counts and navigation, and say what is missing.
-            val paused = new StatusItem(CompilerHighlightingBundle.message("highlighting.blocked.status.text"), AllIcons.General.InspectionsPause, details)
-            val blocked = new AnalyzerStatus(status.getIcon, title, details, new BlockedUIController(status.getController))
+            // Other passes found problems: keep their counts and navigation.
+            val withCounts = new AnalyzerStatus(status.getIcon, title, details, controller)
               .withNavigation(true)
-              .withExpandedStatus((status.getExpandedStatus.asScala :+ paused).asJava)
+              .withExpandedStatus((blocked +: status.getExpandedStatus.asScala).asJava)
               .withPasses(status.getPasses)
-              .withAnalyzingType(AnalyzingType.PARTIAL)
-            Option(status.getInspectionsState).fold(blocked)(blocked.withState)
+              .withAnalyzingType(status.getAnalyzingType)
+            Option(status.getInspectionsState).fold(withCounts)(withCounts.withState)
           } else
-            new AnalyzerStatus(AllIcons.General.InspectionsPause, title, details, new BlockedUIController(status.getController))
+            new AnalyzerStatus(BlockedIcon, title, details, controller)
               .withState(InspectionsState.PAUSED)
-              // An item rather than a text status, which would show the text without the icon.
-              .withExpandedStatus(util.List.of(new StatusItem(
-                CompilerHighlightingBundle.message("highlighting.blocked.status.text"), AllIcons.General.InspectionsPause, details)))
-              .withAnalyzingType(AnalyzingType.SUSPENDED)
+              .withExpandedStatus(util.List.of(blocked))
         }
       }
 
     override def createUIController(): UIController = super.createUIController(editor)
 
     /**
-     * The platform's popup, with a link to the errors of the blockers at its bottom while the file is blocked.
+     * The platform's popup, with a link to the first error of the blockers at its bottom while the file is blocked.
      *
      * The platform's controller can't be replaced: the one for a renderer with an editor comes from the final
      * `createUIController(editor)`. So this wraps it, and is put in the blocked status instead. It holds no state
@@ -145,9 +149,8 @@ final class CustomTrafficLightRendererContributor extends TrafficLightRendererCo
           if ((file eq null) || project.isDisposed) Set.empty
           else CompilationLogicService(project).blockersOf(ModuleKey.of(project, file))
         if (blockers.nonEmpty) {
-          val names = BlockedTargetsPresentation.blockerNames(blockers)
           val link = new ActionLink(
-            CompilerHighlightingBundle.message("highlighting.blocked.status.show.errors", names),
+            CompilerHighlightingBundle.message("highlighting.blocked.status.show.errors"),
             (_ => BlockedTargetsPresentation.showErrors(project, blockers)): ActionListener
           )
           container.add(link, gc.next().anchor(GridBagConstraints.LINE_END))
@@ -158,6 +161,17 @@ final class CustomTrafficLightRendererContributor extends TrafficLightRendererCo
 }
 
 private object CustomTrafficLightRendererContributor {
+
+  /**
+   * A pause icon, shown as already pressed: highlighting is paused, not waiting for a click.
+   *
+   * The pause action's icon rather than the inspections' one, whose bars are half a pixel off center, which the
+   * background makes visible.
+   */
+  private val BlockedIcon: Icon = new PressedIcon(AllIcons.Actions.Pause)
+
+  /** [[BlockedIcon]] with room before the text it is shown with. */
+  private val BlockedItemIcon: Icon = new PressedIcon(AllIcons.Actions.Pause, gapAfter = 3)
 
   /** Repaints every traffic light of the project once what is shown about blocked targets changes. */
   private final class Repainter(project: Project) extends BlockedTargetsListener {

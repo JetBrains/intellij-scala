@@ -3,24 +3,53 @@ package org.jetbrains.plugins.scala.compiler.highlighting.core
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.NlsSafe
+import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.compiler.highlighting.core.ExternalHighlighting.RangeInfo
 import org.jetbrains.plugins.scala.compiler.highlighting.services.core.ModuleKey
+import org.jetbrains.plugins.scala.compiler.highlighting.util.CompilerHighlightingBundle
+import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
 
 /** What every way of telling the user about a blocked target shares: how blockers are named, and going to them. */
 private[highlighting] object BlockedTargetsPresentation:
 
   /**
-   * The modules of the blocking targets, by their project-unique name: each module once although both of its scopes
-   * may be among them.
+   * The blocking targets as HTML, each by its sbt project's own name, e.g. `C`, or by its module name, e.g.
+   * `root.C`, where another blocker's sbt project has the same name: projects of different builds may share one.
+   * Both scopes of a project are one name. Only the first few are named when there are many, see [[capped]].
    */
-  @NlsSafe
+  @Nls
   def blockerNames(blockers: Set[ModuleKey]): String =
-    blockers.map(_.module.getName).toSeq.sorted.mkString(", ")
+    val shortNameByFullName = blockers.iterator
+      .map(key => key.module.nameWithoutSourceSet -> key.module.displayNameWithoutSourceSet)
+      .toMap
+    val (named, more) = capped(shownNames(shortNameByFullName))
+    val listed = named.map(StringUtil.escapeXmlEntities).mkString(", ")
+    if more == 0 then listed
+    else CompilerHighlightingBundle.message("highlighting.blocked.names.and.more", listed, more)
 
-  /** How many modules [[blockerNames]] names. */
-  def blockerCount(blockers: Set[ModuleKey]): Int = blockers.map(_.module).size
+  /**
+   * The names to list out of `names`, and how many are left out: all of them when there are at most [[MaxListed]],
+   * else one fewer, so that a name is never left out alone, where naming it takes as much room.
+   */
+  private[core] def capped(names: Seq[String]): (Seq[String], Int) =
+    if names.size <= MaxListed then (names, 0)
+    else (names.take(MaxListed - 1), names.size - MaxListed + 1)
+
+  private val MaxListed = 3
+
+  /**
+   * The names [[blockerNames]] shows, sorted, for blockers given by their full name with their sbt project's own
+   * name, if they have one: each by its own name, or by its full name when it has none or another blocker would be
+   * shown by the same one. Full names are unique, so no two blockers are shown alike.
+   */
+  private[core] def shownNames(shortNameByFullName: Map[String, Option[String]]): Seq[String] =
+    val preferred = shortNameByFullName.map((fullName, shortName) => fullName -> shortName.getOrElse(fullName))
+    val uses = preferred.values.groupBy(identity).view.mapValues(_.size)
+    preferred
+      .map((fullName, name) => if uses(name) == 1 then name else fullName)
+      .toSeq.sorted
 
   /**
    * Opens the first error recorded in a blocking target.
