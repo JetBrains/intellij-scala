@@ -3,6 +3,7 @@ package debugger
 package renderers
 
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
+import com.intellij.debugger.impl.DebuggerUtilsAsync
 import com.intellij.debugger.engine.{DebuggerManagerThreadImpl, JavaValue, SuspendContextImpl}
 import com.intellij.debugger.ui.impl.watch.{NodeManagerImpl, ValueDescriptorImpl}
 import com.intellij.debugger.ui.tree.render.{ArrayRenderer, ChildrenBuilder, NodeRenderer}
@@ -10,7 +11,6 @@ import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, N
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.xdebugger.frame.{XDebuggerTreeNodeHyperlink, XValueChildrenList}
 import com.intellij.xdebugger.impl.ui.XDebuggerUIConstants
-import com.sun.jdi.Value
 import org.jetbrains.plugins.scala.debugger.ui.util._
 
 import java.util.Collections
@@ -33,6 +33,34 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
   protected def renderLabelAndChildren(name: String, renderChildren: Boolean)
                                        (implicit context: SuspendContextImpl): (String, Seq[String]) = {
     (for {
+      variable <- variableToRender(name)
+      label <- renderLabel(variable.descriptor, variable.context)
+      children <- if (renderChildren) buildChildren(variable) else CompletableFuture.completedFuture(Seq.empty)
+      childrenLabels <- children.map(renderLabel(_, variable.context)).sequence
+    } yield (label, childrenLabels)).get(3L, TimeUnit.MINUTES)
+  }
+
+  /**
+   * Expands the variable `name` and returns the error message that its node shows instead of the children.
+   */
+  protected def renderChildrenError(name: String)(implicit context: SuspendContextImpl): String = {
+    val result = (for {
+      variable <- variableToRender(name)
+      children <- buildChildren(variable).attempt
+    } yield children).get(3L, TimeUnit.MINUTES)
+
+    result match {
+      case Left(failure) => DebuggerUtilsAsync.unwrap(failure) match {
+        case ChildrenError(message) => message
+        case other => throw other
+      }
+      case Right(children) =>
+        throw new AssertionError(s"The children of $name were built instead of an error: ${children.map(_.getName).mkString(", ")}")
+    }
+  }
+
+  private def variableToRender(name: String)(implicit context: SuspendContextImpl): CompletableFuture[VariableToRender] =
+    for {
       nodeManager <- onDebuggerManagerThread(context)(context.getDebugProcess.getXdebugProcess.getNodeManager)
       variable <- onDebuggerManagerThread(context)(context.getFrameProxy.visibleVariableByName(name))
       frame <- onDebuggerManagerThread(context)(context.getActiveExecutionStack.getTopFrame.asInstanceOf[ScalaStackFrame])
@@ -42,21 +70,17 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
       descriptor = children.getValue(0).asInstanceOf[JavaValue].getDescriptor
       _ <- onDebuggerManagerThread(context)(descriptor.setContext(ec))
       renderer <- onDebuggerManagerThread(context)(context.getDebugProcess.getAutoRendererAsync(descriptor.getType)).flatten
-      label <- renderLabel(descriptor, ec)
-      children <- if (renderChildren) buildChildren(descriptor.getValue, nodeManager, descriptor, renderer, ec) else CompletableFuture.completedFuture(Seq.empty)
-      childrenLabels <- children.map(renderLabel(_, ec)).sequence
-    } yield (label, childrenLabels)).get(3L, TimeUnit.MINUTES)
-  }
+    } yield VariableToRender(descriptor, renderer, nodeManager, ec)
 
-  private def buildChildren(value: Value,
-                            nodeManager: NodeManagerImpl,
-                            descriptor: ValueDescriptorImpl,
-                            renderer: NodeRenderer,
-                            context: EvaluationContextImpl): CompletableFuture[Seq[ValueDescriptorImpl]] = {
+  /**
+   * Completes with the children of the variable, or fails with a [[ChildrenError]] if its node shows an error instead.
+   */
+  private def buildChildren(variable: VariableToRender): CompletableFuture[Seq[ValueDescriptorImpl]] = {
     val future = new CompletableFuture[Seq[ValueDescriptorImpl]]()
+    val VariableToRender(descriptor, renderer, nodeManager, context) = variable
 
     onDebuggerManagerThread(context) {
-      renderer.buildChildren(value, new DummyChildrenBuilder(nodeManager, descriptor) {
+      renderer.buildChildren(descriptor.getValue, new DummyChildrenBuilder(nodeManager, descriptor) {
         private val allChildren = mutable.ListBuffer.empty[DebuggerTreeNode]
 
         override def addChildren(children: java.util.List[? <: DebuggerTreeNode], last: Boolean): Unit = {
@@ -67,6 +91,13 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
             future.complete(result)
           }
         }
+
+        override def setErrorMessage(errorMessage: String): Unit =
+          future.completeExceptionally(ChildrenError(errorMessage))
+
+        // loads the next batch of children right away, like a click on the "..." node
+        override def tooManyChildren(remaining: Int, addNextChildren: Runnable): Unit =
+          addNextChildren.run()
       }, context)
     }
 
@@ -103,7 +134,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
     override def setErrorMessage(errorMessage: String): Unit = {}
 
-    override def setErrorMessage(errorMessage: String, link: XDebuggerTreeNodeHyperlink): Unit = {}
+    override def setErrorMessage(errorMessage: String, link: XDebuggerTreeNodeHyperlink): Unit = setErrorMessage(errorMessage)
 
     override def addChildren(children: XValueChildrenList, last: Boolean): Unit = {}
 
@@ -120,4 +151,11 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
     override def isObsolete: Boolean = false
   }
+
+  private final case class VariableToRender(descriptor: ValueDescriptorImpl,
+                                            renderer: NodeRenderer,
+                                            nodeManager: NodeManagerImpl,
+                                            context: EvaluationContextImpl)
+
+  private final case class ChildrenError(message: String) extends Exception(s"The node shows an error instead of the children: $message")
 }
