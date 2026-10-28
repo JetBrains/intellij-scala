@@ -3,12 +3,14 @@ package ui
 
 import com.intellij.debugger.DebuggerContext
 import com.intellij.debugger.engine.DebuggerUtils
-import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluationContextImpl}
+import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.impl.DebuggerUtilsAsync
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.impl.watch.FieldDescriptorImpl
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, ClassRenderer, DescriptorLabelListener}
-import com.intellij.debugger.ui.tree.{DebuggerTreeNode, DescriptorWithParentObject, ValueDescriptor}
+import com.intellij.debugger.ui.tree.{DebuggerTreeNode, DescriptorWithParentObject, NodeDescriptor, ValueDescriptor}
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.DebuggerBundle
@@ -63,10 +65,7 @@ class ScalaClassRenderer extends ClassRenderer {
         setClassHasNoFieldsToDisplayMessage(builder, nodeManager)
       } else {
         val nodes = toShow.map { field =>
-          val desc =
-            if (isLazyVal(ref, field)) LazyValDescriptor.create(project, ref, field, context.asInstanceOf[EvaluationContextImpl])
-            else new FieldDescriptorImpl(project, ref, field)
-          nodeManager.createNode(desc, context)
+          nodeManager.createNode(fieldDescriptor(project, ref, field, context), context)
         }
         builder.setChildren(nodes.asJava)
       }
@@ -86,6 +85,8 @@ class ScalaClassRenderer extends ClassRenderer {
 }
 
 private object ScalaClassRenderer {
+  private val LOG = Logger.getInstance(classOf[ScalaClassRenderer])
+
   private val Module: String = ScalaBytecodeConstants.ObjectSingletonInstanceName
 
   private val Bitmap: String = "bitmap$"
@@ -98,6 +99,17 @@ private object ScalaClassRenderer {
     val name = f.name()
     name == Module || name.contains(Bitmap) || name.endsWith(VarHandleSuffix) || name.startsWith(OffsetPrefix)
   }
+
+  private def fieldDescriptor(project: Project, ref: ObjectReference, field: Field, context: EvaluationContext): NodeDescriptor =
+    if (!isLazyVal(ref, field)) new FieldDescriptorImpl(project, ref, field)
+    else
+      try LazyValDescriptor.create(project, ref, field, context.asInstanceOf[EvaluationContextImpl])
+      catch {
+        // A lazy val that is compiled in a way the renderer does not know must not hide the other fields
+        case e: EvaluateException =>
+          LOG.error(s"Cannot show the field ${field.name()} of ${ref.referenceType().name()} as a lazy val", e)
+          new FieldDescriptorImpl(project, ref, field)
+      }
 
   def isScalaSource(ct: ClassType): Boolean =
     Try(ct.sourceName().endsWith(".scala")).getOrElse(false)
