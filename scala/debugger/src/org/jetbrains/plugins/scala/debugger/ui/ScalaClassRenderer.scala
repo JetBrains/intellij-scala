@@ -45,7 +45,14 @@ class ScalaClassRenderer extends ClassRenderer {
     renderer.calcLabel(descriptor, context, labelListener)
   }
 
-  override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
+  final override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit =
+    buildChildrenOrShowError(builder)(buildChildrenAsync(value, builder, context))
+
+  /**
+   * Adds the children of `value` to `builder`. If they cannot be built, the returned future fails and [[buildChildren]]
+   * shows the error in the node, instead of leaving it at "Collecting data".
+   */
+  protected def buildChildrenAsync(value: Value, builder: ChildrenBuilder, context: EvaluationContext): CompletableFuture[Unit] = {
     val ref = value.asInstanceOf[ObjectReference]
     val project = context.getProject
 

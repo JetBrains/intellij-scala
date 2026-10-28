@@ -45,7 +45,7 @@ class ScalaRuntimeRefRenderer extends ScalaClassRenderer {
     }.rethrow.getNow(XDebuggerUIConstants.getCollectingDataMessage)
   }
 
-  override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit =
+  override protected def buildChildrenAsync(value: Value, builder: ChildrenBuilder, context: EvaluationContext): CompletableFuture[Unit] =
     for {
       unwrapped <- onDebuggerManagerThread(context)(unwrapValue(value))
       renderer <- onDebuggerManagerThread(context)(context.getDebugProcess.asInstanceOf[DebugProcessImpl].getAutoRendererAsync(unwrapped.`type`())).flatten
