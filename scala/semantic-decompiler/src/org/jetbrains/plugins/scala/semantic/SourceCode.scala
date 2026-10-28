@@ -553,6 +553,15 @@ object SourceCode {
         this += " = "
         printTree(rhs)
 
+      // Pattern matching anonymous function
+      case Lambda(List(ValDef("x$1", _, _)), Match(Typed(Ident("x$1"), _), cases)) =>
+        this += "{"
+        indented {
+          this += lineBreak()
+          printCases(cases, lineBreak())
+        }
+        this += lineBreak() += "}"
+
       case tree @ Lambda(params, body) =>  // must come before `Block`
         params match {
           case List(ValDef(name, _, _)) if WildcardName.matches(name) =>
