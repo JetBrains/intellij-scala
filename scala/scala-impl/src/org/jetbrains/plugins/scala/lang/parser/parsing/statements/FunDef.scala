@@ -37,6 +37,7 @@ object FunDef extends ParsingRule {
             builder.getTokenType match {
               case ScalaTokenTypes.tASSIGN =>
                 builder.advanceLexer() //Ate =
+                builder.skipExternalToken()
                 if (ExprInIndentationRegion()) {
                   faultMarker.drop()
                   true
