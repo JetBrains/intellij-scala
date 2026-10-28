@@ -11,6 +11,7 @@ import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
+import com.intellij.psi.templateLanguages.TemplateLanguageFileViewProvider
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotator}
@@ -196,11 +197,18 @@ object AllProjectHighlightingTest {
    * caller, so no state is shared between threads and no locking is needed. Feed the results to a reporter once the
    * parallel work has been joined - see `ScalaLibraryHighlightingTest`.
    */
-  def collectScalaFileErrors(file: PsiFile): Seq[ErrorDescriptor] =
-    file.getViewProvider.getPsi(ScalaLanguage.INSTANCE) match {
+  def collectScalaFileErrors(file: PsiFile): Seq[ErrorDescriptor] = {
+    val scalaPsi = file.getViewProvider match {
+      // Twirl's ScalaFile uses the template's base language, even when callers pass its HTML view.
+      case provider: TemplateLanguageFileViewProvider => provider.getPsi(provider.getBaseLanguage)
+      // Preserve the existing lookup for ordinary files, including its Scala 3 behavior.
+      case provider => provider.getPsi(ScalaLanguage.INSTANCE)
+    }
+    scalaPsi match {
       case scalaFile: ScalaFile => collectScalaFileErrors(scalaFile)
       case _ => Seq.empty
     }
+  }
 
   //noinspection InstanceOf
   private def collectScalaFileErrors(scalaFile: ScalaFile): Seq[ErrorDescriptor] = {
