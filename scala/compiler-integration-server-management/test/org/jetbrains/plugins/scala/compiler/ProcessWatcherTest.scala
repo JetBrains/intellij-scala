@@ -25,13 +25,13 @@ class ProcessWatcherTest:
   def chunkWithSeveralLinesIsSplitByLine(): Unit =
     val text =
       """Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=proxy.example
-        |Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+        |Exception in thread "main" java.lang.IllegalStateException: boom
         |	at com.facebook.nailgun.NGServer.run(NGServer.java:519)
         |""".stripMargin
     val expected = (
       List("Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=proxy.example"),
       List(
-        "Exception in thread \"main\" java.lang.OutOfMemoryError: Java heap space",
+        "Exception in thread \"main\" java.lang.IllegalStateException: boom",
         "\tat com.facebook.nailgun.NGServer.run(NGServer.java:519)",
       ),
     )
@@ -59,7 +59,7 @@ private object ProcessWatcherTest:
 
   @static
   def errorLines(): Stream[String] = Stream.of(
-    "Exception in thread \"main\" java.lang.OutOfMemoryError: Java heap space",
+    "Exception in thread \"main\" java.lang.IllegalStateException: boom",
     "Error occurred during initialization of VM",
     "WARNING: A restricted method in java.lang.System has been called",
     "\tat com.facebook.nailgun.NGServer.run(NGServer.java:519)",
