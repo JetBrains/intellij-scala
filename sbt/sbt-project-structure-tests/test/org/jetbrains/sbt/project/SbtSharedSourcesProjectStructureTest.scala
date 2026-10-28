@@ -16,6 +16,13 @@ final class SbtSharedSourcesProjectStructureTest extends SbtProjectStructureImpo
 
   import ProjectStructureDsl._
 
+  // The shared sources module should get the package prefix of the projects sharing its sources
+  def testSharedSourcesWithPackagePrefix(): Unit = runTest(
+    new project("sharedSourcesWithPackagePrefix") {
+      ProjectStructureDsl.packagePrefix := "com.example"
+    }
+  )
+
   def testSharedSources(): Unit = runTest(
     new project("sharedSourcesProject") {
       lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
