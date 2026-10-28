@@ -7,7 +7,7 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.util.Key
 import com.intellij.util.io.BaseOutputReader
 import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
-import org.jetbrains.plugins.scala.compiler.ProcessWatcher.Log
+import org.jetbrains.plugins.scala.compiler.ProcessWatcher.{Log, partitionPickedUpJvmOptionsLines}
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
 /**
@@ -89,9 +89,11 @@ private final class ProcessWatcher(process: Process, commandLine: String, local:
     }
 
     private def processErrorText(text: String, outputType: Key[?]): Unit = {
-      Log.warn(s"[$outputType] ${text.trim}")
-      val filtered = text.linesIterator.mkString(System.lineSeparator())
+      val (pickedUpJvmOptionsLines, errorLines) = partitionPickedUpJvmOptionsLines(text)
+      pickedUpJvmOptionsLines.foreach(line => Log.info(s"[$outputType] $line"))
+      val filtered = errorLines.mkString(System.lineSeparator())
       if (filtered.nonEmpty) {
+        Log.warn(s"[$outputType] ${filtered.trim}")
         ApplicationManager.getApplication.getMessageBus.syncPublisher(CompileServerErrorListener.Topic).onError(filtered)
       }
     }
@@ -106,4 +108,16 @@ private final class ProcessWatcher(process: Process, commandLine: String, local:
 object ProcessWatcher {
   private val Log = Logger.getInstance(classOf[ProcessWatcher])
   private val ExceptionPattern = "[eE]rror|[eE]xception".r.pattern
+
+  // Printed to stderr before the main class runs: by HotSpot for JAVA_TOOL_OPTIONS and _JAVA_OPTIONS,
+  // by the java launcher (with the "NOTE: " prefix) for JDK_JAVA_OPTIONS. Informational only. SCL-26223
+  private val PickedUpJvmOptionsLine = "(NOTE: )?Picked up (JAVA_TOOL_OPTIONS|_JAVA_OPTIONS|JDK_JAVA_OPTIONS):".r
+
+  /**
+   * Splits a chunk of the compile server stderr output into the "Picked up ..." lines, which the JVM prints when
+   * it picks up options from the environment and which do not indicate a problem, and the remaining lines,
+   * which are reported to the user as compile server errors.
+   */
+  private[compiler] def partitionPickedUpJvmOptionsLines(text: String): (List[String], List[String]) =
+    text.linesIterator.toList.partition(line => PickedUpJvmOptionsLine.findPrefixOf(line).isDefined)
 }
