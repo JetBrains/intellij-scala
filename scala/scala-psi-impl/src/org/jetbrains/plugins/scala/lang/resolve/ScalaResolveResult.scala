@@ -419,7 +419,12 @@ class ScalaResolveResult(
               case o: ScObject if o.isPackageObject => Option(o.qualifiedName)
               case p: ScPackaging                   => Option(p.fullPackageName) //top level definition
               case _: ScalaFile                     => Some("") //top level definition in root package (no container `packaging` statement)
-              case _                                => None
+              case _ =>
+                // Members inherited by a package object have package precedence, even
+                // though their declarations belong to the parent trait or class.
+                fromType.flatMap(_.extractClass).collect {
+                  case o: ScObject if o.isPackageObject => o.qualifiedName
+                }
             }
             maybeContainingPackageOrPackageObjectName match {
               case Some(packageName) =>
