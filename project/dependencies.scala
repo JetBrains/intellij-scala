@@ -10,7 +10,7 @@ object Versions {
 
   // Code running in the compile server must run on Java 8; use the Scala 3.3 LTS line. The version should be compatible
   // with `scala2Version` because earlier versions of Scala 3 reused the Scala 2 standard library.
-  val compileServerScala3Version: String = "3.3.8"
+  val compileServerScala3Version: String = "3.3.9"
   val scala2Version: String = "2.13.18"
 
   // ATTENTION: when updating `sbtVersion` also update it in `org.jetbrains.sbt.SbtVersion.Latest`
