@@ -666,8 +666,17 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         case _ =>
       }
 
-      pack.foreach(processor.execute(_, ScalaResolveState.empty))
-      classes.foreach(processor.execute(_, ScalaResolveState.empty))
+      // Importing an implicit class also imports its synthetic conversion method.
+      // The class index only finds the class; resolve through its owner to collect
+      // both declarations (and the conversion's from-type) in this case.
+      val hasImplicitClass = classes.exists {
+        case clazz: ScClass => clazz.hasModifierProperty("implicit")
+        case _ => false
+      }
+      if (!hasImplicitClass) {
+        pack.foreach(processor.execute(_, ScalaResolveState.empty))
+        classes.foreach(processor.execute(_, ScalaResolveState.empty))
+      }
 
       val candidates = processor.candidatesS
       val filtered = candidates.filter(candidatesFilter)
