@@ -27,7 +27,7 @@ class ScalacticSemanticTest extends SemanticTestBase("org.scalactic" %% "scalact
     //org.scalactic.DefaultEquality
     //org.scalactic.DefaultPrettifier
     org.scalactic.Differ
-    //org.scalactic.EitherSugar
+    org.scalactic.EitherSugar
     //org.scalactic.Equality
     org.scalactic.Equivalence
     //org.scalactic.Every
@@ -54,7 +54,7 @@ class ScalacticSemanticTest extends SemanticTestBase("org.scalactic" %% "scalact
     org.scalactic.NumericEqualityConstraints
     //org.scalactic.ObjectDiffer
     //org.scalactic.One
-    //org.scalactic.OptionSugar
+    org.scalactic.OptionSugar
     //org.scalactic.Or
     org.scalactic.OrBool
     org.scalactic.Pass

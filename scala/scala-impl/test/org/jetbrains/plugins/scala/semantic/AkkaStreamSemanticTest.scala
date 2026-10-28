@@ -187,7 +187,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.FailedSource
     //akka.stream.impl.FanIn
     //akka.stream.impl.FanOut
-    //akka.stream.impl.FanoutOutputs
+    akka.stream.impl.FanoutOutputs
     //akka.stream.impl.FanoutProcessorImpl
     //akka.stream.impl.FanoutPublisherSink
     akka.stream.impl.FirstCollectorState
@@ -251,7 +251,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.SinkModulePhase
     akka.stream.impl.SinkholeSubscriber
     //akka.stream.impl.SnapshotCollector
-    //akka.stream.impl.SoftShutdown
+    akka.stream.impl.SoftShutdown
     //akka.stream.impl.SourceModule
     akka.stream.impl.SourceModuleIslandTag
     akka.stream.impl.SourceModulePhase
@@ -463,10 +463,10 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.scaladsl.ScalaSessionAPI
     //akka.stream.scaladsl.Sink
     akka.stream.scaladsl.SinkQueue
-    //akka.stream.scaladsl.SinkQueueWithCancel
+    akka.stream.scaladsl.SinkQueueWithCancel
     //akka.stream.scaladsl.Source
     akka.stream.scaladsl.SourceQueue
-    //akka.stream.scaladsl.SourceQueueWithComplete
+    akka.stream.scaladsl.SourceQueueWithComplete
     //akka.stream.scaladsl.SourceWithContext
     //akka.stream.scaladsl.StreamConverters
     akka.stream.scaladsl.StreamRefs

@@ -204,7 +204,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.libs.concurrent.ExecutionContextProvider
     play.api.libs.concurrent.Futures
     //play.api.libs.concurrent.InjectedActorSupport
-    //play.api.libs.concurrent.LowPriorityFuturesImplicits
+    play.api.libs.concurrent.LowPriorityFuturesImplicits
     //play.api.libs.concurrent.MaterializerProvider
     play.api.libs.crypto.CSRFTokenSigner
     //play.api.libs.crypto.CSRFTokenSignerProvider
@@ -399,7 +399,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.mvc.JavascriptLiteral
     play.api.mvc.LegacyCookiesModule
     //play.api.mvc.LegacyFlashCookieBaker
-    //play.api.mvc.LegacyI18nSupport
+    play.api.mvc.LegacyI18nSupport
     //play.api.mvc.LegacySessionCookieBaker
     play.api.mvc.MaxSizeExceeded
     play.api.mvc.MaxSizeNotExceeded
@@ -556,8 +556,8 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.twirl.api.Template7
     play.twirl.api.Template8
     play.twirl.api.Template9
-    //play.twirl.api.TwirlFeatureImports
-    //play.twirl.api.TwirlHelperImports
+    play.twirl.api.TwirlFeatureImports
+    play.twirl.api.TwirlHelperImports
     //play.twirl.api.Txt
     play.twirl.api.TxtFormat
     //play.twirl.api.Xml
