@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!--suppress PluginXmlValidity, JetBrainsInternalExtensionsUsage -->
-<idea-plugin>
+<idea-plugin visibility="public">
     <dependencies>
         <module name="intellij.java"/>
         <module name="intellij.java.analysis.impl"/>
