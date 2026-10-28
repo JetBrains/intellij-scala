@@ -17,12 +17,12 @@ class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.
     //ammonite.compiler.CompatibilityParser
     //ammonite.compiler.Compiler
     //ammonite.compiler.CompilerBuilder
-    //ammonite.compiler.CompilerExtensions
+    ammonite.compiler.CompilerExtensions
     //ammonite.compiler.CompilerLifecycleManager
     ammonite.compiler.CompilerUtil
     //ammonite.compiler.DefaultCodeWrapper
     //ammonite.compiler.DottyParser
-    //ammonite.compiler.Extensions
+    ammonite.compiler.Extensions
     //ammonite.compiler.Parsers
     //ammonite.compiler.SyntaxHighlighting
     //ammonite.compiler.iface.CodeWrapper
@@ -43,7 +43,7 @@ class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.
     ammonite.interp.api.InterpAPI
     ammonite.interp.api.InterpBridge
     ammonite.interp.api.InterpLoad
-    //ammonite.interp.api.IvyConstructor
+    ammonite.interp.api.IvyConstructor
     ammonite.interp.api.LoadJar
     ammonite.interp.api.ScalaVersion
     //ammonite.interp.script.AmmoniteBuildServer

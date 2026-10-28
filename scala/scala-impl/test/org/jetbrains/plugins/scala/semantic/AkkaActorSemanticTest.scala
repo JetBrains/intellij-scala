@@ -162,7 +162,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.actor.UnhandledMessage
     //akka.actor.UnrestrictedStash
     //akka.actor.UnstartedCell
-    //akka.actor.UntypedAbstractActor
+    akka.actor.UntypedAbstractActor
     //akka.actor.VirtualPathContainer
     akka.actor.WrappedMessage
     //akka.actor.dungeon.Children
@@ -527,7 +527,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.routing.ConsistentHash
     //akka.routing.ConsistentHashingGroup
     //akka.routing.ConsistentHashingPool
-    //akka.routing.ConsistentHashingRouter
+    akka.routing.ConsistentHashingRouter
     //akka.routing.ConsistentHashingRoutingLogic
     akka.routing.ConsistentRoutee
     akka.routing.CustomRouterConfig
@@ -545,7 +545,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.routing.NoRoutee
     akka.routing.NoRouter
     //akka.routing.OptimalSizeExploringResizer
-    //akka.routing.Pool
+    akka.routing.Pool
     akka.routing.PoolBase
     //akka.routing.PoolOverrideUnsetConfig
     //akka.routing.RandomGroup
@@ -628,7 +628,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.util.Helpers
     //akka.util.ImmutableIntMap
     //akka.util.Index
-    //akka.util.JavaDurationConverters
+    akka.util.JavaDurationConverters
     akka.util.JavaVersion
     //akka.util.LineNumbers
     //akka.util.ManifestInfo
