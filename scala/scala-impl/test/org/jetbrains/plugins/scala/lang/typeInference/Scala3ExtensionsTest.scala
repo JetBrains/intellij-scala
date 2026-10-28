@@ -3,6 +3,7 @@ package lang.typeInference
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
@@ -469,6 +470,45 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
         |  val s: Int = 123.foo
         |""".stripMargin
     )
+  }
+
+  // sbt 2's Configuration / Scoped.ScopingSetting[K] overload must survive receiver selection.
+  def testOverloadedExtensionChecksExplicitArguments(): Unit = checkTextHasNoErrors(
+    """
+      |class Configuration
+      |trait ScopedKey[K]
+      |class SettingKey[A] extends ScopedKey[SettingKey[A]]
+      |class AttributeKey[A]
+      |
+      |trait SlashSyntax:
+      |  extension (configuration: Configuration)
+      |    def /[K](key: ScopedKey[K]): K = ???
+      |    def /(key: AttributeKey[?]): Int = ???
+      |
+      |object syntax extends SlashSyntax
+      |import syntax.*
+      |
+      |val configuration: Configuration = ???
+      |val key: SettingKey[String] = ???
+      |val scoped: SettingKey[String] = configuration / key
+      |""".stripMargin
+  )
+
+  def testConcreteExtensionReceiverIsMoreSpecificThanGenericReceiver(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |extension [A](receiver: A) def choose(argument: String): Int = 1
+         |extension (receiver: Int) def choose(argument: String): Int = 2
+         |
+         |val value: Int = 1.cho${CARET}ose("")
+         |""".stripMargin
+    )
+
+    val reference = getFile.findReferenceAt(getEditor.getCaretModel.getOffset)
+    assertNotNull("Expected a reference to the extension method", reference)
+    val resolved = reference.resolve()
+    assertNotNull("Expected the extension method to resolve", resolved)
+    assertEquals("Expected the concrete receiver extension", "def choose(argument: String): Int = 2", resolved.getText)
   }
 
   //@TODO: Currently does not compile, but probably should,
