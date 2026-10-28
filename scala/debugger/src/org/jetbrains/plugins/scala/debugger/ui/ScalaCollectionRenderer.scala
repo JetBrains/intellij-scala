@@ -57,7 +57,7 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
     }.rethrow.getNow(XDebuggerUIConstants.getCollectingDataMessage)
   }
 
-  override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
+  override protected def buildChildrenAsync(value: Value, builder: ChildrenBuilder, context: EvaluationContext): CompletableFuture[Unit] = {
     val ref = value.asInstanceOf[ObjectReference]
 
     for {
@@ -81,7 +81,7 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
       if (remaining == 0)
         builder.addChildren(List.empty.asJava, true)
       else {
-        val runnable: Runnable = () => renderStrictCollection(ref, builder, context, index + 100)
+        val runnable: Runnable = () => buildChildrenOrShowError(builder)(renderStrictCollection(ref, builder, context, index + 100))
         builder.tooManyChildren(remaining, runnable)
       }
     }
@@ -107,14 +107,14 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
           val hasDefiniteSize = evaluateHasDefiniteSize(ref, context)
           val size = if (hasDefiniteSize) Some(evaluateSize(ref, context)) else None
           if (size.isEmpty) {
-            val runnable: Runnable = () => renderNonStrictCollection(ref, builder, context, newIndex)
+            val runnable: Runnable = () => buildChildrenOrShowError(builder)(renderNonStrictCollection(ref, builder, context, newIndex))
             builder.tooManyChildren(-1, runnable)
           } else {
             builder.addChildren(List.empty.asJava, true)
           }
         }
       } yield ()
-    }
+    }.flatten
 }
 
 private[debugger] object ScalaCollectionRenderer {

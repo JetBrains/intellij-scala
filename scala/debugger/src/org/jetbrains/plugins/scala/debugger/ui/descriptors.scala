@@ -49,8 +49,8 @@ private object LazyValDescriptor {
     val bitmapMask = 1L << bitmapExponent
     val isInitialized = (bitmapValue & bitmapMask) != 0
     val init = findInitializerScala2(field, allMethods)
-    if (isInitialized) new FieldLazyValDescriptor(project, ref, init)
-    else new NotInitializedFieldLazyValDescriptor(project, ref, init, showInitializeAction = true)
+    if (isInitialized) new FieldLazyValDescriptor(project, ref, init, init.name())
+    else new NotInitializedFieldLazyValDescriptor(project, ref, init, init.name(), showInitializeAction = true)
   }
 
   private def createLazyValDescriptorScala3(
@@ -67,7 +67,8 @@ private object LazyValDescriptor {
     val bitmapExponent = index % 32
     val bitmapName = s"${bitmapIndex}bitmap$$"
     val bitmapField = allFields.find(_.name().contains(bitmapName))
-    val init = findInitializerScala3(field, allMethods)
+    val name = field.name().split("\\$lzy")(0)
+    val init = findInitializerScala3(field, name, allMethods)
 
     bitmapField match {
       case Some(bitmap) =>
@@ -75,8 +76,8 @@ private object LazyValDescriptor {
         val bitmapValue = ref.getValue(bitmap).asInstanceOf[PrimitiveValue].longValue()
         val bitmapMask = (1L << bitmapExponent) + (1L << (bitmapExponent + 1))
         val isInitialized = (bitmapValue & bitmapMask) == bitmapMask
-        if (isInitialized) new FieldLazyValDescriptor(project, ref, init)
-        else new NotInitializedFieldLazyValDescriptor(project, ref, init, showInitializeAction = true)
+        if (isInitialized) new FieldLazyValDescriptor(project, ref, init, name)
+        else new NotInitializedFieldLazyValDescriptor(project, ref, init, name, showInitializeAction = true)
       case None =>
         // New lazy val encoding, Scala 3.3+
         ref.getValue(field) match {
@@ -91,14 +92,13 @@ private object LazyValDescriptor {
                   !methodName.contains("$lzyINIT")
                 }
 
-            new NotInitializedFieldLazyValDescriptor(project, ref, init, showInitializeAction = isInitializable)
+            new NotInitializedFieldLazyValDescriptor(project, ref, init, name, showInitializeAction = isInitializable)
           case obj: ObjectReference =>
-            val name = obj.referenceType().name()
-            name match {
+            obj.referenceType().name() match {
               case "scala.runtime.LazyVals$Evaluating$" | "scala.runtime.LazyVals$Waiting" =>
-                new IntermediateStateFieldLazyValDescriptor(project, ref, init, DebuggerBundle.message("lazy.val.being.initialized"))
+                new IntermediateStateFieldLazyValDescriptor(project, ref, init, name, DebuggerBundle.message("lazy.val.being.initialized"))
               case _ =>
-                new FieldLazyValDescriptor(project, ref, init)
+                new FieldLazyValDescriptor(project, ref, init, name)
             }
         }
     }
@@ -109,16 +109,21 @@ private object LazyValDescriptor {
     allMethods.find(_.name() == field.name()).getOrElse(throw EvaluationException(DebuggerBundle.message("could.not.find.accessor.method", name)))
   }
 
-  private def findInitializerScala3(field: Field, allMethods: mutable.Buffer[Method]): Method = {
-    val name = field.name().split("\\$lzy")(0)
-    allMethods.find(_.name() == name).getOrElse(throw EvaluationException(DebuggerBundle.message("could.not.find.accessor.method", name)))
-  }
+  private def findInitializerScala3(field: Field, name: String, allMethods: mutable.Buffer[Method]): Method =
+    allMethods.find(_.name() == name)
+      .orElse {
+        // The accessor of a private lazy val or object that another class uses, e.g. an inner class, has an expanded
+        // name, `Outer$$name`, while its field keeps the plain one, `name$lzy1`
+        val expandedName = "$$" + name
+        field.declaringType().methods().asScala.find(m => m.name().endsWith(expandedName) && m.argumentTypeNames().isEmpty)
+      }
+      .getOrElse(throw EvaluationException(DebuggerBundle.message("could.not.find.accessor.method", name)))
 }
 
-private class FieldLazyValDescriptor(project: Project, ref: ObjectReference, init: Method)
+private class FieldLazyValDescriptor(project: Project, ref: ObjectReference, init: Method, name: String)
   extends ValueDescriptorImpl(project) with DescriptorWithParentObject {
 
-  override def getName: String = init.name()
+  override def getName: String = name
 
   override def getType: Type = init.returnType()
 
@@ -134,8 +139,8 @@ private class FieldLazyValDescriptor(project: Project, ref: ObjectReference, ini
   override def getObject: ObjectReference = ref
 }
 
-private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: ObjectReference, init: Method, showInitializeAction: Boolean)
-  extends FieldLazyValDescriptor(project, ref, init) {
+private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: ObjectReference, init: Method, name: String, showInitializeAction: Boolean)
+  extends FieldLazyValDescriptor(project, ref, init, name) {
 
   OnDemandRenderer.ON_DEMAND_CALCULATED.set(this, false)
   setOnDemandPresentationProvider { node =>
@@ -147,8 +152,8 @@ private final class NotInitializedFieldLazyValDescriptor(project: Project, ref: 
   }
 }
 
-private final class IntermediateStateFieldLazyValDescriptor(project: Project, ref: ObjectReference, init: Method, @Nls presentation: String)
-  extends FieldLazyValDescriptor(project, ref, init) {
+private final class IntermediateStateFieldLazyValDescriptor(project: Project, ref: ObjectReference, init: Method, name: String, @Nls presentation: String)
+  extends FieldLazyValDescriptor(project, ref, init, name) {
 
   OnDemandRenderer.ON_DEMAND_CALCULATED.set(this, false)
   setOnDemandPresentationProvider { node =>

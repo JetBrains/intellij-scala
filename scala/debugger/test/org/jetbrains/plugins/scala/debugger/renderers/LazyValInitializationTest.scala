@@ -5,7 +5,7 @@ package renderers
 import com.intellij.xdebugger.XDebuggerTestUtil
 import com.intellij.xdebugger.frame.XFullValueEvaluator.XFullValueEvaluationCallback
 import com.intellij.xdebugger.frame.presentation.XValuePresentation
-import com.intellij.xdebugger.frame.{XDebuggerTreeNodeHyperlink, XFullValueEvaluator, XValue, XValuePlace}
+import com.intellij.xdebugger.frame.{XDebuggerTreeNodeHyperlink, XFullValueEvaluator, XNamedValue, XValue, XValuePlace}
 import com.intellij.xdebugger.impl.ui.tree.nodes.{XValueNodeEx, XValuePresentationUtil}
 import org.junit.Assert.{assertNotNull, assertNull}
 import org.junit.Test
@@ -84,6 +84,81 @@ abstract class LazyValInitializationScala3TestBase(scalaVersion: ScalaVersion) e
       assertNull(second.fullValueEvaluator)
     }
   }
+
+  // The accessor of a private lazy val that another class uses gets an expanded name, `…Holder$$touched`, while its
+  // field keeps the plain one, `touched$lzy1`, SCL-26219
+  addSourceFile("PrivateLazyValReadFromInnerClass.scala",
+    s"""object PrivateLazyValReadFromInnerClass {
+       |  class Holder {
+       |    private lazy val touched: Int = "7".toInt
+       |    private lazy val untouched: Int = "42".toInt
+       |
+       |    class Reader {
+       |      def readTouched(): Int = touched
+       |      def readUntouched(): Int = untouched
+       |    }
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    val holder = new Holder
+       |    println(new holder.Reader().readTouched())
+       |    println(holder) $breakpoint
+       |  }
+       |}
+       |""".stripMargin)
+
+  @Test
+  def childrenOfPrivateLazyValsReadFromAnInnerClass(): Unit = {
+    createLocalProcess("PrivateLazyValReadFromInnerClass")
+
+    doWhenXSessionPausedThenResume { () =>
+      assertEquals(Seq("touched", "untouched"), childNames("holder").sorted)
+      presentation(field("holder", "touched"), "7")
+      assertInitializedOnClick(field("holder", "untouched"), expectedType = "int", expectedValue = "42")
+    }
+  }
+
+  // An object in a class is a lazy val, too: the shape of `ClassfileParser.innerClasses` in the Scala 3 compiler
+  addSourceFile("PrivateObjectReadFromInnerClass.scala",
+    s"""object PrivateObjectReadFromInnerClass {
+       |  class Parser {
+       |    private object touched {
+       |      override def toString: String = "touched object"
+       |    }
+       |
+       |    private object untouched {
+       |      override def toString: String = "untouched object"
+       |    }
+       |
+       |    class Completer {
+       |      def complete(): String = touched.toString
+       |      def unused(): String = untouched.toString
+       |    }
+       |
+       |    def parse(): String = {
+       |      val completed = new Completer().complete()
+       |      completed $breakpoint
+       |    }
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println(new Parser().parse())
+       |  }
+       |}
+       |""".stripMargin)
+
+  @Test
+  def childrenOfPrivateObjectsReadFromAnInnerClass(): Unit = {
+    createLocalProcess("PrivateObjectReadFromInnerClass")
+
+    doWhenXSessionPausedThenResume { () =>
+      assertEquals(Seq("touched", "untouched"), childNames("this").sorted)
+      presentationMatching(field("this", "touched"), "The touched object")(_.value.contains("touched object"))
+      assertInitializedOnClick(field("this", "untouched"), expectedType = "PrivateObjectReadFromInnerClass$Parser$untouched$") {
+        _.value.contains("untouched object")
+      }
+    }
+  }
 }
 
 /**
@@ -127,7 +202,10 @@ abstract class LazyValInitializationTestBase(scalaVersion: ScalaVersion) extends
     }
   }
 
-  protected def assertInitializedOnClick(value: XValue, expectedType: String, expectedValue: String): Unit = {
+  protected def assertInitializedOnClick(value: XValue, expectedType: String, expectedValue: String): Unit =
+    assertInitializedOnClick(value, expectedType)(_.value == expectedValue)
+
+  protected def assertInitializedOnClick(value: XValue, expectedType: String)(initialized: Presentation => Boolean): Unit = {
     val node = new RecordingValueNode(value)
     val notInitialized = node.awaitValue(DebuggerBundle.message("lazy.val.not.initialized")) {
       value.computePresentation(node, XValuePlace.TREE)
@@ -138,15 +216,18 @@ abstract class LazyValInitializationTestBase(scalaVersion: ScalaVersion) extends
     assertNotNull("The lazy val does not offer an Initialize link", initialize)
     assertEquals(DebuggerBundle.message("initialize.lazy.val"), initialize.getLinkText)
 
-    node.awaitValue(expectedValue) {
+    node.awaitPresentation("The initialized value")(initialized) {
       initialize.startEvaluation(new LinkClickCallback)
     }
     assertNull(node.fullValueEvaluator)
   }
 
-  protected def presentation(value: XValue, expectedValue: String): RecordingValueNode = {
+  protected def presentation(value: XValue, expectedValue: String): RecordingValueNode =
+    presentationMatching(value, s"The value '$expectedValue'")(_.value == expectedValue)
+
+  protected def presentationMatching(value: XValue, description: String)(matches: Presentation => Boolean): RecordingValueNode = {
     val node = new RecordingValueNode(value)
-    node.awaitValue(expectedValue) {
+    node.awaitPresentation(description)(matches) {
       value.computePresentation(node, XValuePlace.TREE)
     }
     node
@@ -159,6 +240,18 @@ abstract class LazyValInitializationTestBase(scalaVersion: ScalaVersion) extends
     val variable = frameVariable(variableName)
     XDebuggerTestUtil.computePresentation(variable)
     XDebuggerTestUtil.findVar(XDebuggerTestUtil.collectChildren(variable), fieldName)
+  }
+
+  /**
+   * Expands the variable like the variables view does and returns the names of its children. Fails if the node shows
+   * an error instead, or does not finish in time.
+   */
+  protected def childNames(variableName: String): Seq[String] = {
+    val variable = frameVariable(variableName)
+    XDebuggerTestUtil.computePresentation(variable)
+    val childrenAndError = XDebuggerTestUtil.collectChildrenWithError(variable)
+    assertNull(s"The children of $variableName show an error", childrenAndError.second)
+    childrenAndError.first.asScala.toSeq.collect { case named: XNamedValue => named.getName }
   }
 }
 
@@ -184,15 +277,21 @@ object LazyValInitializationTestBase {
     /**
      * Runs `action` and waits until the node presents the `expected` value.
      */
-    def awaitValue(expected: String)(action: => Unit): Presentation = {
+    def awaitValue(expected: String)(action: => Unit): Presentation =
+      awaitPresentation(s"The value '$expected'")(_.value == expected)(action)
+
+    /**
+     * Runs `action` and waits until the node presents a value that `matches`.
+     */
+    def awaitPresentation(description: String)(matches: Presentation => Boolean)(action: => Unit): Presentation = {
       val presented = Promise[Presentation]()
-      awaited = presentation => if (presentation.value == expected) presented.trySuccess(presentation)
+      awaited = presentation => if (matches(presentation)) presented.trySuccess(presentation)
       action
 
       try Await.result(presented.future, XDebuggerTestUtil.TIMEOUT_MS.millis)
       catch {
         case _: TimeoutException =>
-          throw new AssertionError(s"The value '$expected' was not presented, presentations: ${presentations.asScala.mkString("[", ", ", "]")}")
+          throw new AssertionError(s"$description was not presented, presentations: ${presentations.asScala.mkString("[", ", ", "]")}")
       }
     }
 

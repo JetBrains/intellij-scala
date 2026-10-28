@@ -5,6 +5,7 @@ package renderers
 import com.intellij.debugger.engine.SuspendContextImpl
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
+import org.junit.Assert.assertTrue
 
 class ScalaCollectionRendererTest_2_11 extends ScalaCollectionRendererTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_11
@@ -51,6 +52,49 @@ class ScalaCollectionRendererTest_2_13 extends ScalaCollectionRendererTestBase {
     rendererTest() { implicit ctx =>
       testCollectionRenderer("list", "scala.collection.immutable.LazyList", "size = ?", renderChildren = false)
       testCollectionRenderer("stream", "scala.collection.immutable.Stream$Cons", "size = ?", renderChildren = false)
+    }
+  }
+
+  addSourceFile("ThrowingCollection.scala",
+    s"""
+       |object ThrowingCollection {
+       |  final class Broken extends scala.collection.immutable.AbstractSeq[Int] {
+       |    def apply(i: Int): Int = throw new IllegalStateException("apply")
+       |    def length: Int = 3
+       |    def iterator: Iterator[Int] = throw new IllegalStateException("iterator")
+       |  }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    val broken = new Broken
+       |    val a = 1 $breakpoint
+       |  }
+       |}
+      """.stripMargin
+  )
+
+  def testThrowingCollection(): Unit = {
+    rendererTest() { implicit ctx =>
+      val error = renderChildrenError("broken")
+      assertTrue(error, error.contains("IllegalStateException"))
+    }
+  }
+
+  addSourceFile("ThrowingLazyList.scala",
+    s"""
+       |object ThrowingLazyList {
+       |  def main(args: Array[String]): Unit = {
+       |    // the first batch of 10 elements renders, the element that throws is in the next one
+       |    val list = LazyList.from(0).map(i => if (i < 15) i else throw new IllegalStateException("element"))
+       |    val a = 1 $breakpoint
+       |  }
+       |}
+      """.stripMargin
+  )
+
+  def testThrowingLazyList(): Unit = {
+    rendererTest() { implicit ctx =>
+      val error = renderChildrenError("list")
+      assertTrue(error, error.contains("IllegalStateException"))
     }
   }
 }
