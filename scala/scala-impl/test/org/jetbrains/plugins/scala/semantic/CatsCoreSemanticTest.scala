@@ -755,7 +755,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.compat.HashCompat
     cats.kernel.compat.WrappedMutableMapBase
     cats.kernel.compat.scalaVersionMoreSpecific
-    //cats.kernel.compat.scalaVersionSpecific
+    cats.kernel.compat.scalaVersionSpecific
     cats.kernel.instances.AllInstances
     cats.kernel.instances.AllInstancesBinCompat0
     cats.kernel.instances.AllInstancesBinCompat1
