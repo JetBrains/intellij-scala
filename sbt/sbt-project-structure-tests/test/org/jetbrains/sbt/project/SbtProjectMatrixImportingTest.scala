@@ -61,3 +61,6 @@ class SbtProjectMatrixImportingTest_JsAndNative
 
 class SbtProjectMatrixImportingTest_JvmAndJsAndNative
   extends SbtProjectMatrixImportingTest(SbtProjectMatrixTestUtils.JvmAndJsAndNative)
+
+class SbtProjectMatrixImportingTest_CrossVersionFull
+  extends SbtProjectMatrixImportingTest(SbtProjectMatrixTestUtils.CrossVersionFull)

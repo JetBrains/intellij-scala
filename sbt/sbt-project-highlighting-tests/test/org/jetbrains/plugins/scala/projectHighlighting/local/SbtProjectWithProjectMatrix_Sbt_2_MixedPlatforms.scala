@@ -32,3 +32,8 @@ class SbtProjectWithProjectMatrix_Sbt_2_JvmAndJsAndNative
   extends SbtProjectWithProjectMatrix_Sbt_2_MixedPlatforms {
   override protected def fixture: Fixture = SbtProjectMatrixTestUtils.JvmAndJsAndNative
 }
+
+class SbtProjectWithProjectMatrix_Sbt_2_CrossVersionFull
+  extends SbtProjectWithProjectMatrix_Sbt_2_MixedPlatforms {
+  override protected def fixture: Fixture = SbtProjectMatrixTestUtils.CrossVersionFull
+}

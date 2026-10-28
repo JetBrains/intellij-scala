@@ -16,6 +16,7 @@ object SbtProjectMatrixTestUtils {
     platforms: Seq[Platform],
     scalaVersions: Seq[String] = Seq("2.12.21", "2.13.18"),
     matrixNames: Seq[String] = Seq("upstream", "downstream"),
+    fullCrossVersion: Boolean = false,
   ) {
     def testDataPath: String = SbtTestDataUtils.resolveRelativePath(
       s"sbt-project-highlighting-tests/testdata/projectsForHighlightingTests/local/$projectName"
@@ -25,6 +26,13 @@ object SbtProjectMatrixTestUtils {
   val JvmAndJs: Fixture = Fixture("sbt-projectmatrix-sbt2-jvm-js", Seq(Jvm, Js))
   val JsAndNative: Fixture = Fixture("sbt-projectmatrix-sbt2-js-native", Seq(Js, Native))
   val JvmAndJsAndNative: Fixture = Fixture("sbt-projectmatrix-sbt2-jvm-js-native", Seq(Jvm, Js, Native))
+  val CrossVersionFull: Fixture = Fixture(
+    "sbt-projectmatrix-sbt2-cross-version-full",
+    Seq(Jvm),
+    scalaVersions = Seq("2.13.10", "2.13.18"),
+    matrixNames = Seq("foo", "reordered"),
+    fullCrossVersion = true,
+  )
 
   private def binaryVersion(version: String): String = version.split('.').take(2).mkString(".")
 
@@ -94,7 +102,7 @@ object SbtProjectMatrixTestUtils {
         platform <- fixture.platforms
         version <- fixture.scalaVersions
       } yield {
-        val axisVersion = binaryVersion(version)
+        val axisVersion = if (fixture.fullCrossVersion) version else binaryVersion(version)
         val id = matrixName + platform.idSuffix + axisVersion.replace('.', '_')
         val parent = emptyModule(id, group)
         parent.defineAttribute(contentRoots) := Seq(s"%PROJECT_ROOT%/.sbt/matrix/$id")
