@@ -251,7 +251,9 @@ object SourceCode {
           }
           def isInnerModuleObject = d.symbol.flags.is(Flags.Lazy) && d.symbol.flags.is(Flags.Module)
           def isDefaultParameter = d.symbol.name.contains("$default$")
-          !flags.is(Flags.Synthetic) && !flags.is(Flags.Param) && !flags.is(Flags.ParamAccessor) && !flags.is(Flags.FieldAccessor) && !isUndecompilableCaseClassMethod && !isInnerModuleObject && !isDefaultParameter
+          def isImplicitClassConversion = d.symbol.isDefDef && d.symbol.flags.is(Flags.Implicit) && d.symbol.flags.is(Flags.Final) &&
+            d.symbol.owner.declaredType(d.name).exists(tdef => tdef.isClassDef && tdef.flags.is(Flags.Implicit))
+          !flags.is(Flags.Synthetic) && !flags.is(Flags.Param) && !flags.is(Flags.ParamAccessor) && !flags.is(Flags.FieldAccessor) && !isUndecompilableCaseClassMethod && !isInnerModuleObject && !isDefaultParameter && !isImplicitClassConversion
         }
         val stats1 = stats.collect {
           case stat: Definition if keepDefinition(stat) => stat
