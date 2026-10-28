@@ -6,7 +6,7 @@ import com.intellij.notification.{NotificationGroup, NotificationGroupManager}
  * Helper methods to replace deprecated [[com.intellij.notification.NotificationGroup]] static methods.
  *
  * Uses groups registered as EPs instead of dynamically created.<br>
- * IDs must correspond to ones declared in `scala-plugin-common.xml`
+ * IDs must correspond to ones declared in `scalaCommunity.scala-impl.xml`
  */
 object ScalaNotificationGroups {
   private def manager = NotificationGroupManager.getInstance()

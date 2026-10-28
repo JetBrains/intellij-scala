@@ -175,7 +175,7 @@ object Dependencies {
   // has to be in the compiler process classpath along with spray-json
   // when updating the version, do not forget to:
   //  1. update version in the sbt-idea-compiler indices plugin too
-  //  2. update version in scala-plugin-common.xml compilerServer.plugin classpath setting
+  //  2. update version in scalaCommunity.scala-impl.xml compilerServer.plugin classpath setting
   // Do not use %% to determine the cross-version, it is not compatible with packageLibraryMappings: sbt-idea-plugin
   // derives the cross-version suffix of mapping keys from an explicit scala3-library_3 dependency, but these modules
   // only have the scala3-library dependency added by autoScalaLibrary, so the mappings fail to match.

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
+import com.intellij.ide.plugins.PluginManagerCoreKt
 import com.intellij.openapi.util.io.{FileUtil, FileUtilRt}
 import com.intellij.util.PathUtil.getJarPathForClass
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
@@ -12,11 +13,13 @@ import scala.util.parsing.combinator.RegexParsers
 import scala.xml.Node
 
 object ScalaPluginJars {
-
-  val libRoot: Path = {
-    val jarPath = Path.of(getJarPathForClass(this.getClass)) // scalaCommunity.jar
-    jarPath.getParent
+  val pluginDistRoot: Path = {
+    val pluginDistDir = PluginManagerCoreKt.getPluginDistDirByClass(this.getClass)
+    assert(pluginDistDir != null)
+    pluginDistDir
   }
+
+  val libRoot: Path = pluginDistRoot / "lib"
 
   val jpsRoot: Path = libRoot / "jps"
 

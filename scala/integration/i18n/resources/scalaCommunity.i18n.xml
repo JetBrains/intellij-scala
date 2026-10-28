@@ -13,6 +13,10 @@
         <module name="intellij.platform.util.ui"/>
         <module name="intellij.properties.backend.psi"/>
         <module name="intellij.properties.psi"/>
+        <module name="scalaCommunity.scala-api"/>
+        <module name="scalaCommunity.scala-impl"/>
+        <module name="scalaCommunity.scala-psi-api"/>
+        <module name="scalaCommunity.scala-psi-impl"/>
     </dependencies>
 
     <extensions defaultExtensionNs="com.intellij">

@@ -15,16 +15,17 @@ object ExtractStringsFromPluginXml {
   }
 
   val scalaModDir: Path = ScalaBundleSorting.scalaModDir
+  val sbtModDir: Path = ScalaBundleSorting.sbtModDir
 
-  val communityPluginXml: PluginXmlInfo = PluginXmlInfo(
+  val scalaImplPluginXml: PluginXmlInfo = PluginXmlInfo(
     resourcePath = scalaModDir / "scala-impl/resources",
-    relativeXmlPath = "META-INF/scala-plugin-common.xml",
+    relativeXmlPath = "scalaCommunity.scala-impl.xml",
     bundleQualifiedPath = "messages.ScalaInspectionBundle",
   )
 
-  val sbtPluginXml: PluginXmlInfo = PluginXmlInfo(
-    resourcePath = scalaModDir / "scala-impl/resources",
-    relativeXmlPath = "META-INF/SBT.xml",
+  val sbtImplPluginXml: PluginXmlInfo = PluginXmlInfo(
+    resourcePath = sbtModDir / "sbt-impl/resources",
+    relativeXmlPath = "scalaCommunity.sbt-impl.xml",
     bundleQualifiedPath = "messages.SbtBundle",
   )
 
@@ -35,8 +36,8 @@ object ExtractStringsFromPluginXml {
   )
 
   val allXmls = Seq(
-    communityPluginXml,
-    sbtPluginXml,
+    scalaImplPluginXml,
+    sbtImplPluginXml,
     worksheetPluginXml,
   )
 

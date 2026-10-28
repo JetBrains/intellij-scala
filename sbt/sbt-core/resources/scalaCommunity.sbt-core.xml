@@ -1,4 +1,15 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
+    <dependencies>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.ide.impl"/>
+        <module name="intellij.platform.lang"/>
+        <module name="intellij.platform.lang.core"/>
+        <module name="intellij.platform.util.ui"/>
+        <module name="scalaCommunity.scala-api"/>
+    </dependencies>
+
     <extensionPoints>
         <extensionPoint qualifiedName="org.intellij.sbt.sbtVersionProvider" interface="org.jetbrains.sbt.project.SbtVersionProvider" dynamic="true"/>
     </extensionPoints>

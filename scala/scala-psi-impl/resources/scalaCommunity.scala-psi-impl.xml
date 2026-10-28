@@ -1,4 +1,35 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
+    <dependencies>
+        <module name="intellij.java.execution.impl"/>
+        <module name="intellij.java.frontback.psi"/>
+        <module name="intellij.java.frontback.psi.impl"/>
+        <module name="intellij.java.psi"/>
+        <module name="intellij.java.psi.impl"/>
+        <module name="intellij.java.syntax"/>
+        <module name="intellij.libraries.commons.lang3"/>
+        <module name="intellij.libraries.commons.text"/>
+        <module name="intellij.libraries.fastutil"/>
+        <module name="intellij.libraries.markdown"/>
+        <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.analysis.impl"/>
+        <module name="intellij.platform.codeStyle"/>
+        <module name="intellij.platform.concurrency"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.editor.ui"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.indexing"/>
+        <module name="intellij.platform.lang"/>
+        <module name="intellij.platform.lang.core"/>
+        <module name="intellij.platform.markdown.utils"/>
+        <module name="intellij.platform.projectModel"/>
+        <module name="intellij.xml.parser"/>
+        <module name="scalaCommunity.sbt-core"/>
+        <module name="scalaCommunity.scala-api"/>
+        <module name="scalaCommunity.scala-psi-api"/>
+    </dependencies>
+
     <extensionPoints>
         <extensionPoint qualifiedName="org.intellij.scala.syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver" dynamic="true"/>

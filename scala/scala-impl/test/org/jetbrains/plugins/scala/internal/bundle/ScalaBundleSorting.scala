@@ -58,8 +58,11 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaBspBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaModDir / "codeInsight",
+      rootPath = scalaImplDir,
       bundleMessagesRelativePath = "ScalaCodeInsightBundle.properties",
+      extraUsageModules = Seq(
+        ModuleInfo(scalaModDir / "codeInsight")
+      )
     ),
     ModuleWithBundleInfo(
       rootPath = scalaModDir / "compile-server",
@@ -145,6 +148,9 @@ object ScalaBundleSorting {
     ModuleWithBundleInfo(
       rootPath = scalaImplDir,
       bundleMessagesRelativePath = "ScalaEditorBundle.properties",
+      extraUsageModules = Seq(
+        ModuleInfo(scalaModDir / "codeInsight")
+      )
     ),
     ModuleWithBundleInfo(
       rootPath = scalaImplDir,

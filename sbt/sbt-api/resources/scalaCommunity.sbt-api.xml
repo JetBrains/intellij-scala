@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<idea-plugin>
+    <dependencies>
+        <module name="intellij.libraries.kotlinx.coroutines.core"/>
+        <module name="intellij.platform.backend.workspace"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.execution"/>
+        <module name="intellij.platform.externalSystem"/>
+        <module name="intellij.platform.ide"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.projectModel"/>
+        <module name="intellij.platform.util.ui"/>
+        <module name="intellij.platform.workspace.jps"/>
+        <module name="intellij.platform.workspace.storage"/>
+        <module name="scalaCommunity.sbt-core"/>
+        <module name="scalaCommunity.scala-api"/>
+    </dependencies>
+
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.sbt.buildModuleUriProvider" interface="org.jetbrains.sbt.project.SbtBuildModuleUriProvider" dynamic="true"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <moduleService serviceImplementation="org.jetbrains.sbt.project.module.SbtModule"/>
+    </extensions>
+</idea-plugin>

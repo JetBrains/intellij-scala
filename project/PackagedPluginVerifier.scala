@@ -8,7 +8,7 @@ import scala.collection.mutable
  * Verifies the assembled plugin (the output of `packageArtifact`) against packaging problems that are easy to
  * introduce by changing one place and not the others: the Zinc assembly exclusions in `Dependencies.zinc`, the
  * library mappings of the compile server projects, the `compileServer.plugin` classpath (the JPS build process)
- * in `scala-plugin-common.xml` and the jars shipped in `lib/jps`.
+ * in `scalaCommunity.scala-impl.xml` and the jars shipped in `lib/jps`.
  *
  *  - No class is packaged in more than one jar under `lib/`, except for the documented intentional duplicates.
  *  - Every entry of the `compileServer.plugin` classpath exists.
@@ -95,7 +95,7 @@ object PackagedPluginVerifier {
             "or extend PackagedPluginVerifier.AllowedDuplicateGroups if the duplication is intentional):",
           duplicates.map(d => s"${d.jars.mkString(", ")}: ${d.classes.size} classes, e.g. ${d.classes.take(3).mkString(", ")}")
         ),
-        section("compileServer.plugin classpath entries (scala-plugin-common.xml) without a jar under lib/:", missingClasspathEntries),
+        section("compileServer.plugin classpath entries (scalaCommunity.scala-impl.xml) without a jar under lib/:", missingClasspathEntries),
         section(
           "Jars in lib/jps that are neither on the compileServer.plugin classpath nor per Scala version artifacts " +
             "(add them to the classpath or stop packaging them):",

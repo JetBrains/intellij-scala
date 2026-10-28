@@ -1,4 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
+    <dependencies>
+        <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.projectModel"/>
+        <module name="scalaCommunity.scala-api"/>
+        <module name="scalaCommunity.scala-impl"/>
+    </dependencies>
+
     <extensions defaultExtensionNs="com.intellij">
         <!--suppress PluginXmlValidity -->
         <applicationService

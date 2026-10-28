@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.template.macros
 
 /**
- * @see scala/scala-impl/resources/liveTemplates/scala.xml
+ * @see scala/codeInsight/resources/liveTemplates/scala.xml
  */
 class ApplyLiveTemplateTest extends ScalaLiveTemplateTestBase with DoTestInCompanionObject {
 

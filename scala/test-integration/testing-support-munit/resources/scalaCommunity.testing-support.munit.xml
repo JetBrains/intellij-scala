@@ -12,6 +12,8 @@
         <module name="intellij.platform.smRunner"/>
         <module name="intellij.platform.testIntegration"/>
         <module name="intellij.platform.testRunner"/>
+        <module name="scalaCommunity.scala-api"/>
+        <module name="scalaCommunity.scala-psi-impl"/>
         <module name="scalaCommunity.testing-support"/>
     </dependencies>
 

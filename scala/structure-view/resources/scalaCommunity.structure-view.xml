@@ -13,6 +13,9 @@
         <module name="intellij.platform.structureView"/>
         <module name="intellij.platform.structureView.backend"/>
         <module name="intellij.platform.util.ui"/>
+        <module name="scalaCommunity.scala-api"/>
+        <module name="scalaCommunity.scala-impl"/>
+        <module name="scalaCommunity.scala-psi-impl"/>
     </dependencies>
 
     <extensionPoints>

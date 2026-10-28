@@ -13,7 +13,7 @@ import scala.util.Using
 
 /**
  * The jars of the Scala Compile Server are listed by hand in two places: [[CompileServerLauncher.compileServerJars]]
- * (the compile server process) and the `compileServer.plugin` classpath in `scala-plugin-common.xml` (the JPS build
+ * (the compile server process) and the `compileServer.plugin` classpath in `scalaCommunity.scala-impl.xml` (the JPS build
  * process). This test keeps the two lists consistent with each other and with the packaged plugin, which the tests
  * run against. The packaged plugin itself is verified by `PackagedPluginVerifier` in the sbt build.
  */
@@ -56,15 +56,15 @@ class CompileServerClasspathTest:
     ScalaPluginJars.libRoot.relativize(jar).toString.replace(File.separatorChar, '/')
 
   private def jpsClasspath: Seq[String] =
-    val stream = ScalaPluginJars.getClass.getClassLoader.getResourceAsStream("META-INF/scala-plugin-common.xml")
-    assertNotNull(stream, "META-INF/scala-plugin-common.xml not found on the classpath")
+    val stream = ScalaPluginJars.getClass.getClassLoader.getResourceAsStream("scalaCommunity.scala-impl.xml")
+    assertNotNull(stream, "scalaCommunity.scala-impl.xml not found on the classpath")
     val descriptor = Using.resource(stream)(Source.fromInputStream(_, "UTF-8").mkString)
     val entries = compileServerPluginClasspath.findAllMatchIn(descriptor)
       .flatMap(_.group(1).split(';'))
       .map(_.trim)
       .filter(_.nonEmpty)
       .toSeq
-    assertTrue(entries.nonEmpty, "No compileServer.plugin classpath found in META-INF/scala-plugin-common.xml")
+    assertTrue(entries.nonEmpty, "No compileServer.plugin classpath found in scalaCommunity.scala-impl.xml")
     entries
 
   private def classEntries(jar: Path): Seq[String] =
@@ -116,7 +116,7 @@ class CompileServerClasspathTest:
     val onlyInCompileServer = (compileServer -- jps) -- compileServerOnlyJars
     assertTrue(
       onlyInJps.isEmpty && onlyInCompileServer.isEmpty,
-      s"""The compileServer.plugin classpath (scala-plugin-common.xml) and CompileServerLauncher.compileServerJars differ.
+      s"""The compileServer.plugin classpath (scalaCommunity.scala-impl.xml) and CompileServerLauncher.compileServerJars differ.
          |Add the jar to the other list, or record the difference in this test if it is intentional.
          |  only on the JPS classpath: ${onlyInJps.toSeq.sorted.mkString(", ")}
          |  only on the compile server classpath: ${onlyInCompileServer.toSeq.sorted.mkString(", ")}""".stripMargin

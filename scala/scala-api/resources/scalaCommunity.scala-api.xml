@@ -1,4 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
+    <dependencies>
+        <module name="intellij.java.frontback.psi"/>
+        <module name="intellij.java.frontback.psi.impl"/>
+        <module name="intellij.java.psi"/>
+        <module name="intellij.libraries.fastutil"/>
+        <module name="intellij.libraries.markdown"/>
+        <module name="intellij.platform.codeStyle"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.ide.impl"/>
+        <module name="intellij.platform.util.ui"/>
+        <module name="intellij.xml.parser"/>
+    </dependencies>
+
     <extensionPoints>
         <extensionPoint qualifiedName="org.intellij.scala.scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.finder.ScalaLanguageDerivative" dynamic="true"/>
     </extensionPoints>

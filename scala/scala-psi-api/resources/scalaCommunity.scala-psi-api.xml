@@ -1,4 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
+    <dependencies>
+        <module name="intellij.java.psi"/>
+        <module name="intellij.libraries.commons.text"/>
+        <module name="intellij.libraries.kotlinx.coroutines.core"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="scalaCommunity.scala-api"/>
+    </dependencies>
+
     <extensionPoints>
         <extensionPoint qualifiedName="org.intellij.scala.memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension" dynamic="true"/>
     </extensionPoints>

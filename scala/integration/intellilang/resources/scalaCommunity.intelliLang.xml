@@ -9,6 +9,10 @@
         <module name="intellij.platform.ide.impl"/>
         <module name="intellij.platform.langInjection"/>
         <module name="intellij.regexp"/>
+        <module name="scalaCommunity.scala-api"/>
+        <module name="scalaCommunity.scala-impl"/>
+        <module name="scalaCommunity.scala-psi-api"/>
+        <module name="scalaCommunity.scala-psi-impl"/>
     </dependencies>
 
     <extensions defaultExtensionNs="org.intellij.intelliLang">

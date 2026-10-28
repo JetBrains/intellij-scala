@@ -46,14 +46,20 @@
         <plugin id="com.intellij.platform.testRunner"/>
         <plugin id="org.intellij.intelliLang"/>
         <module name="intellij.java.backend"/>
-        <module name="intellij.java.execution.impl"/>
-        <module name="intellij.libraries.commons.text"/>
         <module name="intellij.libraries.jna"/>
-        <module name="intellij.platform.vcs.impl"/> <!-- IJPL-247623. Ideally, it should be registered as a dependency of corresponding V2 modules -->
-        <module name="intellij.platform.ide.updateChecker"/> <!-- IJPL-250764. Should be in scala-impl after migration to v2. Related files: ScalaPluginUpdater, UpdateSettingsSectionPanel -->
     </dependencies>
 
     <content namespace="jetbrains">
+        <module name="scalaCommunity.scala-api" loading="embedded"/>
+        <module name="scalaCommunity.scala-psi-api" loading="embedded"/>
+        <module name="scalaCommunity.scala-psi-impl" loading="embedded"/>
+        <module name="scalaCommunity.sbt-core" loading="embedded"/>
+        <module name="scalaCommunity.sbt-api" loading="embedded"/>
+
+        <module name="scalaCommunity.scala-impl" required-if-available="intellij.platform.backend"/>
+        <module name="scalaCommunity.sbt-impl" required-if-available="intellij.platform.backend"/>
+        <module name="scalaCommunity.codeInsight" required-if-available="intellij.platform.backend"/>
+
         <module name="scalaCommunity.bsp"/>
         <module name="scalaCommunity.bsp-junit"/>
         <module name="scalaCommunity.bsp-terminal"/>
@@ -69,6 +75,7 @@
         <module name="scalaCommunity.compiler-highlighting"/>
         <module name="scalaCommunity.conversion"/>
         <module name="scalaCommunity.repl"/>
+        <module name="scalaCommunity.scala-meta-impl"/>
         <module name="scalaCommunity.structural-search"/>
         <module name="scalaCommunity.structure-view"/>
         <module name="scalaCommunity.uast"/>
@@ -84,20 +91,10 @@
         <module name="scalaCommunity.markdown"/>
         <module name="scalaCommunity.maven"/>
         <module name="scalaCommunity.properties"/>
+        <module name="scalaCommunity.scalastyle"/>
         <module name="scalaCommunity.textAnalysis"/>
         <module name="scalaCommunity.intelliLang"/>
     </content>
-
-    <xi:include href="/META-INF/sbt-api.xml"/>
-    <xi:include href="/META-INF/sbt-core.xml"/>
-    <xi:include href="/META-INF/scala-api.xml"/>
-    <xi:include href="/META-INF/scala-psi-api.xml"/>
-    <xi:include href="/META-INF/scala-psi-impl.xml"/>
-    <xi:include href="/META-INF/scala-plugin-common.xml"/>
-    <xi:include href="/META-INF/sbt.xml"/>
-    <xi:include href="/META-INF/codeInsight.xml"/>
-    <xi:include href="/META-INF/scala-meta-impl.xml"/>
-    <xi:include href="/META-INF/scalastyle-integration.xml"/>
 
     <!-- Include the ultimate part of our plugin -->
     <xi:include href="/META-INF/scala-ultimate-plugin.xml">

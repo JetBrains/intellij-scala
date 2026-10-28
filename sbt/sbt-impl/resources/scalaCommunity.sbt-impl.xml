@@ -1,4 +1,74 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
+    <dependencies>
+        <module name="intellij.java"/>
+        <module name="intellij.java.analysis"/>
+        <module name="intellij.java.analysis.impl"/>
+        <module name="intellij.java.compiler"/>
+        <module name="intellij.java.compiler.impl"/>
+        <module name="intellij.java.debugger"/>
+        <module name="intellij.java.debugger.impl"/>
+        <module name="intellij.java.debugger.impl.shared"/>
+        <module name="intellij.java.execution"/>
+        <module name="intellij.java.execution.impl"/>
+        <module name="intellij.java.frontback.psi"/>
+        <module name="intellij.java.frontback.psi.impl"/>
+        <module name="intellij.java.indexing"/>
+        <module name="intellij.java.psi"/>
+        <module name="intellij.java.psi.impl"/>
+        <module name="intellij.java.syntax"/>
+        <module name="intellij.java.ui"/>
+        <module name="intellij.libraries.commons.lang3"/>
+        <module name="intellij.libraries.fastutil"/>
+        <module name="intellij.libraries.jediterm.core"/>
+        <module name="intellij.libraries.kotlinx.coroutines.core"/>
+        <module name="intellij.libraries.maven.resolver.provider"/>
+        <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.analysis.impl"/>
+        <module name="intellij.platform.backend.observation"/>
+        <module name="intellij.platform.backend.workspace"/>
+        <module name="intellij.platform.buildView"/>
+        <module name="intellij.platform.concurrency"/>
+        <module name="intellij.platform.consoleView"/>
+        <module name="intellij.platform.consoleView.impl"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.core.ui"/>
+        <module name="intellij.platform.debugger"/>
+        <module name="intellij.platform.editor.ui"/>
+        <module name="intellij.platform.eel.provider"/>
+        <module name="intellij.platform.execution"/>
+        <module name="intellij.platform.execution.impl"/>
+        <module name="intellij.platform.externalSystem"/>
+        <module name="intellij.platform.externalSystem.dependencyUpdater"/>
+        <module name="intellij.platform.externalSystem.impl"/>
+        <module name="intellij.platform.ide"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.ide.core.impl"/>
+        <module name="intellij.platform.ide.impl"/>
+        <module name="intellij.platform.ide.observable"/>
+        <module name="intellij.platform.indexing"/>
+        <module name="intellij.platform.lang"/>
+        <module name="intellij.platform.lang.core"/>
+        <module name="intellij.platform.lang.impl"/>
+        <module name="intellij.platform.projectModel"/>
+        <module name="intellij.platform.projectModel.impl"/>
+        <module name="intellij.platform.refactoring"/>
+        <module name="intellij.platform.terminal"/>
+        <module name="intellij.platform.util.ui"/>
+        <module name="intellij.platform.vcs"/>
+        <module name="intellij.platform.vcs.core"/>
+        <module name="intellij.platform.vcs.impl"/>
+        <module name="intellij.platform.workspace.jps"/>
+        <module name="intellij.platform.workspace.storage"/>
+        <module name="scalaCommunity.sbt-api"/>
+        <module name="scalaCommunity.sbt-core"/>
+        <module name="scalaCommunity.scala-api"/>
+        <module name="scalaCommunity.scala-impl"/>
+        <module name="scalaCommunity.scala-psi-api"/>
+        <module name="scalaCommunity.scala-psi-impl"/>
+    </dependencies>
+
     <extensionPoints>
         <extensionPoint qualifiedName="com.intellij.newProjectWizard.scala.buildSystem" interface="org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard" dynamic="true"/>
         <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.autolink.SbtUnlinkedProjectAwareHelper" dynamic="true"/>

@@ -4,6 +4,7 @@
         <plugin id="org.intellij.plugins.markdown"/>
         <module name="intellij.platform.analysis"/>
         <module name="intellij.platform.core"/>
+        <module name="scalaCommunity.scala-api"/>
     </dependencies>
 
     <extensions defaultExtensionNs="org.intellij.markdown">

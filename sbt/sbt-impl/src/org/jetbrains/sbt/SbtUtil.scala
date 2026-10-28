@@ -21,7 +21,7 @@ import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.ExternalSystemUtil
+import org.jetbrains.plugins.scala.util.{ExternalSystemUtil, ScalaPluginJars}
 import org.jetbrains.sbt.buildinfo.BuildInfo
 import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData, SbtProjectData}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
@@ -292,7 +292,7 @@ object SbtUtil {
   private def pluginBase: Path = {
     val path = jarWith[this.type]
     if (path.getFileName.toString == "classes") path.getParent
-    else path.getParent.getParent
+    else ScalaPluginJars.pluginDistRoot
   }
 
   private def getSbtProjectData(project: Project, rootProjectPath: Option[String] = None): Option[SbtProjectData] = {
