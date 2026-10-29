@@ -22,6 +22,7 @@ import org.junit.experimental.categories.Category
 import java.io.{BufferedInputStream, BufferedOutputStream, StringWriter}
 import java.nio.file.StandardOpenOption.{CREATE, WRITE}
 import java.nio.file.{Files, Path}
+import java.util.concurrent.ExecutionException
 import java.util.jar.{JarEntry, JarInputStream, JarOutputStream}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -167,7 +168,11 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
       }
     }
 
-    val foundClasses = Await.result(Future.sequence(futures), 10.minutes).flatten
+    val foundClasses = try {
+      Await.result(Future.sequence(futures), 10.minutes).flatten
+    } catch {
+      case e: ExecutionException => throw e.getCause
+    }
 
     mode match {
       case Mode.Test =>
