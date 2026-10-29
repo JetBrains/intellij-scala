@@ -827,7 +827,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.StreamTMonoid
     scalaz.StreamTSemigroup
     //scalaz.StrictTree
-    //scalaz.StrictTreeEqual
+    scalaz.StrictTreeEqual
     //scalaz.StrictTreeInstances
     //scalaz.StrictTreeUnzip
     //scalaz.Strong

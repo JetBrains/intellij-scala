@@ -193,7 +193,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.BoundedQueueBasedMessageQueue
     //akka.dispatch.BoundedStablePriorityMailbox
     //akka.dispatch.CachingConfig
-    //akka.dispatch.ControlAwareMessageQueueSemantics
+    akka.dispatch.ControlAwareMessageQueueSemantics
     akka.dispatch.ControlMessage
     akka.dispatch.DefaultDispatcherPrerequisites
     //akka.dispatch.DefaultExecutorServiceConfigurator
@@ -540,7 +540,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.routing.GroupBase
     akka.routing.Listen
     akka.routing.ListenerMessage
-    //akka.routing.Listeners
+    akka.routing.Listeners
     //akka.routing.MurmurHash
     akka.routing.NoRoutee
     akka.routing.NoRouter
@@ -594,7 +594,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.serialization.IntSerializer
     akka.serialization.JSerializer
     //akka.serialization.JavaSerializer
-    //akka.serialization.LongSerializer
+    akka.serialization.LongSerializer
     akka.serialization.NullSerializer
     //akka.serialization.Serialization
     akka.serialization.SerializationExtension
@@ -625,7 +625,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.util.FrequencySketch
     //akka.util.FrequencySketchUtil
     //akka.util.HashCode
-    //akka.util.Helpers
+    akka.util.Helpers
     //akka.util.ImmutableIntMap
     //akka.util.Index
     akka.util.JavaDurationConverters
