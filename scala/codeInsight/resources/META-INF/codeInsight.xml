@@ -2,6 +2,12 @@
 
 <idea-plugin>
 
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.intellij.scala.typeHintFilter"
+                        interface="org.jetbrains.plugins.scala.codeInsight.hints.ScalaTypeHintFilter"
+                        dynamic="true"/>
+    </extensionPoints>
+
     <extensions defaultExtensionNs="com.intellij">
         <generation.toStringClassFilter
                 implementation="org.jetbrains.plugins.scala.codeInsight.generation.GenerateToStringScalaClassFilter"/>
