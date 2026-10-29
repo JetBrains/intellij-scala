@@ -241,8 +241,8 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.SeqActorName
     akka.stream.impl.SeqActorNameImpl
     //akka.stream.impl.SeqStage
-    //akka.stream.impl.SetupFlowStage
-    //akka.stream.impl.SetupSourceStage
+    akka.stream.impl.SetupFlowStage
+    akka.stream.impl.SetupSourceStage
     akka.stream.impl.SetupStage
     //akka.stream.impl.SimpleOutputs
     //akka.stream.impl.SingleConcat
@@ -346,7 +346,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.io.InputStreamSinkStage
     //akka.stream.impl.io.InputStreamSource
     //akka.stream.impl.io.OutgoingConnectionStage
-    //akka.stream.impl.io.OutputStreamAdapter
+    akka.stream.impl.io.OutputStreamAdapter
     //akka.stream.impl.io.OutputStreamGraphStage
     //akka.stream.impl.io.OutputStreamSourceStage
     //akka.stream.impl.io.TLSActor
