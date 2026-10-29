@@ -48,7 +48,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     //akka.actor.typed.delivery.DurableProducerQueue
     //akka.actor.typed.delivery.ProducerController
     //akka.actor.typed.delivery.WorkPullingProducerController
-    //akka.actor.typed.delivery.internal.ChunkedMessage
+    akka.actor.typed.delivery.internal.ChunkedMessage
     //akka.actor.typed.delivery.internal.ConsumerControllerImpl
     akka.actor.typed.delivery.internal.DeliverySerializable
     //akka.actor.typed.delivery.internal.ProducerControllerImpl

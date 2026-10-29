@@ -84,7 +84,7 @@ class AkkaPersistenceSemanticTest extends SemanticTestBase("com.typesafe.akka" %
     //akka.persistence.journal.PersistencePluginProxyExtensionImpl
     akka.persistence.journal.ReadEventAdapter
     //akka.persistence.journal.ReplayFilter
-    //akka.persistence.journal.ReplayMediator
+    akka.persistence.journal.ReplayMediator
     akka.persistence.journal.SingleEventSeq
     akka.persistence.journal.Tagged
     akka.persistence.journal.WriteEventAdapter

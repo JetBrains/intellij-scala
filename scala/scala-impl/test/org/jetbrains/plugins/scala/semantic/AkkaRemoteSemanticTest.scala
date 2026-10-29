@@ -59,7 +59,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.DuplicateFlush
     //akka.remote.artery.DuplicateHandshakeReq
     //akka.remote.artery.Encoder
-    //akka.remote.artery.EnvelopeBuffer
+    akka.remote.artery.EnvelopeBuffer
     akka.remote.artery.EnvelopeBufferPool
     //akka.remote.artery.FixedSizePartitionHub
     //akka.remote.artery.FixedSizePartitionQueue
@@ -67,7 +67,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.remote.artery.FlushAck
     //akka.remote.artery.FlushBeforeDeathWatchNotification
     //akka.remote.artery.FlushOnShutdown
-    //akka.remote.artery.GracefulShutdownQuarantinedEvent
+    akka.remote.artery.GracefulShutdownQuarantinedEvent
     akka.remote.artery.HeaderBuilder
     akka.remote.artery.HeaderBuilderImpl
     //akka.remote.artery.ImmutableLongMap
@@ -90,7 +90,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.OutboundTestStage
     akka.remote.artery.OversizedPayloadException
     akka.remote.artery.Quarantined
-    //akka.remote.artery.QuarantinedEvent
+    akka.remote.artery.QuarantinedEvent
     akka.remote.artery.RemoteInstrument
     //akka.remote.artery.RemoteInstruments
     akka.remote.artery.RemotingFlightRecorder

@@ -33,7 +33,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.actor.ActorCell
     //akka.actor.ActorContext
     akka.actor.ActorIdentity
-    //akka.actor.ActorInitializationException
+    akka.actor.ActorInitializationException
     //akka.actor.ActorInterruptedException
     akka.actor.ActorKilledException
     //akka.actor.ActorLogMarker

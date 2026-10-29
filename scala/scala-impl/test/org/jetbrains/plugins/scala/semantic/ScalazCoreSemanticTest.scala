@@ -123,7 +123,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.ConstMonoid
     scalaz.ConstOrder
     scalaz.ConstSemigroup
-    //scalaz.ConstShow
+    scalaz.ConstShow
     //scalaz.ConstTraverse
     scalaz.ConstrainedNaturalTransformation
     //scalaz.Cont
@@ -535,7 +535,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.LazyTuple2Monoid
     scalaz.LazyTuple2Order
     scalaz.LazyTuple2Semigroup
-    //scalaz.LazyTuple2Show
+    scalaz.LazyTuple2Show
     scalaz.LazyTuple3
     scalaz.LazyTuple3Equal
     scalaz.LazyTuple3Functor
@@ -545,7 +545,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.LazyTuple3Monoid
     scalaz.LazyTuple3Order
     scalaz.LazyTuple3Semigroup
-    //scalaz.LazyTuple3Show
+    scalaz.LazyTuple3Show
     scalaz.LazyTuple4
     scalaz.LazyTuple4Equal
     scalaz.LazyTuple4Functor
@@ -555,7 +555,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.LazyTuple4Monoid
     scalaz.LazyTuple4Order
     scalaz.LazyTuple4Semigroup
-    //scalaz.LazyTuple4Show
+    scalaz.LazyTuple4Show
     scalaz.Left3
     //scalaz.LeftFoldable
     //scalaz.LeftFunctor
@@ -1029,7 +1029,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.std.Tuple2Monoid
     scalaz.std.Tuple2Order
     scalaz.std.Tuple2Semigroup
-    //scalaz.std.Tuple2Show
+    scalaz.std.Tuple2Show
     //scalaz.std.Tuple3BindRec
     scalaz.std.Tuple3Cozip
     scalaz.std.Tuple3Equal
@@ -1038,7 +1038,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.std.Tuple3Monoid
     scalaz.std.Tuple3Order
     scalaz.std.Tuple3Semigroup
-    //scalaz.std.Tuple3Show
+    scalaz.std.Tuple3Show
     //scalaz.std.Tuple4BindRec
     scalaz.std.Tuple4Cozip
     scalaz.std.Tuple4Equal
@@ -1047,7 +1047,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.std.Tuple4Monoid
     scalaz.std.Tuple4Order
     scalaz.std.Tuple4Semigroup
-    //scalaz.std.Tuple4Show
+    scalaz.std.Tuple4Show
     //scalaz.std.Tuple5BindRec
     scalaz.std.Tuple5Cozip
     scalaz.std.Tuple5Equal
@@ -1056,7 +1056,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.std.Tuple5Monoid
     scalaz.std.Tuple5Order
     scalaz.std.Tuple5Semigroup
-    //scalaz.std.Tuple5Show
+    scalaz.std.Tuple5Show
     //scalaz.std.Tuple6BindRec
     scalaz.std.Tuple6Cozip
     scalaz.std.Tuple6Equal
@@ -1065,7 +1065,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.std.Tuple6Monoid
     scalaz.std.Tuple6Order
     scalaz.std.Tuple6Semigroup
-    //scalaz.std.Tuple6Show
+    scalaz.std.Tuple6Show
     //scalaz.std.Tuple7BindRec
     scalaz.std.Tuple7Cozip
     scalaz.std.Tuple7Equal
@@ -1074,7 +1074,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.std.Tuple7Monoid
     scalaz.std.Tuple7Order
     scalaz.std.Tuple7Semigroup
-    //scalaz.std.Tuple7Show
+    scalaz.std.Tuple7Show
     //scalaz.std.Tuple8BindRec
     scalaz.std.Tuple8Cozip
     scalaz.std.Tuple8Equal
@@ -1083,7 +1083,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.std.Tuple8Monoid
     scalaz.std.Tuple8Order
     scalaz.std.Tuple8Semigroup
-    //scalaz.std.Tuple8Show
+    scalaz.std.Tuple8Show
     scalaz.std.TupleInstances
     //scalaz.std.TupleInstances0
     //scalaz.std.TupleInstances1

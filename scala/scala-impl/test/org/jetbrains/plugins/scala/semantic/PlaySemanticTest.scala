@@ -86,7 +86,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.http.ActionCreator
     play.api.http.ContentEncoding
     play.api.http.ContentTypeOf
-    //play.api.http.ContentTypes
+    play.api.http.ContentTypes
     //play.api.http.CookiesConfiguration
     //play.api.http.DefaultContentTypeOfs
     //play.api.http.DefaultFileMimeTypes
@@ -420,7 +420,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.mvc.PreferredMessagesProvider
     //play.api.mvc.QueryStringBindable
     //play.api.mvc.QueryStringBindableMacros
-    //play.api.mvc.Range
+    play.api.mvc.Range
     //play.api.mvc.RangeResult
     //play.api.mvc.RangeSet
     //play.api.mvc.RawBuffer
