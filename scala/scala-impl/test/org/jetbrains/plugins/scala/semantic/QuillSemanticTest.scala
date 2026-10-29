@@ -132,7 +132,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.Update
     io.getquill.UpdateMeta
     io.getquill.UpperCase
-    //io.getquill.UpperCaseEscapeColumn
+    io.getquill.UpperCaseEscapeColumn
     io.getquill.UpperCaseNonDefault
     io.getquill.WithProbing
     //io.getquill.WithProbingPrefix
@@ -480,12 +480,12 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.generic.WarnMac
     io.getquill.idiom.Idiom
     //io.getquill.idiom.LoadNaming
-    //io.getquill.idiom.QuotationTagToken
+    io.getquill.idiom.QuotationTagToken
     //io.getquill.idiom.ReifyStatement
     //io.getquill.idiom.ReifyStatementWithInjectables
-    //io.getquill.idiom.ScalarLiftToken
-    //io.getquill.idiom.ScalarTagToken
-    //io.getquill.idiom.SetContainsToken
+    io.getquill.idiom.ScalarLiftToken
+    io.getquill.idiom.ScalarTagToken
+    io.getquill.idiom.SetContainsToken
     io.getquill.idiom.Statement
     //io.getquill.idiom.StatementInterpolator
     io.getquill.idiom.StringToken
@@ -644,7 +644,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.util.LoadConfig
     //io.getquill.util.Messages
     io.getquill.util.ProtoMessages
-    //io.getquill.util.ScalafmtFormat
+    io.getquill.util.ScalafmtFormat
     //io.getquill.util.Show
     io.getquill.util.SingleGenie
     io.getquill.util.StringOps

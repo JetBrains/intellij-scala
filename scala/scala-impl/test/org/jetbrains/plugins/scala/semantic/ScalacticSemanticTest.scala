@@ -59,7 +59,7 @@ class ScalacticSemanticTest extends SemanticTestBase("org.scalactic" %% "scalact
     org.scalactic.OrBool
     org.scalactic.Pass
     //org.scalactic.Prettifier
-    //org.scalactic.PrettyMethods
+    org.scalactic.PrettyMethods
     org.scalactic.PrettyPair
     //org.scalactic.Requirements
     //org.scalactic.RequirementsMacro
