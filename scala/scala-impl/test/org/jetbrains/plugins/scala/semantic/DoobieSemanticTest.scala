@@ -26,7 +26,7 @@ class DoobieSemanticTest extends SemanticTestBase("org.tpolecat" %% "doobie-core
     //doobie.enumerated.SqlState
     //doobie.enumerated.TransactionIsolation
     doobie.free.Embeddable
-    //doobie.free.Embedded
+    doobie.free.Embedded
     doobie.free.Instances
     //doobie.free.KleisliInterpreter
     doobie.free.Modules
