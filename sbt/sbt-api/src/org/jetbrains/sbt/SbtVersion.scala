@@ -38,7 +38,7 @@ object SbtVersion {
     // (but let's keep it sbt 1.x for some time)
     val Sbt_1_11 = SbtVersion("1.11.7")
     val Sbt_1_12 = SbtVersion("1.12.15")
-    val Sbt_1_13 = SbtVersion("1.13.0")
+    val Sbt_1_13 = SbtVersion("1.13.1")
 
     val Sbt_1: SbtVersion = Sbt_1_13
     val Sbt_2: SbtVersion = SbtVersion("2.0.12")
