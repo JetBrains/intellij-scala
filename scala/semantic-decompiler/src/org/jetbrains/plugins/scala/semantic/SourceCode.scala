@@ -720,12 +720,25 @@ object SourceCode {
         case Typed(expr, _) => expr
         case expr => expr
       }
+      val statsAreSingleExpr = stats2 match {
+        case List(_: Term) => true
+        case _ => false
+      }
+      val exprIsUnit = expr2 match {
+        case Literal(UnitConstant()) => true
+        case _ => false
+      }
       if (stats2.isEmpty) {
         printTree(expr2)
+      } else if (statsAreSingleExpr && exprIsUnit) {
+        printTree(stats2.head)
       } else {
         this += "{"
         indented {
-          printStats(stats2, expr2)
+          if (exprIsUnit)
+            printStats(stats2.init, stats2.last)
+          else
+            printStats(stats2, expr2)
         }
         this += lineBreak() += "}"
       }
