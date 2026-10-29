@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project
 
+import com.intellij.openapi.roots.DependencyScope
 import org.jetbrains.sbt.SbtTestDataUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl.*
 
@@ -51,6 +52,17 @@ object SbtProjectMatrixTestUtils {
     else testSources := roots
   }
 
+  private def setResources(m: module, scope: String, roots: Seq[String]): Unit = {
+    import m.*
+    if (scope == "main") resources := roots
+    else testResources := roots
+  }
+
+  private def compileDependency(m: module): dependency[module] =
+    new dependency(m) {
+      scope := DependencyScope.COMPILE
+    }
+
   private def managedRoots(platform: Platform, version: String, matrixName: String, scope: String): Seq[String] = {
     val output = s"%PROJECT_ROOT%/target/out/${platform.outputDirectory}/scala-$version/$matrixName"
     Seq(s"$output/src_managed/$scope", s"$output/resource_managed/$scope")
@@ -69,6 +81,7 @@ object SbtProjectMatrixTestUtils {
       m.defineAttribute(contentRoots) := Seq(s"%PROJECT_ROOT%/src/$scope") ++ managed
       val unmanaged = Seq("java", "scala", "scala-2", "scala-2.12").map(s"%PROJECT_ROOT%/src/$scope/" + _)
       setSources(m, scope, unmanaged ++ managed.take(1))
+      setResources(m, scope, Seq(s"%PROJECT_ROOT%/src/$scope/resources") ++ managed.drop(1))
     }
     root.dependsOn(rootMain, rootTest)
     rootTest.dependsOn(rootMain)
@@ -115,10 +128,12 @@ object SbtProjectMatrixTestUtils {
           val managed = managedRoots(platform, version, matrixName, scope)
           m.defineAttribute(contentRoots) := Seq(platformRoot) ++ managed
           setSources(m, scope, Seq(platformRoot) ++ managed.take(1))
+          setResources(m, scope, managed.drop(1))
         }
         parent.dependsOn(main, test)
-        main.dependsOn(sharedMain)
-        test.dependsOn(sharedMain, sharedTest, main)
+        // Shared sources are COMPILE dependencies even in the separate test modules.
+        main.dependsOn(compileDependency(sharedMain))
+        test.dependsOn(compileDependency(sharedMain), compileDependency(sharedTest), main)
         Row(platform, version, parent, main, test)
       }
       // Match the importer's deterministic representative choice, including the JS+Native case without a JVM row.
@@ -136,8 +151,14 @@ object SbtProjectMatrixTestUtils {
       downstream.test.dependsOn(representativeDownstream.main, representativeUpstream.main)
       downstream.rows.foreach { row =>
         val matchingUpstream = upstream.rows.find(r => r.platform == row.platform && r.version == row.version).get
-        row.main.dependsOn(downstream.main, upstream.main, matchingUpstream.main)
-        row.test.dependsOn(downstream.main, downstream.test, row.main, upstream.main, matchingUpstream.main)
+        row.main.dependsOn(compileDependency(downstream.main), compileDependency(upstream.main), matchingUpstream.main)
+        row.test.dependsOn(
+          compileDependency(downstream.main),
+          compileDependency(downstream.test),
+          row.main,
+          compileDependency(upstream.main),
+          matchingUpstream.main
+        )
       }
     }
 
