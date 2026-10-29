@@ -75,7 +75,7 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
         val injectionsValues = getInjections.map { injection =>
           val text = injection.getText
-          val isInvalidRef = injection.is[ScReferenceExpression] && !isValidIdentifier(text)
+          val isInvalidRef = !ScalaApplicationSettings.PRECISE_TEXT && injection.is[ScReferenceExpression] && !isValidIdentifier(text)
           if (isInvalidRef) "???" else text
         }
         val methodParameters = injectionsValues.commaSeparated(Model.Parentheses)
