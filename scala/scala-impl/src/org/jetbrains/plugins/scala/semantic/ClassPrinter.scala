@@ -212,7 +212,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     val text = e match {
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
       case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") +
-        b.caseClauses.map("\n" + _.caseClauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n")).getOrElse("") +
+        b.caseClauses.map("\n" + _.caseClauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfCaseBlock(c.expr.get, indent + "  ")).mkString("\n")).getOrElse("") +
         "\n" + indent + "  " + "}"
       case b: ScBlock => b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("")
       case r: ScReturn => "return" + r.expr.map(" " + textOfExpression(_, indent)).getOrElse("")
@@ -302,7 +302,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         textOfTuple(e.exprs, indent)
       case m: ScMatch =>
         m.expression.map(textOfExpression(_, indent + "  ")).getOrElse("") + " match {\n" +
-          m.clauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n") +
+          m.clauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfCaseBlock(c.expr.get, indent + "  ")).mkString("\n") +
         "\n" + indent + "  }"
       case e => "<expr>"
     }
@@ -374,6 +374,12 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case p: ScCompositePattern => "(" + p.subpatterns.map(textOfPattern).mkString(" | ") + ")"
       case _ => "<pattern>"
     }
+  }
+
+  private def textOfCaseBlock(e: ScExpression, indent: String): String = normalized(e) match {
+    case _: ScUnitExpr => ""
+    case b: ScBlockExpr if b.statements.forall(_.is[ScImportStmt]) => ""
+    case _ => textOfExpression(e, indent)
   }
 
   @tailrec
