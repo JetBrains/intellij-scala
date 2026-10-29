@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.projectHighlighting.local
 
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.projectHighlighting.base.SbtProjectHighlightingLocalProjectsTestBase
 import org.jetbrains.plugins.scala.projectHighlighting.reporter.HighlightingProgressReporter
@@ -13,6 +13,9 @@ import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext.Asserti
 import org.jetbrains.plugins.scala.notifications.CollectingNotificationsListener
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureDsl, ProjectStructureMatcher}
+import org.junit.Assert.assertNotNull
+
+import java.nio.file.Files
 
 abstract class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2_TestBase
   extends SbtProjectHighlightingLocalProjectsTestBase
@@ -38,8 +41,25 @@ abstract class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2_TestBase
   }
 
   override def testHighlighting(): Unit = {
+    // Combine both passes to avoid a second sbt import: each test method creates a fresh project.
+    // Keeping separate tests with one import would require refactoring the fixture lifecycle to reuse
+    // the imported project, its reporter state, and cleanup safely across test methods.
     importProject(false)
-    super.testHighlighting()
+    highlightBuildDefinitionFiles()
+    super.testHighlighting() // Reports the accumulated diagnostics from both passes.
+  }
+
+  // The all-project pass selects Scala/Java sources, so it does not visit SbtFileType files.
+  private def highlightBuildDefinitionFiles(): Unit = {
+    val pluginsFile = getTestProjectPath / "project" / "plugins.sbt"
+    val buildFiles = Seq(getTestProjectPath / "build.sbt") ++ Option.when(Files.exists(pluginsFile))(pluginsFile)
+    buildFiles.foreach { path =>
+      val virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(path)
+      assertNotNull(s"Build definition does not exist: $path", virtualFile)
+      val psiFile = PsiManager.getInstance(getProject).findFile(virtualFile)
+      assertNotNull(s"Cannot find PSI for $path", psiFile)
+      doHighlightingForFile(virtualFile, psiFile, reporter)
+    }
   }
 
   override protected def highlightSingleFile(
