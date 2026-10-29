@@ -31,7 +31,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.RemoteActorRef
     //akka.remote.RemoteActorRefProvider
     //akka.remote.RemoteDeployer
-    //akka.remote.RemoteDeploymentWatcher
+    akka.remote.RemoteDeploymentWatcher
     //akka.remote.RemoteLogMarker
     akka.remote.RemoteRef
     akka.remote.RemoteScope
@@ -120,7 +120,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.compress.TopHeavyHitters
     //akka.remote.artery.compress.UnknownCompressedIdException
     //akka.remote.artery.tcp.ArteryTcpTransport
-    //akka.remote.artery.tcp.ConfigSSLEngineProvider
+    akka.remote.artery.tcp.ConfigSSLEngineProvider
     akka.remote.artery.tcp.SSLEngineProvider
     akka.remote.artery.tcp.SSLEngineProviderSetup
     akka.remote.artery.tcp.SecureRandomFactory
