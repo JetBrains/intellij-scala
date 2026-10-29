@@ -41,13 +41,16 @@ abstract class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2_TestBase
   }
 
   override def testHighlighting(): Unit = {
+    // Combine both passes to avoid a second sbt import: each test method creates a fresh project.
+    // Keeping separate tests with one import would require refactoring the fixture lifecycle to reuse
+    // the imported project, its reporter state, and cleanup safely across test methods.
     importProject(false)
-    super.testHighlighting()
+    highlightBuildDefinitionFiles()
+    super.testHighlighting() // Reports the accumulated diagnostics from both passes.
   }
 
   // The all-project pass selects Scala/Java sources, so it does not visit SbtFileType files.
-  def testBuildDefinitionHighlighting(): Unit = {
-    importProject(false)
+  private def highlightBuildDefinitionFiles(): Unit = {
     val pluginsFile = getTestProjectPath / "project" / "plugins.sbt"
     val buildFiles = Seq(getTestProjectPath / "build.sbt") ++ Option.when(Files.exists(pluginsFile))(pluginsFile)
     buildFiles.foreach { path =>
@@ -57,7 +60,6 @@ abstract class SbtProjectWithProjectMatrixAndSourceGenerators_Sbt_2_TestBase
       assertNotNull(s"Cannot find PSI for $path", psiFile)
       doHighlightingForFile(virtualFile, psiFile, reporter)
     }
-    reporter.reportFinalResults()
   }
 
   override protected def highlightSingleFile(
