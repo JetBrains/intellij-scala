@@ -211,10 +211,10 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
   private def textOfExpression(e: ScExpression, indent: String, etaExpand: Boolean = true): String = highlighted(e) {
     val text = e match {
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
-      case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") +
+      case b: ScBlockExpr => "{" + b.statements.filterNot(isUnitConstant).map(s => textOfStatement(s, indent + "  ")).mkString("") +
         b.caseClauses.map("\n" + _.caseClauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfCaseBlock(c.expr.get, indent + "  ")).mkString("\n")).getOrElse("") +
         "\n" + indent + "  " + "}"
-      case b: ScBlock => b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("")
+      case b: ScBlock => b.statements.filterNot(isUnitConstant).map(s => textOfStatement(s, indent + "  ")).mkString("")
       case r: ScReturn => "return" + r.expr.map(" " + textOfExpression(_, indent)).getOrElse("")
       case t: ScTypedExpression =>
         val s = textOfExpression(t.expr, indent)
@@ -244,7 +244,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case e @ NonValueType(_: ScMethodType | ScTypePolymorphicType(_: ScMethodType, _)) & ExpectedType(FunctionType(_, _)) if etaExpand => etaExpansionOf(e, indent).getOrElse("<expr>")
       case e: ScIf =>
         "if (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " + e.thenExpression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + (e.elseExpression match {
-          case Some(e) if !isUnitConstant(normalized(e)) => " else " + textOfExpression(normalized(e), indent)
+          case Some(e) if !isUnitConstant(e) => " else " + textOfExpression(normalized(e), indent)
           case _ => ""
         })
       case e: ScTry =>
@@ -376,14 +376,12 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     }
   }
 
-  private def textOfCaseBlock(e: ScExpression, indent: String): String = normalized(e) match {
-    case e if isUnitConstant(e) => ""
-    case _ => textOfExpression(e, indent)
-  }
+  private def textOfCaseBlock(e: ScExpression, indent: String): String =
+    if (isUnitConstant(e)) "" else textOfExpression(e, indent)
 
-  private def isUnitConstant(e: ScExpression): Boolean = e match {
+  private def isUnitConstant(s: ScBlockStatement): Boolean = s match {
     case _: ScUnitExpr => true
-    case b: ScBlockExpr if b.statements.forall(_.is[ScImportStmt]) => true
+    case b: ScBlock if !b.hasCaseClauses && b.statements.forall(it => it.is[ScImportStmt] || isUnitConstant(it)) => true
     case _ => false
   }
 
@@ -634,7 +632,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
 
   @tailrec
   private def normalized(e: ScExpression): ScExpression = e match {
-    case b: ScBlock if normalize => b.statements match {
+    case b: ScBlock if !b.hasCaseClauses => b.statements.filterNot(isUnitConstant) match {
       case Seq(e: ScExpression) => normalized(e)
       case statements if statements.length > 1 && statements.init.forall(_.is[ScImportStmt]) => normalized(statements.last.asInstanceOf[ScExpression])
       case _ => b
