@@ -627,10 +627,11 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     case _ => None
   }
 
+  @tailrec
   private def normalized(e: ScExpression): ScExpression = e match {
     case b: ScBlock if normalize => b.statements match {
-      case Seq(e: ScExpression) => e
-      case statements if statements.length > 1 && statements.init.forall(_.is[ScImportStmt]) => statements.last.asInstanceOf[ScExpression]
+      case Seq(e: ScExpression) => normalized(e)
+      case statements if statements.length > 1 && statements.init.forall(_.is[ScImportStmt]) => normalized(statements.last.asInstanceOf[ScExpression])
       case _ => b
     }
     case e => e
