@@ -50,7 +50,7 @@ class CirceSemanticTest extends SemanticTestBase("io.circe" %% "circe-core" % "0
     //io.circe.LowPriorityDecoders
     //io.circe.LowPriorityEncoders
     //io.circe.MapDecoder
-    //io.circe.MidPriorityEncoders
+    io.circe.MidPriorityEncoders
     io.circe.NonEmptySeqDecoder
     //io.circe.Parser
     //io.circe.ParsingFailure
