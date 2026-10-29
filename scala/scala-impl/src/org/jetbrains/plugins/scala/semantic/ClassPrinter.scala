@@ -244,8 +244,8 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case e @ NonValueType(_: ScMethodType | ScTypePolymorphicType(_: ScMethodType, _)) & ExpectedType(FunctionType(_, _)) if etaExpand => etaExpansionOf(e, indent).getOrElse("<expr>")
       case e: ScIf =>
         "if (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " + e.thenExpression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + (e.elseExpression match {
-          case Some(e) => " else " + textOfExpression(normalized(e), indent)
-          case None => ""
+          case Some(e) if !isUnitConstant(normalized(e)) => " else " + textOfExpression(normalized(e), indent)
+          case _ => ""
         })
       case e: ScTry =>
         "try " + e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") +
@@ -377,9 +377,14 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
   }
 
   private def textOfCaseBlock(e: ScExpression, indent: String): String = normalized(e) match {
-    case _: ScUnitExpr => ""
-    case b: ScBlockExpr if b.statements.forall(_.is[ScImportStmt]) => ""
+    case e if isUnitConstant(e) => ""
     case _ => textOfExpression(e, indent)
+  }
+
+  private def isUnitConstant(e: ScExpression): Boolean = e match {
+    case _: ScUnitExpr => true
+    case b: ScBlockExpr if b.statements.forall(_.is[ScImportStmt]) => true
+    case _ => false
   }
 
   @tailrec
