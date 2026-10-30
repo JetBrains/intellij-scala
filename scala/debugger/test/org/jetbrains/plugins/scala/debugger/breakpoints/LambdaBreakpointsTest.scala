@@ -235,6 +235,45 @@ class LambdaBreakpointsTest_3_3 extends LambdaBreakpointsTestBase {
     )
   }
 
+  // SCL-20592: a `{ case ... }` lambda passed to `Future.onComplete` inside a top level `@main` method
+  addSourceFile("FutureOnCompleteInToplevelMain.scala",
+    s"""
+       |import scala.concurrent.{Await, Future, Promise}
+       |import scala.concurrent.ExecutionContext.Implicits.global
+       |import scala.concurrent.duration.Duration
+       |import scala.util.{Failure, Success}
+       |
+       |@main def futureOnCompleteInToplevelMain(): Unit = {
+       |  def longRunningComputation(i: Int): Future[Int] = Future {
+       |    Thread.sleep(100) $breakpoint
+       |    i + 1
+       |  }
+       |
+       |  val done = Promise[Unit]() $breakpoint
+       |  longRunningComputation(32).onComplete({
+       |    case Success(result) => {
+       |      val k = 32 $breakpoint
+       |      val c = k + 32
+       |      println(s"myResult = $$result $$k $$c")
+       |      done.success(())
+       |    }
+       |    case Failure(e) => {
+       |      e.printStackTrace()
+       |      done.failure(e)
+       |    }
+       |  })
+       |  Await.result(done.future, Duration.Inf)
+       |}
+       |""".stripMargin)
+
+  def testFutureOnCompleteInToplevelMain(): Unit = {
+    breakpointsTest("futureOnCompleteInToplevelMain")(
+      (12, "futureOnCompleteInToplevelMain"),
+      (8, "longRunningComputation$1$$anonfun$1"),
+      (15, "futureOnCompleteInToplevelMain$$anonfun$1")
+    )
+  }
+
   addSourceFile("BreakpointAddedAfterStartTopLevel.scala",
     s"""
        |@main
