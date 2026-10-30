@@ -37,7 +37,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.remote.RemoteScope
     //akka.remote.RemoteSettings
     //akka.remote.RemoteSystemDaemon
-    //akka.remote.RemoteTransport
+    akka.remote.RemoteTransport
     akka.remote.RemoteTransportException
     akka.remote.RemoteTransportExceptionNoStackTrace
     //akka.remote.RemoteWatcher
