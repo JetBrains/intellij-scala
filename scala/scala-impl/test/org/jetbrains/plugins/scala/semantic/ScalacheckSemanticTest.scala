@@ -46,6 +46,6 @@ class ScalacheckSemanticTest extends SemanticTestBase("org.scalacheck" %% "scala
     //org.scalacheck.util.FreqMap
     //org.scalacheck.util.HashMapBuilder
     //org.scalacheck.util.Pretty
-    //org.scalacheck.util.SerializableCanBuildFroms
+    org.scalacheck.util.SerializableCanBuildFroms
   """)
 }

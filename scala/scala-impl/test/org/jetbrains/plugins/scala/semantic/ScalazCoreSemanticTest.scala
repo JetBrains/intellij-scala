@@ -244,7 +244,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.EndoInstances
     scalaz.Endomorphic
     //scalaz.EndomorphicInstances
-    //scalaz.EndomorphicInstances0
+    scalaz.EndomorphicInstances0
     //scalaz.EndomorphicInstances1
     scalaz.EndomorphicInstances2
     scalaz.EndomorphicSemigroup
@@ -281,9 +281,9 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.FreeTInstances1
     //scalaz.FreeTInstances2
     //scalaz.FreeTInstances3
-    //scalaz.FreeTInstances4
-    //scalaz.FreeTInstances5
-    //scalaz.FreeTInstances6
+    scalaz.FreeTInstances4
+    scalaz.FreeTInstances5
+    scalaz.FreeTInstances6
     scalaz.FreeTMonad
     //scalaz.FreeTPlus
     //scalaz.FreeTTraverse
@@ -473,8 +473,8 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.KleisliInstances2
     scalaz.KleisliInstances3
     scalaz.KleisliInstances4
-    //scalaz.KleisliInstances5
-    //scalaz.KleisliInstances6
+    scalaz.KleisliInstances5
+    scalaz.KleisliInstances6
     scalaz.KleisliInstances7
     scalaz.KleisliInstances8
     //scalaz.KleisliInstances9
@@ -592,7 +592,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.MaybeEqual
     //scalaz.MaybeInstances
     //scalaz.MaybeInstances0
-    //scalaz.MaybeInstances1
+    scalaz.MaybeInstances1
     //scalaz.MaybeMonoid
     //scalaz.MaybeT
     //scalaz.MaybeTBindRec
@@ -853,7 +853,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.TracedTComonad
     //scalaz.TracedTDistributive
     scalaz.TracedTFunctor
-    //scalaz.TracedTInstances
+    scalaz.TracedTInstances
     //scalaz.TracedTInstances0
     scalaz.TracedTInstances1
     scalaz.TracedTInstances2
@@ -995,8 +995,8 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.std.OptionEqual
     //scalaz.std.OptionFunctions
     //scalaz.std.OptionInstances
-    //scalaz.std.OptionInstances0
-    //scalaz.std.OptionInstances1
+    scalaz.std.OptionInstances0
+    scalaz.std.OptionInstances1
     scalaz.std.OptionOrder
     scalaz.std.OptionSemigroup
     //scalaz.std.PartialFunctionInstances

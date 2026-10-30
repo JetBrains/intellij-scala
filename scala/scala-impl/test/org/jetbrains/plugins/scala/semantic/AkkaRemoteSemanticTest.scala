@@ -57,7 +57,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.Decoder
     //akka.remote.artery.Deserializer
     //akka.remote.artery.DuplicateFlush
-    //akka.remote.artery.DuplicateHandshakeReq
+    akka.remote.artery.DuplicateHandshakeReq
     //akka.remote.artery.Encoder
     akka.remote.artery.EnvelopeBuffer
     akka.remote.artery.EnvelopeBufferPool
@@ -75,7 +75,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.InboundControlJunction
     akka.remote.artery.InboundEnvelope
     //akka.remote.artery.InboundHandshake
-    //akka.remote.artery.InboundQuarantineCheck
+    akka.remote.artery.InboundQuarantineCheck
     //akka.remote.artery.InboundTestStage
     //akka.remote.artery.LoggingRemoteInstrument
     //akka.remote.artery.LruBoundedCache
