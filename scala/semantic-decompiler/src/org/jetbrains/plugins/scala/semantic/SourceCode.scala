@@ -1031,6 +1031,8 @@ object SourceCode {
       val name = splicedName(arg.symbol).getOrElse(arg.symbol.name)
       val sym = arg.symbol.owner
 
+      arg.symbol.annotations.reverse.foreach { annot => printAnnotation(annot); sb += ' ' }
+
       if (arg.symbol.flags.is(Flags.Erased)) this += "erased "
 
       if sym.isDefDef && sym.name == "<init>" then
