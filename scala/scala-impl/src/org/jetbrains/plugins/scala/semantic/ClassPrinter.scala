@@ -287,9 +287,9 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case e: ScNewTemplateDefinition =>
         val hasMembers = e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))
         val isAbstract = template.superRefs(e).headOption.exists { case (_, cls) => template.isAbstract(cls) }
-        "new " + e.firstConstructorInvocation
+        "new " + e.extendsBlock.templateParents.map(_.parentClauses).getOrElse(Seq.empty)
           .map(textOfConstructorInvocation(_, indent, emptyParens = !(hasMembers || isAbstract)))
-          .getOrElse("") + (if (!hasMembers) (if (isAbstract) " {}" else "") else
+          .mkString(", ") + (if (!hasMembers) (if (isAbstract) " {}" else "") else
           " {" + {
             val sb = new StringBuilder()
             printTo(sb, e.extendsBlock, indent + "  ", _ => ())
