@@ -210,7 +210,7 @@ package object project {
     // module are queried (ModuleBridgeUtils.findModuleEntitityLegacy), instead of returning its
     // pinned stale entity, so the OrderEnumerator query in ScalaModuleSettings would fail here.
     // Bailing out early also avoids the project-service lookups that `cachedInUserData` performs.
-    private def scalaModuleSettings: Option[ScalaModuleSettings] =
+    private[project] def scalaModuleSettings: Option[ScalaModuleSettings] =
       if (module.isDisposed) None
       else cachedInUserData("scalaModuleSettings", module, ScalaCompilerConfiguration.modTracker(module.getProject)) {
         ScalaModuleSettings(module)
@@ -578,7 +578,9 @@ package object project {
 
     /**
      * @return list of modules with Scala SDK setup
-     * @note it doesn't return any *-build modules even though it contains syntetic
+     * @note sbt build modules are left out: their settings come from the sbt fallback,
+     *       see [[ScalaModuleSettings.apply]]. A module whose name ends with `-build` but has a real Scala SDK,
+     *       for example Mill's `mill-build`, is returned
      */
     def modulesWithScala: Seq[Module] =
       if (project.isDisposed) Seq.empty
@@ -592,7 +594,7 @@ package object project {
     private def modulesWithScalaCached: Seq[Module] = cachedInUserData("modulesWithScalaCached", project, ProjectRootManager.getInstance(project)) {
       modules.filter { m =>
         ProgressManager.checkCanceled()
-        m.hasScala && !m.isBuildModule
+        m.scalaModuleSettings.exists(!_.isBuildModule)
       }
     }
 
