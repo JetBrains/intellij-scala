@@ -69,7 +69,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.impl.engine.http2.client.ResponseParsing
     //akka.http.impl.engine.http2.framing.FrameRenderer
     //akka.http.impl.engine.http2.framing.Http2FrameParsing
-    //akka.http.impl.engine.http2.framing.RSTFrameLimit
+    akka.http.impl.engine.http2.framing.RSTFrameLimit
     akka.http.impl.engine.http2.hpack.ByteStringInputStream
     //akka.http.impl.engine.http2.hpack.HandleOrPassOnStage
     //akka.http.impl.engine.http2.hpack.HeaderCompression

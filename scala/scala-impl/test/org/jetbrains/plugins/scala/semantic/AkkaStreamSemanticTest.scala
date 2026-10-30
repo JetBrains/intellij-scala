@@ -176,7 +176,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.DefaultInputTransferStates
     akka.stream.impl.DefaultOutputTransferStates
     //akka.stream.impl.EmptyPublisher
-    //akka.stream.impl.EmptySource
+    akka.stream.impl.EmptySource
     akka.stream.impl.EmptyTraversal
     akka.stream.impl.EnterIsland
     //akka.stream.impl.ErrorPublisher
@@ -245,7 +245,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.SetupSourceStage
     akka.stream.impl.SetupStage
     //akka.stream.impl.SimpleOutputs
-    //akka.stream.impl.SingleConcat
+    akka.stream.impl.SingleConcat
     //akka.stream.impl.SinkModule
     akka.stream.impl.SinkModuleIslandTag
     //akka.stream.impl.SinkModulePhase
@@ -290,18 +290,18 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.WaitingForUpstreamSubscription
     //akka.stream.impl.fusing.ActorGraphInterpreter
     //akka.stream.impl.fusing.AggregateWithBoundary
-    //akka.stream.impl.fusing.Batch
+    akka.stream.impl.fusing.Batch
     //akka.stream.impl.fusing.Buffer
     //akka.stream.impl.fusing.Collect
     //akka.stream.impl.fusing.Delay
-    //akka.stream.impl.fusing.Drop
+    akka.stream.impl.fusing.Drop
     //akka.stream.impl.fusing.DropWhile
-    //akka.stream.impl.fusing.DropWithin
+    akka.stream.impl.fusing.DropWithin
     //akka.stream.impl.fusing.Expand
-    //akka.stream.impl.fusing.Filter
+    akka.stream.impl.fusing.Filter
     //akka.stream.impl.fusing.FlatMapPrefix
     //akka.stream.impl.fusing.FlattenMerge
-    //akka.stream.impl.fusing.Fold
+    akka.stream.impl.fusing.Fold
     //akka.stream.impl.fusing.FoldAsync
     //akka.stream.impl.fusing.FutureFlow
     //akka.stream.impl.fusing.GraphInterpreter
@@ -309,13 +309,13 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.fusing.GraphStageModule
     //akka.stream.impl.fusing.GraphStages
     //akka.stream.impl.fusing.GroupBy
-    //akka.stream.impl.fusing.GroupedWeighted
-    //akka.stream.impl.fusing.GroupedWeightedWithin
-    //akka.stream.impl.fusing.Intersperse
+    akka.stream.impl.fusing.GroupedWeighted
+    akka.stream.impl.fusing.GroupedWeightedWithin
+    akka.stream.impl.fusing.Intersperse
     //akka.stream.impl.fusing.LimitWeighted
     //akka.stream.impl.fusing.Log
     //akka.stream.impl.fusing.LogWithMarker
-    //akka.stream.impl.fusing.Map
+    akka.stream.impl.fusing.Map
     //akka.stream.impl.fusing.MapAsync
     //akka.stream.impl.fusing.MapAsyncPartitioned
     //akka.stream.impl.fusing.MapAsyncUnordered
@@ -326,16 +326,16 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.fusing.Reduce
     //akka.stream.impl.fusing.Scan
     //akka.stream.impl.fusing.ScanAsync
-    //akka.stream.impl.fusing.Sliding
+    akka.stream.impl.fusing.Sliding
     akka.stream.impl.fusing.Split
     //akka.stream.impl.fusing.StatefulMap
     //akka.stream.impl.fusing.StatefulMapConcat
     //akka.stream.impl.fusing.SubSink
     //akka.stream.impl.fusing.SubSource
     akka.stream.impl.fusing.SupervisedGraphStageLogic
-    //akka.stream.impl.fusing.Take
+    akka.stream.impl.fusing.Take
     //akka.stream.impl.fusing.TakeWhile
-    //akka.stream.impl.fusing.TakeWithin
+    akka.stream.impl.fusing.TakeWithin
     //akka.stream.impl.fusing.Watch
     //akka.stream.impl.io.ByteStringParser
     //akka.stream.impl.io.ConnectionSourceStage
@@ -421,7 +421,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.javadsl.ZipWithN
     //akka.stream.scaladsl.Balance
     //akka.stream.scaladsl.BidiFlow
-    //akka.stream.scaladsl.Broadcast
+    akka.stream.scaladsl.Broadcast
     //akka.stream.scaladsl.BroadcastHub
     akka.stream.scaladsl.Compression
     //akka.stream.scaladsl.Concat
@@ -440,7 +440,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.scaladsl.Interleave
     //akka.stream.scaladsl.JsonFraming
     //akka.stream.scaladsl.Keep
-    //akka.stream.scaladsl.Merge
+    akka.stream.scaladsl.Merge
     //akka.stream.scaladsl.MergeHub
     akka.stream.scaladsl.MergeHubDrainingControlImpl
     //akka.stream.scaladsl.MergeLatest
@@ -448,7 +448,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.scaladsl.MergePrioritized
     //akka.stream.scaladsl.MergeSequence
     //akka.stream.scaladsl.MergeSorted
-    //akka.stream.scaladsl.OrElse
+    akka.stream.scaladsl.OrElse
     //akka.stream.scaladsl.Partition
     //akka.stream.scaladsl.PartitionHub
     //akka.stream.scaladsl.RestartFlow
@@ -500,7 +500,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.scaladsl.UnzipWith8
     akka.stream.scaladsl.UnzipWith9
     //akka.stream.scaladsl.UnzipWithApply
-    //akka.stream.scaladsl.WireTap
+    akka.stream.scaladsl.WireTap
     //akka.stream.scaladsl.Zip
     //akka.stream.scaladsl.ZipLatest
     akka.stream.scaladsl.ZipLatestWith

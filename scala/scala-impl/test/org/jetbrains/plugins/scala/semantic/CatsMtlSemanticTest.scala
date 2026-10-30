@@ -38,7 +38,7 @@ class CatsMtlSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-mtl"
     //cats.mtl.LowPriorityCensorInstances
     //cats.mtl.LowPriorityListenInstances
     cats.mtl.LowPriorityListenInstancesCompat
-    //cats.mtl.LowPriorityLocalInstances
+    cats.mtl.LowPriorityLocalInstances
     cats.mtl.LowPriorityLocalInstancesCompat
     cats.mtl.LowPriorityRaiseInstances
     cats.mtl.LowPriorityStatefulInstances

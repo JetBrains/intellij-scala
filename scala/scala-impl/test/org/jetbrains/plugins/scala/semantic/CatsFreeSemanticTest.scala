@@ -23,7 +23,7 @@ class CatsFreeSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-fre
     //cats.free.FreeApplicative
     //cats.free.FreeFoldStep
     cats.free.FreeFoldable
-    //cats.free.FreeInstances
+    cats.free.FreeInstances
     cats.free.FreeInstances1
     //cats.free.FreeInvariantMonoidal
     cats.free.FreeStructuralInstances
@@ -35,7 +35,7 @@ class CatsFreeSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-fre
     //cats.free.FreeTInstances
     cats.free.FreeTInstances0
     cats.free.FreeTInstances1
-    //cats.free.FreeTInstances2
+    cats.free.FreeTInstances2
     //cats.free.FreeTInstances3
     cats.free.FreeTMonad
     cats.free.FreeTMonoidK
