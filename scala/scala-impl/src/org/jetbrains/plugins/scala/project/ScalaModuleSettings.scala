@@ -25,9 +25,13 @@ import java.io.IOException
 import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
 
+/**
+ * @param isBuildModule true when the module is an sbt build module and the settings come from
+ *                      [[ScalaModuleSettings.forSbtBuildModule]], not from a Scala SDK library
+ */
 private class ScalaModuleSettings private(
   module: Module,
-  isBuildModule: Boolean,
+  val isBuildModule: Boolean,
   val scalaVersionProvider: ScalaVersionProvider
 ) {
 
@@ -233,10 +237,17 @@ object ScalaModuleSettings {
     }
   }
 
+  /**
+   * Builds the Scala settings of a module. The checks run in this order:
+   *  1. The module has [[org.jetbrains.sbt.project.module.SbtModuleType]]. It is a real sbt build module,
+   *     made by the sbt import or by BSP with an sbt server. Use [[forSbtBuildModule]].
+   *  2. The module has a Scala SDK library. It is a normal Scala module, whatever its name.
+   *     Example: Mill names its build module `mill-build` and gives it a Scala SDK (SCL-26279).
+   *  3. The module has no Scala SDK and its name ends with `-build`. Use [[forSbtBuildModule]].
+   */
   private[project]
   def apply(module: Module): Option[ScalaModuleSettings] = Option(module.getUserData(TestUtils.TestBuildModuleScalaModuleSettingsKey)).orElse {
-    if (module.isBuildModule) {
-      // build module doesn't have Scala SDK
+    if (module.hasBuildModuleType) {
       forSbtBuildModule(module)
     }
     else {
@@ -251,7 +262,12 @@ object ScalaModuleSettings {
         val lightTestsScalaVersion = Option(module.getUserData(TestUtils.LightTestScalaVersion))
         lightTestsScalaVersion.map(v => ScalaVersionProvider.Explicit(v.languageLevel, Some(v.minor)))
       }
-      scalaVersionProvider.map(new ScalaModuleSettings(module, isBuildModule = false, _))
+      scalaVersionProvider
+        .map(new ScalaModuleSettings(module, isBuildModule = false, _))
+        .orElse {
+          if (module.isBuildModule) forSbtBuildModule(module)
+          else None
+        }
     }
   }
 
