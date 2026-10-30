@@ -275,7 +275,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.TlsModulePhase
     akka.stream.impl.TransferPhase
     //akka.stream.impl.TransferState
-    //akka.stream.impl.Transform
+    akka.stream.impl.Transform
     //akka.stream.impl.Traversal
     akka.stream.impl.TraversalBuildStep
     //akka.stream.impl.TraversalBuilder

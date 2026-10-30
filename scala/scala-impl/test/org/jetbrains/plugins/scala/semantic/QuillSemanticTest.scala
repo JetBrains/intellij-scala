@@ -555,7 +555,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.norm.TranspileConfig
     io.getquill.norm.TypeBehavior
     //io.getquill.norm.capture.AvoidAliasConflict
-    //io.getquill.norm.capture.AvoidAliasConflictApply
+    io.getquill.norm.capture.AvoidAliasConflictApply
     io.getquill.norm.capture.AvoidCapture
     //io.getquill.norm.capture.Dealias
     //io.getquill.norm.capture.DealiasApply

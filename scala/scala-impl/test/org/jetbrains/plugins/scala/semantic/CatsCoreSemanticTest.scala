@@ -104,8 +104,8 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.ParallelArityFunctions2
     //cats.Reducible
     //cats.Representable
-    //cats.RepresentableBimonad
-    //cats.RepresentableDistributive
+    cats.RepresentableBimonad
+    cats.RepresentableDistributive
     //cats.RepresentableMonad
     //cats.RightFunctor
     cats.ScalaVersionSpecificAlignInstances

@@ -12,7 +12,7 @@ class AkkaParsingSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     //akka.macros.LogHelperMacro
     //akka.parboiled2.CharPredicate
     //akka.parboiled2.CharUtils
-    //akka.parboiled2.DynamicRuleDispatch
+    akka.parboiled2.DynamicRuleDispatch
     //akka.parboiled2.DynamicRuleDispatchMacro
     akka.parboiled2.DynamicRuleHandler
     //akka.parboiled2.ErrorFormatter

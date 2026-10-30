@@ -142,7 +142,7 @@ class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.
     ammonite.util.Frame
     //ammonite.util.ImportData
     ammonite.util.ImportHookInfo
-    //ammonite.util.ImportTree
+    ammonite.util.ImportTree
     //ammonite.util.Imports
     //ammonite.util.Name
     ammonite.util.Position
