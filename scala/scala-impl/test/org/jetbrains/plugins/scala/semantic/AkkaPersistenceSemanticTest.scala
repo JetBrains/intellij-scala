@@ -110,7 +110,7 @@ class AkkaPersistenceSemanticTest extends SemanticTestBase("com.typesafe.akka" %
     //akka.persistence.snapshot.japi.SnapshotStore
     //akka.persistence.snapshot.local.LocalSnapshotStore
     akka.persistence.state.DurableStateStoreProvider
-    //akka.persistence.state.DurableStateStoreRegistry
+    akka.persistence.state.DurableStateStoreRegistry
     akka.persistence.state.javadsl.DurableStateStore
     akka.persistence.state.javadsl.DurableStateUpdateStore
     akka.persistence.state.javadsl.GetObjectResult

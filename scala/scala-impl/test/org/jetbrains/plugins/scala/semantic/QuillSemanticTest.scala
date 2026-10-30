@@ -448,8 +448,8 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.context.sql.norm.SqlNormalize
     io.getquill.context.sql.norm.nested.Elements
     //io.getquill.context.sql.norm.nested.FindUnexpressedInfixes
-    //io.getquill.dsl.DateOps
-    //io.getquill.dsl.InfixDsl
+    io.getquill.dsl.DateOps
+    io.getquill.dsl.InfixDsl
     io.getquill.dsl.OrdDsl
     io.getquill.dsl.UnlimitedTuple
     //io.getquill.extras
@@ -611,7 +611,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.quotation.FreeVariables
     io.getquill.quotation.NonQuotedException
     io.getquill.quotation.QuatException
-    //io.getquill.quotation.QuatExceptionOps
+    io.getquill.quotation.QuatExceptionOps
     io.getquill.quotation.State
     //io.getquill.sql.Common
     //io.getquill.sql.idiom.BooleanLiteralSupport
@@ -631,7 +631,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.util.Cache
     //io.getquill.util.CollectTry
     //io.getquill.util.CommonExtensions
-    //io.getquill.util.ContextLogger
+    io.getquill.util.ContextLogger
     //io.getquill.util.Format
     io.getquill.util.Genie
     io.getquill.util.GetTraces

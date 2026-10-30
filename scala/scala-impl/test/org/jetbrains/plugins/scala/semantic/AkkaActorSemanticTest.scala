@@ -31,7 +31,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.actor.AbstractSchedulerBase
     //akka.actor.Actor
     //akka.actor.ActorCell
-    //akka.actor.ActorContext
+    akka.actor.ActorContext
     akka.actor.ActorIdentity
     akka.actor.ActorInitializationException
     //akka.actor.ActorInterruptedException
@@ -218,7 +218,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.dispatch.Mailbox
     akka.dispatch.MailboxType
     //akka.dispatch.Mailboxes
-    //akka.dispatch.Mapper
+    akka.dispatch.Mapper
     //akka.dispatch.MessageDispatcher
     //akka.dispatch.MessageDispatcherConfigurator
     akka.dispatch.MessageQueue
@@ -333,7 +333,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.io.DnsExt
     akka.io.DnsProvider
     akka.io.IO
-    //akka.io.Inet
+    akka.io.Inet
     akka.io.InetAddressDnsProvider
     //akka.io.InetAddressDnsResolver
     akka.io.IpVersionSelector
@@ -364,9 +364,9 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.io.UdpSO
     //akka.io.UdpSender
     //akka.io.WithUdpSend
-    //akka.io.dns.AAAARecord
-    //akka.io.dns.ARecord
-    //akka.io.dns.CNameRecord
+    akka.io.dns.AAAARecord
+    akka.io.dns.ARecord
+    akka.io.dns.CNameRecord
     //akka.io.dns.CachePolicy
     //akka.io.dns.DnsProtocol
     //akka.io.dns.DnsSettings
@@ -374,7 +374,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.io.dns.RecordType
     //akka.io.dns.ResourceRecord
     //akka.io.dns.SRVRecord
-    //akka.io.dns.UnknownRecord
+    akka.io.dns.UnknownRecord
     //akka.io.dns.internal.AsyncDnsManager
     akka.io.dns.internal.AsyncDnsProvider
     //akka.io.dns.internal.AsyncDnsResolver
@@ -565,7 +565,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.routing.Routees
     //akka.routing.Router
     //akka.routing.RouterActor
-    //akka.routing.RouterConfig
+    akka.routing.RouterConfig
     akka.routing.RouterEnvelope
     akka.routing.RouterManagementMesssage
     //akka.routing.RouterPoolActor

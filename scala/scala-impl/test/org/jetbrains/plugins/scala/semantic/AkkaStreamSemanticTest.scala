@@ -94,7 +94,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.KillSwitches
     akka.stream.MaterializationContext
     //akka.stream.MaterializationException
-    //akka.stream.Materializer
+    akka.stream.Materializer
     akka.stream.MaterializerLoggingProvider
     akka.stream.NeverMaterializedException
     akka.stream.OutPort
@@ -276,7 +276,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.TransferPhase
     //akka.stream.impl.TransferState
     akka.stream.impl.Transform
-    //akka.stream.impl.Traversal
+    akka.stream.impl.Traversal
     akka.stream.impl.TraversalBuildStep
     //akka.stream.impl.TraversalBuilder
     //akka.stream.impl.Unfold
@@ -369,12 +369,12 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.streamref.StreamRefSettingsImpl
     akka.stream.impl.streamref.StreamRefsMaster
     akka.stream.impl.streamref.StreamRefsProtocol
-    //akka.stream.javadsl.Balance
+    akka.stream.javadsl.Balance
     //akka.stream.javadsl.BidiFlow
-    //akka.stream.javadsl.Broadcast
-    //akka.stream.javadsl.BroadcastHub
+    akka.stream.javadsl.Broadcast
+    akka.stream.javadsl.BroadcastHub
     akka.stream.javadsl.Compression
-    //akka.stream.javadsl.Concat
+    akka.stream.javadsl.Concat
     //akka.stream.javadsl.DelayStrategy
     akka.stream.javadsl.FileIO
     //akka.stream.javadsl.Flow
@@ -384,12 +384,12 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.javadsl.GraphDSL
     akka.stream.javadsl.JsonFraming
     //akka.stream.javadsl.Keep
-    //akka.stream.javadsl.Merge
+    akka.stream.javadsl.Merge
     //akka.stream.javadsl.MergeHub
     akka.stream.javadsl.MergeLatest
-    //akka.stream.javadsl.MergePreferred
-    //akka.stream.javadsl.MergePrioritized
-    //akka.stream.javadsl.MergeSequence
+    akka.stream.javadsl.MergePreferred
+    akka.stream.javadsl.MergePrioritized
+    akka.stream.javadsl.MergeSequence
     //akka.stream.javadsl.Partition
     //akka.stream.javadsl.PartitionHub
     //akka.stream.javadsl.RestartFlow
@@ -411,7 +411,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.javadsl.TLS
     akka.stream.javadsl.TLSPlacebo
     //akka.stream.javadsl.Tcp
-    //akka.stream.javadsl.Unzip
+    akka.stream.javadsl.Unzip
     akka.stream.javadsl.UnzipWith
     akka.stream.javadsl.Zip
     akka.stream.javadsl.ZipLatest
