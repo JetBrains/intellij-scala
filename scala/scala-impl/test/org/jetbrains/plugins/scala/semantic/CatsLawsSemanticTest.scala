@@ -54,7 +54,7 @@ class CatsLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-law
     //cats.laws.ParallelLaws
     cats.laws.ProfunctorLaws
     //cats.laws.ReducibleLaws
-    //cats.laws.RepresentableLaws
+    cats.laws.RepresentableLaws
     //cats.laws.SemigroupKLaws
     cats.laws.SemigroupalLaws
     //cats.laws.ShortCircuitingLaws

@@ -437,7 +437,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       //The operator can belong to an inner clause, as in `(receiver op first)(second)`.
       case reference: ScReferenceExpression
         if reference.getParent.asOptionOf[ScSugarCallExpr].exists(_.operation == reference) => reference.refName
-      case reference: ScReferenceExpression                => textOfCalleeReference(reference, call, indent)
+      case reference: ScReferenceExpression                => textOfCalleeReference(reference, indent)
       case expression: ScExpression if expression != owner => textOfExpression(expression, indent)
       //the `this` of a self invocation is no expression to write out
       case element                                         => element.getText
@@ -455,7 +455,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     //a prefix expression names the operator without the `unary_` the callee is declared with
     val unary = if (owner.is[ScPrefixExpr]) "unary_" else ""
 
-    receiver + separator + unary + calleeText
+    receiver + separator + unary + calleeText + (if (call.isApply) ".apply" else "")
   }
 
   /**
@@ -465,12 +465,12 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
   private def isCompoundAssignment(infix: ScInfixExpr, call: InvocationDetails): Boolean =
     infix.operation.refName.endsWith("=") && !call.target.exists(_.name.endsWith("="))
 
-  /** The callee of a call as the source names it, with an `apply` it does not name written out. */
-  private def textOfCalleeReference(reference: ScReferenceExpression, call: InvocationDetails, indent: String): String =
-    (reference.qualifier match {
+  /** The callee of a call as the source names it. */
+  private def textOfCalleeReference(reference: ScReferenceExpression, indent: String): String =
+    reference.qualifier match {
       case Some(qualifier) => textOfExpression(qualifier, indent) + "." + reference.refName
       case None            => textOfReference(reference)
-    }) + (if (call.isApply) ".apply" else "")
+    }
 
   /** The clauses of a call, in the order of the signature of the callee. */
   private def textOfClauses(call: InvocationDetails, indent: String): String =
