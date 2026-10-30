@@ -79,7 +79,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.CofreeZipApply
     scalaz.CofreeZipFunctor
     //scalaz.Cohoist
-    //scalaz.Cokleisli
+    scalaz.Cokleisli
     //scalaz.CokleisliArrow
     scalaz.CokleisliCompose
     //scalaz.CokleisliInstances
@@ -154,7 +154,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.CorecursiveList
     //scalaz.CorecursiveListEqual
     scalaz.CorecursiveListInstances
-    //scalaz.Corepresentable
+    scalaz.Corepresentable
     //scalaz.Coyoneda
     //scalaz.CoyonedaFoldable
     //scalaz.CoyonedaFoldable1
@@ -175,7 +175,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.DListInstances
     //scalaz.Day
     //scalaz.DayApplicative
-    //scalaz.DayApply
+    scalaz.DayApply
     scalaz.DayCobind
     scalaz.DayComonad
     scalaz.DayFunctor
@@ -457,7 +457,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.KleisliCompose
     scalaz.KleisliContravariant
     scalaz.KleisliDecidable
-    //scalaz.KleisliDistributive
+    scalaz.KleisliDistributive
     //scalaz.KleisliDivisible
     scalaz.KleisliFunctor
     //scalaz.KleisliHoist
@@ -744,7 +744,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.ProductUnzip
     scalaz.ProductZip
     //scalaz.Profunctor
-    //scalaz.Ran
+    scalaz.Ran
     scalaz.Reader
     scalaz.ReaderT
     //scalaz.ReaderWriterState
@@ -760,7 +760,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.ReaderWriterStateTMonadPlus
     //scalaz.Reducer
     //scalaz.ReducerInstances
-    //scalaz.Representable
+    scalaz.Representable
     //scalaz.RepresentableInstances
     scalaz.Right3
     //scalaz.RightFoldable

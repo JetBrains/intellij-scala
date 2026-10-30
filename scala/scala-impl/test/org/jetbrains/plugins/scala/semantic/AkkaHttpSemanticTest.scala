@@ -377,7 +377,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.coding.GzipDecompressor
     //akka.http.scaladsl.coding.NoCoding
     akka.http.scaladsl.coding.NoCodingCompressor
-    //akka.http.scaladsl.coding.StreamDecoder
+    akka.http.scaladsl.coding.StreamDecoder
     //akka.http.scaladsl.common.CsvEntityStreamingSupport
     akka.http.scaladsl.common.EntityStreamingSupport
     //akka.http.scaladsl.common.JsonEntityStreamingSupport
