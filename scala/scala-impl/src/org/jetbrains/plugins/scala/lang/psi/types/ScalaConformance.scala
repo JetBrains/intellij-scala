@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.ScIntegerLiteralImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance._
@@ -20,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.CommonQualifiedNames
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 
 import java.util.function.Supplier
@@ -355,8 +357,12 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     }
 
     trait NothingNullVisitor extends ScalaTypeVisitor {
+      // Scala 3: `Null <: AnyRef <: Matchable`, but `Matchable` itself is not a reference type
+      private def admitsNullAsReference: Boolean =
+        (l eq StdTypes.instance.Matchable) || l.conforms(AnyRef)
+
       override def visitLiteralType(lt: ScLiteralType): Unit = {
-        if (lt.wideType.eq(Null) && l.conforms(AnyRef)) result = constraints
+        if (lt.wideType.eq(Null) && admitsNullAsReference) result = constraints
       }
 
       override def visitStdType(x: StdType): Unit = {
@@ -366,7 +372,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
             this case for checking: val x: T = null
             This is good if T class type: T <: AnyRef and !(T <: NotNull)
            */
-          if (!l.conforms(AnyRef)) {
+          if (!admitsNullAsReference) {
             result = ConstraintsResult.Left
             return
           }
@@ -643,6 +649,16 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         return
       }
 
+      // Scala 3: `AnyVal` and `AnyRef` (and so `Null`) extend `Matchable`, `Any` does not.
+      // Unions, intersections, type parameters and literal types were already split or widened above.
+      if (x eq StdTypes.instance.Matchable) {
+        result = conformsInner(AnyRef, r, visited, constraints) match {
+          case ConstraintsResult.Left => conformsInner(AnyVal, r, visited, constraints)
+          case cs                     => cs
+        }
+        return
+      }
+
       if (x eq AnyRef) {
         if (r eq Any) {
           result = ConstraintsResult.Left
@@ -668,7 +684,14 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           }
           r.visitType(rightVisitor)
           if (result != null) return
-          result = constraints
+          result = r match {
+            case std: StdType => if (std.isAnyRef || std.isNull || std.isNothing) constraints else ConstraintsResult.Left
+            case _ =>
+              r.extractClass match {
+                case Some(clazz) if !isAnyRefClass(clazz) => ConstraintsResult.Left
+                case _                                    => constraints
+              }
+          }
           return
         }
       }
@@ -1723,6 +1746,20 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 }
 
 private object ScalaConformance {
+  /** Whether a class type `C` conforms to `AnyRef`: classes and objects do unless they derive from `AnyVal`, traits
+   *  do unless they are universal. A trait is universal when its first parent is `Any`; `trait U2 extends U` with a
+   *  universal `U` is not, its superclass is `AnyRef`. scalac 2.13 and 3 treat `java.io.Serializable` as a
+   *  universal trait too, so that value classes can extend it. */
+  private def isAnyRefClass(clazz: PsiClass): Boolean = clazz match {
+    case synthetic: ScSyntheticClass => synthetic.stdType.isAnyRef
+    case scTrait: ScTrait            => !isUniversalTrait(scTrait)
+    case scClass: ScClass            => !ValueClassType.extendsAnyVal(scClass)
+    case _                           => clazz.qualifiedName != CommonQualifiedNames.JavaIoSerializableFqn
+  }
+
+  private def isUniversalTrait(scTrait: ScTrait): Boolean =
+    scTrait.extendsBlock.templateParents.flatMap(_.superTypes.headOption).exists(_.isAny)
+
   private[psi] object HKAbstract {
     def unapply(tpe: ParameterizedType)(implicit context: Context): Boolean = tpe match {
       case ParameterizedType(abs: ScAbstractType, tArgs) =>
