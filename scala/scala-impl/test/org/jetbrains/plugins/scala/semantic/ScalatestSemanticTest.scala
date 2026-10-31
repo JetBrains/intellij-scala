@@ -36,7 +36,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.ConcurrentAlerter
     org.scalatest.ConcurrentDocumenter
     org.scalatest.ConcurrentInformer
-    //org.scalatest.ConcurrentLinkedQueue
+    org.scalatest.ConcurrentLinkedQueue
     org.scalatest.ConcurrentNotifier
     //org.scalatest.ConfigMap
     //org.scalatest.ConfigMapWrapperSuite
@@ -149,7 +149,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.TestsBeforeNestedSuites
     org.scalatest.ThreadAwareness
     org.scalatest.Timer
-    //org.scalatest.TimerTask
+    org.scalatest.TimerTask
     //org.scalatest.Tracker
     //org.scalatest.Transformer
     //org.scalatest.TryValues
@@ -171,7 +171,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.concurrent.PimpedThreadGroup
     //org.scalatest.concurrent.ScalaFutures
     org.scalatest.concurrent.ScaledTimeSpans
-    //org.scalatest.concurrent.SelectorSignaler
+    org.scalatest.concurrent.SelectorSignaler
     org.scalatest.concurrent.SerialExecutionContext
     org.scalatest.concurrent.Signaler
     org.scalatest.concurrent.SignalerTimeoutTask
@@ -513,9 +513,9 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.tools.AnsiReset
     org.scalatest.tools.AnsiYellow
     //org.scalatest.tools.ArgsParser
-    //org.scalatest.tools.ColorBar
+    org.scalatest.tools.ColorBar
     org.scalatest.tools.ConcurrentConfig
-    //org.scalatest.tools.ConcurrentDistributor
+    org.scalatest.tools.ConcurrentDistributor
     org.scalatest.tools.CustomReporterConfiguration
     //org.scalatest.tools.DashboardReporter
     org.scalatest.tools.DashboardReporterConfiguration
@@ -552,11 +552,11 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.tools.JunitXmlReporterConfiguration
     org.scalatest.tools.JvmArg
     //org.scalatest.tools.Memento
-    //org.scalatest.tools.MemoryReporter
+    org.scalatest.tools.MemoryReporter
     org.scalatest.tools.MemoryReporterConfiguration
     org.scalatest.tools.NameValuePair
     org.scalatest.tools.NarrowJOptionPane
-    //org.scalatest.tools.NestedSuiteElement
+    org.scalatest.tools.NestedSuiteElement
     org.scalatest.tools.NestedSuiteParam
     org.scalatest.tools.PackageElement
     org.scalatest.tools.ParsedArgs
@@ -620,13 +620,13 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.tools.StandardErrReporterConfiguration
     //org.scalatest.tools.StandardOutReporter
     org.scalatest.tools.StandardOutReporterConfiguration
-    //org.scalatest.tools.StatusJPanel
+    org.scalatest.tools.StatusJPanel
     org.scalatest.tools.StoppingState
     //org.scalatest.tools.StringReporter
     org.scalatest.tools.StyleElement
     org.scalatest.tools.SuiteConfig
     //org.scalatest.tools.SuiteDiscoveryHelper
-    //org.scalatest.tools.SuiteElement
+    org.scalatest.tools.SuiteElement
     org.scalatest.tools.SuiteParam
     org.scalatest.tools.SuiteResult
     //org.scalatest.tools.SuiteResultHolder

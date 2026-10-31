@@ -182,7 +182,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     val rhs = f match {
       case ScFunctionDefinition.withBody(body) =>
         val expression = normalized(body)
-        val rhs = if (f.isLocal && !expression.is[ScBlock]) textOfExpression(expression, indent)
+        val rhs = if ((f.isLocal && !expression.is[ScBlock]) || (!body.is[ScBlock] && isValueDiscarded(expression))) textOfExpression(expression, indent)
                   else textOfStatement(expression, indent + "  ")
         if (rhs.startsWith("{")) " = " + rhs else if (!f.isLocal) " = " + rhs else " = " + rhs.trim
       case _ => ""
@@ -207,10 +207,20 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     if (s.is[ScExpression]) text else highlighted(s)(text)
   }
 
-  private def textOfExpression(e: ScExpression, indent: String, etaExpand: Boolean = true): String = highlighted(e) {
+  private def textOfExpression(e: ScExpression, indent: String, etaExpand: Boolean = true): String =
+    if (isValueDiscarded(e))
+      "{\n" + indent + "    " + textOfUnadaptedExpression(e, indent + "  ", etaExpand) +
+        "\n" + indent + "    ()\n" + indent + "  }"
+    else textOfUnadaptedExpression(e, indent, etaExpand)
+
+  private def textOfUnadaptedExpression(e: ScExpression, indent: String, etaExpand: Boolean): String = highlighted(e) {
     val text = e match {
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
-      case b: ScBlockExpr => "{" + b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("") +
+      case b: ScBlockExpr => "{" + b.statements.map {
+        case e: ScExpression if b.resultExpression.contains(e) && isValueDiscarded(e) =>
+          "\n" + indent + "    " + textOfUnadaptedExpression(e, indent + "  ", etaExpand = true) + "\n" + indent + "    ()"
+        case s => textOfStatement(s, indent + "  ")
+      }.mkString("") +
         b.caseClauses.map("\n" + _.caseClauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n")).getOrElse("") +
         "\n" + indent + "  " + "}"
       case b: ScBlock => b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("")
@@ -310,6 +320,11 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     //order of the signature rather than after everything the source writes, see textOfClauses
     e.implicitConversion().map(textOfImplicitConversion(_, text, e)).getOrElse(text)
   }
+
+  // The usual expression type already includes value discarding, so inspect it before base-type adaptation.
+  private def isValueDiscarded(e: ScExpression): Boolean =
+    e.expectedType().exists(_.isUnit) &&
+      e.getTypeWithoutImplicits(ignoreBaseType = true).exists(tpe => !tpe.isUnit && !tpe.isNothing)
 
   // Keep literal escaping consistent with the compiler-side SourceCode printer.
   private def escapedString(value: String): String = value.flatMap {
@@ -635,7 +650,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     val rhs = v match {
       case ScValueOrVariableDefinition.withExpr(expr) =>
         val expression = normalized(expr)
-        val rhs = if (v.isLocal && !expression.is[ScBlock]) textOfExpression(expression, indent)
+        val rhs = if ((v.isLocal && !expression.is[ScBlock]) || (!expr.is[ScBlock] && isValueDiscarded(expression))) textOfExpression(expression, indent)
                   else textOfStatement(expression, indent + "  ")
         if (rhs.startsWith("{")) " = " + rhs else if (!v.isLocal) " = " + rhs else " = " + rhs.trim
       case _ => ""

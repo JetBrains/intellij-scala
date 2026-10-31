@@ -139,7 +139,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.TooManySubstreamsOpenException
     //akka.stream.UniformFanInShape
     //akka.stream.UniformFanOutShape
-    //akka.stream.UniqueKillSwitch
+    akka.stream.UniqueKillSwitch
     akka.stream.WatchedActorTerminatedException
     //akka.stream.impl.ActorProcessor
     //akka.stream.impl.ActorProcessorImpl
@@ -163,7 +163,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.CancelSink
     akka.stream.impl.CancelledSubscription
     akka.stream.impl.CancellingSubscriber
-    //akka.stream.impl.ChainedBuffer
+    akka.stream.impl.ChainedBuffer
     akka.stream.impl.CollectorState
     akka.stream.impl.Completed
     //akka.stream.impl.CompletedTraversalBuilder
@@ -249,7 +249,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.SinkModule
     akka.stream.impl.SinkModuleIslandTag
     //akka.stream.impl.SinkModulePhase
-    //akka.stream.impl.SinkholeSubscriber
+    akka.stream.impl.SinkholeSubscriber
     //akka.stream.impl.SnapshotCollector
     //akka.stream.impl.SoftShutdown
     //akka.stream.impl.SourceModule
@@ -346,7 +346,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.io.InputStreamSinkStage
     //akka.stream.impl.io.InputStreamSource
     //akka.stream.impl.io.OutgoingConnectionStage
-    //akka.stream.impl.io.OutputStreamAdapter
+    akka.stream.impl.io.OutputStreamAdapter
     //akka.stream.impl.io.OutputStreamGraphStage
     //akka.stream.impl.io.OutputStreamSourceStage
     //akka.stream.impl.io.TLSActor
