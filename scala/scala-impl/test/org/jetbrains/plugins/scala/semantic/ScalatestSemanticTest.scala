@@ -33,11 +33,11 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.Checkpoints
     //org.scalatest.CompleteLastly
     //org.scalatest.CompositeStatus
-    //org.scalatest.ConcurrentAlerter
-    //org.scalatest.ConcurrentDocumenter
-    //org.scalatest.ConcurrentInformer
+    org.scalatest.ConcurrentAlerter
+    org.scalatest.ConcurrentDocumenter
+    org.scalatest.ConcurrentInformer
     //org.scalatest.ConcurrentLinkedQueue
-    //org.scalatest.ConcurrentNotifier
+    org.scalatest.ConcurrentNotifier
     //org.scalatest.ConfigMap
     //org.scalatest.ConfigMapWrapperSuite
     org.scalatest.CountDownLatch
@@ -174,7 +174,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.concurrent.SelectorSignaler
     org.scalatest.concurrent.SerialExecutionContext
     org.scalatest.concurrent.Signaler
-    //org.scalatest.concurrent.SignalerTimeoutTask
+    org.scalatest.concurrent.SignalerTimeoutTask
     org.scalatest.concurrent.SleepHelper
     org.scalatest.concurrent.SocketSignaler
     //org.scalatest.concurrent.TestThreadsStartingCounter
@@ -343,7 +343,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.matchers.FailureMessage
     org.scalatest.matchers.HavePropertyMatchResult
     //org.scalatest.matchers.HavePropertyMatcher
-    //org.scalatest.matchers.LazyArg
+    org.scalatest.matchers.LazyArg
     org.scalatest.matchers.LazyMessage
     //org.scalatest.matchers.MatchFailed
     //org.scalatest.matchers.MatchPatternHelper

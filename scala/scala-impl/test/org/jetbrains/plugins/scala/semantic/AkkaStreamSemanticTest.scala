@@ -190,8 +190,8 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.FanoutOutputs
     //akka.stream.impl.FanoutProcessorImpl
     //akka.stream.impl.FanoutPublisherSink
-    //akka.stream.impl.FirstCollectorState
-    //akka.stream.impl.FirstReducerState
+    akka.stream.impl.FirstCollectorState
+    akka.stream.impl.FirstReducerState
     //akka.stream.impl.FixedSizeBuffer
     akka.stream.impl.FlowNames
     akka.stream.impl.ForwardWire
@@ -235,7 +235,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.RejectAdditionalSubscribers
     akka.stream.impl.RequestMore
     //akka.stream.impl.ResizableMultiReaderRingBuffer
-    //akka.stream.impl.RetryFlowCoordinator
+    akka.stream.impl.RetryFlowCoordinator
     akka.stream.impl.SavedIslandData
     akka.stream.impl.SegmentInfo
     //akka.stream.impl.SeqActorName
@@ -442,7 +442,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.scaladsl.Keep
     //akka.stream.scaladsl.Merge
     //akka.stream.scaladsl.MergeHub
-    //akka.stream.scaladsl.MergeHubDrainingControlImpl
+    akka.stream.scaladsl.MergeHubDrainingControlImpl
     //akka.stream.scaladsl.MergeLatest
     //akka.stream.scaladsl.MergePreferred
     //akka.stream.scaladsl.MergePrioritized

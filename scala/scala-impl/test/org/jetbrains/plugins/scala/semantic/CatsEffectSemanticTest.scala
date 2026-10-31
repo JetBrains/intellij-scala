@@ -116,7 +116,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     //cats.effect.metrics.JvmCpuStarvationMetrics
     //cats.effect.std.AtomicCell
     //cats.effect.std.Backpressure
-    //cats.effect.std.Console
+    cats.effect.std.Console
     //cats.effect.std.ConsoleCompanionCrossPlatform
     //cats.effect.std.ConsoleCompanionPlatform
     //cats.effect.std.ConsoleCrossPlatform
