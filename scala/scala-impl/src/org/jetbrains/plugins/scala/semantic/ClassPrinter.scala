@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
@@ -228,6 +228,12 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         case null => "null"
         case s: String => "\"" + escapedString(s) + "\""
         case c: java.lang.Character => "'" + escapedString(c.toString) + "'"
+        case n: Number => l.getTypeWithoutImplicits().toOption match {
+          case Some(StdType(StdType.Name.Long, _)) => n.longValue().toString + "L"
+          case Some(StdType(StdType.Name.Float, _)) => n.floatValue().toString + "f"
+          case Some(StdType(StdType.Name.Double, _)) => n.doubleValue().toString
+          case _ => l.literalType.asInstanceOf[ScLiteralType].value.presentation
+        }
         case _ => l.literalType.asInstanceOf[ScLiteralType].value.presentation
       }
       case u: ScUnderscoreSection => u.bindingExpr match {

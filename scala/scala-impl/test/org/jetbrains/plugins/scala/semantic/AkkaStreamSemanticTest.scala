@@ -238,7 +238,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.RetryFlowCoordinator
     akka.stream.impl.SavedIslandData
     akka.stream.impl.SegmentInfo
-    //akka.stream.impl.SeqActorName
+    akka.stream.impl.SeqActorName
     akka.stream.impl.SeqActorNameImpl
     //akka.stream.impl.SeqStage
     //akka.stream.impl.SetupFlowStage
@@ -426,7 +426,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.scaladsl.Compression
     //akka.stream.scaladsl.Concat
     //akka.stream.scaladsl.DelayStrategy
-    //akka.stream.scaladsl.FileIO
+    akka.stream.scaladsl.FileIO
     //akka.stream.scaladsl.Flow
     //akka.stream.scaladsl.FlowOps
     //akka.stream.scaladsl.FlowOpsMat

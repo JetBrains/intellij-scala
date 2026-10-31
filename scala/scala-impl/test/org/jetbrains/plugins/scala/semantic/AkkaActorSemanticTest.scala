@@ -639,7 +639,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.util.OptionVal
     //akka.util.PrettyByteString
     //akka.util.PrettyDuration
-    //akka.util.PriorityQueueStabilizer
+    akka.util.PriorityQueueStabilizer
     //akka.util.RecencyList
     akka.util.ReentrantGuard
     //akka.util.Reflect

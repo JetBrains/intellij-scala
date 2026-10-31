@@ -760,7 +760,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.instances.AllInstancesBinCompat0
     cats.kernel.instances.AllInstancesBinCompat1
     cats.kernel.instances.AllInstancesBinCompat2
-    //cats.kernel.instances.ArraySeqInstances
+    cats.kernel.instances.ArraySeqInstances
     cats.kernel.instances.BigDecimalGroup
     cats.kernel.instances.BigDecimalInstances
     cats.kernel.instances.BigDecimalOrder
