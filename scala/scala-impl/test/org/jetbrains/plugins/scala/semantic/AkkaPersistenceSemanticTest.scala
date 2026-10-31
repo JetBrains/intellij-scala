@@ -90,7 +90,7 @@ class AkkaPersistenceSemanticTest extends SemanticTestBase("com.typesafe.akka" %
     akka.persistence.journal.WriteEventAdapter
     //akka.persistence.journal.WriteJournalBase
     //akka.persistence.journal.inmem.InmemJournal
-    //akka.persistence.journal.inmem.InmemMessages
+    akka.persistence.journal.inmem.InmemMessages
     //akka.persistence.journal.japi.AsyncRecovery
     //akka.persistence.journal.japi.AsyncWriteJournal
     akka.persistence.journal.leveldb.CompactionSegmentManagement

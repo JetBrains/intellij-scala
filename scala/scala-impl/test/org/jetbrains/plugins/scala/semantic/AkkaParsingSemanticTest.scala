@@ -29,7 +29,7 @@ class AkkaParsingSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     //akka.parboiled2.RuleDSLCombinators
     //akka.parboiled2.RuleRunnable
     akka.parboiled2.RuleRunner
-    //akka.parboiled2.RuleTrace
+    akka.parboiled2.RuleTrace
     akka.parboiled2.RuleX
     //akka.parboiled2.ValueStack
     akka.parboiled2.ValueStackOverflowException

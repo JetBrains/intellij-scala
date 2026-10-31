@@ -123,7 +123,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.tcp.ConfigSSLEngineProvider
     akka.remote.artery.tcp.SSLEngineProvider
     akka.remote.artery.tcp.SSLEngineProviderSetup
-    //akka.remote.artery.tcp.SecureRandomFactory
+    akka.remote.artery.tcp.SecureRandomFactory
     akka.remote.artery.tcp.SslTransportException
     //akka.remote.artery.tcp.TcpFraming
     akka.remote.artery.tcp.ssl.NoopSessionVerifier
