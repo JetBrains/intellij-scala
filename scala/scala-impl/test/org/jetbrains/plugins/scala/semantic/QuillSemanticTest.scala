@@ -294,9 +294,9 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.context.ContextTranslateMacro
     //io.getquill.context.ContextTranslateProto
     //io.getquill.context.ContextVerbPrepare
-    //io.getquill.context.ContextVerbPrepareLambda
+    io.getquill.context.ContextVerbPrepareLambda
     //io.getquill.context.ContextVerbStream
-    //io.getquill.context.ContextVerbTranslate
+    io.getquill.context.ContextVerbTranslate
     //io.getquill.context.DatasourceContextInjectionMacro
     //io.getquill.context.Execution
     io.getquill.context.ExecutionInfo

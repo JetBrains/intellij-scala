@@ -502,7 +502,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.pattern.Patterns
     //akka.pattern.PipeToSupport
     //akka.pattern.PromiseActorRef
-    //akka.pattern.PromiseRef
+    akka.pattern.PromiseRef
     akka.pattern.PromiseRefImpl
     akka.pattern.ReplyWith
     //akka.pattern.RetrySupport

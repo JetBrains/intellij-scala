@@ -44,7 +44,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     //cats.effect.kernel.AsyncPlatform
     cats.effect.kernel.CancelScope
     //cats.effect.kernel.Clock
-    //cats.effect.kernel.ClockPlatform
+    cats.effect.kernel.ClockPlatform
     cats.effect.kernel.Cont
     //cats.effect.kernel.Deferred
     cats.effect.kernel.DeferredSink
@@ -119,7 +119,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     cats.effect.std.Console
     //cats.effect.std.ConsoleCompanionCrossPlatform
     //cats.effect.std.ConsoleCompanionPlatform
-    //cats.effect.std.ConsoleCrossPlatform
+    cats.effect.std.ConsoleCrossPlatform
     //cats.effect.std.CountDownLatch
     //cats.effect.std.CyclicBarrier
     //cats.effect.std.Dequeue
