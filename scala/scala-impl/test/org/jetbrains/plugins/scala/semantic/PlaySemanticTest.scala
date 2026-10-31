@@ -185,7 +185,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.inject.SourceLocator
     //play.api.internal.libs.concurrent.CoordinatedShutdownSupport
     play.api.libs.Codecs
-    //play.api.libs.Collections
+    play.api.libs.Collections
     //play.api.libs.Comet
     //play.api.libs.EventSource
     //play.api.libs.Files
@@ -387,7 +387,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.mvc.DiscardingCookie
     //play.api.mvc.EssentialAction
     //play.api.mvc.EssentialFilter
-    //play.api.mvc.FallbackCookieDataCodec
+    play.api.mvc.FallbackCookieDataCodec
     //play.api.mvc.Filter
     //play.api.mvc.FilterChain
     play.api.mvc.Filters

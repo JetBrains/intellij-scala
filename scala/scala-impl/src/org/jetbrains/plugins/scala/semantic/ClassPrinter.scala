@@ -181,7 +181,9 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       textOf(if (f.returnTypeElement.isDefined) f.returnType else f.returnType.map(_.removeAliasDefinitionsIn(f)))
     val rhs = f match {
       case ScFunctionDefinition.withBody(body) =>
-        val rhs = textOfStatement(normalized(body), indent + "  ")
+        val expression = normalized(body)
+        val rhs = if (f.isLocal && !expression.is[ScBlock]) textOfExpression(expression, indent)
+                  else textOfStatement(expression, indent + "  ")
         if (rhs.startsWith("{")) " = " + rhs else if (!f.isLocal) " = " + rhs else " = " + rhs.trim
       case _ => ""
     }
@@ -626,7 +628,9 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     val tpe = spaceAfter(name) + ": " + textOf(if (v.typeElement.isDefined) symbolType else symbolType.map(_.removeAliasDefinitionsIn(v)))
     val rhs = v match {
       case ScValueOrVariableDefinition.withExpr(expr) =>
-        val rhs = textOfStatement(normalized(expr), indent + "  ")
+        val expression = normalized(expr)
+        val rhs = if (v.isLocal && !expression.is[ScBlock]) textOfExpression(expression, indent)
+                  else textOfStatement(expression, indent + "  ")
         if (rhs.startsWith("{")) " = " + rhs else if (!v.isLocal) " = " + rhs else " = " + rhs.trim
       case _ => ""
     }
