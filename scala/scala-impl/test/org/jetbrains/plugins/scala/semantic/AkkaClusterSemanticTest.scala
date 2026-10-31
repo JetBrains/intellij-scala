@@ -66,7 +66,7 @@ class AkkaClusterSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     akka.cluster.routing.ClusterRouterGroup
     //akka.cluster.routing.ClusterRouterGroupActor
     //akka.cluster.routing.ClusterRouterGroupSettings
-    //akka.cluster.routing.ClusterRouterPool
+    akka.cluster.routing.ClusterRouterPool
     //akka.cluster.routing.ClusterRouterPoolActor
     //akka.cluster.routing.ClusterRouterPoolSettings
     akka.cluster.routing.ClusterRouterSettingsBase

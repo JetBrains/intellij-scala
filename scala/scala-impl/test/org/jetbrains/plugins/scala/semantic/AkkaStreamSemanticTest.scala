@@ -118,7 +118,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.StreamLimitReachedException
     akka.stream.StreamRefAttributes
     akka.stream.StreamRefResolver
-    //akka.stream.StreamRefSettings
+    akka.stream.StreamRefSettings
     akka.stream.StreamRefSubscriptionTimeoutException
     //akka.stream.StreamSubscriptionTimeoutSettings
     akka.stream.StreamSubscriptionTimeoutTerminationMode
@@ -342,7 +342,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.io.FileOutputStage
     //akka.stream.impl.io.FileSource
     akka.stream.impl.io.IncomingConnectionStage
-    //akka.stream.impl.io.InputStreamAdapter
+    akka.stream.impl.io.InputStreamAdapter
     //akka.stream.impl.io.InputStreamSinkStage
     //akka.stream.impl.io.InputStreamSource
     //akka.stream.impl.io.OutgoingConnectionStage

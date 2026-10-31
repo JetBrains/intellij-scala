@@ -20,7 +20,7 @@ class AkkaParsingSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     //akka.parboiled2.Parser
     //akka.parboiled2.ParserInput
     //akka.parboiled2.ParserMacroMethods
-    //akka.parboiled2.Position
+    akka.parboiled2.Position
     akka.parboiled2.Repeated
     //akka.parboiled2.Rule
     akka.parboiled2.RuleDSL

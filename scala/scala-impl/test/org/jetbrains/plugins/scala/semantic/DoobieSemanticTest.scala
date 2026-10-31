@@ -81,7 +81,7 @@ class DoobieSemanticTest extends SemanticTestBase("org.tpolecat" %% "doobie-core
     doobie.syntax.put
     doobie.syntax.stream
     doobie.syntax.string
-    //doobie.util.Colors
+    doobie.util.Colors
     doobie.util.ExecutionContexts
     //doobie.util.Get
     //doobie.util.GetInstances

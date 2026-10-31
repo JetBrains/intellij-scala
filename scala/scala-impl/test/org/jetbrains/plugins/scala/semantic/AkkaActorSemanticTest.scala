@@ -134,7 +134,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.actor.SelectChildPattern
     akka.actor.SelectParent
     akka.actor.SelectionPathElement
-    //akka.actor.SerializedActorRef
+    akka.actor.SerializedActorRef
     akka.actor.SerializedIgnore
     akka.actor.SerializedNobody
     akka.actor.Stash
@@ -534,7 +534,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.routing.Deafen
     //akka.routing.DefaultOptimalSizeExploringResizer
     //akka.routing.DefaultResizer
-    //akka.routing.FromConfig
+    akka.routing.FromConfig
     akka.routing.GetRoutees
     akka.routing.Group
     akka.routing.GroupBase

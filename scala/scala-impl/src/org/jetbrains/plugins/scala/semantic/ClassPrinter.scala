@@ -222,7 +222,12 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case s: ScSuperReference => "super" + s.staticSuper.map("[" + textOf(_) + "]").getOrElse("")
       case l: ScInterpolatedStringLiteral => l.desugaredExpression.map(p => textOfExpression(p._2, indent)).getOrElse("")
       case f: ScFor => f.desugared(forDisplay = true).map(textOfExpression(_, indent)).getOrElse("")
-      case l: ScLiteral => if (l.getValue == null) "null" else l.literalType.asInstanceOf[ScLiteralType].value.presentation
+      case l: ScLiteral => l.getValue match {
+        case null => "null"
+        case s: String => "\"" + escapedString(s) + "\""
+        case c: java.lang.Character => "'" + escapedString(c.toString) + "'"
+        case _ => l.literalType.asInstanceOf[ScLiteralType].value.presentation
+      }
       case u: ScUnderscoreSection => u.bindingExpr match {
         case Some(b) => etaExpansionOf(b, indent).getOrElse("<expr>")
         case None => "_"
@@ -296,6 +301,20 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     //a call writes the clauses the implicit search filled in where the callee takes them, in the
     //order of the signature rather than after everything the source writes, see textOfClauses
     e.implicitConversion().map(textOfImplicitConversion(_, text, e)).getOrElse(text)
+  }
+
+  // Keep literal escaping consistent with the compiler-side SourceCode printer.
+  private def escapedString(value: String): String = value.flatMap {
+    case '\b' => "\\b"
+    case '\t' => "\\t"
+    case '\n' => "\\n"
+    case '\f' => "\\f"
+    case '\r' => "\\r"
+    case '"' => "\\\""
+    case '\'' => "\\'"
+    case '\\' => "\\\\"
+    case c if c.isControl => f"\\u${c.toInt}%04x"
+    case c => c.toString
   }
 
   private def textOfReference(r: ScReference): String =

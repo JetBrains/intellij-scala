@@ -177,7 +177,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.impl.util.LogByteStringTools
     //akka.http.impl.util.LogMessages
     //akka.http.impl.util.ObjectRegistry
-    //akka.http.impl.util.One2OneBidiFlow
+    akka.http.impl.util.One2OneBidiFlow
     akka.http.impl.util.Renderable
     //akka.http.impl.util.Renderer
     //akka.http.impl.util.Rendering
@@ -392,7 +392,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.scaladsl.common.RequiredValueReceptacle
     akka.http.scaladsl.common.RequiredValueUnmarshallerReceptacle
     //akka.http.scaladsl.common.StrictForm
-    //akka.http.scaladsl.common.ToNameReceptacleEnhancements
+    akka.http.scaladsl.common.ToNameReceptacleEnhancements
     //akka.http.scaladsl.marshalling.ContentTypeOverrider
     //akka.http.scaladsl.marshalling.EmptyValue
     //akka.http.scaladsl.marshalling.GenericMarshallers
@@ -588,7 +588,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.scaladsl.model.ws.BinaryMessage
     akka.http.scaladsl.model.ws.InvalidUpgradeResponse
     akka.http.scaladsl.model.ws.Message
-    //akka.http.scaladsl.model.ws.PeerClosedConnectionException
+    akka.http.scaladsl.model.ws.PeerClosedConnectionException
     //akka.http.scaladsl.model.ws.TextMessage
     //akka.http.scaladsl.model.ws.UpgradeToWebSocket
     akka.http.scaladsl.model.ws.ValidUpgrade
