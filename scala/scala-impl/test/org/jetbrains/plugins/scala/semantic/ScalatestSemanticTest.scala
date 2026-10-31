@@ -107,7 +107,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.PendingStatement
     //org.scalatest.PrivateMethodTester
     //org.scalatest.RandomTestOrder
-    //org.scalatest.RecoverMethods
+    org.scalatest.RecoverMethods
     org.scalatest.Reporter
     //org.scalatest.Rerunner
     org.scalatest.ResourcefulReporter
@@ -595,7 +595,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.tools.PresentWithoutColor
     //org.scalatest.tools.PrettyPrinter
     //org.scalatest.tools.PrintReporter
-    //org.scalatest.tools.ProgressBarPanel
+    org.scalatest.tools.ProgressBarPanel
     org.scalatest.tools.ReStoppingState
     //org.scalatest.tools.ReadyState
     org.scalatest.tools.ReporterConfigParam
