@@ -9,7 +9,7 @@ class AkkaClusterSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
 
   @Test def test(): Unit = doTest("""
     //akka.cluster.Cluster
-    //akka.cluster.ClusterActorRefProvider
+    akka.cluster.ClusterActorRefProvider
     //akka.cluster.ClusterCoreDaemon
     //akka.cluster.ClusterCoreSupervisor
     //akka.cluster.ClusterDaemon

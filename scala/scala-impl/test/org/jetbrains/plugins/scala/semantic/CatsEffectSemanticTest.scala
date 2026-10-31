@@ -207,7 +207,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     cats.effect.unsafe.metrics.IORuntimeMetrics
     //cats.effect.unsafe.metrics.IORuntimeMetricsCompanionPlatform
     cats.effect.unsafe.metrics.IORuntimeMetricsPlatform
-    //cats.effect.unsafe.metrics.LiveFiberSnapshotTrigger
+    cats.effect.unsafe.metrics.LiveFiberSnapshotTrigger
     cats.effect.unsafe.metrics.LiveFiberSnapshotTriggerMBean
     cats.effect.unsafe.metrics.LocalQueueMetrics
     cats.effect.unsafe.metrics.LocalQueueSampler
