@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnu
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScPackaging, ScTypeBoundsOwner, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
@@ -267,7 +267,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       //belongs to writes all of its clauses, in the order of the signature of the callee
       case owner@Call(call) => inlining(call.target) {
         val callee  = textOfCallee(owner, call, indent)
-        val clauses = textOfClauses(call, indent)
+        val clauses = textOfGetClassTypeArgument(call) + textOfClauses(call, indent)
         owner match {
           //`a += b` assigns the result of `a.+(b)` to `a`, which the source writes as one operator
           case infix: ScInfixExpr if isCompoundAssignment(infix, call) =>
@@ -513,6 +513,24 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case Some(qualifier) => textOfExpression(qualifier, indent) + "." + reference.refName
       case None            => textOfReference(reference)
     }
+
+  /** Scala's compiler records the receiver type as a type argument of Object.getClass. */
+  private def textOfGetClassTypeArgument(call: InvocationDetails): String = {
+    val receiverType = call.target.filter { result =>
+      result.element match {
+        case method: PsiMethod => method.getName == "getClass" && Option(method.getContainingClass).exists(_.getQualifiedName == "java.lang.Object")
+        case _ => false
+      }
+    }.flatMap { result =>
+      call.thisExpr.flatMap(_.getTypeWithoutImplicits(ignoreBaseType = true).toOption).orElse(result.fromType)
+    }
+    receiverType.flatMap { tpe =>
+      tpe.widen match {
+        case ScThisType(cls) => cls.getTypeWithProjections(thisProjections = true).toOption
+        case tpe => Some(tpe)
+      }
+    }.map(tpe => "[" + textOf(tpe.removeAliasDefinitionsIn(call.origin)) + "]").getOrElse("")
+  }
 
   /** The clauses of a call, in the order of the signature of the callee. */
   private def textOfClauses(call: InvocationDetails, indent: String): String =
