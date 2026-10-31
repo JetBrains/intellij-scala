@@ -119,7 +119,7 @@ class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.
     ammonite.terminal.Printing
     //ammonite.terminal.Prompt
     ammonite.terminal.Result
-    //ammonite.terminal.SpecialKeys
+    ammonite.terminal.SpecialKeys
     ammonite.terminal.Strings
     //ammonite.terminal.TTY
     ammonite.terminal.TermAction

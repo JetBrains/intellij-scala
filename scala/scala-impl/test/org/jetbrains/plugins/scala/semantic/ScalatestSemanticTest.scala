@@ -507,11 +507,11 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.time.Units
     org.scalatest.tools.AboutJDialog
     org.scalatest.tools.AnsiColor
-    //org.scalatest.tools.AnsiCyan
-    //org.scalatest.tools.AnsiGreen
-    //org.scalatest.tools.AnsiRed
-    //org.scalatest.tools.AnsiReset
-    //org.scalatest.tools.AnsiYellow
+    org.scalatest.tools.AnsiCyan
+    org.scalatest.tools.AnsiGreen
+    org.scalatest.tools.AnsiRed
+    org.scalatest.tools.AnsiReset
+    org.scalatest.tools.AnsiYellow
     //org.scalatest.tools.ArgsParser
     //org.scalatest.tools.ColorBar
     org.scalatest.tools.ConcurrentConfig

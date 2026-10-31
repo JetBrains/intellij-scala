@@ -443,7 +443,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.context.sql.norm.ExpandMappedInfix
     //io.getquill.context.sql.norm.ExpandNestedQueries
     //io.getquill.context.sql.norm.ExpandSelection
-    //io.getquill.context.sql.norm.FlattenGroupByAggregation
+    io.getquill.context.sql.norm.FlattenGroupByAggregation
     io.getquill.context.sql.norm.SimplifyFilterTrue
     //io.getquill.context.sql.norm.SqlNormalize
     //io.getquill.context.sql.norm.nested.Elements
