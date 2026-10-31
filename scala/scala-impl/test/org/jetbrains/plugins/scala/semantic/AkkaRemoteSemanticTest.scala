@@ -115,7 +115,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.compress.InboundCompression
     akka.remote.artery.compress.InboundCompressions
     //akka.remote.artery.compress.InboundCompressionsImpl
-    //akka.remote.artery.compress.InboundManifestCompression
+    akka.remote.artery.compress.InboundManifestCompression
     akka.remote.artery.compress.NoInboundCompressions
     //akka.remote.artery.compress.TopHeavyHitters
     //akka.remote.artery.compress.UnknownCompressedIdException

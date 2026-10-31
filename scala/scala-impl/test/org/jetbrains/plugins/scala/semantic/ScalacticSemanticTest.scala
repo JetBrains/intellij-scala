@@ -26,7 +26,7 @@ class ScalacticSemanticTest extends SemanticTestBase("org.scalactic" %% "scalact
     org.scalactic.ComposedNormalizingEquivalence
     //org.scalactic.DefaultEquality
     //org.scalactic.DefaultPrettifier
-    //org.scalactic.Differ
+    org.scalactic.Differ
     //org.scalactic.EitherSugar
     //org.scalactic.Equality
     org.scalactic.Equivalence

@@ -230,7 +230,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.OnFailure
     akka.dispatch.OnSuccess
     //akka.dispatch.PinnedDispatcher
-    //akka.dispatch.PinnedDispatcherConfigurator
+    akka.dispatch.PinnedDispatcherConfigurator
     akka.dispatch.PriorityGenerator
     akka.dispatch.ProducesMessageQueue
     akka.dispatch.ProducesPushTimeoutSemanticsMailbox
@@ -240,7 +240,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.SaneRejectedExecutionHandler
     akka.dispatch.SingleConsumerOnlyUnboundedMailbox
     akka.dispatch.SystemMessageQueue
-    //akka.dispatch.TaskInvocation
+    akka.dispatch.TaskInvocation
     //akka.dispatch.ThreadPoolConfig
     //akka.dispatch.ThreadPoolConfigBuilder
     //akka.dispatch.ThreadPoolExecutorConfigurator
@@ -322,7 +322,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.event.japi.ScanningEventBus
     //akka.event.japi.SubchannelEventBus
     //akka.event.jul.JavaLogger
-    //akka.event.jul.JavaLogging
+    akka.event.jul.JavaLogging
     //akka.event.jul.JavaLoggingFilter
     akka.event.jul.Logger
     akka.io.BufferPool
@@ -474,7 +474,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.pattern.AskSupport
     //akka.pattern.AskTimeoutException
     //akka.pattern.AskableActorRef
-    //akka.pattern.AskableActorSelection
+    akka.pattern.AskableActorSelection
     akka.pattern.AutoReset
     akka.pattern.BackoffOnFailureOptions
     //akka.pattern.BackoffOnFailureOptionsImpl
@@ -488,7 +488,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.pattern.CircuitBreakersRegistry
     akka.pattern.ExplicitAskSupport
     //akka.pattern.ExplicitlyAskableActorRef
-    //akka.pattern.ExplicitlyAskableActorSelection
+    akka.pattern.ExplicitlyAskableActorSelection
     //akka.pattern.ExtendedBackoffOptions
     akka.pattern.ForwardDeathLetters
     akka.pattern.ForwardTo
@@ -583,14 +583,14 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.routing.TailChoppingRoutingLogic
     akka.routing.WithListeners
     akka.serialization.AsyncSerializer
-    //akka.serialization.AsyncSerializerWithStringManifest
+    akka.serialization.AsyncSerializerWithStringManifest
     akka.serialization.AsyncSerializerWithStringManifestCS
     //akka.serialization.BaseSerializer
     akka.serialization.BooleanSerializer
     //akka.serialization.ByteArraySerializer
     akka.serialization.ByteBufferSerializer
     akka.serialization.ByteStringSerializer
-    //akka.serialization.DisabledJavaSerializer
+    akka.serialization.DisabledJavaSerializer
     akka.serialization.IntSerializer
     akka.serialization.JSerializer
     //akka.serialization.JavaSerializer
@@ -602,7 +602,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.serialization.Serializer
     akka.serialization.SerializerDetails
     akka.serialization.SerializerWithStringManifest
-    //akka.serialization.Serializers
+    akka.serialization.Serializers
     akka.serialization.StringSerializer
     //akka.util.AlwaysIncreasingClock
     //akka.util.Base62

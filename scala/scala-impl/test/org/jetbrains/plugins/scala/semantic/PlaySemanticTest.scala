@@ -18,11 +18,11 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.ContextBasedBuiltInComponents
     //play.api.DefaultApplication
     play.api.DefaultMarkerContext
-    //play.api.Environment
+    play.api.Environment
     //play.api.Logger
     //play.api.LoggerConfigurator
     //play.api.LoggerLike
-    //play.api.Logging
+    play.api.Logging
     play.api.LowPriorityMarkerContextImplicits
     play.api.MarkerContext
     play.api.MarkerContexts
@@ -182,7 +182,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.inject.RoutesProvider
     //play.api.inject.SimpleInjector
     //play.api.inject.SimpleModule
-    //play.api.inject.SourceLocator
+    play.api.inject.SourceLocator
     //play.api.internal.libs.concurrent.CoordinatedShutdownSupport
     play.api.libs.Codecs
     play.api.libs.Collections
