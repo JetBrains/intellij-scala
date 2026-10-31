@@ -206,7 +206,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.libs.concurrent.InjectedActorSupport
     //play.api.libs.concurrent.LowPriorityFuturesImplicits
     //play.api.libs.concurrent.MaterializerProvider
-    //play.api.libs.crypto.CSRFTokenSigner
+    play.api.libs.crypto.CSRFTokenSigner
     //play.api.libs.crypto.CSRFTokenSignerProvider
     play.api.libs.crypto.CookieSigner
     //play.api.libs.crypto.CookieSignerProvider
@@ -370,7 +370,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.mvc.CookieDataCodec
     //play.api.mvc.CookieHeaderEncoding
     play.api.mvc.CookieHeaderMerging
-    //play.api.mvc.Cookies
+    play.api.mvc.Cookies
     play.api.mvc.CookiesModule
     play.api.mvc.DefaultActionBuilder
     //play.api.mvc.DefaultActionBuilderImpl
@@ -563,7 +563,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.twirl.api.TxtFormat
     //play.twirl.api.Xml
     play.twirl.api.XmlFormat
-    //play.twirl.api.utils.StringEscapeUtils
+    play.twirl.api.utils.StringEscapeUtils
     //play.utils.Colors
     play.utils.Conversions
     play.utils.DeserializerContext
