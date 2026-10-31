@@ -581,13 +581,13 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.instances.DurationInstances
     //cats.instances.EitherInstances
     //cats.instances.EqInstances
-    //cats.instances.EquivInstances
+    cats.instances.EquivInstances
     cats.instances.FiniteDurationInstances
     //cats.instances.FlatMapNTuple2
     //cats.instances.FlatMapTuple1
     //cats.instances.FlatMapTuple10
     //cats.instances.FlatMapTuple11
-    //cats.instances.FlatMapTuple2
+    cats.instances.FlatMapTuple2
     //cats.instances.FlatMapTuple3
     //cats.instances.FlatMapTuple4
     //cats.instances.FlatMapTuple5
@@ -608,7 +608,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.instances.FutureInstances2
     //cats.instances.FutureMonoid
     //cats.instances.FutureSemigroup
-    //cats.instances.HashInstances
+    cats.instances.HashInstances
     cats.instances.IntInstances
     //cats.instances.InvariantInstances
     //cats.instances.InvariantInstancesBinCompat0
@@ -634,18 +634,18 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.instances.OptionInstances
     cats.instances.OptionInstancesBinCompat0
     //cats.instances.OrderInstances
-    //cats.instances.OrderingInstances
+    cats.instances.OrderingInstances
     cats.instances.ParallelInstances
     cats.instances.ParallelInstances1
     //cats.instances.PartialFunctionInstances
     //cats.instances.PartialOrderInstances
-    //cats.instances.PartialOrderingInstances
+    cats.instances.PartialOrderingInstances
     //cats.instances.QueueInstances
     cats.instances.ScalaVersionSpecificNumeric
     //cats.instances.SeqInstances
     //cats.instances.SetInstances
     cats.instances.ShortInstances
-    //cats.instances.ShowInstances
+    cats.instances.ShowInstances
     //cats.instances.SortedMapCommutativeMonoid
     //cats.instances.SortedMapEq
     //cats.instances.SortedMapHash
@@ -835,14 +835,14 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.instances.LazyListMonoid
     //cats.kernel.instances.LazyListOrder
     //cats.kernel.instances.LazyListPartialOrder
-    //cats.kernel.instances.ListEq
+    cats.kernel.instances.ListEq
     cats.kernel.instances.ListHash
     cats.kernel.instances.ListInstances
     cats.kernel.instances.ListInstances1
     cats.kernel.instances.ListInstances2
     //cats.kernel.instances.ListMonoid
-    //cats.kernel.instances.ListOrder
-    //cats.kernel.instances.ListPartialOrder
+    cats.kernel.instances.ListOrder
+    cats.kernel.instances.ListPartialOrder
     cats.kernel.instances.LongBounded
     cats.kernel.instances.LongEnumerable
     cats.kernel.instances.LongGroup

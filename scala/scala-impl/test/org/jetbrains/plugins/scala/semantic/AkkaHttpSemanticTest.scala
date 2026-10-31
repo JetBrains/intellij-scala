@@ -77,7 +77,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.impl.engine.http2.hpack.Http2HeaderParsing
     //akka.http.impl.engine.http2.util.AsciiTreeLayout
     //akka.http.impl.engine.parsing.BodyPartParser
-    //akka.http.impl.engine.parsing.BoyerMoore
+    akka.http.impl.engine.parsing.BoyerMoore
     //akka.http.impl.engine.parsing.HttpHeaderParser
     //akka.http.impl.engine.parsing.HttpMessageParser
     //akka.http.impl.engine.parsing.HttpRequestParser
@@ -415,7 +415,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.model.ContentType
     //akka.http.scaladsl.model.ContentTypeRange
     //akka.http.scaladsl.model.ContentTypes
-    //akka.http.scaladsl.model.DateTime
+    akka.http.scaladsl.model.DateTime
     akka.http.scaladsl.model.EntityStreamException
     //akka.http.scaladsl.model.EntityStreamSizeException
     //akka.http.scaladsl.model.ErrorInfo
@@ -635,7 +635,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.scaladsl.server.RequestEntityExpectedRejection
     //akka.http.scaladsl.server.Route
     //akka.http.scaladsl.server.RouteConcatenation
-    //akka.http.scaladsl.server.RouteResult
+    akka.http.scaladsl.server.RouteResult
     akka.http.scaladsl.server.RoutingLog
     akka.http.scaladsl.server.SchemeRejection
     //akka.http.scaladsl.server.StandardRoute

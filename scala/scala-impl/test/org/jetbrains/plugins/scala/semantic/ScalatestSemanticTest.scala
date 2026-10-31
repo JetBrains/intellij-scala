@@ -135,7 +135,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.Succeeded
     //org.scalatest.SucceededStatus
     //org.scalatest.Suite
-    //org.scalatest.SuiteHelpers
+    org.scalatest.SuiteHelpers
     org.scalatest.SuiteMixin
     //org.scalatest.SuiteRerunner
     //org.scalatest.Suites
@@ -148,7 +148,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.TestSuiteMixin
     //org.scalatest.TestsBeforeNestedSuites
     org.scalatest.ThreadAwareness
-    //org.scalatest.Timer
+    org.scalatest.Timer
     //org.scalatest.TimerTask
     //org.scalatest.Tracker
     //org.scalatest.Transformer

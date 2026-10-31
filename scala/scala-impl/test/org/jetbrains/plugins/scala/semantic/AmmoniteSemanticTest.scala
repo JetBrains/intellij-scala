@@ -113,7 +113,7 @@ class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.
     ammonite.terminal.Enum
     ammonite.terminal.Exit
     //ammonite.terminal.Filter
-    //ammonite.terminal.FilterTools
+    ammonite.terminal.FilterTools
     //ammonite.terminal.LazyList
     //ammonite.terminal.LineReader
     ammonite.terminal.Printing
@@ -138,7 +138,7 @@ class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.
     //ammonite.util.Colors
     ammonite.util.CompilationError
     ammonite.util.Evaluated
-    //ammonite.util.Ex
+    ammonite.util.Ex
     ammonite.util.Frame
     //ammonite.util.ImportData
     ammonite.util.ImportHookInfo

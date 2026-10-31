@@ -152,7 +152,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.CoproductTraverse1
     //scalaz.Cord
     //scalaz.CorecursiveList
-    //scalaz.CorecursiveListEqual
+    scalaz.CorecursiveListEqual
     scalaz.CorecursiveListInstances
     scalaz.Corepresentable
     //scalaz.Coyoneda
@@ -1094,7 +1094,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.std.VectorFunctions
     //scalaz.std.VectorInstances
     scalaz.std.VectorInstances0
-    //scalaz.std.VectorOrder
+    scalaz.std.VectorOrder
     //scalaz.std.`try`
     scalaz.std.anyVal
     scalaz.std.boolean

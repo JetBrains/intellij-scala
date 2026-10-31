@@ -111,7 +111,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.actor.Nobody
     akka.actor.NotInfluenceReceiveTimeout
     //akka.actor.OneForOneStrategy
-    //akka.actor.OriginalRestartException
+    akka.actor.OriginalRestartException
     //akka.actor.PathUtils
     akka.actor.PoisonPill
     akka.actor.PossiblyHarmful
@@ -560,7 +560,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.routing.RoundRobinPool
     akka.routing.RoundRobinRoutingLogic
     //akka.routing.RoutedActorCell
-    //akka.routing.RoutedActorRef
+    akka.routing.RoutedActorRef
     akka.routing.Routee
     akka.routing.Routees
     //akka.routing.Router
@@ -601,7 +601,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.serialization.SerializationSetup
     akka.serialization.Serializer
     akka.serialization.SerializerDetails
-    //akka.serialization.SerializerWithStringManifest
+    akka.serialization.SerializerWithStringManifest
     //akka.serialization.Serializers
     //akka.serialization.StringSerializer
     //akka.util.AlwaysIncreasingClock

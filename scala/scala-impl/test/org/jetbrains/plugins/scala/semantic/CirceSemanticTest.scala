@@ -32,7 +32,7 @@ class CirceSemanticTest extends SemanticTestBase("io.circe" %% "circe-core" % "0
     //io.circe.Error
     io.circe.Errors
     io.circe.FailedCursor
-    //io.circe.HCursor
+    io.circe.HCursor
     //io.circe.Json
     //io.circe.JsonBigDecimal
     io.circe.JsonBiggerDecimal
