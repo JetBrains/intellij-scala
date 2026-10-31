@@ -203,7 +203,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     cats.effect.unsafe.metrics.CpuStarvation
     cats.effect.unsafe.metrics.CpuStarvationMBean
     cats.effect.unsafe.metrics.CpuStarvationMetrics
-    //cats.effect.unsafe.metrics.CpuStarvationSampler
+    cats.effect.unsafe.metrics.CpuStarvationSampler
     cats.effect.unsafe.metrics.IORuntimeMetrics
     //cats.effect.unsafe.metrics.IORuntimeMetricsCompanionPlatform
     cats.effect.unsafe.metrics.IORuntimeMetricsPlatform
@@ -212,7 +212,7 @@ class CatsEffectSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-e
     cats.effect.unsafe.metrics.LocalQueueMetrics
     cats.effect.unsafe.metrics.LocalQueueSampler
     cats.effect.unsafe.metrics.LocalQueueSamplerMBean
-    //cats.effect.unsafe.metrics.PollerMetrics
+    cats.effect.unsafe.metrics.PollerMetrics
     cats.effect.unsafe.metrics.PollerSampler
     cats.effect.unsafe.metrics.PollerSamplerMBean
     cats.effect.unsafe.metrics.TimerHeapMetrics

@@ -69,7 +69,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.FlushOnShutdown
     //akka.remote.artery.GracefulShutdownQuarantinedEvent
     akka.remote.artery.HeaderBuilder
-    //akka.remote.artery.HeaderBuilderImpl
+    akka.remote.artery.HeaderBuilderImpl
     //akka.remote.artery.ImmutableLongMap
     akka.remote.artery.InboundContext
     //akka.remote.artery.InboundControlJunction
