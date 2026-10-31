@@ -1,0 +1,19 @@
+{
+  "conformance": [
+    {
+      "lhs": "BX",
+      "rhs": "Str",
+      "holds": true
+    },
+    {
+      "lhs": "BX",
+      "rhs": "AnyRefT",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "get": "Use.this.b.x.type",
+    "getLength": "scala.Int"
+  }
+}

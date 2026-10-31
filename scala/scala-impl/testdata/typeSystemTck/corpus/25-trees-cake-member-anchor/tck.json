@@ -1,0 +1,20 @@
+{
+  "description": "memberType of a superclass member of an inner class, typed via a sibling cake slice, through a val path (the scala/scala Trees x.symbol shape).",
+  "concepts": ["member-type", "nested-member", "self-type", "this-type-substitution", "val-path", "cake"],
+  "types": [
+    { "name": "XType", "expr": "x.type", "anchor": "inHasGlobal" },
+    { "name": "GlobalSymbol", "expr": "global.Symbol", "anchor": "inHasGlobal" },
+    { "name": "GlobalTree", "expr": "global.Tree", "anchor": "inHasGlobal" }
+  ],
+  "conformance": [
+    { "lhs": "XType", "rhs": "GlobalTree", "expect": true }
+  ],
+  "equivalence": [],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "xSymbol", "expr": "x.symbol", "anchor": "inHasGlobal" }
+  ],
+  "baseTypes": [
+    { "name": "xAtTree", "prefix": "XType", "clazz": "GlobalTree" }
+  ]
+}

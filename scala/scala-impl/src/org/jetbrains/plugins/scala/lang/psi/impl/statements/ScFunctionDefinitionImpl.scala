@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.{ImplicitValueClass, ImplicitValueClassDumbMode}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{Context, Widening, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, Widening, api}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
@@ -149,6 +149,15 @@ private object ScFunctionDefinitionImpl {
     case _ => false
   }
 
+  /** Whether `e`'s type is the expected type when that is fully defined, as for scalac's `ptOrLub`. */
+  private def takesExpectedType(e: ScExpression): Boolean = e match {
+    case block: ScBlockExpr if !block.isPartialFunction => block.resultExpression.exists(takesExpectedType)
+    case ScParenthesisedExpr(inner)                     => takesExpectedType(inner)
+    case ifStmt: ScIf                                   => ifStmt.elseExpression.isDefined
+    case _: ScMatch | _: ScTry                          => true
+    case _                                              => false
+  }
+
   private def returnTypeInner(fun: ScFunctionDefinition): TypeResult = {
     import fun.projectContext
     implicit val context: Context = Context(fun)
@@ -160,12 +169,24 @@ private object ScFunctionDefinitionImpl {
         fun.body match {
           case Some(b) =>
             def rhsType = b.`type`().map(Widening.widenInferredDefinitionType(_, Widening.DefinitionKind.Def))
-            if (fun.scalaLanguageLevel.exists(_.isScala3) && !fun.isExtensionMethod) fun.superMethod match {
-              case Some(f: ScFunction) if f.getTypeParameters.length == fun.getTypeParameters.length =>
+            def overridden: Option[ScFunction] = fun.superMethod.collect {
+              case f: ScFunction if f.getTypeParameters.length == fun.getTypeParameters.length => f
+            }
+            if (fun.scalaLanguageLevel.exists(_.isScala3) && !fun.isExtensionMethod) overridden match {
+              case Some(_) =>
                 val superMethod = fun.superMethodCall
                 superMethod.`type`()
               case _ => rhsType
             }
+            // scalac (Namers.methodSig) types an untyped override's rhs against the overridden result type, and an
+            // `if`, `match` or `try` then has that type rather than the lub of its branches (Typers.ptOrLub).
+            // scala/scala's `SingleAttachment.update` is `if (...) new SingleAttachment[P] else new
+            // NonemptyAttachments[P]`: the lub is `Attachments`, the inferred type `Attachments { type Pos = P }`.
+            else if (takesExpectedType(b) && overridden.isDefined)
+              fun.superMethodCall.`type`().toOption
+                .filter(pt => b.calculateTailReturns.forall(_.`type`().exists(_.conforms(pt))))
+                .map(Right(_))
+                .getOrElse(rhsType)
             else rhsType
           case _ => Right(api.Unit)
         }

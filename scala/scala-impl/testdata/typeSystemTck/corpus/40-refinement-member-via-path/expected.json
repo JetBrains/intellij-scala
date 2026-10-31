@@ -1,0 +1,33 @@
+{
+  "conformance": [
+    {
+      "lhs": "CloneNameType",
+      "rhs": "Name",
+      "holds": true
+    },
+    {
+      "lhs": "CloneNameType",
+      "rhs": "SNameType",
+      "holds": true
+    },
+    {
+      "lhs": "SNameType",
+      "rhs": "CloneNameType",
+      "holds": true
+    }
+  ],
+  "equivalence": [
+    {
+      "lhs": "CloneNameType",
+      "rhs": "SNameType",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "clone": "s.TypeOfClonedSymbol",
+    "cloneName": "s.NameType",
+    "cloneNameType": "s.NameType",
+    "cloneNameDecode": "java.lang.String"
+  }
+}
