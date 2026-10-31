@@ -79,7 +79,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       if (fqns.isEmpty) "" else s"${extendsSeparator}derives " + fqns.mkString(", ")
     }
 
-    val selfType = cls.selfType.map(t => s" ${cls.selfTypeElement.map(_.name).getOrElse("this")}: " + textOf(t) + " =>").mkString
+    val selfType = cls.selfType.map(t => s" ${cls.selfTypeElement.map(_.name).getOrElse("this")}: " + textOf(t).replace(name + ".this.", "") + " =>").mkString
 
     val givenClauses = cls match {
       case g: ScGivenDefinition => g.clauses.map(_.clauses).getOrElse(Seq.empty).map(textOf(_, inPrivateConstructor = false, inCaseClass = false)).mkString

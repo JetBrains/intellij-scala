@@ -164,7 +164,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.BinestedInstances0
     //cats.data.Chain
     cats.data.ChainCompanionCompat
-    //cats.data.ChainCompat
+    cats.data.ChainCompat
     //cats.data.ChainInstances
     cats.data.ChainInstances1
     cats.data.ChainInstances2
