@@ -193,7 +193,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.BoundedQueueBasedMessageQueue
     //akka.dispatch.BoundedStablePriorityMailbox
     //akka.dispatch.CachingConfig
-    //akka.dispatch.ControlAwareMessageQueueSemantics
+    akka.dispatch.ControlAwareMessageQueueSemantics
     akka.dispatch.ControlMessage
     akka.dispatch.DefaultDispatcherPrerequisites
     //akka.dispatch.DefaultExecutorServiceConfigurator
@@ -247,12 +247,12 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.UnboundedControlAwareMailbox
     akka.dispatch.UnboundedControlAwareMessageQueueSemantics
     akka.dispatch.UnboundedDequeBasedMailbox
-    //akka.dispatch.UnboundedDequeBasedMessageQueue
+    akka.dispatch.UnboundedDequeBasedMessageQueue
     akka.dispatch.UnboundedDequeBasedMessageQueueSemantics
     akka.dispatch.UnboundedMailbox
     akka.dispatch.UnboundedMessageQueueSemantics
     //akka.dispatch.UnboundedPriorityMailbox
-    //akka.dispatch.UnboundedQueueBasedMessageQueue
+    akka.dispatch.UnboundedQueueBasedMessageQueue
     //akka.dispatch.UnboundedStablePriorityMailbox
     //akka.dispatch.affinity.AffinityPool
     //akka.dispatch.affinity.AffinityPoolConfigurator
@@ -586,15 +586,15 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.serialization.AsyncSerializerWithStringManifest
     akka.serialization.AsyncSerializerWithStringManifestCS
     //akka.serialization.BaseSerializer
-    //akka.serialization.BooleanSerializer
+    akka.serialization.BooleanSerializer
     //akka.serialization.ByteArraySerializer
     akka.serialization.ByteBufferSerializer
     akka.serialization.ByteStringSerializer
     //akka.serialization.DisabledJavaSerializer
-    //akka.serialization.IntSerializer
+    akka.serialization.IntSerializer
     akka.serialization.JSerializer
     //akka.serialization.JavaSerializer
-    //akka.serialization.LongSerializer
+    akka.serialization.LongSerializer
     akka.serialization.NullSerializer
     //akka.serialization.Serialization
     akka.serialization.SerializationExtension
@@ -603,7 +603,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.serialization.SerializerDetails
     akka.serialization.SerializerWithStringManifest
     //akka.serialization.Serializers
-    //akka.serialization.StringSerializer
+    akka.serialization.StringSerializer
     //akka.util.AlwaysIncreasingClock
     //akka.util.Base62
     //akka.util.BoundedBlockingQueue

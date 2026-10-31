@@ -78,7 +78,7 @@ class AmmoniteSemanticTest extends SemanticTestBase("com.lihaoyi" % "ammonite_3.
     //ammonite.repl.ReplApiImpl
     ammonite.repl.ReplBridge
     ammonite.repl.Scoped
-    //ammonite.repl.SessionApiImpl
+    ammonite.repl.SessionApiImpl
     //ammonite.repl.Signaller
     ammonite.repl.SyntaxError
     ammonite.repl.api.Clipboard

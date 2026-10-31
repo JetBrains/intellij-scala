@@ -9,7 +9,7 @@ class CirceSemanticTest extends SemanticTestBase("io.circe" %% "circe-core" % "0
 
   @Test def test(): Unit = doTest("""
     //io.circe.ACursor
-    //io.circe.BiggerDecimalJsonNumber
+    io.circe.BiggerDecimalJsonNumber
     //io.circe.Codec
     //io.circe.CodecDerivation
     //io.circe.CodecDerivationRelaxed
@@ -34,12 +34,12 @@ class CirceSemanticTest extends SemanticTestBase("io.circe" %% "circe-core" % "0
     io.circe.FailedCursor
     io.circe.HCursor
     //io.circe.Json
-    //io.circe.JsonBigDecimal
+    io.circe.JsonBigDecimal
     io.circe.JsonBiggerDecimal
     io.circe.JsonDecimal
-    //io.circe.JsonDouble
-    //io.circe.JsonFloat
-    //io.circe.JsonLong
+    io.circe.JsonDouble
+    io.circe.JsonFloat
+    io.circe.JsonLong
     //io.circe.JsonNumber
     //io.circe.JsonObject
     //io.circe.KeyDecoder
@@ -50,7 +50,7 @@ class CirceSemanticTest extends SemanticTestBase("io.circe" %% "circe-core" % "0
     //io.circe.LowPriorityDecoders
     //io.circe.LowPriorityEncoders
     //io.circe.MapDecoder
-    //io.circe.MidPriorityEncoders
+    io.circe.MidPriorityEncoders
     io.circe.NonEmptySeqDecoder
     //io.circe.Parser
     //io.circe.ParsingFailure
