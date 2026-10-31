@@ -128,7 +128,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.http.NoHttpFilters
     //play.api.http.NotImplementedHttpRequestHandler
     //play.api.http.ParserConfiguration
-    //play.api.http.Port
+    play.api.http.Port
     play.api.http.PreferredMediaTypeHttpErrorHandler
     //play.api.http.SecretConfiguration
     //play.api.http.SessionConfiguration
@@ -261,7 +261,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.libs.json.ImplicitResolver
     //play.api.libs.json.JsArray
     //play.api.libs.json.JsBoolean
-    //play.api.libs.json.JsDefined
+    play.api.libs.json.JsDefined
     //play.api.libs.json.JsError
     play.api.libs.json.JsFalse
     //play.api.libs.json.JsLookup

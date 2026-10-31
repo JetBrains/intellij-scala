@@ -165,7 +165,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.impl.util.EnhancedByteStringSource
     //akka.http.impl.util.EnhancedByteStringTraversableOnce
     //akka.http.impl.util.EnhancedConfig
-    //akka.http.impl.util.EnhancedRegex
+    akka.http.impl.util.EnhancedRegex
     //akka.http.impl.util.EnhancedString
     //akka.http.impl.util.EventStreamLogger
     //akka.http.impl.util.ExposeAttributes
@@ -443,8 +443,8 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.model.MediaType
     //akka.http.scaladsl.model.MediaTypes
     //akka.http.scaladsl.model.Multipart
-    //akka.http.scaladsl.model.OptHttpRequest
-    //akka.http.scaladsl.model.OptHttpResponse
+    akka.http.scaladsl.model.OptHttpRequest
+    akka.http.scaladsl.model.OptHttpResponse
     akka.http.scaladsl.model.ParsingException
     //akka.http.scaladsl.model.RemoteAddress
     akka.http.scaladsl.model.RequestEntity

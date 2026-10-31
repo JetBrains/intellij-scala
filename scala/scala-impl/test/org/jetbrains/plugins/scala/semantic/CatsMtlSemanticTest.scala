@@ -56,25 +56,25 @@ class CatsMtlSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-mtl"
     cats.mtl.TellMonadPartialOrder
     cats.mtl.syntax.AllSyntax
     cats.mtl.syntax.AskSyntax
-    //cats.mtl.syntax.ChronicleIdOps
-    //cats.mtl.syntax.ChronicleIorOps
-    //cats.mtl.syntax.ChronicleOps
+    cats.mtl.syntax.ChronicleIdOps
+    cats.mtl.syntax.ChronicleIorOps
+    cats.mtl.syntax.ChronicleOps
     cats.mtl.syntax.ChronicleSyntax
-    //cats.mtl.syntax.HandleOps
+    cats.mtl.syntax.HandleOps
     cats.mtl.syntax.HandleSyntax
-    //cats.mtl.syntax.ListenOps
+    cats.mtl.syntax.ListenOps
     cats.mtl.syntax.ListenSyntax
-    //cats.mtl.syntax.LocalOps
+    cats.mtl.syntax.LocalOps
     cats.mtl.syntax.LocalSyntax
-    //cats.mtl.syntax.ModifyOps
-    //cats.mtl.syntax.RaiseOps
+    cats.mtl.syntax.ModifyOps
+    cats.mtl.syntax.RaiseOps
     cats.mtl.syntax.RaiseSyntax
-    //cats.mtl.syntax.ReaderOps
-    //cats.mtl.syntax.SetOps
+    cats.mtl.syntax.ReaderOps
+    cats.mtl.syntax.SetOps
     cats.mtl.syntax.StateSyntax
-    //cats.mtl.syntax.TellOps
+    cats.mtl.syntax.TellOps
     cats.mtl.syntax.TellSyntax
-    //cats.mtl.syntax.TupleOps
+    cats.mtl.syntax.TupleOps
     cats.mtl.syntax.all
     cats.mtl.syntax.ask
     cats.mtl.syntax.chronicle
