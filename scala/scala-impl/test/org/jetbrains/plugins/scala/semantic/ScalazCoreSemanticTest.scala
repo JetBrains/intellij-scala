@@ -1454,7 +1454,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.syntax.TreeOps
     //scalaz.syntax.UnzipOps
     //scalaz.syntax.UnzipSyntax
-    //scalaz.syntax.ValidationOps
+    scalaz.syntax.ValidationOps
     scalaz.syntax.WriterOps
     //scalaz.syntax.ZipOps
     //scalaz.syntax.ZipSyntax

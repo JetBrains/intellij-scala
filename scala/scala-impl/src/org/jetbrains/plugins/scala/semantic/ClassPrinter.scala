@@ -38,7 +38,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
 
     val modifiers = {
       val s = textOfModifiers(cls, (if (cls.isObject) ScalaPsiUtil.superValsSignatures(cls) else ScalaPsiUtil.superTypeSignatures(cls)).nonEmpty)
-      if (normalize && cls.is[ScClass] && (cls.hasModifierPropertyScala("implicit") || isValueClass(cls))) s.replace("final ", "")
+      if (normalize && cls.is[ScClass] && cls.hasModifierPropertyScala("implicit") && !isValueClass(cls)) s.replace("final ", "")
       else if (normalize && cls.is[ScObject] && cls.hasModifierPropertyScala("case")) s.replace("final ", "")
       else s
     }
@@ -762,7 +762,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       (if (ml.isPrivate) "private" + qualifier + " " else "") +
       (if (ml.isProtected) "protected" + qualifier + " " else "") +
       (if (ml.isImplicit) "implicit " else "") +
-      (if (ml.isFinal) "final " else "") +
+      (if (ml.isFinal || normalize && owner.asOptionOf[ScClass].exists(isValueClass)) "final " else "") +
       (if (ml.isSealed) "sealed " else "") +
       (if (ml.isOpen) "open " else "") +
       (if (ml.isAbstract && !ml.isOverride) "abstract " else "") +
