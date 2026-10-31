@@ -263,7 +263,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.affinity.RejectionHandlerFactory
     //akka.dispatch.affinity.ThrowOnOverflowRejectionHandler
     akka.dispatch.internal.SameThreadExecutionContext
-    //akka.dispatch.internal.ScalaBatchable
+    akka.dispatch.internal.ScalaBatchable
     //akka.dispatch.japi
     akka.dispatch.sysmsg.Create
     akka.dispatch.sysmsg.DeathWatchNotification
