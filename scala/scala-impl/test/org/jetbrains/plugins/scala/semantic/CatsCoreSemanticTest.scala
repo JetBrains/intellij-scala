@@ -641,7 +641,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.instances.PartialOrderInstances
     //cats.instances.PartialOrderingInstances
     //cats.instances.QueueInstances
-    //cats.instances.ScalaVersionSpecificNumeric
+    cats.instances.ScalaVersionSpecificNumeric
     //cats.instances.SeqInstances
     //cats.instances.SetInstances
     cats.instances.ShortInstances

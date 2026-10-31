@@ -74,7 +74,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.data.format.Formats
     play.api.data.format.Formatter
     play.api.data.format.PlayDate
-    //play.api.data.validation.Constraint
+    play.api.data.validation.Constraint
     //play.api.data.validation.Constraints
     play.api.data.validation.Invalid
     //play.api.data.validation.ParameterValidator

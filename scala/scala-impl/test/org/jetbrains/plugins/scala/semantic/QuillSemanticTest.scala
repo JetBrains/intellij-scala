@@ -402,7 +402,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.context.mirror.MirrorSession
     //io.getquill.context.mirror.Row
     //io.getquill.context.qzio.ImplicitSyntax
-    //io.getquill.context.qzio.ResultSetIterator
+    io.getquill.context.qzio.ResultSetIterator
     //io.getquill.context.qzio.ZioContext
     //io.getquill.context.qzio.ZioJdbcContext
     //io.getquill.context.qzio.ZioJdbcUnderlyingContext

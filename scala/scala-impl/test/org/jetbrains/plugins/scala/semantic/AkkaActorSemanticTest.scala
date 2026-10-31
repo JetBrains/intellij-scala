@@ -71,7 +71,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.actor.CoordinatedShutdown
     //akka.actor.CoordinatedShutdownTerminationWatcher
     akka.actor.CreatorConsumer
-    //akka.actor.CreatorFunctionConsumer
+    akka.actor.CreatorFunctionConsumer
     akka.actor.DeadLetter
     akka.actor.DeadLetterActorRef
     akka.actor.DeadLetterSuppression
@@ -156,7 +156,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.actor.TypedActor
     //akka.actor.TypedActorExtension
     //akka.actor.TypedActorFactory
-    //akka.actor.TypedCreatorFunctionConsumer
+    akka.actor.TypedCreatorFunctionConsumer
     //akka.actor.TypedProps
     akka.actor.UnboundedStash
     //akka.actor.UnhandledMessage
@@ -289,7 +289,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.event.AddressTerminatedTopic
     //akka.event.BusLogging
     //akka.event.DeadLetterListener
-    //akka.event.DefaultLoggingFilter
+    akka.event.DefaultLoggingFilter
     akka.event.DiagnosticLoggingAdapter
     akka.event.DiagnosticMarkerBusLoggingAdapter
     akka.event.DummyClassForStringSources
@@ -617,7 +617,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.util.CompactByteString
     akka.util.ConcurrentMultiMap
     //akka.util.ConstantFun
-    //akka.util.DoubleLinkedList
+    akka.util.DoubleLinkedList
     akka.util.ErrorMessages
     //akka.util.FastFrequencySketch
     akka.util.FlightRecorderLoader

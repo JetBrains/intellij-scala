@@ -16,8 +16,8 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.ByteStringUtils
     akka.remote.DaemonMsg
     akka.remote.DaemonMsgCreate
-    //akka.remote.DeadlineFailureDetector
-    //akka.remote.DefaultFailureDetectorRegistry
+    akka.remote.DeadlineFailureDetector
+    akka.remote.DefaultFailureDetectorRegistry
     //akka.remote.FailureDetector
     //akka.remote.FailureDetectorLoader
     akka.remote.FailureDetectorRegistry
@@ -81,7 +81,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.LruBoundedCache
     //akka.remote.artery.MessageDispatcher
     akka.remote.artery.NoOpRemotingFlightRecorder
-    //akka.remote.artery.ObjectPool
+    akka.remote.artery.ObjectPool
     akka.remote.artery.OutOfBuffersException
     akka.remote.artery.OutboundContext
     //akka.remote.artery.OutboundControlJunction

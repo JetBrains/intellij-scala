@@ -21,7 +21,7 @@ class ScalacheckSemanticTest extends SemanticTestBase("org.scalacheck" %% "scala
     //org.scalacheck.GenVersionSpecific
     //org.scalacheck.Platform
     //org.scalacheck.Prop
-    //org.scalacheck.PropFromFun
+    org.scalacheck.PropFromFun
     //org.scalacheck.Properties
     //org.scalacheck.ScalaCheckFramework
     //org.scalacheck.ScalaCheckRunner
