@@ -144,7 +144,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     zio.internal.FiberRunnable
     //zio.internal.FiberRuntime
     //zio.internal.FiberScope
-    //zio.internal.Hub
+    zio.internal.Hub
     //zio.internal.IsFatal
     //zio.internal.LinkedQueue
     zio.internal.LoomSupport

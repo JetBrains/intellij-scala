@@ -959,12 +959,12 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     scalaz.std.AllInstances
     //scalaz.std.AnyValInstances
     scalaz.std.BooleanFunctions
-    //scalaz.std.DoubleFunctions
+    scalaz.std.DoubleFunctions
     scalaz.std.EitherEqual
     //scalaz.std.EitherInstances
     scalaz.std.EitherInstances0
     scalaz.std.EitherOrder
-    //scalaz.std.FloatFunctions
+    scalaz.std.FloatFunctions
     //scalaz.std.Function1Cobind
     scalaz.std.Function1Comonad
     //scalaz.std.Function1Monoid
@@ -988,7 +988,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.std.ListInstances
     scalaz.std.ListInstances0
     scalaz.std.ListOrder
-    //scalaz.std.LongFunctions
+    scalaz.std.LongFunctions
     //scalaz.std.MapFunctions
     //scalaz.std.MapInstances
     //scalaz.std.MapInstances0

@@ -441,8 +441,8 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.mvc.UnsatisfiableRangeSet
     //play.api.mvc.UrlEncodedCookieDataCodec
     //play.api.mvc.WebSocket
-    //play.api.mvc.WithEntityLengthRange
-    //play.api.mvc.WithoutEntityLengthRange
+    play.api.mvc.WithEntityLengthRange
+    play.api.mvc.WithoutEntityLengthRange
     play.api.mvc.WrappedRequest
     //play.api.mvc.macros.BinderMacros
     play.api.mvc.request.AssignedCell
@@ -514,7 +514,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.core.routing.Route
     //play.core.routing.RouteParams
     play.core.routing.StaticPart
-    //play.core.system.RequestIdProvider
+    play.core.system.RequestIdProvider
     play.core.utils.AsciiBitSet
     play.core.utils.AsciiChar
     //play.core.utils.AsciiRange

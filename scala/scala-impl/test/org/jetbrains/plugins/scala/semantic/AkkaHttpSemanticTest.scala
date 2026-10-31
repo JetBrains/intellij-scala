@@ -19,7 +19,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.impl.engine.client.HttpsProxyGraphStage
     //akka.http.impl.engine.client.OutgoingConnectionBlueprint
     akka.http.impl.engine.client.PoolFlow
-    //akka.http.impl.engine.client.PoolId
+    akka.http.impl.engine.client.PoolId
     //akka.http.impl.engine.client.PoolInterface
     //akka.http.impl.engine.client.PoolMaster
     //akka.http.impl.engine.client.PoolMasterActor
