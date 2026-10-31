@@ -703,7 +703,10 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
   private def isField(p: ScParameter): Boolean = {
     val containingClass = p.contexts.findByType[ScTypeDefinition].get
     val parentClauses = containingClass.extendsBlock.templateParents.map(_.parentClauses).getOrElse(Seq.empty)
-    (parentClauses ++ containingClass.members.filterNot(_.names.contains("this"))).exists(_.elements.exists { case ReferenceTarget(e) if e == p => true; case _ => false } )
+    (parentClauses ++ containingClass.members.filterNot(_.names.contains("this"))).exists(_.elements.exists {
+      case reference: ScReference => reference.bind().exists(_.mostInnerResolveResult.element == p)
+      case _ => false
+    })
   }
 
   private def textOf(annotation: ScAnnotation): String =
