@@ -606,7 +606,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.quat.QuatMaking
     //io.getquill.quat.QuatMakingBase
     //io.getquill.quat.QuatNestingHelper
-    //io.getquill.quat.QuatOps
+    io.getquill.quat.QuatOps
     //io.getquill.quat.VerifyNoBranches
     //io.getquill.quotation.FreeVariables
     io.getquill.quotation.NonQuotedException

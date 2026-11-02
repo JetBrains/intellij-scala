@@ -77,7 +77,7 @@ class AkkaClusterSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     akka.cluster.sbr.KeepOldestSettings
     akka.cluster.sbr.LeaseMajority
     akka.cluster.sbr.LeaseMajoritySettings
-    //akka.cluster.sbr.SplitBrainResolver
+    akka.cluster.sbr.SplitBrainResolver
     //akka.cluster.sbr.SplitBrainResolverBase
     akka.cluster.sbr.SplitBrainResolverProvider
     //akka.cluster.sbr.SplitBrainResolverSettings

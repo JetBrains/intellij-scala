@@ -100,7 +100,7 @@ class AkkaPersistenceSemanticTest extends SemanticTestBase("com.typesafe.akka" %
     //akka.persistence.journal.leveldb.LeveldbRecovery
     //akka.persistence.journal.leveldb.SharedLeveldbJournal
     //akka.persistence.journal.leveldb.SharedLeveldbStore
-    //akka.persistence.serialization.FilteredPayloadSerializer
+    akka.persistence.serialization.FilteredPayloadSerializer
     akka.persistence.serialization.Message
     //akka.persistence.serialization.MessageSerializer
     akka.persistence.serialization.Snapshot

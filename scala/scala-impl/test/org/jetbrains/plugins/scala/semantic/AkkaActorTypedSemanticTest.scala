@@ -19,7 +19,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     //akka.actor.typed.Behavior
     //akka.actor.typed.BehaviorInterceptor
     //akka.actor.typed.BehaviorSignalInterceptor
-    //akka.actor.typed.ChildFailed
+    akka.actor.typed.ChildFailed
     akka.actor.typed.DeathPactException
     akka.actor.typed.DispatcherSelector
     akka.actor.typed.Dispatchers
@@ -34,7 +34,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     akka.actor.typed.PostStop
     akka.actor.typed.PreRestart
     //akka.actor.typed.Props
-    //akka.actor.typed.RecipientRef
+    akka.actor.typed.RecipientRef
     akka.actor.typed.RestartSupervisorStrategy
     akka.actor.typed.Scheduler
     //akka.actor.typed.SerializedActorRef
@@ -111,7 +111,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     //akka.actor.typed.internal.adapter.GuardianStartupBehavior
     //akka.actor.typed.internal.adapter.GuardianStopInterceptor
     //akka.actor.typed.internal.adapter.PropsAdapter
-    //akka.actor.typed.internal.adapter.SchedulerAdapter
+    akka.actor.typed.internal.adapter.SchedulerAdapter
     //akka.actor.typed.internal.pubsub.TopicImpl
     akka.actor.typed.internal.receptionist.AbstractServiceKey
     akka.actor.typed.internal.receptionist.DefaultServiceKey
@@ -130,7 +130,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     akka.actor.typed.internal.routing.RoutingLogic
     //akka.actor.typed.internal.routing.RoutingLogics
     //akka.actor.typed.javadsl.AbstractBehavior
-    //akka.actor.typed.javadsl.AbstractOnMessageBehavior
+    akka.actor.typed.javadsl.AbstractOnMessageBehavior
     akka.actor.typed.javadsl.ActorContext
     //akka.actor.typed.javadsl.Adapter
     akka.actor.typed.javadsl.AskPattern
@@ -150,7 +150,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     //akka.actor.typed.receptionist.Receptionist
     akka.actor.typed.receptionist.ReceptionistSetup
     akka.actor.typed.receptionist.ServiceKey
-    //akka.actor.typed.scaladsl.AbstractBehavior
+    akka.actor.typed.scaladsl.AbstractBehavior
     akka.actor.typed.scaladsl.ActorContext
     //akka.actor.typed.scaladsl.AskPattern
     //akka.actor.typed.scaladsl.Behaviors
