@@ -38,8 +38,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
 
     val modifiers = {
       val s = textOfModifiers(cls, (if (cls.isObject) ScalaPsiUtil.superValsSignatures(cls) else ScalaPsiUtil.superTypeSignatures(cls)).nonEmpty)
-      // Keep value-class finality normalized like the compiler-side SourceCode printer.
-      if (normalize && cls.is[ScClass] && (cls.hasModifierPropertyScala("implicit") || isValueClass(cls))) s.replace("final ", "")
+      if (normalize && cls.is[ScClass] && isValueClass(cls)) s.replace("final ", "")
       else if (normalize && cls.is[ScObject] && cls.hasModifierPropertyScala("case")) s.replace("final ", "")
       else s
     }
