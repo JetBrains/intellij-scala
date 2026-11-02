@@ -50,7 +50,7 @@ abstract class RandomTypingTestBase extends EditorActionTestBase {
       EDT.dispatchAllInvocationEvents()
     }
 
-    val file = myFixture.configureByText("test.scala", "")
+    val file = myFixture.configureByText(defaultFileName, "")
     val caretModel = getEditor.getCaretModel
     val found = mutable.Set.empty[String]
 
