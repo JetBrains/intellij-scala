@@ -1,0 +1,18 @@
+Document tests/pos/i26801.scala
+(1:25..1:31) scala/Predef.String#
+(3:26..3:33) _empty_/Context# -> 1:7
+(3:36..3:43) _empty_/Context# -> 1:7
+(3:46..3:48) _empty_/i26801$package.ctx().(it) -> 3:22
+(5:14..5:18) scala/package.List#
+(5:19..5:22) scala/Int#
+(5:31..5:38) _empty_/Context# -> 1:7
+(5:41..5:45) scala/package.List#
+(5:47..5:50) scala/Int#
+(5:52..5:58) scala/Predef.String#
+(6:3..6:5) _empty_/i26801$package.test().(xs) -> 5:10
+(6:6..6:9) scala/collection/immutable/List#map().
+(6:17..6:20) local0 -> 6:10
+(6:21..6:23) scala/Predef.`->`().
+(6:24..6:27) _empty_/i26801$package.ctx(). -> 3:12
+(6:28..6:32) _empty_/Context#lang. -> 1:19
+
