@@ -513,7 +513,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     org.scalatest.tools.AnsiReset
     org.scalatest.tools.AnsiYellow
     //org.scalatest.tools.ArgsParser
-    //org.scalatest.tools.ColorBar
+    org.scalatest.tools.ColorBar
     org.scalatest.tools.ConcurrentConfig
     org.scalatest.tools.ConcurrentDistributor
     org.scalatest.tools.CustomReporterConfiguration
@@ -644,7 +644,7 @@ class ScalatestSemanticTest extends SemanticTestBase("org.scalatest" %% "scalate
     //org.scalatest.tools.XmlSocketReporter
     org.scalatest.tools.XmlSocketReporterConfiguration
     //org.scalatest.tools.XmlUtility
-    org.scalatest.verbs.ArrayWrapper
+    //org.scalatest.verbs.ArrayWrapper
     org.scalatest.verbs.BehaveWord
     org.scalatest.verbs.CanVerb
     org.scalatest.verbs.CompileWord

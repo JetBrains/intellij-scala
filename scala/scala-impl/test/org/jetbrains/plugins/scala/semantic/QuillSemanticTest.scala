@@ -101,15 +101,15 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.SQLServerDialect
     io.getquill.SchemaMeta
     //io.getquill.SnakeCase
-    //io.getquill.SpliceDate
+    io.getquill.SpliceDate
     io.getquill.SpliceDouble
     io.getquill.SpliceFloat
     io.getquill.SpliceInt
-    //io.getquill.SpliceLocalDate
-    //io.getquill.SpliceLocalDateTime
+    io.getquill.SpliceLocalDate
+    io.getquill.SpliceLocalDateTime
     io.getquill.SpliceLong
     io.getquill.SpliceShort
-    //io.getquill.SpliceString
+    io.getquill.SpliceString
     //io.getquill.SqlInfixInterpolator
     io.getquill.SqlMirrorContext
     //io.getquill.SqlServerJdbcContext
@@ -522,7 +522,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.norm.AdHocReduction
     //io.getquill.norm.ApplyMap
     //io.getquill.norm.ApplyRenamesToProps
-    //io.getquill.norm.AttachToEntity
+    io.getquill.norm.AttachToEntity
     //io.getquill.norm.BetaReduction
     //io.getquill.norm.CompleteRenames
     io.getquill.norm.ConcatBehavior
@@ -606,7 +606,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.quat.QuatMaking
     //io.getquill.quat.QuatMakingBase
     //io.getquill.quat.QuatNestingHelper
-    //io.getquill.quat.QuatOps
+    io.getquill.quat.QuatOps
     //io.getquill.quat.VerifyNoBranches
     //io.getquill.quotation.FreeVariables
     io.getquill.quotation.NonQuotedException

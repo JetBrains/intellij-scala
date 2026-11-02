@@ -173,7 +173,7 @@ class ZioSemanticTest extends SemanticTestBase("dev.zio" %% "zio" % "2.1.23")("z
     //zio.internal.WeakConcurrentBag
     //zio.internal.WeakConcurrentBagGc
     //zio.internal.ZScheduler
-    //zio.internal.ansi
+    zio.internal.ansi
     zio.internal.macros.DummyK
     //zio.internal.macros.Graph
     //zio.internal.macros.GraphError
