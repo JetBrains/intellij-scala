@@ -15,7 +15,7 @@
 
 package org.jetbrains.plugins.scala.highlighter;
 
-import com.intellij.codeInsight.daemon.impl.JavaHighlightInfoTypes;
+import com.intellij.ide.highlighter.JavaHighlightingColors;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.XmlHighlighterColors;
@@ -128,9 +128,9 @@ public class DefaultHighlighter {
   public static final TextAttributesKey IMMUTABLE_COLLECTION = createKey(IMMUTABLE_COLLECTION_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
   public static final TextAttributesKey JAVA_COLLECTION = createKey(JAVA_COLLECTION_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
   public static final TextAttributesKey PREDEF = createKey(PREDEF_ID, DefaultLanguageHighlighterColors.COMMA);
-  public static final TextAttributesKey TYPEPARAM = createKey(TYPEPARAM_ID, JavaHighlightInfoTypes.TYPE_PARAMETER_NAME.getAttributesKey());
-  public static final TextAttributesKey OBJECT = createKey(OBJECT_ID, JavaHighlightInfoTypes.CLASS_NAME.getAttributesKey());
-  public static final TextAttributesKey CLASS = createKey(CLASS_ID, JavaHighlightInfoTypes.CLASS_NAME.getAttributesKey());
+  public static final TextAttributesKey TYPEPARAM = createKey(TYPEPARAM_ID, JavaHighlightingColors.TYPE_PARAMETER_NAME_ATTRIBUTES);
+  public static final TextAttributesKey OBJECT = createKey(OBJECT_ID, JavaHighlightingColors.CLASS_NAME_ATTRIBUTES);
+  public static final TextAttributesKey CLASS = createKey(CLASS_ID, JavaHighlightingColors.CLASS_NAME_ATTRIBUTES);
   public static final TextAttributesKey PACKAGE = createKey(PACKAGE_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
 
   // ScalaDoc
@@ -148,37 +148,37 @@ public class DefaultHighlighter {
 
 
   public static final TextAttributesKey IMPLICIT_CONVERSIONS = createKey(IMPLICIT_CONVERSIONS_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
-  public static final TextAttributesKey ABSTRACT_CLASS = createKey(ABSTRACT_CLASS_ID, JavaHighlightInfoTypes.ABSTRACT_CLASS_NAME.getAttributesKey());
-  public static final TextAttributesKey TRAIT = createKey(TRAIT_ID, JavaHighlightInfoTypes.INTERFACE_NAME.getAttributesKey());
-  public static final TextAttributesKey LOCAL_VALUES = createKey(LOCAL_VALUES_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
-  public static final TextAttributesKey LOCAL_VARIABLES = createKey(LOCAL_VARIABLES_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
-  public static final TextAttributesKey LOCAL_LAZY = createKey(LOCAL_LAZY_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
-  public static final TextAttributesKey VALUES = createKey(VALUES_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
-  public static final TextAttributesKey VARIABLES = createKey(VARIABLES_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
+  public static final TextAttributesKey ABSTRACT_CLASS = createKey(ABSTRACT_CLASS_ID, JavaHighlightingColors.ABSTRACT_CLASS_NAME_ATTRIBUTES);
+  public static final TextAttributesKey TRAIT = createKey(TRAIT_ID, JavaHighlightingColors.INTERFACE_NAME_ATTRIBUTES);
+  public static final TextAttributesKey LOCAL_VALUES = createKey(LOCAL_VALUES_ID, JavaHighlightingColors.LOCAL_VARIABLE_ATTRIBUTES);
+  public static final TextAttributesKey LOCAL_VARIABLES = createKey(LOCAL_VARIABLES_ID, JavaHighlightingColors.LOCAL_VARIABLE_ATTRIBUTES);
+  public static final TextAttributesKey LOCAL_LAZY = createKey(LOCAL_LAZY_ID, JavaHighlightingColors.LOCAL_VARIABLE_ATTRIBUTES);
+  public static final TextAttributesKey VALUES = createKey(VALUES_ID, JavaHighlightingColors.STATIC_FIELD_ATTRIBUTES);
+  public static final TextAttributesKey VARIABLES = createKey(VARIABLES_ID, JavaHighlightingColors.STATIC_FIELD_ATTRIBUTES);
   public static final TextAttributesKey CASE_CLASS_FIELD = createKey(CASE_CLASS_FIELD_ID, VALUES);
   public static final TextAttributesKey CASE_CLASS_VAR_FIELD = createKey(CASE_CLASS_VAR_FIELD_ID, VARIABLES);
-  public static final TextAttributesKey LAZY = createKey(LAZY_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
-  public static final TextAttributesKey PATTERN = createKey(PATTERN_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
-  public static final TextAttributesKey GENERATOR = createKey(GENERATOR_ID, JavaHighlightInfoTypes.LOCAL_VARIABLE.getAttributesKey());
-  public static final TextAttributesKey PARAMETER = createKey(PARAMETER_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
+  public static final TextAttributesKey LAZY = createKey(LAZY_ID, JavaHighlightingColors.STATIC_FIELD_ATTRIBUTES);
+  public static final TextAttributesKey PATTERN = createKey(PATTERN_ID, JavaHighlightingColors.LOCAL_VARIABLE_ATTRIBUTES);
+  public static final TextAttributesKey GENERATOR = createKey(GENERATOR_ID, JavaHighlightingColors.LOCAL_VARIABLE_ATTRIBUTES);
+  public static final TextAttributesKey PARAMETER = createKey(PARAMETER_ID, JavaHighlightingColors.PARAMETER_ATTRIBUTES);
   public static final TextAttributesKey NAMED_ARGUMENT = createKey(NAMED_ARGUMENT_ID, PARAMETER);
-  public static final TextAttributesKey GIVEN = createKey(GIVEN_ID, JavaHighlightInfoTypes.STATIC_FIELD.getAttributesKey());
+  public static final TextAttributesKey GIVEN = createKey(GIVEN_ID, JavaHighlightingColors.STATIC_FIELD_ATTRIBUTES);
 
   //TODO: rename ANONIMOUS -> ANONYMOUS
-  public static final TextAttributesKey PARAMETER_OF_ANONIMOUS_FUNCTION = createKey(PARAMETER_OF_ANONYMOUS_FUNCTION_ID, JavaHighlightInfoTypes.PARAMETER.getAttributesKey());
-  public static final TextAttributesKey METHOD_CALL = createKey(METHOD_CALL_ID, JavaHighlightInfoTypes.METHOD_CALL.getAttributesKey());
-  public static final TextAttributesKey OBJECT_METHOD_CALL = createKey(OBJECT_METHOD_CALL_ID, JavaHighlightInfoTypes.STATIC_METHOD.getAttributesKey());
-  public static final TextAttributesKey LOCAL_METHOD_CALL = createKey(LOCAL_METHOD_CALL_ID, JavaHighlightInfoTypes.METHOD_CALL.getAttributesKey());
-  public static final TextAttributesKey METHOD_DECLARATION = createKey(METHOD_DECLARATION_ID, JavaHighlightInfoTypes.METHOD_DECLARATION.getAttributesKey());
-  public static final TextAttributesKey ANNOTATION = createKey(ANNOTATION_ID, JavaHighlightInfoTypes.ANNOTATION_NAME.getAttributesKey());
-  public static final TextAttributesKey ANNOTATION_ATTRIBUTE = createKey(ANNOTATION_ATTRIBUTE_ID, JavaHighlightInfoTypes.ANNOTATION_ATTRIBUTE_NAME.getAttributesKey());
-  public static final TextAttributesKey TYPE_ALIAS = createKey(TYPE_ALIAS_ID, JavaHighlightInfoTypes.TYPE_PARAMETER_NAME.getAttributesKey());
+  public static final TextAttributesKey PARAMETER_OF_ANONIMOUS_FUNCTION = createKey(PARAMETER_OF_ANONYMOUS_FUNCTION_ID, JavaHighlightingColors.PARAMETER_ATTRIBUTES);
+  public static final TextAttributesKey METHOD_CALL = createKey(METHOD_CALL_ID, JavaHighlightingColors.METHOD_CALL_ATTRIBUTES);
+  public static final TextAttributesKey OBJECT_METHOD_CALL = createKey(OBJECT_METHOD_CALL_ID, JavaHighlightingColors.STATIC_METHOD_ATTRIBUTES);
+  public static final TextAttributesKey LOCAL_METHOD_CALL = createKey(LOCAL_METHOD_CALL_ID, JavaHighlightingColors.METHOD_CALL_ATTRIBUTES);
+  public static final TextAttributesKey METHOD_DECLARATION = createKey(METHOD_DECLARATION_ID, JavaHighlightingColors.METHOD_DECLARATION_ATTRIBUTES);
+  public static final TextAttributesKey ANNOTATION = createKey(ANNOTATION_ID, JavaHighlightingColors.ANNOTATION_NAME_ATTRIBUTES);
+  public static final TextAttributesKey ANNOTATION_ATTRIBUTE = createKey(ANNOTATION_ATTRIBUTE_ID, JavaHighlightingColors.ANNOTATION_ATTRIBUTE_NAME_ATTRIBUTES);
+  public static final TextAttributesKey TYPE_ALIAS = createKey(TYPE_ALIAS_ID, JavaHighlightingColors.TYPE_PARAMETER_NAME_ATTRIBUTES);
   public static final TextAttributesKey ASSIGN = createKey(ASSIGN_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
   // TODO Inherit Java's arrow attributes when Java will support them
   public static final TextAttributesKey ARROW = createKey(ARROW_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
   public static final TextAttributesKey BAD_CHARACTER = createKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER);
 
-  public static final TextAttributesKey ENUM = createKey(ENUM_ID, JavaHighlightInfoTypes.ENUM_NAME.getAttributesKey());
+  public static final TextAttributesKey ENUM = createKey(ENUM_ID, JavaHighlightingColors.ENUM_NAME_ATTRIBUTES);
   public static final TextAttributesKey ENUM_SINGLETON_CASE = createKey(ENUM_SINGLETON_CASE_ID, VALUES);
   public static final TextAttributesKey ENUM_CLASS_CASE = createKey(ENUM_CLASS_CASE_ID, CLASS);
 
