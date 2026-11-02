@@ -69,7 +69,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.actor.ClassicActorSystemProvider
     akka.actor.ContextualTypedActorFactory
     //akka.actor.CoordinatedShutdown
-    //akka.actor.CoordinatedShutdownTerminationWatcher
+    akka.actor.CoordinatedShutdownTerminationWatcher
     akka.actor.CreatorConsumer
     akka.actor.CreatorFunctionConsumer
     akka.actor.DeadLetter
@@ -127,7 +127,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.actor.RootActorPath
     //akka.actor.ScalaActorRef
     akka.actor.ScalaActorSelection
-    //akka.actor.Scheduler
+    akka.actor.Scheduler
     akka.actor.SchedulerException
     akka.actor.Scope
     akka.actor.SelectChildName
@@ -178,7 +178,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.compat.Future
     akka.compat.PartialFunction
     //akka.dispatch.BalancingDispatcher
-    //akka.dispatch.BalancingDispatcherConfigurator
+    akka.dispatch.BalancingDispatcherConfigurator
     akka.dispatch.Batchable
     //akka.dispatch.BatchingExecutor
     //akka.dispatch.BoundedControlAwareMailbox
@@ -196,7 +196,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.ControlAwareMessageQueueSemantics
     akka.dispatch.ControlMessage
     akka.dispatch.DefaultDispatcherPrerequisites
-    //akka.dispatch.DefaultExecutorServiceConfigurator
+    akka.dispatch.DefaultExecutorServiceConfigurator
     akka.dispatch.DefaultSystemMessageQueue
     akka.dispatch.DequeBasedMessageQueue
     akka.dispatch.DequeBasedMessageQueueSemantics
@@ -282,13 +282,13 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.dispatch.sysmsg.Terminate
     akka.dispatch.sysmsg.Unwatch
     akka.dispatch.sysmsg.Watch
-    //akka.event.ActorClassificationUnsubscriber
+    akka.event.ActorClassificationUnsubscriber
     akka.event.ActorClassifier
     akka.event.ActorEventBus
     akka.event.ActorWithLogClass
     //akka.event.AddressTerminatedTopic
     //akka.event.BusLogging
-    //akka.event.DeadLetterListener
+    akka.event.DeadLetterListener
     akka.event.DefaultLoggingFilter
     akka.event.DiagnosticLoggingAdapter
     akka.event.DiagnosticMarkerBusLoggingAdapter
@@ -321,7 +321,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.event.japi.ManagedActorEventBus
     //akka.event.japi.ScanningEventBus
     //akka.event.japi.SubchannelEventBus
-    //akka.event.jul.JavaLogger
+    akka.event.jul.JavaLogger
     akka.event.jul.JavaLogging
     //akka.event.jul.JavaLoggingFilter
     akka.event.jul.Logger
@@ -340,7 +340,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.io.PeriodicCacheCleanup
     //akka.io.SelectionHandler
     //akka.io.SelectionHandlerSettings
-    //akka.io.SimpleDnsCache
+    akka.io.SimpleDnsCache
     //akka.io.SimpleDnsManager
     //akka.io.Tcp
     //akka.io.TcpConnection
@@ -552,7 +552,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.routing.RandomPool
     akka.routing.RandomRoutingLogic
     akka.routing.RemoveRoutee
-    //akka.routing.ResizablePoolActor
+    akka.routing.ResizablePoolActor
     akka.routing.ResizablePoolCell
     akka.routing.Resizer
     akka.routing.ResizerInitializationException
@@ -568,7 +568,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.routing.RouterConfig
     akka.routing.RouterEnvelope
     akka.routing.RouterManagementMesssage
-    //akka.routing.RouterPoolActor
+    akka.routing.RouterPoolActor
     akka.routing.RoutingLogic
     //akka.routing.ScatterGatherFirstCompletedGroup
     //akka.routing.ScatterGatherFirstCompletedPool
@@ -585,9 +585,9 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.serialization.AsyncSerializer
     akka.serialization.AsyncSerializerWithStringManifest
     akka.serialization.AsyncSerializerWithStringManifestCS
-    //akka.serialization.BaseSerializer
-    //akka.serialization.BooleanSerializer
-    //akka.serialization.ByteArraySerializer
+    akka.serialization.BaseSerializer
+    akka.serialization.BooleanSerializer
+    akka.serialization.ByteArraySerializer
     akka.serialization.ByteBufferSerializer
     akka.serialization.ByteStringSerializer
     akka.serialization.DisabledJavaSerializer
@@ -638,7 +638,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     akka.util.NanoTimeTokenBucket
     akka.util.OptionVal
     //akka.util.PrettyByteString
-    //akka.util.PrettyDuration
+    akka.util.PrettyDuration
     akka.util.PriorityQueueStabilizer
     //akka.util.RecencyList
     akka.util.ReentrantGuard

@@ -578,7 +578,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.utils.ReadingList
     play.utils.ReadingMap
     //play.utils.Reflect
-    //play.utils.Resources
+    play.utils.Resources
     play.utils.Threads
     //play.utils.UriEncoding
   """)

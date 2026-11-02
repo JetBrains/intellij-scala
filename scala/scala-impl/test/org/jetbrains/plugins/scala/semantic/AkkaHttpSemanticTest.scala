@@ -14,7 +14,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.ccompat.QuerySeqOptimized
     akka.http.ccompat.pre213
     akka.http.ccompat.since213
-    //akka.http.impl.engine.HttpConnectionIdleTimeoutBidi
+    akka.http.impl.engine.HttpConnectionIdleTimeoutBidi
     //akka.http.impl.engine.HttpIdleTimeoutException
     //akka.http.impl.engine.client.HttpsProxyGraphStage
     //akka.http.impl.engine.client.OutgoingConnectionBlueprint
@@ -164,7 +164,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.impl.util.EnhancedByteArray
     //akka.http.impl.util.EnhancedByteStringSource
     //akka.http.impl.util.EnhancedByteStringTraversableOnce
-    //akka.http.impl.util.EnhancedConfig
+    akka.http.impl.util.EnhancedConfig
     akka.http.impl.util.EnhancedRegex
     //akka.http.impl.util.EnhancedString
     //akka.http.impl.util.EventStreamLogger
@@ -176,7 +176,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     akka.http.impl.util.LazyValueBytesRenderable
     //akka.http.impl.util.LogByteStringTools
     //akka.http.impl.util.LogMessages
-    //akka.http.impl.util.ObjectRegistry
+    akka.http.impl.util.ObjectRegistry
     akka.http.impl.util.One2OneBidiFlow
     akka.http.impl.util.Renderable
     //akka.http.impl.util.Renderer
@@ -657,7 +657,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.server.directives.CompleteOrRecoverWithMagnet
     //akka.http.scaladsl.server.directives.ContentTypeResolver
     //akka.http.scaladsl.server.directives.CookieDirectives
-    //akka.http.scaladsl.server.directives.Credentials
+    akka.http.scaladsl.server.directives.Credentials
     //akka.http.scaladsl.server.directives.DebuggingDirectives
     //akka.http.scaladsl.server.directives.DirectoryListing
     //akka.http.scaladsl.server.directives.ExecutionDirectives
@@ -673,7 +673,7 @@ class AkkaHttpSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akka
     //akka.http.scaladsl.server.directives.HostDirectives
     //akka.http.scaladsl.server.directives.LogEntry
     //akka.http.scaladsl.server.directives.LoggingMagnet
-    //akka.http.scaladsl.server.directives.LowPriorityHeaderMagnetImplicits
+    akka.http.scaladsl.server.directives.LowPriorityHeaderMagnetImplicits
     //akka.http.scaladsl.server.directives.MarshallingDirectives
     //akka.http.scaladsl.server.directives.MethodDirectives
     //akka.http.scaladsl.server.directives.MiscDirectives

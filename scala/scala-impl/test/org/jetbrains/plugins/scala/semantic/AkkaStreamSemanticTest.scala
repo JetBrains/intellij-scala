@@ -13,8 +13,8 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.AbruptTerminationException
     akka.stream.AbstractShape
     akka.stream.ActorAttributes
-    //akka.stream.ActorMaterializer
-    //akka.stream.ActorMaterializerHelper
+    akka.stream.ActorMaterializer
+    akka.stream.ActorMaterializerHelper
     //akka.stream.ActorMaterializerSettings
     akka.stream.AmorphousShape
     //akka.stream.Attributes
@@ -144,7 +144,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.ActorProcessor
     //akka.stream.impl.ActorProcessorImpl
     //akka.stream.impl.ActorPublisher
-    //akka.stream.impl.ActorRefBackpressureSinkStage
+    akka.stream.impl.ActorRefBackpressureSinkStage
     //akka.stream.impl.ActorRefBackpressureSource
     //akka.stream.impl.ActorRefSinkStage
     //akka.stream.impl.ActorRefSource
@@ -183,8 +183,8 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.ExitIsland
     akka.stream.impl.ExposedPublisher
     //akka.stream.impl.ExposedPublisherReceive
-    //akka.stream.impl.ExtendedActorMaterializer
-    //akka.stream.impl.FailedSource
+    akka.stream.impl.ExtendedActorMaterializer
+    akka.stream.impl.FailedSource
     //akka.stream.impl.FanIn
     //akka.stream.impl.FanOut
     akka.stream.impl.FanoutOutputs
@@ -200,7 +200,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.HeadOptionStage
     akka.stream.impl.Inputs
     akka.stream.impl.IslandTag
-    //akka.stream.impl.IslandTracking
+    akka.stream.impl.IslandTracking
     //akka.stream.impl.JavaStreamSource
     //akka.stream.impl.JsonObjectParser
     //akka.stream.impl.LazySink
@@ -260,7 +260,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.StreamSubscriptionTimeoutSupport
     //akka.stream.impl.StreamSupervisor
     akka.stream.impl.SubFlowImpl
-    //akka.stream.impl.SubFusingActorMaterializerImpl
+    akka.stream.impl.SubFusingActorMaterializerImpl
     akka.stream.impl.SubReceive
     akka.stream.impl.SubscribePending
     //akka.stream.impl.SubscriberManagement
@@ -351,7 +351,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.io.OutputStreamSourceStage
     //akka.stream.impl.io.TLSActor
     //akka.stream.impl.io.TcpConnectionStage
-    //akka.stream.impl.io.TcpIdleTimeout
+    akka.stream.impl.io.TcpIdleTimeout
     akka.stream.impl.io.TlsModule
     //akka.stream.impl.io.TlsUtils
     //akka.stream.impl.io.compression.CompressionUtils
@@ -365,7 +365,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.streamref.SinkRefStageImpl
     //akka.stream.impl.streamref.SourceRefImpl
     //akka.stream.impl.streamref.SourceRefStageImpl
-    //akka.stream.impl.streamref.StreamRefResolverImpl
+    akka.stream.impl.streamref.StreamRefResolverImpl
     akka.stream.impl.streamref.StreamRefSettingsImpl
     akka.stream.impl.streamref.StreamRefsMaster
     akka.stream.impl.streamref.StreamRefsProtocol
