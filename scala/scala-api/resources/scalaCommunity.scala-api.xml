@@ -6,6 +6,7 @@
         <module name="intellij.java.psi"/>
         <module name="intellij.libraries.fastutil"/>
         <module name="intellij.libraries.markdown"/>
+        <module name="intellij.platform.analysis"/>
         <module name="intellij.platform.codeStyle"/>
         <module name="intellij.platform.core"/>
         <module name="intellij.platform.core.impl"/>
@@ -33,6 +34,7 @@
 
         <iconMapper mappingFile="ScalaIconMappings.json"/>
 
+        <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
         <lang.syntaxHighlighterFactory language="Scala"
                                        implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
         <lang.syntaxHighlighter language="ScalaDoc"
