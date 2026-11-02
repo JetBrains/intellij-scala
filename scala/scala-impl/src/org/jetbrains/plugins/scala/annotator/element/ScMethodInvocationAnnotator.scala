@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaHighlightingMode
 
 import scala.annotation.tailrec
@@ -210,7 +210,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     implicit val context: Context = Context(call)
 
     def functionTypeExpected = call.expectedType().exists(FunctionType.isFunctionType)
-    def isScala3dotcErrorsMode: Boolean = ScalaHighlightingMode.showCompilerErrorsScala3(call.getProject) && call.isInScala3Module
+    def isScala3dotcErrorsMode: Boolean = ScalaHighlightingMode.showCompilerErrorsScala3(call)
     def isInterpolatedStringExpr: Boolean =
       call.child.is[ScInterpolatedStringLiteral]
     def isInUnderscoreSection = call.parent.exists(_.is[ScUnderscoreSection])

@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.caches.cachedInUserData
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.settings.{ScalaHighlightingMode, ScalaProjectSettings}
 
 import scala.collection.mutable
@@ -46,7 +45,7 @@ object HighlightingAdvisor {
       file match {
         case scalaFile: ScalaFile =>
           (!isLibrarySource(scalaFile) || typeAwareHighlightingForScalaLibrarySourcesEnabled) &&
-            !(ScalaHighlightingMode.showCompilerErrorsScala3(scalaFile.getProject) && scalaFile.isInScala3Module)
+            !ScalaHighlightingMode.showCompilerErrorsScala3(scalaFile)
         case _: DummyHolder => true
         case _ => false
       }
