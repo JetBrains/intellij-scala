@@ -145,7 +145,7 @@ public final class ScalaLexer extends Lexer {
     if (isXmlToken || isInsideXmlInjection || isLineBreakInsideXml) {
       LocateXmlTokenResult res = doLocateTokenInsideXml(start, type, tokenText);
       handled = switch (res) {
-        case STARTED_SCALA_PLAIN_LEXER -> true;
+        case RESTARTED -> true;
         case ADVANCE -> false;
       };
     }
@@ -157,8 +157,7 @@ public final class ScalaLexer extends Lexer {
         locateTextRange();
       }
 
-      //we have to advance current lexer only if we didn't start scala plain lexer on this iteration
-      //because of wrong behaviour of the latter ScalaPlainLexer
+      // A restarted lexer already points at the next token.
       myCurrentLexer.advance();
     }
 
@@ -166,7 +165,7 @@ public final class ScalaLexer extends Lexer {
   }
 
   private enum LocateXmlTokenResult {
-    STARTED_SCALA_PLAIN_LEXER, ADVANCE
+    RESTARTED, ADVANCE
   }
 
   private LocateXmlTokenResult doLocateTokenInsideXml(
@@ -243,7 +242,7 @@ public final class ScalaLexer extends Lexer {
         locateTextRange();
         myTokenType = ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END();
         startScalaPlainLexer(start + 2);
-        return LocateXmlTokenResult.STARTED_SCALA_PLAIN_LEXER;
+        return LocateXmlTokenResult.RESTARTED;
       }
     }
     else if (ScalaXmlTokenTypes.XML_TAG_END() == type &&
@@ -262,7 +261,7 @@ public final class ScalaLexer extends Lexer {
         locateTextRange();
         myTokenType = ScalaXmlTokenTypes.XML_TAG_END();
         startScalaPlainLexer(start + 1);
-        return LocateXmlTokenResult.STARTED_SCALA_PLAIN_LEXER;
+        return LocateXmlTokenResult.RESTARTED;
       }
     }
     else if (ScalaXmlTokenTypes.XML_PI_END() == type &&
@@ -277,7 +276,7 @@ public final class ScalaLexer extends Lexer {
         locateTextRange();
         myTokenType = ScalaXmlTokenTypes.XML_PI_END();
         startScalaPlainLexer(start + 2);
-        return LocateXmlTokenResult.STARTED_SCALA_PLAIN_LEXER;
+        return LocateXmlTokenResult.RESTARTED;
       }
     }
     else if (ScalaXmlTokenTypes.XML_COMMENT_END() == type &&
@@ -292,7 +291,7 @@ public final class ScalaLexer extends Lexer {
         locateTextRange();
         myTokenType = ScalaXmlTokenTypes.XML_COMMENT_END();
         startScalaPlainLexer(start + 3);
-        return LocateXmlTokenResult.STARTED_SCALA_PLAIN_LEXER;
+        return LocateXmlTokenResult.RESTARTED;
       }
     }
     else if (ScalaXmlTokenTypes.XML_CDATA_END() == type &&
@@ -307,7 +306,7 @@ public final class ScalaLexer extends Lexer {
         locateTextRange();
         myTokenType = ScalaXmlTokenTypes.XML_CDATA_END();
         startScalaPlainLexer(start + 3);
-        return LocateXmlTokenResult.STARTED_SCALA_PLAIN_LEXER;
+        return LocateXmlTokenResult.RESTARTED;
       }
     }
     else if (type == ScalaXmlTokenTypes.XML_DATA_CHARACTERS() &&
@@ -321,6 +320,7 @@ public final class ScalaLexer extends Lexer {
         myTokenStart = myCurrentLexer.getTokenStart();
         myTokenEnd = myTokenStart + scalaToken;
         myCurrentLexer.start(getBufferSequence(), myTokenEnd, myBufferEnd, myCurrentLexer.getState());
+        return LocateXmlTokenResult.RESTARTED;
       }
     }
 
