@@ -2411,7 +2411,7 @@ final class ReferenceComparisonTest_Scala3_Newest_Part23 extends ReferenceCompar
 final class ReferenceComparisonTest_Scala3_Newest_Part24 extends ReferenceComparisonTest_Scala3_Newest {
   def test_inline_trait_multiple_stages(): Unit = doTest("inline-trait-multiple-stages", true)
   def test_inline_trait_multiple_stages_defs(): Unit = doTest("inline-trait-multiple-stages-defs", true) // #traitParameters
-  def test_inline_trait_multiple_stages_generic_defs(): Unit = doTest("inline-trait-multiple-stages-generic-defs", false) // #traitParameters
+  def test_inline_trait_multiple_stages_generic_defs(): Unit = doTest("inline-trait-multiple-stages-generic-defs", true) // #traitParameters
   def test_inline_trait_multiple_stages_inline_traits(): Unit = doTest("inline-trait-multiple-stages-inline-traits", false)
   def test_inline_trait_parent_method_call(): Unit = doTest("inline-trait-parent-method-call", true)
   def test_inline_trait_private_this_nowarn(): Unit = doTest("inline-trait-private-this-nowarn", true) // #traitParameters
