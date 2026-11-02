@@ -5,7 +5,6 @@
         <module name="intellij.platform.core"/>
         <module name="scalaCommunity.scala-api"/>
         <module name="scalaCommunity.scala-impl"/>
-        <module name="scalaCommunity.scala-psi-api"/>
         <module name="scalaCommunity.scala-psi-impl"/>
     </dependencies>
 
