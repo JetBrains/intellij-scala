@@ -16,7 +16,7 @@ class AkkaParsingSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     //akka.parboiled2.DynamicRuleDispatchMacro
     akka.parboiled2.DynamicRuleHandler
     //akka.parboiled2.ErrorFormatter
-    //akka.parboiled2.ParseError
+    akka.parboiled2.ParseError
     //akka.parboiled2.Parser
     //akka.parboiled2.ParserInput
     //akka.parboiled2.ParserMacroMethods
@@ -45,7 +45,7 @@ class AkkaParsingSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     //akka.parboiled2.support.TailSwitch
     //akka.parboiled2.support.Unpack
     //akka.parboiled2.support.hlist.::
-    //akka.parboiled2.support.hlist.HList
+    akka.parboiled2.support.hlist.HList
     akka.parboiled2.support.hlist.HNil
     //akka.parboiled2.support.hlist.ops.hlist
     akka.parboiled2.support.hlist.syntax.HListOps

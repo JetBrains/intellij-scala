@@ -84,9 +84,9 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.http.AcceptEncoding
     //play.api.http.ActionCompositionConfiguration
     //play.api.http.ActionCreator
-    //play.api.http.ContentEncoding
+    play.api.http.ContentEncoding
     play.api.http.ContentTypeOf
-    //play.api.http.ContentTypes
+    play.api.http.ContentTypes
     //play.api.http.CookiesConfiguration
     //play.api.http.DefaultContentTypeOfs
     //play.api.http.DefaultFileMimeTypes
@@ -115,7 +115,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.http.HttpRequestHandler
     play.api.http.HttpVerbs
     //play.api.http.JWTConfiguration
-    //play.api.http.JWTConfigurationParser
+    play.api.http.JWTConfigurationParser
     //play.api.http.JavaCompatibleHttpRequestHandler
     //play.api.http.JavaHttpErrorHandlerDelegate
     //play.api.http.JavaHttpFiltersAdapter
@@ -204,7 +204,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.libs.concurrent.ExecutionContextProvider
     play.api.libs.concurrent.Futures
     //play.api.libs.concurrent.InjectedActorSupport
-    //play.api.libs.concurrent.LowPriorityFuturesImplicits
+    play.api.libs.concurrent.LowPriorityFuturesImplicits
     //play.api.libs.concurrent.MaterializerProvider
     play.api.libs.crypto.CSRFTokenSigner
     //play.api.libs.crypto.CSRFTokenSignerProvider
@@ -266,7 +266,6 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.libs.json.JsFalse
     //play.api.libs.json.JsLookup
     play.api.libs.json.JsLookupResult
-    //play.api.libs.json.JsMacroImpl
     //play.api.libs.json.JsMacros
     //play.api.libs.json.JsMacrosWithOptions
     //play.api.libs.json.JsNull
@@ -400,7 +399,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     //play.api.mvc.JavascriptLiteral
     play.api.mvc.LegacyCookiesModule
     //play.api.mvc.LegacyFlashCookieBaker
-    //play.api.mvc.LegacyI18nSupport
+    play.api.mvc.LegacyI18nSupport
     //play.api.mvc.LegacySessionCookieBaker
     play.api.mvc.MaxSizeExceeded
     play.api.mvc.MaxSizeNotExceeded
@@ -421,7 +420,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.mvc.PreferredMessagesProvider
     //play.api.mvc.QueryStringBindable
     //play.api.mvc.QueryStringBindableMacros
-    //play.api.mvc.Range
+    play.api.mvc.Range
     //play.api.mvc.RangeResult
     //play.api.mvc.RangeSet
     //play.api.mvc.RawBuffer
@@ -517,7 +516,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.core.system.RequestIdProvider
     play.core.utils.AsciiBitSet
     play.core.utils.AsciiChar
-    //play.core.utils.AsciiRange
+    play.core.utils.AsciiRange
     //play.core.utils.AsciiSet
     play.core.utils.AsciiUnion
     play.core.utils.CaseInsensitiveOrdered
@@ -557,8 +556,8 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.twirl.api.Template7
     play.twirl.api.Template8
     play.twirl.api.Template9
-    //play.twirl.api.TwirlFeatureImports
-    //play.twirl.api.TwirlHelperImports
+    play.twirl.api.TwirlFeatureImports
+    play.twirl.api.TwirlHelperImports
     //play.twirl.api.Txt
     play.twirl.api.TxtFormat
     //play.twirl.api.Xml
@@ -579,7 +578,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.utils.ReadingList
     play.utils.ReadingMap
     //play.utils.Reflect
-    //play.utils.Resources
+    play.utils.Resources
     play.utils.Threads
     //play.utils.UriEncoding
   """)

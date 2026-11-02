@@ -13,8 +13,8 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.AbruptTerminationException
     akka.stream.AbstractShape
     akka.stream.ActorAttributes
-    //akka.stream.ActorMaterializer
-    //akka.stream.ActorMaterializerHelper
+    akka.stream.ActorMaterializer
+    akka.stream.ActorMaterializerHelper
     //akka.stream.ActorMaterializerSettings
     akka.stream.AmorphousShape
     //akka.stream.Attributes
@@ -94,7 +94,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.KillSwitches
     akka.stream.MaterializationContext
     //akka.stream.MaterializationException
-    //akka.stream.Materializer
+    akka.stream.Materializer
     akka.stream.MaterializerLoggingProvider
     akka.stream.NeverMaterializedException
     akka.stream.OutPort
@@ -139,12 +139,12 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.TooManySubstreamsOpenException
     //akka.stream.UniformFanInShape
     //akka.stream.UniformFanOutShape
-    akka.stream.UniqueKillSwitch
+    //akka.stream.UniqueKillSwitch
     akka.stream.WatchedActorTerminatedException
     //akka.stream.impl.ActorProcessor
     //akka.stream.impl.ActorProcessorImpl
     //akka.stream.impl.ActorPublisher
-    //akka.stream.impl.ActorRefBackpressureSinkStage
+    akka.stream.impl.ActorRefBackpressureSinkStage
     //akka.stream.impl.ActorRefBackpressureSource
     //akka.stream.impl.ActorRefSinkStage
     //akka.stream.impl.ActorRefSource
@@ -163,7 +163,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.CancelSink
     akka.stream.impl.CancelledSubscription
     akka.stream.impl.CancellingSubscriber
-    akka.stream.impl.ChainedBuffer
+    //akka.stream.impl.ChainedBuffer
     akka.stream.impl.CollectorState
     akka.stream.impl.Completed
     //akka.stream.impl.CompletedTraversalBuilder
@@ -176,18 +176,18 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.DefaultInputTransferStates
     akka.stream.impl.DefaultOutputTransferStates
     //akka.stream.impl.EmptyPublisher
-    //akka.stream.impl.EmptySource
+    akka.stream.impl.EmptySource
     akka.stream.impl.EmptyTraversal
     akka.stream.impl.EnterIsland
     //akka.stream.impl.ErrorPublisher
     akka.stream.impl.ExitIsland
     akka.stream.impl.ExposedPublisher
     //akka.stream.impl.ExposedPublisherReceive
-    //akka.stream.impl.ExtendedActorMaterializer
-    //akka.stream.impl.FailedSource
+    akka.stream.impl.ExtendedActorMaterializer
+    akka.stream.impl.FailedSource
     //akka.stream.impl.FanIn
     //akka.stream.impl.FanOut
-    //akka.stream.impl.FanoutOutputs
+    akka.stream.impl.FanoutOutputs
     //akka.stream.impl.FanoutProcessorImpl
     //akka.stream.impl.FanoutPublisherSink
     akka.stream.impl.FirstCollectorState
@@ -200,7 +200,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.HeadOptionStage
     akka.stream.impl.Inputs
     akka.stream.impl.IslandTag
-    //akka.stream.impl.IslandTracking
+    akka.stream.impl.IslandTracking
     //akka.stream.impl.JavaStreamSource
     //akka.stream.impl.JsonObjectParser
     //akka.stream.impl.LazySink
@@ -230,7 +230,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.PushNotUsed
     //akka.stream.impl.QueueSink
     //akka.stream.impl.QueueSource
-    //akka.stream.impl.ReactiveStreamsCompliance
+    akka.stream.impl.ReactiveStreamsCompliance
     akka.stream.impl.ReducerState
     //akka.stream.impl.RejectAdditionalSubscribers
     akka.stream.impl.RequestMore
@@ -241,17 +241,17 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.SeqActorName
     akka.stream.impl.SeqActorNameImpl
     //akka.stream.impl.SeqStage
-    //akka.stream.impl.SetupFlowStage
-    //akka.stream.impl.SetupSourceStage
+    akka.stream.impl.SetupFlowStage
+    akka.stream.impl.SetupSourceStage
     akka.stream.impl.SetupStage
     //akka.stream.impl.SimpleOutputs
-    //akka.stream.impl.SingleConcat
+    akka.stream.impl.SingleConcat
     //akka.stream.impl.SinkModule
     akka.stream.impl.SinkModuleIslandTag
     //akka.stream.impl.SinkModulePhase
-    akka.stream.impl.SinkholeSubscriber
+    //akka.stream.impl.SinkholeSubscriber
     //akka.stream.impl.SnapshotCollector
-    //akka.stream.impl.SoftShutdown
+    akka.stream.impl.SoftShutdown
     //akka.stream.impl.SourceModule
     akka.stream.impl.SourceModuleIslandTag
     akka.stream.impl.SourceModulePhase
@@ -260,7 +260,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.StreamSubscriptionTimeoutSupport
     //akka.stream.impl.StreamSupervisor
     akka.stream.impl.SubFlowImpl
-    //akka.stream.impl.SubFusingActorMaterializerImpl
+    akka.stream.impl.SubFusingActorMaterializerImpl
     akka.stream.impl.SubReceive
     akka.stream.impl.SubscribePending
     //akka.stream.impl.SubscriberManagement
@@ -276,7 +276,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.TransferPhase
     //akka.stream.impl.TransferState
     akka.stream.impl.Transform
-    //akka.stream.impl.Traversal
+    akka.stream.impl.Traversal
     akka.stream.impl.TraversalBuildStep
     //akka.stream.impl.TraversalBuilder
     //akka.stream.impl.Unfold
@@ -290,18 +290,18 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.WaitingForUpstreamSubscription
     //akka.stream.impl.fusing.ActorGraphInterpreter
     //akka.stream.impl.fusing.AggregateWithBoundary
-    //akka.stream.impl.fusing.Batch
+    akka.stream.impl.fusing.Batch
     //akka.stream.impl.fusing.Buffer
     //akka.stream.impl.fusing.Collect
     //akka.stream.impl.fusing.Delay
-    //akka.stream.impl.fusing.Drop
+    akka.stream.impl.fusing.Drop
     //akka.stream.impl.fusing.DropWhile
-    //akka.stream.impl.fusing.DropWithin
+    akka.stream.impl.fusing.DropWithin
     //akka.stream.impl.fusing.Expand
-    //akka.stream.impl.fusing.Filter
+    akka.stream.impl.fusing.Filter
     //akka.stream.impl.fusing.FlatMapPrefix
     //akka.stream.impl.fusing.FlattenMerge
-    //akka.stream.impl.fusing.Fold
+    akka.stream.impl.fusing.Fold
     //akka.stream.impl.fusing.FoldAsync
     //akka.stream.impl.fusing.FutureFlow
     //akka.stream.impl.fusing.GraphInterpreter
@@ -309,13 +309,13 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.fusing.GraphStageModule
     //akka.stream.impl.fusing.GraphStages
     //akka.stream.impl.fusing.GroupBy
-    //akka.stream.impl.fusing.GroupedWeighted
-    //akka.stream.impl.fusing.GroupedWeightedWithin
-    //akka.stream.impl.fusing.Intersperse
+    akka.stream.impl.fusing.GroupedWeighted
+    akka.stream.impl.fusing.GroupedWeightedWithin
+    akka.stream.impl.fusing.Intersperse
     //akka.stream.impl.fusing.LimitWeighted
     //akka.stream.impl.fusing.Log
     //akka.stream.impl.fusing.LogWithMarker
-    //akka.stream.impl.fusing.Map
+    akka.stream.impl.fusing.Map
     //akka.stream.impl.fusing.MapAsync
     //akka.stream.impl.fusing.MapAsyncPartitioned
     //akka.stream.impl.fusing.MapAsyncUnordered
@@ -326,16 +326,16 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.fusing.Reduce
     //akka.stream.impl.fusing.Scan
     //akka.stream.impl.fusing.ScanAsync
-    //akka.stream.impl.fusing.Sliding
+    akka.stream.impl.fusing.Sliding
     akka.stream.impl.fusing.Split
     //akka.stream.impl.fusing.StatefulMap
     //akka.stream.impl.fusing.StatefulMapConcat
     //akka.stream.impl.fusing.SubSink
     //akka.stream.impl.fusing.SubSource
     akka.stream.impl.fusing.SupervisedGraphStageLogic
-    //akka.stream.impl.fusing.Take
+    akka.stream.impl.fusing.Take
     //akka.stream.impl.fusing.TakeWhile
-    //akka.stream.impl.fusing.TakeWithin
+    akka.stream.impl.fusing.TakeWithin
     //akka.stream.impl.fusing.Watch
     //akka.stream.impl.io.ByteStringParser
     //akka.stream.impl.io.ConnectionSourceStage
@@ -351,8 +351,8 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.io.OutputStreamSourceStage
     //akka.stream.impl.io.TLSActor
     //akka.stream.impl.io.TcpConnectionStage
-    //akka.stream.impl.io.TcpIdleTimeout
-    //akka.stream.impl.io.TlsModule
+    akka.stream.impl.io.TcpIdleTimeout
+    akka.stream.impl.io.TlsModule
     //akka.stream.impl.io.TlsUtils
     //akka.stream.impl.io.compression.CompressionUtils
     akka.stream.impl.io.compression.Compressor
@@ -365,16 +365,16 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.impl.streamref.SinkRefStageImpl
     //akka.stream.impl.streamref.SourceRefImpl
     //akka.stream.impl.streamref.SourceRefStageImpl
-    //akka.stream.impl.streamref.StreamRefResolverImpl
+    akka.stream.impl.streamref.StreamRefResolverImpl
     akka.stream.impl.streamref.StreamRefSettingsImpl
     akka.stream.impl.streamref.StreamRefsMaster
     akka.stream.impl.streamref.StreamRefsProtocol
-    //akka.stream.javadsl.Balance
+    akka.stream.javadsl.Balance
     //akka.stream.javadsl.BidiFlow
-    //akka.stream.javadsl.Broadcast
-    //akka.stream.javadsl.BroadcastHub
+    akka.stream.javadsl.Broadcast
+    akka.stream.javadsl.BroadcastHub
     akka.stream.javadsl.Compression
-    //akka.stream.javadsl.Concat
+    akka.stream.javadsl.Concat
     //akka.stream.javadsl.DelayStrategy
     akka.stream.javadsl.FileIO
     //akka.stream.javadsl.Flow
@@ -384,12 +384,12 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.javadsl.GraphDSL
     akka.stream.javadsl.JsonFraming
     //akka.stream.javadsl.Keep
-    //akka.stream.javadsl.Merge
+    akka.stream.javadsl.Merge
     //akka.stream.javadsl.MergeHub
     akka.stream.javadsl.MergeLatest
-    //akka.stream.javadsl.MergePreferred
-    //akka.stream.javadsl.MergePrioritized
-    //akka.stream.javadsl.MergeSequence
+    akka.stream.javadsl.MergePreferred
+    akka.stream.javadsl.MergePrioritized
+    akka.stream.javadsl.MergeSequence
     //akka.stream.javadsl.Partition
     //akka.stream.javadsl.PartitionHub
     //akka.stream.javadsl.RestartFlow
@@ -411,7 +411,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.javadsl.TLS
     akka.stream.javadsl.TLSPlacebo
     //akka.stream.javadsl.Tcp
-    //akka.stream.javadsl.Unzip
+    akka.stream.javadsl.Unzip
     akka.stream.javadsl.UnzipWith
     akka.stream.javadsl.Zip
     akka.stream.javadsl.ZipLatest
@@ -421,7 +421,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.javadsl.ZipWithN
     //akka.stream.scaladsl.Balance
     //akka.stream.scaladsl.BidiFlow
-    //akka.stream.scaladsl.Broadcast
+    akka.stream.scaladsl.Broadcast
     //akka.stream.scaladsl.BroadcastHub
     akka.stream.scaladsl.Compression
     //akka.stream.scaladsl.Concat
@@ -440,7 +440,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.scaladsl.Interleave
     //akka.stream.scaladsl.JsonFraming
     //akka.stream.scaladsl.Keep
-    //akka.stream.scaladsl.Merge
+    akka.stream.scaladsl.Merge
     //akka.stream.scaladsl.MergeHub
     akka.stream.scaladsl.MergeHubDrainingControlImpl
     //akka.stream.scaladsl.MergeLatest
@@ -448,7 +448,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.stream.scaladsl.MergePrioritized
     //akka.stream.scaladsl.MergeSequence
     //akka.stream.scaladsl.MergeSorted
-    //akka.stream.scaladsl.OrElse
+    akka.stream.scaladsl.OrElse
     //akka.stream.scaladsl.Partition
     //akka.stream.scaladsl.PartitionHub
     //akka.stream.scaladsl.RestartFlow
@@ -463,10 +463,10 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.scaladsl.ScalaSessionAPI
     //akka.stream.scaladsl.Sink
     akka.stream.scaladsl.SinkQueue
-    //akka.stream.scaladsl.SinkQueueWithCancel
+    akka.stream.scaladsl.SinkQueueWithCancel
     //akka.stream.scaladsl.Source
     akka.stream.scaladsl.SourceQueue
-    //akka.stream.scaladsl.SourceQueueWithComplete
+    akka.stream.scaladsl.SourceQueueWithComplete
     //akka.stream.scaladsl.SourceWithContext
     //akka.stream.scaladsl.StreamConverters
     akka.stream.scaladsl.StreamRefs
@@ -500,7 +500,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.scaladsl.UnzipWith8
     akka.stream.scaladsl.UnzipWith9
     //akka.stream.scaladsl.UnzipWithApply
-    //akka.stream.scaladsl.WireTap
+    akka.stream.scaladsl.WireTap
     //akka.stream.scaladsl.Zip
     //akka.stream.scaladsl.ZipLatest
     akka.stream.scaladsl.ZipLatestWith

@@ -101,15 +101,15 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.SQLServerDialect
     io.getquill.SchemaMeta
     //io.getquill.SnakeCase
-    //io.getquill.SpliceDate
-    //io.getquill.SpliceDouble
-    //io.getquill.SpliceFloat
-    //io.getquill.SpliceInt
-    //io.getquill.SpliceLocalDate
-    //io.getquill.SpliceLocalDateTime
-    //io.getquill.SpliceLong
-    //io.getquill.SpliceShort
-    //io.getquill.SpliceString
+    io.getquill.SpliceDate
+    io.getquill.SpliceDouble
+    io.getquill.SpliceFloat
+    io.getquill.SpliceInt
+    io.getquill.SpliceLocalDate
+    io.getquill.SpliceLocalDateTime
+    io.getquill.SpliceLong
+    io.getquill.SpliceShort
+    io.getquill.SpliceString
     //io.getquill.SqlInfixInterpolator
     io.getquill.SqlMirrorContext
     //io.getquill.SqlServerJdbcContext
@@ -132,7 +132,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.Update
     io.getquill.UpdateMeta
     io.getquill.UpperCase
-    //io.getquill.UpperCaseEscapeColumn
+    io.getquill.UpperCaseEscapeColumn
     io.getquill.UpperCaseNonDefault
     io.getquill.WithProbing
     //io.getquill.WithProbingPrefix
@@ -275,7 +275,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.ast.Val
     io.getquill.ast.Value
     io.getquill.ast.Visibility
-    //io.getquill.compat
+    io.getquill.compat
     io.getquill.context.ActionEntity
     io.getquill.context.AstSplicing
     io.getquill.context.CanInsertReturningWithMultiValues
@@ -401,7 +401,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.context.mirror.MirrorEncoders
     io.getquill.context.mirror.MirrorSession
     //io.getquill.context.mirror.Row
-    //io.getquill.context.qzio.ImplicitSyntax
+    io.getquill.context.qzio.ImplicitSyntax
     io.getquill.context.qzio.ResultSetIterator
     //io.getquill.context.qzio.ZioContext
     //io.getquill.context.qzio.ZioJdbcContext
@@ -446,10 +446,10 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.context.sql.norm.FlattenGroupByAggregation
     io.getquill.context.sql.norm.SimplifyFilterTrue
     //io.getquill.context.sql.norm.SqlNormalize
-    //io.getquill.context.sql.norm.nested.Elements
+    io.getquill.context.sql.norm.nested.Elements
     //io.getquill.context.sql.norm.nested.FindUnexpressedInfixes
-    //io.getquill.dsl.DateOps
-    //io.getquill.dsl.InfixDsl
+    io.getquill.dsl.DateOps
+    io.getquill.dsl.InfixDsl
     io.getquill.dsl.OrdDsl
     io.getquill.dsl.UnlimitedTuple
     //io.getquill.extras
@@ -480,12 +480,12 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.generic.WarnMac
     io.getquill.idiom.Idiom
     //io.getquill.idiom.LoadNaming
-    //io.getquill.idiom.QuotationTagToken
+    io.getquill.idiom.QuotationTagToken
     //io.getquill.idiom.ReifyStatement
     //io.getquill.idiom.ReifyStatementWithInjectables
-    //io.getquill.idiom.ScalarLiftToken
-    //io.getquill.idiom.ScalarTagToken
-    //io.getquill.idiom.SetContainsToken
+    io.getquill.idiom.ScalarLiftToken
+    io.getquill.idiom.ScalarTagToken
+    io.getquill.idiom.SetContainsToken
     io.getquill.idiom.Statement
     //io.getquill.idiom.StatementInterpolator
     io.getquill.idiom.StringToken
@@ -522,7 +522,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.norm.AdHocReduction
     //io.getquill.norm.ApplyMap
     //io.getquill.norm.ApplyRenamesToProps
-    //io.getquill.norm.AttachToEntity
+    io.getquill.norm.AttachToEntity
     //io.getquill.norm.BetaReduction
     //io.getquill.norm.CompleteRenames
     io.getquill.norm.ConcatBehavior
@@ -601,17 +601,17 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.parser.engine.failParse
     //io.getquill.quat.BooQuatSerializer
     //io.getquill.quat.FindBranches
-    //io.getquill.quat.LinkedHashMapOps
+    io.getquill.quat.LinkedHashMapOps
     //io.getquill.quat.Quat
     //io.getquill.quat.QuatMaking
     //io.getquill.quat.QuatMakingBase
     //io.getquill.quat.QuatNestingHelper
-    //io.getquill.quat.QuatOps
+    io.getquill.quat.QuatOps
     //io.getquill.quat.VerifyNoBranches
     //io.getquill.quotation.FreeVariables
     io.getquill.quotation.NonQuotedException
     io.getquill.quotation.QuatException
-    //io.getquill.quotation.QuatExceptionOps
+    io.getquill.quotation.QuatExceptionOps
     io.getquill.quotation.State
     //io.getquill.sql.Common
     //io.getquill.sql.idiom.BooleanLiteralSupport
@@ -631,7 +631,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.util.Cache
     //io.getquill.util.CollectTry
     //io.getquill.util.CommonExtensions
-    //io.getquill.util.ContextLogger
+    io.getquill.util.ContextLogger
     //io.getquill.util.Format
     io.getquill.util.Genie
     io.getquill.util.GetTraces
@@ -644,14 +644,14 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     //io.getquill.util.LoadConfig
     //io.getquill.util.Messages
     io.getquill.util.ProtoMessages
-    //io.getquill.util.ScalafmtFormat
+    io.getquill.util.ScalafmtFormat
     //io.getquill.util.Show
     io.getquill.util.SingleGenie
-    //io.getquill.util.StringOps
+    io.getquill.util.StringOps
     //io.getquill.util.StringUtil
     //io.getquill.util.SummonMac
     io.getquill.util.ThreadUtil
-    //io.getquill.util.ThrowableOps
+    io.getquill.util.ThrowableOps
     //io.getquill.util.TraceConfig
     //io.getquill.util.UseSummonMac
     //io.getquill.util.Using

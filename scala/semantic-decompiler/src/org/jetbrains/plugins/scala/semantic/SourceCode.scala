@@ -145,6 +145,7 @@ object SourceCode {
 
       case cdef @ ClassDef(name, constr @ DefDef(_, paramss, _, _), parents, self, stats) =>
         val isAnonymous = name == "$anon"
+        def isValueClass = cdef.symbol.typeRef.derivesFrom(defn.AnyValClass)
 
         printDefAnnotations(cdef)
 
@@ -152,7 +153,7 @@ object SourceCode {
         if (cdef.symbol.flags.is(Flags.Override) || cdef.symbol.allOverriddenSymbols.nonEmpty) this += highlightKeyword("override ")
         printProtectedOrPrivate(cdef)
         if (flags.is(Flags.Implicit)) this += highlightKeyword("implicit ")
-        if (flags.is(Flags.Final) && !flags.is(Flags.Module) && !isAnonymous) this += highlightKeyword("final ")
+        if (flags.is(Flags.Final) && !flags.is(Flags.Module) && !isAnonymous && !isValueClass) this += highlightKeyword("final ")
         if (flags.is(Flags.Sealed)) this += highlightKeyword("sealed ")
         if (flags.is(Flags.Open)) this += highlightKeyword("open ")
         if (flags.is(Flags.Abstract) && !flags.is(Flags.Trait)) this += highlightKeyword("abstract ")
@@ -250,7 +251,9 @@ object SourceCode {
           }
           def isInnerModuleObject = d.symbol.flags.is(Flags.Lazy) && d.symbol.flags.is(Flags.Module)
           def isDefaultParameter = d.symbol.name.contains("$default$")
-          !flags.is(Flags.Synthetic) && !flags.is(Flags.Param) && !flags.is(Flags.ParamAccessor) && !flags.is(Flags.FieldAccessor) && !isUndecompilableCaseClassMethod && !isInnerModuleObject && !isDefaultParameter
+          def isImplicitClassConversion = d.symbol.isDefDef && d.symbol.flags.is(Flags.Implicit) && d.symbol.flags.is(Flags.Final) &&
+            d.symbol.owner.declaredType(d.name).exists(tdef => tdef.isClassDef && tdef.flags.is(Flags.Implicit))
+          !flags.is(Flags.Synthetic) && !flags.is(Flags.Param) && !flags.is(Flags.ParamAccessor) && !flags.is(Flags.FieldAccessor) && !isUndecompilableCaseClassMethod && !isInnerModuleObject && !isDefaultParameter && !isImplicitClassConversion
         }
         val stats1 = stats.collect {
           case stat: Definition if keepDefinition(stat) => stat
@@ -311,7 +314,8 @@ object SourceCode {
         else this += highlightKeyword("val ")
 
         val name1 = splicedName(vdef.symbol).getOrElse(name)
-        this += highlightDefinition(name1) += ": "
+        this += highlightDefinition(name1)
+        this += (if (dotty.tools.dotc.util.Chars.isOperatorPart(sb.last)) " : " else ": ")
         printTypeTree(tpt)
         rhs match {
           case Some(tree) =>
@@ -368,7 +372,7 @@ object SourceCode {
             case TermParamClause(params) => printMethdArgsDefs(params, n, contextBounds, containingClass); n += params.length
             case TypeParamClause(params) => if (!isConstructor) printTargsDefs(params.zip(params), contextBounds)
         if (!isConstructor) {
-          this += ": "
+          this += (if (dotty.tools.dotc.util.Chars.isOperatorPart(sb.last)) " : " else ": ")
           printTypeTree(tpt)
         }
         rhs match {
@@ -549,6 +553,15 @@ object SourceCode {
         this += " = "
         printTree(rhs)
 
+      // Pattern matching anonymous function
+      case Lambda(List(ValDef("x$1", _, _)), Match(Typed(Ident("x$1"), _), cases)) =>
+        this += "{"
+        indented {
+          this += lineBreak()
+          printCases(cases, lineBreak())
+        }
+        this += lineBreak() += "}"
+
       case tree @ Lambda(params, body) =>  // must come before `Block`
         params match {
           case List(ValDef(name, _, _)) if WildcardName.matches(name) =>
@@ -707,12 +720,25 @@ object SourceCode {
         case Typed(expr, _) => expr
         case expr => expr
       }
+      val statsAreSingleExpr = stats2 match {
+        case List(_: Term) => true
+        case _ => false
+      }
+      val exprIsUnit = expr2 match {
+        case Literal(UnitConstant()) => true
+        case _ => false
+      }
       if (stats2.isEmpty) {
         printTree(expr2)
+      } else if (statsAreSingleExpr && exprIsUnit) {
+        printTree(stats2.head)
       } else {
         this += "{"
         indented {
-          printStats(stats2, expr2)
+          if (exprIsUnit)
+            printStats(stats2.init, stats2.last)
+          else
+            printStats(stats2, expr2)
         }
         this += lineBreak() += "}"
       }
@@ -1004,6 +1030,8 @@ object SourceCode {
     private def printParamDef(arg: ValDef, n: Int, containingClass: Option[ClassDef])(using elideThis: Option[Symbol]): Unit = {
       val name = splicedName(arg.symbol).getOrElse(arg.symbol.name)
       val sym = arg.symbol.owner
+
+      arg.symbol.annotations.reverse.foreach { annot => printAnnotation(annot); sb += ' ' }
 
       if (arg.symbol.flags.is(Flags.Erased)) this += "erased "
 

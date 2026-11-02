@@ -84,7 +84,7 @@ class AkkaPersistenceSemanticTest extends SemanticTestBase("com.typesafe.akka" %
     //akka.persistence.journal.PersistencePluginProxyExtensionImpl
     akka.persistence.journal.ReadEventAdapter
     //akka.persistence.journal.ReplayFilter
-    //akka.persistence.journal.ReplayMediator
+    akka.persistence.journal.ReplayMediator
     akka.persistence.journal.SingleEventSeq
     akka.persistence.journal.Tagged
     akka.persistence.journal.WriteEventAdapter
@@ -100,7 +100,7 @@ class AkkaPersistenceSemanticTest extends SemanticTestBase("com.typesafe.akka" %
     //akka.persistence.journal.leveldb.LeveldbRecovery
     //akka.persistence.journal.leveldb.SharedLeveldbJournal
     //akka.persistence.journal.leveldb.SharedLeveldbStore
-    //akka.persistence.serialization.FilteredPayloadSerializer
+    akka.persistence.serialization.FilteredPayloadSerializer
     akka.persistence.serialization.Message
     //akka.persistence.serialization.MessageSerializer
     akka.persistence.serialization.Snapshot
@@ -110,7 +110,7 @@ class AkkaPersistenceSemanticTest extends SemanticTestBase("com.typesafe.akka" %
     //akka.persistence.snapshot.japi.SnapshotStore
     //akka.persistence.snapshot.local.LocalSnapshotStore
     akka.persistence.state.DurableStateStoreProvider
-    //akka.persistence.state.DurableStateStoreRegistry
+    akka.persistence.state.DurableStateStoreRegistry
     akka.persistence.state.javadsl.DurableStateStore
     akka.persistence.state.javadsl.DurableStateUpdateStore
     akka.persistence.state.javadsl.GetObjectResult

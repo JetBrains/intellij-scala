@@ -173,7 +173,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.data.Cokleisli
     //cats.data.CokleisliArrow
     cats.data.CokleisliCompose
-    //cats.data.CokleisliInstances
+    cats.data.CokleisliInstances
     cats.data.CokleisliInstances0
     cats.data.CokleisliInstances1
     //cats.data.CokleisliMonad
@@ -188,7 +188,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.ConstFunctor
     //cats.data.ConstInstances
     //cats.data.ConstInstances0
-    //cats.data.ConstInstances1
+    cats.data.ConstInstances1
     cats.data.ConstInstances2
     cats.data.ConstInstances3
     cats.data.ConstInstances4
@@ -199,9 +199,9 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.EitherKContravariant
     //cats.data.EitherKFoldable
     cats.data.EitherKFunctor
-    //cats.data.EitherKInstances
-    //cats.data.EitherKInstances0
-    //cats.data.EitherKInstances1
+    cats.data.EitherKInstances
+    cats.data.EitherKInstances0
+    cats.data.EitherKInstances1
     cats.data.EitherKInstances2
     cats.data.EitherKInstances3
     cats.data.EitherKTraverse
@@ -259,8 +259,8 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.IdTInstances4
     cats.data.IdTInstances5
     cats.data.IdTInstances6
-    //cats.data.IdTInstances7
-    //cats.data.IdTInstances8
+    cats.data.IdTInstances7
+    cats.data.IdTInstances8
     cats.data.IdTMonad
     cats.data.IdTNonEmptyTraverse
     //cats.data.IdTTraverse
@@ -324,16 +324,16 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.data.KleisliFunctor
     //cats.data.KleisliFunctorFilter
     //cats.data.KleisliInstances
-    //cats.data.KleisliInstances0
+    cats.data.KleisliInstances0
     //cats.data.KleisliInstances0_5
     cats.data.KleisliInstances1
     cats.data.KleisliInstances2
-    //cats.data.KleisliInstances3
+    cats.data.KleisliInstances3
     cats.data.KleisliInstances4
     cats.data.KleisliInstances5
     cats.data.KleisliInstances6
     cats.data.KleisliInstances7
-    //cats.data.KleisliInstances8
+    cats.data.KleisliInstances8
     cats.data.KleisliInstances9
     cats.data.KleisliMonad
     cats.data.KleisliMonadError
@@ -354,7 +354,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.NestedFoldable
     cats.data.NestedFunctor
     //cats.data.NestedFunctorFilter
-    //cats.data.NestedInstances
+    cats.data.NestedInstances
     //cats.data.NestedInstances0
     cats.data.NestedInstances1
     cats.data.NestedInstances10
@@ -364,8 +364,8 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.NestedInstances2
     cats.data.NestedInstances3
     cats.data.NestedInstances4
-    //cats.data.NestedInstances5
-    //cats.data.NestedInstances6
+    cats.data.NestedInstances5
+    cats.data.NestedInstances6
     cats.data.NestedInstances7
     cats.data.NestedInstances8
     cats.data.NestedInstances9
@@ -493,7 +493,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.Tuple2KOrder
     //cats.data.Tuple2KSemigroupK
     //cats.data.Tuple2KSemigroupal
-    //cats.data.Tuple2KShow
+    cats.data.Tuple2KShow
     //cats.data.Tuple2KTraverse
     //cats.data.Validated
     //cats.data.ValidatedApplicative
@@ -518,7 +518,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.data.WriterTFunctions0
     cats.data.WriterTFunctor
     cats.data.WriterTInstances
-    //cats.data.WriterTInstances0
+    cats.data.WriterTInstances0
     //cats.data.WriterTInstances1
     cats.data.WriterTInstances10
     cats.data.WriterTInstances11
@@ -610,8 +610,8 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.instances.FutureSemigroup
     cats.instances.HashInstances
     cats.instances.IntInstances
-    //cats.instances.InvariantInstances
-    //cats.instances.InvariantInstancesBinCompat0
+    cats.instances.InvariantInstances
+    cats.instances.InvariantInstancesBinCompat0
     //cats.instances.InvariantMonoidalInstances
     //cats.instances.LazyListInstances
     //cats.instances.ListInstances
@@ -668,7 +668,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.instances.StreamInstancesBinCompat0
     cats.instances.StringInstances
     cats.instances.SymbolInstances
-    //cats.instances.TailRecInstances
+    cats.instances.TailRecInstances
     cats.instances.TryCoflatMap
     //cats.instances.TryInstances
     cats.instances.TryInstances1
@@ -676,9 +676,9 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.instances.TryMonoid
     //cats.instances.TrySemigroup
     //cats.instances.Tuple2Instances
-    //cats.instances.Tuple2Instances1
+    cats.instances.Tuple2Instances1
     //cats.instances.Tuple2Instances2
-    //cats.instances.Tuple2Instances3
+    cats.instances.Tuple2Instances3
     cats.instances.Tuple2Instances4
     //cats.instances.Tuple2InstancesBinCompat0
     cats.instances.TupleInstances
@@ -755,7 +755,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.compat.HashCompat
     cats.kernel.compat.WrappedMutableMapBase
     cats.kernel.compat.scalaVersionMoreSpecific
-    //cats.kernel.compat.scalaVersionSpecific
+    cats.kernel.compat.scalaVersionSpecific
     cats.kernel.instances.AllInstances
     cats.kernel.instances.AllInstancesBinCompat0
     cats.kernel.instances.AllInstancesBinCompat1
@@ -815,11 +815,11 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.kernel.instances.Function1Group
     //cats.kernel.instances.Function1Monoid
     //cats.kernel.instances.Function1Semigroup
-    //cats.kernel.instances.FunctionInstances
-    //cats.kernel.instances.FunctionInstances0
-    //cats.kernel.instances.FunctionInstances1
-    //cats.kernel.instances.FunctionInstances2
-    //cats.kernel.instances.FunctionInstances3
+    cats.kernel.instances.FunctionInstances
+    cats.kernel.instances.FunctionInstances0
+    cats.kernel.instances.FunctionInstances1
+    cats.kernel.instances.FunctionInstances2
+    cats.kernel.instances.FunctionInstances3
     cats.kernel.instances.FunctionInstances4
     cats.kernel.instances.HashInstances
     cats.kernel.instances.IntBounded
@@ -942,7 +942,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.kernel.instances.TupleSemigroupInstances
     //cats.kernel.instances.TupleSemilatticeInstances
     cats.kernel.instances.UUIDBounded
-    //cats.kernel.instances.UUIDInstances
+    cats.kernel.instances.UUIDInstances
     cats.kernel.instances.UnitAlgebra
     cats.kernel.instances.UnitBounded
     cats.kernel.instances.UnitEnumerable

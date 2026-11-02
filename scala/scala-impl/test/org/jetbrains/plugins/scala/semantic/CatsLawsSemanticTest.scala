@@ -101,7 +101,7 @@ class CatsLawsSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-law
     //cats.laws.discipline.InvariantMonoidalTests
     //cats.laws.discipline.InvariantSemigroupalTests
     //cats.laws.discipline.InvariantTests
-    //cats.laws.discipline.MiniInt
+    cats.laws.discipline.MiniInt
     //cats.laws.discipline.MonadErrorTests
     //cats.laws.discipline.MonadTests
     //cats.laws.discipline.MonoidKTests

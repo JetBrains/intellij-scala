@@ -5,6 +5,8 @@ import dotty.tools.dotc.ast.Positioned
 import dotty.tools.dotc.core.*
 import dotty.tools.dotc.core.Comments.{ContextDoc, ContextDocstrings}
 import dotty.tools.dotc.core.Contexts.*
+import dotty.tools.dotc.core.Flags.Synthetic
+import dotty.tools.dotc.core.Scopes.newScope
 import dotty.tools.dotc.decompiler.PartialTASTYDecompiler
 import dotty.tools.dotc.quoted.MacroExpansion
 import dotty.tools.dotc.reporting.*
@@ -51,13 +53,18 @@ class DecompilerImpl(classpath: Array[String]) extends dotc.Driver {
   private val decompiler = new PartialTASTYDecompiler()
 
   // Implements.jetbrains.plugins.scala.semantic.Decompiler.decompile
-  def decompile(fileName: String, contents: Array[Byte]): String =
-    run(new VirtualFile(fileName, contents))
+  def decompile(fileName: String, contents: Seq[Byte]): String =
+    run(new VirtualFile(fileName, contents.toArray))
 
   def run(tastyFile: AbstractFile): String = {
     val reporter = new StoreReporter(null) with HideNonSensicalMessages
     val run = decompiler.newRun(using myInitCtx.fresh.setReporter(reporter))
     inContext(run.runContext) {
+      // Add `internal` for `@scala.caps.internal.consume` in 3.8, SCL-26070
+      val caps = Symbols.requiredModule("scala.caps").moduleClass.asClass
+      if (!caps.info.decl(Names.termName("internal")).symbol.exists) {
+        Symbols.newCompleteModuleSymbol(caps, Names.termName("internal"), Synthetic, Synthetic, List(), newScope).entered
+      }
       run.compile(List(tastyFile))
       run.printSummary()
       val unit = ctx.run.nn.units.head

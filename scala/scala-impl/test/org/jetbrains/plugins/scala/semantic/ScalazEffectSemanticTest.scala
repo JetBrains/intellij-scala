@@ -16,8 +16,8 @@ class ScalazEffectSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-
     scalaz.effect.Effects
     scalaz.effect.FinalizerHandle
     //scalaz.effect.IO
-    //scalaz.effect.IOInstances
-    //scalaz.effect.IOInstances0
+    scalaz.effect.IOInstances
+    scalaz.effect.IOInstances0
     //scalaz.effect.IOInstances1
     scalaz.effect.IOLiftIO
     scalaz.effect.IOMonad

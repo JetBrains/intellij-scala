@@ -38,7 +38,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
 
     val modifiers = {
       val s = textOfModifiers(cls, (if (cls.isObject) ScalaPsiUtil.superValsSignatures(cls) else ScalaPsiUtil.superTypeSignatures(cls)).nonEmpty)
-      if (normalize && cls.is[ScClass] && cls.hasModifierPropertyScala("implicit") && !isValueClass(cls)) s.replace("final ", "")
+      if (normalize && cls.is[ScClass] && isValueClass(cls)) s.replace("final ", "")
       else if (normalize && cls.is[ScObject] && cls.hasModifierPropertyScala("case")) s.replace("final ", "")
       else s
     }
@@ -182,7 +182,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     val rhs = f match {
       case ScFunctionDefinition.withBody(body) =>
         val expression = normalized(body)
-        val rhs = if ((f.isLocal && !expression.is[ScBlock]) || (!body.is[ScBlock] && isValueDiscarded(expression))) textOfExpression(expression, indent)
+        val rhs = if (f.isLocal && !expression.is[ScBlock]) textOfExpression(expression, indent)
                   else textOfStatement(expression, indent + "  ")
         if (rhs.startsWith("{")) " = " + rhs else if (!f.isLocal) " = " + rhs else " = " + rhs.trim
       case _ => ""
@@ -207,23 +207,13 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     if (s.is[ScExpression]) text else highlighted(s)(text)
   }
 
-  private def textOfExpression(e: ScExpression, indent: String, etaExpand: Boolean = true): String =
-    if (isValueDiscarded(e))
-      "{\n" + indent + "    " + textOfUnadaptedExpression(e, indent + "  ", etaExpand) +
-        "\n" + indent + "    ()\n" + indent + "  }"
-    else textOfUnadaptedExpression(e, indent, etaExpand)
-
-  private def textOfUnadaptedExpression(e: ScExpression, indent: String, etaExpand: Boolean): String = highlighted(e) {
+  private def textOfExpression(e: ScExpression, indent: String, etaExpand: Boolean = true): String = highlighted(e) {
     val text = e match {
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
-      case b: ScBlockExpr => "{" + b.statements.map {
-        case e: ScExpression if b.resultExpression.contains(e) && isValueDiscarded(e) =>
-          "\n" + indent + "    " + textOfUnadaptedExpression(e, indent + "  ", etaExpand = true) + "\n" + indent + "    ()"
-        case s => textOfStatement(s, indent + "  ")
-      }.mkString("") +
-        b.caseClauses.map("\n" + _.caseClauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n")).getOrElse("") +
+      case b: ScBlockExpr => "{" + b.statements.filterNot(isUnitConstant).map(s => textOfStatement(s, indent + "  ")).mkString("") +
+        b.caseClauses.map("\n" + _.caseClauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfCaseBlock(c.expr.get, indent + "  ")).mkString("\n")).getOrElse("") +
         "\n" + indent + "  " + "}"
-      case b: ScBlock => b.statements.map(s => textOfStatement(s, indent + "  ")).mkString("")
+      case b: ScBlock => b.statements.filterNot(isUnitConstant).map(s => textOfStatement(s, indent + "  ")).mkString("")
       case r: ScReturn => "return" + r.expr.map(" " + textOfExpression(_, indent)).getOrElse("")
       case t: ScTypedExpression =>
         val s = textOfExpression(t.expr, indent)
@@ -253,8 +243,8 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case e @ NonValueType(_: ScMethodType | ScTypePolymorphicType(_: ScMethodType, _)) & ExpectedType(FunctionType(_, _)) if etaExpand => etaExpansionOf(e, indent).getOrElse("<expr>")
       case e: ScIf =>
         "if (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " + e.thenExpression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + (e.elseExpression match {
-          case Some(e) => " else " + textOfExpression(normalized(e), indent)
-          case None => ""
+          case Some(e) if !isUnitConstant(e) => " else " + textOfExpression(normalized(e), indent)
+          case _ => ""
         })
       case e: ScTry =>
         "try " + e.expression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") +
@@ -296,9 +286,9 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case e: ScNewTemplateDefinition =>
         val hasMembers = e.extendsBlock.members.exists(m => withPrivate || !isPrivate(m))
         val isAbstract = template.superRefs(e).headOption.exists { case (_, cls) => template.isAbstract(cls) }
-        "new " + e.firstConstructorInvocation
+        "new " + e.extendsBlock.templateParents.map(_.parentClauses).getOrElse(Seq.empty)
           .map(textOfConstructorInvocation(_, indent, emptyParens = !(hasMembers || isAbstract)))
-          .getOrElse("") + (if (!hasMembers) (if (isAbstract) " {}" else "") else
+          .mkString(", ") + (if (!hasMembers) (if (isAbstract) " {}" else "") else
           " {" + {
             val sb = new StringBuilder()
             printTo(sb, e.extendsBlock, indent + "  ", _ => ())
@@ -311,7 +301,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         textOfTuple(e.exprs, indent)
       case m: ScMatch =>
         m.expression.map(textOfExpression(_, indent + "  ")).getOrElse("") + " match {\n" +
-          m.clauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfExpression(c.expr.get, indent + "  ")).mkString("\n") +
+          m.clauses.map(c => indent + "  " + "  case " + textOfPattern(c.pattern.get) + c.guard.flatMap(_.expr).map(" if " + textOfExpression(_, indent)).getOrElse("") + " =>" + textOfCaseBlock(c.expr.get, indent + "  ")).mkString("\n") +
         "\n" + indent + "  }"
       case e => "<expr>"
     }
@@ -320,11 +310,6 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     //order of the signature rather than after everything the source writes, see textOfClauses
     e.implicitConversion().map(textOfImplicitConversion(_, text, e)).getOrElse(text)
   }
-
-  // The usual expression type already includes value discarding, so inspect it before base-type adaptation.
-  private def isValueDiscarded(e: ScExpression): Boolean =
-    e.expectedType().exists(_.isUnit) &&
-      e.getTypeWithoutImplicits(ignoreBaseType = true).exists(tpe => !tpe.isUnit && !tpe.isNothing)
 
   // Keep literal escaping consistent with the compiler-side SourceCode printer.
   private def escapedString(value: String): String = value.flatMap {
@@ -388,6 +373,15 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case p: ScCompositePattern => "(" + p.subpatterns.map(textOfPattern).mkString(" | ") + ")"
       case _ => "<pattern>"
     }
+  }
+
+  private def textOfCaseBlock(e: ScExpression, indent: String): String =
+    if (isUnitConstant(e)) "" else textOfExpression(e, indent)
+
+  private def isUnitConstant(s: ScBlockStatement): Boolean = s match {
+    case _: ScUnitExpr => true
+    case b: ScBlock if !b.hasCaseClauses && b.statements.forall(it => it.is[ScImportStmt] || isUnitConstant(it)) => true
+    case _ => false
   }
 
   @tailrec
@@ -635,10 +629,11 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     case _ => None
   }
 
+  @tailrec
   private def normalized(e: ScExpression): ScExpression = e match {
-    case b: ScBlock if normalize => b.statements match {
-      case Seq(e: ScExpression) => e
-      case statements if statements.length > 1 && statements.init.forall(_.is[ScImportStmt]) => statements.last.asInstanceOf[ScExpression]
+    case b: ScBlock if !b.hasCaseClauses => b.statements.filterNot(isUnitConstant) match {
+      case Seq(e: ScExpression) => normalized(e)
+      case statements if statements.length > 1 && statements.init.forall(_.is[ScImportStmt]) => normalized(statements.last.asInstanceOf[ScExpression])
       case _ => b
     }
     case e => e
@@ -668,7 +663,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     val rhs = v match {
       case ScValueOrVariableDefinition.withExpr(expr) =>
         val expression = normalized(expr)
-        val rhs = if ((v.isLocal && !expression.is[ScBlock]) || (!expr.is[ScBlock] && isValueDiscarded(expression))) textOfExpression(expression, indent)
+        val rhs = if (v.isLocal && !expression.is[ScBlock]) textOfExpression(expression, indent)
                   else textOfStatement(expression, indent + "  ")
         if (rhs.startsWith("{")) " = " + rhs else if (!v.isLocal) " = " + rhs else " = " + rhs.trim
       case _ => ""
@@ -765,10 +760,8 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
   private def isField(p: ScParameter): Boolean = {
     val containingClass = p.contexts.findByType[ScTypeDefinition].get
     val parentClauses = containingClass.extendsBlock.templateParents.map(_.parentClauses).getOrElse(Seq.empty)
-    (parentClauses ++ containingClass.members.filterNot(_.names.contains("this"))).exists(_.elements.exists {
-      case reference: ScReference => reference.bind().exists(_.mostInnerResolveResult.element == p)
-      case _ => false
-    })
+    (parentClauses ++ containingClass.members.filterNot(_.names.contains("this")))
+      .exists(_.elements.exists { case r: ScReference => r.bind().exists(_.getActualElement == p); case _ => false } )
   }
 
   private def textOf(annotation: ScAnnotation): String =
@@ -795,7 +788,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       (if (ml.isPrivate) "private" + qualifier + " " else "") +
       (if (ml.isProtected) "protected" + qualifier + " " else "") +
       (if (ml.isImplicit) "implicit " else "") +
-      (if (ml.isFinal || normalize && owner.asOptionOf[ScClass].exists(isValueClass)) "final " else "") +
+      (if (ml.isFinal) "final " else "") +
       (if (ml.isSealed) "sealed " else "") +
       (if (ml.isOpen) "open " else "") +
       (if (ml.isAbstract && !ml.isOverride) "abstract " else "") +

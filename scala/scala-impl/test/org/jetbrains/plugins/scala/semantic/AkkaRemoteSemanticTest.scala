@@ -12,7 +12,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.pki.pem.PEMDecoder
     akka.pki.pem.PEMLoadingException
     akka.remote.AddressUidExtension
-    //akka.remote.BoundAddressesExtension
+    akka.remote.BoundAddressesExtension
     //akka.remote.ByteStringUtils
     akka.remote.DaemonMsg
     akka.remote.DaemonMsgCreate
@@ -23,7 +23,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.remote.FailureDetectorRegistry
     //akka.remote.HeartbeatHistory
     akka.remote.HeartbeatMessage
-    //akka.remote.MessageSerializer
+    akka.remote.MessageSerializer
     //akka.remote.NotAllowedClassRemoteDeploymentAttemptException
     //akka.remote.PhiAccrualFailureDetector
     akka.remote.PriorityMessage
@@ -31,13 +31,13 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.RemoteActorRef
     //akka.remote.RemoteActorRefProvider
     //akka.remote.RemoteDeployer
-    //akka.remote.RemoteDeploymentWatcher
+    akka.remote.RemoteDeploymentWatcher
     //akka.remote.RemoteLogMarker
     akka.remote.RemoteRef
     akka.remote.RemoteScope
     //akka.remote.RemoteSettings
     //akka.remote.RemoteSystemDaemon
-    //akka.remote.RemoteTransport
+    akka.remote.RemoteTransport
     akka.remote.RemoteTransportException
     akka.remote.RemoteTransportExceptionNoStackTrace
     //akka.remote.RemoteWatcher
@@ -56,10 +56,10 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.remote.artery.ControlMessage
     //akka.remote.artery.Decoder
     //akka.remote.artery.Deserializer
-    //akka.remote.artery.DuplicateFlush
-    //akka.remote.artery.DuplicateHandshakeReq
+    akka.remote.artery.DuplicateFlush
+    akka.remote.artery.DuplicateHandshakeReq
     //akka.remote.artery.Encoder
-    //akka.remote.artery.EnvelopeBuffer
+    akka.remote.artery.EnvelopeBuffer
     akka.remote.artery.EnvelopeBufferPool
     //akka.remote.artery.FixedSizePartitionHub
     //akka.remote.artery.FixedSizePartitionQueue
@@ -67,7 +67,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.remote.artery.FlushAck
     //akka.remote.artery.FlushBeforeDeathWatchNotification
     //akka.remote.artery.FlushOnShutdown
-    //akka.remote.artery.GracefulShutdownQuarantinedEvent
+    akka.remote.artery.GracefulShutdownQuarantinedEvent
     akka.remote.artery.HeaderBuilder
     akka.remote.artery.HeaderBuilderImpl
     //akka.remote.artery.ImmutableLongMap
@@ -75,7 +75,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.InboundControlJunction
     akka.remote.artery.InboundEnvelope
     //akka.remote.artery.InboundHandshake
-    //akka.remote.artery.InboundQuarantineCheck
+    akka.remote.artery.InboundQuarantineCheck
     //akka.remote.artery.InboundTestStage
     //akka.remote.artery.LoggingRemoteInstrument
     //akka.remote.artery.LruBoundedCache
@@ -90,7 +90,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.OutboundTestStage
     akka.remote.artery.OversizedPayloadException
     akka.remote.artery.Quarantined
-    //akka.remote.artery.QuarantinedEvent
+    akka.remote.artery.QuarantinedEvent
     akka.remote.artery.RemoteInstrument
     //akka.remote.artery.RemoteInstruments
     akka.remote.artery.RemotingFlightRecorder
@@ -101,7 +101,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.artery.SendQueue
     //akka.remote.artery.SerializationFormatCache
     //akka.remote.artery.SharedTestState
-    //akka.remote.artery.SystemMessageAcker
+    akka.remote.artery.SystemMessageAcker
     //akka.remote.artery.SystemMessageDelivery
     akka.remote.artery.TestManagementCommands
     akka.remote.artery.TestState
@@ -127,7 +127,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.remote.artery.tcp.SslTransportException
     //akka.remote.artery.tcp.TcpFraming
     akka.remote.artery.tcp.ssl.NoopSessionVerifier
-    //akka.remote.artery.tcp.ssl.PeerSubjectVerifier
+    akka.remote.artery.tcp.ssl.PeerSubjectVerifier
     akka.remote.artery.tcp.ssl.PemManagersProvider
     //akka.remote.artery.tcp.ssl.RotatingKeysSSLEngineProvider
     akka.remote.artery.tcp.ssl.SSLEngineConfig
@@ -137,7 +137,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.remote.security.provider.SeedSize
     //akka.remote.serialization.AbstractActorRefResolveCache
     //akka.remote.serialization.ActorRefResolveCache
-    //akka.remote.serialization.ActorRefResolveThreadLocalCache
+    akka.remote.serialization.ActorRefResolveThreadLocalCache
     //akka.remote.serialization.ArteryMessageSerializer
     akka.remote.serialization.ByteStringSerializer
     //akka.remote.serialization.DaemonMsgCreateSerializer
@@ -150,7 +150,7 @@ class AkkaRemoteSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     //akka.remote.serialization.SystemMessageSerializer
     //akka.remote.serialization.ThrowableNotSerializableException
     //akka.remote.serialization.ThrowableSupport
-    //akka.remote.serialization.WrappedPayloadSupport
+    akka.remote.serialization.WrappedPayloadSupport
     //akka.remote.testkit.Blackhole
     akka.remote.testkit.Direction
     akka.remote.testkit.ForceDisassociate

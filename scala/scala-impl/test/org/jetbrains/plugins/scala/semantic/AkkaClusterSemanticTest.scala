@@ -32,16 +32,16 @@ class AkkaClusterSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     //akka.cluster.ClusterSettings
     akka.cluster.ClusterUserAction
     akka.cluster.ConfigValidation
-    //akka.cluster.CoordinatedShutdownLeave
+    akka.cluster.CoordinatedShutdownLeave
     //akka.cluster.CrossDcHeartbeatSender
     //akka.cluster.CrossDcHeartbeatingState
-    //akka.cluster.DowningProvider
+    akka.cluster.DowningProvider
     //akka.cluster.FirstSeedNodeProcess
     //akka.cluster.Gossip
     //akka.cluster.GossipEnvelope
     //akka.cluster.GossipOverview
     //akka.cluster.GossipStats
-    //akka.cluster.GossipStatus
+    akka.cluster.GossipStatus
     //akka.cluster.GossipTargetSelector
     //akka.cluster.HeartbeatNodeRing
     akka.cluster.InternalClusterAction
@@ -77,7 +77,7 @@ class AkkaClusterSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     akka.cluster.sbr.KeepOldestSettings
     akka.cluster.sbr.LeaseMajority
     akka.cluster.sbr.LeaseMajoritySettings
-    //akka.cluster.sbr.SplitBrainResolver
+    akka.cluster.sbr.SplitBrainResolver
     //akka.cluster.sbr.SplitBrainResolverBase
     akka.cluster.sbr.SplitBrainResolverProvider
     //akka.cluster.sbr.SplitBrainResolverSettings
