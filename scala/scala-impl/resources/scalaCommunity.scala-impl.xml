@@ -269,13 +269,6 @@
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnusedDeclarationPassFactory"/>
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedPassFactory"/>
 
-        <lang.syntaxHighlighterFactory language="Scala"
-                                       implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
-        <lang.syntaxHighlighter language="ScalaDoc"
-                                implementationClass="org.jetbrains.plugins.scalaDoc.highlighter.ScalaDocSyntaxHighlighter"/>
-        <lang.syntaxHighlighter language="ScalaDirective"
-                                implementationClass="org.jetbrains.plugins.scalaDirective.highlighter.ScalaDirectiveSyntaxHighlighter"/>
-
         <lang.tokenSeparatorGenerator language="ScalaDirective" implementationClass="org.jetbrains.plugins.scala.lang.ScalaTokenSeparatorGenerator"/>
 
         <additionalTextAttributes scheme="Default" file="colorSchemes/ScalaDefault.xml"/>

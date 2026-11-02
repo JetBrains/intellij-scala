@@ -9,7 +9,6 @@ import com.intellij.psi.{StringEscapesTokenTypes, TokenType}
 import org.jetbrains.plugins.scala.Tracing
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.CustomScalaLexer
 import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLiteralLexer, ScalaMultilineStringLiteralLexer, ScalaStringLiteralLexer}
-import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaLexer, ScalaTokenType, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.{ScalaDocElementType, ScalaDocTokenType}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
@@ -150,8 +149,10 @@ object ScalaSyntaxHighlighter {
   // TODO: headers are excluded cause:
   //  1) inner headers are parsed wrongly e.g. ===header = content===, `=` is also parsed as header instead of content
   //  2) current headers using <h1>, <h2> tags are not rendered as headers by IDEA
-  private val tSCALADOC_WIKI_SYNTAX: TokenSet =
-    ALL_SCALADOC_SYNTAX_ELEMENTS -- (ScalaDocTokenType.VALID_DOC_HEADER, ScalaDocTokenType.DOC_HEADER)
+  private val tSCALADOC_WIKI_SYNTAX: TokenSet = TokenSet.andNot(
+    ALL_SCALADOC_SYNTAX_ELEMENTS,
+    TokenSet.create(ScalaDocTokenType.VALID_DOC_HEADER, ScalaDocTokenType.DOC_HEADER)
+  )
 
   //for value in @param value
   private val tDOC_TAG_VALUE = TokenSet.create(
@@ -239,19 +240,22 @@ object ScalaSyntaxHighlighter {
 
       tDOC_TAG_VALUE -> SCALA_DOC_TAG_PARAM_VALUE,
       tDOC_COMMENT_TAGS -> SCALA_DOC_TAG,
-      (tSCALADOC_XML_TAGS -- tXML_TAG_NAME) -> SCALA_DOC_HTML_TAG,
+      TokenSet.andNot(tSCALADOC_XML_TAGS, tXML_TAG_NAME) -> SCALA_DOC_HTML_TAG,
       tSCALADOC_WIKI_SYNTAX -> SCALA_DOC_WIKI_SYNTAX,
       tSCALADOC_HTML_ESCAPE -> SCALA_DOC_HTML_ESCAPE,
       TokenSet.create(DOC_LIST_ITEM_HEAD) -> SCALA_DOC_LIST_ITEM_HEAD,
 
-      ((ALL_SCALADOC_TOKENS ++ (DOC_COMMENT_BAD_CHARACTER, DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT))
-        -- tDOC_TAG_VALUE
-        -- tDOC_COMMENT_TAGS
-        -- tSCALADOC_XML_TAGS
-        -- tSCALADOC_WIKI_SYNTAX
-        -- tSCALADOC_HTML_ESCAPE
-        -- DOC_LIST_ITEM_HEAD
-        ) -> DOC_COMMENT,
+      TokenSet.andNot(
+        TokenSet.orSet(ALL_SCALADOC_TOKENS, TokenSet.create(DOC_COMMENT_BAD_CHARACTER, DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT)),
+        TokenSet.orSet(
+          tDOC_TAG_VALUE,
+          tDOC_COMMENT_TAGS,
+          tSCALADOC_XML_TAGS,
+          tSCALADOC_WIKI_SYNTAX,
+          tSCALADOC_HTML_ESCAPE,
+          TokenSet.create(DOC_LIST_ITEM_HEAD),
+        )
+      ) -> DOC_COMMENT,
 
       tINTERPOLATED_STRINGS -> INTERPOLATED_STRING_INJECTION,
 

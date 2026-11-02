@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.highlighter
 
 import com.intellij.lang.html.HTMLLanguage
 import com.intellij.lang.{Language, LanguageParserDefinitions}
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{LanguageSubstitutors, PsiManager}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.project.{ScalaFeatures, ScalaFileFeatures}
@@ -72,7 +72,7 @@ object ScalaSyntaxHighlighterFactory {
   private def getScalaFeaturesForFile(
     @Nullable project: Project,
     @Nullable file: VirtualFile,
-  ): Option[ScalaFeatures] = inReadAction {
+  ): Option[ScalaFeatures] = ReadAction.computeBlocking { () =>
     val psiFile = if (project != null && file != null) {
       // If we try to search for a file in a non-valid state, we get an exception that fails tests "Accessing invalid virtual file ..."
       // Known reasons when the file might be non-valid:

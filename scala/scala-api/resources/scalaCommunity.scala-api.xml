@@ -9,10 +9,12 @@
         <module name="intellij.platform.codeStyle"/>
         <module name="intellij.platform.core"/>
         <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.editor.ui"/>
         <module name="intellij.platform.ide.core"/>
         <module name="intellij.platform.ide.impl"/>
         <module name="intellij.platform.util.ui"/>
         <module name="intellij.xml.parser"/>
+        <module name="intellij.xml.psi.impl"/>
     </dependencies>
 
     <extensionPoints>
@@ -30,5 +32,12 @@
         <fileType name="TASTy" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
 
         <iconMapper mappingFile="ScalaIconMappings.json"/>
+
+        <lang.syntaxHighlighterFactory language="Scala"
+                                       implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
+        <lang.syntaxHighlighter language="ScalaDoc"
+                                implementationClass="org.jetbrains.plugins.scalaDoc.highlighter.ScalaDocSyntaxHighlighter"/>
+        <lang.syntaxHighlighter language="ScalaDirective"
+                                implementationClass="org.jetbrains.plugins.scalaDirective.highlighter.ScalaDirectiveSyntaxHighlighter"/>
     </extensions>
 </idea-plugin>
