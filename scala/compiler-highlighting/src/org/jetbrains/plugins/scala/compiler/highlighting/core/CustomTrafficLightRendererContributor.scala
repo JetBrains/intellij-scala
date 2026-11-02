@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.source.PsiJavaFileImpl
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiManager}
 import com.intellij.ui.components.ActionLink
 import com.intellij.util.ui.GridBag
 import org.jetbrains.annotations.ApiStatus
@@ -97,9 +97,11 @@ final class CustomTrafficLightRendererContributor extends TrafficLightRendererCo
      *
      * The analyzing type is left as it was, so the blocked item is not dimmed like the counts of an unfinished
      * analysis.
+     *
+     * Not shown when the file's highlighting level excludes compiler highlighting.
      */
     private def blockedStatus(status: AnalyzerStatus): Option[AnalyzerStatus] =
-      if (file eq null) None
+      if ((file eq null) || !highlightsAtFileLevel) None
       else {
         val blockers = CompilationLogicService(project).blockersOf(ModuleKey.of(project, file))
         Option.when(blockers.nonEmpty) {
@@ -123,6 +125,12 @@ final class CustomTrafficLightRendererContributor extends TrafficLightRendererCo
               .withExpandedStatus(util.List.of(blocked))
         }
       }
+
+    /** Whether the file's highlighting level includes compiler highlighting. */
+    private def highlightsAtFileLevel: Boolean = inReadAction:
+      val psiFile = PsiManager.getInstance(project).findFile(file)
+      (psiFile ne null) && ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project)
+
 
     override def createUIController(): UIController = super.createUIController(editor)
 

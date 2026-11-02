@@ -103,6 +103,9 @@
         <listener topic="com.intellij.openapi.roots.ModuleRootListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingModuleRootListener"/>
 
+        <listener topic="com.intellij.codeInsight.daemon.impl.analysis.FileHighlightingSettingListener"
+                  class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.CompilerHighlightingSettingListener"/>
+
         <listener topic="org.jetbrains.plugins.scala.settings.CompilerHighlightingListener"
                   class="org.jetbrains.plugins.scala.compiler.highlighting.listeners.ToggleHighlightingModeListener$OnCompilerHighlightingChange"
                   activeInTestMode="false"
