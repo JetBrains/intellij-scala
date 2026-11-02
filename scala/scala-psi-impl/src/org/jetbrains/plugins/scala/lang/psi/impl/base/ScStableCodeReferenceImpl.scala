@@ -7,7 +7,6 @@ import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.Tracing
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ClassToImport, ElementToImport, MemberToImport}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
@@ -15,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
+import org.jetbrains.plugins.scala.lang.psi.Tracing
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder.ImportPath
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base._

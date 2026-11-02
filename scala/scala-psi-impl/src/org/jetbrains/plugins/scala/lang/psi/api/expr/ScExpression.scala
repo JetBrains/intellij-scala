@@ -4,8 +4,10 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.Tracing
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{ImplicitArgumentsClause, SafeCheckException}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -27,7 +29,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeaturesProvider}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.SAMUtil
-import org.jetbrains.plugins.scala.{NlsString, Tracing}
 
 import scala.annotation.tailrec
 

@@ -4,10 +4,10 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.Tracing
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, cachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.Tracing
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScNamedTupleComponent, ScPrimaryConstructor}

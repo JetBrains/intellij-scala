@@ -20,6 +20,7 @@ import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import com.intellij.ui.{Gray, JBColor}
 import com.intellij.util.ui.StartupUiUtil
+import org.jetbrains.plugins.scala.lang.psi.ElementTracer
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import java.awt.Color
@@ -54,7 +55,7 @@ object Tracing {
 
   private def lighter(color: Color): Color = if (StartupUiUtil.INSTANCE.isDarkTheme) color.darker() else color.brighter()
 
-  private def isHighlightingTracingEnabled: Boolean = org.jetbrains.plugins.scala.Tracing.isHighlightingTracingEnabled
+  private def isHighlightingTracingEnabled: Boolean = org.jetbrains.plugins.scala.lang.psi.Tracing.isHighlightingTracingEnabled
 
   private def isHighlightingTracingInEditorEnabled: Boolean = Registry.is("scala.highlighting.tracing.in.editor")
 
