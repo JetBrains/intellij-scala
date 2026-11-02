@@ -473,58 +473,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case result => return result
         }
       case srr @ ScalaResolveResult(method: PsiMethod, s) =>
-        val returnType = srr.intersectedReturnType.orElse(
-          Option(method.containingClass).filter {
-          method.getName == "getClass" && _.getQualifiedName == "java.lang.Object"
-        }.flatMap { _ =>
-          val maybeReference = qualifier.orElse {
-            val result: Option[Typeable] = getContext match {
-              case infixExpr: ScInfixExpr if infixExpr.operation == this => Some(infixExpr.left)
-              case postfixExpr: ScPostfixExpr if postfixExpr.operation == this => Some(postfixExpr.operand)
-              case _ => ScalaPsiUtil.drvTemplate(this)
-            }
-            result
-          }
-
-          def getType(element: PsiNamedElement): Option[ScType] = Option(element).collect {
-            case pattern: ScBindingPattern => pattern
-            case fieldId: ScFieldId => fieldId
-            case parameter: ScParameter => parameter
-          }.flatMap {
-            _.`type`().toOption
-          }
-
-          def removeTypeDesignator(`type`: ScType): ScType = {
-            val maybeType = `type` match {
-              case ScDesignatorType(element) =>
-                getType(element)
-              case projectionType: ScProjectionType =>
-                getType(projectionType.actualElement).map(projectionType.actualSubst)
-              case _ => None
-            }
-            maybeType.map(removeTypeDesignator).getOrElse(`type`)
-          }
-
-          def convertQualifier(jlClass: PsiClass): ScType = {
-            // the qualifier has no expected type
-            val maybeType = maybeReference.flatMap {
-              _.`type`(None).toOption
-            }
-
-            val upperBound = maybeType.flatMap {
-              case ScThisType(clazz) => Some(ScDesignatorType(clazz))
-              case ScDesignatorType(_: ScObject) => None
-              case ScCompoundType(comps, _, _) => comps.headOption.map(removeTypeDesignator)
-              case tp => Some(tp).map(removeTypeDesignator)
-            }.getOrElse(Any)
-
-            val argument = ScExistentialArgument("_$1", Nil, Nothing, upperBound)
-            ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass), Seq(argument)))
-          }
-
-          elementScope.getCachedClass("java.lang.Class")
-            .map(convertQualifier)
-        })
+        val returnType = srr.intersectedReturnType.orElse(GetClassType.returnType(this, srr))
 
         method
           .methodTypeProvider(elementScope)

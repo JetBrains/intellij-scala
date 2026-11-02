@@ -3,13 +3,30 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression, ScSugarCallExpr}
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /** Scala's special typing rule for java.lang.Object.getClass. */
 private[psi] object GetClassType {
   def isGetClass(method: PsiMethod): Boolean =
     method.getName == "getClass" && Option(method.getContainingClass).exists(_.getQualifiedName == "java.lang.Object")
+
+  def returnType(reference: ScReferenceExpression, result: ScalaResolveResult): Option[ScType] = result.element match {
+    case method: PsiMethod if isGetClass(method) =>
+      implicit val projectContext: ProjectContext = reference.projectContext
+      reference.elementScope.getCachedClass("java.lang.Class").map { jlClass =>
+        val upperBound = receiverType(reference.qualifier, result, reference).flatMap {
+          case ScDesignatorType(_: ScObject) => None
+          case ScCompoundType(comps, _, _) => comps.headOption.map(widen)
+          case tpe => Some(tpe)
+        }.getOrElse(api.Any)
+        val argument = ScExistentialArgument("_$1", Nil, api.Nothing, upperBound)
+        ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass), Seq(argument)))
+      }
+    case _ => None
+  }
 
   def receiverType(receiver: Option[ScExpression], result: ScalaResolveResult, place: PsiElement): Option[ScType] = {
     val explicitReceiver = receiver.orElse {
