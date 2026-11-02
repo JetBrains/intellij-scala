@@ -1154,6 +1154,107 @@ abstract class InvocationDetailsTestBase extends ScalaLightCodeInsightFixtureTes
   )
 
   //-----------------------------------------------------------------------------------------------
+  // Object.getClass's compiler-generated type clause
+  //-----------------------------------------------------------------------------------------------
+
+  def testGetClassOfALiteral(): Unit = doTest(
+    "\"\".getClass",
+    """
+      |"".getClass
+      |  target:   getClass
+      |  thisExpr: ""
+      |  [T = ?String] (inferred, after `"".getClass`)
+      |  () (auto applied, after `"".getClass`)
+      |"""
+  )
+
+  def testGetClassWithAnArgumentList(): Unit = doTest(
+    "\"\".getClass()",
+    """
+      |"".getClass()
+      |  target:   getClass
+      |  thisExpr: ""
+      |  [T = ?String] (inferred, after `"".getClass`)
+      |  () (explicit, after `"".getClass`)
+      |"".getClass
+      |  no call
+      |"""
+  )
+
+  def testGetClassWithAnExpectedType(): Unit = doTest(
+    "val cls: Class[_ <: String] = \"\".getClass",
+    """
+      |"".getClass
+      |  target:   getClass
+      |  thisExpr: ""
+      |  [T = ?String] (inferred, after `"".getClass`)
+      |  () (auto applied, after `"".getClass`)
+      |"""
+  )
+
+  def testGetClassOfALiteralSingleton(): Unit = doTest(
+    """
+      |val s: "text" = "text"
+      |s.getClass
+      |""",
+    """
+      |s.getClass
+      |  target:   getClass
+      |  thisExpr: s
+      |  [T = ?String] (inferred, after `s.getClass`)
+      |  () (auto applied, after `s.getClass`)
+      |s
+      |  no call
+      |"""
+  )
+
+  def testGetClassOfAGenericReceiver(): Unit = doTest(
+    """
+      |class C[A]
+      |def f[A](c: C[A]) = c.getClass
+      |""",
+    """
+      |c.getClass
+      |  target:   getClass
+      |  thisExpr: c
+      |  [T = ?C[A]] (inferred, after `c.getClass`)
+      |  () (auto applied, after `c.getClass`)
+      |c
+      |  no call
+      |"""
+  )
+
+  def testGetClassOfImplicitThis(): Unit = doTest(
+    """
+      |def f = {
+      |  class C[A] { def clazz = getClass }
+      |  ()
+      |}
+      |""",
+    """
+      |getClass
+      |  target:   getClass
+      |  [T = ?C[A]] (inferred, after `getClass`)
+      |  () (auto applied, after `getClass`)
+      |"""
+  )
+
+  def testUnrelatedGetClassMethod(): Unit = doTest(
+    """
+      |def getClass[A](a: A): Class[A] = ???
+      |getClass("")
+      |""",
+    """
+      |getClass("")
+      |  target:   getClass
+      |  [A = ?String] (inferred, after `getClass`)
+      |  (a = "") (explicit, after `getClass`)
+      |getClass
+      |  no call
+      |"""
+  )
+
+  //-----------------------------------------------------------------------------------------------
   // synthetic functions, the ones the compiler makes up for the primitives, which are no PsiMethod
   //-----------------------------------------------------------------------------------------------
 

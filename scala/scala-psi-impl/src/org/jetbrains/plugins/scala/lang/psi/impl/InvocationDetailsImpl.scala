@@ -275,7 +275,13 @@ private[psi] object InvocationDetailsImpl {
         val classTypes =
           if (method.isConstructor && !selfInvocation) types(method.getContainingClass.getTypeParameterList)
           else Seq.empty
-        classTypes ++ types(method.getTypeParameterList) :+
+        val methodTypes =
+          if (GetClassType.isGetClass(method)) {
+            implicit val projectContext: ProjectContext = method.getProject
+            Seq(TypeSignature(ArgumentClauseTarget.CompilerGeneratedTypeParameters(method),
+              Seq(TypeParameter.light("T", Seq.empty, api.Nothing, api.Any))))
+          } else types(method.getTypeParameterList)
+        classTypes ++ methodTypes :+
           ValueSignature(ArgumentClauseTarget.JavaParameters(method.getParameterList), method.parameters.map(Parameter(_)))
       case function: ScSyntheticFunction =>
         val target = ArgumentClauseTarget.Synthetic(function)
@@ -299,7 +305,13 @@ private[psi] object InvocationDetailsImpl {
       val details = Details(origin, target, receiver, Seq.empty, isApply, isUniversalApply,
         isConstructor, isUpdate, isAssignmentCall = false, isPartiallyApplied = false)
       val signature = target.toList.flatMap(signatureOf(_, origin.is[ScSelfInvocation]))
-      Call(details, signature, anchor)
+      // Object.getClass's type argument is fixed by the receiver, not by the expected Class type.
+      val receiverTypes = for {
+        case TypeSignature(_: ArgumentClauseTarget.CompilerGeneratedTypeParameters, parameters) <- signature
+        result <- target.toList
+        parameter <- parameters
+      } yield parameter.typeParamId -> GetClassType.receiverType(receiver, result, origin).getOrElse(api.Any(using origin.projectContext))
+      Call(details, signature, anchor, inferred = LongMap.from(receiverTypes))
     }
   }
 

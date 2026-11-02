@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import com.intellij.psi.{PsiElement, PsiParameterList, PsiTypeParameterList}
+import com.intellij.psi.{PsiElement, PsiMethod, PsiParameterList, PsiTypeParameterList}
 import org.jetbrains.plugins.scala.lang.psi.api.InvocationDetails.ArgumentClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement}
@@ -225,6 +225,11 @@ object InvocationDetails {
      */
     final case class TypeParameters(clause: PsiTypeParameterList) extends Type {
       override def element: PsiTypeParameterList = clause
+    }
+
+    /** A type clause added by Scala's compiler to a Java method, such as Object.getClass. */
+    final case class CompilerGeneratedTypeParameters(method: PsiMethod) extends Type {
+      override def element: PsiMethod = method
     }
 
     /** The parameter clause of a Scala callee. */

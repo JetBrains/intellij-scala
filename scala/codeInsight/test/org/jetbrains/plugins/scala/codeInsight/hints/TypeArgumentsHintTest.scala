@@ -41,6 +41,21 @@ class TypeArgumentsHintTest extends InlayHintsTestBase {
        |""".stripMargin
   )
 
+  def testGetClass(): Unit = doTest(
+    s"""
+       |"".getClass$S[String]$E
+       |"".getClass$S[String]$E()
+       |val cls: Class[? <: String] = "".getClass$S[String]$E
+       |""".stripMargin
+  )
+
+  def testGetClassOfALiteralSingleton(): Unit = doTest(
+    s"""
+       |val s: "text" = "text"
+       |s.getClass$S[String]$E
+       |""".stripMargin
+  )
+
   def testMultipleArgumentLists(): Unit = doTest(
     s"""
        |def test[T, S](t: T)(s: S): Unit = ()
