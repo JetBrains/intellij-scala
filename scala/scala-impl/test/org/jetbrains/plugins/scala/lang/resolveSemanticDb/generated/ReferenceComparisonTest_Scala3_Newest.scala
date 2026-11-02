@@ -2273,6 +2273,8 @@ final class ReferenceComparisonTest_Scala3_Newest_Part22 extends ReferenceCompar
   def test_i26646_c_separate(): Unit = doTest("i26646-c-separate", true)
   def test_i26656(): Unit = doTest("i26656", true) // #opaque, #transparentInline, #extension
   def test_i26754(): Unit = doTest("i26754", true) // #opaque
+  def test_i26801(): Unit = doTest("i26801", true)
+  def test_i26801b(): Unit = doTest("i26801b", true)
   def test_i26810(): Unit = doTest("i26810", false) // #transparentInline, #spliced/quoted, #extension
   def test_i26810_min(): Unit = doTest("i26810-min", false) // #transparentInline, #spliced/quoted
   def test_i26847(): Unit = doTest("i26847", true)
@@ -2299,12 +2301,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part22 extends ReferenceCompar
   def test_implicit_prefix_disambiguation(): Unit = doTest("implicit-prefix-disambiguation", false)
   def test_implicit_scope(): Unit = doTest("implicit-scope", true) // #opaque, #extension
   def test_implicit_scope_loop(): Unit = doTest("implicit-scope-loop", true)
-  def test_implicit_shadowing(): Unit = doTest("implicit-shadowing", true)
-  def test_implicit_unwrap_tc(): Unit = doTest("implicit-unwrap-tc", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part23 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_implicit_shadowing(): Unit = doTest("implicit-shadowing", true)
+  def test_implicit_unwrap_tc(): Unit = doTest("implicit-unwrap-tc", true)
   def test_implicit_cache(): Unit = doTest("implicit_cache", true)
   def test_implicit_tparam(): Unit = doTest("implicit_tparam", true)
   def test_implicitDivergenc(): Unit = doTest("implicitDivergenc", true)
@@ -2403,13 +2405,13 @@ final class ReferenceComparisonTest_Scala3_Newest_Part23 extends ReferenceCompar
   def test_inline_trait_inheritance_single_object_override(): Unit = doTest("inline-trait-inheritance-single-object-override", true)
   def test_inline_trait_inter_trait_inlining_no_cycle(): Unit = doTest("inline-trait-inter-trait-inlining-no-cycle", true)
   def test_inline_trait_multiple_files(): Unit = doTest("inline-trait-multiple-files", true)
-  def test_inline_trait_multiple_stages(): Unit = doTest("inline-trait-multiple-stages", true)
-  def test_inline_trait_multiple_stages_defs(): Unit = doTest("inline-trait-multiple-stages-defs", true) // #traitParameters
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part24 extends ReferenceComparisonTest_Scala3_Newest {
-  def test_inline_trait_multiple_stages_generic_defs(): Unit = doTest("inline-trait-multiple-stages-generic-defs", true) // #traitParameters
+  def test_inline_trait_multiple_stages(): Unit = doTest("inline-trait-multiple-stages", true)
+  def test_inline_trait_multiple_stages_defs(): Unit = doTest("inline-trait-multiple-stages-defs", true) // #traitParameters
+  def test_inline_trait_multiple_stages_generic_defs(): Unit = doTest("inline-trait-multiple-stages-generic-defs", false) // #traitParameters
   def test_inline_trait_multiple_stages_inline_traits(): Unit = doTest("inline-trait-multiple-stages-inline-traits", false)
   def test_inline_trait_parent_method_call(): Unit = doTest("inline-trait-parent-method-call", true)
   def test_inline_trait_private_this_nowarn(): Unit = doTest("inline-trait-private-this-nowarn", true) // #traitParameters
@@ -2507,12 +2509,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part24 extends ReferenceCompar
   def test_local_signature(): Unit = doTest("local-signature", true)
   def test_localmodules(): Unit = doTest("localmodules", true)
   def test_lookuprefined(): Unit = doTest("lookuprefined", false)
-  def test_lookupswitch(): Unit = doTest("lookupswitch", true)
-  def test_looping_givens(): Unit = doTest("looping-givens", true) // #unionType
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part25 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_lookupswitch(): Unit = doTest("lookupswitch", true)
+  def test_looping_givens(): Unit = doTest("looping-givens", true) // #unionType
   def test_looping_jsig(): Unit = doTest("looping-jsig", true)
   def test_macro(): Unit = doTest("macro", true)
   def test_macro_deprecate_dont_touch_backquotedidents(): Unit = doTest("macro-deprecate-dont-touch-backquotedidents", true)
@@ -2611,12 +2613,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part25 extends ReferenceCompar
   def test_opaque_digits(): Unit = doTest("opaque-digits", true) // #opaque
   def test_opaque_extension(): Unit = doTest("opaque-extension", true) // #opaque, #extension, #unionType
   def test_opaque_groups(): Unit = doTest("opaque-groups", true) // #opaque
-  def test_opaque_groups_params(): Unit = doTest("opaque-groups-params", true) // #opaque
-  def test_opaque_immutable_array(): Unit = doTest("opaque-immutable-array", true) // #opaque
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part26 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_opaque_groups_params(): Unit = doTest("opaque-groups-params", true) // #opaque
+  def test_opaque_immutable_array(): Unit = doTest("opaque-immutable-array", true) // #opaque
   def test_opaque_inline(): Unit = doTest("opaque-inline", true) // #opaque
   def test_opaque_inline1(): Unit = doTest("opaque-inline1", true) // #opaque, #transparentInline
   def test_opaque_inline1_transparent(): Unit = doTest("opaque-inline1-transparent", true) // #opaque, #transparentInline
@@ -2715,12 +2717,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part26 extends ReferenceCompar
   def test_projection(): Unit = doTest("projection", true)
   def test_projections(): Unit = doTest("projections", false)
   def test_propagate(): Unit = doTest("propagate", true)
-  def test_protected_static(): Unit = doTest("protected-static", true)
-  def test_provably_disjoint_infinite_recursion_1(): Unit = doTest("provably-disjoint-infinite-recursion-1", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part27 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_protected_static(): Unit = doTest("protected-static", true)
+  def test_provably_disjoint_infinite_recursion_1(): Unit = doTest("provably-disjoint-infinite-recursion-1", true)
   def test_provably_disjoint_infinite_recursion_2(): Unit = doTest("provably-disjoint-infinite-recursion-2", true) // #matchType, #unionType, #enum
   def test_pseudo_thistype_constraints(): Unit = doTest("pseudo-thistype-constraints", true) // #enum, #unionType
   def test_puretest(): Unit = doTest("puretest", true) // #unionType
@@ -2819,12 +2821,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part27 extends ReferenceCompar
   def test_singleton_fun_types(): Unit = doTest("singleton-fun-types", true)
   def test_singleton_ops_composition(): Unit = doTest("singleton-ops-composition", true)
   def test_singleton_ops_dispatch(): Unit = doTest("singleton-ops-dispatch", true) // #intersectionType, #matchType
-  def test_singleton_ops_test_issue_8280(): Unit = doTest("singleton-ops-test-issue-8280", true) // #unionType
-  def test_singleton_ops_test_issue_8287(): Unit = doTest("singleton-ops-test-issue-8287", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part28 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_singleton_ops_test_issue_8280(): Unit = doTest("singleton-ops-test-issue-8280", true) // #unionType
+  def test_singleton_ops_test_issue_8287(): Unit = doTest("singleton-ops-test-issue-8287", true)
   def test_singletons(): Unit = doTest("singletons", true)
   def test_singletontrait(): Unit = doTest("singletontrait", true) // #unionType
   def test_sip23_aliasing(): Unit = doTest("sip23-aliasing", true)
@@ -2923,12 +2925,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part28 extends ReferenceCompar
   def test_synthetics(): Unit = doTest("synthetics", true)
   def test_t0002(): Unit = doTest("t0002", true)
   def test_t0017(): Unit = doTest("t0017", true)
-  def test_t0020(): Unit = doTest("t0020", true)
-  def test_t0029(): Unit = doTest("t0029", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part29 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_t0020(): Unit = doTest("t0020", true)
+  def test_t0029(): Unit = doTest("t0029", true)
   def test_t0030(): Unit = doTest("t0030", true)
   def test_t0031(): Unit = doTest("t0031", true)
   def test_t0032(): Unit = doTest("t0032", true)
@@ -3027,12 +3029,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part29 extends ReferenceCompar
   def test_t607(): Unit = doTest("t607", true)
   def test_t611(): Unit = doTest("t611", true)
   def test_t0612(): Unit = doTest("t0612", true)
-  def test_t613(): Unit = doTest("t613", true)
-  def test_t615(): Unit = doTest("t615", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part30 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_t613(): Unit = doTest("t613", true)
+  def test_t615(): Unit = doTest("t615", true)
   def test_t616(): Unit = doTest("t616", true)
   def test_t628(): Unit = doTest("t628", true)
   def test_t640(): Unit = doTest("t640", true)
@@ -3131,12 +3133,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part30 extends ReferenceCompar
   def test_t1500a(): Unit = doTest("t1500a", true)
   def test_t1513a(): Unit = doTest("t1513a", true)
   def test_t1513b(): Unit = doTest("t1513b", true)
-  def test_t1560(): Unit = doTest("t1560", true)
-  def test_t1565(): Unit = doTest("t1565", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part31 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_t1560(): Unit = doTest("t1560", true)
+  def test_t1565(): Unit = doTest("t1565", true)
   def test_t1569(): Unit = doTest("t1569", true)
   def test_t1569a(): Unit = doTest("t1569a", true)
   def test_t1591_pos(): Unit = doTest("t1591_pos", true)
@@ -3235,12 +3237,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part31 extends ReferenceCompar
   def test_t2712_6(): Unit = doTest("t2712-6", true)
   def test_t2712_7(): Unit = doTest("t2712-7", true)
   def test_t2712_8(): Unit = doTest("t2712-8", true)
-  def test_t2726(): Unit = doTest("t2726", true)
-  def test_t2741(): Unit = doTest("t2741", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part32 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_t2726(): Unit = doTest("t2726", true)
+  def test_t2741(): Unit = doTest("t2741", true)
   def test_t2794(): Unit = doTest("t2794", true)
   def test_t2795_new(): Unit = doTest("t2795-new", true)
   def test_t2795_old(): Unit = doTest("t2795-old", true)
@@ -3339,12 +3341,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part32 extends ReferenceCompar
   def test_t4062(): Unit = doTest("t4062", true)
   def test_t4063(): Unit = doTest("t4063", true)
   def test_t4070(): Unit = doTest("t4070", true)
-  def test_t4070b(): Unit = doTest("t4070b", true)
-  def test_t4112(): Unit = doTest("t4112", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part33 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_t4070b(): Unit = doTest("t4070b", true)
+  def test_t4112(): Unit = doTest("t4112", true)
   def test_t4114(): Unit = doTest("t4114", true)
   def test_t4173(): Unit = doTest("t4173", true)
   def test_t4176(): Unit = doTest("t4176", true)
@@ -3443,12 +3445,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part33 extends ReferenceCompar
   def test_t5769(): Unit = doTest("t5769", true)
   def test_t5779_numeq_warn(): Unit = doTest("t5779-numeq-warn", true)
   def test_t5796(): Unit = doTest("t5796", true)
-  def test_t5809(): Unit = doTest("t5809", true)
-  def test_t5816_noclash(): Unit = doTest("t5816-noclash", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part34 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_t5809(): Unit = doTest("t5809", true)
+  def test_t5816_noclash(): Unit = doTest("t5816-noclash", true)
   def test_t5829(): Unit = doTest("t5829", true) // #unionType
   def test_t5846(): Unit = doTest("t5846", true)
   def test_t5856b(): Unit = doTest("t5856b", true)
@@ -3547,12 +3549,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part34 extends ReferenceCompar
   def test_t7232d(): Unit = doTest("t7232d", true)
   def test_t7233(): Unit = doTest("t7233", true)
   def test_t7233b(): Unit = doTest("t7233b", true)
-  def test_t7264(): Unit = doTest("t7264", true)
-  def test_t7285a(): Unit = doTest("t7285a", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part35 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_t7264(): Unit = doTest("t7264", true)
+  def test_t7285a(): Unit = doTest("t7285a", true)
   def test_t7296(): Unit = doTest("t7296", true)
   def test_t7315(): Unit = doTest("t7315", true)
   def test_t7322(): Unit = doTest("t7322", true)
@@ -3651,12 +3653,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part35 extends ReferenceCompar
   def test_t16827(): Unit = doTest("t16827", true)
   def test_t112606A(): Unit = doTest("t112606A", true)
   def test_tagging(): Unit = doTest("tagging", false) // #opaque
-  def test_tailcall(): Unit = doTest("tailcall", true)
-  def test_tailrec_super(): Unit = doTest("tailrec-super", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part36 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_tailcall(): Unit = doTest("tailcall", true)
+  def test_tailrec_super(): Unit = doTest("tailrec-super", true)
   def test_tangledCompanion(): Unit = doTest("tangledCompanion", true)
   def test_targetName(): Unit = doTest("targetName", true)
   def test_targetName_infer_result(): Unit = doTest("targetName-infer-result", true) // #enum
@@ -3755,12 +3757,12 @@ final class ReferenceComparisonTest_Scala3_Newest_Part36 extends ReferenceCompar
   def test_Tuple_Elem(): Unit = doTest("Tuple.Elem", true) // #matchType
   def test_tupled_function_instances(): Unit = doTest("tupled-function-instances", false)
   def test_tuplePatDef(): Unit = doTest("tuplePatDef", true)
-  def test_type_cast_purity(): Unit = doTest("type-cast-purity", true) // #opaque, #transparentInline
-  def test_type_projection(): Unit = doTest("type-projection", true)
 }
 
 //noinspection NameBooleanParameters
 final class ReferenceComparisonTest_Scala3_Newest_Part37 extends ReferenceComparisonTest_Scala3_Newest {
+  def test_type_cast_purity(): Unit = doTest("type-cast-purity", true) // #opaque, #transparentInline
+  def test_type_projection(): Unit = doTest("type-projection", true)
   def test_type_test_matchable(): Unit = doTest("type-test-matchable", true)
   def test_type_test_syntesize(): Unit = doTest("type-test-syntesize", false)
   def test_typealias_dubious(): Unit = doTest("typealias_dubious", true)
