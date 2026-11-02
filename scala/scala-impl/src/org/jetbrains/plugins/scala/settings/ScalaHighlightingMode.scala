@@ -6,7 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.ide.trustedProjects.TrustedProjects
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.psi.{PsiFile, PsiJavaFile}
+import com.intellij.psi.{PsiElement, PsiFile, PsiJavaFile}
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
@@ -30,6 +30,22 @@ object ScalaHighlightingMode {
     compilerHighlightingEnabledInTests ||
       !isInTestMode && ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala3
 
+  /**
+   * Whether the Scala 3 compiler reports the errors of the element's file, so the checks it covers can be skipped.
+   * False for files left to the annotator, see [[isLeftToAnnotator]].
+   */
+  def showCompilerErrorsScala3(element: PsiElement): Boolean =
+    showCompilerErrorsScala3(element.getProject) && element.isInScala3Module &&
+      !Option(element.getContainingFile).exists(isLeftToAnnotator)
+
+  /**
+   * Mill build files are left to the annotator, like sbt build files: Mill rewrites them before compiling them, so they
+   * cannot be compiled as written, and its build server never clears the errors it reports on them.
+   */
+  private def isLeftToAnnotator(file: PsiFile): Boolean = file match {
+    case scalaFile: ScalaFile => scalaFile.isMillFile
+    case _                    => false
+  }
 
   /**
    * Should only be used in situations where there is no reference to a [[com.intellij.psi.PsiFile]] instance. The other
@@ -66,7 +82,9 @@ object ScalaHighlightingMode {
 
     val project = file.getProject
     val isRegularScalaFile = virtualFile.getFileType == ScalaFileType.INSTANCE
-    if (isRegularScalaFile) {
+    if (isLeftToAnnotator(file)) {
+      false
+    } else if (isRegularScalaFile) {
       file.isScala3File && showCompilerErrorsScala3(project) ||
         file.isScala2File && showCompilerErrorsScala2(project)
     } else if (file.isWorksheetFile) {
