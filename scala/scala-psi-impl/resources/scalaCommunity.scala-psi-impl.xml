@@ -57,7 +57,6 @@
         <!-- the stub definitions and serializers are registered in scalaCommunity.scala-impl: stubs exist only on the backend -->
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.bm4.BetterMonadicForSupport"/>

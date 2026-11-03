@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
@@ -12,18 +13,18 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.{ApiStatus, Nullable, TestOnly}
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaModificationTracker, ValueWrapper, cachedInUserData, cachedWithoutModificationCount}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiCaches.*
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TermNodes.{Map => SMap}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.Map as PMap
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TermNodes.Map as SMap
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.Map as TMap
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{StableNodes, TermNodes, TypeNodes}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.*
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -40,6 +41,7 @@ import scala.collection.immutable.ArraySeq
  * Unlike the class and package lookups of [[ScalaPsiManager]], they don't use indexes, so they belong with the PSI core.
  */
 @ApiStatus.Internal
+@Service(Array(Service.Level.PROJECT))
 final class ScalaPsiCaches(implicit project: Project) extends Disposable {
 
   /** Fired on any change of Scala PSI */
