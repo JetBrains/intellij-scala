@@ -101,6 +101,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaApi % "test->test;compile->compile",
       scalaPsiApi % "test->test;compile->compile",
       scalaPsiImpl % "test->test;compile->compile",
+      scalaFrontend % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
       scalaMetaImpl % "test->test;compile->compile",
       structureView % "test->test;compile->compile",
@@ -203,6 +204,14 @@ lazy val scalaPsiImpl = newProject("scala-psi-impl", file("scala/scala-psi-impl"
     ),
     intellijPlugins += "com.intellij.xml".toPlugin,
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-psi-impl"),
+  )
+
+lazy val scalaFrontend = newProject("scala-frontend", file("scala/scala-frontend"))
+  .dependsOn(
+    scalaApi,
+  )
+  .settings(
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-frontend"),
   )
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))

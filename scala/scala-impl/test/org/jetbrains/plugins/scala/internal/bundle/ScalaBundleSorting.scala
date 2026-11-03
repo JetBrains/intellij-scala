@@ -146,10 +146,12 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaDirectiveBundle.properties",
     ),
     ModuleWithBundleInfo(
-      rootPath = scalaImplDir,
+      rootPath = scalaModDir / "scala-api",
       bundleMessagesRelativePath = "ScalaEditorBundle.properties",
       extraUsageModules = Seq(
-        ModuleInfo(scalaModDir / "codeInsight")
+        ModuleInfo(scalaImplDir),
+        ModuleInfo(scalaModDir / "codeInsight"),
+        ModuleInfo(scalaModDir / "scala-frontend"),
       )
     ),
     ModuleWithBundleInfo(

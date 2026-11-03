@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<idea-plugin>
+    <dependencies>
+        <module name="intellij.platform.frontend"/>
+        <module name="intellij.platform.ide"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.ide.impl"/>
+        <module name="intellij.platform.lang.impl"/>
+        <module name="scalaCommunity.scala-api"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <codeFoldingOptionsProvider instance="org.jetbrains.plugins.scala.editor.codeFolding.ScalaCodeFoldingOptionsProvider"/>
+    </extensions>
+</idea-plugin>

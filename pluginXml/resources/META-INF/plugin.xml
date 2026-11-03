@@ -55,6 +55,8 @@
         <module name="scalaCommunity.sbt-core" loading="embedded"/>
         <module name="scalaCommunity.sbt-api" loading="embedded"/>
 
+        <module name="scalaCommunity.scala-frontend" required-if-available="intellij.platform.frontend"/>
+
         <module name="scalaCommunity.scala-impl" required-if-available="intellij.platform.backend"/>
         <module name="scalaCommunity.sbt-impl" required-if-available="intellij.platform.backend"/>
         <module name="scalaCommunity.codeInsight" required-if-available="intellij.platform.backend"/>
