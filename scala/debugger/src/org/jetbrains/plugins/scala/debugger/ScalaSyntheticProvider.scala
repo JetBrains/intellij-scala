@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger
 
+import com.intellij.concurrency.ConcurrentCollectionFactory
 import com.intellij.debugger.engine.SyntheticTypeComponentProvider
-import com.intellij.util.containers.ContainerUtil
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.isAnonfunType
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -24,7 +24,7 @@ class ScalaSyntheticProvider extends SyntheticTypeComponentProvider {
 }
 
 object ScalaSyntheticProvider {
-  private val cache: ConcurrentMap[TypeComponent, java.lang.Boolean] = ContainerUtil.createConcurrentWeakMap()
+  private val cache: ConcurrentMap[TypeComponent, java.lang.Boolean] = ConcurrentCollectionFactory.createConcurrentWeakMap()
 
   private val lzycomputeRegex: Regex = ".*\\$lzycompute(\\$\\d+)*$".r
 

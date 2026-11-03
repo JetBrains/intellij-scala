@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
-import com.intellij.util.containers.ContainerUtil
+import com.intellij.concurrency.ConcurrentCollectionFactory
 
 import java.util.concurrent.ConcurrentMap
 
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentMap
 final class UnloadableThreadLocal[T](init: => T) {
   // Every native thread has a single JVM Thread instance associated with it, so we can safely use the instances
   // as keys in a map (and don't have to resort to their id, for example).
-  private val references: ConcurrentMap[Thread, T] = ContainerUtil.createConcurrentWeakMap[Thread, T]()
+  private val references: ConcurrentMap[Thread, T] = ConcurrentCollectionFactory.createConcurrentWeakMap[Thread, T]()
 
   def value: T = {
     references.computeIfAbsent(Thread.currentThread(), _ => init)

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import com.intellij.concurrency.ConcurrentCollectionFactory
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiTypeParameter}
-import com.intellij.util.containers.{ConcurrentLongObjectMap, ContainerUtil}
+import com.intellij.util.containers.ConcurrentLongObjectMap
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
@@ -15,7 +15,7 @@ package object params {
   private val typeParameterCounter = new AtomicLong(0)
   private val reusableIdMap = new ConcurrentHashMap[String, Long]()
 
-  private val paramToIdMap = ContainerUtil.createConcurrentWeakMap[PsiNamedElement, Long]()
+  private val paramToIdMap = ConcurrentCollectionFactory.createConcurrentWeakMap[PsiNamedElement, Long]()
 
   //for better debugging, cleared by ScalaPsiCaches on every change
   val idToName: ConcurrentLongObjectMap[String] =

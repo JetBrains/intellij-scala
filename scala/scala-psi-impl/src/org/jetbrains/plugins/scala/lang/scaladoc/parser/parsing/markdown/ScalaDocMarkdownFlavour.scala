@@ -145,7 +145,7 @@ object ScalaDocMarkdownFlavour {
     private val wikiDocProvider = new CodeFenceSyntaxHighlighterGeneratingProvider((language: String, rawContent: String) => {
       // Match wiki ScalaDoc rendering while preserving relative indentation and blank lines.
       val lines = rawContent.stripLineEnd.split("\n", -1)
-      val commonIndent = lines.iterator.filterNot(_.isBlank).map(_.prefixLength(_.isWhitespace)).minOption.getOrElse(0)
+      val commonIndent = lines.iterator.filterNot(_.isBlank).map(_.segmentLength(_.isWhitespace)).minOption.getOrElse(0)
       val code = lines.map(_.drop(commonIndent)).mkString("\n")
       HtmlSyntaxHighlighter.Companion.colorHtmlChunk(project, Scala3Language.INSTANCE, code)
     })

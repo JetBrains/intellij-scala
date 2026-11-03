@@ -25,7 +25,7 @@ object NumericLiteralImplBase {
 
     def negate: Value[V]
 
-    override def to(tpe: StdType): Option[ScLiteral.Value[_ <: Any]] = {
+    override def to(tpe: StdType): Option[ScLiteral.Value[? <: Any]] = {
       val stdTypes = tpe.projectContext.stdTypes
       import stdTypes.*
 

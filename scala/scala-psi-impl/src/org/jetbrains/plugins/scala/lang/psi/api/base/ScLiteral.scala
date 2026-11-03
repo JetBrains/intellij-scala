@@ -83,6 +83,6 @@ object ScLiteral {
 
     def wideType(implicit project: Project): ScType
 
-    def to(tpe: StdType): Option[Value[_ <: Any]] = None
+    def to(tpe: StdType): Option[Value[? <: Any]] = None
   }
 }

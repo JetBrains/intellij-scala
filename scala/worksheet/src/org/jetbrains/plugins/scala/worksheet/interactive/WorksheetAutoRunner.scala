@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package worksheet.interactive
 
+import com.intellij.concurrency.ConcurrentCollectionFactory
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
@@ -9,7 +10,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi.{PsiDocumentManager, PsiWhiteSpace}
 import com.intellij.util.Alarm
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
@@ -27,7 +27,7 @@ object WorksheetAutoRunner {
 
 class WorksheetAutoRunner(project: Project) {
 
-  private val listeners = ContainerUtil.createConcurrentWeakMap[Document, DocumentListener]()
+  private val listeners = ConcurrentCollectionFactory.createConcurrentWeakMap[Document, DocumentListener]()
   private val myAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, project.unloadAwareDisposable)
 
   private def getAutoRunDelay: Int = ScalaProjectSettings.getInstance(project).getAutoRunDelay

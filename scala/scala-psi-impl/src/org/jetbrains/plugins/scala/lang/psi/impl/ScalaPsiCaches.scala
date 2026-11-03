@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
+import com.intellij.concurrency.ConcurrentCollectionFactory
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
@@ -9,7 +10,6 @@ import com.intellij.openapi.util.{LowMemoryWatcher, ModificationTracker, SimpleM
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{CommonClassNames, PsiClass, PsiElement, PsiType, PsiTypeParameter}
 import com.intellij.util.concurrency.annotations.RequiresEdt
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.{ApiStatus, Nullable, TestOnly}
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaModificationTracker, ValueWrapper, cachedInUserData, cachedWithoutModificationCount}
@@ -228,8 +228,8 @@ final class ScalaPsiCaches(implicit project: Project) extends Disposable {
 
   sealed abstract class SignatureCaches[T <: Signature](val nodes: MixinNodes[T]) {
 
-    private val forLibraryMap: ConcurrentMap[(PsiClass, Boolean), nodes.Map] = ContainerUtil.createConcurrentWeakMap()
-    private val forTopLevelMap: ConcurrentMap[(PsiClass, Boolean), nodes.Map] = ContainerUtil.createConcurrentWeakMap()
+    private val forLibraryMap: ConcurrentMap[(PsiClass, Boolean), nodes.Map] = ConcurrentCollectionFactory.createConcurrentWeakMap()
+    private val forTopLevelMap: ConcurrentMap[(PsiClass, Boolean), nodes.Map] = ConcurrentCollectionFactory.createConcurrentWeakMap()
 
     clearCacheOnRootsChange.subscribe(() => forLibraryMap.clear())
     clearCacheOnTopLevelChange.subscribe(() => forTopLevelMap.clear())
