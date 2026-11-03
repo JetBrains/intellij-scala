@@ -96,13 +96,9 @@
 
         <!-- the sbt file type, its parser definitions and file view provider are in scalaCommunity.sbt-api (shared) -->
         <lang.substitutor language="sbt" implementationClass="org.jetbrains.sbt.language.SbtLanguageSubstitutor"/>
-        <fileType name="sbtShell" language="sbtShell" extensions="sbts"
-                  implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition$SbtShellFileType$"
-                  fieldName="MODULE$"/>
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator"/>
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtScalacOptionsDocumentationProvider"/>
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="before ScalaDocumentationProvider"/>
-        <lang.parserDefinition language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition"/>
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
 

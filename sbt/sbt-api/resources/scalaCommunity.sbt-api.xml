@@ -3,6 +3,7 @@
     <dependencies>
         <module name="intellij.java.psi"/>
         <module name="intellij.libraries.kotlinx.coroutines.core"/>
+        <module name="intellij.platform.analysis.impl"/>
         <module name="intellij.platform.backend.workspace"/>
         <module name="intellij.platform.core"/>
         <module name="intellij.platform.core.impl"/>
@@ -29,8 +30,12 @@
 
         <fileType name="sbt" language="sbt" extensions="sbt"
                   implementationClass="org.jetbrains.sbt.language.SbtFileType$" fieldName="MODULE$"/>
+        <fileType name="sbtShell" language="sbtShell" extensions="sbts"
+                  implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition$SbtShellFileType$"
+                  fieldName="MODULE$"/>
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
         <lang.parserDefinition language="sbt Scala 3" implementationClass="org.jetbrains.sbt.language.SbtParserDefinitionScala3"/>
+        <lang.parserDefinition language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition"/>
         <lang.fileViewProviderFactory language="sbt"
                                       implementationClass="org.jetbrains.sbt.language.SbtFileViewProviderFactory"/>
     </extensions>
