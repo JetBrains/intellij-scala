@@ -6,12 +6,11 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
+import com.intellij.psi.{PsiComment, PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
@@ -27,7 +26,7 @@ class ScalaStatementMover extends LineMover {
       val manager = CodeStyleManager.getInstance(project)
       val targetRange = trimWhiteSpacesRight(editor, info.range2.getTextRange)
       manager.adjustLineIndent(file, targetRange)
-      editor.getDocument.commit(project)
+      PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }
 

@@ -176,7 +176,6 @@
         <!--Should go before com.intellij.refactoring.copy.CopyClassesHandler -->
         <refactoring.copyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.copy.CopyScalaWorksheetHandler" order="first"/>
 
-        <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
         <moveLeftRightHandler language="Scala"
                               implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaMoveLeftRightHandler"/>
         <editorTabTitleProvider implementation="org.jetbrains.plugins.scala.editor.PackageObjectEditorTabTitleProvider"/>

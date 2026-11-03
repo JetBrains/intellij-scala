@@ -74,5 +74,7 @@
         <registryKey key="scala.highlighting.tracing.in.editor" defaultValue="true" description="Also trace resolve and type inference in editor"/>
         <registryKey key="scala.enable.match.type.intrinsics" defaultValue="true"  restartRequired="false"
                      description="If enabled, certain match types are reduced via special case intrinsics, rather than through general compiler algorithm"/>
+
+        <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
     </extensions>
 </idea-plugin>
