@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.extensions.PsiFileExt
 
 class ScalaIsCommentComplete extends CommentCompleteHandler {
 
@@ -40,8 +39,13 @@ class ScalaIsCommentComplete extends CommentCompleteHandler {
         javaLikeQuoteHandler.getStringTokenTypes.contains(tokenType)) {
         val text: String = commentText.substring(lexer.getTokenStart, lexer.getTokenEnd)
         val endOffset: Int = comment.getTextRange.getEndOffset
-        if (text.endsWith(expectedCommentEnd) && endOffset < containingFile.getTextLength && containingFile.charSequence.charAt(endOffset) == '\n') {
-          return true
+        if (text.endsWith(expectedCommentEnd) && endOffset < containingFile.getTextLength) {
+          val charSequence =
+            if (containingFile.isValid) containingFile.getViewProvider.getContents
+            else containingFile.getText
+          if (charSequence.charAt(endOffset) == '\n') {
+            return true
+          }
         }
       }
       var continue = false
