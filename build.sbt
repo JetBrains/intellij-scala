@@ -225,7 +225,8 @@ lazy val workspaceEntitiesGen = newProjectWithKotlin("workspace-entities-gen", f
 lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt-kotlin-utils"))
   .settings(
     crossPaths := false,
-    autoScalaLibrary := false
+    autoScalaLibrary := false,
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt-impl"),
   )
 
 // NOTE: this module used to be a `newProjectWithKotlin`. However, it became broken after an update to 262.7966+.
