@@ -33,11 +33,13 @@ class SetupScalaHighlightingNotificationProviderTest extends SbtExternalSystemIm
     val helloWorldGreeterPsiFileBefore = findPsiFile(helloWorldGreeterPath)
 
     val shouldHighlightGreeterBefore = ProblemHighlightFilter.shouldHighlightFile(greeterPsiFileBefore)
-    val shouldHighlightAbstractGreeterBefore = ProblemHighlightFilter.shouldHighlightFile(abstractGreeterPsiFileBefore)
     val shouldHighlightHelloWorldGreeterBefore = ProblemHighlightFilter.shouldHighlightFile(helloWorldGreeterPsiFileBefore)
 
     assertFalse("Greeter.java should not be highlighted before the project has been imported", shouldHighlightGreeterBefore)
-    assertFalse("AbstractGreeter.kt should not be highlighted before the project has been imported", shouldHighlightAbstractGreeterBefore)
+    // AbstractGreeter.kt is not checked before the import. Since 2027.1, the Kotlin plugin highlights Kotlin files which
+    // are not under any content root (KotlinProblemHighlightFilter.shouldHighlight always returns true, and
+    // KotlinDefaultHighlightingSettingsProvider only lowers their highlighting level to SKIP_INSPECTION), and the file
+    // does not belong to any module yet, so SbtProjectImportStateProblemHighlightFilter does not restrict it either.
     assertFalse("HelloWorldGreeter.scala should not be highlighted before the project has been imported", shouldHighlightHelloWorldGreeterBefore)
 
     importProject(false)
