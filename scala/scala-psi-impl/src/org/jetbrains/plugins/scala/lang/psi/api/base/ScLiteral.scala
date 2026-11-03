@@ -5,6 +5,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 
 trait ScLiteral extends ScExpression
   with PsiLiteral {
@@ -81,5 +82,7 @@ object ScLiteral {
     def presentation: String = String.valueOf(value)
 
     def wideType(implicit project: Project): ScType
+
+    def to(tpe: StdType): Option[Value[_ <: Any]] = None
   }
 }
