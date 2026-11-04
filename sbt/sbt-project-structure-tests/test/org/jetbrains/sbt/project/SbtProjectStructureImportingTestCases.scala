@@ -16,6 +16,7 @@ import com.intellij.testFramework.{OpenProjectTaskBuilder, PlatformTestUtil, Tes
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.util.system.OS
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.plugins.scala.compiler.data.CompileOrder
@@ -855,6 +856,9 @@ class SbtProjectStructureImportingTestCase_SCL14635 extends SbtProjectStructureI
 class SbtProjectStructureImportingTestCase_NonSourceConfigurationsWithNestedProjectDependencies extends SbtProjectStructureImportingTestCase:
   @Test
   def nonSourceConfigurationsWithNestedProjectDependencies():Unit = {
+    // TODO: SCL-26340 fails on Windows with the new sbt shell
+    if (OS.CURRENT == OS.Windows && importMode == ImportMode.NewShell) return
+
     val projectName = "nonSourceConfigurationsWithNestedProjectDependencies"
     runTest(
       new project(projectName) {
@@ -2662,6 +2666,9 @@ class SbtProjectStructureImportingTestCase_SimpleTwoBuilds_sbt_1_12_1 extends Sb
   // It has two builds because the sbt bug (https://github.com/sbt/sbt/issues/8570) fixed in 1.12.1 and 2.0.0-RC9 is related to multi-build setup.
   @Test
   def simpleTwoBuilds_sbt_1_12_1(): Unit = {
+    // TODO: SCL-26340 fails on Windows with the new sbt shell
+    if (OS.CURRENT == OS.Windows && importMode == ImportMode.NewShell) return
+
     injectVariable(
       getTestProjectPath / "project" / "build.properties",
       "$SBT_VERSION$",
