@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.semantic.ClassPrinter.{GeneratedClassTag, Keywords, isIdentifier}
+import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitTargetExt
 
 import scala.annotation.tailrec
 
@@ -741,7 +742,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     val containingClass = p.contexts.findByType[ScTypeDefinition].get
     val parentClauses = containingClass.extendsBlock.templateParents.map(_.parentClauses).getOrElse(Seq.empty)
     (parentClauses ++ containingClass.members.filterNot(_.names.contains("this")))
-      .exists(_.elements.exists { case r: ScReference => r.bind().exists(_.getActualElement == p); case _ => false } )
+      .exists(_.elements.exists(p.refOrImplicitRefIn(_).isDefined ))
   }
 
   private def textOf(annotation: ScAnnotation): String =
