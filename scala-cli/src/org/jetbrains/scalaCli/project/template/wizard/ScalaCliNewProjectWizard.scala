@@ -1,7 +1,7 @@
 package org.jetbrains.scalaCli.project.template.wizard
 
 import com.intellij.ide.wizard.NewProjectWizardStep
-import org.jetbrains.plugins.scala.util.ui.KotlinDslWrappers.StepChainOps
+import org.jetbrains.sbt.project.template.wizard.NewProjectWizardUtil.StepChainOps
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard
 import org.jetbrains.sbt.project.template.wizard.{ScalaAssetsNewProjectWizardStep, ScalaNewProjectWizardMultiStep}
 import org.jetbrains.scalaCli.ScalaCliBundle

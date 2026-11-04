@@ -2,10 +2,11 @@ package org.jetbrains.sbt.project.template.wizard.buildSystem
 
 import com.intellij.ide.projectWizard.NewProjectWizardConstants
 import com.intellij.ide.wizard.NewProjectWizardStep
-import org.jetbrains.plugins.scala.util.ui.KotlinDslWrappers.StepChainOps
+import org.jetbrains.sbt.project.template.wizard.NewProjectWizardUtil.StepChainOps
 import org.jetbrains.sbt.project.template.wizard.{ScalaAssetsNewProjectWizardStep, ScalaNewProjectWizardMultiStep}
 
 final class SbtScalaNewProjectWizard extends BuildSystemScalaNewProjectWizard {
+  //noinspection ApiStatus,JetBrainsInternalApiUsage
   override def getName: String = NewProjectWizardConstants.BuildSystem.SBT
 
   override def createStep(parent: ScalaNewProjectWizardMultiStep): NewProjectWizardStep =

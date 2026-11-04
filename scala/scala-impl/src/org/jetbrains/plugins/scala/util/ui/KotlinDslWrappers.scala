@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.util.ui
 
-import com.intellij.ide.wizard.{NewProjectWizardChainStep, NewProjectWizardStep}
 import com.intellij.openapi.util.NlsContexts
-import com.intellij.ui.dsl.builder._
-import kotlin.Unit.{INSTANCE => KUnit}
+import com.intellij.ui.dsl.builder.*
 import org.jetbrains.annotations.Nls
 
 import java.lang
 import javax.swing.{AbstractButton, JLabel}
+import kotlin.Unit.INSTANCE as KUnit
 
 object KotlinDslWrappers {
 
@@ -59,10 +58,5 @@ object KotlinDslWrappers {
         init(groupPanel)
         KUnit
       })
-  }
-
-  implicit final class StepChainOps[Step <: NewProjectWizardStep](private val step: Step) extends AnyVal {
-    def nextStep[NextStep <: NewProjectWizardStep](createNextStep: Step => NextStep): NewProjectWizardChainStep[NextStep] =
-      NewProjectWizardChainStepCompanionProxy.nextStep(step, createNextStep)
   }
 }
