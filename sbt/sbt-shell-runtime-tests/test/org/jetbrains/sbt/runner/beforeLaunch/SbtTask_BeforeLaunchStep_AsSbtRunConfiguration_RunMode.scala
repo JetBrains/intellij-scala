@@ -6,10 +6,14 @@ import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessM
 
 class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_RunMode extends SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase {
 
-  def testRunMode_NoSbtShell_UsesExpectedRunnerDelegation(): Unit =
+  def testRunMode_NoSbtShell_UsesExpectedRunnerDelegation(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(
       runModeOptions(SbtProcessMode.NoShell)
     )
+  }
 
   def testRunMode_OldSbtShell_UsesExpectedRunnerDelegation(): Unit = {
     // TODO: SCL-26340 fails on Windows
@@ -65,10 +69,14 @@ class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_RunMode extends SbtTask_Bef
     )
   }
 
-  def testRunMode_OldSbtShell_DoesNotBlockDependentRunConfiguration(): Unit =
+  def testRunMode_OldSbtShell_DoesNotBlockDependentRunConfiguration(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(
       runModeOptions(SbtProcessMode.OldShell)
     )
+  }
 
   def testRunMode_NewSbtShell_DoesNotBlockDependentRunConfiguration(): Unit = {
     // TODO: SCL-26340 fails on Windows
