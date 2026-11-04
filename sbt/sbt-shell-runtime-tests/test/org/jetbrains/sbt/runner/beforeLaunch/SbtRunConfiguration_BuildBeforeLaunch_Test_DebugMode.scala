@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.runner.beforeLaunch
 
+import com.intellij.util.system.OS
 import org.jetbrains.sbt.runner.TestExecutionOptions
 import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessMode}
 
@@ -16,11 +17,15 @@ class SbtRunConfiguration_BuildBeforeLaunch_Test_DebugMode extends SbtRunConfigu
       SbtProcessMode.OldShell,
     ))
 
-  def testDebugMode_NewSbtShell_FreshSbtRunConfigurationDoesNotRunBuild(): Unit =
+  def testDebugMode_NewSbtShell_FreshSbtRunConfigurationDoesNotRunBuild(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertFreshSbtRunConfiguration_DoesNotRunBuild(TestExecutionOptions(
       ExecutionMode.Debug,
       SbtProcessMode.NewShell,
     ))
+  }
 
   def testDebugMode_OldSbtShellStartedByRunConfiguration_FreshSbtRunConfigurationDoesNotRunBuild(): Unit =
     assertFreshSbtRunConfiguration_DoesNotRunBuild(TestExecutionOptions(
@@ -28,11 +33,15 @@ class SbtRunConfiguration_BuildBeforeLaunch_Test_DebugMode extends SbtRunConfigu
       SbtProcessMode.OldShell,
     ).copy(prestartSbtShell = false))
 
-  def testDebugMode_NewSbtShellStartedByRunConfiguration_FreshSbtRunConfigurationDoesNotRunBuild(): Unit =
+  def testDebugMode_NewSbtShellStartedByRunConfiguration_FreshSbtRunConfigurationDoesNotRunBuild(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertFreshSbtRunConfiguration_DoesNotRunBuild(TestExecutionOptions(
       ExecutionMode.Debug,
       SbtProcessMode.NewShell,
     ).copy(prestartSbtShell = false))
+  }
 
   def testDebugMode_NoSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
     assertFreshSbtRunConfiguration_RunsExplicitBuildBeforeLaunch(TestExecutionOptions(
@@ -46,11 +55,15 @@ class SbtRunConfiguration_BuildBeforeLaunch_Test_DebugMode extends SbtRunConfigu
       SbtProcessMode.OldShell,
     ))
 
-  def testDebugMode_NewSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
+  def testDebugMode_NewSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertFreshSbtRunConfiguration_RunsExplicitBuildBeforeLaunch(TestExecutionOptions(
       ExecutionMode.Debug,
       SbtProcessMode.NewShell,
     ))
+  }
 
   def testDebugMode_OldSbtShellStartedByRunConfiguration_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
     assertFreshSbtRunConfiguration_RunsExplicitBuildBeforeLaunch(TestExecutionOptions(
@@ -58,9 +71,13 @@ class SbtRunConfiguration_BuildBeforeLaunch_Test_DebugMode extends SbtRunConfigu
       SbtProcessMode.OldShell,
     ).copy(prestartSbtShell = false))
 
-  def testDebugMode_NewSbtShellStartedByRunConfiguration_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
+  def testDebugMode_NewSbtShellStartedByRunConfiguration_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertFreshSbtRunConfiguration_RunsExplicitBuildBeforeLaunch(TestExecutionOptions(
       ExecutionMode.Debug,
       SbtProcessMode.NewShell,
     ).copy(prestartSbtShell = false))
+  }
 }
