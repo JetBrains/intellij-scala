@@ -10,6 +10,7 @@ import com.intellij.execution.{ExecutionManager, RunnerAndConfigurationSettings}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.task.{ProjectTaskContext, ProjectTaskListener, ProjectTaskManager}
 import com.intellij.testFramework.{PlatformTestUtil, VfsTestUtil}
+import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.build.BuildDiagnosticsCollector
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.runner.TestExecutionOptions.ExecutionMode
@@ -19,6 +20,7 @@ import org.jetbrains.sbt.runner.beforeLaunch.utils.RunConfigurationBeforeLaunchT
 import org.jetbrains.sbt.runner.utils.ExecutionEventsCollector.ExecutionEvent
 import org.jetbrains.sbt.runner.utils.{ExecutionEventsCollector, RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
 import org.jetbrains.sbt.runner.{SbtDebugProgramRunner, SbtProgramRunner, SbtRunConfiguration_MockedProcess_ExecutionTestBase, TestExecutionOptions}
+import org.jetbrains.sbt.shell.SbtShellTestsOnWindows
 import org.junit.Assert.{assertEquals, assertFalse, assertNotNull, assertSame, assertTrue, fail}
 
 import java.util.concurrent.CountDownLatch
@@ -37,6 +39,10 @@ import scala.concurrent.duration.{Duration, DurationInt}
  *  - [[https://youtrack.jetbrains.com/issue/SCL-24469 SCL-24469]]
  */
 abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
+
+  // TODO: SCL-26340 disabled on Windows in every sbt process mode, the no-shell scenarios are flaky there as well, see SbtShellTestsOnWindows
+  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit =
+    if (!SbtShellTestsOnWindows.disabled) super.runTestRunnable(testRunnable)
 
   protected def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(options: TestExecutionOptions): Unit = {
     val (_, handler) = runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
