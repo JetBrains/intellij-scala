@@ -174,13 +174,16 @@ object ExternalSystemUtil {
       // in tests org.jetbrains.sbt.project.SbtProjectImportingTest `project.getBasePath` doesn't equal to actual external project data
       if (ApplicationManager.getApplication.isUnitTestMode) {
         val externalProjectsData = dataManager.getExternalProjectsData(project, projectSystemId).asScala
+        // The external project structure is null when the last import failed
+        def projectData(info: ExternalProjectInfo): Option[ProjectData] =
+          Option(info.getExternalProjectStructure).map(_.getData)
         // note: if there is more than one ExternalProjectInfo, finding the right one by comparing ProjectData internalName and project name will not be the correct.
         // If there is more than one linked project, the project name is not changed if it is different from ProjectData internalName
         // (see com.intellij.openapi.externalSystem.service.project.manage.ProjectDataServiceImpl#importData)
         if (externalProjectsData.size > 1) {
-          externalProjectsData.find(_.getExternalProjectStructure.getData.getLinkedExternalProjectPath == projectPath)
+          externalProjectsData.find(projectData(_).exists(_.getLinkedExternalProjectPath == projectPath))
         } else {
-          externalProjectsData.find(_.getExternalProjectStructure.getData.getInternalName == project.getName)
+          externalProjectsData.find(projectData(_).exists(_.getInternalName == project.getName))
         }
       }
       else None
