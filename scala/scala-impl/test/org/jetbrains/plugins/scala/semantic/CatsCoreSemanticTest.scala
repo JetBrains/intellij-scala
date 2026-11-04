@@ -150,7 +150,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.conversions.AllConversions
     //cats.conversions.VarianceConversions
     cats.conversions.VarianceConversionsLowPriority
-    //cats.data.AbstractNonEmptyInstances
+    cats.data.AbstractNonEmptyInstances
     //cats.data.AndThen
     //cats.data.AndThenInstances0
     cats.data.AndThenInstances1
@@ -602,7 +602,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.instances.Function1Instances0
     cats.instances.FunctionInstances
     //cats.instances.FunctionInstancesBinCompat0
-    //cats.instances.FutureCoflatMap
+    cats.instances.FutureCoflatMap
     //cats.instances.FutureInstances
     cats.instances.FutureInstances1
     cats.instances.FutureInstances2
@@ -827,14 +827,14 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.instances.IntGroup
     cats.kernel.instances.IntInstances
     cats.kernel.instances.IntOrder
-    //cats.kernel.instances.LazyListEq
+    cats.kernel.instances.LazyListEq
     cats.kernel.instances.LazyListHash
     cats.kernel.instances.LazyListInstances
     cats.kernel.instances.LazyListInstances1
     cats.kernel.instances.LazyListInstances2
     cats.kernel.instances.LazyListMonoid
-    //cats.kernel.instances.LazyListOrder
-    //cats.kernel.instances.LazyListPartialOrder
+    cats.kernel.instances.LazyListOrder
+    cats.kernel.instances.LazyListPartialOrder
     cats.kernel.instances.ListEq
     cats.kernel.instances.ListHash
     cats.kernel.instances.ListInstances
@@ -865,22 +865,22 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.instances.OptionPartialOrder
     cats.kernel.instances.OrderInstances
     cats.kernel.instances.PartialOrderInstances
-    //cats.kernel.instances.QueueEq
+    cats.kernel.instances.QueueEq
     //cats.kernel.instances.QueueHash
     cats.kernel.instances.QueueInstances
     cats.kernel.instances.QueueInstances1
     cats.kernel.instances.QueueInstances2
     cats.kernel.instances.QueueMonoid
-    //cats.kernel.instances.QueueOrder
-    //cats.kernel.instances.QueuePartialOrder
-    //cats.kernel.instances.SeqEq
+    cats.kernel.instances.QueueOrder
+    cats.kernel.instances.QueuePartialOrder
+    cats.kernel.instances.SeqEq
     //cats.kernel.instances.SeqHash
     cats.kernel.instances.SeqInstances
     cats.kernel.instances.SeqInstances1
     cats.kernel.instances.SeqInstances2
     cats.kernel.instances.SeqMonoid
-    //cats.kernel.instances.SeqOrder
-    //cats.kernel.instances.SeqPartialOrder
+    cats.kernel.instances.SeqOrder
+    cats.kernel.instances.SeqPartialOrder
     cats.kernel.instances.SetHash
     cats.kernel.instances.SetInstances
     cats.kernel.instances.SetInstances1
@@ -909,14 +909,14 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.kernel.instances.SortedSetOrder
     //cats.kernel.instances.SortedSetSemilattice
     cats.kernel.instances.StaticMethods
-    //cats.kernel.instances.StreamEq
+    cats.kernel.instances.StreamEq
     cats.kernel.instances.StreamHash
     cats.kernel.instances.StreamInstances
     cats.kernel.instances.StreamInstances1
     cats.kernel.instances.StreamInstances2
     cats.kernel.instances.StreamMonoid
-    //cats.kernel.instances.StreamOrder
-    //cats.kernel.instances.StreamPartialOrder
+    cats.kernel.instances.StreamOrder
+    cats.kernel.instances.StreamPartialOrder
     cats.kernel.instances.StringInstances
     cats.kernel.instances.StringLowerBounded
     //cats.kernel.instances.StringMonoid
@@ -948,14 +948,14 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.instances.UnitEnumerable
     cats.kernel.instances.UnitInstances
     cats.kernel.instances.UnitOrder
-    //cats.kernel.instances.VectorEq
+    cats.kernel.instances.VectorEq
     //cats.kernel.instances.VectorHash
     cats.kernel.instances.VectorInstances
     cats.kernel.instances.VectorInstances1
     cats.kernel.instances.VectorInstances2
     cats.kernel.instances.VectorMonoid
-    //cats.kernel.instances.VectorOrder
-    //cats.kernel.instances.VectorPartialOrder
+    cats.kernel.instances.VectorOrder
+    cats.kernel.instances.VectorPartialOrder
     cats.kernel.instances.eq
     cats.kernel.instances.hash
     cats.kernel.instances.order

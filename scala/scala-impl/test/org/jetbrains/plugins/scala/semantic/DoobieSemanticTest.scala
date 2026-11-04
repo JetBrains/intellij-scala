@@ -54,7 +54,7 @@ class DoobieSemanticTest extends SemanticTestBase("org.tpolecat" %% "doobie-core
     //doobie.hi.statement
     //doobie.syntax.AlignSyntax
     doobie.syntax.AllSyntax
-    //doobie.syntax.ApplicativeErrorOps
+    doobie.syntax.ApplicativeErrorOps
     //doobie.syntax.ConnectionIOOps
     //doobie.syntax.EitherTConnectionIOOps
     //doobie.syntax.FoldableOps
