@@ -31,6 +31,7 @@
         <module name="scalaCommunity.codeInsight"/>
         <module name="scalaCommunity.compiler-integration"/>
         <module name="scalaCommunity.compiler-integration-server-management"/>
+        <module name="scalaCommunity.editor.shared"/>
         <module name="scalaCommunity.sbt-api"/>
         <module name="scalaCommunity.sbt-impl"/>
         <module name="scalaCommunity.scala-api"/>
