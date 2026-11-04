@@ -1568,9 +1568,21 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
         result = {
           // A type parameter that asks for a singleton type must not be widened, which the declared
-          // bound expresses on its own, so it is recorded rather than kept on the side, SCL-21053
+          // bound expresses on its own, so it is recorded rather than kept on the side, SCL-21053.
+          // A declared bound that refers to type parameters, such as `P <: Part[V] & Singleton`,
+          // mentions them as rigid types here rather than as the undefined types being inferred, so
+          // recording it would reject every argument (`Key.type <: Part[V]` with a rigid `V`). Only
+          // `Singleton` is recorded then: it keeps the argument from being widened, and the rest of
+          // the declared bound is handled as for a type parameter without `Singleton`, SCL-26127.
           val upperType = tp.upperType
-          if (Widening.isSingletonBounded(upperType)) withLower.withUpper(tp, upperType)
+          if (Widening.isSingletonBounded(upperType)) {
+            val refersToTypeParameters = upperType.subtypeExists {
+              case _: TypeParameterType => true
+              case _                    => false
+            }
+            val recordedUpper = if (refersToTypeParameters) Singleton(using upperType.projectContext) else upperType
+            withLower.withUpper(tp, recordedUpper)
+          }
           else withLower
         }
       }
