@@ -35,15 +35,15 @@ object CompilerMessagesUtil {
 
     val groupedMessages = messages.groupBy(_.getVirtualFile)
     if (groupedMessages.size <= 1) {
-      messages.map(messageText).mkString(System.lineSeparator())
+      messages.map(messageText).mkString("\n")
     } else {
       groupedMessages
         .toSeq
         .sortBy { case (file, _) => Option(file).fold("")(_.toString) }
         .map { case (file, fileMessages) =>
-          s"$file:${System.lineSeparator()}${fileMessages.map(messageText).mkString(System.lineSeparator())}"
+          s"$file:\n${fileMessages.map(messageText).mkString("\n")}"
         }
-        .mkString(System.lineSeparator())
+        .mkString("\n")
     }
   }
 }
