@@ -23,9 +23,9 @@
         <module name="intellij.platform.markdown.utils"/>
         <module name="intellij.platform.projectModel"/>
         <module name="intellij.xml.parser"/>
-        <module name="scalaCommunity.sbt-core"/>
-        <module name="scalaCommunity.scala-api"/>
-        <module name="scalaCommunity.scala-psi-api"/>
+        <module name="scalaCommunity.sbt.core"/>
+        <module name="scalaCommunity.scala.api"/>
+        <module name="scalaCommunity.scala.psi.api"/>
     </dependencies>
 
     <extensionPoints>
@@ -54,7 +54,7 @@
 
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition$"/>
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition$"/>
-        <!-- the stub definitions and serializers are registered in scalaCommunity.scala-impl: stubs exist only on the backend -->
+        <!-- the stub definitions and serializers are registered in scalaCommunity.scala.impl: stubs exist only on the backend -->
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes"/>

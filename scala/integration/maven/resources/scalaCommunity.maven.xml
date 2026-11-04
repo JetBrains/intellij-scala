@@ -26,10 +26,10 @@
         <module name="intellij.platform.workspace.jps"/>
         <module name="intellij.platform.workspace.storage"/>
         <module name="scalaCommunity.compiler-integration"/>
-        <module name="scalaCommunity.sbt-api"/>
-        <module name="scalaCommunity.sbt-impl"/>
-        <module name="scalaCommunity.scala-impl"/>
-        <module name="scalaCommunity.scala-psi-impl"/>
+        <module name="scalaCommunity.sbt.api"/>
+        <module name="scalaCommunity.sbt.impl"/>
+        <module name="scalaCommunity.scala.impl"/>
+        <module name="scalaCommunity.scala.psi.impl"/>
         <module name="scalaCommunity.testing-support"/>
     </dependencies>
 

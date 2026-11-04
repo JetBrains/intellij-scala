@@ -19,13 +19,13 @@ object ExtractStringsFromPluginXml {
 
   val scalaImplPluginXml: PluginXmlInfo = PluginXmlInfo(
     resourcePath = scalaModDir / "scala-impl/resources",
-    relativeXmlPath = "scalaCommunity.scala-impl.xml",
+    relativeXmlPath = "scalaCommunity.scala.impl.xml",
     bundleQualifiedPath = "messages.ScalaInspectionBundle",
   )
 
   val sbtImplPluginXml: PluginXmlInfo = PluginXmlInfo(
     resourcePath = sbtModDir / "sbt-impl/resources",
-    relativeXmlPath = "scalaCommunity.sbt-impl.xml",
+    relativeXmlPath = "scalaCommunity.sbt.impl.xml",
     bundleQualifiedPath = "messages.SbtBundle",
   )
 

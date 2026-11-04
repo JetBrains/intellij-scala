@@ -27,10 +27,10 @@
         <module name="intellij.platform.undo"/>
         <module name="intellij.platform.util.ui"/>
         <module name="scalaCommunity.editor.shared"/>
-        <module name="scalaCommunity.scala-api"/>
-        <module name="scalaCommunity.scala-impl"/>
-        <module name="scalaCommunity.scala-psi-api"/>
-        <module name="scalaCommunity.scala-psi-impl"/>
+        <module name="scalaCommunity.scala.api"/>
+        <module name="scalaCommunity.scala.impl"/>
+        <module name="scalaCommunity.scala.psi.api"/>
+        <module name="scalaCommunity.scala.psi.impl"/>
     </dependencies>
 
     <extensionPoints>

@@ -181,13 +181,13 @@ lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
   .dependsOn(scalaLanguageUtilsRt)
   .settings(
     intellijPlugins += "com.intellij.xml".toPlugin,
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-api"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.api"),
   )
 
 lazy val scalaPsiApi = newProject("scala-psi-api", file("scala/scala-psi-api"))
   .dependsOn(scalaApi)
   .settings(
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-psi-api"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.psi.api"),
   )
 
 lazy val scalaPsiImpl = newProject("scala-psi-impl", file("scala/scala-psi-impl"))
@@ -204,7 +204,7 @@ lazy val scalaPsiImpl = newProject("scala-psi-impl", file("scala/scala-psi-impl"
       "-Wconf:msg=Non local returns are no longer supported:s",
     ),
     intellijPlugins += "com.intellij.xml".toPlugin,
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-psi-impl"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.psi.impl"),
   )
 
 /**
@@ -226,7 +226,7 @@ lazy val scalaFrontend = newProject("scala-frontend", file("scala/scala-frontend
     editorShared,
   )
   .settings(
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-frontend"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.frontend"),
   )
 
 lazy val workspaceEntities = newProjectWithKotlin("workspace-entities", file("sbt/sbt-impl/workspace-entities"))
@@ -250,7 +250,7 @@ lazy val sbtKotlinUtils = newProjectWithKotlin("sbt-kotlin-utils", file("sbt/sbt
   .settings(
     crossPaths := false,
     autoScalaLibrary := false,
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt-impl"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt.impl"),
   )
 
 // NOTE: this module used to be a `newProjectWithKotlin`. However, it became broken after an update to 262.7966+.
@@ -290,7 +290,7 @@ lazy val sbtKotlinIjPluginInterop =
 lazy val sbtCore = newProject("sbt-core", file("sbt/sbt-core"))
   .dependsOn(scalaApi)
   .settings(
-    packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt-core"),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt.core"),
   )
 
 lazy val sbtApi =
@@ -317,7 +317,7 @@ lazy val sbtApi =
         "sbtStructurePath_2" -> relativeJarPath(Dependencies.structureExtractor_2),
       ),
       buildInfoOptions += BuildInfoOption.ConstantValue,
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt-api"),
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt.api"),
     )
 
 lazy val codeInsight = newProject(
@@ -531,7 +531,7 @@ lazy val scalaImpl: sbt.Project =
       intellijPluginJars := intellijPluginJars.value.map { case PluginJars(descriptor, root, cp) =>
         PluginJars(descriptor, root, cp.filterNot(_.getName.contains("junit-jupiter-api")))
       },
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-impl"),
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.impl"),
       packageLibraryMappings := Seq(
         // "com.thesamet.scalapb" %% "scalapb-runtime" % ".*" -> None,
         // "com.thesamet.scalapb" %% "lenses" % ".*"          -> None,
@@ -663,7 +663,7 @@ lazy val sbtImpl =
     .settings(
       intellijPlugins += "com.intellij.platform.vcs".toPlugin,
 //      libraryDependencies += Dependencies.sbtStructureCore.exclude("org.scala-lang.modules", "scala-xml_3")
-      packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt-impl"),
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.sbt.impl"),
     )
 
 lazy val sbtProjectImportingTestFramework =

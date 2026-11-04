@@ -6,7 +6,7 @@
         <module name="intellij.libraries.kotlinx.coroutines.core"/>
         <module name="intellij.platform.core"/>
         <module name="intellij.platform.core.impl"/>
-        <module name="scalaCommunity.scala-api"/>
+        <module name="scalaCommunity.scala.api"/>
     </dependencies>
 
     <extensionPoints>

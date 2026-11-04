@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScSuperReferenceImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScPsiDocToken
 
 /**
- * It's registered only in the backend module scalaCommunity.scala-impl. On the frontend of Remote Development the
+ * It's registered only in the backend module scalaCommunity.scala.impl. On the frontend of Remote Development the
  * shared PSI is loaded too, but the platform must not resolve Scala references there (see IJPL-A-1220
  * "Moving PSI Components", "Keep References on Backend"): the frontend has no indexes and no complete project model.
  *
