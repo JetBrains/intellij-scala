@@ -236,7 +236,6 @@
                              instance="org.jetbrains.plugins.scala.settings.sections.ExtensionSettingsSectionConfigurable"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.CompilerIndicesSettings"/>
 
-        <autoImportOptionsProvider instance="org.jetbrains.plugins.scala.editor.autoimport.ScalaAutoImportOptionsProvider"/>
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.incremental.Listener"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.incremental.Tracing$StartupActivity"/>
         <applicationService serviceInterface="org.jetbrains.plugins.scala.lang.resolve.ReferenceVariants"

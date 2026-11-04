@@ -11,7 +11,7 @@ import com.intellij.openapi.options.ex.Settings
 import com.intellij.ui.CollectionComboBoxModel
 import com.intellij.ui.dsl.builder._
 import kotlin.Unit.{INSTANCE => KUnit}
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 import org.jetbrains.plugins.scala.project.NonNullableValueBasedListRenderer
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -26,7 +26,7 @@ final class ScalaAutoImportOptionsProvider extends UiDslUnnamedConfigurable.Simp
   override def createContent(_panel: Panel): Unit = {
     val as = ScalaApplicationSettings.getInstance()
 
-    _panel.group(ScalaBundle.message("options.scala.display.name"), true, (p: Panel) => {
+    _panel.group(ScalaEditorBundle.message("options.scala.display.name"), true, (p: Panel) => {
       p.row(null: JLabel, (row: Row) => {
         row.label(JavaBundle.message("combobox.paste.insert.imports"))
         val renderer = new NonNullableValueBasedListRenderer[Int](
@@ -44,27 +44,27 @@ final class ScalaAutoImportOptionsProvider extends UiDslUnnamedConfigurable.Simp
         KUnit
       })
 
-      p.row(ScalaBundle.message("auto.import.show.import.popup.for"), (_: Row) => KUnit)
+      p.row(ScalaEditorBundle.message("auto.import.show.import.popup.for"), (_: Row) => KUnit)
       p.indent((p: Panel) => {
-        p.checkBoxCell(ScalaBundle.message("auto.import.show.popup.classes"), as.SHOW_IMPORT_POPUP_CLASSES, as.SHOW_IMPORT_POPUP_CLASSES = _)
-        p.checkBoxCell(ScalaBundle.message("auto.import.show.popup.methods"), as.SHOW_IMPORT_POPUP_STATIC_METHODS, as.SHOW_IMPORT_POPUP_STATIC_METHODS = _)
-        p.checkBoxCell(ScalaBundle.message("auto.import.show.popup.conversions"), as.SHOW_IMPORT_POPUP_CONVERSIONS, as.SHOW_IMPORT_POPUP_CONVERSIONS = _)
-        p.checkBoxCell(ScalaBundle.message("auto.import.show.popup.implicits"), as.SHOW_IMPORT_POPUP_IMPLICITS, as.SHOW_IMPORT_POPUP_IMPLICITS = _)
-        p.checkBoxCell(ScalaBundle.message("auto.import.show.popup.extension.methods"), as.SHOW_IMPORT_POPUP_EXTENSION_METHODS, as.SHOW_IMPORT_POPUP_EXTENSION_METHODS = _)
+        p.checkBoxCell(ScalaEditorBundle.message("auto.import.show.popup.classes"), as.SHOW_IMPORT_POPUP_CLASSES, as.SHOW_IMPORT_POPUP_CLASSES = _)
+        p.checkBoxCell(ScalaEditorBundle.message("auto.import.show.popup.methods"), as.SHOW_IMPORT_POPUP_STATIC_METHODS, as.SHOW_IMPORT_POPUP_STATIC_METHODS = _)
+        p.checkBoxCell(ScalaEditorBundle.message("auto.import.show.popup.conversions"), as.SHOW_IMPORT_POPUP_CONVERSIONS, as.SHOW_IMPORT_POPUP_CONVERSIONS = _)
+        p.checkBoxCell(ScalaEditorBundle.message("auto.import.show.popup.implicits"), as.SHOW_IMPORT_POPUP_IMPLICITS, as.SHOW_IMPORT_POPUP_IMPLICITS = _)
+        p.checkBoxCell(ScalaEditorBundle.message("auto.import.show.popup.extension.methods"), as.SHOW_IMPORT_POPUP_EXTENSION_METHODS, as.SHOW_IMPORT_POPUP_EXTENSION_METHODS = _)
         KUnit
       })
 
-      p.row(ScalaBundle.message("auto.import.add.unambiguous.imports.on.the.fly.for"), (_: Row) => KUnit)
+      p.row(ScalaEditorBundle.message("auto.import.add.unambiguous.imports.on.the.fly.for"), (_: Row) => KUnit)
       p.indent((_: Panel) => {
-        p.checkBoxCell(ScalaBundle.message("auto.import.show.popup.classes"), as.ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY, as.ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = _)
-        p.checkBoxCell(ScalaBundle.message("auto.import.show.popup.methods"), as.ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY_METHODS, as.ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY_METHODS = _)
+        p.checkBoxCell(ScalaEditorBundle.message("auto.import.show.popup.classes"), as.ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY, as.ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = _)
+        p.checkBoxCell(ScalaEditorBundle.message("auto.import.show.popup.methods"), as.ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY_METHODS, as.ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY_METHODS = _)
         KUnit
       })
 
-      p.checkBoxCell(ScalaBundle.message("auto.import.optimize.imports.on.the.fly"), as.OPTIMIZE_IMPORTS_ON_THE_FLY, as.OPTIMIZE_IMPORTS_ON_THE_FLY = _)
+      p.checkBoxCell(ScalaEditorBundle.message("auto.import.optimize.imports.on.the.fly"), as.OPTIMIZE_IMPORTS_ON_THE_FLY, as.OPTIMIZE_IMPORTS_ON_THE_FLY = _)
       p.row(null: JLabel, (row: Row) => {
         row.comment(
-          ScalaBundle.message("auto.import.find.more.configuration.options"),
+          ScalaEditorBundle.message("auto.import.find.more.configuration.options"),
           -1,
           (_: HyperlinkEvent) => {
             selectImportsTabInScalaCodeStyleSettingsConfigurable()
@@ -85,7 +85,7 @@ final class ScalaAutoImportOptionsProvider extends UiDslUnnamedConfigurable.Simp
             configurable <- settings.find("preferences.sourceCode.Scala").asOptionOf[CodeStyleConfigurableWrapper]
           } {
             settings.select(configurable).doWhenDone { () =>
-              configurable.selectTab(ScalaBundle.message("imports.panel.title"))
+              configurable.selectTab(ScalaEditorBundle.message("imports.panel.title"))
             }
           }
         }
