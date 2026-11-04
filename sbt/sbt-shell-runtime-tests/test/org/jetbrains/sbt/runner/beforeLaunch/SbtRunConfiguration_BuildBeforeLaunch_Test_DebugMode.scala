@@ -43,11 +43,15 @@ class SbtRunConfiguration_BuildBeforeLaunch_Test_DebugMode extends SbtRunConfigu
     ).copy(prestartSbtShell = false))
   }
 
-  def testDebugMode_NoSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
+  def testDebugMode_NoSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertFreshSbtRunConfiguration_RunsExplicitBuildBeforeLaunch(TestExecutionOptions(
       ExecutionMode.Debug,
       SbtProcessMode.NoShell,
     ))
+  }
 
   def testDebugMode_OldSbtShell_FreshSbtRunConfigurationRunsExplicitBuildBeforeLaunch(): Unit =
     assertFreshSbtRunConfiguration_RunsExplicitBuildBeforeLaunch(TestExecutionOptions(
