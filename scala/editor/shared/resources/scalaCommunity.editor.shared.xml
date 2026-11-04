@@ -37,6 +37,8 @@
         <lang.syntaxHighlighter language="ScalaDirective"
                                 implementationClass="org.jetbrains.plugins.scalaDirective.highlighter.ScalaDirectiveSyntaxHighlighter"/>
 
+        <moveLeftRightHandler language="Scala"
+                              implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaMoveLeftRightHandler"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
     </extensions>
 </idea-plugin>
