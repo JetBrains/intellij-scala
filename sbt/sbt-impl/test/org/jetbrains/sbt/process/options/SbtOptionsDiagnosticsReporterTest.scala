@@ -235,7 +235,9 @@ class SbtOptionsDiagnosticsReporterTest {
     )
 
   @Test
-  def reportsMalformedAssignmentOptionsWithoutValueInTitle(): Unit =
+  def reportsMalformedAssignmentOptionsWithoutValueInTitle(): Unit = {
+    val optionsFile = Path.of("/tmp/project/.sbtopts")
+
     assertReportedDiagnostics(
       Seq(
         Malformed(
@@ -244,7 +246,7 @@ class SbtOptionsDiagnosticsReporterTest {
             MalformedSbtOption(lineNumber = 1, unclosedQuote = '"', lineContent = """K2="V2"""),
             MalformedSbtOption(lineNumber = 2, unclosedQuote = '"', lineContent = """K3="V3""")
           ),
-          optionsFile = Some(Path.of("/tmp/project/.sbtopts"))
+          optionsFile = Some(optionsFile)
         ),
         Malformed(
           SbtOptionsSource.IdeSettings,
@@ -254,15 +256,15 @@ class SbtOptionsDiagnosticsReporterTest {
       expected = Seq(
         WarningData(
           "malformed sbt option: K2= (.sbtopts file)",
-          """Malformed sbt option input: unbalanced double quote at:
-            |file:///tmp/project/.sbtopts:1
-            |K2="V2""".stripMargin
+          s"""Malformed sbt option input: unbalanced double quote at:
+             |${optionsFile.toAbsolutePath.toUri}:1
+             |K2="V2""".stripMargin
         ),
         WarningData(
           "malformed sbt option: K3= (.sbtopts file)",
-          """Malformed sbt option input: unbalanced double quote at:
-            |file:///tmp/project/.sbtopts:2
-            |K3="V3""".stripMargin
+          s"""Malformed sbt option input: unbalanced double quote at:
+             |${optionsFile.toAbsolutePath.toUri}:2
+             |K3="V3""".stripMargin
         ),
         WarningData(
           "malformed sbt option: KK= (IDE settings)",
@@ -271,6 +273,7 @@ class SbtOptionsDiagnosticsReporterTest {
         )
       )
     )
+  }
 
   @Test
   def reportsUnrecognizedDiagnosticsBeforeMalformedDiagnostics(): Unit =

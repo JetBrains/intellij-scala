@@ -4,6 +4,7 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiComment
 import com.intellij.testFramework.{LightVirtualFile, PlatformTestUtil}
+import com.intellij.util.system.OS
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
@@ -45,6 +46,9 @@ class ScalaShebangExecutableInspectionTest extends ScalaLightCodeInsightFixtureT
   }
 
   def testNonExecutableShebangScriptHasWarningAndQuickFix(): Unit = {
+    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     val script = configureLocalScript(shebangScript, executable = false)
 
     assertWarning()
@@ -119,30 +123,45 @@ class ScalaShebangExecutableInspectionTest extends ScalaLightCodeInsightFixtureT
   }
 
   def testScriptWithoutShebangHasNoWarning(): Unit = {
+    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     configureLocalScript("println(42)", executable = false)
 
     assertNoWarning()
   }
 
   def testLaterShebangHasNoWarning(): Unit = {
+    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     configureLocalScript(s"// ordinary comment\n$shebang", executable = false)
 
     assertNoWarning()
   }
 
   def testIndentedShebangHasNoWarning(): Unit = {
+    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     configureLocalScript(s"  $shebang", executable = false)
 
     assertNoWarning()
   }
 
   def testBomPrefixedShebangHasNoWarning(): Unit = {
+    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     configureLocalScript(s"\uFEFF$shebang", executable = false)
 
     assertNoWarning()
   }
 
   def testCrLfShebangScriptHasWarning(): Unit = {
+    // TODO: SCL-26338 File.setExecutable(false) always fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     configureLocalScript(s"$shebang\r\nprintln(42)", executable = false)
 
     assertWarning()
