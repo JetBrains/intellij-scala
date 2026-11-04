@@ -3,7 +3,11 @@ package lang.typeInference
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.junit.Assert.{assertEquals, assertNotNull}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScTypeExt, TypePresentationContext}
+import org.junit.Assert.{assertEquals, assertNotNull, assertTrue, fail}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
@@ -1327,5 +1331,156 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestCase {
       |  d.f${CARET}oo = 11
       |}
       |""".stripMargin
+  )
+
+  /**
+   * Checks that the operator of the infix call at the caret resolves to exactly one extension
+   * method, the one whose receiver clause is `expectedReceiver`, and that the call has `expectedType`.
+   * An ambiguous extension call is not highlighted as an error, so a highlighting check alone does
+   * not catch it.
+   */
+  private def checkInfixExtensionCall(
+    @Language("Scala 3") text: String,
+    expectedReceiver:          String,
+    expectedType:              String
+  ): Unit = {
+    checkTextHasNoErrors(text)
+
+    val reference = getFile.findReferenceAt(getEditor.getCaretModel.getOffset) match {
+      case ref: ScReferenceExpression => ref
+      case other                      => fail(s"Expected a reference expression at the caret, got: $other"); return
+    }
+
+    val results = reference.multiResolveScala(false)
+    assertEquals(
+      s"Expected a single extension candidate, got: ${results.map(_.element.getText).mkString("[", "; ", "]")}",
+      1,
+      results.length
+    )
+    val extensionText = results.head.element match {
+      case fun: ScFunction => fun.extensionMethodOwner.fold(fun.getText)(_.getText)
+      case other           => other.getText
+    }
+    assertTrue(
+      s"Expected the extension with receiver `$expectedReceiver`, got: $extensionText",
+      extensionText.contains(expectedReceiver)
+    )
+
+    val infix = reference.getParent match {
+      case infix: ScInfixExpr => infix
+      case other              => fail(s"Expected an infix expression, got: $other"); return
+    }
+    implicit val context: Context = Context(infix)
+    val actualType = infix.`type`().getOrElse(fail(s"Cannot infer the type of `${infix.getText}`").asInstanceOf[Nothing])
+    val expected   = ScalaPsiElementFactory.createTypeFromText(expectedType, infix, null).get
+    // The result type is a match type alias, such as `After[Key.type]`, that reduces to `expectedType`
+    assertTrue(
+      s"Expected the type of `${infix.getText}` to be equivalent to $expectedType, got: ${actualType.presentableText(using TypePresentationContext(infix), context)}",
+      actualType.conforms(expected) && expected.conforms(actualType)
+    )
+  }
+
+  private val SCL26127Definitions =
+    """final class Fixed
+      |final class Dynamic[S]
+      |abstract class Part[V](val name: String)
+      |object Key extends Part[Long]("key")
+      |object Host
+      |type Step = (String | Part[?]) & Singleton
+      |type After[S] = S match
+      |  case String  => Fixed
+      |  case Part[?] => Dynamic[S]
+      |""".stripMargin
+
+  private val SCL26127InlineExtensions =
+    """extension (inline first: String) inline def /^[S <: Step](inline next: S): After[S] = ???
+      |extension [V, P <: Part[V] & Singleton](first: P) inline def /^[S <: Step](inline next: S): After[S] = ???
+      |extension (host: Host.type) inline def /^[S <: Step](inline next: S): After[S] = ???
+      |""".stripMargin
+
+  private val SCL26127Extensions =
+    """extension (first: String) def /^[S <: Step](next: S): After[S] = ???
+      |extension [V, P <: Part[V] & Singleton](first: P) def /^[S <: Step](next: S): After[S] = ???
+      |extension (host: Host.type) def /^[S <: Step](next: S): After[S] = ???
+      |""".stripMargin
+
+  def testSCL26127_fromString(): Unit = checkInfixExtensionCall(
+    SCL26127Definitions + SCL26127InlineExtensions + s"""val fromString = "a" /${CARET}^ Key // scalac: Dynamic[Key.type]""",
+    "inline first: String",
+    "Dynamic[Key.type]"
+  )
+
+  def testSCL26127_fromHost(): Unit = checkInfixExtensionCall(
+    SCL26127Definitions + SCL26127InlineExtensions + s"""val fromHost = Host /${CARET}^ "a" // scalac: Fixed""",
+    "host: Host.type",
+    "Fixed"
+  )
+
+  def testSCL26127_fromPart(): Unit = checkInfixExtensionCall(
+    SCL26127Definitions + SCL26127InlineExtensions + s"""val fromPart = Key /${CARET}^ "a" // scalac: Fixed""",
+    "[V, P <: Part[V] & Singleton](first: P)",
+    "Fixed"
+  )
+
+  def testSCL26127_nonInline_fromString(): Unit = checkInfixExtensionCall(
+    SCL26127Definitions + SCL26127Extensions + s"""val fromString = "a" /${CARET}^ Key""",
+    "first: String",
+    "Dynamic[Key.type]"
+  )
+
+  def testSCL26127_nonInline_fromHost(): Unit = checkInfixExtensionCall(
+    SCL26127Definitions + SCL26127Extensions + s"""val fromHost = Host /${CARET}^ "a"""",
+    "host: Host.type",
+    "Fixed"
+  )
+
+  def testSCL26127_nonInline_fromPart(): Unit = checkInfixExtensionCall(
+    SCL26127Definitions + SCL26127Extensions + s"""val fromPart = Key /${CARET}^ "a"""",
+    "[V, P <: Part[V] & Singleton](first: P)",
+    "Fixed"
+  )
+
+  def testSCL26127_minimal(): Unit = checkInfixExtensionCall(
+    s"""final class Fixed
+       |abstract class Part[V](val name: String)
+       |extension (first: String) def /^[S](next: S): Fixed = ???
+       |extension [V, P <: Part[V]](first: P) def /^[S](next: S): Fixed = ???
+       |val result = "a" /${CARET}^ 1
+       |""".stripMargin,
+    "first: String",
+    "Fixed"
+  )
+
+  def testSCL26127_singletonPartReceiverAlone(): Unit = checkInfixExtensionCall(
+    s"""final class Fixed
+       |abstract class Part[V](val name: String)
+       |object Key extends Part[Long]("key")
+       |extension [V, P <: Part[V] & Singleton](first: P) def /^(next: String): Fixed = ???
+       |val result = Key /${CARET}^ "a"
+       |""".stripMargin,
+    "[V, P <: Part[V] & Singleton](first: P)",
+    "Fixed"
+  )
+
+  def testSCL26127_singletonPartReceiverAloneGenericMethod(): Unit = checkInfixExtensionCall(
+    s"""final class Fixed
+       |abstract class Part[V](val name: String)
+       |object Key extends Part[Long]("key")
+       |extension [V, P <: Part[V] & Singleton](first: P) def /^[S](next: S): Fixed = ???
+       |val result = Key /${CARET}^ "a"
+       |""".stripMargin,
+    "[V, P <: Part[V] & Singleton](first: P)",
+    "Fixed"
+  )
+
+  def testSCL26127_singletonFirstPartReceiverAlone(): Unit = checkInfixExtensionCall(
+    s"""final class Fixed
+       |abstract class Part[V](val name: String)
+       |object Key extends Part[Long]("key")
+       |extension [V, P <: Singleton & Part[V]](first: P) def /^(next: String): Fixed = ???
+       |val result = Key /${CARET}^ "a"
+       |""".stripMargin,
+    "[V, P <: Singleton & Part[V]](first: P)",
+    "Fixed"
   )
 }
