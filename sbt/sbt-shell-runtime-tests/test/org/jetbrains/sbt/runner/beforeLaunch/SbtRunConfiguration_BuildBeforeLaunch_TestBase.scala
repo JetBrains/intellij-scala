@@ -2,11 +2,13 @@ package org.jetbrains.sbt.runner.beforeLaunch
 
 import com.intellij.debugger.jvm.advanced.java.log.capture.LogCapture
 import com.intellij.execution.RunnerAndConfigurationSettings
+import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.util.CollectingLoggedMessagesProcessor
 import org.jetbrains.sbt.runner.TestExecutionOptions.ExecutionMode
 import org.jetbrains.sbt.runner.beforeLaunch.utils.{CompileStepBeforeRunTestUtil, CompileStepBeforeRunTracker, DebuggerSessionsAwaiter}
 import org.jetbrains.sbt.runner.utils.{RunConfigInTestsExecutor, RunConfigurationExecutionObserver, SbtRunConfigurationTestFactory}
 import org.jetbrains.sbt.runner.{SbtRunConfiguration, SbtRunConfiguration_MockedProcess_ExecutionTestBase, TestExecutionOptions}
+import org.jetbrains.sbt.shell.SbtShellTestsOnWindows
 import org.junit.Assert.assertEquals
 
 import scala.concurrent.duration.DurationInt
@@ -29,6 +31,10 @@ import scala.concurrent.duration.DurationInt
  *  - [[https://youtrack.jetbrains.com/issue/SCL-25433 SCL-25433]]
  */
 abstract class SbtRunConfiguration_BuildBeforeLaunch_TestBase extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
+
+  // TODO: SCL-26340 disabled on Windows in every sbt process mode, the no-shell scenarios are flaky there as well, see SbtShellTestsOnWindows
+  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit =
+    if (!SbtShellTestsOnWindows.disabled) super.runTestRunnable(testRunnable)
 
   protected def assertFreshSbtRunConfiguration_DoesNotRunBuild(options: TestExecutionOptions): Unit = {
     val buildTracker = runFreshSbtRunConfiguration_BuildBeforeLaunch(options) { _ =>
