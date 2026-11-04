@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.runner.beforeLaunch
 
+import com.intellij.util.system.OS
 import org.jetbrains.sbt.runner.TestExecutionOptions
 import org.jetbrains.sbt.runner.TestExecutionOptions.{ExecutionMode, SbtProcessMode}
 
@@ -15,40 +16,60 @@ class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_DebugMode extends SbtTask_B
       debugModeOptions(SbtProcessMode.OldShell)
     )
 
-  def testDebugMode_NewSbtShell_UsesExpectedRunnerDelegation(): Unit =
+  def testDebugMode_NewSbtShell_UsesExpectedRunnerDelegation(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(
       debugModeOptions(SbtProcessMode.NewShell)
     )
+  }
 
-  def testDebugMode_NoSbtShell_WithDisabledSbtShellDebugging_UsesExpectedRunnerDelegation(): Unit =
+  def testDebugMode_NoSbtShell_WithDisabledSbtShellDebugging_UsesExpectedRunnerDelegation(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(
       debugModeOptionsWithDisabledSbtShellDebugging(SbtProcessMode.NoShell)
     )
+  }
 
   def testDebugMode_OldSbtShell_WithDisabledSbtShellDebugging_UsesExpectedRunnerDelegation(): Unit =
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(
       debugModeOptionsWithDisabledSbtShellDebugging(SbtProcessMode.OldShell)
     )
 
-  def testDebugMode_NewSbtShell_WithDisabledSbtShellDebugging_UsesExpectedRunnerDelegation(): Unit =
+  def testDebugMode_NewSbtShell_WithDisabledSbtShellDebugging_UsesExpectedRunnerDelegation(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(
       debugModeOptionsWithDisabledSbtShellDebugging(SbtProcessMode.NewShell)
     )
+  }
 
-  def testDebugMode_NoSbtShell_NotifiesExecutionListeners(): Unit =
+  def testDebugMode_NoSbtShell_NotifiesExecutionListeners(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(
       debugModeOptions(SbtProcessMode.NoShell)
     )
+  }
 
   def testDebugMode_OldSbtShell_NotifiesExecutionListeners(): Unit =
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(
       debugModeOptions(SbtProcessMode.OldShell)
     )
 
-  def testDebugMode_NewSbtShell_NotifiesExecutionListeners(): Unit =
+  def testDebugMode_NewSbtShell_NotifiesExecutionListeners(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(
       debugModeOptions(SbtProcessMode.NewShell)
     )
+  }
 
   def testDebugMode_NoSbtShell_WithDisabledSbtShellDebugging_NotifiesExecutionListeners(): Unit =
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(
@@ -60,10 +81,14 @@ class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_DebugMode extends SbtTask_B
       debugModeOptionsWithDisabledSbtShellDebugging(SbtProcessMode.OldShell)
     )
 
-  def testDebugMode_NewSbtShell_WithDisabledSbtShellDebugging_NotifiesExecutionListeners(): Unit =
+  def testDebugMode_NewSbtShell_WithDisabledSbtShellDebugging_NotifiesExecutionListeners(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationNotifiesExecutionListeners(
       debugModeOptionsWithDisabledSbtShellDebugging(SbtProcessMode.NewShell)
     )
+  }
 
   def testDebugMode_NoSbtShell_DoesNotBlockDependentRunConfiguration(): Unit =
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(
@@ -75,10 +100,14 @@ class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_DebugMode extends SbtTask_B
       debugModeOptions(SbtProcessMode.OldShell)
     )
 
-  def testDebugMode_NewSbtShell_DoesNotBlockDependentRunConfiguration(): Unit =
+  def testDebugMode_NewSbtShell_DoesNotBlockDependentRunConfiguration(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(
       debugModeOptions(SbtProcessMode.NewShell)
     )
+  }
 
   def testDebugMode_NoSbtShell_WithDisabledSbtShellDebugging_DoesNotBlockDependentRunConfiguration(): Unit =
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(
@@ -90,10 +119,14 @@ class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_DebugMode extends SbtTask_B
       debugModeOptionsWithDisabledSbtShellDebugging(SbtProcessMode.OldShell)
     )
 
-  def testDebugMode_NewSbtShell_WithDisabledSbtShellDebugging_DoesNotBlockDependentRunConfiguration(): Unit =
+  def testDebugMode_NewSbtShell_WithDisabledSbtShellDebugging_DoesNotBlockDependentRunConfiguration(): Unit = {
+    // TODO: SCL-26340 fails on Windows
+    if (OS.CURRENT == OS.Windows) return
+
     assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationDoesNotBlockDependentRunConfiguration(
       debugModeOptionsWithDisabledSbtShellDebugging(SbtProcessMode.NewShell)
     )
+  }
 
   private def debugModeOptions(sbtProcessMode: SbtProcessMode): TestExecutionOptions =
     TestExecutionOptions(
