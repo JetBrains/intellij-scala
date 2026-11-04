@@ -4,7 +4,6 @@ import com.intellij.application.options.CodeStyleConfigurableWrapper
 import com.intellij.application.options.editor.AutoImportOptionsProvider
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.ide.DataManager
-import com.intellij.java.JavaBundle
 import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.options.UiDslUnnamedConfigurable
 import com.intellij.openapi.options.ex.Settings
@@ -28,7 +27,7 @@ final class ScalaAutoImportOptionsProvider extends UiDslUnnamedConfigurable.Simp
 
     _panel.group(ScalaEditorBundle.message("options.scala.display.name"), true, (p: Panel) => {
       p.row(null: JLabel, (row: Row) => {
-        row.label(JavaBundle.message("combobox.paste.insert.imports"))
+        row.label(ScalaEditorBundle.message("combobox.paste.insert.imports"))
         val renderer = new NonNullableValueBasedListRenderer[Int](
           {
             case CodeInsightSettings.YES => ApplicationBundle.message("combobox.insert.imports.all")

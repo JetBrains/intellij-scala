@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <idea-plugin>
     <dependencies>
-        <module name="intellij.java"/>
         <module name="intellij.platform.analysis.impl"/>
         <module name="intellij.platform.core"/>
         <module name="intellij.platform.core.ui"/>
