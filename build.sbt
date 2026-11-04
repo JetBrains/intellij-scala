@@ -101,6 +101,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaApi % "test->test;compile->compile",
       scalaPsiApi % "test->test;compile->compile",
       scalaPsiImpl % "test->test;compile->compile",
+      editorShared % "test->test;compile->compile",
       scalaFrontend % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
       scalaMetaImpl % "test->test;compile->compile",
@@ -206,9 +207,23 @@ lazy val scalaPsiImpl = newProject("scala-psi-impl", file("scala/scala-psi-impl"
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-psi-impl"),
   )
 
+/**
+ * Resolve-free editor-related code that should be available on client in remote development.
+ * E.g.: backspace handlers, matching braces, folding, etc.
+ */
+lazy val editorShared = newProject("editor-shared", file("scala/editor/shared"))
+  .dependsOn(
+    scalaPsiImpl,
+  )
+  .settings(
+    intellijPlugins += "com.intellij.xml".toPlugin,
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.editor.shared"),
+  )
+
 lazy val scalaFrontend = newProject("scala-frontend", file("scala/scala-frontend"))
   .dependsOn(
     scalaApi,
+    editorShared,
   )
   .settings(
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala-frontend"),
@@ -457,6 +472,7 @@ lazy val scalaImpl: sbt.Project =
       scalaLanguageUtils,
       scalafmtDynamicShim,
       scalaPsiImpl,
+      editorShared,
       sbtApi,
       decompiler % "test->test;compile->compile",
       tastyReader % "test->test;compile->compile",

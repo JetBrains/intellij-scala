@@ -6,19 +6,14 @@
         <module name="intellij.java.psi"/>
         <module name="intellij.libraries.fastutil"/>
         <module name="intellij.libraries.markdown"/>
-        <module name="intellij.platform.analysis"/>
         <module name="intellij.platform.codeStyle"/>
         <module name="intellij.platform.concurrency"/>
         <module name="intellij.platform.core"/>
         <module name="intellij.platform.core.impl"/>
-        <module name="intellij.platform.editor.ui"/>
         <module name="intellij.platform.ide.core"/>
         <module name="intellij.platform.ide.impl"/>
-        <module name="intellij.platform.lang.impl"/>
-        <module name="intellij.platform.projectModel"/>
         <module name="intellij.platform.util.ui"/>
         <module name="intellij.xml.parser"/>
-        <module name="intellij.xml.psi.impl"/>
     </dependencies>
 
     <extensionPoints>
@@ -26,9 +21,6 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings"
-                            serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettingsImpl"/>
-
         <fileType name="Scala" language="Scala" extensions="scala;mill"
                   implementationClass="org.jetbrains.plugins.scala.ScalaFileType" fieldName="INSTANCE" />
         <lang.fileViewProviderFactory language="Scala"
@@ -39,17 +31,5 @@
         <fileType name="TASTy" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
 
         <iconMapper mappingFile="ScalaIconMappings.json"/>
-
-        <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
-
-        <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
-        <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
-
-        <lang.syntaxHighlighterFactory language="Scala"
-                                       implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
-        <lang.syntaxHighlighter language="ScalaDoc"
-                                implementationClass="org.jetbrains.plugins.scalaDoc.highlighter.ScalaDocSyntaxHighlighter"/>
-        <lang.syntaxHighlighter language="ScalaDirective"
-                                implementationClass="org.jetbrains.plugins.scalaDirective.highlighter.ScalaDirectiveSyntaxHighlighter"/>
     </extensions>
 </idea-plugin>

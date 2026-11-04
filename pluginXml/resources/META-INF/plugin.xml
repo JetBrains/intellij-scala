@@ -52,6 +52,7 @@
         <module name="scalaCommunity.scala-api" loading="embedded"/>
         <module name="scalaCommunity.scala-psi-api" loading="embedded"/>
         <module name="scalaCommunity.scala-psi-impl" loading="embedded"/>
+        <module name="scalaCommunity.editor.shared" loading="embedded"/>
         <module name="scalaCommunity.sbt-core" loading="embedded"/>
         <module name="scalaCommunity.sbt-api" loading="embedded"/>
 

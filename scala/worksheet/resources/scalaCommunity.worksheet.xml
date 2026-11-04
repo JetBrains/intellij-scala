@@ -34,6 +34,7 @@
         <module name="scalaCommunity.bsp"/>
         <module name="scalaCommunity.compiler-highlighting"/>
         <module name="scalaCommunity.compiler-integration-server-management"/>
+        <module name="scalaCommunity.editor.shared"/>
         <module name="scalaCommunity.repl"/>
         <module name="scalaCommunity.sbt-impl"/>
         <module name="scalaCommunity.scala-api"/>
