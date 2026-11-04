@@ -1,7 +1,6 @@
 package org.jetbrains.sbt.shell.build
 
 import com.intellij.task.{ProjectTaskContext, ProjectTaskManager}
-import com.intellij.util.system.OS
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.sbt.shell.SbtProjectTaskRunnerImpl
@@ -24,9 +23,6 @@ abstract class SbtShellBuildDelegationIntegrationTestBase extends SbtShellBuildD
     )
 
   def testDelegateBuild_sbt_1_11(): Unit = {
-    // TODO: SCL-26340 fails on Windows with the new sbt shell
-    if (OS.CURRENT == OS.Windows && useNewSbtShell) return
-
     runDelegatedBuildTest(sbtVersion = SbtVersion.Latest.Sbt_1_11)
   }
 
