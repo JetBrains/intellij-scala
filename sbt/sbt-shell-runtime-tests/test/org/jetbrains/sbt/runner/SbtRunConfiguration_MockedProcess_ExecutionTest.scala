@@ -3,7 +3,6 @@ package org.jetbrains.sbt.runner
 import com.intellij.execution.application.ApplicationConfigurationType
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.impl.{ExecutionManagerImpl, RunManagerImpl}
-import com.intellij.util.system.OS
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.process.mock.MockSbtProcessCommands
@@ -58,145 +57,89 @@ class SbtRunConfiguration_MockedProcess_ExecutionTest extends SbtRunConfiguratio
       tearDownForTestCase(options)
     }
 
-  def testRunMode_OldSbtShell_StoppingQueuedRunConfigurationCancelsShellCommand(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testRunMode_OldSbtShell_StoppingQueuedRunConfigurationCancelsShellCommand(): Unit =
     assertStoppingQueuedSbtShellRunConfigurationCancelsShellCommand(TestExecutionOptions(
       ExecutionMode.Run,
       SbtProcessMode.OldShell,
     ))
-  }
 
-  def testRunMode_NewSbtShell_StoppingQueuedRunConfigurationCancelsShellCommand(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testRunMode_NewSbtShell_StoppingQueuedRunConfigurationCancelsShellCommand(): Unit =
     assertStoppingQueuedSbtShellRunConfigurationCancelsShellCommand(TestExecutionOptions(
       ExecutionMode.Run,
       SbtProcessMode.NewShell,
     ))
-  }
 
-  def testDebugMode_OldSbtShell_PreStartedShell_JdwpListeningBeforePrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_OldSbtShell_PreStartedShell_JdwpListeningBeforePrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.OldShell),
       MockSbtProcessCommands.JdwpListeningBeforePrompt,
     )
-  }
 
-  def testDebugMode_NewSbtShell_PreStartedShell_JdwpListeningBeforePrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_NewSbtShell_PreStartedShell_JdwpListeningBeforePrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.NewShell),
       MockSbtProcessCommands.JdwpListeningBeforePrompt,
     )
-  }
 
-  def testDebugMode_OldSbtShell_PreStartedShell_JdwpListeningAfterPrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_OldSbtShell_PreStartedShell_JdwpListeningAfterPrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.OldShell),
       MockSbtProcessCommands.JdwpListeningAfterPrompt,
     )
-  }
 
-  def testDebugMode_NewSbtShell_PreStartedShell_JdwpListeningAfterPrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_NewSbtShell_PreStartedShell_JdwpListeningAfterPrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.NewShell),
       MockSbtProcessCommands.JdwpListeningAfterPrompt,
     )
-  }
 
-  def testDebugMode_OldSbtShell_StartedByRunConfiguration_JdwpListeningBeforePrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_OldSbtShell_StartedByRunConfiguration_JdwpListeningBeforePrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.OldShell).copy(prestartSbtShell = false),
       MockSbtProcessCommands.JdwpListeningBeforePrompt,
     )
-  }
 
-  def testDebugMode_NewSbtShell_StartedByRunConfiguration_JdwpListeningBeforePrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_NewSbtShell_StartedByRunConfiguration_JdwpListeningBeforePrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.NewShell).copy(prestartSbtShell = false),
       MockSbtProcessCommands.JdwpListeningBeforePrompt,
     )
-  }
 
-  def testDebugMode_OldSbtShell_StartedByRunConfiguration_JdwpListeningAfterPrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_OldSbtShell_StartedByRunConfiguration_JdwpListeningAfterPrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.OldShell).copy(prestartSbtShell = false),
       MockSbtProcessCommands.JdwpListeningAfterPrompt,
     )
-  }
 
-  def testDebugMode_NewSbtShell_StartedByRunConfiguration_JdwpListeningAfterPrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_NewSbtShell_StartedByRunConfiguration_JdwpListeningAfterPrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.NewShell).copy(prestartSbtShell = false),
       MockSbtProcessCommands.JdwpListeningAfterPrompt,
     )
-  }
 
-  def testDebugMode_OldSbtShell_PreStartedShell_JdwpListeningGluedToPrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_OldSbtShell_PreStartedShell_JdwpListeningGluedToPrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.OldShell),
       MockSbtProcessCommands.JdwpListeningGluedToPrompt,
     )
-  }
 
-  def testDebugMode_NewSbtShell_PreStartedShell_JdwpListeningGluedToPrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_NewSbtShell_PreStartedShell_JdwpListeningGluedToPrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.NewShell),
       MockSbtProcessCommands.JdwpListeningGluedToPrompt,
     )
-  }
 
-  def testDebugMode_OldSbtShell_StartedByRunConfiguration_JdwpListeningGluedToPrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_OldSbtShell_StartedByRunConfiguration_JdwpListeningGluedToPrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.OldShell).copy(prestartSbtShell = false),
       MockSbtProcessCommands.JdwpListeningGluedToPrompt,
     )
-  }
 
-  def testDebugMode_NewSbtShell_StartedByRunConfiguration_JdwpListeningGluedToPrompt(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testDebugMode_NewSbtShell_StartedByRunConfiguration_JdwpListeningGluedToPrompt(): Unit =
     assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
       TestExecutionOptions(ExecutionMode.Debug, SbtProcessMode.NewShell).copy(prestartSbtShell = false),
       MockSbtProcessCommands.JdwpListeningGluedToPrompt,
     )
-  }
 
   // See SCL-24469
   def testDebugRunner_CannotRunApplicationConfiguration(): Unit = {

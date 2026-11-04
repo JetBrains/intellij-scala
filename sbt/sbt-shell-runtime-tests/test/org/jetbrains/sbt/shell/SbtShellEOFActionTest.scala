@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{JavaModuleTestCase, PlatformTestUtil, TestActionEvent}
-import com.intellij.util.system.OS
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.process.mock.MockSbtProcessForTestsSetup
@@ -54,9 +53,6 @@ abstract class SbtShellEOFActionTestBase extends JavaModuleTestCase {
     }
 
   def testSbtShellEOFAction(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
     // Step 1: Start the sbt shell and wait for it to be ready
     SbtShellTestUtil.waitUntilSbtShellIsReady(
       getProject,

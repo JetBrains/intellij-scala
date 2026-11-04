@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.shell
 
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
-import com.intellij.util.system.OS
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 import org.jetbrains.sbt.SbtVersion
 
@@ -22,17 +21,13 @@ import org.jetbrains.sbt.SbtVersion
  */
 abstract class ScalaTestWithSbtShellAndUiTestBase extends ScalaTestSbtShellTestBase {
 
-  def testWholeSuite(): Unit = {
-    // TODO: SCL-26340 fails on Windows
-    if (OS.CURRENT == OS.Windows) return
-
+  def testWholeSuite(): Unit =
     runTestWithSbtUi(
       config = createTestFromLocation(loc(funSuiteFileName, 2, 10)),
       TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", funSuiteClassName, "should not run other tests"),
       TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", funSuiteClassName, "should run single test"),
       TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", funSuiteClassName, "tagged"),
     )
-  }
 
   def testSingleTest(): Unit =
     runTestWithSbtUi(
