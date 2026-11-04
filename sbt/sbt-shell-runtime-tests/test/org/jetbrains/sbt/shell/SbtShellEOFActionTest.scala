@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{JavaModuleTestCase, PlatformTestUtil, TestActionEvent}
+import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.sbt.process.mock.MockSbtProcessForTestsSetup
@@ -20,6 +21,10 @@ import scala.concurrent.duration.*
  *  2. No EDT threading violations occur during shutdown
  */
 abstract class SbtShellEOFActionTestBase extends JavaModuleTestCase {
+
+  // TODO: SCL-26340 disabled on Windows, see SbtShellTestsOnWindows
+  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit =
+    if (!SbtShellTestsOnWindows.disabled) super.runTestRunnable(testRunnable)
 
   protected def useNewShell: Boolean
 

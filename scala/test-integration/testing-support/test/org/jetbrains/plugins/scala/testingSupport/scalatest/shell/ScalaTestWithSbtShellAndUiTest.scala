@@ -2,8 +2,10 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.shell
 
 import com.intellij.execution.RunnerAndConfigurationSettings
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
+import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 import org.jetbrains.sbt.SbtVersion
+import org.jetbrains.sbt.shell.SbtShellTestsOnWindows
 
 /**
  * Tests for running a ScalaTest Run Configuration via an sbt shell with the sbt UI enabled,
@@ -20,6 +22,10 @@ import org.jetbrains.sbt.SbtVersion
  * @see [[ScalaTestWithSbtShellWithoutUiTestBase]] for the same runs with the sbt UI disabled
  */
 abstract class ScalaTestWithSbtShellAndUiTestBase extends ScalaTestSbtShellTestBase {
+
+  // TODO: SCL-26340 disabled on Windows, see SbtShellTestsOnWindows
+  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit =
+    if (!SbtShellTestsOnWindows.disabled) super.runTestRunnable(testRunnable)
 
   def testWholeSuite(): Unit =
     runTestWithSbtUi(

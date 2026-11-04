@@ -1,11 +1,12 @@
 package org.jetbrains.sbt.shell.build
 
 import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.sbt.project.ScalaExternalSystemImportingTestBase.TestProjectCopyOptions
 import org.jetbrains.sbt.project.SbtExternalSystemImportingTestLike
-import org.jetbrains.sbt.shell.SbtShellTestUtil
+import org.jetbrains.sbt.shell.{SbtShellTestUtil, SbtShellTestsOnWindows}
 import org.junit.Assert.{assertNotNull, assertTrue}
 
 import java.util.Locale
@@ -15,6 +16,10 @@ import java.util.Locale
  */
 abstract class SbtShellBuildDelegationTestBase extends SbtExternalSystemImportingTestLike {
   protected def useNewSbtShell: Boolean
+
+  // TODO: SCL-26340 the new sbt shell tests are disabled on Windows, see SbtShellTestsOnWindows
+  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit =
+    if (!(SbtShellTestsOnWindows.disabled && useNewSbtShell)) super.runTestRunnable(testRunnable)
 
   protected final val sbtRootProjectName = "simpleProjectForBuildDelegationTest"
 

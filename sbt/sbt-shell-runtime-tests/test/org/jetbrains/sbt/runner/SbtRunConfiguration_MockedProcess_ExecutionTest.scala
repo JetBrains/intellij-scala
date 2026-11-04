@@ -33,7 +33,10 @@ class SbtRunConfiguration_MockedProcess_ExecutionTest extends SbtRunConfiguratio
       enableDebuggingInShell = false,
     ))
 
-  private def assertSbtRunConfiguration_WithDisabledSbtShellDebugging_FailsToStart(options: TestExecutionOptions): Unit =
+  private def assertSbtRunConfiguration_WithDisabledSbtShellDebugging_FailsToStart(options: TestExecutionOptions): Unit = {
+    // TODO: SCL-26340 the sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
+    if (isDisabledOnWindows(options)) return
+
     try {
       val runConfigAndSettings = SbtRunConfigurationTestFactory.createNewSbtTaskRunConfiguration(
         getProject,
@@ -56,6 +59,7 @@ class SbtRunConfiguration_MockedProcess_ExecutionTest extends SbtRunConfiguratio
     } finally {
       tearDownForTestCase(options)
     }
+  }
 
   def testRunMode_OldSbtShell_StoppingQueuedRunConfigurationCancelsShellCommand(): Unit =
     assertStoppingQueuedSbtShellRunConfigurationCancelsShellCommand(TestExecutionOptions(
@@ -154,6 +158,9 @@ class SbtRunConfiguration_MockedProcess_ExecutionTest extends SbtRunConfiguratio
   }
 
   private def assertStoppingQueuedSbtShellRunConfigurationCancelsShellCommand(options: TestExecutionOptions): Unit = {
+    // TODO: SCL-26340 the sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
+    if (isDisabledOnWindows(options)) return
+
     val releaseFile = getTestProjectPath.resolve(s"${getTestName(false)}.release")
     try {
       ExecutionDiagnostics.clearSbtProcessOutput()
@@ -229,7 +236,10 @@ class SbtRunConfiguration_MockedProcess_ExecutionTest extends SbtRunConfiguratio
   private def assertDebugSbtShellRunConfigurationWithMockJdwpListeningOutput(
     options: TestExecutionOptions,
     command: String,
-  ): Unit =
+  ): Unit = {
+    // TODO: SCL-26340 the sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
+    if (isDisabledOnWindows(options)) return
+
     try {
       initSbtShellIfNeeded(options)
       waitUntilSbtShellIsReadyIfNeeded(options)
@@ -278,6 +288,7 @@ class SbtRunConfiguration_MockedProcess_ExecutionTest extends SbtRunConfiguratio
     } finally {
       tearDownForTestCase(options)
     }
+  }
 
   private def waitForSbtProcessOutput(expectedOutput: String, timeoutMessage: String): Unit =
     withExecutionDiagnostics() {

@@ -18,6 +18,9 @@ abstract class SbtRunConfiguration_ConsoleOutputTestBase extends SbtRunConfigura
   protected def executionMode: ExecutionMode
 
   protected final def assertRunConfigurationConsoleContainsOnlyOwnSbtOutput(options: TestExecutionOptions): Unit = {
+    // TODO: SCL-26340 the sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
+    if (isDisabledOnWindows(options)) return
+
     val runCommandFile = commandFile("run-configuration")
     val runCommand = MockSbtProcessCommands.waitForFileCommand(runCommandFile)
     val expectedRunCommandOutput = MockSbtProcessCommands.waitingForFileOutput(runCommandFile)
@@ -105,6 +108,9 @@ abstract class SbtRunConfiguration_ConsoleOutputTestBase extends SbtRunConfigura
     keepPrestartedShellBusyWithManualCommand: Boolean = false,
     keepPrestartedShellBusyWithRunConfiguration: Boolean = false,
   ): Unit = {
+    // TODO: SCL-26340 the sbt shell scenarios are disabled on Windows, see SbtShellTestsOnWindows
+    if (isDisabledOnWindows(options)) return
+
     val runCommandFile = commandFile("waiting-hint-run-configuration")
     val runCommand = MockSbtProcessCommands.waitForFileCommand(runCommandFile)
     val expectedRunCommandOutput = MockSbtProcessCommands.waitingForFileOutput(runCommandFile)
