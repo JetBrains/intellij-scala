@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.editor.joinLines
 
 import com.intellij.codeInsight.editorActions.{JoinLinesHandlerDelegate, JoinRawLinesHandlerDelegate}
 import com.intellij.openapi.editor.Document
-import com.intellij.psi._
-import org.jetbrains.plugins.scala.editor.DocumentExt
+import com.intellij.psi.*
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
 /** `package a\npackageb` => `package a.b` */
@@ -18,8 +17,9 @@ class PackageJoinLinesHandler extends JoinRawLinesHandlerDelegate {
 
     (elementAtStart.getParent, elementAtEnd.getParent) match {
       case (p1: ScPackaging, p2: ScPackaging) if p2.getParent == p1 =>
-        val nextLineStart = document.lineStartOffset(end)
-        val nextLineEnd = (document.lineEndOffset(end) + 1).min(document.getTextLength)
+        val nextLineNumber = document.getLineNumber(end)
+        val nextLineStart = document.getLineStartOffset(nextLineNumber)
+        val nextLineEnd = (document.getLineEndOffset(nextLineNumber) + 1).min(document.getTextLength)
         document.deleteString(nextLineStart, nextLineEnd)
 
         val insertIdx = p1.reference.map(_.getTextRange.getEndOffset).getOrElse(p1.getTextRange.getStartOffset)
