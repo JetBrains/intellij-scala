@@ -5,7 +5,7 @@ import com.intellij.openapi.application.impl.TestOnlyThreading
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import com.intellij.testFramework.fixtures._
-import com.intellij.testFramework.{LightProjectDescriptor, PlatformTestUtil, UsefulTestCase}
+import com.intellij.testFramework.{IndexingTestUtil, LightProjectDescriptor, PlatformTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
@@ -23,6 +23,8 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertionsExt w
     fixture = createFixture()
     fixture.setUp()
     waitForSyntheticClasses()
+    // Registration finishes inside a dumb task; wait for its smart-mode transition before running annotators.
+    IndexingTestUtil.waitUntilIndexesAreReady(fixture.getProject)
   }
 
   /**
