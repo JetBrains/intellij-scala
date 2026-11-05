@@ -623,14 +623,8 @@
 
         <projectSdkSetupValidator implementation="org.jetbrains.plugins.scala.project.notification.ScalaProjectSdkSetupValidator"/>
 
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaEnterAfterUnmatchedBraceHandler" order="first"/>
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AddUnitFunctionSignatureEnterHandler" order="first"/>
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.PackageSplitEnterHandler"/>
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.FormatEmptyTemplateBodyAfterEnterHandler"/>
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.FormatKeywordAfterEnterHandler"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AutoBraceEnterHandler"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandler"/>
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.TemplateParentsEnterHandler"/>
 
         <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
         <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.Scala3MainMethodProvider"/>
