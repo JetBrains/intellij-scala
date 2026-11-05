@@ -626,8 +626,21 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         case Right(tpt @ ScTypePolymorphicType(internal, tp)) if tp.nonEmpty &&
           !internal.is[ScMethodType, UndefinedType] /* optimization */ =>
           val substed = tpt.abstractOrLowerTypeSubstitutor(using context)(internal)
-          processType(substed, qualifier)
-          if (proc.candidates.nonEmpty) return proc.candidates
+          // Keep the qualifier's type parameters open for extension lookup, so call arguments
+          // can infer them as for ordinary members (SCL-22528).
+          // CompletionProcessor collects names without MethodResolveProcessor's invocation inference.
+          // Keep its inferred receiver: open Box[A] would hide extensions/conversions on Box[Nothing].
+          val typeForExtensions = if (proc.is[CompletionProcessor]) None else Some(internal)
+
+          val withExtensions = processType(substed, qualifier, typeForExtensions)
+
+          if (proc.candidates.nonEmpty)
+            return proc.candidates
+
+          // Extension lookup copies a MethodResolveProcessor; retain its applicable results
+          // before retrying with the qualifier's inferred value type.
+          if (withExtensions.exists(c => c.isExtensionCall && c.isApplicable()))
+            return withExtensions
         case _ =>
       }
 
@@ -708,7 +721,11 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     def shouldTryImplicitConversions(cands: Array[ScalaResolveResult]) =
       cands.isEmpty || (!isShape && cands.forall(!_.isApplicable()))
 
-    def processType(aType: ScType, qualifier: ScExpression): Array[ScalaResolveResult] = {
+    def processType(
+      aType:             ScType,
+      qualifier:         ScExpression,
+      typeForExtensions: Option[ScType] = None
+    ): Array[ScalaResolveResult] = {
       val (fromType, matchSubst) = qualifier match {
         case ref: ScReferenceExpression =>
           val srr = ref.bind()
@@ -754,11 +771,19 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       if (shouldTryImplicitConversions(withExplicitApply) || withImplicitConversion) {
         val procForConversions = updateResolveProcessor(proc)(_.copy(noImplicitsForArgs = candidates.nonEmpty))
 
+        // Prefer the open polymorphic receiver from processQualifier: recomputing its value
+        // type here could instantiate parameters to Nothing before call-argument inference.
+        // Other receivers use their usual inferred type without implicit conversions.
+        val precalculatedType = typeForExtensions
+          .orElse(qualifier.getTypeWithoutImplicits().toOption)
+          .map(_.tryExtractDesignatorSingleton)
+
         ImplicitConversionResolveResult.processImplicitConversionsAndExtensions(
           targetNameForImplicitProcessor(proc),
           ref,
           procForConversions,
-          noImplicitsForArgs = candidates.nonEmpty,
+          precalculatedType  = precalculatedType,
+          noImplicitsForArgs  = candidates.nonEmpty,
           forCompletion      = procForConversions.is[CompletionProcessor]
         )(_.withImports.withImplicitConversionResultType.withType)(using qualifier)
 

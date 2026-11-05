@@ -7,8 +7,48 @@ import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScala
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Test
 
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_3, TestScalaVersion.Scala_3_9))
 class ScalaExtensionMethodCompletionTest extends ScalaCompletionTestBase {
+
+  // SCL-22528
+  @Test
+  def testExtensionOnInferredPolymorphicQualifier(): Unit = doCompletionTest(
+    s"""class Box[A]
+       |def fresh[A]: Box[A] = ???
+       |extension (box: Box[Nothing]) {
+       |  def emptyOnly: Int = 1
+       |}
+       |fresh.emptyOn$CARET""".stripMargin,
+    """class Box[A]
+      |def fresh[A]: Box[A] = ???
+      |extension (box: Box[Nothing]) {
+      |  def emptyOnly: Int = 1
+      |}
+      |fresh.emptyOnly""".stripMargin,
+    item = "emptyOnly"
+  )
+
+  // SCL-22528
+  @Test
+  def testConversionOnInferredPolymorphicQualifier(): Unit = doCompletionTest(
+    s"""import scala.language.implicitConversions
+       |class Box[A]
+       |class Ops {
+       |  def converted: Int = 1
+       |}
+       |given Conversion[Box[Nothing], Ops] = ???
+       |def fresh[A]: Box[A] = ???
+       |fresh.conver$CARET""".stripMargin,
+    """import scala.language.implicitConversions
+      |class Box[A]
+      |class Ops {
+      |  def converted: Int = 1
+      |}
+      |given Conversion[Box[Nothing], Ops] = ???
+      |def fresh[A]: Box[A] = ???
+      |fresh.converted""".stripMargin,
+    item = "converted"
+  )
 
   @Test
   def testSimpleExtension(): Unit = doCompletionTest(
