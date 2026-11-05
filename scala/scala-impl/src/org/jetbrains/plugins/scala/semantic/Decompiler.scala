@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
 import java.net.URLClassLoader
-import scala.language.reflectiveCalls
+import scala.reflect.Selectable.reflectiveSelectable
 
 trait Decompiler {
   def decompile(fileName: String, contents: Seq[Byte]): String
