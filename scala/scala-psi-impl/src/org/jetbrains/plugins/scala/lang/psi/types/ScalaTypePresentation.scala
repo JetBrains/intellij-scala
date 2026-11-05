@@ -379,7 +379,10 @@ trait ScalaTypePresentation extends TypePresentation {
         // TODO Detect Scala 3 and don't add "Foo.this." in class parents and primary constructors, #SCL-25555
         // We should be able to use `nameResolvesTo` for both once the syntax is resolved correctly, SCL-25553
         tp.psiTypeParameter.getOwner.asInstanceOf[ScTypeDefinition].name + ".this." + t.name
-      case namedType: NamedType => namedType.name
+      case namedType: NamedType =>
+        // TODO Valid SyntheticLub presentation, Scala3Bounds.lubArgs, #SCL-26357
+        if (ScalaApplicationSettings.PRECISE_TEXT_FOR_TYPE_PARAMETERS && namedType.name == "SyntheticLub") "?"
+        else namedType.name
       case ScAbstractType(tpt, _, _) =>
         TypeParameterDebugRendering.withTypeParamId(
           tpt.name.capitalize + api.presentation.TypePresentation.ABSTRACT_TYPE_POSTFIX,
