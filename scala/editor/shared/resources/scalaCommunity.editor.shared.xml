@@ -5,6 +5,7 @@
         <module name="intellij.java.psi"/>
         <module name="intellij.libraries.commons.lang3"/>
         <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.analysis.impl"/>
         <module name="intellij.platform.codeStyle"/>
         <module name="intellij.platform.codeStyle.impl"/>
         <module name="intellij.platform.core"/>
@@ -47,6 +48,10 @@
         <!-- Enter Handler for inserting "+" in interpolated strings -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.InterpolatedStringEnterHandler"
                               order="first"/>
+        <!-- /Handler -->
+
+        <!-- Enter Handler for braces in closure braced blocks -->
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.EnterBetweenClosureBracesHandler"/>
         <!-- /Handler -->
 
         <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinLines.PackageJoinLinesHandler"/>

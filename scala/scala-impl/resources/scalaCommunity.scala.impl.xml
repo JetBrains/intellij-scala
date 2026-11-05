@@ -622,10 +622,6 @@
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler" order="first"/>
         <!-- /Handler -->
 
-        <!-- Enter Handler for braces in closure braced blocks -->
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.EnterBetweenClosureBracesHandler"/>
-        <!-- /Handler -->
-
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaEnterAfterUnmatchedBraceHandler" order="first"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AddUnitFunctionSignatureEnterHandler" order="first"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.PackageSplitEnterHandler"/>
