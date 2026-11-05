@@ -6,6 +6,7 @@
         <module name="intellij.libraries.commons.lang3"/>
         <module name="intellij.platform.analysis"/>
         <module name="intellij.platform.codeStyle"/>
+        <module name="intellij.platform.codeStyle.impl"/>
         <module name="intellij.platform.core"/>
         <module name="intellij.platform.core.impl"/>
         <module name="intellij.platform.editor.ui"/>
@@ -42,6 +43,7 @@
         <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
         <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
         <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>
+        <lang.lineWrapStrategy language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaLineWrapPositionStrategy"/>
         <lang.syntaxHighlighterFactory language="Scala"
                                        implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
         <lang.syntaxHighlighter language="ScalaDoc"
