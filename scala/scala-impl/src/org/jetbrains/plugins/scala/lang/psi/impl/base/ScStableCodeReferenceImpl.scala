@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder.ImportPath
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSelfTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMatch, ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScPackage, ScPackageLik
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{PatternTypeInference, ScReferenceImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.{CompilerType, ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
@@ -401,7 +401,15 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
               if (nodes ne null) {
                 val forName = nodes.forName(refName)
-                val state   = ScalaResolveState.empty.withFromType(ScalaType.designator(clsContext))
+                // The qualifier names a member of `this`: anchor it at `C.this`, as ordinary resolution
+                // does, not at the class designator `C`, or the exported members' `this.type`s become
+                // the type projection `C#a` rather than `C.this.a.type`. (An object's designator is
+                // already the stable path `O.type`, so objects keep it.)
+                val prefix = clsContext match {
+                  case td: ScTemplateDefinition if !td.is[ScObject] => ScThisType(td)
+                  case cls                                         => ScalaType.designator(cls)
+                }
+                val state   = ScalaResolveState.empty.withFromType(prefix)
                 if (!forName.isEmpty) {
                   forName.iterator.filter { sig =>
                     sig.namedElement match {
@@ -547,11 +555,28 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val macroEvaluator = ScalaMacroEvaluator.getInstance(fun.getProject)
         val typeFromMacro = macroEvaluator.checkMacro(fun, MacroContext(qualifier, None))
         typeFromMacro.foreach(processor.processType(_, qualifier))
-      case ScalaResolveResult((_: ScTypedDefinition) & Typeable(tp), s) =>
-        val fromType = s(tp)
+      // A self alias (`self` in `trait C { self: S => }`) denotes `C.this`: `self.X` is `C.this.X`.
+      case ScalaResolveResult(selfAlias: ScSelfTypeElement, _)
+        if PsiTreeUtil.getContextOfType(selfAlias, classOf[ScTemplateDefinition]) != null =>
+        val thisType = ScThisType(PsiTreeUtil.getContextOfType(selfAlias, classOf[ScTemplateDefinition]))
+        val state    = ScalaResolveState.withFromType(thisType)
+        processor.processType(thisType, this, state)
+        withDynamicResult = withDynamic(thisType, state, processor)
+      case r @ ScalaResolveResult((td: ScTypedDefinition) & Typeable(tp), s) =>
+        val lookupType = s(tp)
+        // For a STABLE qualifier (a path `pre.v`) record its SINGLETON type as the
+        // `fromType`, not the widened declared type. Member lookup still runs over the
+        // widened type, but the recorded prefix keeps the path so a downstream object
+        // selection builds `pre.v.obj` rather than `Decl#obj` — the latter drops the
+        // instance prefix and breaks asSeenFrom (SCL-21947, the nsc `global.explicitOuter`
+        // shape: param `ExplicitOuter.this.global…` was re-anchored onto `Global#explicitOuter`
+        // instead of `…global.explicitOuter`, so the path never collapsed to `global`).
+        val fromType =
+          if (td.isStable) r.fromType.map(ScProjectionType(_, td)).getOrElse(ScDesignatorType(td))
+          else lookupType
         val state = ScalaResolveState.withFromType(fromType)
-        processor.processType(fromType, this, state)
-        withDynamicResult = withDynamic(fromType, state, processor)
+        processor.processType(lookupType, this, state)
+        withDynamicResult = withDynamic(lookupType, state, processor)
         processor match {
           case _: ExtractorResolveProcessor =>
             if (processor.candidatesS.isEmpty) {

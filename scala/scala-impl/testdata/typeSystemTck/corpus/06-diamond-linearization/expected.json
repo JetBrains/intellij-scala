@@ -1,0 +1,94 @@
+{
+  "conformance": [
+    {
+      "lhs": "D",
+      "rhs": "A",
+      "holds": true
+    },
+    {
+      "lhs": "D",
+      "rhs": "B",
+      "holds": true
+    },
+    {
+      "lhs": "D",
+      "rhs": "C",
+      "holds": true
+    },
+    {
+      "lhs": "D2",
+      "rhs": "A",
+      "holds": true
+    },
+    {
+      "lhs": "D",
+      "rhs": "D2",
+      "holds": false
+    },
+    {
+      "lhs": "A",
+      "rhs": "D",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {
+    "D": [
+      "D",
+      "B",
+      "C",
+      "A",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "D2": [
+      "D2",
+      "B",
+      "C",
+      "A",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "B": [
+      "B",
+      "A",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "C": [
+      "C",
+      "A",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "D": [
+      "D",
+      "C",
+      "B",
+      "A",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "D2": [
+      "D2",
+      "B",
+      "C",
+      "A",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "B": [
+      "B",
+      "A",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "C": [
+      "C",
+      "A",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "conformance": [
+    {
+      "lhs": "GFooType",
+      "rhs": "GType",
+      "holds": true
+    }
+  ],
+  "baseTypeSeq": {},
+  "termTypes": {
+    "gFoo": "Use.this.g.Type"
+  }
+}

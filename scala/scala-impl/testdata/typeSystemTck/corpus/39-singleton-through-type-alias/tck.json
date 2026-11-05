@@ -1,0 +1,30 @@
+{
+  "description": "A val typed by an alias to a singleton is that singleton (ClassfileParser.TastyUniverse): symbolTable.ClassSymbol conforms to TastyUniverse.Symbol and TastyUniverse.symbolTable.Symbol.",
+  "concepts": ["singleton-type", "type-alias", "path-dependent", "self-type", "import-rename"],
+  "types": [
+    { "name": "ClassSym", "expr": "symbolTable.ClassSymbol", "anchor": "inParser" },
+    { "name": "TUSymbol", "expr": "TastyUniverse.Symbol", "anchor": "inParser" },
+    { "name": "TUSTSymbol", "expr": "TastyUniverse.symbolTable.Symbol", "anchor": "inParser" },
+    { "name": "STSymbol", "expr": "symbolTable.Symbol", "anchor": "inParser" },
+    { "name": "STType", "expr": "symbolTable.type", "anchor": "inParser" },
+    { "name": "TUSTType", "expr": "TastyUniverse.symbolTable.type", "anchor": "inParser" }
+  ],
+  "conformance": [
+    { "lhs": "ClassSym", "rhs": "TUSymbol", "expect": true },
+    { "lhs": "ClassSym", "rhs": "TUSTSymbol", "expect": true },
+    { "lhs": "STType", "rhs": "TUSTType", "expect": true },
+    { "lhs": "TUSTType", "rhs": "STType", "expect": true }
+  ],
+  "equivalence": [
+    { "lhs": "TUSymbol", "rhs": "STSymbol", "expect": true },
+    { "lhs": "TUSTSymbol", "rhs": "STSymbol", "expect": true },
+    { "lhs": "STType", "rhs": "TUSTType", "expect": true }
+  ],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "tuSymbolTable", "expr": "TastyUniverse.symbolTable", "anchor": "inParser" },
+    { "name": "newViaAlias", "expr": "new TastyUniverse.symbolTable.ClassSymbol", "anchor": "inParser" },
+    { "name": "asTUSymbol", "expr": "{ val s: TastyUniverse.Symbol = clazz; s }", "anchor": "inParser" },
+    { "name": "asTUSTSymbol", "expr": "{ val s: TastyUniverse.symbolTable.Symbol = clazz; s }", "anchor": "inParser" }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "description": "Infer/Analyzer/Global self-type cake extracted from the real scala/scala shape (FUSED-SUBST-SCALAC.md's cross-symbol pump): a nested member re-derives global anchored at Analyzer.this, alternating with Global.this-anchored redeclarations, when calling an overloaded member of Infer.",
+  "concepts": ["self-type", "this-type-substitution", "cake", "object-override", "overload-resolution", "regression"],
+  "types": [
+    { "name": "InferGlobal", "expr": "self.global.type", "anchor": "inInfer" }
+  ],
+  "conformance": [],
+  "equivalence": [],
+  "baseTypeSeq": [],
+  "termTypes": [
+    { "name": "useGlobalCall", "expr": "self.rootCtx.global.analyzer.foo(self.rootCtx.ctxFoo(self.namerFactory.namerFoo(self.typerFactory.typerFoo(1))))", "anchor": "inInfer" }
+  ],
+  "baseTypes": []
+}

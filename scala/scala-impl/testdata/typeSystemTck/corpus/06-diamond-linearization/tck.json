@@ -1,0 +1,20 @@
+{
+  "description": "Class linearization order via diamonds; with-order sensitivity (baseTypeSeq order).",
+  "concepts": ["linearization", "diamond", "with-order"],
+  "types": [
+    { "name": "A", "expr": "A" },
+    { "name": "B", "expr": "B" },
+    { "name": "C", "expr": "C" },
+    { "name": "D", "expr": "D" },
+    { "name": "D2", "expr": "D2" }
+  ],
+  "conformance": [
+    { "lhs": "D", "rhs": "A", "expect": true },
+    { "lhs": "D", "rhs": "B", "expect": true },
+    { "lhs": "D", "rhs": "C", "expect": true },
+    { "lhs": "D2", "rhs": "A", "expect": true },
+    { "lhs": "D", "rhs": "D2", "expect": false },
+    { "lhs": "A", "rhs": "D", "expect": false }
+  ],
+  "baseTypeSeq": ["D", "D2", "B", "C"]
+}

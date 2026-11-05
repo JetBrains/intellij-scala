@@ -1,0 +1,27 @@
+{
+  "description": "Context-dependent types: this.type, this.T, and self-type references (SCL-21947 shape).",
+  "concepts": ["this-type", "path-dependent", "self-type", "anchors"],
+  "types": [
+    { "name": "Box", "expr": "Box" },
+    { "name": "Animal", "expr": "Animal" },
+    { "name": "AnimalBox", "expr": "AnimalBox" },
+    { "name": "BoxThis", "expr": "this.type", "anchor": "inBox" },
+    { "name": "BoxThisT", "expr": "this.T", "anchor": "inBox" },
+    { "name": "AnimalBoxThis", "expr": "this.type", "anchor": "inAnimalBox" }
+  ],
+  "conformance": [
+    { "lhs": "BoxThis", "rhs": "Box", "expect": true },
+    { "lhs": "BoxThisT", "rhs": "BoxThisT", "expect": true },
+    { "lhs": "AnimalBoxThis", "rhs": "AnimalBox", "expect": true },
+    { "lhs": "AnimalBoxThis", "rhs": "Animal", "expect": true },
+    { "lhs": "AnimalBox", "rhs": "Animal", "expect": false },
+    { "lhs": "Box", "rhs": "BoxThis", "expect": false },
+    { "lhs": "AnimalBox", "rhs": "AnimalBoxThis", "expect": false }
+  ],
+  "equivalence": [
+    { "lhs": "BoxThis", "rhs": "Box", "expect": false },
+    { "lhs": "AnimalBoxThis", "rhs": "AnimalBox", "expect": false },
+    { "lhs": "BoxThisT", "rhs": "BoxThisT", "expect": true }
+  ],
+  "baseTypeSeq": ["AnimalBoxThis", "BoxThis"]
+}

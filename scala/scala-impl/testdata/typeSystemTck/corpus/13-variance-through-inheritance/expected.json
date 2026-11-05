@@ -1,0 +1,57 @@
+{
+  "conformance": [
+    {
+      "lhs": "DogProducer",
+      "rhs": "ProducerDog",
+      "holds": true
+    },
+    {
+      "lhs": "DogProducer",
+      "rhs": "ProducerAnimal",
+      "holds": true
+    },
+    {
+      "lhs": "MyCollDog",
+      "rhs": "ProducerDog",
+      "holds": true
+    },
+    {
+      "lhs": "MyCollDog",
+      "rhs": "ProducerAnimal",
+      "holds": true
+    },
+    {
+      "lhs": "ProducerAnimal",
+      "rhs": "MyCollDog",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {
+    "DogProducer": [
+      "DogProducer",
+      "Producer[Dog]",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "MyCollDog": [
+      "MyColl[Dog]",
+      "Producer[Dog]",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  },
+  "baseClasses": {
+    "DogProducer": [
+      "DogProducer",
+      "Producer",
+      "java.lang.Object",
+      "scala.Any"
+    ],
+    "MyCollDog": [
+      "MyColl",
+      "Producer",
+      "java.lang.Object",
+      "scala.Any"
+    ]
+  }
+}

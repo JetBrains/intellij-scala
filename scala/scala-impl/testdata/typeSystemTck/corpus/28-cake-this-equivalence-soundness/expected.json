@@ -1,0 +1,127 @@
+{
+  "conformance": [
+    {
+      "lhs": "OtherType",
+      "rhs": "GlobalThis",
+      "holds": false
+    },
+    {
+      "lhs": "GlobalThis",
+      "rhs": "OtherType",
+      "holds": false
+    },
+    {
+      "lhs": "OtherTree",
+      "rhs": "GlobalThisTree",
+      "holds": false
+    },
+    {
+      "lhs": "GlobalThisTree",
+      "rhs": "OtherTree",
+      "holds": false
+    },
+    {
+      "lhs": "SameType",
+      "rhs": "GlobalThis",
+      "holds": true
+    },
+    {
+      "lhs": "SameTree",
+      "rhs": "GlobalThisTree",
+      "holds": true
+    },
+    {
+      "lhs": "GlobalThisTree",
+      "rhs": "SameTree",
+      "holds": true
+    },
+    {
+      "lhs": "OTree",
+      "rhs": "PTree",
+      "holds": false
+    },
+    {
+      "lhs": "OOtherTree",
+      "rhs": "OTree",
+      "holds": false
+    },
+    {
+      "lhs": "ApiThisT",
+      "rhs": "UniverseThisT",
+      "holds": false
+    },
+    {
+      "lhs": "UniverseThisT",
+      "rhs": "ApiThisT",
+      "holds": false
+    },
+    {
+      "lhs": "UniverseThis",
+      "rhs": "ApiThis",
+      "holds": false
+    }
+  ],
+  "equivalence": [
+    {
+      "lhs": "OtherType",
+      "rhs": "GlobalThis",
+      "holds": false
+    },
+    {
+      "lhs": "GlobalThis",
+      "rhs": "OtherType",
+      "holds": false
+    },
+    {
+      "lhs": "OtherTree",
+      "rhs": "GlobalThisTree",
+      "holds": false
+    },
+    {
+      "lhs": "GlobalThisTree",
+      "rhs": "OtherTree",
+      "holds": false
+    },
+    {
+      "lhs": "SameType",
+      "rhs": "GlobalThis",
+      "holds": true
+    },
+    {
+      "lhs": "SameTree",
+      "rhs": "GlobalThisTree",
+      "holds": true
+    },
+    {
+      "lhs": "OTree",
+      "rhs": "PTree",
+      "holds": false
+    },
+    {
+      "lhs": "OOtherTree",
+      "rhs": "OTree",
+      "holds": false
+    },
+    {
+      "lhs": "ApiThis",
+      "rhs": "UniverseThis",
+      "holds": false
+    },
+    {
+      "lhs": "UniverseThis",
+      "rhs": "ApiThis",
+      "holds": false
+    },
+    {
+      "lhs": "ApiThisT",
+      "rhs": "UniverseThisT",
+      "holds": false
+    },
+    {
+      "lhs": "UniverseThisT",
+      "rhs": "ApiThisT",
+      "holds": false
+    }
+  ],
+  "baseTypeSeq": {}
+}
