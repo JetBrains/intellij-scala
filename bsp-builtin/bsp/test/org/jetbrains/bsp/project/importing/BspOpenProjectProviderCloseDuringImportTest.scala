@@ -20,6 +20,7 @@ import org.jetbrains.bsp.{BSP, BspJdkUtil}
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.ui.AwaitTestUtils
 import org.jetbrains.plugins.scala.util.{CollectingLoggedMessagesProcessor, TestUtils}
+import org.jetbrains.sbt.project.SbtOverBspTestsOnMacOSAndWindows
 import org.jetbrains.sbt.project.fixture.TestProjectJdkHolder
 import org.junit.Assert.{assertEquals, assertFalse, assertNotNull, assertTrue}
 
@@ -85,6 +86,9 @@ class BspOpenProjectProviderCloseDuringImportTest extends JavaModuleTestCase {
   override protected def runInDispatchThread(): Boolean = false
 
   def testClosingProjectDuringBspSessionInitializationCancelsWithoutExecutionError(): Unit = {
+    // TODO: SCL-25750 disabled on macOS, see SbtOverBspTestsOnMacOSAndWindows
+    if (SbtOverBspTestsOnMacOSAndWindows.disabledOnMacOS) return
+
     // Prepare a real BSP project-open/import flow that can be closed mid-import.
     val project = getProject
     val workspace = createRealSbtWorkspaceForBspOpen()
