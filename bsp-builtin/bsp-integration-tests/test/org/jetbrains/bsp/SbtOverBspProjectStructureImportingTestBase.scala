@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl.{javaLanguageLevel, javaTargetBytecodeLevel, javacOptions, module, modules, project, sdk}
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext
-import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher, RequiresJdk, SbtProjectImportTestUtils, ScalaExternalSystemImportingTestBase}
+import org.jetbrains.sbt.project.{ExactMatch, ProjectStructureMatcher, RequiresJdk, SbtOverBspTestsOnMacOSAndWindows, SbtProjectImportTestUtils, ScalaExternalSystemImportingTestBase}
 
 import java.nio.file.Files
 import scala.util.Try
@@ -61,6 +61,9 @@ abstract class SbtOverBspProjectStructureImportingTestBase
    */
   @RequiresJdk(LanguageLevel.JDK_17)
   def testJavaLanguageLevelAndTargetByteCodeLevel(): Unit = {
+    // TODO: SCL-25750 the sbt 1 variant fails on Windows, see SbtOverBspTestsOnMacOSAndWindows
+    if (SbtOverBspTestsOnMacOSAndWindows.disabledOnWindows && sbtVersionToInject.isEmpty) return
+
     importProject(false)
 
     val sdkLanguageLevel = LanguageLevel.JDK_17
