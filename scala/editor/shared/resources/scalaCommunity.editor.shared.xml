@@ -38,6 +38,7 @@
                                 implementationClass="org.jetbrains.plugins.scalaDoc.highlighter.ScalaDocSyntaxHighlighter"/>
         <lang.syntaxHighlighter language="ScalaDirective"
                                 implementationClass="org.jetbrains.plugins.scalaDirective.highlighter.ScalaDirectiveSyntaxHighlighter"/>
+        <syntaxHighlighter id="tasty.file" key="TASTy" factoryClass="org.jetbrains.plugins.scala.tasty.TastySyntaxHighlighterFactory"/>
 
         <moveLeftRightHandler language="Scala"
                               implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaMoveLeftRightHandler"/>

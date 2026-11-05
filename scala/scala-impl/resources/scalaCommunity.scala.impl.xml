@@ -814,7 +814,6 @@
         <fileType.fileViewProviderFactory filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileViewProviderFactory"/>
         <filetype.stubBuilder filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileStubBuilder"/>
         <filetype.decompiler filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyDecompiler"/>
-        <syntaxHighlighter id="tasty.file" key="TASTy" factoryClass="org.jetbrains.plugins.scala.tasty.TastySyntaxHighlighterFactory"/>
 
         <registryKey key="scala.highlighting.compilation.timeout.to.show.progress.millis" defaultValue="7000" restartRequired="false"
                      description="The progress of compilation for highlighting will be shown after this timeout"/>
