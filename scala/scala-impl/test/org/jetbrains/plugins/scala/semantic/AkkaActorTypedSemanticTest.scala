@@ -76,7 +76,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     akka.actor.typed.internal.LatestFirstSystemMessageList
     //akka.actor.typed.internal.LogMessagesInterceptor
     akka.actor.typed.internal.LoggerClass
-    //akka.actor.typed.internal.MiscMessageSerializer
+    akka.actor.typed.internal.MiscMessageSerializer
     //akka.actor.typed.internal.MonitorInterceptor
     akka.actor.typed.internal.NoMessage
     akka.actor.typed.internal.NoOpActorFlightRecorder
@@ -106,7 +106,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     //akka.actor.typed.internal.adapter.ActorRefFactoryAdapter
     //akka.actor.typed.internal.adapter.ActorSystemAdapter
     akka.actor.typed.internal.adapter.AdapterExtension
-    //akka.actor.typed.internal.adapter.ComposedStoppingBehavior
+    akka.actor.typed.internal.adapter.ComposedStoppingBehavior
     //akka.actor.typed.internal.adapter.EventStreamAdapter
     //akka.actor.typed.internal.adapter.GuardianStartupBehavior
     //akka.actor.typed.internal.adapter.GuardianStopInterceptor
@@ -120,7 +120,7 @@ class AkkaActorTypedSemanticTest extends SemanticTestBase("com.typesafe.akka" %%
     akka.actor.typed.internal.receptionist.ReceptionistBehaviorProvider
     //akka.actor.typed.internal.receptionist.ReceptionistImpl
     //akka.actor.typed.internal.receptionist.ReceptionistMessages
-    //akka.actor.typed.internal.receptionist.ServiceKeySerializer
+    akka.actor.typed.internal.receptionist.ServiceKeySerializer
     //akka.actor.typed.internal.routing.GroupRouterBuilder
     akka.actor.typed.internal.routing.GroupRouterHelper
     //akka.actor.typed.internal.routing.GroupRouterImpl

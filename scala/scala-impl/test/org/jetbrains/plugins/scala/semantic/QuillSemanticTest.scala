@@ -94,7 +94,7 @@ class QuillSemanticTest extends SemanticTestBase("io.getquill" %% "quill-sql" % 
     io.getquill.QueryProbing
     //io.getquill.QuotationLot
     io.getquill.QuotationVase
-    //io.getquill.Quoted
+    io.getquill.Quoted
     io.getquill.ReplaceAssignmentAliases
     //io.getquill.ReplaceLiftings
     io.getquill.ReturnAction

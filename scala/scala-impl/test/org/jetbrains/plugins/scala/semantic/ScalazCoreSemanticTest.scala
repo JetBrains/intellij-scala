@@ -49,7 +49,7 @@ class ScalazCoreSemanticTest extends SemanticTestBase("org.scalaz" %% "scalaz-co
     //scalaz.Bind
     //scalaz.BindRec
     //scalaz.Bitraverse
-    //scalaz.CaseInsensitive
+    scalaz.CaseInsensitive
     //scalaz.CaseInsensitiveInstances
     //scalaz.Catchable
     //scalaz.Category

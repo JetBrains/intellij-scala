@@ -297,7 +297,7 @@ class AkkaActorSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "akk
     //akka.event.EventStream
     //akka.event.EventStreamUnsubscriber
     //akka.event.LogMarker
-    //akka.event.LogSource
+    akka.event.LogSource
     //akka.event.LoggerMailbox
     //akka.event.LoggerMailboxType
     akka.event.LoggerMessageQueueSemantics

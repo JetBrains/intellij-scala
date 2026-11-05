@@ -12,10 +12,10 @@ class ScalacticSemanticTest extends SemanticTestBase("org.scalactic" %% "scalact
     //org.scalactic.Accumulation
     //org.scalactic.AccumulationLowPriorityImplicits
     org.scalactic.AndBool
-    //org.scalactic.AnyDiffer
+    org.scalactic.AnyDiffer
     //org.scalactic.ArrayHelper
     //org.scalactic.Bad
-    //org.scalactic.BasicPrettifier
+    org.scalactic.BasicPrettifier
     //org.scalactic.BinaryMacroBool
     //org.scalactic.Bool
     //org.scalactic.BooleanMacro

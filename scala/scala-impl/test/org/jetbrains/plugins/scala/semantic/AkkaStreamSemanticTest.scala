@@ -107,7 +107,7 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.RemoteStreamRefActorTerminatedException
     //akka.stream.RestartSettings
     akka.stream.Server
-    //akka.stream.Shape
+    akka.stream.Shape
     //akka.stream.SharedKillSwitch
     akka.stream.SinkRef
     //akka.stream.SinkShape

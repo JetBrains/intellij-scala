@@ -44,7 +44,7 @@ class AkkaParsingSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "a
     //akka.parboiled2.support.RunResult
     //akka.parboiled2.support.TailSwitch
     //akka.parboiled2.support.Unpack
-    //akka.parboiled2.support.hlist.::
+    akka.parboiled2.support.hlist.::
     akka.parboiled2.support.hlist.HList
     akka.parboiled2.support.hlist.HNil
     //akka.parboiled2.support.hlist.ops.hlist
