@@ -39,6 +39,11 @@
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaStringLiteralSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner"/>
 
+        <!-- Enter Handler for ScalaDoc -->
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaDocMarkdownEnterHandler" />
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaDocTagEnterHandlerDelegate"/>
+        <!-- /Handler -->
+
         <!-- Enter Handler for inserting "+" in interpolated strings -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.InterpolatedStringEnterHandler"
                               order="first"/>

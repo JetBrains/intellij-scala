@@ -618,11 +618,6 @@
 
         <projectSdkSetupValidator implementation="org.jetbrains.plugins.scala.project.notification.ScalaProjectSdkSetupValidator"/>
 
-        <!-- Enter Handler for ScalaDoc -->
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaDocMarkdownEnterHandler" />
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaDocTagEnterHandlerDelegate"/>
-        <!-- /Handler -->
-
         <!-- Enter Handler for multiline strings -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler" order="first"/>
         <!-- /Handler -->
