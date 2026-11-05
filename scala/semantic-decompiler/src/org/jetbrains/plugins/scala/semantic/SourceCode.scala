@@ -1284,7 +1284,7 @@ object SourceCode {
         printTypeOrBoundsTree(body)
 
       case TypeBind(name, _) =>
-        this += highlightType(name)
+        this += highlightType(if (WildcardName.matches(name)) "_" else name)
 
       case TypeBlock(_, tpt) =>
         printTypeTree(tpt)
