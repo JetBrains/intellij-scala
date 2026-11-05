@@ -25,7 +25,7 @@ class ILoopWrapper213_12Impl(
   override def init(): Unit = {
     val mySettings = new Settings
     mySettings.processArguments(scalaOptions.asScala.toList, processAll = true)
-    mySettings.classpath.append(projectFullCp.asScala.mkString(File.pathSeparator))
+    mySettings.classpath.value = projectFullCp.asScala.mkString(File.pathSeparator)
     // do not use java class path because it contains scala library jars with version
     // different from one that is used during compilation (it is passed from the plugin classpath)
     mySettings.usejavacp.tryToSetFromPropertyValue(false.toString)
