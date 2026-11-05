@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.semantic
 
-import org.jetbrains.plugins.scala.DependencyManager
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
+import org.jetbrains.plugins.scala.{BuildInfo, DependencyManager}
 
 import java.net.URLClassLoader
 import scala.reflect.Selectable.reflectiveSelectable
@@ -12,8 +12,7 @@ trait Decompiler {
 }
 
 object Decompiler {
-  // Keep in sync with Versions.scala3Version in community/project/dependencies.scala: the compiler reads the bundled library's TASTy.
-  private val CompilerVersion = "3.9.0"
+  private val CompilerVersion = BuildInfo.scala3Version
 
   def apply(classpath: Seq[String], classLoader: ClassLoader): Decompiler = {
     val decompilerClass = classLoader.loadClass("org.jetbrains.plugins.scala.semantic.DecompilerImpl")

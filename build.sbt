@@ -416,6 +416,7 @@ lazy val scalaImpl: sbt.Project =
       testUtilsPlatform % "test->test",
       compilerTestUtils % "test->test",
     )
+    .enablePlugins(BuildInfoPlugin)
     .settings(
       Compile / scalacOptions ++= Seq(
         "-no-indent",
@@ -472,7 +473,10 @@ lazy val scalaImpl: sbt.Project =
         Dependencies.scalaCollectionCompat  -> Some("lib/scala-collection-compat.jar"),
         Dependencies.scalaLibrary           -> None,
         Dependencies.scala3Library          -> None
-      )
+      ),
+      buildInfoPackage := "org.jetbrains.plugins.scala",
+      buildInfoKeys := Seq("scala3Version" -> Versions.scala3Version),
+      buildInfoOptions += BuildInfoOption.ConstantValue
     )
 
 /**
