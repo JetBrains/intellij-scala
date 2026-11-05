@@ -23,9 +23,12 @@ import org.jetbrains.sbt.shell.SbtShellTestsOnWindows
  */
 abstract class ScalaTestWithSbtShellAndUiTestBase extends ScalaTestSbtShellTestBase {
 
-  // TODO: SCL-26340 disabled on Windows, see SbtShellTestsOnWindows
-  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit =
-    if (!SbtShellTestsOnWindows.disabled) super.runTestRunnable(testRunnable)
+  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
+    // TODO: SCL-26340 disabled on Windows, see SbtShellTestsOnWindows
+    if (SbtShellTestsOnWindows.disabled) return
+
+    super.runTestRunnable(testRunnable)
+  }
 
   def testWholeSuite(): Unit =
     runTestWithSbtUi(

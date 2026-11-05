@@ -17,9 +17,12 @@ import java.util.Locale
 abstract class SbtShellBuildDelegationTestBase extends SbtExternalSystemImportingTestLike {
   protected def useNewSbtShell: Boolean
 
-  // TODO: SCL-26340 the new sbt shell tests are disabled on Windows, see SbtShellTestsOnWindows
-  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit =
-    if (!(SbtShellTestsOnWindows.disabled && useNewSbtShell)) super.runTestRunnable(testRunnable)
+  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
+    // TODO: SCL-26340 the new sbt shell tests are disabled on Windows, see SbtShellTestsOnWindows
+    if (SbtShellTestsOnWindows.disabled && useNewSbtShell) return
+
+    super.runTestRunnable(testRunnable)
+  }
 
   protected final val sbtRootProjectName = "simpleProjectForBuildDelegationTest"
 
