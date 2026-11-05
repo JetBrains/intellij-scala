@@ -101,13 +101,14 @@ trait WorksheetItAssertions {
       val messagesRenders = messages.map { err =>
         s"${err.getCategory} (${err.getLine}, ${err.getColumn}) ${err.getMessage}"
       }
-      val typ = category match {
+      category match {
         case CompilerMessageCategory.ERROR => "errors"
         case CompilerMessageCategory.WARNING => "warnings"
         case CompilerMessageCategory.INFORMATION => "information messages"
         case CompilerMessageCategory.STATISTICS => "???"
+        case cat =>
+          fail(s"Unexpected compilation $cat occurred during worksheet evaluation:\n${messagesRenders.mkString("\n")}")
       }
-      fail(s"Unexpected compilation $typ occurred during worksheet evaluation:\n${messagesRenders.mkString("\n")}")
     }
   }
 
