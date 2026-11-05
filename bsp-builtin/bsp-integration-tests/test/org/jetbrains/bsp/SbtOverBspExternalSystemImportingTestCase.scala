@@ -4,12 +4,13 @@ import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.util.ThrowableRunnable
 import org.jetbrains.bsp.project.importing.setup.SbtConfigSetup
 import org.jetbrains.bsp.settings.BspProjectSettings
 import org.jetbrains.plugins.scala.build.{BuildMessages, ConsoleReporter}
 import org.jetbrains.plugins.scala.extensions.{PathExt, inWriteAction}
 import org.jetbrains.sbt.{Sbt, SbtVersion}
-import org.jetbrains.sbt.project.{SbtProjectImportTestUtils, ScalaExternalSystemImportingTestBase}
+import org.jetbrains.sbt.project.{SbtOverBspTestsOnMacOSAndWindows, SbtProjectImportTestUtils, ScalaExternalSystemImportingTestBase}
 
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
@@ -29,6 +30,13 @@ trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImpor
     new BspProjectSettings
 
   protected def reuseExistingConnectionFile: Boolean = true
+
+  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
+    // TODO: SCL-25750 the sbt-over-BSP import tests are disabled on macOS, see SbtOverBspTestsOnMacOSAndWindows
+    if (SbtOverBspTestsOnMacOSAndWindows.disabledOnMacOS) return
+
+    super.runTestRunnable(testRunnable)
+  }
 
   /**
    * sbt version that should be injected into the `build.properties` file in the project.
@@ -57,6 +65,9 @@ trait SbtOverBspExternalSystemImportingTestCase extends ScalaExternalSystemImpor
     }
 
   protected def generateSbtBspConfigurationFileIfNeeded(): Unit = {
+    // TODO: SCL-25750 the tests are disabled on macOS, so don't run sbt against Maven Central there, see SbtOverBspTestsOnMacOSAndWindows
+    if (SbtOverBspTestsOnMacOSAndWindows.disabledOnMacOS) return
+
     val projectPath = getTestProjectPath
     val bspConfigFile = projectPath / ".bsp/sbt.json"
 
