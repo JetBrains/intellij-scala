@@ -232,7 +232,7 @@ abstract class SemanticTestBase(dependencies: DependencyDescription*)(packages: 
     val tastyFile = cls.getContainingFile.getVirtualFile
     Assert.assertTrue(tastyFile.getName, tastyFile.getExtension == "tasty")
 
-    val decompiledText = decompiler.decompile(tastyFile.getName, tastyFile.contentsToByteArray())
+    val decompiledText = decompiler.decompile(tastyFile.getName, tastyFile.contentsToByteArray().toIndexedSeq)
 
     val sourceCls = inReadAction(cls.getSourceMirrorClass).asInstanceOf[ScTypeDefinition]
     val qualifiedName = inReadAction(cls.qualifiedName)
