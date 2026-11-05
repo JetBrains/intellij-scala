@@ -216,6 +216,10 @@ lazy val editorShared = newProject("editor-shared", file("scala/editor/shared"))
     scalaPsiImpl,
   )
   .settings(
+    Compile / scalacOptions ++= Seq(
+      "-no-indent",
+      "-Wconf:msg=Non local returns are no longer supported:s",
+    ),
     intellijPlugins += "com.intellij.xml".toPlugin,
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.editor.shared"),
   )

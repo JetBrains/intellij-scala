@@ -26,6 +26,15 @@
 
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
 
+        <basicWordSelectionFilter implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectionerFilter"/>
+        <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaAttributeValueSelectioner"/>
+        <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaCodeBlockSelectioner"/>
+        <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaDocCommentSelectioner"/>
+        <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaSemicolonSelectioner"/>
+        <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaStatementGroupSelectioner"/>
+        <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaStringLiteralSelectioner"/>
+        <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner"/>
+
         <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinLines.PackageJoinLinesHandler"/>
         <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinLines.StripMarginJoinLinesHandler"/>
 
