@@ -32,9 +32,12 @@ import scala.concurrent.duration.DurationInt
  */
 abstract class SbtRunConfiguration_BuildBeforeLaunch_TestBase extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
 
-  // TODO: SCL-26340 disabled on Windows in every sbt process mode, the no-shell scenarios are flaky there as well, see SbtShellTestsOnWindows
-  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit =
-    if (!SbtShellTestsOnWindows.disabled) super.runTestRunnable(testRunnable)
+  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
+    // TODO: SCL-26340 disabled on Windows in every sbt process mode, the no-shell scenarios are flaky there as well, see SbtShellTestsOnWindows
+    if (SbtShellTestsOnWindows.disabled) return
+
+    super.runTestRunnable(testRunnable)
+  }
 
   protected def assertFreshSbtRunConfiguration_DoesNotRunBuild(options: TestExecutionOptions): Unit = {
     val buildTracker = runFreshSbtRunConfiguration_BuildBeforeLaunch(options) { _ =>

@@ -22,9 +22,12 @@ import scala.concurrent.duration.*
  */
 abstract class SbtShellEOFActionTestBase extends JavaModuleTestCase {
 
-  // TODO: SCL-26340 disabled on Windows, see SbtShellTestsOnWindows
-  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit =
-    if (!SbtShellTestsOnWindows.disabled) super.runTestRunnable(testRunnable)
+  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
+    // TODO: SCL-26340 disabled on Windows, see SbtShellTestsOnWindows
+    if (SbtShellTestsOnWindows.disabled) return
+
+    super.runTestRunnable(testRunnable)
+  }
 
   protected def useNewShell: Boolean
 
