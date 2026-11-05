@@ -73,7 +73,7 @@ object DesugarCodeAction {
     val (compilerText, pluginText) = withProgressSynchronously(s"Desugaring ${cls.name}...") {
       val compilerText = if (!isScala3) "" else {
         val decompiler = Decompiler(classpath, Decompiler.classLoader(getClass.getClassLoader))
-        decompiler.decompile(tastyFileName, tastyFileContents)
+        decompiler.decompile(tastyFileName, tastyFileContents.toIndexedSeq)
       }
       val pluginText = inReadAction {
         try {
