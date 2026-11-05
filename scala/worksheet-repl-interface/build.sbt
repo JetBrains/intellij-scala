@@ -25,7 +25,7 @@ lazy val packageCommonSettings: Seq[Setting[?]] = Seq(
 )
 
 val interfaceVersion = "1.0.0"
-val implsVersion = "1.0.0"
+val implsVersion = "1.0.1"
 
 lazy val worksheetReplInterface =
   Project("worksheet-repl-interface", file("."))
