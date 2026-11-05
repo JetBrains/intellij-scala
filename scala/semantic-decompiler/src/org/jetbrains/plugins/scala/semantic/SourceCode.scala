@@ -1331,7 +1331,7 @@ object SourceCode {
               printType(prefix)
               this += "."
           }
-        this += highlightType(sym.name.stripSuffix("$"))
+        this += highlightType(if (WildcardName.matches(sym.name)) "_" else sym.name.stripSuffix("$"))
 
       case TermRef(prefix, name) =>
         if fullNames then
