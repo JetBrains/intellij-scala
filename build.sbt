@@ -99,6 +99,7 @@ lazy val scalaCommunity: sbt.Project =
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
       scalaApi % "test->test;compile->compile",
+      settingsShared % "test->test;compile->compile",
       scalaPsiApi % "test->test;compile->compile",
       scalaPsiImpl % "test->test;compile->compile",
       editorShared % "test->test;compile->compile",
@@ -184,6 +185,18 @@ lazy val scalaApi = newProject("scala-api", file("scala/scala-api"))
     packageMethod := PackagingMethod.PluginModule("scalaCommunity.scala.api"),
   )
 
+lazy val settingsShared = newProject("settings-shared", file("scala/settings/shared"))
+  .dependsOn(
+    scalaApi,
+  )
+  .settings(
+    Compile / scalacOptions ++= Seq(
+      "-no-indent",
+      "-Wconf:msg=Non local returns are no longer supported:s",
+    ),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.settings.shared")
+  )
+
 lazy val scalaPsiApi = newProject("scala-psi-api", file("scala/scala-psi-api"))
   .dependsOn(scalaApi)
   .settings(
@@ -196,6 +209,7 @@ lazy val scalaPsiImpl = newProject("scala-psi-impl", file("scala/scala-psi-impl"
     sbtCore,
     scalaLanguageUtils,
     scalaPsiApi,
+    settingsShared,
     tastyReader % "test->test;compile->compile",
   )
   .settings(

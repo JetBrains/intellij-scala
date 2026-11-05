@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.settings
 
-import com.intellij.java.JavaBundle
 import com.intellij.openapi.actionSystem.{ActionUpdateThread, AnActionEvent}
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
@@ -9,7 +8,7 @@ import com.intellij.ui.components.JBList
 import com.intellij.util.IconUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
+import org.jetbrains.plugins.scala.lang.lexer.ScalaIdentifiers
 
 import java.util
 import javax.swing.{DefaultListModel, JComponent, JPanel}
@@ -21,7 +20,7 @@ object ScalaProjectSettingsUtil {
     val parts = packageName.split(".")
     for (i <- 0 until parts.length) {
       val part = parts(i)
-      if (!isIdentifier(part)) {
+      if (!ScalaIdentifiers.isIdentifier(part)) {
         if (!checkPlaceholder || i != parts.length - 1 || part != "_") return false
       }
     }
@@ -97,7 +96,7 @@ object ScalaProjectSettingsUtil {
       val validator: InputValidator = ScalaProjectSettingsUtil.getPackageValidator
       val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
       addPattern(pattern, patternJBList)
-    }).addExtraAction(new AnActionButton(JavaBundle.message("button.add.blank"), IconUtil.getAddBlankLineIcon) {
+    }).addExtraAction(new AnActionButton(ScalaSettingsBundle.message("button.add.blank"), IconUtil.getAddBlankLineIcon) {
       override def actionPerformed(e: AnActionEvent): Unit = {
         addPattern(ScalaCodeStyleSettings.BLANK_LINE, patternJBList)
       }

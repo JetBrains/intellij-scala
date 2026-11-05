@@ -50,6 +50,7 @@
 
     <content namespace="jetbrains">
         <module name="scalaCommunity.scala.api" loading="embedded"/>
+        <module name="scalaCommunity.settings.shared" loading="embedded"/>
         <module name="scalaCommunity.scala.psi.api" loading="embedded"/>
         <module name="scalaCommunity.scala.psi.impl" loading="embedded"/>
         <module name="scalaCommunity.editor.shared" loading="embedded"/>

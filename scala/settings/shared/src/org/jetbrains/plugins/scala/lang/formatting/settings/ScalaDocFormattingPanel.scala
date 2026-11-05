@@ -6,7 +6,8 @@ import com.intellij.openapi.ui.OnePixelDivider
 import com.intellij.psi.codeStyle.{CodeStyleSettings, LanguageCodeStyleSettingsProvider}
 import com.intellij.ui.border.CustomLineBorder
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaDocFormattingPanel.ScalaDocCodeSample
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, ScalaLanguage}
+import org.jetbrains.plugins.scala.settings.ScalaSettingsBundle
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import java.awt.BorderLayout
 import java.awt.event.ActionEvent
@@ -24,7 +25,7 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
 
   override def getPanel: JPanel = myScaladocPanel
 
-  override protected def getTabTitle: String = ScalaBundle.message("scaladoc.panel.title")
+  override protected def getTabTitle: String = ScalaSettingsBundle.message("scaladoc.panel.title")
 
   override protected def getFileType: FileType = ScalaFileType.INSTANCE
 
@@ -36,9 +37,9 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
     super.init()
 
     val topPanel = new JPanel(new BorderLayout)
-    myEnableCheckBox = new JCheckBox(ScalaBundle.message("scaladoc.panel.enable.scaladoc.formatting"))
+    myEnableCheckBox = new JCheckBox(ScalaSettingsBundle.message("scaladoc.panel.enable.scaladoc.formatting"))
     myEnableCheckBox.addActionListener((_: ActionEvent) => update())
-    myAsteriskStyleCheckBox = new JCheckBox(ScalaBundle.message("scaladoc.panel.add.additional.space.for.leading.asterisk"))
+    myAsteriskStyleCheckBox = new JCheckBox(ScalaSettingsBundle.message("scaladoc.panel.add.additional.space.for.leading.asterisk"))
     topPanel.add(myEnableCheckBox, BorderLayout.NORTH)
     topPanel.add(myAsteriskStyleCheckBox, BorderLayout.SOUTH)
 
@@ -103,9 +104,9 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
 
 object ScalaDocFormattingPanel {
 
-  val BLANK_LINES_GROUP: String = ScalaBundle.message("scaladoc.panel.groups.blank.lines")
-  val ALIGNMENT_GROUP  : String = ScalaBundle.message("scaladoc.panel.groups.alignment")
-  val OTHER_GROUP      : String = ScalaBundle.message("scaladoc.panel.groups.other")
+  val BLANK_LINES_GROUP: String = ScalaSettingsBundle.message("scaladoc.panel.groups.blank.lines")
+  val ALIGNMENT_GROUP  : String = ScalaSettingsBundle.message("scaladoc.panel.groups.alignment")
+  val OTHER_GROUP      : String = ScalaSettingsBundle.message("scaladoc.panel.groups.other")
 
   private val ScalaDocCodeSample =
     """

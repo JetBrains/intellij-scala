@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<idea-plugin visibility="public">
+    <dependencies>
+        <module name="intellij.java.frontback.psi"/>
+        <module name="intellij.platform.analysis.impl"/>
+        <module name="intellij.platform.codeStyle"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.ui"/>
+        <module name="intellij.platform.editor.ui"/>
+        <module name="intellij.platform.ide"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.ide.impl"/>
+        <module name="intellij.platform.lang"/>
+        <module name="intellij.platform.lang.impl"/>
+        <module name="intellij.platform.projectModel"/>
+        <module name="intellij.platform.util.ui"/>
+        <module name="scalaCommunity.scala.api"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaApplicationSettings"/>
+
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
+    </extensions>
+</idea-plugin>

@@ -181,6 +181,14 @@ object ScalaBundleSorting {
       bundleMessagesRelativePath = "ScalaPsiBundle.properties",
     ),
     ModuleWithBundleInfo(
+      rootPath = scalaModDir / "settings" / "shared",
+      bundleMessagesRelativePath = "ScalaSettingsBundle.properties",
+      extraUsageModules = Seq(
+        ModuleInfo(scalaImplDir),
+        ModuleInfo(scalaModDir / "scala-frontend"),
+      )
+    ),
+    ModuleWithBundleInfo(
       rootPath = scalaModDir / "structure-view",
       bundleMessagesRelativePath = "ScalaStructureViewBundle.properties"
     ),

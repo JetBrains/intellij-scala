@@ -88,6 +88,7 @@
         <module name="scalaCommunity.scala.api"/>
         <module name="scalaCommunity.scala.psi.api"/>
         <module name="scalaCommunity.scala.psi.impl"/>
+        <module name="scalaCommunity.settings.shared"/>
     </dependencies>
 
     <extensionPoints>
@@ -182,7 +183,11 @@
         <iconProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaIconProvider"/>
         <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
         <editorSmartKeysConfigurable instance="org.jetbrains.plugins.scala.settings.ScalaEditorSmartKeysConfigurable"/>
-        <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider"/>
+
+        <!--suppress SplitModeXmlApiUsage -->
+        <!--scalafmt configurable can only be constructed on the backend, see ScalaFmtSettingsPanel-->
+        <langCodeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaBackendLanguageCodeStyleSettingsProvider"/>
+
         <projectConfigurable id="configurable.scala.root"
                              groupId="language"
                              bundle="messages.ScalaInspectionBundle"

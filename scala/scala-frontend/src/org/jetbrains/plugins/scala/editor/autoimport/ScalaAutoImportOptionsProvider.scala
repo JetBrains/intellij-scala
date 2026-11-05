@@ -13,7 +13,7 @@ import kotlin.Unit.{INSTANCE => KUnit}
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 import org.jetbrains.plugins.scala.project.NonNullableValueBasedListRenderer
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaSettingsBundle}
 import org.jetbrains.plugins.scala.util.ui.KotlinDslWrappers._
 
 import java.util
@@ -84,7 +84,7 @@ final class ScalaAutoImportOptionsProvider extends UiDslUnnamedConfigurable.Simp
             configurable <- settings.find("preferences.sourceCode.Scala").asOptionOf[CodeStyleConfigurableWrapper]
           } {
             settings.select(configurable).doWhenDone { () =>
-              configurable.selectTab(ScalaEditorBundle.message("imports.panel.title"))
+              configurable.selectTab(ScalaSettingsBundle.message("imports.panel.title"))
             }
           }
         }

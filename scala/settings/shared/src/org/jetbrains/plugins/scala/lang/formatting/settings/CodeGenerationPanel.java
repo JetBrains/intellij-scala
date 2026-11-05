@@ -4,12 +4,11 @@ import com.intellij.application.options.codeStyle.CommenterForm;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable;
 import com.intellij.ui.IdeBorderFactory;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.ImmutableList;
 import com.intellij.util.ui.JBInsets;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaLanguage;
+import org.jetbrains.plugins.scala.settings.ScalaSettingsBundle;
 
 import javax.swing.*;
 import java.util.List;
@@ -19,8 +18,10 @@ public final class CodeGenerationPanel extends ScalaCodeStylePanelBase {
     private final JPanel panel;
     private final CommenterForm myCommenterForm;
 
-    CodeGenerationPanel(@NotNull CodeStyleSettings settings) {
-        super(settings, ScalaBundle.message("codegeneration.panel.title"));
+    // NOTE: must be public to be called from different class loader (see ScalaTabbedCodeStylePanel)
+    @ApiStatus.Internal
+    public CodeGenerationPanel(@NotNull CodeStyleSettings settings) {
+        super(settings, ScalaSettingsBundle.message("codegeneration.panel.title"));
 
         myCommenterForm = new CommenterForm(ScalaLanguage.INSTANCE);
         myCommenterForm.showStandardOptions(SupportedCommenterStandardOptionNames.toArray(new String[]{}));

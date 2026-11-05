@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.plugins.scala.ScalaLanguage;
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiBundle;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -204,7 +203,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   @NotNull
   public String getPresentableName() {
-    return ScalaPsiBundle.message("scala.project.settings");
+    return ScalaSettingsBundle.message("scala.project.settings");
   }
 
   public int getImplicitParametersSearchDepth() {

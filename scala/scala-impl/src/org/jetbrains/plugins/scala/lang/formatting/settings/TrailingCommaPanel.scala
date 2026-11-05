@@ -5,7 +5,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.ui.JBUI
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.settings.ScalaSettingsBundle
 
 import java.lang.reflect.Field
 import java.util.Objects
@@ -25,12 +25,12 @@ final class TrailingCommaPanel(settings: CodeStyleSettings) extends ScalaCodeSty
   private var scopeCheckboxes: Seq[(JCheckBox, Field)] = scala.compiletime.uninitialized
 
   private val scopeFields: ListMap[String, String] = ListMap(
-    ("TRAILING_COMMA_ARG_LIST_ENABLED", ScalaBundle.message("trailing.comma.panel.scope.arguments.list")),
-    ("TRAILING_COMMA_PARAMS_ENABLED", ScalaBundle.message("trailing.comma.panel.scope.parameters.list")),
-    ("TRAILING_COMMA_TUPLE_ENABLED", ScalaBundle.message("trailing.comma.panel.scope.tuple")),
-    ("TRAILING_COMMA_PATTERN_ARG_LIST_ENABLED", ScalaBundle.message("trailing.comma.panel.scope.pattern.arguments.list")),
-    ("TRAILING_COMMA_TYPE_PARAMS_ENABLED", ScalaBundle.message("trailing.comma.panel.scope.type.parameters.list")),
-    ("TRAILING_COMMA_IMPORT_SELECTOR_ENABLED", ScalaBundle.message("trailing.comma.panel.scope.import.selector")),
+    ("TRAILING_COMMA_ARG_LIST_ENABLED", ScalaSettingsBundle.message("trailing.comma.panel.scope.arguments.list")),
+    ("TRAILING_COMMA_PARAMS_ENABLED", ScalaSettingsBundle.message("trailing.comma.panel.scope.parameters.list")),
+    ("TRAILING_COMMA_TUPLE_ENABLED", ScalaSettingsBundle.message("trailing.comma.panel.scope.tuple")),
+    ("TRAILING_COMMA_PATTERN_ARG_LIST_ENABLED", ScalaSettingsBundle.message("trailing.comma.panel.scope.pattern.arguments.list")),
+    ("TRAILING_COMMA_TYPE_PARAMS_ENABLED", ScalaSettingsBundle.message("trailing.comma.panel.scope.type.parameters.list")),
+    ("TRAILING_COMMA_IMPORT_SELECTOR_ENABLED", ScalaSettingsBundle.message("trailing.comma.panel.scope.import.selector")),
   )
 
   override def apply(settings: CodeStyleSettings): Unit = {
@@ -74,12 +74,12 @@ final class TrailingCommaPanel(settings: CodeStyleSettings) extends ScalaCodeSty
     import GridConstraints._
     val panel = new JPanel
     panel.setLayout(new GridLayoutManager(2, 3, JBUI.emptyInsets(), -1, -1))
-    panel.setBorder(IdeBorderFactory.createTitledBorder(ScalaBundle.message("trailing.comma.panel.title")))
+    panel.setBorder(IdeBorderFactory.createTitledBorder(ScalaSettingsBundle.message("trailing.comma.panel.title")))
 
     trailingCommaModeSelectorModel = new DefaultComboBoxModel(Array(
-      new ComboBoxItem(TrailingCommaMode.TRAILING_COMMA_KEEP, ScalaBundle.message("trailing.comma.panel.keep")),
-      new ComboBoxItem(TrailingCommaMode.TRAILING_COMMA_REMOVE_WHEN_MULTILINE, ScalaBundle.message("trailing.comma.panel.remove.when.multiline")),
-      new ComboBoxItem(TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE, ScalaBundle.message("trailing.comma.panel.add.when.multiline")),
+      new ComboBoxItem(TrailingCommaMode.TRAILING_COMMA_KEEP, ScalaSettingsBundle.message("trailing.comma.panel.keep")),
+      new ComboBoxItem(TrailingCommaMode.TRAILING_COMMA_REMOVE_WHEN_MULTILINE, ScalaSettingsBundle.message("trailing.comma.panel.remove.when.multiline")),
+      new ComboBoxItem(TrailingCommaMode.TRAILING_COMMA_ADD_WHEN_MULTILINE, ScalaSettingsBundle.message("trailing.comma.panel.add.when.multiline")),
     ))
 
     trailingCommaModeSelector = new ComboBox[ComboBoxItem[TrailingCommaMode]]
