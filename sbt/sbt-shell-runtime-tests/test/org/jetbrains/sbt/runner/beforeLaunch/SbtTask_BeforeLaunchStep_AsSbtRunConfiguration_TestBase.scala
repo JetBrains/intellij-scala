@@ -40,9 +40,12 @@ import scala.concurrent.duration.{Duration, DurationInt}
  */
 abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends SbtRunConfiguration_MockedProcess_ExecutionTestBase {
 
-  // TODO: SCL-26340 disabled on Windows in every sbt process mode, the no-shell scenarios are flaky there as well, see SbtShellTestsOnWindows
-  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit =
-    if (!SbtShellTestsOnWindows.disabled) super.runTestRunnable(testRunnable)
+  override protected def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
+    // TODO: SCL-26340 disabled on Windows in every sbt process mode, the no-shell scenarios are flaky there as well, see SbtShellTestsOnWindows
+    if (SbtShellTestsOnWindows.disabled) return
+
+    super.runTestRunnable(testRunnable)
+  }
 
   protected def assertSbtTaskAsBeforeLaunchStepOfAnotherConfigurationUsesExpectedRunnerDelegation(options: TestExecutionOptions): Unit = {
     val (_, handler) = runAndAssertSbtTaskAsBeforeLaunchStepOfDependentConfiguration(options)
