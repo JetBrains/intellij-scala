@@ -1,144 +1,57 @@
 # IntelliJ PSI engine for scala-type-system-tck
 
-This package runs the [scala-type-system-tck](https://github.com/retronym/scala-type-system-tck)
-corpus against the IntelliJ Scala plugin's PSI type system, comparing conformance
-and base type sequences against the scalac-generated goldens.
+This package runs the [scala-type-system-tck](https://github.com/retronym/scala-type-system-tck) corpus against the IntelliJ Scala plugin's PSI type system and compares the answers with scalac's goldens.
 
-The corpus is vendored under `testdata/typeSystemTck/corpus` (copied from the
-upstream repo, where it is authored and the goldens are regenerated). Override the
-location with `-Dscala.tck.corpus=...` or the `SCALA_TCK_CORPUS` env var.
+The corpus is vendored under `testdata/typeSystemTck/corpus` (copied from the upstream repo, where it is authored and the goldens are regenerated). Override the location with `-Dscala.tck.corpus=...` or the `SCALA_TCK_CORPUS` env var.
 
-It is the "system under test" counterpart to that repo's `ScalacEngine` (the
-oracle). See the corpus repo's `SPEC.md` for the type-system spec and `§4` for the
-canonical rendering normal form that makes goldens comparable across engines.
+It is the "system under test" counterpart to that repo's `ScalacEngine` (the oracle). See the corpus repo's `SPEC.md` for the type-system spec and `§4` for the canonical rendering normal form that makes goldens comparable across engines.
 
 ## How it works
 
-`TckCorpus` loads each corpus entry and builds one synthetic compilation unit:
-the `source.scala` preamble plus a `type __q_<name> = <expr>` alias per query.
-Anchored queries (`this.type`, self-type, `this.Member`) are spliced at their
-`/*ANCHOR id*/` marker so they resolve in the right context — exactly as the
-scalac engine does. `TypeSystemTckTest` configures that text into a light PSI
-fixture, reads each alias's `aliasedType` (an `ScType`), and runs:
+`TckCorpus` loads each corpus entry and builds one synthetic compilation unit: the `source.scala` preamble plus a `type __q_<name> = <expr>` alias per query. Anchored queries (`this.type`, self-type, `this.Member`) are spliced at their `/*ANCHOR id*/` marker so they resolve in the right context, as the scalac engine does. `TypeSystemTckTest` configures that text into a light PSI fixture on the Scala 2.13 library, reads each alias's `aliasedType` (an `ScType`), and compares these dimensions:
 
-- `a.conforms(b)` — checked against the corpus's human ground truth (hard).
-- `a.equiv(b)` — type equivalence (`=:=`), checked against ground truth (hard).
-- `BaseTypes.get(tp)` — rendered and compared **as a set** against the golden.
+- conformance: `a.conforms(b)`, against the corpus's ground truth.
+- equivalence: `a.equiv(b)`, against the corpus's ground truth.
+- baseTypeSeq: `BaseTypes.get(tp)`, rendered and compared as a set.
+- baseClasses: `MixinNodes.linearization`, with order.
+- termType: the inferred type of a spliced `val __t_<name> = <expr>`.
+- baseType: `BaseTypes.baseType(tp, clazz)`.
 
-### Equivalence (`=:=`) — strictly more discriminating than conformance
+## Strictness and known differences
 
-The `equivalence` dimension mirrors `conformance`: each entry's `equivalence`
-queries (`{lhs, rhs, expect}`) are run through IntelliJ's `ScType.equiv` and
-checked against the human ground truth (which scalac's `=:=` agrees with by
-construction — the oracle regenerates the golden `equivalence` array). It is a hard
-assertion, like conformance.
+The test is strict by default: any difference from scalac fails it, except those listed in `TypeSystemTckTest.Deferred`. That registry is a two-way pin. A new difference fails the test, and so does a listed difference that stops diverging, so that it gets removed from the list. It is the record of what currently differs and why; this file doesn't repeat it.
 
-`=:=` is the right guard for the SCL-21947 fixes, which were all about *equivalence*
-of singleton / path-dependent types (`ScThisType.equivInner`, override-aware
-`designatorSingletonType`, `ConstraintSystem` equiv). It is strictly more
-discriminating than `<:<`: a row can pass `<:<` while `=:=` is wrong. The corpus
-exercises exactly these discriminating cases, e.g. (all green on this branch):
+Conformance and equivalence have no deferrals, and baseType's registry is empty. All three are always hard. `-Dscala.tck.lenient=true` makes the other three dimensions report only, while iterating locally.
 
-- `12 DogSingleton =:= Dog` → **false** (singleton narrower; `<:<` holds one way).
-- `12 BoxedT =:= Dog` → **true** (both `<:<` directions hold).
-- `14 O1Inner =:= Outer#Inner` → **false** (`<:<` holds upward only).
-- `16/17 ImplThis =:= Api` / `CompThis =:= Outer` → **false** (self-type `<:<`).
-- `19 ChainedType =:= DirectType` → **true** (val-path collapse through refinement).
-- `20 ChainedBlock =:= Tree` → **false** (`Block` ≠ `Tree`, though `<:<` holds).
+### Equivalence
 
-**Known divergence (not in the corpus).** A literal cake `this`-pair —
-`SymbolTable.this.T` vs `Types.this.T` with `trait Types { self: SymbolTable => }`
-and `class SymbolTable extends Types` — is **not** equal under scalac (it only
-canonicalizes cake this-types within one instance, via asSeenFrom / override
-matching), yet IntelliJ returns `true` for both `<:<` and `=:=`. The SCL-21947 cake
-handling (`ScThisType.equivInner`'s self-type tie + the conformance side) is an
-*over-approximation* on directly-written this-types. It is correct where it matters
-(override matching — guarded by `OverrideHighlightingTest.testSCL21947Cake`), so this
-shape is intentionally **not** committed as a corpus entry (it would be a hard red);
-it is recorded here as the one place the equivalence dimension found IntelliJ more
-lenient than scalac.
+`=:=` is more discriminating than `<:<`: a row can pass `<:<` while `=:=` is wrong. The corpus exercises such cases, for example:
 
-### baseClasses (linearization) — checked ORDER-sensitively
+- `12 DogSingleton =:= Dog` is false (the singleton is narrower; `<:<` holds one way).
+- `12 BoxedT =:= Dog` is true (`<:<` holds both ways).
+- `14 O1Inner =:= Outer#Inner` is false (`<:<` holds upward only).
+- `19 ChainedType =:= DirectType` is true (val-path collapse through a refinement).
 
-In addition to `baseTypeSeq`, the TCK compares `baseClasses` — the
-**linearization** — against scalac's, **order included**. On the IntelliJ side
-this is `MixinNodes.linearization(clazz | compound)` (an ordered `Seq[ScType]`);
-the type is `widen`ed first (so singleton/literal types resolve to their class),
-and comparison normalizes the conventions that differ (scalac's `<refinement>`
-head and trailing `scala.Any`, and `Outer#Inner` vs `Outer.Inner` spelling).
+Entry `28-cake-this-equivalence-soundness` pins two equivalences that look plausible for override matching in the cake and that scalac rejects: `Types.this =:= SymbolTable.this` when self types tie the classes together, and `Global.this =:= p` for any stable path `p` whose declared class is `Global`.
 
-This is the real residual-ordering surface: `baseTypeSeq` order is a symbol-id
-sort (mixin-INsensitive), whereas `baseClasses` carries the mixin order.
+### baseClasses
 
-**Result:** IntelliJ's linearization order **matches scalac across all 16 entries**
-— including the diamond (`D` = `B with C` → `D,C,B,A` vs `D2` = `C with B` →
-`D2,B,C,A`), variance, higher-kinded, F-bounds, and the same-symbol merge — with
-**one** exception: `04 AnimalBoxThis` (`AnimalBox.this.type`), where the
-linearization drops the self-type's `Animal`. So the residual "order differs from
-scalac" concern is **not** a linearization-order bug; it is (a) `BaseTypes.get`
-being unordered, and (b) base-types/linearization handling around `ScThisType`
-(the SCL-21947 / PR #663 area). `-Dscala.tck.strictBc=true` hardens this check.
+The linearization is compared with order, after normalizing the conventions that differ: scalac's `<refinement>` head and trailing `scala.Any`, and `Outer#Inner` vs `Outer.Inner` spelling. The type is widened first, so singleton and literal types resolve to their class. `baseTypeSeq` order is a symbol-id sort and so insensitive to mixin order; `baseClasses` carries the mixin order.
 
-### Term probes (memberType / asSeenFrom / ThisTypeSubstitution)
+### termType
 
-A corpus entry may declare `termTypes`: each splices `val __t_<name> = <expr>`
-(optionally at an `/*ANCHOR*/`) and the TCK reads its **inferred type**, comparing
-to scalac's. This exercises member resolution, `asSeenFrom`, and
-`ThisTypeSubstitution` — the path `BaseTypes.iterator` feeds (`ScalaConformance:77`,
-`ThisTypeSubstitution:39`, `TypeDefinitionMembers:567`). Path prefixes matter here,
-so the comparison does **not** collapse `#`↔`.` (`Impl.this.Tree` ≠ `Api#Tree`).
-`-Dscala.tck.strictTt=true` hardens it.
+This exercises member resolution, `asSeenFrom` and `ThisTypeSubstitution`. Path prefixes matter here, so the comparison does not collapse `#` and `.` (`Impl.this.Tree` is not `Api#Tree`).
 
-**Result (this branch):** `0` termType divergences, including the SCL-21947 shapes:
-- `16` member on a top-level self-type trait (`clazz.containingClass == null`, plain
-  `doUpdateThisType` branch) → `Impl.this.Tree`. ✓
-- `17` member in a NESTED class whose result type refers to the outer `this`
-  (`clazz.containingClass != null`, reaches the `BaseTypes.iterator(target).find(...)`
-  walk at `ThisTypeSubstitution:39`) → `Comp.this.Tree`. ✓
+### baseTypeSeq
 
-So `ThisTypeSubstitution`'s `seenFromClass` walk is effective on this branch. The
-`BaseTypes` change in PR #663 (`getTypeWithProjections()` → `clazz.type()`, the
-this-projection prefix `containingClassType` needs) is what un-thwarts it. The
-*separate* `ScThisType` self-type omission remains (the one `baseClasses` diff,
-`04 AnimalBoxThis`) but is latent under member resolution / conformance, masked by
-their own self-type fallbacks.
+Two differences from scalac's `baseTypeSeq` are reconciled before comparing:
 
-### Why baseTypeSeq is compared as a set of *proper supers*
+1. **Order.** The comparison checks membership only.
+2. **Reflexivity and Any.** scalac's `baseTypeSeq` is reflexive (`bt0 = T`) and ends with `scala.Any`; `BaseTypes.get` yields only proper, class-extractable base types. So the golden's head and `scala.Any` are dropped first. For a singleton the head is kept, since the widened type is one of its base types, as in scalac.
 
-Two differences from scalac's `baseTypeSeq` must be reconciled:
+## Running
 
-1. **Order.** `BaseTypes.get` returns `res.values.toList` off a `HashMap` — it does
-   **not** preserve linearization order, so we can only check membership, not
-   order. Checking order against scalac needs an order-preserving base-type API;
-   that gap is the residual issue tracked for SCL-21585 / SCL-21947.
-2. **Reflexivity / Any.** scalac's `baseTypeSeq` is reflexive (`bt0 = T`) and ends
-   with `scala.Any`; `BaseTypes.get` yields only proper, class-extractable base
-   types. So we compare against the golden's **proper supers** = the golden minus
-   its head (the type itself) and minus `scala.Any`.
-
-With that alignment the substitution results agree with scalac across the corpus
-(see findings below).
-
-### Current findings (branch `scala-typesystem-tck`)
-
-Conformance: **0** divergences across all 6 entries (including the SCL-21585 /
-SCL-21947 shapes). baseTypeSeq proper-supers: **2** divergences, both about
-base-type *enumeration* (not conformance):
-
-- `04 AnimalBoxThis` — `BaseTypes.get(AnimalBox.this.type)` returns only
-  `java.lang.Object`; it does not surface the self-type's contributed bases
-  (`Animal`, `AnimalBox`), even though `AnimalBox.this.type <:< Animal` holds.
-  This is base-types handling around `ScThisType` — the area PR #663 targets.
-- `05 Combined` — for `(B { type T = Repro }) with M_A[M { type A = B }]`,
-  `BaseTypes.get` keeps `B, Base, Object` but drops the intermediate refinement
-  base `B { type T = Repro }`.
-
-These two are the concrete work items the TCK currently isolates.
-
-## Running a single test (sbt)
-
-Per the repo README, the plugin must be packaged once, then run by FQN without a
-project prefix:
+The plugin must be packaged first, then the test is run by FQN without a project prefix:
 
 ```
 sbt
@@ -146,27 +59,7 @@ sbt
 > testOnly org.jetbrains.plugins.scala.lang.typeSystemTck.TypeSystemTckTest
 ```
 
-Useful flags (JVM system properties), e.g. via `-D` in the sbt invocation:
+## Remaining work
 
-- `-Dscala.tck.corpus=/path/to/corpus` — override the corpus location
-  (default: vendored `testdata/typeSystemTck/corpus`).
-- `-Dscala.tck.strictBts=true` — also fail the test on baseTypeSeq membership
-  diffs (default: report only; conformance always hard).
-
-To iterate on just the test sources without re-packaging:
-
-```
-sbt "scala-impl/Test/compile"
-```
-
-## Status / next steps
-
-- Scaffold: conformance is a hard assertion; baseTypeSeq is a reported set diff.
-- TODO: order-preserving base-type comparison once an ordered API exists.
-- The renderer is `canonicalText` plus the SPEC §4 forms PSI's presentation doesn't
-  produce: dealiased types, top-level existentials as `Q forSome { type _1 >: L <: U }`,
-  and `X.this.p` compared equal to `X.p` (an object's own `this`). TODO: a refinement's
-  `this.type`, existentials nested below the top level, and `FunctionN`/`TupleN`
-  without sugar. No current comparison depends on these.
-- Corpus is vendored from https://github.com/retronym/scala-type-system-tck;
-  refresh by re-copying `corpus/` after regenerating its goldens.
+- The renderer is `canonicalText` plus the SPEC §4 forms PSI's presentation doesn't produce: dealiased types, top-level existentials as `Q forSome { type _1 >: L <: U }`, and `X.this.p` compared equal to `X.p` (an object's own `this`). Not yet rendered: a refinement's `this.type`, existentials nested below the top level, and `FunctionN`/`TupleN` without sugar. No current comparison depends on these.
+- The corpus covers Scala 2.13 only.

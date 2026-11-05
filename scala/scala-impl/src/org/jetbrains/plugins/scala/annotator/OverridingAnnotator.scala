@@ -267,7 +267,7 @@ trait OverridingAnnotator {
           e match {
             // A type alias definition may be overridden by an equivalent alias, as scalac allows
             // (`override type NameType = TypeName` in `StdNames.TypeNames` over `TypeNamesApi`'s); only
-            // `final` makes it final. (Equivalence itself is not checked here.)
+            // `final` makes it final. `checkAliasOverridesEquivalentAlias` checks the equivalence.
             case alias: ScTypeAliasDefinition if !alias.hasFinalModifier =>
             case member: ScMember if member.isEffectivelyFinal =>
               overridesFinal = true

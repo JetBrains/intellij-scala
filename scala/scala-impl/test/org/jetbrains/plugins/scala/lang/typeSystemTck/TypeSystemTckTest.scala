@@ -18,7 +18,7 @@ import scala.collection.mutable.ArrayBuffer
  * Runs the scala-type-system-tck corpus against the IntelliJ PSI type system,
  * the way [[org.jetbrains.plugins.scala.lang.typeSystemTck.TckCorpus]] describes,
  * and compares conformance and base type sequences against the scalac-generated
- * goldens. The reference oracle lives in ~/code/scala-type-system-tck.
+ * goldens. The reference oracle is https://github.com/retronym/scala-type-system-tck.
  *
  * Iterate with (in the sbt shell, after `packageArtifact` once):
  *   testOnly org.jetbrains.plugins.scala.lang.typeSystemTck.TypeSystemTckTest
@@ -53,7 +53,7 @@ class TypeSystemTckTest extends ScalaLightCodeInsightFixtureTestCase {
    * passes). They are pinned so the suite is otherwise strict. If you make one of
    * these pass, the test will fail with a "progression" message — delete it from here.
    *
-   * Groups (see PR #5):
+   * Groups (see retronym/intellij-scala#5):
    *  A. Empty `baseTypeSeq` for non-class type forms (existential / singleton /
    *     literal / primitive): the PSI probe doesn't widen to the underlying before
    *     reading supers. Conformance over these forms is correct.

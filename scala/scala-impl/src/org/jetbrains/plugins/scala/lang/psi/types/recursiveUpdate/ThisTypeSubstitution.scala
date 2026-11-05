@@ -379,7 +379,7 @@ private object ThisTypeSubstitution {
    * `global`) where it is minted: when a substitutor is built, and when a substitution
    * rebuilds a projection over a rewritten prefix. Otherwise resolution feeds fresh
    * spellings back in as substitution targets and the paths compound
-   * (`analyzer.global.analyzer.global...`) until the no-self-embedding rule cuts them off.
+   * (`analyzer.global.analyzer.global...`).
    */
   def canonicalizeTarget(tp: ScType): ScType =
     if (!ScProjectionType.mayCollapse(tp)) tp
