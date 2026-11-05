@@ -50,6 +50,10 @@
                               order="first"/>
         <!-- /Handler -->
 
+        <!-- Enter Handler for multiline strings -->
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler" order="first"/>
+        <!-- /Handler -->
+
         <!-- Enter Handler for braces in closure braced blocks -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.EnterBetweenClosureBracesHandler"/>
         <!-- /Handler -->
