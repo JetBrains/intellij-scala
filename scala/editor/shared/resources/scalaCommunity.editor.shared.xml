@@ -9,7 +9,9 @@
         <module name="intellij.platform.codeStyle.impl"/>
         <module name="intellij.platform.core"/>
         <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.core.ui"/>
         <module name="intellij.platform.editor.ui"/>
+        <module name="intellij.platform.ide"/>
         <module name="intellij.platform.ide.impl"/>
         <module name="intellij.platform.lang"/>
         <module name="intellij.platform.lang.impl"/>
@@ -36,6 +38,11 @@
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaStatementGroupSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaStringLiteralSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner"/>
+
+        <!-- Enter Handler for inserting "+" in interpolated strings -->
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.InterpolatedStringEnterHandler"
+                              order="first"/>
+        <!-- /Handler -->
 
         <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinLines.PackageJoinLinesHandler"/>
         <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinLines.StripMarginJoinLinesHandler"/>

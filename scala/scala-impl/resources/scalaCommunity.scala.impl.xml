@@ -623,11 +623,6 @@
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaDocTagEnterHandlerDelegate"/>
         <!-- /Handler -->
 
-        <!-- Enter Handler for inserting "+" in interpolated strings -->
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.InterpolatedStringEnterHandler"
-                              order="first"/>
-        <!-- /Handler -->
-
         <!-- Enter Handler for multiline strings -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler" order="first"/>
         <!-- /Handler -->
