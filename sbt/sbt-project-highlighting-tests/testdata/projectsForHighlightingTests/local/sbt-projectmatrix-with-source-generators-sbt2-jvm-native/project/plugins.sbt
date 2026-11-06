@@ -1,1 +1,1 @@
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.11")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.12")
