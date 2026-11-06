@@ -127,8 +127,10 @@ abstract class SbtTask_BeforeLaunchStep_AsSbtRunConfiguration_TestBase extends S
       dependentConfigurationSettings,
       options.executionMode.executor,
     )
+    // The Make step may have to start the compile server first, which together with the compilation of a single file
+    // has been observed to take longer than 10 seconds on the macOS CI agents
     compileBeforeLaunchObserver.awaitSuccessfulCompletion(
-      timeout = 10.seconds,
+      timeout = 60.seconds,
       buildDiagnostics = buildDiagnosticsCollector.snapshot,
     )
     // With mock sbt we don't need to wait for a long time, 5 seconds is more than enough
