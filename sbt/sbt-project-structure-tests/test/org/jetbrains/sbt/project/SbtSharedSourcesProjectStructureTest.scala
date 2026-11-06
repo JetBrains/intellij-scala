@@ -18,7 +18,7 @@ final class SbtSharedSourcesProjectStructureTest extends SbtProjectStructureImpo
 
   def testSharedSources(): Unit = runTest(
     new project("sharedSourcesProject") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
       libraries := scalaLibraries
 
       lazy val root: module = new module("sharedSourcesProject") {
@@ -118,7 +118,7 @@ final class SbtSharedSourcesProjectStructureTest extends SbtProjectStructureImpo
     new project("sharedSourcesWithNestedProjectDependencies") {
       private val projectName = "sharedSourcesWithNestedProjectDependencies"
 
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
       libraries := scalaLibraries
 
       lazy val root: module = new module(projectName) {
@@ -1333,7 +1333,7 @@ final class SbtSharedSourcesProjectStructureTest extends SbtProjectStructureImpo
 
   def testSharedSourcesInsideMultiBuildProject(): Unit = runTest(
     new project("sharedSourcesInsideMultiBuildProject") {
-      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+      lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
       libraries := scalaLibraries
 
       val buildURI: URI = getTestProjectPath.toCanonicalPath.toUri
@@ -1472,7 +1472,7 @@ final class SbtSharedSourcesProjectStructureTest extends SbtProjectStructureImpo
   def testTheSameSourceBaseDirsInDifferentProjects(): Unit =
     runTest(
       new project("root") {
-        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)("2.13.14")
+        lazy val scalaLibraries: Seq[library] = ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)("2.13.14")
         libraries := scalaLibraries
 
         lazy val root: module = new module("root") {
