@@ -24,7 +24,7 @@ import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNew
 import org.jetbrains.sbt.project.template.wizard.buildSystem.ScalaNewProjectWizardData.scalaData
 import org.jetbrains.sbt.project.utils.{MacroSubstitutor, ProjectComparisonOptions}
 import org.jetbrains.sbt.project.{NewScalaProjectWizardTestBase, ProjectStructureAssertionsFixture, ProjectStructureTestUtils}
-import org.junit.{Assume, Test}
+import org.junit.{Assert, Assume, Test}
 import org.junit.runner.RunWith
 
 import java.nio.file.{Files, Path}
@@ -305,14 +305,18 @@ class NewScalaCliProjectWizard_ScalaWithoutScalaCLI extends NewScalaCliProjectWi
 
     // Scala 3.0.2 reports a slightly different version output, which is not directly parsed
     // in org.jetbrains.scalaCli.ScalaCliUtils.parseScalaVersion. It doesn't matter much in production.
-    val expectedErrorMessage =
-      if (scalaVersion == Scala_3_0) "Unable to parse Scala version from output: Scala compiler version 3.0.2"
-      else s"Scala version ${scalaVersion.minor} is lower than 3.5.0"
+    // The error message then contains the whole output, which can also contain JVM warnings, e.g. since JDK 24
+    // about the deprecated sun.misc.Unsafe methods used by the Scala 3.0.2 library, so the message is checked in parts.
+    val expectedErrorMessageParts =
+      if (scalaVersion == Scala_3_0) Seq("Unable to parse Scala version from output:", "Scala compiler version 3.0.2")
+      else Seq(s"Scala version ${scalaVersion.minor} is lower than 3.5.0")
 
     UsefulTestCase.assertThrows(
+      () => runSimpleCreateProjectTest(SupportedScala3Version),
       classOf[Exception],
-      expectedErrorMessage,
-      () => runSimpleCreateProjectTest(SupportedScala3Version)
+      (message: String) => expectedErrorMessageParts.foreach { part =>
+        Assert.assertTrue(s"The error message was expected to contain '$part', but got: '$message'", message.contains(part))
+      }
     )
   }
 }
