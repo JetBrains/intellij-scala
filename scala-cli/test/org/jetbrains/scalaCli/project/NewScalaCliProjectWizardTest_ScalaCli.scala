@@ -2,6 +2,7 @@ package org.jetbrains.scalaCli.project
 
 import com.intellij.execution.process.ProcessOutputType
 import com.intellij.ide.projectWizard.NewProjectWizardConstants
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener, ExternalSystemTaskType}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project.utils.ScalaInstallationTestUtils.*
@@ -58,6 +59,8 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
    */
   private val projectName = "scalaCliProjectName"
 
+  private val logger = Logger.getInstance(getClass)
+
   override protected def setUp(): Unit = {
     ignoreTestIfSystemIsNotAllowed()
     super.setUp()
@@ -79,6 +82,16 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
       }
     }
     ExternalSystemTaskNotificationListener.EP_NAME.getPoint.registerExtension(closeAllBspInstancesAfterReload, getTestRootDisposable)
+
+    // Writes the output of the project import, which includes the stderr of the Scala CLI BSP server, to the test log,
+    // so that failed imports on the CI can be investigated, e.g. "BSP server is not responding"
+    val logProjectImportOutput = new ExternalSystemTaskNotificationListener {
+      override def onTaskOutput(id: ExternalSystemTaskId, text: String, outputType: ProcessOutputType): Unit =
+        if (id.getType == ExternalSystemTaskType.RESOLVE_PROJECT) {
+          logger.info(s"Project import output: ${text.stripTrailing()}")
+        }
+    }
+    ExternalSystemTaskNotificationListener.EP_NAME.getPoint.registerExtension(logProjectImportOutput, getTestRootDisposable)
   }
 
   protected def runSimpleCreateProjectTest(
