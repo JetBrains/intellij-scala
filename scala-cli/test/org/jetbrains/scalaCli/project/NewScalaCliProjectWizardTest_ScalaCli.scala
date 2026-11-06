@@ -89,9 +89,24 @@ abstract class NewScalaCliProjectWizardTestBase extends NewScalaProjectWizardTes
       override def onTaskOutput(id: ExternalSystemTaskId, text: String, outputType: ProcessOutputType): Unit =
         if (id.getType == ExternalSystemTaskType.RESOLVE_PROJECT) {
           logger.info(s"Project import output: ${text.stripTrailing()}")
+          logScalaCliStackTrace(text)
         }
     }
     ExternalSystemTaskNotificationListener.EP_NAME.getPoint.registerExtension(logProjectImportOutput, getTestRootDisposable)
+  }
+
+  private val StackTraceFileReference = """For more details, please see '(.+)'""".r.unanchored
+
+  /**
+   * Scala CLI reports only the message of an error, e.g. "Error getting Bloop class path", and writes the stack trace
+   * to a file in the `.scala-build` directory of the project, which is deleted together with the test project.
+   * The output line after the message references the file: "For more details, please see '/path/to/stack-trace.log'".
+   */
+  private def logScalaCliStackTrace(output: String): Unit = output match {
+    case StackTraceFileReference(path) =>
+      val stackTrace = Try(Files.readString(Path.of(path))).fold(e => s"<cannot be read: $e>", identity)
+      logger.info(s"Scala CLI stack trace from $path:\n$stackTrace")
+    case _ =>
   }
 
   protected def runSimpleCreateProjectTest(
