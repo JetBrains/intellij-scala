@@ -26,9 +26,9 @@ import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.ui.JBUI
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.settings.ScalaSettingsBundle
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction, inWriteAction, invokeAndWait}
+import org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingBundle
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
@@ -164,7 +164,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     configResolveError match {
       case ConfigFileNotFound(configPath) => reportConfigFileNotFound(configPath)
       case ConfigParseError(_, exception) => reportConfigParseError(exception.getMessage)
-      case ConfigCyclicDependenciesError(_, _) => reportConfigParseError(ScalaSettingsBundle.message("scalafmt.config.load.errors.cyclic.includes.detected"))
+      case ConfigCyclicDependenciesError(_, _) => reportConfigParseError(ScalaFormattingBundle.message("scalafmt.config.load.errors.cyclic.includes.detected"))
       case ConfigScalafmtResolveError(error) => reportCantResolveVersion(error.version)
     }
   }
@@ -358,7 +358,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     noConfigGroup = new JPanel(new HorizontalLayout(10, SwingConstants.CENTER))
     noConfigLabel = new JLabel(ScalaSettingsBundle.message("scalafmt.settings.panel.no.config.found.under.path.using.default"))
     noConfigGroup.add(noConfigLabel)
-    createConfigButton = new JButton(ScalaBundle.message("scalafmt.can.not.find.config.file.create.new"))
+    createConfigButton = new JButton(ScalaFormattingBundle.message("scalafmt.can.not.find.config.file.create.new"))
     createConfigButton.addActionListener(_ => createNewConfigFileAndUpdate())
     noConfigGroup.add(createConfigButton)
 
@@ -477,8 +477,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
 object ScalaFmtSettingsPanel {
 
   object SearchFilter {
-    // TODO: will not work in non-english localization, also see ScalaCompileServerForm
-    def ScalafmtConfiguration = "Scalafmt Configuration"
+    def ScalafmtConfiguration: String = ScalafmtDynamicConfigServiceImpl.ScalafmtConfigurationSearchFilter
   }
 
   //copied from CodeStyleAbstractPanel

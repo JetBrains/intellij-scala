@@ -189,6 +189,13 @@ object ScalaBundleSorting {
       )
     ),
     ModuleWithBundleInfo(
+      rootPath = scalaModDir / "formatting" / "backend",
+      bundleMessagesRelativePath = "ScalaFormattingBundle.properties",
+      extraUsageModules = Seq(
+        ModuleInfo(scalaImplDir),
+      )
+    ),
+    ModuleWithBundleInfo(
       rootPath = scalaModDir / "structure-view",
       bundleMessagesRelativePath = "ScalaStructureViewBundle.properties"
     ),

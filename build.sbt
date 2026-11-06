@@ -102,6 +102,9 @@ lazy val scalaCommunity: sbt.Project =
       settingsShared % "test->test;compile->compile",
       scalaPsiApi % "test->test;compile->compile",
       scalaPsiImpl % "test->test;compile->compile",
+      formattingShared % "test->test;compile->compile",
+      formattingBackend % "test->test;compile->compile",
+      dependencyManager % "test->test;compile->compile",
       editorShared % "test->test;compile->compile",
       scalaFrontend % "test->test;compile->compile",
       scalaImpl % "test->test;compile->compile",
@@ -222,12 +225,64 @@ lazy val scalaPsiImpl = newProject("scala-psi-impl", file("scala/scala-psi-impl"
   )
 
 /**
+ * The resolve-free native Scala formatter that should be available on client in remote development.
+ * Scalafmt support is in [[formattingBackend]].
+ */
+lazy val formattingShared = newProject("formatting-shared", file("scala/formatting/shared"))
+  .dependsOn(
+    scalaPsiImpl,
+  )
+  .settings(
+    Compile / scalacOptions ++= Seq(
+      "-no-indent",
+      "-Wconf:msg=Non local returns are no longer supported:s",
+    ),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.formatting.shared"),
+  )
+
+/**
+ * Backend-only formatting support: Scalafmt integration, code style settings migration.
+ */
+lazy val formattingBackend = newProject("formatting-backend", file("scala/formatting/backend"))
+  .dependsOn(
+    formattingShared,
+    sbtApi,
+    dependencyManager,
+    scalafmtDynamicShim,
+  )
+  .settings(
+    Compile / scalacOptions ++= Seq(
+      "-no-indent",
+      "-Wconf:msg=Non local returns are no longer supported:s",
+    ),
+    intellijPlugins ++= Seq(
+      "com.intellij.platform.vcs".toPlugin, // VcsUtil in ScalafmtConfigUtils
+      "com.intellij.xml".toPlugin,
+    ),
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.formatting.backend"),
+  )
+
+/**
+ * Resolves and downloads libraries (e.g. scalafmt, compiler bridges) with Ivy.
+ */
+// TODO: a better module structure/name?
+lazy val dependencyManager = newProject("dependency-manager", file("scala/dependency-manager"))
+  .dependsOn(
+    sbtApi,
+  )
+  .settings(
+    libraryDependencies += Dependencies.ivy2,
+    packageMethod := PackagingMethod.PluginModule("scalaCommunity.dependency.manager"),
+  )
+
+/**
  * Resolve-free editor-related code that should be available on client in remote development.
  * E.g.: backspace handlers, matching braces, folding, etc.
  */
 lazy val editorShared = newProject("editor-shared", file("scala/editor/shared"))
   .dependsOn(
     scalaPsiImpl,
+    formattingShared,
   )
   .settings(
     Compile / scalacOptions ++= Seq(
@@ -488,9 +543,10 @@ lazy val scalaImpl: sbt.Project =
       compilerSettingsDefinition,
       scalaApi,
       scalaLanguageUtils,
-      scalafmtDynamicShim,
       scalaPsiImpl,
       editorShared,
+      formattingBackend,
+      dependencyManager,
       sbtApi,
       decompiler % "test->test;compile->compile",
       tastyReader % "test->test;compile->compile",

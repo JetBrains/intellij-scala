@@ -82,7 +82,10 @@
         <module name="intellij.xml.parser"/>
         <module name="intellij.xml.psi"/>
         <module name="intellij.xml.psi.impl"/>
+        <module name="scalaCommunity.dependency.manager"/>
         <module name="scalaCommunity.editor.shared"/>
+        <module name="scalaCommunity.formatting.backend"/>
+        <module name="scalaCommunity.formatting.shared"/>
         <module name="scalaCommunity.sbt.api"/>
         <module name="scalaCommunity.sbt.core"/>
         <module name="scalaCommunity.scala.api"/>
@@ -277,13 +280,6 @@
         <additionalTextAttributes scheme="Dark" file="colorSchemes/expui/ScalaDark.xml"/>
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>
         <lang.substitutor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaLanguageSubstitutor"/>
-        <lang.formatter language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.formatting.ScalaFormattingModelBuilder"/>
-        <postFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.processors.ScalaBracePostFormatProcessor"/>
-        <postFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.processors.ScalaTrailingCommaProcessor"/>
-        <preFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.processors.ScalaDocNewlinedPreFormatProcessor"/>
-        <preFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor"/>
-        <applicationService serviceInterface="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService"
-                            serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicServiceImpl"/>
         <lang.floatingToolbarCustomizer language="Scala" implementationClass="com.intellij.ui.codeFloatingToolbar.FloatingToolbarCustomizer$DefaultGroup"/>
         <lang.refactoringSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringSupportProvider"/>
         <lang.surroundDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaExpressionSurroundDescriptor"/>
@@ -319,10 +315,6 @@
         <notificationGroup id="scala.plugin.verifier" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.plugin.verifier"/>
         <notificationGroup id="scala.plugin.updater" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.plugin.updater"/>
         <notificationGroup id="scala.features.advertiser" displayType="STICKY_BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.features.advertiser"/>
-        <!-- scalafmt notification groups -->
-        <notificationGroup id="scalafmt" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scalafmt"/>
-        <notificationGroup id="scalafmt.fatal.errors" displayType="STICKY_BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scalafmt.fatal.errors"/>
-        <notificationGroup id="scalafmt.format.errors" displayType="BALLOON" bundle="messages.ScalaBundle" key="scala.notification.group.id.scalafmt.format.errors"/>
 
         <toolWindow id="internal-profiler" anchor="bottom" canCloseContents="false" doNotActivateOnStart="true"
                     factoryClass="org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory"/>
@@ -739,19 +731,14 @@
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.autoImport.ImportOrderingIndexer"/>
 
         <compiler.task execute="BEFORE" implementation="org.jetbrains.plugins.scala.lang.formatting.ReformatOnCompileTask"/>
-        <lang.formatter.restriction implementation="org.jetbrains.plugins.scala.lang.formatting.ScalaLanguageFormattingRestriction" />
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaCompileServerSettings"/>
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings"/>
 
-        <projectService serviceInterface="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService"
-                        serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigServiceImpl"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
-
-        <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ApplicationCodeStyleSettingsMigrationService"/>
 
         <projectConfigurable id="scala.compiler"
                              bundle="messages.ScalaBundle"
@@ -795,8 +782,6 @@
         <registryKey key="scala.dependency.manager.use.file.system.resolvers.only" defaultValue="false" restartRequired="false"
                      description="When true then built-in scala plugin dependency manager will not try to resolve artifacts in internet (see org.jetbrains.plugins.scala.DependencyManagerBase)"/>
 
-        <registryKey key="scalafmt.min.time.between.format.on.save.action.ms" defaultValue="300" restartRequired="false"
-                     description="Minimum allowed time between 'Format on Save' triggers (when Scalafmt formatter is enabled)"/>
 
         <registryKey key="scala.compiler.highlighting.use.compiler.ranges" defaultValue="true" restartRequired="false"
                      description="When enabled, the text ranges reported by the Scala compiler are used to highlight the code in the editor. This can lead to large text ranges being highlighted for a given compilation error. When disabled, smaller text ranges are highlighted in the editor for a given compilation error."/>
@@ -2175,15 +2160,12 @@
         <!-- End of inspections -->
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType"/>
-        <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtDisabledIndentRangesProvider"/>
-        <fileIndentOptionsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtFileIndentOptionsProvider"/>
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.util.UIFreezingGuardActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierProjectActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.RegisterSyntheticClassesProjectActivity"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
 
         <generalTroubleInfoCollector implementation="org.jetbrains.plugins.scala.internal.ScalaGeneralTroubleInfoCollector"/>
@@ -2197,14 +2179,6 @@
                   class="org.jetbrains.plugins.scala.internal.ScalaDynamicPluginManager" />
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.DeregisterSyntheticClassesListener"/>
-
-        <!-- Formatter listeners -->
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
-        <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener"
-                  class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtReformatOnFileSaveTask"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleProjectListener"/>
     </applicationListeners>
 
     <projectListeners>

@@ -60,6 +60,7 @@
         <module name="intellij.platform.vcs.impl"/>
         <module name="intellij.platform.workspace.jps"/>
         <module name="intellij.platform.workspace.storage"/>
+        <module name="scalaCommunity.formatting.shared"/>
         <module name="scalaCommunity.sbt.api"/>
         <module name="scalaCommunity.sbt.core"/>
         <module name="scalaCommunity.scala.api"/>

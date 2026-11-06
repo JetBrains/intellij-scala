@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<idea-plugin visibility="public">
+    <dependencies>
+        <module name="intellij.java"/>
+        <module name="intellij.java.impl"/>
+        <module name="intellij.java.psi"/>
+        <module name="intellij.libraries.commons.lang3"/>
+        <module name="intellij.libraries.commons.text"/>
+        <module name="intellij.platform.analysis"/>
+        <module name="intellij.platform.codeStyle"/>
+        <module name="intellij.platform.codeStyle.impl"/>
+        <module name="intellij.platform.core"/>
+        <module name="intellij.platform.core.impl"/>
+        <module name="intellij.platform.core.ui"/>
+        <module name="intellij.platform.editor.ui"/>
+        <module name="intellij.platform.ide.core"/>
+        <module name="intellij.platform.ide.core.impl"/>
+        <module name="intellij.platform.ide.impl"/>
+        <module name="intellij.platform.lang.impl"/>
+        <module name="intellij.platform.projectModel"/>
+        <module name="intellij.platform.projectModel.impl"/>
+        <module name="intellij.platform.vcs"/>
+        <module name="scalaCommunity.dependency.manager"/>
+        <module name="scalaCommunity.formatting.shared"/>
+        <module name="scalaCommunity.sbt.api"/>
+        <module name="scalaCommunity.sbt.core"/>
+        <module name="scalaCommunity.scala.api"/>
+        <module name="scalaCommunity.scala.psi.impl"/>
+        <module name="scalaCommunity.settings.shared"/>
+    </dependencies>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- last: it replaces the formatted node, so the pre-format processors after it would get an invalid node
+             (e.g. the Java plugin's FormatCommentsProcessor fails on an assertion) -->
+        <preFormatProcessor implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor"
+                            order="last, after scalaDocNewlinedPreFormatProcessor"/>
+        <fileIndentOptionsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtFileIndentOptionsProvider"/>
+
+        <applicationService serviceInterface="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService"
+                            serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicServiceImpl"/>
+        <projectService serviceInterface="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService"
+                        serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigServiceImpl"/>
+        <projectService serviceInterface="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtIndentsProvider"
+                        serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtIndentsProviderImpl"/>
+
+        <applicationService serviceImplementation="org.jetbrains.plugins.scala.lang.formatting.settings.migration.ApplicationCodeStyleSettingsMigrationService"/>
+
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
+
+        <!-- scalafmt notification groups -->
+        <notificationGroup id="scalafmt" displayType="BALLOON" bundle="messages.ScalaFormattingBundle" key="scala.notification.group.id.scalafmt"/>
+        <notificationGroup id="scalafmt.fatal.errors" displayType="STICKY_BALLOON" bundle="messages.ScalaFormattingBundle" key="scala.notification.group.id.scalafmt.fatal.errors"/>
+        <notificationGroup id="scalafmt.format.errors" displayType="BALLOON" bundle="messages.ScalaFormattingBundle" key="scala.notification.group.id.scalafmt.format.errors"/>
+
+        <registryKey key="scalafmt.min.time.between.format.on.save.action.ms" defaultValue="300" restartRequired="false"
+                     description="Minimum allowed time between 'Format on Save' triggers (when Scalafmt formatter is enabled)"/>
+    </extensions>
+
+    <applicationListeners>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
+        <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener"
+                  class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtReformatOnFileSaveTask"/>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleProjectListener"/>
+    </applicationListeners>
+</idea-plugin>
