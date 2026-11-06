@@ -6,7 +6,12 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 class ScalaJUnit5TestingTestCase extends ScalaJUnitTestingTestCaseBase {
 
   override protected def additionalLibraries: Seq[LibraryLoader] = Seq(
-    IvyManagedLoader(("org.junit.jupiter" % "junit-jupiter" % "5.8.1").transitive())
+    IvyManagedLoader(
+      ("org.junit.jupiter" % "junit-jupiter" % "5.8.1").transitive(),
+      // Without the launcher on the classpath, the IDE downloads it from Maven Central when starting the run,
+      // which fails with HTTP Error 429 Too Many Requests in the CI
+      "org.junit.platform" % "junit-platform-launcher" % "1.8.1",
+    )
   )
 
   //SCL-19710
