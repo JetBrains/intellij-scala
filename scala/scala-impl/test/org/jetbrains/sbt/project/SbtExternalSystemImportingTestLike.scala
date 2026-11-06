@@ -52,10 +52,6 @@ trait SbtExternalSystemImportingTestLike extends ScalaExternalSystemImportingTes
    *
    * Only enable for repo-controlled testdata builds without custom resolvers;
    * see [[SbtCachesSetupUtil.cacheAndRepositoryVmOptionsWithBuildReposOverride]].
-   *
-   * Note: coursier embeds the source repository host in its cache layout, so tests asserting absolute library paths
-   * must keep their expectations in sync via the `buildReposOverridden` parameter of
-   * [[ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt]] and friends.
    */
   protected def overrideBuildRepositories: Boolean = false
 

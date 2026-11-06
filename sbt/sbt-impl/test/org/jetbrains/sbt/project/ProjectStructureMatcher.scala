@@ -28,6 +28,7 @@ import org.jetbrains.sbt.DslUtils.MatchType
 import org.jetbrains.sbt.SbtSourceSetUtil.SbtSourceSetModuleExt
 import org.jetbrains.sbt.project.ProjectStructureDsl.*
 import org.jetbrains.sbt.project.ProjectStructureMatcher.AttributeMatchType
+import org.jetbrains.sbt.project.ProjectStructureTestUtils.MavenCentralCacheDirectory
 import org.jetbrains.sbt.project.utils.ProjectStructureComparisonContext.AssertionFailStrategy
 import org.jetbrains.sbt.project.utils.{MacroSubstitutor, ProjectStructureComparisonContext, ScalaCliStructureHelper}
 import org.junit.Assert.{assertFalse, assertNotNull, assertTrue, fail}
@@ -484,10 +485,22 @@ trait ProjectStructureMatcher {
     // If we don't do this here, we could get test failures.
     //
     // ATTENTION: We might need to review this approach once we run the tests for WSL on Windows agents.
-    val pathCanonical = Path.of(path).toRealPath().toString
+    //
     // Normalize separators to have the same expected data on Unix and Windows
-    pathCanonical.replace("\\", "/")
+    val pathWithMacro = MavenCentralCacheDirectory.replaceWithMacro(path.replace("\\", "/"))
+    val macroIndex = pathWithMacro.indexOf(MavenCentralCacheDirectory.Macro)
+    if (macroIndex < 0)
+      realPath(pathWithMacro)
+    else {
+      // The artifact doesn't necessarily exist under the Maven Central cache directory of the expected path,
+      // so only the cache root is canonicalized
+      val (cacheRoot, pathFromMacro) = pathWithMacro.splitAt(macroIndex)
+      realPath(cacheRoot) + "/" + pathFromMacro
+    }
   }
+
+  private def realPath(path: String): String =
+    Path.of(path).toRealPath().toString.replace("\\", "/")
 
   private def assertLibraryScalaSdk(expectedLibrary: library, actualLibrary0: Library)
                                    (implicit compareContext: ProjectStructureComparisonContext): Unit = {

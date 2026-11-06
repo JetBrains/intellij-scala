@@ -116,7 +116,7 @@ class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase {
     val expectedIntellijProjectStructure: project = new project(projectName) {
       lazy val scalaLibraries =
         if (useCoursier)
-          ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true, buildReposOverridden = overrideBuildRepositories)(scalaVersion, useScalaSdkExtraClasspath)
+          ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkForSbt(useEnv = true)(scalaVersion, useScalaSdkExtraClasspath)
         else
           ProjectStructureTestUtils.expectedScalaLibraryWithScalaSdkFromIvy(useEnv = true)(scalaVersion)
 
