@@ -105,7 +105,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
       val representativeProjectModule = projectToModuleNode.get(representativeProject)
 
       val moduleFilesDirectory = representativeProjectModule.map(_.parent.getModuleFileDirectoryPath).getOrElse(defaultModuleFilesDirectory)
-      val (moduleNode, contentRootNode) = createSharedSourceModuleSimple(rootGroup, moduleFilesDirectory, ownerProjectsIds)
+      val packagePrefix = representativeProject.packagePrefix
+      val (moduleNode, contentRootNode) = createSharedSourceModuleSimple(rootGroup, moduleFilesDirectory, ownerProjectsIds, packagePrefix)
       //todo: get jdk from a corresponding jvm module ?
       moduleNode.add(ModuleSdkNode.inheritFromProject)
 
@@ -134,7 +135,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
       val representativeProjectManagedSources = getManagedSourceRootsFromRepresentativeProjectToIncludeAsBaseModelSourceRoots(rootGroup, representativeProject)
       representativeProjectManagedSources.foreach { root =>
         val esSourceType = calculateEsSourceType(root)
-        contentRootNode.storePath(esSourceType, root.directory.toCanonicalPath.toString)
+        contentRootNode.storePath(esSourceType, root.directory.toCanonicalPath.toString, packagePrefix.orNull)
       }
 
       representativeProjectModule.foreach { case PrentModuleSourceSet(reprProjectModule) =>
@@ -438,7 +439,8 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
   private def createSharedSourceModuleSimple(
     group: SharedSourcesGroup,
     moduleFilesDirectory: String,
-    ownerProjectsIds: Seq[String]
+    ownerProjectsIds: Seq[String],
+    packagePrefix: Option[String]
   ): (ModuleDataNodeType, ContentRootNode) = {
     val groupBase = group.base
     val moduleNode = createModuleNode(
@@ -456,7 +458,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     val contentRootNode = new ContentRootNode(groupBase)
     group.sourceRoots.foreach { root =>
       val esSourceType = calculateEsSourceType(root)
-      contentRootNode.storePath(esSourceType, root.directory.toCanonicalPath.toString)
+      contentRootNode.storePath(esSourceType, root.directory.toCanonicalPath.toString, packagePrefix.orNull)
     }
 
     moduleNode.add(contentRootNode)
@@ -528,7 +530,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver & ContentRootsReso
     if (sourceRoots.nonEmpty) {
       // Hardcode src/main or src/test base directories, only when the shared sources group was derived from the base paths
       val sourceRootBaseDirs = if (group.hasStandardBasePath) Seq(Path.of(groupPath, "src", sourceSetName.toString)) else Seq.empty
-      val contentRootNodes = createContentRootNodes(sourceRootBaseDirs, sourceRoots)
+      val contentRootNodes = createContentRootNodes(sourceRootBaseDirs, sourceRoots, representativeProject.packagePrefix)
       moduleNode.addAll(contentRootNodes)
     } else {
       // when roots are empty, we shouldn't create a shared sources module

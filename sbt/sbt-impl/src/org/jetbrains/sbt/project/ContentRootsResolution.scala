@@ -225,10 +225,14 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
    *                             - `.../src/main/scala-3`
    *                             - `.../src/main/resources`
    *                             - `.../target/.../src_managed/main`
+   * @param packagePrefix      The package prefix to store with every source/resource root.<br>
+   *                           Regular modules leave it empty, as [[org.jetbrains.sbt.project.data.SbtModuleExtData]]
+   *                           sets their prefix; shared sources modules have no such data, so they pass it here.
    */
   protected def createContentRootNodes(
     sourceRootBaseDirs: Seq[Path],
     sourceRoots: Seq[(Path, ExternalSystemSourceType)],
+    packagePrefix: Option[String] = None,
   ): Seq[ContentRootNode] = {
     val _sourceRootBaseDirs = sourceRootBaseDirs.map((_, None))
     val _sourceRoots = sourceRoots.map { case (path, sourceType) => (path, Some(sourceType)) }
@@ -238,11 +242,11 @@ trait ContentRootsResolution { self: ExternalSourceRootResolution =>
       val suitableContentRootNode = findContentRootContainingPath(contentRootNodes, sourceRootPath)
       suitableContentRootNode match {
         case Some(contentRootNode) if sourceType.nonEmpty =>
-          contentRootNode.storePath(sourceType.get, sourceRootPath.toCanonicalPath.toString)
+          contentRootNode.storePath(sourceType.get, sourceRootPath.toCanonicalPath.toString, packagePrefix.orNull)
           contentRootNodes
         case None =>
           val node = new ContentRootNode(sourceRootPath)
-          sourceType.foreach(node.storePath(_, sourceRootPath.toCanonicalPath.toString))
+          sourceType.foreach(node.storePath(_, sourceRootPath.toCanonicalPath.toString, packagePrefix.orNull))
           contentRootNodes :+ node
         case _ => contentRootNodes
       }
