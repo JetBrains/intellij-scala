@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import com.intellij.concurrency.ConcurrentCollectionFactory
-import com.intellij.debugger.engine._
+import com.intellij.debugger.engine.*
 import com.intellij.debugger.engine.evaluation.EvaluationContext
-import com.intellij.debugger.impl.DebuggerUtilsEx
+import com.intellij.debugger.impl.{DebuggerCoroutineUtilKt, DebuggerUtilsEx}
 import com.intellij.debugger.jdi.{StackFrameProxyImpl, VirtualMachineProxyImpl}
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.ui.impl.watch.StackFrameDescriptorImpl
@@ -15,7 +15,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry, LanguageFileType}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
-import com.intellij.psi._
+import com.intellij.psi.*
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
@@ -23,37 +23,37 @@ import com.intellij.util.ThreeState
 import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.intellij.util.containers.ConcurrentIntObjectMap
 import com.intellij.xdebugger.frame.XStackFrame
-import com.sun.jdi._
+import com.sun.jdi.*
 import com.sun.jdi.request.ClassPrepareRequest
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.caches.{ScalaShortNamesCacheManager, cachedInUserData}
-import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.*
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
-import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil._
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil.*
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLocalClass
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScExtractorPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.*
+import org.jetbrains.plugins.scala.lang.psi.api.statements.*
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.*
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.util.AnonymousFunction._
-import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants._
+import org.jetbrains.plugins.scala.util.AnonymousFunction.*
+import org.jetbrains.plugins.scala.util.ScalaBytecodeConstants.*
 import org.jetbrains.plugins.scala.util.TopLevelMembers.{findEnclosingPackageOrFile, findFileWithTopLevelMembers, topLevelMemberClassName}
 
-import java.{util => ju}
+import java.util as ju
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.reflect.NameTransformer
 import scala.util.Try
 
@@ -61,7 +61,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   protected[debugger] val caches = new ScalaPositionManagerCaches(debugProcess)
   private val outerAndNestedTypePartsPattern = """([^\$]*)(\$.*)?""".r
-  import caches._
+  import caches.*
 
   private val debugProcessScope: ElementScope = ElementScope(debugProcess.getProject, debugProcess.getSearchScope)
 
@@ -100,10 +100,13 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
    * (early) return (SCL-21626). Reuses the platform's check, which inspects the actual opcode at the location
    * and ignores a method's implicit trailing return.
    */
-  //noinspection ApiStatus
-  private def conditionalReturnPosition(location: Location, psiFile: PsiFile, lineNumber: Int): Option[SourcePosition] =
-    Option(PositionManagerImpl.adjustPositionForConditionalReturn(location, psiFile, lineNumber))
-      .map(new ScalaConditionalReturnSourcePosition(_))
+  //noinspection ApiStatus,JetBrainsInternalApiUsage
+  private def conditionalReturnPosition(location: Location, psiFile: PsiFile, lineNumber: Int): Option[SourcePosition] = {
+    val position = DebuggerCoroutineUtilKt.runBlockingAssertNotInReadAction[SourcePosition] { (_, cont) =>
+      PositionManagerImpl.adjustPositionForConditionalReturnAsync(location, psiFile, lineNumber, cont)
+    }
+    Option(position).map(new ScalaConditionalReturnSourcePosition(_))
+  }
 
   @NotNull
   override def getAllClasses(@NotNull position: SourcePosition): ju.List[ReferenceType] = {
