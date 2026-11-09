@@ -4,6 +4,7 @@ import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine._
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.Range
+import com.intellij.util.concurrency.annotations.RequiresReadLock
 import com.sun.jdi.{Location, Method}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
@@ -18,15 +19,20 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.jdk.CollectionConverters._
 
-class ScalaBreakpointMethodFilter(psiMethod: Option[PsiMethod],
-                                  firstStatementPosition: Option[SourcePosition],
-                                  lastStatementPosition: Option[SourcePosition],
-                                  exprLines: Range[Integer])
+class ScalaBreakpointMethodFilter @RequiresReadLock (psiMethod: Option[PsiMethod],
+                                                    firstStatementPosition: Option[SourcePosition],
+                                                    lastStatementPosition: Option[SourcePosition],
+                                                    exprLines: Range[Integer])
         extends BreakpointStepMethodFilter {
 
+  //the PSI is read here, the platform creates the filter in a read action
   private val expectedSignature = psiMethod.map {
     case f: ScMethodLike => DebuggerUtil.getFunctionJVMSignature(f)
     case m => JVMNameUtil.getJVMSignature(m)
+  }
+
+  private val expectedName = psiMethod.map { m =>
+    if (m.isConstructor) "<init>" else ScalaNamesUtil.toJavaName(m.name)
   }
 
   override def locationMatches(process: DebugProcessImpl, location: Location): Boolean = {
@@ -43,13 +49,11 @@ class ScalaBreakpointMethodFilter(psiMethod: Option[PsiMethod],
     }
 
     val method: Method = location.method
-    psiMethod match {
+    expectedName match {
       case None => //is created for fun expression
         method.name == "apply" || method.name.startsWith("apply$") || ScalaPositionManager.isIndyLambda(method)
-      case Some(m) =>
-        val javaName = inReadAction(if (m.isConstructor) "<init>" else ScalaNamesUtil.toJavaName(m.name))
+      case Some(javaName) =>
         javaName == method.name && signatureMatches(method) && !ScalaPositionManager.shouldSkip(location, process)
-
     }
   }
 
