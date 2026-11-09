@@ -248,8 +248,6 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
   def getImportTextCreator: ImportTextCreator = new ImportTextCreator
 
-  protected def isImportDelimiter(psi: PsiElement): Boolean = psi.is[PsiWhiteSpace]
-
   //we should not apply this to Play2ScalaFile, it is covered by Play2ImportOptimizer
   override def supports(file: PsiFile): Boolean =
     file match {
@@ -360,18 +358,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     }
     val text = importInfosTexts.mkString(newLineWithIndent).replaceAll("""\n[ \t]+\n""", "\n\n")
 
-    //it should cover play template files
-    val fileFactory = PsiFileFactory.getInstance(file.getProject)
-
-    val dummyFile = fileFactory.createFileFromText(
-      "dummy." + file.getFileType.getDefaultExtension,
-      // a small hack to make this work with source3
-      if (file.isScala3OrSource3Enabled) Scala3Language.INSTANCE else file.getLanguage,
-      text,
-      /*eventSystemEnabled = */ false, /*markAsCopy = */ false)
-
-    val errorElements = dummyFile.children.filterByType[PsiErrorElement].map(_.getNode)
-    errorElements.foreach(dummyFile.getNode.removeChild)
+    val newImportNodes = parseImportStatements(text, file)
 
     val parentNode = firstPsi.getParent.getNode
     val firstPsiNode = firstPsi.getNode
@@ -389,11 +376,25 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       //replace import statements incrementally instead of replacing the whole range
       //originally added to reduce the number of invalidated elements during refactorings
       //(currently it may not be used in move refactoring)
-      val finalResult = dummyFile.getNode.getChildren(null)
-      val optimizationResult = ImportOptimizationResult.calculate(buffer.asArray, finalResult)
-      BufferUpdate.updateIncrementally(buffer, finalResult)(_.getText)
+      val optimizationResult = ImportOptimizationResult.calculate(buffer.asArray, newImportNodes)
+      BufferUpdate.updateIncrementally(buffer, newImportNodes)(_.getText)
       optimizationResult
     }
+  }
+
+  protected def parseImportStatements(text: String, file: ScalaFile): Array[ASTNode] = {
+    val dummyFile = PsiFileFactory.getInstance(file.getProject).createFileFromText(
+      "dummy." + file.getFileType.getDefaultExtension,
+      // a small hack to make this work with source3
+      if (file.isScala3OrSource3Enabled) Scala3Language.INSTANCE else file.getLanguage,
+      text,
+      /*eventSystemEnabled = */ false,
+      /*markAsCopy = */ false
+    )
+
+    val errorElements = dummyFile.children.filterByType[PsiErrorElement].map(_.getNode)
+    errorElements.foreach(dummyFile.getNode.removeChild)
+    dummyFile.getNode.getChildren(null)
   }
 
   def collectImportRanges(
@@ -475,20 +476,11 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
     for (child <- importHolderChildren) {
       child.getPsi match {
-        case _: PsiWhiteSpace =>
-        case _: ScDocComment =>
-          addRangeAndReset()
-        case comment: PsiComment =>
-          if (isSurroundedWithNewLines(comment)) {
-            addRangeAndReset()
-          }
-        case _: LeafPsiElement =>
-        case a: PsiElement if isImportDelimiter(a) => //do nothing
         case imp: ScImportStmt =>
           importStatements += imp
           if (firstPsi == null) {
             imp.getPrevSibling match {
-              case a: PsiElement if isImportDelimiter(a) && !a.is[PsiWhiteSpace] =>
+              case a: PsiElement if prevSiblingBelongsToImport(a) =>
                 initRange(a)
                 lastPsi = imp
               case _ =>
@@ -498,23 +490,33 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
           else {
             lastPsi = imp
           }
-        case _ =>
-          addRangeAndReset()
+        case element =>
+          // Between two imports,
+          if (hasToPersistBetweenImports(element)) {
+            addRangeAndReset()
+          }
       }
     }
 
     addRangeAndReset()
   }
 
-  private def isSurroundedWithNewLines(element: PsiElement): Boolean = {
-    val next = element.getNextSibling
-    val prev = element.getPrevSibling
-    (next, prev) match {
-      case (w1: PsiWhiteSpace, w2: PsiWhiteSpace)  =>
-        w1.textContains('\n') && w2.textContains('\n')
-      case _ =>
-        false
-    }
+  protected def prevSiblingBelongsToImport(psi: PsiElement): Boolean = false
+
+  protected def hasToPersistBetweenImports(element: PsiElement): Boolean = element match {
+    case _: ScDocComment =>
+      true
+    case comment: PsiComment =>
+      (comment.getNextSibling, comment.getPrevSibling) match {
+        case (w1: PsiWhiteSpace, w2: PsiWhiteSpace) =>
+          w1.textContains('\n') && w2.textContains('\n')
+        case _ =>
+          false
+      }
+    case _: PsiWhiteSpace | _: LeafPsiElement =>
+      false
+    case _ =>
+      true
   }
 
   /**
@@ -648,11 +650,12 @@ object ScalaImportOptimizer {
       return None
 
     val topLevelViewProvider = topLevelFile.getViewProvider
-    val hasScalaLanguage =
-      topLevelViewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE) ||
+    val hasScalaPsi =
+      topLevelFile.is[ScalaFile] ||
+        topLevelViewProvider.getBaseLanguage.isKindOf(ScalaLanguage.INSTANCE) ||
         topLevelViewProvider.getPsi(ScalaLanguage.INSTANCE) != null
 
-    if (!hasScalaLanguage)
+    if (!hasScalaPsi)
       return None
 
     val i = optimizers.iterator()
