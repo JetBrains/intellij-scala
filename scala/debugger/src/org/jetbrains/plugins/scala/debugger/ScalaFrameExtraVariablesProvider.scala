@@ -55,8 +55,8 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
   // Runs on the debugger thread for every frame shown; a plain read action here would make every write action (typing)
   // wait for the resolve below, a non-blocking one is cancelled and restarted instead
   private def nonBlocking[T](evaluationContext: EvaluationContext)(body: => T): T = {
-    val process = evaluationContext.getDebugProcess
-    inNonBlockingReadAction(expireWhen = () => !process.isAttached)(body)
+    val project = evaluationContext.getProject
+    inNonBlockingReadAction(expireWhen = () => project.isDisposed)(body)
   }
 
   private def getVisibleVariables(elem: PsiElement, evaluationContext: EvaluationContext, alreadyCollected: util.Set[String]): Set[String] = {

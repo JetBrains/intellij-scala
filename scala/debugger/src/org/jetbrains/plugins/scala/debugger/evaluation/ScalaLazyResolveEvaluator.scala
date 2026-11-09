@@ -46,8 +46,8 @@ private final class ScalaLazyResolveEvaluator(
   }
 
   private def createEvaluator(context: EvaluationContextImpl): ExpressionEvaluator = {
-    val process = context.getDebugProcess
-    inNonBlockingReadAction(expireWhen = () => !process.isAttached) {
+    val project = context.getProject
+    inNonBlockingReadAction(expireWhen = () => project.isDisposed) {
       if (compileIfNeeded) ScalaEvaluatorBuilder.build(codeFragment, position)
       else ScalaEvaluatorBuilder.buildWithoutCompilation(codeFragment, position)
     }
