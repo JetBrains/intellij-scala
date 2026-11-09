@@ -357,9 +357,10 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
     }
 
     trait NothingNullVisitor extends ScalaTypeVisitor {
-      // Scala 3: `Null <: AnyRef <: Matchable`, but `Matchable` itself is not a reference type
+      // `null` is accepted by every class type except value classes, including universal traits (`Product`,
+      // `java.io.Serializable`) that do not conform to `AnyRef`. In Scala 3, `Matchable` itself is accepted as well.
       private def admitsNullAsReference: Boolean =
-        (l eq StdTypes.instance.Matchable) || l.conforms(AnyRef)
+        (l eq StdTypes.instance.Matchable) || l.conforms(AnyRef) || l.extractClass.exists(isNullableClass)
 
       override def visitLiteralType(lt: ScLiteralType): Unit = {
         if (lt.wideType.eq(Null) && admitsNullAsReference) result = constraints
@@ -1790,6 +1791,14 @@ private object ScalaConformance {
     case scTrait: ScTrait            => !isUniversalTrait(scTrait)
     case scClass: ScClass            => !ValueClassType.extendsAnyVal(scClass)
     case _                           => clazz.qualifiedName != CommonQualifiedNames.JavaIoSerializableFqn
+  }
+
+  /** Whether `null` conforms to a class type: any class except value classes and the synthetic std classes. Unlike
+   *  [[isAnyRefClass]] this includes universal traits, as scalac does (`val p: Product = null`). */
+  private def isNullableClass(clazz: PsiClass): Boolean = clazz match {
+    case _: ScSyntheticClass => false
+    case scClass: ScClass    => !ValueClassType.extendsAnyVal(scClass)
+    case _                   => true
   }
 
   private def isUniversalTrait(scTrait: ScTrait): Boolean =
