@@ -43,7 +43,7 @@ import org.jetbrains.sbt.project.structure.data.XmlDeserializer.deserialize
 import org.jetbrains.sbt.project.structure.{Play2OldStructureAdapter, SbtStructureDumper, data as sbtStructure}
 import org.jetbrains.sbt.project.versionNotifications.LegacySbtVersionBuildToolWindowWarning
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
-import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, usingTempFile}
+import org.jetbrains.sbt.{RichBoolean, Sbt, SbtBundle, SbtUtil, SbtVersion, SbtVersionCapabilities, asLocalPath, usingTempFile}
 
 import java.io.FileNotFoundException
 import java.net.URI
@@ -417,7 +417,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     given PathConstructor[Path]:
       override def construct(path: Path): InterpretablePath =
-        new InterpretablePath(path.toCanonicalPath.toString)
+        new InterpretablePath(path.toCanonicalPath.asLocalPath)
 
     val dummyConfigurationData = ConfigurationData(CompileScope, Seq(DirectoryData(InterpretablePath.construct(sourceDir), managed = false)), Seq.empty, Seq.empty, InterpretablePath.construct(classDir))
     val dummyJavaData = JavaData(None, Seq.empty)
