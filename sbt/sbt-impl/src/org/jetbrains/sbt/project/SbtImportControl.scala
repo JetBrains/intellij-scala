@@ -16,7 +16,21 @@ class SbtImportControl extends AbstractImportFromExternalSystemControl[
   SbtProjectSettings.default
 ) {
 
-  override def onLinkedProjectPathChange(path: String): Unit = {}
+  /** Updates the wizard's JDK choices when the platform reports a change to the project path. */
+  override def onLinkedProjectPathChange(path: String): Unit =
+    sbtProjectSettingsControl.onLinkedProjectPathChange(path)
+
+  /**
+   * Asks the settings control to remove its prepared download after a preview error.
+   *
+   * @see [[SbtProjectSettingsControl#discardPreparedJdkDownload]]
+   */
+  def discardPreparedJdkDownload(): Unit =
+    sbtProjectSettingsControl.discardPreparedJdkDownload()
+
+  /** Returns the sbt settings control created by [[createProjectSettingsControl]]. */
+  private def sbtProjectSettingsControl: SbtProjectSettingsControl =
+    getProjectSettingsControl.asInstanceOf[SbtProjectSettingsControl]
 
   override def createProjectSettingsControl(settings: SbtProjectSettings) = new SbtProjectSettingsControl(Context.Wizard, settings)
 
