@@ -60,8 +60,7 @@ class ScalaCompilingEvaluator @RequiresReadLock (psiContext: PsiElement, fragmen
   }
 
   private def callEvaluator(context: EvaluationContextImpl): ExpressionEvaluator = {
-    val process = context.getDebugProcess
-    ReadActions.inNonBlockingReadAction(expireWhen = () => !process.isAttached) {
+    ReadActions.inNonBlockingReadAction(expireWhen = () => project.isDisposed) {
       val callCode = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, generatedClass.callText)
       val codeFragment = new ScalaCodeFragmentFactory().createPsiCodeFragment(callCode, generatedClass.newContext, project)
       ScalaEvaluatorBuilder.build(codeFragment, SourcePosition.createFromElement(generatedClass.newContext))

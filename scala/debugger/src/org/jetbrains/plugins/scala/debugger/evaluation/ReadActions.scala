@@ -14,7 +14,7 @@ private[debugger] object ReadActions:
    *
    * The debugger manager thread needs the result right away, hence the synchronous execution.
    *
-   * @param expireWhen stops the computation for good, e.g. when the debug process is gone
+   * @param expireWhen stops the computation for good, e.g. when the project is disposed
    * @param indicator  if given, cancelling it stops the computation for good as well
    */
   def inNonBlockingReadAction[T](expireWhen: () => Boolean, indicator: Option[ProgressIndicator] = None)(body: => T): T =
