@@ -17,7 +17,7 @@ class MeasureTest extends ScalaFixtureTestCase {
       }
     }
 
-    checkTracer(lambdaRegex("MeasureTest$Foo$1", "currentTime"), totalCount = 4, actualCount = 4) {
+    checkTracer("MeasureTest$Foo$1.currentTime", totalCount = 4, actualCount = 4) {
       val foo = new Foo
       foo.currentTime()
       foo.currentTime()
