@@ -4,6 +4,7 @@ import com.intellij.debugger.engine.{DebugProcess, ExtraSteppingFilter, SuspendC
 import com.intellij.psi.PsiElement
 import com.sun.jdi.Location
 import com.sun.jdi.request.StepRequest
+import org.jetbrains.plugins.scala.debugger.evaluation.ReadActions.inNonBlockingReadAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -39,7 +40,7 @@ class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
 
     if (method.isConstructor) return false
 
-    inReadAction {
+    inNonBlockingReadAction(expireWhen = () => debugProcess.getProject.isDisposed) {
       positionManager.findElementByReferenceType(location.declaringType()) match {
         case Some(td: ScTemplateDefinition) =>
           td.functions.forall(f => !nameMatches(name, f.name)) && !hasLocalFun(name, td)
