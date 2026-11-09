@@ -166,12 +166,12 @@ class ScalaSourcePositionProviderTest_3 extends ScalaSourcePositionProviderTestB
         manager
       }
 
-      val sourcePosition0 = inReadAction(scalaPositionManager.getSourcePosition(location0))
+      val sourcePosition0 = scalaPositionManager.getSourcePosition(location0)
       assertEquals("LambdaInToplevelMain.scala", sourcePosition0.getFile.name)
       assertEquals(4, sourcePosition0.getLine)
       assertEquals("println(i)", inReadAction(sourcePosition0.getElementAt.getText))
 
-      val sourcePosition1 = inReadAction(scalaPositionManager.getSourcePosition(location1))
+      val sourcePosition1 = scalaPositionManager.getSourcePosition(location1)
       assertEquals("LambdaInToplevelMain.scala", sourcePosition1.getFile.name)
       assertEquals(-1, sourcePosition1.getLine)
 

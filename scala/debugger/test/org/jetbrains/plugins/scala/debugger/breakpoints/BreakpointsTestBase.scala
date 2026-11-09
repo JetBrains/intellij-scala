@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.debugger.breakpoints
 
 import com.intellij.debugger.engine.{DebugProcess, SuspendContextImpl}
 import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaPositionManager}
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert.{assertTrue, fail}
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -70,7 +69,7 @@ abstract class BreakpointsTestBase extends ScalaDebuggerTestCase {
 
   private def assertStopMatchesQueue(positionManager: ScalaPositionManager, ctx: SuspendContextImpl): Unit = {
     val loc = ctx.getFrameProxy.location()
-    val srcPos = inReadAction(positionManager.getSourcePosition(loc))
+    val srcPos = positionManager.getSourcePosition(loc)
     val actualLine = srcPos.getLine
     val actualMethod = loc.method().name()
     Option(expectedLineQueue.poll()) match {

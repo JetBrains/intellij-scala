@@ -243,8 +243,8 @@ abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
 
     onEveryBreakpoint { ctx =>
       val loc = ctx.getFrameProxy.getStackFrame.location()
+      val srcPos = positionManager.getSourcePosition(loc)
       inReadAction {
-        val srcPos = positionManager.getSourcePosition(loc)
         val actual = highlightedText(srcPos)
         Option(expectedSourcePositionsQueue.poll()) match {
           case None =>

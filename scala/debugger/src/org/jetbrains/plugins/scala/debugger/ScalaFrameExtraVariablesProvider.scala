@@ -115,11 +115,12 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
 
   private def tryEvaluate(name: String, place: PsiElement, evaluationContext: EvaluationContext): Try[AnyRef] = Try {
     val location = evaluationContext.getFrameProxy.location()
+    // computing the position communicates with the debuggee, which isn't allowed under the read lock
+    val sourcePosition = ScalaPositionManager.instance(evaluationContext.getDebugProcess).map(_.getSourcePosition(location))
+    if (sourcePosition.isEmpty) throw EvaluationException(DebuggerBundle.message("debug.process.is.detached"))
     val evaluator = nonBlocking(evaluationContext) {
       val twi = toTextWithImports(name)
       val codeFragment = new ScalaCodeFragmentFactory().createPsiCodeFragment(twi, place, evaluationContext.getProject)
-      val sourcePosition = ScalaPositionManager.instance(evaluationContext.getDebugProcess).map(_.getSourcePosition(location))
-      if (sourcePosition.isEmpty) throw EvaluationException(DebuggerBundle.message("debug.process.is.detached"))
       // a variable that can only be evaluated by compiling the expression is not worth the time it takes to find out
       ScalaLazyResolveEvaluatorBuilder.buildWithoutCompilation(codeFragment, sourcePosition.get)
     }

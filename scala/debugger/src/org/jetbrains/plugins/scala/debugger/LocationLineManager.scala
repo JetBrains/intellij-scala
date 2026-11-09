@@ -66,9 +66,7 @@ trait LocationLineManager {
 
   private def checkAndUpdateCaches(refType: ReferenceType): Unit = {
     if (!seenRefTypes.contains(refType)) {
-      ReadAction.nonBlocking[Unit](() => computeCustomizedLocationsFor(refType))
-        .expireWhen(() => debugProcess.getProject.isDisposed)
-        .executeSynchronously()
+      computeCustomizedLocationsFor(refType)
     }
   }
 
@@ -83,21 +81,30 @@ trait LocationLineManager {
       lineToCustomizedLocationCache.update(key, (old :+ location).sortBy(_.codeIndex()))
   }
 
-  @RequiresReadLock
+  /**
+   * Requesting the line table or the bytecode of a method communicates with the debuggee, which the platform doesn't
+   * allow under the read lock (see `com.intellij.debugger.impl.DebugUtilsKt.checkBlockingDebuggerOperation`). So the
+   * source is only read to compute line numbers, in a read action of its own ([[computeSourceLines]]), and the
+   * locations are inspected outside of it.
+   */
   private def computeCustomizedLocationsFor(refType: ReferenceType): Unit = {
     seenRefTypes += refType
 
     val generatingElem = findElementByReferenceType(refType).orNull
     if (generatingElem == null) return
 
-    ProgressManager.checkCanceled()
+    val constructorLocations =
+      refType.methodsByName("<init>").asScala.filter(_.declaringType() == refType).toSeq
+        .flatMap(_.allLineLocations().asScala)
+        .map(location => (location, ScalaPositionManager.checkedLineNumber(location)))
 
-    val containingFile = generatingElem.getContainingFile
-    if (containingFile == null) return
-    val document = PsiDocumentManager.getInstance(debugProcess.getProject).getDocument(containingFile)
-    if (document == null) return
+    val maybeSourceLines =
+      ReadAction.nonBlocking[Option[SourceLines]](() => computeSourceLines(generatingElem, constructorLocations))
+        .expireWhen(() => debugProcess.getProject.isDisposed)
+        .executeSynchronously()
+    if (maybeSourceLines.isEmpty) return
+    val sourceLines = maybeSourceLines.get
 
-    def elementStartLine(e: PsiElement): Int = document.getLineNumber(e.getTextOffset)
     def locationsOfLine(m: Method, line: Int): Seq[Location] =
       Try(m.locationsOfLine(line + 1).asScala.toSeq).getOrElse(Seq.empty)
 
@@ -114,28 +121,10 @@ trait LocationLineManager {
         }
       }
 
-      def shouldPointAtStartLine(location: Location): Boolean = {
-        ProgressManager.checkCanceled()
-        if (location.codeIndex() != 0) return false
-
-        val lineNumber = ScalaPositionManager.checkedLineNumber(location)
-        if (lineNumber < 0) return true
-
-        val linePosition = SourcePosition.createFromLine(containingFile, lineNumber)
-        val elem = nonWhitespaceElement(linePosition)
-        val parent = PsiTreeUtil.getParentOfType(elem, classOf[ScBlockStatement], classOf[ScEarlyDefinitions])
-        parent == null || !PsiTreeUtil.isAncestor(generatingElem, parent, false)
-      }
-
-      val methods = refType.methodsByName("<init>").asScala.filter(_.declaringType() == refType)
-      for {
-        location <- methods.flatMap(_.allLineLocations().asScala)
-      } {
-        if (shouldPointAtStartLine(location)) {
-          val significantElem = DebuggerUtil.getSignificantElement(generatingElem)
-          val lineNumber = elementStartLine(significantElem)
-          if (lineNumber != ScalaPositionManager.checkedLineNumber(location))
-            cacheCustomLine(location, lineNumber)
+      for ((location, lineNumber) <- constructorLocations) {
+        if (sourceLines.constructorLocationsAtStartLine.contains(location)) {
+          if (sourceLines.elementStartLine != lineNumber)
+            cacheCustomLine(location, sourceLines.elementStartLine)
         }
         else if (isReturnInstr(location)) {
           cacheCustomLine(location, -1)
@@ -238,7 +227,7 @@ trait LocationLineManager {
         gotos.foreach(cacheCustomLine(_, -1))
       }
 
-      def customizeFor(caseClauses: ScCaseClauses): Unit = {
+      def customizeFor(caseClauses: CaseClausesLines): Unit = {
         def tooSmall(m: Method) = {
           try m.allLineLocations().size() <= 3
           catch {
@@ -246,13 +235,7 @@ trait LocationLineManager {
           }
         }
 
-        val baseLine = caseClauses.getParent match {
-          case ms: ScMatch => ms.expression.map(elementStartLine)
-          case (_: ScBlock) childOf (_: ScTry) => return //todo: handle try statements
-          case b: ScBlock => Some(elementStartLine(b))
-          case _ => None
-        }
-        val caseLines = caseClauses.caseClauses.map(elementStartLine)
+        val CaseClausesLines(baseLine, caseLines) = caseClauses
         val methods = refType.methods().asScala.filterNot(tooSmall)
 
         for {
@@ -279,19 +262,77 @@ trait LocationLineManager {
         }
       }
 
-      val allCaseClauses = generatingElem.breadthFirst().collect {
-        case cc: ScCaseClauses => cc
-      }
-      allCaseClauses.foreach(customizeFor)
+      sourceLines.caseClauses.foreach(customizeFor)
     }
 
     ProgressManager.checkCanceled()
     customizeLineForConstructors()
     customizeCaseClauses()
   }
+
+  /** Reads what [[computeCustomizedLocationsFor]] needs to know about the source that generated a class. */
+  @RequiresReadLock
+  private def computeSourceLines(generatingElem: PsiElement, constructorLocations: Seq[(Location, Int)]): Option[SourceLines] = {
+    // found before the read action started
+    if (!generatingElem.isValid) return None
+
+    val containingFile = generatingElem.getContainingFile
+    if (containingFile == null) return None
+    val document = PsiDocumentManager.getInstance(debugProcess.getProject).getDocument(containingFile)
+    if (document == null) return None
+
+    def elementStartLine(e: PsiElement): Int = document.getLineNumber(e.getTextOffset)
+
+    def shouldPointAtStartLine(location: Location, lineNumber: Int): Boolean = {
+      ProgressManager.checkCanceled()
+      if (location.codeIndex() != 0) return false
+
+      if (lineNumber < 0) return true
+
+      val linePosition = SourcePosition.createFromLine(containingFile, lineNumber)
+      val elem = nonWhitespaceElement(linePosition)
+      val parent = PsiTreeUtil.getParentOfType(elem, classOf[ScBlockStatement], classOf[ScEarlyDefinitions])
+      parent == null || !PsiTreeUtil.isAncestor(generatingElem, parent, false)
+    }
+
+    val constructorLocationsAtStartLine = constructorLocations.collect {
+      case (location, lineNumber) if shouldPointAtStartLine(location, lineNumber) => location
+    }.toSet
+
+    //todo: handle try statements
+    def isInTry(caseClauses: ScCaseClauses): Boolean = caseClauses.getParent match {
+      case (_: ScBlock) childOf (_: ScTry) => true
+      case _ => false
+    }
+
+    val caseClausesLines = generatingElem.breadthFirst().collect {
+      case caseClauses: ScCaseClauses if !isInTry(caseClauses) =>
+        val baseLine = caseClauses.getParent match {
+          case ms: ScMatch => ms.expression.map(elementStartLine)
+          case b: ScBlock => Some(elementStartLine(b))
+          case _ => None
+        }
+        CaseClausesLines(baseLine, caseClauses.caseClauses.map(elementStartLine))
+    }.toSeq
+
+    val elementStartLineNumber = elementStartLine(DebuggerUtil.getSignificantElement(generatingElem))
+    Some(SourceLines(elementStartLineNumber, constructorLocationsAtStartLine, caseClausesLines))
+  }
 }
 
 object LocationLineManager {
+
+  /** The line of a match (if any) and the lines of its case clauses. */
+  private final case class CaseClausesLines(baseLine: Option[Int], caseLines: Seq[Int])
+
+  /**
+   * @param elementStartLine                the line of the element that generated the class
+   * @param constructorLocationsAtStartLine the constructor locations to show on `elementStartLine`
+   * @param caseClauses                     the case clauses in the element, except those of `try`
+   */
+  private final case class SourceLines(elementStartLine: Int,
+                                       constructorLocationsAtStartLine: Set[Location],
+                                       caseClauses: Seq[CaseClausesLines])
 
   val iconst_0: Byte = 0x03.toByte
 

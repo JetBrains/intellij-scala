@@ -3,7 +3,6 @@ package debugger
 
 import com.intellij.debugger.engine.{ContextUtil, SuspendContextImpl}
 import org.jetbrains.plugins.scala.debugger.evaluation.ExpressionEvaluationTestBase
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -53,6 +52,6 @@ abstract class ScalaFrameExtraVariablesProviderTestBase extends ExpressionEvalua
 
   private def extraVariables(alreadyCollected: Set[String])(implicit ctx: SuspendContextImpl): Set[String] =
     val evaluationContext = createEvaluationContext(ctx)
-    val position = inReadAction(ContextUtil.getSourcePosition(evaluationContext))
+    val position = ContextUtil.getSourcePosition(evaluationContext)
     val collected: util.Set[String] = new util.HashSet(alreadyCollected.asJava)
     new ScalaFrameExtraVariablesProvider().collectVariables(position, evaluationContext, collected).asScala.map(_.getText).toSet

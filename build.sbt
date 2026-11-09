@@ -869,11 +869,22 @@ lazy val compilerIntegrationServerManagement =
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.compiler-integration-server-management")
     )
 
+/**
+ * Kotlin adapters for the platform's suspending debugger API, which the Scala code of [[debugger]] can neither
+ * implement nor call directly. Only adapters, no logic.
+ */
+lazy val debuggerPlatformInterop =
+  newProjectWithKotlin("debugger-platform-interop", file("scala/debugger-platform-interop"))
+    .settings(
+      packageMethod := PackagingMethod.PluginModule("scalaCommunity.debugger")
+    )
+
 lazy val debugger =
   newProject("debugger", file("scala/debugger"))
     .dependsOn(
       scalaImpl % "test->test;compile->compile",
-      compilerIntegrationServerManagement % "test->test;compile->compile"
+      compilerIntegrationServerManagement % "test->test;compile->compile",
+      debuggerPlatformInterop,
     ).settings(
       packageMethod := PackagingMethod.PluginModule("scalaCommunity.debugger"),
       resolvers += Versions.IntellijTestFrameworkArtifactsResolver,

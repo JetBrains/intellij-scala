@@ -40,9 +40,11 @@ class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
 
     if (method.isConstructor) return false
 
+    //finding the element communicates with the debuggee, which isn't allowed under the read lock
+    val generatingElement = positionManager.findElementByReferenceType(location.declaringType())
     inNonBlockingReadAction(expireWhen = () => debugProcess.getProject.isDisposed) {
-      positionManager.findElementByReferenceType(location.declaringType()) match {
-        case Some(td: ScTemplateDefinition) =>
+      generatingElement match {
+        case Some(td: ScTemplateDefinition) if td.isValid =>
           td.functions.forall(f => !nameMatches(name, f.name)) && !hasLocalFun(name, td)
         case _ => false
       }

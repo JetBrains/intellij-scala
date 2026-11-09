@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package debugger
 package stepOver
 
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert.{assertTrue, fail}
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -146,7 +145,7 @@ abstract class StepOverTest extends ScalaDebuggerTestCase {
 
     onEveryBreakpoint { implicit ctx =>
       val loc = ctx.getFrameProxy.location()
-      val srcPos = inReadAction(positionManager.getSourcePosition(loc))
+      val srcPos = positionManager.getSourcePosition(loc)
       val actual = srcPos.getLine
       Option(expectedLineQueue.poll()) match {
         case None =>

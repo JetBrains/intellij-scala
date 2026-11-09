@@ -4,7 +4,6 @@ package stepInto
 
 import com.intellij.debugger.engine.SuspendContextImpl
 import com.intellij.debugger.settings.DebuggerSettings
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert.{assertTrue, fail}
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -299,7 +298,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
       val loc = ctx.getFrameProxy.getStackFrame.location()
       val debugProcess = getDebugProcess
       val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))
-      val srcPos = inReadAction(positionManager.getSourcePosition(loc))
+      val srcPos = positionManager.getSourcePosition(loc)
       val actual = Breakpoint(loc.sourceName(), loc.method().declaringType().name(), loc.method().name(), srcPos.getLine + 1)
       Option(expectedTargetsQueue.poll()) match {
         case None =>

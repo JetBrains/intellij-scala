@@ -119,10 +119,12 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
     val debugProcess = getDebugProcess
     val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))
 
-    def checkSourcePosition(initialPosition: SourcePosition, location: Location): Unit = inReadAction {
+    def checkSourcePosition(initialPosition: SourcePosition, location: Location): Unit = {
       val newPosition = positionManager.getSourcePosition(location)
-      assertEquals(initialPosition.getFile, newPosition.getFile)
-      assertEquals(initialPosition.getLine, newPosition.getLine)
+      inReadAction {
+        assertEquals(initialPosition.getFile, newPosition.getFile)
+        assertEquals(initialPosition.getLine, newPosition.getLine)
+      }
     }
 
     doWhenPausedThenResume { _ =>

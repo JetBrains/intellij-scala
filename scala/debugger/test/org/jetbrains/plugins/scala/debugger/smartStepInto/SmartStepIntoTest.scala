@@ -387,7 +387,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
       val loc = ctx.getFrameProxy.getStackFrame.location()
       val debugProcess = getDebugProcess
       val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))
-      val srcPos = inReadAction(positionManager.getSourcePosition(loc))
+      val srcPos = positionManager.getSourcePosition(loc)
       val actual = Breakpoint(loc.sourceName(), loc.method().name(), srcPos.getLine + 1)
 
       Option(expectedActionsQueue.poll()) match {
@@ -407,9 +407,9 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
     smartStepInto(smartStepIntoTarget.get)(using context)
   }
 
-  private def availableSmartStepIntoTargets(context: SuspendContextImpl): Seq[SmartStepTarget] = inReadAction {
+  private def availableSmartStepIntoTargets(context: SuspendContextImpl): Seq[SmartStepTarget] = {
     val sourcePosition = ContextUtil.getSourcePosition(context)
-    handler.findSmartStepTargetsInTests(sourcePosition).asScala.toSeq
+    inReadAction(handler.findSmartStepTargetsInTests(sourcePosition).asScala.toSeq)
   }
 
   private def smartStepInto(target: SmartStepTarget)(implicit context: SuspendContextImpl): Unit = {

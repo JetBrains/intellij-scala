@@ -4,7 +4,7 @@ package debugger
 import com.intellij.concurrency.ConcurrentCollectionFactory
 import com.intellij.debugger.engine.*
 import com.intellij.debugger.engine.evaluation.EvaluationContext
-import com.intellij.debugger.impl.{DebuggerCoroutineUtilKt, DebuggerUtilsEx}
+import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.jdi.{StackFrameProxyImpl, VirtualMachineProxyImpl}
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.ui.impl.watch.StackFrameDescriptorImpl
@@ -20,7 +20,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import com.intellij.util.ThreeState
-import com.intellij.util.concurrency.annotations.RequiresReadLock
+import com.intellij.util.concurrency.annotations.{RequiresReadLock, RequiresReadLockAbsence}
 import com.intellij.util.containers.ConcurrentIntObjectMap
 import com.intellij.xdebugger.frame.XStackFrame
 import com.sun.jdi.*
@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.*
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil.*
+import org.jetbrains.plugins.scala.debugger.interop.{BlockingPositionManagerAsync, ConditionalReturns}
 import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
@@ -57,7 +58,14 @@ import scala.jdk.CollectionConverters.*
 import scala.reflect.NameTransformer
 import scala.util.Try
 
-class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManagerEx with MultiRequestPositionManager with LocationLineManager {
+/**
+ * Most of the computations here both communicate with the debuggee (line tables, bytecode, supertypes) and read PSI.
+ * The platform doesn't allow communicating with the debuggee under the read lock (it reports an error, see
+ * `com.intellij.debugger.impl.DebugUtilsKt.checkBlockingDebuggerOperation`), so the PSI is read in separate read
+ * actions and the methods that communicate with the debuggee must not be called under the read lock.
+ */
+class ScalaPositionManager(val debugProcess: DebugProcess)
+  extends PositionManagerEx with MultiRequestPositionManager with BlockingPositionManagerAsync with LocationLineManager {
 
   protected[debugger] val caches = new ScalaPositionManagerCaches(debugProcess)
   private val outerAndNestedTypePartsPattern = """([^\$]*)(\$.*)?""".r
@@ -70,6 +78,9 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   override def getAcceptedFileTypes: ju.Set[? <: FileType] =
     ju.Collections.singleton(ScalaFileType.INSTANCE)
 
+  /** Must not be called under the read lock, see [[ScalaPositionManager]]. */
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   @Nullable
   override def getSourcePosition(@Nullable location: Location): SourcePosition = {
     if (debugProcess.getProject.isDisposed || shouldSkip(location)) return null
@@ -88,7 +99,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           else conditionalReturnPosition(location, psiFile, normalizedLineNumber)
 
         conditionalReturn.orElse(calculated).getOrElse {
-          val position = SourcePosition.createFromLine(psiFile, normalizedLineNumber)
+          //a position takes a blocking read action of its own (for a smart pointer to the file) unless it's created in one
+          val position = nonBlocking(SourcePosition.createFromLine(psiFile, normalizedLineNumber))
           new ScalaSourcePositionWithWholeLineHighlighted(position)
         }
       }
@@ -100,13 +112,15 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
    * (early) return (SCL-21626). Reuses the platform's check, which inspects the actual opcode at the location
    * and ignores a method's implicit trailing return.
    */
-  //noinspection ApiStatus,JetBrainsInternalApiUsage
-  private def conditionalReturnPosition(location: Location, psiFile: PsiFile, lineNumber: Int): Option[SourcePosition] = {
-    val position = DebuggerCoroutineUtilKt.runBlockingAssertNotInReadAction[SourcePosition] { (_, cont) =>
-      PositionManagerImpl.adjustPositionForConditionalReturnAsync(location, psiFile, lineNumber, cont)
-    }
-    Option(position).map(new ScalaConditionalReturnSourcePosition(_))
-  }
+  private def conditionalReturnPosition(location: Location, psiFile: PsiFile, lineNumber: Int): Option[SourcePosition] =
+    Option(ConditionalReturns.adjustPositionForConditionalReturn(location, psiFile, lineNumber))
+      .map(new ScalaConditionalReturnSourcePosition(_))
+
+  /** Runs `body` in a non-blocking read action right away; a write action cancels and restarts it. */
+  private def nonBlocking[T](body: => T): T =
+    ReadAction.nonBlocking[T](() => body)
+      .expireWhen(() => debugProcess.getProject.isDisposed)
+      .executeSynchronously()
 
   @NotNull
   override def getAllClasses(@NotNull position: SourcePosition): ju.List[ReferenceType] = {
@@ -128,7 +142,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
 
     val possiblePositions = positionsOnLine(file, position.getLine)
-    val exactClasses = mutable.ArrayBuffer.empty[ReferenceType]
+    val exactClassNames = mutable.ArrayBuffer.empty[String]
     val namePatterns = mutable.Set[NamePattern]()
 
     @RequiresReadLock
@@ -170,10 +184,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
             s"$qName$delayedInitBody" :: Nil
           case _ => Nil
         }
-        (qName :: additional).foreach { name =>
-          ProgressManager.checkCanceled()
-          exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(name).asScala
-        }
+        exactClassNames ++= qName :: additional
       }
 
       val sourceImages = onTheLine ++ nonLambdaParent
@@ -197,7 +208,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           val foundWithPattern =
             if (namePatterns.isEmpty) Nil
             else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
-          val distinctExactClasses = exactClasses.distinct
+          val distinctExactClasses = exactClassNames.distinct.flatMap { name =>
+            ProgressManager.checkCanceled()
+            debugProcess.getVirtualMachineProxy.classesByName(name).asScala
+          }.distinct
           val loadedNestedClasses = getNestedClasses(distinctExactClasses).filter(hasLocations(_, position))
 
           (distinctExactClasses ++ foundWithPattern ++ loadedNestedClasses).distinct.asJava
@@ -402,6 +416,9 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
   }
 
+  /** Must not be called under the read lock, see [[ScalaPositionManager]]. */
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   private def calcPosition(file: PsiFile, location: Location, lineNumber: Int): Option[SourcePosition] = {
     throwIfNotScalaFile(file)
 
@@ -433,61 +450,68 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    def calcElement(): Option[(PsiElement, Boolean)] = {
-      val possiblePositions = positionsOnLine(file, lineNumber)
-      val currentMethod = location.method()
-
-      lazy val (isDefaultArg, defaultArgIndex) = isDefaultArgument(currentMethod)
-
-      def findPsiElementForIndyLambda(): Option[PsiElement] = {
-        val lambdas = lambdasOnLine(file, lineNumber)
-        val methods = indyLambdaMethodsOnLine(location.declaringType(), lineNumber)
-        val lambdasSize = lambdas.size
-        val methodsSize = methods.size
-        val toDrop =
-          if (methodsSize > lambdasSize) methodsSize - lambdasSize
-          else 0
-        val methodsToLambdas = methods.drop(toDrop).zip(lambdas).toMap
-        methodsToLambdas.get(currentMethod)
-      }
-
-      if (possiblePositions.size <= 1) {
-        possiblePositions.headOption.map { element =>
-          val lambda = isLambda(element) && isAnonfun(currentMethod)
-          (element, lambda)
-        }
-      }
-      else if (isIndyLambda(currentMethod)) {
-        findPsiElementForIndyLambda().map((_, true))
-      }
-      else if (isDefaultArg) {
-        findDefaultArg(possiblePositions, defaultArgIndex).map((_, false))
-      }
-      else if (!isAnonfun(currentMethod)) {
-        possiblePositions.find {
-          case e: PsiElement if isLambda(e) => false
-          case (_: ScExpression) childOf (_: ScParameter) => false
-          case _ => true
-        }.map((_, false))
-      }
-      else {
-        val generatingPsiElem = findElementByReferenceType(location.declaringType())
-        possiblePositions
-          .find(p => generatingPsiElem.contains(findGeneratingClassOrMethodParent(p)))
-          .map(e => (e, isLambda(e)))
-      }
-    }
-
     def functionExprBody(element: PsiElement): PsiElement = element match {
       case f: ScFunctionExpr => f.result.getOrElse(f)
       case e => e
     }
 
-    calcElement().filter(_._1.isValid).map { case (element, lambda) =>
+    @RequiresReadLock
+    def toPosition(element: PsiElement, lambda: Boolean): SourcePosition = {
       val elementForPlatformPosition = functionExprBody(element)
       val position = SourcePosition.createFromElement(elementForPlatformPosition)
       if (lambda) new ScalaLambdaSourcePosition(position, element)
       else new ScalaSourcePositionWithWholeLineHighlighted(position)
+    }
+
+    // What the debuggee says about the location is found out before the read action, which takes the elements on the
+    // line itself: those taken in an earlier read action may be invalid by now.
+    def positionOnTheLine(find: Seq[PsiElement] => Option[(PsiElement, Boolean)]): Option[SourcePosition] =
+      nonBlocking {
+        find(positionsOnLine(file, lineNumber)).map { case (element, lambda) => toPosition(element, lambda) }
+      }
+
+    val currentMethod = location.method()
+
+    lazy val (isDefaultArg, defaultArgIndex) = isDefaultArgument(currentMethod)
+
+    @RequiresReadLock
+    def findPsiElementForIndyLambda(methods: Seq[Method]): Option[PsiElement] = {
+      val lambdas = lambdasOnLine(file, lineNumber)
+      val lambdasSize = lambdas.size
+      val methodsSize = methods.size
+      val toDrop =
+        if (methodsSize > lambdasSize) methodsSize - lambdasSize
+        else 0
+      val methodsToLambdas = methods.drop(toDrop).zip(lambdas).toMap
+      methodsToLambdas.get(currentMethod)
+    }
+
+    if (positionsOnLine(file, lineNumber).size <= 1) {
+      val anonfun = isAnonfun(currentMethod)
+      positionOnTheLine(_.headOption.map { element =>
+        val lambda = isLambda(element) && anonfun
+        (element, lambda)
+      })
+    }
+    else if (isIndyLambda(currentMethod)) {
+      val methods = indyLambdaMethodsOnLine(location.declaringType(), lineNumber)
+      positionOnTheLine(_ => findPsiElementForIndyLambda(methods).map((_, true)))
+    }
+    else if (isDefaultArg) {
+      positionOnTheLine(findDefaultArg(_, defaultArgIndex).map((_, false)))
+    }
+    else if (!isAnonfun(currentMethod)) {
+      positionOnTheLine(_.find {
+        case e: PsiElement if isLambda(e) => false
+        case (_: ScExpression) childOf (_: ScParameter) => false
+        case _ => true
+      }.map((_, false)))
+    }
+    else {
+      val generatingPsiElem = findElementByReferenceType(location.declaringType())
+      positionOnTheLine(_
+        .find(p => generatingPsiElem.contains(findGeneratingClassOrMethodParent(p)))
+        .map(e => (e, isLambda(e))))
     }
   }
 
@@ -554,22 +578,29 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
   }
 
+  /** Must not be called under the read lock, see [[ScalaPositionManager]]. */
+  //noinspection ApiStatus,UnstableApiUsage
+  @RequiresReadLockAbsence
   def findElementByReferenceType(refType: ReferenceType): Option[PsiElement] = {
-    refTypeToElementCache.get(refType) match {
-      case Some(Some(p)) if p.getElement != null => Some(p.getElement)
-      case Some(Some(_)) | None =>
-        val found = findElementByReferenceTypeInner(refType)
-        refTypeToElementCache.update(refType, found.map { element =>
-          element.createSmartPointer
-        })
-        found
+    val cached = refTypeToElementCache.get(refType)
+    cached match {
       case Some(None) => None
+      case _ =>
+        cached.flatten.flatMap(p => nonBlocking(Option(p.getElement))).orElse {
+          val found = findElementByReferenceTypeInner(refType)
+          nonBlocking {
+            //found in an earlier read action, it's looked for again if it's invalid by now
+            if (found.forall(_.isValid)) refTypeToElementCache.update(refType, found.map(_.createSmartPointer))
+          }
+          found
+        }
     }
   }
 
   private def findElementByReferenceTypeInner(refType: ReferenceType): Option[PsiElement] = {
 
-    val byName = findPsiClassByQName(refType, debugProcessScope) orElse findByShortName(refType)
+    val sourceName = cachedSourceName(refType).getOrElse("")
+    val byName = nonBlocking(findPsiClassByQName(refType, debugProcessScope) orElse findByShortName(refType, sourceName))
     if (byName.isDefined) return byName
 
     val project = debugProcess.getProject
@@ -586,7 +617,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val file = getPsiFileByReferenceType(refType)
     if (!checkScalaFile(file)) return None
 
-    val document = PsiDocumentManager.getInstance(project).getDocument(file)
+    val document = nonBlocking(PsiDocumentManager.getInstance(project).getDocument(file))
     if (document == null) return None
 
     def elementLineRange(elem: PsiElement, document: Document) = {
@@ -626,29 +657,42 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       }
     }
 
-    def filterWithSignature(candidates: Seq[PsiElement]): Seq[PsiElement] = {
-      val applySignature = refType.methodsByName("apply").asScala.find(m => !m.isSynthetic).map(_.signature())
+    def filterWithSignature(candidates: Seq[PsiElement], applySignature: Option[String]): Seq[PsiElement] = {
       if (applySignature.isEmpty) candidates
       else {
         candidates.filter(l => applySignature == lambdaJVMSignature(l))
       }
     }
 
-    val candidates = findCandidates()
+    //the found element, or the lambdas to choose from by what the debuggee says about them
+    @RequiresReadLock
+    def elementOrLambdas(): Either[Option[PsiElement], Seq[PsiElement]] = {
+      val candidates = findCandidates()
 
-    if (candidates.size <= 1) return candidates.headOption
+      if (candidates.size <= 1) return Left(candidates.headOption)
 
-    if (refTypeLines.size > 1) {
-      val withExactlySameLines = candidates.filter(elementLineRange(_, document) == refTypeLines)
-      if (withExactlySameLines.size == 1) return withExactlySameLines.headOption
+      if (refTypeLines.size > 1) {
+        val withExactlySameLines = candidates.filter(elementLineRange(_, document) == refTypeLines)
+        if (withExactlySameLines.size == 1) return Left(withExactlySameLines.headOption)
+      }
+
+      if (candidates.exists(!isLambda(_))) Left(candidates.headOption)
+      else Right(candidates)
     }
 
-    if (candidates.exists(!isLambda(_))) return candidates.headOption
+    val candidates = nonBlocking(elementOrLambdas()) match {
+      case Left(element) => return element
+      case Right(lambdas) => lambdas
+    }
 
-    val filteredWithSignature = filterWithSignature(candidates)
+    val applySignature = refType.methodsByName("apply").asScala.find(m => !m.isSynthetic).map(_.signature())
+    val (filteredWithSignature, byContainingClasses) = nonBlocking {
+      //found in an earlier read action
+      val filtered = filterWithSignature(candidates.filter(_.isValid), applySignature)
+      (filtered, filtered.groupBy(c => findGeneratingClassOrMethodParent(c.getParent)))
+    }
     if (filteredWithSignature.size == 1) return filteredWithSignature.headOption
 
-    val byContainingClasses = filteredWithSignature.groupBy(c => findGeneratingClassOrMethodParent(c.getParent))
     if (byContainingClasses.size > 1) {
       findContainingClass(refType) match {
         case Some(e) => return byContainingClasses.get(e).flatMap(_.headOption)
@@ -658,12 +702,12 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     filteredWithSignature.headOption
   }
 
-  private def findByShortName(refType: ReferenceType): Option[PsiClass] = {
+  /** @param sourceName the source name of `refType`, it is requested from the debuggee */
+  @RequiresReadLock
+  private def findByShortName(refType: ReferenceType, sourceName: String): Option[PsiClass] = {
     val project = debugProcess.getProject
 
     if (DumbService.getInstance(project).isDumb) return None
-
-    lazy val sourceName = cachedSourceName(refType).getOrElse("")
 
     def sameFileName(elem: PsiElement) = {
       val containingFile = elem.getContainingFile
