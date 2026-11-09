@@ -61,7 +61,7 @@ case class CachedRecursiveFunction(name: String)(implicit projectContext: Projec
 
     if (wasCached) {
       import RecursionManager.RecursionGuard
-      val functionClassName = classOf[CachedRecursiveFunction].getName.replace('.', '$')
+      val functionClassName = classOf[CachedRecursiveFunction].getName
       val Seq(id) = RecursionGuard.ids.filter(_.startsWith(functionClassName)).toSeq
       val localResult = RecursionGuard[PsiElement, String](id).getFromLocalCache(psi)
       if (localResult == null) {

@@ -78,13 +78,15 @@ package object caches {
   }
 
   private def idFor(lambdaClass: Class[?], name: String): String =
-    withoutLambdaSuffix(lambdaClass.getName).replace('.', '$') + "$" + name.replace('.', '$') + "$cacheKey"
+    if (Tracer.isEnabled) withoutLambdaSuffix(lambdaClass.getName).replace('.', '$') + "$" + name.replace('.', '$') + "$cacheKey"
+    else lambdaClass.getName // Compute human-readable strings only if caches.stats are enabled to reduce CPU and RAM use - unique Cache(id, name) fields
 
   private def nameFor(lambdaClass: Class[?], name: String): String =
-    withoutLambdaSuffix(lambdaClass.getSimpleName) + "." + name
+    if (Tracer.isEnabled) withoutLambdaSuffix(lambdaClass.getSimpleName) + "." + name
+    else lambdaClass.getName // Compute human-readable strings only if caches.stats are enabled to reduce CPU and RAM use - unique Cache(id, name) fields
 
   private def withoutLambdaSuffix(name: String): String = {
-    val i = name.indexOf("$$Lambda$")
+    val i = name.indexOf("$$Lambda/")
     if (i != -1) name.substring(0, i) else name
   }
 }
