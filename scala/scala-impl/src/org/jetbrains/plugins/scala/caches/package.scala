@@ -84,7 +84,7 @@ package object caches {
     withoutLambdaSuffix(lambdaClass.getSimpleName) + "." + name
 
   private def withoutLambdaSuffix(name: String): String = {
-    val i = name.indexOf("$$Lambda$")
+    val i = name.indexOf("$$Lambda/")
     if (i != -1) name.substring(0, i) else name
   }
 }

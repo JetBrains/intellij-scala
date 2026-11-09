@@ -83,7 +83,7 @@ class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase {
       }
     }
 
-    checkTracer(lambdaRegex("CachedWithRecursionGuardTest$Elem$4", "rec"), totalCount = 5, actualCount = 2) {
+    checkTracer("CachedWithRecursionGuardTest$Elem$4.rec", totalCount = 5, actualCount = 2) {
 
       val elem = new Elem
       elem.rec(true)
