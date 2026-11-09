@@ -47,6 +47,7 @@ class MatchableConformanceTest extends TypeConformanceTestBase {
         |val m: Matchable = x
         |//true
         |""".stripMargin)
+
   def testUnionWithAny(): Unit = check("Int | Any", expected = false)
 
   def testTypeParameterBoundedByAny(): Unit =

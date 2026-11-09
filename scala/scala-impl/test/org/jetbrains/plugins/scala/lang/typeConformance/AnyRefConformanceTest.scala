@@ -61,6 +61,22 @@ abstract class AnyRefConformanceTestBase extends TypeConformanceTestBase {
   def testCompoundWithTrait(): Unit = check("U with T", expected = true)
   def testCompoundOfUniversalTraits(): Unit = check("U with W", expected = false)
 
+  // `null` conforms to universal traits, as in scalac
+  protected def checkNull(tpe: String, expected: Boolean): Unit =
+    doTest(
+      s"""$definitions
+         |val x: $tpe = null
+         |//$expected
+         |""".stripMargin)
+
+  def testNullToProduct(): Unit = checkNull("Product", expected = true)
+  def testNullToEquals(): Unit = checkNull("Equals", expected = true)
+  def testNullToUniversalTrait(): Unit = checkNull("U", expected = true)
+  def testNullToSerializable(): Unit = checkNull("java.io.Serializable", expected = true)
+  def testNullToTrait(): Unit = checkNull("T", expected = true)
+  def testNullToString(): Unit = checkNull("String", expected = true)
+  def testNullToValueClass(): Unit = checkNull("V", expected = false)
+
   def testTypeParameterBoundedByUniversalTrait(): Unit =
     doTest(
       s"""$definitions
