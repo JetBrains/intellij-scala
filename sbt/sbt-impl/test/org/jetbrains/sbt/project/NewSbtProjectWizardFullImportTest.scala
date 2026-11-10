@@ -1,5 +1,7 @@
 package org.jetbrains.sbt.project
 
+import com.intellij.pom.java.LanguageLevel
+import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.jetbrains.sbt.SbtVersion
@@ -70,10 +72,10 @@ class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase {
   import NewSbtProjectWizardGeneratedFilesTest.TestData.*
 
   def testCreateSbt_0_13_Project(): Unit =
-    runProjectStructureOnlyTest(sbt013ProjectConfig)
+    runProjectStructureOnlyTestOnJdk8(sbt013ProjectConfig)
 
   def testCreateSbt_1_0_Project(): Unit =
-    runProjectStructureOnlyTest(sbt10ProjectConfig)
+    runProjectStructureOnlyTestOnJdk8(sbt10ProjectConfig)
 
   def testCreateSbt_1_Latest_Project(): Unit =
     runProjectStructureOnlyTest(sbt1LatestProjectConfig)
@@ -86,6 +88,16 @@ class NewSbtProjectWizardFullImportTest extends NewSbtProjectWizardTestBase {
 
   def testCreateSbt_2_Latest_Project_WithPackagePrefix(): Unit =
     runProjectStructureOnlyTest(sbt2LatestProjectWithPackagePrefixConfig)
+
+  /**
+   * For sbt versions that only run on JDK 8. The wizard selects the only registered JDK, and the sbt import uses it.
+   * Without a registered JDK, the project is created without one, and the sbt import picks a JDK from the standard
+   * JDK locations. These don't contain the JDK 8 provided by the CI, and on some CI agents they only contain newer JDKs.
+   */
+  private def runProjectStructureOnlyTestOnJdk8(config: SbtWizardProjectConfig): Unit = {
+    SmartJDKLoader.getOrCreateJDK(LanguageLevel.JDK_1_8)
+    runProjectStructureOnlyTest(config)
+  }
 
   private def runProjectStructureOnlyTest(config: SbtWizardProjectConfig): Unit = {
     val useCoursier = config.sbtVersion >= SbtVersion("1.3.0")
