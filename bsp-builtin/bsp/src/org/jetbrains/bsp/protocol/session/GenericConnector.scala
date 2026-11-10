@@ -10,6 +10,7 @@ import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, P
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.protocol.session.GenericConnector.RemoteProcessPid
 import org.jetbrains.bsp.{BspBundle, BspError, BspErrorMessage, BspSessionCreationError}
+import org.jetbrains.plugins.scala.DependencyManagerBase.Resolver
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.isUnitTestMode
@@ -38,10 +39,18 @@ class GenericConnector(base: Path, compilerOutput: Path, capabilities: BspCapabi
     val commandLine = new GeneralCommandLine(details.getArgv)
       .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
       .withWorkingDirectory(base)
-    // Add coursier environment variables when starting the sbt/BSP server in tests on Windows,
-    // because the same issue with hanging sbt processes has been observed during project import in sbt/BSP tests.
-    if isUnitTestMode && SystemInfo.isWindows then
-      commandLine.withEnvironment(SbtRunner.defaultCoursierDirectoriesAsEnvVariables().asJava)
+
+    if isUnitTestMode then
+      if SystemInfo.isWindows then
+        // Add coursier environment variables when starting the sbt/BSP server in tests on Windows,
+        // because the same issue with hanging sbt processes has been observed during project import in sbt/BSP tests.
+        commandLine.withEnvironment(SbtRunner.defaultCoursierDirectoriesAsEnvVariables().asJava)
+      end if
+      // In tests, BSP servers that resolve dependencies from coursier's default repositories (`ivy2Local|central`),
+      // e.g. Scala CLI when it fetches Bloop, use the JetBrains Maven Central mirror instead of Maven Central,
+      // to avoid HTTP Error 429 Too Many Requests in the CI (SCL-25750)
+      commandLine.withEnvironment("COURSIER_REPOSITORIES", s"ivy2Local|${Resolver.JetBrainsMavenCentralMirror.root}")
+    end if
 
     val process = commandLine.createProcess()
 
