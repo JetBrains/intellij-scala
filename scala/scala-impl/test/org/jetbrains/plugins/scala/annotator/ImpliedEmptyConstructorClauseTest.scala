@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.annotator.Message.Error
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
@@ -51,6 +52,7 @@ abstract class ImpliedEmptyConstructorClauseTestBase extends ScalaHighlightingTe
         |val b5 = new I(using 1)
         |val b6 = new I()(using 1)
         |val g5 = I()
+        |val g6 = I(using 1)
         |""".stripMargin,
     Error("(1", "Too many arguments for constructor I(Int)")
   )
@@ -68,6 +70,7 @@ class ImpliedEmptyConstructorClauseTest_3_3 extends ImpliedEmptyConstructorClaus
         |val c4 = new C4[Int](using s)()
         |val c5 = new C4[Int]()(using s)
         |val c6 = new C4[Int]()(s)
+        |val g3 = C4[Int](using s)
         |val g4 = C4[Int]()
         |""".stripMargin,
     Error("(using s)()", "Unspecified value parameters: show$A$0: Show[Int]"),
@@ -108,11 +111,83 @@ class ImpliedEmptyConstructorClauseHighlightingTest extends ScalaLightCodeInsigh
       |class M(using y: Int)(using z: Long)
       |
       |val a = Seq(new U, new U(), new U(using 1), new U(using 1)(), U(using 1), U())
-      |val b = Seq(new I, new I(), new I()(1), new I(using 1), new I()(using 1), I())
+      |val b = Seq(new I, new I(), new I()(1), new I(using 1), new I()(using 1), I(), I(using 1))
       |val c = Seq(new C4[Int], new C4[Int](), new C4[Int](using s), new C4[Int](using s)(), C4[Int](using s), C4[Int]())
       |val d = Seq(new M, new M(using 1)(using 2L), new M(using 1)(using 2L)(), new M(using 1), new M(using 1)())
       |""".stripMargin
   )
+}
+
+/**
+ * The types of universal applies. As for a constructor invocation, the compiler applies the implied empty clause
+ * if no arguments are given for it, e.g. `G[Int]` is `new G[Int](given_Show_Int)()`.
+ */
+abstract class ImpliedEmptyConstructorClauseTypeTestBase extends TypeInferenceTestBase {
+
+  protected def checkType(expression: String, expectedType: String): Unit = doTest(
+    s"""trait Show[A]
+       |given Show[Int] = new Show[Int] {}
+       |given Int = 1
+       |given Long = 2L
+       |val s: Show[Int] = summon[Show[Int]]
+       |
+       |class U(using y: Int)
+       |class I(implicit y: Int)
+       |class C4[A: Show]
+       |class M(using y: Int)(using z: Long)
+       |class G[A](using y: Show[A]):
+       |  def g: Int = 0
+       |
+       |val x = $START$expression$END
+       |//$expectedType
+       |""".stripMargin
+  )
+
+  def testUsingOnly(): Unit = checkType("U(using 1)", "U")
+
+  def testUsingOnlyWithEmptyArguments(): Unit = checkType("U()", "U")
+
+  def testUsingOnlyWithTypeArguments(): Unit = checkType("G[Int]", "G[Int]")
+
+  def testUsingOnlyWithTypeArgumentsMember(): Unit = checkType("G[Int].g", "Int")
+
+  def testUsingOnlyWithTypeAndUsingArguments(): Unit = checkType("G[Int](using s)", "G[Int]")
+
+  def testUsingOnlyWithTypeAndEmptyArguments(): Unit = checkType("G[Int]()", "G[Int]")
+
+  def testUsingOnlyClauses(): Unit = checkType("M(using 1)", "M")
+
+  def testUsingOnlyClausesWithAllArguments(): Unit = checkType("M(using 1)(using 2L)", "M")
+
+  def testUsingOnlyClausesWithEmptyArguments(): Unit = checkType("M()", "M")
+
+  def testLeadingImplicit(): Unit = checkType("I()", "I")
+
+  // `I()(using 1)`
+  def testLeadingImplicitWithUsingArguments(): Unit = checkType("I(using 1)", "I")
+}
+
+/** Before Scala 3.6, evidence is `implicit`: `C4[A]()(implicit ev: Show[A])` */
+class ImpliedEmptyConstructorClauseTypeTest_3_3 extends ImpliedEmptyConstructorClauseTypeTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_3
+
+  def testContextBound(): Unit = checkType("C4[Int]", "C4[Int]")
+
+  def testContextBoundWithEmptyArguments(): Unit = checkType("C4[Int]()", "C4[Int]")
+
+  // `C4[Int]()(using s)`
+  def testContextBoundWithUsingArguments(): Unit = checkType("C4[Int](using s)", "C4[Int]")
+}
+
+/** Since Scala 3.6, evidence is `using`: `C4[A](using ev: Show[A])()` */
+class ImpliedEmptyConstructorClauseTypeTest_3_9 extends ImpliedEmptyConstructorClauseTypeTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_9
+
+  def testContextBound(): Unit = checkType("C4[Int]", "C4[Int]")
+
+  def testContextBoundWithEmptyArguments(): Unit = checkType("C4[Int]()", "C4[Int]")
+
+  def testContextBoundWithUsingArguments(): Unit = checkType("C4[Int](using s)", "C4[Int]")
 }
 
 /** Known differences with the compiler */
@@ -120,13 +195,6 @@ class ImpliedEmptyConstructorClauseFailingTest extends ScalaLightCodeInsightFixt
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_9
 
   override protected def shouldPass = false
-
-  // the compiler applies `I()(using 1)` to the universal apply
-  def testUniversalApplyWithUsingArgumentsOfLeadingImplicitConstructor(): Unit = checkTextHasNoErrors(
-    """class I(implicit y: Int)
-      |val g6 = I(using 1)
-      |""".stripMargin
-  )
 
   // Arguments after the implied empty clause: the compiler reports that the constructor does not take more parameters.
   // Excess argument clauses aren't reported for constructors in general, e.g. `class E(); new E()()`.
