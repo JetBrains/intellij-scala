@@ -202,6 +202,17 @@ abstract class CodeFragmentEvaluationTestBase extends ExpressionEvaluationTestBa
         """val p = new MyProduct("string", 25)
           |val MyProduct(a, b) = p
           |(a, b)""".stripMargin.trim, "(string,25)")
+
+      // the pattern definition in the loop body evaluates its right-hand side and `unapply` again on every iteration
+      evalEquals(
+        """var sum = 0
+          |var i = 0
+          |while (i < 3) {
+          |  val One(a) = One(i * 10)
+          |  sum += a
+          |  i += 1
+          |}
+          |sum""".stripMargin.trim, "30")
     }
   }
 }
