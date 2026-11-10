@@ -4,6 +4,17 @@ import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaUnu
 
 class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
 
+  // SCL-26385
+  def test_implicit_execution_context_not_used_by_for(): Unit = checkTextHasError(
+    s"""import scala.concurrent.ExecutionContext
+       |def result = {
+       |  implicit val ${START}ec$END: ExecutionContext = ExecutionContext.parasitic
+       |  for (a <- List(1)) yield a + 1
+       |}
+       |println(result)
+       |""".stripMargin
+  )
+
   def test_private_field(): Unit =
     checkTextHasError(s"@scala.annotation.unused class Foo { private val ${START}s$END = 0}")
 
