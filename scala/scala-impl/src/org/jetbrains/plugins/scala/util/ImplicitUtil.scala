@@ -54,11 +54,32 @@ object ImplicitUtil {
         .flatMap(_.args)
         .exists(matches)
 
+    private def implicitArgumentOfPatternFilter(generator: ScGenerator): Boolean =
+      generator.pattern.analogInDesugaredForExpr
+        .flatMap(_.parentOfType(classOf[ScMethodCall]))
+        .exists {
+          // A refutable pattern is first mapped to the generated filtering call, before map/flatMap/foreach.
+          // The resolver also handles the Scala 2.11 fallback from withFilter to filter here.
+          case call @ ScMethodCall(ref: ScReferenceExpression, _) if ref.refName == "withFilter" =>
+            // An irrefutable pattern may instead be mapped to an explicit guard, which has its own enumerator.
+            val isGuard = generator.nextSiblings
+              .takeWhile(!_.is[ScGenerator])
+              .filterByType[ScGuard]
+              .exists(_.desugared.exists(_.analogMethodCall == call))
+            !isGuard && implicitArgumentOf(call)
+          case _ => false
+        }
+
     def refOrImplicitRefIn(usage: PsiElement): Option[PsiReference] = usage match {
       case ref: ScReference if ref.bind().exists(isTarget)        => Some(ref)
       case e: ScExpression if isImplicitConversionOrParameter(e)  => Some(ImplicitReference(e, targetImplicit))
       case c: ScConstructorInvocation if implicitArgumentOf(c)    => Some(ImplicitReference(c, targetImplicit))
       case c: ScContextBound if isContextBound(c, targetImplicit) => Some(ImplicitReference(c, targetImplicit))
+      case e: ScEnumerator if e.desugared.exists(d => implicitArgumentOf(d.analogMethodCall)) =>
+        // Implicit arguments of generated for-comprehension calls are not in the source PSI.
+        Some(ImplicitReference(e, targetImplicit))
+      case g: ScGenerator if implicitArgumentOfPatternFilter(g) =>
+        Some(ImplicitReference(g, targetImplicit))
       case p@ScTypedPattern(Typeable(ty)) if targetsClassTagFor(ty) =>
         // ClassTag/Manifest evidence used by type test pattern: `case _: T`
         Some(ImplicitReference(p, targetImplicit))
@@ -125,6 +146,7 @@ object ImplicitUtil {
       case MethodRepr(_, _, Some(ref), _)                   => startingFrom(ref.nameId)
       case simpleTypeElem: ScSimpleTypeElement              => forTypeElem(simpleTypeElem)
       case ref: ScReference                                 => startingFrom(ref.nameId)
+      case enumerator: ScEnumerator                        => enumerator.enumeratorToken.fold(simpleRange)(_.getTextRange)
       case _                                                => simpleRange
     }
   }
