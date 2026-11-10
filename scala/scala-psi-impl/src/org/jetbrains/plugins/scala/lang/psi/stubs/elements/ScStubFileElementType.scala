@@ -91,5 +91,5 @@ object ScStubFileElementType {
    * Version of the stubs that [[org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler.ScClsStubBuilder]]
    * builds for compiled Scala files. It is here, and not in the decompiler (backend), because [[stubVersion]] includes it.
    */
-  val DecompiledStubVersion = 486
+  val DecompiledStubVersion = 487
 }
