@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala.failed.typeInference
+package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
 
 class CompoundTypesTest extends TypeConformanceTestBase {
-
-  override protected def shouldPass: Boolean = false
 
   def testSCL4824_A(): Unit = {
     doTest(

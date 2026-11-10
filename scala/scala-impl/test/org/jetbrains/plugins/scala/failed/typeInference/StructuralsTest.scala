@@ -13,24 +13,6 @@ class StructuralsTest extends TypeInferenceTestBase {
 
   def testSCL8689(): Unit = doTest()
 
-  def testSCL5423(): Unit = doTest {
-    """
-      |trait Test {
-      |  trait SettValue {
-      |    type T
-      |    def value: T
-      |  }
-      |  trait Foo { def foo: Int }
-      |  type Sett <: SettValue
-      |  type BSetting <: Sett { type T = Foo }
-      |  def foo(b: BSetting) = /*start*/b.value.foo/*end*/
-      |
-      |}
-      |
-      |//Int
-    """.stripMargin
-  }
-
   def testSCL3938(): Unit = doTest {
     """
       |object SCL3938 {
@@ -66,24 +48,6 @@ class StructuralsTest extends TypeInferenceTestBase {
       |  def daytime1(i: Long): DaytimeScalaLong = tag(i) //bad code red
       |}
       |//(Int, Int, Int, Int)
-    """.stripMargin.trim
-  }
-
-  def testSCL12125(): Unit = doTest {
-    """
-      |trait A {
-      |  type X
-      |  def getX: X
-      |  def printX(x: X): String
-      |}
-      |
-      |object B {
-      |  def printProxy(a: A): String = {
-      |    a.printX(/*start*/getProxy(a)/*end*/) // Type mismatch, expected: a.X, actual: A#X
-      |  }
-      |  def getProxy(a: A): a.X = a.getX
-      |}
-      |//a.X
     """.stripMargin.trim
   }
 }
