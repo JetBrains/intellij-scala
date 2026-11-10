@@ -588,7 +588,7 @@ class ImplicitCollector(
    * is typed as `Int => Int` (and not `[A] A => A => Int`).
    *
    * This is fine for the most part, but is causing errors, when we have
-   * multiple extensions definining a method with the same name (overloading happens
+   * multiple extensions defining a method with the same name (overloading happens
    * via the first "receiver" clause), e.g.
    * {{{
    *   extension [A](a: A) def foo: Int = 123
@@ -600,7 +600,7 @@ class ImplicitCollector(
    * Grouping candidates by name and comparing them here preserves that information before qualifier
    * application folds the receiver constraints into the resolve-result substitutor.
    *
-   * We could, of course, pass this constraint informantion in a separate substitutor,
+   * We could, of course, pass this constraint information in a separate substitutor,
    * but that would force us to update all the consumers, which naturally expect that for an expression
    * of shape `foo.bar(baz)` substitutor for the resolve result of `bar` contains all the type information
    * from its qualifier.
