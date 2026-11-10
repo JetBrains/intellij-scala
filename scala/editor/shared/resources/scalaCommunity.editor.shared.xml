@@ -66,6 +66,7 @@
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.FormatEmptyTemplateBodyAfterEnterHandler"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.FormatKeywordAfterEnterHandler"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.TemplateParentsEnterHandler"/>
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandler"/>
 
         <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinLines.PackageJoinLinesHandler"/>
         <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinLines.StripMarginJoinLinesHandler"/>

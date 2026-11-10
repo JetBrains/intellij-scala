@@ -616,7 +616,6 @@
         <projectSdkSetupValidator implementation="org.jetbrains.plugins.scala.project.notification.ScalaProjectSdkSetupValidator"/>
 
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AutoBraceEnterHandler"/>
-        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandler"/>
 
         <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
         <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.Scala3MainMethodProvider"/>
