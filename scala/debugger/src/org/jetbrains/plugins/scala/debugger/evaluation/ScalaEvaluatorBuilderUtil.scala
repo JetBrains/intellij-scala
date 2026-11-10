@@ -1008,34 +1008,38 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val funName = fun.name
           val newEval =
             if (funName == "unapply") {
-              val extractEval = new ScalaCachingEvaluator(ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval)))
-              if (pattern.subpatterns.length == 1) {
-                ScalaDuplexEvaluator(
-                  ScalaMethodEvaluator(extractEval, "get", JVMNameUtil.getJVMRawText("()Ljava/lang/Object;"), Seq.empty),
-                  ScalaMethodEvaluator(extractEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(new IntEvaluator(0)))
-                )
-              } else if (pattern.subpatterns.length > 1) {
-                val args = Seq(new IntEvaluator(nextPatternIndex))
-                val getEval = ScalaMethodEvaluator(extractEval, "get", JVMNameUtil.getJVMRawText("()Ljava/lang/Object;"), Seq.empty)
-                ScalaDuplexEvaluator(
-                  ScalaMethodEvaluator(getEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), args),
-                  ScalaMethodEvaluator(extractEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), args)
-                )
-              }
-              else throw EvaluationException(DebuggerBundle.message("unapply.without.arguments"))
-            } else if (funName == "unapplySeq") {
-              val extractEval = new ScalaCachingEvaluator(ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval)))
-              val getEval =
-                ScalaDuplexEvaluator(
-                  ScalaMethodEvaluator(extractEval, "get", JVMNameUtil.getJVMRawText("()Ljava/lang/Object;"), Seq.empty),
+              // the alternatives below read the result of a single `unapply` call
+              ScalaSharedResultEvaluator(ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval))) { extractEval =>
+                if (pattern.subpatterns.length == 1) {
                   ScalaDuplexEvaluator(
-                    new NewValueClassInstanceEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText("scala.collection.SeqFactory$UnapplySeqWrapper")), extractEval),
-                    new NewValueClassInstanceEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText("scala.Array$UnapplySeqWrapper")), extractEval)
+                    ScalaMethodEvaluator(extractEval, "get", JVMNameUtil.getJVMRawText("()Ljava/lang/Object;"), Seq.empty),
+                    ScalaMethodEvaluator(extractEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(new IntEvaluator(0)))
                   )
-                )
-              val indexExpr = createExpressionFromText("" + nextPatternIndex, ScalaFeaturesProvider.forPsiOrDefault(pattern))(using pattern.getManager)
-              val indexEval = evaluatorFor(indexExpr)
-              ScalaMethodEvaluator(getEval, "apply", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(indexEval))
+                } else if (pattern.subpatterns.length > 1) {
+                  val args = Seq(new IntEvaluator(nextPatternIndex))
+                  val getEval = ScalaMethodEvaluator(extractEval, "get", JVMNameUtil.getJVMRawText("()Ljava/lang/Object;"), Seq.empty)
+                  ScalaDuplexEvaluator(
+                    ScalaMethodEvaluator(getEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), args),
+                    ScalaMethodEvaluator(extractEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), args)
+                  )
+                }
+                else throw EvaluationException(DebuggerBundle.message("unapply.without.arguments"))
+              }
+            } else if (funName == "unapplySeq") {
+              // the alternatives below read the result of a single `unapplySeq` call
+              ScalaSharedResultEvaluator(ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval))) { extractEval =>
+                val getEval =
+                  ScalaDuplexEvaluator(
+                    ScalaMethodEvaluator(extractEval, "get", JVMNameUtil.getJVMRawText("()Ljava/lang/Object;"), Seq.empty),
+                    ScalaDuplexEvaluator(
+                      new NewValueClassInstanceEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText("scala.collection.SeqFactory$UnapplySeqWrapper")), extractEval),
+                      new NewValueClassInstanceEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText("scala.Array$UnapplySeqWrapper")), extractEval)
+                    )
+                  )
+                val indexExpr = createExpressionFromText("" + nextPatternIndex, ScalaFeaturesProvider.forPsiOrDefault(pattern))(using pattern.getManager)
+                val indexEval = evaluatorFor(indexExpr)
+                ScalaMethodEvaluator(getEval, "apply", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(indexEval))
+              }
             } else throw EvaluationException(DebuggerBundle.message("pattern.doesnot.resolves.to.unapply", ref.refName))
           val nextPattern = pattern.subpatterns(nextPatternIndex)
           evaluateSubpatternFromPattern(newEval, nextPattern, subPattern)
@@ -1406,22 +1410,23 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     evaluatorFor(expr)
   }
 
-  def valOrVarDefinitionEvaluator(pList: ScPatternList, expr: ScExpression): BlockStatementEvaluator = {
-    val evaluatorsBuilder = Array.newBuilder[Evaluator]
-    val exprEval = new ScalaCachingEvaluator(evaluatorFor(expr))
-    evaluatorsBuilder += exprEval
-    for {
-      pattern <- pList.patterns
-      binding <- pattern.bindings
-    } {
-      val name = binding.name
-      createSyntheticVariable(name)
-      val leftEval = syntheticVariableEvaluator(name)
-      val rightEval = evaluateSubpatternFromPattern(exprEval, pattern, binding)
-      evaluatorsBuilder += new AssignmentEvaluator(leftEval, rightEval)
+  def valOrVarDefinitionEvaluator(pList: ScPatternList, expr: ScExpression): Evaluator =
+    // every binding reads the result of a single evaluation of the right-hand side
+    ScalaSharedResultEvaluator(evaluatorFor(expr)) { exprEval =>
+      val evaluatorsBuilder = Array.newBuilder[Evaluator]
+      evaluatorsBuilder += exprEval
+      for {
+        pattern <- pList.patterns
+        binding <- pattern.bindings
+      } {
+        val name = binding.name
+        createSyntheticVariable(name)
+        val leftEval = syntheticVariableEvaluator(name)
+        val rightEval = evaluateSubpatternFromPattern(exprEval, pattern, binding)
+        evaluatorsBuilder += new AssignmentEvaluator(leftEval, rightEval)
+      }
+      new BlockStatementEvaluator(evaluatorsBuilder.result())
     }
-    new BlockStatementEvaluator(evaluatorsBuilder.result())
-  }
 
   def variableDefinitionEvaluator(vd: ScVariableDefinition): Evaluator = {
     vd.expr match {
