@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScParameterOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScParameterOwner, ScSignatureClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
@@ -62,13 +62,19 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
     val isClassParameter = owner.is[ScPrimaryConstructor]
 
+    // evidence is only merged into the last clause, so this clause determines the evidence kind
+    val isUsing = ScParameterOwner.isUsingEvidence(
+      Option(ScSignatureClause.TermClause(this)), 
+      this
+    )
+
     val maybeSyntheticClause = getParent match {
       case clauses: ScParameters =>
         ScalaPsiUtil.syntheticParamClause(
           prependedTypeParameters,
           clauses,
           isClassParameter,
-          hasImplicit = false
+          isUsing
         )
       case _ => None
     }

@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.caches.{ModTracker, cached}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPolyFunctionExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -51,7 +52,7 @@ class ScPolyFunctionExprImpl(node: ASTNode)
             typeParameters,
             this,
             isClassParameter = false,
-            hasImplicit = false
+            isUsing          = ScParameterOwner.isUsingEvidence(None, this)
           )
       }
     )

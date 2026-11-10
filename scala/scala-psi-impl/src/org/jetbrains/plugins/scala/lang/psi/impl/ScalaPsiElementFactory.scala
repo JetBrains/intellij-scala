@@ -440,12 +440,16 @@ object ScalaPsiElementFactory {
   ): ScReferenceExpression =
     createElementFromText[ScReferenceExpression](text, ScalaFeatures.default)
 
+  /**
+   * @param isUsing whether to create a `using` clause rather than an `implicit` one; only possible in Scala 3 files
+   */
   def createImplicitClauseFromTextWithContext(clauses: Iterable[String],
                                               context: PsiElement,
-                                              isClassParameter: Boolean): ScParameterClause =
+                                              isClassParameter: Boolean,
+                                              isUsing: Boolean): ScParameterClause =
     if (clauses.isEmpty)
       throw new IncorrectOperationException("At least one clause required.")
-    else if (context.isInScala3File)
+    else if (isUsing && context.isInScala3File)
       createElementWithContext[ScParameterClause](s"(using ${clauses.commaSeparated()})", context, null) {
         case builder if isClassParameter => top.params.ClassParamClause.parse(using builder)
         case builder => params.ParamClause.parse(using builder)

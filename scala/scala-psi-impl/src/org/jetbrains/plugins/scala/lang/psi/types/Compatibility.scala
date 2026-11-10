@@ -903,9 +903,18 @@ object Compatibility {
     val argExprs                   = args.map(_.exprs)
     val shouldInjectEmptyArgClause = args.forall(_.isUsing)
 
+    // the implied empty clause of a constructor with only `using` clauses is the last one,
+    // see ScPrimaryConstructor.effectiveSignatureClauses
+    val injectEmptyArgClauseInFront = shouldInjectEmptyArgClause && (cons match {
+      case constructor: ScPrimaryConstructor =>
+        !constructor.effectiveParameterClauses.lastOption.exists(ScPrimaryConstructor.isImpliedEmptyClause)
+      case _ => true
+    })
+
     val nonEmptyArgs =
-      if (shouldInjectEmptyArgClause) Seq(Seq.empty[Expression]) ++ argExprs
-      else                            argExprs
+      if (!shouldInjectEmptyArgClause)      argExprs
+      else if (injectEmptyArgClauseInFront) Seq(Seq.empty[Expression]) ++ argExprs
+      else                                  argExprs :+ Seq.empty[Expression]
 
     def retryWithAutoTupling(
       f:      Seq[Expression] => (ScType, ApplicabilityCheckResult),
@@ -996,7 +1005,7 @@ object Compatibility {
         )
 
         val shouldNotUpdateTrailingImplicits = {
-          val nextArgClauseIdx = i + (if (shouldInjectEmptyArgClause) 0 else 1)
+          val nextArgClauseIdx = i + (if (injectEmptyArgClauseInFront) 0 else 1)
 
           args.nonEmpty &&
             (args.lift(nextArgClauseIdx) match {
