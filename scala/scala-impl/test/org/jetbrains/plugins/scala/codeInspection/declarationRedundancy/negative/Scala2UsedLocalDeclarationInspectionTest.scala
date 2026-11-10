@@ -97,6 +97,75 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
     "@scala.annotation.unused class A() { implicit val i: Int = 42 }"
   )
 
+  // SCL-26385
+  def test_implicit_execution_context_in_for_yield(): Unit = checkTextHasNoErrors(
+    """import scala.concurrent.duration.Duration
+      |import scala.concurrent.{Await, ExecutionContext, Future}
+      |
+      |object Main {
+      |  def main(args: Array[String]): Unit = {
+      |    implicit val ec: ExecutionContext = ExecutionContext.parasitic
+      |    val result = for {
+      |      a <- Future.successful("a")
+      |      aa <- Future.successful(a + a)
+      |    } yield {
+      |      aa
+      |    }
+      |    println(Await.result(result, Duration.Inf))
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def test_implicit_execution_context_in_single_generator(): Unit = checkTextHasNoErrors(
+    """import scala.concurrent.{ExecutionContext, Future}
+      |def result = {
+      |  implicit val ec: ExecutionContext = ExecutionContext.parasitic
+      |  for (a <- Future.successful(1)) yield a + 1
+      |}
+      |println(result)
+      |""".stripMargin
+  )
+
+  def test_implicit_execution_context_in_for_foreach(): Unit = checkTextHasNoErrors(
+    """import scala.concurrent.{ExecutionContext, Future}
+      |def run(): Unit = {
+      |  implicit val ec: ExecutionContext = ExecutionContext.parasitic
+      |  for (a <- Future.successful(1)) println(a)
+      |}
+      |run()
+      |""".stripMargin
+  )
+
+  def test_implicit_argument_in_for_guard(): Unit = checkTextHasNoErrors(
+    """@scala.annotation.unused class Container {
+      |  def withFilter(p: Int => Boolean)(implicit enabled: Boolean): Container =
+      |    if (enabled && p(1)) this else new Container
+      |  def map(f: Int => Int): Int = f(1)
+      |}
+      |def result = {
+      |  implicit val enabled: Boolean = true
+      |  for (a <- new Container if a > 0) yield a + 1
+      |}
+      |println(result)
+      |""".stripMargin
+  )
+
+  def test_implicit_argument_in_for_pattern_filter(): Unit = checkTextHasNoErrors(
+    """@scala.annotation.unused
+      |class Container {
+      |  def withFilter(p: Option[Int] => Boolean)(implicit enabled: Boolean): Container =
+      |    if (enabled && p(Some(1))) this else new Container
+      |  def map(f: Option[Int] => Int): Int = f(Some(1))
+      |}
+      |def result = {
+      |  implicit val enabled: Boolean = true
+      |  for (Some(a) <- new Container) yield a + 1
+      |}
+      |println(result)
+      |""".stripMargin
+  )
+
   def test_implicit_protected_val(): Unit = checkTextHasNoErrors(
     "@scala.annotation.unused class A() { implicit protected val i: Int = 42 }"
   )

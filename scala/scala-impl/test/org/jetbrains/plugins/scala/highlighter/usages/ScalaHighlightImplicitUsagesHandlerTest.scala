@@ -32,6 +32,21 @@ abstract class ScalaHighlightImplicitUsagesHandlerTestBase extends ScalaHighligh
     doTest(code, Seq("implicitInt", "foo()"))
   }
 
+  def testImplicitArgumentsInForComprehension(): Unit = {
+    val code =
+      s"""import scala.concurrent.{ExecutionContext, Future}
+         |object Test {
+         |  implicit val ${CARET}ec: ExecutionContext = ExecutionContext.global
+         |  val result = for {
+         |    a <- Future.successful(1)
+         |    b <- Future.successful(a + 1)
+         |  } yield a + b
+         |}
+         |""".stripMargin
+
+    doTest(code, Seq("ec", "<-", "<-"))
+  }
+
   def testImplicitConversion(): Unit = {
     val code =
       s"""
