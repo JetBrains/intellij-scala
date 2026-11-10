@@ -129,11 +129,25 @@ private class TreeReader(
 object TreeReader {
 
   def treeFrom(bytes: Array[Byte]): Node = {
-    val treeAndTable = treeAndNameTableFrom(bytes)
-    treeAndTable._1
+    read(bytes)._1
   }
 
   def treeAndNameTableFrom(bytes: Array[Byte]): (Node, NameTable) = {
+    val (tree, nameTable, _) = read(bytes)
+    (tree, nameTable)
+  }
+
+  /**
+   * Returns the AST and the raw source path from `SOURCEFILEattr`, when present. The path is not
+   * reduced to a filename here. Older TASTy files may have no such attribute; the printer can
+   * still obtain their filename from an `@SourceFile` annotation in the tree.
+   */
+  def treeAndSourceFileFrom(bytes: Array[Byte]): (Node, Option[String]) = {
+    val (tree, _, sourceFile) = read(bytes)
+    (tree, sourceFile)
+  }
+
+  private def read(bytes: Array[Byte]): (Node, NameTable, Option[String]) = {
     val in = new TastyReader(bytes)
 
     val header = new HeaderReader(in).readFullHeader()
@@ -146,20 +160,55 @@ object TreeReader {
     val astSectionEnd = in.readEnd()
     val astSectionBegin = in.currentAddr
 
-    val positions = if (header.minorVersion < 6) Map.empty[Addr, Int] else {
+    val (positions, nextSectionStart) = if (header.minorVersion < 6) (Map.empty[Addr, Int], astSectionEnd) else {
       in.goto(astSectionEnd)
 
       if (nameTable.apply(NameRef(in.readNat())).asSimpleName.toString != "Positions") throw new UnpickleException("No Positions section")
       val positionSectionEnd = in.readEnd()
       val positionSectionBegin = in.currentAddr
 
-      readPositions(in.subReader(positionSectionBegin, positionSectionEnd))
+      (readPositions(in.subReader(positionSectionBegin, positionSectionEnd)), positionSectionEnd)
     }
+
+    in.goto(nextSectionStart)
+    val sourceFile = readSourceFileFromSections(in, nameTable)
 
     val treeReader = new TreeReader(nameTable, positions)
     val tastyReader = new TastyReader(bytes, astSectionBegin.index, astSectionEnd.index, astSectionBegin.index)
     val rootNode = treeReader.readTree(tastyReader)
-    (rootNode, nameTable)
+    (rootNode, nameTable, sourceFile)
+  }
+
+  /**
+   * Finds the source path recorded as `SOURCEFILEattr` in a TASTy Attributes section.
+   * The reader starts after the ASTs (and Positions, when present) and advances through the remaining sections.
+   * Unknown attribute payloads cannot be skipped individually, so scanning stops for that Attributes section;
+   * any source path found before the unknown attribute is retained.
+   *
+   * @param in the reader positioned at the first remaining section
+   * @param nameTable the decoded names used by section headers and string attributes
+   * @return the recorded source path, if one was found
+   */
+  private def readSourceFileFromSections(in: TastyReader, nameTable: NameTable): Option[String] = {
+    var sourceFile = Option.empty[String]
+    while (!in.isAtEnd) {
+      val sectionName = nameTable(in.readNameRef()).asSimpleName.toString
+      val sectionEnd = in.readEnd()
+      if (sectionName == "Attributes") {
+        val attributes = in.subReader(in.currentAddr, sectionEnd)
+        while (!attributes.isAtEnd) {
+          val tag = attributes.readByte()
+          if (isStringAttrTag(tag)) {
+            val value = nameTable(attributes.readNameRef()).toString
+            if (tag == SOURCEFILEattr) sourceFile = Some(value)
+          } else if (!isBooleanAttrTag(tag)) {
+            attributes.goto(sectionEnd)
+          }
+        }
+      }
+      in.goto(sectionEnd)
+    }
+    sourceFile
   }
 
   private def readPositions(in: TastyReader): Map[Addr, Int] = {

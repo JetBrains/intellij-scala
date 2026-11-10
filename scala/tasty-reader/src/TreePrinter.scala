@@ -88,15 +88,25 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
       case _ => false
     })
 
-  def fileAndTextOf(node: Node): (String, String, CompilerOptions) = {
+  /**
+   * Prints a TASTy tree as a Scala outline and chooses the filename used to find attached sources.
+   *
+   * @param node the decoded TASTy tree
+   * @param sourceFile the source path from `SOURCEFILEattr` in the TASTy Attributes section, if present.
+   *                   This is read before printing. The [[sourceFiles]] field instead collects filenames from
+   *                   older `@SourceFile` annotations while the tree is printed, and serves as a fallback
+   *                   when the Attributes section has no source path.
+   * @return the source filename, printed outline, and compiler options
+   */
+  def fileAndTextOf(node: Node, sourceFile: Option[String] = None): (String, String, CompilerOptions) = {
     assert(sharedTypes.isEmpty)
     assert(sourceFiles.isEmpty)
     val sb = new StringBuilder(1024 * 8)
     textOfPackage(sb, "", node)
-    val sourceFileName = sourceFiles.headOption.getOrElse {
-      //SourceFile annotation is used to specify the original source file of a tasty file.
-      //However, it can't be used for SourceFile annotation itself as it would lead to cyclic dependencies.
-      //So we simply hardcode it.
+    val recordedSourceFile = sourceFile.map(fileName).orElse(sourceFiles.headOption)
+    val sourceFileName = recordedSourceFile.getOrElse {
+      // Older TASTy files use @SourceFile, but SourceFile.tasty cannot annotate itself without a cycle,
+      // so we hardcode its known source filename.
       if (isSourceFileAnnotationTasty(node))
         "SourceFile.scala"
       else
@@ -841,11 +851,19 @@ class TreePrinter(privateMembers: Boolean = false, infixTypes: Boolean = false, 
     node.children.reverseIterator.takeWhile(_.is(ANNOTATION)).foreach {
       case Node3(ANNOTATION, _, Seq(tpe, apply@Node1(APPLY))) if (textOfType(tpe) == "_root_.scala.annotation.internal.SourceFile") =>
         apply.children.lastOption.map(_.name).foreach { path =>
-          val i = path.replace('\\', '/').lastIndexOf("/")
-          sourceFiles += (if (i > 0) path.substring(i + 1) else path)
+          sourceFiles += fileName(path)
         }
       case _ =>
     }
+  }
+
+  /**
+   * Returns the filename from a source path, accepting both slash styles.
+   * For example, `scala/collection/IndexedSeq.scala` becomes `IndexedSeq.scala`.
+   */
+  private def fileName(path: String): String = {
+    val separator = path.replace('\\', '/').lastIndexOf('/')
+    path.substring(separator + 1)
   }
 
   private enum Target {

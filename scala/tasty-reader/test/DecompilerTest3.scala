@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.tasty.reader
 
+import dotty.tools.tasty.TastyFormat.isBooleanAttrTag
+import dotty.tools.tasty.TastyReader
 import junit.framework.TestCase
 import org.junit.Assert.*
 
@@ -121,14 +123,54 @@ class DecompilerTest3 extends TestCase {
   ))
   def testNesting(): Unit = doTest("Nesting")
 
+  def testScala310IndexedSeqOpsSourceFile(): Unit = {
+    // Scala 3.10 no longer emits @SourceFile; this TASTy is from scala-library-3.10.0.jar.
+    val tastyFile = testDataPath.resolve("scala310/IndexedSeqOps.tasty")
+    val result = new TastyImpl().read(Files.readAllBytes(tastyFile))
+
+    assertTrue("IndexedSeqOps.tasty should be decompiled", result.isDefined)
+    val (sourceName, sourceText, _) = result.get
+    assertEquals("IndexedSeq.scala", sourceName)
+    assertTrue("IndexedSeqOps outline should be decompiled", sourceText.contains("trait IndexedSeqOps"))
+  }
+
+  def testUnknownAttributeDoesNotPreventDecompilation(): Unit = {
+    val tastyFile = testDataPath.resolve("scala310/IndexedSeqOps.tasty")
+    val bytes = Files.readAllBytes(tastyFile)
+    val reader = new TastyReader(bytes)
+    new HeaderReader(reader).readFullHeader()
+    val nameTableReader = new NameTableReader(reader)
+    nameTableReader.read()
+
+    var firstAttributeIndex = Option.empty[Int]
+    while (!reader.isAtEnd) {
+      val sectionName = nameTableReader.nameAtRef(reader.readNameRef()).asSimpleName.toString
+      val sectionEnd = reader.readEnd()
+      if (sectionName == "Attributes") {
+        firstAttributeIndex = Some(reader.currentAddr.index)
+      }
+      reader.goto(sectionEnd)
+    }
+
+    val index = firstAttributeIndex.getOrElse(throw new AssertionError("No Attributes section"))
+    assertTrue("Expected a boolean attribute first", isBooleanAttrTag(bytes(index) & 0xff))
+    bytes(index) = 33 // Unknown attribute tag, outside the known boolean and string tag ranges.
+
+    val result = new TastyImpl().read(bytes)
+    assertTrue("An unknown attribute should not hide a readable AST", result.isDefined)
+    val (sourceName, sourceText, _) = result.get
+    assertEquals("Unknown.scala", sourceName)
+    assertTrue("IndexedSeqOps outline should be decompiled", sourceText.contains("trait IndexedSeqOps"))
+  }
+
+  private def testDataPath: Path = {
+    val path = Path.of("scala/tasty-reader/testdata")
+    val result = if (Files.exists(path)) path else Path.of("community", path.toString)
+    assert(Files.exists(result), result.toAbsolutePath)
+    result
+  }
 
   private def findTestScalaSourceFile(testFileRelativePath: String): Path = {
-    val testDataPath = {
-      val path = Path.of("scala/tasty-reader/testdata")
-      if (Files.exists(path)) path else Path.of("community", path.toString)
-    }
-    assert(Files.exists(testDataPath), testDataPath.toAbsolutePath)
-
     val scalaFile = testDataPath.resolve(testFileRelativePath + ".scala").toAbsolutePath
     assertTrue(s"File $scalaFile does not exist", Files.exists(scalaFile))
     scalaFile
@@ -191,11 +233,11 @@ class DecompilerTest3 extends TestCase {
     expectedTastyContent: String,
     expectedCompilerOptions: CompilerOptions
   ): Unit = {
-    val tree = TreeReader.treeFrom(Files.readAllBytes(tastyFile))
+    val (tree, sourceFile) = TreeReader.treeAndSourceFileFrom(Files.readAllBytes(tastyFile))
 
     val (actualSourceFile, actualTastyContent, actualCompilerOptions) = try {
       val treePrinter = new TreePrinter(infixTypes = true) // Disable?
-      treePrinter.fileAndTextOf(tree)
+      treePrinter.fileAndTextOf(tree, sourceFile)
     } catch {
       case NonFatal(e) =>
         Console.err.println(scalaFile)
