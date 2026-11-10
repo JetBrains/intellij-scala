@@ -57,3 +57,25 @@ abstract class ConditionalBreakpointsTestBase extends ExpressionEvaluationTestBa
       implicit ctx => evalEquals("i", "4"),
       implicit ctx => evalEquals("i", "8")
     )
+
+  addSourceFile("PatternDefinitionCondition.scala",
+    s"""object PatternDefinitionCondition {
+       |  var current = 0
+       |  object Twice { def unapply(n: Int): Option[Int] = Some(n * 2) }
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    while (current < 12) {
+       |      current += 1
+       |      println(current) $breakpoint ${condition("{ val Twice(d) = current; d % 8 == 6 }")}
+       |    }
+       |  }
+       |}""".stripMargin.trim)
+
+  /** The right-hand side and the `unapply` call of the pattern definition are evaluated again on every hit. */
+  @Test
+  def patternDefinitionCondition(): Unit =
+    expressionEvaluationTest("PatternDefinitionCondition")(
+      implicit ctx => evalEquals("current", "3"),
+      implicit ctx => evalEquals("current", "7"),
+      implicit ctx => evalEquals("current", "11")
+    )
