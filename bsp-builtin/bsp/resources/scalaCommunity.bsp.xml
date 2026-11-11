@@ -99,6 +99,8 @@
         <projectService serviceImplementation="org.jetbrains.bsp.settings.BspLocalSettings"/>
 
         <applicationService serviceImplementation="org.jetbrains.bsp.protocol.BspCommunicationService"/>
+        <applicationService serviceInterface="org.jetbrains.bsp.project.importing.setup.SbtOverBspVmOptions"
+                            serviceImplementation="org.jetbrains.bsp.project.importing.setup.NoopSbtOverBspVmOptions"/>
 
         <projectImportProvider implementation="org.jetbrains.bsp.project.importing.BspProjectImportProvider"/>
         <projectImportBuilder implementation="org.jetbrains.bsp.project.importing.BspProjectImportBuilder"/>

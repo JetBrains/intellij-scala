@@ -99,7 +99,14 @@ object SbtCachesSetupUtil {
    * path: project-highlighting tests import real-world projects whose builds may need other resolvers.
    */
   def cacheAndRepositoryVmOptionsWithBuildReposOverride: Seq[String] =
-    coursierAndIvyCacheVmOptions ++ Seq(overrideRepositoryConfigVmOption, bundledRepoPathVmOption, "-Dsbt.override.build.repos=true")
+    coursierAndIvyCacheVmOptions ++ repositoryVmOptionsWithBuildReposOverride
+
+  /**
+   * [[cacheAndRepositoryVmOptionsWithBuildReposOverride]] without the cache options, for sbt processes that must keep
+   * using the default caches, e.g. because the tests assert the paths of the resolved artifacts.
+   */
+  def repositoryVmOptionsWithBuildReposOverride: Seq[String] =
+    Seq(overrideRepositoryConfigVmOption, bundledRepoPathVmOption, "-Dsbt.override.build.repos=true")
 
   /**
    * Serializes options into a whitespace-joined string for whitespace-tokenized sinks
