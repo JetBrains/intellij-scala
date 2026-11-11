@@ -77,21 +77,43 @@ package object caches {
     }
   }
 
-  /**
-   * caches.stats enabled  : org$example$Foo$$method$cacheKey
-   * caches.stats disabled : org.example.Foo$$Lambda/0x000000000000001a
+  /** Computes an unique cache identifier.
+   *
+   *  Return human-readable strings only if `caches.stats` are enabled to reduce CPU and RAM use:
+   *  * Because the method is called frequently, it's best to avoid string transformations.
+   *  * Because results are effectively stored in `Cache` fields, it's best to reference singleton objects rather than unique `String` instances.
+   *
+   *  @param lambdaClass class of the function that computes values, must be unique
+   *  @param name name of the cached method, e.g. "qualifiedName", must be unique within the enclosing class
+   *
+   *  @return cache name, for example:
+   *  * `caches.stats` enabled  : `org$example$Foo$$method$cacheKey`
+   *  * `caches.stats` disabled : `org.example.Foo$$Lambda/0x000000000000001a`
+   *
+   *  @see https://youtrack.jetbrains.com/issue/SCL-26384#focus=Comments-27-14629331.0-0
    */
   private def idFor(lambdaClass: Class[?], name: String): String =
     if (Tracer.isEnabled) withoutLambdaSuffix(lambdaClass.getName).replace('.', '$') + "$" + name.replace('.', '$') + "$cacheKey"
-    else lambdaClass.getName // Compute human-readable strings only if caches.stats are enabled to reduce CPU and RAM use - unique Cache(id, name) fields
+    else lambdaClass.getName
 
-  /**
-   * caches.stats enabled  : Foo.method
-   * caches.stats disabled : org.example.Foo$$Lambda/0x000000000000001a
+  /** Computes a cache name.
+   *
+   *  Return human-readable strings only if `caches.stats` are enabled to reduce CPU and RAM use:
+   *  * Because the method is called frequently, it's best to avoid string transformations.
+   *  * Because results are effectively stored in `Cache` fields, it's best to reference singleton objects rather than unique `String` instances.
+   *
+   *  @param lambdaClass class of the function that computes values, must be unique
+   *  @param name name of the cached method, e.g. "qualifiedName", must be unique within the enclosing class
+   *
+   *  @return cache name, for example:
+   *  * `caches.stats` enabled  : `Foo.method`
+   *  * `caches.stats` disabled : `org.example.Foo$$Lambda/0x000000000000001a`
+   *
+   *  @see https://youtrack.jetbrains.com/issue/SCL-26384#focus=Comments-27-14629331.0-0
    */
   private def nameFor(lambdaClass: Class[?], name: String): String =
     if (Tracer.isEnabled) withoutLambdaSuffix(lambdaClass.getSimpleName) + "." + name
-    else lambdaClass.getName // Compute human-readable strings only if caches.stats are enabled to reduce CPU and RAM use - unique Cache(id, name) fields
+    else lambdaClass.getName
 
   private def withoutLambdaSuffix(name: String): String = {
     val i = name.indexOf("$$Lambda/") // Since JDK 21, lambda class names are like "org.example.Foo$$Lambda/0x000000000000001a"
