@@ -2,9 +2,9 @@
 
 package org.jetbrains.plugins.scala.semantic
 
-import com.intellij.psi.{PsiElement, PsiFile, PsiMember, PsiMethod, PsiNamedElement, PsiPackage}
+import com.intellij.psi.{PsiElement, PsiFile, PsiMember, PsiNamedElement, PsiPackage}
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotator, template}
-import org.jetbrains.plugins.scala.extensions.{&, IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, Parent, PsiClassExt, PsiElementExt, PsiMemberExt, PsiNamedElementExt, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.{InvocationDetails, InvocationDetailsOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScCompositePattern, ScExtractorPattern, ScLiteralPattern, ScNamingPattern, ScPattern, ScReferencePattern, ScStableReferencePattern, ScTuplePattern, ScTypedPattern, ScWildcardPattern}
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType.isValueClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{Context, ScLiteralType, ScType, ScTypeExt, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -208,7 +208,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     if (s.is[ScExpression]) text else highlighted(s)(text)
   }
 
-  private def textOfExpression(e: ScExpression, indent: String, etaExpand: Boolean = true): String = highlighted(e) {
+  private def textOfExpression(e: ScExpression, indent: String): String = highlighted(e) {
     val text = e match {
       case p: ScParenthesisedExpr => p.innerElement.map(textOfExpression(_, indent)).getOrElse("")
       case b: ScBlockExpr => "{" + b.statements.filterNot(isUnitConstant).map(s => textOfStatement(s, indent + "  ")).mkString("") +
@@ -235,11 +235,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
           case Left(error) => error.toString
         }
       }
-      case u: ScUnderscoreSection => u.bindingExpr match {
-        case Some(b) => etaExpansionOf(b, indent).getOrElse("<expr>")
-        case None => "_"
-      }
-      case e @ NonValueType(_: ScMethodType | ScTypePolymorphicType(_: ScMethodType, _)) & ExpectedType(FunctionType(_, _)) if etaExpand => etaExpansionOf(e, indent).getOrElse("<expr>")
+      case u: ScUnderscoreSection if u.bindingExpr.isEmpty => "_"
       case e: ScIf =>
         "if (" + e.condition.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + ") " + e.thenExpression.map(e => textOfExpression(normalized(e), indent)).getOrElse("") + (e.elseExpression match {
           case Some(e) if !isUnitConstant(e) => " else " + textOfExpression(normalized(e), indent)
@@ -257,12 +253,13 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       case owner@Call(call) => inlining(call.target) {
         val callee  = textOfCallee(owner, call, indent)
         val clauses = textOfClauses(call, indent)
-        owner match {
+        val invocation = owner match {
           //`a += b` assigns the result of `a.+(b)` to `a`, which the source writes as one operator
           case infix: ScInfixExpr if isCompoundAssignment(infix, call) =>
             call.thisExpr.map(textOfExpression(_, indent)).getOrElse("") + " = " + callee.stripSuffix("=") + clauses
           case _ => callee + clauses
         }
+        textOfEtaExpansion(call) + invocation
       }
       case sc: ScAssignment =>
         def syntaxText = textOfExpression(sc.leftExpression, indent) + " = " + sc.rightExpression.map(textOfExpression(_, indent)).getOrElse("")
@@ -521,8 +518,9 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         "(" + using + text + ")"
       case clause: InvocationDetails.ImplicitValueClause =>
         textOfImplicitArguments(Seq(clause.arguments), call.origin)
-      //a clause the call leaves unapplied writes nothing, the function it evaluates to takes it
-      case _: InvocationDetails.EtaExpandedClause => ""
+      case clause: InvocationDetails.EtaExpandedClause =>
+        val using = if (isImplicitClause(clause.target)) "using " else ""
+        etaParameterNames(clause).mkString("(" + using, ", ", ")")
       case _: InvocationDetails.AutoAppliedClause => "()"
     }.mkString
 
@@ -584,31 +582,21 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
       .flatMap(_.argumentClauses)
       .collect { case clause: InvocationDetails.ImplicitValueClause => clause.arguments }
 
-  private def etaExpansionOf(e: ScExpression, indent: String) = referenceLevelIn(e).flatMap { case (reference, level) =>
-    reference.bind().flatMap { result =>
-      Some(result.element).collect {
-        case f: ScFunction =>
-          val omittedClauses = f.clauses.map(_.clauses).getOrElse(Seq.empty).drop(level)
-          val bindingLists = omittedClauses.map(_.parameters.map(p => p.name + ": " + textOf(p.`type`().map(result.substitutor(_).removeAliasDefinitionsIn(e)))).mkString("(", ", ", ")"))
-          val argumentLists = omittedClauses.map(_.parameters.map(_.name).mkString("(", ", ", ")"))
-          s"${bindingLists.mkString(" => ")} => ${textOfExpression(e, indent, etaExpand = false)}${argumentLists.mkString}"
-        case m: PsiMethod =>
-          val omittedParameters = m.getParameterList.getParameters
-          val bindingList = omittedParameters.map(p => p.getName + ": " + p.getType.getCanonicalText).mkString("(", ", ", ")")
-          val argumentList = omittedParameters.map(_.getName).mkString("(", ", ", ")")
-          s"$bindingList => ${textOfExpression(e, indent, etaExpand = false)}$argumentList"
-      }
-    }
-  }
+  /** The lambdas for the clauses the call leaves unapplied, using their already substituted types. */
+  private def textOfEtaExpansion(call: InvocationDetails): String =
+    call.argumentClauses.collect {
+      case clause: InvocationDetails.EtaExpandedClause =>
+        val parameters = etaParameterNames(clause).zip(clause.parameters).map { case (name, parameter) =>
+          name + ": " + textOf(parameter.paramType.removeAliasDefinitionsIn(call.origin))
+        }
+        val arrow = if (isImplicitClause(clause.target)) " ?=> " else " => "
+        parameters.mkString("(", ", ", ")") + arrow
+    }.mkString
 
-  @tailrec
-  private def referenceLevelIn(e: ScExpression, level: Int = 0): Option[(ScReferenceExpression, Int)] = e match {
-    case r: ScReferenceExpression => Some((r, level))
-    case c: ScMethodCall => referenceLevelIn(c.getEffectiveInvokedExpr, level + 1)
-    case g: ScGenericCall => referenceLevelIn(g.referencedExpr, level)
-    case ScParenthesisedExpr(inner) => referenceLevelIn(inner, level)
-    case _ => None
-  }
+  private def etaParameterNames(clause: InvocationDetails.EtaExpandedClause): Seq[String] =
+    clause.parameters.zipWithIndex.map { case (parameter, index) =>
+      if (parameter.name.nonEmpty) parameter.name else s"x$$${index + 1}"
+    }
 
   @tailrec
   private def normalized(e: ScExpression): ScExpression = e match {
