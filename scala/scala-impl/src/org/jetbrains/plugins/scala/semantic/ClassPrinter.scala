@@ -255,7 +255,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         val clauses = textOfClauses(call, indent)
         val invocation = owner match {
           //`a += b` assigns the result of `a.+(b)` to `a`, which the source writes as one operator
-          case infix: ScInfixExpr if isCompoundAssignment(infix, call) =>
+          case infix: ScInfixExpr if infix.isAssignment =>
             call.thisExpr.map(textOfExpression(_, indent)).getOrElse("") + " = " + callee.stripSuffix("=") + clauses
           case _ => callee + clauses
         }
@@ -482,13 +482,6 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
 
     receiver + separator + unary + calleeText + (if (call.isApply) ".apply" else "")
   }
-
-  /**
-   * Whether the source writes one operator where the compiler assigns the result of a call, `a += b`
-   * assigning `a.+(b)` to `a` since no `+=` is defined.
-   */
-  private def isCompoundAssignment(infix: ScInfixExpr, call: InvocationDetails): Boolean =
-    infix.operation.refName.endsWith("=") && !call.target.exists(_.name.endsWith("="))
 
   /** The callee of a call as the source names it. */
   private def textOfCalleeReference(reference: ScReferenceExpression, indent: String): String =
