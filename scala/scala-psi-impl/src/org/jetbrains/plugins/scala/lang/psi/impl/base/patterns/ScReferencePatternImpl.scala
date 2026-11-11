@@ -122,12 +122,12 @@ object ScReferencePatternImpl {
   }
 
   private def findNavigationTarget(varOrVarId: ScNamedElement, members: Seq[ScMember]): Option[ScTypedDefinition] = {
-    import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.BacktickedName.stripBackticks
+    import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.BacktickedName.sameNameIgnoringBackticks
     val bindings = members.collect { case v: ScValueOrVariable => v.declaredElements }.flatten
     bindings.find { b =>
       //example when it matters:
       //`scala.caps#*` is defined as "val `*`" in sources, but in the decompiled version we use "val *"
-      stripBackticks(b.name) == stripBackticks(varOrVarId.name)
+      sameNameIgnoringBackticks(b.name, varOrVarId.name)
     }
   }
 }

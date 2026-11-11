@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.BacktickedName.sameNameIgnoringBackticks
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
@@ -52,7 +53,7 @@ trait ScValueOrVariable extends ScBlockStatement
     case other: ScValueOrVariable =>
       for (thisName <- declaredNames;
            otherName <- other.declaredNames
-           if thisName == otherName) {
+           if sameNameIgnoringBackticks(thisName, otherName)) {
         return true
       }
       super.isSimilarMemberForNavigation(member, isStrictCheck)

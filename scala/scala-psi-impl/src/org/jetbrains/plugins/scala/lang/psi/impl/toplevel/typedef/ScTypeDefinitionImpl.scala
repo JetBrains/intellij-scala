@@ -110,7 +110,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override def getSourceMirrorClass: PsiClass = {
     val classParent = PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
-    val name = this.name
+    val name = stripBackticks(this.name)
     if (classParent == null) {
       val containingFile = getContainingFile
       val fileNavigationElement = containingFile.getNavigationElement
@@ -122,7 +122,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       while (classesIterator.hasNext) {
         val c = classesIterator.next()
         val className = c.name
-        val matches = name == className && hasSameScalaKind(c) || (c match {
+        val matches = name == stripBackticks(className) && hasSameScalaKind(c) || (c match {
           //A "legacy" package object has the name `package`.
           //However, when we decompile its class file, we use the package name.
           //Thus, the condition "myName == className" returns false.
@@ -137,7 +137,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       val parentSourceMirror = classParent.asInstanceOf[ScTypeDefinitionImpl[?]].getSourceMirrorClass
       parentSourceMirror match {
         case td: ScTypeDefinitionImpl[_] =>
-          for (i <- td.typeDefinitions if name == i.name && hasSameScalaKind(i))
+          for (i <- td.typeDefinitions if name == stripBackticks(i.name) && hasSameScalaKind(i))
             return i
         case _ =>
       }

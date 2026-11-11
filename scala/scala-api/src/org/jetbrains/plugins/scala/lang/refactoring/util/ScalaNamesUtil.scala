@@ -51,6 +51,24 @@ object ScalaNamesUtil {
     def stripBackticks(string: String): String =
       if (string == null || string.length <= 1) string
       else string.stripPrefix(BackTick).stripSuffix(BackTick)
+
+    /**
+     * Compares Scala PSI names after removing surrounding backticks.
+     *
+     * Compiled and source PSI already expose Scala names during source mirror lookup,
+     * but their quoting can differ:
+     * {{{
+     * sameNameIgnoringBackticks("type", "`type`") // true
+     * }}}
+     *
+     * Unlike [[ScalaNamesUtil.equivalent]], this does not decode encoded operator
+     * names:
+     * {{{
+     * sameNameIgnoringBackticks("+", "`$plus`") // false
+     * }}}
+     */
+    def sameNameIgnoringBackticks(left: String, right: String): Boolean =
+      stripBackticks(left) == stripBackticks(right)
   }
 
   def splitName(name: String): Seq[String] = name match {

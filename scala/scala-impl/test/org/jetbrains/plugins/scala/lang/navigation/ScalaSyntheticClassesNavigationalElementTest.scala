@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.lang.navigation
 
+import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.roots.{LibraryOrderEntry, ModuleRootManager, OrderEntry, OrderRootType}
 import com.intellij.openapi.util.registry.Registry
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.ScalaVersion
@@ -12,15 +15,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
-import org.junit.Assert.assertTrue
+import org.junit.Assert.{assertEquals, assertTrue}
 
 /**
  * See also [[org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProviderTest_SyntheticScalaLibraryElements]]
  */
 //noinspection ScalaWrongPlatformMethodsUsage
-class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsightFixtureTestCase {
-
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_5
+abstract class ScalaSyntheticClassesNavigationalElementTestBase extends ScalaLightCodeInsightFixtureTestCase {
 
   override protected def includeScalaLibrarySources: Boolean = true
 
@@ -65,10 +66,80 @@ class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsight
     )
   }
 
+  /**
+   * Names members for test selection and exclusions, as well as diagnostics.
+   * An incorrect name can change which members the navigation assertions check.
+   * Synthetic classes use their PSI qualified name instead of the general name provider.
+   */
   private def getQualifiedName(element: PsiElement): String = {
-    val provider = new ScalaQualifiedNameProvider
-    provider.getQualifiedName(element)
+    element match {
+      case cls: ScSyntheticClass => cls.getQualifiedName
+      case _ => new ScalaQualifiedNameProvider().getQualifiedName(element)
+    }
   }
+
+  private lazy val attachedSourceRoots: Seq[VirtualFile] = {
+    val orderEntries = ModuleRootManager.getInstance(getModule).getOrderEntries.toSeq
+    val libraries = orderEntries.flatMap(extractLibrary)
+    libraries.flatMap(_.getFiles(OrderRootType.SOURCES))
+  }
+
+  private def extractLibrary(entry: OrderEntry): Option[Library] = entry match {
+    case libraryEntry: LibraryOrderEntry => Option(libraryEntry.getLibrary)
+    case _ => None
+  }
+
+  private def hasAttachedScalaSourceFile(fileName: String): Boolean =
+    attachedSourceRoots.exists(_.findFileByRelativePath(s"scala/$fileName") != null)
+
+  private case class MissingSourceExpectations(
+    scala2SyntheticClasses: Set[String],
+    scala3SyntheticClasses: Set[String],
+    syntheticAliasFiles: Set[String],
+  )
+
+  private val Scala35To310ContextFunctionsWithoutSources = (1 to 22).map(n => s"scala.ContextFunction$n").toSet
+
+  private val Scala35MissingSources = MissingSourceExpectations(
+    scala2SyntheticClasses = Set.empty,
+    scala3SyntheticClasses = Scala35To310ContextFunctionsWithoutSources,
+    syntheticAliasFiles = Set.empty,
+  )
+
+  // Scala 3.8+ source jars omit Scala 2 bootstrap sources and some compiler-defined types.
+  private val Scala38To310MissingSources = MissingSourceExpectations(
+    scala2SyntheticClasses = Set(
+      "scala.Any",
+      "scala.AnyRef",
+      "scala.Nothing",
+      "scala.Null",
+      "scala.Singleton",
+    ),
+    scala3SyntheticClasses = Scala35To310ContextFunctionsWithoutSources ++ Set(
+      "scala.AnyKind",
+      "scala.Matchable",
+    ),
+    syntheticAliasFiles = Set(
+      "andType.scala",
+      "orType.scala",
+    ),
+  )
+
+  private val SyntheticAliasSourceFileNames = Set(
+    "andType.scala",
+    "orType.scala",
+  )
+
+  private val MissingSourcesByVersion = Map(
+    ScalaVersion.Latest.Scala_3_5 -> Scala35MissingSources,
+    ScalaVersion.Latest.Scala_3_8 -> Scala38To310MissingSources,
+    ScalaVersion.Latest.Scala_3_9 -> Scala38To310MissingSources,
+    ScalaVersion.Latest.Scala_3_10 -> Scala38To310MissingSources,
+  )
+
+  private def expectedMissingSourcesFor(version: ScalaVersion): MissingSourceExpectations =
+    MissingSourcesByVersion.getOrElse(version,
+      throw new AssertionError(s"Review missing-source expectations for Scala ${version.minor}"))
 
   private def allSubPackages(p: PsiPackage): Seq[PsiPackage] = {
     val packages = p.getSubPackages.toSeq
@@ -129,16 +200,29 @@ class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsight
         case d: ScDeclaredElementsHolder => d.declaredElements
         case m => Seq(m)
       }
-      .filterNot(isExceptionWithNonWorkingNavigation)
+
+    val expectedNewerLibraryExclusions = if (version >= ScalaVersion.Latest.Scala_3_8)
+      Set("scala.NamedTuple.head", "scala.NamedTuple.toSeqMap")
+    else
+      Set.empty[String]
+    val expectedScala310Exclusions = if (version >= ScalaVersion.Latest.Scala_3_10)
+      Set("scala.collection.generic.IsSeq.iarrayIsSeq", "scala.NamedTuple.namedTupleCanEqual")
+    else
+      Set.empty[String]
+    val expectedExclusions = expectedNewerLibraryExclusions ++ expectedScala310Exclusions
+    assertEquals("Known source-mirror exclusions should be reviewed when library definitions change",
+      expectedExclusions, allNonPrivateMembers.map(getQualifiedName).toSet.intersect(expectedExclusions))
+    val checkedMembers = allNonPrivateMembers.filterNot(isExceptionWithNonWorkingNavigation)
 
     //TODO: ideally we shouldn't disable the filter, see SCL-22994
     Registry.get("ast.loading.filter").setValue(false, getTestRootDisposable)
-    assertNavigationElementPointsToSources(allNonPrivateMembers)
+    assertNavigationElementPointsToSources(checkedMembers)
   }
 
   //Filter out some synthetic internal methods and methods for which navigation doesn't work yet
   private def isExceptionWithNonWorkingNavigation(m: PsiElement): Boolean = {
     val qualifiedName = getQualifiedName(m)
+    // TODO SCL-23058: Review and remove muted definitions as their source navigation is fixed.
     if (MutedDefinitions.contains(qualifiedName))
       return true
 
@@ -158,10 +242,10 @@ class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsight
     }
   }
 
-  //TODO: remove when SCL-23058 is fixed
   private val MutedDefinitions: Set[String] = Set(
     "scala.NamedTuple.Names",
     "scala.NamedTuple.DropNames",
+    "scala.NamedTuple.head",
     "scala.NamedTuple.apply",
     "scala.NamedTuple.size",
     "scala.NamedTuple.init",
@@ -177,6 +261,11 @@ class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsight
     "scala.NamedTuple.toList",
     "scala.NamedTuple.toArray",
     "scala.NamedTuple.toIArray",
+    "scala.NamedTuple.toSeqMap",
+    // The compiled structural given has a source-level given alias, which is not a type-definition mirror.
+    "scala.collection.generic.IsSeq.iarrayIsSeq",
+    // The Scala 3.10 source given alias does not have a matching compiled source mirror yet.
+    "scala.NamedTuple.namedTupleCanEqual",
   )
 
   private def allScalaLibraryPackages: Seq[PsiPackage] = {
@@ -186,20 +275,47 @@ class ScalaSyntheticClassesNavigationalElementTest extends ScalaLightCodeInsight
 
   def testNavigationElementPointsToSourceElement_Scala2SyntheticLibraryClasses(): Unit = {
     val sharedClasses = SyntheticClasses.get(getProject).sharedClassesOnly.filterByType[ScSyntheticClass].toSeq
-    assertNavigationElementPointsToSources(sharedClasses)
+    assertEquals("Shared synthetic class inventory", 15, sharedClasses.size)
+    val expectedWithoutSources = expectedMissingSourcesFor(version).scala2SyntheticClasses
+    val (excluded, withSources) = sharedClasses.partition(c => !hasAttachedScalaSourceFile(s"${c.className}.scala"))
+    assertEquals("Shared synthetic classes without attached source files",
+      expectedWithoutSources, excluded.map(_.getQualifiedName).toSet)
+    assertNavigationElementPointsToSources(withSources)
   }
 
   def testNavigationElementPointsToSourceElement_Scala3SyntheticLibraryClasses(): Unit = {
     val scala3SyntheticClasses = SyntheticClasses.get(getProject).scala3ClassesOnly.toSeq
-    val scala3SyntheticClassesWithExpectedSources = scala3SyntheticClasses.filter { c =>
-      val fqn = c.getQualifiedName
-      !fqn.startsWith("scala.ContextFunction") //scala.ContextFunctionN classes don't have any sources
-    }
-    assertNavigationElementPointsToSources(scala3SyntheticClassesWithExpectedSources)
+    val expectedWithoutSources = expectedMissingSourcesFor(version).scala3SyntheticClasses
+    val (excluded, withSources) = scala3SyntheticClasses.partition(c => !hasAttachedScalaSourceFile(s"${c.getName}.scala"))
+    assertEquals("Scala 3 synthetic classes without attached source files",
+      expectedWithoutSources, excluded.map(_.getQualifiedName).toSet)
+    assertEquals("Scala 3 synthetic class inventory", 24, scala3SyntheticClasses.size)
+    assertNavigationElementPointsToSources(withSources)
   }
 
   def testNavigationElementPointsToSourceElement_SyntheticAliases(): Unit = {
-    val syntheticObjects = SyntheticClasses.get(getProject).aliases
-    syntheticObjects.foreach(assertNavigationElementPointsToSources)
+    val aliases = SyntheticClasses.get(getProject).aliases.toSeq
+    assertEquals("Synthetic alias inventory", Set("&", "|"), aliases.map(_.name).toSet)
+    val expectedMissingSourceFiles = expectedMissingSourcesFor(version).syntheticAliasFiles
+    val missingSourceFiles = SyntheticAliasSourceFileNames.filterNot(hasAttachedScalaSourceFile)
+    assertEquals("Synthetic alias source files", expectedMissingSourceFiles, missingSourceFiles)
+    if (missingSourceFiles.isEmpty)
+      aliases.foreach(assertNavigationElementPointsToSources)
   }
+}
+
+class ScalaSyntheticClassesNavigationalElementTest_Scala_3_5 extends ScalaSyntheticClassesNavigationalElementTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_5
+}
+
+class ScalaSyntheticClassesNavigationalElementTest_Scala_3_8 extends ScalaSyntheticClassesNavigationalElementTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_8
+}
+
+class ScalaSyntheticClassesNavigationalElementTest_Scala_3_9 extends ScalaSyntheticClassesNavigationalElementTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_9
+}
+
+class ScalaSyntheticClassesNavigationalElementTest_Scala_3_10 extends ScalaSyntheticClassesNavigationalElementTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_10
 }
