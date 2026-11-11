@@ -6,6 +6,7 @@ import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.platform.eel.provider.utils.EelPathUtils
+import org.jetbrains.bsp.project.importing.setup.SbtOverBspVmOptions
 import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, ProcessBsp}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.protocol.session.GenericConnector.RemoteProcessPid
@@ -36,7 +37,7 @@ class GenericConnector(base: Path, compilerOutput: Path, capabilities: BspCapabi
   }
 
   private def prepareBspSession(details: BspConnectionDetails): Builder = {
-    val commandLine = new GeneralCommandLine(details.getArgv)
+    val commandLine = new GeneralCommandLine(argv(details).asJava)
       .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
       .withWorkingDirectory(base)
 
@@ -77,6 +78,19 @@ class GenericConnector(base: Path, compilerOutput: Path, capabilities: BspCapabi
       else RemoteProcessPid
 
     BspSession.builder(pid, process.getInputStream, process.getErrorStream, process.getOutputStream, initializeBuildParams, cleanup)
+  }
+
+  /**
+   * The command of the connection file, with the [[SbtOverBspVmOptions]] appended for sbt.
+   *
+   * The command of sbt (`... xsbt.boot.Boot -bsp`) starts the sbt BSP client, which sets the `-Dkey=value` arguments as
+   * system properties and passes them on to the sbt server that it starts, so they apply to the server as well.
+   */
+  private def argv(details: BspConnectionDetails): Seq[String] = {
+    val argv = details.getArgv.asScala.toSeq
+    // The name that sbt writes to its connection file, see `sbt.internal.bsp.BuildServerConnection.name`
+    if (details.getName == "sbt") argv ++ SbtOverBspVmOptions.getInstance.vmOptions
+    else argv
   }
 }
 

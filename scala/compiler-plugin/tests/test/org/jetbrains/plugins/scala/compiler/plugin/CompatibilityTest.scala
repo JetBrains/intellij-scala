@@ -10,22 +10,19 @@ import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
 import org.junit.jupiter.api.Assertions.{assertEquals, fail}
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.{Arguments, MethodSource}
-import org.junit.runners.Parameterized.Parameters
 
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
-import java.util
 import scala.collection.immutable.ArraySeq
 import scala.concurrent.duration.DurationInt
 import scala.io.Source
-import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.jdk.StreamConverters._
 import scala.util.Using
 
 @TestApplication
 class CompatibilityTest {
-  @ParameterizedTest
+  @ParameterizedTest(name = "[{0}]")
   @MethodSource(Array("scalaVersions"))
   def compatibilityWith(version: String): Unit = {
     val scalaVersion = ScalaVersion.fromString(version).getOrElse(throw new IllegalArgumentException(version))
@@ -40,12 +37,16 @@ class CompatibilityTest {
       else if (version.startsWith("3.")) ScalaPluginJars.compilerPluginJar_3_3
       else throw new IllegalArgumentException(version)
 
-    val commonOptions = Seq(
-      "-encoding", StandardCharsets.UTF_8.name(),
-      "-usejavacp",
-      "-Xplugin:" + pluginPath,
-      "-Xplugin-require:intellij-compiler-plugin")
     inTempDirectory { directory =>
+      val commonOptions = Seq(
+        "-encoding", StandardCharsets.UTF_8.name(),
+        "-usejavacp",
+        // Without -classpath, the Scala compiler uses the CLASSPATH environment variable as the user classpath.
+        // On Windows, sbt passes the classpath of the forked test JVM in that variable, and the compiler process
+        // inherits it. The Scala standard library on that classpath breaks the compilation with older Scala 3 versions
+        "-classpath", directory.toString,
+        "-Xplugin:" + pluginPath,
+        "-Xplugin-require:intellij-compiler-plugin")
       def compile(name: String, code: String, options: String*): String = {
         val path = directory.resolve(name)
         Files.writeString(path, code, StandardCharsets.UTF_8)
@@ -53,7 +54,7 @@ class CompatibilityTest {
       }
       if (scalaVersion.isScala2) {
         val output1 = compile("Definition.scala", Definition, "-feature", "-language:experimental.macros")
-        val output2 = compile("Usage.scala", Usage, "-cp", directory.toString, "-Yrangepos")
+        val output2 = compile("Usage.scala", Usage, "-Yrangepos")
         assertPresent(scalaVersion, output1 + output2, Type)
       } else {
         val output = compile("TransparentInline.scala", TransparentInline, "-color:never")
@@ -75,13 +76,14 @@ object CompatibilityTest {
 //  "3.1.0", "3.1.1", "3.1.2", "3.1.3",
 //  "3.2.0", "3.2.1", "3.2.2",
 //  "3.3.0",
-    "3.3.1", "3.3.3", "3.3.4", "3.3.5", "3.3.6", "3.3.7", "3.3.8",
+    "3.3.1", "3.3.3", "3.3.4", "3.3.5", "3.3.6", "3.3.7", "3.3.8", "3.3.9",
     "3.4.0", "3.4.1", "3.4.2", "3.4.3",
     "3.5.0", "3.5.1", "3.5.2",
     "3.6.2", "3.6.3", "3.6.4",
     "3.7.0", "3.7.1", "3.7.2", "3.7.3", "3.7.4",
     "3.8.0", "3.8.1", "3.8.2", "3.8.3", "3.8.4",
     "3.9.0",
+    "3.10.0",
     ScalaVersion.Latest.Scala_3_LTS_RC.minor,
     ScalaVersion.Latest.Scala_3_Next_RC.minor
   )
@@ -100,9 +102,6 @@ object CompatibilityTest {
 
   private val Type =
     "<type>123</type>"
-
-  @Parameters(name = "{0}")
-  def versions: util.Collection[String] = Versions.asJava
 
   private def download(version: ScalaVersion): Seq[Path] = {
     val dependencyManager = new DependencyManagerBase() { override protected def progressIndicator: Option[ProgressIndicator] = None }
@@ -169,7 +168,7 @@ object CompatibilityTest {
     }
   }
 
-  private def assertPresent(version: ScalaVersion, output: String, tpe: String): Unit = ignoreErrorsOnWindows(output) {
+  private def assertPresent(version: ScalaVersion, output: String, tpe: String): Unit = {
     val lines = {
       val outputLines = output.linesIterator.toSeq
       if (version.isScala3) filterOutJdk25Warnings(outputLines) else outputLines
@@ -178,19 +177,6 @@ object CompatibilityTest {
     val (count, index) = if (version.isScala2) (3, 0) else (4, 3)
     assertEquals(count, lines.size)
     assertThat(lines(index), containsString(tpe))
-  }
-
-  private def ignoreErrorsOnWindows(output: String)(f: => Unit): Unit = {
-    val isWindows = System.getProperty("os.name").toLowerCase.contains("windows")
-    try f
-    catch {
-      case ae: AssertionError if isWindows =>
-        println("Test failed on Windows, ignoring the errors")
-        println("Stack trace:")
-        ae.printStackTrace(System.out)
-        println("Output:")
-        println(output)
-    }
   }
 
   private val jdk25Warnings: ArraySeq[String] = ArraySeq(
