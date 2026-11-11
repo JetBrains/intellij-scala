@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.PureFunctionArrow
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.{ScalaElementType, ScalaParserBundle}
 
 /**
- * [[PolyFunOrTypeLambda]] ::= [[TypeParamClause]] ('=>' [[Type]] | '=>>' [[Type]] )
+ * [[PolyFunOrTypeLambda]] ::= [[TypeParamClause]] (('=>' | '->') [[Type]] | '=>>' [[Type]] )
  */
 object PolyFunOrTypeLambda {
   def apply(star: Boolean, isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
@@ -21,8 +22,9 @@ object PolyFunOrTypeLambda {
         marker.rollbackTo()
         false
       } else {
+        PureFunctionArrow.remapCurrentToken()
         builder.getTokenType match {
-          case ScalaTokenTypes.tFUNTYPE =>
+          case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.PureFunctionArrow =>
             builder.advanceLexer()
             if (!Type(star, isPattern)) builder.error(ScalaParserBundle.message("wrong.type"))
             marker.done(ScalaElementType.POLY_FUNCTION_TYPE)
@@ -36,7 +38,7 @@ object PolyFunOrTypeLambda {
             true
           case _ =>
             builder.error(ScalaParserBundle.message("type.lambda.expected"))
-            // Even though we couldn't even parse the => or =>>,
+            // Even though we couldn't parse any supported arrow,
             // we still create a PolyFunctionType.
             // We do that to give the parsed TypeParams a valid parent node
             // instead of discarding the TypeParams.
