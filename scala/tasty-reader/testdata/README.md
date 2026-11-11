@@ -12,6 +12,7 @@ header against `fixture-groups.tsv` and rejects unclassified fixtures.
 | --- | --- |
 | `compiled/scala-3.0.0` | The historical corpus for features supported by Scala 3.0.0. Keep it pinned so changes to the reader remain compatible with those bytes. |
 | `compiled/scala-3.6.1` | Source fixtures for named context bounds and deferred givens, which need a later compiler. |
+| `compiled/scala-3.10.0` | A source filename metadata fixture built by the Scala 3.10.0 release compiler. Its header says Scala 3.10.0. |
 | `libraries/borer-derivation_3-1.16.1` | `DerivationApi.tasty` copied unchanged from that binary JAR. Its TASTy header says Scala 3.3.5. |
 | `libraries/scala-library-3.10.0` | `IndexedSeqOps.tasty` copied unchanged from that binary JAR. Its TASTy header says Scala 3.10.0-bin-nonbootstrapped. |
 
@@ -32,6 +33,12 @@ the 3.0.0 corpus to the current compiler merely to refresh its bytes. If a
 behavior needs comparison across compiler releases, add a small, explicit set
 of equivalent fixtures under those releases instead of duplicating the whole
 corpus.
+
+`metadata/SourceMetadata.scala` is intentionally identical in the three
+compiled groups. It emits `Declaration.tasty`, so the test cannot derive the
+correct source filename merely from the TASTy entry name. The
+`scala-library-3.10.0` entry has a different tooling version in its header
+from the release compiler's fixture; the manifest records both exactly.
 
 ## Verify and regenerate
 
@@ -56,8 +63,10 @@ for the Scala CLI script itself.
 The command builds or extracts every group in temporary storage and checks the
 resulting file inventory and TASTy headers before replacing checked-in bytes.
 `--dry-run` performs all preparation and reports differences without replacing
-anything. On this corpus, a successful dry run reports 103 fixtures and zero
+anything. On this corpus, a successful dry run reports 106 fixtures and zero
 byte differences. Review any intentional binary diff before committing it.
+To add compiled fixtures, add the sources and a manifest group first, then
+dry-run and run regeneration with `--allow-new`.
 
 The former `compile.sh` and `clean.sh` deleted checked-in fixtures before they
 could confirm successful regeneration. The Scala CLI command replaces them.

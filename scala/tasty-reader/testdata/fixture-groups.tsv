@@ -1,5 +1,6 @@
 # kind	path	TASTy tooling version	origin	SHA-256 of binary JAR (- for compiled fixtures)
 compiled	compiled/scala-3.0.0	Scala 3.0.0	scala3:3.0.0	-
 compiled	compiled/scala-3.6.1	Scala 3.6.1	scala3:3.6.1	-
+compiled	compiled/scala-3.10.0	Scala 3.10.0	scala3:3.10.0	-
 library	libraries/borer-derivation_3-1.16.1	Scala 3.3.5	io.bullet:borer-derivation_3:1.16.1	81189c48eb86a5cf9d3edf98457a44225e5cc1ca6cc4dfe4e6d7b3885e3c452e
 library	libraries/scala-library-3.10.0	Scala 3.10.0-bin-nonbootstrapped	org.scala-lang:scala-library:3.10.0	b47befb29e02bbc08a10bbd387b35cf80ff9bf04fda8fdf3dda6c8ad6895f325
