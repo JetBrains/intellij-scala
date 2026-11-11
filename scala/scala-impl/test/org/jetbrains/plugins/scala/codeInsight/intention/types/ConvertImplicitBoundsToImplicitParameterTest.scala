@@ -40,27 +40,22 @@ class ConvertImplicitBoundsToImplicitParameterTest_Scala2 extends ConvertImplici
 
   def test_already_existing_clause(): Unit = doTest(
     s"def test[${CARET}T: A, TT: B](implicit x: X): Unit = ()",
-    s"def test[T, TT](implicit x: X, a: A[T], b: B[TT]): Unit = ()"
+    s"def test[T, TT](implicit a: A[T], b: B[TT], x: X): Unit = ()"
   )
 }
 
+/** Before Scala 3.6, evidence is `implicit`, but an existing clause keeps its keyword */
 class ConvertImplicitBoundsToImplicitParameterTest_Scala3 extends ConvertImplicitBoundsToImplicitParameterTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_13
 
-  override def doCommonTest(text: String, expected: String): Unit = {
-    val textWithUsing = text.replace("implicit", "using")
-    val expectedWithUsing = expected.replace("implicit", "using")
-    super.doCommonTest(textWithUsing, expectedWithUsing)
-  }
-
   def test_already_existing_clause_using(): Unit = doTest(
     s"def test[${CARET}T: A, TT: B](using x: X): Unit = ()",
-    "def test[T, TT](using x: X, a: A[T], b: B[TT]): Unit = ()"
+    "def test[T, TT](using a: A[T], b: B[TT], x: X): Unit = ()"
   )
 
   def test_already_existing_clause_implicit(): Unit = doTest(
     s"def test[${CARET}T: A, TT: B](implicit x: X): Unit = ()",
-    "def test[T, TT](using x: X, a: A[T], b: B[TT]): Unit = ()"
+    "def test[T, TT](implicit a: A[T], b: B[TT], x: X): Unit = ()"
   )
 }
 
@@ -76,12 +71,25 @@ class ConvertImplicitBoundsToImplicitParameterTest_Scala3_6 extends ConvertImpli
 
   def test_already_existing_clause_using(): Unit = doTest(
     s"def test[${CARET}T: A, TT: B](using x: X): Unit = ()",
-    "def test[T, TT](using x: X, a: A[T], b: B[TT]): Unit = ()"
+    "def test[T, TT](using a: A[T], b: B[TT], x: X): Unit = ()"
   )
 
+  // evidence takes the kind of the clause it is merged into
   def test_already_existing_clause_implicit(): Unit = doTest(
     s"def test[${CARET}T: A, TT: B](implicit x: X): Unit = ()",
-    "def test[T, TT](using x: X, a: A[T], b: B[TT]): Unit = ()"
+    "def test[T, TT](implicit a: A[T], b: B[TT], x: X): Unit = ()"
+  )
+
+  // evidence is only merged into the last clause
+  def test_existing_using_clause_is_not_last(): Unit = doTest(
+    s"def foo[${CARET}A : Parser](using ctx: Ctx)(a: A): Unit = ()",
+    "def foo[A](using ctx: Ctx)(a: A)(using parser: Parser[A]): Unit = ()"
+  )
+
+  // all evidence goes before the first usage, even if it precedes a later type clause (the compiler rejects such code)
+  def testClauseReferenceBeforeLaterTypeClause(): Unit = doTest(
+    s"def foo[${CARET}A : Parser as p](in: p.In)[B : Parser](b: B): Unit = ()",
+    "def foo[A](using p: Parser[A], parser: Parser[B])(in: p.In)[B](b: B): Unit = ()"
   )
 
   def testClauseReference(): Unit = doTest(

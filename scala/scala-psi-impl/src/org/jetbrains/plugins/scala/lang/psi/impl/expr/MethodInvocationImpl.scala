@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, MacroInvocationContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
@@ -131,11 +132,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       srr:     Option[ScalaResolveResult],
       argKind: ImplicitClausePosition
     ): (ScType, Seq[ImplicitArgumentsClause]) = {
+      // The invocation of `e`, but not a call that is only the context of a synthetic `e`,
+      // like the body of a method for `super.method(...)`, see `ScFunctionDefinitionImpl.superMethodCall`
       @tailrec
       def methodInvocationContext(e: PsiElement): Option[ScMethodCall] = e.getContext match {
-        case inv: ScMethodCall           => Option(inv)
-        case parens: ScParenthesisedExpr => methodInvocationContext(parens)
-        case _                           => None
+        case inv: ScMethodCall if inv.getInvokedExpr == e => Option(inv)
+        case parens: ScParenthesisedExpr                  => methodInvocationContext(parens)
+        case _                                            => None
       }
 
       def isUnaryAssignmentLhs: Boolean =
@@ -213,9 +216,19 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
           case _                          => None
         }
 
+        // `using` arguments to a primary constructor with an empty first clause are passed to the clause after it,
+        // e.g. `I(using 1)` is `new I()(using 1)` for `class I(implicit y: Int)` (`adaptToArgs` in the compiler)
+        val withoutLeadingEmptyConstructorClause =
+          if (
+            isFirstClauseApplication &&
+              Compatibility.isExplicitUsingArgClause(argumentExpressions) &&
+              invokesPrimaryConstructor(getEffectiveInvokedExpr)
+          ) withoutLeadingEmptyClause(nonValueType)
+          else nonValueType
+
         val (withoutLeadingImplicitClauses, leadingImplicits) =
           updateTypeWithImplicitArgs(
-            nonValueType,
+            withoutLeadingEmptyConstructorClause,
             invokedResolveResult,
             ImplicitClausePosition.Leading
           )
@@ -553,6 +566,23 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
 object MethodInvocationImpl {
   private val noSuitableMethodFoundError: NlsString = NlsString(ScalaPsiBundle.message("suitable.method.not.found"))
+
+  @tailrec
+  private def invokesPrimaryConstructor(invoked: ScExpression): Boolean = invoked match {
+    case call: ScGenericCall        => invokesPrimaryConstructor(call.referencedExpr)
+    case ref: ScReferenceExpression => ref.bind().exists(_.element.is[ScPrimaryConstructor])
+    case _                          => false
+  }
+
+  /** A method type without its first clause, if that clause is empty and followed by an implicit clause */
+  private def withoutLeadingEmptyClause(tpe: ScType): ScType = tpe match {
+    case ScTypePolymorphicType(internal, typeParams) =>
+      ScTypePolymorphicType(withoutLeadingEmptyClause(internal), typeParams)
+    case ScMethodType(implicitClause @ ScMethodType(_, _, true), Seq(), false) =>
+      implicitClause
+    case _ =>
+      tpe
+  }
 
   private object FunctionTypeParameters {
 

@@ -9,7 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiModifier.STATIC
 import com.intellij.psi._
@@ -1502,22 +1502,17 @@ object ScalaPsiUtil {
     }
   }
 
-  /** Creates a synthetic parameter clause based on view and context bounds */
+  /**
+   * Creates a synthetic parameter clause based on view and context bounds
+   *
+   * @param isUsing whether the evidence parameters are `using` rather than `implicit` parameters,
+   *                see [[org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner.isUsingEvidence]]
+   */
   def syntheticParamClause(
     tparams:          Seq[ScTypeParam],
     context:          PsiElement,
     isClassParameter: Boolean,
-    hasImplicit:      Boolean
-  ): Option[ScParameterClause] =
-    if (!hasImplicit)
-      syntheticParamClauseNonImplicit(tparams, context, isClassParameter)
-    else
-      None
-
-  private def syntheticParamClauseNonImplicit(
-    tparams:          Seq[ScTypeParam],
-    context:          PsiElement,
-    isClassParameter: Boolean
+    isUsing:          Boolean
   ): Option[ScParameterClause] = {
     if (tparams.isEmpty) return None
 
@@ -1563,7 +1558,7 @@ object ScalaPsiUtil {
     val clausesTexts = viewsTexts ++ boundsTexts
     if (clausesTexts.isEmpty) return None
 
-    val result = createImplicitClauseFromTextWithContext(clausesTexts, context, isClassParameter)
+    val result = createImplicitClauseFromTextWithContext(clausesTexts, context, isClassParameter, isUsing)
     result.parameters
       .flatMap(_.typeElement)
       .zip(views ++ bounds)
@@ -1571,8 +1566,25 @@ object ScalaPsiUtil {
         case (typeElement, ParameterDescriptor(_, context, _, _)) => context.analog = typeElement
       }
 
+    result.parameters
+      .drop(views.size)
+      .zip(bounds)
+      .foreach {
+        case (parameter, ParameterDescriptor(_, _, _, None)) => parameter.putUserData(AnonymousContextBoundEvidenceKey, java.lang.Boolean.TRUE)
+        case _                                               =>
+      }
+
     Some(result)
   }
+
+  private val AnonymousContextBoundEvidenceKey: Key[java.lang.Boolean] = Key.create("anonymous.context.bound.evidence")
+
+  /**
+   * Whether `parameter` is the synthetic evidence parameter of a context bound without a name, like `A: Show`,
+   * but not `A: Show as s` (in the compiler, only the former has a `ContextBoundParamName`)
+   */
+  def isAnonymousContextBoundEvidence(parameter: ScParameter): Boolean =
+    parameter.getUserData(AnonymousContextBoundEvidenceKey) == java.lang.Boolean.TRUE
 
   def looksLikeAssignment(elem: PsiElement): Boolean = elem.getContext match {
     case assign: ScAssignment if assign.leftExpression == elem => true

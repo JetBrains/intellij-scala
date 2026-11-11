@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScContextBound
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 trait ScParameterOwner extends ScalaPsiElement {
   def parameters: Seq[ScParameter]
@@ -165,97 +166,90 @@ object ScParameterOwner {
       }
   }
 
-  private def contextBoundIsUsedInTypeParameterClause(
-    clause:  ScTypeParamClause,
-    tparams: Seq[ScTypeParam]
-  ): Boolean = {
-    val contextBoundsNames = boundNames(tparams)
-    var boundUsageFound    = false
+  /**
+   * Whether the evidence parameters of context (and view) bounds are `using` rather than `implicit` parameters.
+   * It follows the compiler (`Desugar.elimContextBounds`):
+   *  - since compiler 3.6, evidence takes the kind of the last parameter clause if it is an `implicit` or `using` clause
+   *  - otherwise, it is `using` evidence since source version 3.6 (`future` with older compilers),
+   *    and `implicit` evidence before that
+   *
+   * @param lastClause the last clause of the whole signature, before evidence is added
+   */
+  def isUsingEvidence(lastClause: Option[ScSignatureClause], context: PsiElement): Boolean =
+    context.isInScala3File && (lastClause match {
+      case Some(ScSignatureClause.TermClause(clause))
+        if clause.isImplicit && context.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_3_6 =>
+        !clause.hasImplicitKeyword
+      case _ =>
+        context.effectiveLanguageLevel >= ScalaLanguageLevel.Scala_3_6
+    })
 
-    val visitor =
-      new ScalaRecursiveElementVisitor {
-        override def visitReference(ref: ScReference): Unit = {
-          boundUsageFound ||= contextBoundsNames.exists {
-            name =>
-              ref.textMatches(name) || ref.qualifier.exists(_.textMatches(name))
-          }
-        }
-      }
-
-    if (contextBoundsNames.isEmpty)
-      false
-    else {
-      clause.accept(visitor)
-      boundUsageFound
-    }
-  }
-
+  /**
+   * Adds the evidence parameters of context (and view) bounds to the signature clauses.
+   * It follows the compiler (`Desugar.addEvidenceParams`). The evidence of all type parameters forms one group,
+   * which is placed as follows:
+   *  1. before the first term clause that refers to a named context bound (`[A: Show as s](x: s.Out)`)
+   *  2. merged in front of the parameters of the last clause, if that clause is an `implicit` or `using` clause
+   *  3. as a new clause at the end of the signature otherwise
+   *
+   * As in the compiler, with interleaved type parameter clauses the group may precede the clause that declares
+   * some of its type parameters, e.g. for `[A: Show as s](x: s.Out)[B: Ord](y: B)` (the compiler then rejects the code).
+   *
+   * Evidence is only ever merged into the owner's own clauses: clauses of an extension are shared by its methods.
+   *
+   * @param precedingClauses clauses preceding the owner's own clauses in the whole signature,
+   *                         e.g. the clauses of an extension for an extension method
+   * @param evidenceIsUsing  the evidence kind, if it is fixed by some other signature (for secondary constructors,
+   *                         the kind of the primary constructor evidence); otherwise see [[isUsingEvidence]]
+   */
   def insertSyntheticSignatureClauses(
     parameters:       ScParameters,
     effectiveClauses: Seq[ScParameterClause],
     signatureClauses: Seq[ScSignatureClause],
     typeParameters:   Seq[ScTypeParam],
-    isClassParameter: Boolean
+    isClassParameter: Boolean,
+    precedingClauses: Seq[ScSignatureClause] = Seq.empty,
+    evidenceIsUsing:  Option[Boolean]        = None
   ): Seq[ScSignatureClause] = {
     import ScSignatureClause._
 
     effectiveClauses.foreach(setPrependedContextBoundTypeParameters(_, Seq.empty))
 
-    val clausesTypeParameters = signatureClauses
-      .flatMap {
-        case TypeClause(clause) => clause.typeParameters
-        case TermClause(_)      => Seq.empty
-      }
+    val clausesInSignature = signatureClauses.collect { case TermClause(clause) => clause }
 
-    val clausesInSignature = signatureClauses.flatMap {
-      case TypeClause(_)      => Seq.empty
-      case TermClause(clause) => Seq(clause)
+    // e.g. the empty clause, which is implied for a primary constructor
+    val orphanClauses = effectiveClauses.filterNot(clausesInSignature.contains).map(TermClause.apply)
+    val ownClauses    = orphanClauses ++ signatureClauses
+
+    val withEvidence = typeParameters.filter(tp => tp.contextBounds.nonEmpty || tp.viewTypeElement.nonEmpty)
+    if (withEvidence.isEmpty) return ownClauses
+
+    lazy val isUsing =
+      evidenceIsUsing.getOrElse(isUsingEvidence(ownClauses.lastOption.orElse(precedingClauses.lastOption), parameters))
+
+    def syntheticClause: Option[TermClause] =
+      ScalaPsiUtil.syntheticParamClause(
+        withEvidence,
+        parameters,
+        isClassParameter,
+        isUsing
+      ).map(TermClause.apply)
+
+    val referenceIndex = ownClauses.indexWhere {
+      case TermClause(clause) => contextBoundUsageInParameterListIndex(Seq(clause), withEvidence) != -1
+      case _                  => false
     }
 
-    // Type params not represented in the local signature clauses (e.g. extension owner type params)
-    // are treated as in scope from the beginning.
-    val pendingTypeParameters = scala.collection.mutable.ArrayBuffer.from(
-      typeParameters.filterNot(clausesTypeParameters.contains)
-    )
-
-    val orphanClauses = effectiveClauses.filterNot(clausesInSignature.contains)
-    val resultClauses = scala.collection.mutable.ArrayBuffer.empty[ScSignatureClause]
-    resultClauses ++= orphanClauses.map(TermClause.apply)
-
-    def flushPendingTypeParameters(): Unit = {
-      if (pendingTypeParameters.nonEmpty) {
-        ScalaPsiUtil.syntheticParamClause(
-          pendingTypeParameters.toSeq,
-          parameters,
-          isClassParameter,
-          hasImplicit = false
-        ).foreach(clause => resultClauses += TermClause(clause))
-        pendingTypeParameters.clear()
-      }
+    if (referenceIndex != -1) {
+      val (before, after) = ownClauses.splitAt(referenceIndex)
+      before ++ syntheticClause ++ after
+    } else ownClauses.lastOption match {
+      case Some(TermClause(last)) if last.isImplicit =>
+        setPrependedContextBoundTypeParameters(last, withEvidence)
+        ownClauses
+      case _ =>
+        ownClauses ++ syntheticClause
     }
-
-    signatureClauses.foreach {
-      case TypeClause(clause) =>
-        if (contextBoundIsUsedInTypeParameterClause(clause, pendingTypeParameters.toSeq))
-          flushPendingTypeParameters()
-        resultClauses += TypeClause(clause)
-        pendingTypeParameters ++= clause.typeParameters
-
-      case TermClause(clause) =>
-        val hasPendingBoundUsageInClause =
-          contextBoundUsageInParameterListIndex(Seq(clause), pendingTypeParameters.toSeq) != -1
-
-        if (hasPendingBoundUsageInClause)
-          flushPendingTypeParameters()
-        else if (clause.isImplicit && pendingTypeParameters.nonEmpty) {
-          setPrependedContextBoundTypeParameters(clause, pendingTypeParameters.toSeq)
-          pendingTypeParameters.clear()
-        }
-        resultClauses += TermClause(clause)
-    }
-
-    flushPendingTypeParameters()
-    resultClauses.toSeq
   }
 
   private def setPrependedContextBoundTypeParameters(

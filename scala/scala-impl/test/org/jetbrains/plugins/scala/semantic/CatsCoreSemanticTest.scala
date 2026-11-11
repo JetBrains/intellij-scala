@@ -353,7 +353,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     //cats.data.NestedDistributive
     cats.data.NestedFoldable
     cats.data.NestedFunctor
-    //cats.data.NestedFunctorFilter
+    cats.data.NestedFunctorFilter
     cats.data.NestedInstances
     //cats.data.NestedInstances0
     cats.data.NestedInstances1
@@ -376,7 +376,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.data.NestedReducible
     cats.data.NestedSemigroupK
     //cats.data.NestedTraverse
-    //cats.data.NestedTraverseFilter
+    cats.data.NestedTraverseFilter
     //cats.data.Newtype
     //cats.data.Newtype2
     //cats.data.NonEmptyChainImpl
@@ -709,7 +709,7 @@ class CatsCoreSemanticTest extends SemanticTestBase("org.typelevel" %% "cats-cor
     cats.kernel.GroupInstances
     //cats.kernel.Hash
     //cats.kernel.HashFunctions
-    //cats.kernel.HashInstances
+    cats.kernel.HashInstances
     cats.kernel.HashInstances0
     //cats.kernel.HashToHashingConversion
     //cats.kernel.LowerBounded

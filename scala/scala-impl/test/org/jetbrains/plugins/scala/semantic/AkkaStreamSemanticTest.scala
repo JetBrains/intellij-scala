@@ -313,8 +313,8 @@ class AkkaStreamSemanticTest extends SemanticTestBase("com.typesafe.akka" %% "ak
     akka.stream.impl.fusing.GroupedWeightedWithin
     akka.stream.impl.fusing.Intersperse
     //akka.stream.impl.fusing.LimitWeighted
-    //akka.stream.impl.fusing.Log
-    //akka.stream.impl.fusing.LogWithMarker
+    akka.stream.impl.fusing.Log
+    akka.stream.impl.fusing.LogWithMarker
     akka.stream.impl.fusing.Map
     //akka.stream.impl.fusing.MapAsync
     //akka.stream.impl.fusing.MapAsyncPartitioned

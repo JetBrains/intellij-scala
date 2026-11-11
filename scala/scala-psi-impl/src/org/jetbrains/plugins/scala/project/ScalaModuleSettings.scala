@@ -153,6 +153,15 @@ private class ScalaModuleSettings private(
   val hasSource3Migration: Boolean =
     additionalCompilerOptions.contains("-source:3.0-migration") || additionalCompilerOptions.contains("--source:3.0-migration")
 
+  /**
+   * The language level of the `-source` compiler option of a Scala 3 module, if it is set.
+   * A migration version counts as its stable version (`3.6-migration` is 3.6),
+   * and `future` as the latest known version.
+   */
+  val sourceLanguageLevel: Option[ScalaLanguageLevel] =
+    if (hasScala3) ScalaModuleSettings.sourceLanguageLevel(settingsForHighlighting.flatMap(_.additionalCompilerOptions))
+    else None
+
   val hasDeprecationFlag: Boolean =
     additionalCompilerOptions.contains("-deprecation") || additionalCompilerOptions.contains("--deprecation")
 
@@ -215,6 +224,27 @@ object ScalaModuleSettings {
   private val Scala_2_12_2_version = Version("2.12.2")
 
   private val Log = Logger.getInstance(classOf[ScalaModuleSettings])
+
+  /**
+   * The language level of the last `-source` compiler option: `-source:X`, `--source:X`, `-source X` or `--source X`
+   * (when the option is repeated, the last occurrence wins, as in the compiler)
+   */
+  private[project] def sourceLanguageLevel(options: Seq[String]): Option[ScalaLanguageLevel] = {
+    val indexed = options.toIndexedSeq
+    val values = indexed.indices.flatMap { idx =>
+      indexed(idx) match {
+        case option if option.startsWith("-source:")  => Option(option.stripPrefix("-source:"))
+        case option if option.startsWith("--source:") => Option(option.stripPrefix("--source:"))
+        case "-source" | "--source"                   => indexed.lift(idx + 1)
+        case _                                        => None
+      }
+    }
+
+    values.lastOption.flatMap { value =>
+      if (value.startsWith("future")) Option(ScalaLanguageLevel.values.last)
+      else ScalaLanguageLevel.findByVersion(value).filter(_.isScala3) // `3.6-migration` is matched by 3.6
+    }
+  }
 
   sealed trait ScalaVersionProvider {
     def languageLevel: ScalaLanguageLevel

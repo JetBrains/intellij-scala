@@ -485,6 +485,7 @@ object ScExpression {
             val withExpected =
               widened
                 .dropMethodTypeEmptyParams(expr, expectedType)
+                .dropConstructorEmptyParamsAfterImplicits(expr)
                 .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore, expectedType)
 
             val valueType =
@@ -873,6 +874,32 @@ object ScExpression {
 
       if (!shouldDrop) scType
       else             typeParams.map(ScTypePolymorphicType(retType, _)).getOrElse(retType)
+    }
+
+    /**
+     * A universal apply with type arguments but without arguments is also applied to an empty clause after
+     * the implicit clauses of the constructor (`isAutoApplied` in the compiler). Such a clause is implied for
+     * a constructor with only `using` clauses, e.g. `G[Int]` for `class G[A](using Show[A])` is `new G[Int](using ...)()`.
+     * Without type arguments, `G` is the companion object.
+     */
+    def dropConstructorEmptyParamsAfterImplicits(expr: ScExpression): ScType = {
+      def withoutEmptyParams(tpe: ScType): Option[ScType] = tpe match {
+        case mt @ ScMethodType(ScMethodType(retType, Seq(), false), _, true) => Option(mt.copy(result = retType)(using mt.elementScope))
+        case mt @ ScMethodType(result, _, true)                             => withoutEmptyParams(result).map(r => mt.copy(result = r)(using mt.elementScope))
+        case _                                                              => None
+      }
+
+      def isUniversalApplyWithTypeArguments: Boolean = expr match {
+        case ScGenericCall(ref, _) => ref.bind().exists(_.element.asOptionOf[PsiMethod].exists(_.isConstructor))
+        case _                     => false
+      }
+
+      val withoutEmptyParamsType = scType match {
+        case ScTypePolymorphicType(internal, typeParams) => withoutEmptyParams(internal).map(ScTypePolymorphicType(_, typeParams))
+        case _                                           => withoutEmptyParams(scType)
+      }
+
+      withoutEmptyParamsType.filter(_ => isUniversalApplyWithTypeArguments).getOrElse(scType)
     }
   }
 

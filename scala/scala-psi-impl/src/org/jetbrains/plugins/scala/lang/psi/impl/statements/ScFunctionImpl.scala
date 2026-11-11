@@ -251,12 +251,26 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
           }
         } else this.typeParametersWithExtension()
 
+      // A secondary constructor repeats the evidence of the primary constructor, of the same kind
+      val primaryConstructorEvidenceIsUsing =
+        if (!isConstructor) None
+        else containingClass match {
+          case cls: ScClass =>
+            cls.constructor.map { constructor =>
+              val lastClause = constructor.effectiveSignatureClauses.lastOption
+              ScParameterOwner.isUsingEvidence(lastClause, constructor)
+            }
+          case _ => None
+        }
+
       ScParameterOwner.insertSyntheticSignatureClauses(
         paramClauses,
         paramClauses.clauses,
         signatureClauses,
         typeParams,
-        isClassParameter = false
+        isClassParameter = false,
+        precedingClauses = extensionMethodOwner.fold(Seq.empty[ScSignatureClause])(_.signatureClauses),
+        evidenceIsUsing  = primaryConstructorEvidenceIsUsing
       )
     }
 

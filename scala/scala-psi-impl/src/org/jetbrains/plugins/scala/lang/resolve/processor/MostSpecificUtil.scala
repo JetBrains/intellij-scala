@@ -5,11 +5,12 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScGivenPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScContextBound
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, TypeParamIdOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScGivenDefinition, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -20,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt, ScalaLanguageLevel}
 
 import scala.collection.mutable
 
@@ -181,16 +182,33 @@ class MostSpecificUtil(
 
 
   //todo: make implementation closer to scala.tools.nsc.typechecker.Infer.Inferencer.isAsSpecific
+  /**
+   * @param preferGeneral whether the candidates are compared by the rules of Scala 3.7, see [[isComparedByNewRules]]
+   */
   private def isAsSpecificAs(
     lhs:            InnerScalaResolveResult,
     rhs:            InnerScalaResolveResult,
-    checkImplicits: Boolean
+    checkImplicits: Boolean,
+    preferGeneral:  Boolean
   ): Boolean = {
     def isLastParameterRepeated(params: Iterable[Parameter]): Boolean =
       params.lastOption.exists(_.isRepeated)
 
     def isJavaMethod(m: PsiNamedElement): Boolean =
       !m.is[ScFunction, ScSyntheticFunction, ScPrimaryConstructor]
+
+    // Scala 3 implicit candidates are compared as in `Applications.isAsGood`:
+    // a value is as good as a method with explicit parameters, and is compared with any other candidate by its type
+    if (isScala3ImplicitCandidate(lhs) && isScala3ImplicitCandidate(rhs)) {
+      val lhsType = scala3ImplicitCandidateType(lhs)
+
+      if (!hasExplicitParameters(lhsType)) {
+        val rhsType = scala3ImplicitCandidateType(rhs)
+
+        return hasExplicitParameters(rhsType) ||
+          isAsGoodValueType(lhsType, rhsType, preferGeneral && !isOldStyleImplicit(lhs))
+      }
+    }
 
     (lhs.element, rhs.element) match {
       case (lhsElement @ (_: PsiMethod | _: ScSyntheticFunction), rhsElement @ (_: PsiMethod | _: ScSyntheticFunction)) =>
@@ -253,38 +271,7 @@ class MostSpecificUtil(
           case _                                        => return true
         }
 
-        paramsConformance match {
-          case cs @ ConstraintSystem(uSubst) =>
-            var u = cs
-            rhsType match {
-              case ScTypePolymorphicType(_, typeParams) =>
-                val typeParamIds = typeParams.map(_.typeParamId).toSet
-
-                typeParams.foreach { tp =>
-                  val typeParamId = tp.typeParamId
-
-                  tp.lowerType match {
-                    case lower if lower.isNothing || lower.hasRecursiveTypeParameters(typeParamIds) =>
-                    case lower =>
-                      u =
-                        u.withLower(tp, uSubst(lower))
-                          .withTypeParamId(typeParamId)
-                  }
-
-                  tp.upperType match {
-                    case upper if upper.isAny || upper.hasRecursiveTypeParameters(typeParamIds) =>
-                    case upper =>
-                      u =
-                        u.withUpper(tp, uSubst(upper))
-                          .withTypeParamId(typeParamId)
-                  }
-                }
-              case _ =>
-            }
-
-            ConstraintSystem.unapply(u).isDefined
-          case _ => false
-        }
+        isSatisfiableWithBounds(paramsConformance, rhsType)
       case (_, _: PsiMethod) => true
       case (_, _) =>
         val lhsType = getType(lhs)
@@ -293,6 +280,147 @@ class MostSpecificUtil(
         lhsType.conforms(rhsType)
     }
   }
+
+  /**
+   * Whether `constraints` can be solved together with the bounds of the type parameters of `tpe`,
+   * for which they were collected
+   */
+  private def isSatisfiableWithBounds(constraints: ConstraintsResult, tpe: ScType): Boolean =
+    constraints match {
+      case cs @ ConstraintSystem(uSubst) =>
+        var u = cs
+        tpe match {
+          case ScTypePolymorphicType(_, typeParams) =>
+            val typeParamIds = typeParams.map(_.typeParamId).toSet
+
+            typeParams.foreach { tp =>
+              val typeParamId = tp.typeParamId
+
+              tp.lowerType match {
+                case lower if lower.isNothing || lower.hasRecursiveTypeParameters(typeParamIds) =>
+                case lower =>
+                  u =
+                    u.withLower(tp, uSubst(lower))
+                      .withTypeParamId(typeParamId)
+              }
+
+              tp.upperType match {
+                case upper if upper.isAny || upper.hasRecursiveTypeParameters(typeParamIds) =>
+                case upper =>
+                  u =
+                    u.withUpper(tp, uSubst(upper))
+                      .withTypeParamId(typeParamId)
+              }
+            }
+          case _ =>
+        }
+
+        ConstraintSystem.unapply(u).isDefined
+      case _ => false
+    }
+
+  /**
+   * Whether the value type `lhsType` of an implicit candidate is as good as `rhsType` (`Applications.isAsGoodValueType`):
+   * a subtype of it, or a supertype of it if `preferGeneral`.
+   * The type parameters of `lhsType` are fixed, while those of `rhsType` are inferred.
+   * For example, `Ord[Int]` is as good as `[T] Ord[T]` with and without `preferGeneral`,
+   * while `[T] Ord[T]` is never as good as `Ord[Int]`.
+   */
+  private def isAsGoodValueType(lhsType: ScType, rhsType: ScType, preferGeneral: Boolean): Boolean = {
+    val lhsValueType = lhsType match {
+      case ScTypePolymorphicType(internal, _) => internal
+      case tpe                                => tpe
+    }
+
+    val rhsValueType = rhsType match {
+      case ScTypePolymorphicType(internal, typeParams) => ScSubstitutor.bind(typeParams)(UndefinedType(_))(internal)
+      case tpe                                         => tpe
+    }
+
+    val conformance =
+      if (preferGeneral) rhsValueType.conforms(lhsValueType, ConstraintSystem.empty)
+      else               lhsValueType.conforms(rhsValueType, ConstraintSystem.empty)
+
+    isSatisfiableWithBounds(conformance, rhsType)
+  }
+
+  private def hasExplicitParameters(tpe: ScType): Boolean = tpe match {
+    case ScMethodType(_, _, isImplicit)     => !isImplicit
+    case ScTypePolymorphicType(internal, _) => hasExplicitParameters(internal)
+    case _                                  => false
+  }
+
+  /**
+   * Whether `cand` is a candidate of an implicit search in a Scala 3 file,
+   * rather than an extension method or a member of the result of an implicit conversion
+   */
+  private def isScala3ImplicitCandidate(cand: InnerScalaResolveResult): Boolean =
+    cand.isImplicitCandidate &&
+      !cand.repr.isExtensionCall &&
+      cand.repr.implicitConversion.isEmpty &&
+      place.isInScala3File
+
+  /**
+   * The type by which a Scala 3 implicit candidate is compared (`Applications.compare`):
+   *  - without its implicit and `using` clauses (`stripImplicit`)
+   *  - a structural given by its parents (`prepare` and `widenGiven`). For example, `given ord[T]: Ord[List[T]] with {}`
+   *    is represented by a class `ord[T]` and a method of type `[T] ord[T]`, which is compared as `[T] Ord[List[T]]`.
+   */
+  private def scala3ImplicitCandidateType(cand: InnerScalaResolveResult): ScType = {
+    def withoutImplicitClauses(tpe: ScType): ScType = tpe match {
+      case ScMethodType(result, _, true)               => withoutImplicitClauses(result)
+      case ScTypePolymorphicType(internal, typeParams) => ScTypePolymorphicType(withoutImplicitClauses(internal), typeParams)
+      case _                                           => tpe
+    }
+
+    def widenToParents(tpe: ScType, givenDefinition: ScGivenDefinition): ScType = tpe match {
+      case ScTypePolymorphicType(internal, typeParams) =>
+        ScTypePolymorphicType(widenToParents(internal, givenDefinition), typeParams)
+      case _ =>
+        tpe.extractClassType match {
+          case Some((cls: ScTypeDefinition, subst)) if ScGiven.Original.unapply(cls).contains(givenDefinition) =>
+            cls.superTypes.map(subst) match {
+              case Seq(parent) => parent
+              case parents     => ScCompoundType(parents)
+            }
+          case _ => tpe
+        }
+    }
+
+    val tpe = withoutImplicitClauses(cand.substitutor(getType(cand)))
+
+    cand.element match {
+      case ScGivenDefinition.DesugaredDefinition(givenDefinition) => widenToParents(tpe, givenDefinition)
+      case _                                                      => tpe
+    }
+  }
+
+  /**
+   * Whether an implicit candidate is an old-style implicit definition or parameter (`Implicit` in the compiler),
+   * rather than a given, a context parameter or a given pattern
+   */
+  private def isOldStyleImplicit(cand: InnerScalaResolveResult): Boolean = cand.element match {
+    case _: ScGiven | _: ScGivenPattern | _: ScContextBound     => false
+    case ScGivenDefinition.DesugaredDefinition(_)               => false
+    case parameter: ScParameter                                 => parameter.isInClauseWithImplicit
+    case owner: ScModifierListOwner                             => owner.hasModifierProperty("implicit")
+    case ScalaPsiUtil.inNameContext(owner: ScModifierListOwner) => owner.hasModifierProperty("implicit")
+    case _                                                      => false
+  }
+
+  /**
+   * Whether two implicit candidates are compared by the rules of source version 3.7 (`CompareScheme.New` in the compiler):
+   * a more general candidate is preferred to a more specific one, and the owner decides if one owner derives
+   * from the other. These rules don't apply when both candidates are old-style implicits, see [[isOldStyleImplicit]].
+   */
+  private def isComparedByNewRules(r1: InnerScalaResolveResult, r2: InnerScalaResolveResult): Boolean =
+    isScala3ImplicitCandidate(r1) &&
+      isScala3ImplicitCandidate(r2) &&
+      newRulesApply &&
+      !(isOldStyleImplicit(r1) && isOldStyleImplicit(r2))
+
+  private lazy val newRulesApply: Boolean =
+    place.effectiveLanguageLevel >= ScalaLanguageLevel.Scala_3_7
 
   private def getContainingClass(element: PsiNamedElement): Option[PsiClass] =
     for {
@@ -331,12 +459,19 @@ class MostSpecificUtil(
       case _ => false
     }
 
+  /**
+   * @param preferGeneral whether the candidates are compared by the rules of Scala 3.7, see [[isComparedByNewRules]].
+   *                      Then the owner decides if one owner derives from the other (`drawOrOwner` in `Applications.compare`).
+   */
   private def relativeWeight(
     r1:             InnerScalaResolveResult,
     r2:             InnerScalaResolveResult,
-    checkImplicits: Boolean
+    checkImplicits: Boolean,
+    preferGeneral:  Boolean
   ): Int = {
-    val asSpecific = if (isAsSpecificAs(r1, r2, checkImplicits)) 1 else 0
+    val asSpecific = if (isAsSpecificAs(r1, r2, checkImplicits, preferGeneral)) 1 else 0
+
+    val derivedWeight = if (preferGeneral) 2 else 1
 
     val derived =
       (
@@ -344,7 +479,7 @@ class MostSpecificUtil(
           cls1 <- extractContainingClass(r1)
           cls2 <- extractContainingClass(r2)
         } yield
-          if (isDerived(cls1, cls2)) 1
+          if (isDerived(cls1, cls2)) derivedWeight
           else                       0
         ).getOrElse(0)
 
@@ -374,8 +509,9 @@ class MostSpecificUtil(
         else if (r1.callByNameImplicit ^ r2.callByNameImplicit)
           !r1.callByNameImplicit
         else {
-          val weightR1R2 = relativeWeight(r1, r2, checkImplicits)
-          val weightR2R1 = relativeWeight(r2, r1, checkImplicits)
+          val preferGeneral = isComparedByNewRules(r1, r2)
+          val weightR1R2    = relativeWeight(r1, r2, checkImplicits, preferGeneral)
+          val weightR2R1    = relativeWeight(r2, r1, checkImplicits, preferGeneral)
 
           /**
            * Scala 3 expands of the notion of specificity (SLS §6.26.3) in the following ways:
@@ -395,8 +531,8 @@ class MostSpecificUtil(
               val r1withParams = r1.copy(isImplicitCandidate = false)
               val r2withParams = r2.copy(isImplicitCandidate = false)
 
-              val weightWithParamsR1R2 = relativeWeight(r1withParams, r2withParams, checkImplicits)
-              val weightWithParamsR2R1 = relativeWeight(r2withParams, r1withParams, checkImplicits)
+              val weightWithParamsR1R2 = relativeWeight(r1withParams, r2withParams, checkImplicits, preferGeneral)
+              val weightWithParamsR2R1 = relativeWeight(r2withParams, r1withParams, checkImplicits, preferGeneral)
 
               weightWithParamsR1R2 > weightWithParamsR2R1
             } else false

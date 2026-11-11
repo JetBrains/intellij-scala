@@ -296,6 +296,8 @@ package object project {
 
     def isSource3MigrationEnabled: Boolean = scalaModuleSettings.exists(_.hasSource3Migration)
 
+    def sourceLanguageLevel: Option[ScalaLanguageLevel] = scalaModuleSettings.flatMap(_.sourceLanguageLevel)
+
     def isStrictEqualityFlagEnabled: Boolean = scalaModuleSettings.exists(_.hasStrictEquality)
     def isNamedTypeArgumentsFlagEnabled: Boolean = scalaModuleSettings.exists(_.hasNamedTypeArguments)
 
@@ -657,6 +659,17 @@ package object project {
     }
 
     def isSource3MigrationEnabled: Boolean = isDefinedInModuleOrProject(_.isSource3MigrationEnabled)
+
+    /**
+     * The language level of the Scala 3 source version (the `-source` compiler option) if it is set,
+     * otherwise the language level of the compiler ([[scalaLanguageLevelOrDefault]]).
+     * A migration version counts as its stable version, and `future` as the latest known version.
+     *
+     * @note per-file `import scala.language.`3.x`` imports are not taken into account
+     */
+    def effectiveLanguageLevel: ScalaLanguageLevel =
+      inThisModuleOrProject(_.sourceLanguageLevel).flatten
+        .getOrElse(scalaLanguageLevelOrDefault)
 
     def source3Options: Source3Options = module.fold(Source3Options.none)(_.source3Options)
     def isSource3Enabled: Boolean = isDefinedInModuleOrProject(_.isSource3Enabled)
