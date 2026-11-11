@@ -10,22 +10,19 @@ import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
 import org.junit.jupiter.api.Assertions.{assertEquals, fail}
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.{Arguments, MethodSource}
-import org.junit.runners.Parameterized.Parameters
 
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
-import java.util
 import scala.collection.immutable.ArraySeq
 import scala.concurrent.duration.DurationInt
 import scala.io.Source
-import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.jdk.StreamConverters._
 import scala.util.Using
 
 @TestApplication
 class CompatibilityTest {
-  @ParameterizedTest
+  @ParameterizedTest(name = "[{0}]")
   @MethodSource(Array("scalaVersions"))
   def compatibilityWith(version: String): Unit = {
     val scalaVersion = ScalaVersion.fromString(version).getOrElse(throw new IllegalArgumentException(version))
@@ -104,9 +101,6 @@ object CompatibilityTest {
 
   private val Type =
     "<type>123</type>"
-
-  @Parameters(name = "{0}")
-  def versions: util.Collection[String] = Versions.asJava
 
   private def download(version: ScalaVersion): Seq[Path] = {
     val dependencyManager = new DependencyManagerBase() { override protected def progressIndicator: Option[ProgressIndicator] = None }
