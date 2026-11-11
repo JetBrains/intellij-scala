@@ -84,23 +84,35 @@ To run and distribute a modified version of the plugin in a regular IntelliJ ins
 
 ## Running the Tests
 
-To run tests properly, the plugin needs to be packaged.
-On the sbt shell:
+Run sbt from the checkout root and select its main project:
+`project scalaCommunity` for a standalone Community checkout, or
+`project scalaUltimate` for an Ultimate checkout.
 
-1. `packageArtifact`
-2. `runFastTests`
+The sbt `test` and `testOnly` tasks automatically package the plugin as needed.
+Category commands such as `runFastTests` and `runTypeInferenceTests` use
+`testOnly`, so a separate `packageArtifact` command is not required before
+these test commands.
+
+To run the fast-test category in the sbt shell:
+
+    > runFastTests
 
 The "fast tests" can take over an hour. To get a quick feedback on project health, run only the type inference tests:
 
     > runTypeInferenceTests
 
 ### Running a single test / test class with testOnly
-Scala Plugin project configuration is different from the standard sbt project.
-One of the differences is that you don't need to add the sbt project name before the test name. 
-Just run `testOnly <test name>` without the project prefix. \
+Ordinary plugin platform tests use the main project's combined test classpath.
+Run `testOnly <test name>` from the main project selected above, without a
+subproject prefix. Specialized test commands, such as the compiler-plugin
+test aliases, use their own project scopes.
+
 For example:
 
     > testOnly org.jetbrains.plugins.scala.annotator.Scala3HighlightingTestsMix
+
+After a run, check that the intended tests actually executed. A command can
+finish successfully with zero tests when its selector matches nothing.
 
 ### GitHub Actions build
 
