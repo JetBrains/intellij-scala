@@ -13,6 +13,10 @@ trait ScalaParserTestOps {
 
   def checkTree(text: String, expectedTree: String): Unit = {
     val file = parseText(text.withNormalizedSeparator)
+    checkTree(file, expectedTree)
+  }
+
+  def checkTree(file: ScalaFile, expectedTree: String): Unit = {
     val resultTree = psiToString(file, true).replace(": " + file.name, "")
     assertEquals(expectedTree.trim.withNormalizedSeparator, resultTree.trim)
   }
