@@ -40,12 +40,16 @@ class CompatibilityTest {
       else if (version.startsWith("3.")) ScalaPluginJars.compilerPluginJar_3_3
       else throw new IllegalArgumentException(version)
 
-    val commonOptions = Seq(
-      "-encoding", StandardCharsets.UTF_8.name(),
-      "-usejavacp",
-      "-Xplugin:" + pluginPath,
-      "-Xplugin-require:intellij-compiler-plugin")
     inTempDirectory { directory =>
+      val commonOptions = Seq(
+        "-encoding", StandardCharsets.UTF_8.name(),
+        "-usejavacp",
+        // Without -classpath, the Scala compiler uses the CLASSPATH environment variable as the user classpath.
+        // On Windows, sbt passes the classpath of the forked test JVM in that variable, and the compiler process
+        // inherits it. The Scala standard library on that classpath breaks the compilation with older Scala 3 versions
+        "-classpath", directory.toString,
+        "-Xplugin:" + pluginPath,
+        "-Xplugin-require:intellij-compiler-plugin")
       def compile(name: String, code: String, options: String*): String = {
         val path = directory.resolve(name)
         Files.writeString(path, code, StandardCharsets.UTF_8)
@@ -53,7 +57,7 @@ class CompatibilityTest {
       }
       if (scalaVersion.isScala2) {
         val output1 = compile("Definition.scala", Definition, "-feature", "-language:experimental.macros")
-        val output2 = compile("Usage.scala", Usage, "-cp", directory.toString, "-Yrangepos")
+        val output2 = compile("Usage.scala", Usage, "-Yrangepos")
         assertPresent(scalaVersion, output1 + output2, Type)
       } else {
         val output = compile("TransparentInline.scala", TransparentInline, "-color:never")
@@ -169,7 +173,7 @@ object CompatibilityTest {
     }
   }
 
-  private def assertPresent(version: ScalaVersion, output: String, tpe: String): Unit = ignoreErrorsOnWindows(output) {
+  private def assertPresent(version: ScalaVersion, output: String, tpe: String): Unit = {
     val lines = {
       val outputLines = output.linesIterator.toSeq
       if (version.isScala3) filterOutJdk25Warnings(outputLines) else outputLines
@@ -178,19 +182,6 @@ object CompatibilityTest {
     val (count, index) = if (version.isScala2) (3, 0) else (4, 3)
     assertEquals(count, lines.size)
     assertThat(lines(index), containsString(tpe))
-  }
-
-  private def ignoreErrorsOnWindows(output: String)(f: => Unit): Unit = {
-    val isWindows = System.getProperty("os.name").toLowerCase.contains("windows")
-    try f
-    catch {
-      case ae: AssertionError if isWindows =>
-        println("Test failed on Windows, ignoring the errors")
-        println("Stack trace:")
-        ae.printStackTrace(System.out)
-        println("Output:")
-        println(output)
-    }
   }
 
   private val jdk25Warnings: ArraySeq[String] = ArraySeq(
