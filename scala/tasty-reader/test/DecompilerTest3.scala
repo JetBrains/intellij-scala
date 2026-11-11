@@ -38,6 +38,7 @@ import scala.util.control.NonFatal
 class DecompilerTest3 extends TestCase {
   private val Scala300Fixtures = Path.of("compiled/scala-3.0.0")
   private val Scala361Fixtures = Path.of("compiled/scala-3.6.1")
+  private val Scala310CompiledFixtures = Path.of("compiled/scala-3.10.0")
   private val BorerFixtures = Path.of("libraries/borer-derivation_3-1.16.1")
   private val Scala310LibraryFixtures = Path.of("libraries/scala-library-3.10.0")
 
@@ -67,6 +68,20 @@ class DecompilerTest3 extends TestCase {
       val expectedVersion = matchingGroups.head._2
       val header = new HeaderReader(new TastyReader(Files.readAllBytes(tastyFile))).readFullHeader()
       assertEquals(s"Compiler version of $tastyFile", expectedVersion, header.toolingVersion)
+    }
+  }
+
+  def testSourceFilenameMetadataAcrossCompilerVersions(): Unit = {
+    val fixtureGroups = Seq(Scala300Fixtures, Scala361Fixtures, Scala310CompiledFixtures)
+    fixtureGroups.foreach { group =>
+      val tastyFile = testDataPath.resolve(group).resolve("metadata/Declaration.tasty")
+      assertTrue(s"Missing source metadata fixture for $group", Files.isRegularFile(tastyFile))
+
+      val result = new TastyImpl().read(Files.readAllBytes(tastyFile))
+      assertTrue(s"Cannot decompile $tastyFile", result.isDefined)
+      val (sourceName, sourceText, _) = result.get
+      assertEquals(s"Source filename for $group", "SourceMetadata.scala", sourceName)
+      assertTrue(s"Declaration outline for $group", sourceText.contains("trait Declaration"))
     }
   }
 
