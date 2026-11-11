@@ -21,6 +21,11 @@ import scala.util.control.NonFatal
  * without being tied to one configured Scala version. Running the same fixtures under another
  * SDK version would not change the input bytes.
  *
+ * Most `doTest` cases use the Scala 3.0.0 corpus. Cases for later language features select their
+ * compiler group explicitly; library regressions read TASTy copied from the original binary JAR.
+ * The layout, provenance, and regeneration procedure are documented in
+ * `scala/tasty-reader/testdata/README.md`.
+ *
  * Overview of decompiler test types and fixture workflows:<br>
  * https://youtrack.jetbrains.com/issue/SCL-24777/Decompiler-tests-documentation
  *
