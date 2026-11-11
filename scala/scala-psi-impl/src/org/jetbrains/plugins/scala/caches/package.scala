@@ -77,16 +77,24 @@ package object caches {
     }
   }
 
+  /**
+   * caches.stats enabled  : org$example$Foo$$method$cacheKey
+   * caches.stats disabled : org.example.Foo$$Lambda/0x000000000000001a
+   */
   private def idFor(lambdaClass: Class[?], name: String): String =
     if (Tracer.isEnabled) withoutLambdaSuffix(lambdaClass.getName).replace('.', '$') + "$" + name.replace('.', '$') + "$cacheKey"
     else lambdaClass.getName // Compute human-readable strings only if caches.stats are enabled to reduce CPU and RAM use - unique Cache(id, name) fields
 
+  /**
+   * caches.stats enabled  : Foo.method
+   * caches.stats disabled : org.example.Foo$$Lambda/0x000000000000001a
+   */
   private def nameFor(lambdaClass: Class[?], name: String): String =
     if (Tracer.isEnabled) withoutLambdaSuffix(lambdaClass.getSimpleName) + "." + name
     else lambdaClass.getName // Compute human-readable strings only if caches.stats are enabled to reduce CPU and RAM use - unique Cache(id, name) fields
 
   private def withoutLambdaSuffix(name: String): String = {
-    val i = name.indexOf("$$Lambda/")
+    val i = name.indexOf("$$Lambda/") // Since JDK 21, lambda class names are like "org.example.Foo$$Lambda/0x000000000000001a"
     if (i != -1) name.substring(0, i) else name
   }
 }
