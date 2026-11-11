@@ -57,7 +57,7 @@ object SbtConfigSetup {
 
     val sbtLauncherArgs = getCommandForConnectionFileGeneration(sbtVersion)
 
-    val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome) ++ upgradeParam
+    val vmArgs = SbtExternalSystemManager.getVmOptions(Seq.empty, jdkHome) ++ upgradeParam ++ SbtOverBspVmOptions.getInstance.vmOptions
 
     val runInit = (runner: SbtRunner, indicator: ProgressIndicator, reporter: BuildReporter) => runner.runSbt(
       indicator,
