@@ -24,25 +24,24 @@ final class ScalafmtReformatOnFileSaveTask extends AnActionListener {
     if (project == null || project.isDisposed)
       return
 
-    action match {
-      case _: SaveDocumentAction => //no shortcut by default
-        val editor = event.getDataContext.getData(CommonDataKeys.EDITOR)
-        if (editor != null) {
-          reformatIfNeededInUndoTransparentAction(Seq(editor.getDocument))(using project)
-        }
-      case _: SaveAllAction => // Ctrl/Cmd + S (by default)
-        //NOTE: for now we reformat only the selected editor, because it was how it worked before
-        //But actually the "Save All" action saves all documents.
-        //Maybe it makes sense to reformat all open editors? Maybe add an extra setting for that?
-        //Anyway, it's not for the 2022.2 release, maybe it's ok to have it later
-        val reformatOnlySelectedEditor = true
-        val editors =
-          if (reformatOnlySelectedEditor) Option(FileEditorManager.getInstance(project).getSelectedEditor).toSeq
-          else FileEditorManager.getInstance(project).getAllEditors.toSeq
+    // Platform helpers also recognize registered proxies that replace the original save actions.
+    if (SaveDocumentAction.isSaveDocumentAction(action)) { //no shortcut by default
+      val editor = event.getDataContext.getData(CommonDataKeys.EDITOR)
+      if (editor != null) {
+        reformatIfNeededInUndoTransparentAction(Seq(editor.getDocument))(using project)
+      }
+    } else if (SaveAllAction.isSaveAllAction(action)) { // Ctrl/Cmd + S (by default)
+      //NOTE: for now we reformat only the selected editor, because it was how it worked before
+      //But actually the "Save All" action saves all documents.
+      //Maybe it makes sense to reformat all open editors? Maybe add an extra setting for that?
+      //Anyway, it's not for the 2022.2 release, maybe it's ok to have it later
+      val reformatOnlySelectedEditor = true
+      val editors =
+        if (reformatOnlySelectedEditor) Option(FileEditorManager.getInstance(project).getSelectedEditor).toSeq
+        else FileEditorManager.getInstance(project).getAllEditors.toSeq
 
-        val documents = editors.filterByType[TextEditor].map(_.getEditor.getDocument)
-        reformatIfNeededInUndoTransparentAction(documents)(using project)
-      case _ =>
+      val documents = editors.filterByType[TextEditor].map(_.getEditor.getDocument)
+      reformatIfNeededInUndoTransparentAction(documents)(using project)
     }
   }
 
