@@ -1,12 +1,204 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScPolyFunctionTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.project.ScalaFeatures
+import org.junit.Assert.{assertEquals, assertTrue}
 
 class CaptureCheckingParserTest extends SimpleScala3ParserTestBase {
   override def scalaCodeParsingFeatures: ScalaFeatures.SerializableScalaFeatures =
     ScalaFeatures.custom(ScalaVersion.Latest.Scala_3_8, hasCaptureCheckingEnabled = true)
   //override protected def scalaVersion: ScalaVersion = ScalaVersion.Latest.Scala_3_8
+
+  def test_polymorphic_pure_function(): Unit = {
+    val file = checkParseErrors(
+      """object Repro:
+        |  def map[F[_]](f: [T] -> T -> F[T]): Unit = ()
+        |""".stripMargin
+    )
+
+    checkTree(
+      file,
+      """ScalaFile
+        |  ScObject: Repro
+        |    AnnotationsList
+        |      <empty list>
+        |    Modifiers
+        |      <empty list>
+        |    PsiElement(object)('object')
+        |    PsiWhiteSpace(' ')
+        |    PsiElement(identifier)('Repro')
+        |    ExtendsBlock
+        |      ScTemplateBody
+        |        PsiElement(:)(':')
+        |        PsiWhiteSpace('\n  ')
+        |        ScFunctionDefinition: map
+        |          AnnotationsList
+        |            <empty list>
+        |          Modifiers
+        |            <empty list>
+        |          PsiElement(def)('def')
+        |          PsiWhiteSpace(' ')
+        |          PsiElement(identifier)('map')
+        |          TypeParameterClause
+        |            PsiElement([)('[')
+        |            TypeParameter: F
+        |              PsiElement(identifier)('F')
+        |              TypeParameterClause
+        |                PsiElement([)('[')
+        |                TypeParameter: _
+        |                  PsiElement(_)('_')
+        |                PsiElement(])(']')
+        |            PsiElement(])(']')
+        |          Parameters
+        |            ParametersClause
+        |              PsiElement(()('(')
+        |              Parameter: f
+        |                AnnotationsList
+        |                  <empty list>
+        |                Modifiers
+        |                  <empty list>
+        |                PsiElement(identifier)('f')
+        |                PsiElement(:)(':')
+        |                PsiWhiteSpace(' ')
+        |                ParameterType
+        |                  PolymorphicFunctionType: [T] -> T -> F[T]
+        |                    TypeParameterClause
+        |                      PsiElement([)('[')
+        |                      TypeParameter: T
+        |                        PsiElement(identifier)('T')
+        |                      PsiElement(])(']')
+        |                    PsiWhiteSpace(' ')
+        |                    PsiElement(->)('->')
+        |                    PsiWhiteSpace(' ')
+        |                    FunctionalType: T -> F[T]
+        |                      SimpleType: T
+        |                        CodeReferenceElement: T
+        |                          PsiElement(identifier)('T')
+        |                      PsiWhiteSpace(' ')
+        |                      PsiElement(->)('->')
+        |                      PsiWhiteSpace(' ')
+        |                      ParametrizedType: F[T]
+        |                        SimpleType: F
+        |                          CodeReferenceElement: F
+        |                            PsiElement(identifier)('F')
+        |                        TypeArgumentsList
+        |                          PsiElement([)('[')
+        |                          TypeArgument
+        |                            SimpleType: T
+        |                              CodeReferenceElement: T
+        |                                PsiElement(identifier)('T')
+        |                          PsiElement(])(']')
+        |              PsiElement())(')')
+        |          PsiElement(:)(':')
+        |          PsiWhiteSpace(' ')
+        |          SimpleType: Unit
+        |            CodeReferenceElement: Unit
+        |              PsiElement(identifier)('Unit')
+        |          PsiWhiteSpace(' ')
+        |          PsiElement(=)('=')
+        |          PsiWhiteSpace(' ')
+        |          UnitExpression
+        |            PsiElement(()('(')
+        |            PsiElement())(')')
+        |  PsiWhiteSpace('\n')
+        |""".stripMargin
+    )
+
+    val Seq(parameter) = file.depthFirst().filterByType[ScParameter].toSeq
+    val polyType = parameter.typeElement.get.asInstanceOf[ScPolyFunctionTypeElement]
+    assertEquals("[T] -> T -> F[T]", polyType.getText)
+    assertEquals(Seq("T"), polyType.typeParameters.map(_.name).toSeq)
+
+    val resultType = polyType.resultTypeElement.get.asInstanceOf[ScFunctionalTypeElement]
+    assertTrue(resultType.isPure)
+    assertEquals("T", resultType.paramTypeElement.getText)
+    assertEquals(Some("F[T]"), resultType.returnTypeElement.map(_.getText))
+  }
+
+  def test_polymorphic_pure_function_without_capture_checking(): Unit = {
+    val file = parseScalaFile(
+      "type F = [T] -> T -> T",
+      ScalaFeatures.onlyByVersion(ScalaVersion.Latest.Scala_3_8)
+    )
+    checkTree(
+      file,
+      """ScalaFile
+        |  ScTypeAliasDefinition: F
+        |    AnnotationsList
+        |      <empty list>
+        |    Modifiers
+        |      <empty list>
+        |    PsiElement(type)('type')
+        |    PsiWhiteSpace(' ')
+        |    PsiElement(identifier)('F')
+        |    PsiWhiteSpace(' ')
+        |    PsiElement(=)('=')
+        |    PsiWhiteSpace(' ')
+        |    PolymorphicFunctionType: [T]
+        |      TypeParameterClause
+        |        PsiElement([)('[')
+        |        TypeParameter: T
+        |          PsiElement(identifier)('T')
+        |        PsiElement(])(']')
+        |      PsiErrorElement:'=>>' expected
+        |        <empty list>
+        |  PsiWhiteSpace(' ')
+        |  PostfixExpression
+        |    InfixExpression
+        |      ReferenceExpression: ->
+        |        PsiElement(identifier)('->')
+        |      PsiWhiteSpace(' ')
+        |      ReferenceExpression: T
+        |        PsiElement(identifier)('T')
+        |      PsiWhiteSpace(' ')
+        |      ReferenceExpression: ->
+        |        PsiElement(identifier)('->')
+        |    PsiWhiteSpace(' ')
+        |    ReferenceExpression: T
+        |      PsiElement(identifier)('T')
+        |""".stripMargin
+    )
+  }
+
+  def test_polymorphic_pure_context_function_is_rejected(): Unit = checkTree(
+    "type F = [T] ?-> T -> T",
+    """ScalaFile
+      |  ScTypeAliasDefinition: F
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('F')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    PolymorphicFunctionType: [T]
+      |      TypeParameterClause
+      |        PsiElement([)('[')
+      |        TypeParameter: T
+      |          PsiElement(identifier)('T')
+      |        PsiElement(])(']')
+      |      PsiErrorElement:'=>>' expected
+      |        <empty list>
+      |  PsiWhiteSpace(' ')
+      |  PsiElement(?->)('?->')
+      |  PsiWhiteSpace(' ')
+      |  InfixExpression
+      |    ReferenceExpression: T
+      |      PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: ->
+      |      PsiElement(identifier)('->')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: T
+      |      PsiElement(identifier)('T')
+      |""".stripMargin
+  )
 
   def test_capture_type(): Unit = checkTree(
     """
