@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.project.ScalaFeaturesProvider
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeaturesProvider, ScalaLanguageLevel}
 
 class SimulacrumInjector extends SyntheticMembersInjector {
   import SimulacrumInjector._
@@ -125,9 +125,12 @@ object SimulacrumInjector {
         }.toMap
 
         // generate <:< evidences for nested type args
+        val conformanceEvidenceType =
+          if (m.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13) "_root_.scala.<:<"
+          else "_root_.scala.Predef.<:<"
         val equalityEvidences = nestedTypeArgs.zipWithIndex.map {
           case (typeText, idx) =>
-            s"ev$idx: _root_.scala.Predef.<:<[LP$idx, $typeText]"
+            s"ev$idx: $conformanceEvidenceType[LP$idx, $typeText]"
         }
 
         opsMethodName(m).map(methodText(m, _, usedLiftedArgs, equalityEvidences))

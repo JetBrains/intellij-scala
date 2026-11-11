@@ -164,7 +164,7 @@ abstract class SimulacrumTestBase extends ScalaLightCodeInsightFixtureTestCase {
          |trait Applicative[F[_]]
          |
          |@typeclass trait Trav${caret}erse[F[_]] {
-         |  def sequence[G[_]: Applicative, A](fga: F[G[A]): G[F[A]]
+         |  def sequence[G[_]: Applicative, A](fga: F[G[A]]): G[F[A]]
          |}
        """.stripMargin
 
