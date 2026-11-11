@@ -1079,11 +1079,7 @@ object Compatibility {
       (innerRes, implicitArgs)
     }
 
-    def lastClauseAndImplicits(
-      previousTpe:  ScType,
-      previousRes:  ApplicabilityCheckResult,
-      withExpected: Boolean
-    ): (ScType, ApplicabilityCheckResult, Seq[ImplicitArgumentsClause]) = {
+    def withExpectedType(tpe: ScType): ScType = {
       val expectedType = constrInvocation match {
         case consInv: ScConstructorInvocation => consInv.expectedType
         case _: ScSelfInvocation              => None
@@ -1091,8 +1087,8 @@ object Compatibility {
           throw new IllegalArgumentException(ScalaPsiBundle.message("unknown.constructor.invocation", other.getClass))
       }
 
-      val typeWithExpected = expectedType match {
-        case Some(expected) if withExpected =>
+      expectedType match {
+        case Some(expected) =>
           val fromUnderscore = {
             val underscores = for {
               consInv  <- constrInvocation.asOptionOf[ScConstructorInvocation]
@@ -1102,13 +1098,23 @@ object Compatibility {
             underscores.getOrElse(false)
           }
 
-          if (!fromUnderscore) updateWithExpected(previousTpe, expected)
+          if (!fromUnderscore) updateWithExpected(tpe, expected)
           else expected match {
-            case FunctionType(retType, _) => updateWithExpected(previousTpe, retType)
-            case _                        => previousTpe //do not update res, we haven't expected type
+            case FunctionType(retType, _) => updateWithExpected(tpe, retType)
+            case _                        => tpe //do not update res, we haven't expected type
           }
-        case _ => previousTpe
+        case None => tpe
       }
+    }
+
+    def lastClauseAndImplicits(
+      previousTpe:  ScType,
+      previousRes:  ApplicabilityCheckResult,
+      withExpected: Boolean
+    ): (ScType, ApplicabilityCheckResult, Seq[ImplicitArgumentsClause]) = {
+      val typeWithExpected =
+        if (withExpected) withExpectedType(previousTpe)
+        else              previousTpe
 
       cons match {
         case scalaCons: ScMethodLike =>
@@ -1181,16 +1187,41 @@ object Compatibility {
 
     val initialApplicabilityRes = ApplicabilityCheckResult(Seq.empty)
 
+    // The compiler infers type arguments from the expected type before it searches for the arguments of leading
+    // implicit clauses, if only empty and implicit clauses follow them (`ProtoTypes.constrainResult`, `normalize`).
+    // E.g. `class C[A](using a: A)` is `C[A](using a: A)()`, and `val c: C[Int] = new C` is `new C[Int](using given_Int)()`,
+    // but with `class D[A](using a: A)(x: Int)`, `val d: D[Int] = new D(1)` doesn't compile.
+    def infersLeadingImplicitsFromExpectedType(tpe: ScType): Boolean = {
+      @tailrec
+      def onlyEmptyOrImplicitClauses(tpe: ScType): Boolean = tpe match {
+        case ScMethodType(result, params, isImplicit) => (isImplicit || params.isEmpty) && onlyEmptyOrImplicitClauses(result)
+        case _                                        => true
+      }
+
+      tpe match {
+        case ScTypePolymorphicType(ScMethodType(result, _, true), _) => onlyEmptyOrImplicitClauses(result)
+        case _                                                       => false
+      }
+    }
+
+    def leadingImplicits(tpe: ScType, withExpected: Boolean): (ScType, Seq[ImplicitArgumentsClause]) =
+      updateTypeWithImplicitArguments(
+        tpe,
+        withExpected      = withExpected,
+        hasImplicitClause = hasImplicitClause,
+        isLeadingClause   = true
+      )
+
     val (typeWithoutLeadingImplicits, leadingImplicitArgs) =
       if (args.headOption.exists(_.isUsing))
         (consType, Seq.empty)
+      else if (infersLeadingImplicitsFromExpectedType(consType))
+        try leadingImplicits(withExpectedType(consType), withExpected = true)
+        catch {
+          case _: SafeCheckException => leadingImplicits(consType, withExpected = false)
+        }
       else
-        updateTypeWithImplicitArguments(
-          consType,
-          withExpected      = false,
-          hasImplicitClause = hasImplicitClause,
-          isLeadingClause   = true
-        )
+        leadingImplicits(consType, withExpected = false)
 
     val (tpeWithoutLast, applicabilityResWithoutLastClause, implicitArgs) = cons match {
       case scalaCons: ScMethodLike =>

@@ -56,6 +56,43 @@ abstract class ImpliedEmptyConstructorClauseTestBase extends ScalaHighlightingTe
         |""".stripMargin,
     Error("(1", "Too many arguments for constructor I(Int)")
   )
+
+  // Leading `using` clauses: the compiler infers the type arguments from the expected type before it searches
+  // for their arguments, if only empty and `using` clauses follow them, e.g. `new B` is `new B[Int](using given_Int)()`
+  def testLeadingUsingClausesWithTypeArgumentsFromExpectedType(): Unit = assertErrors(
+    """trait Eq[A]
+      |given Eq[Int] = new Eq[Int] {}
+      |given Eq[String] = new Eq[String] {}
+      |given Int = 1
+      |given List[Int] = Nil
+      |
+      |class B[A](using a: A)
+      |class B2[A](using a: A)(using b: List[A])
+      |class B3[A](using a: A)()
+      |class B4[A](using a: A)()(using b: List[A])
+      |class B5[A](using a: A)(x: Int)
+      |class B6[A](using a: A)()(x: Int)
+      |class E[A: Eq]
+      |class E2[A](using e: Eq[A])
+      |
+      |val b1: B[Int] = new B
+      |val b2: B[Int] = new B()
+      |val b3: B[Int] = B()
+      |val b4: B2[Int] = new B2
+      |val b5: B3[Int] = new B3
+      |val b6: B3[Int] = new B3()
+      |val b7: B4[Int] = new B4
+      |val b8: B4[Int] = new B4()
+      |val e1: E[Int] = new E
+      |val e2: E[Int] = new E()
+      |val e3: E[Int] = E()
+      |val e4: E2[Int] = new E2
+      |val f1: B5[Int] = new B5(1)
+      |val f2: B6[Int] = new B6()(1)
+      |""".stripMargin,
+    Error("B5(1)", "No implicit search was attempted, the expected type is not specific enough: A"),
+    Error("B6()(1)", "No implicit search was attempted, the expected type is not specific enough: A"),
+  )
 }
 
 /** Before Scala 3.6, evidence is `implicit`: `C4[A]()(implicit ev: Show[A])` */
