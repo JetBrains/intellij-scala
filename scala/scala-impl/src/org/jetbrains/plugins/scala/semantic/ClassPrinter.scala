@@ -396,21 +396,14 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         case t => t
       }
     }
-    val autoTupledLists = InvocationDetails.of(ci).argumentClauses.collect {
-      case clause: InvocationDetails.ValueClause if clause.isAutoTupling => clause.argsElement
-    }.toSet
+    val call = InvocationDetails.of(ci)
+    // The constructed type already contains the type arguments.
+    val clauses = call.argumentClauses.collect {
+      case clause: InvocationDetails.ArgumentClause.Value => textOfClause(clause, call, indent)
+    }.mkString
+    val arguments = if (!emptyParens && clauses == "()") "" else clauses
 
-    tpe.map(textOf(_, parens = 1)).getOrElse("NotInferred") + (ci.arguments match {
-      case Seq() => if (emptyParens) "()" else ""
-      case Seq(list) if list.exprs.isEmpty && !autoTupledLists(list) => if (emptyParens) "()" else ""
-      case lists => lists.map { list =>
-        val arguments =
-          if (autoTupledLists(list)) textOfTuple(list.exprs, indent)
-          else list.exprs.map(textOfExpression(_, indent)).mkString(", ")
-        "(" + arguments + ")"
-      }.mkString
-    }) +
-      textOfImplicitArguments(implicitArgumentsOf(ci), ci)
+    tpe.map(textOf(_, parens = 1)).getOrElse("NotInferred") + arguments
   }
 
   private def textOfImplicitConversion(function: ScalaResolveResult, expression: String, place: PsiElement): String = inlining(Some(function)) {
@@ -506,7 +499,10 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
 
   /** The clauses of a call, in the order of the signature of the callee. */
   private def textOfClauses(call: InvocationDetails, indent: String): String =
-    call.argumentClauses.map {
+    call.argumentClauses.map(textOfClause(_, call, indent)).mkString
+
+  private def textOfClause(clause: InvocationDetails.ArgumentClause, call: InvocationDetails, indent: String): String =
+    clause match {
       case clause: InvocationDetails.TypeClause =>
         clause.arguments.map(argument => textOf(typeOfArgument(argument, call))).mkString("[", ", ", "]")
       case clause: InvocationDetails.ValueClause =>
@@ -522,7 +518,7 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
         val using = if (isImplicitClause(clause.target)) "using " else ""
         etaParameterNames(clause).mkString("(" + using, ", ", ")")
       case _: InvocationDetails.AutoAppliedClause => "()"
-    }.mkString
+    }
 
   /** Auto-tupling writes the same tuple construction as an explicit tuple, or `()` for no arguments. */
   private def textOfTuple(arguments: Seq[ScExpression], indent: String): String =
@@ -570,17 +566,6 @@ private class ClassPrinter(isScala3: Boolean, extendsSeparator: String = " ", wi
     case InvocationDetails.ArgumentClauseTarget.ScalaParameters(parameters) => parameters.isImplicit
     case _                                                                  => false
   }
-
-  /**
-   * The clauses of implicit arguments the search filled in for the call `element` reports, which the
-   * source leaves out and the printer writes out.
-   */
-  private def implicitArgumentsOf(element: PsiElement): Seq[Seq[ScalaResolveResult]] =
-    element.asOptionOf[InvocationDetailsOwner]
-      .flatMap(owner => InvocationDetails.of(owner))
-      .toSeq
-      .flatMap(_.argumentClauses)
-      .collect { case clause: InvocationDetails.ImplicitValueClause => clause.arguments }
 
   /** The lambdas for the clauses the call leaves unapplied, using their already substituted types. */
   private def textOfEtaExpansion(call: InvocationDetails): String =
