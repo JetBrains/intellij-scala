@@ -84,10 +84,10 @@ package object caches {
    *  * Because results are effectively stored in `Cache` fields, it's best to reference singleton objects rather than unique `String` instances.
    *
    *  @param lambdaClass class of the function that computes values, must be unique
-   *  @param name name of the cached method, e.g. "qualifiedName", must be unique within the enclosing class
+   *  @param name cache name, e.g. "annotation", must be unique within the enclosing class
    *
-   *  @return cache name, for example:
-   *  * `caches.stats` enabled  : `org$example$Foo$$method$cacheKey`
+   *  @return cache identifier, for example:
+   *  * `caches.stats` enabled  : `org$example$Foo$$annotation$cacheKey`
    *  * `caches.stats` disabled : `org.example.Foo$$Lambda/0x000000000000001a`
    *
    *  @see https://youtrack.jetbrains.com/issue/SCL-26384#focus=Comments-27-14629331.0-0
@@ -96,17 +96,17 @@ package object caches {
     if (Tracer.isEnabled) withoutLambdaSuffix(lambdaClass.getName).replace('.', '$') + "$" + name.replace('.', '$') + "$cacheKey"
     else lambdaClass.getName
 
-  /** Computes a cache name.
+  /** Computes a qualified cache name.
    *
    *  Return human-readable strings only if `caches.stats` are enabled to reduce CPU and RAM use:
    *  * Because the method is called frequently, it's best to avoid string transformations.
    *  * Because results are effectively stored in `Cache` fields, it's best to reference singleton objects rather than unique `String` instances.
    *
    *  @param lambdaClass class of the function that computes values, must be unique
-   *  @param name name of the cached method, e.g. "qualifiedName", must be unique within the enclosing class
+   *  @param name cache name, e.g. "annotation", must be unique within the enclosing class
    *
-   *  @return cache name, for example:
-   *  * `caches.stats` enabled  : `Foo.method`
+   *  @return qualified cache name, for example:
+   *  * `caches.stats` enabled  : `Foo.annotation`
    *  * `caches.stats` disabled : `org.example.Foo$$Lambda/0x000000000000001a`
    *
    *  @see https://youtrack.jetbrains.com/issue/SCL-26384#focus=Comments-27-14629331.0-0
