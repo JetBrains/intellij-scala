@@ -173,7 +173,7 @@ class PlaySemanticTest extends SemanticTestBase("com.typesafe.play" %% "play" % 
     play.api.inject.Injector
     play.api.inject.Module
     //play.api.inject.Modules
-    //play.api.inject.NewInstanceInjector
+    play.api.inject.NewInstanceInjector
     play.api.inject.ProviderConstructionTarget
     play.api.inject.ProviderTarget
     play.api.inject.QualifierAnnotation
