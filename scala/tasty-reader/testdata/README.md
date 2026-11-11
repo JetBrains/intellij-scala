@@ -40,6 +40,11 @@ correct source filename merely from the TASTy entry name. The
 `scala-library-3.10.0` entry has a different tooling version in its header
 from the release compiler's fixture; the manifest records both exactly.
 
+`types/Annotated.tasty` is retained and header-checked, but its decompiled
+outline is not asserted yet. The corresponding test remains disabled because
+type annotations are not printed by the decompiler (SCL-21207). It is the only
+intentional outline-coverage exclusion in this corpus.
+
 ## Verify and regenerate
 
 Run from the repository root:

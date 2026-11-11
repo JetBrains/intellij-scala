@@ -140,7 +140,25 @@ class DecompilerTest3 extends TestCase {
   def testTypeDefinition(): Unit = doTest("typeDefinition/package")
   def testTypeDefinitionClass(): Unit = doTest("typeDefinition/Class")
   def testTypeDefinitionCompanions(): Unit = doTest("typeDefinition/Companions")
-  def testTypeDefinitionDerivation(): Unit = doTest("typeDefinition/Derivation")
+  def testTypeDefinitionDerivation(): Unit = {
+    doTest("typeDefinition/Derivation")
+    doTest("typeDefinition/Derivation", expectedFilesContents = Seq(
+      "Show.tasty" -> """package typeDefinition
+                        |
+                        |trait Show[A]
+                        |
+                        |object Show {
+                        |  def derived[A]: typeDefinition.Show[A] = ???
+                        |}""".stripMargin,
+      "Eq.tasty" -> """package typeDefinition
+                      |
+                      |trait Eq[A]
+                      |
+                      |object Eq {
+                      |  def derived[A]: typeDefinition.Eq[A] = ???
+                      |}""".stripMargin,
+    ))
+  }
   def testTypeDefinitionEnum(): Unit = doTest("typeDefinition/Enum")
   def testTypeDefinitionIdentifiers(): Unit = doTest("typeDefinition/Identifiers")
   def testTypeDefinitionImplicitClass(): Unit = doTest("typeDefinition/ImplicitClass")
@@ -176,7 +194,16 @@ class DecompilerTest3 extends TestCase {
   def testTypesRefs(): Unit = doTest("types/Refs")
   def testTypesSelect(): Unit = doTest("types/Select")
   def testTypesSingleton(): Unit = doTest("types/Singleton")
-  def testTypesThis(): Unit = doTest("types/This")
+  def testTypesThis(): Unit = {
+    doTest("types/This")
+    doTest("types/This", expectedFilesContents = Seq(
+      "This1.tasty" -> """package types
+                         |
+                         |object This1 {
+                         |  object This2
+                         |}""".stripMargin,
+    ))
+  }
   def testTypesTuple(): Unit = doTest("types/Tuple")
   def testTypesWildcard(): Unit = doTest("types/Wildcard")
   def testAliases(): Unit = doTest("Aliases")
