@@ -132,11 +132,13 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
       srr:     Option[ScalaResolveResult],
       argKind: ImplicitClausePosition
     ): (ScType, Seq[ImplicitArgumentsClause]) = {
+      // The invocation of `e`, but not a call that is only the context of a synthetic `e`,
+      // like the body of a method for `super.method(...)`, see `ScFunctionDefinitionImpl.superMethodCall`
       @tailrec
       def methodInvocationContext(e: PsiElement): Option[ScMethodCall] = e.getContext match {
-        case inv: ScMethodCall           => Option(inv)
-        case parens: ScParenthesisedExpr => methodInvocationContext(parens)
-        case _                           => None
+        case inv: ScMethodCall if inv.getInvokedExpr == e => Option(inv)
+        case parens: ScParenthesisedExpr                  => methodInvocationContext(parens)
+        case _                                            => None
       }
 
       def isUnaryAssignmentLhs: Boolean =

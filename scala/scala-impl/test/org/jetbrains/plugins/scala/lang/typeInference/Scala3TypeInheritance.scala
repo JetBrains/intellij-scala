@@ -41,3 +41,27 @@ class Scala3TypeInheritance extends ScalaLightCodeInsightFixtureTestCase {
     )
   }
 }
+
+/** Before Scala 3.6, the evidence of context bounds is `implicit` */
+@Category(Array(classOf[TypecheckerTests]))
+class Scala3TypeInheritance_3_3 extends ScalaLightCodeInsightFixtureTestCase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_3
+
+  // The return type is inferred from `super.method[G, A](a)(f)`, which gets the evidence of the overridden method implicitly
+  def testContextBoundsInOverrideReturnTypeInference(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |trait Applicative[F[_]]
+        |given Applicative[Option] = new Applicative[Option] {}
+        |
+        |trait Base:
+        |  def method[G[_]: Applicative, A](a: A)(f: A => G[A]): G[A]
+        |
+        |class Child extends Base:
+        |  override def method[G[_]: Applicative, A](a: A)(f: A => G[A]) = f(a)
+        |
+        |  val option: Option[Int] = method[Option, Int](1)(Option(_))
+      """.stripMargin
+    )
+  }
+}
