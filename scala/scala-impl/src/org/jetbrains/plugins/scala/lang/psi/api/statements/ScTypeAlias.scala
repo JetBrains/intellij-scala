@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTypeDefinition, ScTypeDefinitionLike}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPolymorphicElement}
 import org.jetbrains.plugins.scala.lang.psi.types.Context
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.BacktickedName.sameNameIgnoringBackticks
 
 trait ScTypeAlias extends ScNamedElement
   // TODO: ScDefinitionWithAssignment should go to ScTypeAliasDefinition but first, we should fix parser
@@ -24,7 +25,7 @@ trait ScTypeAlias extends ScNamedElement
   def isEffectivelyOpaque(implicit context: Context): Boolean
 
   override protected def isSimilarMemberForNavigation(m: ScMember, isStrictCheck: Boolean): Boolean = m match {
-    case t: ScTypeAlias => t.name == name
+    case t: ScTypeAlias => sameNameIgnoringBackticks(t.name, name)
     case _ => false
   }
 
@@ -47,7 +48,7 @@ trait ScTypeAlias extends ScNamedElement
     val aliasesIterator = c.aliases.iterator
     while (aliasesIterator.hasNext) {
       val alias = aliasesIterator.next()
-      if (alias.name == name) return alias
+      if (sameNameIgnoringBackticks(alias.name, name)) return alias
     }
     this
   }

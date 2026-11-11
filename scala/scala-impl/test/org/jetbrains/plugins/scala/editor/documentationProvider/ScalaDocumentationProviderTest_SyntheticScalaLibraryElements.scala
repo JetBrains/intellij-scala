@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions.PathExt
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
 
 /**
- * See also [[org.jetbrains.plugins.scala.lang.navigation.ScalaSyntheticClassesNavigationalElementTest]]
+ * See also [[org.jetbrains.plugins.scala.lang.navigation.ScalaSyntheticClassesNavigationalElementTestBase]]
  */
 class ScalaDocumentationProviderTest_SyntheticScalaLibraryElements
   extends ScalaDocumentationProviderTestBase
