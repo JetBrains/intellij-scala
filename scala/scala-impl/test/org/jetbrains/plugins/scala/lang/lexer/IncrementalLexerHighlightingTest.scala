@@ -4,6 +4,7 @@ package lexer
 
 import com.intellij.openapi.editor.ex.util.{LexerEditorHighlighter, SegmentArrayWithData}
 import com.intellij.openapi.editor.impl.EditorImpl
+import com.intellij.testFramework.TestLoggerKt
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.junit.Assert.assertEquals
@@ -32,6 +33,10 @@ class IncrementalLexerHighlightingTest extends EditorActionTestBase {
       case '\n' => performEnterAction()
       case char => performTypingAction(char)
     }
+    checkHighlighting()
+  }
+
+  private def checkHighlighting(): Unit = {
     val actualSegments = segments()
 
     myFixture.configureByText(fileType, myFixture.getFile.getText)
@@ -87,6 +92,14 @@ class IncrementalLexerHighlightingTest extends EditorActionTestBase {
          |""".stripMargin
 
     doTest(text, '*', '\r', '*')
+  }
+
+  def testDeletingMalformedXmlProcessingInstructionAttribute(): Unit = {
+    val text = """val a = <?xml version=coding=<selection>"- </selection>?><Xml """
+    myFixture.configureByText(fileType, text)
+    performBackspaceAction()
+    checkHighlighting()
+    TestLoggerKt.getErrorLog.takeLoggedErrors().forEach(throw _)
   }
 
   def testDiffNestedString(): Unit = {

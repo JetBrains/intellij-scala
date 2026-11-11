@@ -28,7 +28,7 @@ WHITE_SPACE { }
 XML_NAME {a}
 WHITE_SPACE { }
 XML_EQ {=}
-WHITE_SPACE { }
+white space in line { }
 integer {1}
 white space in line {
     }

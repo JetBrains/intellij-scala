@@ -121,16 +121,16 @@ public final class ScalaLexer extends Lexer {
   private void doLocateToken() {
     assert myTokenType == null;
 
+    if (myCurrentLexer == myXmlLexer && xmlSteps == 0) {
+      // Invalid XML resumes as Scala. Read both the token type and its range from
+      // the new lexer so XML handling cannot restart it inside a Scala token.
+      startScalaPlainLexer(myCurrentLexer.getTokenStart());
+    }
+
     final IElementType type = myCurrentLexer.getTokenType();
     final int start = myCurrentLexer.getTokenStart();
     final int end = myCurrentLexer.getTokenEnd();
     final CharSequence tokenText = myCurrentLexer.getBufferSequence().subSequence(start, end);
-
-    boolean xmlLexerFinishedProcessing = myCurrentLexer == myXmlLexer && xmlSteps == 0;
-    if (xmlLexerFinishedProcessing) {
-      myCurrentLexer = myScalaPlainLexer;
-      myCurrentLexer.start(getBufferSequence(), start, myXmlLexer.getBufferEnd(), 0);
-    }
 
     boolean isLineBreakInsideXml = (isWhiteSpaceInsideXml(type)) && isLineBreakText(tokenText);
     if (type == null) return;
