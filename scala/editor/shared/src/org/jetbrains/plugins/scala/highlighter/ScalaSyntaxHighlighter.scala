@@ -470,14 +470,15 @@ object ScalaSyntaxHighlighter {
       tokenType match {
         case XML_END_TAG_START =>
           isInClosingTag = true
+          tagMatch = false
         case XML_EMPTY_ELEMENT_END =>
           if (!openingTags.empty) {
-            openingTags.pop
+            openingTags.pop()
           }
         case XML_TAG_END if isInClosingTag =>
           isInClosingTag = false
           if (tagMatch) {
-            openingTags.pop
+            openingTags.pop()
           }
         case XML_NAME if afterStartTagStart || isInClosingTag =>
           if (!isInClosingTag) {
