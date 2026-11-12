@@ -42,11 +42,11 @@ class ElaborateCodeAction extends AnAction(message("elaborate.code.action.text")
     val virtualFile = editor.getVirtualFile
     val psiFile = CommonDataKeys.PSI_FILE.getData(e.getDataContext).asInstanceOf[ScalaFile]
     if (psiFile.isCompiled) {
-      CommonRefactoringUtil.showErrorHint(project, editor, "File must have source", getTemplateText, null)
+      CommonRefactoringUtil.showErrorHint(project, editor, message("elaborate.code.no.source"), getTemplateText, null)
       return
     }
     val cls = classAtCaret(editor, psiFile).orElse(psiFile.typeDefinitions.headOption).getOrElse {
-      CommonRefactoringUtil.showErrorHint(project, editor, "No class to elaborate", getTemplateText, null)
+      CommonRefactoringUtil.showErrorHint(project, editor, message("elaborate.code.no.class"), getTemplateText, null)
       return
     }
 
@@ -64,7 +64,7 @@ class ElaborateCodeAction extends AnAction(message("elaborate.code.action.text")
         elements.foldLeft(outputDir)((acc, x) => acc.resolve(x))
       }
       if (!Files.exists(tastyFile)) {
-        CommonRefactoringUtil.showErrorHint(project, editor, s"${outputDir.relativize(tastyFile)} not found; please compile the class", getTemplateText, null)
+        CommonRefactoringUtil.showErrorHint(project, editor, message("elaborate.code.no.file", outputDir.relativize(tastyFile)), getTemplateText, null)
         return
       }
       val upToDate = document.getModificationStamp <= virtualFile.getModificationStamp && virtualFile.getTimeStamp <= Files.getLastModifiedTime(tastyFile).toMillis
@@ -73,13 +73,13 @@ class ElaborateCodeAction extends AnAction(message("elaborate.code.action.text")
       val compiledPsiFile = cls.getOriginalElement.getContainingFile
       val compiledVirtualFile = compiledPsiFile.getOriginalFile.getVirtualFile
       val module = fileIndex.getOrderEntriesForFile(compiledVirtualFile).asScala.collectFirst { case entry: LibraryOrderEntry => entry.getOwnerModule }.getOrElse {
-        CommonRefactoringUtil.showErrorHint(project, editor, "Project must have a module that depends on this library", getTemplateText, null)
+        CommonRefactoringUtil.showErrorHint(project, editor, message("elaborate.code.no.module"), getTemplateText, null)
         return
       }
       (compiledVirtualFile.getName, compiledVirtualFile.contentsToByteArray(), true, classpathOf(module))
     }
 
-    val (compilerText, pluginText) = withProgressSynchronously(s"Elaborating ${cls.name}...") {
+    val (compilerText, pluginText) = withProgressSynchronously(message("elaborate.code.elaborating", cls.name)) {
       val compilerText = if (!isScala3) "" else {
         val decompiler = Decompiler(classpath, Decompiler.classLoader(getClass.getClassLoader))
         decompiler.decompile(tastyFileName, tastyFileContents.toIndexedSeq)
@@ -98,12 +98,14 @@ class ElaborateCodeAction extends AnAction(message("elaborate.code.action.text")
     }
 
     if (!isScala3) {
-      val file = new LightVirtualFile(s"${cls.name} (elaborated)", psiFile.getFileType, pluginText)
+      val file = new LightVirtualFile(message("elaborate.code.elaborated", cls.name), psiFile.getFileType, pluginText)
       FileEditorManager.getInstance(project).requestOpenFile(file, FileEditorOpenRequest.withFocus(true))
     } else {
+      val leftTitle = s"${message("elaborate.code.compiler")}${if (upToDate) "" else s" (${message("elaborate.code.outdated")})"}"
+      val rightTitle = s"${message("elaborate.code.plugin")}"
       val left = DiffContentFactory.getInstance.create(project, compilerText, Scala3FileType)
       val right = DiffContentFactory.getInstance.create(project, pluginText, Scala3FileType)
-      DiffManager.getInstance.showDiff(project, new SimpleDiffRequest("Elaboration of " + cls.qualifiedName, left, right, "Compiler" + (if (upToDate) "" else " (outdated, please recompile):"), "Plugin:"))
+      DiffManager.getInstance.showDiff(project, new SimpleDiffRequest(message("elaborate.code.elaboration", cls.qualifiedName), left, right, leftTitle, rightTitle))
     }
   }
 
