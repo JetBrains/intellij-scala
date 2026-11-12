@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 import com.intellij.ide.actions.{SaveAllAction, SaveDocumentAction}
 import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, AnActionResult, CommonDataKeys}
+import com.intellij.openapi.application.WriteIntentReadAction
 import com.intellij.openapi.command.CommandProcessor.{getInstance => CommandProcessor}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, TextEditor}
@@ -79,7 +80,15 @@ final class ScalafmtReformatOnFileSaveTask extends AnActionListener {
       isFileSupported(psiFile) && isInProjectSources(psiFile, vFile)
     }
     if (isFileSupportedAndInSources) {
+      val wasSavedByAction = !fileDocumentManager.isDocumentUnsaved(document)
       ScalaFmtPreFormatProcessor.formatWithoutCommit(psiFile, document, respectProjectMatcher = true)
+      // The Save action already wrote the document before this listener ran. Scalafmt can
+      // change it afterward, so persist that new edit now rather than relying on a later
+      // automatic save. Do not retry a document whose original save was vetoed or failed.
+      if (wasSavedByAction && fileDocumentManager.isDocumentUnsaved(document)) {
+        // Action listeners may lack write intent; saveDocument requires it.
+        WriteIntentReadAction.run(() => fileDocumentManager.saveDocument(document))
+      }
     }
   }
 
